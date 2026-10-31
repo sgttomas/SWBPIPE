@@ -237,7 +237,8 @@ canonical JSON text and the exact `before` texts its admitted edits and
 deletions require, as the applier compares them: the engine's canonical JSON
 for a component and a support configuration, and for a deletion the applier's
 own summary (trimmed label; a node's coordinates in the applier's number form,
-which never uses an exponent). A record whose deletion the applier would refuse
+which never uses an exponent), built by the same `removalIntents.ts` formatters
+as the inspector's Delete. A record whose deletion the applier would refuse
 for a missing label or coordinate carries no `delete` text. The bounds:
 
 - Each text (`recordText` and every `before` value): the UTF-8 byte length of
