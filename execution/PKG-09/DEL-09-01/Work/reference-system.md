@@ -142,10 +142,13 @@ component needs one; the generator records what it writes.
   sections as `material_density`).
 - `temperature_points` (elastic modulus, invented): 20 °C 200 GPa; 100 °C 195 GPa;
   200 °C 189 GPa; 300 °C 182 GPa. Each point repeats ν and α.
-- The operating case selects its modulus by `modulus_basis_temperature` at the
-  operating temperature (interpolated between points, DEC-077/092). The temperature
-  table is a Must family (RT-G3) and stays in the fixture even though the MBF writer
-  refuses it (§11.1).
+- The operating case selects each member's modulus at the operating temperature
+  through its element state's `material_selection` (`kind: temperature_interpolation`,
+  210 °C, interpolated between points). The case-level `modulus_basis_ref` and
+  `modulus_basis_temperature` (DEC-077/092) are not used: on a load/reference-state
+  document they are refused (`LOAD_STATE_CASE_MODULUS_BASIS_UNSUPPORTED`). The
+  temperature table is a Must family (RT-G3) and stays in the fixture even though the
+  MBF writer refuses it (§11.1).
 
 ### 4.2 Sections (invented, non-standard)
 
@@ -172,7 +175,7 @@ default k, SIF or stiffness.
 | RS-B2 | realized bend | RS-P085 | R 0.400 m, 90°; k 4.2; SIF 2.1 / 1.8 |
 | RS-B3 | realized bend | RS-P225 | R 0.250 m, 90°; k 3.6; SIF 2.3 / 1.9 |
 | RS-T1 | `tee` at RS-130 | header `RS-P120`, branch `RS-P210` | `branch_header_sif_user_value` 2.4; `branch_branch_sif_user_value` 2.0; connection angle 90° |
-| RS-R1 | `reducer`, eccentric | RS-P150, node RS-160 | end sizes 270 / 220 mm; `eccentric_offset` (0, 0, −25) mm; weight 300 N, CoG at the body midpoint; stiffness scale 2.0 |
+| RS-R1 | `reducer`, eccentric | RS-P150, node RS-160 | end sizes 270 / 220 mm; `eccentric_offset` (0, 0, +25) mm (from the centreline at RS-160 to the centreline at RS-150, the body's other end); weight 300 N, CoG at the body midpoint; stiffness scale 2.0 |
 | RS-F1 | `flange` | RS-P020, node RS-030 | weight 350 N; CoG at the body midpoint; stiffness scale 10.0 |
 | RS-V1 | `valve` | RS-P030, node RS-040 | weight 2600 N; CoG offset (0, 0, +0.30) m from the body midpoint (actuator above); stiffness scale 10.0 |
 | RS-F2 | `flange` | RS-P040, node RS-050 | weight 350 N; CoG at the body midpoint; stiffness scale 10.0 |
@@ -185,13 +188,19 @@ that vector.
 
 ### 5.1 Expansion joint RS-EJ1
 
-- Topology `replaces_span` RS-P180 (0.600 m). Connector axes: x along global +Y (the
-  pipe axis), y along global +X, z along global +Z. Attachment offsets zero (required
-  for a pressurized joint).
+- Topology `replaces_span` RS-P180 (0.600 m). Connector axes, a right-handed triad: x
+  along global +Y (the pipe axis), y along global −X, z along global +Z. Attachment
+  offsets zero (required for a pressurized joint).
 - Work matrix (diagonal, invented): axial 150 kN/m; lateral 400 kN/m in each lateral
   direction; bending 1.5 kN·m/rad about each lateral axis; torsion 500 kN·m/rad.
 - `reference_state` `stress_free`; `q_ref` zero; installed reference temperature
-  20 °C.
+  20 °C with `temperature_applicability` `fixed_installed_parameters_v1`: the
+  connector has no temperature law, so the operating temperature does not change its
+  parameters.
+- The replaced span RS-P180 carries no load, member result or self-weight. It is
+  excluded from weight generation and from every primitive load, and its element
+  state in each case has zero eigenstrain (`thermal_state` `unchanged_reference`). A
+  load on the replaced span is refused (`JOINT_REPLACED_SPAN_LOAD_UNOWNED`).
 - `pressure_model` `constant_effective_area_reference_v1`, effective area 0.0490 m².
 - `hardware` `explicit_axial_rods_v1`, two bilateral linear rods at connector
   y = ±0.200 m (z = 0), each 1.2 × 10⁸ N/m, reference extension zero.
@@ -252,7 +261,8 @@ joined to its neighbours at its end nodes.
 ## 8. Load cases, combinations and analyses
 
 Operating pressure 1600 kPa; test pressure 2600 kPa; installation temperature 20 °C;
-operating temperature 210 °C on every member. All are invented. Under 0.9.0 the
+operating temperature 210 °C on every member except the replaced span RS-P180 (§5.1).
+All are invented. Under 0.9.0 the
 operating condition is one condition set applied to every member
 (`condition_sets[]`, `pipe_segments[].condition_set_ref`, `load_cases[].condition_use`);
 under 0.8.0 it is authored per case.
@@ -278,7 +288,7 @@ times, so they are differences, not the plain occasional cases (load-cases manag
 | RS-EQZ | W + P + seismic, `g_factor_z` 0.20 | Static seismic, Z |
 | RS-SAM | W + P + anchor RS-C moved UX +15 mm, UY −10 mm | Seismic anchor movement |
 
-W is generated self-weight of every member (gravity as §2), with component weights at
+W is generated self-weight of every member except RS-P180 (gravity as §2), with component weights at
 their centres of gravity in place of their members' distributed weight (W-15). Wind is
 DEC-068's uniform pressure over the marked members (wind on a replaced span is
 refused). On EX, the anchor movement is `analysis_state.support_states[].boundary_motion`
@@ -373,8 +383,8 @@ belong to RT-A11's owner, not yet assigned. The geometry slots and the key resul
 |---|---|---|
 | EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-HYD (with the test contents) | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
 | EQ-2 | In RS-SUS, RS-OPE and RS-HYD the horizontal reaction resultant is zero, and the reaction moment resultant equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
-| EQ-3 | RS-EXP equals RS-OPE − RS-SUS row by row | exact identity |
-| EQ-4 | RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\|, recomputed from the published operand rows; hence SRSS ≤ ABS, row by row | exact identity |
+| EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded | exact identity |
+| EQ-4 | On the same signed component rows, RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\| over the operand rows, so SRSS ≤ ABS on each. Magnitude rows follow the combination's own recomputation rule, as for EQ-3; withheld rows are excluded | exact identity |
 | EQ-5 | The RS-dSAM reactions are self-equilibrated (resultant force and moment zero) | exact identity: no load differs between RS-SAM and RS-SUS |
 | EQ-6 | The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of RS-dEQx equals minus the factor times g times the total mass on the generator's stated mass basis | closed form from the inputs |
 | EQ-7 | Spectrum directional combination recomputed from the published per-direction results | exact identity |
@@ -397,7 +407,7 @@ or absence a solve of the full model shows today.
 | Expansion joint with tie rods, pressurized | in tranche 1 | — | — |
 | Pressure (five regions, shared terminals `transfers_to_wall`) | in tranche 1 | — | — |
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
-| Variable spring as a user-stiffness spring | in tranche 1 if EX admits the `variable_spring_hanger` family; otherwise pending with RT-A3. The generator records which | RT-S3 / RT-A3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` if refused |
+| Variable spring as a user-stiffness spring | in tranche 1 | — | — |
 | Tee RS-T1 with user SIFs | pending; the junction at RS-130 is in tranche 1 without the component | RT-A3 increment 1 (`claude/rt-a3-tee`) | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
@@ -405,7 +415,7 @@ or absence a solve of the full model shows today.
 | RS-SUS, RS-OPE (thermal, modulus by temperature) | in tranche 1 as linear cases (load/reference-state group) | — | — |
 | RS-EXP | in tranche 1 as a subtraction; `difference_basis` pending | RT-A5 slice 1b / load-cases lane (0.9.0) | basis not recorded |
 | RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature | pending | #1678 / load-cases lane | `EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED` |
-| RS-SAM (`boundary_motion`) | in tranche 1 if it solves beside the temperature state; it shares #1678's conflict with wind and seismic | RT-A10 / load-cases lane (#1678); RT-A3 for plain EX documents | — |
+| RS-SAM (`boundary_motion` on rigid anchor RS-C) | in tranche 1, on the load/reference-state document beside the temperature state; it shares #1678's conflict with wind and seismic | — (plain EX documents: RT-A3) | — |
 | RS-EQ-SRSS, RS-EQ-ABS, RS-OCC-SRSS, RS-OCC-ABS | pending | RT-A4 / load-cases lane (0.9.0 S1, then its slice) | not authorable at 0.8.0 |
 | RS-HYD | pending | RT-A6 / load-cases lane (0.9.0, then its slice) | not authorable at 0.8.0 |
 | Operating condition set | pending | RT-G5 / load-cases lane (0.9.0) | authored per case at 0.8.0 |
@@ -428,7 +438,6 @@ today are:
 - the temperature-dependent modulus table (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`):
   a gap for the MBF lane, which Agent 0 will staff. The family stays in the fixture;
   it is not dropped to make criterion 6 pass;
-- user SIFs on bends (not written; Q-6);
 - the tee, the reducer, the valve and flanges, the expansion joint and its rods;
 - the gap, lift-off and friction supports, the constant-effort support, and the
   variable spring as a hanger;
@@ -489,6 +498,14 @@ families it needs, by the applier's existing vocabulary (`core/model_operations/
 
 RT-E1's milestone 2 takes its admitted kinds from this table. The key results the agent
 reports are §9.1's.
+
+**Bend k is user entry.** The applier refuses a flexibility factor k without a user
+entry and its source (`OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED`, `bend_authoring.rs`),
+and the host refuses an agent-written k (DEL-16-06 `Work/embedded-agent-host.md`).
+Catalog admission alone cannot let the agent realize B1–B3. RT-E1 needs a route in
+which the person enters k and its source (here, §5's values) and the operation records
+the person as that value's author, without relabelling agent authorship. This is an
+RT-E1 dependency of criterion 17, not a change to the fixture.
 
 ## 12. Maintaining this document
 

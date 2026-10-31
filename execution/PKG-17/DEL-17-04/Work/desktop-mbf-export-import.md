@@ -123,7 +123,7 @@ Criterion 1 lists the reference system's contents. On `main` today:
 | Straight pipe; temperature-independent material; section | RT-G1, RT-G3 | written | read |
 | Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`) | refused (O-7 ruling) |
 | Realized bend with user k | RT-K1 | written | read |
-| User SIFs | RT-K1 | not written, and not reported: the writer test's invented L with `sif_in_plane_user_value` and `sif_out_of_plane_user_value` writes byte-identical text, with no loss entry or diagnostic (Q-6) | later ("SIF user values", import Design §20.3) |
+| User SIFs | RT-K1 | a realized bend's directional pair is written as the bend comment `BSIF` (#1730); the scalar `sif_user_value` is not written | read: `BSIF` on a bend row restores the pair |
 | Tee with user modifiers | RT-K2 | refused (`MBF-SI-COMPONENT-UNSUPPORTED`) | not read |
 | Eccentric reducer, valves, flanges, rigid items, weight at CoG | RT-K3 | refused | later (§20.3) |
 | Expansion joint with tie rods | RT-K4 | refused | not read; not in §20.3 |
