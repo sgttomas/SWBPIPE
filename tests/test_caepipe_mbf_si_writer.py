@@ -37,7 +37,7 @@ def q(value, unit):
 
 def model_shell(length_unit="m"):
     return {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "invented", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "project": {"id": "invented:mbf-si", "units": {"length": length_unit, "force": "N", "temperature": "degC"}},
@@ -970,18 +970,18 @@ def test_bend_with_other_properties_than_its_incoming_straight_is_refused():
 # document. A retired one is refused by name with the solve's code and text, and nothing is written; any other
 # non-current version is refused as MBF-SI-SCHEMA-VERSION.
 def test_a_retired_model_document_is_refused_by_name_and_nothing_is_written():
-    for version in ("0.7.0", "0.1.0"):
+    for version in ("0.8.0", "0.7.0", "0.1.0"):
         model = cantilever()
         model["schema_version"] = version
         result = render_caepipe_mbf_si(model, title="Invented retired cantilever")
         assert (result.status, result.text) == ("refused", None), version
         refusal = [d for d in result.diagnostics if d["code"] == "MODEL_SCHEMA_VERSION_RETIRED"]
         assert refusal == [{"code": "MODEL_SCHEMA_VERSION_RETIRED", "severity": "error", "entity": "model.schema_version",
-                            "message": f"model document {version} is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated."}]
+                            "message": f"model document {version} is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated."}]
 
 
 def test_a_newer_or_unversioned_model_document_is_refused():
-    for version in ("0.9.0", None):
+    for version in ("0.10.0", None):
         model = cantilever()
         model["schema_version"] = version
         result = render_caepipe_mbf_si(model, title="Invented newer cantilever")
