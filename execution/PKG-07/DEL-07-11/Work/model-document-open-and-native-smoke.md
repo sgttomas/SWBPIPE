@@ -49,8 +49,8 @@ export use their existing routes unchanged.
     (model document 0.9.0, §2.4) `combination`, as a string, with a number
     `factor`; a term naming neither or both is refused. A
     `result_state_subtraction` or `range_envelope` may omit `terms` (its
-    operands are its own members), and every other basis carries it. A present,
-    non-null `minuend_id`, `subtrahend_id` or `mode` is a string and
+    operands are its own members), and every other basis carries it. A present
+    `minuend_id`, `subtrahend_id` or `mode` is a string and
     `operand_ids` an array of strings (the load manager interpolates and joins
     them). The views read an absent `terms` as absent: the load manager's row
     and delete display, the property readout and the inspector show the stored

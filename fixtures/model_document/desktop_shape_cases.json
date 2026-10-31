@@ -814,6 +814,26 @@
           "code": "MODEL-FILE-SHAPE",
           "path": "combinations[3].operand_ids[2]",
           "message": "combinations[3].operand_ids[2] is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].minuend_id",
+          "message": "combinations[3].minuend_id is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].subtrahend_id",
+          "message": "combinations[3].subtrahend_id is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[4].mode",
+          "message": "combinations[4].mode is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[4].operand_ids",
+          "message": "combinations[4].operand_ids is null; array required."
         }
       ]
     },

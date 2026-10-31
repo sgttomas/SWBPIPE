@@ -172,12 +172,12 @@ export function modelDocumentShapeDiagnostics(document: unknown): ModelFileDiagn
         });
       }
       // The subtraction and envelope operands, interpolated and joined by the load
-      // manager's rows: a present, non-null member is a string, or an array of them.
+      // manager's rows: a present member is a string, or an array of them.
       if (member === "combinations") {
         for (const key of ["minuend_id", "subtrahend_id", "mode"]) {
-          if (record[key] !== undefined && record[key] !== null) need(record[key], `${at}.${key}`, "string");
+          if (record[key] !== undefined) need(record[key], `${at}.${key}`, "string");
         }
-        if (record.operand_ids !== undefined && record.operand_ids !== null && need(record.operand_ids, `${at}.operand_ids`, "array")) {
+        if (record.operand_ids !== undefined && need(record.operand_ids, `${at}.operand_ids`, "array")) {
           (record.operand_ids as unknown[]).forEach((value, item) => need(value, `${at}.operand_ids[${item}]`, "string"));
         }
       }

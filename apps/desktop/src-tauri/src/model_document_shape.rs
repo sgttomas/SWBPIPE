@@ -285,14 +285,14 @@ pub fn model_document_shape_diagnostics(document: &Value) -> Vec<ShapeDiagnostic
                             shape.need(term.get("factor"), &format!("{term_at}.factor"), Kind::Number);
                         }
                     }
-                    // The subtraction and envelope operands: a present, non-null
+                    // The subtraction and envelope operands: a present
                     // member is a string, or an array of them.
                     for key in ["minuend_id", "subtrahend_id", "mode"] {
-                        if let Some(value) = record.get(key).filter(|value| !value.is_null()) {
+                        if let Some(value) = record.get(key) {
                             shape.need(Some(value), &format!("{at}.{key}"), Kind::String);
                         }
                     }
-                    if let Some(operands) = record.get("operand_ids").filter(|value| !value.is_null()) {
+                    if let Some(operands) = record.get("operand_ids") {
                         if shape.need(Some(operands), &format!("{at}.operand_ids"), Kind::Array) {
                             for (item, value) in operands.as_array().into_iter().flatten().enumerate() {
                                 shape.need(Some(value), &format!("{at}.operand_ids[{item}]"), Kind::String);
