@@ -872,11 +872,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46",
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
-        "c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb",
-        "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41",
-        "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c",
+        "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
+        "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1",
+        "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
-        "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
+        "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.

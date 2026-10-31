@@ -22,7 +22,7 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "913d248b387ecba3dd668493aa2176719965715c20b7d419c63b35c7d7f3657f";
+    "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -594,7 +594,7 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41";
+const EXACT_TABLE_HASH: &str = "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {

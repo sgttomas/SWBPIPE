@@ -44,7 +44,7 @@ PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
 # T4-U4b §4.3: + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
-PRESSURE_TABLE_SHA256 = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
+PRESSURE_TABLE_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the exact contract a captured invocation must author
 # (b7-plan "Current model format"; O4 §3.4): 0.9.0, `pressure_contract` present, either shear model.

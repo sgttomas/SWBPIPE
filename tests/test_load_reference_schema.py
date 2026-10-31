@@ -33,7 +33,7 @@ CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
-PRESSURE_SHA = "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6"
+PRESSURE_SHA = "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
