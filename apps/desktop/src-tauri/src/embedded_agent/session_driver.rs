@@ -690,7 +690,7 @@ mod tests {
             assert_eq!(sent[2]["method"], "thread/start");
             assert_eq!(
                 sent[2]["params"]["dynamicTools"].as_array().unwrap().len(),
-                6
+                7
             );
             assert_eq!(sent[2]["params"]["approvalPolicy"], "never");
             assert_eq!(

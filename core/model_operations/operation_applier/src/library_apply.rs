@@ -465,6 +465,17 @@ pub(crate) fn resolve(model: &Value, intent: &Value) -> Result<GeometryEdit, Geo
     Ok(GeometryEdit { model: candidate, diff_preview })
 }
 
+/// True when the change writes any user-entered modifier member (k, a SIF,
+/// a stiffness scaling or stiffness, or the modifier source; RT-E1 M2-D1).
+pub(crate) fn writes_modifiers(intent: &Value) -> bool {
+    intent
+        .pointer("/change/after")
+        .and_then(Value::as_str)
+        .and_then(|after| serde_json::from_str::<Value>(after).ok())
+        .and_then(|after| after.as_object().map(|o| o.keys().any(|k| k.starts_with("modifiers."))))
+        .unwrap_or(false)
+}
+
 /// True when the change writes the user-entered bend flexibility factor k
 /// (an agent never writes it, T4-I11 D-G).
 pub(crate) fn writes_flexibility(intent: &Value) -> bool {

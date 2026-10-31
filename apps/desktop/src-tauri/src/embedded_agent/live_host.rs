@@ -1026,7 +1026,7 @@ fn validate_actual(
         return Err(Error::Evidence);
     }
     match proof {
-        Proof::Read if matches!(meta.tool, Tool::Summary | Tool::Nodes) => {}
+        Proof::Read if matches!(meta.tool, Tool::Summary | Tool::Nodes | Tool::ReadRecords) => {}
         Proof::Failure
             if value["data"].is_null()
                 && matches!(

@@ -269,6 +269,7 @@ function AppSession() {
     handleQueueEditorIntent,
     handleClearReviewQueue,
     handleQueueOperationBatch,
+    handleRequeueRetainedRecord,
     registerOperationBatch,
     handleRunOperationBatch,
     handleDismissRetiredBatch,
@@ -375,6 +376,7 @@ function AppSession() {
     [orderedSelection.orderedKeys]
   );
   const [bulkChangeFocusRequest, setBulkChangeFocusRequest] = useState(0);
+  const [requeueRefusal, setRequeueRefusal] = useState<{ index: number; message: string } | null>(null);
   const openBulkChange = () => {
     setActiveSection("operations");
     setOperationTab("bulk");
@@ -556,9 +558,10 @@ function AppSession() {
                     <summary>{String(intent?.operation_id ?? "Unrecognized operation record")} — proposed context; acceptance unknown</summary>
                     <pre>{JSON.stringify(intent, null, 2)}</pre>
                     <button type="button" data-testid={`requeue-context-${index}`} disabled={operationBusy} title={operationBusy ? "Wait for the current operation to finish." : undefined}
-                      onClick={() => void handleQueueOperationBatch({ batch_id: `requeue-${index}`, operations: [intent] })}>
+                      onClick={() => void handleRequeueRetainedRecord(intent, index).then(refusal => setRequeueRefusal(refusal ? { index, message: refusal } : null))}>
                       Requeue for fresh validation
                     </button>
+                    {requeueRefusal?.index === index ? <p role="alert" data-testid={`requeue-refusal-${index}`}>{requeueRefusal.message}</p> : null}
                   </details>
                 ))}
               </section>

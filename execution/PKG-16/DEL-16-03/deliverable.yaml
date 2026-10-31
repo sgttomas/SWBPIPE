@@ -185,9 +185,15 @@ code_paths:
 - core/model_operations/operation_applier/src/atomic_batch.rs
 - apps/desktop/src/features/operations/OperationLedgerPanel.tsx
 - apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
+- apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx
+- apps/desktop/src/services/operationAuthorship.ts
 checks:
 - tests/test_model_operation_schema.py
 - tests/test_operation_audit_trail.py
 - tests/test_operation_validation_preview.py
 - apps/desktop/src/services/operationBatchService.test.ts
 - apps/desktop/src/App.test.tsx
+- apps/desktop/src/services/operationAuthorship.test.ts
+- apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx
+- apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
+- core/model_operations/operation_applier/tests/user_entered_modifiers.rs

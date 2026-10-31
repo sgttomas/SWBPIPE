@@ -59,7 +59,9 @@ source units and negative zero. Results use existing numerical overlay policy;
 this initial adapter conservatively withholds retained-precision values rather
 than substituting rounded binary64. Catalog version 3 adds the W9-A build
 discriminators, a host stamp for the constant intent fields and a filter on
-result reads ([host design](embedded-agent-host.md)). Criterion 17's remaining
+result reads ([host design](embedded-agent-host.md)); version 4 adds component,
+support-configuration and deletion intents and a record read with exact before
+texts. Criterion 17's remaining
 discriminators, retained source-value presentation and the actual desktop
 review witness remain open.
 
