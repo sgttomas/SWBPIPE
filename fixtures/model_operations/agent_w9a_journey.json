@@ -535,8 +535,8 @@
       "change_kind": "set_field",
       "field_label": "exact route, Euler-Bernoulli",
       "field_path": "pressure_profile",
-      "before": "{\"schema_version\":\"0.8.0\"}",
-      "after": "{\"schema_version\":\"0.8.0\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"}}",
+      "before": "{\"schema_version\":\"0.9.0\"}",
+      "after": "{\"schema_version\":\"0.9.0\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"}}",
       "unit": "none",
       "dimension": "dimensionless",
       "source_note": "Stated in the person's W9-A request."
