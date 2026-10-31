@@ -397,8 +397,8 @@ results of §9.1 are fixed here.
 
 | Id | Check | Basis |
 |---|---|---|
-| EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-HYD (with the test contents) | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
-| EQ-2 | In RS-SUS, RS-OPE and RS-HYD the horizontal reaction resultant is zero, and the reaction moment resultant equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
+| EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
+| EQ-2 | In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
 | EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded | exact identity |
 | EQ-4 | On the same signed component rows, RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\| over the operand rows, so SRSS ≤ ABS on each. Magnitude rows follow the combination's own recomputation rule, as for EQ-3; withheld rows are excluded | exact identity |
 | EQ-5 | The RS-dSAM reactions are self-equilibrated (resultant force and moment zero) | exact identity: no load differs between RS-SAM and RS-SUS |
@@ -406,7 +406,11 @@ results of §9.1 are fixed here.
 | EQ-7 | Spectrum directional combination recomputed from the published per-direction results | exact identity |
 
 Each closed-form reference is computed by an independent generator in
-`validation/references/reference_system/`, not by the solver under test.
+`validation/references/reference_system/`, not by the solver under test. EQ-1 and EQ-2 are
+frozen there for the tranche-1 cases (the total weight and its moment about the origin,
+recomputed from §3–§5 without the captured self-weight); EQ-3 and EQ-5 are identities
+recorded in its README. `tests/test_reference_system_fixture.py` checks all four in both
+solver modes. RS-HYD's weight with the test contents is referenced when RS-HYD lands.
 
 ## 10. Pending-family ledger
 
