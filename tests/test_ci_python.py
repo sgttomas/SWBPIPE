@@ -377,6 +377,31 @@ def test_a_path_only_a_python_test_reads_starts_the_python_job():
         selection = hosted_ci.select_paths([path], profile)
         assert selection['modes']['piping-python'] == 'full', path
         assert path in selection['reasons']['piping-python']
-    # The always-run security tests read their policy documents.
+    # The always-run security tests read their policy documents; the claims-language test reads every doc.
     assert hosted_ci.select_paths(['docs/security/telemetry_policy.md'], profile)['modes']['piping-python'] == 'full'
-    assert hosted_ci.select_paths(['docs/PRD.md'], profile)['modes']['piping-python'] == 'not-applicable'
+    assert hosted_ci.select_paths(['docs/PRD.md'], profile)['modes']['piping-python'] == 'full'
+    assert hosted_ci.select_paths(['loop/LOOP_INIT.md'], profile)['modes']['piping-python'] == 'not-applicable'
+
+
+def test_claims_language_surface_test_follows_the_validator_s_inputs():
+    """The declared verification (DEL-04-08 VER-008) runs when any input of its validator changes: its
+    CI_READS are the validator's own `input_patterns()`, less the execution/ surface the Python job lacks."""
+    test = 'tests/test_claims_language_surface.py'
+    assert test not in ci.UNROUTED
+    import sys
+    spec = importlib.util.spec_from_file_location('claims_inputs', PROJECT / 'tools/validation/validate_claims_language.py')
+    validator = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = validator  # its dataclasses resolve their module
+    try:
+        spec.loader.exec_module(validator)
+    finally:
+        del sys.modules[spec.name]
+    # fnmatch's `*` spans `/`: a trailing `/*` is the whole tree.
+    expected = tuple(pattern[:-1] + '**' if pattern.endswith('/*') else pattern
+                     for pattern in validator.input_patterns() if not pattern.startswith('execution/'))
+    assert ci.python_test_reads.declared_reads(PROJECT)[test] == expected
+    for path in ('docs/PRD.md', 'docs/user_guide/index.md', 'apps/desktop/src/App.tsx',
+                 'core/reporting/report_renderer/src/lib.rs', 'tools/validation/validate_claims_language.py'):
+        assert test in selected(path), path
+    assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert test not in selected('loop/LOOP_INIT.md')

@@ -53,8 +53,9 @@ Python- or Rust-only diffs outside those inputs do not select it. Docs that
 desktop tests read select it, and with it the product job. A Markdown file that
 desktop source only names, as a string outside tests, test-support and lines that
 import, require, fetch, read or open it, and under no named directory, is display
-text: an in-place edit of it (a regular file before and after) selects nothing,
-while adding, deleting, renaming or retyping it still selects the suite. The plan lists such edits as `named_document_edits`. An unreadable
+text: an in-place edit of it (a regular file before and after) does not select the
+suite, while adding, deleting, renaming or retyping it still does. (Under `docs/`,
+the edit still starts the Python job for the claims-language test.) The plan lists such edits as `named_document_edits`. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
 so a pass without it is never reused for a run that needs it. The product job

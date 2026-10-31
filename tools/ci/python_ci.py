@@ -96,10 +96,6 @@ PREFIX_TESTS = {
 
 # Maintained tests deliberately left unrouted, each with its reason.
 UNROUTED = {
-    # A removal candidate: it duplicates a required check.
-    'tests/test_claims_language_surface.py':
-        "runs tools/validation/validate_claims_language.py on the live tree, as Repository checks' claims-language step "
-        'does on every PR',
     'core/solver/performance_harness/runner/test_k6_runner.py':
         'collected through tests/test_performance_harness_runner.py, which imports every test class it defines',
 }

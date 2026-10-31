@@ -15,6 +15,20 @@ from pathlib import Path
 
 from tests.public_export import monorepo_only
 
+# The validator's own `input_patterns()`, for CI selection (tools/ci/python_test_reads.py), with fnmatch's
+# `/`-spanning `*` written `**`. Its `execution/PKG-*/DEL-*/ScopeOfWork.md` surface is left out: the Python job
+# does not check out execution/, and Repository checks runs the validator over it. tests/test_ci_python.py
+# keeps the two lists equal.
+CI_READS = (
+    "apps/desktop/src/**",
+    "docs/**",
+    "docs/PRD.md",
+    "core/reporting/report_renderer/src/lib.rs",
+    "apps/desktop/src/features/result-export/csvTable.ts",
+    "docs/claims_registry.md",
+    "tools/validation/validate_claims_language.py",
+)
+
 
 def _repo_root() -> Path:
     for parent in Path(__file__).resolve().parents:
