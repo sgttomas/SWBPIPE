@@ -162,29 +162,115 @@ fn basis_suffix(basis: Option<SectionBasis>) -> &'static str {
     basis.map_or("", |b| b.basis_suffix())
 }
 
-/// The value of the one published row of `pipe` with this kind, location and
-/// basis (component when given), or `None`.
-fn published(results: &[ResultItem], pipe: &str, kind: &str, component: Option<&str>, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
+/// The published row kinds the station quantities read (`published`).
+const READ_KINDS: [&str; 6] = [
+    "element_local_axial_normal_stress",
+    "pipe_axial_membrane_stress_v2",
+    "element_local_bending_normal_stress_y",
+    "element_local_bending_normal_stress_z",
+    "element_local_shear_force_y",
+    "element_local_shear_force_z",
+];
+const AXIAL: usize = 0;
+const MEMBRANE: usize = 1;
+const BENDING_Y: usize = 2;
+const BENDING_Z: usize = 3;
+const SHEAR_Y: usize = 4;
+const SHEAR_Z: usize = 5;
+
+/// RT-A3 increment 1b (DEL-04-07 Work `route-unification-r4.md` §5.4a): which
+/// entities already have rows in this case's `results`, so that a member's
+/// lookups need not scan every earlier row. Within one member's iteration
+/// the case loop only appends rows, edits rows of that member, or removes rows
+/// of that member (`bend_pressure::append_arc_pressure_results`), so when no
+/// row of the member precedes its start, its first matching row is its first
+/// matching row from the start on. When one does precede it (a repeated
+/// element id), the lookup scans every row, as before.
+#[derive(Debug, Default)]
+pub(crate) struct PublishedScope {
+    synced: usize,
+    entities: HashSet<String>,
+    stale: bool,
+}
+
+impl PublishedScope {
+    /// Called at the start of a member's iteration, before it publishes a row:
+    /// the position its rows start from, or `None` when a row of `pipe`
+    /// already precedes it.
+    pub(crate) fn begin(&mut self, results: &[ResultItem], pipe: &str) -> Option<usize> {
+        if self.stale || self.synced > results.len() {
+            self.entities.clear();
+            self.synced = 0;
+            self.stale = false;
+        }
+        for row in &results[self.synced..] {
+            if !self.entities.contains(&row.entity_ref) {
+                self.entities.insert(row.entity_ref.clone());
+            }
+        }
+        self.synced = results.len();
+        if self.entities.contains(pipe) {
+            // The member may remove rows before `synced`; rebuild next time.
+            self.stale = true;
+            None
+        } else {
+            Some(self.synced)
+        }
+    }
+}
+
+/// One member's rows of the read kinds at each station, in `results` order,
+/// from its start; extended over rows appended since the last lookup.
+#[derive(Debug)]
+pub(crate) struct MemberRows<'a> {
+    pipe: &'a str,
+    start: Option<usize>,
+    scanned: usize,
+    slots: [[Vec<usize>; 5]; 6],
+}
+
+impl<'a> MemberRows<'a> {
+    pub(crate) fn new(pipe: &'a str, start: Option<usize>) -> Self {
+        MemberRows { pipe, start, scanned: start.unwrap_or(0), slots: Default::default() }
+    }
+}
+
+/// The value of the one published row of the member with this kind, location
+/// and basis (component when given), or `None`: the first such row of
+/// `results`.
+fn published(results: &[ResultItem], rows: &mut MemberRows<'_>, kind: usize, component: Option<&str>, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
     let suffix = basis_suffix(basis);
-    results
-        .iter()
-        .find(|r| {
-            r.entity_ref == pipe
-                && r.kind == kind
-                && r.metadata.as_ref().is_some_and(|m| {
-                    m.location == location
-                        && component.is_none_or(|c| m.component == c)
-                        && (if suffix.is_empty() { !m.basis.contains("; section_basis=") } else { m.basis.ends_with(suffix) })
-                })
-        })
-        .map(|r| r.value)
+    let matches = |r: &ResultItem| {
+        r.entity_ref == rows.pipe
+            && r.kind == READ_KINDS[kind]
+            && r.metadata.as_ref().is_some_and(|m| {
+                m.location == location
+                    && component.is_none_or(|c| m.component == c)
+                    && (if suffix.is_empty() { !m.basis.contains("; section_basis=") } else { m.basis.ends_with(suffix) })
+            })
+    };
+    let (Some(_), Some(station)) = (rows.start, STATIONS.iter().position(|s| *s == location)) else {
+        return results.iter().find(|r| matches(r)).map(|r| r.value);
+    };
+    for (offset, r) in results[rows.scanned..].iter().enumerate() {
+        let index = rows.scanned + offset;
+        if r.entity_ref != rows.pipe {
+            continue;
+        }
+        let (Some(k), Some(m)) = (READ_KINDS.iter().position(|k| *k == r.kind), r.metadata.as_ref()) else { continue };
+        if let Some(s) = STATIONS.iter().position(|s| *s == m.location) {
+            rows.slots[k][s].push(index);
+        }
+    }
+    rows.scanned = results.len();
+    rows.slots[kind][station].iter().map(|&i| &results[i]).find(|r| matches(r)).map(|r| r.value)
 }
 
 /// §2.3: σ_N of one station and basis (MPa): the axial component row, or on a
 /// pressurized pressure-2 member RN(membrane / 1e6).
-fn sigma_n(results: &[ResultItem], pipe: &str, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
-    published(results, pipe, "element_local_axial_normal_stress", None, location, basis).or_else(|| {
-        published(results, pipe, "pipe_axial_membrane_stress_v2", None, location, basis).map(q::pa_to_mpa)
+fn sigma_n(results: &[ResultItem], rows: &mut MemberRows<'_>, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
+    published(results, rows, AXIAL, None, location, basis).or_else(|| {
+        published(results, rows, MEMBRANE, None, location, basis).map(q::pa_to_mpa)
     })
 }
 
@@ -295,6 +381,7 @@ pub(crate) fn final_row_id(model: &PreviewModel, case_id: &str, id: &str, kind: 
 pub(crate) fn append_station_quantities(
     model: &PreviewModel,
     results: &mut Vec<ResultItem>,
+    rows: &mut MemberRows<'_>,
     diagnostics: &mut Vec<Diagnostic>,
     m: &MemberQuantities<'_>,
 ) -> StationOutputs {
@@ -355,9 +442,9 @@ pub(crate) fn append_station_quantities(
         // σ⁺/σ⁻ then τ, each nominal row followed by its reduced twin.
         let mut extremes = Vec::new();
         for (slot, b) in m.bases.iter().enumerate() {
-            let operands = sigma_n(results, m.pipe_id, location, b.basis).zip(
-                published(results, m.pipe_id, "element_local_bending_normal_stress_y", None, location, b.basis)
-                    .zip(published(results, m.pipe_id, "element_local_bending_normal_stress_z", None, location, b.basis)),
+            let operands = sigma_n(results, rows, location, b.basis).zip(
+                published(results, rows, BENDING_Y, None, location, b.basis)
+                    .zip(published(results, rows, BENDING_Z, None, location, b.basis)),
             );
             let Some((n, (y, z))) = operands else { continue };
             let e = q::normal_stress_extremes(n, y, z);
@@ -380,8 +467,8 @@ pub(crate) fn append_station_quantities(
             }
         }
         // τ_v,max: the section shear rows inside; the end-force rows at the ends.
-        let shears = published(results, m.pipe_id, "element_local_shear_force_y", None, location, None)
-            .zip(published(results, m.pipe_id, "element_local_shear_force_z", None, location, None));
+        let shears = published(results, rows, SHEAR_Y, None, location, None)
+            .zip(published(results, rows, SHEAR_Z, None, location, None));
         if let Some((vy, vz)) = shears {
             for (b, factor) in m.bases.iter().zip(&factors) {
                 let Ok(factor) = factor else { continue };
@@ -639,6 +726,7 @@ pub(crate) fn preview_shear_factor(elastic_modulus: f64, shear_modulus: f64, out
 pub(crate) fn append_branch_intensified(
     model: &PreviewModel,
     results: &mut Vec<ResultItem>,
+    rows: &mut MemberRows<'_>,
     case_id: &str,
     pipe_id: &str,
     bases: &[BasisSection],
@@ -651,8 +739,8 @@ pub(crate) fn append_branch_intensified(
                 continue;
             }
             for b in bases {
-                let operands = published(results, pipe_id, "element_local_bending_normal_stress_y", None, location, b.basis)
-                    .zip(published(results, pipe_id, "element_local_bending_normal_stress_z", None, location, b.basis));
+                let operands = published(results, rows, BENDING_Y, None, location, b.basis)
+                    .zip(published(results, rows, BENDING_Z, None, location, b.basis));
                 let Some((y, z)) = operands else { continue };
                 let value = q::directional_intensified_bending_pa(association.sif, association.sif, y, z);
                 let item = on_basis(
@@ -716,5 +804,78 @@ pub(crate) fn branch_model_diagnostics(model: &PreviewModel, arc_pipes: &HashSet
                 vec![component.id.clone(), pipe.id.clone()],
             ));
         }
+    }
+}
+
+/// RT-A3 increment 1b: the member index finds the row the full scan finds.
+#[cfg(test)]
+mod lookup_tests {
+    use super::*;
+
+    fn stress(pipe: &str, kind: usize, component: &str, location: &str, basis: Option<SectionBasis>, value: f64) -> ResultItem {
+        on_basis(row(format!("result:{pipe}:{kind}:{location}:{value}"), READ_KINDS[kind], value, "MPa", pipe, component, location, "test", "test"), basis, true)
+    }
+
+    fn every_lookup(results: &[ResultItem], rows: &mut MemberRows<'_>) -> Vec<Option<u64>> {
+        let mut values = Vec::new();
+        for kind in 0..READ_KINDS.len() {
+            for location in STATIONS.iter().chain(["elsewhere"].iter()) {
+                for component in [None, Some("y"), Some("z")] {
+                    for basis in [None, Some(SectionBasis::Nominal), Some(SectionBasis::Reduced)] {
+                        values.push(published(results, rows, kind, component, location, basis).map(f64::to_bits));
+                    }
+                }
+            }
+        }
+        values
+    }
+
+    #[test]
+    fn the_member_index_finds_the_first_row_the_scan_finds() {
+        // Another entity's rows first, then the member's rows with repeats
+        // (the first must win), both bases, rows without metadata and rows of
+        // other pipes interleaved.
+        let mut results = vec![stress("node:A", BENDING_Y, "y", "end_i", None, 1.0)];
+        let start = results.len();
+        let mut value = 2.0;
+        for location in STATIONS {
+            for kind in 0..READ_KINDS.len() {
+                for basis in [None, Some(SectionBasis::Nominal), Some(SectionBasis::Reduced)] {
+                    for component in ["y", "z", "y"] {
+                        results.push(stress("pipe:P", kind, component, location, basis, value));
+                        results.push(stress("pipe:Q", kind, component, location, basis, -value));
+                        value += 1.0;
+                    }
+                }
+            }
+        }
+        let mut bare = stress("pipe:P", AXIAL, "y", "end_j", None, 99.0);
+        bare.metadata = None;
+        results.insert(start, bare);
+        let full = every_lookup(&results, &mut MemberRows::new("pipe:P", None));
+        assert!(full.iter().any(Option::is_some) && full.iter().any(Option::is_none));
+        let mut indexed = MemberRows::new("pipe:P", Some(start));
+        assert_eq!(every_lookup(&results, &mut indexed), full);
+        // Rows appended after the first lookups are found in order.
+        results.push(stress("pipe:P", SHEAR_Y, "y", "midspan", None, 1e3));
+        results.push(stress("pipe:P", SHEAR_Z, "z", "elsewhere", None, 1e4));
+        assert_eq!(every_lookup(&results, &mut indexed), every_lookup(&results, &mut MemberRows::new("pipe:P", None)));
+    }
+
+    #[test]
+    fn a_member_with_earlier_rows_scans_every_row() {
+        let mut scope = PublishedScope::default();
+        let mut results = vec![stress("node:A", AXIAL, "y", "end_i", None, 1.0)];
+        assert_eq!(scope.begin(&results, "pipe:P"), Some(1));
+        results.push(stress("pipe:P", AXIAL, "y", "end_i", None, 2.0));
+        // An entity named like a later member: that member scans every row.
+        assert_eq!(scope.begin(&results, "node:A"), None);
+        results.retain(|r| r.entity_ref != "node:A");
+        results.push(stress("node:A", AXIAL, "y", "end_i", None, 3.0));
+        // After a fallback the scope is rebuilt from the rows now present.
+        assert_eq!(scope.begin(&results, "pipe:R"), Some(2));
+        assert_eq!(scope.begin(&results, "pipe:P"), None);
+        let mut rows = MemberRows::new("node:A", None);
+        assert_eq!(published(&results, &mut rows, AXIAL, None, "end_i", None), Some(3.0));
     }
 }

@@ -6124,7 +6124,10 @@ fn solve_prepared_load_case(
     // T4-U4b (§2.6): the case's directional intensified records (pressure-2
     // evidence carries the list only when it is non-empty).
     let mut directional_measures: Vec<serde_json::Value> = Vec::new();
+    // RT-A3 increment 1b: each member's station lookups start at its first row.
+    let mut published_scope = u4b_rows::PublishedScope::default();
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
+        let member_start = published_scope.begin(&results, &pipe.element_id);
         // W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
         // §5): a component body keeps its member maxima, but the case maximum
         // and the headline range over the non-body members only.
@@ -6934,7 +6937,8 @@ fn solve_prepared_load_case(
                 (Some(bend), Some(state)) if state.arc.is_some() => Some((state.pressure.pressure_pa(), bend.bend_radius)),
                 _ => None,
             };
-            let station = u4b_rows::append_station_quantities(model, &mut results, diagnostics, &u4b_rows::MemberQuantities {
+            let mut member_rows = u4b_rows::MemberRows::new(&pipe.element_id, member_start);
+            let station = u4b_rows::append_station_quantities(model, &mut results, &mut member_rows, diagnostics, &u4b_rows::MemberQuantities {
                 case_id: &load_case.id, pipe_id: &pipe.element_id, arc: macro_bend.is_some(), exact,
                 bases: bases.clone(), poisson, directional, toroidal,
             });
@@ -6942,7 +6946,7 @@ fn solve_prepared_load_case(
             // RT-A3 increment 1: a tee's intensified rows at this straight
             // member's ends, on both bases, from the rows just published.
             if exact && macro_bend.is_none() {
-                directional_measures.extend(u4b_rows::append_branch_intensified(model, &mut results, &load_case.id, &pipe.element_id, &bases));
+                directional_measures.extend(u4b_rows::append_branch_intensified(model, &mut results, &mut member_rows, &load_case.id, &pipe.element_id, &bases));
             }
             if let Some(bend) = macro_bend {
                 let pressure_area_product = pressure_state.filter(|state| state.arc.is_some())

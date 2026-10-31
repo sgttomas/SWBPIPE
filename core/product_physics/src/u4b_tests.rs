@@ -917,7 +917,7 @@ fn u4b_toroidal_evaluation_failure_blocks_by_name() {
         (1e6, 0.04, u4b_rows::TOROIDAL_DOMAIN, "warning"),
     ] {
         let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
-        u4b_rows::append_station_quantities(&model, &mut results, &mut diagnostics, &u4b_rows::MemberQuantities {
+        u4b_rows::append_station_quantities(&model, &mut results, &mut u4b_rows::MemberRows::new("pipe:BEND", Some(0)), &mut diagnostics, &u4b_rows::MemberQuantities {
             case_id: "case:x", pipe_id: "pipe:BEND", arc: true, exact: true, bases: bases.clone(), poisson: u4b_rows::ShearPoisson::Authored(0.3),
             directional: None, toroidal: Some((pressure, bend_radius)),
         });
