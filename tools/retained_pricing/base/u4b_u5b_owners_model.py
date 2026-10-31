@@ -10,7 +10,7 @@ import hashlib
 import os
 import re
 
-from g3lib import X, B, s, Xc, V, HashMov, pushcap, tree_nodes, ASSUMED
+from g3lib import X, B, s, Xc, V, HashMov, buckets, pushcap, tree_nodes, ASSUMED
 
 LIB = "core/product_physics/src/lib.rs"
 U4B = "core/product_physics/src/u4b_rows.rs"
@@ -55,6 +55,14 @@ BODY_PINS = {
 ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5f4"
 # U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`.
 INDEX_PIN = "b0d3074db1d4f7adc515b17a054b843e5079cd6fce0bad16fc629a95cef7d85b"
+# RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, retained-pricing-rules.md §8.36): u4b_rows.rs from
+# `pub(crate) struct PublishedScope {` to `/// §2.3: σ_N of one station` (the scope, its entity hash, `begin`,
+# MemberRows and `published`).
+PUBLISHED_INDEX_PIN = "1bca396b2bf2d204baf8492eb7649701cb34f68a9c7b13fdf03dcb9db98f68de"
+PUBLISHED_INDEX_START = "pub(crate) struct PublishedScope {"
+PUBLISHED_INDEX_STOP = "/// §2.3: σ_N of one station"
+# MemberRows' slots: one Vec<usize> per read kind (READ_KINDS, 6) and station (STATIONS, 5).
+READ_KINDS = 6
 
 # Rows of one member that a §4.3 derived treatment can name: σ⁺/σ⁻ at five stations on two bases (20) and τ_v,max at
 # five stations on two bases (10).
@@ -158,6 +166,8 @@ def inspect(snapshot):
         _once(prev, "        let mut covers: HashMap<&str, Vec<f64>> = HashMap::new();\n", "U4B-RD")
     elif index is not None:
         raise SystemExit("U4B-RD: u4b_evidence's Index without its readers; re-review the owner it prices")
+    # RTA3B-PS/RTA3B-MR: the case solve's published-row index.
+    out["published_index"] = published_index(snapshot)
     # U4B-NQ: bind_for's derived_not_qualified treatments.
     out["not_qualified"] = _pinned(snapshot, [(ROWS, "not_qualified_for"), (ROWS, "not_qualified_inputs")], "U4B-NQ")
     # U5B-CG (T4-S6): the evidence's contribution-group vector, one usize pushed per frame/curved element and per
@@ -175,6 +185,102 @@ def inspect(snapshot):
     else:
         raise SystemExit("U5B-CG: structural_adapter.rs's contribution groups changed; re-review the owner it prices")
     return out
+
+
+def published_index(snapshot):
+    """RTA3B-PS/RTA3B-MR (§8.36): the case solve's published-row index. True when the reviewed index exists, False when
+    none of it does; a partial or changed index stops the run for review. The premises the two owners rest on are
+    checked by name before the span's digest, so a change reports the premise it breaks."""
+    u4, lib = _read(snapshot, U4B), _read(snapshot, LIB)
+    present = (u4 is not None and PUBLISHED_INDEX_START in u4,
+               lib is not None and "u4b_rows::PublishedScope" in lib,
+               lib is not None and "u4b_rows::MemberRows" in lib)
+    if not any(present):
+        return False
+    if not all(present):
+        raise SystemExit(f"RTA3B: the published-row index is only partly present {present}; re-review the owners it prices")
+    span = _span(u4, PUBLISHED_INDEX_START, PUBLISHED_INDEX_STOP, "RTA3B")
+    if span is None:
+        raise SystemExit("RTA3B: the published-row index's span is missing; re-review the owners it prices")
+    solve = _body(lib, "solve_prepared_load_case") or ""
+    at = lambda text, needle: text.find(needle)
+    results_line = "    let mut results = Vec::new();\n"
+    scope_line = "    let mut published_scope = u4b_rows::PublishedScope::default();\n"
+    loop_line = "    for (pipe_index, pipe) in built.pipes.iter().enumerate() {\n"
+    begin_line = "        let member_start = published_scope.begin(&results, &pipe.element_id);\n"
+    bases_line = "            let bases = u4b_rows::member_bases(section, exact_bases);\n"
+    rows_line = "            let mut member_rows = u4b_rows::MemberRows::new(&pipe.element_id, member_start);\n"
+    arc_call = "bend_pressure::append_arc_pressure_results("
+    extend = "self.entities.extend(results[self.synced..].iter().map(|row| entity_hash(&row.entity_ref)));"
+    scan = "    for (offset, r) in results[rows.scanned..].iter().enumerate() {\n"
+    early = "    let (Some(_), Some(station)) = (rows.start, STATIONS.iter().position(|s| *s == location)) else {\n"
+    skip = "        if r.entity_ref != rows.pipe {\n            continue;\n        }\n"
+    push = "            rows.slots[k][s].push(index);\n"
+    synced = "    rows.scanned = results.len();\n"
+    removals = ("results.retain(", "results.remove(", "results.swap_remove(", "results.truncate(", "results.drain(",
+                "results.clear(", "results.split_off(")
+    checks = {
+        # RTA3B-PS: one scope per case solve, at its body level (dropped when the solve returns), after the case's own
+        # `results` and before the member loop; one `begin` per member iteration.
+        "PS: one scope per case, before the member loop": lib.count("PublishedScope") == 1 and solve.count(scope_line) == 1
+        and solve.count(results_line) == 1 and solve.count(loop_line) == 1
+        and 0 <= at(solve, results_line) < at(solve, scope_line) < at(solve, loop_line),
+        "PS: one begin per member": lib.count("published_scope.") == 1 and solve.count(begin_line) == 1
+        and at(solve, loop_line) < at(solve, begin_line),
+        # The entities are a HashSet<u64> of row-entity hashes, filled only by `begin`'s one extend over the rows not yet
+        # hashed; `clear` keeps the table and `contains` reads it.
+        "PS: the entities are row-entity hashes, filled only in begin": span.count("    entities: HashSet<u64>,\n") == 1
+        and span.count(extend) == 1 and span.count("self.entities.") == 3 and span.count("self.entities.clear();") == 1
+        and span.count("self.entities.contains(") == 1,
+        # A case's rows only grow on D1: the case solve removes rows only through a realized arc's pressure rows
+        # (`macro_bend.is_some()`, absent on D1 by P2), so every `results.len()` a `begin` sees is at most P.
+        "PS: a case's rows only grow on D1 (P2)": not any(r in solve for r in removals) and solve.count(arc_call) == 1
+        and "macro_bend.is_some()," in solve[max(0, at(solve, arc_call) - 300):at(solve, arc_call)],
+        # RTA3B-MR: one MemberRows per member, inside U4B-ST's station block (dropped with it at the member's end).
+        "MR: one MemberRows per member, in U4B-ST's station block": lib.count("MemberRows::new(") == 1
+        and solve.count(rows_line) == 1 and solve.count(bases_line) == 1
+        and at(solve, bases_line) < at(solve, rows_line)
+        and "\n        }\n" not in solve[at(solve, bases_line):at(solve, rows_line)]
+        and solve.count("&mut member_rows") == 2,
+        # Six read kinds by five stations, all empty at construction.
+        "MR: 6 x 5 slots, empty at construction": span.count("    slots: [[Vec<usize>; 5]; 6],\n") == 1
+        and span.count("MemberRows { pipe, start, scanned: start.unwrap_or(0), slots: Default::default() }") == 1
+        and u4.count("const READ_KINDS: [&str; 6] = [") == 1 and u4.count("pub(crate) const STATIONS: [&str; 5] = [") == 1,
+        # The one push records a position of a row of the member at or after its start (only when it has one: the
+        # let-else returns to the full scan first), each position once: the scan starts where the last one ended.
+        "MR: one push per row of the member after its start, each once": span.count(".push(") == 1
+        and span.count(push) == 1 and span.count(scan) == 1 and span.count(skip) == 1 and span.count(synced) == 1
+        and span.count(early) == 1 and span.count("rows.scanned = ") == 1
+        and at(span, early) < at(span, scan) < at(span, skip) < at(span, push) < at(span, synced),
+    }
+    failed = [name for name, ok in checks.items() if not ok]
+    if failed:
+        raise SystemExit(f"RTA3B: the published-row index's premise changed ({'; '.join(failed)}); re-review the owners it prices")
+    if hashlib.sha256(span.encode()).hexdigest() != PUBLISHED_INDEX_PIN:
+        raise SystemExit("RTA3B: u4b_rows.rs's published-row index changed; re-review the owners it prices")
+    return True
+
+
+def published_scope_entities(rows_per_case):
+    """RTA3B-PS: one case's PublishedScope entity set, a hashbrown table of u64 (8-byte slots). It holds at most one
+    hash per row hashed, and `extend` reserves at most the rows not yet hashed beyond those (reserve(hint) when empty,
+    reserve((hint + 1) / 2) otherwise), so no request exceeds the case's rows: P_final = `rows_per_case` on D1. Charged
+    at that table with the previous table live during its last resize (HashMov's form); `clear` keeps the table."""
+    b = buckets(rows_per_case)
+    prev = b // 2 if b > 4 else 0
+    table = lambda k: 8 * k + k + 8 + 15 if k else 0
+    return B(table(b) + table(prev))
+
+
+def member_row_slots(rows_per_member, slots=READ_KINDS * STATIONS):
+    """RTA3B-MR: one member's MemberRows slots, `slots` Vec<usize> push-grown from empty. Every entry is a distinct
+    position of a row of the member at or after its start, so they hold at most its rows per member. Charged at the
+    largest total push capacity of `slots` vectors holding that many entries (exact over every split), plus the old
+    backing of one reallocating vector (at most half its final capacity)."""
+    best = [0] * (rows_per_member + 1)
+    for _ in range(slots):
+        best = [max(best[t - k] + pushcap(k) for k in range(t + 1)) for t in range(rows_per_member + 1)]
+    return B(8 * (max(best) + pushcap(rows_per_member) // 2))
 
 
 def ordinary_published_displacements(N):

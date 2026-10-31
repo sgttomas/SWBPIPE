@@ -470,6 +470,15 @@ if _u45["published_displacements"]:
 if _u45["station_quantities"]:
     # U4B-ST: one member's station-quantity transients (append_station_quantities and its caller), one member live.
     add("Station quantities of one member (U4B-ST)", "OrdinaryRecovery", _u45_model.ordinary_station_quantities())
+if _u45.get("published_index"):
+    # RT-A3 increment 1b (retained-pricing-rules.md §8.36): the case solve's published-row index. RTA3B-PS: the case's
+    # PublishedScope entity set (<= the case's rows, P; live to the end of the case solve, as U5B-PD). RTA3B-MR: one
+    # member's MemberRows slots (<= its rows per member, the route's P_final coefficient of m; in U4B-ST's block).
+    _rpm, _rem = divmod(P - (7 * n + 8 * g + 3), m)
+    if _rem:
+        raise SystemExit(f"RTA3B-MR: P_final is not 7n + r*m + 8g + 3 ({P}); re-review the rows per member")
+    add("Published-row scope of one case (RTA3B-PS)", "OrdinaryRecovery", _u45_model.published_scope_entities(P))
+    add("Member row index of one member (RTA3B-MR)", "OrdinaryRecovery", _u45_model.member_row_slots(_rpm))
 if _o4:
     # O4-SR: a selected case whose member's stress sections differ holds the reduced basis's composite maximum (its
     # value and evidence Value: one pipe_stress_extrema entry of the census) beside the nominal one, one member at a time.
@@ -603,7 +612,8 @@ PER_CASE_FAMILIES = ['Primitive loads and application', 'AssembledForce, nodal f
 if "Prepared pressure case carriers and staging (B5O1)" in fam:
     PER_CASE_FAMILIES.append("Prepared pressure case carriers and staging (B5O1)")
 for _f in ("Published corrected nodal displacements (U5B-PD)", "Station quantities of one member (U4B-ST)",
-           "Selected reduced maximum beside the nominal one (O4-SR)"):
+           "Selected reduced maximum beside the nominal one (O4-SR)", "Published-row scope of one case (RTA3B-PS)",
+           "Member row index of one member (RTA3B-MR)"):
     if _f in fam:
         PER_CASE_FAMILIES.append(_f)
 if _wide:
