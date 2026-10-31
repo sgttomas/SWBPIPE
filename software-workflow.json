@@ -187,7 +187,8 @@
     {
       "paths": [
         "tools/agent_host_witness.py",
-        "tools/agent_host_witness_test.py"
+        "tools/agent_host_witness_test.py",
+        "execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json"
       ],
       "checks": [
         "agent-host-witness-offline"
@@ -257,7 +258,7 @@
         "apps/desktop/**",
         "docs/**",
         "examples/**",
-        "execution/_DAG/**",
+        "execution/**",
         "fixtures/**",
         "schemas/**",
         "tools/**",
@@ -273,6 +274,7 @@
     {
       "paths": [
         "core/**",
+        "execution/**",
         "tools/**",
         "fixtures/product_preview/pressure_source/**",
         "fixtures/results/**",

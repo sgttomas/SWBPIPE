@@ -22,8 +22,7 @@ or matches one of its roots:
   which it may load or run, transitively, with each one's own roots: an imported helper may read
   the test's inputs, and a loaded file holds a guard's scanning code.
 
-Roots under `execution/` other than `execution/_DAG/` are dropped: the Python job does not check
-them out, so no test there can depend on their content.
+The Python job checks out the whole tree, so every root is a path a selected test can read.
 """
 import ast
 from fnmatch import fnmatchcase
@@ -1066,7 +1065,7 @@ def file_reads(project, local):
     # A declaration stands in for the file's scans (`declaration_problems` keeps it covering them).
     named |= ({entry for entry in declared if entry} if declared is not None
               else {root for text in reader.scans()[0] for root in to_roots(text)})
-    roots = frozenset(root for root in named if root and not _unavailable(root))
+    roots = frozenset(root for root in named if root)
     loaded = frozenset(root for root in roots if root.endswith('.py') and root != local and not is_test(root)
                        and not is_pattern(root) and root in paths and (project / root).is_file())
     imported = set()
@@ -1093,17 +1092,12 @@ def _prefix(pattern):
 
 def _usable(paths, entry):
     """A declared entry: a tracked path, or a pattern whose literal prefix is the root or a tracked directory."""
-    if not entry or _unavailable(entry):
+    if not entry:
         return False
     if is_pattern(entry):
         prefix = _prefix(entry)
         return (not prefix or prefix in paths) and entry != prefix
     return entry in paths
-
-
-def _unavailable(local):
-    """Under execution/ outside execution/_DAG/, which the Python job does not check out."""
-    return local == 'execution' or local.startswith('execution/') and not local.startswith('execution/_DAG')
 
 
 def declared_reads(project):

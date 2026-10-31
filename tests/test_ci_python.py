@@ -397,9 +397,8 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     # The runner build helper is imported, not path-loaded: the crates it builds are not the test's roots.
     assert 'tools/runner/build_runner.py' in reads['tests/test_units_authority_setup.py']
     assert 'core/product_physics' not in reads['tests/test_caepipe_mbf_importer.py']
-    # Roots the Python job cannot read are never roots.
-    assert not [root for roots in reads.values() for root in roots
-                if root.startswith('execution/') and not root.startswith('execution/_DAG')]
+    # A path built from `__file__` (`parents[1] / "execution/..."`) is a root like any other, execution/ included.
+    assert 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json' in reads['tools/agent_host_witness_test.py']
 
 
 def test_repository_check_tests_are_the_governance_step_s():
@@ -419,7 +418,7 @@ def test_derived_roots_route_a_local_check_that_runs_the_test():
     def runs(check, test):
         return any(test == arg or test.startswith(arg.rstrip('/') + '/') for arg in registry['checks'][check]['command'])
     reads = ci.python_test_reads
-    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file() and not reads._unavailable(path))
+    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file())
     for test, roots in ci.derived_tests(PROJECT).items():
         # A root under no known directory (a base the code does not show) spans the project and would route every
         # local change to the full suite; the advisory local registry leaves those to hosted selection.
@@ -449,7 +448,7 @@ def test_a_path_only_a_python_test_reads_starts_the_python_job():
 
 def test_claims_language_surface_test_follows_the_validator_s_inputs():
     """The declared verification (DEL-04-08 VER-008) runs when any input of its validator changes: its
-    CI_READS are the validator's own `input_patterns()`, less the execution/ surface the Python job lacks."""
+    CI_READS are the validator's own `input_patterns()`."""
     test = 'tests/test_claims_language_surface.py'
     assert test not in ci.UNROUTED
     import sys
@@ -462,7 +461,7 @@ def test_claims_language_surface_test_follows_the_validator_s_inputs():
         del sys.modules[spec.name]
     # fnmatch's `*` spans `/`: a trailing `/*` is the whole tree.
     expected = tuple(pattern[:-1] + '**' if pattern.endswith('/*') else pattern
-                     for pattern in validator.input_patterns() if not pattern.startswith('execution/'))
+                     for pattern in validator.input_patterns())
     assert ci.python_test_reads.declared_reads(PROJECT)[test] == expected
     for path in ('docs/PRD.md', 'docs/user_guide/index.md', 'apps/desktop/src/App.tsx',
                  'core/reporting/report_renderer/src/lib.rs', 'tools/validation/validate_claims_language.py'):
@@ -541,3 +540,14 @@ def test_a_printf_specification_is_consumed_whole(tmp_path):
     (tmp_path / 'm.py').write_text('from pathlib import Path\nPath("fixtures/case_%03d.json" % 7).read_text()\n')
     roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
     assert any(reads.root_matches('fixtures/case_007.json', root) for root in roots), roots
+
+
+def test_the_python_job_checks_out_every_path_a_selected_test_reads():
+    """A selected test reads what its code names, execution/ records included, so the Python job's checkout leaves
+    nothing out (tools/agent_host_witness_test.py failed on a missing execution/ catalog under a sparse checkout)."""
+    workflow = (PROJECT / '.github/workflows/piping-desktop-e2e.yml').read_text()
+    job = workflow[workflow.index('\n  python-product:'):]
+    job = job[:job.index('\n  browser-matrix:')]
+    assert 'sparse-checkout' not in job
+    path = 'execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json'
+    assert 'tools/agent_host_witness_test.py' in selected(path)
