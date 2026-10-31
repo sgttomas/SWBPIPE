@@ -8,6 +8,8 @@ import type { PreviewModel, ModelHashEvidence, EditorOperationIntent, MechanicsR
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
+import { canonicalJsonString } from './hashService';
+import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from '../features/model-tree/removalIntents';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -27,8 +29,49 @@ type Run={basis:AgentBasis;receipt:AgentRunReceipt};
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
-/** The native kinds swbpipe-catalog/3 admits; the catalog schema is their gate and the applier their authority. */
-export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile']);
+/** The native kinds swbpipe-catalog/4 admits; the catalog schema is their gate and the applier their authority. */
+export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile','insert/Component/insert_component_symbol','modify/Component/set_field/objective_connector','modify/Support/update_support/configuration','delete/Component/delete_component','delete/Support/delete_support','delete/Element/delete_pipe_run','delete/Node/delete_node']);
+export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes'] as const;
+export type RecordFamily=typeof RECORD_FAMILIES[number];
+const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
+const RECORD_PAGE_BYTES=48*1024;
+const blankText=(value:unknown)=>typeof value!=='string'||!value.trim();
+/** The bends and tees the solver reports as lacking user-entered modifiers
+ * (product_physics validation BEND_/BRANCH_USER_MODIFIER_INPUT_MISSING): the
+ * person enters k, SIFs and their source; the agent never authors them. */
+export function componentsAwaitingUserModifiers(model:PreviewModel):string[]{
+ const awaiting:string[]=[];
+ for(const component of model.components??[]){
+  const record=component as unknown as Record<string,unknown>,modifiers=plain(record.modifiers)?record.modifiers:null,kind=String(record.kind);
+  const missing=(key:string)=>!modifiers||modifiers[key]===undefined||modifiers[key]===null;
+  // A realized arc uses only the directional SIF pair; a geometry-only marker the scalar.
+  const realized=plain(record.mechanics_interface)&&record.mechanics_interface.solver_consumption==='curved_bend_macro_element';
+  const sifMissing=realized?missing('sif_in_plane_user_value')||missing('sif_out_of_plane_user_value'):missing('sif_user_value');
+  if(['bend','elbow'].includes(kind)&&(!modifiers||sifMissing||missing('flexibility_factor_user_value')||blankText(modifiers.source_reference)))awaiting.push(String(record.id));
+  else if(['branch','tee','branch_connection'].includes(kind)&&(!modifiers||missing('branch_header_sif_user_value')||missing('branch_branch_sif_user_value')||missing('flexibility_factor_user_value')||blankText(modifiers.source_reference)))awaiting.push(String(record.id));
+ }
+ return awaiting;
+}
+/** Bend markers the person has not realized (no curved macro-element yet). */
+export function unrealizedBends(model:PreviewModel):string[]{
+ return (model.components??[]).filter(component=>{const record=component as unknown as Record<string,unknown>;const iface=plain(record.mechanics_interface)?record.mechanics_interface:{};
+  return ['bend','elbow'].includes(String(record.kind))&&iface.solver_consumption!=='curved_bend_macro_element';}).map(component=>String((component as unknown as Record<string,unknown>).id));
+}
+/** Exact before texts for the admitted edits of one record, from the same
+ * canonicalization and removal builders the desktop's own editors use. */
+export async function recordBefore(family:RecordFamily,record:Record<string,unknown>,model:PreviewModel,recordText:string):Promise<Record<string,string>>{
+ if(family==='components'){
+  const before:Record<string,string>={delete:recordText};const connector=record.objective_connector;
+  if(plain(connector))for(const key of ['hardware','pressure_model'])if(connector[key]!==undefined)before[`objective_connector.${key}`]=await canonicalJsonString(connector[key]);
+  return before;
+ }
+ if(family==='supports'){
+  const configuration=Object.fromEntries(SUPPORT_CONFIGURATION.filter(key=>record[key]!==undefined).map(key=>[key,record[key]]));
+  return {delete:buildDeleteSupportIntent(record as unknown as PreviewModel['supports'][number],model).change.before,configuration:await canonicalJsonString(configuration)};
+ }
+ if(family==='pipe_segments')return {delete:buildDeletePipeIntent(record as unknown as PreviewModel['pipe_segments'][number],model).change.before};
+ return {delete:buildDeleteNodeIntent(record as unknown as PreviewModel['nodes'][number],model).change.before};
+}
 const AUDIT_BOUNDARY=Object.freeze({mutation_route:'structured_operations_only',direct_model_mutation_allowed:false,requires_user_acceptance:true,mutates_accepted_model_state:false} as const);
 const PROFESSIONAL_BOUNDARY=Object.freeze({
  human_review_required:true,
@@ -163,10 +206,10 @@ export class EmbeddedAgentSession {
  private result(call:AgentCall,status:string,message:string,data:unknown,proof:Proof):AgentActual{return {outcome:small({status,basis:call.basis,message,data}),record:proof};}
  private offset(call:AgentCall,run?:string):number {
   const page=call.arguments.page as {cursor:string|null;limit:number};if(page.cursor===null)return 0;
-  const saved=this.#cursors.get(page.cursor);if(!saved||saved.tool!==call.tool||!same(saved.basis,call.basis)||saved.run!==run||!same(saved.filter,call.arguments.filter))throw new Error('AGENT-CURSOR-REFUSED');return saved.offset;
+  const saved=this.#cursors.get(page.cursor);if(!saved||saved.tool!==call.tool||!same(saved.basis,call.basis)||saved.run!==run||!same(saved.filter,call.arguments.filter??call.arguments.family))throw new Error('AGENT-CURSOR-REFUSED');return saved.offset;
  }
  private cursor(call:AgentCall,offset:number,more:boolean,run?:string):string|null {
-  if(!more)return null;if(this.#cursors.size>=64)throw new Error('AGENT-CURSOR-LIMIT');const ref=opaque();this.#cursors.set(ref,{tool:call.tool,basis:call.basis,offset,run,filter:structuredClone(call.arguments.filter)});return ref;
+  if(!more)return null;if(this.#cursors.size>=64)throw new Error('AGENT-CURSOR-LIMIT');const ref=opaque();this.#cursors.set(ref,{tool:call.tool,basis:call.basis,offset,run,filter:structuredClone(call.arguments.filter??call.arguments.family)});return ref;
  }
  private async execute(call:AgentCall):Promise<AgentActual>{
   if(call.tool==='swbpipe_observe_proposal'){
@@ -183,13 +226,28 @@ export class EmbeddedAgentSession {
    }
    const contract=(model as unknown as Record<string,unknown>).pressure_contract;
    if(contract!==undefined&&(!plain(contract)||Object.values(contract).some(value=>typeof value!=='string')))return this.failure(call,'The pressure contract is not representable in this catalog summary.');
+   const awaiting=componentsAwaitingUserModifiers(model);
    const profile:Record<string,unknown>={};if(model.schema_version!==undefined)profile.schema_version=model.schema_version;if(contract!==undefined)profile.pressure_contract=contract;
-   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],limits:LIMITS},{kind:'read'});
+   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],componentsAwaitingUserModifiers:{count:awaiting.length,ids:awaiting.slice(0,32)},limits:LIMITS},{kind:'read'});
   }
   if(call.tool==='swbpipe_read_nodes'){
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const end=Math.min(model.nodes.length,offset+page.limit);
    const nodes=[];for(let i=offset;i<end;i++){const node=model.nodes[i];if(node.id.length>160)return this.failure(call,'Node identifier exceeds this catalog page.');nodes.push({id:node.id,position:{x:node.position.x,y:node.position.y,z:node.position.z},unit:model.project.units.length});}
    return this.result(call,'ok','Bounded node page at the captured basis.',{nodes,projectUnits:model.project.units,nextCursor:this.cursor(call,end,end<model.nodes.length)},{kind:'read'});
+  }
+  if(call.tool==='swbpipe_read_records'){
+   const family=call.arguments.family as RecordFamily;if(!RECORD_FAMILIES.includes(family))return this.failure(call,'Record family is unavailable.');
+   const rows=((model as unknown as Record<string,unknown>)[family] as Record<string,unknown>[]|undefined)??[];
+   const offset=this.offset(call),page=call.arguments.page as {limit:number};const records=[];let bytes=0,end=offset;
+   for(;end<rows.length&&records.length<page.limit;end++){
+    const record=rows[end];if(typeof record?.id!=='string'||!record.id||record.id.length>160)return this.failure(call,'Record identifier exceeds this catalog page.');
+    const recordText=await canonicalJsonString(record);const before=await recordBefore(family,record,model,recordText);
+    if(recordText.length>16384||Object.values(before).some(text=>!text||text.length>16384))return this.failure(call,`Record ${record.id} exceeds this catalog page.`);
+    const entry={id:record.id,recordText,before};const size=new TextEncoder().encode(JSON.stringify(entry)).byteLength;
+    if(records.length&&bytes+size>RECORD_PAGE_BYTES)break;bytes+=size;records.push(entry);
+   }
+   if(!this.current(call))return this.failure(call,'Workspace changed while reading records.','stale_basis');
+   return this.result(call,'ok','Bounded record page at the captured basis; before texts are exact for that basis only.',{family,records,nextCursor:this.cursor(call,end,end<rows.length)},{kind:'read'});
   }
   if(call.tool==='swbpipe_propose_operations'){
    if(this.#proposals.size>=64)return this.failure(call,'Proposal retention is full.');
@@ -206,9 +264,15 @@ export class EmbeddedAgentSession {
   }
   if(call.tool==='swbpipe_solve'){
    if(this.#runs.size>=64)return this.failure(call,'Run retention is full.');
+   // An unrealized bend marker: the exact route refuses it before solving
+   // (EXACT_PRESSURE_FAMILY_NOT_ADMITTED); the pressure-free route solves it as a
+   // straight chord, applying its scalar SIF but never k.
+   const chords=unrealizedBends(model),listed=`${chords.slice(0,3).join(', ')}${chords.length>3?', …':''}`;
+   if(chords.length&&(model as unknown as Record<string,unknown>).pressure_contract!==undefined)return this.failure(call,`Not solved: the exact route refuses unrealized bends (${listed}). Ask the person to realize each with Insert bend at corner and enter k, the SIFs and their source, then solve.`);
    const receipt=await this.owner.solve();if(!receipt||!same(receipt.modelHash,call.basis.modelHash))return this.failure(call,'No matching completed native solve is available.');
    const handle=opaque();this.#runs.set(handle,{basis:structuredClone(call.basis),receipt});
-   return this.result(call,'completed','Native solve completed; applicability and professional acceptance remain separate.',{runHandle:handle,runId:receipt.runId,evaluatedModelHash:receipt.modelHash,health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
+   const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${listed}) were solved as straight chords: a scalar SIF applies, k does not. Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
+   return this.result(call,'completed',solved,{runHandle:handle,runId:receipt.runId,evaluatedModelHash:receipt.modelHash,health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
   }
   return this.failure(call,'Tool is unavailable.');
  }

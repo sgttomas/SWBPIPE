@@ -9,7 +9,7 @@ const basis:AgentBasis={workspaceHandle:'workspace-invented',applicationGenerati
 function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {resolve,promise};}
 function setup(){
  let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
- const model={schema_version:'0.8.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
+ const model={schema_version:'0.8.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',label:'N1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
  let result:MechanicsResult|null=null;
  const owner:WorkspaceExecution={snapshot:()=>({model,hash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
@@ -68,6 +68,23 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const actual=JSON.parse(session.actual('invented-session:1')!.outcome);expect(actual.basis.modelRevision).toBe(1);expect(actual.data.runId).toBe('run-1');
   expect(sent.find(v=>v.kind==='publish_actual')!.proof).toMatchObject({nativeJobId:'job-1',status:'completed'});await session.close();
  });
+ it('tells the agent when a solve treated bends awaiting the person\'s k as straight chords',async()=>{
+  vi.useFakeTimers();const {session,owner,call,model}=setup();
+  (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend'},{id:'component:t1',kind:'tee'}];
+  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:hash,solverMode:'sparse_interactive',health:'ok'});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const message=JSON.parse(session.actual('invented-session:1')!.outcome).message;
+  expect(message).toContain('component:b1');expect(message).toContain('straight chords');expect(message).toContain('k does not');expect(message).not.toContain('component:t1');
+  await session.close();
+ });
+ it('refuses to solve on the exact route while a bend is unrealized, naming it',async()=>{
+  vi.useFakeTimers();const {session,owner,call,model}=setup();
+  Object.assign(model as unknown as Record<string,unknown>,{pressure_contract:{version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'},components:[{id:'component:b1',kind:'bend'},{id:'component:b2',kind:'bend',mechanics_interface:{solver_consumption:'curved_bend_macro_element'}}]});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+  expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('component:b1');expect(outcome.message).not.toContain('component:b2');
+  expect(owner.solve).not.toHaveBeenCalled();await session.close();
+ });
  it('never retries a repeated notice and closes on project replacement',async()=>{
   vi.useFakeTimers();const {session,owner,retire,call}=setup();call('swbpipe_solve');await session.start('revision');await session.poll();await drain();await session.poll();await drain();
   expect(owner.solve).toHaveBeenCalledOnce();retire();await session.poll();await expect(session.text('invented')).rejects.toThrow('AGENT-CLOSED');
@@ -115,12 +132,29 @@ describe('workspace-owned live embedded agent adapter',()=>{
   vi.useFakeTimers();const {session,sent,model}=setup();await session.start('revision');await session.poll();await drain();
   let data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
   expect(data).toMatchObject({projectId:'invented',schemaVersion:'0.8.0',pressureContract:null,pressureProfileBefore:'{"schema_version":"0.8.0"}'});
-  expect(data.admittedOperationKinds).toContain('connect/Element/connect_pipe_run');expect(data.admittedOperationKinds).toHaveLength(9);
+  expect(data.admittedOperationKinds).toContain('insert/Component/insert_component_symbol');expect(data.admittedOperationKinds).toHaveLength(16);expect(data.componentsAwaitingUserModifiers).toEqual({count:0,ids:[]});
   await session.close();
   (model as unknown as Record<string,unknown>).pressure_contract={version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'};
   await session.start('revision');await session.poll();await drain();
   data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
   expect(data.pressureProfileBefore).toBe('{"pressure_contract":{"mode":"exact_pressure_v3","shear_model":"euler_bernoulli","version":"3.0.0"},"schema_version":"0.8.0"}');
+  await session.close();
+ });
+ it('pages records with exact before texts and binds the cursor to its family',async()=>{
+  vi.useFakeTimers();const {session,call,model}=setup();
+  (model as unknown as Record<string,unknown>).supports=[{id:'support:a',label:' Anchor A ',node:'node-1',restraints:['UX'],family:'anchor',provenance:'p'},{id:'support:b',label:'Guide B',node:'node-1',restraints:['UZ'],provenance:'p'}];
+  call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:1}});await session.start('revision');await session.poll();await drain();
+  const first=JSON.parse(session.actual('invented-session:1')!.outcome).data;
+  expect(first.records).toHaveLength(1);expect(first.records[0].id).toBe('support:a');
+  expect(first.records[0].before.delete).toBe(' Anchor A ');
+  expect(first.records[0].before.configuration).toBe('{"family":"anchor","provenance":"p","restraints":["UX"]}');
+  expect(first.nextCursor).toEqual(expect.any(String));
+  call('swbpipe_read_records',{family:'supports',page:{cursor:first.nextCursor,limit:1}},'invented-session:2');await session.poll();await drain();
+  const second=JSON.parse(session.actual('invented-session:2')!.outcome).data;expect(second.records[0].id).toBe('support:b');expect(second.nextCursor).toBeNull();
+  call('swbpipe_read_records',{family:'nodes',page:{cursor:first.nextCursor,limit:1}},'invented-session:3');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:3')!.outcome).status).toBe('execution_error');
+  call('swbpipe_read_records',{family:'nodes',page:{cursor:null,limit:5}},'invented-session:4');await session.poll();await drain();
+  const nodes=JSON.parse(session.actual('invented-session:4')!.outcome).data;expect(Object.keys(nodes.records[0].before)).toEqual(['delete']);expect(nodes.records[0].before.delete).toMatch(/^N1; x=/);
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{

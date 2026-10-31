@@ -158,6 +158,7 @@ code_paths:
 - apps/desktop/src/services/operationBatchService.ts
 - apps/desktop/src-tauri/src/lib.rs
 - fixtures/model_operations/agent_w9a_journey.json
+- fixtures/model_operations/agent_m2_component_journey.json
 checks:
 - apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/services/embeddedAgentSession.test.ts
@@ -199,5 +200,7 @@ checks:
 - core/model_operations/operation_applier/tests/run_sheet_authoring.rs
 - core/model_operations/operation_applier/tests/agent_w9a_journey.rs
 - apps/desktop/src/services/embeddedAgentW9a.test.ts
+- core/model_operations/operation_applier/tests/agent_m2_component_journey.rs
+- apps/desktop/src/services/embeddedAgentM2.test.ts
 - core/model_operations/operation_applier/tests/user_entered_modifiers.rs
 - apps/desktop/src/services/operationAuthorship.test.ts

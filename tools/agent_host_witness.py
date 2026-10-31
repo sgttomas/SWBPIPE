@@ -26,7 +26,7 @@ import jsonschema
 
 TOOL = "swbpipe_read_model_summary"
 BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b"
-CATALOG_SHA256 = "652ccc0c25263a01ce103a8a7a3e64a7c01833b0588dcbc054ad461301b810ec"
+CATALOG_SHA256 = "b4669d2737e97a000ea831aa4cb7a1f360827f2a4ac431eb2d155be47b470ef4"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
@@ -77,7 +77,7 @@ def summary(catalog, nonce, count):
         "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.8.0",
                  "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.8.0"}',
                  "projectUnits": {"length": "m", "force": "N", "temperature": "C"},
-                 "objectCounts": {"Node": count}, "admittedOperationKinds": [], "limits": catalog["limits"]},
+                 "objectCounts": {"Node": count}, "admittedOperationKinds": [], "componentsAwaitingUserModifiers": {"count": 0, "ids": []}, "limits": catalog["limits"]},
     }
 
 
