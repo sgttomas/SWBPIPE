@@ -450,6 +450,10 @@ impl WideDd {
     /// for a normal value or an exact zero, `(0, true)` for a nonzero value
     /// below the binary64 normal range (published as 0, flagged), and
     /// `None` for a value that overflows or is not finite.
+    ///
+    /// The classification is decided on the exact magnitude, before
+    /// rounding: 2⁻¹⁰²² − 2⁻¹⁰⁷⁵ rounds to the smallest normal number but is
+    /// below the normal range.
     pub fn to_published(self) -> Option<(f64, bool)> {
         if !self.is_finite() {
             return None;
@@ -457,14 +461,24 @@ impl WideDd {
         if self.is_zero() {
             return Some((0.0, false));
         }
-        let value = self.to_f64();
-        if value.is_normal() {
-            Some((value, false))
-        } else if value.is_infinite() {
-            None
-        } else {
-            Some((0.0, true))
+        if self.is_below_normal_range() {
+            return Some((0.0, true));
         }
+        let value = self.to_f64();
+        value.is_finite().then_some((value, false))
+    }
+
+    /// Nonzero, finite and exactly below 2⁻¹⁰²² in magnitude. The mantissa's
+    /// high word is in [1, 2) in magnitude, so the value is below the range
+    /// when the exponent is below −1022, or at −1022 with a high word of 1
+    /// and a low word of the opposite sign.
+    pub fn is_below_normal_range(self) -> bool {
+        if !self.is_finite() || self.is_zero() {
+            return false;
+        }
+        let magnitude_lo = self.mantissa.lo * self.mantissa.hi.signum();
+        self.exponent < -1022
+            || (self.exponent == -1022 && self.mantissa.hi.abs() == 1.0 && magnitude_lo < 0.0)
     }
 
     /// A compared value (design §3.2, admission range): zero only for an
@@ -474,6 +488,9 @@ impl WideDd {
     pub fn to_normal_or_zero(self) -> Option<f64> {
         if self.is_finite() && self.is_zero() {
             return Some(0.0);
+        }
+        if self.is_below_normal_range() {
+            return None;
         }
         let value = self.to_f64();
         value.is_normal().then_some(value)
@@ -491,27 +508,31 @@ impl WideDd {
         if self.is_zero() {
             return 0.0;
         }
-        if self.exponent >= -1022 {
+        if !self.is_below_normal_range() {
             return scale_by_pow2(self.mantissa.to_f64(), self.exponent);
         }
-        // N = |value|/2⁻¹⁰⁷⁴ < 2⁵², as hi + lo.
+        // N = |value|/2⁻¹⁰⁷⁴ ≤ 2⁵², as hi + lo.
         let sign = self.mantissa.hi.signum();
+        // The low word's sign, taken before scaling (scaled, it can
+        // underflow to zero and lose the tie-breaker).
+        let lo_sign = self.mantissa.lo * sign;
         let k = self.exponent + 1074;
         if k < -2 {
             // Below a quarter of 2⁻¹⁰⁷⁴ (the mantissa is below 2).
             return sign * 0.0;
         }
         let hi = scale_by_pow2(self.mantissa.hi.abs(), k);
-        let lo = scale_by_pow2(self.mantissa.lo * sign, k);
-        // hi < 2⁵², so ulp(hi) ≤ ½: the fraction is a multiple of it, ½ is
-        // too, and |lo| ≤ ulp(hi)/2 ≤ ¼. So lo decides only an exact half,
-        // and a negative lo with a zero fraction still rounds to the floor.
+        // Below 2⁻¹⁰²², hi < 2⁵² (ulp(hi) ≤ ½, |lo| ≤ ¼ scaled), or hi = 2⁵²
+        // exactly with a negative lo (the value just below 2⁻¹⁰²²). The
+        // fraction is a multiple of ulp(hi) and so is ½: lo decides only an
+        // exact half, and a negative lo with a zero fraction rounds to the
+        // floor (at hi = 2⁵², an even floor).
         let floor = hi.floor();
         let fraction = hi - floor;
         let up = if fraction != 0.5 {
             fraction > 0.5
-        } else if lo != 0.0 {
-            lo > 0.0
+        } else if lo_sign != 0.0 {
+            lo_sign > 0.0
         } else {
             floor % 2.0 == 1.0
         };
@@ -853,6 +874,172 @@ mod tests {
             checked[class] += 1;
         }
         // Zero, subnormal, normal and overflowing results all occur.
+        assert!(checked.iter().all(|&c| c > 1000), "{checked:?}");
+    }
+
+    /// Review round 4, item 4: (1 + 2⁻¹⁰⁷⁴)·2⁻¹⁰⁷⁵ is just above half of
+    /// 2⁻¹⁰⁷⁴. Scaled by 2⁻¹ the low word underflowed to zero and the tie
+    /// went to even, 0; its sign, taken before scaling, rounds it up.
+    #[test]
+    fn wide_to_f64_breaks_a_tie_with_the_unscaled_low_word() {
+        let value = WideDd {
+            mantissa: Dd {
+                hi: 1.0,
+                lo: f64::from_bits(1),
+            },
+            exponent: -1075,
+        };
+        assert_eq!(value.to_f64(), f64::from_bits(1));
+        let below = WideDd {
+            mantissa: Dd {
+                hi: 1.0,
+                lo: -f64::from_bits(1),
+            },
+            exponent: -1074,
+        };
+        // (1 − 2⁻¹⁰⁷⁴)·2⁻¹⁰⁷⁴ is just below 2⁻¹⁰⁷⁴: it rounds to 2⁻¹⁰⁷⁴.
+        assert_eq!(below.to_f64(), f64::from_bits(1));
+    }
+
+    /// Review round 4, item 5: 2⁻¹⁰²² − 2⁻¹⁰⁷⁵ rounds to the smallest normal
+    /// number but is below the normal range: classified on the exact value,
+    /// it is published as a flagged zero and refused as a compared value.
+    #[test]
+    fn wide_classification_is_decided_before_rounding() {
+        for value in [
+            WideDd {
+                mantissa: Dd {
+                    hi: 1.0,
+                    lo: -two_pow(-53),
+                },
+                exponent: -1022,
+            },
+            WideDd {
+                mantissa: Dd::from_f64(2.0 - two_pow(-52)),
+                exponent: -1023,
+            },
+        ] {
+            assert_eq!(value.to_f64(), f64::MIN_POSITIVE);
+            assert!(value.is_below_normal_range());
+            assert_eq!(value.to_published(), Some((0.0, true)));
+            assert_eq!(value.to_normal_or_zero(), None);
+        }
+        let exact = w(f64::MIN_POSITIVE);
+        assert!(!exact.is_below_normal_range());
+        assert_eq!(exact.to_published(), Some((f64::MIN_POSITIVE, false)));
+    }
+
+    /// Splits a binary64 into its sign, significand and exponent.
+    fn signed_decompose(x: f64) -> (i128, i32) {
+        let (m, e) = decompose(x);
+        (if x < 0.0 { -(m as i128) } else { m as i128 }, e)
+    }
+
+    /// The exact value of a WideDd state as (signed integer, exponent),
+    /// or, when the low word lies more than 70 bits below the high word,
+    /// as an equivalent for rounding: the high word's significand times 4
+    /// plus the low word's sign, two bits further down.
+    fn exact_state(state: WideDd) -> (i128, i32) {
+        let (mh, eh) = signed_decompose(state.mantissa.hi);
+        if state.mantissa.lo == 0.0 {
+            return (mh, eh + state.exponent);
+        }
+        let (ml, el) = signed_decompose(state.mantissa.lo);
+        let spread = eh - el;
+        if spread <= 70 {
+            ((mh << spread) + ml, el + state.exponent)
+        } else {
+            (4 * mh + ml.signum(), eh - 2 + state.exponent)
+        }
+    }
+
+    fn round_signed(value: (i128, i32)) -> f64 {
+        let (m, e) = value;
+        if m == 0 {
+            return 0.0;
+        }
+        let magnitude = round_exact(m.unsigned_abs(), e);
+        if m < 0 {
+            -magnitude
+        } else {
+            magnitude
+        }
+    }
+
+    /// Below the normal range, exactly: the leading bit below 2⁻¹⁰²².
+    fn exactly_below_normal(value: (i128, i32)) -> bool {
+        let (m, e) = value;
+        m != 0 && e + (128 - m.unsigned_abs().leading_zeros() as i32) - 1 < -1022
+    }
+
+    /// Review round 4, item 4: to_f64 and the classification against exact
+    /// arithmetic on multi-term states (a high word, a low word down to
+    /// 2⁻¹⁰⁷⁴ below it, exact halves included) and on sums of two binary64
+    /// values, which WideDd holds exactly, near and below the normal range.
+    #[test]
+    fn wide_states_and_sums_round_like_exact_arithmetic() {
+        let mut state: u64 = 0xD1B5_4A32_D192_ED03;
+        let mut next = move || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            state
+        };
+        let mut checked = [0usize; 3];
+        for i in 0..200_000 {
+            let r = next();
+            let hi = f64::from_bits((1023u64 << 52) | (r & ((1u64 << 52) - 1)));
+            let hi = if r >> 63 == 1 { -hi } else { hi };
+            let r2 = next();
+            let lo = match i % 5 {
+                0 => 0.0,
+                // An exact half of the high word's unit, of either sign.
+                1 => two_pow(-53) * if r2 & 1 == 1 { 1.0 } else { -1.0 },
+                // Far below the high word, down to the smallest subnormal.
+                2 => {
+                    let drop = 60 + (r2 % 1000) as i32;
+                    scale_by_pow2(if r2 >> 63 == 1 { 1.0 } else { -1.0 }, -drop)
+                }
+                _ => {
+                    let frac = (r2 >> 11) as f64 / (1u64 << 53) as f64;
+                    let sign = if r2 & 1 == 1 { 1.0 } else { -1.0 };
+                    sign * frac * two_pow(-53)
+                }
+            };
+            let exponent = match i % 3 {
+                0 => -1022 - (next() % 60) as i32,
+                1 => -1022 + (next() % 3) as i32 - 1,
+                _ => -1100 + (next() % 200) as i32,
+            };
+            let value = WideDd {
+                mantissa: Dd { hi, lo },
+                exponent,
+            };
+            let exact = exact_state(value);
+            let expected = round_signed(exact);
+            assert_eq!(
+                value.to_f64().to_bits(),
+                expected.to_bits(),
+                "{value:?}: {:e} vs {expected:e}",
+                value.to_f64()
+            );
+            assert_eq!(value.is_below_normal_range(), exactly_below_normal(exact), "{value:?}");
+            checked[usize::from(exactly_below_normal(exact))] += 1;
+            // A sum of two binary64 values within 50 binades of each other.
+            let a = scale_by_pow2(hi, exponent + 30);
+            let shift = (next() % 50) as i32;
+            let b = scale_by_pow2(-hi * (1.0 + lo * 4.0), exponent + 30 - shift);
+            if a.is_normal() && b.is_normal() {
+                let (ma, ea) = signed_decompose(a);
+                let (mb, eb) = signed_decompose(b);
+                let low = ea.min(eb);
+                let exact = ((ma << (ea - low)) + (mb << (eb - low)), low);
+                let sum = w(a).add(w(b));
+                assert_eq!(sum.to_f64().to_bits(), round_signed(exact).to_bits(), "{a:e} + {b:e}");
+                assert_eq!(sum.is_below_normal_range(), exactly_below_normal(exact));
+                checked[2] += 1;
+            }
+        }
         assert!(checked.iter().all(|&c| c > 1000), "{checked:?}");
     }
 }
