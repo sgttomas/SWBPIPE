@@ -113,6 +113,8 @@ PREFIX_TESTS = {
 UNROUTED = {
     'core/solver/performance_harness/runner/test_k6_runner.py':
         'collected through tests/test_performance_harness_runner.py, which imports every test class it defines',
+    'core/solver/performance_harness/runner/test_release_runner.py':
+        'collected through tests/test_release_timing_runner.py, which imports every test class it defines',
 }
 
 

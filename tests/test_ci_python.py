@@ -339,26 +339,30 @@ def test_declared_reads_stay_current():
     assert 'tests/test_model_document_schema.py' not in by_rules('docs/user_guide/index.md')
 
 
-def test_the_k6_wrapper_collects_every_runner_test_class():
-    """tests/test_performance_harness_runner.py carries every unittest class of the runner's own suite, which
-    is unrouted because of it (review of #28, finding 4)."""
+def test_the_runner_wrappers_collect_every_runner_test_class():
+    """Each runner suite left unrouted is collected whole by its tests/ wrapper (review of #28, finding 4: the K6
+    wrapper once omitted two classes)."""
     import ast
     import sys
-    source = PROJECT / 'core/solver/performance_harness/runner/test_k6_runner.py'
-    classes = {node.name for node in ast.parse(source.read_text()).body if isinstance(node, ast.ClassDef)
-               and any(isinstance(base, ast.Attribute) and base.attr == 'TestCase' for base in node.bases)}
-    assert {'W1ContextBinding', 'ModelEligibilityBeforeLaunch'} <= classes
-    spec = importlib.util.spec_from_file_location('k6_wrapper', PROJECT / 'tests/test_performance_harness_runner.py')
-    wrapper = importlib.util.module_from_spec(spec)
-    path = list(sys.path)
-    try:
-        spec.loader.exec_module(wrapper)
-    finally:
-        sys.path[:] = path
     import unittest
-    assert {name for name, value in vars(wrapper).items()
-            if isinstance(value, type) and issubclass(value, unittest.TestCase)} == classes
-    assert 'tests/test_performance_harness_runner.py' in selected('core/solver/performance_harness/runner/test_k6_runner.py')
+    wrappers = {'core/solver/performance_harness/runner/test_k6_runner.py': 'tests/test_performance_harness_runner.py',
+                'core/solver/performance_harness/runner/test_release_runner.py': 'tests/test_release_timing_runner.py'}
+    assert set(wrappers) == set(ci.UNROUTED)
+    for source, wrapper_path in wrappers.items():
+        classes = {node.name for node in ast.parse((PROJECT / source).read_text()).body if isinstance(node, ast.ClassDef)
+                   and any(isinstance(base, ast.Attribute) and base.attr == 'TestCase' for base in node.bases)}
+        if source.endswith('test_k6_runner.py'):
+            assert {'W1ContextBinding', 'ModelEligibilityBeforeLaunch'} <= classes
+        spec = importlib.util.spec_from_file_location('wrapper_' + Path(wrapper_path).stem, PROJECT / wrapper_path)
+        wrapper = importlib.util.module_from_spec(spec)
+        path = list(sys.path)
+        try:
+            spec.loader.exec_module(wrapper)
+        finally:
+            sys.path[:] = path
+        assert {name for name, value in vars(wrapper).items()
+                if isinstance(value, type) and issubclass(value, unittest.TestCase)} == classes, wrapper_path
+        assert wrapper_path in selected(source), source
 
 
 def test_formerly_never_run_guards_follow_their_roots():
