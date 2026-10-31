@@ -50,6 +50,27 @@ describe("the embedded agent's workspace snapshot", () => {
     expect(await startRefusal(result)).not.toBe("AGENT-WORKSPACE-NOT-READY");
   });
 
+  it("never pairs the edited model's hash with the model an undo restores, before React re-renders", async () => {
+    const result = await session();
+    await applyBendRadius(result, "0.2");
+    await waitFor(() => expect(result.current.model.modelHash).not.toBeNull());
+    expect(await startRefusal(result)).not.toBe("AGENT-WORKSPACE-NOT-READY");
+    // Undo and Start in one synchronous step: the snapshot is read from the closure of the
+    // last render, whose hash belongs to the edited model, while the undo has already
+    // restored the earlier model. Only the owner's live revision can refuse it.
+    let started: Promise<unknown> | null = null;
+    act(() => {
+      result.current.operations.handleUndoSessionModelEdit();
+      started = result.current.agent.start("r".repeat(48));
+    });
+    const refusal = await started!.then(() => "", (error: Error) => error.message);
+    expect(refusal).toBe("AGENT-WORKSPACE-NOT-READY");
+    await act(async () => { await result.current.agent.close().catch(() => {}); });
+    await waitFor(() => expect(result.current.model.model!.components[0].geometry).toMatchObject({ bend_radius: { value: 0.15, unit: "m" } }));
+    await waitFor(() => expect(result.current.model.modelHash).not.toBeNull());
+    expect(await startRefusal(result)).not.toBe("AGENT-WORKSPACE-NOT-READY");
+  });
+
   it("never publishes the hash from before an edit while the edited model's hash is pending", async () => {
     const result = await session();
     expect(await startRefusal(result)).not.toBe("AGENT-WORKSPACE-NOT-READY");

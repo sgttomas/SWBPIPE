@@ -29,12 +29,22 @@ type Run={basis:AgentBasis;receipt:AgentRunReceipt};
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
-/** A workspace hash in the catalog's form: the workspace and the operation engine write
- * `sha256:<hex>`, the catalog's `hash` value is the 64 hex digits alone. Every hash the
- * agent sees or returns crosses here; the operation batch keeps the engine's form. */
+const ENGINE_HASH=/^sha256:[0-9a-f]{64}$/,CATALOG_HASH=/^[0-9a-f]{64}$/;
+/** A workspace hash in the catalog's form. The workspace and the operation engine write
+ * `sha256:` and 64 lowercase hex digits; the catalog's `hash` value is the 64 digits
+ * alone. Every workspace hash the agent sees or returns crosses here, and any other form
+ * is refused by name; the operation batch keeps the engine's form. */
 export function agentHash(hash:ModelHashEvidence|null|undefined):ModelHashEvidence|null{
  if(!hash)return null;
- return {...hash,value:hash.value.startsWith('sha256:')?hash.value.slice('sha256:'.length):hash.value};
+ if(typeof hash.value!=='string'||!ENGINE_HASH.test(hash.value))throw new Error('AGENT-ENGINE-HASH-FORM-REFUSED');
+ return {...hash,value:hash.value.slice('sha256:'.length)};
+}
+/** A hash from the agent's side (its basis) compared here is the catalog's form exactly:
+ * 64 lowercase hex digits; any other form is refused by name. */
+export function catalogHash(hash:unknown):unknown{
+ if(hash===null)return null;
+ if(!plain(hash)||typeof hash.value!=='string'||!CATALOG_HASH.test(hash.value))throw new Error('AGENT-CATALOG-HASH-FORM-REFUSED');
+ return hash;
 }
 /** The native kinds swbpipe-catalog/4 admits; the catalog schema is their gate and the applier their authority. */
 export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile','insert/Component/insert_component_symbol','modify/Component/set_field/objective_connector','modify/Support/update_support/configuration','delete/Component/delete_component','delete/Support/delete_support','delete/Element/delete_pipe_run','delete/Node/delete_node']);
@@ -233,7 +243,7 @@ export class EmbeddedAgentSession {
   if(this.#closed||live.generation!==this.#generation||call.basis.workspaceHandle!==this.#scope?.workspaceHandle||call.basis.applicationGeneration!==this.#scope?.applicationGeneration)return false;
   if(call.tool==='swbpipe_observe_proposal')return same(this.#proposals.get(String(call.arguments.proposalHandle))?.basis,call.basis);
   if(call.tool==='swbpipe_read_results')return same(this.#runs.get(String(call.arguments.runHandle))?.basis,call.basis);
-  return !!live.hash&&call.basis.modelRevision===live.revision&&same(call.basis.modelHash,agentHash(live.hash));
+  return !!live.hash&&call.basis.modelRevision===live.revision&&same(catalogHash(call.basis.modelHash),agentHash(live.hash));
  }
  private failure(call:AgentCall,message:string,status='unavailable'):AgentActual{return {outcome:small({status,basis:call.basis,message,data:null}),record:{kind:'failure'}};}
  private result(call:AgentCall,status:string,message:string,data:unknown,proof:Proof):AgentActual{return {outcome:small({status,basis:call.basis,message,data}),record:proof};}
@@ -305,7 +315,7 @@ export class EmbeddedAgentSession {
    // applies to the chord; without one no intensified measure is published.
    const chords=unrealizedBends(model);
    if(chords.length&&(model as unknown as Record<string,unknown>).pressure_contract!==undefined)return this.failure(call,`Not solved: the exact route refuses unrealized bends (${namedIds(chords,300)}). Ask the person to realize each with Insert bend at corner and enter k, the SIFs and their source, then solve.`);
-   const receipt=await this.owner.solve();if(!receipt||!same(agentHash(receipt.modelHash),call.basis.modelHash))return this.failure(call,'No matching completed native solve is available.');
+   const receipt=await this.owner.solve();if(!receipt||!same(agentHash(receipt.modelHash),catalogHash(call.basis.modelHash)))return this.failure(call,'No matching completed native solve is available.');
    const handle=opaque();this.#runs.set(handle,{basis:structuredClone(call.basis),receipt});
    const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${namedIds(chords,300)}) were solved as straight chords; k does not affect chord stiffness. ${chordSifText(model,chords)} Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
    return this.result(call,'completed',solved,{runHandle:handle,runId:receipt.runId,evaluatedModelHash:agentHash(receipt.modelHash),health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
