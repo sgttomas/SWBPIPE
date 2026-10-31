@@ -154,14 +154,14 @@ payload-free enum and the request is never printed.
 
 ## Stub run
 
-Candidate: wasm engine, frontend, native-smoke app, driver and controller
-built from `bd1c8eff3` (this branch with main merged after #40 and #44, and
-the second review's fixes); macOS ARM. The bundle was a private copy of the
+Candidate: native-smoke app, driver and controller from `cb3897f1c` (the
+third review's fixes, including the handshake gate), with the wasm engine and
+frontend built from `bd1c8eff3`, unchanged since; macOS ARM. The bundle was a private copy of the
 retained bundle at `targets/appv4-host/aarch64-apple-darwin/debug/bundle/macos/SWBPIPE.app`
 (the originals untouched), whose supplier matched the pin
 (`112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b`), with the
 fresh executable (SHA-256
-`a5d85612e3227f9acad50bd8437f222ccd9bdd4be75446530427c4129cf1a055`) placed in it.
+`c23a852d85fc4e07e50b7b982e75e72c430def174958fceba66dfd60c7d519a7`) placed in it.
 
 Seal: ad-hoc local seal of a private test copy, not distribution signing
 (`codesign --force --sign - --options runtime` on the app copy only; no
@@ -171,25 +171,26 @@ identity, team id or Keychain item). Its identity output was
 re-signed; its SHA-256 and its own signature verified unchanged before each
 launch.
 
-The evidence run, 2026-10-31T13:42:12Z to 13:42:33Z UTC, under `t3_slot.sh`:
+The evidence run, 2026-10-31T14:14:30Z to 14:14:50Z UTC, under `t3_slot.sh`:
 
 | Check | Observed |
 |---|---|
-| Free-memory gate | 50.8 GiB free; this stub run used a 16 GiB gate (no model runs), the live default stays 50 GiB |
+| Free-memory gate | 49.3 GiB free; this stub run used a 16 GiB gate (no model runs), the live default stays 50 GiB |
 | Standalone preflight | passed (probe exits, boundary checks, `preflight_complete`) |
-| Gate | supplier published, observed, anchored to its group, then `READY` |
+| Gate | handshake mode; one supplier published, observed, anchored to its group, then answered `READY` |
 | Driver | all seven steps, each turn ending "Ready." with an agent message; one agent batch whose submitted operations are the fixture's 11 in order; receipt after the stand-in Apply |
 | Stub provider | summary, propose, message; summary, observe (`applied`), solve (`completed`), read results, message; no unexpected step; no request carried an Authorization header |
 | Window | the tree shows exactly nodes `node:a`, `node:c`, `node:d`, pipes `pipe:a-c`, `pipe:c-d` and supports `support:a`, `support:d`; `node:c` ux 4.771112073942932 mm, uy -3.586865438767269 mm, uz 0, rx 0, ry 0, rz 0.0007867143613246695 rad, each within W9-A's criterion |
-| Agreement | the solve was on the applied model's hash; the agent read exactly the window's six rows; its report in the window states each value |
+| Agreement | the solve was on the applied model's hash; the agent read exactly the window's six rows; its report in the window gives one `node:c <component> = <value> <unit>` record per component, each equal to the window's |
 | Cleanup | app exit 0; supplier exit observed with status 0 and absent; `qualified_native_owned_group`; no resident process |
 
 The result JSON SHA-256 is
-`de448a0026f6ca7376093aa181c41a5d71afddcacfb8d3ae1343cd10b5b673fc`; it holds
+`3d30ebf1bc5c767d8ce6d9f05cbfb57abfe77f8c45ca7efa3eb4e3cbb15e72e6`; it holds
 no credential and is a local report that no permanent check reads. The same
 journey had passed on earlier candidates (11:37 UTC with a draft of #40's fix,
-12:31 UTC on the merged fix); review then tightened the driver and the judge,
-so it was run again on this candidate. Each run used a fresh private bundle
+12:31 UTC on the merged fix, 13:42 UTC with the second review's fixes); review
+then replaced the timed gate with the handshake and tightened the judge, so
+it was run again on this candidate. Each run used a fresh private bundle
 copy, removed after.
 
 Earlier attempts, each a short launch that left nothing resident (run 1's three
