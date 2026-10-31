@@ -50,5 +50,6 @@ the entry, and the entry names the PR.
   the component inspector, then let the agent continue.
 - **Basis:** DEL-16-06 `Work/embedded-agent-host.md`, "Catalog version 4" and
   "Author routes and the trust boundary"; DEL-16-03
-  `Work/operation-authorship.md`.
+  `Work/operation-authorship.md`. Made standing by PR #27 (catalog v4) with
+  the applier refusal from PR #23.
 - **Status:** owner's acceptance pending.
