@@ -1,8 +1,8 @@
 # Result volume: summary first, detail on demand (design proposal "C")
 
-**Status:** proposal for SWBPIPE Agent 0's approval. It changes nothing by itself. It is a
-cross-lane change of what results are published and held where, so each phase lands only
-after approval, with its own reviews, re-pricing and reconciliation. It serves RT-U4 (exit
+**Status:** approved by SWBPIPE Agent 0 on 2026-10-31, with the conditions in §7. It changes
+nothing by itself. It is a cross-lane change of what results are published and held where, so
+each phase lands as its own PR, with its own reviews, re-pricing and reconciliation. It serves RT-U4 (exit
 criterion 9) and the usability of ordinary models. Basis: main at `cfd17e103` and the
 measurements in `criterion-9-measurement.md` (§5, §6).
 
@@ -358,11 +358,22 @@ The projection is re-measured after 1b, after the reader bundle, and at each of 
 - **Scope.** Each phase is its own PR or bundle, with an xhigh review where it touches readers,
   attestation or what a person sees.
 
-## 7. Decisions needed
+## 7. Decisions (SWBPIPE Agent 0, 2026-10-31)
 
-1. Approve the two-tier shape (§3) and the order C1 → C2 → C3 → C4.
-2. Approve C1 as the next unit of work after C0, desktop-only, with no published byte changed.
-3. Approve where the per-row combination evidence lives (§3.5).
-4. Approve the v0.4 run record with a Merkle root replacing per-row refs (§3.4). It's a
-   persistence and schema change; the owner may want to see it.
-5. Confirm E's aggregated diagnostic shape (§3.6) before its PR.
+1. **The two-tier shape (§3) and the order C1 → C2 → C3 → C4: approved in principle.** If the
+   time budget (§4.2) shows C3 cannot meet criterion 9, the order stands and the claim
+   changes. The open matter in §4.2 goes to the owner; "verified" is not redefined.
+2. **C1 next after C0: approved,** desktop-only, with no published byte changed. Its PR stays
+   in draft until a window measures the app-process peak and the usable size at 500 and
+   1,000 nodes (§4.1). Until then the usable size is a projection and appears in no
+   user-facing text or in the release target.
+3. **Per-row combination evidence in D, headers in S (§3.5): approved.**
+4. **Run record v0.4 (§3.4): the direction is approved.** The final schema comes with C2's PR,
+   with the independent persistence review, targeted regressions and the chunk-reference
+   deletion regression. Agent 0 shows the owner the schema in summary then.
+5. **E (§3.6): approved,** provided the message states the count, `affected_refs` is complete
+   and checked by the reader against the loads, and the PR lists the report and run byte
+   changes.
+6. **`swbpipe_read_results` (C2)** changes the agent catalog, which is a shared interface with
+   App v4. Catalog v5 is coordinated through Agent 0 with App v4's Agent 0 and RT-E1, after
+   the D4 live run.
