@@ -4,7 +4,7 @@
  * arguments. The live adapter and its actual queue/job lookups are separate.
  */
 export const AGENT_TOOLS = [
-  "swbpipe_read_model_summary", "swbpipe_read_nodes", "swbpipe_propose_operations",
+  "swbpipe_read_model_summary", "swbpipe_read_nodes", "swbpipe_read_records", "swbpipe_propose_operations",
   "swbpipe_observe_proposal", "swbpipe_solve", "swbpipe_read_results"
 ] as const;
 export type AgentTool = typeof AGENT_TOOLS[number];
