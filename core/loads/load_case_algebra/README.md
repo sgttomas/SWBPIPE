@@ -10,6 +10,14 @@ expression evaluation, stress recovery, or professional/code-compliance claims.
 - User-defined linear combination terms with explicit numeric factors.
 - Result-state subtraction and min/max range envelopes over compatible
   mechanics quantities.
+- Unsigned combinations over explicit factored terms (`evaluate_absolute_sum`,
+  `evaluate_srss`; DEL-05-02 Work `absolute-sum-srss-combinations.md` §3): the
+  absolute sum RN(Σ|fᵢ·xᵢ|), one rounding of the exact sum, and the SRSS
+  RN(√Σzᵢ²) with zᵢ = RN(fᵢ·xᵢ), one rounding of the exact root, found by exact
+  midpoint signs on the exact accumulator. Both are +0.0 for an exact zero and
+  independent of term order; a result outside the binary64 range, an
+  overflowing zᵢ or a non-finite operand value is a `NonRepresentable` finding,
+  never an infinity; more than 2³² terms are refused by name.
 - Dimension compatibility checks using the existing primitive-load dimension
   vocabulary.
 - Result boundary records that require explicit unit metadata, provenance
@@ -50,4 +58,8 @@ or define code-specific calculation units.
 The unit tests cover linear combinations, result-state subtraction, range
 envelopes, dimension compatibility, missing/invalid operands, duplicate
 operands, result boundary metadata, status propagation, and rejection of
-human-approval status as an automatic software result.
+human-approval status as an automatic software result. `src/unsigned_tests.rs`
+checks the absolute sum and the SRSS against the frozen table in
+`validation/references/rt_a4_combinations/` bit for bit (V-1), against
+`correct_norm::norm3` on a random sample (V-2), over every order of a
+five-term table (V-3), and against the mutants of V-4.
