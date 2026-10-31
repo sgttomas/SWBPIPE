@@ -67,7 +67,10 @@ acceptance, issuance or release.
   `exact_generation_mass_per_length`) read through it, the self-weight
   dependency projection records the resolved value and its source, and modal
   calls the same resolver and mass function for its named state, so the two
-  bases cannot drift. A condition's `added_weight` is a `weight` primitive,
+  bases cannot drift. The resolver is a public crate function callable for any
+  named case id outside self-weight generation (DEL-04-09's state-case mass
+  calls it directly); until it lands, modal refuses a state case that resolves
+  condition contents, as the solve does. A condition's `added_weight` is a `weight` primitive,
   not self-weight lineage.
 - **PF.** Whether PF admits a pressure-free test case (contents weight and held
   supports only) or refuses `test_condition` by name.
