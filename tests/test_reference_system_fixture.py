@@ -238,3 +238,206 @@ def test_every_key_result_is_named_with_a_basis_and_no_unrecorded_expected_value
             record = expected.get("basis_record", "") if isinstance(expected, dict) else ""
             assert record.startswith("validation/references/reference_system/") and (ROOT / record).is_file(), \
                 entry["id"]
+
+
+# -- (f) EQ-1, EQ-2, EQ-3 and EQ-5 in both solver modes ---------------------------------------------------------------
+# Spec §9.2; the frozen references and the conventions are in validation/references/reference_system/ (README). The
+# criterion is DEC-024/DEC-026's, as validation/references/w16_imposed_motion/README.md states it: a nonzero row passes
+# when |obs - exp| <= 1e-9 |exp|; a zero row when |obs| <= 1e-9 * zero_scale, the largest nonzero magnitude of its
+# family in the case. Product sign convention for support_reaction_component_v2: the action of the support on the
+# pipe, global axes, moments about the support's node.
+REFERENCES = ROOT / "validation" / "references" / "reference_system" / "references.json"
+SOLVER_MODES = ("sparse_interactive", "dense_scrutiny")
+RELATIVE = 1e-9
+FORCES, MOMENTS = ("Fx", "Fy", "Fz"), ("Mx", "My", "Mz")
+SUPPORT_COMPONENT = "support_reaction_component_v2"
+# Magnitude rows: recomputed from the combined components (kind -> component kinds or support components).
+MAGNITUDES = {"displacement_magnitude": ("global_nodal_displacement_x", "global_nodal_displacement_y",
+                                         "global_nodal_displacement_z"),
+              "support_reaction_force_magnitude_v2": FORCES, "support_reaction_moment_magnitude_v2": MOMENTS}
+# Case rows that are not signed component rows: maxima, extremes, intensified measures and solver records. The product
+# combines none of them (COMBINATION_STRESS_MAXIMUM_UNAVAILABLE, COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE).
+NOT_COMPONENT_ROWS = {"curved_bend_directional_intensified_bending_maximum_v1",
+                      "curved_bend_directional_intensified_bending_stress_v1", "element_local_normal_stress_extreme",
+                      "element_local_transverse_shear_stress_maximum", "pipe_elastic_normal_stress_maximum_v2",
+                      "linear_solver_mode_basis"}
+# Rows the combination withholds by name (a tie-rod row's key is shared by the connector's rods).
+WITHHELD_KINDS = {"connector_tie_rod_force_v1"}
+COMBINATION_RECORDS = {"combination_modulus_basis_record"}
+
+
+def reference_values():
+    refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
+    key = refs["key_values"]
+    return key["W_total_N"]["value"], [v["value"] for v in key["weight_moment_about_origin_N_m"]]
+
+
+def row_key(row):
+    """The structural pairing key from a row's published fields: never its id."""
+    meta = row.get("metadata") or {}
+    section = meta.get("basis", "").partition("section_basis=")[2]
+    return (row["kind"], row["unit"], row["entity_ref"], meta.get("location", ""), meta.get("component", ""),
+            meta.get("coordinate_system", ""), section)
+
+
+def summarise(output):
+    """The rows the checks read, by basis (load case or combination id), and the withheld diagnostics."""
+    envelope = output["payload"]["mechanics_envelope"]
+    rows = {}
+    for row in envelope["results"]:
+        basis = (row.get("basis_ref") or {}).get("ref_id")
+        if basis:
+            rows.setdefault(basis, []).append({"key": row_key(row), "value": row["value"], "id": row["id"]})
+    withheld = {code["affected_refs"][0]: code["message"] for code in envelope["diagnostics"]
+                if code.get("code") == "LOAD_COMBINATION_ROW_WITHHELD"}
+    return {"rows": rows, "withheld": withheld, "status": envelope["status"]["mechanics"]}
+
+
+@pytest.fixture(scope="module", params=SOLVER_MODES)
+def mode_rows(request):
+    runner = os.environ.get("OPENPIPESTRESS_RUNNER_BIN")
+    if not runner:
+        pytest.skip("OPENPIPESTRESS_RUNNER_BIN is not set")
+    body = {"request": runner_request(), "solve": {"preview_model": {"model": MODEL, "materials": []}}}
+    completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--solver-mode", request.param,
+                                "--input", "-"], input=json.dumps(body), capture_output=True, text=True, check=False)
+    assert completed.returncode == 0 and completed.stdout, completed.stderr
+    summary = summarise(json.loads(completed.stdout))
+    assert summary["status"] == "MECHANICS_SOLVED"
+    return request.param, summary
+
+
+def check_row(label, observed, expected, zero_scale, failures, record):
+    if expected != 0.0:
+        error = abs(observed - expected) / abs(expected)
+        record["relative"] = max(record.get("relative", 0.0), error)
+        if error > RELATIVE:
+            failures.append(f"{label}: observed {observed!r}, expected {expected!r}, relative error {error:.3e}")
+    else:
+        assert zero_scale > 0, label
+        ratio = abs(observed) / zero_scale
+        record["zero"] = max(record.get("zero", 0.0), ratio)
+        if ratio > RELATIVE:
+            failures.append(f"{label}: observed {observed!r} for a zero expectation, |obs|/zero_scale {ratio:.3e}")
+
+
+def supports(case_rows):
+    """{support id: {component: value}} from a case's support_reaction_component_v2 rows."""
+    found = {}
+    for row in case_rows:
+        kind, _, entity, _, component, frame, _ = row["key"]
+        if kind == SUPPORT_COMPONENT:
+            assert frame == "global", row["id"]
+            found.setdefault(entity, {})[component] = row["value"]
+    return found
+
+
+def resultants(case_rows):
+    """The reaction resultant force and its moment about the global origin, sum of r x F + M over every support."""
+    nodes = {node["id"]: tuple(node["position"][a] for a in "xyz") for node in MODEL["nodes"]}
+    at = {support["id"]: nodes[support["node"]] for support in MODEL["supports"]}
+    actions = supports(case_rows)
+    assert set(actions) == set(at), sorted(set(actions) ^ set(at))  # every support, the spring included
+    force, moment = [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]
+    for support, values in sorted(actions.items()):
+        assert set(values) == set(FORCES + MOMENTS), support
+        f, m, r = [values[c] for c in FORCES], [values[c] for c in MOMENTS], at[support]
+        lever = (r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0])
+        for i in range(3):
+            force[i] += f[i]
+            moment[i] += m[i] + lever[i]
+    scales = (max(abs(v[c]) for v in actions.values() for c in FORCES),
+              max(abs(v[c]) for v in actions.values() for c in MOMENTS))
+    return force, moment, scales
+
+
+def test_eq1_eq2_reactions_balance_the_independent_weight(mode_rows):
+    """EQ-1: sum of vertical reactions = W_total; EQ-2: horizontal resultant zero, moment resultant = -M_weight."""
+    mode, summary = mode_rows
+    weight, weight_moment = reference_values()
+    failures, eq1, eq2 = [], {}, {}
+    for case in ("load:RS-SUS", "load:RS-OPE", "load:RS-SAM"):
+        force, moment, (force_scale, moment_scale) = resultants(summary["rows"][case])
+        check_row(f"EQ-1 {case} sum Fz", force[2], weight, force_scale, failures, eq1)
+        for i, axis in enumerate("XY"):
+            check_row(f"EQ-2 {case} sum F{axis.lower()}", force[i], 0.0, force_scale, failures, eq2)
+        for i, axis in enumerate("XYZ"):
+            check_row(f"EQ-2 {case} moment about the origin M{axis.lower()}", moment[i], -weight_moment[i],
+                      moment_scale, failures, eq2)
+    print(f"{mode} EQ-1 {eq1} EQ-2 {eq2}")  # largest relative error and zero-row ratio (pytest -s)
+    assert not failures, failures
+
+
+def test_eq5_the_anchor_movement_term_is_self_equilibrated(mode_rows):
+    mode, summary = mode_rows
+    force, moment, (force_scale, moment_scale) = resultants(summary["rows"]["combination:RS-dSAM"])
+    failures, eq5 = [], {}
+    for i, axis in enumerate("xyz"):
+        check_row(f"EQ-5 RS-dSAM sum F{axis}", force[i], 0.0, force_scale, failures, eq5)
+        check_row(f"EQ-5 RS-dSAM moment about the origin M{axis}", moment[i], 0.0, moment_scale, failures, eq5)
+    print(f"{mode} EQ-5 {eq5}")
+    assert not failures, failures
+
+
+def test_eq3_expansion_equals_operating_minus_sustained_on_every_component_row(mode_rows):
+    mode, summary = mode_rows
+    by_key = {}
+    for case in ("load:RS-OPE", "load:RS-SUS", "combination:RS-EXP"):
+        keyed = {}
+        for row in summary["rows"][case]:
+            keyed.setdefault(row["key"], []).append(row)
+        by_key[case] = keyed
+    ope, sus, exp = by_key["load:RS-OPE"], by_key["load:RS-SUS"], by_key["combination:RS-EXP"]
+    exp = {key: rows for key, rows in exp.items() if key[0] not in COMBINATION_RECORDS}
+    # Coverage: every case component row is combined once, except the withheld (listed) and non-component rows.
+    case_keys = {key for key in ope if key[0] not in NOT_COMPONENT_ROWS}
+    assert case_keys == {key for key in sus if key[0] not in NOT_COMPONENT_ROWS}
+    withheld = {key for key in case_keys if key[0] in WITHHELD_KINDS}
+    assert withheld and all(len(ope[key]) > 1 for key in withheld)  # the rods share one key
+    assert set(exp) == case_keys - withheld, sorted(set(exp) ^ (case_keys - withheld))[:10]
+    message = summary["withheld"]["combination:RS-EXP"]
+    withheld_ids = sorted(row["id"] for key in withheld for row in ope[key])
+    assert all(row_id.removeprefix("result:") in message for row_id in withheld_ids), (withheld_ids, message)
+    # Expected values: OPE - SUS for signed rows; the norm of the combined components for magnitude rows.
+    expected = {}
+    for key, rows in exp.items():
+        assert len(rows) == 1 and len(ope[key]) == 1 and len(sus[key]) == 1, key
+        if key[0] not in MAGNITUDES:
+            expected[key] = ope[key][0]["value"] - sus[key][0]["value"]
+    for key in exp:
+        kind = key[0]
+        if kind in MAGNITUDES:
+            parts = MAGNITUDES[kind]
+            if kind == "displacement_magnitude":
+                comps = [exp[(p, key[1], key[2], "node", f"nodal_displacement_{p[-1]}", "global", "")][0]["value"]
+                         for p in parts]
+            else:
+                comps = [exp[(SUPPORT_COMPONENT, key[1], key[2], key[3], c, key[5], key[6])][0]["value"]
+                         for c in parts]
+            expected[key] = sum(v * v for v in comps) ** 0.5
+    # Zero scales: the largest nonzero expected magnitude of the row's family (its unit) in RS-EXP.
+    scales = {}
+    for key, value in expected.items():
+        scales[key[1]] = max(scales.get(key[1], 0.0), abs(value))
+    failures, eq3 = [], {}
+    for key, rows in sorted(exp.items()):
+        check_row(f"EQ-3 {rows[0]['id']}", rows[0]["value"], expected[key], scales[key[1]], failures, eq3)
+    eq3["rows"], eq3["withheld"] = len(exp), withheld_ids
+    print(f"{mode} EQ-3 {eq3}")
+    assert not failures, failures[:20]
+
+
+def test_eq1_eq2_expected_values_are_the_frozen_references():
+    weight, weight_moment = reference_values()
+    expected = {entry["id"]: entry["expected"] for entry in KEY_RESULTS["results"]}
+    assert expected["EQ-1"]["value"] == weight and expected["EQ-2"]["value"] == weight_moment
+    refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
+    assert expected["EQ-1"]["exact"] == refs["key_values"]["W_total_N"]["exact"]
+    for rid in ("EQ-3", "EQ-5"):
+        assert expected[rid]["identity"] and expected[rid]["basis_record"].endswith("README.md"), rid
+
+
+def test_the_reference_generator_check_passes():
+    generator = REFERENCES.parent / "generators" / "rs_reference.py"
+    completed = subprocess.run([sys.executable, "-I", str(generator)], capture_output=True, text=True, check=False)
+    assert completed.returncode == 0, completed.stdout + completed.stderr
