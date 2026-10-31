@@ -76,6 +76,16 @@ fn text(envelope: &Value) -> String {
     serde_json::to_string(envelope).unwrap()
 }
 
+/// Byte equality of two envelopes, reporting the first difference in context.
+fn assert_same_bytes(left: &Value, right: &Value, what: &str) {
+    let (a, b) = (text(left), text(right));
+    if a != b {
+        let at = a.bytes().zip(b.bytes()).position(|(x, y)| x != y).unwrap_or(a.len().min(b.len()));
+        let from = at.saturating_sub(200);
+        panic!("{what}: first difference at byte {at}:\n left: {}\nright: {}", &a[from..(at + 200).min(a.len())], &b[from..(at + 200).min(b.len())]);
+    }
+}
+
 fn diagnostics(envelope: &Value) -> Vec<(String, String, String)> {
     envelope["diagnostics"].as_array().unwrap().iter()
         .map(|d| (d["code"].as_str().unwrap().into(), d["severity"].as_str().unwrap().into(), d["message"].as_str().unwrap().into()))
@@ -130,16 +140,25 @@ fn with_unused_members(mut document: Value) -> Value {
 
 /// E5 (§1.8): a document with condition sets, assignments and spectra but no
 /// `condition_use` solves byte-identically to the same document without them, on both
-/// solver modes and both routes.
+/// solver modes; on the exact route every solved member is identical and only the
+/// hashes bound to the authored request differ.
 #[test]
 fn e5_unused_sets_assignments_and_spectra_change_no_published_byte() {
-    for base in [model(), exact_model()] {
+    for (base, exact) in [(model(), false), (exact_model(), true)] {
         let annotated = with_unused_members(base.clone());
         for mode in MODES {
             let reference = solve(&base, mode);
             let solved = solve(&annotated, mode);
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:?}", diagnostics(&solved));
-            assert_eq!(text(&solved), text(&reference), "{mode:?}: unused 0.9.0 members change no published byte");
+            if exact {
+                // The exact route's source-block custody hashes bind the authored request
+                // (§1.8's hash-bound exception, as `model_hash` is); everything solved is equal.
+                for member in ["status", "results", "diagnostics", "summary", "numerical_quality", "formulation_basis"] {
+                    assert_same_bytes(&solved[member], &reference[member], &format!("exact {mode:?}: {member}"));
+                }
+            } else {
+                assert_same_bytes(&solved, &reference, &format!("{mode:?}: unused 0.9.0 members change no published byte"));
+            }
         }
     }
 }

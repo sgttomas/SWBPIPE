@@ -355,7 +355,7 @@ fn supports_findings(supports: &[SupportView<'_>], found: &mut MemberFindings) {
             found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED, "is not admitted on a support with a nonlinear member"));
         } else {
             match one {
-                Some(_) if !snubber_shape => found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED,
+                _ if !snubber_shape => found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED,
                     "is admitted on a snubber only with exactly one translational restraint")),
                 None => found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED,
                     "is admitted only on a support that acts on exactly one DOF")),
