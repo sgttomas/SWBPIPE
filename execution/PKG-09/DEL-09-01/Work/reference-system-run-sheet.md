@@ -25,10 +25,15 @@ statement about the system or the product (F-PIP-2, F-PIP-3).
 - **⟨S5⟩** = `invented user value, DEL-09-01 Work/reference-system.md §5`
 
 **Queue and apply.** Every form below queues an operation. A single intent is applied with
-**Apply** under *Review changes* (`features/operations/OperationApplyPanel.tsx:105-114`); a
-batch with **Validate batch**, then **Apply entire batch** (`features/toolkit/BatchReviewPanel.tsx:122-123`).
-A batch holding `insert_bend_at_corner` applies only after a clean validation of that
-batch (`BatchReviewPanel.tsx:24-32`).
+**Apply** under *Review changes* (`features/operations/OperationApplyPanel.tsx`). Since #54,
+**Review all N queued changes as one batch** can move independent user intents to batch
+review in queue order. The move applies nothing; **Apply entire batch** validates and
+applies all or none, as one Undo (`features/toolkit/BatchReviewPanel.tsx`). **Validate
+batch** checks without applying and is required first for preview-gated operations,
+including `insert_bend_at_corner`. Dependent before-values are never adjusted; shared
+operation ids are named and refused before anything leaves the single queue. §5 retains
+the per-intent cycle counts before optional G9 batching; it assigns no separate timing
+rate to an Apply cycle, so no numerical time credit for batching is inferred.
 
 ## 2. Preconditions
 
@@ -265,7 +270,7 @@ k and its source prefilled: **In-plane SIF i_ip** and **Out-of-plane SIF i_op** 
 Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features/component-creation/RigidDraftFields.tsx:11-32`,
 `ConnectorDraftFields.tsx:36-73`; the tee's at `PropertyInspector.tsx:948-969`). **Queue ⟨kind⟩**, Apply.
 
-1. **Valve and flanges** (10 min). Length unit m and Weight unit N, as prefilled. Solver
+1. **Valve and flanges** (6 min). Body length unit m, COG unit m and Weight unit N, as prefilled. Solver
    consumption mechanics_geometry_only; Stiffness scale 10.0 with source ⟨S5⟩; Geometry
    source ⟨S5⟩; Provenance ⟨P⟩; Stiffness behavior reference `rigid body, user stiffness
    scale 10.0 (DEC-045); ⟨S5⟩`; End A / End B reference `node:RS-0xx (body end on RS-P0xx)`
@@ -277,11 +282,10 @@ Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features
    | `component:RS-V1` | Valve V1 | valve | RS-040 | RS-P030 | 0.6 | 2600 | −0.3, 0, 0.3 | RS-030 / RS-040 |
    | `component:RS-F2` | Flange F2 | flange | RS-050 | RS-P040 | 0.15 | 350 | −0.075, 0, 0 | RS-040 / RS-050 |
 
-   End A and End B size are 270 mm in the fixture, but the form has one length unit for body
-   length, end sizes and centre of gravity (`component-creation/componentIntent.ts:534-551`).
-   Enter 0.27 here, then set **End A size** and **End B size** to 270 with unit mm on each
-   component through the inspector task (`PropertyInspector.tsx:2033-2052`): six edits
-   (gap G6).
+   Enter **End A size** and **End B size** as 270, choosing mm in each size unit
+   selector. Body length and COG keep their own m units. Both creation forms carry
+   independent units (`component-creation/componentIntent.ts`; DEL-03-05
+   `Work/component-quantity-units.md`), so no later end-size edits are needed (G6).
 2. **Expansion joint RS-EJ1** (6 min). ID `component:RS-EJ1`; Label `Expansion joint EJ1
    (tied)`; Kind expansion_joint; node RS-190; realized pipe (the replaced span) RS-P180;
    Connector axes (global) `0 -1 0; 1 0 0; 0 0 1`; End i and End j node axes `1 0 0; 0 1 0;
@@ -487,7 +491,7 @@ An entry is one typed value, selection or checkbox; buttons that add a row (**Ad
 queue or apply buttons are not entries; a quantity whose unit is not prefilled is
 two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not measurements.
 The tee's row uses the rates of its neighbours: its form entries at the rigid-component
-form's rate (about 5.5 s per entry: §3.6's 10 minutes less the six end-size edits, over
+form's pre-G6 rate (about 5.5 s per entry: its former 10 minutes less the six end-size edits, over
 its 60 form entries) and each SIF edit at the RS-050 correction's 0.75 minutes. The rows #41
 changed use the same two rates, rounded to the quarter minute: the run sheet at its own rate
 before #41, 8 minutes over 98 entries (about 4.9 s per entry), and the bend SIFs (§3.5) and
@@ -501,7 +505,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.4 Run sheet: 26 rows (122 cells: 9 node and pipe ids, 41 for the supports, 26 for the bends, 46 others) and header (13) | 135 | 1 | 11 |
 | 3.4 RS-050 correction | 3 | 1 | 0.75 |
 | 3.5 Bend SIFs | 9 | 3 | 0.75 |
-| 3.6 Valve and flanges, with end-size edits | 84 | 9 | 10 |
+| 3.6 Valve and flanges, with independent quantity units | 66 | 3 | 6 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
 | 3.6 Tee RS-T1 (15 form entries) and the person's two SIFs | 21 | 3 | 3 |
 | 3.7 Variable spring RS-VS1 | 20 | 1 | 1.75 |
@@ -511,7 +515,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **687** | **38** | **about 64 (64.5)** |
+| **Total** | **669** | **32** | **about 61 (60.5)** |
 
 How the #41 rows are counted:
 
@@ -533,11 +537,18 @@ How the #41 rows are counted:
   restraint checkboxes and V060's "Create a new support". At 5.5 s per entry, 20 × 5.5 s =
   110 s, rounded to 1.75 minutes. One cycle.
 
-The totals: entries 757 − 98 + 135 − 39 + 9 − 98 + 20 = 686, plus the tee's Size unit entry
+Before G6, the #41 totals were: entries 757 − 98 + 135 − 39 + 9 − 98 + 20 = 686, plus the tee's Size unit entry
 (review r1) = 687; cycles 51 − 6 + 3 − 11 + 1 = 38; minutes 77.25 − 8 + 11 − 5.5 + 0.75 − 13 +
 1.75 = 64.25, plus 0.25 for the tee = 64.5.
 
-The estimate is about 64 minutes, about twice the provisional 30. It was about 77 before #41
+G6 removes six end-size task edits (24 entries and six cycles), adding six size-unit
+selections in the creation forms. The step estimate is 10 - 6 × 0.75 + 6 × 5.5/60 =
+6.05 minutes, rounded to 6 under the existing quarter-minute convention. Thus 687 - 24
++ 6 = 669 entries; 38 - 6 = 32 cycles; 64.5 - 10 + 6 = 60.5 minutes. This accounts for
+G6 only; it does not yet count G9 batching. The earlier totals above retain their
+historical basis.
+
+The estimate is about 61 minutes, about twice the provisional 30. It was about 77 before #41
 (the tee, #45, adds 3), and about 130 before #38's fills and case copies (gaps G7, G8),
 which brought the per-member load/reference state and pressure regions (§3.8, §3.10, §3.11)
 from about 1,450 entries and 66.5 minutes to 168 entries and about 11.5 minutes; those entry
@@ -562,14 +573,14 @@ cost §5 shows. None is worked around outside the operation route.
 | G3 | Closed by #41: **Pad numbers to N digits** and **Pipe number from** = its start node, with a stated fallback; a pipe id is fixed once shown | `RunSheet.tsx:557-563`; `runSheetModel.ts:287-298, 738-753`; `runSheetView.ts:300-311` | DEL-07-02 | Types 9 ids, each Pipe id first in its row (§2, §3.4) |
 | G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:696-700` | DEL-07-02 | One X-position edit (§3.4) |
 | G5 | Closed by #36 (authoring lane I1): the E/nu create form takes the material-level thermal expansion coefficient, and a wasm-engine test creates RS-M1 from the form equal to the fixture's record | `PressureAuthoringPanel.tsx:70` | DEL-07-03 | §3.2 step 1 |
-| G6 | **New component** has one length unit for body length, end sizes and centre of gravity | `componentIntent.ts:534-551` | DEL-03-05 | Six end-size edits (§3.6) |
+| G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections at creation; no later end-size edits (§3.6) |
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
-| G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 38 apply cycles (§5) |
+| G9 | Closed by #54: independent queued user intents can move to one reviewed atomic batch, with named refusals for stale dependencies and duplicate operation ids | DEL-07-02 `Work/queued-changes-batch.md`; `queuedChangesBatch.test.tsx` | DEL-07-02 | Optional batching under Review changes; §5 retains 32 per-intent cycles before batching, with no inferred time credit |
 | G10 | Closed in DEL-09-01: tee creation requires a run size, header size, connection type and reinforcement reference; spec §5 now gives invented values, which EX does not read | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) | §3.6 |
 | G11 | No modifier-source entry for a tee: the inspector offers header and branch SIFs but not `modifiers.source_reference`, which it offers only on rigid components | `PropertyInspector.tsx:1920-2009, 2097-2105`; applier field rule `lib.rs:679-682` | DEL-03-05 | Leaves the SIF source unentered (§3.6) |
 
 **RT-G2 candidates not named in spec §11.2:**
-- a unit per quantity on the rigid-component form (G6);
-- applying several queued intents as one reviewed batch (G9);
+- a unit per quantity on the rigid-component form (G6, implemented; see DEL-03-05 `Work/component-quantity-units.md`);
+- applying several queued intents as one reviewed batch (G9, implemented in #54);
 - a modifier-source field for a tee, beside its SIFs (G11).
