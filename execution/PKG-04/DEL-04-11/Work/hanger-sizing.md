@@ -179,8 +179,13 @@ project, as it does for the modal request; the request records the values actual
   support status from another case, which is RT-A5's Should option
   (`subtrahend_support_state: minuend_final`, load-cases lane). Until that lands, the
   input is required and only `own_solve` is admitted, so that the choice is explicit and
-  recorded and the request needs no format change when the second value arrives. [open]
-  O-1.
+  recorded and the request needs no format change when the second value arrives. The
+  load-cases lane will provide one product function, a named case solved with its
+  nonlinear supports held at another named case's final status. Its `minuend_final`
+  subtraction and this request's `design_operating_final` both call it (load-cases manager,
+  2026-10-31; DEL-05-02 `Work/operating-case.md` §0). A held status can need a tensile
+  reaction at a unilateral support, which is not an admissible state of the weight case.
+  When that occurs, the result discloses it as such. [open] O-1.
 - **[decided] Travel uses each operating case's own state**, and the cold reference uses
   the weight case's own state with the candidates as forces.
 - **[decided] Disclosure.** The result publishes each nonlinear support's state in S_W,
@@ -470,8 +475,11 @@ DEL-04-03 `Work/pf-nonlinear-imposed-motion.md`) is settled this way.
   also changes the reference system's §6 sentence that calls the spring's loads review
   metadata never applied as preload. That wording is agreed with the reference-system
   lane before it merges. The hydrotest's held springs are the load-cases lane's
-  (DEL-05-01 `Work/hydrostatic-test.md`); how a held spring treats its preload is agreed
-  with them before the increment is built. [open] O-3.
+  (DEL-05-01 `Work/hydrostatic-test.md` §2). In a case with `held_supports:
+  springs_and_constant_effort`, a held variable spring is a rigid restraint of its DOF,
+  and neither its stiffness nor its preload acts. The seam therefore skips the preload of
+  a held support, as it skips a held constant-effort force (load-cases manager,
+  2026-10-31). The exact switch follows RT-A6's mechanics design. [open] O-3.
 - **Commitment text.** DEL-04-03 records the decision now. Its commitment text is
   changed by increment 6, with that increment's review.
 
@@ -539,9 +547,9 @@ outcome.
 
 | Id | Item | Owner |
 |---|---|---|
-| O-1 | `weight_support_state: design_operating_final`, when the solve can hold nonlinear supports in another case's converged state (RT-A5 Should) | load-cases lane, then this deliverable |
+| O-1 | `weight_support_state: design_operating_final`, through the load-cases lane's held-status solve function (RT-A5 Should, the last of that lane's slices), whose contract that lane sends when drafted | load-cases lane, then this deliverable |
 | O-2 | The minimal publication for derived solves (§10), defined in the performance lane's result-volume design C, which awaits Agent 0's approval; sizing switches its one solve call site to it when it lands | performance lane |
-| O-3 | A held spring's preload in the hydrotest (§11) | load-cases lane, with this deliverable |
+| O-3 | The switch that skips a held spring's preload in a hydrotest case (§11), from RT-A6's mechanics design | load-cases lane, with this deliverable |
 | O-4 | The invented reference-system catalogue, and the KR-03 and KR-10 updates | reference-system lane, with this deliverable |
 | O-5 | Release of a report that carries private-library values from the table: the report-user-release privacy rules for library references apply (FR-REP-003). Confirmed with DEL-08-01 before the report section is built | DEL-08-01 |
 | O-6 | A request entry in the embedded agent's capability catalog (RT-E1) | RT-E1 lane |
