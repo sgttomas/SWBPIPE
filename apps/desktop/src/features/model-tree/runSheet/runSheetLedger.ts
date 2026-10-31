@@ -101,7 +101,7 @@ export function initialRunSheetState(projectId: string | null, sheetKey = "sheet
   };
 }
 
-const sameValues = (a: unknown, b: unknown) => (a ?? "") === (b ?? "");
+const sameValues = (a: unknown, b: unknown) => sameJsonValue(a ?? "", b ?? "");
 /** JSON value equality: deep, independent of key order, numbers by value (so +0 and −0 agree). */
 export function sameJsonValue(a: unknown, b: unknown): boolean {
   if (a === b) return true;
@@ -142,7 +142,9 @@ export function shownValues(state: RunSheetState, row: SheetRow): RowValues {
 export function editedNotApplied(state: RunSheetState, row: SheetRow): string[] {
   const entry = currentEntry(state.ledger, row.key);
   if (!entry) return [];
-  return Object.keys(row.edits).filter((key) => !sameValues((row.edits as Record<string, unknown>)[key], (entry.valuesAfter as Record<string, unknown>)[key]));
+  return Object.keys(row.edits).flatMap((key) => key === "component"
+    ? Object.entries(row.edits.component ?? {}).filter(([field, value]) => !sameValues(value, (entry.valuesAfter.component as Record<string, string> | undefined)?.[field])).map(([field]) => `component.${field}`)
+    : !sameValues((row.edits as Record<string, unknown>)[key], (entry.valuesAfter as Record<string, unknown>)[key]) ? [key] : []);
 }
 
 function updateRows(state: RunSheetState, update: (row: SheetRow) => SheetRow): RunSheetState {

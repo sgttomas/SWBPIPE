@@ -37,6 +37,8 @@ The Kind cell holds one code. A blank Kind is a run.
 | `S` | **Support only**: a support at the current node; no element, no increments | support |
 | `F` | **Start from node**: the next rows continue from the existing or earlier-drafted node named in the Node cell (a branch) | nothing; a support if a support code is set |
 | `P` | **Start at point**: a new node at the absolute X, Y, Z typed in the increment cells | node; a support if a support code is set |
+| `V` | **Valve run**: a run with the component inputs in §9 | as Run, plus a valve mapped to that row's pipe at its end node |
+| `L` | **Flange run**: a run with the component inputs in §9 | as Run, plus a flange mapped to that row's pipe at its end node |
 
 "Current node" is the end node of the previous row in sheet order, or the node
 an `F` or `P` row names or creates. The first row of a sheet must be `F` or `P`;
@@ -67,6 +69,7 @@ Every column maps to a member the model already has (`src/types.ts:376-548`;
 | Label | The end node's label | `nodes[].label` |
 | Node id, Pipe id | End node id and pipe id (editable before queueing) | entity ids |
 | Ids and sources (collapsible group) | Support id and Support label, on rows with a support code; Bend start id, Bend end id, Bend arc id, Bend component id and Bend geometry source, on `B` rows only. Each is editable before queueing; blank shows the derived value (§3.2) or, for the geometry source, the sheet's Source | `supports[].id`, `supports[].label`; the bend's `new_nodes[].id`, `new_pipe.id`, `component.id` and `component.geometry_source_reference` (§3.3) |
+| Component details (collapsible group) | The valve/flange creation form's explicit inputs, with independent units and the COG convention (§9); no component value inherits | existing component geometry, modifiers, consumption, identity and provenance members |
 | Position, Length | Read-only readouts of the resulting end point and pipe length | none |
 
 **Operating condition.** The model has no per-element operating condition:
@@ -1369,3 +1372,66 @@ delegation and adopted as recommended. The reasons are kept.
 | O10 | Consecutive bends (§3.3) | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Allow them, with the id-only record projection. | The builder mirrors three structural effects (append, `section_ref`, corner replacement) and computes no number. A drift is refused by the engine and pinned by S1. The alternatives are refusing consecutive bends, which loses common geometry, or an engine-backed projection, which needs an acceptance-shaped scratch apply or a change to DEL-16-06's validate contract. |
 
 Codex review r1 agreed with O1–O9 and r2 with O10; r5 passed the design.
+
+## 9. Valve and flange runs (authoring follow-up)
+
+Agent 0 authorized component rows on 2026-10-31, after G6's independent
+quantity units. `V` is a valve run and `L` a flange run. `F` retains Start from
+node; the flange code deliberately uses another letter. Support-column codes
+are unchanged. Both new kinds create the same end node and straight pipe as
+`R`, then an `insert_component_symbol` for that pipe, at its end node. These
+references are the row's displayed connectivity, not guessed roles from
+incident pipes. A support may still be entered at the end node.
+
+**Component details** carries Component id and label, Body length and unit,
+End A size and unit, End B size and unit, Weight and unit, COG X/Y/Z and unit,
+End A/B references, Stiffness behavior reference, the optional Stiffness scale
+and its source, optional Solver consumption, Component geometry source and
+Component provenance. Id, label, sources and provenance are entered explicitly.
+No numerical value, reference, scale or consumption is supplied or inherited.
+Unit cells alone use the project's length/force keys when blank, shown with
+`derived: the project unit`, as the creation forms do. An absent key leaves
+its unit blank and refuses Queue until one is entered. Unit dimensions are
+checked through the existing conversion facade without changing the entered
+quantities; the operation engine remains authoritative.
+
+The COG vector retains the owner's R10 origin and axes: global X/Y/Z from the
+component's node, in its entered length unit. A scale is finite positive and
+paired with its source; consumption is blank, `mechanics_geometry_only` or
+`not_solver_consumed`. The forms and rows share `rigidGeometryIssues` in
+`component-creation/componentIntent.ts`, and the batch reuses its
+`buildCreateComponentIntent` payload. All persisted members and engine checks
+are existing ones. An incomplete or invalid field is named; component inputs
+left on another row kind are refused rather than discarded. Component ids
+join the existing collision checks against the whole model, other rows and
+queued operations. They do not change node/pipe numbering or its guarantees.
+
+Every row's component is included in the batch's owned references and expected
+records. Queue applies nothing. Explicit Apply uses the existing atomic batch
+route and preview gate, and one Undo reverses the whole checkpoint. After
+Apply, component fields are read-only, like other applied cells. The view reads
+actual component quantities, units and provenance; a change elsewhere detaches
+the row. Missing components and changed mappings are identified. Undo/Redo
+restore the typed component buffer without phantom edits from object identity.
+Applied-row editing and insertion follow the existing slice boundaries.
+
+The group uses the existing cell keyboard routes, accessible labels, named
+refusals and group-collapse tab-stop recovery. Fill down copies the shown
+component value as an explicit entry; it introduces no inheritance. No new
+model-document member, operation kind or ingress command is added. S1's
+combination read/render/type repair and generated fixtures are outside this
+slice; the second integration merges the first and checks both paths.
+
+Evidence: `componentRows.test.tsx` reproduces the three maintained reference
+components through one sheet batch and browser save/reopen, drives the real
+grid through Queue/Apply/Undo/Redo, checks ownership and foreign edits, and
+covers missing values/units, invalid scales and consumption, inappropriate
+fields and id collisions. Existing run-sheet and component-form tests remain
+maintained evidence. Native verification and the timed walkthrough remain open.
+
+The reference run sheet counts 61 extra sheet entries (57 component fields,
+three Kind codes and the group toggle), replacing 66 form entries. At the
+existing sheet rate, 196 × 8/98 = 16 minutes for §3.4; removing §3.6's six-minute
+valve/flange step gives 664 entries, 29 per-intent cycles and 59.5 minutes,
+before optional G9 batching. The improvement over G6 alone is about one minute
+under that model. These remain estimates, not measurements or acceptance.

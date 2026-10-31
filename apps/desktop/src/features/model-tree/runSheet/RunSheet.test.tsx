@@ -151,7 +151,9 @@ describe("run sheet keyboard flow (§5.1)", () => {
     expect(within(cell("r1", "kind")).queryByRole("textbox")).toBeNull();
     code("r1", "kind", "x");
     expect(cell("r1", "kind")).toHaveTextContent("P");
-    expect(live()).toHaveTextContent("x is not a kind code. Codes: R run, B bend run, S support only, F start from node, P start at point; blank is a run.");
+    expect(live()).toHaveTextContent("x is not a kind code");
+    expect(live()).toHaveTextContent("V valve run");
+    expect(live()).toHaveTextContent("L flange run");
     code("r1", "support", "a");
     expect(cell("r1", "support")).toHaveTextContent("A");
     code("r1", "support", "q");

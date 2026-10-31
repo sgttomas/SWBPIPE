@@ -16,6 +16,7 @@ import type { ViewportViewCommand } from "../../viewport/viewportSelection";
 import { mapOutcomeToRows } from "./runSheetBatch";
 import { adoptCurrentValues, applySessionEvent, currentEntry, reconcileRunSheet, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
 import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type PipeNumberFrom, type QuantityColumn, type RunSheetFinding, type RunSheetNumbering } from "./runSheetModel";
+import { CENTER_OF_GRAVITY_CONVENTION } from "../../component-creation/componentIntent";
 import type { RunSheetStore } from "./runSheetStore";
 import {
   CODE_LISTS, COLUMN_GROUP_LABELS, FAST_PATH, ID_COLUMNS, SHEET_COLUMNS, assignIds, buildDraftBatch, cellName, cellView, deleteDraftRow, discardEdit, effectiveText, insertRow,
@@ -60,7 +61,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   const view = useMemo(() => engine.version === version && engine.refusals.size
     ? sheetView({ state, statuses: store.statuses, model, conversions, reservedIds, engineRefusals: engine.refusals, lookup: store.lookup })
     : baseView, [baseView, engine, version, state, store.statuses, model, conversions, reservedIds, store.lookup]);
-  const [shownGroups, setShownGroups] = useState<Readonly<Record<SheetColumnGroup, boolean>>>({ sectionExtras: false, idsAndSources: false });
+  const [shownGroups, setShownGroups] = useState<Readonly<Record<SheetColumnGroup, boolean>>>({ sectionExtras: false, idsAndSources: false, componentDetails: false });
   const columns = useMemo(() => SHEET_COLUMNS.filter((column) => !column.group || shownGroups[column.group]), [shownGroups]);
   const [focus, setFocus] = useState<Address | null>(null);
   const [editing, setEditingState] = useState<Editing | null>(null);
@@ -567,6 +568,11 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
           <button key={group} type="button" aria-expanded={shownGroups[group]} onClick={() => toggleGroup(group)}>{COLUMN_GROUP_LABELS[group]}</button>
         ))}
       </div>
+      {shownGroups.componentDetails ? <p className="run-sheet-note" role="note">
+        V creates a valve and L a flange on the row's pipe, at its end node. Component inputs never inherit; blank unit cells use the project unit, shown as derived.
+        {" "}{CENTER_OF_GRAVITY_CONVENTION} Solver consumption is mechanics_geometry_only or not_solver_consumed; blank means undeclared.
+        A stiffness scale is optional and requires its source reference.
+      </p> : null}
       <div className="run-sheet-scroll" role="region" aria-label="Run sheet rows">
         <table ref={tableRef} aria-label="Run sheet" data-testid="run-sheet-table">
           <thead>

@@ -5,11 +5,11 @@
 // against the model without the entities the sheet's applied rows own, so the
 // chain resolves exactly as it did when it was drafted and a draft row after
 // an applied one continues from its stored end. Only draft rows are queued.
-import type { PreviewModel } from "../../../types";
+import type { PreviewComponent, PreviewModel } from "../../../types";
 import { buildRunSheetBatch, type RunSheetBuild } from "./runSheetBatch";
 import {
   BEND_ID_CELLS, INHERITING_CELLS, MESSAGES, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, modelIds, resolveRunSheet,
-  conversionKey,
+  conversionKey, isPipeRowKind,
   type CellOrigin, type QuantityColumn, type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetConversions, type RunSheetFinding, type RunSheetRowInput, type Vec3,
 } from "./runSheetModel";
 import type { DisplayQuantityRequest } from "../../../services/displayQuantityService";
@@ -18,15 +18,17 @@ import {
   type OwnedRef, type RecordLookup, type RowReconciliation, type RowStatus, type RowValues, type RunSheetState, type SheetRow, type SubmittedBatch,
 } from "./runSheetLedger";
 
-export type SheetColumnKey =
+import { COMPONENT_FIELDS, componentColumn, componentField, componentCellsFromRecord, type ComponentColumnKey } from "./runSheetComponents";
+
+export type SheetColumnKey = ComponentColumnKey
   | "dx" | "dy" | "dz" | "kind" | "support" | "restraints" | "node" | "section" | "od" | "wall" | "material" | "orientation"
   | "insulationThickness" | "insulationDensity" | "contentsDensity" | "materialDensity" | "millTolerance" | "corrosionAllowance"
   | "bendRadius" | "k" | "kSource" | "label" | "nodeId" | "pipeId"
   | "supportId" | "supportLabel" | "bendStartId" | "bendEndId" | "bendArcId" | "bendComponentId" | "bendSource"
   | "position" | "length";
 /** The collapsible column groups (§1.2), each shown and hidden by its own header toggle. */
-export type SheetColumnGroup = "sectionExtras" | "idsAndSources";
-export const COLUMN_GROUP_LABELS: Readonly<Record<SheetColumnGroup, string>> = { sectionExtras: "Section extras", idsAndSources: "Ids and sources" };
+export type SheetColumnGroup = "sectionExtras" | "idsAndSources" | "componentDetails";
+export const COLUMN_GROUP_LABELS: Readonly<Record<SheetColumnGroup, string>> = { sectionExtras: "Section extras", idsAndSources: "Ids and sources", componentDetails: "Component details" };
 export type SheetColumn = Readonly<{
   key: SheetColumnKey;
   label: string;
@@ -67,12 +69,13 @@ export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "bendArcId", label: "Bend arc id", editable: true, group: "idsAndSources" },
   { key: "bendComponentId", label: "Bend component id", editable: true, group: "idsAndSources" },
   { key: "bendSource", label: "Bend geometry source", editable: true, group: "idsAndSources" },
+  ...COMPONENT_FIELDS.map((field) => ({ key: componentColumn(field.key), label: field.label, editable: true, group: "componentDetails" as const })),
   { key: "position", label: "Position", editable: false },
   { key: "length", label: "Length", editable: false },
 ];
 /** §5.1 The Enter fast path: dX → dY → dZ → Kind → Support → the next row's dX. */
 export const FAST_PATH: readonly SheetColumnKey[] = ["dx", "dy", "dz", "kind", "support"];
-export const KIND_NAMES: Readonly<Record<string, string>> = { run: "run", bend: "bend run", support: "support only", from: "start from node", point: "start at point" };
+export const KIND_NAMES: Readonly<Record<string, string>> = { run: "run", bend: "bend run", support: "support only", from: "start from node", point: "start at point", valve: "valve run", flange: "flange run" };
 /** The id cells and the row input's `ids` member each writes (§3.2). */
 export const ID_COLUMNS: Readonly<Partial<Record<SheetColumnKey, keyof NonNullable<RowValues["ids"]>>>> = {
   nodeId: "node", pipeId: "pipe", supportId: "support",
@@ -82,7 +85,7 @@ const BEND_COLUMNS: ReadonlyArray<readonly [SheetColumnKey, typeof BEND_ID_CELLS
   ["bendStartId", BEND_ID_CELLS[0]], ["bendEndId", BEND_ID_CELLS[1]], ["bendArcId", BEND_ID_CELLS[2]], ["bendComponentId", BEND_ID_CELLS[3]],
 ];
 export const CODE_LISTS = {
-  kind: "R run, B bend run, S support only, F start from node, P start at point; blank is a run",
+  kind: "R run, B bend run, S support only, F start from node, P start at point, V valve run, L flange run; blank is a run",
   support: "A anchor, G guide, L line stop, V vertical support; blank is no support",
 } as const;
 
@@ -96,13 +99,25 @@ export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus,
   const input: RunSheetRowInput = { key: row.key, ...values };
   // An applied run or bend row keeps the pipe its batch created (its first owned pipe).
   const kind = (values.kind ?? "").trim().toUpperCase();
-  const ownPipe = kind === "" || kind === "R" || kind === "B" ? entry?.ownedIds.find((ref) => ref.type === "pipe") : undefined;
+  const ownPipe = (kind === "" || kind === "R" || kind === "B" || kind === "V" || kind === "L") ? entry?.ownedIds.find((ref) => ref.type === "pipe") : undefined;
   if (ownPipe) input.storedPipeId = ownPipe.id;
   // An applied bend row reads its geometry source from its stored component.
   const component = kind === "B" ? entry?.ownedIds.find((ref) => ref.type === "component") : undefined;
   if (component) {
     const source = (lookup?.(component) as { geometry?: { bend_geometry_source_reference?: unknown } } | undefined)?.geometry?.bend_geometry_source_reference;
     input.storedBendSource = typeof source === "string" ? source : "";
+  }
+  if (kind === "V" || kind === "L") {
+    const own = entry?.ownedIds.find((ref) => ref.type === "component");
+    const record = own ? lookup?.(own) as PreviewComponent | undefined : undefined;
+    if (record) {
+      input.component = componentCellsFromRecord(record);
+      const expected = entry?.expected.find((item) => item.ref.type === "component" && item.ref.id === own!.id)?.record as PreviewComponent | undefined;
+      if (record.kind !== (kind === "V" ? "valve" : "flange") || record.node !== expected?.node || record.geometry?.rigid_pipe_ref !== ownPipe?.id) {
+        input.storedComponentMismatch = `Component ${record.id} is now ${record.kind} at ${record.node}, mapped to ${record.geometry?.rigid_pipe_ref ?? "no pipe"}; this row retains its original mapping.`;
+      }
+    }
+    else input.storedComponentMissing = own?.id ?? values.component?.id ?? "(unknown component)";
   }
   const stored = storedEndOf(entry, values, lookup);
   if (stored) {
@@ -139,7 +154,7 @@ function storedEndOf(entry: ReturnType<typeof currentEntry>, values: RowValues, 
       ...(pipeEnd ? { pipeEnd } : { pipeEndMissing: incoming.id }),
     };
   }
-  const createsEnd = ((kind === "" || kind === "R") && !(values.node ?? "").trim()) || kind === "P";
+  const createsEnd = ((kind === "" || kind === "R" || kind === "V" || kind === "L") && !(values.node ?? "").trim()) || kind === "P";
   if (!createsEnd) return null;
   const node = entry.ownedIds.find((ref) => ref.type === "node");
   const end = node ? finitePosition(lookup(node)) : null;
@@ -249,7 +264,7 @@ export function sheetView(input: {
         return used && inModel.has(used[2]) ? { ...finding, message: LIFECYCLE_MESSAGES.existsNow(used[2], used[1]) } : finding;
       });
       const predecessorIndex = index - 1;
-      const continues = row.kind === "run" || row.kind === "bend" || row.kind === "support";
+      const continues = isPipeRowKind(row.kind) || row.kind === "support";
       const predecessor = continues && predecessorIndex >= 0 ? shown[predecessorIndex] : null;
       if (predecessor) {
         const before = statusOf(predecessor);
@@ -265,12 +280,12 @@ export function sheetView(input: {
     if (status === "applied" || status === "detached") {
       const before = index > 0 ? resolved.rows[index - 1] : null;
       if (inputs[index].storedPipeEndMissing) storedMissing = MESSAGES.bendIncomingMissing(inputs[index].storedPipeEndMissing!);
-      else if ((row.kind === "run" || row.kind === "bend") && before?.endMissing && !row.startPosition) storedMissing = MESSAGES.bendOutgoingMissing(before.endMissing);
+      else if ((isPipeRowKind(row.kind)) && before?.endMissing && !row.startPosition) storedMissing = MESSAGES.bendOutgoingMissing(before.endMissing);
     }
     if ((status === "applied" || status === "detached") && row.end && !row.end.existing && inputs[index].storedEnd) {
       const from = row.kind === "point" ? { x: 0, y: 0, z: 0 } : row.startPosition;
       const to = storedPipeEnd ?? row.end.position;
-      if (from && (row.kind === "run" || row.kind === "bend" || row.kind === "point")) {
+      if (from && (isPipeRowKind(row.kind) || row.kind === "point")) {
         const stored = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
         storedIncrements = displayIncrements(stored, resolved.storedLengthUnit, resolved.sheetLengthUnit, input.conversions, displayConversions);
       }
@@ -341,6 +356,7 @@ export function ownedRefsOf(row: ResolvedRunSheetRow, ownedIds: readonly string[
   if (row.ids.node) types.set(row.ids.node, "node");
   if (row.ids.pipe) types.set(row.ids.pipe, "pipe");
   if (row.ids.support) types.set(row.ids.support, "support");
+  if (row.ids.component) types.set(row.ids.component, "component");
   if (row.ids.bend) {
     types.set(row.ids.bend.start, "node");
     types.set(row.ids.bend.end, "node");
@@ -407,6 +423,7 @@ export function originText(origin: CellOrigin | undefined, absent?: boolean): st
 const FINDING_COLUMNS: Readonly<Record<string, readonly SheetColumnKey[]>> = {
   "dX, dY, dZ": ["dx", "dy", "dz"], Kind: ["kind"], Support: ["support"], Restraints: ["restraints"], Node: ["node"], Section: ["section"],
   Material: ["material"], Orientation: ["orientation"], Ids: ["nodeId", "pipeId"], k: ["k", "kSource"],
+  ...Object.fromEntries(COMPONENT_FIELDS.map((field) => [field.label, [componentColumn(field.key)]])),
   "Support id": ["supportId"], "Support label": ["supportLabel"], "Bend geometry source": ["bendSource"],
   ...Object.fromEntries(BEND_COLUMNS.map(([key, cell]) => [cell.label, [key]])),
   ...Object.fromEntries(Object.entries(QUANTITY_COLUMNS).map(([key, value]) => [value.label, [key as SheetColumnKey]])),
@@ -423,6 +440,16 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
     return typeof typed === "string" ? typed : "";
   };
   const base = { unit: "", muted: false, italic: false, refusal: cellRefusal(row, column) };
+  const field = componentField(column.key);
+  if (field) {
+    if (resolvedRow.componentMissing) return { ...base, text: field === "id" ? resolvedRow.componentMissing : "", origin: `missing: component ${resolvedRow.componentMissing}`, refusal: "This component no longer exists." };
+    const draft = resolvedRow.component;
+    const raw = row.values.component?.[field] ?? "";
+    const value = draft?.[field] ?? raw;
+    const stored = row.status === "applied" || row.status === "detached";
+    return { ...base, ...(field === "id" && resolvedRow.componentMismatch ? { refusal: resolvedRow.componentMismatch } : {}), text: value, italic: Boolean(draft && !raw && value),
+      origin: stored ? "stored component value" : raw ? "entered" : value ? "derived: the project unit" : "blank" };
+  }
   switch (column.key) {
     case "dx": case "dy": case "dz": {
       if (row.storedMissing) return { ...base, text: "", origin: `missing: ${row.storedMissing}` };
@@ -536,6 +563,8 @@ export function setCell(state: RunSheetState, rowKey: string, column: SheetColum
     ...state,
     rows: state.rows.map((row) => {
       if (row.key !== rowKey) return row;
+      const field = componentField(column);
+      if (field) return { ...row, edits: { ...row.edits, component: { ...row.restored.component, ...row.edits.component, [field]: text } }, engineRefusal: null };
       const member = ID_COLUMNS[column];
       if (member) {
         const ids = { ...(row.restored.ids ?? {}), ...(row.edits.ids ?? {}) };
@@ -579,6 +608,8 @@ export function discardEdit(state: RunSheetState, rowKey: string): RunSheetState
 
 /** Values the inheriting cells take (§2.1), for Fill down's "effective value". */
 export function effectiveText(row: ResolvedRunSheetRow, column: SheetColumnKey, typed: string): string {
+  const field = componentField(column);
+  if (field && row.component) return row.component[field];
   if (!(INHERITING_CELLS as readonly string[]).includes(column)) return typed;
   if (column === "section" || column === "material") return row.cells[column].value ?? "";
   if (column === "orientation") {
