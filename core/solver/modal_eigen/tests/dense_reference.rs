@@ -39,6 +39,7 @@ const U: f64 = f64::EPSILON / 2.0;
 fn options() -> DenseOptions {
     DenseOptions {
         infinite_mu_relative_threshold: 1e-12,
+        mass_pivot_relative_threshold: 1e-12,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }

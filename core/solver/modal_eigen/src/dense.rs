@@ -52,6 +52,10 @@ pub struct DenseOptions {
     /// eigenvalue of the pencil, from a singular M, and is counted but not
     /// returned. Must be finite and in [0, 1).
     pub infinite_mu_relative_threshold: f64,
+    /// τ_m: the equilibrated mass pivots of the finite-mode count must be at
+    /// least this (see [`established_finite_mode_count`]). Must be finite
+    /// and in [0, 1).
+    pub mass_pivot_relative_threshold: f64,
     /// The most implicit QL iterations allowed for any one eigenvalue.
     pub max_ql_iterations_per_eigenvalue: usize,
 }
@@ -130,13 +134,18 @@ pub struct DenseEigenSolution {
     /// Free DOFs whose rows and columns of M are exactly zero (design §3.2
     /// item 5).
     pub structurally_massless_count: usize,
+    /// [`established_finite_mode_count`] of M with τ_m: n minus the
+    /// structurally massless DOFs, or `None` when the equilibrated remaining
+    /// block does not pass.
+    pub established_finite_mode_count: Option<usize>,
     /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
-    /// when a request needs the whole finite spectrum): the μ at or below the
-    /// infinite threshold, μ ≤ 0 included, are not matched one for one by
-    /// structurally massless DOFs, or any μ is negative (design §3.2 item 5;
-    /// C is positive semidefinite, and no tolerance is applied to a negative
-    /// μ). See [`established_finite_mode_count`] for the independent half of
-    /// the count.
+    /// when a request needs the whole finite spectrum), design §3.2 item 5:
+    /// the number of μ classified infinite (μ ≤ τ_μ·μ_max, negatives
+    /// included) differs from the number of structurally massless DOFs, or
+    /// the count is not established. The zero μ of a structurally massless
+    /// DOF comes back as a tiny value of either sign, so the match is by
+    /// count; a genuine finite μ at or below the threshold makes the counts
+    /// differ.
     pub finite_count_unresolved: bool,
 }
 
@@ -173,6 +182,12 @@ pub fn solve_dense_pencil(
             name: "infinite_mu_relative_threshold",
         });
     }
+    let pivot_threshold = options.mass_pivot_relative_threshold;
+    if !(pivot_threshold.is_finite() && (0.0..1.0).contains(&pivot_threshold)) {
+        return Err(DenseError::InvalidOption {
+            name: "mass_pivot_relative_threshold",
+        });
+    }
 
     let (r, min_cholesky_pivot_ratio) = cholesky_lower(stiffness)?;
     let mut work = reduce_mass(&r, mass, n);
@@ -204,9 +219,6 @@ pub fn solve_dense_pencil(
     }
     let kept = n - nonpositive_mu_count - below_threshold_mu_count;
     let structurally_massless_count = structurally_massless_dofs(mass).len();
-    let finite_count_unresolved = nonpositive_mu_count + below_threshold_mu_count
-        != structurally_massless_count
-        || d.iter().any(|&mu| mu < 0.0);
     d.reverse();
     for i in 0..n / 2 {
         swap_rows(&mut work, n, i, n - 1 - i);
@@ -217,6 +229,12 @@ pub fn solve_dense_pencil(
         back_transform(&r, n, row);
     }
     drop(r);
+    // After R is released, so the mass block's factor does not add to the
+    // peak n² buffers.
+    let established = established_finite_mode_count(mass, pivot_threshold);
+    let finite_count_unresolved = nonpositive_mu_count + below_threshold_mu_count
+        != structurally_massless_count
+        || established.is_none();
     let eigenvalues = d.iter().map(|&mu| 1.0 / mu).collect();
     Ok(DenseEigenSolution {
         dimension: n,
@@ -229,6 +247,7 @@ pub fn solve_dense_pencil(
         ql_iterations,
         min_cholesky_pivot_ratio,
         structurally_massless_count,
+        established_finite_mode_count: established,
         finite_count_unresolved,
     })
 }
@@ -646,6 +665,7 @@ mod tests {
         // Test-local values; the production values are the design's (M1b).
         DenseOptions {
             infinite_mu_relative_threshold: 1e-12,
+            mass_pivot_relative_threshold: 1e-12,
             max_ql_iterations_per_eigenvalue: 30,
         }
     }
@@ -734,6 +754,18 @@ mod tests {
                 solve_dense_pencil(&k, &k, &opts),
                 Err(DenseError::InvalidOption {
                     name: "infinite_mu_relative_threshold"
+                })
+            );
+        }
+        for bad in [-1e-3, 1.0, f64::INFINITY] {
+            let opts = DenseOptions {
+                mass_pivot_relative_threshold: bad,
+                ..options()
+            };
+            assert_eq!(
+                solve_dense_pencil(&k, &k, &opts),
+                Err(DenseError::InvalidOption {
+                    name: "mass_pivot_relative_threshold"
                 })
             );
         }

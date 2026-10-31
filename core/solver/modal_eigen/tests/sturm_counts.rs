@@ -60,6 +60,7 @@ fn parameters() -> SturmParameters {
 fn dense_options() -> DenseOptions {
     DenseOptions {
         infinite_mu_relative_threshold: 1e-12,
+        mass_pivot_relative_threshold: MASS_PIVOT_RELATIVE_THRESHOLD,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -835,17 +836,19 @@ fn neighbour_quotients_and_separations_out_of_range_are_refused() {
     }
 }
 
-/// Finding 3 (design §3.2 item 5: "a negative μ means the count is
-/// unresolved"): K = [[2, 1], [1, 1]], M = diag(1, 0). DOF 1 is
-/// structurally massless and C's zero eigenvalue comes back as
-/// μ ≈ −1.1·10⁻¹⁶, inside −τ_μ·μ_max, which was tolerated as resolved.
+/// Finding 3 under the amended rule (design §3.2 item 5, revised in I1):
+/// the count is resolved only when the number of μ classified infinite,
+/// negatives included, equals the number of structurally massless DOFs.
+/// K = [[2, 1], [1, 1]], M = diag(1, 0): DOF 1 is structurally massless and
+/// C's zero eigenvalue comes back as μ ≈ −1.1·10⁻¹⁶. One infinite μ, one
+/// structural zero: resolved.
 #[test]
-fn a_negative_mu_leaves_the_finite_count_unresolved() {
+fn a_negative_mu_of_a_structural_zero_is_matched_by_count() {
     let k = vec![vec![2.0, 1.0], vec![1.0, 1.0]];
     let m = vec![vec![1.0, 0.0], vec![0.0, 0.0]];
     let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
     eprintln!(
-        "negative-μ witness: mu_max {:e}, nonpositive {}, below threshold {}, massless {}",
+        "structural-zero witness: mu_max {:e}, nonpositive {}, below threshold {}, massless {}",
         solution.mu_max,
         solution.nonpositive_mu_count,
         solution.below_threshold_mu_count,
@@ -854,12 +857,58 @@ fn a_negative_mu_leaves_the_finite_count_unresolved() {
     assert_eq!(solution.structurally_massless_count, 1);
     assert_eq!(solution.nonpositive_mu_count, 1);
     assert_eq!(solution.mode_count(), 1);
-    assert!(solution.finite_count_unresolved);
-    // The independent half is established: one finite mode.
-    assert_eq!(
-        established_finite_mode_count(&sym(&m), MASS_PIVOT_RELATIVE_THRESHOLD),
-        Some(1)
+    assert_eq!(solution.established_finite_mode_count, Some(1));
+    assert!(!solution.finite_count_unresolved);
+}
+
+/// The amended rule still refuses a genuine finite μ classified infinite
+/// beside a structural zero, because the counts then differ.
+/// - The round-6 block (a finite mode whose μ rounds to about 0) with a
+///   third, structurally massless DOF: two infinite μ, one structural zero.
+/// - K = diag(1, 10¹³, 1), M = diag(1, 1, 0): μ = (1, 10⁻¹³, 0), the finite
+///   10⁻¹³ at or below τ_μ·μ_max = 10⁻¹². The mass block is diagonal and
+///   established, so the count half alone decides.
+#[test]
+fn a_finite_mu_classified_infinite_beside_a_structural_zero_is_unresolved() {
+    let scale = 2f64.powi(-52);
+    let (a, b, c) = (
+        806515533049393.0 * scale,
+        1304969544928657.0 * scale,
+        2111485077978050.0 * scale,
     );
+    let identity = vec![
+        vec![1.0, 0.0, 0.0],
+        vec![0.0, 1.0, 0.0],
+        vec![0.0, 0.0, 1.0],
+    ];
+    let m = vec![vec![a, b, 0.0], vec![b, c, 0.0], vec![0.0, 0.0, 0.0]];
+    let solution = solve_dense_pencil(&sym(&identity), &sym(&m), &dense_options()).unwrap();
+    assert_eq!(solution.structurally_massless_count, 1);
+    assert_eq!(
+        solution.nonpositive_mu_count + solution.below_threshold_mu_count,
+        2
+    );
+    assert!(solution.finite_count_unresolved);
+
+    let k = vec![
+        vec![1.0, 0.0, 0.0],
+        vec![0.0, 1e13, 0.0],
+        vec![0.0, 0.0, 1.0],
+    ];
+    let m = vec![
+        vec![1.0, 0.0, 0.0],
+        vec![0.0, 1.0, 0.0],
+        vec![0.0, 0.0, 0.0],
+    ];
+    let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
+    assert_eq!(solution.structurally_massless_count, 1);
+    assert_eq!(solution.below_threshold_mu_count, 1);
+    assert_eq!(
+        solution.nonpositive_mu_count + solution.below_threshold_mu_count,
+        2
+    );
+    assert_eq!(solution.established_finite_mode_count, Some(2));
+    assert!(solution.finite_count_unresolved);
 }
 
 /// Finding 3: the pivots are those of the equilibrated block D_M·M·D_M and

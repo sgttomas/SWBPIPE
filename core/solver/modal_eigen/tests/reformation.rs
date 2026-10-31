@@ -67,6 +67,7 @@ const ETA_CORRECT: f64 = 1e-12;
 fn dense_options() -> DenseOptions {
     DenseOptions {
         infinite_mu_relative_threshold: 1e-12,
+        mass_pivot_relative_threshold: MASS_PIVOT_RELATIVE_THRESHOLD,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
