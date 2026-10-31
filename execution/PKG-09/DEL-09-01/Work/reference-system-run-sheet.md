@@ -107,9 +107,12 @@ because there are no members yet.
    **Add expansion law**; definition engineering_secant; ID `law:RS-M1-SECANT`; datum
    temperature 20 degC; data constant; constant coefficient 1.2e-5 1/K; provenance ⟨P⟩.
    **Queue expansion laws**, Apply.
-4. The fixture's material-level `thermal_expansion_coefficient` (1.2e-5 1/K) has no route
-   here (gap G5, §6). The person leaves it absent. The fixture's thermal states use the
-   expansion law, not this member.
+4. No route reproduces the fixture's exact material shape, an E/nu material with a
+   material-level `thermal_expansion_coefficient` (1.2e-5 1/K) and no shear modulus (gap G5,
+   §6). The person leaves the member absent. The fixture's thermal states use the expansion
+   law, not this member. An alternative keeps α but adds a member the fixture lacks: create
+   the material with **New material** (E, G, α), then use **Exact material E/nu** to add the
+   basis and ν, which preserves α. That leaves a shear modulus the E/nu basis does not use.
 
 ### 3.3 Sections (3 min)
 
@@ -191,8 +194,9 @@ RT-E1's finding). So bends follow the run sheet and precede §3.7–§3.12.
    | `node:RS-B3-CORNER` | 0.25 m | 3.6 | `node:RS-220` | `node:RS-225` | `pipe:RS-P225` | `component:RS-B3` |
 
    **Corner bend source of k** ⟨S5⟩; **Geometry source reference** ⟨S5⟩; **Corner bend
-   provenance** ⟨P⟩. **Queue insert bend at corner**, then Validate batch and Apply entire
-   batch. The engine places the tangent points at R·tan(Φ/2) = R from the corner
+   provenance** ⟨P⟩. **Queue insert bend at corner**, then **Apply**, which creates the batch
+   (`features/workspace/workspaceSession.ts:1300-1310, 1826-1836`), then **Validate batch** and
+   **Apply entire batch**. The engine places the tangent points at R·tan(Φ/2) = R from the corner
    (`bend_authoring.rs:547, 642-643`); for these 90° corners they are exactly the fixture's
    (5.6, 0, 1), (6, 0, 1.4), (6, 0, 6.6), (6, 0.4, 7), (6, 15, 2.25), (6.25, 15, 2). The
    arc takes the incoming pipe's section and the incoming direction as `y_reference`
@@ -404,7 +408,8 @@ run-sheet rows do not change.
 
 ## 5. Counts and estimate
 
-An entry is one typed value, selection or checkbox; a quantity whose unit is not prefilled is
+An entry is one typed value, selection or checkbox; buttons that add a row (**Add …**) and
+queue or apply buttons are not entries; a quantity whose unit is not prefilled is
 two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not measurements.
 
 | Step | Entries | Queue/apply cycles | Estimate (min) |
@@ -418,13 +423,13 @@ two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not
 | 3.6 Valve and flanges, with end-size edits | 84 | 9 | 10 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
 | 3.7 Supports | 98 | 11 | 13 |
-| 3.8 Reference configuration | 187 | 1 | 9.5 |
+| 3.8 Reference configuration | 160 | 1 | 9.5 |
 | 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
 | 3.10 Pressure regions | 246 | 3 | 13 |
 | 3.11 Analysis states | 1,047 | 3 | 44 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **2,047** | **48** | **about 130** |
+| **Total** | **2,020** | **48** | **about 130 (129.5)** |
 
 The estimate is about 130 minutes, more than four times the provisional 30. The run sheet
 itself is about 8 of them. The per-member load/reference state (§3.8, §3.10, §3.11) is about
@@ -444,9 +449,9 @@ cost §5 shows. None is worked around outside the operation route.
 | G2 | No bend-id cells: a `B` row's tangent nodes, arc and component ids derive from the corner; its geometry source is the sheet's Source and its labels are fixed | `runSheetModel.ts:249-252, 738-740`; `runSheetBatch.ts:177-186` | DEL-07-02 | Plain runs to the corner, then "Insert bend at corner" (§3.5) |
 | G3 | Numbering cannot pad numbers or name a pipe by its start node | `runSheetModel.ts:244-247`; design §3.2 | DEL-07-02 | Types 40 ids (§3.4) |
 | G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:629-633` | DEL-07-02 | One X-position edit (§3.4) |
-| G5 | No route creates the E/nu material with a material-level thermal expansion coefficient: the E/nu form has no such field; **New material** requires a shear modulus and writes neither basis nor ν; setting the member on a material that lacks it is refused (`OP-QUANTITY-OBJECT-MISSING`). A library apply can write it only from an imported library. | `PressureAuthoringPanel.tsx:21-28, 46-65`; `PropertyInspector.tsx:2767-2791, 3091`; `operation_applier/src/lib.rs:15587-15606`; `library_apply.rs:90-101` | DEL-07-03 | Leaves the member absent (§3.2) |
+| G5 | No route reproduces the fixture's exact material: an E/nu material with a material-level thermal expansion coefficient and no shear modulus. The E/nu form has no α field; setting α on a material that lacks it is refused (`OP-QUANTITY-OBJECT-MISSING`). **New material** (E, G, α) followed by **Exact material E/nu** keeps α but leaves a shear modulus the fixture does not carry. A library apply can write α only from an imported library. | `PressureAuthoringPanel.tsx:21-28, 46-65`; `PropertyInspector.tsx:2767-2791, 3091`; `operation_applier/src/lib.rs:15587-15606`; `library_apply.rs:90-101` | DEL-07-03 | Leaves the member absent, or takes the extra shear modulus (§3.2) |
 | G6 | **New component** has one length unit for body length, end sizes and centre of gravity | `componentIntent.ts:534-551` | DEL-03-05 | Six end-size edits (§3.6) |
-| G7 | Element states, load sources and reference-configuration members are entered one row at a time, with no "every member" fill and no copy from another case | `LoadReferenceStateInputs.tsx:38-85, 125-169, 205-220` | DEL-07-03 | About 1,230 entries (§3.8, §3.11) |
+| G7 | Element states, load sources and reference-configuration members are entered one row at a time, with no "every member" fill and no copy from another case | `LoadReferenceStateInputs.tsx:38-85, 125-169, 205-220` | DEL-07-03 | About 1,210 entries (§3.8, §3.11) |
 | G8 | Pressure regions are entered per case, with no copy from another case | `PressureAuthoringPanel.tsx:135-184` | DEL-07-03 | Enters the five regions three times (§3.10) |
 | G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 48 apply cycles (§5) |
 

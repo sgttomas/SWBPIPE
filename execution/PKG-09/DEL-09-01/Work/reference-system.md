@@ -368,9 +368,11 @@ RS-SAM and RS-WIN/RS-EQx together until #1678 lands (§10).
 ### 8.8 Hanger sizing
 
 Hanger sizing is a request beside the model. It sizes RS-VS1 and RS-CE1 from an invented
-private catalogue (`fixtures/reference_system/invented_hanger_catalogue.json`, invented
-records only, OC-4) and produces a hanger table. The procedure, its load cases and its
-record selection rule belong to DEL-04-11 (`Work/hanger-sizing.md`; Agent 0's D-1). Sizing
+private catalogue (invented records only, OC-4; forthcoming as
+`fixtures/reference_system/invented_hanger_catalogue.json` with DEL-04-11's engine
+increment) and produces a hanger table. The procedure, its load cases and its record
+selection rule belong to DEL-04-11 (Agent 0's D-1; its design `Work/hanger-sizing.md` is
+forthcoming with that deliverable's PR). Sizing
 never overwrites RS-VS1's or RS-CE1's entered inputs. The geometry slots and the key
 results of §9.1 are fixed here.
 
@@ -438,7 +440,7 @@ or absence a solve of the full model shows today.
 | Operating condition set | pending | RT-G5 / load-cases lane (0.9.0) | authored per case at 0.8.0 |
 | Modal (RS-OPE linearization) | pending | RT-A7 / dynamics lane (DEL-04-09, M5 in scope) | no modal analysis |
 | Response spectrum, RS-SP1 | pending | RT-A8 / dynamics lane (DEL-04-10, proposed) | no spectrum analysis; `spectra[]` not authorable at 0.8.0 |
-| Hanger sizing and table | pending | RT-A11 / DEL-04-11 (`Work/hanger-sizing.md`) | no sizing procedure |
+| Hanger sizing and table | pending | RT-A11 / DEL-04-11 | no sizing procedure |
 | Snubber RS-SN1 (RS-110, UX, rigid) | pending | RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber) | `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0 |
 
 The generator keeps a pending flag per row of this table, and the fixture test checks
@@ -477,8 +479,8 @@ the criterion text is the owner's, and Agent 0 takes the question to the owner w
 RT-U2 walkthrough results.
 
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
-chains: from A, from the tee, and the branch) and about 1,950 follow-up form entries,
-about 1,480 of them the per-member load/reference states and pressure regions of the
+chains: from A, from the tee, and the branch) and about 1,920 follow-up form entries,
+about 1,450 of them the per-member load/reference states and pressure regions of the
 three cases. The run sheet's
 estimate is about 130 minutes, against the provisional 30; it is not a measurement. On
 `main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
