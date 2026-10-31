@@ -20,7 +20,7 @@ operation checks for staleness.
 | Assign a shared section | pipes | `assign_section`, Element, `section_ref` | canonical JSON of the whole pipe record | `{"section_ref": <id>}` | `toolkit/SectionAssignment.tsx` |
 | Reassign the material | pipes | `set_field`, Element, `material` | the pipe's current material id | the chosen material id | the inspector's Material field |
 | Replace a support kind | supports | `update_support`, Support, `configuration` | canonical JSON of the support's configuration projection (`family`, `restraints`, `stiffness`, `hanger`, `nonlinear`, `provenance`, those present) | the same projection with `family` and, when entered, `restraints` replaced | `support-configuration/SupportConfigurationForm.tsx` |
-| Remove a support kind | supports | `delete_support`, Support, `supports` | the support's label | `not_present` | `model-tree/removalIntents.ts` `buildDeleteSupportIntent` (reused) |
+| Remove a support kind | supports | `delete_support`, Support, `supports` | the support's trimmed label | `not_present` | `model-tree/removalIntents.ts` `buildDeleteSupportIntent` (reused) |
 | Set the bend radius | bend and elbow components | `set_field`, Component, `geometry.bend_radius.value` | the current value, or `TBD` when absent | `{"value": <n>, "unit": <unit>}`, with the intent's `unit` and dimension `length` | the inspector's Bend radius field |
 | Add a tag | every entity type that takes tags | the family's annotation kind (`set_field`; `update_support` for supports; `update_load` for load cases), `tags` | canonical JSON of the current tags, or `not_present` | the current tags with the new tag appended | `model-data/modelDataIntents.ts` `annotationIntent` (reused) |
 
