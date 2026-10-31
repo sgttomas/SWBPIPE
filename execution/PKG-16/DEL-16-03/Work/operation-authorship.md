@@ -43,9 +43,16 @@ author is read from the record itself (`requeueRetainedRecord`):
   because its author cannot be verified after reopening. Records saved before
   this change may be imports that claimed `user`. The person enters the value
   again in the inspector.
-- Any other `user` record is requeued unchanged. Its author changes no refusal.
-  Most desktop editors emit `user` with no source, so refusing every such
-  record would refuse nearly all requeues without protecting anything.
+- Any other `user` record is requeued unchanged. Its author changes no
+  protected-value refusal. Most desktop editors emit `user` with no source, so
+  refusing every such record would refuse nearly all requeues. The author still
+  matters elsewhere: the applier lets a `user` operation omit its source and
+  carry an empty rationale, which an `agent` operation may not. A record saved
+  before this change that was imported claiming `user` therefore keeps that
+  user treatment when requeued, unless it writes a person-entered value. That
+  exception for legacy records is Agent 0's decision.
+- A refusal is shown beside the stored record, where the person pressed
+  Requeue.
 - A record naming no recognizable author is refused.
 
 ## Trust boundary

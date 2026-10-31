@@ -1379,11 +1379,13 @@ export function useWorkspaceSession() {
     await registerOperationBatch(batch, options.importContext ? { importContext: options.importContext } : {});
   }
 
-  /** Requeue a stored record with its author re-derived host-side (DEL-16-03). */
-  async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<void> {
+  /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
+   * Returns the refusal, if any, for display beside the stored record. */
+  async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
     const result = requeueRetainedRecord(intent, index);
-    if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return; }
+    if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
     await registerOperationBatch(result.batch);
+    return null;
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.

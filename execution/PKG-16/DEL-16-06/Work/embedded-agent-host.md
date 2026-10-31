@@ -387,9 +387,12 @@ from RT-E1 M2-D1 (approved by Agent 0), every other component modifier
 scaling and stiffness, and the modifier source. The refusal applies to a field
 edit, a component created with modifiers, or a library record copying modifier
 members. It reads `author_type`. The live catalog route refuses author and
-source fields in the agent's arguments and stamps `agent`. Offline intake and
-requeue of retained records now also stamp agent or imported content `agent`
-host-side (DEL-16-03 `Work/operation-authorship.md`).
+source fields in the agent's arguments and stamps `agent`. Offline intake now
+stamps every imported operation `agent` host-side. Requeue of retained records
+re-stamps recognizable agent or imported content `agent` and refuses a
+claimed-`user` record that writes a person-entered value. A legacy record
+claiming `user` otherwise keeps user treatment (DEL-16-03
+`Work/operation-authorship.md`).
 
 **Residual, recorded on Agent 0's decision:** any trusted webview code can
 assert `author_type: user` to the applier commands. A source-role check in the
