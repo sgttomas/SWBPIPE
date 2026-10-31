@@ -71,27 +71,28 @@ Terminals of two or more regions of a case may meet at one node, such as a tee b
 **Defect (Agent 0, 2026-10-31).** The RT-U4 linear-ex rack has 82 nodes (#31's generator, `--profile linear-ex --nodes 82`). Its 90-degree bend RK-H0022 has chord (0.405, 0.405, 0) m, R = 405 mm and y reference +y. In every case it published `direction_component_magnitude` = 1 + 2^-52 in the pressure groups at the bend's end. Those groups are the `kink_remainder` and `bend_cap_removed` terms on the arc. The Rust and Python pressure-2 readers required the magnitude to be at most 1 and refused the envelope (`SOURCE_PHYSICS_RHS_DIRECTION`). The desktop then reported `SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED`, and Record Run was unavailable. Valid results were refused, so this was a wrong output.
 
 **Where the value comes from.** A group's magnitude is the absolute value of one global component of the direction the producer's pressure term uses (`pressure_runtime::add_factor_term`).
-- **Straight member:** the direction is the member's local x, the chord divided by its length. The computed length is the square root of a monotone binary64 sum of squares. A sum of nonnegative terms rounds to at least its largest term, and sqrt(RN(a²)) = |a|. So the length is never below any component's magnitude, and the correctly rounded quotient is at most 1.
-- **Realized arc:** the direction is an end tangent from `curved_bend::arc_geometry`, formed as t = c·d̂ ± s·n̂ and not renormalized.
-  - s = L/2R and c = sqrt(4R² − L²)/2R, with L = sqrt(RN(|d|²)) and 4R² − L² rounded once from exact products. Each of s and c carries a relative error of at most about 2.5u, where u = 2^-53.
-  - d̂ = d/L carries at most about 2.5u per component.
-  - n̂ is y less its d̂ component (two Gram–Schmidt passes) divided by its norm. It is unit to about 2.5u and orthogonal to the exact d̂ to a few u.
-  - For the exact c, s, d̂ and n̂, Cauchy–Schwarz gives |c·d̂_k| + |s·n̂_k| ≤ (c² + s²)^½ (d̂_k² + n̂_k²)^½ ≤ 1. For a nearly orthonormal pair, d̂_k² + n̂_k² ≤ 1 + |d̂·n̂| plus the norm error.
-  - With the two products and the sum each rounded, |t_k| ≤ 1 + about 12u to first order.
-  - The rack bend shows the mechanism exactly: at 45°, c, s, d̂_x and n̂_x each round near 1/√2, and the x component rounds to 1 + 2u.
+- **Straight member:** the direction is the member's frame axis: the chord scaled by a rounded reciprocal of a norm that dominates every component. Each component is therefore at most 1. The independent review's 400,000-trial search found no exception.
+- **Realized arc:** the direction is an end tangent from `curved_bend::arc_geometry`, formed as t = c·d̂ ± s·n̂ and not renormalized. A component can round above 1. The rack bend shows the mechanism exactly: at 45°, c, s, d̂_x and n̂_x each round near 1/√2, and the x component rounds to 1 + 2u (u = 2^-53).
+  - At ordinary scales, the review's search over 330,000 trials found at most 2 ulps.
+  - No small universal ceiling holds for `arc_geometry` alone. A subnormal y reference, which the frame element's absolute axis guard rejects before an arc is formed, can give components far above 1 through the separately rounded Gram–Schmidt normal.
+- **Joint-area group:** the direction is an authored connector axis, kept unchanged. The frame kernel's orthonormality guard admits a component of 1 + EPSILON.
 
-**Decision: the reader states the producer's bound.** The producer is unchanged.
-- **Why not the producer.** Renormalizing or clamping the tangent would change every realized arc's operands. The tangent is also the arc frame's local axis, so the bend stiffness, pressure ledger and arc recovery bits would all move. That changes numerical meaning on every pressurized bend for no physical gain, since the exact tangent is unit and the formed one is within a few ulps of it.
-- **The bounds.** The readers keep the bound 1 for a group whose terms are all on straight members. They admit up to 1 + 16u (`1 + 8·EPSILON` = 1 + 2^-49, `ARC_TANGENT_COMPONENT_BOUND`) for a group with any term on a realized arc of its region. The arc bound covers the first-order formation bound with margin. It is a statement of how the value is formed, not a tolerance for disagreement: no other check on the group changes.
-- **Where.** Rust `physics_evidence.rs` takes the arc set from the term's region (`arc_evidence::members`). The Python mirror `pressure_2.py` takes the case's `pipe_sections` marked `realized_arc`, which is the same set.
-- **Unchanged.** The composite pressure-source-1 reading never carries an arc and keeps 1. Joint-area groups are bound exactly to their connector axes and keep 1.
+**Decision: the reader binds the value exactly; the producer is unchanged.**
+- **Why not the producer.** Renormalizing or clamping a tangent would change the operands the arc's pressure terms use, or else make the published value disagree with them. No bit-preserving correction exists.
+- **Why not a bound.** The first draft admitted arc groups up to 1 + 16u. The independent review (codex xhigh) showed that this ceiling was not rigorous for the construction in general.
+- **What the readers check instead**, Rust `physics_evidence.rs` and Python `pressure_2.py` alike:
+  - **Arc terms:** a term on a realized arc of its region binds the group's magnitude exactly, bit for bit, to the group-axis component of one of that arc's published end tangents (`arc_end_tangents_global`, the operands the producer used). The arc set comes from the region's geometry entries marked `realized_arc`.
+  - **Straight groups:** a group with no arc term keeps the bound 1.
+  - **Joint-area groups:** the bound 1 is dropped. They were already bound exactly to their connector axis (`RHS_JOINT_DIRECTION`), so an authored axis component just above 1 is no longer refused.
+  - **Composite:** the pressure-source-1 reading never carries an arc or a connector and keeps the bound 1.
 
-**Regression.** `core/product_physics/tests/arc_tangent_direction_magnitude.rs` rebuilds the rack bend between two straights in one pressurized region. In both solver modes it asserts:
-- the 1 + 2^-52 magnitude on the arc's groups only;
-- that the Rust reader and the model-bound verdict accept the envelope (on the previous reader it fails with `SOURCE_PHYSICS_RHS_DIRECTION`);
-- that 1 + 16·EPSILON on an arc group, and 1 + 2^-52 on a straight-only group, are still refused.
-
-`tests/test_pressure_arc_readers.py::test_arc_tangent_direction_magnitude_bound` checks the same on the Python verifier over the arc corpus.
+**Regression.**
+- `core/product_physics/tests/arc_tangent_direction_magnitude.rs` rebuilds the rack bend between two straights in one pressurized region. In both solver modes it asserts:
+  - the 1 + 2^-52 magnitude, on the arc's groups only;
+  - that the Rust reader and the model-bound verdict accept the envelope (on the previous reader it fails with `SOURCE_PHYSICS_RHS_DIRECTION`);
+  - that a magnitude one ulp off the arc's tangent component, and 1 + 2^-52 on a straight-only group, are refused.
+- The Python verifier tests are `tests/test_pressure_arc_readers.py` (`test_arc_tangent_magnitude_binds_to_the_published_tangent`, `test_a_straight_group_above_one_is_refused`).
+- The joint tests are `a_joint_axis_component_just_above_one_binds_exactly`, in Rust `connector_contract.rs` and in Python `test_pressure_connector_readers.py`.
 
 ## Load cases that apply nothing
 

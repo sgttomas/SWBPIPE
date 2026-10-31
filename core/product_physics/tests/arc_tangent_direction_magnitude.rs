@@ -7,8 +7,8 @@
 //! solver modes. Its pressure groups at the bend's end publish the direction
 //! magnitude 1 + 2^-52 (bits 3ff0000000000001), which the readers refused
 //! (`SOURCE_PHYSICS_RHS_DIRECTION`) while their bound was 1. The readers now
-//! admit a group with a term on a realized arc up to 1 + 16u and keep 1 for a
-//! group on straight members only.
+//! bind an arc term's magnitude exactly to its arc's published end-tangent
+//! component and keep the bound 1 for a group on straight members only.
 //!
 //! Invented data only.
 
@@ -77,11 +77,11 @@ fn an_arc_tangent_component_above_one_is_published_and_read() {
         semantic_contract::validate_pressure_evidence(&envelope).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
         assert_eq!(reader_verdict::validate("pressure", &envelope, Some(&document["model"]), None), json!({"ok": true}), "{mode:?}");
 
-        // The bound is not loosened beyond the arc construction, nor on straights.
-        let mut beyond = envelope.clone();
+        // The arc term binds exactly to its published tangent; straights keep 1.
         let index = groups(&envelope).iter().position(|g| g["direction_component_magnitude"].as_f64().unwrap().to_bits() == ONE_PLUS_ULP).unwrap();
-        beyond["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][index]["direction_component_magnitude"] = json!(1.0 + 16.0 * f64::EPSILON);
-        assert_eq!(semantic_contract::validate_pressure_evidence(&beyond).unwrap_err(), "SOURCE_PHYSICS_RHS_DIRECTION", "{mode:?}");
+        let mut unbound = envelope.clone();
+        unbound["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][index]["direction_component_magnitude"] = json!(f64::from_bits(ONE_PLUS_ULP + 1));
+        assert_eq!(semantic_contract::validate_pressure_evidence(&unbound).unwrap_err(), "SOURCE_PHYSICS_RHS_DIRECTION", "{mode:?}");
         let straight = groups(&envelope).iter().position(|g| g["terms"].as_array().unwrap().iter().all(|t| t["pipe_id"] != "pipe:BC")).unwrap();
         let mut over = envelope.clone();
         over["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][straight]["direction_component_magnitude"] = json!(f64::from_bits(ONE_PLUS_ULP));

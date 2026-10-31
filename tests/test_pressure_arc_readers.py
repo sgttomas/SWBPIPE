@@ -214,21 +214,29 @@ def _arc_pipes(e):
 
 
 @pytest.mark.parametrize("label,envelope", CASES)
-def test_arc_tangent_direction_magnitude_bound(label, envelope):
-    """DEL-04-07 `pressure-contract.md` "Direction magnitudes of arc tangents": a group with a term on a realized arc
-    is admitted up to 1 + 16u (the unnormalized c*d + s*n tangent can round above 1, as the RT-U4 rack's 1 + 2^-52
-    did); beyond that, and above 1 on straight members only, the group is refused."""
+def test_a_straight_group_above_one_is_refused(label, envelope):
+    """DEL-04-07 `pressure-contract.md` "Direction magnitudes of arc tangents": a group with no arc term keeps the
+    bound 1 (a straight member's frame axis is at most 1)."""
+    arcs = _arc_pipes(envelope)
+    straight = [i for i, g in enumerate(_groups(envelope)) if not any(t["pipe_id"] in arcs for t in g["terms"]) and "effective_area_bits" not in g]
+    if not straight:
+        pytest.skip("no straight pressure group in this case")
+    refused = deepcopy(envelope)
+    _groups(refused)[straight[0]]["direction_component_magnitude"] = 1.0 + 2.0 ** -52
+    with pytest.raises(Exception, match="pressure RHS group values"):
+        validate_pressure_evidence(refused)
+
+
+@pytest.mark.parametrize("label,envelope", CASES)
+def test_arc_tangent_magnitude_binds_to_the_published_tangent(label, envelope):
+    """An arc group's magnitude is bound exactly to its arc's published end-tangent component; a magnitude off it is
+    refused, as is a straight-only group's above 1."""
     arcs = _arc_pipes(envelope)
     groups = _groups(envelope)
     on_arc = [i for i, g in enumerate(groups) if any(t["pipe_id"] in arcs for t in g["terms"]) and "effective_area_bits" not in g]
-    straight = [i for i, g in enumerate(groups) if not any(t["pipe_id"] in arcs for t in g["terms"]) and "effective_area_bits" not in g]
-    if not on_arc or not straight:
-        pytest.skip("no arc and straight pressure groups in this case")
-    admitted = deepcopy(envelope)
-    _groups(admitted)[on_arc[0]]["direction_component_magnitude"] = 1.0 + 2.0 ** -52
-    validate_pressure_evidence(admitted)
-    for index, value in ((on_arc[0], 1.0 + 2.0 ** -48), (straight[0], 1.0 + 2.0 ** -52)):
-        refused = deepcopy(envelope)
-        _groups(refused)[index]["direction_component_magnitude"] = value
-        with pytest.raises(Exception, match="pressure RHS group values"):
-            validate_pressure_evidence(refused)
+    if not on_arc:
+        pytest.skip("no arc pressure group in this case")
+    off = deepcopy(envelope)
+    _groups(off)[on_arc[0]]["direction_component_magnitude"] = _groups(off)[on_arc[0]]["direction_component_magnitude"] * (1 + 2.0 ** -40)
+    with pytest.raises(Exception, match="pressure RHS arc direction"):
+        validate_pressure_evidence(off)

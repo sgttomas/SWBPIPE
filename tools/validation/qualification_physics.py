@@ -54,8 +54,9 @@ DEPENDENCIES = {
     # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
     # reads the document without its combination rows and records, then the combination pass re-derives them
     # (was ef200d25...); then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction
-    # magnitudes of arc tangents"): a pressure group with a term on a realized arc admits 1 + 16u (was c82a0f11...).
-    MODULE: '177adf97d565b96e32a3484dcd923f9f6cece049e5d6f0c62cdf03443e8f3c1a',
+    # magnitudes of arc tangents"): an arc term binds its magnitude exactly to its arc's published end tangent, and
+    # joint-area groups bind only to their connector axis (was c82a0f11...).
+    MODULE: '1c60e0d6bb2383a3adf72f4747f04abdb179aa10d306db39e8aaa74006b3bd6f',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
