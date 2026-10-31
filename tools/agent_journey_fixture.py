@@ -409,9 +409,9 @@ def preflight(args, root):
 def run(args, key, root):
     result = {"passed": False, "mode": args.mode, "startedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "appSha256": sha256(args.app), "cleanup": "unknown"}
-    supplier = args.app.parents[1] / "Resources"
+    supplier = args.app.parents[1] / "Resources" / "agent-supplier"
     pin = json.loads(PIN.read_text())["codex"]["binarySha256"]
-    found = [p for p in supplier.rglob("codex") if p.is_file()]
+    found = [p for p in supplier.glob("codex*") if p.is_file()]
     result["supplierPin"] = {"expected": pin, "observed": [sha256(p) for p in found]}
     if len(found) != 1 or sha256(found[0]) != pin:
         raise Refusal("supplier_not_pinned")
