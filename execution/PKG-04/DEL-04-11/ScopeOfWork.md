@@ -299,7 +299,9 @@ suitability, and nothing here determines code compliance.
   - **Derived solves.** The result also gives each candidate's cold-reference
     displacement and each nonlinear support's states.
   - **Basis.** A basis block states every request input, the library id and digest, the
-    model revision, the route and each case's load kinds after lowering.
+    model revision, the route and each case's load kinds after lowering. It also states
+    the installation assumption, that each spring is set at the drawn geometry. The table
+    labels the installed setting separately from the cold-condition load.
   - **Profile.** Results are published under the hanger-sizing profile and semantic
     table, and the analysis-run record gains the hanger-sizing run kind.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no

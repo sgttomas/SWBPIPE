@@ -382,6 +382,12 @@ Notes on the tests:
 
 **The basis block** gives every request input (§2), the library id and digest, the model
 revision hash, the route, the case ids and the load kinds of each case after lowering.
+It also states the installation assumption of §4.2: each spring is installed and set at
+the drawn geometry. The table labels F_cold "installed setting (at drawn position)" and
+F_C "cold-condition load", so that the two are never read as one where u_C is not zero.
+Other installation conventions, such as setting at a settled cold position or with an
+erection offset, are not offered. Under them the person reads F_C as the load at the
+cold position.
 
 - **[decided] Per-record evaluations are recomputed, not stored.** Selection is a pure
   function of W, u_C, the u_i, the request and the library. The desktop's detail view for one
