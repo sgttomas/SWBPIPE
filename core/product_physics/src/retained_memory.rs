@@ -671,6 +671,18 @@ pub(super) enum FamilyFact {
     /// node load whose id is in the generated self-weight namespace.
     GeneratedLoadIdentity,
     ObjectProvenance,
+    /// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7): a case's
+    /// `condition_use`. Admission prices the request before the lowering, so until S2
+    /// settles where the lowering sits for these routes, they decline it by name.
+    ConditionUse,
+    /// Model document 0.9.0: a case's `test_condition` (refused at solve until RT-A6).
+    TestCondition,
+    /// Model document 0.9.0: a support's `direction`, which the lowering may turn into
+    /// another DOF token; the retained forms read the request before it.
+    SupportDirection,
+    /// Model document 0.9.0: a combination with a difference basis, a subtrahend support
+    /// state, an unsigned basis or a combination operand (withheld at solve in S1).
+    CombinationMember,
 }
 /// The fact a cap row (D1.9, D1.11) bounds.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -930,6 +942,14 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     if exact && !m.combinations.is_empty() {
         return refuse(C::Invocation, F::Combinations);
     }
+    if m.combinations.iter().any(|combination| {
+        combination.difference_basis.is_some()
+            || combination.subtrahend_support_state.is_some()
+            || matches!(combination.basis.as_str(), "absolute_sum" | "srss")
+            || combination.terms.iter().any(|term| term.combination.is_some())
+    }) {
+        return refuse(C::Invocation, F::CombinationMember);
+    }
     if m.combinations.iter().any(|combination| m.load_cases.iter().any(|case| case.id == combination.id)) {
         return refuse(C::Invocation, F::CombinationIds);
     }
@@ -956,6 +976,12 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         if case.equivalent_static.is_some() {
             return refuse(C::Case, F::EquivalentStatic);
         }
+        if case.condition_use.is_some() {
+            return refuse(C::Case, F::ConditionUse);
+        }
+        if case.test_condition.is_some() {
+            return refuse(C::Case, F::TestCondition);
+        }
         // B7a (b) Widen domain, stage 1: a named-point basis on branch L, per case (the custody is
         // per basis and per case); branch E keeps DEF-E's base common E/ν only.
         if case.modulus_basis_ref.is_some() && exact {
@@ -975,6 +1001,9 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         }
         if support.nonlinear.is_some() {
             return refuse(C::Supports, F::Nonlinear);
+        }
+        if support.direction.is_some() {
+            return refuse(C::Supports, F::SupportDirection);
         }
         if let Some(family) = &support.family {
             if !matches!(family.as_str(), "anchor" | "guide" | "line_stop" | "vertical_support" | "spring") {

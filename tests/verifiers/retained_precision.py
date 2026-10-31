@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from .compatibility import _source_contract
-from .physics_source import _actual_materials, _canonical_inputs
+from .physics_source import _actual_materials, _canonical_inputs, model_uses_conditions
 from . import section_basis as sb
 from . import declared_member_load as dml
 from .canonical_json import canonical_sha256
@@ -2172,6 +2172,8 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     except (ValueError, RuntimeError): need(False, "INVOCATION_MISMATCH")
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
+    # Model document 0.9.0 (§3.7): a case's condition_use is declined by name, as the Rust reader does.
+    need(not model_uses_conditions(model), "CONDITION_USE_UNSUPPORTED")
     # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
     # included); the route's namespace (branch L; B3b's exact one); combinations and components absent or [] (on the
     # exact route a combination is ruling 4's expected refusal).

@@ -118,6 +118,12 @@ pub const EXACT: &str = "retained_source_blocks_exact_v1";
 pub const MAX_BASIS: &str = "retained_source_endpoint_normal_max_v1";
 pub const MAX_SIGN: &str = "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate";
 pub const SUPPORT_SIGN: &str = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate";
+/// Whether a model document's case carries model document 0.9.0's `condition_use`
+/// (DEL-02-01 Design `model-document-0.9.0.md` §3.7): the independent source readers
+/// decline it by name until S2 settles where the condition lowering sits.
+pub(crate) fn model_uses_conditions(model: &Value) -> bool {
+    model["load_cases"].as_array().is_some_and(|cases| cases.iter().any(|case| case.get("condition_use").is_some()))
+}
 fn require(ok: bool, detail: &str) -> Result<(), String> {
     if ok {
         Ok(())
@@ -1366,6 +1372,8 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
         if let Some(invocation) = actual_invocation {
             let model = &invocation["request"]["model"];
             require(model["schema_version"] == "0.8.0", "ACTUAL_MODEL_SCHEMA")?;
+            // Model document 0.9.0 (§3.7): a case's `condition_use` is declined by name.
+            require(!model_uses_conditions(model), "ACTUAL_CONDITION_USE")?;
             require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
         }
     }

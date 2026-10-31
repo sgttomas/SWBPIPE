@@ -26,6 +26,11 @@ use crate::{
     SpringHangerInput, SupportStiffnessInput, Vec3, VectorQuantity, WindExposedSpanInput,
     WindGenerationInput,
 };
+use crate::operating_conditions::{
+    AddedWeightInput, ConditionExposureInput, ConditionSetInput, ConditionUseInput, ConditionValuesInput,
+    OperatingConditionInput, TestConditionInput,
+};
+use crate::spectra::{SpectrumInput, SpectrumInterpolationInput, SpectrumUnitsInput};
 use serde::de::{self, DeserializeOwned, Visitor};
 use serde::Deserialize;
 use serde_json::Value;
@@ -218,6 +223,17 @@ pub(crate) struct RecordFields {
     pub(crate) mechanics_interface: &'static [&'static str],
     pub(crate) material: &'static [&'static str],
     pub(crate) temperature_point: &'static [&'static str],
+    // Model document 0.9.0's records (DEL-02-01 Design `model-document-0.9.0.md` §3.4).
+    pub(crate) condition_set: &'static [&'static str],
+    pub(crate) condition: &'static [&'static str],
+    pub(crate) condition_values: &'static [&'static str],
+    pub(crate) added_weight: &'static [&'static str],
+    pub(crate) exposure: &'static [&'static str],
+    pub(crate) condition_use: &'static [&'static str],
+    pub(crate) test_condition: &'static [&'static str],
+    pub(crate) spectrum: &'static [&'static str],
+    pub(crate) spectrum_units: &'static [&'static str],
+    pub(crate) spectrum_interpolation: &'static [&'static str],
 }
 
 pub(crate) fn record_fields() -> RecordFields {
@@ -249,6 +265,16 @@ pub(crate) fn record_fields() -> RecordFields {
         mechanics_interface: declared_fields::<ComponentMechanicsInterfaceInput>(),
         material: MATERIAL_FIELDS,
         temperature_point: declared_fields::<MaterialTemperaturePointInput>(),
+        condition_set: declared_fields::<ConditionSetInput>(),
+        condition: declared_fields::<OperatingConditionInput>(),
+        condition_values: declared_fields::<ConditionValuesInput>(),
+        added_weight: declared_fields::<AddedWeightInput>(),
+        exposure: declared_fields::<ConditionExposureInput>(),
+        condition_use: declared_fields::<ConditionUseInput>(),
+        test_condition: declared_fields::<TestConditionInput>(),
+        spectrum: declared_fields::<SpectrumInput>(),
+        spectrum_units: declared_fields::<SpectrumUnitsInput>(),
+        spectrum_interpolation: declared_fields::<SpectrumInterpolationInput>(),
     }
 }
 
@@ -319,6 +345,11 @@ const MATERIAL_QUANTITIES: [&str; 4] =
     ["poisson_ratio", "elastic_modulus", "shear_modulus", "thermal_expansion_coefficient"];
 const POINT_QUANTITIES: [&str; 5] =
     ["poisson_ratio", "temperature", "elastic_modulus", "shear_modulus", "thermal_expansion_coefficient"];
+const CONDITION_SET_QUANTITIES: [&str; 1] = ["installation_temperature"];
+const CONDITION_QUANTITIES: [&str; 3] = ["temperature", "pressure", "contents_density"];
+const CONDITION_VALUES_QUANTITIES: [&str; 2] = ["temperature", "pressure"];
+const ADDED_WEIGHT_QUANTITIES: [&str; 1] = ["magnitude"];
+const SPECTRUM_QUANTITIES: [&str; 1] = ["g_value"];
 
 struct Finding {
     field: String,
@@ -511,6 +542,7 @@ fn nested_records(
     for (i, support) in objects(model, "supports") {
         let at = At::in_collection("model.supports", "support", i, support);
         check_nested(support, fields.support, &at, findings);
+        nested_member(support, "direction", fields.vector, &at, findings);
         nested_stiffness(support, fields, &at, findings);
         if let Some((hanger, at)) = nested_member(support, "hanger", fields.hanger, &at, findings) {
             nested_stiffness(hanger, fields, &at, findings);
@@ -535,6 +567,32 @@ fn nested_records(
         }
         nested_member(component, "mechanics_interface", fields.mechanics_interface, &at, findings);
     }
+    for (i, set) in objects(model, "condition_sets") {
+        let at = At::in_collection("model.condition_sets", "condition set", i, set);
+        check_nested(set, fields.condition_set, &at, findings);
+        nested_quantities(set, &CONDITION_SET_QUANTITIES, fields.magnitude, &at, findings);
+        for (k, condition) in objects(set, "conditions") {
+            let at = At::Entry { parent: &at, key: "conditions", kind: "condition", index: k, id: condition.get("key").and_then(Value::as_str) };
+            check_nested(condition, fields.condition, &at, findings);
+            nested_quantities(condition, &CONDITION_QUANTITIES, fields.magnitude, &at, findings);
+        }
+        for key in ["design", "peak"] {
+            if let Some((values, at)) = nested_member(set, key, fields.condition_values, &at, findings) {
+                nested_quantities(values, &CONDITION_VALUES_QUANTITIES, fields.magnitude, &at, findings);
+            }
+        }
+        if let Some((weight, at)) = nested_member(set, "added_weight", fields.added_weight, &at, findings) {
+            nested_quantities(weight, &ADDED_WEIGHT_QUANTITIES, fields.magnitude, &at, findings);
+        }
+        nested_member(set, "exposure", fields.exposure, &at, findings);
+    }
+    for (i, spectrum) in objects(model, "spectra") {
+        let at = At::in_collection("model.spectra", "spectrum", i, spectrum);
+        check_nested(spectrum, fields.spectrum, &at, findings);
+        nested_member(spectrum, "units", fields.spectrum_units, &at, findings);
+        nested_member(spectrum, "interpolation", fields.spectrum_interpolation, &at, findings);
+        nested_quantities(spectrum, &SPECTRUM_QUANTITIES, fields.magnitude, &at, findings);
+    }
     for (owner, collection, kind) in [(model, "model.materials", "material"), (request, "materials", "request material")] {
         for (i, material) in objects(owner, "materials") {
             let at = At::in_collection(collection, kind, i, material);
@@ -550,8 +608,10 @@ fn nested_records(
 }
 
 /// The model's record collections; the request's are its materials.
-const RECORD_COLLECTIONS: [&str; 8] =
-    ["load_cases", "combinations", "nodes", "pipe_segments", "sections", "supports", "components", "materials"];
+const RECORD_COLLECTIONS: [&str; 10] = [
+    "load_cases", "combinations", "nodes", "pipe_segments", "sections", "supports", "components", "materials",
+    "condition_sets", "spectra",
+];
 
 /// What a record that is not an object is.
 fn value_kind(value: &Value) -> &'static str {
@@ -616,6 +676,12 @@ pub(crate) fn unknown_field_refusal(actual_request: &Value) -> Option<String> {
         check(case, fields.load_case, || case_name.clone(), &case_path, &mut findings);
         if let Some(temperature) = case.get("modulus_basis_temperature").and_then(Value::as_object) {
             check(temperature, fields.magnitude, || format!("the modulus_basis_temperature of {case_name}"), &format!("{case_path}.modulus_basis_temperature"), &mut findings);
+        }
+        if let Some(using) = case.get("condition_use").and_then(Value::as_object) {
+            check(using, fields.condition_use, || format!("the condition_use of {case_name}"), &format!("{case_path}.condition_use"), &mut findings);
+        }
+        if let Some(test) = case.get("test_condition").and_then(Value::as_object) {
+            check(test, fields.test_condition, || format!("the test_condition of {case_name}"), &format!("{case_path}.test_condition"), &mut findings);
         }
         if let Some(generation) = case.get("equivalent_static").and_then(Value::as_object) {
             let generation_path = format!("{case_path}.equivalent_static");
@@ -775,9 +841,20 @@ mod tests {
             ("vector", fields.vector, "Vector3"),
             ("vector quantity", fields.vector_quantity, "VectorQuantity"),
             ("objective connector", OBJECTIVE_CONNECTOR_FIELDS, "ObjectiveConnector"),
+            // Model document 0.9.0's records.
+            ("condition set", fields.condition_set, "ConditionSet"),
+            ("operating condition", fields.condition, "OperatingCondition"),
+            ("condition values", fields.condition_values, "ConditionValues"),
+            ("added weight", fields.added_weight, "AddedWeight"),
+            ("condition exposure", fields.exposure, "ConditionExposure"),
+            ("condition use", fields.condition_use, "ConditionUse"),
+            ("test condition", fields.test_condition, "TestCondition"),
+            ("spectrum", fields.spectrum, "Spectrum"),
         ] {
             assert_eq!(set(declared), def(&schema, name), "{record}");
         }
+        assert_eq!(set(fields.spectrum_units), keys(&d["Spectrum"]["properties"]["units"], "spectrum units"));
+        assert_eq!(set(fields.spectrum_interpolation), keys(&d["Spectrum"]["properties"]["interpolation"], "spectrum interpolation"));
         assert_eq!(
             set(fields.reaction_source),
             keys(&d["NonlinearSupport"]["properties"]["normal_reaction_source"], "normal reaction source"),
@@ -796,9 +873,15 @@ mod tests {
             ("component modifiers", &MODIFIER_QUANTITIES[..], "ComponentModifiers"),
             ("material", &MATERIAL_QUANTITIES[..], "Material"),
             ("temperature point", &POINT_QUANTITIES[..], "MaterialTemperaturePoint"),
+            ("condition set", &CONDITION_SET_QUANTITIES[..], "ConditionSet"),
+            ("operating condition", &CONDITION_QUANTITIES[..], "OperatingCondition"),
+            ("condition values", &CONDITION_VALUES_QUANTITIES[..], "ConditionValues"),
+            ("added weight", &ADDED_WEIGHT_QUANTITIES[..], "AddedWeight"),
+            ("spectrum", &SPECTRUM_QUANTITIES[..], "Spectrum"),
         ] {
             assert_eq!(set(scanned), refs(&d[name], "Quantity"), "{record} quantities");
         }
+        assert_eq!(refs(&d["Support"], "Vector3"), set(&["direction"]));
         for name in ["Node", "PipeSegment", "Section", "Support", "SupportStiffness", "Component", "ComponentMechanicsInterface"] {
             let quantities = refs(&d[name], "Quantity");
             let expected: BTreeSet<String> = if name == "SupportStiffness" { set(&["value"]) } else { BTreeSet::new() };

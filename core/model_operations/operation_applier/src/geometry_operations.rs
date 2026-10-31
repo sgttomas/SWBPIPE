@@ -143,7 +143,8 @@ pub(crate) fn record_shape(record: &Value, node: bool) -> Result<()> {
         fields(
             record,
             &["id", "from", "to", "section", "material"],
-            &["label", "provenance", "y_reference", "section_ref", "tags", "notes"],
+            // Model document 0.9.0 (§1.4): a pipe's condition_set_ref is carried with it.
+            &["label", "provenance", "y_reference", "section_ref", "condition_set_ref", "tags", "notes"],
         )?;
         fields(
             &record["section"],
@@ -168,13 +169,15 @@ pub(crate) fn record_shape(record: &Value, node: bool) -> Result<()> {
         text(record, "material")?;
         text(record, "from")?;
         text(record, "to")?;
-        if let Some(reference) = record.get("section_ref") {
-            if reference
-                .as_str()
-                .filter(|s| !s.trim().is_empty())
-                .is_none()
-            {
-                return Err(err("section_ref must be nonblank text"));
+        for key in ["section_ref", "condition_set_ref"] {
+            if let Some(reference) = record.get(key) {
+                if reference
+                    .as_str()
+                    .filter(|s| !s.trim().is_empty())
+                    .is_none()
+                {
+                    return Err(err(format!("{key} must be nonblank text")));
+                }
             }
         }
     }
@@ -797,6 +800,35 @@ mod tests {
     fn hash_claim(model: &Value) -> Value {
         json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","value":format!("sha256:{}",crate::sha256_hex(&canonical_json(model)))})
     }
+    /// Model document 0.9.0 (§1.4): an operation that creates a pipe from a pipe carries
+    /// its condition_set_ref. split_pipe_run gives both halves the source's set.
+    #[test]
+    fn split_pipe_run_carries_the_condition_set_ref() {
+        let mut m = model();
+        m["pipe_segments"][0]["condition_set_ref"] = json!("cs:line");
+        let edited = run(&m, &split_payload(), true).model;
+        let pipes = edited["pipe_segments"].as_array().unwrap();
+        assert_eq!(pipes.len(), 2);
+        assert!(pipes.iter().all(|pipe| pipe["condition_set_ref"] == "cs:line"), "{pipes:?}");
+        // Without the member, neither half gains one.
+        let edited = run(&model(), &split_payload(), true).model;
+        assert!(edited["pipe_segments"].as_array().unwrap().iter().all(|pipe| pipe.get("condition_set_ref").is_none()));
+        // A blank reference is not carried.
+        m["pipe_segments"][0]["condition_set_ref"] = json!(" ");
+        blocked(&m, &split_payload(), true);
+    }
+
+    /// §1.4: transform_pipe_run (copy) gives each copy its source's condition_set_ref.
+    #[test]
+    fn transform_pipe_run_copy_carries_the_condition_set_ref() {
+        let mut m = model();
+        m["pipe_segments"][0]["condition_set_ref"] = json!("cs:line");
+        let edited = run(&m, &transform_payload("translate", true), false).model;
+        let pipes = edited["pipe_segments"].as_array().unwrap();
+        assert_eq!(pipes.len(), 2);
+        assert!(pipes.iter().all(|pipe| pipe["condition_set_ref"] == "cs:line"), "{pipes:?}");
+    }
+
     #[test]
     fn common_operation_route_geometry_preview_apply_and_hash_guards() {
         let model = model();

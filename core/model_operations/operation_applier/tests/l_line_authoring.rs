@@ -497,3 +497,25 @@ fn a_connector_cannot_replace_a_realized_arc_span() {
     let outcome = apply_operation(&model, &create(&connector("pipe:S1", "node:A", "node:B")), Some(&hash(&model)));
     assert!(outcome.applied_model.is_some(), "{:?}", outcome.diagnostics);
 }
+
+/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.4): the bend joins
+/// straights that carry the same condition set (or none) and the arc carries it; straights
+/// that differ are refused by name.
+#[test]
+fn insert_bend_at_corner_carries_the_straights_condition_set_or_refuses_by_name() {
+    let mut model = corner_document();
+    model["condition_sets"] = json!([{"id": "cs:L", "provenance": PROVENANCE}, {"id": "cs:M", "provenance": PROVENANCE}]);
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        pipe["condition_set_ref"] = json!("cs:L");
+    }
+    let applied = apply(&model, &insert_bend(&model, &insert_bend_payload()));
+    let pipes = applied["pipe_segments"].as_array().unwrap();
+    assert_eq!(pipes.len(), 3);
+    assert!(pipes.iter().all(|pipe| pipe["condition_set_ref"] == "cs:L"), "{pipes:?}");
+    let mut differing = model.clone();
+    differing["pipe_segments"][1]["condition_set_ref"] = json!("cs:M");
+    assert!(codes(&differing, &insert_bend(&differing, &insert_bend_payload())).contains(&"OP-BEND-CONDITION-SET-MISMATCH".into()));
+    let mut one_absent = model.clone();
+    one_absent["pipe_segments"][1].as_object_mut().unwrap().remove("condition_set_ref");
+    assert!(codes(&one_absent, &insert_bend(&one_absent, &insert_bend_payload())).contains(&"OP-BEND-CONDITION-SET-MISMATCH".into()));
+}

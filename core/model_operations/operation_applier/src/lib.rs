@@ -4043,6 +4043,18 @@ fn resolve_connect_pipe_run(
         );
         return None;
     };
+    // Model document 0.9.0 (§4.1): connect_pipe_run's payload is unchanged; a pipe's
+    // condition set is assigned by its own operation, never dropped here.
+    if record.contains_key("condition_set_ref") {
+        checker.push(
+            "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+            "blocking",
+            "Connect-pipe payload carries condition_set_ref; a pipe's condition set is assigned by its own operation (model document 0.9.0), not by connect_pipe_run.".into(),
+            "Connect the pipe without condition_set_ref.",
+            vec![target_ref.to_string()],
+        );
+        return None;
+    }
 
     if record.contains_key("section_ref") {
         checker.push(
@@ -5133,6 +5145,21 @@ fn resolve_create_support(
         );
         return None;
     };
+    if let Some(direction) = record.get("direction") {
+        let skew = pp_members::DirectionInput::of_json(direction).is_ok_and(|d| pp_members::is_skew(&d));
+        if skew {
+            refuse_interim_member(checker, target_ref, pp_members::SUPPORT_DIRECTION_SKEW_UNSUPPORTED, pp_members::skew_message(target_ref));
+        } else {
+            checker.push(
+                "OP-CREATE-SUPPORT-PAYLOAD-INVALID",
+                "blocking",
+                "A support's direction (model document 0.9.0) is not authored by create_support until the support-direction authoring is built; it is never dropped.".into(),
+                "Create the support without direction.",
+                vec![target_ref.to_string()],
+            );
+        }
+        return None;
+    }
     let id = record
         .get("id")
         .and_then(Value::as_str)
@@ -5424,6 +5451,16 @@ fn resolve_create_load_case(
         );
         return None;
     };
+    if record.contains_key("condition_use") {
+        refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_CONDITION_USE_UNSUPPORTED,
+            "A load case's condition_use (model document 0.9.0) is not authored until the operating-condition operations are built.".into());
+        return None;
+    }
+    if record.contains_key("test_condition") {
+        refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_TEST_CONDITION_UNSUPPORTED,
+            "A load case's hydrostatic test_condition (model document 0.9.0) is not authored until the hydrostatic test is built.".into());
+        return None;
+    }
 
     let id = record
         .get("id")
@@ -6011,6 +6048,38 @@ fn resolve_create_primitive_load(
 }
 
 #[allow(clippy::too_many_arguments)]
+use open_pipe_stress_product_physics::document_members as pp_members;
+use open_pipe_stress_product_physics::operating_conditions as pp_conditions;
+
+/// Model document 0.9.0: authoring a member whose slice has not landed is refused by its
+/// interim code (DEL-02-01 Design `model-document-0.9.0.md` §2.2, §2.4), never dropped.
+fn refuse_interim_member(checker: &mut Checker, target_ref: &str, code: &'static str, message: String) {
+    checker.push(code, "blocking", message, "Author the record without this model document 0.9.0 member; documents carrying it still open, validate and edit.", vec![target_ref.to_string()]);
+}
+
+/// §2.2 and absolute-sum-srss §2: a difference basis, a subtrahend support state, an
+/// unsigned basis or a combination operand is refused by name in a create payload.
+fn refuse_unauthored_combination_members(model: &Value, record: &serde_json::Map<String, Value>, target_ref: &str, checker: &mut Checker) -> bool {
+    let basis = record.get("basis").and_then(Value::as_str).unwrap_or("").trim();
+    let refusal = if record.contains_key("difference_basis") {
+        Some((pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED, "A combination's difference_basis (model document 0.9.0) is not authored until its gates are built."))
+    } else if record.contains_key("subtrahend_support_state") {
+        Some((pp_members::LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED, "A combination's subtrahend_support_state (model document 0.9.0) is not authored until its solve is built."))
+    } else if matches!(basis, "absolute_sum" | "srss") {
+        Some((pp_members::LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED, "An absolute_sum or srss combination (model document 0.9.0) is not authored until unsigned combinations are built."))
+    } else {
+        let names_combination = |id: &str| find_entity(model, "load_cases", id).is_none() && find_entity(model, "combinations", id).is_some();
+        let terms = record.get("terms").and_then(Value::as_array).into_iter().flatten();
+        let ids = ["minuend_id", "subtrahend_id"].iter().filter_map(|key| record.get(*key).and_then(Value::as_str))
+            .chain(record.get("operand_ids").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str));
+        let nested = terms.into_iter().any(|term| term.get("combination").is_some()) || ids.into_iter().any(names_combination);
+        nested.then_some((pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED, "A combination taking a combination as an operand (model document 0.9.0) is not authored until combinations of combinations are built."))
+    };
+    let Some((code, message)) = refusal else { return false };
+    refuse_interim_member(checker, target_ref, code, message.into());
+    true
+}
+
 fn resolve_create_combination(
     model: &Value,
     target_ref: &str,
@@ -6108,6 +6177,9 @@ fn resolve_create_combination(
         );
         return None;
     };
+    if refuse_unauthored_combination_members(model, record, target_ref, checker) {
+        return None;
+    }
     let id = record
         .get("id")
         .and_then(Value::as_str)
@@ -6564,6 +6636,11 @@ fn resolve_create_combination_term(
         );
         return None;
     };
+    if record.contains_key("combination") {
+        refuse_interim_member(checker, target_ref, pp_members::LOAD_COMBINATION_NESTED_UNSUPPORTED,
+            "A combination term naming a combination (model document 0.9.0) is not authored until combinations of combinations are built.".into());
+        return None;
+    }
     let load_case = record
         .get("load_case")
         .and_then(Value::as_str)
@@ -15583,5 +15660,51 @@ mod tests {
         let outcome = apply_operation(&model, &intent, None);
         assert!(codes(&outcome).contains(&"OP-QUANTITY-OBJECT-MISSING"));
         assert!(outcome.applied_model.is_none());
+    }
+
+    /// Model document 0.9.0 S1 (DEL-02-01 Design `model-document-0.9.0.md` §2.1, §2.2,
+    /// §2.4; absolute-sum-srss §2): a create payload that would author a member whose
+    /// slice has not landed is refused by name, never dropped.
+    #[test]
+    fn s1_interim_members_are_refused_by_name_at_authoring() {
+        let model = sample_model_with_second_load_case();
+        let create = |object: &str, target: &str, change_kind: &str, path: &str, payload: Value| {
+            let mut intent = modify_intent(object, target, change_kind, path, "not_present", &payload.to_string(), "none", "dimensionless");
+            intent["operation_kind"] = json!("create");
+            apply_operation(&model, &intent, None)
+        };
+        let combination = |extra: Value| {
+            let mut payload = json!({"id": "combination:C-NEW", "label": "New", "basis": "result_state_subtraction",
+                "minuend_id": "load:L-1", "subtrahend_id": "load:L-2", "provenance": "user"});
+            for (key, value) in extra.as_object().unwrap() {
+                payload[key] = value.clone();
+            }
+            create("Combination", "combination:C-NEW", "create_combination", "combinations", payload)
+        };
+        for (outcome, code) in [
+            (combination(json!({"difference_basis": "operating_minus_sustained"})), "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"),
+            (combination(json!({"subtrahend_support_state": "own"})), "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED"),
+            (combination(json!({"basis": "absolute_sum", "terms": [{"load_case": "load:L-1", "factor": 1.0}]})), "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"),
+            (combination(json!({"basis": "srss", "terms": [{"load_case": "load:L-1", "factor": 1.0}]})), "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED"),
+            (combination(json!({"basis": "mechanics", "terms": [{"combination": "combination:C-OP", "factor": 1.0}]})), "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
+            (combination(json!({"minuend_id": "combination:C-OP"})), "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
+            (create("Combination", "combination:C-OP", "create_combination_term", "terms", json!({"combination": "combination:C-OP", "factor": 1.0})),
+             "LOAD_COMBINATION_NESTED_UNSUPPORTED"),
+            (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Test", "kind": "hydrotest", "status": "draft",
+                "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"),
+            (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
+                "provenance": "user", "primitive_loads": [], "condition_use": {"temperature": "OPE1"}})), "LOAD_CASE_CONDITION_USE_UNSUPPORTED"),
+            (create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Skew stop", "node": "node:N-2",
+                "family": "line_stop", "restraints": ["UY"], "direction": {"x": 0.0, "y": 3.0, "z": 4.0}, "provenance": "user"})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED"),
+            (create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Axis stop", "node": "node:N-2",
+                "family": "line_stop", "restraints": ["UY"], "direction": {"x": 0.0, "y": 1.0, "z": 0.0}, "provenance": "user"})), "OP-CREATE-SUPPORT-PAYLOAD-INVALID"),
+        ] {
+            assert_eq!(outcome.validation.application_status, "blocked", "{code}");
+            assert!(outcome.applied_model.is_none(), "{code}");
+            assert!(codes(&outcome).contains(&code), "{code} not in {:?}", codes(&outcome));
+        }
+        // The same create without the member applies.
+        let outcome = combination(json!({}));
+        assert!(outcome.applied_model.is_some(), "{:?}", codes(&outcome));
     }
 }
