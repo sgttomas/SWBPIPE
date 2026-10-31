@@ -203,7 +203,7 @@
   "piping_runtime_reads": {
     "source_trees": {
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "fe8ca6aa62c9c766b080d97acf5d569b089a78a76c6b45317a37a70b86f06b03",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "d2d178c97286983c8ccb0dac587d85bb1c92502a0bdf66f7b9c65fb5dff04dcc",
       "core/library_import/library_import_document/Cargo.toml": "26b545d7e2d6988d54a256e63f1136b49c4e2fc907af18c9c7affc38cd2498d4",
       "core/loads/load_case_algebra/Cargo.toml": "b75f87e5a708becb0f52d1b9864c6ac7226a9f2d53b1eaf7e101ba6f89293cfe",
       "core/loads/primitive_loads/Cargo.toml": "c62ebd4ac6ad01fe673db598aa412b29c6338fdd25d4d21385c51323d7709818",
@@ -2411,6 +2411,9 @@
               "core/handoff/caepipe_mbf_engine/src/sidecar.rs",
               "core/handoff/caepipe_mbf_engine/src/unicode_tables.rs",
               "core/handoff/caepipe_mbf_engine/src/value.rs",
+              "core/handoff/caepipe_mbf_engine/src/writer/mod.rs",
+              "core/handoff/caepipe_mbf_engine/src/writer/read.rs",
+              "core/handoff/caepipe_mbf_engine/src/writer/render.rs",
               "core/library_import/library_import_document/src/lib.rs",
               "core/loads/load_case_algebra/src/factor_sum.rs",
               "core/loads/load_case_algebra/src/lib.rs",
@@ -4623,6 +4626,8 @@
               "fixtures/caepipe_mbf/invented/import/units_si.provenance.json",
               "fixtures/caepipe_mbf/invented/parity/import_vectors.json",
               "fixtures/caepipe_mbf/invented/parity/import_vectors.provenance.json",
+              "fixtures/caepipe_mbf/invented/parity/writer_vectors.json",
+              "fixtures/caepipe_mbf/invented/parity/writer_vectors.provenance.json",
               "fixtures/canonical_hash/binary64_transport_vectors.json",
               "fixtures/canonical_hash/cases.json",
               "fixtures/comparison/analysis_run_comparison_golden.json",
@@ -5491,7 +5496,7 @@
         ]
       },
       "core/handoff/caepipe_mbf_engine/tests/parity.rs": {
-        "sha256": "4a2d16c3b2c19a92fb18cbeae1e04c1ae9121a5b551c36b569355a276a0d983d",
+        "sha256": "39875904a158d2d71279b3d71128f003ec30dbfb1fb85b44f673f15cd21a2430",
         "source_trees": [
           "core/handoff/caepipe_mbf_engine/Cargo.toml"
         ],
@@ -5515,6 +5520,35 @@
             "base": "project",
             "files": [
               "schemas/model.schema.yaml"
+            ]
+          }
+        ]
+      },
+      "core/handoff/caepipe_mbf_engine/tests/writer_parity.rs": {
+        "sha256": "1ae8a7f4de680b2aed824ef09fdeea0a86e944ff42f3fef1f87e06b12e6bfb71",
+        "source_trees": [
+          "core/handoff/caepipe_mbf_engine/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/caepipe_mbf/invented/parity/writer_vectors.json",
+            "base": "project",
+            "files": [
+              "fixtures/caepipe_mbf/invented/parity/writer_vectors.json"
+            ]
+          },
+          {
+            "anchor": "fixtures/caepipe_mbf/invented/parity/import_vectors.json",
+            "base": "project",
+            "files": [
+              "fixtures/caepipe_mbf/invented/parity/import_vectors.json"
+            ]
+          },
+          {
+            "anchor": "core/handoff/caepipe_mbf/si_writer.py",
+            "base": "project",
+            "files": [
+              "core/handoff/caepipe_mbf/si_writer.py"
             ]
           }
         ]

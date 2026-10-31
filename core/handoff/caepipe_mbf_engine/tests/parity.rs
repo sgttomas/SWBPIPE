@@ -5,215 +5,84 @@
 //! from the Python over its own test suites and the committed invented MBF corpus, and the Python replays it in
 //! `tests/test_caepipe_mbf_import_parity.py`. Here every recorded call is replayed through the Rust port: the model,
 //! the import report and the id map must be the Python's bytes (their digests, and the full text for corpus items),
-//! or the Python's exception. The writer's regeneration of each bound sidecar is the recorded one (the writer port is
-//! slice 2), keyed by the model's canonical bytes, so a model that differs by one byte finds no regeneration.
+//! or the Python's exception. Each bound sidecar's regeneration is the crate's own writer (slice 2), and each is
+//! checked against the Python writer's recorded regeneration of the same call, keyed by the model's canonical bytes.
 
-use open_pipe_stress_caepipe_mbf::{
-    self as mbf, ports, Dict, ImportError, ImportOptions, ImportResult, Reference, Regenerated, SidecarInput,
-    SidecarRegenerator, Value,
-};
-use sha2::{Digest, Sha256};
-use std::collections::{BTreeSet, HashMap};
-use std::path::{Path, PathBuf};
+use open_pipe_stress_caepipe_mbf::{self as mbf, ports, ImportError, ImportOptions, ImportResult, Reference, Regenerated, SidecarInput, SidecarRegenerator, Value};
+use std::cell::RefCell;
+use std::collections::BTreeSet;
+use std::path::Path;
 use std::sync::OnceLock;
 
-const NONFINITE: &str = "\u{0}float";
-
-fn project() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
-}
+mod common;
+use common::*;
 
 fn document() -> &'static Value {
     static DOCUMENT: OnceLock<Value> = OnceLock::new();
     DOCUMENT.get_or_init(|| {
-        let bytes = std::fs::read(project().join("fixtures/caepipe_mbf/invented/parity/import_vectors.json")).expect("vectors");
-        mbf::parse_sidecar_json(&bytes).expect("the vectors are strict JSON")
+        parse(&std::fs::read(project().join("fixtures/caepipe_mbf/invented/parity/import_vectors.json")).expect("vectors"))
     })
 }
 
-fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
-}
-
-fn sha(bytes: &[u8]) -> String {
-    hex(&Sha256::digest(bytes))
-}
-
-fn b64(text: &str) -> Vec<u8> {
-    let table = |c: u8| -> u32 {
-        match c {
-            b'A'..=b'Z' => (c - b'A') as u32,
-            b'a'..=b'z' => (c - b'a' + 26) as u32,
-            b'0'..=b'9' => (c - b'0' + 52) as u32,
-            b'+' => 62,
-            b'/' => 63,
-            _ => panic!("base64 {c}"),
-        }
-    };
-    let clean: Vec<u8> = text.bytes().filter(|byte| *byte != b'=').collect();
-    let mut out = Vec::new();
-    for chunk in clean.chunks(4) {
-        let mut acc = 0u32;
-        for (index, byte) in chunk.iter().enumerate() {
-            acc |= table(*byte) << (18 - 6 * index);
-        }
-        let bytes = [(acc >> 16) as u8, (acc >> 8) as u8, acc as u8];
-        out.extend_from_slice(&bytes[..chunk.len() - 1]);
-    }
-    out
-}
-
-fn f64_bits(text: &str) -> f64 {
-    let bytes: Vec<u8> = (0..8).map(|index| u8::from_str_radix(&text[2 * index..2 * index + 2], 16).expect("hex")).collect();
-    f64::from_le_bytes(bytes.try_into().expect("8 bytes"))
-}
-
-fn f64_hex(value: f64) -> String {
-    hex(&value.to_le_bytes())
-}
-
-struct Inputs<'d> {
-    doc: &'d Value,
-    blobs: HashMap<String, Vec<u8>>,
-    values: HashMap<String, Value>,
-}
-
-impl<'d> Inputs<'d> {
-    fn new(doc: &'d Value) -> Self {
-        Inputs { doc, blobs: HashMap::new(), values: HashMap::new() }
-    }
-
-    fn blob(&mut self, key: &str) -> Vec<u8> {
-        if let Some(found) = self.blobs.get(key) {
-            return found.clone();
-        }
-        let entry = self.doc.get("blobs").and_then(|blobs| blobs.get(key)).expect("blob").clone();
-        let bytes = if let Some(Value::Str(text)) = entry.get("b64") {
-            b64(text)
-        } else if let Some(Value::Str(text)) = entry.get("text") {
-            text.as_bytes().to_vec()
-        } else {
-            let base: Vec<char> = String::from_utf8(self.blob(entry.get_or_null("base").as_str().expect("base"))).expect("utf-8").chars().collect();
-            let prefix = mbf::value::small_int(entry.get_or_null("prefix")).expect("prefix") as usize;
-            let suffix = mbf::value::small_int(entry.get_or_null("suffix")).expect("suffix") as usize;
-            let middle = entry.get_or_null("middle").as_str().expect("middle");
-            let mut text: String = base[..prefix].iter().collect();
-            text.push_str(middle);
-            text.extend(base[base.len() - suffix..].iter());
-            text.into_bytes()
-        };
-        self.blobs.insert(key.to_string(), bytes.clone());
-        bytes
-    }
-
-    fn value(&mut self, key: &Value) -> Option<Value> {
-        let key = key.as_str()?;
-        Some(restore(&self.value_plain(key)))
-    }
-
-    fn value_plain(&mut self, key: &str) -> Value {
-        if let Some(found) = self.values.get(key) {
-            return found.clone();
-        }
-        let entry = self.doc.get("values").and_then(|values| values.get(key)).expect("value").clone();
-        let value = match entry.get("value") {
-            Some(value) => value.clone(),
-            None => {
-                let mut value = self.value_plain(entry.get_or_null("base").as_str().expect("base"));
-                for op in entry.get_or_null("ops").as_list().expect("ops") {
-                    apply(&mut value, op.as_list().expect("op"));
-                }
-                value
-            }
-        };
-        self.values.insert(key.to_string(), value.clone());
-        value
-    }
-}
-
-fn apply(value: &mut Value, op: &[Value]) {
-    let kind = op[0].as_str().expect("kind");
-    let path = op[1].as_list().expect("path");
-    if path.is_empty() {
-        *value = op[2].clone();
-        return;
-    }
-    let mut parent = value;
-    for step in &path[..path.len() - 1] {
-        parent = step_into(parent, step);
-    }
-    let last = &path[path.len() - 1];
-    match (parent, last) {
-        (Value::Dict(dict), Value::Str(key)) => {
-            if kind == "del" {
-                dict.remove(key);
-            } else {
-                dict.insert(key.clone(), op[2].clone());
-            }
-        }
-        (Value::List(items), Value::Int(_)) => {
-            let index = mbf::value::small_int(last).expect("index") as usize;
-            items[index] = op[2].clone();
-        }
-        _ => panic!("an op path that does not fit its value"),
-    }
-}
-
-fn step_into<'v>(value: &'v mut Value, step: &Value) -> &'v mut Value {
-    match (value, step) {
-        (Value::Dict(dict), Value::Str(key)) => dict.get_mut(key).expect("key"),
-        (Value::List(items), Value::Int(_)) => &mut items[mbf::value::small_int(step).expect("index") as usize],
-        _ => panic!("an op path that does not fit its value"),
-    }
-}
-
-fn restore(value: &Value) -> Value {
-    match value {
-        Value::Dict(dict) => {
-            if dict.len() == 1 {
-                if let Some(Value::Str(kind)) = dict.get(&NONFINITE.to_string()) {
-                    return Value::Float(match kind.as_str() {
-                        "nan" => f64::NAN,
-                        "inf" => f64::INFINITY,
-                        _ => f64::NEG_INFINITY,
-                    });
-                }
-            }
-            let mut out = Dict::new();
-            for (key, item) in dict.iter() {
-                out.insert(key.clone(), restore(item));
-            }
-            Value::Dict(out)
-        }
-        Value::List(items) => Value::List(items.iter().map(restore).collect()),
-        other => other.clone(),
-    }
-}
-
-/// The writer's recorded regenerations (`regenerate_caepipe_sidecar`), by the call's identity.
-struct Recorded<'d> {
+/// The regeneration identity's writer: the crate's own ([`mbf::SiWriter`]), checked against the Python writer's
+/// recorded regeneration of the same call (`regenerate_caepipe_sidecar`), found by the call's identity: the model's
+/// canonical bytes, the digest, the derived straights and the reference temperature.
+struct Checked<'d> {
     table: &'d Value,
+    seen: RefCell<BTreeSet<String>>,
+    differences: RefCell<Vec<String>>,
 }
 
-impl<'d> SidecarRegenerator for Recorded<'d> {
+/// Type-exact equality with dict order kept (the generator's `same`): 1 != 1.0 != True, -0.0 != 0.0.
+fn same(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Dict(x), Value::Dict(y)) => {
+            x.len() == y.len() && x.iter().zip(y.iter()).all(|((p, u), (q, v))| p == q && same(u, v))
+        }
+        (Value::List(x), Value::List(y)) => x.len() == y.len() && x.iter().zip(y).all(|(u, v)| same(u, v)),
+        (Value::Float(x), Value::Float(y)) => x.to_bits() == y.to_bits() || (x.is_nan() && y.is_nan()),
+        (Value::Int(x), Value::Int(y)) => x == y,
+        (Value::Str(x), Value::Str(y)) => x == y,
+        (Value::Bool(x), Value::Bool(y)) => x == y,
+        (Value::Null, Value::Null) => true,
+        _ => false,
+    }
+}
+
+impl<'d> SidecarRegenerator for Checked<'d> {
     fn regenerate(&self, model: &Value, mbf_sha256: &str, derived: &[String], reference: Reference) -> Result<Regenerated, ImportError> {
         let model_bytes = mbf::canonical_bytes(model).map_err(ImportError::Python)?;
-        let derived = ports::dumps_sorted(&Value::List(derived.iter().map(|item| Value::str(item.clone())).collect())).expect("dumps");
+        let listed = ports::dumps_sorted(&Value::List(derived.iter().map(|item| Value::str(item.clone())).collect())).expect("dumps");
         let shown = match reference {
             Reference::None => "{}".to_string(),
             Reference::Celsius(value) => format!("{{\"reference_temperature_c\": \"{}\"}}", f64_hex(value)),
             Reference::Fahrenheit(value) => format!("{{\"reference_temperature_f\": \"{}\"}}", f64_hex(value)),
         };
-        let key = sha(format!("{}\n{mbf_sha256}\n{derived}\n{shown}", sha(&model_bytes)).as_bytes());
-        let Some(outcome) = self.table.get(&key) else {
-            return Err(ImportError::Unsupported(format!("no recorded regeneration for {key}: the model differs from the Python's")));
+        let key = sha(format!("{}\n{mbf_sha256}\n{listed}\n{shown}", sha(&model_bytes)).as_bytes());
+        let regenerated = mbf::SiWriter.regenerate(model, mbf_sha256, derived, reference)?;
+        self.seen.borrow_mut().insert(key.clone());
+        let difference = match (self.table.get(&key), &regenerated) {
+            (None, _) => Some("no recorded regeneration: the model differs from the Python's".to_string()),
+            (Some(outcome), Regenerated::Sidecar(sidecar)) => match outcome.get("sidecar") {
+                Some(recorded) if same(recorded, sidecar) => None,
+                Some(_) => Some("the sidecar differs".into()),
+                None => Some(format!("the Rust writer regenerates a sidecar, the Python refuses ({:?})", outcome.get("refused"))),
+            },
+            (Some(outcome), Regenerated::Refused(codes)) => {
+                let mut codes: Vec<String> = codes.clone();
+                codes.sort();
+                codes.dedup();
+                let recorded: Option<Vec<String>> = outcome
+                    .get("refused")
+                    .and_then(Value::as_list)
+                    .map(|items| items.iter().filter_map(|item| item.as_str().map(String::from)).collect());
+                (recorded.as_ref() != Some(&codes)).then(|| format!("the Rust writer refuses ({codes:?}), the Python {recorded:?}"))
+            }
         };
-        Ok(match outcome.get("sidecar") {
-            Some(sidecar) => Regenerated::Sidecar(sidecar.clone()),
-            None => Regenerated::Refused(
-                outcome.get_or_null("refused").as_list().expect("codes").iter().map(|code| code.as_str().expect("code").to_string()).collect(),
-            ),
-        })
+        if let Some(difference) = difference {
+            self.differences.borrow_mut().push(format!("regeneration {}: {difference}", &key[..12]));
+        }
+        Ok(regenerated)
     }
 }
 
@@ -232,6 +101,8 @@ fn digest(result: &ImportResult) -> (String, Option<String>, String, String) {
 
 struct Replay {
     failures: Vec<String>,
+    regeneration_differences: Vec<String>,
+    regenerations_seen: BTreeSet<String>,
     codes: BTreeSet<String>,
     labels: BTreeSet<String>,
     bound_labels: BTreeSet<String>,
@@ -243,9 +114,21 @@ fn replay_all() -> &'static Replay {
     REPLAY.get_or_init(|| {
         let doc = document();
         let mut inputs = Inputs::new(doc);
-        let regenerator = Recorded { table: doc.get("regenerations").expect("regenerations") };
+        let regenerator = Checked {
+            table: doc.get("regenerations").expect("regenerations"),
+            seen: RefCell::new(BTreeSet::new()),
+            differences: RefCell::new(Vec::new()),
+        };
         let sources = doc.get_or_null("sources").as_list().expect("sources");
-        let mut replay = Replay { failures: Vec::new(), codes: BTreeSet::new(), labels: BTreeSet::new(), bound_labels: BTreeSet::new(), count: 0 };
+        let mut replay = Replay {
+            failures: Vec::new(),
+            regeneration_differences: Vec::new(),
+            regenerations_seen: BTreeSet::new(),
+            codes: BTreeSet::new(),
+            labels: BTreeSet::new(),
+            bound_labels: BTreeSet::new(),
+            count: 0,
+        };
         let out_dir = Path::new(env!("CARGO_TARGET_TMPDIR")).join("caepipe_mbf_parity");
         for (index, row) in doc.get_or_null("imports").as_list().expect("imports").iter().enumerate() {
             let row = row.as_list().expect("row");
@@ -323,8 +206,21 @@ fn replay_all() -> &'static Replay {
                 replay.failures.push(format!("vector {index} ({source}): {problem}"));
             }
         }
+        replay.regeneration_differences = regenerator.differences.into_inner();
+        replay.regenerations_seen = regenerator.seen.into_inner();
         replay
     })
+}
+
+#[test]
+fn every_recorded_regeneration_is_the_rust_writers() {
+    let replay = replay_all();
+    let shown: Vec<&String> = replay.regeneration_differences.iter().take(25).collect();
+    assert!(replay.regeneration_differences.is_empty(), "{} regenerations differ:\n{shown:#?}", replay.regeneration_differences.len());
+    let table = document().get("regenerations").and_then(Value::as_dict).expect("regenerations");
+    let unmade: Vec<&String> = table.keys().filter(|key| !replay.regenerations_seen.contains(*key)).collect();
+    assert!(table.len() > 100, "the vectors hold {} regenerations", table.len());
+    assert!(unmade.is_empty(), "recorded regenerations the Rust replay never makes: {unmade:?}");
 }
 
 #[test]

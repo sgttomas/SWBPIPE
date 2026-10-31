@@ -23,9 +23,10 @@ fn a_lone_surrogate_in_sidecar_json_is_refused_as_unsupported() {
 }
 
 #[test]
-fn a_bound_current_sidecar_without_the_writer_returns_no_result() {
+fn a_bound_current_sidecar_without_a_regenerator_is_checked_by_the_crates_own_writer() {
     // A format-3 sidecar bound to these bytes passes the self-digest and the parser, then reaches the regeneration
-    // identity, which needs the SI writer.
+    // identity: with no regenerator given, the crate's own SI writer regenerates the sidecar (slice 2), exactly as
+    // when the caller passes it.
     let data = MBF.as_bytes();
     let sha: String = {
         use sha2::{Digest, Sha256};
@@ -44,7 +45,11 @@ fn a_bound_current_sidecar_without_the_writer_returns_no_result() {
     sidecar.as_dict_mut().expect("dict").insert("sidecar_sha256".into(), Value::Str(digest));
     let mut options = ImportOptions::new("invented-test");
     options.sidecar = Some(SidecarInput::Parsed(sidecar));
-    assert_eq!(mbf::import(data, &options).err(), Some(ImportError::RegeneratorRequired));
+    let default = mbf::import(data, &options).expect("a result, not an error");
+    options.regenerator = Some(&mbf::SiWriter);
+    let explicit = mbf::import(data, &options).expect("a result");
+    assert_eq!(default.report_bytes().expect("report"), explicit.report_bytes().expect("report"));
+    assert_eq!(default.model_bytes().expect("model"), explicit.model_bytes().expect("model"));
 }
 
 #[test]
@@ -150,4 +155,54 @@ fn sidecar_json_at_the_nesting_limit_imports_or_refuses_and_beyond_it_returns_no
             other => panic!("{}: {other:?}", &sidecar[..40.min(sidecar.len())]),
         }
     }
+}
+
+fn writer_model() -> Value {
+    // An invented one-pipe cantilever, enough to reach the load-case reader.
+    let text = br#"{"schema_version": "0.8.0", "project": {"units": {"length": "mm", "force": "N", "temperature": "degC"}},
+        "nodes": [{"id": "a", "position": {"x": 0, "y": 0, "z": 0}}, {"id": "b", "position": {"x": 1000, "y": 0, "z": 0}}],
+        "materials": [{"id": "steel", "elastic_modulus": {"value": 200000, "unit": "MPa"}, "poisson_ratio": {"value": 0.3, "unit": "1"}}],
+        "pipe_segments": [{"id": "p", "from": "a", "to": "b", "material": "steel", "section": {"outside_diameter":
+            {"value": 100, "unit": "mm"}, "wall_thickness": {"value": 5, "unit": "mm"}}}],
+        "supports": [{"id": "s", "node": "a", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]}],
+        "load_cases": [{"id": "c", "primitive_loads": [{"id": "f", "category": "concentrated_force", "target":
+            {"type": "node", "node": "b"}, "direction": "global_y", "magnitude": {"value": -10, "unit": "N"}, "dimension": "force"}]}]}"#;
+    mbf::parse_sidecar_json(text).expect("model")
+}
+
+#[test]
+fn the_writer_writes_the_invented_cantilever() {
+    let result = mbf::render_si(&writer_model(), &mbf::WriterSettings::new("INVENTED")).expect("a result");
+    assert_eq!(result.status, "written", "{:?}", result.diagnostics);
+}
+
+#[test]
+fn a_nan_load_category_is_refused_as_unsupported_by_the_writer() {
+    // Python's set of categories holds a NaN by object identity, which decides whether the load is refused; the port
+    // cannot know the identity, so it returns no result rather than guessing.
+    let mut model = writer_model();
+    let load = model.as_dict_mut().unwrap().get_mut(&"load_cases".to_string()).unwrap().as_list().unwrap()[0].clone();
+    let mut load = load;
+    let primitive = load.as_dict_mut().unwrap().get_mut(&"primitive_loads".to_string()).unwrap();
+    let Value::List(items) = primitive else { panic!("list") };
+    items[0].as_dict_mut().unwrap().insert("category".into(), Value::Float(f64::NAN));
+    model.as_dict_mut().unwrap().insert("load_cases".into(), Value::List(vec![load]));
+    match mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")) {
+        Err(ImportError::Unsupported(reason)) => assert!(reason.contains("NaN load category"), "{reason}"),
+        other => panic!("expected an unsupported-input refusal, got {other:?}"),
+    }
+}
+
+#[test]
+fn a_model_holding_the_parsers_sentinel_is_refused_as_unsupported_by_the_writer() {
+    let mut model = writer_model();
+    model.as_dict_mut().unwrap().insert("lines".into(), Value::List(vec![Value::Bad]));
+    assert!(matches!(mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")), Err(ImportError::Unsupported(_))));
+    assert!(matches!(
+        mbf::regenerate_caepipe_sidecar(&model, &"0".repeat(64), &[], mbf::Reference::None),
+        Err(ImportError::Unsupported(_))
+    ));
+    let mut settings = mbf::WriterSettings::new("INVENTED");
+    settings.title = Value::List(vec![Value::Bad]);
+    assert!(matches!(mbf::render_si(&writer_model(), &settings), Err(ImportError::Unsupported(_))));
 }

@@ -11,7 +11,7 @@ use crate::rational::Q;
 use crate::runtime::{local_y_reference, norm, sub, unit, unit_exact, V3};
 use crate::sidecar::{sidecar_difference, summed_entries};
 use crate::value::{OMap, Value};
-use crate::{ImportError, Reference, Regenerated};
+use crate::{Reference, Regenerated};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug)]
@@ -402,9 +402,7 @@ impl<'a> Importer<'a> {
     }
 
     fn regeneration_identity(&mut self, model: &Value, id_map: &Value) -> R<()> {
-        let Some(regenerator) = self.options.regenerator else {
-            return Err(Stop::Fail(ImportError::RegeneratorRequired));
-        };
+        let regenerator: &dyn crate::SidecarRegenerator = self.options.regenerator.unwrap_or(&crate::SiWriter);
         let reference = match &self.t_ref {
             None => Reference::None,
             Some(number) if self.si => Reference::Celsius(number.value),

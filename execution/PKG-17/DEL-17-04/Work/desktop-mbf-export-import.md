@@ -164,7 +164,8 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   - It builds for both the native target and wasm.
   - It exposes `render_si(model, settings)`, `sidecar(result, mbf_sha256)` and
     `import(bytes, options)`. These use the Python codes, messages, maps and JSON outputs
-    unchanged.
+    unchanged. As built (slice 2, §6), `sidecar` is the result's method
+    `WriterResult::sidecar(mbf_sha256)`, as in the Python's `MbfSiResult`.
 - **Parity.** Committed vectors from every public writer and import test model, the pilot
   cases, the invented import fixtures and the authored cases (#1702).
   - The Rust and Python outputs must be byte-identical: MBF text, sidecar bytes, each result's
@@ -515,6 +516,36 @@ Each slice is one PR. Every test must fail without its wiring.
 A bound format 2 or 3 import in slice 3 needs slice 2's writer, which it takes through the
 `SidecarRegenerator` trait. Slice 4 needs slice 2, slice 5 needs slice 3, and slice 6
 needs slices 4 and 5.
+
+**Slice 2, as implemented (2026-10-30).** `core/handoff/caepipe_mbf_engine/src/writer/` ports
+`si_writer.py` byte for byte.
+
+- **API.** `render_si(model, &WriterSettings)` returns `WriterResult`, the `MbfSiResult` port,
+  with its maps, loss report and assumptions, `to_dict()` and its canonical bytes, and
+  `sidecar(mbf_sha256)` (format 3 with its self-digest) and its file bytes.
+  `regenerate_caepipe_sidecar` is ported.
+  - `WriterSettings` also carries the Python's `piping_code` argument.
+  - The title, reference temperatures and piping code are `Value`s, because the Python takes
+    any value and refuses or `str()`s it.
+  - `max_layout_rows` is `Option`, so the product's `None` (Q-4) is expressible.
+- **Regeneration and preflight.** The crate's writer (`SiWriter`) is the importer's regenerator
+  when `ImportOptions::regenerator` is None. `ImportError::RegeneratorRequired` is removed.
+  The `SidecarRegenerator` trait stays public. The writer's preflight
+  (`MBF-SI-PREFLIGHT-REFUSED`) runs the Rust importer.
+- **Errors.** A Python exception the writer raises is `ImportError::Python` with the same type
+  and message. An input the port cannot reproduce fails closed as `ImportError::Unsupported`:
+  a NaN load category, whose set membership the Python decides by object identity, and the
+  sidecar parser's internal sentinel.
+- **Parity.** `tools/fixtures/caepipe_mbf_writer_vectors.py` records the inputs of every writer
+  call the suites make, the corpus the import vectors write back, the correlation cases and
+  generated coverage inputs. Each input is replayed through the unpatched Python for its
+  expected outputs.
+  - `tests/writer_parity.rs` and `tests/test_caepipe_mbf_writer_parity.py` replay the vectors.
+    Every `MBF-SI-*` code is emitted.
+  - `tests/parity.rs` now checks each recorded regeneration against the Rust writer's own.
+- **Open.** One Python defect is recorded and ported unchanged. A spring support at a node no
+  pipe segment reaches raises `KeyError` instead of a named refusal. The fix is the CAEPIPE
+  lane's decision, made in both twins.
 
 ## 7. Boundaries
 
