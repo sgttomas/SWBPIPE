@@ -1,6 +1,6 @@
 # R-4: route unification. The exact pressure route admits every family the pressure-free route has
 
-> **Status: adopted plan; S1–S8/P unbuilt; stage 2 built (#1671); §8.30 corrections in flight (`31bc02cd0e`); superseded by any later Design text.**
+> **Status: adopted plan, carried by RT-A3 in the order tee, reducers in regions, constant-effort, nonlinear supports, then S6 connectors, S3, S7, P and R-3 (Agent 0, 2026-10-30; S7 added the same day, see below). Built: stage 2 (#1671); the §8.30 corrections; S1's tee and junction part (RT-A3 increment 1), with junctions recognised implicitly at shared terminal nodes and no `junction` token (D-1, recorded in [pressure-contract.md](pressure-contract.md) "Tees and pressure junctions"). S1's reducer part and S2–S8/P are unbuilt. Superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`; those name working files that are not retained.
@@ -36,6 +36,14 @@ Arithmetic for §5 and the reference values in §3 and §4 is in
 `scratch/solver-r4/estimates.py` (exact rationals, no product code).
 
 ---
+
+## 0a. Scope decision: S7 in RT-A3 (Agent 0, 2026-10-30)
+
+Agent 0 added S7, a nonlinear support as a friction normal source (§3.8), to RT-A3's scope. The decision was made under the owner's 2026-10-27 delegation, on the RT-A3 manager's recommendation. A lift-off friction shoe is the ordinary resting support in real models, so exit criterion 1's reference system (DEL-09-01 `reference-system.md`, FR1 at RS-120 with its one-way FR1V) must exercise it.
+
+- **Order.** Increments 1–4, then S6, S3, S7, P and R-3. S7 moves ahead of P only if the M-1a/M-2 measurements show that P can wait.
+- **Interim.** Until S7 lands, the reference fixture gives FR1 a linear rest as its normal source (option (a)). That substitution is recorded in DEL-09-01's pending-family ledger against S7.
+- **Verification.** S7 changes numerical meaning on both routes, so it takes its own confirmation references (F-2a, F-2b and F-3 in §3.8 at least) and the independent xhigh review.
 
 ## 00. Codex round-1 corrections (2026-10-28; these supersede the sections they name)
 

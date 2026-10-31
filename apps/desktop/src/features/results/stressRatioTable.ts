@@ -39,6 +39,7 @@ export type StressKind = Readonly<{ kind: string; label: string }>;
 export const STRESS_KINDS: readonly StressKind[] = Object.freeze([
   { kind: "pipe_elastic_normal_stress_maximum_v2", label: "Normal-stress maximum" },
   { kind: "element_local_normal_stress_extreme", label: "Section normal-stress extreme σ±" },
+  { kind: "branch_intensified_bending_stress_v1", label: "Intensified bending stress (tee)" },
   { kind: "component_equal_factor_intensified_bending_stress_v1", label: "Intensified bending stress (component)" },
   { kind: "curved_bend_directional_intensified_bending_maximum_v1", label: "Curved-bend intensified bending maximum" },
   { kind: "curved_bend_directional_intensified_bending_stress_v1", label: "Curved-bend intensified bending stress" },

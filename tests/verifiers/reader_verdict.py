@@ -379,6 +379,8 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # W-15 slice d (DEL-03-05 Design §5): the model's bodies and their records.
                 from . import component_body
                 component_body.model_checks(source, model, pressure_2.pressure_table())
+                # RT-A3 increment 1: the branch rows bound to the model's tee associations (Rust `exact_model_checks`).
+                u4b.branch_model_checks(source, model)
                 # W-16 slice b (§6): the combination records bound to the model.
                 from . import exact_combinations
                 exact_combinations.model_checks(source, model)

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 135,
-  "source_kind_count": 68,
+  "source_signature_count": 137,
+  "source_kind_count": 69,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -139,7 +139,9 @@
         "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
         "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
         "rotated_from_published_element_local_end_actions_v1",
-        "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
+        "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+        "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=nominal_section",
+        "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section"
       ]
     },
     "sign_convention": {
@@ -2222,6 +2224,38 @@
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false,
       "combination_algebra": "signed_linear"
+    },
+    {
+      "signature_id": "supported-source-114-user-branch-sif-times-basis-bending-stress-rows-v1-nominal-section",
+      "kind": "branch_intensified_bending_stress_v1",
+      "unit": "Pa",
+      "component": "intensified_bending",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=nominal_section",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-114-user-branch-sif-times-basis-bending-stress-rows-v1-reduced-section",
+      "kind": "branch_intensified_bending_stress_v1",
+      "unit": "Pa",
+      "component": "intensified_bending",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section",
+      "combination_algebra": "never_combined"
     }
   ],
   "hash_vectors": [
@@ -2272,7 +2306,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919",
+  "inherited_semantic_contract_sha256": "fdd5345c5076d3a437f53fe1337e4c265d4d732fce03976719e4c48b05b88e35",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [

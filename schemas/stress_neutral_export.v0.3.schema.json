@@ -4327,7 +4327,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             },
             "sha256": {
-              "const": "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919"
+              "const": "fdd5345c5076d3a437f53fe1337e4c265d4d732fce03976719e4c48b05b88e35"
             }
           }
         },
@@ -4525,7 +4525,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1"
+              "const": "794d8079c43e136e66b2ffaf9e74aa5f754d3b648febdf571cb1f79d9f7e124e"
             }
           }
         },
