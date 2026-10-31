@@ -1,7 +1,7 @@
 // G9 (DEL-07-02 `Work/queued-changes-batch.md`): the person's queued single changes
 // move into batch review as one batch, in queue order, against the workspace session
-// and the actual wasm engine. Nothing is applied until the batch is validated and
-// applied entirely; a change whose before-value depends on another queued change is
+// and the actual wasm engine. Apply entire batch validates and applies all or none;
+// a change whose before-value depends on another queued change is
 // refused by name and nothing applies. Invented run-sheet fixture model.
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -11,6 +11,7 @@ import fixtureJson from "../../../../../fixtures/model_operations/run_sheet_auth
 import * as previewService from "../../services/previewService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { buildGridOperationIntent, type GridColumn } from "../workspace/table/modelTableAdapter";
+import { inspectorAuthoringPaths } from "../model-tree/PropertyInspector";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { OperationApplyPanel } from "./OperationApplyPanel";
 
@@ -94,6 +95,43 @@ describe("review all queued changes as one batch (G9)", () => {
     await reviewAllAsBatch(session);
     expect(session.current.operations.editorIntents).toHaveLength(1);
     expect(session.current.operations.queuedBatches).toEqual([]);
+  });
+
+  it("names duplicate operation ids before moving same-field edits and leaves the single queue unchanged", async () => {
+    const session = await harness();
+    const model = session.current.model.model!;
+    const node = model.nodes.find((item) => item.id === "node:A")!;
+    const edits = ["First label", "Second label"].map((proposedValue) => inspectorAuthoringPaths.buildOperationIntent({
+      field: { label: "Label", fieldPath: "label", before: node.label, objectType: "Node", changeKind: "set_field", dimension: "dimensionless", unit: "1", sourceNote: "entered label", unitEditable: false, valueKind: "text" },
+      model, proposedValue, proposedUnit: "1", rationale: "entered label", selection: { type: "node", id: node.id }, unitCatalogRoute: null
+    }));
+    expect(edits[0].operation_id).toBe(edits[1].operation_id);
+    queue(session, [edits[0]]);
+    queue(session, [edits[1]]);
+    const queuedBefore = structuredClone(session.current.operations.editorIntents);
+    expect(new Set(queuedBefore.map((intent) => intent.queue_id)).size).toBe(2);
+    const panel = () => <OperationApplyPanel
+      queuedIntents={session.current.operations.editorIntents}
+      outcomes={session.current.operations.operationOutcomes}
+      appliedOperations={session.current.operations.appliedOperations}
+      undoCount={session.current.operations.undoStack.length}
+      redoCount={session.current.operations.redoStack.length}
+      busy={false} message={session.current.operations.operationMessage} engineStatus={{ state: "ready" } as never}
+      onValidate={() => {}} onApply={() => {}} onUndo={() => {}} onRedo={() => {}}
+      onReviewAllAsBatch={session.current.operations.handleReviewQueuedIntentsAsBatch}
+    />;
+    const view = render(panel());
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Review all 2 queued changes as one batch" })); });
+    view.rerender(panel());
+
+    expect(screen.getByTestId("operation-apply-message")).toHaveTextContent(`2 changes share the operation id ${edits[0].operation_id}`);
+    expect(screen.getByTestId("operation-apply-message")).toHaveTextContent("every change stays queued");
+    expect(session.current.operations.editorIntents).toEqual(queuedBefore);
+    expect(session.current.operations.queuedBatches).toEqual([]);
+    expect(session.current.operations.operationOutcomes).toEqual({});
+    expect(session.current.operations.undoStack).toEqual([]);
+    expect(session.current.operations.batchReceipts).toEqual([]);
+    expect(session.current.model.model).toEqual(model);
   });
 });
 

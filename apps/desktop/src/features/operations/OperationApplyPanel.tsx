@@ -97,9 +97,9 @@ export function OperationApplyPanel({
               Review all {batchableCount(queuedIntents)} queued changes as one batch
             </button>
             <small className="muted" id="operation-review-all-as-batch-help">
-              The changes move to batch review in the order they were queued. Validate the batch, then apply it
-              entirely or not at all; it is one undo step. A change whose before-value depends on another queued
-              change is refused by name, never adjusted.
+              The changes move to batch review in the order they were queued. Apply entire batch validates and
+              applies them all or none, as one undo step; Validate batch checks them first without applying. A
+              change whose before-value depends on another queued change is refused by name, never adjusted.
             </small>
           </div>
         ) : null}

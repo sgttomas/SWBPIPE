@@ -12,14 +12,20 @@ and receipt record. Desktop paths are relative to `apps/desktop/src/`.
   moves them into batch review as one batch (`handleReviewQueuedIntentsAsBatch`,
   `features/workspace/workspaceSession.ts`). They move in the order they were queued, through the
   same `registerOperationBatch` every other batch producer uses.
-- **Nothing is applied by the move.** The batch is checked with **Validate batch** and applied
-  with **Apply entire batch** (`features/toolkit/BatchReviewPanel.tsx`) on the operation engine's
-  atomic batch route (`apply_operation_batch`). All changes apply, or none do. A batch holding an
-  operation that needs a preview still waits for a clean preview of that exact batch.
+- **Nothing is applied by the move.** Nothing applies until the person's **Apply entire batch**
+  (`features/toolkit/BatchReviewPanel.tsx`). It validates and applies the batch on the operation
+  engine's atomic batch route (`apply_operation_batch`): all changes apply, or none do.
+  **Validate batch** checks the batch first without applying, and is required beforehand only for
+  a batch holding an operation that needs a preview, which waits for a clean preview of that exact
+  batch.
 - **No adjustment.** Each change keeps the `before` it was queued with. A change whose `before` an
   earlier change in the batch makes stale is refused by name in validation, for example
   `OP-STALE-BEFORE-VALUE` for a field edit, and nothing applies. It is never rebased. The person
   can clear the batch and queue the change again on the current model.
+- **Shared operation ids.** Changes queued from the same field of the same form carry the same
+  operation id, and one batch cannot tell them apart. The move is refused before anything moves,
+  and the message names the shared id and how many changes carry it. Every change stays queued
+  singly.
 - **Authorship.** Only changes with `author_type: "user"` move. A change another author queued
   stays single, and the message says how many stayed.
 - **Registration failure.** If the batch cannot be registered, for example because the model
@@ -45,6 +51,8 @@ engine. It covers:
 - no change to the model before apply;
 - one validated atomic apply, with one undo checkpoint and one applied entry;
 - a stale dependent change refused by name, with the model unchanged;
+- two queued edits sharing an operation id, refused by name before the move, with the queue
+  unchanged;
 - no batch from fewer than two changes;
 - the panel control's count, accessible description and busy state.
 

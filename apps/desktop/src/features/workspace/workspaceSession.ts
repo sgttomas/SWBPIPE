@@ -1314,19 +1314,26 @@ export function useWorkspaceSession() {
 
   /** G9 (DEL-07-02 `Work/queued-changes-batch.md`): moves the person's queued single
    * changes, in the order they were queued, into batch review as one batch. Nothing is
-   * applied here: the batch is validated and then applied entirely or not at all, and a
+   * applied here: Apply entire batch validates and applies all of them or none, and a
    * change whose `before` depends on another queued change is refused by name there,
-   * never rebased. Changes another author queued stay single. */
+   * never rebased. Changes another author queued stay single. Changes that share an
+   * operation id cannot be told apart in one batch, so the move is refused by name and
+   * every change stays queued singly. */
   async function handleReviewQueuedIntentsAsBatch(): Promise<void> {
     const moving = [...editorIntents].reverse().filter((intent) => intent.author_type === "user");
     if (moving.length < 2) return;
+    const shared = [...new Set(moving.map((intent) => intent.operation_id).filter((id, index, ids) => ids.indexOf(id) !== index))];
+    if (shared.length) {
+      setOperationMessage(`The queued changes were not moved to batch review: ${shared.map((id) => `${moving.filter((intent) => intent.operation_id === id).length} changes share the operation id ${id}`).join("; ")}. Apply or remove all but one of them singly first; every change stays queued.`);
+      return;
+    }
     const key = await registerOperationBatch({ batch_id: `queued-changes-${++batchSequence.current}`, operations: moving.map((intent) => structuredClone(intent)) });
     if (!key) return;
     const moved = new Set(moving.map(intentKey));
     setEditorIntents((current) => current.filter((intent) => !moved.has(intentKey(intent))));
     setOperationOutcomes((current) => Object.fromEntries(Object.entries(current).filter(([queued]) => !moved.has(queued))));
     const kept = editorIntents.length - moving.length;
-    setOperationMessage(`${moving.length} queued changes moved to batch review as one batch. Validate it, then apply the entire batch.${kept ? ` ${kept} change${kept === 1 ? "" : "s"} from another author stay${kept === 1 ? "s" : ""} queued singly.` : ""}`);
+    setOperationMessage(`${moving.length} queued changes moved to batch review as one batch. Apply entire batch validates and applies them all or none; Validate batch checks them first without applying.${kept ? ` ${kept} change${kept === 1 ? "" : "s"} from another author stay${kept === 1 ? "s" : ""} queued singly.` : ""}`);
   }
 
   function handleClearReviewQueue() {
