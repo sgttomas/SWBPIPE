@@ -134,6 +134,8 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. DEC-018 and the implemented core-units slice now provide the current dimensional basis. Alias/parser behavior, diagnostics, B2/B3 coverage, and validation matters survive only where explicitly recorded as residuals; this documentation refresh makes no lifecycle or validation ruling.
+>
+> Current implementation (model document 0.9.0 S1; DEL-02-01 Design `Work/model-document-0.9.0.md` §2.4): `core/units` and `schemas/units.schema.yaml` add five named dimensions for the dynamics records: `frequency` (canonical Hz), `angular_frequency` (rad/s), `rotation_per_length` (rad/m; displays rad/mm and rad/in), `length_per_rotation` (m/rad; displays mm/rad and in/rad) and `rotational_generalized_mass` (kg*m^2/rad^2; displays lb*in^2/rad^2 and lb*ft^2/rad^2), each display unit from its definitional factor with a conversion witness. The Python mirrors and the verifier transcription follow the crate.
 
 ## Completion and Reliance Basis — Epistemology
 

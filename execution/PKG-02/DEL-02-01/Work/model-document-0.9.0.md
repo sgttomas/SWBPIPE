@@ -382,7 +382,11 @@ pressure in no region of the case is `LOAD_CASE_CONDITION_PRESSURE_UNREGIONED`
 generated primitives need `analysis_state.load_sources` entries. These touch
 DEL-04-07's exact contract and its D3, so 0.9.0 carries the format (the region's
 `pressure` becomes optional exactly when the case uses `pressure`) and S1 refuses
-every EX use by name until S4.
+every EX use by name until S4. **Remaining item for S4 (as built, S1):** the
+schema admits a region without `pressure` under `condition_use.pressure`, but the
+S1 wire still requires the region's `pressure`, so such a document is refused at
+decode rather than by a §1.3 name. S4 makes the wire admit it and resolves or
+refuses it by name.
 
 **Contents density.** It differs by mode (operating contents, hydrotest water,
 empty), so it is per condition. Its consumers (self-weight generation from
@@ -508,7 +512,13 @@ owner's to decide.
   uses set order, changes E2's bytes.
 - **E5, unused sets.** A document with sets and assignments but no
   `condition_use` solves byte-identically to the same document without them
-  (0.7.0's annotated-model precedent).
+  (0.7.0's annotated-model precedent). **As built (S1):** byte for byte on the
+  pressure-free route, in both modes. On the exact route the source-block
+  custody hashes bind the authored request, so the two documents' envelopes
+  differ in those hashes by construction; E5 there compares every solved member
+  (rows, mechanics, diagnostics, evidence and standing) and excepts only the
+  hash-bound custody fields, as the equivalence above excepts `model_hash`
+  (`tests/model_document_0_9_0.rs`).
 - **E6, refusals.** Every §1.3 code, at the solve and, for document-level codes,
   at the validator.
 - **E7, G-1 after lowering.** An operating case using `temperature` and a
@@ -597,6 +607,14 @@ owner's to decide.
   (blocking).
 - **Written only when the user sets it.** Choosing the "operating − sustained"
   template is such a setting.
+- **Unknown operands (as built, S1; DEL-05-02 `absolute-sum-srss-combinations.md`
+  §2).** Once a combination may name a combination (§2.4), an operand naming
+  neither a load case nor a combination is `LOAD_COMBINATION_OPERAND_UNKNOWN`
+  (blocking, validator and solve): a subtraction's `minuend_id` or
+  `subtrahend_id`, a range envelope's `operand_ids` entry, and a term's
+  `combination`. These existing refused outcomes keep their blocking refusal and
+  change only their code from `LOAD_COMBINATION_LOAD_CASE_UNKNOWN`, which a
+  term's `load_case` keeps.
 - **Interim (S1 until the solver lane's 1b):** the solve withholds the
   combination with the warning `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`,
   and the applier refuses authoring it. 1b removes both and adds G-1/G-2.
@@ -716,7 +734,9 @@ document carrying none of them has today's meaning.
   - `g_value`: a `Quantity` in acceleration units with a positive, finite
     value, required exactly when `ordinate` is `g_multiple` (r2 F7: zero or a
     negative value is `SPECTRUM_RECORD_INVALID`);
-  - `damping_ratio`: dimensionless, required, finite, in [0, 1);
+  - `damping_ratio`: dimensionless, required, finite, in [0, 1), carried as a
+    plain JSON number, not a `Quantity` (as built, S1: the schema's `type:
+    number`);
   - `interpolation`: closed `{abscissa, ordinate}`, each `"linear"` | `"log"`,
     both required, no default;
   - `points`: an array of `[x, y]` number pairs, at least two, x strictly
@@ -823,7 +843,9 @@ their states.
   the `Combination.basis` tokens `absolute_sum` and `srss`,
   `CombinationTerm.combination` (a `oneOf` with `load_case`), `$defs`
   `TestCondition` with `LoadCase.test_condition`, the `SupportFamily` token
-  `snubber`, and `$defs` `Spectrum` with top-level `spectra` (§2.4).
+  `snubber` (appended as the vocabulary's last token, so every existing token
+  keeps its position; the spring-rule reader's table reads the vocabulary in
+  order), and `$defs` `Spectrum` with top-level `spectra` (§2.4).
   `PressureRegion.pressure`
   stays required in the schema except where the case carries
   `condition_use.pressure` (an `if`/`then` on `LoadCase`). Every record stays
@@ -902,6 +924,30 @@ D3 is touched; AC-004's text is not.
   exclusive lane granted by Agent 0. This is test evidence, not acceptance.
 - **Queue.** The 0.9.0 D3 follows the queued §8.27 (W-16b/c), §8.28 (stage 2)
   and #1678; Agent 0 sets its place.
+
+### 3.8 Interim refusals and their removers
+
+Each member S1 carries before the slice that gives it meaning is refused by name,
+never dropped (as built at S1). "Solve" is both product routes, the headless
+runner and wasm; "applier" is authoring through `apply_operation` and batches; the
+document opens, validates and saves throughout.
+
+| Interim refusal (code) | Where | Removed by |
+|---|---|---|
+| `LOAD_CASE_CONDITION_USE_UNSUPPORTED` (a case's `condition_use`, any key, blocking) | solve; applier | S2 (PF resolution); `contents_density` stays refused until contents resolution is designed (OC-7) |
+| `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (`condition_use` on the EX route) | solve | S4 (EX resolution, with DEL-04-07) |
+| Retained Direct and headless routes and the independent source readers decline `condition_use` (`FamilyFact::ConditionUse`; `PHYSICS_SOURCE_ACTUAL_CONDITION_USE`; retained-precision G8 `CONDITION_USE_UNSUPPORTED`) | retained admission, source readers | S2, once it settles where the lowering sits for those routes (§3.7) |
+| A region omitting `pressure` under `condition_use.pressure` (refused at decode, not by name) | wire | S4 (§1.6) |
+| `LOAD_CASE_TEST_CONDITION_UNSUPPORTED` (a case's `test_condition`) | solve; applier | RT-A6 hydrotest slice |
+| `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` (a non-axis `direction`); an axis-aligned one lowers to the record on its axis | solve; applier | the solver lane's skew kernel (DEL-04-03) |
+| `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED` (withheld, warning); `…_EXACT_UNSUPPORTED` stays on EX | solve; applier | the solver lane's 1b (G-1/G-2) |
+| `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED` (`minuend_final`, withheld, warning; `own` behaves as absence) | solve; applier | RT-A5's `minuend_final` slice (DEL-05-02 `operating-case.md` §5) |
+| `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED` (`absolute_sum`, `srss`, withheld, warning) | solve; applier | the RT-A4 wiring slice (DEL-05-02 `absolute-sum-srss-combinations.md`) |
+| `LOAD_COMBINATION_NESTED_UNSUPPORTED` (a combination operand, and each combination naming a withheld one, withheld, warning) | solve; applier | the RT-A4 wiring slice |
+| Retained admission declines `direction`, `test_condition` and the combination members (`FamilyFact::SupportDirection`, `TestCondition`, `CombinationMember`) | retained admission | each member's slice above, with its D3 |
+| `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` (blocking on every static solve) | solve | DEL-04-10's snubber slice, which replaces it with its final meaning (static solves ignore a snubber, disclosed) |
+| Spectra carried as data; no consumer | — | DEL-04-10 (RT-A8 response spectrum) |
+| CAEPIPE SI writer refuses `condition_use`, `test_condition`, a non-axis `direction`, snubbers, spectra, `difference_basis`, `subtrahend_support_state`, the unsigned bases and combination operands by name | `si_writer.py` (and the MBF engine's Rust twin, the MBF lane's) | each member's mapping, when designed (DEL-17-04) |
 
 ## 4. Run sheet and desktop authoring
 
@@ -1131,3 +1177,58 @@ counted on main `66a83a2b68`: each occurs once.
   S3a; S4 after S2, with DEL-04-07.
 - **B1.** The run-sheet column lands with S3b, or with B1's own slice if B1
   lands after S3a.
+
+## 9. As built (S1, #50)
+
+S1 lands in two parts on one branch: S1-core (the members) and the ripple (the
+version step, R1). D3 and the registration follow as their own slice (§3.7).
+
+- **S1-core.** The schema members of §3.4; the closed wire records and
+  `model_fields` keys; the document-level codes of §1.3, §2.1, §2.2 and §2.4 at
+  the validator and the solve; the lowering entry with the axis-aligned
+  `direction` removal; the interim refusals of §3.8 at the solve, the applier
+  and the retained and source readers; geometry operations carrying
+  `condition_set_ref`; the five dynamics unit families (DEL-02-02); the CAEPIPE
+  SI writer's refusals by name (§3.5); `snubber` appended as `SupportFamily`'s
+  last token (§3.4); E5 as amended in §1.8.
+- **The version step.** `MODEL_SCHEMA_VERSION` is `0.9.0` and 0.8.0 joins the
+  retired list (`[&str; 8]`) in `model_format.rs`, the applier's evaluator (which
+  src-tauri delegates to), Python persistence, the preview service, the TS
+  constants, the MBF engine and the SI writer, with §3.2's message. Probes that
+  used 0.9.0 as newer use 0.10.0 or 0.9.1. `version_states.json` follows §3.3:
+  its states, details and codes are recomputed through the Python mirror, no
+  row's state moved, and `retired 0.8.0` is added.
+- **Stored work (§3.2).** Two committed 0.8.0 controls, verbatim from main
+  `5bb2f9ff0`: the handoff witness package
+  (`fixtures/handoff/retired_0_8_0_witness.swbhandoff`; its bytes verify, File ›
+  Open and the solve refuse its model by name) and an ordinary pressure-2 run
+  with its request and source (`fixtures/persistence/recorded_model_0_8_0`; it
+  reads, and on the desktop displays with no finding and is offered for
+  comparison). A 0.8.0 project and state are refused on open, save and compare
+  with `RETIRED_PROJECT_RUNS_NOTE`, and their run reads as before (src-tauri, for
+  0.8.0 and 0.7.0). `semantic_contract_tables.py repin` leaves
+  `fixtures/persistence/recorded_model_*` alone, since a recorded digest is
+  history.
+- **The recorded table basis.** The pressure-2 table's version token is a
+  reviewed input bound by the registration, so it moves with D3, not in the
+  ripple; until then the 0.8.0-era record binds the current table and needs no
+  basis. D3 adds `RECORDED_RUN_TABLE_BASES`' entry (recorded `5451fbf3…`, current
+  the re-derived table's digest; the token edit alone gives `d46e1963…`), and the
+  regression above then guards it.
+- **Guards.** `READER_TOKEN_SITES` re-checked at 0.9.0 (3, 2 and 1 sites, each a
+  token edit); every Python retired list equals `model_format.rs`'s;
+  `test_model_document_schema.py` lists 0.8.0's two controls
+  (`RETIRED_0_8_0_CONTROLS`), and an unlisted non-frozen 0.8.0 document fails.
+  The re-author helpers (`tests/common/current_model.rs`, its lib twin and
+  `qualification_physics`) re-author an 0.8.0 copy by its token; the w16
+  references' copies are re-authored in memory.
+- **Retained law tests.** The audited suffixes of `retained_precision.rs` and
+  `semantic_contract.rs` are re-audited for their token edits, and
+  `physics_source.rs`'s for S1-core's closed condition-use test.
+- **Left for D3:** the registration (`reviewed_inputs`, DEF-E's
+  `scope.model_format`, the pressure-source-1 limitation and the pressure-2
+  admitted-families sentence, physics-retained-1's inherited digests), the
+  retained successors, `retained_precision_cases.json`, the two
+  `failed_ordinary` and the synthetic bases, the profile pins
+  (`profile_in_build_record`, `challenge_bounds_are_the_profile`) and DEL-04-08
+  TBD-002's "DEF-E and the code admit current model" token.

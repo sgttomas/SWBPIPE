@@ -105,7 +105,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - It also covers mechanics combinations under the B2-C contract. Each combination has its own solve on the combined exact ledger and at least one selected operand. It publishes exactly 7n + 50m + 8g rows (n nodes, m members, g attributed supports), of which constrained displacement components are `input_derived` +0.
     - Combination maxima, intensified rows, range envelopes, state differences and combinations with member-load operands are not covered.
   - **Route E domain.** It covers direct load cases with nodal loads only, under these conditions:
-    - current model 0.8.0 with the explicit `3.0.0/exact_pressure_v3` contract;
+    - current model 0.9.0 with the explicit `3.0.0/exact_pressure_v3` contract;
     - explicitly empty pressure regions;
     - straight members;
     - base common E and ν;
@@ -119,7 +119,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
   **Eligibility.** All of these must hold:
   - the solve captured its invocation;
-  - current model 0.8.0 with the `3.0.0/exact_pressure_v3` contract;
+  - current model 0.9.0 with the `3.0.0/exact_pressure_v3` contract;
   - no nonlinear supports and no combinations;
   - an explicitly empty pressure-region inventory;
   - at most 256 degrees of freedom;
