@@ -123,7 +123,7 @@ Criterion 1 lists the reference system's contents. On `main` today:
 | Straight pipe; temperature-independent material; section | RT-G1, RT-G3 | written | read |
 | Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`) | refused (O-7 ruling) |
 | Realized bend with user k | RT-K1 | written | read |
-| User SIFs | RT-K1 | not written, and not reported: the writer test's invented L with `sif_in_plane_user_value` and `sif_out_of_plane_user_value` writes byte-identical text, with no loss entry or diagnostic (Q-6) | later ("SIF user values", import Design §20.3) |
+| User SIFs | RT-K1 | a realized bend's directional pair is written as the bend comment `BSIF` (#1730); the scalar `sif_user_value` is not written | read: `BSIF` on a bend row restores the pair |
 | Tee with user modifiers | RT-K2 | refused (`MBF-SI-COMPONENT-UNSUPPORTED`) | not read |
 | Eccentric reducer, valves, flanges, rigid items, weight at CoG | RT-K3 | refused | later (§20.3) |
 | Expansion joint with tie rods | RT-K4 | refused | not read; not in §20.3 |
@@ -486,10 +486,12 @@ nothing is written before a native save.
 - Whether the target program reads the file belongs to the validation lane's private evidence
   (RT-V2, DEL-17-05), not to criterion 6.
 
-**The reference system (O-1).** Neither the release target nor the DEL-17-04 or DEL-17-05
-records named it; criterion 1 calls it "an invented reference system". W-17 authors it as an
-invented fixture with its run sheet (criteria 1 and 7), starting from the families that
-exist now and adding the rest as their rows land. Families without an admitted public MBF
+**The reference system (O-1).** Criterion 1 calls it "an invented reference system". Agent 0
+placed it in DEL-09-01 (2026-10-31, replacing this section's earlier assignment to W-17): it
+is specified in DEL-09-01 `Work/reference-system.md` and generated as
+`fixtures/reference_system/reference_system.json`, with its run sheet (criteria 1 and 7),
+starting from the families that exist now and adding the rest as their rows land. That
+specification's §11.1 lists the families criterion 6 expects in the loss report. Families without an admitted public MBF
 source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are authored in the
 fixture and expected in the loss report until their sources exist. The fixture is named here
 and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
@@ -558,7 +560,8 @@ ruling governs.
 - **A-5:** the sibling `<stem>.swbpipe-ids.json`. An unbound import says why it is unbound.
 - **A-6:** retired when slice 4 lands. The stop rule on `apps/desktop/native-smoke/expected.json`
   stands.
-- **O-1:** W-17 authors the reference system as an invented fixture with its run sheet (§5).
+- **O-1:** the reference system is an invented fixture with its run sheet (§5), owned by
+  DEL-09-01 (`Work/reference-system.md`) since Agent 0's placement of 2026-10-31.
 
 | Id | Decision | Recommendation | Consequence | Blocks |
 |---|---|---|---|---|

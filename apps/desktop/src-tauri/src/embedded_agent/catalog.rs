@@ -94,7 +94,7 @@ impl Catalog {
     fn from_source(source: &str) -> Result<Self, Error> {
         let root: Value =
             serde_json::from_str(source).map_err(|_| Error("invalid catalog JSON"))?;
-        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/2")
+        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/3")
             || root.get("schemaDialect").and_then(Value::as_str)
                 != Some("https://json-schema.org/draft/2020-12/schema")
         {
@@ -268,7 +268,7 @@ impl Catalog {
 }
 
 // Expand and validate the controlled subset at load, rejecting unrecognized
-// keywords (including annotations until deliberately supported). $ref siblings
+// keywords (annotations other than `description` included). $ref siblings
 // are rejected explicitly rather than losing their 2020-12 meaning.
 fn expand(
     schema: &Value,
@@ -397,6 +397,16 @@ fn expand(
             "uniqueItems" => {
                 if !value.is_boolean() {
                     return Err(Error("invalid uniqueItems"));
+                }
+                value.clone()
+            }
+            // Projected guidance for the model; it asserts nothing and confers nothing.
+            "description" => {
+                if !value
+                    .as_str()
+                    .is_some_and(|s| !s.is_empty() && s.len() <= 2048)
+                {
+                    return Err(Error("invalid schema description"));
                 }
                 value.clone()
             }
@@ -607,13 +617,21 @@ mod tests {
     fn basis() -> Value {
         json!({"workspaceHandle":"workspace", "applicationGeneration":1, "modelRevision":0, "modelHash":hash(), "stateId":null, "runId":null})
     }
+    /// Agent form: the host stamps status, attribution, validation and boundary records.
     fn operation() -> Value {
-        json!({"operation_id":"op1", "operation_kind":"modify", "operation_status":"proposed", "author_type":"agent",
+        json!({"operation_id":"op1", "operation_kind":"modify",
             "target":{"object_type":"Node", "ref":"n1"},
             "change":{"change_id":"c1", "change_kind":"set_field", "field_label":"x", "field_path":"position.x", "before":"0", "after":"1", "unit":"m", "dimension":"length", "source_note":"source"},
-            "validation":{"schema_validation":"", "constraint_validation":"", "unit_validation":"", "diff_preview_status":"", "application_status":""},
-            "audit_boundary":{"mutation_route":"structured_operations_only", "direct_model_mutation_allowed":false, "requires_user_acceptance":true, "mutates_accepted_model_state":false},
-            "professional_boundary":{"human_review_required":true, "software_makes_compliance_claim":false, "software_makes_certification_claim":false, "software_makes_sealing_claim":false, "software_makes_approval_claim":false, "software_makes_authentication_claim":false}, "rationale":"why"})
+            "rationale":"why"})
+    }
+    // The W9-A journey's agent-form proposals; the operation applier test solves them.
+    const W9A: &str = include_str!("../../../../../fixtures/model_operations/agent_w9a_journey.json");
+    fn w9a(route: &str) -> Value {
+        let fixture: Value = serde_json::from_str(W9A).unwrap();
+        let mut input = json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash()});
+        input["operations"] = fixture["routes"][route]["operations"].clone();
+        input["assumptions"] = fixture["routes"][route]["assumptions"].clone();
+        input
     }
     fn proposal() -> Value {
         json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash(), "operations":[operation()], "assumptions":[]})
@@ -663,13 +681,9 @@ mod tests {
             .is_ok());
         for (path, replacement) in [
             ("/operations/0/operation_kind", json!("create")),
-            ("/operations/0/author_type", json!("human")),
             ("/operations/0/target/object_type", json!("Pipe")),
             ("/operations/0/change/field_path", json!("diameter")),
-            (
-                "/operations/0/audit_boundary/requires_user_acceptance",
-                json!(false),
-            ),
+            ("/operations/0/change/dimension", json!("stress")),
         ] {
             let mut bad = valid.clone();
             *bad.pointer_mut(path).unwrap() = replacement;
@@ -677,16 +691,84 @@ mod tests {
                 .validate_input(Tool::ProposeOperations, &bad)
                 .is_err());
         }
-        let mut bad = valid.clone();
-        bad["operations"][0]["invented"] = json!(true);
-        assert!(catalog
-            .validate_input(Tool::ProposeOperations, &bad)
-            .is_err());
+        // Host-stamped fields and unknown members are refused, not overwritten.
+        for (key, value) in [
+            ("invented", json!(true)),
+            ("author_type", json!("user")),
+            ("operation_status", json!("accepted")),
+            ("queue_id", json!("q")),
+            ("source", json!({"source_ref":"s", "source_channel":"c", "source_role":"user"})),
+            ("audit_boundary", json!({"mutation_route":"structured_operations_only", "direct_model_mutation_allowed":false, "requires_user_acceptance":false, "mutates_accepted_model_state":false})),
+            ("validation", json!({})),
+        ] {
+            let mut bad = valid.clone();
+            bad["operations"][0][key] = value;
+            assert!(catalog
+                .validate_input(Tool::ProposeOperations, &bad)
+                .is_err(), "{key}");
+        }
         let mut bad = valid;
         bad.as_object_mut().unwrap().remove("assumptions");
         assert!(catalog
             .validate_input(Tool::ProposeOperations, &bad)
             .is_err());
+    }
+
+    #[test]
+    fn w9a_build_kinds_are_admitted_and_others_refused() {
+        let catalog = Catalog::load().unwrap();
+        for route in ["PF", "EX"] {
+            let input = w9a(route);
+            assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_ok(), "{route}");
+            catalog.validate_proposal_context(&input, catalog.limits().proposal_operations).unwrap();
+            // One call carries the whole build within the argument budget.
+            assert!(serde_json::to_vec(&input).unwrap().len() as u64 <= catalog.limits().argument_bytes, "{route}");
+        }
+        let base = w9a("EX")["operations"].as_array().unwrap().clone();
+        let find = |kind: &str| base.iter().find(|o| o["change"]["change_kind"] == kind).unwrap().clone();
+        let single = |op: Value| json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash(), "operations":[op], "assumptions":[]});
+        // Native kinds outside the admitted set, or an admitted kind on another
+        // field, never reach the queue through this catalog.
+        let mut refused = Vec::new();
+        for (kind, change_kind) in [("delete", "delete_node"), ("modify", "insert_bend_at_corner"), ("modify", "apply_library_record"), ("insert", "insert_component_symbol"), ("create", "create_combination"), ("modify", "set_model_setting")] {
+            let mut op = find("create_node");
+            op["operation_kind"] = json!(kind);
+            op["change"]["change_kind"] = json!(change_kind);
+            refused.push(op);
+        }
+        let mut k = find("set_field");
+        k["target"]["object_type"] = json!("Component");
+        k["change"]["field_path"] = json!("modifiers.flexibility_factor_user_value.value");
+        refused.push(k);
+        let mut node_create = find("create_node");
+        node_create["change"]["before"] = json!("present");
+        refused.push(node_create);
+        let mut support_unit = find("create_support");
+        support_unit["change"]["unit"] = json!("m");
+        refused.push(support_unit);
+        let mut load = find("create_primitive_load");
+        load["change"]["dimension"] = json!("pressure");
+        refused.push(load);
+        let mut regions = find("update_load");
+        regions["change"]["field_path"] = json!("primitive_loads");
+        refused.push(regions);
+        for op in refused {
+            assert!(catalog.validate_input(Tool::ProposeOperations, &single(op.clone())).is_err(), "{op}");
+        }
+        for op in base {
+            assert!(catalog.validate_input(Tool::ProposeOperations, &single(op)).is_ok());
+        }
+    }
+
+    #[test]
+    fn thread_start_declarations_fit_one_frame() {
+        let catalog = Catalog::load().unwrap();
+        let params = json!({"model":"m".repeat(256), "modelProvider":"p".repeat(256), "cwd":"c".repeat(1024),
+            "baseInstructions":"b".repeat(super::super::protocol::MAX_CONTROL_BYTES), "ephemeral":true,
+            "sandbox":"read-only", "approvalPolicy":"never", "environments":[], "dynamicTools":catalog.declarations()});
+        let frame = json!({"jsonrpc":"2.0", "id":u64::MAX, "method":"thread/start", "params":params});
+        let bytes = serde_json::to_vec(&frame).unwrap().len();
+        assert!(bytes < super::super::framing::MAX_FRAME_BYTES, "{bytes}");
     }
 
     #[test]
@@ -757,7 +839,7 @@ mod tests {
             51
         ]);
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_err());
-        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":[], "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
+        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.8.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
         // Exercise object additionalProperties separately, regardless of other summary fields.
         let d = &catalog.tools[Tool::Summary.name()].output;
         let counts = d
@@ -779,6 +861,14 @@ mod tests {
         let mut root: Value = serde_json::from_str(SOURCE).unwrap();
         root["definitions"]["summaryInput"]["not"] = json!({});
         assert!(Catalog::from_source(&root.to_string()).is_err());
+        root["definitions"]["summaryInput"].as_object_mut().unwrap().remove("not");
+        for bad in [json!(""), json!(1), json!("d".repeat(2049))] {
+            root["definitions"]["summaryInput"]["description"] = bad;
+            assert!(Catalog::from_source(&root.to_string()).is_err());
+        }
+        root["definitions"]["summaryInput"]["description"] = json!("guidance only");
+        assert!(Catalog::from_source(&root.to_string()).is_ok());
+        root["definitions"]["summaryInput"].as_object_mut().unwrap().remove("description");
         root["definitions"]["summaryInput"]
             .as_object_mut()
             .unwrap()
