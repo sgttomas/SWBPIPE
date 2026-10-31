@@ -177,12 +177,12 @@ a value it keeps a superset root rather than drop the read. Its roots are:
 A file whose directory scan or pathspec the code does not show at all declares
 `CI_READS` beside it, which stands in for its scans; `tests/test_ci_python.py`
 fails on such a scan without one, on an entry that stops naming a tracked path,
-and on a shown scan no entry covers. An imported module's own reads are not the
-test's roots. Tests that no rule names join the broad cohort. A path any test
-reads starts the Python job even where no path rule routes it. About a third of
-the tests read paths their code does not show (data-driven fixture lists,
-injected globals, subprocess output), so they reach every path, and every pull
-request now starts the Python job. `python_ci.UNROUTED` names each test
+and on a shown scan no entry covers. Tests that no rule names join the broad
+cohort. A path any test reads starts the Python job even where no path rule
+routes it. Most tests read, directly or through the modules they import, a path
+their code does not show (data-driven fixture lists, injected globals, subprocess
+output, binary locations), so they reach every path, and every pull request now
+starts the Python job. `python_ci.UNROUTED` names each test
 deliberately left out, with its reason; `tests/test_ci_python.py` fails on any
 other test that only its own edit would select.
 The Python job retains xdist `--dist loadscope`: the current retained-precision

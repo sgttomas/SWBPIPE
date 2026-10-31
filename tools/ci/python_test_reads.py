@@ -17,13 +17,10 @@ or matches one of its roots:
   module) and the pathspecs of `git ls-files`, `git grep` and `git ls-tree`, as glob patterns that
   also match files added later. A scan or pathspec the code does not show is `**`, and the file
   that makes it must declare `CI_READS` (`declaration_problems`);
-- each project Python file it imports, resolved from the project root, `tests/`, its own
-  directory and any directory it adds to `sys.path`, and the files those import in turn;
-- each non-test Python file it names, which it may load or run, with that file's own roots: such
-  a file holds the test's scanning code, as a guard's model does.
-An imported module's own path reads are product behaviour, not the test's roots, and are not
-followed: through the binary build helpers they would tie every runner-backed test to every
-Rust change, which the Cargo jobs cover.
+- each project Python file it imports (resolved from the project root, `tests/`, its own
+  directory and any directory it adds to `sys.path`) and each non-test Python file it names,
+  which it may load or run, transitively, with each one's own roots: an imported helper may read
+  the test's inputs, and a loaded file holds a guard's scanning code.
 
 Roots under `execution/` other than `execution/_DAG/` are dropped: the Python job does not check
 them out, so no test there can depend on their content.
