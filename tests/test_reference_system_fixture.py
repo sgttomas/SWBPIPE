@@ -459,12 +459,22 @@ def test_kr05_the_tee_publishes_its_header_and_branch_rows_on_both_section_bases
                 for pipe, location in KR05_ENDS for basis in SECTION_BASES}
     found = {}
     for case in ("load:RS-SUS", "load:RS-OPE"):
-        keys = [row["key"] for row in summary["rows"][case] if row["key"][0] == BRANCH_KIND]
+        branch_rows = [row for row in summary["rows"][case] if row["key"][0] == BRANCH_KIND]
+        keys = [row["key"] for row in branch_rows]
         assert sorted(keys) == sorted(expected), (mode, case, keys)
-        records = {(r["pipe_id"], r["location"], r["section_basis"]): (r["factor_role"], r["sif"])
-                   for r in summary["intensified"][case] if r.get("component_id") == tee["id"]}
-        assert records == {(pipe, location, basis): role for (pipe, location), role in KR05_ENDS.items()
-                           for basis in SECTION_BASES}, (mode, case, records)
+        # Exactly one evidence record per row, each bound by its result_id to the row of its own member end and
+        # section basis, with the tee's role and SIF; no record may be duplicated or point elsewhere.
+        records = [r for r in summary["intensified"][case] if r.get("component_id") == tee["id"]]
+        assert len(records) == len(expected), (mode, case, records)
+        row_by_id = {row["id"]: row for row in branch_rows}
+        assert len(row_by_id) == len(branch_rows) == len({r["result_id"] for r in records}), (mode, case)
+        for record in records:
+            row = row_by_id.get(record["result_id"])
+            assert row is not None, (mode, case, record)
+            pipe, location, basis = record["pipe_id"], record["location"], record["section_basis"]
+            assert row["key"] == (BRANCH_KIND, "Pa", pipe, location, "intensified_bending", "pipe_section", basis), \
+                (mode, case, record, row["key"])
+            assert (record["factor_role"], record["sif"]) == KR05_ENDS[(pipe, location)], (mode, case, record)
         found[case] = len(keys)
     # RS-EXP is listed for KR-05 "where published": the combination withholds intensified rows by name.
     exp_keys = [row["key"] for row in summary["rows"]["combination:RS-EXP"] if row["key"][0] == BRANCH_KIND]

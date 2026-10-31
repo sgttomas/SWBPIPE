@@ -492,7 +492,7 @@ RT-U2 walkthrough results.
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows in two chains
 (from A, and the branch from the tee), entered with 135 sheet entries, and about 550
 follow-up form entries, 168 of them the per-member load/reference states and pressure
-regions of the three cases since the fills and case copies of #38, and 20 the tee RS-T1
+regions of the three cases since the fills and case copies of #38, and 21 the tee RS-T1
 with the person's SIFs. The run sheet's estimate is about 64 minutes (about 77 before #41
 and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
 the sheet carries the fixture's support and bend ids: ten of the eleven supports and the

@@ -296,12 +296,12 @@ Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features
    internal_differential_zero_external_v1, source ⟨S5⟩; Stiffness source reference ⟨S5⟩;
    Measurement restraints `invented; no measurement`; Basis transform reference `none`;
    Validity statement `invented test object; no applicability claim`; Provenance ⟨P⟩.
-3. **Tee RS-T1** (2.75 min), after the run sheet, which makes RS-130 join RS-P120, RS-P130
+3. **Tee RS-T1** (3 min), after the run sheet, which makes RS-130 join RS-P120, RS-P130
    and RS-P210.
    1. **New component**: ID `component:RS-T1`; Label `Tee T1`; Kind tee; **New component
       node** RS-130; **New tee header pipe** RS-P120; **New tee branch pipe** RS-P210
       (`PropertyInspector.tsx:947-951`); **Connection angle** 90 with **Angle unit** deg
-      (prefilled rad); **Run size** 170 and **Header size** 270, in mm; **Connection type**
+      (prefilled rad); **Size unit** mm (prefilled m); **Run size** 170 and **Header size** 270; **Connection type**
       `invented unreinforced tee`; **Reinforcement reference** `invented: no reinforcement`;
       Geometry source ⟨S5⟩; Provenance ⟨P⟩. **Queue tee**, Apply. The form requires the four
       descriptive members before it queues (`component-creation/componentIntent.ts:380-392`),
@@ -503,7 +503,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.5 Bend SIFs | 9 | 3 | 0.75 |
 | 3.6 Valve and flanges, with end-size edits | 84 | 9 | 10 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
-| 3.6 Tee RS-T1 (14 form entries) and the person's two SIFs | 20 | 3 | 2.75 |
+| 3.6 Tee RS-T1 (15 form entries) and the person's two SIFs | 21 | 3 | 3 |
 | 3.7 Variable spring RS-VS1 | 20 | 1 | 1.75 |
 | 3.8 Reference configuration | 14 | 1 | 1.5 |
 | 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
@@ -511,7 +511,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **686** | **38** | **about 64 (64.25)** |
+| **Total** | **687** | **38** | **about 64 (64.5)** |
 
 How the #41 rows are counted:
 
@@ -533,11 +533,12 @@ How the #41 rows are counted:
   restraint checkboxes and V060's "Create a new support". At 5.5 s per entry, 20 × 5.5 s =
   110 s, rounded to 1.75 minutes. One cycle.
 
-The totals: entries 757 − 98 + 135 − 39 + 9 − 98 + 20 = 686; cycles 51 − 6 + 3 − 11 + 1 = 38;
-minutes 77.25 − 8 + 11 − 5.5 + 0.75 − 13 + 1.75 = 64.25.
+The totals: entries 757 − 98 + 135 − 39 + 9 − 98 + 20 = 686, plus the tee's Size unit entry
+(review r1) = 687; cycles 51 − 6 + 3 − 11 + 1 = 38; minutes 77.25 − 8 + 11 − 5.5 + 0.75 − 13 +
+1.75 = 64.25, plus 0.25 for the tee = 64.5.
 
 The estimate is about 64 minutes, about twice the provisional 30. It was about 77 before #41
-(the tee, #45, had added 2.75), and about 130 before #38's fills and case copies (gaps G7, G8),
+(the tee, #45, adds 3), and about 130 before #38's fills and case copies (gaps G7, G8),
 which brought the per-member load/reference state and pressure regions (§3.8, §3.10, §3.11)
 from about 1,450 entries and 66.5 minutes to 168 entries and about 11.5 minutes; those entry
 counts are the authoring lane's, measured by its round-trip test of the fixture (#38). #41's

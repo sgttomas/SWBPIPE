@@ -146,9 +146,9 @@ BENDS = [
     ("RS-B3", ("6", "15", "2"), "0.250", 3.6, 2.3, 1.9, "RS-P220", "RS-P230", ("RS-220", "RS-225"), "RS-P225"),
 ]
 # Tee (branch connection record at its node): tag, node, header pipe, branch pipe, header SIF, branch SIF, connection
-# angle (deg). Spec §5 gives no run or header size, connection type, reinforcement reference or flexibility factor, so
-# the record carries none; with no mechanics_interface it is consumed as mechanics_geometry_only, the solver's default
-# (preview_physics.rs solver_consumption), and the desktop's tee creation writes none either.
+# angle (deg). Spec §5 gives the descriptive geometry tee creation requires (TEE_* below; EX reads none of it) and no
+# flexibility factor, which neither route assembles; with no mechanics_interface the record is consumed as
+# mechanics_geometry_only, the solver's default (preview_physics.rs solver_consumption), as the desktop writes it.
 TEE = ("RS-T1", "RS-130", "RS-P120", "RS-P210", 2.4, 2.0, 90)
 # §5: the tee's descriptive geometry, which tee creation requires (geometry only; EX joins the tee rigidly).
 TEE_RUN_SIZE_MM = 170.0  # the branch outlet, RS-S170's outside diameter
