@@ -418,8 +418,22 @@ This design defines what sizing needs from it.
   cancelled run publishes nothing.
 - **Result volume.** The table is O(candidates × operating cases) rows. It does not grow
   with the catalogue (§8.1) or the model's size except through the number of nonlinear
-  supports. [open] O-2: the performance lane's agreement that this fits its result-volume
-  design.
+  supports. The performance lane agrees that it is a summary-sized table of the kind its
+  result-volume design (option C) publishes by default (performance manager, 2026-10-31).
+- **[decided] Where the solves run.** In the desktop, the derived solves run inside the
+  solve worker, under the same per-invocation memory budget and cap refusal as any solve,
+  not in the app process. No attestation digest is taken for a derived solve: its
+  result is never published as a case result (performance manager, 2026-10-31).
+- **[decided] One solve call site.** Every derived solve goes through one function in
+  `hanger_sizing.rs`. Today each solve pays the full publication (station rows,
+  serialized envelope) that sizing then discards, and that publication dominates the
+  cost of a large solve. The performance lane's design C will define a minimal
+  publication for derived solves: nodal, support and support-state rows only. When it
+  lands, that one call site switches to it. [open] O-2.
+- **Timing evidence.** When the engine lands, a `hanger-sizing` profile is added to the
+  DEL-04-05 rack harness (`core/solver/performance_harness/rack/rack_model.py`). It is a
+  linear rack with some rests made variable spring candidates, carrying invented loads,
+  plus a runner plan row. It is informative and not a criterion-9 item.
 
 ## 11. Variable spring preload (D-3)
 
@@ -452,8 +466,10 @@ DEL-04-03 `Work/pf-nonlinear-imposed-motion.md`) is settled this way.
   - targeted regression on the existing spring-hanger tests;
   - re-pricing under DEL-04-08's rules, because it adds a ledger term;
   - an xhigh review.
-- **Coordination.** The reference system's RS-VS1 KR-03 follows, agreed with the
-  reference-system lane. The hydrotest's held springs are the load-cases lane's
+- **Coordination.** The reference system's RS-VS1 KR-03 follows, and the increment-6 PR
+  also changes the reference system's §6 sentence that calls the spring's loads review
+  metadata never applied as preload. That wording is agreed with the reference-system
+  lane before it merges. The hydrotest's held springs are the load-cases lane's
   (DEL-05-01 `Work/hydrostatic-test.md`); how a held spring treats its preload is agreed
   with them before the increment is built. [open] O-3.
 - **Commitment text.** DEL-04-03 records the decision now. Its commitment text is
@@ -524,7 +540,7 @@ outcome.
 | Id | Item | Owner |
 |---|---|---|
 | O-1 | `weight_support_state: design_operating_final`, when the solve can hold nonlinear supports in another case's converged state (RT-A5 Should) | load-cases lane, then this deliverable |
-| O-2 | Agreement that the cost and result volume of §10 fit the result-volume design | performance lane |
+| O-2 | The minimal publication for derived solves (§10), defined in the performance lane's result-volume design C, which awaits Agent 0's approval; sizing switches its one solve call site to it when it lands | performance lane |
 | O-3 | A held spring's preload in the hydrotest (§11) | load-cases lane, with this deliverable |
 | O-4 | The invented reference-system catalogue, and the KR-03 and KR-10 updates | reference-system lane, with this deliverable |
 | O-5 | Release of a report that carries private-library values from the table: the report-user-release privacy rules for library references apply (FR-REP-003). Confirmed with DEL-08-01 before the report section is built | DEL-08-01 |

@@ -326,14 +326,19 @@ suitability, and nothing here determines code compliance.
     another.
   - After each solve, only the values the table needs are kept.
   - Derived solves never enter the retained-precision entry.
+  - In the desktop, they run inside the solve worker under its per-invocation memory
+    budget, with no attestation digest.
+  - They go through one solve call site, so that the minimal publication planned for
+    derived solves can replace full publication there.
   - The run reports progress per solve and can be cancelled between solves; a cancelled
     run publishes nothing (Design §10).
 - **AC-011** — Maintained tests show:
   - the solve count;
   - that no full result is retained between solves;
+  - that the solves run in the worker without an attestation digest;
   - cancellation publishing nothing.
 
-  The performance lane's agreement on result volume is recorded.
+  A hanger-sizing timing profile is added to the DEL-04-05 rack harness.
 - **REQ-012** — *Desktop and report.*
   - The desktop takes the request with every input entered by the person. It shows:
     - the hanger table with its basis and disclosures;
