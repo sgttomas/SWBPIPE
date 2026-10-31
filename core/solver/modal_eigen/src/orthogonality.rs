@@ -1,7 +1,9 @@
 //! M-orthogonality of a set of modes (design §3.4, check 3):
 //! max over i ≠ j of |φᵢᵀMφⱼ| / √(m_i m_j), with m_i = φᵢᵀMφᵢ, in
-//! double-double. The measure is invariant to the shape normalization. The
-//! tolerance it is judged against belongs to the caller.
+//! double-double, the denominator formed as √m_i·√m_j so that it does not
+//! leave the binary64 range while the ratio is representable. A ratio that
+//! is not finite is refused. The measure is invariant to the shape
+//! normalization. The tolerance it is judged against belongs to the caller.
 //!
 //! Check 3 evaluates it on the re-formed M̂
 //! ([`m_orthogonality_reformed`], M̂φⱼ element by element); the measure on
@@ -29,6 +31,11 @@ pub enum OrthogonalityError {
         mode: usize,
         value: f64,
     },
+    /// The normalized product of the pair (i, j) is not finite.
+    RatioOutOfRange {
+        pair: (usize, usize),
+        value: f64,
+    },
 }
 
 impl fmt::Display for OrthogonalityError {
@@ -45,6 +52,11 @@ impl fmt::Display for OrthogonalityError {
             Self::NonPositiveGeneralizedMass { mode, value } => {
                 write!(f, "mode {mode} has generalized mass {value:e}")
             }
+            Self::RatioOutOfRange { pair, value } => write!(
+                f,
+                "the M-orthogonality ratio of modes {} and {} is {value:e}",
+                pair.0, pair.1
+            ),
         }
     }
 }
@@ -133,14 +145,20 @@ fn from_products(
                 value: m.to_f64(),
             });
         }
-        generalized.push(m);
+        generalized.push(m.sqrt());
     }
     let mut max_ratio = 0.0;
     let mut pair = None;
     for i in 0..vectors.len() {
         for j in i + 1..vectors.len() {
-            let scale = generalized[i].mul(generalized[j]).sqrt();
+            let scale = generalized[i].mul(generalized[j]);
             let ratio = bilinear(i, j).abs().div(scale).to_f64();
+            if !ratio.is_finite() {
+                return Err(OrthogonalityError::RatioOutOfRange {
+                    pair: (i, j),
+                    value: ratio,
+                });
+            }
             if pair.is_none() || ratio > max_ratio {
                 max_ratio = ratio;
                 pair = Some((i, j));
@@ -187,6 +205,29 @@ mod tests {
                 pair: None
             }
         );
+    }
+
+    /// Independent review of PR #33, finding 5: scalar M = 10^±200 and two
+    /// copies of the vector (1). The ratio is exactly 1, but m₁·m₂
+    /// overflowed or underflowed before its square root (NaN).
+    #[test]
+    fn the_denominator_does_not_leave_the_range() {
+        for s in [1e200, 1e-200, f64::MAX] {
+            let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
+            let one = [1.0];
+            let result = m_orthogonality(&mass, &[&one, &one]).unwrap();
+            assert_eq!(result.max_ratio, 1.0, "M = {s:e}");
+            assert_eq!(result.pair, Some((0, 1)));
+        }
+        // An indefinite M with |φ₁ᵀMφ₂| far above √(m₁m₂): the ratio
+        // overflows and is refused.
+        let indefinite = SymmetricMatrix::from_rows(&[vec![1e-300, 1e300], vec![1e300, 1e-300]])
+            .unwrap();
+        let (e1, e2) = ([1.0, 0.0], [0.0, 1.0]);
+        assert!(matches!(
+            m_orthogonality(&indefinite, &[&e1, &e2]),
+            Err(OrthogonalityError::RatioOutOfRange { pair: (0, 1), .. })
+        ));
     }
 
     #[test]

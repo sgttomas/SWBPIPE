@@ -23,7 +23,10 @@
 //!    w = |L̂|·(|D̂|·v), the unit diagonal of L̂ included.
 //! 4. **Premises**, all evaluated for the evidence, decided in this order:
 //!    - separation: s_j(σ) = (|λ_j − σ| − e_λ,j·λ_j)·(φ̃_jᵀM̃φ̃_j)/‖φ̃_j‖₂²
-//!      ≥ κ_s·e_b for each neighbouring eigenvalue supplied;
+//!      ≥ κ_s·e_b for each neighbouring eigenvalue supplied. The quotient
+//!      is formed from φ_j scaled by a power of two and must be positive
+//!      and finite; a separation that is not finite refuses the candidate
+//!      (`SeparationOutOfRange`), so no NaN reaches the comparison;
 //!    - growth: g = max(1, max|L̂_ij|)²·max|d̂_j|/max|ã_jj| ≤ g_max;
 //!    - conditioning: e_b·ν ≤ 1/κ_c, with ν the Hager–Higham estimate of
 //!      ‖Ã⁻¹‖₁.
@@ -119,6 +122,14 @@ pub enum SturmError {
     InvalidNeighbour {
         index: usize,
     },
+    /// The neighbour's mass quotient φᵀMφ / Σ_i k_ii·φ_i², formed from the
+    /// vector scaled by a power of two, is not a positive finite number. A
+    /// vector with φᵀMφ ≤ 0 is not a mode of a finite positive eigenvalue,
+    /// and a separation formed from it is meaningless.
+    NeighbourMassQuotient {
+        index: usize,
+        value: f64,
+    },
     /// The gap's ends are not positive, finite and strictly ascending.
     InvalidGap,
     InvalidShift,
@@ -146,6 +157,10 @@ impl fmt::Display for SturmError {
             Self::InvalidNeighbour { index } => {
                 write!(f, "invalid neighbouring eigenvalue {index}")
             }
+            Self::NeighbourMassQuotient { index, value } => write!(
+                f,
+                "the mass quotient of neighbouring eigenvalue {index} is {value:e}, not positive and finite"
+            ),
             Self::InvalidGap => write!(f, "the gap's ends are not positive and ascending"),
             Self::InvalidShift => write!(f, "the shift is not a positive finite number"),
         }
@@ -284,6 +299,10 @@ pub enum ShiftDecision {
     /// The formation met a subnormal, a zero from nonzero operands, or an
     /// overflow. Not factored.
     OutOfRange(RangeViolation),
+    /// The separation s_j(σ) of neighbour `neighbour` (its index in the
+    /// placement's neighbour list) is not finite, so it cannot be compared
+    /// with κ_s·e_b. Not factored.
+    SeparationOutOfRange { neighbour: usize, value: f64 },
     /// `factorize_ldlt` refused: a pivot at or below its guard, or a
     /// non-finite coefficient, at a shift not already shown unseparated by
     /// the formation term alone.
@@ -301,7 +320,7 @@ impl ShiftDecision {
     /// refusal (see [`SturmRefusal`]).
     fn stage(&self) -> u8 {
         match self {
-            Self::OutOfRange(_) => 0,
+            Self::OutOfRange(_) | Self::SeparationOutOfRange { .. } => 0,
             Self::FactorizationRejected(_) => 1,
             Self::OutsideGap | Self::Unseparated => 2,
             Self::GrowthLimit => 3,
@@ -407,7 +426,8 @@ impl SturmEvidence {
 /// Why no count was taken. The set-level reason is that of the candidate
 /// that got furthest through the checks (formation, factorization,
 /// separation, growth, conditioning):
-/// - `OutOfRange` when every candidate left the normal range in formation;
+/// - `OutOfRange` when every candidate left the normal range in formation,
+///   or had a separation that is not finite;
 /// - `GrowthLimit` when the furthest candidate was refused by the
 ///   factorization's pivot guard (design §3.4 check 4 groups the guard with
 ///   the growth limit) or was separated but exceeded g_max;
@@ -655,12 +675,19 @@ impl ShiftPencil {
     }
 
     /// φ̃ᵀM̃φ̃ / ‖φ̃‖₂² = φᵀMφ / Σ_i k_ii·φ_i², in double-double, rounded
-    /// once. φ̃ = D⁻¹φ is taken with the exact D = diag(k_ii^-½).
+    /// once. φ̃ = D⁻¹φ is taken with the exact D = diag(k_ii^-½). The quotient
+    /// does not depend on φ's scale, so φ is first scaled by the power of two
+    /// that brings its largest |φ_i| into [1, 2): exact for every component
+    /// that stays normal, and the squares neither overflow nor underflow.
+    /// The vector is nonzero and finite.
     fn mass_quotient(&self, vector: &[f64]) -> f64 {
+        let largest = vector.iter().fold(0.0f64, |acc, x| acc.max(x.abs()));
+        let shift = -binary_exponent(largest);
+        let scaled: Vec<f64> = vector.iter().map(|&x| scale_by_pow2(x, shift)).collect();
         let mut quadratic = DdAccumulator::new();
         let mut norm = DdAccumulator::new();
         for e in &self.entries {
-            let (x, y) = (vector[e.row], vector[e.col]);
+            let (x, y) = (scaled[e.row], scaled[e.col]);
             if e.row == e.col {
                 norm.add_dd(Dd::product(x, x).mul_f64(e.stiffness));
                 quadratic.add_dd(Dd::product(x, x).mul_f64(e.mass));
@@ -724,6 +751,34 @@ fn scale(value: f64, d_i: f64, d_j: f64) -> f64 {
     (d_i * value) * d_j
 }
 
+/// e with 2^e ≤ |x| < 2^(e+1), for x finite and nonzero (subnormals
+/// included).
+fn binary_exponent(x: f64) -> i32 {
+    let bits = x.abs().to_bits();
+    let biased = (bits >> 52) as i32;
+    if biased == 0 {
+        // Subnormal: x = mantissa·2⁻¹⁰⁷⁴.
+        63 - bits.leading_zeros() as i32 - 1074
+    } else {
+        biased - 1023
+    }
+}
+
+/// x·2^k, applied in steps of at most 2^±1022 that each stay normal while
+/// the result does; exact when the result is normal.
+fn scale_by_pow2(mut x: f64, mut k: i32) -> f64 {
+    let pow2 = |e: i32| f64::from_bits(((e + 1023) as u64) << 52);
+    while k > 1022 {
+        x *= pow2(1022);
+        k -= 1022;
+    }
+    while k < -1022 {
+        x *= pow2(-1022);
+        k += 1022;
+    }
+    x * pow2(k)
+}
+
 struct PreparedNeighbour {
     eigenvalue: f64,
     relative_error_estimate: f64,
@@ -748,10 +803,17 @@ fn prepare_neighbours(
             if !valid {
                 return Err(SturmError::InvalidNeighbour { index });
             }
+            let mass_quotient = pencil.mass_quotient(nb.vector);
+            if !(mass_quotient.is_finite() && mass_quotient > 0.0) {
+                return Err(SturmError::NeighbourMassQuotient {
+                    index,
+                    value: mass_quotient,
+                });
+            }
             Ok(PreparedNeighbour {
                 eigenvalue: nb.eigenvalue,
                 relative_error_estimate: nb.relative_error_estimate,
-                mass_quotient: pencil.mass_quotient(nb.vector),
+                mass_quotient,
             })
         })
         .collect()
@@ -785,10 +847,19 @@ fn evaluate(
         };
         return rejected(ShiftDecision::OutOfRange(violation), None, None);
     }
+    // Every separation is finite before it enters the minimum, so none is
+    // dropped by a NaN.
     let mut smallest_separation: Option<f64> = None;
-    for nb in neighbours {
+    for (index, nb) in neighbours.iter().enumerate() {
         let s = ((nb.eigenvalue - sigma).abs() - nb.relative_error_estimate * nb.eigenvalue)
             * nb.mass_quotient;
+        if !s.is_finite() {
+            let decision = ShiftDecision::SeparationOutOfRange {
+                neighbour: index,
+                value: s,
+            };
+            return rejected(decision, Some(formation_term), None);
+        }
         smallest_separation = Some(smallest_separation.map_or(s, |a: f64| a.min(s)));
     }
     // e_b ≥ the formation term, so this bounds the separation ratio from

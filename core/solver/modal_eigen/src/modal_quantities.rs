@@ -25,7 +25,10 @@
 //! not form either. Per direction k:
 //! Γ_k = φᵀp_k / m, m_eff,k = (φᵀp_k)² / m and the fraction m_eff,k / T_k,
 //! with m = φᵀ M_ff φ. Each is computed in double-double from the published
-//! vector and rounded once.
+//! vector and rounded once, in a range-safe order: m_eff,k = Γ_k·φᵀp_k and
+//! the fraction Γ_k·(φᵀp_k / T_k), never through the square (φᵀp_k)², which
+//! leaves the binary64 range while m_eff,k is representable. A published
+//! quantity that is not finite refuses the mode.
 
 use std::collections::BTreeSet;
 use std::error::Error;
@@ -94,6 +97,13 @@ pub enum ModalQuantityError {
         mode: usize,
         value: f64,
     },
+    /// A published quantity is not finite: `name`, in direction
+    /// `direction` (`None` for the generalized mass).
+    QuantityOutOfRange {
+        mode: usize,
+        name: &'static str,
+        direction: Option<usize>,
+    },
 }
 
 impl fmt::Display for ModalQuantityError {
@@ -111,6 +121,14 @@ impl fmt::Display for ModalQuantityError {
             Self::NonPositiveGeneralizedMass { mode, value } => {
                 write!(f, "mode {mode} has generalized mass {value:e}")
             }
+            Self::QuantityOutOfRange {
+                mode,
+                name,
+                direction,
+            } => match direction {
+                Some(k) => write!(f, "mode {mode}: `{name}` in direction {k} is not finite"),
+                None => write!(f, "mode {mode}: `{name}` is not finite"),
+            },
         }
     }
 }
@@ -316,19 +334,38 @@ pub fn normalize_mode(
             value: generalized_mass,
         });
     }
+    if !generalized_mass.is_finite() {
+        return Err(ModalQuantityError::QuantityOutOfRange {
+            mode,
+            name: "generalized_mass",
+            direction: None,
+        });
+    }
     let mut excitation_product = [0.0; 3];
     let mut participation = [0.0; 3];
     let mut effective_mass = [0.0; 3];
     let mut effective_mass_fraction = [None; 3];
     for k in 0..3 {
+        let finite = |name: &'static str, value: f64| {
+            if value.is_finite() {
+                Ok(value)
+            } else {
+                Err(ModalQuantityError::QuantityOutOfRange {
+                    mode,
+                    name,
+                    direction: Some(k),
+                })
+            }
+        };
         let q = dot(&shape, basis.excitation[k]);
-        let m_eff = q.mul(q).div(m);
-        excitation_product[k] = q.to_f64();
-        participation[k] = q.div(m).to_f64();
-        effective_mass[k] = m_eff.to_f64();
+        let gamma = q.div(m);
+        excitation_product[k] = finite("excitation_product", q.to_f64())?;
+        participation[k] = finite("participation", gamma.to_f64())?;
+        effective_mass[k] = finite("effective_mass", gamma.mul(q).to_f64())?;
         if basis.total_mass[k] > 0.0 {
+            let fraction = gamma.mul(q.div(Dd::from_f64(basis.total_mass[k])));
             effective_mass_fraction[k] =
-                Some(m_eff.div(Dd::from_f64(basis.total_mass[k])).to_f64());
+                Some(finite("effective_mass_fraction", fraction.to_f64())?);
         }
     }
     Ok(NormalizedMode {
@@ -565,6 +602,43 @@ mod tests {
             ..mode.clone()
         };
         assert_eq!(normalize_mode(0, &scaled, &basis).unwrap(), expected);
+    }
+
+    /// Independent review of PR #33, finding 4: one free Ux with φ = 1 and
+    /// M_ff = p_x = T_x = s. Then Γ = 1, m_eff = s and the fraction 1, but
+    /// (φᵀp)² overflowed for s = 10²⁰⁰ (m_eff NaN) and underflowed for
+    /// s = 10⁻²⁰⁰ (m_eff and the fraction 0).
+    #[test]
+    fn participation_quantities_are_range_safe() {
+        let dofs = [free(1, Dof::Ux)];
+        let zero = [0.0];
+        for s in [1e200, 1e-200, f64::MAX, f64::MIN_POSITIVE] {
+            let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
+            let p = [s];
+            let basis =
+                ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [s, 0.0, 0.0], 1.0, TAU_T)
+                    .unwrap();
+            let mode = normalize_mode(0, &[1.0], &basis).unwrap();
+            assert_eq!(mode.generalized_mass, s);
+            assert_eq!(mode.participation[0], 1.0, "s = {s:e}");
+            assert_eq!(mode.effective_mass[0], s, "s = {s:e}");
+            assert_eq!(mode.effective_mass_fraction[0], Some(1.0), "s = {s:e}");
+        }
+        // A participation factor that truly overflows is refused, not
+        // published as infinite.
+        let mass = SymmetricMatrix::from_diagonal(&[1e-300]).unwrap();
+        let p = [1e10];
+        let basis =
+            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1e10, 0.0, 0.0], 1.0, TAU_T)
+                .unwrap();
+        assert_eq!(
+            normalize_mode(2, &[1.0], &basis),
+            Err(ModalQuantityError::QuantityOutOfRange {
+                mode: 2,
+                name: "participation",
+                direction: Some(0),
+            })
+        );
     }
 
     #[test]

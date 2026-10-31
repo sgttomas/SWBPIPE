@@ -29,10 +29,12 @@ use open_pipe_stress_frame_kernel::structural::element_reformation::{
 };
 use open_pipe_stress_modal_eigen::clusters::cluster_ids;
 use open_pipe_stress_modal_eigen::dd::Dd;
-use open_pipe_stress_modal_eigen::dense::{solve_dense_pencil, DenseEigenSolution, DenseOptions};
+use open_pipe_stress_modal_eigen::dense::{
+    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseOptions,
+};
 use open_pipe_stress_modal_eigen::orthogonality::{m_orthogonality, m_orthogonality_reformed};
 use open_pipe_stress_modal_eigen::reformation::mass::{
-    component_mass, ComponentBody, ComponentRangeOperand,
+    component_mass, component_range, ComponentBody, ComponentRangeOperand,
 };
 use open_pipe_stress_modal_eigen::reformation::section::{
     derive_section, FormedSection, Insulation, MassBasis, PipeSection,
@@ -46,6 +48,14 @@ use open_pipe_stress_modal_eigen::SymmetricMatrix;
 use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
 const NORMWISE: f64 = 1e-29;
+
+/// The multiple of the first-order bound n·u·√(λ_iλ_j)/λ_1 within which the
+/// dense modes are M̂-orthogonal (pair by pair; see the reference test).
+const ORTHOGONALITY_MULTIPLE: f64 = 10.0;
+
+/// Test-local mass-pivot threshold τ_m of the finite-mode count (as in
+/// `sturm_counts.rs`).
+const MASS_PIVOT_RELATIVE_THRESHOLD: f64 = 1e-12;
 
 /// η of a correctly computed pair: below 10⁻¹², under which the design
 /// places no residual threshold τ_r (§3.4 check 2, "τ_r lies above
@@ -617,15 +627,50 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
         }
         let ids = cluster_ids(&f.solution.eigenvalues, 1e-8).unwrap();
         let cluster = cluster_error_estimates(&estimates, &ids);
+        // Each cluster's e_λ is the largest over its members, found here
+        // directly.
+        assert_eq!(cluster.len(), ids.iter().max().unwrap() + 1);
+        for (id, &value) in cluster.iter().enumerate() {
+            let members = estimates
+                .iter()
+                .zip(&ids)
+                .filter(|&(_, &i)| i == id)
+                .map(|(&e, _)| e);
+            assert_eq!(value, members.fold(f64::NEG_INFINITY, f64::max), "{}", case.id);
+        }
         let vectors: Vec<&[f64]> = (0..f.solution.mode_count())
             .map(|i| f.solution.vector(i))
             .collect();
         let orth_hat = m_orthogonality_reformed(&p, &vectors).unwrap();
         let orth = m_orthogonality(&dense(case.free.len(), &f.m), &vectors).unwrap();
+        // Check 3 on M̂, pair by pair, against the first-order orthogonality
+        // of a backward-stable symmetric eigensolver: the computed z are
+        // exact eigenvectors of C + E with ‖E‖ = O(n·u·‖C‖), so
+        // |φᵢᵀMφⱼ| = |zᵢᵀCzⱼ| ≲ n·u·μ_max and the normalized product is
+        // ≲ n·u·μ_max/√(μ_i μ_j) = n·u·√(λ_i λ_j)/λ_1. M̂ differs from the
+        // formed M by rounding (‖DΔMD‖ ≤ 2ε above), which is inside that.
+        let n_u = case.free.len() as f64 * f64::EPSILON / 2.0;
+        let lambda = &f.solution.eigenvalues;
+        let mut worst = 0.0f64;
+        for i in 0..vectors.len() {
+            for j in i + 1..vectors.len() {
+                let ratio = m_orthogonality_reformed(&p, &[vectors[i], vectors[j]])
+                    .unwrap()
+                    .max_ratio;
+                let first_order = n_u * (lambda[i].sqrt() * lambda[j].sqrt()) / lambda[0];
+                worst = worst.max(ratio / first_order);
+            }
+        }
+        assert!(
+            worst <= ORTHOGONALITY_MULTIPLE,
+            "{}: orthogonality {worst:e} times n·u·√(λ_iλ_j)/λ_1",
+            case.id
+        );
         eprintln!(
             "{}: n {}, modes {}, K̂ {ek:.1e}, M̂ {em:.1e}, ‖DΔKD‖ {:.1e}, ‖DΔMD‖ {:.1e}, \
              off-pattern {}/{}, max η {eta:.2e}, max e_λ {:.2e}, max cluster e_λ {:.2e}, \
-             max |λ−λ_ref|/λ_ref ÷ e_λ {ratio:.2e}, orthogonality on M̂ {:.2e} (formed M {:.2e})",
+             max |λ−λ_ref|/λ_ref ÷ e_λ {ratio:.2e}, orthogonality on M̂ {:.2e} (formed M {:.2e}, \
+             {worst:.2e} of the first-order bound)",
             case.id,
             case.free.len(),
             f.solution.mode_count(),
@@ -815,4 +860,231 @@ fn reruns_are_bit_identical() {
     assert_eq!(key(&a), key(&b));
     assert_eq!(a.2, b.2);
     assert_eq!(a.3, b.3);
+}
+
+/// Independent review of PR #33, finding 7: η, κ_λ and e_λ against their
+/// closed forms (design §3.4 check 2) on a 2×2 pencil with hand-perturbed
+/// vectors. Two nodes, each with one free Ux, an axis spring and a
+/// component body at its node: K = diag(1, 4), M = diag(1, 2), formed
+/// exactly, so D = diag(1, ½), ‖K̃̂‖ = 1 and ‖M̃̂‖ = max(1, ½) = 1.
+/// - λ = 1 with φ = (1, ε): r = (0, 2ε), ‖Dr‖ = ε, ‖φ̃‖² = 1 + 4ε²,
+///   φᵀMφ = 1 + 2ε², η = ε/(2√(1 + 4ε²)), κ_λ = 2(1 + 4ε²)/(1 + 2ε²) and
+///   e_λ = ε√(1 + 4ε²)/(1 + 2ε²).
+/// - λ = 2 with φ = (δ, 1): r = (−δ, 0), ‖Dr‖ = δ, ‖φ̃‖² = 4 + δ²,
+///   φᵀMφ = 2 + δ², η = δ/(3√(4 + δ²)), κ_λ = 3(4 + δ²)/(2(2 + δ²)) and
+///   e_λ = δ√(4 + δ²)/(2(2 + δ²)).
+/// The library forms each in double-double and rounds once; the closed
+/// forms are evaluated here in double-double and rounded once, so the two
+/// agree within 4u (two roundings of at most u each, beside 2⁻¹⁰⁴).
+#[test]
+fn residual_estimates_match_their_closed_forms() {
+    let mut map = vec![None; 12];
+    map[0] = Some(0);
+    map[6] = Some(1);
+    let body = |node, weight| {
+        ElementOperand::ComponentBody(ComponentBody {
+            node,
+            weight,
+            acceleration: 1.0,
+            center_of_gravity: [0.0; 3],
+        })
+    };
+    let elements = [
+        ElementOperand::Spring(SpringOperand::Axis {
+            dof: 0,
+            stiffness: 1.0,
+        }),
+        ElementOperand::Spring(SpringOperand::Axis {
+            dof: 6,
+            stiffness: 4.0,
+        }),
+        body(0, 1.0),
+        body(1, 2.0),
+    ];
+    let p = ReformedPencil::new(2, &map, MassBasis::EffectiveWall, &elements).unwrap();
+    let entry = |row, col, value| SymmetricMatrixEntry { row, col, value };
+    let d = formation_difference(
+        &p,
+        &[entry(0, 0, 1.0), entry(1, 1, 4.0)],
+        &[entry(0, 0, 1.0), entry(1, 1, 2.0)],
+    )
+    .unwrap();
+    assert_eq!(d.stiffness.norm, 0.0);
+    assert_eq!(d.mass.norm, 0.0);
+    assert_eq!(d.scaling.reformed_stiffness_norm, 1.0);
+    assert_eq!(d.scaling.reformed_mass_norm, 1.0);
+    let u = f64::EPSILON / 2.0;
+    let close = |actual: f64, expected: Dd, what: &str| {
+        let expected = expected.to_f64();
+        assert!(
+            (actual - expected).abs() <= 4.0 * u * expected,
+            "{what}: {actual:e} vs {expected:e}"
+        );
+    };
+    let c = Dd::from_f64;
+    for x in [2f64.powi(-10), 1e-3, 0.3] {
+        let xx = Dd::product(x, x);
+        let r = residual_estimate(&p, &d.scaling, 1.0, &[1.0, x]).unwrap();
+        let (a, b) = (xx.mul_f64(4.0).add_f64(1.0), xx.mul_f64(2.0).add_f64(1.0));
+        close(r.scaled_residual, c(x), "‖Dr‖, λ = 1");
+        close(r.generalized_mass, b, "φᵀMφ, λ = 1");
+        close(r.backward_error, c(x).div(a.sqrt().mul_f64(2.0)), "η, λ = 1");
+        close(r.condition, a.mul_f64(2.0).div(b), "κ_λ, λ = 1");
+        close(r.error_estimate, a.sqrt().mul_f64(x).div(b), "e_λ, λ = 1");
+        let r = residual_estimate(&p, &d.scaling, 2.0, &[x, 1.0]).unwrap();
+        let (a, b) = (xx.add_f64(4.0), xx.add_f64(2.0));
+        close(r.scaled_residual, c(x), "‖Dr‖, λ = 2");
+        close(r.generalized_mass, b, "φᵀMφ, λ = 2");
+        close(r.backward_error, c(x).div(a.sqrt().mul_f64(3.0)), "η, λ = 2");
+        close(r.condition, a.mul_f64(3.0).div(b.mul_f64(2.0)), "κ_λ, λ = 2");
+        close(r.error_estimate, a.sqrt().mul_f64(x).div(b.mul_f64(2.0)), "e_λ, λ = 2");
+    }
+    // The exact pairs have zero residual.
+    let exact = residual_estimate(&p, &d.scaling, 2.0, &[0.0, 1.0]).unwrap();
+    assert_eq!((exact.backward_error, exact.error_estimate), (0.0, 0.0));
+    // A cluster's e_λ is the largest over its members.
+    assert_eq!(
+        cluster_error_estimates(&[1e-9, 3e-9, 2e-9, 5e-10], &[0, 0, 0, 1]),
+        vec![3e-9, 5e-10]
+    );
+}
+
+/// Finding 2: the component's rotational block is formed from the
+/// mass-weighted products the range premise admits. With a = 1, m = W
+/// exactly, and the witnesses below pass `component_range`:
+/// - W = 10³⁰⁰, r = (10⁻¹⁷⁰, 0, 0): |r|² underflowed and J_yy was 0, not
+///   ≈ 10⁻⁴⁰;
+/// - W = 10⁻³⁰⁰, r = (10¹⁶⁰, 0, 0): |r|² overflowed and J_yy was NaN, not
+///   ≈ 10²⁰.
+#[test]
+fn component_rotational_block_is_formed_from_mass_weighted_products() {
+    let body = |weight, acceleration, x| ComponentBody {
+        node: 0,
+        weight,
+        acceleration,
+        center_of_gravity: [x, 0.0, 0.0],
+    };
+    for (w, x) in [(1e300, 1e-170), (1e-300, 1e160)] {
+        let b = body(w, 1.0, x);
+        assert_eq!(component_range(&b), Ok(()));
+        let m = component_mass(&b).unwrap();
+        // m·r·r in binary64 takes two roundings.
+        let expected = (w * x) * x;
+        for d in [4, 5] {
+            let j = m[d][d].to_f64();
+            assert!(
+                (j - expected).abs() <= f64::EPSILON * expected,
+                "W {w:e}: J[{d}][{d}] = {j:e}, expected {expected:e}"
+            );
+        }
+        assert_eq!(m[3][3].to_f64(), 0.0);
+        for row in &m {
+            for e in row {
+                assert!(e.hi.is_finite() && e.lo.is_finite(), "W {w:e}");
+            }
+        }
+    }
+    // Admitted in binary64 (fl(fl(m·r)·r) is the largest finite number),
+    // but the double-double product m·r·r exceeds it by more than half an
+    // ulp and overflows: the re-formed entry is refused, not published.
+    let b = body(19.92351542432765, 9.604308447003245, 9.30910318889974e153);
+    assert_eq!(component_range(&b), Ok(()));
+    assert_eq!(
+        component_mass(&b),
+        Err(ComponentRangeOperand::SpatialBlock)
+    );
+}
+
+/// A one-member or two-member cantilever of one section, node 0 fixed, its
+/// formed K_ff and M_ff the re-formed matrices rounded once.
+fn cantilever(lengths: &[f64], section: PipeSection) -> (SymmetricMatrix, SymmetricMatrix) {
+    let moduli = Moduli {
+        elastic_modulus: 2.0e11,
+        shear_modulus: 7.7e10,
+        stiffness_scale: None,
+    };
+    let mut x = 0.0;
+    let mut elements = Vec::new();
+    for (k, &length) in lengths.iter().enumerate() {
+        elements.push(ElementOperand::Straight(StraightOperand {
+            node_i: k,
+            node_j: k + 1,
+            coordinates_i: [x, 0.0, 0.0],
+            coordinates_j: [x + length, 0.0, 0.0],
+            y_reference: [0.0, 1.0, 0.0],
+            section,
+            moduli,
+            carries_mass: true,
+            formed_section: None,
+        }));
+        x += length;
+    }
+    let n = 6 * lengths.len();
+    let map: Vec<Option<usize>> = (0..6 * (lengths.len() + 1))
+        .map(|g| g.checked_sub(6))
+        .collect();
+    let p = ReformedPencil::new(n, &map, MassBasis::EffectiveWall, &elements).unwrap();
+    let to_dense = |list: Vec<((usize, usize), Dd)>| {
+        let mut data = vec![0.0; n * n];
+        for ((r, c), v) in list {
+            data[r * n + c] = v.to_f64();
+            data[c * n + r] = v.to_f64();
+        }
+        SymmetricMatrix::from_row_major(n, data).unwrap()
+    };
+    (to_dense(p.assembled_stiffness()), to_dense(p.assembled_mass()))
+}
+
+/// Finding 3, the design's admission witnesses (§3.2 item 5): the
+/// equilibrated pivots of a small-bore one-element cantilever (OD 6.35 mm,
+/// wall 0.89 mm, 1 m, steel 7850 kg/m³ with water contents 1000 kg/m³) are
+/// all at least 0.22, although its raw pivots span the translational and
+/// rotational scales; a short-member model likewise. Each is admitted with
+/// its full finite count, on both halves.
+#[test]
+fn small_bore_and_short_member_models_are_admitted_with_their_full_count() {
+    let small_bore = PipeSection {
+        outside_diameter: 0.00635,
+        wall_thickness: 0.00089,
+        mill_tolerance: 0.0,
+        corrosion_allowance: None,
+        material_density: 7850.0,
+        contents_density: Some(1000.0),
+        insulation: None,
+    };
+    let (k, m) = cantilever(&[1.0], small_bore);
+    let raw_ratio = (0..6).map(|i| m.get(i, i)).fold(f64::INFINITY, f64::min)
+        / (0..6).map(|i| m.get(i, i)).fold(0.0, f64::max);
+    eprintln!("small-bore cantilever: smallest/largest mass diagonal {raw_ratio:.2e}");
+    assert_eq!(established_finite_mode_count(&m, 0.22), Some(6));
+    let models = [
+        ("small-bore cantilever", k, m),
+        {
+            // A 0.3 m member then a 0.02 m member (L/OD ≈ 0.12) of NPS 6.
+            let section = PipeSection {
+                outside_diameter: 0.1683,
+                wall_thickness: 0.0071,
+                ..small_bore
+            };
+            let (k, m) = cantilever(&[0.3, 0.02], section);
+            ("short-member cantilever", k, m)
+        },
+    ];
+    for (name, k, m) in &models {
+        let n = m.dimension();
+        assert_eq!(
+            established_finite_mode_count(m, MASS_PIVOT_RELATIVE_THRESHOLD),
+            Some(n),
+            "{name}"
+        );
+        let solution = solve_dense_pencil(k, m, &dense_options()).unwrap();
+        eprintln!(
+            "{name}: n {n}, modes {}, μ range {:.2e} to {:.2e}",
+            solution.mode_count(),
+            solution.mu.last().unwrap(),
+            solution.mu_max
+        );
+        assert_eq!(solution.mode_count(), n, "{name}");
+        assert!(!solution.finite_count_unresolved, "{name}");
+    }
 }

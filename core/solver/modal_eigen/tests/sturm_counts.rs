@@ -29,7 +29,7 @@ use open_pipe_stress_modal_eigen::dense::{
 };
 use open_pipe_stress_modal_eigen::sturm::{
     count_above_spectrum, count_at_shift, count_in_gap, Gap, GapLower, Neighbour, ShiftDecision,
-    ShiftPencil, SturmOutcome, SturmParameters, SturmRefusal,
+    ShiftPencil, SturmError, SturmOutcome, SturmParameters, SturmRefusal,
 };
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
 
@@ -735,6 +735,147 @@ fn finite_count_is_established_with_structural_zeros() {
     );
     // An invalid threshold establishes nothing.
     assert_eq!(established_finite_mode_count(&sym(&k), 1.0), None);
+}
+
+/// Independent review of PR #33, finding 1: K = I₂, M = diag(1, ¼), the
+/// gap (1, 4) with e_λ = 2 below and 0 above. At σ = 2 the lower
+/// neighbour's separation is (|1 − 2| − 2·1)·1 = −1, so σ = 2 is
+/// unseparated whatever the vector's scale. The vector (10⁻²⁰⁰, 0) squared
+/// to zero, its mass quotient became 0/0 and `f64::min` dropped the NaN,
+/// accepting σ = 2 with count 1. The quotient is now formed from the vector
+/// scaled by a power of two.
+#[test]
+fn a_rescaled_neighbour_vector_keeps_its_separation_constraint() {
+    let k = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
+    let m = vec![vec![1.0, 0.0], vec![0.0, 0.25]];
+    let pencil = pencil_of(&k, &m);
+    let upper_vector = [0.0, 1.0];
+    let upper = Neighbour {
+        eigenvalue: 4.0,
+        relative_error_estimate: 0.0,
+        vector: &upper_vector,
+    };
+    // The smallest subnormal and the largest finite number included.
+    for scale in [1.0, 1e-200, 1e200, f64::from_bits(1), f64::MAX] {
+        let lower_vector = [scale, 0.0];
+        let lower = Neighbour {
+            eigenvalue: 1.0,
+            relative_error_estimate: 2.0,
+            vector: &lower_vector,
+        };
+        let outcome = count_at_shift(&pencil, 2.0, &[lower, upper], &parameters()).unwrap();
+        assert!(
+            matches!(
+                outcome,
+                SturmOutcome::Refused {
+                    reason: SturmRefusal::Unseparated,
+                    ..
+                }
+            ),
+            "scale {scale:e}: {}",
+            describe(&outcome)
+        );
+        // The geometric mean of the gap is σ = 2, and it is refused there.
+        let gap = Gap {
+            lower: GapLower::Mode(lower),
+            upper,
+        };
+        let placed = count_in_gap(&pencil, &gap, &parameters()).unwrap();
+        let first = &placed.evidence().candidates[0];
+        assert_eq!(first.sigma, 2.0);
+        assert_eq!(first.decision, ShiftDecision::Unseparated, "scale {scale:e}");
+    }
+}
+
+/// Finding 1, the typed refusals: a neighbour whose mass quotient is not
+/// positive and finite is refused before any shift, and a separation that
+/// is not finite refuses the candidate instead of entering the minimum.
+#[test]
+fn neighbour_quotients_and_separations_out_of_range_are_refused() {
+    let identity = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
+    // A vector in the null space of a singular M: φᵀMφ = 0.
+    let singular = pencil_of(&identity, &vec![vec![1.0, 0.0], vec![0.0, 0.0]]);
+    let null = [0.0, 1.0];
+    let neighbour = |eigenvalue, relative_error_estimate, vector| Neighbour {
+        eigenvalue,
+        relative_error_estimate,
+        vector,
+    };
+    assert_eq!(
+        count_at_shift(&singular, 0.5, &[neighbour(1.0, 0.0, &null)], &parameters()),
+        Err(SturmError::NeighbourMassQuotient {
+            index: 0,
+            value: 0.0
+        })
+    );
+    // φᵀMφ = 4·6·10³⁰⁷ overflows (each scaled row sum of |M| is finite).
+    let huge = pencil_of(&identity, &vec![vec![6e307, 6e307], vec![6e307, 6e307]]);
+    let ones = [1.0, 1.0];
+    assert!(matches!(
+        count_at_shift(&huge, 0.5, &[neighbour(1.0, 0.0, &ones)], &parameters()),
+        Err(SturmError::NeighbourMassQuotient { index: 0, .. })
+    ));
+    // s = (|λ − σ| − e_λ·λ)·q with e_λ·λ overflowing (−∞), and with the
+    // product by q overflowing (+∞).
+    let pencil = pencil_of(&identity, &vec![vec![1e10, 0.0], vec![0.0, 1.0]]);
+    let e1 = [1.0, 0.0];
+    for nb in [neighbour(1e300, 1e10, &e1), neighbour(1e300, 0.0, &e1)] {
+        let outcome = count_at_shift(&pencil, 0.5, &[nb], &parameters()).unwrap();
+        let SturmOutcome::Refused {
+            reason: SturmRefusal::OutOfRange,
+            evidence,
+        } = &outcome
+        else {
+            panic!("{}", describe(&outcome));
+        };
+        assert!(matches!(
+            evidence.candidates[0].decision,
+            ShiftDecision::SeparationOutOfRange { neighbour: 0, value } if value.is_infinite()
+        ));
+    }
+}
+
+/// Finding 3 (design §3.2 item 5: "a negative μ means the count is
+/// unresolved"): K = [[2, 1], [1, 1]], M = diag(1, 0). DOF 1 is
+/// structurally massless and C's zero eigenvalue comes back as
+/// μ ≈ −1.1·10⁻¹⁶, inside −τ_μ·μ_max, which was tolerated as resolved.
+#[test]
+fn a_negative_mu_leaves_the_finite_count_unresolved() {
+    let k = vec![vec![2.0, 1.0], vec![1.0, 1.0]];
+    let m = vec![vec![1.0, 0.0], vec![0.0, 0.0]];
+    let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
+    eprintln!(
+        "negative-μ witness: mu_max {:e}, nonpositive {}, below threshold {}, massless {}",
+        solution.mu_max,
+        solution.nonpositive_mu_count,
+        solution.below_threshold_mu_count,
+        solution.structurally_massless_count
+    );
+    assert_eq!(solution.structurally_massless_count, 1);
+    assert_eq!(solution.nonpositive_mu_count, 1);
+    assert_eq!(solution.mode_count(), 1);
+    assert!(solution.finite_count_unresolved);
+    // The independent half is established: one finite mode.
+    assert_eq!(
+        established_finite_mode_count(&sym(&m), MASS_PIVOT_RELATIVE_THRESHOLD),
+        Some(1)
+    );
+}
+
+/// Finding 3: the pivots are those of the equilibrated block D_M·M·D_M and
+/// are compared with τ_m inclusively ("at least τ_m"). M = [[1, ½], [½, ½]]
+/// equilibrates to [[1, 1/√2], [1/√2, 1]], whose second pivot is ½.
+#[test]
+fn equilibrated_mass_pivots_meet_the_threshold_inclusively() {
+    let m = vec![vec![1.0, 0.5], vec![0.5, 0.5]];
+    assert_eq!(established_finite_mode_count(&sym(&m), 0.5), Some(2));
+    assert_eq!(established_finite_mode_count(&sym(&m), 0.5000001), None);
+    // Scaling a DOF (a change of its unit) leaves the pivots unchanged.
+    let scaled = vec![vec![1.0, 0.5e-3], vec![0.5e-3, 0.5e-6]];
+    assert_eq!(established_finite_mode_count(&sym(&scaled), 0.4999), Some(2));
+    // A remaining diagonal that is not positive establishes nothing.
+    let indefinite = vec![vec![1.0, 0.5], vec![0.5, 0.0]];
+    assert_eq!(established_finite_mode_count(&sym(&indefinite), 0.0), None);
 }
 
 #[test]

@@ -133,10 +133,10 @@ pub struct DenseEigenSolution {
     /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
     /// when a request needs the whole finite spectrum): the μ at or below the
     /// infinite threshold, μ ≤ 0 included, are not matched one for one by
-    /// structurally massless DOFs, or a μ is negative beyond the threshold's
-    /// magnitude (C is positive semidefinite, so that is not rounding of a
-    /// structural zero). See [`established_finite_mode_count`] for the
-    /// independent half of the count.
+    /// structurally massless DOFs, or any μ is negative (design §3.2 item 5;
+    /// C is positive semidefinite, and no tolerance is applied to a negative
+    /// μ). See [`established_finite_mode_count`] for the independent half of
+    /// the count.
     pub finite_count_unresolved: bool,
 }
 
@@ -206,7 +206,7 @@ pub fn solve_dense_pencil(
     let structurally_massless_count = structurally_massless_dofs(mass).len();
     let finite_count_unresolved = nonpositive_mu_count + below_threshold_mu_count
         != structurally_massless_count
-        || d.iter().any(|&mu| mu < -cut);
+        || d.iter().any(|&mu| mu < 0.0);
     d.reverse();
     for i in 0..n / 2 {
         swap_rows(&mut work, n, i, n - 1 - i);
@@ -244,13 +244,16 @@ pub fn structurally_massless_dofs(mass: &SymmetricMatrix) -> Vec<usize> {
 
 /// The finite-mode count established independently of the eigenvalues
 /// (design §3.2 item 5): n minus the structurally massless DOFs, when the
-/// remaining block of M factors by Cholesky with every pivot p_j (before
-/// its square root) above `relative_pivot_threshold`·m_jj. `None` when the
-/// count is not established: a pivot at or below that, or a threshold that
-/// is not finite in [0, 1).
+/// remaining block of M, equilibrated by the congruence D_M·M·D_M with
+/// D_M = diag(m_jj)^−½, factors by Cholesky with every pivot (before its
+/// square root) at least `relative_pivot_threshold` τ_m, inclusive, and
+/// positive. `None` when the count is not established: a pivot below τ_m,
+/// a remaining diagonal that is not positive, or a threshold that is not
+/// finite in [0, 1).
 ///
-/// The pivot ratio p_j/m_jj is invariant to a diagonal scaling of M, so the
-/// threshold does not depend on units.
+/// The equilibrated block has unit diagonal exactly, so it is formed with
+/// 1 there and m_ij/√m_ii/√m_jj off it. Its pivots are dimensionless and do
+/// not depend on units or on the mix of translational and rotational DOFs.
 pub fn established_finite_mode_count(
     mass: &SymmetricMatrix,
     relative_pivot_threshold: f64,
@@ -263,16 +266,30 @@ pub fn established_finite_mode_count(
         .filter(|i| massless.binary_search(i).is_err())
         .collect();
     let m = kept.len();
+    let mut root = Vec::with_capacity(m);
+    for &i in &kept {
+        let diagonal = mass.get(i, i);
+        if !(diagonal > 0.0) {
+            return None;
+        }
+        root.push(diagonal.sqrt());
+    }
+    let equilibrated = |a: usize, b: usize| {
+        if a == b {
+            1.0
+        } else {
+            mass.get(kept[a], kept[b]) / root[a] / root[b]
+        }
+    };
     let mut r = vec![0.0; m * m];
     for a in 0..m {
         for b in 0..=a {
-            let mut s = mass.get(kept[a], kept[b]);
+            let mut s = equilibrated(a, b);
             for p in 0..b {
                 s -= r[a * m + p] * r[b * m + p];
             }
             if a == b {
-                let diagonal = mass.get(kept[a], kept[a]);
-                if !(s > relative_pivot_threshold * diagonal && s > 0.0) {
+                if !(s >= relative_pivot_threshold && s > 0.0) {
                     return None;
                 }
                 r[a * m + a] = s.sqrt();

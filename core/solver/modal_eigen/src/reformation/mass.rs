@@ -35,7 +35,13 @@
 //! with the series f₁(α) = α − sin α = Σ_{k≥1} (−1)^{k+1} α^{2k+1}/(2k+1)!,
 //! f₂(α) = f₁(2α)/4 and f₃(α) = Σ_{k≥2} (−1)^k (2^{2k−1} − 2) α^{2k+1}/(2k+1)!
 //! (leading terms α³/6, α³/3 and α⁵/20), each summed until a term falls
-//! below 2⁻¹¹⁰ of the sum. **The switch point is the whole admitted range**,
+//! below 2⁻¹¹⁰ of the sum. The series are summed scaled, as f₁/α³ and
+//! f₃/α⁵ (starting at 1/6 and 1/20), and multiplied by α³ or α⁵ after, so a
+//! small α cannot underflow a term or the sum. A local entry below
+//! 2⁻⁹⁶⁹ in magnitude, where a double-double's low word is no longer normal
+//! (f₃ ≈ α⁵/20 is the first, for α below about 10⁻⁵⁸), refuses the arc
+//! ([`GeometryError::ArcAngleRange`]) rather than publishing a value with
+//! less than double-double precision or zero. **The switch point is the whole admitted range**,
 //! 0 < α < π/2 (the chord is shorter than the diameter): there the series
 //! lose at most about a factor 2 to cancellation, while the closed forms of
 //! f₁, f₂ and f₃ lose a factor of order α⁻², α⁻² and α⁻⁴ (a 10⁻²⁸ relative
@@ -48,7 +54,11 @@
 //!
 //! **Component body** (§2.3). m = W/a, at offset r from the node: the 6×6
 //! [[m·I, −m[r]×], [m[r]×, m(|r|²I − rrᵀ)]], after the four-part binary64
-//! range premise of §2.3 item 6.
+//! range premise of §2.3 item 6. The rotational block is formed from the
+//! mass-weighted products the premise admits, J_aa = (m·r_b)·r_b +
+//! (m·r_c)·r_c and J_ab = −(m·r_a)·r_b, never from |r|² or r_a·r_b alone,
+//! which can underflow or overflow while every m·r_a·r_b is in range. A
+//! re-formed entry that is not finite refuses the body (`SpatialBlock`).
 
 use std::error::Error;
 use std::fmt;
@@ -68,6 +78,9 @@ pub enum GeometryError {
     YReferenceParallel,
     /// The chord is not shorter than the bend's diameter.
     ArcAngleDomain,
+    /// The half-angle is so small that an entry of the half-arc's local
+    /// mass is below 2⁻⁹⁶⁹ in magnitude (module docs).
+    ArcAngleRange,
 }
 
 impl fmt::Display for GeometryError {
@@ -77,6 +90,10 @@ impl fmt::Display for GeometryError {
             Self::ZeroLength => write!(f, "the member chord has zero length"),
             Self::YReferenceParallel => write!(f, "the y reference is parallel to the chord"),
             Self::ArcAngleDomain => write!(f, "the bend chord is not shorter than its diameter"),
+            Self::ArcAngleRange => write!(
+                f,
+                "the bend angle is too small for its local mass entries to be represented"
+            ),
         }
     }
 }
@@ -95,7 +112,7 @@ pub enum ComponentRangeOperand {
     /// fl(a·fl(W/a)) is not finite and normal.
     WeightProduct,
     /// An entry m·r_i or m·r_i·r_j of the spatial block is not finite and
-    /// zero or normal.
+    /// zero or normal, or an entry re-formed from them is not finite.
     SpatialBlock,
     /// The centre of gravity is not finite.
     CenterOfGravity,
@@ -278,20 +295,22 @@ pub fn straight_mass(
 const SERIES_STOP: f64 = 7.703719777548943e-34; // 2^-110
 const SERIES_MAX_TERMS: u32 = 60;
 
-/// f₁(α) = α − sin α by its series.
-fn alpha_minus_sin(alpha: Dd) -> Dd {
+/// The smallest magnitude a half-arc local entry may have: below 2⁻⁹⁶⁹ a
+/// double-double's low word is subnormal.
+const LOCAL_ENTRY_MIN: f64 = 2.004168360008973e-292; // 2^-969
+
+/// f₁(α)/α³ = Σ_{k≥1} (−1)^{k+1} α^{2k−2}/(2k+1)! by its series. The sum
+/// starts at 1/6, so a small α cannot underflow it to zero.
+fn alpha_minus_sin_scaled(alpha: Dd) -> Dd {
     let a2 = alpha.mul(alpha);
-    let mut power = alpha; // α^{2k+1}/(2k+1)!
-    let mut sum = Dd::ZERO;
-    for k in 1..=SERIES_MAX_TERMS {
-        let k = f64::from(k);
-        power = power.mul(a2).div(Dd::from_f64((2.0 * k) * (2.0 * k + 1.0)));
-        let term = if k as u32 % 2 == 1 {
-            power
-        } else {
-            power.neg()
-        };
-        sum = sum.add(term);
+    let mut power = Dd::from_f64(1.0).div(Dd::from_f64(6.0)); // α^{2k−2}/(2k+1)!
+    let mut sum = power;
+    for k in 2..=SERIES_MAX_TERMS {
+        let kf = f64::from(k);
+        power = power
+            .mul(a2)
+            .div(Dd::from_f64((2.0 * kf) * (2.0 * kf + 1.0)));
+        sum = sum.add(if k % 2 == 1 { power } else { power.neg() });
         if power.hi.abs() < SERIES_STOP * sum.hi.abs() {
             return sum;
         }
@@ -299,19 +318,22 @@ fn alpha_minus_sin(alpha: Dd) -> Dd {
     unreachable!("the α − sin α series converges within its term limit for α < π")
 }
 
-/// f₃(α) = 3α/2 + sin 2α/4 − 2 sin α by its series.
-fn jc22_series(alpha: Dd) -> Dd {
+/// f₁(α) = α − sin α = α³·(f₁(α)/α³).
+fn alpha_minus_sin(alpha: Dd) -> Dd {
+    alpha_minus_sin_scaled(alpha).mul(alpha.mul(alpha).mul(alpha))
+}
+
+/// f₃(α)/α⁵ = Σ_{k≥2} (−1)^k (2^{2k−1} − 2) α^{2k−4}/(2k+1)! by its series,
+/// starting at 6/5! = 1/20.
+fn jc22_scaled(alpha: Dd) -> Dd {
     let a2 = alpha.mul(alpha);
-    let mut power = alpha;
-    let mut sum = Dd::ZERO;
-    for k in 1..=SERIES_MAX_TERMS {
+    let mut power = Dd::from_f64(1.0).div(Dd::from_f64(120.0)); // α^{2k−4}/(2k+1)!
+    let mut sum = power.mul_f64(6.0);
+    for k in 3..=SERIES_MAX_TERMS {
         let kf = f64::from(k);
         power = power
             .mul(a2)
             .div(Dd::from_f64((2.0 * kf) * (2.0 * kf + 1.0)));
-        if k == 1 {
-            continue; // coefficient 2¹ − 2 = 0
-        }
         let coefficient = Dd::from_f64(2f64.powi(2 * k as i32 - 1)).add_f64(-2.0);
         let term = power.mul(coefficient);
         sum = sum.add(if k % 2 == 0 { term } else { term.neg() });
@@ -320,6 +342,12 @@ fn jc22_series(alpha: Dd) -> Dd {
         }
     }
     unreachable!("the J_c,22 series converges within its term limit for α < π/2")
+}
+
+/// f₃(α) = 3α/2 + sin 2α/4 − 2 sin α = α⁵·(f₃(α)/α⁵).
+fn jc22_series(alpha: Dd) -> Dd {
+    let a2 = alpha.mul(alpha);
+    jc22_scaled(alpha).mul(a2.mul(a2).mul(alpha))
 }
 
 /// The local entries of one half-arc, unscaled (module docs).
@@ -337,12 +365,14 @@ pub struct HalfArcLocal {
 }
 
 /// The half-arc's local entries from s = sin α and c = cos α, and α.
-pub fn half_arc_local(sin: Dd, cos: Dd, alpha: Dd) -> HalfArcLocal {
+/// `ArcAngleRange` when an entry is not finite or is below 2⁻⁹⁶⁹ in
+/// magnitude (module docs); every entry is nonzero for 0 < α < π/2.
+pub fn half_arc_local(sin: Dd, cos: Dd, alpha: Dd) -> Result<HalfArcLocal, GeometryError> {
     let one_plus_cos = Dd::from_f64(1.0).add(cos);
     let s2 = sin.mul(sin);
     let f1 = alpha_minus_sin(alpha);
     let f2 = alpha_minus_sin(alpha.mul_pow2(1)).mul_pow2(-2);
-    HalfArcLocal {
+    let local = HalfArcLocal {
         alpha,
         s: [f1.neg(), s2.div(one_plus_cos)],
         jc11: f2,
@@ -352,7 +382,26 @@ pub fn half_arc_local(sin: Dd, cos: Dd, alpha: Dd) -> HalfArcLocal {
         tt11: f2,
         tt22: alpha.add(sin.mul(cos)).mul_pow2(-1),
         tt12: s2.mul_pow2(-1).neg(),
+    };
+    let entries = [
+        local.alpha,
+        local.s[0],
+        local.s[1],
+        local.jc11,
+        local.jc22,
+        local.jc33,
+        local.jc12,
+        local.tt11,
+        local.tt22,
+        local.tt12,
+    ];
+    if entries
+        .iter()
+        .any(|e| !(e.hi.is_finite() && e.lo.is_finite() && e.hi.abs() >= LOCAL_ENTRY_MIN))
+    {
+        return Err(GeometryError::ArcAngleRange);
     }
+    Ok(local)
 }
 
 /// The 6×6 [[m·I, −[S]×], [[S]×, J]].
@@ -399,7 +448,7 @@ pub fn arc_lumps(
     let sin = half_chord.div(r);
     let cos = span.sqrt().div(r);
     let alpha = atan_unit(sin.div(Dd::from_f64(1.0).add(cos))).mul_pow2(1);
-    let local = half_arc_local(sin, cos, alpha);
+    let local = half_arc_local(sin, cos, alpha)?;
     let (d, n) = (ch.unit, ch.normal);
     let frames = [
         {
@@ -518,16 +567,28 @@ pub fn component_mass(body: &ComponentBody) -> Result<Block6, ComponentRangeOper
     component_range(body)?;
     let m = Dd::from_f64(body.weight).div(Dd::from_f64(body.acceleration));
     let r = body.center_of_gravity.map(Dd::from_f64);
-    let rr = dot3(&r, &r);
     let first = scale3(&r, m);
+    // From the mass-weighted products (module docs), symmetric by
+    // construction.
     let mut second = [[Dd::ZERO; 3]; 3];
     for a in 0..3 {
-        for b in 0..3 {
-            let identity = if a == b { rr } else { Dd::ZERO };
-            second[a][b] = m.mul(identity.sub(r[a].mul(r[b])));
+        let (b, c) = ((a + 1) % 3, (a + 2) % 3);
+        second[a][a] = first[b].mul(r[b]).add(first[c].mul(r[c]));
+        for b in 0..a {
+            let entry = first[a].mul(r[b]).neg();
+            second[a][b] = entry;
+            second[b][a] = entry;
         }
     }
-    Ok(rigid_lump(m, &first, &second))
+    let lump = rigid_lump(m, &first, &second);
+    if lump
+        .iter()
+        .flatten()
+        .any(|e| !(e.hi.is_finite() && e.lo.is_finite()))
+    {
+        return Err(ComponentRangeOperand::SpatialBlock);
+    }
+    Ok(lump)
 }
 
 #[cfg(test)]
@@ -558,6 +619,38 @@ mod tests {
         let a = Dd::from_f64(1e-4);
         close(alpha_minus_sin(a), 1e-12 / 6.0, 1e-8);
         close(jc22_series(a), 1e-20 / 20.0, 1e-8);
+    }
+
+    /// Independent review of PR #33, finding 6: a chord of 2·10⁻¹²⁰ on
+    /// radius 1 is an admitted positive angle (α ≈ 10⁻¹²⁰), but α³/6
+    /// underflowed, the series' sum stayed zero, the stop test 0 < 2⁻¹¹⁰·0
+    /// never held and the term limit reached `unreachable!`. At α ≈ 10⁻⁷⁰
+    /// f₁ is representable but J_c,22 ≈ α⁵/20 is not, and its unscaled
+    /// series summed zeros. Both are now refused by range.
+    #[test]
+    fn a_vanishing_arc_angle_is_refused_not_a_panic() {
+        let one = Dd::from_f64(1.0);
+        let y = [0.0, 1.0, 0.0];
+        for chord in [2e-120, 2e-70] {
+            assert_eq!(
+                arc_lumps([0.0; 3], [chord, 0.0, 0.0], 1.0, y, one, one, one),
+                Err(GeometryError::ArcAngleRange),
+                "chord {chord:e}"
+            );
+        }
+        // α ≈ 10⁻⁵⁰ is in range; the scaled series give the leading terms
+        // (the next is α² ≈ 10⁻¹⁰⁰ smaller).
+        assert!(arc_lumps([0.0; 3], [2e-50, 0.0, 0.0], 1.0, y, one, one, one).is_ok());
+        let sin = Dd::from_f64(1e-50);
+        let cos = one.sub(sin.mul(sin)).sqrt();
+        let alpha = atan_unit(sin.div(one.add(cos))).mul_pow2(1);
+        let local = half_arc_local(sin, cos, alpha).unwrap();
+        let a3 = alpha.mul(alpha).mul(alpha);
+        let a5 = a3.mul(alpha).mul(alpha);
+        let relative = |x: Dd, y: Dd| x.sub(y).abs().div(y.abs()).to_f64();
+        assert!(relative(local.s[0], a3.div(Dd::from_f64(-6.0))) < 1e-30);
+        assert!(relative(local.jc22, a5.div(Dd::from_f64(20.0))) < 1e-30);
+        assert!(relative(local.jc11, a3.div(Dd::from_f64(3.0))) < 1e-30);
     }
 
     #[test]
