@@ -389,8 +389,7 @@ mod tests {
         let small = Dd::from_f64(1.0).div(Dd::from_f64(239.0));
         let machin = atan_unit(fifth)
             .mul_pow2(4)
-            .sub(atan_unit(small).mul_pow2(2))
-            .mul_pow2(2);
+            .sub(atan_unit(small).mul_pow2(2));
         let pi = Dd::pi();
         assert_eq!(pi.hi, std::f64::consts::PI);
         assert!(machin.sub(pi).to_f64().abs() <= 8.0 * two_pow(-106) * pi.hi);
