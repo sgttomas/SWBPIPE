@@ -908,11 +908,14 @@ def survivors_of(pgid, attempts=20):
     return [int(x) for x in done.stdout.split()]
 
 
-def _watch(proc, pgid, child, *, t0, wrapper, system, rss_cap_bytes, timeout_s, poll_s):
+def _watch(proc, pgid, child, *, t0, wrapper, system, rss_cap_bytes, timeout_s, poll_s, sampler=None):
     """The poll loop: on macOS, the RSS watchdog on the binary's PID; on every platform, the
     timeout. Each kills with SIGKILL to the process group and reaps the wrapper. It returns once
-    the wrapper is reaped. If it is interrupted, `launch` kills the group (RV18-3)."""
-    samples, killed, timed_out, kill_at, polls = [], False, False, None, 0
+    the wrapper is reaped. If it is interrupted, `launch` kills the group (RV18-3).
+
+    `sampler` (optional; K6 passes none): called as `sampler(pid, now)` once per poll after the
+    RSS sample; a true return kills the group as the RSS watchdog does (`sampler_killed`)."""
+    samples, killed, timed_out, kill_at, polls, sampler_killed = [], False, False, None, 0, False
     while True:
         pid, status, usage = os.wait4(proc.pid, os.WNOHANG)
         if pid:
@@ -925,6 +928,12 @@ def _watch(proc, pgid, child, *, t0, wrapper, system, rss_cap_bytes, timeout_s, 
             polls += 1
             if kib is not None:
                 samples.append([round(now, 3), kib])
+            if sampler is not None and sampler(child, round(now, 3)):
+                os.killpg(pgid, signal.SIGKILL)
+                sampler_killed, kill_at = True, round(now, 3)
+                pid, status, usage = os.wait4(proc.pid, 0)
+                break
+            if kib is not None:
                 if system == 'Darwin' and watchdog_exceeds(kib, rss_cap_bytes):
                     os.killpg(pgid, signal.SIGKILL)
                     killed, kill_at = True, round(now, 3)
@@ -936,7 +945,7 @@ def _watch(proc, pgid, child, *, t0, wrapper, system, rss_cap_bytes, timeout_s, 
             pid, status, usage = os.wait4(proc.pid, 0)
             break
         time.sleep(poll_s)
-    return pid, status, usage, child, samples, killed, timed_out, kill_at, polls
+    return pid, status, usage, child, samples, killed, timed_out, kill_at, polls, sampler_killed
 
 
 def stop_group(pgid, pid):
@@ -987,8 +996,11 @@ def read_time_file(path, system):
 
 
 def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, system=None,
-           resource_module=None, poll_s=POLL_S, k6_protocol=True):
-    """One observation process: wrapper, watchdog, limits, record. Returns the record."""
+           resource_module=None, poll_s=POLL_S, k6_protocol=True, sampler=None):
+    """One observation process: wrapper, watchdog, limits, record. Returns the record.
+
+    `sampler` (optional, see `_watch`; K6 passes none): a kill by it is classified
+    `killed_by_sampler`, and its `summary()`, when it has one, is recorded as `sampler`."""
     system = system or platform.system()
     os.makedirs(record_dir, exist_ok=True)
     base = os.path.join(record_dir, run_id)
@@ -1028,7 +1040,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
             t.start()
         child = find_child(proc.pid) if wrapper else proc.pid
         watched = _watch(proc, proc.pid, child, t0=t0, wrapper=wrapper, system=system,
-                         rss_cap_bytes=rss_cap_bytes, timeout_s=timeout_s, poll_s=poll_s)
+                         rss_cap_bytes=rss_cap_bytes, timeout_s=timeout_s, poll_s=poll_s, sampler=sampler)
     finally:
         # RV18-3: a poll loop that did not end by itself (SIGTERM, SIGINT or an error in the
         # runner) leaves the observation running with no watchdog and no timeout. Kill it.
@@ -1036,7 +1048,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
             stop_group(proc.pid, proc.pid)
         restore_sigterm()
     pgid = proc.pid
-    pid, status, usage, child, samples, killed, timed_out, kill_at, polls = watched
+    pid, status, usage, child, samples, killed, timed_out, kill_at, polls, sampler_killed = watched
     wall = time.monotonic() - t0
     for t in threads:
         t.join(timeout=5)
@@ -1049,12 +1061,14 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
         fh.write(sanitize(stderr_text))
     time_info = read_time_file(time_path, system)
     objects = jsonl(stdout_lines)
-    external = -exit_code if exit_code < 0 and not (killed or timed_out) else None
+    external = -exit_code if exit_code < 0 and not (killed or timed_out or sampler_killed) else None
     classification, detail = classify(killed_by_rss_watchdog=killed, timed_out=timed_out, exit_code=exit_code,
                                       objects=objects, stderr_text=stderr_text, system=system,
                                       rlimit_applied=preexec is not None, k6_protocol=k6_protocol,
                                       external_signal=external)
-    survivors = survivors_of(pgid) if (killed or timed_out) else []
+    if sampler_killed:
+        classification, detail = 'killed_by_sampler', getattr(sampler, 'kill_reason', None)
+    survivors = survivors_of(pgid) if (killed or timed_out or sampler_killed) else []
     summary = summary_of(objects)
     rss = {'wait4_maxrss_bytes': ru_maxrss_bytes(usage.ru_maxrss, system),
            'ps_max_kib': max((s[1] for s in samples), default=None), 'ps_samples': len(samples)}
@@ -1073,6 +1087,9 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
         'summary': summary, 'stdout_lines': len(stdout_lines),
         'stderr_tail': sanitize(stderr_text[-1500:]),
     })
+    if sampler is not None:
+        record['killed_by_sampler'] = sampler_killed
+        record['sampler'] = sampler.summary() if hasattr(sampler, 'summary') else None
     if summary:
         record['repeats_heap_peak'] = summary.get('repeats_heap_peak')
         record['repeats_heap_peak_move'] = summary.get('repeats_heap_peak_move')

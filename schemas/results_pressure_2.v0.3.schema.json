@@ -1441,6 +1441,60 @@
                     ]
                   }
                 }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "location",
+                  "component_id",
+                  "factor_role",
+                  "sif",
+                  "sif_source_reference",
+                  "section_basis"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "location": {
+                    "enum": [
+                      "end_i",
+                      "end_j"
+                    ]
+                  },
+                  "component_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "factor_role": {
+                    "enum": [
+                      "branch_header",
+                      "branch_branch"
+                    ]
+                  },
+                  "sif": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "sif_source_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  }
+                }
               }
             ]
           }
@@ -2501,7 +2555,9 @@
             "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
             "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section",
             "rotated_from_published_element_local_end_actions_v1",
-            "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"
+            "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action",
+            "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=nominal_section",
+            "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section"
           ]
         },
         "sign_convention": {

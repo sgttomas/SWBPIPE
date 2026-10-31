@@ -1,0 +1,32 @@
+[package]
+name = "open_pipe_stress_release_timing"
+version = "0.1.0"
+edition = "2021"
+description = "DEL-04-05 release timing driver: the desktop solve worker's engine stages, timed (observation only)"
+publish = false
+
+# Its own root: never joins another crate's workspace or lock.
+[workspace]
+
+# The driver mirrors the desktop solve worker, so its build must not change the
+# product's numerics through feature unification: serde_json carries exactly the
+# desktop's features (apps/desktop/src-tauri/Cargo.toml), and no release profile
+# is set here because the desktop sets none (cargo's default release profile).
+# Cargo.lock pins the registry packages to the desktop lock's versions.
+
+[[bin]]
+name = "release_timing"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../product_physics" }
+# The desktop declares float_roundtrip and raw_value; its resolved normal build
+# also has alloc (enabled by another dependency; a no-op beside std). The same
+# resolved set here: default, std, alloc, float_roundtrip, raw_value.
+serde_json = { version = "1", features = ["float_roundtrip", "raw_value", "alloc"] }
+sha2 = "0.10"
+
+[target.'cfg(unix)'.dependencies]
+# getrusage and (macOS) proc_pid_rusage, read the way the desktop worker reads them.
+libc = "0.2"

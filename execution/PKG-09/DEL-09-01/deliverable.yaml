@@ -169,6 +169,7 @@ code_paths:
 - tests/test_first_static_selection.py
 - validation/references/t3_r1/**
 - fixtures/reference_system/**
+- validation/references/reference_system/**
 - tests/test_reference_system_fixture.py
 - tools/validation/test_reference_system_ledger.py
 checks:

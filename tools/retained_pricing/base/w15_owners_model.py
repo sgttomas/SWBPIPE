@@ -37,7 +37,10 @@ PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
 RC = PP + "rigid_component.rs"
 CB = RE + "component_body.rs"
-PINS = {RC: "e885dae77f51be7336d63d17ced700dbb0aaf69e0bb47ffa54c7c8c3542c2144",
+# §8.33 (RT-A3 increment 1): rigid_component.rs's STRESS_KINDS gains branch_intensified_bending_stress_v1 (18 kinds), a
+# static array read only by annotate_component_bodies' `contains` scan of existing rows; no owner, statement or reader
+# call changes, and D1 has no component body (P2).
+PINS = {RC: "90f4ea351e84932a509c388079c4ae050b590baf989762a6394cb9a967a4b2b2",
         CB: "ace48d130d710eae3412c1b850962f78673ba03e143044c0fbc5d48f2265b514"}
 
 # (file, statement, count): each owning statement the formulas price or the premise empties.

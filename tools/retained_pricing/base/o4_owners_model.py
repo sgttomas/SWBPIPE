@@ -83,7 +83,9 @@ BODY_PINS = {
     # moved nonlinear grounds and their relative-displacement rows (W16S-L1, none on D1), the spring's -k·(u - g)
     # action and the ground vector passed to certified_publication::support. The second composite maximum and its
     # payload keys are unchanged.
-    (LIB, "solve_prepared_load_case"): "4061553a4b7f0476245f96ee9582741099c065b8c06de04272aa0646b7f7b185",
+    # RT-A3 increment 1 D3 (§8.33): a straight exact member's branch rows (u4b_rows::append_branch_intensified, under
+    # `exact && macro_bend.is_none()`; none on D1, D1.4); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "7db25969ad168e94c875f14f781a32b3d77b70d589a755e43efa2a22b4766c9a",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

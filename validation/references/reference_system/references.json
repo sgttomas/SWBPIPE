@@ -1,0 +1,460 @@
+{
+ "document": "swbpipe.reference_system_references",
+ "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted",
+ "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md §9.2 (EQ-1, EQ-2)",
+ "inputs": "fixtures/reference_system/reference_system.json: nodes, pipe_segments (sections), components; load_cases and the self-weight capture are not read",
+ "units": {
+  "force": "N",
+  "moment": "N*m",
+  "length": "m",
+  "mass_per_length": "kg/m"
+ },
+ "gravity": {
+  "value": "196133/20000",
+  "unit": "m/s^2",
+  "direction": "-Z"
+ },
+ "mass_bases": {
+  "pipe_metal": "rho_m * pi * (R^2 - (R - t)^2), the nominal wall",
+  "contents": "rho_c * pi * (R - ((t - c_m) - c_a))^2, the reduced (pressure) bore",
+  "insulation": "rho_i * pi * ((R + t_i)^2 - R^2), OD to OD + 2 t_i",
+  "realized_arc": "length R * theta, theta = pi/2",
+  "rigid_family": "the component's weight at node + centre-of-gravity vector (global axes), in place of its mapped member's distributed weight",
+  "replaced_span": "RS-P180 carries no weight"
+ },
+ "conventions": {"weight_moment_about_origin": "sum of r x F over the weight, F = (0, 0, -W) at r; equals (-S_y, S_x, 0) with S the weight first moment sum(W * r)", "exact": "a sum of (q)*pi^k*sqrt(n) terms with q rational", "pi": "Machin's formula; rational bounds 90 decimal places apart", "sqrt": "integer square root; rational bounds 90 decimal places apart"},
+ "checks": {
+  "EQ-1": "in RS-SUS, RS-OPE and RS-SAM, the sum of the vertical (global Z) reaction components over every support equals W_total",
+  "EQ-2": "in RS-SUS, RS-OPE and RS-SAM, the horizontal reaction resultant (X, Y) is zero, and the reaction moment resultant about the origin equals minus weight_moment_about_origin"
+ },
+ "criterion": "|observed - expected| <= 1e-9 * |expected|; an exactly zero expectation uses 1e-9 * zero_scale of its family (largest nonzero magnitude of that family in the case)",
+ "crosscheck": [
+  {"check": "section:RS-S170: mass per length, second factored form", "agrees": true},
+  {"check": "section:RS-S220: mass per length, second factored form", "agrees": true},
+  {"check": "section:RS-S270: mass per length, second factored form", "agrees": true},
+  {"check": "omitted members are the specification's (RS-P020, RS-P030, RS-P040 by component weight; RS-P180 replaced span)", "agrees": true},
+  {"check": "component:RS-B1: corner from tangent node and radius equals the specification's corner", "agrees": true},
+  {"check": "component:RS-B1: far tangent node lies at R along the outgoing tangent from the corner", "agrees": true},
+  {"check": "component:RS-B1: arc first moment equals weight times the classical arc centroid (Decimal, 1e-80)", "agrees": true},
+  {"check": "component:RS-B2: corner from tangent node and radius equals the specification's corner", "agrees": true},
+  {"check": "component:RS-B2: far tangent node lies at R along the outgoing tangent from the corner", "agrees": true},
+  {"check": "component:RS-B2: arc first moment equals weight times the classical arc centroid (Decimal, 1e-80)", "agrees": true},
+  {"check": "component:RS-B3: corner from tangent node and radius equals the specification's corner", "agrees": true},
+  {"check": "component:RS-B3: far tangent node lies at R along the outgoing tangent from the corner", "agrees": true},
+  {"check": "component:RS-B3: arc first moment equals weight times the classical arc centroid (Decimal, 1e-80)", "agrees": true},
+  {"check": "component:RS-F1: weight is the specification's", "agrees": true},
+  {"check": "component:RS-F1: centre-of-gravity vector from the node equals the specification's body midpoint plus offset, less the node", "agrees": true},
+  {"check": "component:RS-F2: weight is the specification's", "agrees": true},
+  {"check": "component:RS-F2: centre-of-gravity vector from the node equals the specification's body midpoint plus offset, less the node", "agrees": true},
+  {"check": "component:RS-V1: weight is the specification's", "agrees": true},
+  {"check": "component:RS-V1: centre-of-gravity vector from the node equals the specification's body midpoint plus offset, less the node", "agrees": true},
+  {"check": "total weight: per-section length sums times mass per length, plus component weights", "agrees": true}
+ ],
+ "key_values": {
+  "W_total_N": {"exact": "(3300) + (66155686593423/5000000000)*pi + (1363190839087/160000000000)*pi*sqrt(257) + (124534361799687/800000000000)*pi^2", "decimal": "4.683231956637544055553984151979027826881e+4", "value": 46832.31956637544},
+  "weight_resultant_N": [
+   {"exact": "0", "decimal": "0", "value": 0.0},
+   {"exact": "0", "decimal": "0", "value": 0.0},
+   {"exact": "(-3300) + (-66155686593423/5000000000)*pi + (-1363190839087/160000000000)*pi*sqrt(257) + (-124534361799687/800000000000)*pi^2", "decimal": "-4.683231956637544055553984151979027826881e+4", "value": -46832.31956637544}
+  ],
+  "weight_first_moment_N_m": [
+   {"exact": "(2805) + (240668557483367167/3200000000000)*pi + (4089572517261/80000000000)*pi*sqrt(257) + (2917059564163647/3200000000000)*pi^2", "decimal": "2.506523167307699395399612753112846773250e+5", "value": 250652.31673076993},
+   {"exact": "(689381386488375721/5000000000000)*pi + (137682274747787/800000000000)*pi*sqrt(257) + (253997473516297/800000000000)*pi^2", "decimal": "4.449523802374701113805189744936380286402e+5", "value": 444952.3802374701},
+   {"exact": "(4080) + (1192422469821139207/16000000000000)*pi + (762023679049633/12800000000000)*pi*sqrt(257) + (1884196126085903/3200000000000)*pi^2", "decimal": "2.470212378829633297404285196232708434750e+5", "value": 247021.23788296332}
+  ],
+  "weight_moment_about_origin_N_m": [
+   {"exact": "(-689381386488375721/5000000000000)*pi + (-137682274747787/800000000000)*pi*sqrt(257) + (-253997473516297/800000000000)*pi^2", "decimal": "-4.449523802374701113805189744936380286402e+5", "value": -444952.3802374701},
+   {"exact": "(2805) + (240668557483367167/3200000000000)*pi + (4089572517261/80000000000)*pi*sqrt(257) + (2917059564163647/3200000000000)*pi^2", "decimal": "2.506523167307699395399612753112846773250e+5", "value": 250652.31673076993},
+   {"exact": "0", "decimal": "0", "value": 0.0}
+  ]
+ },
+ "sections": [
+  {
+   "section": "section:RS-S170",
+   "mass_per_length_kg_m": {
+    "metal": {"exact": "(179137/20000)*pi", "decimal": "2.813877415930573956792412738752701540832e+1", "value": 28.13877415930574},
+    "contents": {"exact": "(26437169/5000000)*pi", "decimal": "1.661096318242236410405884066209839839710e+1", "value": 16.610963182422363},
+    "insulation": {"exact": "(77/50)*pi", "decimal": "4.838052686528281587232470810250434441664e+0", "value": 4.838052686528282},
+    "total": {"exact": "(78921419/5000000)*pi", "decimal": "4.958779002825638525921543885987584824709e+1", "value": 49.587790028256386}
+   },
+   "weight_per_length_N_m": {"exact": "(15479094672727/100000000000)*pi", "decimal": "4.862901010806004805022850834952014872123e+2", "value": 486.2901010806005}
+  },
+  {
+   "section": "section:RS-S220",
+   "mass_per_length_kg_m": {
+    "metal": {"exact": "(8321/625)*pi", "decimal": "4.182590795283307125959624894762998959905e+1", "value": 41.82590795283307},
+    "contents": {"exact": "(2792961/312500)*pi", "decimal": "2.807790642996096804188756136450465169584e+1", "value": 28.07790642996097},
+    "insulation": {"exact": "(294/125)*pi", "decimal": "7.389025921243193696864137237473390783632e+0", "value": 7.389025921243194},
+    "total": {"exact": "(7688461/312500)*pi", "decimal": "7.729284030403723299834794754960803207852e+1", "value": 77.29284030403723}
+   },
+   "weight_per_length_N_m": {"exact": "(1507960921313/6250000000)*pi", "decimal": "7.579838323675867309832488998373636077828e+2", "value": 757.9838323675867}
+  },
+  {
+   "section": "section:RS-S270",
+   "mass_per_length_kg_m": {
+    "metal": {"exact": "(368793/20000)*pi", "decimal": "5.792986897476703088961768206248988535859e+1", "value": 57.92986897476703},
+    "contents": {"exact": "(2708009/200000)*pi", "decimal": "4.253730590127521198947992222855671662966e+1", "value": 42.53730590127521},
+    "insulation": {"exact": "(693/250)*pi", "decimal": "8.708494835750906857018447458450781994995e+0", "value": 8.708494835750907},
+    "total": {"exact": "(6950339/200000)*pi", "decimal": "1.091756697117931497361160517494973839832e+2", "value": 109.17566971179315}
+   },
+   "weight_per_length_N_m": {"exact": "(1363190839087/4000000000)*pi", "decimal": "1.070647581379156291859682478889208520639e+3", "value": 1070.6475813791562}
+  }
+ ],
+ "members": [
+  {
+   "member": "pipe:RS-P010",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "2/5",
+   "weight_N": {"exact": "(1363190839087/10000000000)*pi", "decimal": "4.282590325516625167438729915556834082557e+2", "value": 428.25903255166253},
+   "first_moment_N_m": [
+    {"exact": "(1363190839087/50000000000)*pi", "decimal": "8.565180651033250334877459831113668165114e+1", "value": 85.6518065103325},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(1363190839087/10000000000)*pi", "decimal": "4.282590325516625167438729915556834082557e+2", "value": 428.25903255166253}
+   ],
+   "centroid_m": ["1/5", "0", "1"]
+  },
+  {
+   "member": "pipe:RS-P020",
+   "section": "section:RS-S270",
+   "carries": "no distributed weight",
+   "by": "component:RS-F1",
+   "reason": "rigid-family component weight replaces the member's distributed weight (W-15 §3)"
+  },
+  {
+   "member": "pipe:RS-P030",
+   "section": "section:RS-S270",
+   "carries": "no distributed weight",
+   "by": "component:RS-V1",
+   "reason": "rigid-family component weight replaces the member's distributed weight (W-15 §3)"
+  },
+  {
+   "member": "pipe:RS-P040",
+   "section": "section:RS-S270",
+   "carries": "no distributed weight",
+   "by": "component:RS-F2",
+   "reason": "rigid-family component weight replaces the member's distributed weight (W-15 §3)"
+  },
+  {
+   "member": "pipe:RS-P050",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "11/5",
+   "weight_N": {"exact": "(14995099229957/20000000000)*pi", "decimal": "2.355424679034143842091301453556258745406e+3", "value": 2355.424679034144},
+   "first_moment_N_m": [
+    {"exact": "(44985297689871/25000000000)*pi", "decimal": "5.653019229681945221019123488535020988975e+3", "value": 5653.019229681945},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(14995099229957/20000000000)*pi", "decimal": "2.355424679034143842091301453556258745406e+3", "value": 2355.424679034144}
+   ],
+   "centroid_m": ["12/5", "0", "1"]
+  },
+  {
+   "member": "pipe:RS-P060",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "21/10",
+   "weight_N": {"exact": "(28627007620827/40000000000)*pi", "decimal": "2.248359920896228212905333205667337893342e+3", "value": 2248.3599208962282},
+   "first_moment_N_m": [
+    {"exact": "(2605057693495257/800000000000)*pi", "decimal": "1.023003764007783836871926608578638741471e+4", "value": 10230.037640077839},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(28627007620827/40000000000)*pi", "decimal": "2.248359920896228212905333205667337893342e+3", "value": 2248.3599208962282}
+   ],
+   "centroid_m": ["91/20", "0", "1"]
+  },
+  {
+   "member": "pipe:RS-P065",
+   "section": "section:RS-S270",
+   "kind": "arc",
+   "length_m": "(2/5)*pi/2",
+   "weight_N": {"exact": "(1363190839087/20000000000)*pi^2", "decimal": "6.727077152488875436237822594048860039614e+2", "value": 672.7077152488876},
+   "first_moment_N_m": [
+    {"exact": "(1363190839087/25000000000)*pi + (9542335873609/25000000000)*pi^2", "decimal": "3.938466818414435250990729849289634985486e+3", "value": 3938.4668184144352},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(-1363190839087/25000000000)*pi + (9542335873609/100000000000)*pi^2", "decimal": "7.704871883277775543757459665445670422437e+2", "value": 770.4871883277775}
+   ]
+  },
+  {
+   "member": "pipe:RS-P070",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "13/5",
+   "weight_N": {"exact": "(17721480908131/20000000000)*pi", "decimal": "2.783683711585806358835174445111942153662e+3", "value": 2783.6837115858066},
+   "first_moment_N_m": [
+    {"exact": "(53164442724393/10000000000)*pi", "decimal": "1.670210226951483815301104667067165292197e+4", "value": 16702.10226951484},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(478479984519537/200000000000)*pi", "decimal": "7.515946021281677168854971001802243814887e+3", "value": 7515.9460212816775}
+   ],
+   "centroid_m": ["6", "0", "27/10"]
+  },
+  {
+   "member": "pipe:RS-P080",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "13/5",
+   "weight_N": {"exact": "(17721480908131/20000000000)*pi", "decimal": "2.783683711585806358835174445111942153662e+3", "value": 2783.6837115858066},
+   "first_moment_N_m": [
+    {"exact": "(53164442724393/10000000000)*pi", "decimal": "1.670210226951483815301104667067165292197e+4", "value": 16702.10226951484},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(939238488130943/200000000000)*pi", "decimal": "1.475352367140477370182642455909329341441e+4", "value": 14753.523671404773}
+   ],
+   "centroid_m": ["6", "0", "53/10"]
+  },
+  {
+   "member": "pipe:RS-P085",
+   "section": "section:RS-S270",
+   "kind": "arc",
+   "length_m": "(2/5)*pi/2",
+   "weight_N": {"exact": "(1363190839087/20000000000)*pi^2", "decimal": "6.727077152488875436237822594048860039614e+2", "value": 672.7077152488876},
+   "first_moment_N_m": [
+    {"exact": "(4089572517261/10000000000)*pi^2", "decimal": "4.036246291493325261742693556429316023768e+3", "value": 4036.2462914933253},
+    {"exact": "(-1363190839087/25000000000)*pi + (1363190839087/50000000000)*pi^2", "decimal": "9.777947307889001075196370713968103828229e+1", "value": 97.77947307889},
+    {"exact": "(1363190839087/25000000000)*pi + (44985297689871/100000000000)*pi^2", "decimal": "4.611174533663322794614512108694520989448e+3", "value": 4611.174533663323}
+   ]
+  },
+  {
+   "member": "pipe:RS-P090",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "13/5",
+   "weight_N": {"exact": "(17721480908131/20000000000)*pi", "decimal": "2.783683711585806358835174445111942153662e+3", "value": 2783.6837115858066},
+   "first_moment_N_m": [
+    {"exact": "(53164442724393/10000000000)*pi", "decimal": "1.670210226951483815301104667067165292197e+4", "value": 16702.10226951484},
+    {"exact": "(301265175438227/200000000000)*pi", "decimal": "4.732262309695870810019796556690301661225e+3", "value": 4732.2623096958705},
+    {"exact": "(124050366356917/20000000000)*pi", "decimal": "1.948578598110064451184622111578359507563e+4", "value": 19485.785981100646}
+   ],
+   "centroid_m": ["6", "17/10", "7"]
+  },
+  {
+   "member": "pipe:RS-P100",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "4",
+   "weight_N": {"exact": "(1363190839087/1000000000)*pi", "decimal": "4.282590325516625167438729915556834082557e+3", "value": 4282.590325516625},
+   "first_moment_N_m": [
+    {"exact": "(4089572517261/500000000)*pi", "decimal": "2.569554195309975100463237949334100449534e+4", "value": 25695.54195309975},
+    {"exact": "(1363190839087/200000000)*pi", "decimal": "2.141295162758312583719364957778417041278e+4", "value": 21412.951627583127},
+    {"exact": "(9542335873609/1000000000)*pi", "decimal": "2.997813227861637617207110940889783857790e+4", "value": 29978.132278616376}
+   ],
+   "centroid_m": ["6", "5", "7"]
+  },
+  {
+   "member": "pipe:RS-P110",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "4",
+   "weight_N": {"exact": "(1363190839087/1000000000)*pi", "decimal": "4.282590325516625167438729915556834082557e+3", "value": 4282.590325516625},
+   "first_moment_N_m": [
+    {"exact": "(4089572517261/500000000)*pi", "decimal": "2.569554195309975100463237949334100449534e+4", "value": 25695.54195309975},
+    {"exact": "(12268717551783/1000000000)*pi", "decimal": "3.854331292964962650694856924001150674301e+4", "value": 38543.312929649626},
+    {"exact": "(9542335873609/1000000000)*pi", "decimal": "2.997813227861637617207110940889783857790e+4", "value": 29978.132278616376}
+   ],
+   "centroid_m": ["6", "9", "7"]
+  },
+  {
+   "member": "pipe:RS-P120",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "4",
+   "weight_N": {"exact": "(1363190839087/1000000000)*pi", "decimal": "4.282590325516625167438729915556834082557e+3", "value": 4282.590325516625},
+   "first_moment_N_m": [
+    {"exact": "(4089572517261/500000000)*pi", "decimal": "2.569554195309975100463237949334100449534e+4", "value": 25695.54195309975},
+    {"exact": "(17721480908131/1000000000)*pi", "decimal": "5.567367423171612717670348890223884307324e+4", "value": 55673.674231716126},
+    {"exact": "(9542335873609/1000000000)*pi", "decimal": "2.997813227861637617207110940889783857790e+4", "value": 29978.132278616376}
+   ],
+   "centroid_m": ["6", "13", "7"]
+  },
+  {
+   "member": "pipe:RS-P130",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "3",
+   "weight_N": {"exact": "(4089572517261/4000000000)*pi", "decimal": "3.211942744137468875579047436667625561918e+3", "value": 3211.9427441374687},
+   "first_moment_N_m": [
+    {"exact": "(12268717551783/2000000000)*pi", "decimal": "1.927165646482481325347428462000575337151e+4", "value": 19271.656464824813},
+    {"exact": "(134955893069613/8000000000)*pi", "decimal": "5.299705527826823644705428270501582177164e+4", "value": 52997.055278268235},
+    {"exact": "(28627007620827/4000000000)*pi", "decimal": "2.248359920896228212905333205667337893342e+4", "value": 22483.59920896228}
+   ],
+   "centroid_m": ["6", "33/2", "7"]
+  },
+  {
+   "member": "pipe:RS-P140",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "2",
+   "weight_N": {"exact": "(1363190839087/2000000000)*pi", "decimal": "2.141295162758312583719364957778417041278e+3", "value": 2141.2951627583125},
+   "first_moment_N_m": [
+    {"exact": "(4089572517261/1000000000)*pi", "decimal": "1.284777097654987550231618974667050224767e+4", "value": 12847.770976549875},
+    {"exact": "(25900625942653/2000000000)*pi", "decimal": "4.068460809240793909066793419778992378429e+4", "value": 40684.608092407936},
+    {"exact": "(9542335873609/2000000000)*pi", "decimal": "1.498906613930818808603555470444891928895e+4", "value": 14989.066139308188}
+   ],
+   "centroid_m": ["6", "19", "7"]
+  },
+  {
+   "member": "pipe:RS-P150",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": "(1/40)*sqrt(257)",
+   "weight_N": {"exact": "(1363190839087/160000000000)*pi*sqrt(257)", "decimal": "4.290946607268396008271879672413883167837e+2", "value": 429.0946607268396},
+   "first_moment_N_m": [
+    {"exact": "(4089572517261/80000000000)*pi*sqrt(257)", "decimal": "2.574567964361037604963127803448329900702e+3", "value": 2574.5679643610374},
+    {"exact": "(137682274747787/800000000000)*pi*sqrt(257)", "decimal": "8.667712146682159936709196938276043999030e+3", "value": 8667.712146682159},
+    {"exact": "(762023679049633/12800000000000)*pi*sqrt(257)", "decimal": "2.998298941828791710779975921099200863526e+3", "value": 2998.2989418287916}
+   ],
+   "centroid_m": ["6", "101/5", "559/80"]
+  },
+  {
+   "member": "pipe:RS-P160",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": "13/5",
+   "weight_N": {"exact": "(19603491977069/31250000000)*pi", "decimal": "1.970757964155725500556447139577145380235e+3", "value": 1970.7579641557254},
+   "first_moment_N_m": [
+    {"exact": "(58810475931207/15625000000)*pi", "decimal": "1.182454778493435300333868283746287228141e+4", "value": 11824.547784934353},
+    {"exact": "(4253957759023973/312500000000)*pi", "decimal": "4.276544782217924336207490292882405475111e+4", "value": 42765.447822179245},
+    {"exact": "(5469374261602251/1250000000000)*pi", "decimal": "1.374603679998618536638121879855058902714e+4", "value": 13746.036799986185}
+   ],
+   "centroid_m": ["6", "217/10", "279/40"]
+  },
+  {
+   "member": "pipe:RS-P170",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": "2",
+   "weight_N": {"exact": "(1507960921313/3125000000)*pi", "decimal": "1.515967664735173461966497799674727215566e+3", "value": 1515.9676647351735},
+   "first_moment_N_m": [
+    {"exact": "(4523882763939/1562500000)*pi", "decimal": "9.095805988411040771798986798048363293394e+3", "value": 9095.80598841104},
+    {"exact": "(4523882763939/390625000)*pi", "decimal": "3.638322395364416308719594719219345317358e+4", "value": 36383.22395364416},
+    {"exact": "(420721097046327/125000000000)*pi", "decimal": "1.057387446152783489721632215273122232857e+4", "value": 10573.874461527836}
+   ],
+   "centroid_m": ["6", "24", "279/40"]
+  },
+  {
+   "member": "pipe:RS-P180",
+   "section": "section:RS-S220",
+   "carries": "no distributed weight",
+   "by": "component:RS-EJ1",
+   "reason": "replaced span: carries no weight (spec §5.1)"
+  },
+  {
+   "member": "pipe:RS-P190",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": "12/5",
+   "weight_N": {"exact": "(4523882763939/7812500000)*pi", "decimal": "1.819161197682208154359797359609672658679e+3", "value": 1819.1611976822082},
+   "first_moment_N_m": [
+    {"exact": "(13571648291817/3906250000)*pi", "decimal": "1.091496718609324892615878415765803595207e+4", "value": 10914.967186093249},
+    {"exact": "(303100145183913/19531250000)*pi", "decimal": "4.875352009788317853684256923753922725259e+4", "value": 48753.52009788318},
+    {"exact": "(1262163291138981/312500000000)*pi", "decimal": "1.268864935383340187665958658327746679428e+4", "value": 12688.649353833402}
+   ],
+   "centroid_m": ["6", "134/5", "279/40"]
+  },
+  {
+   "member": "pipe:RS-P200",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": "2",
+   "weight_N": {"exact": "(1507960921313/3125000000)*pi", "decimal": "1.515967664735173461966497799674727215566e+3", "value": 1515.9676647351735},
+   "first_moment_N_m": [
+    {"exact": "(4523882763939/1562500000)*pi", "decimal": "9.095805988411040771798986798048363293394e+3", "value": 9095.80598841104},
+    {"exact": "(43730866718077/3125000000)*pi", "decimal": "4.396306227732003039702843619056708925140e+4", "value": 43963.06227732003},
+    {"exact": "(420721097046327/125000000000)*pi", "decimal": "1.057387446152783489721632215273122232857e+4", "value": 10573.874461527836}
+   ],
+   "centroid_m": ["6", "29", "279/40"]
+  },
+  {
+   "member": "pipe:RS-P210",
+   "section": "section:RS-S170",
+   "kind": "straight",
+   "length_m": "5/2",
+   "weight_N": {"exact": "(15479094672727/40000000000)*pi", "decimal": "1.215725252701501201255712708738003718031e+3", "value": 1215.7252527015012},
+   "first_moment_N_m": [
+    {"exact": "(46437284018181/20000000000)*pi", "decimal": "7.294351516209007207534276252428022308184e+3", "value": 7294.351516209007},
+    {"exact": "(46437284018181/8000000000)*pi", "decimal": "1.823587879052251801883569063107005577046e+4", "value": 18235.878790522518},
+    {"exact": "(356019177472721/160000000000)*pi", "decimal": "6.990420203033631907220348075243521378677e+3", "value": 6990.420203033632}
+   ],
+   "centroid_m": ["6", "15", "23/4"]
+  },
+  {
+   "member": "pipe:RS-P220",
+   "section": "section:RS-S170",
+   "kind": "straight",
+   "length_m": "9/4",
+   "weight_N": {"exact": "(139311852054543/400000000000)*pi", "decimal": "1.094152727431351081130141437864203346228e+3", "value": 1094.152727431351},
+   "first_moment_N_m": [
+    {"exact": "(417935556163629/200000000000)*pi", "decimal": "6.564916364588106486780848627185220077366e+3", "value": 6564.916364588106},
+    {"exact": "(417935556163629/80000000000)*pi", "decimal": "1.641229091147026621695212156796305019341e+4", "value": 16412.290911470267},
+    {"exact": "(3761420005472661/3200000000000)*pi", "decimal": "3.692765455080809898814227352791686293518e+3", "value": 3692.7654550808097}
+   ],
+   "centroid_m": ["6", "15", "27/8"]
+  },
+  {
+   "member": "pipe:RS-P225",
+   "section": "section:RS-S170",
+   "kind": "arc",
+   "length_m": "(1/4)*pi/2",
+   "weight_N": {"exact": "(15479094672727/800000000000)*pi^2", "decimal": "1.909656761335315554903627652523844483193e+2", "value": 190.96567613353156},
+   "first_moment_N_m": [
+    {"exact": "(-15479094672727/1600000000000)*pi + (15479094672727/128000000000)*pi^2", "decimal": "1.163142344517034691783374465108952709045e+3", "value": 1163.1423445170346},
+    {"exact": "(46437284018181/160000000000)*pi^2", "decimal": "2.864485142002973332355441478785766724789e+3", "value": 2864.485142002973},
+    {"exact": "(-15479094672727/1600000000000)*pi + (139311852054543/3200000000000)*pi^2", "decimal": "3.992796399829084698219234040994149157676e+2", "value": 399.27963998290846}
+   ]
+  },
+  {
+   "member": "pipe:RS-P230",
+   "section": "section:RS-S170",
+   "kind": "straight",
+   "length_m": "7/4",
+   "weight_N": {"exact": "(108353662709089/400000000000)*pi", "decimal": "8.510076768910508408789988961166026026215e+2", "value": 851.0076768910509},
+   "first_moment_N_m": [
+    {"exact": "(6176158774418073/3200000000000)*pi", "decimal": "6.063429697848737241262867134830793543678e+3", "value": 6063.429697848737},
+    {"exact": "(325060988127267/80000000000)*pi", "decimal": "1.276511515336576261318498344174903903932e+4", "value": 12765.115153365763},
+    {"exact": "(108353662709089/200000000000)*pi", "decimal": "1.702015353782101681757997792233205205243e+3", "value": 1702.0153537821018}
+   ],
+   "centroid_m": ["57/8", "15", "2"]
+  }
+ ],
+ "components": [
+  {
+   "component": "component:RS-F1",
+   "kind": "flange",
+   "node": "node:RS-030",
+   "replaces_member": "pipe:RS-P020",
+   "weight_N": {"exact": "(350)", "decimal": "3.500000000000000000000000000000000000000e+2", "value": 350.0},
+   "center_of_gravity_m": ["-3/40", "0", "0"],
+   "position_m": ["19/40", "0", "1"],
+   "first_moment_N_m": [
+    {"exact": "(665/4)", "decimal": "1.662500000000000000000000000000000000000e+2", "value": 166.25},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(350)", "decimal": "3.500000000000000000000000000000000000000e+2", "value": 350.0}
+   ]
+  },
+  {
+   "component": "component:RS-F2",
+   "kind": "flange",
+   "node": "node:RS-050",
+   "replaces_member": "pipe:RS-P040",
+   "weight_N": {"exact": "(350)", "decimal": "3.500000000000000000000000000000000000000e+2", "value": 350.0},
+   "center_of_gravity_m": ["-3/40", "0", "0"],
+   "position_m": ["49/40", "0", "1"],
+   "first_moment_N_m": [
+    {"exact": "(1715/4)", "decimal": "4.287500000000000000000000000000000000000e+2", "value": 428.75},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(350)", "decimal": "3.500000000000000000000000000000000000000e+2", "value": 350.0}
+   ]
+  },
+  {
+   "component": "component:RS-V1",
+   "kind": "valve",
+   "node": "node:RS-040",
+   "replaces_member": "pipe:RS-P030",
+   "weight_N": {"exact": "(2600)", "decimal": "2.600000000000000000000000000000000000000e+3", "value": 2600.0},
+   "center_of_gravity_m": ["-3/10", "0", "3/10"],
+   "position_m": ["17/20", "0", "13/10"],
+   "first_moment_N_m": [
+    {"exact": "(2210)", "decimal": "2.210000000000000000000000000000000000000e+3", "value": 2210.0},
+    {"exact": "0", "decimal": "0", "value": 0.0},
+    {"exact": "(3380)", "decimal": "3.380000000000000000000000000000000000000e+3", "value": 3380.0}
+   ]
+  }
+ ]
+}

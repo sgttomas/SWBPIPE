@@ -69,10 +69,10 @@ PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_ver
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
-# signatures: 135 over 68.
-TABLE_SHA256 = "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919"
-TABLE_SIGNATURE_COUNT = 135
-TABLE_KIND_COUNT = 68
+# signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
+TABLE_SHA256 = "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6"
+TABLE_SIGNATURE_COUNT = 137
+TABLE_KIND_COUNT = 69
 
 # Refusals by name.
 CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
@@ -773,7 +773,7 @@ def _physics(source: Mapping[str, Any]) -> None:
 def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any],
          marked: set[str], arc_extrema: list[tuple[str, str, Any, Any]]) -> None:
     """T4-U4b (§5.1) on pressure-2: σ±, τ (bit for bit with the case's ν and basis sections), hoop and radial
-    (bit-equal from the region's p and R); the arc maxima with their station cover; the directional records."""
+    (bit-equal from the region's p and R); the arc maxima with their station cover; the directional and branch records."""
     results = source.get("results", [])
     index = u4b.Rows(results)
     u4b.twin_order(results, marked)
@@ -805,10 +805,12 @@ def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[s
                 covers[cid, pid, basis] = cover
         records = case.get("intensified_measures", [])
         bound = u4b.directional_records(cid, records, rows, index, marked, True)
+        # RT-A3 increment 1: the branch records, by their own key set.
+        bound |= u4b.branch_records(cid, records, rows, index)
         _require(len(bound) == len(records), "intensified record shape")
         for row in results:
-            if row.get("kind") in (u4b.DIRECTIONAL, u4b.DIRECTIONAL_MAX) and row.get("basis_ref", {}).get("ref_id") == cid:
-                _require(row["id"] in bound, "unbound directional row")
+            if row.get("kind") in (u4b.DIRECTIONAL, u4b.DIRECTIONAL_MAX, u4b.BRANCH) and row.get("basis_ref", {}).get("ref_id") == cid:
+                _require(row["id"] in bound, "unbound branch row" if row["kind"] == u4b.BRANCH else "unbound directional row")
     for cid, pid, record, row in arc_extrema:
         _require((row.get("metadata") or {}).get("sign_convention") == u4b.ARC_MAXIMUM_SIGN, "arc maximum sign")
         u4b.maximum_record(record, row, u4b.ARC_TOKENS[0], covers.get((cid, pid, record["section_basis"]), []))

@@ -31,7 +31,10 @@ TOP_PIN = "cca9abee30dd68b4fe7d47785d92f4805a921d74742c64687cd7e4542f8be0f9"
 # rigid-family component, 0 on D1 by P2) and one append_mapping_conflicts after the loop (its member map is W15-PM,
 # w15_owners_model); the node-degree map (W8-ND) and the branch check are unchanged.
 BODY_PINS = {
-    (VAL, "validate_components"): "9d8298d673d6b5e660c38ff8980c7ce94799cf227231757e906598eacb53e33d",
+    # §8.33 (main 7c457cf0b/6b34c4559, the bend SIF warning fix, carried with RT-A3 increment 1): the bend
+    # modifier warning picks one of two static texts by bend_scalar_sif_on_realized_arc, inside the component loop (0 on
+    # D1, D1.4); the node-degree map (W8-ND) is unchanged.
+    (VAL, "validate_components"): "47c36c4e2006118a867d3ed9f608507aabc21d418eb9c65412a76d0d972c7471",
     (VAL, "branch_topology_invalid"): "22c8a42d2750e8145c94e009bd9c6fe7f3a5965926aae487a5948b6db34206ae",
 }
 NAMED = 6

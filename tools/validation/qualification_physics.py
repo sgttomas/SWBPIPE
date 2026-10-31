@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
+TABLE_SHA256 = '5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -53,10 +53,12 @@ DEPENDENCIES = {
     # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
     # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
     # reads the document without its combination rows and records, then the combination pass re-derives them
-    # (was ef200d25...); then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction
-    # magnitudes of arc tangents"): an arc term binds its magnitude exactly to its arc's published end tangent, and
-    # joint-area groups bind only to their connector axis (was c82a0f11...).
-    MODULE: '1c60e0d6bb2383a3adf72f4747f04abdb179aa10d306db39e8aaa74006b3bd6f',
+    # (was ef200d25...); then RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): the
+    # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...);
+    # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
+    # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
+    # connector axis (was f27242f0...).
+    MODULE: 'b3cb5f6dd91b8ef45c93effdbdea3523044375d9bae7044e7d66c9d5a72a4e6b',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
