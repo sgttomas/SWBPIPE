@@ -706,9 +706,14 @@ mod tests {
 
     #[test]
     fn wide_add_propagates_a_non_finite_operand() {
+        // A NaN more than 2¹⁰⁰⁰ below the other addend's exponent (2²⁰⁰⁰
+        // here) was dropped as negligible, giving ∞.
         let nan = w(f64::NAN);
-        assert!(w(two_pow(1000)).add(nan).to_f64().is_nan());
-        assert!(nan.add(w(two_pow(-1000))).to_f64().is_nan());
+        let huge = w(two_pow(1000)).mul(w(two_pow(1000)));
+        assert!(huge.add(nan).to_f64().is_nan());
+        assert!(nan.add(huge).to_f64().is_nan());
+        let tiny = w(two_pow(-1000)).mul(w(two_pow(-1000)));
+        assert!(nan.add(tiny).to_f64().is_nan());
         assert_eq!(w(two_pow(-1000)).add(w(f64::INFINITY)).to_f64(), f64::INFINITY);
         assert!(w(f64::INFINITY).add(w(f64::NEG_INFINITY)).to_f64().is_nan());
         // √ and its range.
