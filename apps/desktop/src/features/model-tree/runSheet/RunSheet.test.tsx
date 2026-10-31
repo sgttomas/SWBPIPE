@@ -445,3 +445,195 @@ describe("run sheet S1 fixture batches queued from the UI (§7 S2)", () => {
     else expect(register.mock.calls[0][0]).toEqual(expected);
   });
 });
+
+describe("run sheet ids and sources, padding and pipe numbering (G1–G3; §1.2, §3.2)", () => {
+  it("the Ids and sources group is shown and hidden like Section extras, with labelled cells whose origin is derived until entered", () => {
+    renderSheet();
+    const toggle = screen.getByRole("button", { name: "Ids and sources" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("run-sheet-cell-r1-supportId")).toBeNull();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Section extras" })).toHaveAttribute("aria-expanded", "false");
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "3");
+    type("r2", "material", "material:steel");
+    code("r2", "support", "a");
+    type("r2", "restraints", "*");
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N20");
+    expect(cell("r2", "supportId")).toHaveAccessibleDescription(/^derived: support: and the support node's id token/);
+    expect(cell("r2", "supportLabel")).toHaveAccessibleName("Row 2 Support label: N20");
+    type("r2", "supportId", "support:RS-A");
+    type("r2", "supportLabel", "Anchor A (invented)");
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:RS-A");
+    expect(cell("r2", "supportId")).toHaveAccessibleDescription(/^entered/);
+    expect(cell("r2", "supportLabel")).toHaveAccessibleName("Row 2 Support label: Anchor A (invented)");
+    // Clearing an entered id returns it to its derived value.
+    act(() => cell("r2", "supportId").focus());
+    fireEvent.keyDown(cell("r2", "supportId"), { key: "Backspace" });
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N20");
+    // Bend cells on a row that is not a bend are refused, and the refusal names the cell.
+    expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id:");
+    type("r2", "bendStartId", "node:X");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleDescription(/refused: Bend start id applies only to B rows; clear it\./);
+    type("r2", "bendSource", "s", { key: "Tab" });
+    expect(cell("r2", "bendSource")).toHaveAccessibleDescription(/refused: Bend geometry source applies only to B rows; clear it\./);
+    // Tab moves from Pipe id into the group, in column order.
+    act(() => cell("r2", "pipeId").focus());
+    fireEvent.keyDown(cell("r2", "pipeId"), { key: "Tab" });
+    expect(cell("r2", "supportId")).toHaveFocus();
+    fireEvent.click(toggle);
+    expect(screen.queryByTestId("run-sheet-cell-r2-supportId")).toBeNull();
+  });
+
+  it("a bend row shows its derived ids and the sheet's Source until they are entered", () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole("button", { name: "Ids and sources" }));
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    code("r2", "kind", "b");
+    type("r2", "dx", "3");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id: node:N20-T1");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleDescription(/^derived: the corner node's id token/);
+    expect(cell("r2", "bendSource")).toHaveAccessibleName("Row 2 Bend geometry source: invented sheet source");
+    expect(cell("r2", "bendSource")).toHaveAccessibleDescription(/^derived: the sheet's Source/);
+    type("r2", "bendArcId", "pipe:B1-ARC");
+    type("r2", "bendSource", "invented bend geometry source");
+    expect(cell("r2", "bendArcId")).toHaveAccessibleName("Row 2 Bend arc id: pipe:B1-ARC");
+    expect(cell("r2", "bendArcId")).toHaveAccessibleDescription(/^entered/);
+    expect(cell("r2", "bendSource")).toHaveAccessibleName("Row 2 Bend geometry source: invented bend geometry source");
+    // An entered id that the model holds is refused in its own cell.
+    type("r2", "bendEndId", "node:A");
+    expect(cell("r2", "bendEndId")).toHaveAccessibleDescription(/refused: Bend end id node:A now exists in the model\./);
+  });
+
+  it("pads numbers and numbers a pipe by its start node; both fields are labelled and fixed once a row has a number", () => {
+    renderSheet();
+    const pad = screen.getByLabelText("Pad numbers to N digits");
+    const from = screen.getByLabelText("Pipe number from");
+    expect(pad).toHaveValue("");
+    expect(from).toHaveValue("end");
+    fireEvent.change(screen.getByLabelText("Node id prefix"), { target: { value: "node:RS-" } });
+    fireEvent.change(screen.getByLabelText("Pipe id prefix"), { target: { value: "pipe:RS-P" } });
+    fireEvent.change(pad, { target: { value: "3" } });
+    fireEvent.change(from, { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    expect(pad).toBeEnabled();
+    code("r1", "kind", "p");
+    expect(screen.getByLabelText("Pad numbers to N digits")).toBeDisabled();
+    expect(screen.getByLabelText("Pipe number from")).toBeDisabled();
+    expect(screen.getByLabelText("Node id prefix")).toBeDisabled();
+    type("r1", "dx", "30");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "0.4");
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id: node:RS-010");
+    expect(cell("r2", "nodeId")).toHaveAccessibleName("Row 2 Node id: node:RS-020");
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:RS-P010");
+    expect(cell("r2", "pipeId")).toHaveAccessibleDescription(/^derived: the sheet's numbering, by its start node node:RS-010 \(row 1\)/);
+  });
+
+  it("an invalid padding disables Queue with the reason", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pad numbers to N digits"), { target: { value: "0" } });
+    expect(screen.getByTestId("run-sheet-queue-reason")).toHaveTextContent("Pad numbers to a whole number of digits from 1 to 16, or leave it blank.");
+  });
+});
+
+describe("run sheet review regressions (PR #41)", () => {
+  const tabStops = () => [...document.querySelectorAll<HTMLElement>("[data-cell]")].filter((element) => element.tabIndex === 0).map((element) => element.dataset.cell);
+
+  it("finding 1: a pipe id numbered by its start node is fixed once shown; inserting a run before it does not rename it", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pipe number from"), { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    code("r1", "kind", "p");
+    type("r1", "dx", "30");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1");
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P10");
+    // Insert a run between rows 1 and 2: row 2 now starts at the new row's node, and keeps pipe:P10.
+    act(() => cell("r2", "dx").focus());
+    fireEvent.keyDown(cell("r2", "dx"), { key: "F10", shiftKey: true });
+    fireEvent.click(within(screen.getByRole("menu")).getByText("Insert row above").closest("[role='menuitem']")!);
+    type("r3", "dy", "1");
+    expect(screen.getByTestId("run-sheet-row-header-r3")).toHaveAccessibleName(/^Row 2, run/);
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 3 Pipe id: pipe:P10");
+    expect(cell("r2", "pipeId")).toHaveAccessibleDescription(/^derived: the sheet's numbering, by its start node node:N10 \(row 1\), fixed when first shown/);
+    expect(cell("r3", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P30");
+    expect(cell("r3", "pipeId")).toHaveAccessibleDescription(/pipe:P10 is already taken by another pipe/);
+    expect(harness.store!.current().idState.pipes).toEqual({
+      r2: { id: "pipe:P10", rule: "the sheet's numbering, by its start node node:N10 (row 1)" },
+      r3: { id: "pipe:P30", rule: "the sheet's numbering, by its end node; pipe:P10 is already taken by another pipe" },
+    });
+  });
+
+  it("finding 1: a row shown with no start node fixes no pipe id, so a first row typed dX-first leaves the next run pipe:P10", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pipe number from"), { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    // The fast path: dX, dY, dZ, then Kind. Until Kind is P, row 1 is a run with no current node.
+    type("r1", "dx", "30");
+    type("r1", "dy", "30");
+    expect(harness.store!.current().idState.pipes ?? {}).toEqual({});
+    code("r1", "kind", "p");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1");
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P10");
+  });
+
+  it("re-check finding 2: Ctrl+Enter that commits a run's first dX and queues registers the batch with the pipe id it shows", async () => {
+    const validate = vi.spyOn(operationBatchService, "validateOperationBatch");
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pipe number from"), { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    code("r1", "kind", "p");
+    type("r1", "dx", "30");
+    type("r1", "dy", "30");
+    for (const [column, text] of [["od", "0.1143"], ["wall", "0.00602"], ["material", "material:steel"], ["orientation", "0 0 1"]] as const) type("r1", column, text, { key: "Tab" });
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1", { key: "Enter", ctrlKey: true });
+    await waitFor(() => expect(live()).toHaveTextContent(/Queued rows 1, 2 as batch:run-sheet-sheet-1-1|changed while the batch was built|Queue (refused|failed)/));
+    expect(live()).toHaveTextContent("Queued rows 1, 2 as batch:run-sheet-sheet-1-1");
+    expect(register).toHaveBeenCalledTimes(1);
+    const batch = register.mock.calls[0][0] as OperationBatch;
+    expect(batch.operations.find((op) => op.change.change_kind === "connect_pipe_run")!.target.ref).toBe("pipe:P10");
+    expect(validate).toHaveBeenCalled();
+    expect(harness.store!.current().idState.pipes).toEqual({ r2: { id: "pipe:P10", rule: "the sheet's numbering, by its start node node:N10 (row 1)" } });
+  });
+
+  it("finding 3: collapsing a group that holds the focused cell moves the tab stop to a shown cell of the same row (both groups)", () => {
+    renderSheet();
+    for (const [group, hidden, before] of [["Ids and sources", "supportId", "pipeId"], ["Section extras", "millTolerance", "contentsDensity"]] as const) {
+      fireEvent.click(screen.getByRole("button", { name: group }));
+      act(() => cell("r1", hidden).focus());
+      expect(tabStops()).toEqual([`r1|${hidden}`]);
+      fireEvent.click(screen.getByRole("button", { name: group }));
+      expect(screen.queryByTestId(`run-sheet-cell-r1-${hidden}`)).toBeNull();
+      expect(tabStops()).toEqual([`r1|${before}`]);
+    }
+  });
+
+  it("finding 4: correcting the numbering numbers the rows it refused, for padding and for Start", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    fireEvent.change(screen.getByLabelText("Pad numbers to N digits"), { target: { value: "0" } });
+    code("r1", "kind", "p");
+    type("r1", "dx", "30");
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id:");
+    expect(cell("r1", "nodeId")).toHaveAccessibleDescription(/refused: Pad numbers to a whole number of digits from 1 to 16/);
+    fireEvent.change(screen.getByLabelText("Pad numbers to N digits"), { target: { value: "3" } });
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id: node:N010");
+    expect(cell("r1", "nodeId")).not.toHaveAccessibleDescription(/refused/);
+  });
+
+  it("finding 4: a corrected Start numbers a refused row too", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    fireEvent.change(screen.getByLabelText("Numbering start"), { target: { value: "x" } });
+    code("r1", "kind", "p");
+    expect(cell("r1", "nodeId")).toHaveAccessibleDescription(/refused: Numbering needs a whole start/);
+    fireEvent.change(screen.getByLabelText("Numbering start"), { target: { value: "100" } });
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id: node:N100");
+  });
+});
