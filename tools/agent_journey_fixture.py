@@ -32,6 +32,7 @@ import fcntl
 import hashlib
 import http.server
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -60,6 +61,7 @@ TURNS = [
     "and rotations.",
 ]
 NODAL_KINDS = [f"global_nodal_{q}_{axis}" for q in ("displacement", "rotation") for axis in "xyz"]
+EXPECTED_TREE = [("node", "node:a"), ("node", "node:c"), ("node", "node:d")]
 LINE_LIMIT, OUTPUT_LIMIT = 16384, 2 * 1024 * 1024
 
 
@@ -280,15 +282,31 @@ def judge(report, reference, operations, captured=None):
         failures.append(f"driver: {report['error']}")
     if report.get("steps") != STEPS:
         failures.append(f"steps {report.get('steps')}")
+    # Each turn completed (the bare standing "Ready."; a failed or interrupted turn is not)
+    # and the agent answered in the window.
+    for name in ("turn1", "turn2"):
+        turn = report.get(name) or {}
+        if turn.get("standing") != "Ready.":
+            failures.append(f"{name} standing {turn.get('standing')!r}")
+        if not any(str(line).startswith("Agent:") for line in turn.get("messages") or []):
+            failures.append(f"{name}: no agent message in the window")
     batch = report.get("batch") or {}
     if not str(batch.get("batch_id", "")).startswith("agent-") or batch.get("batches_shown") != 1:
         failures.append("batch review did not show exactly one agent batch")
-    if f"{len(operations)} proposed changes" not in str(batch.get("summary")):
+    count = re.match(r"(\d+) proposed changes\b", str(batch.get("summary") or ""))
+    if not count or int(count.group(1)) != len(operations):
         failures.append(f"batch summary {batch.get('summary')!r}")
+    # The proposal context lists the batch's operations in order; they are the fixture's.
+    listed = "Operations: " + ", ".join(op["operation_id"] for op in operations)
+    context = str(batch.get("context") or "")
+    at = context.find(listed)
+    if at < 0 or context[at + len(listed):at + len(listed) + 1] in (",", *"0123456789"):
+        failures.append("batch context does not list exactly the fixture's operations")
     if not batch.get("apply_message"):
         failures.append("no batch receipt after Apply")
-    if not report.get("tree") or not all(report["tree"].values()):
-        failures.append(f"model tree rows {report.get('tree')}")
+    tree = report.get("tree") or {}
+    if set(tree) != {f"{kind}:{entity}" for kind, entity in EXPECTED_TREE} or not all(tree.values()):
+        failures.append(f"model tree rows {tree}")
     rows = (report.get("results") or {}).get("rows") or []
     shown = {}
     scales = reference["zero_scales"]
@@ -296,6 +314,7 @@ def judge(report, reference, operations, captured=None):
         if r["quantity"] != "nodal_motion" or r["entity"] != "node:c":
             continue
         q = "displacement" if r["component"].startswith("u") else "rotation"
+        unit = "mm" if q == "displacement" else "rad"
         # The Results section's row id for a nodal motion component, as the product forms it.
         row_id = f"result:disp:{r['entity'].replace(':', '-')}:{r['component']}"
         found = [row for row in rows if row["id"] == row_id]
@@ -303,12 +322,15 @@ def judge(report, reference, operations, captured=None):
         if parsed is None:
             failures.append(f"node:c {r['component']}: {len(found)} rows shown")
             continue
-        observed = parsed[0] / 1000.0 if q == "displacement" else parsed[0]
-        if (q == "displacement" and parsed[1] != "mm") or (q == "rotation" and parsed[1] != "rad"):
+        if not math.isfinite(parsed[0]):
+            failures.append(f"node:c {r['component']}: shown {parsed[0]!r} is not finite")
+            continue
+        if parsed[1] != unit:
             failures.append(f"node:c {r['component']}: unit {parsed[1]}")
+        observed = parsed[0] / 1000.0 if q == "displacement" else parsed[0]
         family = "translation" if q == "displacement" else "rotation"
         tolerance = 1e-9 * (abs(r["value"]) if r["value"] != 0 else abs(scales[family]["value"]))
-        shown[found[0]["id"]] = parsed[0]
+        shown[row_id] = (f"global_nodal_{q}_{r['component'][1]}", parsed[0], unit)
         if abs(observed - r["value"]) > tolerance:
             failures.append(f"node:c {r['component']}: shown {observed!r}, reference {r['value']!r}")
     if captured is not None:
@@ -324,11 +346,18 @@ def judge(report, reference, operations, captured=None):
             shown_hash = ((report.get("results") or {}).get("model_sha256") or "").removeprefix("sha256:")
             if shown_hash != (solve["data"]["evaluatedModelHash"] or {}).get("value"):
                 failures.append("the window's solve proof names another model hash")
-            for value in results["data"]["values"]:
-                if value["id"] in shown and value["value"] != shown[value["id"]]:
-                    failures.append(f"agent value {value['id']} differs from the window")
-            if len(results["data"]["values"]) != 6:
-                failures.append(f"agent read {len(results['data']['values'])} node:c motion values")
+            # The agent read exactly the six rows the window shows: same ids, kinds,
+            # entity, units and values.
+            read = {value.get("id"): value for value in results["data"]["values"]}
+            if len(read) != len(results["data"]["values"]) or set(read) != set(shown) or len(shown) != 6:
+                failures.append(f"agent read {sorted(read)}, the window shows {sorted(shown)}")
+            for row_id, (kind, value, unit) in shown.items():
+                item = read.get(row_id)
+                if item and (item.get("kind"), item.get("entityRef"), item.get("unit"), item.get("value")) != (kind, "node:c", unit, value):
+                    failures.append(f"agent value {row_id} differs from the window")
+            report_text = " ".join(str(line) for line in (report.get("turn2") or {}).get("messages") or [])
+            if not all(f"{item['kind']} {item['value']} {item['unit']}" in report_text for item in read.values()):
+                failures.append("the agent's report in the window omits a value it read")
     return failures
 
 
@@ -435,7 +464,7 @@ def run(args, key, root):
         plan = {"provider": {"endpoint": stub.endpoint if stub else args.endpoint, "model": args.model,
                              "contextWindow": args.context_window},
                 "turns": TURNS, "resultProbe": "node:c",
-                "expectTreeRows": [["node", "node:a"], ["node", "node:c"], ["node", "node:d"]],
+                "expectTreeRows": [list(row) for row in EXPECTED_TREE],
                 "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
         env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
                "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
@@ -504,10 +533,15 @@ def run(args, key, root):
         result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     finally:
         if app and app.poll() is None:
-            if observer is not None and anchor is None:
-                result["rescue"] = "supplier_observed_without_anchor"
-            app.kill()  # the original owned app only; the anchor below rescues its supplier's group.
-            app.wait(timeout=5)
+            if sdk is None and lines and (late := lines.scope()) and late.get("appPid") == app.pid:
+                sdk = late["sdkPid"]  # published after the loop's last look
+            anchor, outcome = release_app(app, sdk, anchor, lambda: anchor_start(args.process_probe, sdk, app))
+            if anchor is not None and not result.get("anchor"):
+                result["anchor"] = {"pid": anchor.pid, "group": sdk}
+            if outcome == "retained_original_app_custody":
+                result["rescue"] = outcome
+                result["passed"] = False
+                result["failure"] = result.get("failure") or outcome
             result.setdefault("app", {})["status"] = app.returncode
         if anchor is not None:
             try:
@@ -536,6 +570,45 @@ def run(args, key, root):
     return result
 
 
+def release_app(app, sdk, anchor, start_anchor, attempts=3, pause=.2):
+    """End a launch that did not end itself. The original app is the supplier's custodian
+    until an anchor holds the supplier's group: with a published supplier and no anchor,
+    one is tried while the app still holds it, and if none can be established the app is
+    left running (custody retained, the run fails) rather than killed, which could orphan
+    the supplier with no owned rescue. Otherwise the owned app is killed by its own
+    handle and the anchor, if any, rescues the supplier's group afterwards."""
+    if app.poll() is not None:
+        return anchor, None
+    for _ in range(attempts if sdk is not None and anchor is None else 0):
+        try:
+            anchor = start_anchor()
+            break
+        except Exception:  # noqa: BLE001  (never converted into a PID signal)
+            if app.poll() is not None:
+                break
+            time.sleep(pause)
+    if sdk is not None and anchor is None:
+        return anchor, "retained_original_app_custody"
+    app.kill()
+    app.wait(timeout=5)
+    return anchor, "killed_owned_app"
+
+
+KEY_BYTES = 8192
+
+
+def read_key(stream):
+    """One provider key line from the controller's stdin: at most 8192 printable ASCII
+    bytes without spaces, then a newline. Anything else is refused without echo."""
+    line = stream.readline(KEY_BYTES + 2)
+    if len(line) > KEY_BYTES + 1 or not line.endswith(b"\n"):
+        raise Refusal("key_input_refused")
+    key = line[:-1]
+    if not key or any(byte < 33 or byte > 126 for byte in key):
+        raise Refusal("key_input_refused")
+    return key.decode("ascii")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--app", type=Path, required=True, help="the native-smoke executable inside a private bundle copy")
@@ -556,7 +629,11 @@ def main():
         parser.error("live mode needs --endpoint")
     if args.mode == "stub" and args.key_stdin:
         parser.error("stub mode takes no key")
-    key = sys.stdin.readline().rstrip("\n") if args.key_stdin else None
+    try:
+        key = read_key(sys.stdin.buffer) if args.key_stdin else None
+    except Refusal as refusal:
+        print(f"refused: {refusal}", file=sys.stderr)
+        return 2
     args.output.mkdir(mode=0o700, parents=False, exist_ok=False)
     root = args.output.resolve()
     for name in ("app", "process_probe", "boundary_probe"):

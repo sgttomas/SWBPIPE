@@ -108,6 +108,19 @@ pub fn native_smoke_finish(app: AppHandle, report: Value) -> Result<(), String> 
     Ok(())
 }
 
+/// Whether stdin carries a provider key: only when the variable is absent is it not, and
+/// only the exact value `stdin` with the driver on stdin selects it. Any other value,
+/// including one that is not Unicode, is refused (no driver runs), so a key line can
+/// never fall through to the driver reader. The value is never echoed.
+#[cfg(target_os = "macos")]
+fn provider_key_on_stdin(value: Option<std::ffi::OsString>, driver: &str) -> Result<bool, ()> {
+    match value {
+        None => Ok(false),
+        Some(value) if value == "stdin" && driver == "-" => Ok(true),
+        Some(_) => Err(()),
+    }
+}
+
 #[cfg(target_os = "macos")]
 static PROVIDER_SECRET: Mutex<Option<crate::embedded_agent::relay_policy::Secret>> = Mutex::new(None);
 
@@ -168,6 +181,20 @@ mod input_tests {
 
     #[cfg(target_os = "macos")]
     #[test]
+    fn only_an_absent_variable_or_the_exact_value_stdin_is_accepted() {
+        use std::{ffi::OsString, os::unix::ffi::OsStringExt};
+        assert_eq!(super::provider_key_on_stdin(None, "-"), Ok(false));
+        assert_eq!(super::provider_key_on_stdin(None, "driver.js"), Ok(false));
+        assert_eq!(super::provider_key_on_stdin(Some("stdin".into()), "-"), Ok(true));
+        // A key line must never reach the driver reader: every other present value refuses.
+        for value in [OsString::from("stdin"), OsString::from("STDIN"), OsString::from(""), OsString::from("stdin "), OsString::from_vec(vec![0xff, b's'])] {
+            let file = value == "stdin";
+            assert_eq!(super::provider_key_on_stdin(Some(value), if file { "driver.js" } else { "-" }), Err(()));
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
     fn the_provider_key_is_taken_once() {
         use crate::embedded_agent::relay_policy::Secret;
         *super::PROVIDER_SECRET.lock().unwrap() = Some(Secret::new("invented-fixture-key".into()).unwrap());
@@ -192,13 +219,12 @@ pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
             return;
         };
         #[cfg(target_os = "macos")]
-        let with_key = std::env::var("SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY").ok();
+        let Ok(with_key) = provider_key_on_stdin(std::env::var_os("SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY"), &driver) else {
+            eprintln!("[native-smoke] SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY needs the value stdin and the driver on stdin; no driver started");
+            return;
+        };
         #[cfg(target_os = "macos")]
-        if with_key.is_some() {
-            if with_key.as_deref() != Some("stdin") || driver != "-" {
-                eprintln!("[native-smoke] SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY needs the value stdin and the driver on stdin; no driver started");
-                return;
-            }
+        if with_key {
             match read_stdin_key_and_driver(io::stdin().lock()) {
                 Ok((secret, script)) => {
                     let Ok(mut held) = PROVIDER_SECRET.lock() else { return };

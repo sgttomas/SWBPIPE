@@ -112,7 +112,7 @@
       const outcome = await waitFor("agent ready", () => {
         const alert = panel()?.querySelector('p[role="alert"]')?.textContent;
         if (alert) throw new Error(`start: ${alert}`);
-        if (standing().startsWith("Ready")) return { ready: standing() };
+        if (standing() === "Ready.") return { ready: standing() };
         const refusal = statusLines().find((line) => line.startsWith("Open a model and wait for its fingerprint") || line.startsWith("The request did not complete"));
         return refusal ? { refusal } : null;
       }, timeouts.start);
@@ -123,7 +123,9 @@
     }
   }
 
-  // One turn: type, Send, then wait for the turn to start and to end.
+  // One turn: type, Send, then wait for the turn to start and to end. Only the bare
+  // standing "Ready." is a completed turn; "Ready. The last turn failed." and an
+  // interrupted turn are failures, and a completed turn must have produced an agent message.
   async function turn(label, message, timeouts) {
     await showOperationTab("agent");
     const before = conversation().length;
@@ -134,9 +136,13 @@
     const ended = await waitFor(`${label}: turn ended`, () => {
       const alert = panel()?.querySelector('p[role="alert"]')?.textContent;
       if (alert) throw new Error(`${label}: ${alert}`);
-      return standing().startsWith("Ready") ? standing() : null;
+      const now = standing();
+      if (/failed|interrupted/i.test(now)) throw new Error(`${label}: ${now}`);
+      return now === "Ready." ? now : null;
     }, timeouts.turn);
-    return { standing: ended, messages: conversation().slice(before) };
+    const messages = conversation().slice(before);
+    if (!messages.some((line) => line?.startsWith("Agent:"))) throw new Error(`${label}: the turn ended without an agent message`);
+    return { standing: ended, messages };
   }
 
   // The stand-in click: Batch review's own Validate (when its preview gate asks) and Apply.

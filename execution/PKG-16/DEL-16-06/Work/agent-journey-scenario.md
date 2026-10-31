@@ -34,29 +34,40 @@ It establishes no acceptance, release or criterion 17 standing.
     controller checks the app identity, observes the supplier by kqueue
     (exit, exit status, fork), joins an owned anchor to its group, and only
     then writes `READY`;
-  - rescue is the anchor's own group, never a recorded PID; after the run the
-    supplier's zero exit and absence are required, and a read-only process
-    listing must find nothing naming the app copy, the run's HOME or the
-    supplier's runtime scope;
+  - rescue is the anchor's own group, never a recorded PID. A launch that does
+    not end itself is released by `release_app`: with a published supplier and
+    no anchor, one is tried while the app still holds the supplier, and if none
+    can be established the app is left running (custody retained, the run
+    fails) rather than killed, which could orphan the supplier with no owned
+    rescue. After the run the supplier's zero exit and absence are required,
+    and a read-only listing of executables must find nothing under the app
+    copy, the run's HOME or the supplier's runtime scope;
   - the fixture mode's standalone preflight (probes only, no supplier or relay)
     runs before each launch, the bundle's supplier must match the pin in
     `agent-witness-pin.json`, one attempt runs at a time on the host, and a
     system free-memory gate (default 50 GiB) applies;
-  - it judges: the seven driver steps; exactly one agent batch with the
-    fixture's 11 operations; a receipt after Apply; the expected tree rows; and
-    `node:c`'s six nodal motions as the Results section shows them against
-    `validation/references/w9_benchmarks/references.json` (W9-A) under that
-    file's criterion (relative 1e-9, zero rows on the family scale).
+  - it judges: the seven driver steps; each turn completed (the bare standing
+    "Ready."; a failed or interrupted turn is not) with an agent message in the
+    window; exactly one agent batch whose count is exactly the fixture's 11 and
+    whose proposal context lists exactly the fixture's operations in order; a
+    receipt after Apply; exactly the expected tree rows; and `node:c`'s six
+    nodal motions as the Results section shows them, each finite and in its
+    unit, against `validation/references/w9_benchmarks/references.json` (W9-A)
+    under that file's criterion (relative 1e-9, zero rows on the family
+    scale).
 - **Provider key substitution** (option (b), live mode only),
   `apps/desktop/src-tauri/src/native_smoke.rs` and `embedded_agent/live_host.rs`.
   With `SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin` and the driver on stdin, the
-  first stdin line is a provider key, checked by `Secret::new` and bounded by
+  first stdin line is a provider key; any other present value of the variable,
+  including one that is not Unicode, starts no driver, so a key line can never
+  reach the driver reader. The key line is checked by `Secret::new` and bounded by
   the relay's secret limit; nothing about a refused key is echoed. It is held
   only in process memory until the next Start with a provider saved with no
   key takes it, once. It is never written, logged, given to the webview or put
   in the plan, environment or report, and the Keychain is neither read nor
   written: the driver saves the provider with no key. The controller passes it
-  with `--key-stdin` from its own stdin. Both compile only under the
+  with `--key-stdin` from its own stdin, reading one line of at most 8192
+  printable ASCII bytes that must end in a newline, refused without echo. Both compile only under the
   `native-smoke` feature.
 
 ## Provider modes
@@ -69,8 +80,10 @@ It establishes no acceptance, release or criterion 17 standing.
   model runs, no network is used and no key exists. It qualifies the
   scenario's plumbing (supplier, relay, host validation, webview executors,
   Batch review and solve), not model behaviour. In this mode the controller
-  also requires the solve to be on the applied model's hash and the agent's
-  read values to equal the window's.
+  also requires the solve to be on the applied model's hash, the agent to have
+  read exactly the six rows the window shows (same ids, kinds, entity, units
+  and values), and the agent's report in the window to state each value it
+  read.
 - `live`: the person-configured endpoint and model of the D4 plan. The key, if
   the provider needs one, comes from one read of the owner-supplied Keychain
   item, which waits for the owner's explicit approval.
@@ -153,6 +166,11 @@ no credential and is a local report that no permanent check reads. The same
 journey had passed at 11:37:29Z to 11:37:45Z on an earlier candidate carrying
 a draft of #40's fix; it was repeated on this candidate so the evidence names
 the reviewed code. Each run used a fresh private bundle copy, removed after.
+After the run, review tightened the driver's turn checks and the judge (see
+Parts); the run's recorded report was judged again by the tightened judge and
+passes, its turns having ended "Ready." with agent messages, its batch context
+listing exactly the fixture's operations and the agent's read values equalling
+the window's. The driver's added checks test the same recorded fields.
 
 Earlier attempts, each a short launch that left nothing resident (run 1's three
 listed "residents" were the controller's own wrapper, whose arguments name the

@@ -103,27 +103,130 @@ def test_the_stub_listens_on_loopback_and_answers_only_responses():
 
 
 def observed_report(reference, operations, nudge=0.0):
-    rows = []
+    rows, values = [], []
     for r in reference["rows"]:
         if r["quantity"] == "nodal_motion" and r["entity"] == "node:c":
             displacement = r["component"].startswith("u")
-            value = r["value"] * 1000.0 if displacement else r["value"]
-            rows.append({"id": f"result:disp:node-c:{r['component']}", "text": f"Entered: {value + nudge!r} {'mm' if displacement else 'rad'}"})
-    return {"steps": fixture.STEPS, "batch": {"batch_id": "agent-x", "batches_shown": 1,
-            "summary": f"{len(operations)} proposed changes. Bound to the model used to prepare this batch.",
-            "apply_message": "Applied"}, "tree": {"node:node:a": True}, "results": {"rows": rows, "model_sha256": None}}
+            value = r["value"] * 1000.0 + nudge if displacement else r["value"] + nudge
+            unit = "mm" if displacement else "rad"
+            row_id = f"result:disp:node-c:{r['component']}"
+            rows.append({"id": row_id, "text": f"Entered: {value!r} {unit}"})
+            values.append({"id": row_id, "kind": f"global_nodal_{'displacement' if displacement else 'rotation'}_{r['component'][1]}",
+                           "entityRef": "node:c", "value": value, "unit": unit})
+    agent = "Agent: node:c: " + "; ".join(f"{v['kind']} {v['value']} {v['unit']}" for v in values)
+    ids = ", ".join(op["operation_id"] for op in operations)
+    report = {"steps": fixture.STEPS,
+              "turn1": {"standing": "Ready.", "messages": ["You: build", "Agent: proposed"]},
+              "turn2": {"standing": "Ready.", "messages": ["You: solve", agent]},
+              "batch": {"batch_id": "agent-x", "batches_shown": 1, "context": f"Proposed by agent.Operations: {ids}Original agent reference",
+                        "summary": f"{len(operations)} proposed changes. Bound to the model used to prepare this batch.",
+                        "apply_message": "Applied"},
+              "tree": {f"{kind}:{entity}": True for kind, entity in fixture.EXPECTED_TREE},
+              "results": {"rows": rows, "model_sha256": "sha256:" + "c" * 64}}
+    hash_ = {"value": "c" * 64}
+    captured = [{"outcome": {"status": "applied", "data": {"outcomeModelHash": hash_}}},
+                {"outcome": {"status": "completed", "data": {"evaluatedModelHash": hash_}}},
+                {"outcome": {"status": "ok", "data": {"values": values}}}]
+    return report, captured
+
+
+def judged(mutate=None, captured_mutate=None, nudge=0.0):
+    reference = fixture.w9a_reference()
+    operations = json.loads(fixture.FIXTURE.read_text())["routes"]["PF"]["operations"]
+    report, captured = observed_report(reference, operations, nudge)
+    if mutate:
+        mutate(report)
+    if captured_mutate:
+        captured_mutate(captured)
+    return fixture.judge(report, reference, operations, captured)
 
 
 def test_the_judge_accepts_the_reference_and_names_each_departure():
-    reference = fixture.w9a_reference()
-    operations = json.loads(fixture.FIXTURE.read_text())["routes"]["PF"]["operations"]
-    assert fixture.judge(observed_report(reference, operations), reference, operations) == []
-    wrong = fixture.judge(observed_report(reference, operations, nudge=1e-3), reference, operations)
-    assert wrong and all(re.match(r"node:c [ur][xyz]: shown", why) for why in wrong)
-    missing = observed_report(reference, operations)
-    missing["steps"] = fixture.STEPS[:-1]
-    missing["batch"]["batches_shown"] = 2
-    assert fixture.judge(missing, reference, operations)[:2] == [f"steps {fixture.STEPS[:-1]}", "batch review did not show exactly one agent batch"]
+    assert judged() == []
+    wrong = judged(nudge=1e-3)
+    assert wrong and all(re.match(r"node:c [ur][xyz]: shown", why) for why in wrong if why.startswith("node:c"))
+    def missing(report):
+        report["steps"] = fixture.STEPS[:-1]
+        report["batch"]["batches_shown"] = 2
+    assert judged(missing)[:2] == [f"steps {fixture.STEPS[:-1]}", "batch review did not show exactly one agent batch"]
+
+
+def test_the_judge_refuses_a_failed_or_silent_turn():
+    def failed(report):
+        report["turn2"]["standing"] = "Ready. The last turn failed."
+    assert "turn2 standing 'Ready. The last turn failed.'" in judged(failed)
+    def silent(report):
+        report["turn2"]["messages"] = ["You: solve"]
+    assert "turn2: no agent message in the window" in judged(silent)
+    def unreported(report):
+        report["turn2"]["messages"] = ["You: solve", "Agent: done"]
+    assert "the agent's report in the window omits a value it read" in judged(unreported)
+
+
+def test_the_judge_refuses_nonfinite_values():
+    def nan(report):
+        for row in report["results"]["rows"]:
+            row["text"] = "Entered: NaN " + row["text"].rsplit(" ", 1)[1]
+    found = judged(nan)
+    assert sum("is not finite" in why for why in found) == 6
+
+
+def test_the_judge_requires_the_agent_to_read_exactly_the_window_rows():
+    def duplicates(captured):
+        captured[2]["outcome"]["data"]["values"] = [{"id": "result:disp:node-a:ux", "kind": "global_nodal_displacement_x",
+                                                      "entityRef": "node:a", "value": 999, "unit": "N"}] * 6
+    assert any(why.startswith("agent read ") for why in judged(captured_mutate=duplicates))
+    def wrong_unit(captured):
+        captured[2]["outcome"]["data"]["values"][0]["unit"] = "m"
+    assert any("differs from the window" in why for why in judged(captured_mutate=wrong_unit))
+
+
+def test_the_judge_checks_the_batch_and_tree_exactly():
+    def more(report):
+        report["batch"]["summary"] = "111 proposed changes. Bound to the model used to prepare this batch."
+    assert any(why.startswith("batch summary") for why in judged(more))
+    def extra(report):
+        report["batch"]["context"] = report["batch"]["context"].replace("Original", ", op:w9a:12Original")
+    assert "batch context does not list exactly the fixture's operations" in judged(extra)
+    def partial(report):
+        report["tree"] = {"node:node:a": True}
+    assert any(why.startswith("model tree rows") for why in judged(partial))
+
+
+class FakeApp:
+    def __init__(self, alive=True):
+        self.alive, self.killed = alive, False
+    def poll(self):
+        return None if self.alive else 0
+    def kill(self):
+        self.killed, self.alive = True, False
+    def wait(self, timeout=None):
+        return 0
+
+
+def test_release_never_kills_the_supplier_custodian_without_an_anchor():
+    def refused():
+        raise fixture.Refusal("anchor_identity")
+    app = FakeApp()
+    assert fixture.release_app(app, 4321, None, refused, pause=0) == (None, "retained_original_app_custody")
+    assert not app.killed
+    app = FakeApp()
+    anchor = object()
+    assert fixture.release_app(app, 4321, None, lambda: anchor, pause=0) == (anchor, "killed_owned_app") and app.killed
+    app = FakeApp()
+    assert fixture.release_app(app, None, None, refused, pause=0) == (None, "killed_owned_app") and app.killed
+    assert fixture.release_app(FakeApp(alive=False), 4321, None, refused) == (None, None)
+
+
+def test_the_key_is_one_bounded_newline_terminated_printable_line():
+    import io
+    assert fixture.read_key(io.BytesIO(b"invented-key\nrest")) == "invented-key"
+    for bad in (b"no-newline", b"\n", b"two words\n", b"tab\tkey\n", b"k" * (fixture.KEY_BYTES + 1) + b"\n", "\u00e9\n".encode()):
+        try:
+            fixture.read_key(io.BytesIO(bad))
+            raise AssertionError(bad[:20])
+        except fixture.Refusal as refusal:
+            assert str(refusal) == "key_input_refused"
 
 
 def test_the_driver_calls_no_command_that_could_apply():
