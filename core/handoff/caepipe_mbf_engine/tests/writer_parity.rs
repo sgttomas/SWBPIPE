@@ -60,8 +60,11 @@ fn ascii(bytes: Vec<u8>) -> String {
 }
 
 /// The generator's `failed(error)`.
-fn failed(error: &mbf::PyError) -> String {
-    format!("!{}: {}", error.kind, error.message)
+fn failed(error: &ImportError) -> String {
+    match error {
+        ImportError::Python(error) => format!("!{}: {}", error.kind, error.message),
+        other => panic!("the port refused a value the Python handles: {other}"),
+    }
 }
 
 /// The generator's `outputs(kind, result)` for the Rust result, or the exception.
@@ -87,8 +90,8 @@ fn outputs(kind: &str, model: &Value, settings: &Value, codes: &mut BTreeSet<Str
             codes.insert(item.get_or_null("code").as_str().expect("code").to_string());
         }
         match sidecar {
-            Some(sidecar) => out.insert("sidecar".into(), ascii(mbf::canonical_bytes(&sidecar).map_err(ImportError::Python)?)),
-            None => out.insert("refused".into(), ascii(mbf::canonical_bytes(&Value::List(refusals)).map_err(ImportError::Python)?)),
+            Some(sidecar) => out.insert("sidecar".into(), ascii(mbf::canonical_bytes(&sidecar)?)),
+            None => out.insert("refused".into(), ascii(mbf::canonical_bytes(&Value::List(refusals))?)),
         };
         return Ok(out);
     }

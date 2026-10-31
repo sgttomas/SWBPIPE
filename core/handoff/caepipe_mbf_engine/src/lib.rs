@@ -156,9 +156,37 @@ pub struct ImportResult {
     pub summary: Value,
 }
 
+/// Fails closed ([`ImportError::Unsupported`]) when `value`, given as `name`, nests deeper than
+/// [`value::MAX_VALUE_NESTING`]; checked without recursion, before any recursive walk.
+pub(crate) fn bounded(name: &str, value: &Value) -> Result<(), ImportError> {
+    if value::within_bound(value) {
+        return Ok(());
+    }
+    Err(ImportError::Unsupported(value::unrepresentable(value::Unrepresentable::TooDeep, name)))
+}
+
 impl ImportResult {
-    /// `to_dict()`: the import report.
-    pub fn to_dict(&self) -> Value {
+    /// Every field a caller may have set is within [`value::MAX_VALUE_NESTING`] (the importer's own results are).
+    fn bounded(&self) -> Result<(), ImportError> {
+        if let Some(model) = &self.model {
+            bounded("import result's model", model)?;
+        }
+        for item in self.diagnostics.iter().chain(&self.loss_report) {
+            bounded("import result", item)?;
+        }
+        for (name, value) in [("source", &self.source), ("id_map", &self.id_map), ("summary", &self.summary)] {
+            bounded(name, value)?;
+        }
+        self.target_options.values().try_for_each(|value| bounded("target_options", value))
+    }
+
+    /// `to_dict()`: the import report. A caller-set field beyond [`value::MAX_VALUE_NESTING`] fails closed.
+    pub fn to_dict(&self) -> Result<Value, ImportError> {
+        self.bounded()?;
+        Ok(self.dict())
+    }
+
+    fn dict(&self) -> Value {
         dict![
             ("document_kind", Value::str(REPORT_KIND)),
             ("profile_id", Value::str(IMPORT_PROFILE_ID)),
@@ -173,25 +201,28 @@ impl ImportResult {
     }
 
     /// `model_bytes()`.
-    pub fn model_bytes(&self) -> Result<Option<Vec<u8>>, PyError> {
-        self.model.as_ref().map(canonical_bytes).transpose()
+    pub fn model_bytes(&self) -> Result<Option<Vec<u8>>, ImportError> {
+        self.bounded()?;
+        self.model.as_ref().map(pyfmt::canonical_bytes).transpose().map_err(ImportError::Python)
     }
 
     /// `report_bytes()`.
-    pub fn report_bytes(&self) -> Result<Vec<u8>, PyError> {
-        canonical_bytes(&self.to_dict())
+    pub fn report_bytes(&self) -> Result<Vec<u8>, ImportError> {
+        self.bounded()?;
+        pyfmt::canonical_bytes(&self.dict()).map_err(ImportError::Python)
     }
 
     /// `id_map_bytes()`.
-    pub fn id_map_bytes(&self) -> Result<Vec<u8>, PyError> {
-        canonical_bytes(&self.id_map)
+    pub fn id_map_bytes(&self) -> Result<Vec<u8>, ImportError> {
+        self.bounded()?;
+        pyfmt::canonical_bytes(&self.id_map).map_err(ImportError::Python)
     }
 }
 
 /// `import_caepipe_mbf(data, sidecar=..., material_provenance=..., pressure_closure=..., shear_model=...,
 /// rebind_by_node_number=..., source_label=...)`.
 ///
-/// A parsed value in `options` nested deeper than [`value::MAX_VALUE_NESTING`] fails closed
+/// A parsed value in `options` beyond [`value::MAX_VALUE_NESTING`] fails closed
 /// ([`ImportError::Unsupported`]) before anything walks it.
 pub fn import(data: &[u8], options: &ImportOptions) -> Result<ImportResult, ImportError> {
     let parsed = [
@@ -205,9 +236,7 @@ pub fn import(data: &[u8], options: &ImportOptions) -> Result<ImportResult, Impo
     ];
     for (name, value) in parsed {
         if let Some(value) = value {
-            if let Err(value::Unrepresentable::TooDeep) = value::screen(value) {
-                return Err(ImportError::Unsupported(value::unrepresentable(value::Unrepresentable::TooDeep, name)));
-            }
+            bounded(name, value)?;
         }
     }
     importer::Importer::new(data, options, false).run()
@@ -224,10 +253,11 @@ pub fn documented_orientations(data: &[u8]) -> Result<Option<Vec<((String, Strin
 }
 
 /// `canonical_bytes(value)`: `json.dumps(value, sort_keys=True, indent=2, ensure_ascii=True, allow_nan=False)`
-/// and a final newline. It recurses: a caller's own value must pass [`value::screen`] first (every value the crate's
-/// entry points return does).
-pub fn canonical_bytes(value: &Value) -> Result<Vec<u8>, PyError> {
-    pyfmt::canonical_bytes(value)
+/// and a final newline. A value beyond [`value::MAX_VALUE_NESTING`] fails closed ([`ImportError::Unsupported`]); the
+/// Python's own exceptions are [`ImportError::Python`].
+pub fn canonical_bytes(value: &Value) -> Result<Vec<u8>, ImportError> {
+    bounded("value", value)?;
+    pyfmt::canonical_bytes(value).map_err(ImportError::Python)
 }
 
 /// `parse_sidecar_json(bytes)`.
@@ -236,9 +266,9 @@ pub fn parse_sidecar_json(data: &[u8]) -> Result<Value, SidecarJsonError> {
 }
 
 /// si_writer `sidecar_self_digest(sidecar)`, or the path and reason that leave it without a canonical form.
-/// A sidecar nested deeper than [`value::MAX_VALUE_NESTING`] has no digest here: `("sidecar", reason)`.
+/// A sidecar beyond [`value::MAX_VALUE_NESTING`] has no digest here: `("sidecar", reason)`.
 pub fn sidecar_self_digest(sidecar: &Value) -> Result<String, (String, String)> {
-    if let Err(value::Unrepresentable::TooDeep) = value::screen(sidecar) {
+    if !value::within_bound(sidecar) {
         return Err(("sidecar".into(), value::unrepresentable(value::Unrepresentable::TooDeep, "sidecar")));
     }
     match sidecar::sidecar_self_digest(sidecar) {
@@ -265,8 +295,9 @@ pub mod ports {
     pub use crate::pymath::{correct_norm3, hypot, sum};
     pub use crate::runtime::{bend_tangents, collinear, frame_axes, kink, local_y_reference};
     /// `json.dumps(value, sort_keys=True)` (separators ", " and ": ").
-    pub fn dumps_sorted(value: &crate::Value) -> Result<String, crate::PyError> {
-        crate::pyfmt::dumps_sorted(value)
+    pub fn dumps_sorted(value: &crate::Value) -> Result<String, crate::ImportError> {
+        crate::bounded("value", value)?;
+        crate::pyfmt::dumps_sorted(value).map_err(crate::ImportError::Python)
     }
     /// `correctly_rounded.atan2`, `.acos`, `.asin`, `.sin`, `.tan` as the importer calls them.
     pub use crate::pymath::{acos, asin, atan2, sin, tan};

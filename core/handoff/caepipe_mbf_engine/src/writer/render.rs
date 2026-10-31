@@ -870,7 +870,7 @@ impl<'m> Writer<'m> {
     fn survives_reimport(&mut self, result: &WriterResult) -> R<bool> {
         let data = result.text.as_ref().expect("text").as_bytes();
         let sha = crate::sidecar::hex(&Sha256::digest(data));
-        let sidecar = result.sidecar(&sha).map_err(py)?;
+        let sidecar = result.sidecar_py(&sha).map_err(py)?;
         let mut undeclared = Dict::new();
         if let Some(Value::Dict(materials)) = sidecar.get("material_map") {
             for (name, entry) in materials.iter() {

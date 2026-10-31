@@ -536,12 +536,16 @@ needs slices 4 and 5.
   and message. An input the port cannot reproduce fails closed as `ImportError::Unsupported`:
   a NaN load category, whose set membership the Python decides by object identity, and the
   sidecar parser's internal sentinel.
-  - **Nesting bound** (review r1 of #32). A `Value` given to a public entry point (the writer's
-    model and settings, the regeneration's model, `import`'s parsed options and
-    `sidecar_self_digest`) is screened without recursion. Containers nested deeper than 64
-    (`MAX_VALUE_NESTING`, the sidecar parser's bound) fail closed as `Unsupported` before
-    anything walks them, so a hostile depth cannot overflow the stack natively or in wasm. The
-    Python may still write such a model when the deep member is one it omits.
+  - **Nesting bound** (reviews r1 and r2 of #32). No value may sit inside more than 256 lists and
+    dicts (`MAX_VALUE_NESTING`, counted as the sidecar parser counts its own bound of 64). Every
+    public operation that walks a caller's `Value` checks this first, without recursion. That covers the
+    writer's model and settings, the regeneration, `import`'s parsed options, `sidecar_self_digest`,
+    `canonical_bytes`, `dumps_sorted` and the `to_dict`, bytes and sidecar methods of both
+    result types, whose fields a caller may set. A deeper value fails closed as `Unsupported`
+    (those methods now return `ImportError`, which keeps the Python's exceptions as
+    `ImportError::Python`). Equality (`py_eq`) does not recurse. A test runs every walk at the
+    bound on a 1 MiB stack, wasm's default, in debug and release builds. The Python may still
+    accept a deeper value, up to its own recursion limit.
 - **Parity.** `tools/fixtures/caepipe_mbf_writer_vectors.py` records the inputs of every writer
   call the suites make, the corpus the import vectors write back, the correlation cases and
   generated coverage inputs. Each input is replayed through the unpatched Python for its

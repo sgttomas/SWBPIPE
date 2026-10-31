@@ -467,8 +467,26 @@ impl WriterResult {
         }
     }
 
-    /// `to_dict()`.
-    pub fn to_dict(&self) -> Value {
+    /// Every field a caller may have set is within [`crate::value::MAX_VALUE_NESTING`] (the writer's own are).
+    fn bounded(&self) -> Result<(), ImportError> {
+        for item in self.diagnostics.iter().chain(&self.loss_report) {
+            crate::bounded("writer result", item)?;
+        }
+        for map in [&self.node_map, &self.element_map, &self.support_map, &self.load_case_map, &self.material_map,
+            &self.section_map, &self.load_map, &self.pressure_map]
+        {
+            map.values().try_for_each(|value| crate::bounded("writer result", value))?;
+        }
+        Ok(())
+    }
+
+    /// `to_dict()`. A caller-set field beyond [`crate::value::MAX_VALUE_NESTING`] fails closed.
+    pub fn to_dict(&self) -> Result<Value, ImportError> {
+        self.bounded()?;
+        Ok(self.dict())
+    }
+
+    fn dict(&self) -> Value {
         dict![
             ("profile_id", Value::str(MBF_SI_PROFILE_ID)),
             ("status", Value::str(self.status.clone())),
@@ -490,14 +508,22 @@ impl WriterResult {
 
     /// `canonical_bytes(to_dict())`: `json.dumps(sort_keys=True, indent=2, ensure_ascii=True, allow_nan=False)` and
     /// a final newline.
-    pub fn to_dict_bytes(&self) -> Result<Vec<u8>, PyError> {
-        canonical_bytes(&self.to_dict())
+    pub fn to_dict_bytes(&self) -> Result<Vec<u8>, ImportError> {
+        self.bounded()?;
+        canonical_bytes(&self.dict()).map_err(py)
     }
 
     /// `sidecar(mbf_sha256)`: the format-3 writer sidecar of the written text whose SHA-256 is `mbf_sha256`, with
     /// its self-digest `sidecar_sha256`. As in the Python, a refused result has none (KeyError), and a value
     /// without a canonical form raises `SidecarNotCanonical`.
-    pub fn sidecar(&self, mbf_sha256: &str) -> Result<Value, PyError> {
+    /// A caller-set field beyond [`crate::value::MAX_VALUE_NESTING`] fails closed.
+    pub fn sidecar(&self, mbf_sha256: &str) -> Result<Value, ImportError> {
+        self.bounded()?;
+        self.sidecar_py(mbf_sha256).map_err(py)
+    }
+
+    /// [`Self::sidecar`] for the crate's own results, with the Python's exception.
+    pub(crate) fn sidecar_py(&self, mbf_sha256: &str) -> Result<Value, PyError> {
         self.sidecar_checked(mbf_sha256).map_err(|error| match error {
             Ok(error) => PyError { kind: "SidecarNotCanonical", message: format!("{}: {}", error.path, error.reason) },
             Err(error) => error,
@@ -571,8 +597,8 @@ impl WriterResult {
 
     /// The sidecar file's bytes as `json.dumps(sidecar, indent=2, sort_keys=True) + "\n"` writes them (the
     /// importer's `canonical_bytes` of the sidecar).
-    pub fn sidecar_bytes(&self, mbf_sha256: &str) -> Result<Vec<u8>, PyError> {
-        canonical_bytes(&self.sidecar(mbf_sha256)?)
+    pub fn sidecar_bytes(&self, mbf_sha256: &str) -> Result<Vec<u8>, ImportError> {
+        canonical_bytes(&self.sidecar(mbf_sha256)?).map_err(py)
     }
 }
 
@@ -624,7 +650,7 @@ pub fn regenerate_caepipe_sidecar(
             .collect();
         return Ok((None, errors));
     }
-    Ok((Some(result.sidecar(mbf_sha256).map_err(py)?), Vec::new()))
+    Ok((Some(result.sidecar_py(mbf_sha256).map_err(py)?), Vec::new()))
 }
 
 /// The crate's own SI writer as the importer's regenerator: what a bound format 2 or 3 import uses when

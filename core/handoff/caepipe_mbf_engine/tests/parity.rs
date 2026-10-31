@@ -51,7 +51,7 @@ fn same(a: &Value, b: &Value) -> bool {
 
 impl<'d> SidecarRegenerator for Checked<'d> {
     fn regenerate(&self, model: &Value, mbf_sha256: &str, derived: &[String], reference: Reference) -> Result<Regenerated, ImportError> {
-        let model_bytes = mbf::canonical_bytes(model).map_err(ImportError::Python)?;
+        let model_bytes = mbf::canonical_bytes(model)?;
         let listed = ports::dumps_sorted(&Value::List(derived.iter().map(|item| Value::str(item.clone())).collect())).expect("dumps");
         let shown = match reference {
             Reference::None => "{}".to_string(),

@@ -1,6 +1,6 @@
 //! Where the port does not reproduce the Python, it returns no result rather than a different one.
 
-use open_pipe_stress_caepipe_mbf::{self as mbf, ImportError, ImportOptions, SidecarInput, Value};
+use open_pipe_stress_caepipe_mbf::{self as mbf, dict, ImportError, ImportOptions, SidecarInput, Value};
 
 const MBF: &str = "INVENTED FAIL-CLOSED CHECK\r\nVERSION\r\n15.10\r\nOPTIONS\r\nSI\r\nOPTEMP\r\n20\r\nMATERIAL\r\n\
 M1,0,0.3,1,1,CS,invented steel\r\nM1,20,200000,1.2e-05\r\nPIPE\r\nP1,168.3,7.11,0,0,0,0,0,0\r\nLOADS\r\nL1,20,0,0\r\n\
@@ -207,7 +207,7 @@ fn a_model_holding_the_parsers_sentinel_is_refused_as_unsupported_by_the_writer(
     assert!(matches!(mbf::render_si(&writer_model(), &settings), Err(ImportError::Unsupported(_))));
 }
 
-/// `levels` lists nested in one another (the innermost holds null), built without recursion.
+/// `levels` lists nested in one another (the innermost holds null, at depth `levels`), built without recursion.
 fn chain(levels: usize) -> Value {
     let mut value = Value::Null;
     for _ in 0..levels {
@@ -216,9 +216,49 @@ fn chain(levels: usize) -> Value {
     value
 }
 
-/// Leaks a deep value: dropping it would recurse once per level (review r1 of #32, P1).
+/// `levels` lists nested in one another, the innermost empty (at depth `levels - 1`).
+fn empty_chain(levels: usize) -> Value {
+    let mut value = Value::List(Vec::new());
+    for _ in 1..levels {
+        value = Value::List(vec![value]);
+    }
+    value
+}
+
+/// Leaks a deep value: dropping it would recurse once per level (review r1 of #32, P1). Rust's drop of a caller's
+/// value is the caller's.
 fn leak(value: Value) {
     std::mem::forget(value);
+}
+
+fn unsupported<T: std::fmt::Debug>(outcome: Result<T, ImportError>) {
+    match outcome {
+        Err(ImportError::Unsupported(reason)) => assert!(reason.contains("containers"), "{reason}"),
+        other => panic!("expected an unsupported-input refusal, got {other:?}"),
+    }
+}
+
+fn imported() -> mbf::ImportResult {
+    let mut options = ImportOptions::new("invented-test");
+    options.material_provenance = Some(invented());
+    mbf::import(MBF.as_bytes(), &options).expect("an import result")
+}
+
+#[test]
+fn the_bound_counts_depth_as_the_sidecar_parser_does() {
+    let limit = mbf::value::MAX_VALUE_NESTING;
+    assert!(mbf::value::within_bound(&chain(limit)));
+    assert!(!mbf::value::within_bound(&chain(limit + 1)));
+    // An empty container adds no value below it (review r2 of #32, P3).
+    assert!(mbf::value::within_bound(&empty_chain(limit + 1)));
+    assert!(!mbf::value::within_bound(&empty_chain(limit + 2)));
+    // A sidecar the parser takes at its own bound (64) has its digest; the Python gives the same.
+    let text = format!("{{\"x\":{}{}}}", "[".repeat(64), "]".repeat(64));
+    let parsed = mbf::parse_sidecar_json(text.as_bytes()).expect("within the parser's bound");
+    assert_eq!(
+        mbf::sidecar_self_digest(&parsed).expect("a digest"),
+        "9f00ebefa3f31ac158c6fc6af68823f58c4423f20935ba278d6dc1c5b47967ac"
+    );
 }
 
 #[test]
@@ -227,28 +267,22 @@ fn a_hostile_depth_is_refused_before_any_walk_and_the_limit_itself_is_taken() {
     // At the limit the writer runs (the Python omits the unknown member); one level more is refused unwalked.
     let mut model = writer_model();
     model.as_dict_mut().unwrap().insert("unused".into(), chain(limit - 1));
-    assert!(mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")).is_ok());
+    assert_eq!(mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")).expect("a result").status, "written");
     for levels in [limit, 50_000] {
         let mut model = writer_model();
         model.as_dict_mut().unwrap().insert("unused".into(), chain(levels));
-        match mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")) {
-            Err(ImportError::Unsupported(reason)) => assert!(reason.contains("deeper than"), "{reason}"),
-            other => panic!("expected an unsupported-input refusal, got {other:?}"),
-        }
-        assert!(matches!(
-            mbf::regenerate_caepipe_sidecar(&model, &"0".repeat(64), &[], mbf::Reference::None),
-            Err(ImportError::Unsupported(_))
-        ));
+        unsupported(mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")));
+        unsupported(mbf::regenerate_caepipe_sidecar(&model, &"0".repeat(64), &[], mbf::Reference::None));
         let mut settings = mbf::WriterSettings::new("INVENTED");
         settings.title = chain(levels + 1);
-        assert!(matches!(mbf::render_si(&writer_model(), &settings), Err(ImportError::Unsupported(_))));
+        unsupported(mbf::render_si(&writer_model(), &settings));
         leak(std::mem::replace(&mut settings.title, Value::Null));
         let mut options = ImportOptions::new("invented-test");
         options.material_provenance = Some(chain(levels + 1));
-        assert!(matches!(mbf::import(MBF.as_bytes(), &options), Err(ImportError::Unsupported(_))));
+        unsupported(mbf::import(MBF.as_bytes(), &options));
         leak(options.material_provenance.take().unwrap());
         options.sidecar = Some(SidecarInput::Parsed(chain(levels + 1)));
-        assert!(matches!(mbf::import(MBF.as_bytes(), &options), Err(ImportError::Unsupported(_))));
+        unsupported(mbf::import(MBF.as_bytes(), &options));
         if let Some(SidecarInput::Parsed(value)) = options.sidecar.take() {
             leak(value);
         }
@@ -257,4 +291,95 @@ fn a_hostile_depth_is_refused_before_any_walk_and_the_limit_itself_is_taken() {
         leak(deep);
         leak(model);
     }
+}
+
+#[test]
+fn a_sentinel_beside_a_hostile_depth_does_not_hide_it() {
+    // Review r2 of #32, P1: the screen met the sentinel first and the depth went unchecked.
+    let mut dict = mbf::Dict::new();
+    dict.insert("deep".into(), chain(50_000));
+    dict.insert("bad".into(), Value::Bad);
+    let value = Value::Dict(dict);
+    assert_eq!(mbf::value::screen(&value), Err(mbf::value::Unrepresentable::TooDeep));
+    assert!(mbf::sidecar_self_digest(&value).is_err());
+    let mut options = ImportOptions::new("invented-test");
+    options.material_provenance = Some(invented());
+    options.sidecar = Some(SidecarInput::Parsed(value));
+    unsupported(mbf::import(MBF.as_bytes(), &options));
+    if let Some(SidecarInput::Parsed(value)) = options.sidecar.take() {
+        leak(value);
+    }
+}
+
+#[test]
+fn caller_built_results_and_public_helpers_beyond_the_bound_fail_closed() {
+    // Review r2 of #32, P1: public fields and helpers recursed over a caller's value.
+    let deep = || dict![("x", chain(50_000))];
+    let mut result = imported();
+    result.source = deep();
+    unsupported(result.to_dict());
+    unsupported(result.report_bytes());
+    unsupported(result.model_bytes());
+    unsupported(result.id_map_bytes());
+    leak(std::mem::replace(&mut result.source, Value::Null));
+    let mut written = mbf::render_si(&writer_model(), &mbf::WriterSettings::new("INVENTED")).expect("a result");
+    written.diagnostics.push(deep());
+    unsupported(written.to_dict());
+    unsupported(written.to_dict_bytes());
+    unsupported(written.sidecar(&"0".repeat(64)));
+    unsupported(written.sidecar_bytes(&"0".repeat(64)));
+    leak(written.diagnostics.pop().unwrap());
+    let value = deep();
+    unsupported(mbf::canonical_bytes(&value));
+    unsupported(mbf::ports::dumps_sorted(&value));
+    // Equality does not recurse: it answers at any depth.
+    let (a, b) = (chain(50_000), chain(50_000));
+    assert!(mbf::py_eq(&a, &b));
+    let c = Value::List(vec![chain(49_999), Value::Bool(true)]);
+    assert!(!mbf::py_eq(&a, &c));
+    for value in [value, a, b, c] {
+        leak(value);
+    }
+}
+
+#[test]
+fn every_walk_at_the_bound_fits_a_wasm_sized_stack() {
+    // The bound's stated basis: at MAX_VALUE_NESTING every recursive walk fits the 1 MiB stack wasm defaults to.
+    let limit = mbf::value::MAX_VALUE_NESTING;
+    std::thread::Builder::new()
+        .stack_size(1 << 20)
+        .spawn(move || {
+            // An omitted member at the bound: written, as the Python writes it.
+            let mut model = writer_model();
+            model.as_dict_mut().unwrap().insert("unused".into(), chain(limit - 1));
+            assert_eq!(mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")).expect("a result").status, "written");
+            // A walked member at the bound: a load magnitude's unit, which the writer refuses quoting its repr.
+            let mut model = writer_model();
+            let Some(Value::List(cases)) = model.as_dict_mut().unwrap().get_mut(&"load_cases".to_string()) else { panic!() };
+            let Some(Value::List(loads)) = cases[0].as_dict_mut().unwrap().get_mut(&"primitive_loads".to_string()) else {
+                panic!()
+            };
+            // root, load_cases, the case, primitive_loads, the load and its magnitude put the unit at depth 6.
+            loads[0].as_dict_mut().unwrap().insert("magnitude".into(), dict![("value", Value::int(-10)), ("unit", chain(limit - 6))]);
+            let refused = mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")).expect("a result");
+            assert_eq!(refused.status, "refused");
+            let quoted = format!("{}None{}", "[".repeat(limit - 6), "]".repeat(limit - 6));
+            assert!(refused.diagnostics.iter().any(|item| item.get_or_null("message").as_str().unwrap_or("").contains(&quoted)));
+            refused.to_dict_bytes().expect("to_dict bytes");
+            assert!(mbf::canonical_bytes(&model).is_ok());
+            let copy = model.clone();
+            assert!(mbf::py_eq(&model, &copy));
+            // The importer's options and results at the bound.
+            let mut options = ImportOptions::new("invented-test");
+            options.material_provenance = Some(dict![("*", chain(limit - 1))]);
+            let _ = mbf::import(MBF.as_bytes(), &options);
+            let mut result = imported();
+            result.source = chain(limit);
+            result.report_bytes().expect("report bytes");
+            assert!(mbf::sidecar_self_digest(&dict![("x", chain(limit - 1))]).is_ok());
+            assert!(mbf::ports::dumps_sorted(&chain(limit)).is_ok());
+        })
+        .expect("thread")
+        .join()
+        .expect("every walk at the bound fits a 1 MiB stack");
 }
