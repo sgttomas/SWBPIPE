@@ -64,5 +64,5 @@ the entry, and the entry names the PR.
 - **What is refused:** a pressure junction, meaning a node where two or more pressure regions of one load case end, where any of those regions declares its terminal at the node `separately_supported_or_compensated`.
 - **Why:** the junction's pressure load is the sum of its terminals' caps. A compensated terminal would remove its member's share from the pipe solve, so the fitting's load would be analysed incomplete without notice.
 - **What the user does instead:** declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust really is carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted.
-- **Basis:** DEL-04-07 [`Work/pressure-contract.md`](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md), "Tees and pressure junctions (RT-A3 increment 1)"; RT-A3 increment 1 (PR #<tee-PR>).
+- **Basis:** DEL-04-07 [`Work/pressure-contract.md`](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md), "Tees and pressure junctions (RT-A3 increment 1)"; made standing by RT-A3 increment 1 (PR #45).
 - **Status:** owner's acceptance pending.
