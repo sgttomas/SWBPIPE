@@ -53,8 +53,9 @@ DEPENDENCIES = {
     # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
     # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
     # reads the document without its combination rows and records, then the combination pass re-derives them
-    # (was ef200d25...).
-    MODULE: 'c82a0f11e77162692306e8ff275218596d343e2777a2bad0c4192b790861fbee',
+    # (was ef200d25...); then RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): the
+    # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...).
+    MODULE: 'f27242f055f91b09b649e5a2ddc4e6b76cf9ddd7325bd9df3d7839bc5d609b83',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
