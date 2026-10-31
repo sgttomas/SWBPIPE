@@ -39,7 +39,8 @@ It establishes no acceptance, release or criterion 17 standing.
     controller answers `READY` or `REFUSE` or the app cancels, so admission
     always happens inside native custody and the supplier's id cannot be
     reused meanwhile. Without that variable the gate keeps the ten-second
-    wait the live-session fixture expects, and any other value refuses the
+    wait; the maintained live-session fixture does not currently enable this
+    gate. Any other value refuses the
     start. Admission is made once and never retried; if it is refused, the
     controller answers `REFUSE`, native cleanup ends the supplier as the
     product does for a failed start, and the run fails;
@@ -61,6 +62,9 @@ It establishes no acceptance, release or criterion 17 standing.
     supplier's zero exit and absence are required, and a read-only listing of
     executables must find nothing under the app copy, the run's HOME or the
     supplier's runtime scope;
+  - gate I/O failure cannot skip the final custody decision. Malformed scope
+    records provide no evidence of a single supplier: the app is retained and
+    the host latched. These exception paths have focused offline regressions;
   - the fixture mode's standalone preflight (probes only, no supplier or relay)
     runs before each launch, the bundle's supplier must match the pin in
     `agent-witness-pin.json`, one attempt runs at a time on the host, and a
@@ -206,6 +210,8 @@ behaviour.
 
 ## Open
 
+- The selected one-attempt live run is specified in
+  [`agent-d4-run-plan.md`](agent-d4-run-plan.md). A plan is not run authority.
 - Criterion 17's evidence needs an owner-attended Apply (D4 option 2); this
   scenario's stand-in click does not supply it.
 - The live run's key read waits for the owner's approval.
