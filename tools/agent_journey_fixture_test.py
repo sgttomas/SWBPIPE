@@ -46,6 +46,18 @@ def test_turn_one_reads_the_summary_then_proposes_the_fixture_on_its_basis():
     assert done["type"] == "message" and not script.failures
 
 
+def test_the_stub_reports_one_record_per_component():
+    script = fixture.Script(fixture.TURNS)
+    proposed = {"status": "pending_review", "basis": BASIS, "data": {"proposalHandle": "p" * 48}}
+    summary = {"status": "ok", "basis": BASIS, "data": {"workspaceHandle": BASIS["workspaceHandle"]}}
+    values = [{"id": f"r{i}", "kind": kind, "entityRef": "node:c", "value": i / 4, "unit": "mm" if "displacement" in kind else "rad"}
+              for i, kind in enumerate(fixture.NODAL_KINDS)]
+    done = ask(script, [user(fixture.TURNS[0]), output(proposed), user(fixture.TURNS[1]), output(summary),
+                        output({"status": "applied"}), output({"status": "completed", "basis": BASIS, "data": {"runHandle": "r"}}),
+                        output({"status": "ok", "data": {"values": values}})])
+    assert fixture.REPORT_RECORD.findall(done["text"]) == [(fixture.COMPONENT[v["kind"]], repr(v["value"]), v["unit"]) for v in values]
+
+
 def test_turn_two_observes_on_the_proposal_basis_then_solves_and_reads_node_c():
     script = fixture.Script(fixture.TURNS)
     proposed = {"status": "pending_review", "basis": BASIS, "data": {"proposalHandle": "p" * 48}}
@@ -113,7 +125,8 @@ def observed_report(reference, operations, nudge=0.0):
             rows.append({"id": row_id, "text": f"Entered: {value!r} {unit}"})
             values.append({"id": row_id, "kind": f"global_nodal_{'displacement' if displacement else 'rotation'}_{r['component'][1]}",
                            "entityRef": "node:c", "value": value, "unit": unit})
-    agent = "Agent: node:c: " + "; ".join(f"{v['kind']} {v['value']} {v['unit']}" for v in values)
+    agent = "Agent: The batch is applied and the model solved.\n" + "\n".join(
+        f"node:c {fixture.COMPONENT[v['kind']]} = {v['value']!r} {v['unit']}" for v in values)
     rows_expected = [[fixture.TREE_TYPES[op["target"]["object_type"]], op["target"]["ref"]]
                      for op in operations if op["target"]["object_type"] in fixture.TREE_TYPES]
     report = {"steps": fixture.STEPS,
@@ -161,18 +174,30 @@ def test_the_judge_refuses_a_failed_or_silent_turn():
     assert "turn2: no agent message in the window" in judged(silent)
     def unreported(report):
         report["turn2"]["messages"] = ["You: solve", "Agent: done"]
-    assert any("does not state" in why for why in judged(unreported))
+    assert sum("times" in why for why in judged(unreported)) == 6
 
 
-def test_live_mode_checks_the_report_against_the_window_too():
+def test_the_report_must_give_each_component_of_node_c_in_its_unit():
     assert judged(live=True) == []
     def wrong(report):
         report["turn2"]["messages"] = ["You: solve", "Agent: done. node:c ux = 999 mm; no rotations reported."]
-    assert sum("does not state" in why for why in judged(wrong, live=True)) >= 4
-    def rounded(report):
-        report["turn2"]["messages"] = ["You: solve", "Agent: ux 4.77111 mm, uy -3.58687 mm, uz 0 mm, rx 0 rad, ry 0 rad, rz 0.000786714 rad"]
-    assert judged(rounded, live=True) == []
-    assert any("does not state" in why for why in judged(rounded))  # stub mode states values exactly
+    assert sum("the agent's report states" in why for why in judged(wrong, live=True)) == 6
+    rounded = ("Agent: node:c ux = 4.77111 mm\nnode:c uy = -3.58687 mm\nnode:c uz = 0 mm\n"
+               "node:c rx = 0 rad\nnode:c ry = 0 rad\nnode:c rz = 0.000786714 rad")
+    def round_off(report):
+        report["turn2"]["messages"] = ["You: solve", rounded]
+    assert judged(round_off, live=True) == []
+    assert any("the agent's report states" in why for why in judged(round_off))  # the stub states values exactly
+    # The second review's counterexample: another node, ux/uy swapped, wrong units, rz's value
+    # given as uz, two rotations missing, one zero standing for every zero component.
+    def misattributed(report):
+        report["turn2"]["messages"] = ["You: solve", "Agent: node:z ux = 4.77111 mm\nnode:c ux = -3.58687 mm\n"
+                                       "node:c uy = 4.77111 m\nnode:c uz = 0.000786714 rad\nnode:c rz = 0 rad"]
+    found = [why for why in judged(misattributed, live=True) if "the agent's report states" in why]
+    assert len(found) == 6, found
+    def duplicated(report):
+        report["turn2"]["messages"] = ["You: solve", rounded + "\nnode:c ux = 4.77111 mm"]
+    assert "the agent's report states node:c ux 2 times" in judged(duplicated, live=True)
 
 
 def test_the_judge_refuses_nonfinite_values():
@@ -225,13 +250,21 @@ class FakeApp:
 
 
 def test_release_kills_the_owned_app_only_on_evidence():
-    # Unknown custody (no anchor, no observed exit, a runtime prepared): the app is kept.
-    app = FakeApp()
-    assert fixture.release_app(app, None, False, False) == "retained_original_app_custody" and not app.killed
-    for anchor, exited, unspawned in ((object(), False, False), (None, True, False), (None, False, True)):
+    # Unknown custody (no anchor and no observed exit), or a second supplier: the app is kept.
+    for anchor, exited, single in ((None, False, True), (object(), False, False), (None, True, False)):
         app = FakeApp()
-        assert fixture.release_app(app, anchor, exited, unspawned) == "killed_owned_app" and app.killed
-    assert fixture.release_app(FakeApp(alive=False), None, False, False) is None
+        assert fixture.release_app(app, anchor, exited, single) == "retained_original_app_custody" and not app.killed
+    for anchor, exited in ((object(), False), (None, True)):
+        app = FakeApp()
+        assert fixture.release_app(app, anchor, exited, True) == "killed_owned_app" and app.killed
+    assert fixture.release_app(FakeApp(alive=False), None, False, True) is None
+
+
+def test_the_gate_is_answered_once(tmp_path):
+    gate = tmp_path / "gate"
+    assert fixture.answer_gate(gate, b"READY\n") and gate.read_bytes() == b"READY\n"
+    assert fixture.answer_gate(gate, b"REFUSE\n") and gate.read_bytes() == b"READY\n"
+    assert oct(gate.stat().st_mode & 0o777) == "0o600"
 
 
 def test_an_invalid_observation_is_not_evidence_of_exit():
@@ -254,6 +287,7 @@ def test_retained_custody_latches_the_host(tmp_path, monkeypatch):
     assert set(record) == {"appPid", "output", "at"}
     monkeypatch.setattr(sys, "argv", ["agent_journey_fixture.py", "--app", "x", "--process-probe", "x", "--boundary-probe", "x",
                                       "--mode", "stub", "--output", str(tmp_path / "next")])
+    # Checked under the host lock, before any key is read or run state created.
     assert fixture.main() == 2 and not (tmp_path / "next").exists()
 
 

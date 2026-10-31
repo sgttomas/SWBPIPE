@@ -33,24 +33,34 @@ It establishes no acceptance, release or criterion 17 standing.
     app and original supplier identities and holds the protocol; the
     controller checks the app identity, observes the supplier by kqueue
     (exit, exit status, fork), joins an owned anchor to its group, and only
-    then writes `READY`. That admission is made once, inside the gate's window,
-    while the app holds the original supplier unreaped so its id cannot be
-    reused; it is never retried. If it is refused, `READY` is not written, the
-    gate expires and native cleanup ends the supplier, as the product does for
-    a failed start, and the run fails;
+    then answers the gate `READY`. The journey runs the gate in handshake mode
+    (`SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE=handshake`, native-smoke only): it
+    holds the original supplier unreaped, with no deadline, until the
+    controller answers `READY` or `REFUSE` or the app cancels, so admission
+    always happens inside native custody and the supplier's id cannot be
+    reused meanwhile. Without that variable the gate keeps the ten-second
+    wait the live-session fixture expects, and any other value refuses the
+    start. Admission is made once and never retried; if it is refused, the
+    controller answers `REFUSE`, native cleanup ends the supplier as the
+    product does for a failed start, and the run fails;
   - rescue is the anchor's own group, never a recorded PID. A launch that does
-    not end itself is released by `release_app`, from evidence only: the owned
-    app is killed by its own handle when an anchor holds the supplier's group,
-    when the kqueue observer saw the original supplier exit, or when Start
-    never prepared its runtime directory (created before any spawn), so no
-    supplier existed. Otherwise the app is the supplier's only custodian and is
-    left running, the run fails, and a host latch
-    (`/private/tmp/swbpipe-agent-journey-<uid>.retained`) refuses every further
-    attempt until a person has quit that app normally (its quit performs
-    native cleanup), confirmed nothing remains and removed the latch. After a
-    run the supplier's zero exit and absence are required, and a read-only
-    listing of executables must find nothing under the app copy, the run's HOME
-    or the supplier's runtime scope;
+    not end itself has a gate never answered refused (so native cleanup ends
+    that supplier), gets a bounded grace (default 120 s) to end itself, and is
+    then released by `release_app` from evidence only: the owned app is killed
+    by its own handle only when exactly one supplier was published and either
+    an anchor holds its group or the kqueue observer saw that supplier exit.
+    Otherwise the app may be a supplier's only custodian and is left running,
+    the run fails, and a host latch
+    (`/private/tmp/swbpipe-agent-journey-<uid>.retained`), checked under the
+    host lock before any key is read or run state created, refuses every
+    further attempt until a person has quit that app normally (its quit
+    performs native cleanup), confirmed nothing remains and removed the latch.
+    The driver retries Start only on the fingerprint refusal, which comes before
+    anything is registered or spawned, so a run publishes at most one
+    supplier; a second published supplier fails the run. After a run the
+    supplier's zero exit and absence are required, and a read-only listing of
+    executables must find nothing under the app copy, the run's HOME or the
+    supplier's runtime scope;
   - the fixture mode's standalone preflight (probes only, no supplier or relay)
     runs before each launch, the bundle's supplier must match the pin in
     `agent-witness-pin.json`, one attempt runs at a time on the host, and a
@@ -64,9 +74,11 @@ It establishes no acceptance, release or criterion 17 standing.
     `node:c`'s six nodal motions as the Results section shows them, each finite
     and in its unit, against `validation/references/w9_benchmarks/references.json`
     (W9-A) under that file's criterion (relative 1e-9, zero rows on the family
-    scale); and the agent's report in the window stating each of those six
-    values (exactly with the stub; to four significant figures live, where a
-    model may round).
+    scale); and the agent's report in the window giving exactly one
+    `node:c <component> = <value> <unit>` record per component (turn 2 asks for
+    that form), in its unit and equal to the window's value (exactly with the
+    stub; to four significant figures live, where a model may round; a zero
+    as zero).
 - **Provider key substitution** (option (b), live mode only),
   `apps/desktop/src-tauri/src/native_smoke.rs` and `embedded_agent/live_host.rs`.
   With `SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin` and the driver on stdin, the

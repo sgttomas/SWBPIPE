@@ -58,12 +58,16 @@ TURNS = [
     "node:d (4,3,0) m, pipes pipe:a-c and pipe:c-d (OD 0.2 m, wall 0.01 m), anchors at node:a and "
     "node:d, and one thermal load case raising both pipes by 100 degC. Do not solve yet.",
     "I applied the batch. Confirm it was applied, solve the model and report node:c's six displacements "
-    "and rotations, displacements in mm and rotations in rad, each to at least six significant digits.",
+    "and rotations, one per line as `node:c <component> = <value> <unit>` for ux, uy, uz in mm and rx, ry, rz "
+    "in rad, each to at least six significant digits.",
 ]
 NODAL_KINDS = [f"global_nodal_{q}_{axis}" for q in ("displacement", "rotation") for axis in "xyz"]
 # The tree rows the driver enumerates, by the operation that creates each.
 TREE_TYPES = {"Node": "node", "Element": "pipe", "Support": "support"}
 LINE_LIMIT, OUTPUT_LIMIT = 16384, 2 * 1024 * 1024
+COMPONENT = {f"global_nodal_{q}_{axis}": f"{q[0] if q == 'rotation' else 'u'}{axis}"
+             for q in ("displacement", "rotation") for axis in "xyz"}
+REPORT_RECORD = re.compile(r"node:c\s+(ux|uy|uz|rx|ry|rz)\s*=\s*([-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?)\s*(mm|rad)\b")
 
 
 def w9a_reference():
@@ -183,8 +187,9 @@ class Script:
                 "page": {"cursor": None, "limit": 50}, "filter": {"kinds": NODAL_KINDS, "entityRefs": ["node:c"]}})
         if outputs[3].get("status") != "ok":
             return self.fail(f"results {outputs[3].get('status')}")
-        values = "; ".join(f"{v['kind']} {v['value']} {v['unit']}" for v in outputs[3]["data"]["values"])
-        return {"type": "message", "text": f"The batch is applied and the model solved. node:c: {values}."}
+        records = "\n".join(f"node:c {COMPONENT.get(v['kind'], v['kind'])} = {v['value']!r} {v['unit']}"
+                             for v in outputs[3]["data"]["values"])
+        return {"type": "message", "text": f"The batch is applied and the model solved.\n{records}"}
 
 
 def sse(item, sequence):
@@ -355,15 +360,23 @@ def judge(report, reference, operations, captured=None):
                 item = read.get(row_id)
                 if item and (item.get("kind"), item.get("entityRef"), item.get("unit"), item.get("value")) != (kind, "node:c", unit, value):
                     failures.append(f"agent value {row_id} differs from the window")
-    # The agent's report in the window states each of the six motions the window shows:
-    # exactly in stub mode, to four significant figures in live mode (a model may round).
-    agent_lines = [str(line) for line in (report.get("turn2") or {}).get("messages") or [] if str(line).startswith("Agent:")]
-    stated = [float(n) for n in re.findall(r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?", " ".join(agent_lines))]
-    stated = [n for n in stated if math.isfinite(n)]
-    for row_id, (_, value, _) in sorted(shown.items()):
-        exact = captured is not None
-        if not any(n == value if exact else (abs(n - value) <= 5e-4 * abs(value) if value else n == 0) for n in stated):
-            failures.append(f"the agent's report in the window does not state {row_id} ({value!r})")
+    # The agent's report in the window gives one `node:c <component> = <value> <unit>`
+    # record per motion the window shows, in its unit: exactly with the stub, to four
+    # significant figures live (a model may round); a zero is reported as zero.
+    agent_text = "\n".join(str(line) for line in (report.get("turn2") or {}).get("messages") or [] if str(line).startswith("Agent:"))
+    records = {}
+    for component, number, unit in REPORT_RECORD.findall(agent_text):
+        records.setdefault(component, []).append((float(number), unit))
+    for row_id, (kind, value, unit) in sorted(shown.items()):
+        component = COMPONENT[kind]
+        stated = records.get(component, [])
+        if len(stated) != 1:
+            failures.append(f"the agent's report states node:c {component} {len(stated)} times")
+            continue
+        number, stated_unit = stated[0]
+        close = number == value if captured is not None else (abs(number - value) <= 5e-4 * abs(value) if value else number == 0)
+        if stated_unit != unit or not math.isfinite(number) or not close:
+            failures.append(f"the agent's report states node:c {component} = {number!r} {stated_unit}, the window {value!r} {unit}")
     return failures
 
 
@@ -423,11 +436,12 @@ class Lines:
         except Exception as error:  # noqa: BLE001
             self.error = type(error).__name__
 
+    def scopes(self):
+        return [json.loads(line.split(" ", 1)[1]) for line in self.lines if line.startswith("[native-smoke-agent-scope] ")]
+
     def scope(self):
-        for line in self.lines:
-            if line.startswith("[native-smoke-agent-scope] "):
-                return json.loads(line.split(" ", 1)[1])
-        return None
+        found = self.scopes()
+        return found[0] if found else None
 
 
 def preflight(args, root):
@@ -481,7 +495,7 @@ def run(args, key, root):
                 "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
         env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
                "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
-               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": str(gate)}
+               "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": str(gate), "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
         if key is not None:
             env["SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY"] = "stdin"
         app = subprocess.Popen([str(args.app)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
@@ -501,7 +515,7 @@ def run(args, key, root):
             if observer:
                 observer.sample()
 
-        refused = None
+        refused, answered = None, False
         while app.poll() is None:
             safety()
             if sdk is None and (scope := lines.scope()):
@@ -509,10 +523,11 @@ def run(args, key, root):
                     raise Refusal("app_identity")
                 sdk = scope["sdkPid"]
                 result["supplier"] = {"pid": sdk, "scope": scope["scope"]}
-                # One admission, inside the native gate's window, while the app holds the
-                # original supplier unreaped (so its id cannot be reused). It is never
-                # retried: on refusal READY is not written, the gate expires and native
-                # cleanup ends the supplier, as the product does for a failed start.
+                # One admission. The gate (handshake mode) holds the original supplier
+                # unreaped, with no deadline, until it is answered, so its id cannot be
+                # reused while admission is possible. It is never retried: on refusal the
+                # gate is answered REFUSE and native cleanup ends the supplier, as the
+                # product does for a failed start.
                 try:
                     observer = Scope(sdk)
                     if observer.exited:
@@ -521,17 +536,18 @@ def run(args, key, root):
                 except Exception as error:  # noqa: BLE001
                     refused = str(error) if isinstance(error, Refusal) else type(error).__name__
                     result["anchorRefused"] = refused
+                    answered = answer_gate(gate, b"REFUSE\n")
                     continue
                 result["anchor"] = {"pid": anchor.pid, "group": sdk}
-                descriptor = os.open(gate, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-                with os.fdopen(descriptor, "wb") as handle:
-                    handle.write(b"READY\n")
+                answered = answer_gate(gate, b"READY\n")
             if time.monotonic() >= deadline:
                 raise Refusal("deadline")
             time.sleep(.01)
         result["app"]["status"] = app.returncode
         if app.returncode != 0:
             raise Refusal("app_nonzero")
+        if len(lines.scopes()) > 1:
+            raise Refusal("second_supplier_published")
         if observer is None:
             raise Refusal(f"anchor_refused: {refused}" if refused else "supplier_never_published")
         bounded_wait(lambda: observer.sample() and not pid_live(sdk), time.monotonic() + 5, check=safety)
@@ -558,7 +574,16 @@ def run(args, key, root):
         result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     finally:
         if app and app.poll() is None:
-            outcome = release_app(app, anchor, supplier_gone(observer), not (home / RUNTIME_DIR).exists())
+            # A gate never answered still holds a supplier: refuse it so native cleanup
+            # ends it, then give the app a bounded grace to end itself (the driver always
+            # finishes) before deciding from evidence.
+            if sdk is not None and not answered:
+                answered = answer_gate(gate, b"REFUSE\n")
+            grace = time.monotonic() + args.release_grace
+            while app.poll() is None and time.monotonic() < grace and not (anchor is None and supplier_gone(observer)):
+                time.sleep(.1)
+            single = lines is not None and len(lines.scopes()) <= 1
+            outcome = release_app(app, anchor, supplier_gone(observer), single)
             result["release"] = outcome
             if outcome == "retained_original_app_custody":
                 result["rescue"] = outcome
@@ -593,9 +618,18 @@ def run(args, key, root):
     return result
 
 
-# Start creates this before any supplier can be spawned, so its absence proves none was.
-RUNTIME_DIR = Path("Library/Application Support/com.chirality.swbpipe/embedded-agent/runtime")
 RETAINED = Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.retained"
+
+
+def answer_gate(gate, answer):
+    """The controller's one answer at the native gate (READY or REFUSE), written once."""
+    try:
+        descriptor = os.open(gate, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except FileExistsError:
+        return True
+    with os.fdopen(descriptor, "wb") as handle:
+        handle.write(answer)
+    return True
 
 
 def supplier_gone(observer):
@@ -608,16 +642,15 @@ def supplier_gone(observer):
         return False
 
 
-def release_app(app, anchor, supplier_exited, no_supplier_spawned):
+def release_app(app, anchor, supplier_exited, single_supplier):
     """End a launch that did not end itself, from evidence only. The owned app is killed by
-    its own handle when an anchor holds the supplier's group (it rescues the group after),
-    when the original supplier was observed to exit, or when Start never prepared a
-    runtime, so no supplier existed. Otherwise the app is the supplier's only custodian and
-    is left running (custody retained, the run fails); nothing is retried, so no saved id
-    is reused after the native gate's window."""
+    its own handle only when exactly one supplier was published and either an anchor holds
+    its group (and rescues it after) or the original supplier was observed to exit.
+    Otherwise the app may be some supplier's only custodian and is left running (custody
+    retained, the run fails); nothing is retried and no saved id is reused."""
     if app.poll() is not None:
         return None
-    if anchor is None and not supplier_exited and not no_supplier_spawned:
+    if not single_supplier or (anchor is None and not supplier_exited):
         return "retained_original_app_custody"
     app.kill()
     app.wait(timeout=5)
@@ -659,6 +692,8 @@ def main():
     parser.add_argument("--min-free-gib", type=float, default=50.0)
     parser.add_argument("--turn-timeout", type=int, default=600, help="seconds per agent turn")
     parser.add_argument("--deadline", type=int, default=1800, help="seconds for the whole launch")
+    parser.add_argument("--release-grace", type=int, default=120,
+                        help="seconds a launch that did not end itself is given to end before custody is decided")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cancel-file", type=Path)
     args = parser.parse_args()
@@ -671,6 +706,18 @@ def main():
         parser.error("live mode needs --endpoint")
     if args.mode == "stub" and args.key_stdin:
         parser.error("stub mode takes no key")
+    # One attempt at a time on this host, whatever the output directory; the retained-run
+    # latch is checked again under that lock, before the key is read or run state created.
+    lock = open(Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.lock", "w")
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("another agent journey attempt is running", file=sys.stderr)
+        return 2
+    if RETAINED.exists():
+        print(f"refused: a previous attempt retained its app ({RETAINED.read_text().strip()}). Quit that app "
+              f"normally, confirm no process remains under its output directory, then remove {RETAINED}.", file=sys.stderr)
+        return 2
     try:
         key = read_key(sys.stdin.buffer) if args.key_stdin else None
     except Refusal as refusal:
@@ -680,13 +727,6 @@ def main():
     root = args.output.resolve()
     for name in ("app", "process_probe", "boundary_probe"):
         setattr(args, name, getattr(args, name).resolve(strict=True))
-    # One attempt at a time on this host, whatever the output directory.
-    lock = open(Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.lock", "w")
-    try:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError:
-        print("another agent journey attempt is running", file=sys.stderr)
-        return 2
     free = free_bytes()
     result = {"passed": False, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
     if free < result["minFreeBytes"]:

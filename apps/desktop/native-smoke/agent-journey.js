@@ -113,7 +113,11 @@
         const alert = panel()?.querySelector('p[role="alert"]')?.textContent;
         if (alert) throw new Error(`start: ${alert}`);
         if (standing() === "Ready.") return { ready: standing() };
-        const refusal = statusLines().find((line) => line.startsWith("Open a model and wait for its fingerprint") || line.startsWith("The request did not complete"));
+        // Only the fingerprint refusal is retried: it comes before anything is registered or
+        // spawned. Any other failure could follow a spawn, and a retry could start a second supplier.
+        const failed = statusLines().find((line) => line.startsWith("The request did not complete"));
+        if (failed) throw new Error(`start: ${failed}`);
+        const refusal = statusLines().find((line) => line.startsWith("Open a model and wait for its fingerprint"));
         return refusal ? { refusal } : null;
       }, timeouts.start);
       report.start_attempts.push(outcome.ready ?? outcome.refusal);

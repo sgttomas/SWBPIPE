@@ -178,15 +178,28 @@ impl Live {
                 // The original SDK Child remains unreaped here, before the
                 // protocol gate. The owned controller establishes its rescue
                 // anchor, then writes one fixed nonsecret readiness record.
-                let deadline = Instant::now() + Duration::from_secs(10);
+                // In handshake mode (the agent journey) the gate holds the
+                // original supplier until the controller answers READY or
+                // REFUSE, or the app cancels, with no deadline, so admission
+                // always happens inside native custody; otherwise it waits
+                // ten seconds as the live-session fixture expects.
+                let deadline = match gate_mode(std::env::var_os("SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE")) {
+                    Some(GateMode::Handshake) => None,
+                    Some(GateMode::Timed) => Some(Instant::now() + Duration::from_secs(10)),
+                    None => return Err(Error::Observation),
+                };
                 loop {
                     let mut bytes = Vec::new();
                     if let Ok(file) = std::fs::File::open(&gate) {
-                        if file.take(8).read_to_end(&mut bytes).is_ok() && bytes == b"READY\n" {
-                            break;
+                        if file.take(8).read_to_end(&mut bytes).is_ok() {
+                            match gate_answer(&bytes) {
+                                Some(GateAnswer::Ready) => break,
+                                Some(GateAnswer::Refuse) => return Err(Error::Cancelled),
+                                None => {}
+                            }
                         }
                     }
-                    if cancel.load(Ordering::Acquire) || Instant::now() >= deadline {
+                    if cancel.load(Ordering::Acquire) || deadline.is_some_and(|deadline| Instant::now() >= deadline) {
                         return Err(Error::Cancelled);
                     }
                     std::thread::sleep(Duration::from_millis(5));
@@ -362,6 +375,55 @@ impl Live {
 impl Drop for Live {
     fn drop(&mut self) {
         self.stop();
+    }
+}
+
+/// How the native-smoke agent gate waits for its controller.
+#[cfg(any(test, feature = "native-smoke"))]
+#[derive(Debug, PartialEq, Eq)]
+enum GateMode {
+    Timed,
+    Handshake,
+}
+/// Absent: the timed gate. Only the exact value `handshake` selects the handshake;
+/// any other value refuses the start.
+#[cfg(any(test, feature = "native-smoke"))]
+fn gate_mode(value: Option<std::ffi::OsString>) -> Option<GateMode> {
+    match value {
+        None => Some(GateMode::Timed),
+        Some(value) if value == "handshake" => Some(GateMode::Handshake),
+        Some(_) => None,
+    }
+}
+#[cfg(any(test, feature = "native-smoke"))]
+#[derive(Debug, PartialEq, Eq)]
+enum GateAnswer {
+    Ready,
+    Refuse,
+}
+#[cfg(any(test, feature = "native-smoke"))]
+fn gate_answer(bytes: &[u8]) -> Option<GateAnswer> {
+    match bytes {
+        b"READY\n" => Some(GateAnswer::Ready),
+        b"REFUSE\n" => Some(GateAnswer::Refuse),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod gate_tests {
+    use super::{gate_answer, gate_mode, GateAnswer, GateMode};
+    #[test]
+    fn the_gate_reads_only_its_two_fixed_answers_and_its_exact_mode() {
+        assert_eq!(gate_answer(b"READY\n"), Some(GateAnswer::Ready));
+        assert_eq!(gate_answer(b"REFUSE\n"), Some(GateAnswer::Refuse));
+        for partial in [&b""[..], b"READY", b"REFUS", b"ready\n", b"READY\nX"] {
+            assert_eq!(gate_answer(partial), None);
+        }
+        assert_eq!(gate_mode(None), Some(GateMode::Timed));
+        assert_eq!(gate_mode(Some("handshake".into())), Some(GateMode::Handshake));
+        assert_eq!(gate_mode(Some("Handshake".into())), None);
+        assert_eq!(gate_mode(Some("".into())), None);
     }
 }
 
