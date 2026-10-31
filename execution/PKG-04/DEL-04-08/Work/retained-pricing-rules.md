@@ -1927,6 +1927,8 @@ The bundle's other changes are in the desktop and in `operation_applier`, which 
 
 **Pins.** `reader_verdict.rs`'s two full-file pins move together, `b43843aa…` → `e3513a24…`: OP1A-PF/RD (`_op1a_pins`, §8.31) and TIM-PF/RD/CD-ID (`_TIM_PINS`, §8.32). No body pin and no snapshot key moves.
 
+**Test-region follow-up (`10863207c`).** `product_physics`'s `retained_memory_law_tests` require `reader_verdict.rs` to carry no `#[cfg(test)]` region, and `994b84459` had added one (`id_set_tests`). That test moves, unchanged, to `reader_verdict_id_set_tests.rs`, declared from `arc_evidence.rs` as `source_blocks_spring_tests.rs` is; `IdSet` and its three methods become `pub(crate)`. Visibility is the only production change. The two full-file pins move again, together, `e3513a24…` → `f3d93313…`. `run 10863207c` completes on all four points, and `compare` against the main `ae729fc96` basis tree gives `identical_but_basis`, **1,586 coefficients equal, 0 higher, 0 lower**, with the merged check unchanged (sparse 8,744,772,859 B, dense 8,803,904,203 B); `generate --check` of the head tree reproduces the committed block (1,695 lines, an empty diff).
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -1950,7 +1952,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.35's head, `6c7c46533`, which prices coefficient-identically to §8.33's source, `7e7fef2d4`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.35's head, `10863207c`, which prices coefficient-identically to §8.33's source, `7e7fef2d4`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
