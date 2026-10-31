@@ -713,3 +713,85 @@ fn signed_region_pressure_follows_the_document_contract() {
         assert_eq!(outcome.applied_model.is_some(), admitted, "{:?}", outcome.diagnostics);
     }
 }
+
+/// G5b (DEL-07-03 `Work/authoring-speed.md` §2): an existing E/nu material's
+/// thermal expansion coefficient is added, changed and removed with its
+/// constitutive inputs; the project temperature unit and the coefficient's unit
+/// are checked as on `create_material`, and nothing else on the material moves.
+#[test]
+fn constitutive_properties_add_change_and_remove_the_thermal_expansion_coefficient() {
+    const KEYS: [&str; 6] = [
+        "constitutive_basis",
+        "elastic_modulus",
+        "shear_modulus",
+        "poisson_ratio",
+        "thermal_expansion_coefficient",
+        "provenance",
+    ];
+    let mut model = fixture();
+    assert!(model["materials"][0].get("thermal_expansion_coefficient").is_none());
+    let id = model["materials"][0]["id"].as_str().unwrap().to_string();
+    let untouched = |m: &Value| {
+        let mut m = m.clone();
+        m.as_object_mut().unwrap().remove("thermal_expansion_coefficient");
+        m
+    };
+    let original = model["materials"][0].clone();
+    let edit = |model: &Value, alpha: Option<Value>| {
+        let before = projection(&model["materials"][0], &KEYS);
+        let mut after = before.clone();
+        match alpha {
+            Some(alpha) => after["thermal_expansion_coefficient"] = alpha,
+            None => {
+                after.as_object_mut().unwrap().remove("thermal_expansion_coefficient");
+            }
+        }
+        intent("Material", &id, "constitutive_properties", Some(&before), &after)
+    };
+    let refused = |model: &Value, op: &Value| {
+        let outcome = apply_operation(model, op, Some(&hash(model)));
+        assert!(outcome.applied_model.is_none(), "{:?}", outcome.diagnostics);
+        outcome
+            .diagnostics
+            .iter()
+            .map(|d| d.code.clone())
+            .collect::<Vec<_>>()
+    };
+
+    model = apply(&model, &edit(&model, Some(json!({"value": 1.2e-5, "unit": "1/K"}))));
+    assert_eq!(model["materials"][0]["thermal_expansion_coefficient"], json!({"value": 1.2e-5, "unit": "1/K"}));
+    // Compared as persisted (RFC 8785): an integer modulus re-serializes as the same number.
+    assert_eq!(canonical_json(&untouched(&model["materials"][0])), canonical_json(&original));
+    model = apply(&model, &edit(&model, Some(json!({"value": -6.5e-6, "unit": "1/degF"}))));
+    assert_eq!(model["materials"][0]["thermal_expansion_coefficient"], json!({"value": -6.5e-6, "unit": "1/degF"}));
+
+    // A non-thermal-expansion unit, a non-finite or missing value, and an extra
+    // member are refused; nothing is converted or completed.
+    for alpha in [
+        json!({"value": 1.2e-5, "unit": "Pa"}),
+        json!({"value": 1.2e-5}),
+        json!({"value": "1.2e-5", "unit": "1/K"}),
+        json!({"value": 1.2e-5, "unit": "1/K", "basis": "secant"}),
+    ] {
+        assert!(!refused(&model, &edit(&model, Some(alpha.clone()))).is_empty(), "{alpha}");
+    }
+    // The project temperature unit must be stated and be a temperature unit.
+    let mut no_unit = model.clone();
+    no_unit["project"]["units"].as_object_mut().unwrap().remove("temperature");
+    assert!(refused(&no_unit, &edit(&no_unit, Some(json!({"value": 1.2e-5, "unit": "1/K"}))))
+        .contains(&"OP-UNIT-METADATA-MISSING".to_string()));
+    let mut bad_unit = model.clone();
+    bad_unit["project"]["units"]["temperature"] = json!("Pa");
+    assert!(refused(&bad_unit, &edit(&bad_unit, Some(json!({"value": 1.2e-5, "unit": "1/K"}))))
+        .contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE".to_string()));
+
+    // A stale projection that omits the coefficient is refused, never read as a removal.
+    let mut stale_before = projection(&model["materials"][0], &KEYS);
+    stale_before.as_object_mut().unwrap().remove("thermal_expansion_coefficient");
+    let stale = intent("Material", &id, "constitutive_properties", Some(&stale_before), &stale_before);
+    assert!(refused(&model, &stale).contains(&"OP-BEFORE-VALUE-MISMATCH".to_string()));
+
+    // Removal is explicit, and returns the material to its original record.
+    model = apply(&model, &edit(&model, None));
+    assert_eq!(canonical_json(&model["materials"][0]), canonical_json(&original));
+}
