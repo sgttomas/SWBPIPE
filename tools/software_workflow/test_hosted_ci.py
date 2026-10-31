@@ -98,8 +98,8 @@ class HostedCITests(unittest.TestCase):
         return make_plan(self.root, PROFILE, event, base or self.base, "HEAD")
 
     def test_evergreen_instruction_pr_uses_only_bundle_and_governance(self):
-        # docs/PRD.md is a claims-language surface tests/test_claims_language_surface.py reads (its CI_READS),
-        # so it starts only the Python job; the governance-only paths start nothing.
+        # Python tests read these paths (docs/PRD.md is a claims-language surface; a test whose reads the code does
+        # not show reads every path), so they start only the Python job.
         paths = ["AGENTS.md", "docs/PRD.md", "loop/LOOP_INIT.md", "execution/_Coordination/NOTICE.md"]
         for path in paths:
             self.write(path)
@@ -111,7 +111,7 @@ class HostedCITests(unittest.TestCase):
              patch('hosted_ci.desktop_rust_plan', side_effect=lambda root, *args: desktop_rust_plan(SOURCE_ROOT, *args)):
             self.assertEqual(self.plan()["modes"], modes(**{'piping-python': 'full'}))
             self.assertEqual(select_paths(["AGENTS.md", "loop/LOOP_INIT.md", "execution/_Coordination/NOTICE.md"],
-                                          PROFILE)["modes"], modes())
+                                          PROFILE)["modes"], modes(**{'piping-python': 'full'}))
 
 
 
@@ -171,9 +171,9 @@ class HostedCITests(unittest.TestCase):
     def test_product_paths_and_consumed_design_select_without_deliverable_mappings(self):
         selection = select_paths(['core/solver/src/lib.rs'], PROFILE)
         self.assertEqual(selection['modes'], modes(piping='full', **{'piping-numerical':'full','piping-python':'full'}))
-        # A docs path is a claims-language surface (tests/test_claims_language_surface.py); a records path is not.
+        # A docs or records path selects no product suite; Python tests read every path (tools/ci/python_test_reads.py).
         self.assertEqual(select_paths(['docs/note.md'], PROFILE)['modes'], modes(**{'piping-python': 'full'}))
-        self.assertEqual(select_paths(['loop/note.md'], PROFILE)['modes'], modes())
+        self.assertEqual(select_paths(['loop/note.md'], PROFILE)['modes'], modes(**{'piping-python': 'full'}))
 
     def test_piping_python_implementation_and_tests_select_python_lane(self):
         for path in ('tools/product_preview/validate.py',

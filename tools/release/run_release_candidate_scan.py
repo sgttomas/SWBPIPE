@@ -35,6 +35,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). The release candidate's class roots, which may be the whole tree.
+CI_READS = ("**",)
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from release_members import is_text_member, lint_path_batches  # noqa: E402
 

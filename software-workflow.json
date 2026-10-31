@@ -258,6 +258,9 @@
         "fixtures/**",
         "schemas/**",
         "tools/**",
+        "AGENTS.md",
+        "loop/**",
+        "requirements-dev.txt",
         "software-workflow.json"
       ],
       "checks": [
@@ -266,15 +269,9 @@
     },
     {
       "paths": [
+        "core/**",
         "tools/retained_pricing/**",
         "tools/repository_history.py",
-        "core/loads/**",
-        "core/numerics/**",
-        "core/product_physics/**",
-        "core/reporting/result_export/**",
-        "core/serialization/canonical_json/**",
-        "core/solver/**",
-        "core/units/**",
         "fixtures/product_preview/pressure_source/**",
         "fixtures/results/**",
         "schemas/load_reference_state.schema.json",

@@ -660,13 +660,13 @@ class ReachabilitySafetyTests(unittest.TestCase):
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
-        # A path starts the Python job when a Python test reads it (tools/ci/python_test_reads.py); every
-        # piping path and every doc is read by one (the repository's file-name and JSON scans, the claims-language
-        # surfaces), so a governance-only path shows the job left off. None of them selects Cargo.
+        # A path starts the Python job when a Python test reads it (tools/ci/python_test_reads.py). The derivation
+        # fails toward over-selection, and a test whose reads the code does not show reads every path, so every path
+        # starts it; none of them selects Cargo.
         for path, piping, python in [('tests/test_persistence_schema.py', 'full', 'full'),
                                      ('apps/desktop/src/App.tsx', 'full', 'full'),
                                      ('docs/PRD.md', 'not-applicable', 'full'),
-                                     ('loop/LOOP_INIT.md', 'not-applicable', 'not-applicable')]:
+                                     ('loop/LOOP_INIT.md', 'not-applicable', 'full')]:
             result = hosted_ci.select_paths([ci.PROJECT + path], profile)
             self.assertEqual(result['modes']['piping'], piping)
             self.assertEqual(result['modes']['piping-python'], python)

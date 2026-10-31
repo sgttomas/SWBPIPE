@@ -1,4 +1,6 @@
 """Diff-driven Python families keep their contracts selected on input changes."""
+import bisect
+import functools
 import importlib.util
 from pathlib import Path
 
@@ -19,6 +21,13 @@ def test_sensitive_families_follow_their_inputs():
     assert 'tests/test_checked_canonical_json_adapter.py' in selected('core/serialization/canonical_json/adapter.py')
     assert 'tests/test_binary64_canonical_json_adapter.py' in selected('fixtures/canonical_hash/cases.json')
     assert 'tests/test_qualification_physics.py' in selected('tests/test_qualification_physics.py')
+
+
+def by_rules(path):
+    """The tests the named rules select for `path`: its selection less the tests whose own derived roots reach it.
+    The derivation fails toward over-selection (a test whose reads the code does not show reaches every path), so
+    a rule's specificity is asserted on this, not on the whole selection."""
+    return set(selected(path)) - readers(path)
 
 
 def readers(path):
@@ -99,14 +108,14 @@ def test_j7_rf_census_generator_inputs_select_the_fixture_currency_check():
     for path in sorted(ci.J7_RF_CENSUS_INPUTS):
         assert ci.J7_RF_CENSUS_TEST in selected(path), path
         assert (PROJECT / path).is_file(), path
-    assert ci.J7_RF_CENSUS_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
+    assert ci.J7_RF_CENSUS_TEST not in by_rules('fixtures/results/pressure_source_reader_corpus.json')
 
 
 def test_synthetic_base_writer_inputs_select_its_check():
     for path in sorted(ci.SYNTHETIC_BASES_INPUTS):
         assert ci.SYNTHETIC_BASES_TEST in selected(path), path
         assert (PROJECT / path).is_file(), path
-    assert ci.SYNTHETIC_BASES_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
+    assert ci.SYNTHETIC_BASES_TEST not in by_rules('fixtures/results/pressure_source_reader_corpus.json')
 
 
 def test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes():
@@ -116,7 +125,7 @@ def test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes():
         for reader in readers:
             assert reader in selected(path), (path, reader)
             assert digest in (PROJECT / reader).read_text(), (path, reader)
-    assert 'tests/test_retained_precision_b3.py' not in selected('fixtures/results/pressure_source_reader_corpus.json')
+    assert 'tests/test_retained_precision_b3.py' not in by_rules('fixtures/results/pressure_source_reader_corpus.json')
 
 
 def test_verifier_edits_select_their_importing_tests():
@@ -171,7 +180,7 @@ def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes
     for path in ci.AGENT_SUPPLIER_INPUTS:
         assert ci.AGENT_SUPPLIER_TEST in selected(path), path
     assert ci.AGENT_SUPPLIER_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
-    assert ci.AGENT_SUPPLIER_TEST not in selected('core/security/redaction/controls.py')
+    assert ci.AGENT_SUPPLIER_TEST not in by_rules('core/security/redaction/controls.py')
 
 
 def test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks():
@@ -213,14 +222,30 @@ def test_model_version_literal_guard_follows_every_root_it_scans():
                  'tools/validation/validate_claims_language.py', 'tests/verifiers/u4b.py'):
         assert test in selected(path), path
     assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
-    assert test not in selected('core/gui/pkg02_boundary.py')
+    assert test not in by_rules('core/gui/pkg02_boundary.py')
+
+
+@functools.lru_cache(maxsize=None)
+def tracked_files():
+    reads = ci.python_test_reads
+    return tuple(sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file()))
 
 
 def probe(roots):
-    """A tracked file a change to which reaches one of `roots`."""
-    reads = ci.python_test_reads
-    return min(path for path in reads.tracked(PROJECT) for root in roots
-               if reads.root_matches(path, root) and (PROJECT / path).is_file())
+    """A tracked file a change to which reaches one of `roots`: a literal root's own file or first file, else the
+    first file a pattern matches."""
+    reads, files = ci.python_test_reads, tracked_files()
+    for root in sorted(roots, key=lambda root: (reads.is_pattern(root), root)):
+        if not reads.is_pattern(root):
+            index = bisect.bisect_left(files, root)
+            for path in files[index:index + 1] + files[bisect.bisect_left(files, root + '/'):][:1]:
+                if reads.root_matches(path, root):
+                    return path
+            continue
+        for path in files:
+            if reads.root_matches(path, root):
+                return path
+    raise AssertionError(f'no tracked file under {sorted(roots)[:3]}')
 
 
 def test_every_maintained_test_runs_when_a_path_it_reads_changes():
@@ -265,7 +290,7 @@ def test_repository_wide_scans_keep_their_scope():
     test = 'tests/test_verifier_independence.py'
     for path in ('tools/agent_host_witness.py', 'core/a_module_added_later/added.py'):
         assert test in selected(path), path
-    assert test not in selected('docs/user_guide/index.md')
+    assert test not in by_rules('docs/user_guide/index.md')
     reads = ci.python_test_reads
     assert reads.root_matches('tools/agent_host_witness.py', '**/*.py')
     assert reads.root_matches('fixtures/a/b.json', 'fixtures/**') and not reads.root_matches('fixtures', 'fixtures/**/*.json')
@@ -279,7 +304,7 @@ def test_declared_reads_stay_current():
     assert reads.declaration_problems(PROJECT) == []
     assert reads.declared_reads(PROJECT)['tests/test_model_document_schema.py'] == ('**/*.json', '**/*.jsonl')
     assert 'tests/test_model_document_schema.py' in selected('package.json')
-    assert 'tests/test_model_document_schema.py' not in selected('docs/user_guide/index.md')
+    assert 'tests/test_model_document_schema.py' not in by_rules('docs/user_guide/index.md')
 
 
 def test_the_k6_wrapper_collects_every_runner_test_class():
@@ -321,7 +346,7 @@ def test_formerly_never_run_guards_follow_their_roots():
     }
     for test, path in cases.items():
         assert test in selected(path), (test, path)
-        assert test not in selected('core/units/schema_vocabulary.py'), test
+        assert test not in by_rules('core/units/schema_vocabulary.py'), test
     assert 'core/solver/performance_harness/runner/test_k6_runner.py' not in selected(
         'core/solver/performance_harness/runner/k6_runner.py')
 
@@ -336,9 +361,9 @@ def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads(
     # The runner build helper is imported, not path-loaded: the crates it builds are not the test's roots.
     assert 'tools/runner/build_runner.py' in reads['tests/test_units_authority_setup.py']
     assert 'core/product_physics' not in reads['tests/test_caepipe_mbf_importer.py']
-    # Roots the Python job cannot read, and whole top-level directories, are never roots.
+    # Roots the Python job cannot read are never roots.
     assert not [root for roots in reads.values() for root in roots
-                if '/' not in root or root.startswith('execution/') and not root.startswith('execution/_DAG')]
+                if root.startswith('execution/') and not root.startswith('execution/_DAG')]
 
 
 def test_repository_check_tests_are_the_governance_step_s():
@@ -358,9 +383,11 @@ def test_derived_roots_route_a_local_check_that_runs_the_test():
     def runs(check, test):
         return any(test == arg or test.startswith(arg.rstrip('/') + '/') for arg in registry['checks'][check]['command'])
     reads = ci.python_test_reads
-    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file())
+    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file() and not reads._unavailable(path))
     for test, roots in ci.derived_tests(PROJECT).items():
-        for root in roots:
+        # A root under no known directory (a base the code does not show) spans the project and would route every
+        # local change to the full suite; the advisory local registry leaves those to hosted selection.
+        for root in [root for root in roots if reads._prefix(root)]:
             for path in [path for path in files if reads.root_matches(path, root)][:1]:
                 checks = {check for rule in registry['path_rules'] if matches(path, rule['paths']) for check in rule['checks']}
                 assert any(runs(check, test) for check in checks), (test, root, path)
@@ -380,7 +407,8 @@ def test_a_path_only_a_python_test_reads_starts_the_python_job():
     # The always-run security tests read their policy documents; the claims-language test reads every doc.
     assert hosted_ci.select_paths(['docs/security/telemetry_policy.md'], profile)['modes']['piping-python'] == 'full'
     assert hosted_ci.select_paths(['docs/PRD.md'], profile)['modes']['piping-python'] == 'full'
-    assert hosted_ci.select_paths(['loop/LOOP_INIT.md'], profile)['modes']['piping-python'] == 'not-applicable'
+    # A test whose reads the code does not show reads every path, so a governance-only change starts the job too.
+    assert hosted_ci.select_paths(['loop/LOOP_INIT.md'], profile)['modes']['piping-python'] == 'full'
 
 
 def test_claims_language_surface_test_follows_the_validator_s_inputs():
@@ -404,4 +432,45 @@ def test_claims_language_surface_test_follows_the_validator_s_inputs():
                  'core/reporting/report_renderer/src/lib.rs', 'tools/validation/validate_claims_language.py'):
         assert test in selected(path), path
     assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
-    assert test not in selected('loop/LOOP_INIT.md')
+    assert test not in by_rules('loop/LOOP_INIT.md')
+
+
+# Review of #28, round 2 (head 313a0f1): four false negatives. The deriver now fails toward over-selection.
+
+def test_a_parameter_resolves_from_its_own_bindings_not_outer_ones():
+    """Finding 1: `SCHEMAS / name` in `schema(name)` took unrelated outer bindings of `name`, so the file's roots
+    named only those; a parameter keeps its own scope, and an unresolved one keeps its known prefix."""
+    reads = ci.python_test_reads
+    for test in ('tests/test_results_dispatcher_v0_3.py', 'tests/test_load_reference_schema.py'):
+        roots = reads.file_reads(PROJECT, test)[0]
+        assert any(reads.root_matches('schemas/a_schema_added_later.schema.json', root) for root in roots), test
+
+
+def test_an_unknown_f_string_slot_may_span_directories():
+    """Finding 2: a slot may hold `/`, so `pressure_load_state_{...}.analysis_run.json` matches across directories."""
+    path = 'fixtures/results/pressure_load_state_case/one.analysis_run.json'
+    assert 'tests/test_load_reference_headless_artifacts.py' in selected(path)
+    reads = ci.python_test_reads
+    assert reads.to_roots('fixtures/results/a_' + reads.SLOT + '.json') == {
+        'fixtures/results/a_*.json', 'fixtures/results/a_*/**/*.json'}
+
+
+def test_a_path_under_an_unresolved_base_keeps_its_known_suffix():
+    """Finding 3: `snap / "core/.../section_basis.rs"` (a copy of the project) and the b7a census's owner sources."""
+    assert 'tools/retained_pricing/tests/test_w15_rigid_scaling.py' in selected('core/reporting/result_export/src/section_basis.rs')
+    assert 'tools/retained_pricing/tests/test_b7a_scoped_text_model.py' in selected('core/solver/frame_kernel/src/load_ledger.rs')
+    reads = ci.python_test_reads
+    assert reads.to_roots(reads.OUTSIDE + '/core/x.rs') == {'**/core/x.rs'}
+    assert reads.to_roots(reads.OUTSIDE + '/' + reads.SLOT) == set()
+
+
+def test_git_pathspecs_and_unshown_scans_are_derived_or_declared():
+    """Finding 4: `git ls-files -- *.rs ...` is a scan of every Rust file; a scan or pathspec the code does not
+    show needs CI_READS in the file that makes it."""
+    assert 'tests/test_preview_identity_inventory.py' in selected('core/units/src/lib.rs')
+    assert 'tests/test_preview_identity_inventory.py' in selected('core/a_crate_added_later/src/lib.rs')
+    assert ci.python_test_reads.declaration_problems(PROJECT) == []
+    declared = {local for test in ci.python_test_reads.maintained_tests(PROJECT)
+                for local in ci.python_test_reads._closure(PROJECT, test)
+                if ci.python_test_reads._reader(PROJECT, local).declared() is not None}
+    assert {'tests/test_caepipe_correlation.py', 'tools/retained_pricing/price.py'} <= declared
