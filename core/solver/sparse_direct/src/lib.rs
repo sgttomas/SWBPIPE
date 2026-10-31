@@ -332,6 +332,32 @@ impl ProfileFactorization {
         &self.report
     }
 
+    /// Read-only observation of the strictly lower factor `L`: every stored
+    /// entry, row by row in ordered position (rows ascending, columns
+    /// ascending within a row), as `(row, col, value)`. Entries inside the
+    /// profile envelope that are zero are included; the unit diagonal of `L`
+    /// is implied and not yielded. The iterator borrows the factorization;
+    /// it neither allocates nor mutates.
+    pub fn lower_factor_entries(&self) -> impl Iterator<Item = (usize, usize, f64)> + '_ {
+        let factor = &self.factor;
+        (0..factor.dimension).flat_map(move |row| {
+            let first = factor.first_columns[row];
+            let start = factor.row_starts[row];
+            factor.values[start..start + (row - first)]
+                .iter()
+                .enumerate()
+                .map(move |(offset, &value)| (row, first + offset, value))
+        })
+    }
+
+    /// Read-only observation of the pivots `d_j` of `D`, in ordered position.
+    /// The iterator borrows the factorization; it neither allocates nor
+    /// mutates.
+    pub fn pivots(&self) -> impl Iterator<Item = f64> + '_ {
+        let factor = &self.factor;
+        (0..factor.dimension).map(move |row| factor.values[factor.row_starts[row + 1] - 1])
+    }
+
     /// Solves `A x = rhs` in the ordered numbering of the factored matrix.
     /// Operation order is fixed: forward substitution with ascending rows and
     /// ascending columns, diagonal scaling ascending, then backward
