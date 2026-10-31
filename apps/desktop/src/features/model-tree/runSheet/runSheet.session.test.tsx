@@ -22,6 +22,7 @@ import * as sessionModel from "../../workspace/sessionModel";
 import type { SessionEvent } from "../../workspace/sessionEvents";
 import { RETIRED_BATCH_NOTICE, useWorkspaceSession } from "../../workspace/workspaceSession";
 import * as ledger from "./runSheetLedger";
+import { assignRowNumber, modelIds } from "./runSheetModel";
 import { initialRunSheetState, type RunSheetState } from "./runSheetLedger";
 import { useRunSheetStore } from "./runSheetStore";
 import { RunSheet } from "./RunSheet";
@@ -64,6 +65,10 @@ async function queueRows(result: Harness, rows: Array<Partial<Record<SheetColumn
       const key = row.key ?? `r${index + 1}`;
       if (!next.rows.some((candidate) => candidate.key === key)) next = { ...next, rows: [...next.rows, ledger.blankRow(key)], nextRowKey: next.nextRowKey + 1 };
       for (const [column, text] of Object.entries(row)) if (column !== "key") next = setCell(next, key, column as SheetColumnKey, text as string);
+      // These long-lived seam cases retain their legacy assigned identities.
+      // Seed those assignments before the new policy sees them; cold numbering
+      // and reopen behavior are exercised in numberingReservations and shell tests.
+      next = { ...next, idState: assignRowNumber(next.idState, next.header.numbering, key, modelIds(model)) };
       next = assignIds(next, key, model, []);
     });
     return next;

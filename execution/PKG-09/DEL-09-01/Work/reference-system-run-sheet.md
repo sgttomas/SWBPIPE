@@ -60,42 +60,28 @@ rate to an Apply cycle, so no numerical time credit for batching is inferred.
      kg/m^3, Material density kg/m^3, Mill tolerance mm, Corrosion allowance mm. Bend R keeps
      the project unit, m.
 
-**How the sheet's ids meet the fixture's.** A row's number is assigned when the row first
-gets a value, in the order rows are typed, and every row takes one, `F` and `S` rows
-included (`RunSheet.tsx:192-195`; `runSheetModel.ts:311-333`; DEL-07-02 `Work/run-sheet-entry.md`
-§3.2). With pad 3 the number 10 gives `node:RS-010` (`runSheetModel.ts:287-298`), and a pipe
-takes the number of the row whose end node is its start (`runSheetModel.ts:738-753`), as the
-fixture names RS-P010 (010 → 020). The ids still to type:
+**How the sheet's ids meet the fixture's.** New P/R/B/V/L rows take a number
+when first entered. F and S do not consume numbers; previously assigned rows
+and stored model records keep their identities (DEL-07-02 `Work/run-sheet-entry.md`
+§3.2, §10). With pad 3, number 10 gives `node:RS-010`; pipes take their start
+node's sheet number when available, with the stated fallback to their own number.
+Support and bend ids/labels are still entered in Ids and sources as below.
 
-- a pipe whose start node has no sheet number (a typed id, such as a corner's) or is a second
-  pipe from one node (the tee branch) falls back to its own row's number
-  (`runSheetModel.ts:746-752, 877-887`), which is not the fixture's;
-- the B1 and B2 corners' derived ids, RS-070 and RS-090, are the ids of their bends' near
-  tangents, which the sheet refuses as duplicates (`runSheetModel.ts:903-909`), so those
-  corners are typed;
-- the `F` row naming RS-130 takes the number 220, so the branch rows take 230, 240 and 250,
-  whose derived ids are not the fixture's RS-215, the B3 straight's RS-P220 or RS-230;
-- a support's id derives as `support:⟨node token⟩` and a bend's as `node:⟨corner⟩-T1`, `-T2`,
-  `pipe:⟨corner⟩-bend` and `component:⟨corner⟩-bend` (`runSheetModel.ts:299-303`). The
-  **Ids and sources** group has a cell for each: **Support id** and **Support label** on a
-  row with a support code; **Bend start id**, **Bend end id**, **Bend arc id**, **Bend
-  component id** and **Bend geometry source** on a `B` row (`runSheetView.ts:63-69, 461-480`;
-  `runSheetModel.ts:764-778, 828-835, 852-856`).
+Type the 26 rows in their ordinary table order, with the S row in place. An
+explicit unqueued pipe-id overwrite releases its earlier displayed reservation,
+so Pipe id need not be typed first. A successfully queued/applied pipe id remains
+reserved. The current count is **10** typed Node id and Pipe id cells:
+three temporary bend-corner ids; RS-P070 and RS-P090; branch node RS-215 and
+pipe RS-P210; RS-P220; and the final node RS-230 and pipe RS-P230.
+B3's temporary corner is explicitly `node:RS-B3-CORNER`, because its new counter
+number would otherwise give RS-230, the final node's id.
 
-**A pipe id is fixed once shown.** A pipe id derived by either rule is recorded for its row the
-first time the row shows it, and from then on no other row may take it, derived or typed, even
-after the person overwrites it or deletes the row (`RunSheet.tsx:125-130`;
-`runSheetView.ts:300-311`; `runSheetModel.ts:503-508, 733-737, 903-909`). So on each row whose
-Pipe id §3.4 marks **(t)**, type the Pipe id before any other cell of that row. If it is
-typed after the row's first value, the id the row showed first stays reserved to that row. On
-row 9, for example, that is RS-P080, which row 10 then cannot have.
+Historical #41 figures were 9 ids with the special entry order (redundant F
+removed, S inserted last and Pipe ids entered first), and 35 typed strictly in
+order, compared with 40 before #41. Those are retained historical measurements;
+they are not the new numbering policy's count. No extra derivation rule is
+introduced to force the new count back to nine.
 
-The order chosen here takes 9 typed Node id and Pipe id cells, where the earlier route took 40:
-the redundant `F node:RS-130` row of the earlier table (its row 14) is dropped, since the next
-row continues from RS-130 anyway, and the second support at RS-060, an `S` row, is inserted
-(**Insert row below** row 6, `RunSheet.tsx:470`) after every other row is typed, so it takes
-the last number (260) rather than shifting the rest. Typed strictly in order, with both rows
-taking numbers in the main chain, the authoring lane's round-trip test counts 35 typed ids.
 Ten of the eleven supports and all three bends are entered in the sheet with the fixture's
 ids; RS-VS1 stays a form (§3.7). Criteria 6 and 17 compare against the fixture's ids, which this route produces.
 
@@ -157,9 +143,9 @@ tolerance 1.0, Corrosion allowance 1.5. The `F` row naming RS-130 inherits row 1
 (§2.3 rule 1).
 
 Ids are written without their `node:` / `pipe:` prefix; the cells take the full id. **(t)**
-marks a typed cell, typed before any other cell of its row when it is a Pipe id (§2); the
-others are the derived id. **No.** is the number the row takes. Type the rows in table order,
-except row 7, which is inserted after row 26 is typed.
+marks a typed cell; others are derived ids. **No.** is the id-counter number,
+not the grid's row position. Type all rows in table order; F/S rows have no counter
+number. Pipe-id overrides may follow the increments before the sheet is queued.
 
 | # | No. | dX | dY | dZ | Kind | Node | Section | Orientation | Other entries | Node id | Pipe id |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -169,7 +155,7 @@ except row 7, which is inserted after row 26 is typed.
 | 4 | 40 | 0.6 | | | V | | | | Valve V1; Component details | RS-040 | RS-P030 |
 | 5 | 50 | 0.15 | | | L | | | | Flange F2; Component details | RS-050 | RS-P040 |
 | 6 | 60 | 2.2 | | | | | | | Support LS1 | RS-060 | RS-P050 |
-| 7 | 260 | | | | S | | | | Support V060; inserted last | | |
+| 7 | — | | | | S | | | | Support V060 | | |
 | 8 | 70 | 2.5 | | | B | | | | Bend B1 | RS-B1-CORNER (t) | RS-P060 |
 | 9 | 80 | | | 3 | | | | 1 0 0 | | RS-080 | RS-P070 (t) |
 | 10 | 90 | | | 3 | B | | | | Bend B2 | RS-B2-CORNER (t) | RS-P080 |
@@ -185,17 +171,19 @@ except row 7, which is inserted after row 26 is typed.
 | 20 | 190 | | 0.6 | | | | | | | RS-190 | RS-P180 |
 | 21 | 200 | | 2.4 | | | | | | Support V200 | RS-200 | RS-P190 |
 | 22 | 210 | | 2 | | | | | | Support B | RS-210 | RS-P200 |
-| 23 | 220 | | | | F | node:RS-130 | | | | | |
-| 24 | 230 | | | -2.5 | | | section:RS-S170 | 1 0 0 | Ins. thk 50; Mill tolerance 0.8; Support G3 | RS-215 (t) | RS-P210 (t) |
-| 25 | 240 | | | -2.5 | B | | | | Bend B3 | RS-240 | RS-P220 (t) |
-| 26 | 250 | 2 | | | | | | 0 0 1 | Support C | RS-230 (t) | RS-P230 (t) |
+| 23 | — | | | | F | node:RS-130 | | | | | |
+| 24 | 220 | | | -2.5 | | | section:RS-S170 | 1 0 0 | Ins. thk 50; Mill tolerance 0.8; Support G3 | RS-215 (t) | RS-P210 (t) |
+| 25 | 230 | | | -2.5 | B | | | | Bend B3 | RS-B3-CORNER (t) | RS-P220 (t) |
+| 26 | 240 | 2 | | | | | | 0 0 1 | Support C | RS-230 (t) | RS-P230 (t) |
 
-The nine typed ids, and why each is typed: the B1 and B2 corners (rows 8, 10), whose derived
-ids RS-070 and RS-090 are their bends' near tangents; the pipes after them (rows 9, 11), whose
-start is a typed corner; the branch's first pipe and its end node (row 24), a second pipe from
-RS-130 whose derived number is 230; the B3 straight (row 25), whose start RS-215 is typed; and
-the last node and pipe (row 26), whose derived ids are RS-250 and RS-P240. The B3 corner keeps
-its derived id RS-240, which no fixture record uses and the bend removes.
+The ten typed ids, and why each is typed: B1 and B2's default corner ids
+would coincide with their tangent ids, while B3's would coincide with final
+node RS-230, so all three temporary corners are named. The two straights after
+B1/B2 have unnumbered starts and need RS-P070/RS-P090 overrides. The branch's
+first node RS-215 is explicit and its pipe RS-P210 is a second pipe from
+RS-130. Its next pipe is explicitly RS-P220. The final row's own number is 240,
+so node RS-230 and pipe RS-P230 are explicit too. All final fixture identities
+remain unchanged; the temporary corners are removed by bend realization.
 
 **Valve and flange rows (Component details).** Open Component details and use
 Kind L on rows 3 and 5 and V on row 4. The row supplies its displayed pipe and
@@ -507,7 +495,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.1 Pressure profile | 2 | 1 | 1 |
 | 3.2 Material | 63 | 3 | 6 |
 | 3.3 Sections | 21 | 3 | 3 |
-| 3.4 Run sheet: 26 rows (182 cells, including 60 component entries) and header (14) | 196 | 1 | 16 |
+| 3.4 Run sheet: 26 rows (183 cells, including 60 component entries) and header (14) | 197 | 1 | 16 |
 | 3.4 RS-050 correction | 3 | 1 | 0.75 |
 | 3.5 Bend SIFs | 9 | 3 | 0.75 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
@@ -519,7 +507,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **664** | **29** | **about 60 (59.5)** |
+| **Total** | **665** | **29** | **about 60 (59.5)** |
 
 Historical #41 counts (before the component rows below):
 
@@ -561,6 +549,13 @@ The 66-entry / three-cycle / six-minute valve/flange form step is removed. Total
 59.5 minutes. This is about one minute less than G6 alone, not a measured speedup.
 G9 batching still receives no inferred timing credit.
 
+With F/S numbering corrected, the 26 rows can be entered in place and pipe
+overrides need no special order. The B3 temporary-corner entry adds one cell:
+197 sheet entries and 665 total. At the same rate, 197 × 8/98 = 16.08 minutes,
+rounded to 16 under the existing quarter-minute convention. The total stays
+59.5 minutes with 29 per-intent cycles. This correctness fix receives no
+unmeasured navigation or timing credit.
+
 The estimate is about 60 minutes, about twice the provisional 30. It was about 77 before #41
 (the tee, #45, adds 3), and about 130 before #38's fills and case copies (gaps G7, G8),
 which brought the per-member load/reference state and pressure regions (§3.8, §3.10, §3.11)
@@ -583,7 +578,7 @@ cost §5 shows. None is worked around outside the operation route.
 |---|---|---|---|---|
 | G1 | Closed by #41 (authoring lane I3): **Support id** and **Support label** cells in the "Ids and sources" group, so two supports at one node take their own ids; ten of the eleven supports are rows, with the fixture's ids and labels. RS-VS1 stays a form: no support code carries a hanger | `runSheetView.ts:29, 63-64, 461-468`; `runSheetModel.ts:22, 764-778` | DEL-07-02 | Support cells (§3.4); RS-VS1 by form (§3.7) |
 | G2 | Closed by #41: **Bend start id**, **Bend end id**, **Bend arc id**, **Bend component id** and **Bend geometry source** cells on `B` rows, used by the bend insertion and the sheet's record projection. The bend labels stay fixed (§3.14) | `runSheetView.ts:65-69, 469-480`; `runSheetModel.ts:828-835, 852-856`; `runSheetBatch.ts:171-197` | DEL-07-02 | `B` rows (§3.4); SIFs by form (§3.5) |
-| G3 | Closed by #41: **Pad numbers to N digits** and **Pipe number from** = its start node, with a stated fallback; a pipe id is fixed once shown | `RunSheet.tsx:557-563`; `runSheetModel.ts:287-298, 738-753`; `runSheetView.ts:300-311` | DEL-07-02 | Types 9 ids, each Pipe id first in its row (§2, §3.4) |
+| G3 | Closed by #41: **Pad numbers to N digits** and **Pipe number from** = its start node, with a stated fallback; a pipe id is fixed once shown | `RunSheet.tsx:557-563`; `runSheetModel.ts:287-298, 738-753`; `runSheetView.ts:300-311` | DEL-07-02 | Types 10 ids in natural row order; unused unqueued pipe reservations release (§2, §3.4) |
 | G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:696-700` | DEL-07-02 | One X-position edit (§3.4) |
 | G5 | Closed by #36 (authoring lane I1): the E/nu create form takes the material-level thermal expansion coefficient, and a wasm-engine test creates RS-M1 from the form equal to the fixture's record | `PressureAuthoringPanel.tsx:70` | DEL-07-03 | §3.2 step 1 |
 | G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections in the component rows; no later end-size edits (§3.4) |

@@ -217,6 +217,7 @@ checks:
 - apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.test.ts
 - apps/desktop/src/features/model-tree/runSheet/componentRows.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/numberingReservations.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/RunSheet.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.session.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheetReconcile.measure.test.tsx

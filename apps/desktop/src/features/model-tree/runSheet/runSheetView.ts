@@ -559,6 +559,14 @@ export const sentenceFragment = (message: string) => {
 
 /** Write one cell of a draft row; blank text returns it to inheritance (§2.4). */
 export function setCell(state: RunSheetState, rowKey: string, column: SheetColumnKey, text: string): RunSheetState {
+  const row = state.rows.find((item) => item.key === rowKey);
+  const fixed = state.idState.pipes?.[rowKey];
+  // Replacing a never-queued displayed id is the person's explicit change.
+  // Its old reservation must not prevent another row from using that id.
+  if (column === "pipeId" && text.trim() && fixed && text.trim() !== fixed.id && row && !row.pending && !currentEntry(state.ledger, rowKey) && !state.idState.retainedPipes?.[fixed.id]) {
+    const { [rowKey]: _released, ...pipes } = state.idState.pipes!;
+    state = { ...state, idState: { ...state.idState, pipes } };
+  }
   return {
     ...state,
     rows: state.rows.map((row) => {
@@ -579,10 +587,17 @@ export function setCell(state: RunSheetState, rowKey: string, column: SheetColum
   };
 }
 
-/** §3.2 A row's number is assigned once, when it first gets a value. */
+/** §3.2 New F/S rows need no entity number. Existing assignments are never changed. */
 export function assignIds(state: RunSheetState, rowKey: string, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
   if (state.idState.assigned[rowKey] !== undefined) return state;
-  const held = new Set<string>([...modelIds(model), ...reserved]);
+  const row = state.rows.find((item) => item.key === rowKey);
+  const kind = row ? (shownValues(state, row).kind ?? "").trim().toUpperCase() : "";
+  if (kind === "F" || kind === "S") {
+    if (state.idState.refused?.[rowKey] === undefined) return state;
+    const { [rowKey]: _cleared, ...refused } = state.idState.refused;
+    return { ...state, idState: { ...state.idState, refused } };
+  }
+  const held = new Set<string>([...modelIds(model), ...reserved, ...Object.keys(state.idState.retainedPipes ?? {})]);
   for (const [key, n] of Object.entries(state.idState.assigned)) {
     if (key === rowKey) continue;
     const ids = idsForNumber(state.header.numbering, n);
@@ -597,9 +612,16 @@ export function insertRow(state: RunSheetState, index: number): { state: RunShee
   rows.splice(Math.max(0, Math.min(index, rows.length)), 0, blankRow(key));
   return { state: { ...state, rows, nextRowKey: state.nextRowKey + 1 }, key };
 }
-/** Delete a draft row: its ids leave the sheet, and its numbers are never reused (§3.4). */
+/** Delete a draft row: release a never-queued displayed pipe id; keep consumed numbers and retained pipe identities. */
 export function deleteDraftRow(state: RunSheetState, rowKey: string): RunSheetState {
-  return { ...state, rows: state.rows.filter((row) => row.key !== rowKey) };
+  const row = state.rows.find((item) => item.key === rowKey);
+  const fixed = state.idState.pipes?.[rowKey];
+  let idState = state.idState;
+  if (row && !row.pending && !currentEntry(state.ledger, rowKey) && fixed && !idState.retainedPipes?.[fixed.id]) {
+    const { [rowKey]: _released, ...pipes } = idState.pipes!;
+    idState = { ...idState, pipes };
+  }
+  return { ...state, idState, rows: state.rows.filter((row) => row.key !== rowKey) };
 }
 /** Discard edit (§3.6): the row returns to its current entry's values. */
 export function discardEdit(state: RunSheetState, rowKey: string): RunSheetState {
