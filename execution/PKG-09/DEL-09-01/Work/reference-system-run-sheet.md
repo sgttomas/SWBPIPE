@@ -1,6 +1,6 @@
 # Reference system run sheet (exit criterion 7)
 
-**Basis:** `main` at `66ecc9f17`, at `5bb2f9ff0` for the tee (§3.6 item 3), and at `148a1089b`
+**Basis:** `main` at `66ecc9f17`, at `5bb2f9ff0` for the tee (§3.6 item 2), and at `148a1089b`
 for the run sheet's id cells and numbering (#41: §2, §3.4, §3.5, §3.7); fixture `fixtures/reference_system/reference_system.json`
 (tranche 1, model document 0.8.0) and its specification `reference-system.md` beside this
 document. Release target `docs/RELEASE_TARGET_v1.0.md` §4, criterion 7. Desktop paths are
@@ -571,8 +571,8 @@ id cells and numbering (gaps G1–G3) moved ten supports and the three bends int
 entries. The 40 typed ids became 9, and the support and bend cells add 67. The authoring lane's
 round-trip test (#41) reports the 9 ids, the ten supports' ids and labels, and the twelve bend
 ids with three geometry sources; the other cells are counted here from the code. The
-component forms (§3.6),
-about 18.75 minutes, are now the largest share; the run sheet itself is about 11.
+remaining component forms (§3.6) take about 9 minutes; the run sheet itself,
+now including the valve and flanges, takes about 16 minutes and is the largest step.
 
 ## 6. Gaps found
 
@@ -586,7 +586,7 @@ cost §5 shows. None is worked around outside the operation route.
 | G3 | Closed by #41: **Pad numbers to N digits** and **Pipe number from** = its start node, with a stated fallback; a pipe id is fixed once shown | `RunSheet.tsx:557-563`; `runSheetModel.ts:287-298, 738-753`; `runSheetView.ts:300-311` | DEL-07-02 | Types 9 ids, each Pipe id first in its row (§2, §3.4) |
 | G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:696-700` | DEL-07-02 | One X-position edit (§3.4) |
 | G5 | Closed by #36 (authoring lane I1): the E/nu create form takes the material-level thermal expansion coefficient, and a wasm-engine test creates RS-M1 from the form equal to the fixture's record | `PressureAuthoringPanel.tsx:70` | DEL-07-03 | §3.2 step 1 |
-| G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections at creation; no later end-size edits (§3.6) |
+| G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections in the component rows; no later end-size edits (§3.4) |
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
 | G9 | Closed by #54: independent queued user intents can move to one reviewed atomic batch, with named refusals for stale dependencies and duplicate operation ids | DEL-07-02 `Work/queued-changes-batch.md`; `queuedChangesBatch.test.tsx` | DEL-07-02 | Optional batching under Review changes; §5 retains 29 per-intent cycles before batching, with no inferred time credit |

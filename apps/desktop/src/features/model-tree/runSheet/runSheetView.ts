@@ -444,7 +444,7 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
   if (field) {
     if (resolvedRow.componentMissing) return { ...base, text: field === "id" ? resolvedRow.componentMissing : "", origin: `missing: component ${resolvedRow.componentMissing}`, refusal: "This component no longer exists." };
     const draft = resolvedRow.component;
-    const raw = row.values.component?.[field] ?? "";
+    const raw = (row.values.component?.[field] ?? "").trim();
     const value = draft?.[field] ?? raw;
     const stored = row.status === "applied" || row.status === "detached";
     return { ...base, ...(field === "id" && resolvedRow.componentMismatch ? { refusal: resolvedRow.componentMismatch } : {}), text: value, italic: Boolean(draft && !raw && value),

@@ -40,7 +40,7 @@ six apply cycles. Creation now adds six unit selections instead. Its valve and
 flange step changes from 84 entries / nine cycles to 66 entries / three cycles.
 Retaining the sheet's 5.5 s per form entry and 0.75 min per later field edit:
 10 - 6 × 0.75 + 6 × 5.5/60 = 6.05 min, rounded to 6 min under the existing
-quarter-minute convention. The sheet total changes from 687 entries / 38 cycles /
+quarter-minute convention. At G6, the sheet total changes from 687 entries / 38 cycles /
 64.5 min to 669 entries / 32 cycles / 60.5 min (about 61 minutes), before counting
 G9 batching. These are estimates, not a timed walkthrough. Criterion 7's value
 and the walkthrough remain with the owner and Agent 0.

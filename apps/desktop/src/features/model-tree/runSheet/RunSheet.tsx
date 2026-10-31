@@ -17,6 +17,7 @@ import { mapOutcomeToRows } from "./runSheetBatch";
 import { adoptCurrentValues, applySessionEvent, currentEntry, reconcileRunSheet, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
 import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type PipeNumberFrom, type QuantityColumn, type RunSheetFinding, type RunSheetNumbering } from "./runSheetModel";
 import { CENTER_OF_GRAVITY_CONVENTION } from "../../component-creation/componentIntent";
+import { componentField } from "./runSheetComponents";
 import type { RunSheetStore } from "./runSheetStore";
 import {
   CODE_LISTS, COLUMN_GROUP_LABELS, FAST_PATH, ID_COLUMNS, SHEET_COLUMNS, assignIds, buildDraftBatch, cellName, cellView, deleteDraftRow, discardEdit, effectiveText, insertRow,
@@ -682,6 +683,8 @@ function startBranchReason(row: ViewRow, lookup: RunSheetStore["lookup"]): strin
 
 function typedText(row: ViewRow | undefined, column: SheetColumnKey): string {
   if (!row) return "";
+  const field = componentField(column);
+  if (field) return row.values.component?.[field] ?? "";
   const member = ID_COLUMNS[column];
   if (member) return row.values.ids?.[member] ?? "";
   const value = (row.values as Record<string, unknown>)[column];

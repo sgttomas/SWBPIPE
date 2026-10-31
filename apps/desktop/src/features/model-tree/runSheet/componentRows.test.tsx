@@ -180,6 +180,23 @@ describe("component rows in the workspace and accessible grid", () => {
     }
     expect(cell("component.lengthUnit")).toHaveTextContent("m");
     expect(cell("component.lengthUnit")).toHaveAccessibleDescription(/derived: the project unit/);
+    // Whitespace means the project unit, with the same origin as an empty cell.
+    act(() => cell("component.lengthUnit").focus());
+    fireEvent.keyDown(cell("component.lengthUnit"), { key: " " });
+    const unitEditor = within(cell("component.lengthUnit")).getByRole("textbox");
+    fireEvent.change(unitEditor, { target: { value: " " } });
+    fireEvent.keyDown(unitEditor, { key: "Enter" });
+    expect(cell("component.lengthUnit")).toHaveTextContent("m");
+    expect(cell("component.lengthUnit")).toHaveAccessibleDescription(/derived: the project unit/);
+    // Reopening an explicit value for editing must preserve it without a change.
+    for (const [column, value] of [["endASizeUnit", "mm"], ["weight", "100"], ["geometrySourceReference", "entered geometry source"]]) {
+      const target = cell(`component.${column}`);
+      act(() => target.focus()); fireEvent.keyDown(target, { key: "F2" });
+      const editor = within(target).getByRole("textbox");
+      expect(editor).toHaveValue(value);
+      fireEvent.keyDown(editor, { key: "Enter" });
+      expect(target).toHaveTextContent(value);
+    }
     const queue = screen.getByRole("button", { name: /^Queue rows$/ });
     await waitFor(() => expect(queue).toBeEnabled());
     await act(async () => { fireEvent.click(queue); });
