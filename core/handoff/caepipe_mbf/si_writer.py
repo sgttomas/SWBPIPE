@@ -138,7 +138,7 @@ MATERIAL_ORIGINS = ("project_invented", "user_supplied")
 # what is written, or refuses by name; every other non-empty field is listed once, as one omitted loss entry per field.
 _HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "nodes",
                     "pipe_segments", "supports", "components", "load_cases", "combinations",
-                    "reference_configurations", "model_settings", "shear_model"}
+                    "reference_configurations", "model_settings", "shear_model", "spectra"}
 _HANDLED_FIELDS = {
     "materials": {"id", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient",
                   "temperature_points", "expansion_laws"},
@@ -146,13 +146,13 @@ _HANDLED_FIELDS = {
     "pipe_segments": {"id", "from", "to", "section", "material", "y_reference"},
     "pipe_segments.section": {"outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance",
                               "insulation_thickness", "material_density", "contents_density", "insulation_density"},
-    "supports": {"id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear"},
+    "supports": {"id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear", "direction"},
     "components": {"id", "kind", "node", "geometry", "modifiers", "mechanics_interface"},
     "components.geometry": {"bend_pipe_ref", "bend_radius", "bend_angle"},
     "components.modifiers": {"flexibility_factor_user_value", *BEND_SIF_FIELDS},
     "components.mechanics_interface": {"solver_consumption"},
     "load_cases": {"id", "primitive_loads", "pressure_regions", "equivalent_static", "modulus_basis_ref",
-                   "modulus_basis_temperature", "analysis_state"},
+                   "modulus_basis_temperature", "analysis_state", "condition_use", "test_condition"},
     "load_cases.primitive_loads": {"id", "category", "target", "direction", "magnitude", "dimension"},
     "load_cases.pressure_regions": {"id", "member_pipe_ids", "member_connector_ids", "pressure_basis", "pressure",
                                     "terminals"},
@@ -331,6 +331,26 @@ def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
 def sidecar_self_digest(sidecar: Mapping[str, Any]) -> str:
     """The sidecar's self-digest (Design §15): the lowercase hex SHA-256 of sidecar_canonical_bytes."""
     return hashlib.sha256(sidecar_canonical_bytes(sidecar)).hexdigest()
+
+
+def _combination_member_0_9_0(combination: Mapping[str, Any], case_ids: set[Any],
+                              combination_ids: set[Any]) -> tuple[str, str] | None:
+    """Model document 0.9.0's combination members (§2.2, §2.4, §3.5): the code and what is refused, or None. An
+    operand id names a load case first, and a combination only when no load case has it."""
+    if "difference_basis" in combination:
+        return "MBF-SI-DIFFERENCE-BASIS-UNSUPPORTED", "a difference basis"
+    if "subtrahend_support_state" in combination:
+        return "MBF-SI-SUBTRAHEND-SUPPORT-STATE-UNSUPPORTED", "a subtrahend support state"
+    if combination.get("basis") in ("absolute_sum", "srss"):
+        return "MBF-SI-COMBINATION-BASIS-UNSUPPORTED", f"the {combination['basis']} basis"
+    terms = combination.get("terms") if isinstance(combination.get("terms"), list) else []
+    ids = [combination.get(key) for key in ("minuend_id", "subtrahend_id")]
+    ids += combination.get("operand_ids") if isinstance(combination.get("operand_ids"), list) else []
+    nested = any(isinstance(term, Mapping) and "combination" in term for term in terms) or any(
+        isinstance(item, str) and item not in case_ids and item in combination_ids for item in ids)
+    if nested:
+        return "MBF-SI-COMBINATION-NESTED-UNSUPPORTED", "a combination operand"
+    return None
 
 
 def _canonical_number(value: float) -> str:
@@ -662,6 +682,10 @@ class _Writer:
         if self.model.get("reference_configurations"):
             self.refuse("MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED", "model.reference_configurations",
                         "reference configurations are not exported by the pilot writer")
+        # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4, §3.5): spectra are refused by name.
+        if _present(self.model.get("spectra")):
+            self.refuse("MBF-SI-SPECTRUM-UNSUPPORTED", "model.spectra",
+                        "response spectra (model document 0.9.0) are not exported by the pilot writer")
 
     def check_project_units(self) -> None:
         project = self.model.get("project")
@@ -1035,6 +1059,15 @@ class _Writer:
                 self.diag("MBF-SI-REFERENCE-UNRESOLVED", "error", entity, f"{entity} is at unknown node {node!r}")
                 continue
             family = support.get("family")
+            # Model document 0.9.0 (§2.4, §3.5): a snubber is refused by name.
+            if family == "snubber":
+                self.refuse("MBF-SI-SNUBBER-UNSUPPORTED", entity,
+                            f"{entity} is a snubber (model document 0.9.0), a dynamic-only restraint the pilot writer "
+                            "does not export")
+                continue
+            support = self.axis_aligned(support, entity)
+            if support is None:
+                continue
             if family == "spring" and support.get("hanger") is None and support.get("nonlinear") is None:
                 self.read_spring(support, entity, node)
                 continue
@@ -1082,6 +1115,34 @@ class _Writer:
             self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", f"node:{node}",
                         f"node {node!r} carries springs and rigid restraints; a spring is written as a flexible "
                         "anchor (KA with TRAK), which the importer reads alone at its node")
+
+    def axis_aligned(self, support: Mapping[str, Any], entity: str) -> Mapping[str, Any] | None:
+        """Model document 0.9.0 (§2.1, §3.5): an exactly axis-aligned `direction` (one nonzero component) is the
+        record on that axis, as the solve's lowering reads it: the direction is removed and the record's single DOF
+        token (restraint and stiffness) becomes UX, UY or UZ for it. Any other direction is refused by name."""
+        if "direction" not in support:
+            return support
+        direction = support["direction"]
+        components = [direction.get(axis) for axis in ("x", "y", "z")] if isinstance(direction, Mapping) else []
+        numbers = len(components) == 3 and all(isinstance(c, (int, float)) and not isinstance(c, bool)
+                                                and math.isfinite(c) for c in components)
+        nonzero = [index for index, c in enumerate(components) if numbers and c != 0]
+        restraints = support.get("restraints")
+        stiffness = support.get("stiffness")
+        tokens = {_DOF_TOKENS.get(token) for token in restraints} if isinstance(restraints, list) else {None}
+        if isinstance(stiffness, Mapping):
+            tokens.add(_DOF_TOKENS.get(stiffness.get("dof")))
+        if not (numbers and len(nonzero) == 1 and len(tokens) == 1 and next(iter(tokens)) in DOFS[:3]):
+            self.refuse("MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED", entity,
+                        f"{entity} has a direction (model document 0.9.0) that is not exactly along one global axis "
+                        "on a single translational DOF; a skewed restraint is not exported")
+            return None
+        token = DOFS[nonzero[0]]
+        lowered = {key: value for key, value in support.items() if key != "direction"}
+        lowered["restraints"] = [token for _ in restraints]
+        if isinstance(stiffness, Mapping):
+            lowered["stiffness"] = {**stiffness, "dof": token}
+        return lowered
 
     def read_spring(self, support: Mapping[str, Any], entity: str, node: str) -> None:
         """A spring support (Design §12, tranche 3): one translational DOF, named by its stiffness and its restraint
@@ -1138,6 +1199,15 @@ class _Writer:
             for name in ("equivalent_static", "modulus_basis_ref", "modulus_basis_temperature", "analysis_state"):
                 if case.get(name) is not None:
                     self.refuse("MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED", entity, f"{entity} {name} is not exported")
+            # Model document 0.9.0 (§1.2, §2.4, §3.5): a case's condition use and test condition are refused by name.
+            if "condition_use" in case:
+                self.refuse("MBF-SI-CONDITION-USE-UNSUPPORTED", entity,
+                            f"{entity} uses operating conditions (condition_use, model document 0.9.0), which the "
+                            "pilot writer does not export")
+            if "test_condition" in case:
+                self.refuse("MBF-SI-TEST-CONDITION-UNSUPPORTED", entity,
+                            f"{entity} is a hydrostatic test condition (test_condition, model document 0.9.0), which "
+                            "the pilot writer does not export")
             loads = case.get("primitive_loads") or []
             if not isinstance(loads, list):
                 self.invalid(entity, f"{entity} primitive_loads must be a list")
@@ -1186,8 +1256,20 @@ class _Writer:
                     self.read_load(case["id"], label, load)
         self.case_labels = kinds
         self.round_sums()
-        for combination in _list(self.model.get("combinations"), self, "model.combinations"):
+        combinations = _list(self.model.get("combinations"), self, "model.combinations")
+        cases = self.model.get("load_cases")
+        case_ids = {case.get("id") for case in (cases if isinstance(cases, list) else []) if isinstance(case, Mapping)}
+        combination_ids = {item.get("id") for item in combinations if isinstance(item, Mapping)}
+        for combination in combinations:
             identity = combination.get("id") if isinstance(combination, Mapping) else None
+            refusal = _combination_member_0_9_0(combination, case_ids, combination_ids) \
+                if isinstance(combination, Mapping) else None
+            if refusal is not None:
+                code, what = refusal
+                self.refuse(code, f"combination:{identity}",
+                            f"combination {identity!r} carries {what} (model document 0.9.0), which the pilot writer "
+                            "does not export")
+                continue
             self.omit("MBF-SI-COMBINATION-NOT-EXPORTED", f"combination:{identity}",
                       f"combination {identity!r} is not exported; the target program forms its own combinations")
 
