@@ -32,6 +32,7 @@ import ast
 from fnmatch import fnmatchcase
 import functools
 from pathlib import Path
+import re
 import subprocess
 
 # Tests the Repository checks job runs on every PR (`.github/workflows/governance-harness.yml`);
@@ -62,6 +63,7 @@ GIT_VALUED_OPTIONS = {'-C', '-c', '-e', '-f', '--format', '--exclude', '-x', '-X
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)
 COMPREHENSIONS = (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
 COMBINATIONS = 64
+PRINTF = re.compile(r'%(\([^)]*\))?[#0 +-]*(\*|\d+)?(\.(\*|\d*))?[hlL]?[diouxXeEfFgGcrsa]')
 
 
 @functools.lru_cache(maxsize=None)
@@ -131,7 +133,13 @@ def to_roots(text):
             options = [[head + '*' + tail], [head + '*', '**', '*' + tail]]
         alternatives = [done + option for done in alternatives for option in options]
         if len(alternatives) > 8:
-            alternatives = [done + option for done in alternatives[:1] for option in [['**']]]
+            # Too many forms: every one lies under the known directories before the first unknown part.
+            known = []
+            for part in segments:
+                if SLOT in part:
+                    break
+                known.append(part)
+            return {'/'.join(known + ['**'])}
     roots = set()
     for parts in alternatives:
         collapsed = []
@@ -1009,9 +1017,16 @@ def _fill(text, kind):
                 out.append(SLOT)
                 index = len(text) if end < 0 else end + 1
                 continue
-        if kind == '%' and char == '%' and index + 1 < len(text):
-            out.append('%' if text[index + 1] == '%' else SLOT)
-            index += 2
+        if kind == '%' and char == '%':
+            if text[index:index + 2] == '%%':
+                out.append('%')
+                index += 2
+                continue
+            # A whole conversion specification (mapping key, flags, width, precision, length, type); an unrecognised
+            # one is unknown text up to the end.
+            match = PRINTF.match(text, index)
+            out.append(SLOT)
+            index = match.end() if match else len(text)
             continue
         out.append(char)
         index += 1
@@ -1104,15 +1119,18 @@ def declared_reads(project):
     return found
 
 
+@functools.lru_cache(maxsize=None)
 def _closure(project, test):
-    """A test and the non-test files it loads or runs by path, transitively."""
+    """A test and the project Python files it imports, loads or runs by path, transitively: each one's own reads
+    are the test's reads too (an imported helper may read the test's inputs)."""
     pending, seen = [test], []
     while pending:
         local = pending.pop()
         if local not in seen:
             seen.append(local)
-            pending.extend(sorted(file_reads(project, local)[1]))
-    return seen
+            _, loaded, imported = file_reads(project, local)
+            pending.extend(sorted(loaded | imported))
+    return tuple(seen)
 
 
 def declaration_problems(project):
@@ -1150,19 +1168,10 @@ def test_reads(project):
     """{test: sorted project roots it reads} for every maintained test."""
     reads = {}
     for test in maintained_tests(project):
-        roots, imported = set(), set()
+        roots = set()
         for local in _closure(project, test):
-            named, _, imports = file_reads(project, local)
-            roots |= named
-            imported |= imports
-        # Imported modules are roots, and so are the modules they import; their own path reads are not.
-        pending, followed = sorted(imported), set()
-        while pending:
-            local = pending.pop()
-            if local not in followed:
-                followed.add(local)
-                pending.extend(file_reads(project, local)[2])
-        roots |= followed
+            roots |= file_reads(project, local)[0]
+            roots.add(local)
         roots.discard(test)
         reads[test] = tuple(sorted(roots))
     return reads
