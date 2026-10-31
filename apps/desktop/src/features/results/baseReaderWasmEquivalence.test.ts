@@ -52,8 +52,13 @@ describe("R2 equivalence gate, item 1: the wasm readers are the native Rust read
       return;
     }
     const { sourceJson, modelJson, invocationJson } = input;
-    const dispatch = JSON.parse(engine.readerDispatchJson(sourceJson, modelJson, invocationJson));
-    expect(sortKeys(dispatch), "dispatch").toEqual(sortKeys(native.dispatch));
+    // C1 slice 1 (DEL-04-05 `c1-native-custody-plan.md` §4): the dispatch text, byte for byte,
+    // is serde_json's compact text of the native outcome (keys in order; JSON.stringify escapes
+    // a Rust string as serde_json does), the text the native custody command returns for the
+    // same input (`native_verdict_tests.rs`).
+    const dispatchText = engine.readerDispatchJson(sourceJson, modelJson, invocationJson);
+    expect(dispatchText, "dispatch text").toBe(JSON.stringify(sortKeys(native.dispatch)));
+    const dispatch = JSON.parse(dispatchText);
     const source = received(sourceJson), model = received(modelJson), invocation = received(invocationJson);
     expect(sortKeys(readerDispatch(source, model, invocation)), "dispatch, through the module").toEqual(sortKeys(dispatch));
     expect(Object.keys(native.validate ?? {}).sort()).toEqual([...input.readers].sort());

@@ -24,6 +24,10 @@
 //!    into an exact buffer; the grant is released only after the worker has
 //!    exited and been reaped. The result is retained (bounded) until taken. A
 //!    start is refused early while retention is already full.
+//!    A retained result is one [`HeldResult`]: the bytes and their result
+//!    lease, shared by `Arc` between the record and the native readers in
+//!    flight ([`SolveJobRegistry::held_result`], C1 native custody), so the
+//!    bytes and their lease are released together by the last holder.
 //! 5. Handoff: taking the result grows its lease to 2R (handoff copy overlap),
 //!    moves the bytes out without cloning, and keeps the 2R custody lease until
 //!    the webview disposes its copy. A freshly loaded webview holds no copy and
@@ -273,9 +277,10 @@ struct SolveJobRecord {
     queue_reason: Option<ResourceRefusal>,
     error_message: Option<String>,
     resource_refusal: Option<ResourceRefusal>,
-    /// The producer's exact bytes while retained (not yet taken).
-    result: Option<String>,
-    /// R while retained; 2R custody after delivery until disposal.
+    /// The producer's exact bytes and their result lease R while retained
+    /// (not yet taken).
+    result: Option<Arc<HeldResult>>,
+    /// The 2R custody lease after delivery until disposal.
     result_lease: Option<Lease>,
     result_bytes: Option<u64>,
     delivered: bool,
@@ -285,6 +290,25 @@ struct SolveJobRecord {
     /// The job's digest metadata; released when the job ends without a
     /// result, or with the result and its custody lease.
     digests: Option<JobDigests>,
+}
+
+/// A retained result (C1 native custody, DEL-04-05 `c1-native-custody-plan.md`
+/// slice 1): the producer's exact bytes and the result lease R covering
+/// them. The record and each native reader in flight share it by `Arc`, so
+/// a disposal while a reader holds it releases both only when that reader
+/// drops it, and the pool never counts the bytes as released while they are
+/// still held.
+#[derive(Debug)]
+pub(crate) struct HeldResult {
+    text: String,
+    lease: Lease,
+}
+
+impl HeldResult {
+    /// The producer's exact bytes.
+    pub(crate) fn text(&self) -> &str {
+        &self.text
+    }
 }
 
 #[derive(Debug, Default)]
@@ -579,6 +603,17 @@ impl SolveJobRegistry {
     /// ([`crate::memory_pool::AdmissionClass::Interactive`]).
     pub(crate) fn acquire_interactive_ingress(&self, bytes: u64) -> Result<Lease, SolveJobError> {
         self.pool.acquire_interactive(bytes).map_err(|refusal| self.unavailable(refusal))
+    }
+
+    /// Admits a native reader's parse of a held result (C1 native custody):
+    /// an adaptive lease of `bytes`, re-sampled while refused only for
+    /// headroom, as the result and custody leases are.
+    pub(crate) fn acquire_result_parse(&self, bytes: u64) -> Result<Lease, SolveJobError> {
+        match self.pool.acquire_resampling(bytes, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => Ok(lease),
+            Err(ResampleStop::Refused(refusal)) => Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("a result parse is never cancelled"),
+        }
     }
 
     pub(crate) fn pool_status(&self) -> PoolStatus {
@@ -1012,8 +1047,7 @@ impl SolveJobRegistry {
         record.worker = None;
         record.resource.worker_grant_bytes = None;
         record.result_bytes = Some(result.len() as u64);
-        record.result = Some(result);
-        record.result_lease = Some(lease);
+        record.result = Some(Arc::new(HeldResult { text: result, lease }));
         if let Some(digests) = record.digests.as_mut() {
             digests.result_sha256 = Some(result_sha256);
         }
@@ -1100,12 +1134,36 @@ impl SolveJobRegistry {
             return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} changed while its take was admitted")));
         }
         let record = table.records.get_mut(job_id).expect("checked above");
-        let lease = record.result_lease.as_mut().expect("a retained result holds its lease");
+        // Readers take their share only under this lock, so a sole holder
+        // here stays the sole holder.
+        let held = record.result.take().expect("checked above");
+        let HeldResult { text, mut lease } = match Arc::try_unwrap(held) {
+            Ok(held) => held,
+            Err(held) => {
+                record.result = Some(held);
+                return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-BUSY: {job_id} is being read natively")));
+            }
+        };
         lease.set_purpose(LeasePurpose::Custody);
         lease.absorb(extra);
+        record.result_lease = Some(lease);
         record.delivered = true;
-        let result = record.result.take().expect("checked above");
-        Ok(result.into_bytes())
+        Ok(text.into_bytes())
+    }
+
+    /// C1 native custody (slice 1): a share of a retained result's bytes and
+    /// their lease, for a native reader, without copying them. The result
+    /// stays retained and takeable; a take while a share is held is refused
+    /// `PREVIEW-SOLVE-RESULT-BUSY`, and a disposal while a share is held
+    /// releases the bytes and their lease when the share is dropped.
+    pub(crate) fn held_result(&self, job_id: &str) -> Result<Arc<HeldResult>, SolveJobError> {
+        let table = self.table();
+        let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
+        match &record.result {
+            Some(held) => Ok(Arc::clone(held)),
+            None if record.delivered => Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-ALREADY-DELIVERED: {job_id}"))),
+            None => Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} is {}", record.state.as_str()))),
+        }
     }
 
     /// The retained result's lease, if `job_id` can be taken now.
@@ -1126,7 +1184,7 @@ impl SolveJobRegistry {
                 ResourceRefusal::CustodyFull { delivered: custody, limit: MAX_WEBVIEW_CUSTODY_RESULTS },
             ));
         }
-        Ok(record.result_lease.as_ref().expect("a retained result holds its lease"))
+        Ok(&record.result.as_ref().expect("checked above").lease)
     }
 
     /// The webview's acknowledgement that it dropped its copy, or disposal of
@@ -1138,7 +1196,9 @@ impl SolveJobRegistry {
         let lease = record.result_lease.take();
         // The digests are released with custody.
         record.digests = None;
-        let released_bytes = lease.as_ref().map_or(0, Lease::bytes);
+        // A retained result's bytes and lease are released here, or when the
+        // last native reader holding them drops its share.
+        let released_bytes = lease.as_ref().or(result.as_ref().map(|held| &held.lease)).map_or(0, Lease::bytes);
         let receipt = SolveResultDisposal {
             job_id: job_id.to_string(),
             released: result.is_some() || lease.is_some(),
@@ -1189,7 +1249,11 @@ impl SolveJobRegistry {
         table.attested.clear();
         let receipt = SolveResultsDisposal {
             released_results: released.len(),
-            released_bytes: released.iter().filter_map(|(_, lease)| lease.as_ref()).map(Lease::bytes).sum(),
+            released_bytes: released
+                .iter()
+                .filter_map(|(result, lease)| lease.as_ref().or(result.as_ref().map(|held| &held.lease)))
+                .map(Lease::bytes)
+                .sum(),
             abandoned_jobs,
         };
         drop(released);

@@ -35,6 +35,7 @@ mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
 mod native_result_download;
+mod native_verdict;
 mod report_package_bridge;
 mod report_package_save;
 mod report_render_exact;
@@ -2083,6 +2084,19 @@ async fn take_preview_mechanics_job_result(
     job_id: String,
 ) -> Result<tauri::ipc::Response, SolveJobError> {
     state.take_result(&job_id).map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 1): the base readers' dispatch verdict on a
+/// retained result, read natively from the held bytes (`native_verdict`).
+/// Raw args body `{jobId, modelJson?, invocationJson?}`; the response is the
+/// reader's outcome JSON, as the wasm engine's `reader_dispatch_json` returns
+/// it. Async: the parse's admission re-samples and the read takes time.
+#[tauri::command]
+async fn read_preview_mechanics_job_verdict(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_verdict::verdict(&registry, invoke.body(), invoke.headers()).map(tauri::ipc::Response::new)
 }
 
 #[tauri::command]
@@ -5345,6 +5359,7 @@ macro_rules! app_invoke_handler {
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
+            read_preview_mechanics_job_verdict,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,
