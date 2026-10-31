@@ -606,3 +606,4 @@ These clauses retain open delivery duties, owner decisions, and bounded evidence
 - **DEL-02-02:3** — Select the exact unit identifier/alias namespace and ambiguous-parser policy before PDU-015 implementation; no option in the R4 slate selected these values.
 - **DEL-02-02:4** — Select the exact unit diagnostic code/category namespace before PDU-025 implementation; no option in the R4 slate selected these values.
 - **DEL-02-02:5** — Obtain an independent numeric normalization/conversion suitability witness before any PDU-048 validation upgrade; current behavior remains verified, not validated.
+- **DEL-02-02:6** — The dynamics unit families `frequency`, `angular_frequency`, `rotation_per_length`, `length_per_rotation` and `rotational_generalized_mass`, as named dimensions with definitional display factors (DEL-02-01 Design model-document-0.9.0.md §2.4). *Status at S1 (#50):* implemented with witnesses (#50).

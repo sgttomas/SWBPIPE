@@ -57,6 +57,8 @@ These deliverables keep their scope.
 ### CLM-003 — Current reach and sequence
 
 - **Built:** nothing.
+- **Snubber family (model document 0.9.0).** DEL-04-10 defines the solve meaning of the `snubber` support family, including the skew `direction` of a snubber with a single translational restraint: a restraint in the dynamic stiffness only, rigid or of its stated stiffness, and absent from every static load-case solve (REQ-005). *Status at S1's merge (#50):* DEL-02-01 carries and validates the format (DEL-02-01:3), and every static solve on both routes refuses a model containing a snubber by name (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`); the dynamic meaning is open (the dynamics lane's I5).
+- **Spectrum records (model document 0.9.0).** DEL-04-10 defines the solve meaning of the top-level `spectra[]` records: user-entered pseudo-acceleration spectra, each with its damping ratio and interpolation, referenced only by the spectrum request (REQ-001). *Status at S1's merge (#50):* DEL-02-01 carries and validates the format, no solve reads a spectrum, and a displayed spectrum is labelled "not used by the solve in 0.9.0"; the solve meaning is open (the dynamics lane's I5).
 - **Sequence** (the dynamics lane's plan, approved by Agent 0 on 2026-10-31): after DEL-04-09's dense path and modal views, and after its sparse path, this deliverable's references and screening tolerance come first, then the solve and results, then the desktop and report surfaces.
 - **Later, outside these commitments:** time history, harmonic and force-spectrum analysis (DEC-078); stresses from spectrum responses (REQ-006).
 
