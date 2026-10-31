@@ -753,7 +753,6 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
     let has_intensified = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
         && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND | u4b_rows::BRANCH_KIND));
     let mut records = Vec::new();
-    let mut appended = Vec::new();
     for combination in &model.combinations {
         // Validation refuses every unresolvable shape before the solve.
         let Some(expression) = CombinationExpression::resolve(combination) else { continue };
@@ -831,14 +830,20 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
                 vec![combination.id.clone()],
             ));
         }
-        record["rows"] = json!(built.row_evidence);
-        record["recoveries"] = json!(built.recoveries);
-        record["missing_sources"] = json!(built.missing);
-        record["withheld"] = json!(built.withheld_evidence);
+        // The evidence moves into the record, held at its length as a copy would be;
+        // the rows go straight to the envelope, after every earlier combination's (a
+        // later combination reads its operands' load-case rows only).
+        let array = |mut items: Vec<Value>| {
+            items.shrink_to_fit();
+            Value::Array(items)
+        };
+        record["rows"] = array(built.row_evidence);
+        record["recoveries"] = array(built.recoveries);
+        record["missing_sources"] = array(built.missing);
+        record["withheld"] = array(built.withheld_evidence);
         records.push(record);
-        appended.extend(built.rows);
+        results.extend(built.rows);
     }
-    results.extend(appended);
     if !model.combinations.is_empty() {
         diagnostics.push(diag(
             "diagnostic:exact-combination:source-recovery-excluded",
