@@ -1868,21 +1868,61 @@ pub(crate) fn read_run_in_store_with(
     recording_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<AnalysisRunRead>, String> {
+    read_run_in_store_within(path, project_id, recording_id, memory, crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)
+}
+
+/// Refuses a recorded run whose stored result or stored run record exceeds the
+/// desktop's displayable-result limit (RT-U4), from their stored lengths, read
+/// before either is loaded. The run record carries one result reference with a
+/// checksum per published row, so it grows with the result and can exceed it;
+/// both cross IPC whole in a read, so each is held to the same limit.
+fn refuse_undisplayable_run(recording_id: &str, result_length: u64, record_length: u64, limit: u64) -> Result<(), String> {
+    let (what, bytes, cause) = if result_length > limit {
+        ("stored result", result_length, "the per-station result detail of that run is too large for the desktop to display")
+    } else if record_length > limit {
+        ("stored run record", record_length, "its per-row result references, which grow with the result, are too large for the desktop to display")
+    } else {
+        return Ok(());
+    };
+    Err(format!(
+        "{}: recorded run `{}`'s {what} is {}, above the desktop's display limit of {}, so it was not read: {cause}. The recorded run is kept unchanged. A solve covers every load case and combination in the model, so for a new run under the limit: {}",
+        crate::solve_jobs::STORED_RESULT_TOO_LARGE_CODE,
+        stored_read::shown(recording_id),
+        crate::solve_jobs::display_size(bytes),
+        crate::solve_jobs::display_size(limit),
+        crate::solve_jobs::SOLVE_RESULT_REDUCTION_OPTIONS
+    ))
+}
+
+/// [`read_run_in_store_with`] with the displayable-result limit given (tests
+/// lower it). A stored result, or a stored run record (whose result references
+/// carry one checksum per published row, so it grows with the result), whose
+/// byte length exceeds it is refused `STORED-RESULT-TOO-LARGE` from that
+/// length alone, before anything of the run is reserved or loaded; the stored
+/// run is unchanged (RT-U4).
+pub(crate) fn read_run_in_store_within(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    limit: u64,
+) -> Result<Metered<AnalysisRunRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
     let not_found = || format!("ANALYSIS-RUN-NOT-FOUND: project `{project_id}` has no recorded run `{recording_id}`.", project_id = stored_read::shown(&project_id), recording_id = stored_read::shown(&recording_id));
-    let lengths: (i64, i64) = transaction
+    let lengths: (i64, i64, i64) = transaction
         .query_row(
-            "SELECT octet_length(r.result_json), octet_length(r.input_manifest_json) FROM analysis_runs r WHERE r.project_id = ?1 AND r.recording_id = ?2",
+            "SELECT octet_length(r.result_json), octet_length(r.input_manifest_json), octet_length(r.run_record_json) FROM analysis_runs r WHERE r.project_id = ?1 AND r.recording_id = ?2",
             params![project_id, recording_id],
-            |row| Ok((row.get(0)?, row.get(1)?)),
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
         )
         .optional()
         .map_err(sql)?
         .ok_or_else(not_found)?;
     let length = |value: i64| u64::try_from(value).unwrap_or(0);
-    let (result_length, manifest_length) = (length(lengths.0), length(lengths.1));
+    let (result_length, manifest_length, record_length) = (length(lengths.0), length(lengths.1), length(lengths.2));
+    refuse_undisplayable_run(recording_id, result_length, record_length, limit)?;
     let what = format!("recorded run `{recording_id}`", recording_id = stored_read::shown(&recording_id));
     // Loaded here: the result and the manifest (the summaries reserve their
     // own; the canonical texts are reserved when they are built).
@@ -2223,6 +2263,22 @@ pub(crate) fn admit_run_comparison_in_store_with(
     budget_bytes: u64,
     memory: &dyn ReadMemory,
 ) -> Result<AnalysisRunComparisonAdmission, String> {
+    admit_run_comparison_in_store_within(path, project_id, recording_ids, current_run_bytes, budget_bytes, memory, crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)
+}
+
+/// [`admit_run_comparison_in_store_with`] with the displayable-result limit
+/// given (tests lower it). Each named run's stored result and run record are
+/// measured first and refused `STORED-RESULT-TOO-LARGE` above it (RT-U4),
+/// before its record is loaded and before either run is read.
+pub(crate) fn admit_run_comparison_in_store_within(
+    path: &Path,
+    project_id: &str,
+    recording_ids: &[String],
+    current_run_bytes: Option<u64>,
+    budget_bytes: u64,
+    memory: &dyn ReadMemory,
+    limit: u64,
+) -> Result<AnalysisRunComparisonAdmission, String> {
     let sides = recording_ids.len() + usize::from(current_run_bytes.is_some());
     if recording_ids.is_empty() || sides != 2 || (recording_ids.len() == 2 && recording_ids[0] == recording_ids[1]) {
         return Err(format!(
@@ -2241,18 +2297,20 @@ pub(crate) fn admit_run_comparison_in_store_with(
     };
     let mut runs = Vec::with_capacity(recording_ids.len());
     for recording_id in recording_ids {
-        // Verified as the list verifies it, then dropped with its reservations.
-        drop(find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(|| not_found(recording_id))?);
-        let (result, manifest): (Option<i64>, Option<i64>) = transaction
+        let (result, manifest, record): (Option<i64>, Option<i64>, Option<i64>) = transaction
             .query_row(
-                "SELECT octet_length(result_json), octet_length(input_manifest_json) FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
+                "SELECT octet_length(result_json), octet_length(input_manifest_json), octet_length(run_record_json) FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2",
                 params![project_id, recording_id],
-                |row| Ok((row.get(0)?, row.get(1)?)),
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
             )
             .optional()
             .map_err(sql)?
             .ok_or_else(|| not_found(recording_id))?;
         let length = |value: Option<i64>| u64::try_from(value.unwrap_or(0)).unwrap_or(0);
+        // Both columns that cross IPC whole in the read that follows, bounded before the record loads.
+        refuse_undisplayable_run(recording_id, length(result), length(record), limit)?;
+        // Verified as the list verifies it, then dropped with its reservations.
+        drop(find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(|| not_found(recording_id))?);
         runs.push(RunComparisonInputBytes { result_bytes: length(result), manifest_bytes: length(manifest) });
     }
     let current_run_bytes = current_run_bytes.unwrap_or(0);

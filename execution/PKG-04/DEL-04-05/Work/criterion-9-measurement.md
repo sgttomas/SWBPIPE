@@ -22,9 +22,9 @@ its stage:
 | Solve and publication | `product_physics::run_linear_static_preview_value_with_mode` | `release_timing` (`entry`) |
 | Serialization of the result | solve worker | `release_timing` (`serialize`) |
 | Result digest parse-back | solve worker (`result_digest`) | `release_timing` (`parse_back`) |
-| Worker protocol, memory-pool leases, IPC take | desktop parent | desktop measurement (§6) |
-| Decode, `JSON.parse`, reader verdict (wasm), state | webview | desktop measurement (§6) |
-| First paint | webview | desktop measurement (§6) |
+| Worker protocol, memory-pool leases, IPC take | desktop parent | desktop measurement (§7) |
+| Decode, `JSON.parse`, reader verdict (wasm), state | webview | desktop measurement (§7) |
+| First paint | webview | desktop measurement (§7) |
 
 "Linear static" is every case and combination of the `linear-ex` rack document. "Nonlinear
 operating" is the OPE case of the `nonlinear-ex` rack.
@@ -214,7 +214,58 @@ RT-A3's exclusive window (2026-10-31 01:39–01:50Z) measured its own scratch ra
 - PF nonlinear: 149 s and 11.2 GB at 1,500 nodes;
 - 2,000 nodes refused by the dense-memory guard.
 
-## 6. Desktop measurement
+## 6. The desktop's displayable-result limit
+
+An earlier window gave the real desktop app linear-ex rack results of 0.46 GB and more. At
+0.46 GB the webview (WebContent) hung, at 0.92 and 1.84 GB it crashed with no message, and
+3.68 GB was refused as `PREVIEW-SOLVE-RESULT-UTF8-INVALID` although the bytes are valid UTF-8
+(a webview size limit was reached during decode). Persistence stayed clean throughout.
+
+The desktop therefore refuses a result above `MAX_DISPLAYABLE_RESULT_BYTES` = 64 MiB
+(67,108,864 bytes; `apps/desktop/src-tauri/src/solve_jobs.rs`) before any of it is read,
+with `PREVIEW-SOLVE-RESULT-TOO-LARGE`, its size and the limit (DEL-04-07
+`Work/memory-budget-decision.md`). The Solve panel names the cause, the per-station result
+detail of the model and its load cases, and says what can be done now. A solve covers every
+load case and combination in the model, so the person can remove the cases and combinations
+the review does not need, solve the cases in smaller groups in separate copies of the model
+document (with the combinations in a copy holding only the cases they use), or split a large
+model into parts.
+
+The refusal is interim: the result-volume redesign (C) removes it, so it gets no
+release-limitations (LIM) entry; if C does not land for v1.0, it becomes one.
+
+**Measured basis.** An exclusive window on 2026-10-31 on the development host (Apple M5 Max,
+128 GiB, not the base machine) ran the native-smoke release build `6c2f02d81` with injected
+linear-ex rack results. Every run reached the reader verdict without a hang or crash:
+
+| Result | WebContent peak footprint | Time to verdict |
+|---|---|---|
+| 39.1 MiB | 3.22 GB (79×) | 14.9 s |
+| 55.1 MiB | 3.69 GB (64×) | 14.8 s |
+| 79.0 MiB | 5.04 GB (61×) | 21.3 s |
+| 140.7 MiB | 8.04 GB (54×) | 64.5 s |
+
+A 22.3 MiB run's WebContent process was not identified, so it gives no figure.
+
+The verdict times (14.9, 14.8, 21.3 and 64.5 s) are possibly contended: another lane's job
+ran outside the slot system during the window, with the host's load average up to about 97.
+The WebContent footprints are per-process and stand. The times are re-taken in the next
+exclusive window.
+
+- **Margin.** Interpolated at 64 MiB: about 4.2 GB of WebContent, about 17 s to the verdict
+  (from the possibly contended times) and an app peak under 0.5 GB. Beside the OS and the app on a 16 GiB machine that leaves
+  roughly 1.8× headroom. This is an engineering margin from one host, not a measurement on
+  the base machine.
+- **Not host-derived.** The value is fixed in the product; it does not follow the host's
+  physical memory.
+- **Re-measured later.** It is re-measured after the desktop's result-reader fixes.
+
+§5.3's dry runs published about 1.8 MB of linear-ex result per node (0.46 GB at 250 nodes),
+so a linear-ex rack of roughly 36 nodes or more now ends refused at this limit. Criterion 9's
+linear clock at 2,000 nodes therefore cannot reach first paint until the result-volume design
+lands. That is recorded here, not relaxed.
+
+## 7. Desktop measurement
 
 The desktop part of the clock (§1's last three rows) is measured on the app itself. Its pieces
 are in `apps/desktop`:
@@ -312,7 +363,7 @@ are in `apps/desktop`:
   per-PR record (`SWBPIPE_NATIVE_SMOKE`, `native_smoke_inject` and `injected_outcome` absent
   from the product binary) until a release build exists in CI.
 
-### 6.1 Desktop window
+### 7.1 Desktop window
 
 The window ran on 2026-10-31 from 12:43:58 to 12:56:24Z, as one `t3_exclusive.sh` invocation
 (746 s, budget 880 s). It ran on the development host, an Apple M5 Max with 18 cores and

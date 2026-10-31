@@ -37,6 +37,7 @@ import {
   disposeDeliveredMechanicsResult,
   startPreviewMechanicsJob,
   takePreviewMechanicsJobResult,
+  describeStoredResultWithheld,
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
@@ -192,6 +193,7 @@ import {
   refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
+  resultTooLargeSolveJob,
   recordBackendCancellationFailure,
   recordBackendCancellationReceipt,
   requestSolveCancellation,
@@ -1092,6 +1094,16 @@ export function useWorkspaceSession() {
               : current
           );
           timeline.end("refused");
+          return;
+        }
+        // Refused natively for its size: the result was discarded unread and is never taken.
+        if (terminal.state === "refused" && terminal.result_too_large) {
+          const refusal = terminal.result_too_large;
+          setSolveJob((current) =>
+            current.job_id === startedJob?.job_id
+              ? resultTooLargeSolveJob(current, refusal)
+              : current
+          );
           return;
         }
         if (terminal.state !== "completed") throw terminalJobError(terminal);
@@ -2603,7 +2615,9 @@ export function useWorkspaceSession() {
       setModelDocumentVersion(opened.model_document_version ?? null);
       // W-13 §5.3: the validator's warnings show at project load (blocking
       // findings were refused by the store).
-      setProjectMessage(`${opened.summary.message}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
+      // RT-U4: a saved run above the display limit was withheld natively; the person is told.
+      const withheldRun = opened.stored_result_withheld ? ` ${describeStoredResultWithheld(opened.stored_result_withheld)}` : "";
+      setProjectMessage(`${opened.summary.message}${withheldRun}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
       const libraryWarnings = await libraryReferenceWarnings(opened.model);
@@ -2616,7 +2630,8 @@ export function useWorkspaceSession() {
       void autosave.afterStoredProjectOpened(opened.model.project.id, recomputedHash?.value ?? null);
       if (!stillOwnsOpenedObservation()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
-      const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
+      // A withheld saved run is not here to hash: the envelope cannot be recomputed.
+      const recomputedEnvelopeHash = opened.stored_result_withheld ? null : await computeProjectEnvelopeHash({
         model: opened.model,
         editor_intents: opened.editor_intents ?? [],
         proposal: opened.proposal ?? null,
