@@ -425,6 +425,7 @@ mod qualification {
                 None,
                 "https://provider.example/v1",
                 "fixture-only",
+                32768,
                 CredentialChange::Replace(Secret::new(value.clone()).unwrap()),
             )
             .unwrap();
@@ -643,6 +644,7 @@ mod qualification {
                 Some(&profile.revision),
                 &profile.endpoint,
                 &profile.model,
+                32768,
                 CredentialChange::Replace(Secret::new(fresh_value.clone()).unwrap()),
             )
             .unwrap();
