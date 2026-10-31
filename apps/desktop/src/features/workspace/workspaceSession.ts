@@ -37,9 +37,11 @@ import {
   disposeDeliveredMechanicsResult,
   startPreviewMechanicsJob,
   takePreviewMechanicsJobResult,
+  describeStoredResultWithheld,
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
+import { beginSolveTimeline, markSolveCommittedAndPaint } from "../../services/solveTimeline";
 import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
@@ -191,6 +193,7 @@ import {
   refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
+  resultTooLargeSolveJob,
   recordBackendCancellationFailure,
   recordBackendCancellationReceipt,
   requestSolveCancellation,
@@ -726,6 +729,8 @@ export function useWorkspaceSession() {
     heldResultRef.current = result;
     if (previous && previous !== result) void disposeDeliveredMechanicsResult(previous);
   }, [result]);
+  // RT-U4: the latest solve's result committed, then its first paint (solveTimeline.ts).
+  useLayoutEffect(() => { markSolveCommittedAndPaint(result); }, [result]);
   useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
 
   // Advanced by every commit of the session's model (applied operations, undo/redo,
@@ -947,6 +952,8 @@ export function useWorkspaceSession() {
   async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
+    // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
+    const timeline = beginSolveTimeline({ solver_mode: solverMode });
     invalidateReportPackageComputedState();
     ruleRevisionGate.current.invalidate();
     solveCancellationTombstones.current.set(runGeneration, {
@@ -999,6 +1006,7 @@ export function useWorkspaceSession() {
         // A start the native memory pool refuses is a typed refusal, recorded as such.
         if (error instanceof ResourceUnavailableError) {
           if (solveRunGate.current.isCurrent(runGeneration)) setSolveJob(refusedBeforeBackendStartSolveJob(solveModel, error));
+          timeline.end("refused", error);
           return;
         }
         throw error;
@@ -1009,6 +1017,7 @@ export function useWorkspaceSession() {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt cannot publish Current mechanics.");
       }
       unsettledJob = { jobId: startReceipt.job_id, token: startReceipt.backend_cancellation_token, completed: false };
+      timeline.jobStarted(startReceipt.job_id);
       const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
       if (
         modelRevision.current !== solveModelRevision ||
@@ -1050,6 +1059,12 @@ export function useWorkspaceSession() {
           if (!solveRunGate.current.isCurrent(runGeneration)) return;
           setSolveJob((current) => current.job_id === visibleJobId ? progressSolveJob(current, status) : current);
         });
+        timeline.mark("job_done", {
+          state: terminal.state,
+          result_bytes: terminal.result_bytes,
+          worker_peak_footprint_bytes: terminal.resource?.worker_peak_footprint_bytes ?? null,
+          worker_peak_grant_bytes: terminal.resource?.worker_peak_grant_bytes ?? null
+        });
         // A completed job's result awaits a take; any other terminal job retains none.
         if (terminal.job_id === startReceipt.job_id) {
           if (terminal.state === "completed") unsettledJob.completed = true;
@@ -1068,6 +1083,7 @@ export function useWorkspaceSession() {
               ? cancelledSolveJob(current, terminal)
               : current
           );
+          timeline.end("cancelled");
           return;
         }
         if (terminal.state === "refused" && terminal.resource_refusal) {
@@ -1075,6 +1091,17 @@ export function useWorkspaceSession() {
           setSolveJob((current) =>
             current.job_id === startedJob?.job_id
               ? refusedSolveJob(current, refusal)
+              : current
+          );
+          timeline.end("refused");
+          return;
+        }
+        // Refused natively for its size: the result was discarded unread and is never taken.
+        if (terminal.state === "refused" && terminal.result_too_large) {
+          const refusal = terminal.result_too_large;
+          setSolveJob((current) =>
+            current.job_id === startedJob?.job_id
+              ? resultTooLargeSolveJob(current, refusal)
               : current
           );
           return;
@@ -1093,6 +1120,7 @@ export function useWorkspaceSession() {
               current.job_id === startedJob?.job_id ? refusedAtTakeSolveJob(current, error) : current
             );
           }
+          timeline.end("refused", error);
           return;
         }
         deliveredOutput = output;
@@ -1135,6 +1163,7 @@ export function useWorkspaceSession() {
         inputManifest: manifest,
         rulePackExclusions: rulePacks.excluded
       });
+      timeline.mark("analysis_run_built");
       if (
         modelRevision.current !== solveModelRevision ||
         !solveRunGate.current.isCurrent(runGeneration)
@@ -1153,6 +1182,7 @@ export function useWorkspaceSession() {
       setHistoricalRun(null);
       publishedOutput = true;
       setResult(output);
+      timeline.mark("result_set", { rows: output.results.length });
       setSelectedReviewTarget(null);
       setProposal(null);
       setInputManifest(manifest);
@@ -1170,9 +1200,11 @@ export function useWorkspaceSession() {
         result_model_ref: output.model_ref,
         result_row_count: output.results.length
       });
+      timeline.end("completed");
       return { jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
         solverMode, health: output.status.mechanics };
     } catch (error) {
+      timeline.end("failed", error);
       if (solveRunGate.current.isCurrent(runGeneration)) {
         setSolveJob((current) =>
           !startedJob || current.job_id === startedJob.job_id
@@ -1181,6 +1213,8 @@ export function useWorkspaceSession() {
         );
       }
     } finally {
+      // Every other return: cancelled before start, or superseded (a no-op once ended).
+      timeline.end(solveCancellationTombstones.current.get(runGeneration)?.requested ? "cancelled" : "superseded");
       if (deliveredOutput && !publishedOutput) void disposeDeliveredMechanicsResult(deliveredOutput);
       if (unsettledJob?.completed) void discardPreviewMechanicsJobResult(unsettledJob.jobId);
       else if (unsettledJob) void abandonPreviewMechanicsJob(unsettledJob.jobId, unsettledJob.token);
@@ -2581,7 +2615,9 @@ export function useWorkspaceSession() {
       setModelDocumentVersion(opened.model_document_version ?? null);
       // W-13 §5.3: the validator's warnings show at project load (blocking
       // findings were refused by the store).
-      setProjectMessage(`${opened.summary.message}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
+      // RT-U4: a saved run above the display limit was withheld natively; the person is told.
+      const withheldRun = opened.stored_result_withheld ? ` ${describeStoredResultWithheld(opened.stored_result_withheld)}` : "";
+      setProjectMessage(`${opened.summary.message}${withheldRun}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
       const libraryWarnings = await libraryReferenceWarnings(opened.model);
@@ -2594,7 +2630,8 @@ export function useWorkspaceSession() {
       void autosave.afterStoredProjectOpened(opened.model.project.id, recomputedHash?.value ?? null);
       if (!stillOwnsOpenedObservation()) return;
       setModelHashIntegrity(deriveModelHashIntegrity(opened.model_hash ?? null, recomputedHash, opened.model.project.id));
-      const recomputedEnvelopeHash = await computeProjectEnvelopeHash({
+      // A withheld saved run is not here to hash: the envelope cannot be recomputed.
+      const recomputedEnvelopeHash = opened.stored_result_withheld ? null : await computeProjectEnvelopeHash({
         model: opened.model,
         editor_intents: opened.editor_intents ?? [],
         proposal: opened.proposal ?? null,

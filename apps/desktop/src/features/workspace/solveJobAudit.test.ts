@@ -1,17 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { ResourceUnavailableError } from "../../services/memoryPool";
-import type { BackendSolveJobStatus, SolveJobStartReceipt } from "../../services/previewService";
+import { ResultTooLargeError, type BackendSolveJobStatus, type ResultTooLarge, type SolveJobStartReceipt } from "../../services/previewService";
 import type { PoolStatus, PreviewModel, SolveResourceGrant } from "../../types";
 import {
   cancelledSolveJob,
   describeSolveRefusalRetry,
   failSolveJob,
   initialSolveJob,
+  isResultTooLargeSolveJob,
   progressSolveJob,
   refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
   requestSolveCancellation,
+  resultTooLargeSolveJob,
   solveRefusalPoint,
   startSolveJob
 } from "./solveJobAudit";
@@ -147,12 +149,12 @@ describe("solve-job audit resource record", () => {
   const LARGER_BUDGET = "This solve needed more than the per-invocation budget allows; a larger budget, up to the pool, can be set under Memory pool before running the solve again.";
   const STOPPED = "Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route.";
   it.each([
-    [{ kind: "worker_cap_exceeded" as const, cap_bytes: 12 * GiB, requested_bytes: 13 * GiB }, "The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 13 GiB).",
+    [{ kind: "worker_cap_exceeded" as const, cap_bytes: 12 * GiB, requested_bytes: 13 * GiB }, "The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 13 GiB). The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.",
       `${STOPPED} ${LARGER_BUDGET} Refusal code: worker_cap_exceeded (cap_bytes=12884901888, requested_bytes=13958643712).`],
     [{ kind: "worker_growth_refused" as const, granted_bytes: 4 * GiB, requested_bytes: 8 * GiB, cause: { kind: "headroom_insufficient" as const, required_bytes: 4 * GiB, available_bytes: 1 * GiB } },
-      "The solve needed more memory (8 GiB) than could be reserved while it ran: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 4 GiB, 1 GiB available.",
+      "The solve needed more memory (8 GiB) than could be reserved while it ran: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 4 GiB, 1 GiB available. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.",
       `${STOPPED} Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: worker_growth_refused (granted_bytes=4294967296, requested_bytes=8589934592); cause headroom_insufficient (required_bytes=4294967296, available_bytes=1073741824).`],
-    [{ kind: "worker_footprint_exceeded" as const, grant_bytes: 4 * GiB, footprint_bytes: 5 * GiB }, "The solve's measured memory footprint (5 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 4 GiB).",
+    [{ kind: "worker_footprint_exceeded" as const, grant_bytes: 4 * GiB, footprint_bytes: 5 * GiB }, "The solve's measured memory footprint (5 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 4 GiB). The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.",
       `${STOPPED} ${LARGER_BUDGET} Refusal code: worker_footprint_exceeded (grant_bytes=4294967296, footprint_bytes=5368709120).`]
   ])("records a running solve's worker refusal %s as a typed refusal, keeping the worker grant", (refusal, sentence, retry) => {
     const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running", resource: grant(4 * GiB, 4 * GiB) }));
@@ -162,6 +164,22 @@ describe("solve-job audit resource record", () => {
     expect(refused.resource).toMatchObject({ refusal, worker_grant_bytes: 4 * GiB, worker_peak_grant_bytes: 4 * GiB });
     expect(refused.events.at(-1)!.message).toBe(`Refused by the native memory pool (${refusal.kind}): ${sentence} No result was published. ${retry}`);
     expect(solveRefusalPoint(refused)).toBe("worker");
+  });
+
+  it("records a job refused for its result's size as its own refusal, not a memory-pool one, from the status or a thrown error", () => {
+    const tooLarge: ResultTooLarge = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE", result_bytes: 147_000_000, limit_bytes: 64 * 1024 ** 2 };
+    const message = "The solve finished, but its result is 140.19 MiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts. Code: PREVIEW-SOLVE-RESULT-TOO-LARGE (result_bytes=147000000, limit_bytes=67108864).";
+    const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running", resource: grant(4 * GiB, 4 * GiB) }));
+    for (const refused of [resultTooLargeSolveJob(running, tooLarge), failSolveJob(running, new ResultTooLargeError(tooLarge))]) {
+      expect(refused.state).toBe("refused");
+      expect(refused.error_message).toBe(message);
+      expect(refused.events.at(-1)).toMatchObject({ event_id: "solve-preview-result-too-large", state: "refused", message, result_available: false, result_row_count: 0 });
+      expect(refused.resource.refusal).toBeNull();
+      expect(isResultTooLargeSolveJob(refused)).toBe(true);
+      expect(solveRefusalPoint(refused)).toBeNull();
+    }
+    expect(isResultTooLargeSolveJob(refusedSolveJob(running, { kind: "retention_full", retained: 4, limit: 4 }))).toBe(false);
+    expect(isResultTooLargeSolveJob(running)).toBe(false);
   });
 
   it("records a refused take of a completed job's result at the take, with its exact bytes and the session's retry path, and no rows", () => {

@@ -533,11 +533,9 @@ fn ordinary_findings(source: &Value, requested: &[&Value]) -> Vec<String> {
         .map(|r| &r["id"])
         .chain(diagnostics.iter().map(|d| &d["id"]).filter(|id| truthy(id)))
         .collect();
-    let mut emitted = Vec::new();
+    let mut emitted = IdSet::default();
     for id in &emitted_ids {
-        if !emitted.contains(id) {
-            emitted.push(*id);
-        }
+        emitted.insert(id);
     }
     if !results.iter().all(|r| nonempty(&r["id"]))
         || !diagnostics.iter().all(|d| nonempty(&d["id"]))
@@ -584,8 +582,36 @@ fn ordinary_findings(source: &Value, requested: &[&Value]) -> Vec<String> {
     }
     findings
 }
+/// The distinct emitted ids, by `Value` equality, as a list scan kept them: a string
+/// id equals exactly the string ids of the same text, so those are hashed; any other
+/// id is compared with the other ids as before.
+#[derive(Default)]
+pub(crate) struct IdSet<'a> {
+    strings: std::collections::HashSet<&'a str>,
+    others: Vec<&'a Value>,
+}
+impl<'a> IdSet<'a> {
+    pub(crate) fn insert(&mut self, id: &'a Value) {
+        match id {
+            Value::String(text) => {
+                self.strings.insert(text.as_str());
+            }
+            other if !self.others.contains(&other) => self.others.push(other),
+            _ => {}
+        }
+    }
+    pub(crate) fn contains(&self, id: &Value) -> bool {
+        match id {
+            Value::String(text) => self.strings.contains(text.as_str()),
+            other => self.others.iter().any(|kept| *kept == other),
+        }
+    }
+    pub(crate) fn len(&self) -> usize {
+        self.strings.len() + self.others.len()
+    }
+}
 /// One `numerical_quality` case's ordinary eligibility (TS `ordinaryCaseEligible`).
-fn ordinary_case_eligible(case: &Value, emitted: &[&Value]) -> bool {
+fn ordinary_case_eligible(case: &Value, emitted: &IdSet<'_>) -> bool {
     case.is_object()
         && case["structural_status"] == "passive_model_basis"
         && case["solve_quality"] == "checks_passed"
@@ -593,7 +619,7 @@ fn ordinary_case_eligible(case: &Value, emitted: &[&Value]) -> bool {
         && matches!(case["accuracy_evidence"].as_str(), Some("not_claimed" | "reference_verified"))
         && case["evidence_refs"]
             .as_array()
-            .is_some_and(|refs| !refs.is_empty() && refs.iter().all(|r| emitted.contains(&r)))
+            .is_some_and(|refs| !refs.is_empty() && refs.iter().all(|r| emitted.contains(r)))
 }
 
 /// The dispatch entry: the route, its table binding, the header refusal (or
@@ -611,9 +637,24 @@ pub fn dispatch(source: &Value, model: Option<&Value>, invocation: Option<&Value
 /// its complete-metadata flag and canonical metadata. No source, a source the
 /// dispatch refuses, or a contradictory row, is refused.
 pub fn row_semantics(row: &Value, source: Option<&Value>) -> Value {
-    let table = match present(source).map(route) {
-        Some(Ok((_, table))) => table,
-        _ => return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"),
+    row_semantics_in(row_table(source), row)
+}
+/// [`row_semantics`] of each row, in order, with the source read once: the
+/// outcome array a call per row returns.
+pub fn row_semantics_each(rows: &[Value], source: Option<&Value>) -> Value {
+    let table = row_table(source);
+    Value::Array(rows.iter().map(|row| row_semantics_in(table, row)).collect())
+}
+/// The table of a source the dispatch admits.
+fn row_table(source: Option<&Value>) -> Option<&'static Value> {
+    match present(source).map(route) {
+        Some(Ok((_, table))) => Some(table),
+        _ => None,
+    }
+}
+fn row_semantics_in(table: Option<&'static Value>, row: &Value) -> Value {
+    let Some(table) = table else {
+        return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     };
     match sc::signature_in(table, row) {
         Ok(signature) => json!({"ok": true, "signature": signature,

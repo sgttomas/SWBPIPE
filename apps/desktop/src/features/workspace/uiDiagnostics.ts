@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { EntityRef, Vec3 } from "../../types";
+import { SOLVE_TIMELINE_GLOBAL, solveTimelineGlobal } from "../../services/solveTimeline";
 
 export const UI_DIAGNOSTICS_SCHEMA = "openpipestress.ui-diagnostics/v1" as const;
 
@@ -388,6 +389,16 @@ if (!Object.prototype.hasOwnProperty.call(globalThis, "__openPipeStressUiDiagnos
     configurable: false,
     enumerable: false
   });
+  // RT-U4 (DEL-04-05): the solve timeline's own read-only global, installed under this
+  // same condition so it is present exactly where this one is (`services/solveTimeline.ts`).
+  if (!Object.prototype.hasOwnProperty.call(globalThis, SOLVE_TIMELINE_GLOBAL)) {
+    Object.defineProperty(globalThis, SOLVE_TIMELINE_GLOBAL, {
+      value: solveTimelineGlobal,
+      writable: false,
+      configurable: false,
+      enumerable: false
+    });
+  }
 }
 
 declare global {

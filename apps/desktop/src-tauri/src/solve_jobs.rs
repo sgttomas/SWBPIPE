@@ -23,7 +23,12 @@
 //!    is admitted while the worker's grant is still held; the bytes are read
 //!    into an exact buffer; the grant is released only after the worker has
 //!    exited and been reaped. The result is retained (bounded) until taken. A
-//!    start is refused early while retention is already full.
+//!    start is refused early while retention is already full. A result whose
+//!    announced length exceeds [`MAX_DISPLAYABLE_RESULT_BYTES`] is refused on
+//!    that length (`RSLT {R}`) before any of this: its worker is killed, no
+//!    result lease is admitted and no byte is read, and the job ends `refused`
+//!    with [`RESULT_TOO_LARGE_CODE`], its size and the limit. Nothing of it
+//!    can be taken, so it never crosses IPC.
 //!    A retained result is one [`HeldResult`]: the bytes and their result
 //!    lease, shared by `Arc` between the record and the native readers in
 //!    flight ([`SolveJobRegistry::held_result`], C1 native custody), so the
@@ -105,6 +110,73 @@ const ABANDONED_AWAITING: &str = "abandoned_by_session_reset_worker_terminating"
 const ABANDONED_BEFORE_START: &str = "abandoned_by_session_reset_before_solver_start";
 const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discarded";
 
+/// The largest solve result the desktop hands to its webview: 64 MiB.
+///
+/// Basis (RT-U4; DEL-04-05 `Work/criterion-9-measurement.md` §6): an
+/// exclusive window on 2026-10-31 on the development host (Apple M5 Max,
+/// 128 GiB, not the base machine), native-smoke release build `6c2f02d81`,
+/// with injected linear-ex rack results. Each run reached the reader verdict;
+/// the webview (WebContent) peak footprint was 3.22 GB at 39.1 MiB (79x),
+/// 3.69 GB at 55.1 MiB (64x), 5.04 GB at 79.0 MiB (61x) and 8.04 GB at
+/// 140.7 MiB (54x). Interpolated at 64 MiB: about 4.2 GB of WebContent, about
+/// 17 s to the verdict (that window's times are possibly contended and are
+/// re-taken) and an app peak under 0.5 GB, which beside the OS and
+/// the app on a 16 GiB machine leaves roughly 1.8x headroom. That is an
+/// engineering margin from one host, not a measurement on the base machine.
+/// Results of 0.46 GB and more hung or crashed WebContent in an earlier window.
+/// The value is fixed in the product, deliberately not derived from the
+/// host's physical memory, and is re-measured after the desktop's result
+/// reader fixes. A larger result is refused truthfully
+/// ([`RESULT_TOO_LARGE_CODE`]) rather than sent to a webview that cannot
+/// hold it.
+pub(crate) const MAX_DISPLAYABLE_RESULT_BYTES: u64 = 64 << 20;
+/// The code of a job refused because its result exceeds the displayable limit.
+pub(crate) const RESULT_TOO_LARGE_CODE: &str = "PREVIEW-SOLVE-RESULT-TOO-LARGE";
+/// The code of a stored result (a project's saved run or a recorded run)
+/// withheld from the webview because it exceeds [`MAX_DISPLAYABLE_RESULT_BYTES`];
+/// it is judged by its stored byte length before it is loaded, and the stored
+/// bytes are never changed.
+pub(crate) const STORED_RESULT_TOO_LARGE_CODE: &str = "STORED-RESULT-TOO-LARGE";
+
+/// What a person can reduce or split today so a solve publishes less result
+/// detail (a solve covers every load case and combination in the model); the
+/// same words as the desktop's `SOLVE_RESULT_REDUCTION_OPTIONS` (`memoryPool.ts`).
+pub(crate) const SOLVE_RESULT_REDUCTION_OPTIONS: &str = "remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
+
+/// A byte count for messages: exact, then in MiB or GiB (two decimals at most),
+/// for example `67108865 bytes (64 MiB)`.
+pub(crate) fn display_size(bytes: u64) -> String {
+    const MIB: f64 = (1u64 << 20) as f64;
+    const GIB: f64 = (1u64 << 30) as f64;
+    let exact = bytes as f64;
+    let (value, unit) = if exact >= GIB { (exact / GIB, "GiB") } else { (exact / MIB, "MiB") };
+    let rounded = format!("{value:.2}");
+    let rounded = rounded.trim_end_matches('0').trim_end_matches('.');
+    format!("{bytes} bytes ({rounded} {unit})")
+}
+
+/// A result refused for its size: the bytes the worker announced and the
+/// limit they exceed. The result itself was never read.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+pub(crate) struct ResultTooLarge {
+    pub code: &'static str,
+    pub result_bytes: u64,
+    pub limit_bytes: u64,
+}
+
+impl ResultTooLarge {
+    fn new(result_bytes: u64, limit_bytes: u64) -> Self {
+        Self { code: RESULT_TOO_LARGE_CODE, result_bytes, limit_bytes }
+    }
+
+    fn message(&self, job_id: &str) -> String {
+        format!(
+            "{}: {job_id}'s result is {} bytes, above the {} bytes the desktop can display; it was discarded without being read",
+            self.code, self.result_bytes, self.limit_bytes
+        )
+    }
+}
+
 /// Where a cancelled job stopped.
 #[derive(Clone, Copy)]
 enum CancelPoint {
@@ -185,6 +257,8 @@ pub(crate) struct SolveJobStatusReport {
     pub delivered: bool,
     pub error_message: Option<String>,
     pub resource_refusal: Option<ResourceRefusal>,
+    /// A `refused` job whose result exceeded [`MAX_DISPLAYABLE_RESULT_BYTES`].
+    pub result_too_large: Option<ResultTooLarge>,
     pub resource: JobResource,
 }
 
@@ -277,6 +351,8 @@ struct SolveJobRecord {
     queue_reason: Option<ResourceRefusal>,
     error_message: Option<String>,
     resource_refusal: Option<ResourceRefusal>,
+    /// Set when the job was refused for its result's size (never taken).
+    result_too_large: Option<ResultTooLarge>,
     /// The producer's exact bytes and their result lease R while retained
     /// (not yet taken).
     result: Option<Arc<HeldResult>>,
@@ -496,6 +572,9 @@ pub(crate) struct SolveJobRegistry {
     reserve: u64,
     /// The on-demand model check in progress, if any.
     checks: Arc<Mutex<Option<Arc<CheckControl>>>>,
+    /// The largest result a solve job may publish:
+    /// [`MAX_DISPLAYABLE_RESULT_BYTES`], lowered only by tests.
+    result_limit: u64,
 }
 
 fn thread_spawn(job: Box<dyn FnOnce() + Send + 'static>) -> std::io::Result<()> {
@@ -538,6 +617,10 @@ impl SupervisorHooks for JobHooks<'_> {
                 Some(record.resource.worker_peak_footprint_bytes.unwrap_or(0).max(footprint_bytes));
         }
     }
+
+    fn result_limit(&self) -> Option<u64> {
+        Some(self.registry.result_limit)
+    }
 }
 
 /// Marks a worker's record failed if the worker ends without a terminal
@@ -568,7 +651,23 @@ impl SolveJobRegistry {
     }
 
     pub(crate) fn with_hooks(pool: Arc<MemoryPool>, launcher: Arc<dyn WorkerLauncher>, spawn: SpawnFn) -> Self {
-        Self { jobs: Arc::default(), pool, launcher, spawn, reserve: PROCESS_RESERVE_BYTES, checks: Arc::default() }
+        Self {
+            jobs: Arc::default(),
+            pool,
+            launcher,
+            spawn,
+            reserve: PROCESS_RESERVE_BYTES,
+            checks: Arc::default(),
+            result_limit: MAX_DISPLAYABLE_RESULT_BYTES,
+        }
+    }
+
+    /// Test seam: the same registry with a lower result limit, so the limit's
+    /// boundary can be exercised without results of [`MAX_DISPLAYABLE_RESULT_BYTES`].
+    #[cfg(test)]
+    pub(crate) fn with_result_limit(mut self, limit: u64) -> Self {
+        self.result_limit = limit;
+        self
     }
 
 
@@ -725,6 +824,7 @@ impl SolveJobRegistry {
                     queue_reason: None,
                     error_message: None,
                     resource_refusal: None,
+                    result_too_large: None,
                     result: None,
                     result_lease: None,
                     result_bytes: None,
@@ -875,6 +975,10 @@ impl SolveJobRegistry {
             }),
             Ok(WorkerOutcome::Failed(error)) => Err(ModelChecksError::Failed(error)),
             Ok(WorkerOutcome::Refused(refusal)) => Err(ModelChecksError::Unavailable(self.unavailable(refusal))),
+            // The check's hooks set no result limit, so this does not arise.
+            Ok(WorkerOutcome::ResultTooLarge { result_bytes, limit_bytes }) => Err(ModelChecksError::Failed(format!(
+                "MODEL-CHECKS-REPORT-TOO-LARGE: a report of {result_bytes} bytes above {limit_bytes} bytes"
+            ))),
             Ok(WorkerOutcome::Terminated) => Err(ModelChecksError::Failed("MODEL-CHECKS-WORKER-TERMINATED: the check's worker was stopped.".to_string())),
         }
     }
@@ -969,6 +1073,12 @@ impl SolveJobRegistry {
         // The worker is reaped inside `supervise`, also while it unwinds; only
         // then is the grant released.
         let outcome = catch_unwind(AssertUnwindSafe(|| {
+            // Native smoke builds only: an injected result instead of the worker
+            // (RT-U4 desktop measurement; `native_smoke_inject.rs`).
+            #[cfg(feature = "native-smoke")]
+            if let Some(outcome) = crate::native_smoke_inject::injected_outcome(&self.pool, &input.0, &|| self.cancellation_requested(&job_id)) {
+                return outcome;
+            }
             let mut hooks = JobHooks { registry: &self, job_id: &job_id };
             crate::solve_worker::supervise(&terms, &mut grant, input, &mut hooks)
         }));
@@ -1013,8 +1123,22 @@ impl SolveJobRegistry {
                     record.resource_refusal = Some(refusal);
                 });
             }
+            Ok(WorkerOutcome::ResultTooLarge { result_bytes, limit_bytes }) => {
+                self.finish_too_large(&job_id, ResultTooLarge::new(result_bytes, limit_bytes));
+            }
             Ok(WorkerOutcome::Terminated) => self.finish_cancelled(&job_id, CancelPoint::AtPublication, None),
         }
+    }
+
+    /// Ends a job refused for its result's size. Its result and result lease
+    /// (if any were ever held) have already been dropped; it holds none, so
+    /// it can never be taken.
+    fn finish_too_large(&self, job_id: &str, refusal: ResultTooLarge) {
+        self.finish(job_id, |record| {
+            record.state = JobState::Refused;
+            record.error_message = Some(refusal.message(job_id));
+            record.result_too_large = Some(refusal);
+        });
     }
 
     /// Retains a finished result under its result lease, unless the job was
@@ -1036,6 +1160,16 @@ impl SolveJobRegistry {
             drop(result);
             drop(lease);
             self.finish_cancelled(job_id, CancelPoint::AtPublication, None);
+            return;
+        }
+        // The worker's announced length is refused before it is read; this
+        // holds the same bound for any result that reaches publication.
+        if result.len() as u64 > self.result_limit {
+            drop(table);
+            let result_bytes = result.len() as u64;
+            drop(result);
+            drop(lease);
+            self.finish_too_large(job_id, ResultTooLarge::new(result_bytes, self.result_limit));
             return;
         }
         if retained >= MAX_RETAINED_RESULTS {
@@ -1113,6 +1247,7 @@ impl SolveJobRegistry {
             delivered: record.delivered,
             error_message: record.error_message.clone(),
             resource_refusal: record.resource_refusal.clone(),
+            result_too_large: record.result_too_large,
             resource: record.resource.clone(),
         })
     }
@@ -1179,6 +1314,9 @@ impl SolveJobRegistry {
     fn takeable_locked<'t>(&self, table: &'t SolveJobTable, job_id: &str) -> Result<&'t Lease, SolveJobError> {
         let custody = table.counts().custody;
         let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
+        if let Some(refusal) = record.result_too_large {
+            return Err(SolveJobError::invalid(refusal.message(job_id)));
+        }
         if record.result.is_none() {
             let message = if record.delivered {
                 format!("PREVIEW-SOLVE-RESULT-ALREADY-DELIVERED: {job_id}")
@@ -2739,5 +2877,179 @@ mod tests {
         assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
         registry.dispose_all_results();
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    #[test]
+    fn sizes_in_messages_are_exact() {
+        assert_eq!(display_size(67_108_864), "67108864 bytes (64 MiB)");
+        assert_eq!(display_size(67_108_865), "67108865 bytes (64 MiB)");
+        assert_eq!(display_size(3_950_000_000), "3950000000 bytes (3.68 GiB)");
+        assert_eq!(display_size(0), "0 bytes (0 MiB)");
+    }
+
+    /// The displayable-result limit (RT-U4): a fixed 64 MiB product value.
+    #[test]
+    fn the_displayable_result_limit_is_64_mib() {
+        assert_eq!(MAX_DISPLAYABLE_RESULT_BYTES, 67_108_864);
+        let host = ScriptedHost::normal();
+        let (registry, _gate) = gated(&host);
+        assert_eq!(registry.result_limit, MAX_DISPLAYABLE_RESULT_BYTES);
+    }
+
+    /// At the seam's limit L: a result of L - 1 and of L bytes publishes and
+    /// is taken as before; one of L + 1 bytes ends the job refused with the
+    /// code, its size and the limit, holds no result or lease, and its take
+    /// refuses with the same code and returns no bytes.
+    #[test]
+    fn a_result_above_the_limit_is_refused_and_never_taken() {
+        const LIMIT: u64 = 16;
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let registry = registry.with_result_limit(LIMIT);
+        for (n, length) in [LIMIT - 1, LIMIT].into_iter().enumerate() {
+            let receipt = registry.start(MODEL, None).unwrap();
+            gate.wait_started(n + 1);
+            let result = "x".repeat(length as usize);
+            gate.release(&result);
+            let status = wait_terminal(&registry, &receipt.job_id);
+            assert_eq!((status.state, status.result_bytes, status.result_too_large), ("completed", Some(length), None), "{status:?}");
+            assert_eq!(registry.take_result(&receipt.job_id).unwrap(), result.as_bytes());
+            registry.dispose_result(&receipt.job_id).unwrap();
+        }
+        assert_eq!(registry.pool().reserved_total(), 0);
+
+        let receipt = registry.start(MODEL, None).unwrap();
+        gate.wait_started(3);
+        gate.release(&"x".repeat(LIMIT as usize + 1));
+        let status = wait_terminal(&registry, &receipt.job_id);
+        assert_eq!(status.state, "refused", "{status:?}");
+        assert_eq!(status.result_too_large, Some(ResultTooLarge { code: RESULT_TOO_LARGE_CODE, result_bytes: LIMIT + 1, limit_bytes: LIMIT }));
+        let message = format!(
+            "PREVIEW-SOLVE-RESULT-TOO-LARGE: {}'s result is 17 bytes, above the 16 bytes the desktop can display; it was discarded without being read",
+            receipt.job_id
+        );
+        assert_eq!(status.error_message.as_deref(), Some(message.as_str()));
+        // Not a memory-pool refusal, and no result is published or retained.
+        assert_eq!((status.resource_refusal, status.result_available, status.result_bytes, status.delivered), (None, false, None, false));
+        assert_eq!(registry.pool().status(JobCounts::default()).last_refusal, None);
+        // Its worker was reaped and its grant released; it never held a result lease.
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+        assert_eq!(registry.pool_status().retained_results, 0);
+        assert_eq!(registry.custody_binding(&receipt.job_id), None);
+        assert!(registry.table().records[&receipt.job_id].digests.is_none());
+        // The take refuses with the same code, every time, and hands over nothing.
+        for _ in 0..2 {
+            match registry.take_result(&receipt.job_id) {
+                Err(SolveJobError::InvalidRequest { message: refused }) => assert_eq!(refused, message),
+                other => panic!("{other:?}"),
+            }
+        }
+        assert_eq!(registry.pool().reserved_total(), 0);
+        // Disposal finds nothing to release.
+        let disposal = registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!((disposal.released, disposal.released_bytes, disposal.delivered), (false, 0, false));
+        // The status stays the refusal.
+        assert_eq!(registry.status(&receipt.job_id).unwrap().result_too_large.map(|r| r.result_bytes), Some(LIMIT + 1));
+    }
+
+    /// A refused result's attestation never enters the attestation table; a
+    /// result within the limit still records its own (seam limit 16).
+    #[test]
+    fn a_refused_results_attestation_is_never_recorded() {
+        const LIMIT: u64 = 16;
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let registry = registry.with_result_limit(LIMIT);
+        let mode = PreviewSolverMode::SparseInteractive;
+        let within = "x".repeat(LIMIT as usize);
+        let over = "y".repeat(LIMIT as usize + 1);
+        let within_attestation = crate::solve_worker::tests::scripted_attestation(&within);
+        let over_attestation = crate::solve_worker::tests::scripted_attestation(&over);
+
+        let refused = registry.start(MODEL, Some(mode.as_str())).unwrap();
+        gate.wait_started(1);
+        gate.release(&format!("attested:{over}"));
+        let status = wait_terminal(&registry, &refused.job_id);
+        assert_eq!((status.state, status.result_too_large.map(|r| r.result_bytes)), ("refused", Some(LIMIT + 1)), "{status:?}");
+        assert!(!registry.holds_attested_solve(mode, &over_attestation));
+
+        let accepted = registry.start(MODEL, Some(mode.as_str())).unwrap();
+        gate.wait_started(2);
+        gate.release(&format!("attested:{within}"));
+        assert_eq!(wait_terminal(&registry, &accepted.job_id).state, "completed");
+        assert!(registry.holds_attested_solve(mode, &within_attestation));
+        assert!(!registry.holds_attested_solve(mode, &over_attestation));
+        registry.dispose_all_results();
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// The product limit, refused on the announced length alone: the worker
+    /// announces 64 MiB + 1 bytes and then sends none (it sleeps). Reading
+    /// them would never finish; the job instead ends refused at once, its
+    /// worker killed and reaped, with no result lease admitted.
+    #[test]
+    fn the_product_limit_refuses_on_the_announced_length_before_reading() {
+        let length = MAX_DISPLAYABLE_RESULT_BYTES + 1;
+        // Within the starting grant, so the grant check does not refuse it first.
+        assert!(length <= start_grant(), "{length} > {}", start_grant());
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::scripted(format!("oversized_header:{length}")));
+        let receipt = registry.start(MODEL, None).unwrap();
+        let status = wait_terminal(&registry, &receipt.job_id);
+        assert_eq!(status.state, "refused", "{status:?}");
+        assert_eq!(
+            status.result_too_large,
+            Some(ResultTooLarge { code: RESULT_TOO_LARGE_CODE, result_bytes: 67_108_865, limit_bytes: 67_108_864 })
+        );
+        assert!(status.error_message.unwrap().starts_with("PREVIEW-SOLVE-RESULT-TOO-LARGE: "));
+        assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+        assert!(matches!(registry.take_result(&receipt.job_id), Err(SolveJobError::InvalidRequest { message }) if message.starts_with("PREVIEW-SOLVE-RESULT-TOO-LARGE: ")));
+    }
+
+    /// A result of exactly the product limit is published and taken unchanged.
+    #[test]
+    fn a_result_of_exactly_the_product_limit_is_published_and_taken() {
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, TestLauncher::scripted(format!("result:{MAX_DISPLAYABLE_RESULT_BYTES}")));
+        let receipt = registry.start(MODEL, None).unwrap();
+        let status = wait_terminal(&registry, &receipt.job_id);
+        assert_eq!((status.state, status.result_bytes, status.result_too_large), ("completed", Some(MAX_DISPLAYABLE_RESULT_BYTES), None), "{status:?}");
+        let taken = registry.take_result(&receipt.job_id).unwrap();
+        assert_eq!(taken.len() as u64, MAX_DISPLAYABLE_RESULT_BYTES);
+        assert!(taken.iter().all(|byte| *byte == b'x'));
+        drop(taken);
+        registry.dispose_result(&receipt.job_id).unwrap();
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+
+    /// Publication holds the same bound for a result that reaches it: the
+    /// result and its lease are released and the job is refused. (Driven
+    /// directly on a job whose worker never started, so nothing else
+    /// finishes it.)
+    #[test]
+    fn publication_refuses_a_result_above_the_limit() {
+        struct NoWorker;
+        impl WorkerLauncher for NoWorker {
+            fn command(&self) -> std::io::Result<std::process::Command> {
+                Err(std::io::Error::other("no worker for a publication test"))
+            }
+        }
+        const LIMIT: u64 = 4;
+        let host = ScriptedHost::normal();
+        let registry = registry(&host, Arc::new(NoWorker)).with_result_limit(LIMIT);
+        let receipt = registry.start(MODEL, None).unwrap();
+        wait_terminal(&registry, &receipt.job_id);
+        assert_eq!(registry.pool().reserved_total(), 0);
+        let lease = registry.pool().acquire_interactive(4096).unwrap();
+        assert_eq!(registry.pool().reserved_total(), 4096);
+        // An attested result: its attestation must not enter the table.
+        let attestation = crate::solve_worker::tests::scripted_attestation("12345");
+        registry.publish(&receipt.job_id, "12345".to_string(), lease, [0; 32], Some((PreviewSolverMode::SparseInteractive, attestation)));
+        assert!(!registry.holds_attested_solve(PreviewSolverMode::SparseInteractive, &attestation));
+        let status = registry.status(&receipt.job_id).unwrap();
+        assert_eq!((status.state, status.result_too_large.map(|r| (r.result_bytes, r.limit_bytes))), ("refused", Some((5, LIMIT))));
+        assert_eq!((status.result_available, status.result_bytes), (false, None));
+        assert_eq!(registry.pool().reserved_total(), 0, "the result's lease is released at once");
+        assert!(matches!(registry.take_result(&receipt.job_id), Err(SolveJobError::InvalidRequest { message }) if message.starts_with("PREVIEW-SOLVE-RESULT-TOO-LARGE: ")));
     }
 }
