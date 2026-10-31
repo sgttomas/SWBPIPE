@@ -5,7 +5,8 @@ needs:
   condition: >-
     DEL-04-10 computes its modal responses on DEL-04-09's published modal basis: the frequencies, the
     shapes in their normalization case, the generalized masses, the participation factors and effective
-    masses, the cluster structure and the integrity standing, from a modal request that admits the
+    masses on the uniform-support-motion excitation p_k = (M R_k)_f (consistent-mass coupling to restrained
+    DOFs included), the cluster structure and the integrity standing, from a modal request that admits the
     model on its route (PF or EX), names the solved case at which nonlinear supports are linearized,
     and includes dynamic-only restraints (snubbers). It reads DEL-04-09's mass model, unchanged, for the
     missing-mass correction. A modal set that DEL-04-09 refuses is not used; a set published Sensitive
@@ -17,7 +18,8 @@ needs:
     Model document 0.9.0 carries the snubber support family (`SupportFamily` `snubber`: translational
     restraints only, optionally one finite dynamic stiffness, a skew `direction` with exactly one
     restraint, no hanger or nonlinear member, refused by every static solve until DEL-04-10's slice) and
-    the top-level `spectra[]` records (Work `model-document-0.9.0.md` §2.4). DEL-04-10 defines their
+    the top-level `spectra[]` records (Work `model-document-0.9.0.md` §2.4, agreed and frozen at the
+    document lane's `31bde47a2`, pending its merge to main). DEL-04-10 defines their
     solve meaning; the document lane owns their shape and validation (Design §3.1, §4).
   gating: true
   when: Before the response-spectrum build slice.
