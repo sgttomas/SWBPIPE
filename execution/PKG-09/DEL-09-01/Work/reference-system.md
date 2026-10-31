@@ -224,7 +224,7 @@ support here needs a skew.
 | RS-VS1 | RS-080 | `variable_spring_hanger` | UZ; stiffness 180 kN/m (invented) | Riser, where vertical growth rules out a rigid support; sized by hanger sizing (§8.8) |
 | RS-CE1 | RS-100 | `constant_effort_support` | UZ; `constant_load` 9.0 kN (invented input) | Near bend B2, where vertical movement is largest; sized by hanger sizing |
 | RS-LO1 | RS-110 | `nonlinear` | `lift_off`, UZ, initial state active, contact on positive reaction | A rack support near the riser, where operating movement can lift the pipe; whether it lifts is a solve result, not claimed |
-| RS-FR1V | RS-120 | `vertical_support` | UZ (linear rest) | Normal-force source for RS-FR1. It is linear because a nonlinear support as a friction normal source is refused on both routes and is R-4 stage S7, outside RT-A3's scope; lift-off is exercised by RS-LO1 |
+| RS-FR1V | RS-120 | `nonlinear` | `one_way`, UZ (resting); interim: a linear `vertical_support` UZ until R-4 stage S7 lands (§10) | Normal-force source for RS-FR1, so criterion 1 exercises a lift-off friction shoe |
 | RS-FR1 | RS-120 | `nonlinear` | `friction`, UY (axial), μ 0.30 (invented), normal reaction from RS-FR1V UZ | Axial sliding along the rack |
 | RS-G1 | RS-140 | `nonlinear` | `gap`, UX, initial state inactive, closes on positive displacement, gap 5 mm | A lateral stop with clearance beyond the tee |
 | RS-V140 | RS-140 | `vertical_support` | UZ | Carries the header beyond the tee |
@@ -411,7 +411,8 @@ or absence a solve of the full model shows today.
 | Tee RS-T1 with user SIFs | pending; the junction at RS-130 is in tranche 1 without the component | RT-A3 increment 1 (`claude/rt-a3-tee`) | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
-| Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1; RS-FR1V is a linear rest in tranche 1) | pending | RT-A3 increment 4; with the connector, increment 5 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
+| Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | RT-A3 increment 4; with the connector, increment 5 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
+| RS-FR1V as the `one_way` normal source of RS-FR1 | interim: a linear `vertical_support` UZ (Agent 0, 2026-10-31) | RT-A3, R-4 stage S7, after increment 4 (DEL-04-07 `Work/route-unification-r4.md` §0a) | a nonlinear friction normal source is refused on both routes |
 | RS-SUS, RS-OPE (thermal, modulus by temperature) | in tranche 1 as linear cases (load/reference-state group) | — | — |
 | RS-EXP | in tranche 1 as a subtraction; `difference_basis` pending | RT-A5 slice 1b / load-cases lane (0.9.0) | basis not recorded |
 | RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature | pending | #1678 / load-cases lane | `EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED` |
