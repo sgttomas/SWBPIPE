@@ -90,6 +90,42 @@ verdict fast. None of them changes the basic shape: every consumer holds every r
     - **evidence references:** they resolve through the id ranges.
   - The verdict is the conjunction of both readers. It carries the same codes, refusals and
     diagnostics as today, proven equal on the reader corpus by running both shapes.
+- **Chunk families.** Chunks are cut by family as well as by set:
+  - **member chunks:** every row whose entity is a pipe member, including station rows, end
+    actions, `element_global_end_*` and maxima, by set and member range;
+  - **node chunks:** nodal translations, rotations and magnitudes, by set and node range;
+  - **support chunks:** support reactions and their magnitudes, by set; a set's supports fit
+    one chunk at 2,000 nodes;
+  - **set-level rows:** rows with no member, node or support entity, such as solver-mode
+    basis rows and arc or curved-bend review rows, go into a small chunk per set.
+
+  The manifest records each chunk's family, set and entity range.
+- **Ids are checked, not assumed.** The D reader checks that every row's id lies inside its
+  own chunk's declared id range, and that ids are unique within the chunk. The manifest
+  check proves the chunks' ranges disjoint. Together these give uniqueness across D. The S
+  reader checks S's own ids, and diagnostic ids, against the same ranges.
+- **Checks that span members, sets or families,** and how each runs. Each becomes a per-chunk
+  partial (a set, a count or a hash, recorded in the chunk's reader output) plus a cheap
+  combine over the manifest:
+
+  | Check (main) | Spans | Partial and combine |
+  |---|---|---|
+  | id uniqueness across rows and diagnostics (`reader_verdict.rs` `ordinary_findings`; `physics_evidence.rs` ~464) | everything | in-chunk uniqueness plus declared ranges plus disjoint ranges (above) |
+  | evidence and summary refs resolve (`physics_evidence.rs` ~482–505; `preview_physics_evidence.rs` ~323–343) | rows, `numerical_quality`, `summary` | each ref's target id is looked up in the manifest's ranges, and then in that chunk's id set |
+  | each case's member set equals the model's and the extrema and coverage records (`physics_evidence.rs` ~567–630; `preview_physics_evidence.rs` ~432, ~526) | all members of a set | each member chunk reports its member-id set; the combine takes the union per set and compares it with the model and `contract_evidence` |
+  | global end coverage, every member × end × set (`global_end_evidence.rs` `coverage` ~134–186) | all members of a set | the per-chunk (member, end) set, unioned per set |
+  | support component coverage (`physics_evidence.rs` ~913; preview support rows ~572) | all supports of a set | support chunks are whole per set, so the check runs inside the chunk |
+  | pressure 5-station × 2-basis coverage (`PRESSURE_ROW_COVERAGE`) | one member | member-local, inside the chunk |
+  | region binding (`REGION_RESULT_BINDING`) | members of one region | each chunk reports its rows per region; the combine checks each region's members against the model's regions. This also removes today's scan of every row per region |
+  | combination re-derivation from operand rows (`exact_combination_evidence.rs` ~1043–1086; `preview_combination_operands`) | the operand sets of one key, at the same entity | combination chunks share their operands' entity ranges, so the reader opens the operand chunks of the same range together |
+  | combinations of combinations (0.9.0 `mechanics` combinations with combination operands, for example OCC-SRSS) | a combination's operand combinations | the same as above; chunks are verified in the combinations' dependency order |
+  | connector, component-body and load-reference coverage (`connector_evidence.rs` ~377–409; `component_body.rs`; `load_reference.rs` coverage codes) | the components and members of a set | the per-chunk counts or id sets, unioned per set and compared with the model |
+  | derivative export 1:1 accounting (`derivative.rs`) | every row | per-chunk row counts and ids against the export's per-chunk accounting |
+
+  An equilibrium or reaction-sum check, if a reader adds one, runs the same way: per-chunk
+  partial sums, combined per set.
+  This table is the complete list as of `cfd17e103`. Each reader PR in C2 rechecks it
+  against the code.
 - **Display.**
   - The webview receives S. Tables and the viewport work from S.
   - The results table becomes a paged query over D through native IPC, with a filter (set,
@@ -132,10 +168,31 @@ verdict fast. None of them changes the basic shape: every consumer holds every r
   - **A per-row proof is derivable:** the chunk hash, then the root. The verifier checks every
     chunk hash against the root. A run's integrity check therefore still covers every row,
     without the record holding one entry per row.
+- **The Merkle tree, exactly.**
+  - **Leaves:** one per chunk, in manifest order. That order is by set ordinal, then family
+    (member, node, support, set-level), then the range start.
+  - **Leaf hash:** SHA-256(`"swbpipe.result-detail.leaf.v1"` ‖ 0x00 ‖ chunk bytes). The
+    chunk bytes are the chunk's checked canonical JSON (`checked_v1`) of `{rows, evidence}`,
+    exactly as stored.
+  - **Internal hash:** SHA-256(`"swbpipe.result-detail.node.v1"` ‖ 0x01 ‖ left ‖ right).
+  - **Odd node:** an odd node at the end of a level is promoted to the next level unchanged.
+    It is not duplicated, so no two different leaf lists share a root through duplication.
+  - **Empty set:** SHA-256(`"swbpipe.result-detail.empty.v1"`).
+  - **Root:** S records the root, the leaf count and the domain version.
+- **Shared chunks and deletion.**
+  - Chunk rows are content-addressed by sha256. A reference table `(owner_kind, owner_id,
+    chunk_sha256)` records every project result and stored run that uses each chunk.
+  - Removing a project's result, replacing it, or deleting a run removes only that owner's
+    references. A chunk is deleted only when no reference remains, in the same transaction.
+  - The PR that implements this carries a regression: delete a run whose chunks a project
+    shares (and the reverse), and show every remaining record still verifies. This is a
+    destructive path, so it gets the persistence review.
 - **Migration.**
   - Records and projects saved before C, with a single envelope in `result_json` or
-    `mechanics_result_json`, open read-only under their original hashes and verifiers. The
-    v0.3 verifier stays.
+    `mechanics_result_json`: **their stored result evidence** opens read-only, under its
+    original hashes and verifiers. The v0.3 verifier stays.
+  - **The model is not read-only.** A project saved before C stays fully editable and
+    re-solvable. A re-solve produces an S + D result beside the old record, which is kept.
   - A large legacy result opens through the same native path as C1 (§4), so it never reaches
     the webview whole.
   - A user can convert a legacy project to S + D explicitly. The converted copy gets new
@@ -189,6 +246,75 @@ uses them. It lifts the usable size from about 36 nodes to about 1,000 for model
 fits the budget. It also makes the next steps local to the desktop: C2's consumers move one at
 a time behind the same native custody.
 
+### 4.1 C1 in detail: app-process memory and persistence
+
+- **App-process memory.** In C1 the app process holds the solve's result bytes, as it already
+  does until the take. It then parses them for the native readers and builds S and a paging
+  index. Projected at 1,000 nodes (1.84 GB result):
+
+  | Part | Size | When |
+  |---|---|---|
+  | the bytes | 1.84 GB | steady state |
+  | the readers' parsed value | about 4.2 GB transient | measured: the worker's parse-back of the same text added 4.15 GB in window 2 |
+  | the paging index | about 30 MB | row offsets |
+  | S | tens of MB | steady state |
+
+  - **Peak:** about 6.1–6.5 GB transient; about 2 GB steady state.
+  - **Admission:** the parse is admitted through the memory pool, priced by the existing
+    ingress prescan (it prices a text's `Value` materialization), as a lease. If it doesn't
+    fit, it is refused by name rather than failing.
+  - **Measurement before draft ends.** The P2 kit samples the app process, its worker and
+    WebContent. The C1 PR stays in draft until a window has measured the app-process peak and
+    the usable size, at 500 and 1,000 nodes. Until then, "about 1,000 nodes" is a projection
+    and appears in no user-facing text or release target.
+- **What C1 persists.** C1 keeps today's persistence and record version: the v0.3 run record,
+  with the result as one TEXT value. S + D persistence and run record v0.4 are C2.
+  - **Exact length check.** Before writing, Record Run and Save Project compute the exact
+    length of each value they would store: the result text and the run record that embeds it,
+    escaped. They compare it with the connection's actual SQLite length limit, read with
+    `sqlite3_limit`.
+  - **Refusal by name.** Above that limit, Record Run is refused (`RUN-RECORD-RESULT-TOO-LARGE`,
+    stating sizes and limit). Save Project saves the model and says plainly that the result
+    wasn't saved (`PROJECT-SAVE-RESULT-TOO-LARGE`). Nothing is truncated, and nothing fails
+    silently.
+  - **Test.** A test at the limit and one byte above covers both, until C2 removes them.
+
+### 4.2 Criterion 9's time budget at 2,000 nodes
+
+Criterion 9 asks for 10 s or less from Analyze → Run to verified first paint for linear static
+at 2,000 nodes *(provisional; the value and its reading are the owner's)*. The projection below
+is for C3 on the measured rack (`linear-ex`: 7 cases and 5 subtractions, 3.8 M published rows).
+The figures are from the development host (18 cores) unless stated.
+
+| Stage | Basis | Projected |
+|---|---|---|
+| Solve: formation, factorization and certificate per case | about 3–4 s per case at 1,000 nodes (window 2's attribution; `formation_check` and `finish_checked_factor`), roughly doubling at 2,000 | **45–55 s** for 7 cases, sequentially |
+| … with factorization reuse (a conditional repair in this lane) | about 2 distinct stiffnesses among the 7 cases | about 15 s |
+| … with independent cases solved in parallel | 7 cases on 7 cores; memory scales with the parallel factor | about 8 s |
+| Publication into chunks, after RT-A3's 1b | per-row work is linear after 1b; not yet measured | 5–10 s *(estimate; 1b's re-measurement will replace it)* |
+| Chunk serialization and hashing | 1.2 s per 1.84 GB serialized (window 2); SHA-256 at about 2 GB/s per core | about 3 s, in parallel with publication |
+| S reader | S is tens of MB | about 1 s |
+| **D reader, full verdict** | 5–7 s per 153k rows natively after the reader fixes (about 40 µs per row) | **about 150 s single-threaded; about 9–10 s on 18 cores; about 19–20 s on an 8-core machine.** Chunks are independent, so verification parallelizes almost perfectly |
+| Transfer and parse of S, then first paint | 15–30 MB of S | about 1 s |
+
+**What this says.**
+- On today's solve path, the solve alone is over 10 s at 2,000 nodes for this case set. C3
+  removes memory, not solve time.
+- Meeting 10 s needs three things together:
+  - parallel case solves, or factorization reuse plus parallel solves;
+  - a faster or parallel publication after 1b;
+  - a parallel D verdict.
+- Even then, the full D verdict (about 10 s on 18 cores, about 20 s on 8) does not fit inside
+  10 s on its own on a smaller machine.
+
+**Open matter for the owner, stated plainly.** If "verified" at first paint must include the
+complete D verdict, criterion 9's 10 s for this case set at 2,000 nodes isn't projected to be
+reachable on the 16 GiB base machine, even after C3 and the solver repairs. The numbers above
+are what the owner needs to decide whether the value, the case set or the reading changes.
+This note doesn't redefine "verified".
+
+The projection is re-measured after 1b, after the reader bundle, and at each of C1 and C3.
+
 **Fit with other lanes:**
 - **0.9.0 S1 (#50):** C touches no model-document surface and can land before or after it.
 - **The reference system:** it gains no new fields.
@@ -213,7 +339,7 @@ a time behind the same native custody.
 | Analysis-run record (`analysisRunCompatibility.ts`, `compatibility.py`, `analysis_runs.rs`) | one `ResultRef` and checksum per row, plus the whole-envelope hash | v0.4: S hash, Merkle root, chunk hashes; v0.3 kept for old records | C2 |
 | Stored runs and project save (SQLite) | one TEXT value of the whole envelope | S plus content-addressed chunk blobs, shared | C1 |
 | Stress-neutral export (`package.py`) and headless runner | every row | streamed from D | C2 |
-| Embedded agent `swbpipe_read_results` | 50-row pages of id/kind/value/unit, no metadata | summary tables plus paged detail with metadata | C2 |
+| Embedded agent `swbpipe_read_results` | 50-row pages of id/kind/value/unit, no metadata | summary tables plus paged detail with metadata. **This changes the tool's output, so it is a catalog version change (v5)** on an interface shared with App v4 and owned in RT-E1's lane. It is coordinated through Agent 0 with App v4's Agent 0 and RT-E1, after the D4 live run and never before | C2 (after D4) |
 | MBF handoff | doesn't read results | unchanged | — |
 | Solve attestation (`d_S`) | over the whole result text | over S, which carries the root; no change for derived solves, which aren't attested | C3 (worker) |
 
