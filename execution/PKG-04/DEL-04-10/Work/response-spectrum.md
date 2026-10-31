@@ -90,8 +90,9 @@ Applied to each response quantity separately, with R_i the signed periodic value
   - `supports[].direction` is admitted on a snubber with exactly one translational restraint.
 - **Interim** (0.9.0's first slice): every static load-case solve on both routes refuses a model containing a snubber, by name (`SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`). F2's slice replaces that refusal with the meaning below.
 - **[decided] Dynamic meaning.** In the dynamic stiffness (a modal request that includes dynamic-only restraints, and so every spectrum solve, including its auxiliary static solve of §4.3), a snubber is:
-  - **rigid:** a restraint of its global DOFs, or, with a skew direction d, a restraint of the motion along d only, exactly as the static solve treats a skewed line stop, leaving perpendicular motion free;
-  - **with stiffness k:** a spring k on its global DOF, or, with a skew direction, the global spring k·d dᵀ/(dᵀd) on the node's translations, never a diagonal term in global axes (review finding 9).
+  - **rigid:** a restraint of its global DOFs, or, with a skew direction d, the exact constraint dᵀu = 0 by the static path's division-free nullspace basis T (DEL-04-09 Design §1.3; DEL-05-02 Work `operating-case.md` §2.2), leaving perpendicular motion free;
+  - **with stiffness k:** a spring k on its global DOF, or, with a skew direction, the rank-1 term k·d dᵀ/(dᵀd) with the authored d on the node's translations, never a diagonal term in global axes (review finding 9).
+  - A non-axis direction is admitted exactly when the static path admits it; until the skew kernel lands it is refused with the static code (`SUPPORT_DIRECTION_SKEW_UNSUPPORTED`).
 - **[decided] Static load-case solves** on both routes ignore snubbers, with the disclosure "dynamic-only restraint, not active in static cases". "Static load-case solves" means the analyses of load cases. It does not include F2's auxiliary static solve, which uses the dynamic stiffness.
 
 ## 6. References, verification tolerances and the screening class
