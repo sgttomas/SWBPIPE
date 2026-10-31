@@ -26,7 +26,7 @@ const view = (state: RunSheetState, model: PreviewModel) => sheetView({ state, m
 /** Follow the actual UI order: commit, assign once, then retain displayed ids. */
 function write(state: RunSheetState, model: PreviewModel, key: string, column: SheetColumnKey, text: string): RunSheetState {
   let next = setCell(state, key, column, text);
-  if (text.trim()) next = assignIds(next, key, model, []);
+  if (text.trim() || column === "kind") next = assignIds(next, key, model, []);
   return recordShownPipeIds(next, view(next, model));
 }
 function point(state: RunSheetState, model: PreviewModel): RunSheetState {

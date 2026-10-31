@@ -1438,12 +1438,13 @@ covers missing values/units, invalid scales and consumption, inappropriate
 fields and id collisions. Existing run-sheet and component-form tests remain
 maintained evidence. Native verification and the timed walkthrough remain open.
 
-The reference run sheet counts 61 extra sheet entries (57 component fields,
+At the component-row increment, the reference run sheet counted 61 extra sheet entries (57 component fields,
 three Kind codes and the group toggle), replacing 66 form entries. At the
 existing sheet rate, 196 × 8/98 = 16 minutes for §3.4; removing §3.6's six-minute
 valve/flange step gives 664 entries, 29 per-intent cycles and 59.5 minutes,
 before optional G9 batching. The improvement over G6 alone is about one minute
-under that model. These remain estimates, not measurements or acceptance.
+under that model. These are historical estimates, not measurements or acceptance;
+§10 gives the current numbering policy and totals.
 
 
 ## 10. F/S numbering and draft pipe reservations
@@ -1454,6 +1455,10 @@ applies only when a row has no assignment. Kind changes and already-numbered
 legacy rows retain their assignments; historical fixture batches are retained
 without changing their ids or bytes. New blank-sheet and reopen paths have
 separate regressions.
+
+Clearing Kind to blank selects a run and assigns a number if needed, including
+when Fill down copies blank Kind into an unnumbered F/S row. Existing assignments
+still return unchanged; another nonblank edit is not required to unblock Queue.
 
 An explicit pipe-id overwrite or draft deletion releases a recorded pipe id
 only when it has never been queued/applied and the row is not pending or in

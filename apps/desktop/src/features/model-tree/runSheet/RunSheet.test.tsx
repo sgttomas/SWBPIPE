@@ -64,6 +64,38 @@ beforeEach(() => { RUN_SHEET_TIMING.engineCheckDelayMs = 60_000; });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); RUN_SHEET_TIMING.engineCheckDelayMs = 250; });
 
 describe("run sheet keyboard flow (§5.1)", () => {
+  it.each(["F", "S"])("clearing Kind %s back to a run assigns its first number without another edit", async (kind) => {
+    renderSheet();
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    code("r2", "kind", kind);
+    for (const [column, text] of [["dx", "2"], ["od", "0.1143"], ["wall", "0.00602"], ["material", "material:steel"], ["orientation", "0 0 1"]] as const) type("r2", column, text, { key: "Tab" });
+    expect(harness.store!.current().idState.assigned.r2).toBeUndefined();
+    fireEvent.keyDown(cell("r2", "kind"), { key: "Backspace" });
+    expect(harness.store!.current().idState.assigned.r2).toBe(10);
+    expect(cell("r2", "nodeId")).toHaveTextContent("node:N10");
+    expect(cell("r2", "nodeId")).not.toHaveAccessibleDescription(/id is blank/);
+    await waitFor(() => expect(screen.getByTestId("run-sheet-queue")).toBeEnabled());
+    type("r2", "dx", "3");
+    expect(harness.store!.current().idState.next).toBe(20);
+    expect(cell("r2", "nodeId")).toHaveTextContent("node:N10");
+  });
+
+  it("Fill down of blank Kind assigns an unnumbered S row as a run", () => {
+    renderSheet();
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    code("r3", "kind", "S");
+    type("r3", "dx", "2");
+    expect(harness.store!.current().idState.assigned.r3).toBeUndefined();
+    act(() => cell("r2", "kind").focus());
+    fireEvent.keyDown(cell("r2", "kind"), { key: "d", ctrlKey: true });
+    expect(harness.store!.current().idState.assigned.r3).toBe(20);
+    expect(cell("r3", "nodeId")).toHaveTextContent("node:N20");
+  });
+
   it("Enter follows the fast path dX → dY → dZ → Kind → Support → the next row's dX, and appends a row on the last row's Support", () => {
     renderSheet();
     type("r1", "dx", "3");

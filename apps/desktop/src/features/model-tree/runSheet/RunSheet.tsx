@@ -194,7 +194,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   function commit(rowKey: string, column: SheetColumnKey, text: string) {
     const before = sheetView({ state: store.current(), statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup });
     let next = setCell(store.current(), rowKey, column, text);
-    if (text.trim()) next = assignIds(next, rowKey, model, reservedIds);
+    if (text.trim() || column === "kind") next = assignIds(next, rowKey, model, reservedIds);
     update(() => next);
     const after = sheetView({ state: next, statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup });
     markChanges(before, after, rowKey);
@@ -252,7 +252,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     if (!targets.length) { announce("Fill down needs following draft rows."); return; }
     update((current) => targets.reduce((next, key) => {
       const written = setCell(next, key, from.column, value);
-      return value.trim() ? assignIds(written, key, model, reservedIds) : written;
+      return value.trim() || from.column === "kind" ? assignIds(written, key, model, reservedIds) : written;
     }, current));
     announce(`Filled ${column.label} into ${targets.length} row${targets.length === 1 ? "" : "s"}.`);
   }
