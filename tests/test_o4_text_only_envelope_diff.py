@@ -1661,12 +1661,21 @@ class TestW16bIdentityExceptionIsItsOneField:
 
 
 
+def _rt_a3_member_path(obj, key, path):
+    """The path a member is read at. A stated edit that sets a formulation basis's limitations (RV120's shapes,
+    `{"op": "set", "path": ["formulation_basis", "limitations"], "value": [...]}`) holds those limitations as its
+    value, so its value is read at that formulation basis's limitations."""
+    if key == "value" and dict(obj).get("op") == "set" and dict(obj).get("path") == ["formulation_basis", "limitations"]:
+        return path + (key, "formulation_basis", "limitations")
+    return path + (key,)
+
+
 def _rt_a3_identity_old(value, restored, path=()):
     """`value` with every RT-A3 identity field put back to W-16 slice b's text (counted in `restored`). A field is a
     formulation basis's first limitation holding exactly RT_A3_IDENTITY_NEW; the new text anywhere else is left in
     place, so it fails the classification that follows."""
     if isinstance(value, Obj):
-        return Obj((k, _rt_a3_identity_old(v, restored, path + (k,))) for k, v in value)
+        return Obj((k, _rt_a3_identity_old(v, restored, _rt_a3_member_path(value, k, path))) for k, v in value)
     if isinstance(value, list):
         return [_rt_a3_identity_old(v, restored, path + (i,)) for i, v in enumerate(value)]
     if value == RT_A3_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
@@ -1678,7 +1687,7 @@ def _rt_a3_identity_old(value, restored, path=()):
 def _rt_a3_from_fields(value, path=()) -> int:
     """How many formulation bases' first limitations hold exactly RT_A3_IDENTITY_FROM."""
     if isinstance(value, Obj):
-        return sum(_rt_a3_from_fields(v, path + (k,)) for k, v in value)
+        return sum(_rt_a3_from_fields(v, _rt_a3_member_path(value, k, path)) for k, v in value)
     if isinstance(value, list):
         return sum(_rt_a3_from_fields(v, path + (i,)) for i, v in enumerate(value))
     return int(value == RT_A3_IDENTITY_FROM and path[-3:] == ("formulation_basis", "limitations", 0))
@@ -1736,6 +1745,22 @@ class TestRtA3IdentityExceptionRefusesOtherMoves:
         for mutant in mutants:
             with pytest.raises(AssertionError, match=re.escape(name)):
                 TestRtA3MovesOnlyTheIdentity.test_o4_text_only_envelope_diff_rt_a3_moves_only_the_identity(current={name: mutant})
+
+    @staticmethod
+    def test_o4_text_only_envelope_diff_rt_a3_identity_exception_refuses_other_edit_limitations():
+        """In RV120's stated edits the exception admits the restated identity only as the first limitation the edit
+        sets: the identity planted as that edit's second limitation fails at that file."""
+        name = "fixtures/results/retained_precision_rv120_b3_inputs.json"
+        assert name in RT_A3_LISTED
+        text = (PROJECT / name).read_text()
+        identity = next(form for form in (json.dumps(RT_A3_IDENTITY_NEW), json.dumps(RT_A3_IDENTITY_NEW, ensure_ascii=False))
+                        if form in text)
+        start = text.index(identity) + len(identity)
+        second = re.compile(r',\s*("(?:[^"\\]|\\.)*")').match(text, start)
+        assert second and second.group(1) != identity
+        mutant = text[: second.start(1)] + identity + text[second.end(1):]
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            TestRtA3MovesOnlyTheIdentity.test_o4_text_only_envelope_diff_rt_a3_moves_only_the_identity(current={name: mutant})
 
 
 class TestW7EnumerationRefusesOtherMoves:
