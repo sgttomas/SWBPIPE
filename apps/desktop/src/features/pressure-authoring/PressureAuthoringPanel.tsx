@@ -3,14 +3,23 @@ import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireTe
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import { DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, type ShearModel } from "./pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
+import { CopyFromCase } from "../load-cases/BulkFillControls";
+import { copyPressureRegions } from "../load-cases/bulkFill";
 
-export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
+export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient", "provenance"] as const;
 export function materialProjection(material: object): DraftRecord {
   const value = material as DraftRecord;
   return Object.fromEntries(MATERIAL_KEYS.filter(key => value[key] !== undefined).map(key => [key, value[key]]));
 }
+/** G5/G5b: the optional coefficient is absent unless a value or unit was entered;
+ * a half-entered quantity is refused by parseQuantities, never completed. */
+function blankAlphaAbsent(draft: DraftRecord): DraftRecord {
+  const alpha = record(draft.thermal_expansion_coefficient);
+  const blank = (v: unknown) => v === undefined || String(v).trim() === "";
+  return blank(alpha.value) && blank(alpha.unit) ? setMember(draft, "thermal_expansion_coefficient", undefined) : draft;
+}
 function checkedMaterial(draft: DraftRecord) {
-  const after = record(parseQuantities(draft));
+  const after = record(parseQuantities(blankAlphaAbsent(draft)));
   requireText(after.provenance, "Material provenance");
   if (after.constitutive_basis !== "homogeneous_isotropic_E_nu_v1") throw new Error("Select the explicit E/nu constitutive basis.");
   if (typeof record(after.elastic_modulus).value !== "number" || Number(record(after.elastic_modulus).value) <= 0) throw new Error("Explicit positive elastic modulus is required.");
@@ -23,6 +32,8 @@ function MaterialInputs({ draft, update }: { draft: DraftRecord; update: (key: s
     <TextField label="Constitutive basis" value={draft.constitutive_basis} choices={["homogeneous_isotropic_E_nu_v1"]} onChange={v => update("constitutive_basis", v)} />
     <QuantityField label="Elastic modulus E" dimension="stress" value={draft.elastic_modulus} onChange={v => update("elastic_modulus", v)} />
     <QuantityField label="Poisson ratio nu" dimension="dimensionless; unit 1; -1 < nu < 0.5" value={draft.poisson_ratio} onChange={v => update("poisson_ratio", v)} />
+    <QuantityField label="Thermal expansion coefficient" dimension="thermal expansion coefficient (1/temperature); optional, absent when left blank" value={draft.thermal_expansion_coefficient} onChange={v => update("thermal_expansion_coefficient", v)} />
+    <p>A material-level coefficient is recorded on the material. Thermal states that name an expansion law or their own coefficient use those instead.</p>
     <TextField label="Constitutive provenance" value={draft.provenance} onChange={v => update("provenance", v)} />
     <p>The exact profile derives G from the selected E/nu pair. Any existing G remains recorded and is nonauthoritative in that profile.</p>
   </>;
@@ -43,13 +54,6 @@ function ExistingMaterialEditor(props: RichFormProps & { material: NonNullable<R
     <button type="button" onClick={() => void submit()}>Queue constitutive properties</button>
   </fieldset><QueueFeedback {...state} /></section>;
 }
-/** G5: the optional coefficient is absent unless a value or unit was entered;
- * a half-entered quantity is refused by parseQuantities, never completed. */
-function blankAlphaAbsent(draft: DraftRecord): DraftRecord {
-  const alpha = record(draft.thermal_expansion_coefficient);
-  const blank = (v: unknown) => v === undefined || String(v).trim() === "";
-  return blank(alpha.value) && blank(alpha.unit) ? setMember(draft, "thermal_expansion_coefficient", undefined) : draft;
-}
 function CreateExactMaterial(props: RichFormProps) {
   const [draft, setDraft] = useState<DraftRecord>({});
   const state = useRichQueue({ ...props, onQueueIntent: intent => {
@@ -58,7 +62,7 @@ function CreateExactMaterial(props: RichFormProps) {
   } });
   const update = (k: string, v: unknown) => setDraft(current => setMember(current, k, v));
   async function submit() { try {
-    const after = checkedMaterial(blankAlphaAbsent(draft));
+    const after = checkedMaterial(draft);
     const id = requireText(after.id, "Material ID"); requireText(after.label, "Material label");
     if (props.model.materials?.some(m => m.id === id)) throw new Error("Material ID already exists.");
     await state.queue({ object_type: "Material", ref: id }, "create_material", "materials", undefined, after, "Exact E/nu material", true);
@@ -67,8 +71,6 @@ function CreateExactMaterial(props: RichFormProps) {
     <TextField label="Exact material ID" value={draft.id} onChange={v => update("id", v)} />
     <TextField label="Exact material label" value={draft.label} onChange={v => update("label", v)} />
     <MaterialInputs draft={draft} update={update} />
-    <QuantityField label="Thermal expansion coefficient" dimension="thermal expansion coefficient (1/temperature); optional, absent when left blank" value={draft.thermal_expansion_coefficient} onChange={v => update("thermal_expansion_coefficient", v)} />
-    <p>A material-level coefficient is recorded on the material. Thermal states that name an expansion law or their own coefficient use those instead.</p>
     <button type="button" onClick={() => void submit()}>Queue exact material</button>
   </fieldset><QueueFeedback {...state} /></details>;
 }
@@ -168,7 +170,13 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
     <p>{props.loadCase.pressure_regions === undefined ? "No pressure-region declaration has been applied." : `${props.loadCase.pressure_regions.length} applied regions.`} Terminal order and closure transfer are user-authored. {signed
       ? "The solver checks continuity, physical compatibility and tangency: straight runs stay collinear, direction changes happen only at realized bends, and a direction change above 1e-3 rad at a bend's end is refused as a mitre. A geometry-only bend cannot carry pressure: realize it first. Tees, valves, joints and other fittings are refused by name."
       : "The solver checks continuity, straightness and physical compatibility."}</p>
-    <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
+    <fieldset disabled={state.busy}>
+      <CopyFromCase what="pressure regions" cases={props.model.load_cases.filter(c => c.id !== props.loadCase.id && (c.pressure_regions?.length ?? 0) > 0).map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
+        const copied = copyPressureRegions(props.model.load_cases.find(c => c.id === id)?.pressure_regions, id, props.loadCase.id);
+        setRows(copied);
+        return `Copied ${copied.length} region${copied.length === 1 ? "" : "s"} from ${id}, with ids for this case: ${copied.map(r => String(r.id)).join(", ")}. Review the draft before queueing.`;
+      }} />
+      {rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
       <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
       <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
       {props.model.schema_version === MODEL_SCHEMA_VERSION && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}

@@ -1,0 +1,6 @@
+{
+  "description": "Parity vectors of the SI MBF writer and its Rust port: the inputs the writer's test suites, the invented corpus and the generator's coverage inputs give it, and the digests or text of its outputs",
+  "license": "project-original",
+  "origin": "invented for the DEL-17-04 MBF engine parity check; written by tools/fixtures/caepipe_mbf_writer_vectors.py",
+  "produced_by_caepipe": false
+}

@@ -402,9 +402,7 @@ impl<'a> Importer<'a> {
     }
 
     fn regeneration_identity(&mut self, model: &Value, id_map: &Value) -> R<()> {
-        let Some(regenerator) = self.options.regenerator else {
-            return Err(Stop::Fail(ImportError::RegeneratorRequired));
-        };
+        let regenerator: &dyn crate::SidecarRegenerator = self.options.regenerator.unwrap_or(&crate::SiWriter);
         let reference = match &self.t_ref {
             None => Reference::None,
             Some(number) if self.si => Reference::Celsius(number.value),
@@ -431,6 +429,15 @@ impl<'a> Importer<'a> {
                 return Ok(());
             }
             Regenerated::Sidecar(mut value) => {
+                // A caller's regenerator is screened like any caller value, before anything clones, compares or
+                // replaces part of it (review r3 of #32); a refused tree is dropped without recursion.
+                if !crate::value::within_bound(&value) {
+                    crate::value::dispose(value);
+                    return Err(Stop::Fail(ImportError::Unsupported(crate::value::unrepresentable(
+                        crate::value::Unrepresentable::TooDeep,
+                        "regenerated sidecar",
+                    ))));
+                }
                 let format = sidecar.get_or_null("sidecar_format").clone();
                 if let Some(dict) = value.as_dict_mut() {
                     dict.insert("sidecar_format".into(), format);

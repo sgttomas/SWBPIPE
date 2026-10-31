@@ -162,6 +162,7 @@ code_paths:
 checks:
 - apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/services/embeddedAgentSession.test.ts
+- apps/desktop/src/features/workspace/agentWorkspaceSnapshot.session.test.tsx
 - tools/agent_live_session_fixture_test.py
 - tools/agent_supplier_bundle_test.py
 - apps/desktop/src-tauri/src/embedded_agent/supplier.rs
