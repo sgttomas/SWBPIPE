@@ -272,3 +272,8 @@ pub(crate) fn rhs_term(kind: &str, pipe: &str, coefficient: f64, region: &Value,
 #[cfg(test)]
 #[path = "source_blocks_spring_tests.rs"]
 mod source_blocks_spring_tests;
+// The tests of `reader_verdict.rs`'s `IdSet`, declared here for the same reason:
+// `retained_memory_law_tests` requires `reader_verdict.rs` to carry no test region.
+#[cfg(test)]
+#[path = "reader_verdict_id_set_tests.rs"]
+mod reader_verdict_id_set_tests;

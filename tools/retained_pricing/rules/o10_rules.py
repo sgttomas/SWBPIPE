@@ -3637,7 +3637,10 @@ _OP1A_RE = RE_ + "preview_combination_operands.rs"
 if fnkey("append_operand_standing", _OP1A_PP):
     # Raw pins bind the complete early-return/dataflow and all new owning sites.
     # Existing lib.rs and admission pins separately bind the call and D1.6.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '9f94323ee8d377563fdbde1b5ea31cb400cc924244075ad5a472db201467ae06', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a'}
+    # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
+    # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
+    # and the wasm and runner entries, outside the retained roots. validate is unchanged.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '9f94323ee8d377563fdbde1b5ea31cb400cc924244075ad5a472db201467ae06', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3694,7 +3697,10 @@ if fnkey("append_operand_standing", _OP1A_PP):
 # CD-ID binds the allocation-free canonical-decimal replacement of Rational.
 _TIM = PP_ + "pf_timoshenko.rs"
 if fnkey("selects", _TIM):
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '152ed6c3470ca3cfedf60db97878e7b6ad7701e3fe36a91a1ccf901f90e38882'}
+    # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
+    # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
+    # and the wasm and runner entries, outside the retained roots. validate is unchanged.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '152ed6c3470ca3cfedf60db97878e7b6ad7701e3fe36a91a1ccf901f90e38882'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
