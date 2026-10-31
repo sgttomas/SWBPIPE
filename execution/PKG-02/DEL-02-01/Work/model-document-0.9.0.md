@@ -1237,6 +1237,7 @@ version step, R1). D3 and the registration follow as their own slice (§3.7).
   absent and name a combination operand as one; nothing is defaulted, and the
   every-slot model opens, renders, saves and reopens byte for byte. DEL-07-11
   `Work/model-document-open-and-native-smoke.md` states the rule.
+- **Interim snubber authoring.** The New support family selector lists `snubber` with an explicit pending-authoring reason and disables selection; its existing applier refusal remains. This preserves document persistence admission without dispatching a support operation the applier cannot yet supply. `PropertyInspector.supportFamily.test.tsx` checks the option and blocked selection; its engine companion checks the refusal. The dynamics/authoring implementation remains with its owning slice.
 - **Left for D3:** the registration (`reviewed_inputs`, DEF-E's
   `scope.model_format`, the pressure-source-1 limitation and the pressure-2
   admitted-families sentence, physics-retained-1's inherited digests), the
