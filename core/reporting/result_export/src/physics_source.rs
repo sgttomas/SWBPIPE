@@ -1638,4 +1638,27 @@ mod review_repair_tests {
             );
         }
     }
+
+    /// Model document 0.9.0 (§3.7): an invocation whose model carries a case's
+    /// `condition_use` is declined by name before any source check.
+    #[test]
+    fn a_case_condition_use_is_declined_by_name() {
+        let model = |case: serde_json::Value| serde_json::json!({"load_cases": [{"id": "a"}, case]});
+        assert!(!super::model_uses_conditions(&model(serde_json::json!({"id": "b"}))));
+        assert!(super::model_uses_conditions(&model(serde_json::json!({"id": "b", "condition_use": {"temperature": "OPE"}}))));
+        assert!(super::model_uses_conditions(&model(serde_json::json!({"id": "b", "condition_use": null}))));
+        // Through the reader: the n05 statement with its own invocation, whose case now uses conditions.
+        let source: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+        ))
+        .unwrap();
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let mut invocation = serde_json::json!({"request": request, "solver_mode": "sparse_interactive"});
+        assert!(super::validate(&source, Some(&invocation)).is_ok());
+        invocation["request"]["model"]["load_cases"][0]["condition_use"] = serde_json::json!({"temperature": "OPE"});
+        assert_eq!(super::validate(&source, Some(&invocation)), Err("PHYSICS_SOURCE_ACTUAL_CONDITION_USE".into()));
+    }
 }
