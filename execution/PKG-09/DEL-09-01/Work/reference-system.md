@@ -489,14 +489,17 @@ else, with small counts. That reading is Agent 0's working reading for now (2026
 the criterion text is the owner's, and Agent 0 takes the question to the owner with the
 RT-U2 walkthrough results.
 
-Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
-chains: from A, from the tee, and the branch) and about 660 follow-up form entries, 168
-of them the per-member load/reference states and pressure regions of the three cases
-since the fills and case copies of #38, and 20 the tee RS-T1 with the person's SIFs. The
-run sheet's estimate is about 77 minutes (about 130 before #38), against the provisional
-30; it is not a measurement. On `main` the sheet cannot carry the fixture's support or
-bend ids, so all eleven supports and the three bends are entered by forms (run sheet §2,
-§6), and the tee's inspector has no field for its modifier source (run sheet G11). The full model adds the reducer, the other
+Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows in two chains
+(from A, and the branch from the tee), entered with 135 sheet entries, and about 550
+follow-up form entries, 168 of them the per-member load/reference states and pressure
+regions of the three cases since the fills and case copies of #38, and 20 the tee RS-T1
+with the person's SIFs. The run sheet's estimate is about 64 minutes (about 77 before #41
+and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
+the sheet carries the fixture's support and bend ids: ten of the eleven supports and the
+three bends are rows, with 9 typed node and pipe ids (run sheet §2, §3.4). The variable
+spring RS-VS1, whose hanger data no support code carries, and the bends' SIFs are entered
+by forms (run sheet §3.5, §3.7), and the tee's inspector has no field for its modifier
+source (run sheet G11). The full model adds the reducer, the other
 non-rigid supports, five more cases with their regions, the other eight combinations and
 the three analysis requests.
 
