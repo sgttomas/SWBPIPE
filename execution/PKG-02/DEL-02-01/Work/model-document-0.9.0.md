@@ -699,10 +699,14 @@ document carrying none of them has today's meaning.
     | `angular_frequency` | (0,0,−1,0,1) | `unit:radian_per_second`, `rad/s` | none |
     | `rotation_per_length` | (−1,0,0,0,1) | `unit:radian_per_meter`, `rad/m` | `rad/mm`, `rad/in` |
     | `length_per_rotation` | (1,0,0,0,−1) | `unit:meter_per_radian`, `m/rad` | `mm/rad`, `in/rad` |
-    | `mass_moment_of_inertia` | (2,1,0,0,0) | `unit:kilogram_square_meter`, `kg*m^2` | `lb*in^2`, `lb*ft^2` |
+    | `rotational_generalized_mass` | (2,1,0,0,−2) | `unit:kilogram_square_meter_per_square_radian`, `kg*m^2/rad^2` | `lb*in^2/rad^2`, `lb*ft^2/rad^2` |
 
     `angular_frequency` carries the angle exponent, so it never converts to
-    Hz. Display factors are definitional only (0.0254 m/in, 0.3048 m/ft,
+    Hz. `rotational_generalized_mass` replaces a plain kg·m² family (the
+    dynamics lane's review, 2026-10-31): with angle tracked as an exponent,
+    Γ in rad/m and a generalized mass in kg·m²·rad⁻² keep Γ²·m = m_eff in kg,
+    and match kinetic energy in J with rotations in rad; nothing needs plain
+    kg·m². Display factors are definitional only (0.0254 m/in, 0.3048 m/ft,
     0.45359237 kg/lb), each with a conversion round-trip witness as the crate's
     others have. All five join `schemas/units.schema.yaml`, the crate
     vocabulary (`schema_dimension_enum_matches_crate_vocabulary`) and
