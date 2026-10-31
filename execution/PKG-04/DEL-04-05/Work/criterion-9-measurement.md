@@ -75,9 +75,12 @@ packet. Each condition is met, or not, as follows.
     at most the default per-invocation budget of 12 GiB (`memory_pool.rs`,
     `recommended_pool_bytes`, `DEFAULT_INVOCATION_BUDGET_BYTES`). The desktop measures the
     worker's lifetime-maximum phys_footprint and refuses a result above the budget.
-  - The runner kills a run whose RSS passes 12 GiB. It classifies any run whose
-    lifetime-maximum footprint exceeds 12 GiB as `exceeds_base_machine_budget`, that is, not
-    met on the base machine.
+  - The runner reads the driver's live and lifetime-maximum phys_footprint every 100 ms
+    (`proc_pid_rusage`). It kills a run whose footprint passes 12 GiB, as the desktop would,
+    and classifies it, or any completed run whose lifetime maximum exceeds 12 GiB, as
+    `exceeds_base_machine_budget`, that is, not met on the base machine. An RSS watchdog at
+    16 GiB, the base machine's physical memory, is an emergency stop only. RSS ran about 1.4×
+    the footprint in the first window, so RSS is not used to judge the budget.
   - The desktop measurement adds the result's pool leases (R while retained, 2R once taken)
     and the webview's own copies, which share the same 16 GiB.
 - **Memory: limits.** A run within the cap here can still page or compress on a 16 GiB
@@ -104,8 +107,11 @@ packet. Each condition is met, or not, as follows.
      overrun are skipped and logged;
    - Agent 0 is told its duration first.
 
-   One process runs at a time, under `/usr/bin/time -l`, with a 100 ms RSS watchdog and a
-   timeout.
+   One process runs at a time, under `/usr/bin/time -l`, with a 100 ms footprint watchdog at
+   the 12 GiB budget, a 16 GiB RSS emergency stop and a timeout. The driver prints a progress
+   line after each stage, so a killed run records the stage it reached. Attribution runs
+   (`--attribute`) also take stack snapshots every 2 s and on each 512 MiB of growth, to tie
+   memory growth to code. Their timings are not measurements.
 3. **Record.** The packet (`packet.json`) records:
    - the host, the build and the model sha256;
    - stage seconds and the peak RSS and footprint;
@@ -115,6 +121,33 @@ packet. Each condition is met, or not, as follows.
    Result bytes are not kept unless asked: a 2,000-node result is gigabytes.
 
 ## 5. Observations so far
+
+### 5.1 First exclusive window
+
+The first window ran on 2026-10-31 from 10:07:38 to 10:15:23Z under `t3_exclusive.sh`, on the
+development host (Apple M5 Max, 18 cores, 128 GiB). `release_timing` was built from #31
+merged with main `b33a7d358`, in sparse mode. No cargo jobs were running, but the host was not
+quiet by K6's test: memorystatus was 76 against ≥ 80, and the load averages were
+6.6/15.3/19.9. CPU time was within 2% of wall time.
+
+| Rack | Nodes | Entry (s) | Total (s) | Rows | Result | Peak footprint | Peak RSS |
+|---|---|---|---|---|---|---|---|
+| linear-ex | 250 | 22.1 | 23.2 | 471,818 | 0.46 GB | 2.63 GB | 3.65 GB |
+| linear-ex | 500 | 63.6 | 65.9 | 946,742 | 0.92 GB | 5.28 GB | 7.31 GB |
+| linear-ex | 1,000 | — | killed at 211 s (RSS watchdog, then 12 GiB) | — | — | not read | 12.7 GB |
+| nonlinear-pf | 250 | 16.6 | 16.7 | 21,960 | 0.02 GB | 0.34 GB | 0.43 GB |
+| nonlinear-pf | 500 | 83.8 | 83.9 | 43,940 | 0.03 GB | 1.15 GB | 1.50 GB |
+| nonlinear-pf | 2,000 | — | 0.1, refused (`NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`) | — | — | 0.08 GB | |
+
+- **Entry time.** linear-ex grows as about n^1.5.
+- **Stage peaks at 500 nodes.** The footprint was 3.33 GB after the entry and 3.33 GB after
+  serialization, then 5.28 GB after the parse-back. The parse-back mirrors the worker's
+  attestation digest (`result_digest`).
+- **The 1,000-node run.** RSS was 1.6 GB at 193 s, then jumped to 12.7 GB by 211 s. The
+  watchdog then judged the run by RSS. That judgement is replaced by the footprint watchdog
+  above, and the run is repeated with attribution.
+
+### 5.2 Dry runs
 
 These dry runs are not evidence. They were taken on the development host on one shared slot,
 not in an exclusive window, with `release_timing` at `7e061cf2e`, sparse mode.
