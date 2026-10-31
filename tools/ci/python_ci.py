@@ -39,12 +39,15 @@ AGENT_SUPPLIER_BUNDLE_INPUTS = AGENT_SUPPLIER_INPUTS | {
 # `tests/test_ci_python.py` keeps the two lists equal). A change under any of them
 # selects it, so a stray version literal fails on the PR that adds it.
 MODEL_VERSION_LITERAL_TEST = 'tests/test_model_version_literals.py'
+# The verifier independence check reads every Python module outside tests/, so any change to
+# one selects it: a path naming the verifiers in a product or tool module fails on that PR.
+VERIFIER_INDEPENDENCE_TEST = 'tests/test_verifier_independence.py'
 MODEL_VERSION_LITERAL_ROOTS = (
     'apps/desktop/src/', 'apps/desktop/src-tauri/src/', 'core/model_operations/operation_applier/src/',
     'core/product_physics/src/', 'core/reporting/result_export/src/', 'tests/verifiers/', 'tools/validation/',
     'tools/fixtures/', 'core/handoff/', 'core/project_persistence/', 'core/product_preview/',
 )
-BROAD = BASE + [AGENT_SUPPLIER_TEST, AGENT_SUPPLIER_BUNDLE_TEST, MODEL_VERSION_LITERAL_TEST, 'tests/product_preview', 'tests/test_operation_validation_preview.py',
+BROAD = BASE + [AGENT_SUPPLIER_TEST, AGENT_SUPPLIER_BUNDLE_TEST, MODEL_VERSION_LITERAL_TEST, VERIFIER_INDEPENDENCE_TEST, 'tests/product_preview', 'tests/test_operation_validation_preview.py',
                 'tests/test_analytical_solver_boundary_adapter.py',
                 'tests/test_physical_to_analytical_transform.py',
                 'tests/test_reference_system_fixture.py'] + sum(FAMILIES.values(), [])
@@ -199,6 +202,8 @@ def select(project, plan, repository_checks_run=False):
                 patterns.append(AGENT_SUPPLIER_TEST)
             if local.startswith(MODEL_VERSION_LITERAL_ROOTS):
                 patterns.append(MODEL_VERSION_LITERAL_TEST)
+            if local.endswith('.py') and not local.startswith('tests/'):
+                patterns.append(VERIFIER_INDEPENDENCE_TEST)
             if local in AGENT_SUPPLIER_BUNDLE_INPUTS:
                 patterns.extend([AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py'])
             if local in J7_RF_CENSUS_INPUTS:
