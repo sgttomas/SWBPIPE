@@ -93,47 +93,102 @@ Each slice lists its files, its checks and the existing tests it moves.
   refuses (§4).
 - The webview is not switched in this slice.
 
-### Slice 2: S projection (native, one pass)
+### Slice 2: S projection (implemented on `claude/rt-perf-c1-custody`; review pending)
 
 **Files:**
-- New `src-tauri/src/result_summary.rs` and `result_planes.rs`.
-- Command `read_preview_mechanics_job_summary`, which returns S: JSON plus the planes as
-  one binary IPC response (a length-prefixed JSON header, then little-endian f64 planes).
+- `src-tauri/src/result_summary.rs` (the command, its admission and S's header),
+  `result_summary_tables.rs` (the ports of the builders) and `result_planes.rs` (the planes and
+  the binary layout).
+- `src/services/resultSummary.ts`: the webview's reader of S. No panel reads it before slice 4.
+- `lib.rs` registers command `read_preview_mechanics_job_summary`, raw args body
+  `{jobId, modelJson, standing}` under `command_ingress`:
+  - `modelJson` is the model text the panels show (the builders' `model`);
+  - `standing` is `null` (no reader standing) or `{eligible, findings}`, the reader standing the
+    session holds for the result (`resultsSessionState.ts`). The tables withhold exactly as
+    `overlayMayShowRow` and `caseWithheldReason` do with that standing and the health below.
+- **The response** is binary: the magic `SWBSUMv1`, the header's length as a little-endian u64,
+  S's JSON header, zero padding to 8 bytes, then little-endian f64 planes at the offsets and
+  counts of the header's descriptors (`planes: [{name, offset, count}]`, `planes_bytes`), with
+  nothing after the last. The reader refuses any other layout, and any code, ordinal or offset
+  the header does not admit, with `RESULT-SUMMARY-MALFORMED`.
 
 **S carries:**
-- status, summary, numerical quality, formulation basis, professional boundary;
-- diagnostics;
-- `contract_evidence` headers (combination per-row evidence excluded);
-- the row count and the distinct units;
-- the native numerical health (`numerical_health_json`'s projection on the same parse);
-- the tables each panel builds today:
+- the envelope's identity members, status, summary, numerical quality, formulation basis,
+  professional boundary and diagnostics;
+- `contract_evidence` without the per-row combination evidence: `exact_combinations[].rows`,
+  `.recoveries` and `.missing_sources` are counted in `combination_evidence_counts`, not copied.
+  Other top-level members are named in `omitted_members`, not copied;
+- the row count and the distinct units, in first-seen order (each consumer sorts them as today);
+- the numerical health: `numerical_health_json` with the standing's findings, `null` without a
+  standing;
+- the tables, ports of the builders, which stay their oracle until the switch:
 
-  | Panel | Builder today |
+  | Table | Builder |
   |---|---|
-  | `DisplacementExtremesPanel` | `displacementExtremes.ts` |
-  | `SupportLoadSummaryPanel` | `supportLoadSummary.ts` |
-  | `StressRatioTablePanel` | `stressRatioTable.ts` |
-  | `WeightSummaryPanel` | `componentBody.ts`, weight rows |
-  | Key Results | `keyResults.ts` |
-  | `ResultsPanel` family counts, frame counts and navigator cases | `countResultFamilies`, `countResultFrames`, `navigatorCases` |
-  | viewport reactions and deformation | `reactionOverlay.ts`, `deformationOverlay.ts` row selection |
+  | `results_panel` | `countResultFamilies`, `countResultFrames`, `navigatorCases` |
+  | `support_load_cases`, `support_load_summaries` | `supportLoadSummary.ts` |
+  | `displacement_extremes` | `buildDisplacementExtremes` (an absent slot is `null`) |
+  | `stress_ratio` | `buildStressRatioTable` without a rule-check run; each group's rows are a run of the stress planes |
+  | `component_bodies` | `componentBodies` |
+  | `key_results` | `buildKeyResults` without a rule-check run, not historical, without `standingText` |
+  | `withheld_support_state_rows` | `withheldSupportStateRows` |
+  | `overlay_cases`, `colour_quantities` | `resultOverlayCases`, `availableResultColourQuantities` |
 
-- **Planes:** nodal translations and rotations per set, and per member and station, the
-  quantities `resultColourOverlay.ts` colours by (`isDrawableRow`, `membersOf`), with the
-  row id of each cell so a pick opens the full row.
+  A row's family is read as `reader_verdict::row_semantics` reads it (the table of
+  `reader_verdict::route`, the signature of `semantic_contract::signature_in`), without an
+  outcome per row. The frames other than element local, global and unstated are in
+  `localeCompare` order only where that equals UTF-16 order (frames of `a`–`z` and `_`, which
+  every producer frame is); otherwise `others_ordered` is false and the consumer sorts them.
+- **Planes:**
+  - `display.*`: every row of a viewport kind (the nodal translations, rotations and
+    displacement magnitudes per set, the support reactions, the member and station quantities of
+    `RESULT_COLOUR_QUANTITIES`) and the rows the intensified-bending rows name as sources. Per
+    row: its ordinal in `results` (the exact row a pick opens), its value bit for bit (NaN when it
+    is not a finite number) and the members the overlays read, as codes into S's value table;
+    the sources as ordinals.
+  - `stress.*`: the stress groups' admitted rows, with value, case, case label, location and unit.
 
-**Rule:** S's tables are computed by ports of the TS builders, so each TS builder stays the
-oracle until the switch.
+**Not in S, because it is session state or a user's choice, not rows:** the rule-check run's
+groups and ratios and `componentBodyNotices`, which look rows up by id (slice 3); `standingText`;
+and the overlays' drawing for a chosen case, quantity and resolution (reaction arrows,
+deformation, rotation glyphs, colour), which runs on the display planes.
 
 **Tests:**
-- For every result fixture the TS builder tests use (the corpus `fixtures/results/*`, the
-  demo results, the `nativeMechanicsReplay` fixtures), the TS builder over the full rows
-  equals the same builder fed S.
-- That runs as a vitest leg over committed native S outputs, generated by a Rust test in
-  check mode, as `base_reader_outcomes` does.
-- The planes are checked bit for bit against the rows.
-- Coverage: S's JSON part is bounded by members × sets, supports and nodes, not by rows. A
-  test checks it on a scaled invented rack.
+- Rust (`result_summary_tests.rs`), 12:
+  - each of the 47 cases of `fixtures/results/result_summary_cases.json` equals its committed
+    response in `result_summary_outcomes.json`, byte for byte (`RESULT_SUMMARY_OUTCOMES_WRITE=1`
+    rewrites it), and each case with a findings standing reads the same through the command on a
+    retained job;
+  - the planes against the rows, bit for bit; the layout, little-endian; every truncation and
+    each malformed layout refused by name;
+  - S's JSON part on a scaled invented rack: 12 times the station rows add less than 12 KiB, and
+    twice the members about double it;
+  - the parse lease refused before any allocation near the parse, typed and never reaching the
+    projection, and refused under pressure; the response lease asked at the response's exact
+    length after the counting pass, a refusal allocating nothing of the planes' size; unknown,
+    untaken and taken jobs and malformed arguments refused; the take busy while a summary reads,
+    and a disposal during a read leaving the read whole and the bytes and lease released
+    together after it; more summaries held at admission and in the projection than the runtime
+    has workers, while another async command completes.
+- vitest (`resultSummaryParity.test.ts`): the cases file equals its generator
+  (`test-support/resultSummaryCases.ts`: the result fixtures the builders' tests, the demos and
+  the native replay use, each with its model, and 19 invented cases for withheld and
+  non-eligible standings, missing members, tied and signed extrema, mixed units, other frames,
+  row order, duplicate ids and the per-row combination evidence). For each case, every table
+  equals its builder's output over the full rows on the same model and standing, the numerical
+  health equals the wasm engine's, and the reaction, colour (every quantity, case and
+  resolution), deformation and rotation overlays on the rows the display planes give back equal
+  the same overlays on the full rows. The reader's refusals are checked on truncated, foreign and
+  patched responses.
+
+**Limits stated for review:**
+- The numerical health parses the held text itself (`numerical_health_json` takes text; its
+  `&Value` entry is private to the engine crate). S's own parse follows it, under the same lease,
+  so the peak is one parse but the time is two. Sharing the parse needs a public entry over a
+  parsed `Value` in `operation_applier`: an engine-lane change, outside C1.
+- Unproven by parity: frame names outside `a`–`z` and `_` (flagged, not ordered); a family
+  outside the semantic tables' vocabulary (the tables have none); `source_result_refs` that is not
+  an array; model ids that are not strings.
 
 ### Slice 3: paged detail and batched semantics
 
@@ -397,10 +452,12 @@ They're updated in the slice that changes the flow, never deleted without a repl
    until C2's v0.4. The analysis-run preview must therefore stay native (slice 5), not be
    held in the webview.
 3. **Pricing residual.** The prescan prices the `Value` parse only. The readers' working sets
-   (id vectors, maps over rows) and S's construction are O(rows) and run under that lease
-   unpriced, as `command_ingress`'s residual already states for command working memory.
-   Slice 7 measures them; if they're material, the lease adds a working-memory factor, as
-   the report package's does.
+   (id vectors, maps over rows) run under that lease unpriced, as `command_ingress`'s residual
+   already states for command working memory. S's response is leased at its exact length; S's
+   other working set is bounded by entities and sets, not rows (the tables' `Value`s, about
+   1.4 kB per listed displacement or support value, the value table and the header text), plus
+   the ids the intensified-bending rows name. Slice 7 measures them; if they're material, the
+   lease adds a working-memory factor, as the report package's does.
 4. **Admission class: confirmed by Agent 0 (2026-10-31),** pressure-gated through the
    shared pool, on two conditions now implemented in slice 1 (§8):
    - the lease is sized before any parse allocation;
@@ -464,5 +521,12 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
     budget.
 - **No new per-invocation budget.** No lease above 12 GiB, and no memory outside the pool.
   A model that would need either is refused by name.
-- **Not priced:** the readers' working memory (§7, item 3), and the copies Tauri makes of
-  the body before the command runs (as for every command).
+- **The summary's leases** (slice 2), under the same rules: the args lease as the verdict's
+  (the copy, the args' admission bound, the model text's priced parse); the diagnostic leases
+  of `native_verdict::prescan_in_order`; one parse lease of M that covers the numerical health's
+  parse of the held text and then S's own parse, one after the other; and a response lease
+  (`acquire_result_parse`, its own cap) of the response's exact length, admitted after the
+  counting pass and before the response is allocated. Each is capped as above.
+- **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
+  Tauri makes of the body before the command runs and of the response after it returns (as for
+  every command).

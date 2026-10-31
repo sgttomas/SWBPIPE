@@ -40,6 +40,9 @@ mod native_smoke_inject;
 mod native_smoke_reach_scan_tests;
 mod native_result_download;
 mod native_verdict;
+mod result_planes;
+mod result_summary;
+mod result_summary_tables;
 mod report_package_bridge;
 mod report_package_save;
 mod report_render_exact;
@@ -2204,6 +2207,20 @@ async fn read_preview_mechanics_job_verdict(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     native_verdict::verdict(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 2): S, the summary of a retained result, built
+/// natively from the held bytes (`result_summary`). Raw args body
+/// `{jobId, modelJson, standing}`; the response is binary: S's JSON header
+/// and its little-endian f64 planes (`result_planes`). Only the header
+/// check, copy reservation and body copy run here; admission, parses and
+/// projection run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_summary(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_summary::summary(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
 }
 
 #[tauri::command]
@@ -5470,6 +5487,7 @@ macro_rules! app_invoke_handler {
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
             read_preview_mechanics_job_verdict,
+            read_preview_mechanics_job_summary,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,

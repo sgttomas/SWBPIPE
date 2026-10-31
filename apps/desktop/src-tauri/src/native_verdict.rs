@@ -111,14 +111,41 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let invocation_json: Option<String> = args.decode("invocationJson")?;
     drop(args);
     let held = registry.held_result(&job_id)?;
-    // The reader's order: the source, the model, the invocation. Each is
-    // prescanned without allocating. If one is refused, the reader's own
-    // refusal is found by the diagnostic parse (`reader_parse_error`) of each
-    // text up to it, in turn (an earlier text the prescan admits can still
-    // fail serde_json's parse: a number beyond binary64), each under a lease
-    // of that parse's priced allocations, admitted first.
+    // The reader's order: the source, the model, the invocation.
     let texts = [("source", Some(held.text())), ("model", model_json.as_deref()), ("invocation", invocation_json.as_deref())];
-    let mut bounds = [None; 3];
+    let bounds = prescan_in_order(&registry, &texts)?;
+    let (source_bound, _) = bounds[0].expect("the source is always prescanned");
+    let mut argument_bytes = 0u64;
+    for (label, text) in &texts[1..] {
+        let Some(text) = text else { continue };
+        let bytes = command_ingress::text_parse_bytes(text, ArgsDecoding::Moved)
+            .map_err(|invalid| CommandError::Command(prescan_refusal(label, invalid)))?;
+        argument_bytes = argument_bytes.saturating_add(bytes);
+    }
+    // Capped as the args lease was admitted (`acquire_interactive_capped`).
+    lease
+        .grow_to(lease.bytes().saturating_add(argument_bytes))
+        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+    let reading = registry.acquire_result_parse(source_bound.materialization_bytes)?;
+    #[cfg(test)]
+    tests::gate::pass(tests::gate::key(&registry, "read"));
+    let outcome = open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref())
+        .map_err(CommandError::Command);
+    drop((reading, held, lease));
+    outcome
+}
+
+/// Prescans each present text without allocating, in the reader's order. If
+/// one is refused, the reader's own refusal is found by the diagnostic parse
+/// ([`reader_parse_error`]) of each text up to it, in turn (an earlier text
+/// the prescan admits can still fail serde_json's parse: a number beyond
+/// binary64), each under a lease of that parse's priced allocations, admitted
+/// first. Returns each present text's bound and allowances.
+pub(crate) fn prescan_in_order(
+    registry: &SolveJobRegistry,
+    texts: &[(&str, Option<&str>)],
+) -> Result<Vec<Option<(ingress::IngressBound, u64)>>, CommandError<String>> {
+    let mut bounds = vec![None; texts.len()];
     for (index, (label, text)) in texts.iter().enumerate() {
         let Some(text) = text else { continue };
         match ingress::prescan_allowances(text.as_bytes()) {
@@ -141,25 +168,7 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
             }
         }
     }
-    let (source_bound, _) = bounds[0].expect("the source is always prescanned");
-    let mut argument_bytes = 0u64;
-    for (label, text) in &texts[1..] {
-        let Some(text) = text else { continue };
-        let bytes = command_ingress::text_parse_bytes(text, ArgsDecoding::Moved)
-            .map_err(|invalid| CommandError::Command(prescan_refusal(label, invalid)))?;
-        argument_bytes = argument_bytes.saturating_add(bytes);
-    }
-    // Capped as the args lease was admitted (`acquire_interactive_capped`).
-    lease
-        .grow_to(lease.bytes().saturating_add(argument_bytes))
-        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
-    let reading = registry.acquire_result_parse(source_bound.materialization_bytes)?;
-    #[cfg(test)]
-    tests::gate::pass(tests::gate::key(&registry, "read"));
-    let outcome = open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref())
-        .map_err(CommandError::Command);
-    drop((reading, held, lease));
-    outcome
+    Ok(bounds)
 }
 
 /// The reader's refusal of a text that is not JSON (`operation_applier`'s
@@ -169,7 +178,7 @@ pub(crate) fn reader_parse_error(label: &str, text: &str) -> Option<String> {
 }
 
 /// The prescan's own refusal: the `RawValue` exception (module docs).
-fn prescan_refusal(label: &str, invalid: ingress::IngressInvalid) -> String {
+pub(crate) fn prescan_refusal(label: &str, invalid: ingress::IngressInvalid) -> String {
     format!("{INPUT_JSON_INVALID}: {label} is not valid JSON: {} at byte {}", invalid.reason, invalid.offset)
 }
 

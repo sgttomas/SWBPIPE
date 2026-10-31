@@ -1039,7 +1039,8 @@ function paginateResults(resultItems: MechanicsResult["results"], pageIndex: num
   };
 }
 
-function countResultFamilies(resultItems: MechanicsResult["results"], labels: RowLabels): ResultFamilyCounts {
+/** Exported as the oracle of the native summary's counts (`resultSummaryParity.test.ts`). */
+export function countResultFamilies(resultItems: MechanicsResult["results"], labels: RowLabels): ResultFamilyCounts {
   const counts: ResultFamilyCounts = { ...EMPTY_RESULT_FAMILY_COUNTS, total: resultItems.length };
   for (const item of resultItems) {
     counts[resultFamilyKey(item, labels)] += 1;
@@ -1071,7 +1072,7 @@ function frameLabel(frame: string): string {
 }
 
 /** Row counts per frame, element local and global first, then the others by name. */
-function countResultFrames(items: MechanicsResult["results"]): Map<string, number> {
+export function countResultFrames(items: MechanicsResult["results"]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const item of items) counts.set(resultFrame(item), (counts.get(resultFrame(item)) ?? 0) + 1);
   const order = (frame: string) => frame === "element_local" ? 0 : frame === "global" ? 1 : frame === UNSTATED_FRAME ? 3 : 2;

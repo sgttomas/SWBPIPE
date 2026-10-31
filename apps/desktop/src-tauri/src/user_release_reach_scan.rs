@@ -545,9 +545,10 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// no scanned name). `app_invoke_handler` was re-pinned after C1 slice 1
 /// (DEL-04-05 `c1-native-custody-plan.md`) added one ordinary handler entry,
 /// `read_preview_mechanics_job_verdict` (reviewed: no `mod`, no
-/// `$parameter ::`, no scanned name).
+/// `$parameter ::`, no scanned name), and again after C1 slice 2 added
+/// `read_preview_mechanics_job_summary` (reviewed likewise).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "d4013b45aa1b66171a9b4a5dd08c1803732fa075c0dbe09828975e29b419d6ce"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "bdea8a3e42eba197d5db08aba8107f6551c3512eb69cae9fcc51bdcd96ba6ebb"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];
