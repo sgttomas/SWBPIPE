@@ -104,8 +104,23 @@ pub fn py_format_g(value: f64, precision: usize) -> String {
     if value == 0.0 {
         return format!("{sign}0");
     }
-    let exact = Q::from_f64(value.abs()).expect("finite");
-    let mut exponent = decimal_exponent(&exact);
+    format_g_exact(sign, &Q::from_f64(value.abs()).expect("finite"), precision)
+}
+
+/// `format(q, ".{precision}g")` for an exact rational: Python's `Fraction.__format__` (3.12+) rounds the exact value
+/// to `precision` significant figures, ties to even, and places it as `float.__format__` does, so the text is the
+/// one [`py_format_g`] gives a binary64 of the same exact value.
+pub fn py_format_g_q(value: &Q, precision: usize) -> String {
+    let precision = precision.max(1) as i64;
+    if value.is_zero() {
+        return "0".into();
+    }
+    format_g_exact(if value.is_negative() { "-" } else { "" }, &value.abs(), precision)
+}
+
+/// The `g` text of the positive exact `exact` with its sign.
+fn format_g_exact(sign: &str, exact: &Q, precision: i64) -> String {
+    let mut exponent = decimal_exponent(exact);
     let mut digits = round_half_even(&exact.mul(&Q::pow10(precision - 1 - exponent)));
     if digits == pow10(precision as u64) {
         digits /= 10;

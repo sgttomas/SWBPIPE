@@ -270,14 +270,16 @@ load 8000 N; cold load 8000 N; hot load 7400 N; travel range 50 mm; source refer
 mechanics consumption `linear_spring_primitive_user_stiffness`. RS-FR1V is the fixture's
 interim linear vertical support (spec §10); it has a run-sheet code (V) but not its id.
 
-### 3.8 Reference configuration (9.5 min)
+### 3.8 Reference configuration (1.5 min)
 
 *Load Cases* section, "Reference configurations" (`features/load-cases/LoadReferenceStateInputs.tsx:38-85`):
 **Add reference configuration**; ID `reference:RS-INSTALLED`; label `Installed reference
-(20 degC)`; geometry authored_model_geometry; provenance ⟨P⟩. Then 26 members, one per pipe
-RS-P010 … RS-P230 (RS-P180 included): **Add member**, pipe, basis temperature_reference,
-installation temperature 20 degC, fit none, provenance ⟨P⟩. **Queue reference
-configurations**, Apply.
+(20 degC)`; geometry authored_model_geometry; provenance ⟨P⟩. One member typed for RS-P010:
+**Add member**, pipe, basis temperature_reference, installation temperature 20 degC, fit
+none, provenance ⟨P⟩. Then "Fill reference configuration 1 members from a template"
+(`LoadReferenceStateInputs.tsx:79`; `BulkFillControls.tsx:64-82`, since #38): template the
+RS-P010 row, targets every pipe without one, **Fill …**: the other 25 members, RS-P180
+included. **Queue reference configurations**, Apply.
 
 ### 3.9 Self-weight, which creates the cases (6 min)
 
@@ -299,14 +301,18 @@ direction** Global Z; **Self-weight pipes**: every pipe except RS-P180 (25). Per
 Apply entire batch. Each case gets the fixture's 28 primitives (22 pipe line loads, a force
 and a moment for each of RS-F1, RS-V1, RS-F2).
 
-### 3.10 Pressure regions (13 min)
+### 3.10 Pressure regions (5 min)
 
 *Load Cases*, select the case in **Load cases** (`LoadCaseManagerPanel.tsx:841-866`), then
 "Pressure regions — ⟨case⟩" (`PressureAuthoringPanel.tsx:135-184`). Five regions per case,
 ids `region:⟨case⟩-RG-1` and so on (for example `region:RS-SUS-RG-1`). Each: **Add pressure
 region**; member pipes; pressure basis internal_differential_zero_external_v1; pressure
 1600 kPa; two ordered terminals, each `transfers_to_wall` with provenance ⟨P⟩; region
-provenance ⟨P⟩. **Queue pressure regions**, Apply.
+provenance ⟨P⟩. **Queue pressure regions**, Apply. The five regions are typed for RS-SUS
+only. For RS-OPE and RS-SAM, "Copy pressure regions from another case"
+(`PressureAuthoringPanel.tsx:174`; `BulkFillControls.tsx:111-122`, since #38) copies RS-SUS's
+applied regions and re-derives their ids (`region:RS-SUS-RG-1` → `region:RS-OPE-RG-1`);
+Queue and Apply per case.
 
 | Region | Member pipes | Member connectors | Terminals |
 |---|---|---|---|
@@ -316,12 +322,19 @@ provenance ⟨P⟩. **Queue pressure regions**, Apply.
 | RG-R | RS-P150 | | RS-150, RS-160 |
 | RG-4 | RS-P160, RS-P170, RS-P190, RS-P200 | `component:RS-EJ1` | RS-160, RS-210 |
 
-### 3.11 Analysis states (44 min)
+### 3.11 Analysis states (5 min)
 
 Same section and case, "Analysis state — ⟨case⟩" (`LoadReferenceStateInputs.tsx:87-114`):
 contract `openpipestress.load_reference_state/1.0.0`; reference configuration
-`reference:RS-INSTALLED`; history independent_equilibrium; provenance ⟨P⟩. Then three lists,
-row by row (`:125-220`):
+`reference:RS-INSTALLED`; history independent_equilibrium; provenance ⟨P⟩. Then three lists
+(`:125-228`), entered with the fills of #38: one row typed and the rest filled
+("Fill element states from a template", "Fill support states from a template", targets
+every pipe or support without one; `:147, :193`), and "Add every primitive of this case" at
+factor 1 for the load sources (`:228`; `BulkFillControls.tsx:102`). RS-SAM starts from
+"Copy analysis state from another case" (RS-SUS, `:107`): its RS-SUS load sources are left
+out and reported, then it adds its own primitives and RS-C's two motions. RS-P180's row is
+edited after each fill (its provenance; in RS-OPE also its temperature and thermal state). A
+fill or copy carries only the members a row shows. The rows are:
 
 - **Element states**, 26 per case, one per pipe in model order:
   - RS-SUS and RS-SAM: material selection exact_point, material `material:RS-M1`, point
@@ -418,20 +431,21 @@ two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not
 | 3.6 Valve and flanges, with end-size edits | 84 | 9 | 10 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
 | 3.7 Supports | 98 | 11 | 13 |
-| 3.8 Reference configuration | 160 | 1 | 9.5 |
+| 3.8 Reference configuration | 14 | 1 | 1.5 |
 | 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
-| 3.10 Pressure regions | 246 | 3 | 13 |
-| 3.11 Analysis states | 1,047 | 3 | 44 |
+| 3.10 Pressure regions | 86 | 3 | 5 |
+| 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **2,022** | **48** | **about 130 (129.5)** |
+| **Total** | **737** | **48** | **about 75 (74.5)** |
 
-The estimate is about 130 minutes, more than four times the provisional 30. The run sheet
-itself is about 8 of them. The per-member load/reference state (§3.8, §3.10, §3.11) is about
-66 minutes, half the total: 26 members × 3 cases of element states, 28 load sources per case,
-and five regions per case, each entered row by row. Derived ids in the run sheet would save
-about 4 minutes. Per-member bulk entry (G7, G8) would remove most of the 66; the component
-and support forms (§3.6, §3.7) still take about 29 on their own.
+The estimate is about 75 minutes, two and a half times the provisional 30. It was about 130
+before #38's fills and case copies (gaps G7, G8), which brought the per-member load/reference
+state and pressure regions (§3.8, §3.10, §3.11) from about 1,450 entries and 66.5 minutes to
+168 entries and about 11.5 minutes; those entry counts are the authoring lane's, measured by
+its round-trip test of the fixture (#38). The component and support forms (§3.6, §3.7) are
+now the largest share, about 29 minutes; the run-sheet support and bend cells under review
+(#41, G1–G3) would move most of §3.5 and §3.7 into §3.4. The run sheet itself is about 8.
 
 ## 6. Gaps found
 
@@ -446,17 +460,13 @@ cost §5 shows. None is worked around outside the operation route.
 | G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:629-633` | DEL-07-02 | One X-position edit (§3.4) |
 | G5 | Closed by #36 (authoring lane I1): the E/nu create form takes the material-level thermal expansion coefficient, and a wasm-engine test creates RS-M1 from the form equal to the fixture's record | `PressureAuthoringPanel.tsx:70` | DEL-07-03 | §3.2 step 1 |
 | G6 | **New component** has one length unit for body length, end sizes and centre of gravity | `componentIntent.ts:534-551` | DEL-03-05 | Six end-size edits (§3.6) |
-| G7 | Element states, load sources and reference-configuration members are entered one row at a time, with no "every member" fill and no copy from another case | `LoadReferenceStateInputs.tsx:38-85, 125-169, 205-220` | DEL-07-03 | About 1,210 entries (§3.8, §3.11) |
-| G8 | Pressure regions are entered per case, with no copy from another case | `PressureAuthoringPanel.tsx:135-184` | DEL-07-03 | Enters the five regions three times (§3.10) |
+| G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
+| G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
 | G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 48 apply cycles (§5) |
 
 **RT-G2 candidates not named in spec §11.2:**
 - support-id and bend-id cells in the run sheet, as the design's row detail describes (G1,
   G2);
 - a numbering pattern with padding, and an option to name a pipe by its start node (G3);
-- "apply to every member" for element states and reference-configuration members, "every
-  primitive of this case, factor 1" for load sources, and copying an analysis state or a
-  pressure-region set from another case (G7, G8). The condition-set column §11.2 names
-  removes the temperature entries only;
 - a unit per quantity on the rigid-component form (G6);
 - applying several queued intents as one reviewed batch (G9).

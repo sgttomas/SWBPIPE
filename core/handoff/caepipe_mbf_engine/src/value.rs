@@ -21,6 +21,11 @@ impl<K: Clone + Eq + Hash, V> Default for OMap<K, V> {
 }
 
 impl<K: Clone + Eq + Hash, V> OMap<K, V> {
+    /// The values in insertion order, consuming the map.
+    pub fn into_values(self) -> Vec<V> {
+        self.vals
+    }
+
     pub fn new() -> Self {
         Self::default()
     }
@@ -222,25 +227,40 @@ fn int_eq_float(int: &BigInt, float: f64) -> bool {
 /// Python's `a == b` for JSON-shaped values: bool, int and float compare by value (True == 1 == 1.0, -0.0 == 0.0,
 /// NaN != NaN); dicts by key set and values, in any order; lists item by item.
 pub fn py_eq(a: &Value, b: &Value) -> bool {
-    if let (Some(x), Some(y)) = (numeric(a), numeric(b)) {
-        return match (x, y) {
-            (Numeric::Float(p), Numeric::Float(q)) => p == q,
-            (Numeric::Float(p), Numeric::Int(q)) | (Numeric::Int(q), Numeric::Float(p)) => int_eq_float(&q, p),
-            (Numeric::Float(p), Numeric::IntRef(q)) | (Numeric::IntRef(q), Numeric::Float(p)) => int_eq_float(q, p),
-            (Numeric::Int(p), Numeric::Int(q)) => p == q,
-            (Numeric::Int(p), Numeric::IntRef(q)) | (Numeric::IntRef(q), Numeric::Int(p)) => &p == q,
-            (Numeric::IntRef(p), Numeric::IntRef(q)) => p == q,
-        };
-    }
-    match (a, b) {
-        (Value::Null, Value::Null) | (Value::Bad, Value::Bad) => true,
-        (Value::Str(x), Value::Str(y)) => x == y,
-        (Value::List(x), Value::List(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| py_eq(p, q)),
-        (Value::Dict(x), Value::Dict(y)) => {
-            x.len() == y.len() && x.iter().all(|(key, value)| y.get(key).map(|other| py_eq(value, other)).unwrap_or(false))
+    // Iterative, so no depth of a caller's value can overflow the stack; the result does not depend on the order
+    // in which pairs are compared.
+    let mut pairs: Vec<(&Value, &Value)> = vec![(a, b)];
+    while let Some((a, b)) = pairs.pop() {
+        if let (Some(x), Some(y)) = (numeric(a), numeric(b)) {
+            let equal = match (x, y) {
+                (Numeric::Float(p), Numeric::Float(q)) => p == q,
+                (Numeric::Float(p), Numeric::Int(q)) | (Numeric::Int(q), Numeric::Float(p)) => int_eq_float(&q, p),
+                (Numeric::Float(p), Numeric::IntRef(q)) | (Numeric::IntRef(q), Numeric::Float(p)) => int_eq_float(q, p),
+                (Numeric::Int(p), Numeric::Int(q)) => p == q,
+                (Numeric::Int(p), Numeric::IntRef(q)) | (Numeric::IntRef(q), Numeric::Int(p)) => &p == q,
+                (Numeric::IntRef(p), Numeric::IntRef(q)) => p == q,
+            };
+            if !equal {
+                return false;
+            }
+            continue;
         }
-        _ => false,
+        match (a, b) {
+            (Value::Null, Value::Null) | (Value::Bad, Value::Bad) => {}
+            (Value::Str(x), Value::Str(y)) if x == y => {}
+            (Value::List(x), Value::List(y)) if x.len() == y.len() => pairs.extend(x.iter().zip(y)),
+            (Value::Dict(x), Value::Dict(y)) if x.len() == y.len() => {
+                for (key, value) in x.iter() {
+                    match y.get(key) {
+                        Some(other) => pairs.push((value, other)),
+                        None => return false,
+                    }
+                }
+            }
+            _ => return false,
+        }
     }
+    true
 }
 
 /// `value in (allowed strings...)` for a tuple of strings: only an equal string is a member.
@@ -253,6 +273,78 @@ pub fn small_int(value: &Value) -> Option<i64> {
     match value {
         Value::Int(number) => number.to_i64(),
         _ => None,
+    }
+}
+
+/// The nesting a public entry point takes in a [`Value`]: no value may sit inside more than this many lists and
+/// dicts (the top-level value is at depth 0), the sidecar JSON parser's way of counting
+/// ([`crate::MAX_SIDECAR_NESTING`], 64, is that parser's own bound). Every recursive walk of the port (formatting,
+/// `repr`, cloning, the writer and the importer) stays within a 1 MiB stack at this depth, natively in debug and
+/// release builds and in wasm, and the crate's tests check it there. A deeper value fails closed before anything
+/// walks it; the Python may still accept it, up to its own recursion limit. Dropping a caller's value is the
+/// caller's: Rust's drop recurses.
+pub const MAX_VALUE_NESTING: usize = 256;
+
+/// What [`screen`] finds wrong with a value given to a public entry point, found without recursion.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Unrepresentable {
+    /// A value sits inside more than [`MAX_VALUE_NESTING`] containers.
+    TooDeep,
+    /// The sidecar parser's internal sentinel, which no Python value is.
+    Sentinel,
+}
+
+/// Screens the whole of `value` iteratively, so a hostile depth cannot overflow the stack before it is refused.
+/// Depth is reported before the sentinel, so a sentinel cannot hide a depth that a later recursive walk would meet.
+pub fn screen(value: &Value) -> Result<(), Unrepresentable> {
+    let mut sentinel = false;
+    let mut stack: Vec<(&Value, usize)> = vec![(value, 0)];
+    while let Some((item, depth)) = stack.pop() {
+        let children: Box<dyn Iterator<Item = &Value>> = match item {
+            Value::Bad => {
+                sentinel = true;
+                continue;
+            }
+            Value::List(items) if !items.is_empty() => Box::new(items.iter()),
+            Value::Dict(dict) if !dict.is_empty() => Box::new(dict.values()),
+            _ => continue,
+        };
+        if depth + 1 > MAX_VALUE_NESTING {
+            return Err(Unrepresentable::TooDeep);
+        }
+        stack.extend(children.map(|child| (child, depth + 1)));
+    }
+    if sentinel {
+        return Err(Unrepresentable::Sentinel);
+    }
+    Ok(())
+}
+
+/// [`screen`] for depth alone: Ok unless a value sits inside more than [`MAX_VALUE_NESTING`] containers.
+pub fn within_bound(value: &Value) -> bool {
+    !matches!(screen(value), Err(Unrepresentable::TooDeep))
+}
+
+/// Drops `value` without recursion. A value the crate owns and refuses for its depth goes through here: Rust's own
+/// drop would recurse once per level (review r3 of #32).
+pub fn dispose(value: Value) {
+    let mut stack = vec![value];
+    while let Some(item) = stack.pop() {
+        match item {
+            Value::List(items) => stack.extend(items),
+            Value::Dict(dict) => stack.extend(dict.into_values()),
+            _ => {}
+        }
+    }
+}
+
+/// The `Unsupported` reason for an unrepresentable value given as `name`.
+pub fn unrepresentable(problem: Unrepresentable, name: &str) -> String {
+    match problem {
+        Unrepresentable::Sentinel => format!("the {name} holds a value that is not a JSON value"),
+        Unrepresentable::TooDeep => {
+            format!("the {name} nests values inside more than {MAX_VALUE_NESTING} containers, which this port does not follow")
+        }
     }
 }
 
