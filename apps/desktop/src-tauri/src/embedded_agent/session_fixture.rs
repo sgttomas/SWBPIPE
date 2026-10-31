@@ -406,7 +406,7 @@ fn run_inner() -> Result<(), &'static str> {
                                 pending = true;
                                 record(start, "tool_pending", json!({"tool":tool.name()}))?;
                             } else {
-                                let value = json!({"status":"ok","basis":basis,"message":"Invented qualification model; no operation applied.","data":{"workspaceHandle":"invented-workspace","projectUnits":{"length":"m"},"objectCounts":{"nodes":1},"admittedOperationKinds":["modify/Node/set_field/position"],"limits":{"argumentBytes":16384,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}});
+                                let value = json!({"status":"ok","basis":basis,"message":"Invented qualification model; no operation applied.","data":{"workspaceHandle":"invented-workspace","projectId":"project:invented","schemaVersion":"0.8.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}","projectUnits":{"length":"m"},"objectCounts":{"nodes":1},"admittedOperationKinds":["modify/Node/set_field/position"],"limits":{"argumentBytes":16384,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}});
                                 let backing = Arc::new(
                                     registry
                                         .acquire_interactive_ingress(2 * 1024 * 1024)

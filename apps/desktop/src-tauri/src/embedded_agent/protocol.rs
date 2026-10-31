@@ -984,12 +984,10 @@ mod tests {
     fn proposal_context_is_checked_before_dispatch() {
         let mut p = active();
         let hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"model","value":"a".repeat(64),"hash_status":"computed_local_preview"});
-        let operation = json!({"operation_id":"op1","operation_kind":"modify","operation_status":"proposed","author_type":"agent",
+        let operation = json!({"operation_id":"op1","operation_kind":"modify",
             "target":{"object_type":"Node","ref":"n1"},
             "change":{"change_id":"c1","change_kind":"set_field","field_label":"x","field_path":"position.x","before":"0","after":"1","unit":"m","dimension":"length","source_note":"source"},
-            "validation":{"schema_validation":"","constraint_validation":"","unit_validation":"","diff_preview_status":"","application_status":""},
-            "audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},
-            "professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},"rationale":"why"});
+            "rationale":"why"});
         let args = json!({"workspaceHandle":"workspace-1","basis":basis(),"claimedModelHash":hash,"operations":[operation],"assumptions":[{"assumptionId":"a","statement":"reason","affectedOperationIds":["missing"]}]});
         assert!(p
             .catalog

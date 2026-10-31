@@ -795,7 +795,7 @@ mod tests {
         outcome(
             "ok",
             basis(2),
-            json!({"workspaceHandle":"workspace-invented","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
+            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.8.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
         )
     }
     fn model_hash() -> Value {
@@ -1455,11 +1455,9 @@ mod tests {
         d.proposal_cap = 1;
         let mut live = basis(2);
         live["modelHash"] = model_hash();
-        let op = json!({"operation_id":"op1","operation_kind":"modify","operation_status":"proposed","author_type":"agent","target":{"object_type":"Node","ref":"n1"},
+        let op = json!({"operation_id":"op1","operation_kind":"modify","target":{"object_type":"Node","ref":"n1"},
             "change":{"change_id":"c1","change_kind":"set_field","field_label":"x","field_path":"position.x","before":"0","after":"1","unit":"m","dimension":"length","source_note":"invented"},
-            "validation":{"schema_validation":"","constraint_validation":"","unit_validation":"","diff_preview_status":"","application_status":""},
-            "audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},
-            "professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false},"rationale":"invented"});
+            "rationale":"invented"});
         let input = json!({"workspaceHandle":"workspace-invented","basis":live,"claimedModelHash":model_hash(),"operations":[op.clone()],"assumptions":[]});
         let mut wrong = input.clone();
         wrong["claimedModelHash"]["value"] = json!("f".repeat(64));
