@@ -1651,7 +1651,7 @@ fn bend_geometry_only_on_preview(model: &PreviewModel, component: &crate::Previe
         .filter(|sif| sif.value.is_finite() && sif.value > 0.0);
     let marker = crate::component_solver_consumption(component, "mechanics_geometry_only") == "mechanics_geometry_only";
     Some(match (scalar.is_some(), marker) {
-        (true, true) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is applied as equal-factor intensification; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
+        (true, true) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is applied as equal-factor intensification when the run solves; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
         (false, _) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and no positive scalar SIF was entered, so no intensified measure is published for it; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
         (true, false) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is not applied under its mechanics_interface.solver_consumption; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
     })

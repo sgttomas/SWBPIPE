@@ -1074,7 +1074,7 @@ fn u4b_geometry_only_bend_is_disclosed_as_a_chord() {
     assert!(out.results.iter().any(|r| r.kind == preview_physics::INTENSIFIED_KIND), "the scalar is applied");
     assert_eq!(found.len(), 1, "{found:?}");
     assert_eq!((found[0].severity.as_str(), found[0].affected_refs.clone()), ("warning", vec!["component:bend:pipe:BEND".to_string()]));
-    assert_eq!(found[0].message, format!("{CHORD}its scalar SIF is applied as equal-factor intensification{REALIZE}"));
+    assert_eq!(found[0].message, format!("{CHORD}its scalar SIF is applied as equal-factor intensification when the run solves{REALIZE}"));
     // A marker without a SIF (k and source kept), and with none of its modifiers.
     let mut no_sif = marker(preview.clone());
     no_sif["model"]["components"][0]["modifiers"].as_object_mut().unwrap().remove("sif_user_value");

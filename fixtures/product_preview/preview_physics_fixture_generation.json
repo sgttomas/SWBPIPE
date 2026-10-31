@@ -134,8 +134,8 @@
     "core/product_physics/src/topology_tests.rs": "56761348206e45ef9b73e817265bd92bcbce0dd659d15bb71c960f89ff113aac",
     "core/product_physics/src/u4a_tests.rs": "b06b96b4ef0f11a886e6cb34f647409bf23683ad00b4c41c4e801a62f4fde628",
     "core/product_physics/src/u4b_rows.rs": "67a966a76741d051a997fabbad001ffc16c035b771ca43c08cf6599a5f0ad50e",
-    "core/product_physics/src/u4b_tests.rs": "98ed1697ef85d45a5321184d20afde97bb751e4640aee8225ab46405e959823a",
-    "core/product_physics/src/validation.rs": "d004816fe273c3965bc15d3eb60c288b7864d320a453fad3b707bde3baf20ae2",
+    "core/product_physics/src/u4b_tests.rs": "0d43f4db2afc1a9bf1ef9a06f2c8bd9b3081a2fa5f2c669d4f5c981deb11bbe8",
+    "core/product_physics/src/validation.rs": "aea862ab714e26782367b27d5f13d4de041a1df7a74434bb21d502b20744063f",
     "core/product_physics/src/validation/model_checks.rs": "1f02da0f047f4efa6674f60b15606ad396b5d2ed8658a362b64b6a4488ea600f",
     "core/product_physics/src/w15_rigid_scaling_tests.rs": "db1fac0cff504b8317728acfd456b02f789325c75dd48319ab543e4faaf94891",
     "core/product_physics/src/w15c_eccentric_offset_tests.rs": "fb6d667a182b483eaff8f427323e7e8e7f89424d6130bb81d23f3b5620a9f97e",
@@ -208,7 +208,7 @@
     "core/product_physics/tests/pf_timoshenko_runtime.rs": "d1c51190855c3c5f1088c2a034f135e78e4f6c2b075686f93d29ec335d9d26e3",
     "core/product_physics/tests/physics_source_runtime.rs": "105320023322ac62b78e8c6bf52f4d9775f0b33b493b8db7fb920642b78d83e1",
     "core/product_physics/tests/pressure_arc_readers.rs": "b8c0906250e27e76873ae3cfb0059b6c661ca6c95ed672c2f6ea72204308980f",
-    "core/product_physics/tests/pressure_free_byte_identity.rs": "87beaf4e79538ede4d9eeebaf0944a57d6bccca6b4363c8f4ad71a76c94a0e3c",
+    "core/product_physics/tests/pressure_free_byte_identity.rs": "35a1667ae04ef940d5da506a868c771ab4d854bd72e351d7976c9f14f3102160",
     "core/product_physics/tests/pressure_grouping_limits.rs": "10efe17805956dc7c1b9c83653b7e373f53cfe486cb78bfbadbda0e920f110ba",
     "core/product_physics/tests/pressure_membrane_range.rs": "88a506abd600b24405a6d380476852c5284572a24c10d58a2c35c301d77ba809",
     "core/product_physics/tests/pressure_runtime.rs": "dca6141dce348e9364205add996504c3afbabdf1d4ba638cceaec9d5e4d276f0",
@@ -744,8 +744,8 @@
     "core/product_physics/src/topology_tests.rs": "56761348206e45ef9b73e817265bd92bcbce0dd659d15bb71c960f89ff113aac",
     "core/product_physics/src/u4a_tests.rs": "b06b96b4ef0f11a886e6cb34f647409bf23683ad00b4c41c4e801a62f4fde628",
     "core/product_physics/src/u4b_rows.rs": "67a966a76741d051a997fabbad001ffc16c035b771ca43c08cf6599a5f0ad50e",
-    "core/product_physics/src/u4b_tests.rs": "98ed1697ef85d45a5321184d20afde97bb751e4640aee8225ab46405e959823a",
-    "core/product_physics/src/validation.rs": "d004816fe273c3965bc15d3eb60c288b7864d320a453fad3b707bde3baf20ae2",
+    "core/product_physics/src/u4b_tests.rs": "0d43f4db2afc1a9bf1ef9a06f2c8bd9b3081a2fa5f2c669d4f5c981deb11bbe8",
+    "core/product_physics/src/validation.rs": "aea862ab714e26782367b27d5f13d4de041a1df7a74434bb21d502b20744063f",
     "core/product_physics/src/validation/model_checks.rs": "1f02da0f047f4efa6674f60b15606ad396b5d2ed8658a362b64b6a4488ea600f",
     "core/product_physics/src/w15_rigid_scaling_tests.rs": "db1fac0cff504b8317728acfd456b02f789325c75dd48319ab543e4faaf94891",
     "core/product_physics/src/w15c_eccentric_offset_tests.rs": "fb6d667a182b483eaff8f427323e7e8e7f89424d6130bb81d23f3b5620a9f97e",
@@ -818,7 +818,7 @@
     "core/product_physics/tests/pf_timoshenko_runtime.rs": "d1c51190855c3c5f1088c2a034f135e78e4f6c2b075686f93d29ec335d9d26e3",
     "core/product_physics/tests/physics_source_runtime.rs": "105320023322ac62b78e8c6bf52f4d9775f0b33b493b8db7fb920642b78d83e1",
     "core/product_physics/tests/pressure_arc_readers.rs": "b8c0906250e27e76873ae3cfb0059b6c661ca6c95ed672c2f6ea72204308980f",
-    "core/product_physics/tests/pressure_free_byte_identity.rs": "87beaf4e79538ede4d9eeebaf0944a57d6bccca6b4363c8f4ad71a76c94a0e3c",
+    "core/product_physics/tests/pressure_free_byte_identity.rs": "35a1667ae04ef940d5da506a868c771ab4d854bd72e351d7976c9f14f3102160",
     "core/product_physics/tests/pressure_grouping_limits.rs": "10efe17805956dc7c1b9c83653b7e373f53cfe486cb78bfbadbda0e920f110ba",
     "core/product_physics/tests/pressure_membrane_range.rs": "88a506abd600b24405a6d380476852c5284572a24c10d58a2c35c301d77ba809",
     "core/product_physics/tests/pressure_runtime.rs": "dca6141dce348e9364205add996504c3afbabdf1d4ba638cceaec9d5e4d276f0",
@@ -1235,7 +1235,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a5bdbab5b10c4d127574cf91da1693b919bc5fdf6db9801a853608eea4b265a4"
   },
-  "inventory_json_sha256": "48b68f9cfbe1d1ee3d4f6a275bb6371d96369e1d58880b50347a73f8c8b410bd",
+  "inventory_json_sha256": "e6b6c4bbaf99b32b7700f75baf154279658d4bcffb1d272b00e395f90605becf",
   "dependencies": [
     {
       "name": "block-buffer",
@@ -1453,7 +1453,7 @@
     {
       "mode": "sparse_interactive",
       "path": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
-      "sha256": "1aac477ab0d0488255722904a64da0b2ce14d153894f872d2bd25e03fd388d4e",
+      "sha256": "495a77665fcbd920c1f4f91b6b8e3be2a4a88fbab67456c8dc4969bf6023c93b",
       "command": [
         "cargo",
         "run",
@@ -1481,7 +1481,7 @@
     {
       "mode": "dense_scrutiny",
       "path": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_dense.json",
-      "sha256": "1aac477ab0d0488255722904a64da0b2ce14d153894f872d2bd25e03fd388d4e",
+      "sha256": "495a77665fcbd920c1f4f91b6b8e3be2a4a88fbab67456c8dc4969bf6023c93b",
       "command": [
         "cargo",
         "run",

@@ -642,8 +642,8 @@ station-independent; t4_u4b inferred convention 2).
   geometry-only bend, complete or not, takes the warning `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`. It
   states that the bend is solved as a straight chord, that its flexibility factor k is not applied
   (only a realized arc's stiffness applies k), and that realizing the bend applies k. It also states
-  either that the scalar SIF is applied as equal-factor intensification, or that no positive scalar
-  SIF was entered. On the exact route the marker is refused by `EXACT_PRESSURE_FAMILY_NOT_ADMITTED`,
+  either that the scalar SIF is applied as equal-factor intensification when the run solves, or
+  that no positive scalar SIF was entered. On the exact route the marker is refused by `EXACT_PRESSURE_FAMILY_NOT_ADMITTED`,
   whose text already says this, so neither warning is added there.
 
 **Rows.** intensified = hypot(i_ip M_z, i_op M_y)/Z_b at each station and basis.
