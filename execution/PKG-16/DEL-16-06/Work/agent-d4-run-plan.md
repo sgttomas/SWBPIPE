@@ -1,6 +1,6 @@
 # D4: one joined local-model W9-A witness
 
-Plan revision D4-2, 2026-10-31. This is the run specification for Agent 0 to
+Plan revision D4-3, 2026-10-31. This is the run specification for Agent 0 to
 present with the single-read credential request. It supersedes the earlier
 thread draft's 64k assumption, three-attempt estimate and anchor/corner result
 scope. No resource window is booked. Preparing or merging this plan authorizes
@@ -212,6 +212,22 @@ the existing cancel file on <50 GiB or unavailable telemetry. Confirm its
 cancel-file behaviour without inference before admission. Do not claim that
 continuous monitoring is built into the controller. The native handshake blocks
 supplier admission until an observer and owned anchor exist.
+
+**Monitor implementation status:** no maintained D4 two-second cancel-file
+monitor or test has been identified. This is still a preparation requirement,
+not an available executable. `tools/agent_host_witness.py`, nested
+`run.watch_memory`, has a two-second monitor for its historical standalone
+witness; `available_bytes` uses `hw.memsize * kern.memorystatus_level / 100`,
+and its failure path calls that witness's owned `Native.stop()` directly. It
+does not write the journey controller's cancel file and is not a drop-in D4
+monitor. `tools/agent_host_witness_test.py::ResourceFailureTest` covers setup
+headroom refusal, latched stop and cleanup/unload errors for that route, not
+D4 cancel-file integration. No native test was run to infer otherwise. The
+existing `--cancel-file` consumer is `tools/agent_journey_fixture.py::run.safety`.
+Before the live request is ready, name and test the small external producer
+against mocked telemetry and this cancellation interface, including telemetry
+failure and monitor failure; preserve the selected memory definition and owned
+custody path. No general controller expansion is needed or authorized here.
 
 Stop the one attempt for admission/preflight/auth/context mismatch, wrong or
 multiple batch, refusal/interruption, turn/launch deadline, cancellation,
