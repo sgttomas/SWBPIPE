@@ -637,9 +637,24 @@ pub fn dispatch(source: &Value, model: Option<&Value>, invocation: Option<&Value
 /// its complete-metadata flag and canonical metadata. No source, a source the
 /// dispatch refuses, or a contradictory row, is refused.
 pub fn row_semantics(row: &Value, source: Option<&Value>) -> Value {
-    let table = match present(source).map(route) {
-        Some(Ok((_, table))) => table,
-        _ => return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"),
+    row_semantics_in(row_table(source), row)
+}
+/// [`row_semantics`] of each row, in order, with the source read once: the
+/// outcome array a call per row returns.
+pub fn row_semantics_each(rows: &[Value], source: Option<&Value>) -> Value {
+    let table = row_table(source);
+    Value::Array(rows.iter().map(|row| row_semantics_in(table, row)).collect())
+}
+/// The table of a source the dispatch admits.
+fn row_table(source: Option<&Value>) -> Option<&'static Value> {
+    match present(source).map(route) {
+        Some(Ok((_, table))) => Some(table),
+        _ => None,
+    }
+}
+fn row_semantics_in(table: Option<&'static Value>, row: &Value) -> Value {
+    let Some(table) = table else {
+        return verdict_refusal("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     };
     match sc::signature_in(table, row) {
         Ok(signature) => json!({"ok": true, "signature": signature,

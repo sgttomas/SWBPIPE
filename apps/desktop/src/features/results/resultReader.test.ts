@@ -7,6 +7,7 @@ vi.mock("../../services/wasmEngine/loadWasmEngine", async (importOriginal) => {
   return { ...actual, loadedWasmEngine: () => (engine.loaded ? actual.loadedWasmEngine() : null) };
 });
 import { JSON_PARSE_REJECTED, RESULT_READER_UNAVAILABLE, ResultReaderError, readerDispatch, readerRowSemantics, readerSourceText, readerTransport, readerValidate, rememberReceivedText } from "./resultReader";
+import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import type { MechanicsResult } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -45,6 +46,28 @@ describe("the result reader module", () => {
     } finally { engine.loaded = true; }
     expect(readerDispatch(value)).toMatchObject({ ok: true, route: "preview_physics" });
     expect(readerRowSemantics(value)(value.results[0]).signature).not.toBeNull();
+  });
+  it("reads a source's rows in one engine call, each row as its own call reads it", () => {
+    const e = loadedWasmEngine()!;
+    const value = JSON.parse(text(PREVIEW)) as Json;
+    value.run_id = `${value.run_id}:rows-read-once`; // text no other test has read
+    const sourceJson = readerSourceText(value);
+    const outside = { ...value.results[0], kind: "element_local_axial_normal_stress", unit: "MPa",
+      metadata: { ...value.results[0].metadata, basis: "recovered_from_local_element_stiffness" } };
+    const read = (row: Json) => { const o = JSON.parse(e.readerRowSemanticsJson(JSON.stringify(row), sourceJson)); return o.ok ? { signature: o.signature, complete_metadata: o.complete_metadata, canonical_metadata: o.canonical_metadata } : { code: o.error.code }; };
+    const expected = [...value.results, outside].map(read);
+    const carried = (f: () => unknown) => { try { return f(); } catch (error) { return { code: (error as ResultReaderError).code }; } };
+    const each = vi.spyOn(e, "readerRowSemanticsEachJson"), single = vi.spyOn(e, "readerRowSemanticsJson");
+    try {
+      const semantics = readerRowSemantics(value);
+      expect(value.results.map((row: Json) => carried(() => semantics(row)))).toEqual(expected.slice(0, -1));
+      expect(each).toHaveBeenCalledTimes(1);
+      expect(single).not.toHaveBeenCalled();
+      // Another reading of the same text reads nothing again; a row outside the source is read alone.
+      expect(carried(() => readerRowSemantics(value)(value.results[1]))).toEqual(expected[1]);
+      expect(carried(() => semantics(outside))).toEqual(expected.at(-1));
+      expect([each.mock.calls.length, single.mock.calls.length]).toEqual([1, 1]);
+    } finally { each.mockRestore(); single.mockRestore(); }
   });
 });
 
