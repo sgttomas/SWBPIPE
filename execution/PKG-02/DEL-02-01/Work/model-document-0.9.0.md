@@ -531,7 +531,14 @@ owner's to decide.
 - **Admitted only on** a support whose explicit `family` is `line_stop` or
   `spring`, that acts on exactly one DOF (its single restraint token, or its
   stiffness DOF), that DOF translational (UX, UY, UZ), and that carries no
-  `nonlinear` member. Rotational skew is refused for now.
+  `nonlinear` member. Rotational skew is refused for now. A `snubber` (§2.4)
+  is admitted on the same terms (Agent 0's list, 2026-10-31, at the dynamics
+  lane's request): exactly one translational restraint, with any `stiffness` on
+  that DOF; it acts along d as a skewed line stop does. With more than one
+  restraint, `direction` stays `SUPPORT_DIRECTION_RECORD_UNSUPPORTED`. A
+  skewed snubber is under the snubber's interim static refusal like any
+  snubber, so the axis-aligned lowering below never reaches one; its dynamic
+  meaning is DEL-04-10's.
 - **Absent means axis-aligned** along the record's DOF; the product never writes
   `direction` unprompted.
 - **Sign.** Published scalars are positive along +d.
@@ -641,6 +648,9 @@ document carrying none of them has today's meaning.
     `[stiffness.dof]` with a positive finite value in a stiffness unit;
     otherwise `SNUBBER_STIFFNESS_INVALID`.
   - A `hanger`, or a non-null `nonlinear`, on a snubber is `SNUBBER_MEMBER_CONFLICT`.
+  - `direction` (§2.1) is admitted on a snubber with exactly one translational
+    restraint, any `stiffness` being on that DOF; the snubber then acts along
+    `direction`.
   - These are document-level (schema, `validate_support_family_tokens`, the
     applier and the solve's validation), blocking.
   - **Interim:** every static solve on both routes refuses a model containing a
