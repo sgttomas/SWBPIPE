@@ -1302,7 +1302,19 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     vec![component.id.clone()],
                 ));
             }
-            if bend_modifier_missing(component) {
+            if let Some(message) = bend_geometry_only_on_preview(model, component) {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:component:{}:bend-geometry-only",
+                        stable_suffix(&component.id)
+                    ),
+                    BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD,
+                    "warning",
+                    message,
+                    vec![component.id.clone()],
+                ));
+            }
+            if crate::is_curved_bend_macro_component(component) && bend_modifier_missing(component) {
                 diagnostics.push(diag(
                     &format!(
                         "diagnostic:component:{}:bend-modifiers",
@@ -1603,27 +1615,46 @@ fn bend_geometry_missing(component: &crate::PreviewComponent) -> bool {
             .unwrap_or(true)
 }
 
+/// A realized curved bend's modifiers (geometry-only markers take
+/// [`BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`] instead).
 fn bend_modifier_missing(component: &crate::PreviewComponent) -> bool {
     let Some(modifiers) = &component.modifiers else {
         return true;
     };
-    // The user SIF this bend's consumer uses: on a realized curved bend the whole
-    // directional pair (the directional rows, `u4b_rows::directional_pair`; the
-    // scalar is never applied to a realized arc), on a geometry-only marker the
-    // scalar. A half pair or a pair on a marker is refused by
+    // The user SIF a realized arc's consumer uses is the whole directional pair
+    // (the directional rows, `u4b_rows::directional_pair`); the scalar is never
+    // applied to a realized arc. A half pair is refused by
     // `validate_directional_sifs` and supplies none.
-    let sif_missing = if crate::is_curved_bend_macro_component(component) {
-        !bend_directional_pair_present(modifiers)
-    } else {
-        modifiers.sif_user_value.is_none()
-    };
-    sif_missing
+    !bend_directional_pair_present(modifiers)
         || modifiers.flexibility_factor_user_value.is_none()
         || modifiers
             .source_reference
             .as_deref()
             .map(|value| value.trim().is_empty())
             .unwrap_or(true)
+}
+
+/// DEL-03-03: a geometry-only bend on preview-physics-2 is solved as a straight
+/// chord. Nothing applies its k (only a realized arc's stiffness does); its
+/// positive scalar SIF is applied as equal-factor intensification when it is a
+/// `mechanics_geometry_only` marker (`preview_physics::associations`). On the
+/// exact route the marker is refused by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`).
+pub(crate) const BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD: &str = "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD";
+fn bend_geometry_only_on_preview(model: &PreviewModel, component: &crate::PreviewComponent) -> Option<&'static str> {
+    if crate::is_curved_bend_macro_component(component) || crate::pressure_runtime::is_exact(model) {
+        return None;
+    }
+    let scalar = component
+        .modifiers
+        .as_ref()
+        .and_then(|modifiers| modifiers.sif_user_value.as_ref())
+        .filter(|sif| sif.value.is_finite() && sif.value > 0.0);
+    let marker = crate::component_solver_consumption(component, "mechanics_geometry_only") == "mechanics_geometry_only";
+    Some(match (scalar.is_some(), marker) {
+        (true, true) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is applied as equal-factor intensification when the run solves; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
+        (false, _) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and no positive scalar SIF was entered, so no intensified measure is published for it; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
+        (true, false) => "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and its scalar SIF is not applied under its mechanics_interface.solver_consumption; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k",
+    })
 }
 
 fn bend_directional_pair_present(modifiers: &crate::ComponentModifierInput) -> bool {

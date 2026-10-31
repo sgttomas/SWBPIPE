@@ -328,3 +328,26 @@ def test_the_source_route_refuses_connector_evidence(family, path, code):
     with pytest.raises(rust_reader.ReaderRefusal) as refused:
         rust_reader.validate("pressure-source", deepcopy(source))
     assert str(refused.value).endswith(code), f"{family}: {refused.value}"
+
+
+def test_a_joint_axis_component_just_above_one_binds_exactly():
+    """DEL-04-07 `pressure-contract.md` "Direction magnitudes of arc tangents": an authored connector axis may carry a
+    component just above 1 (the frame kernel's orthonormality guard admits it); a joint-area group's magnitude binds
+    exactly to that component and is not refused for exceeding 1, while a magnitude off the axis still is."""
+    envelope = deepcopy(json.loads((PROJECT / "fixtures/results/pressure_v3_joint_reader_control.json").read_text())["envelope"])
+    group = next(g for g in envelope["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"] if "effective_area_bits" in g)
+    axis = ["Fx", "Fy", "Fz"].index(group["component"])
+    record = next(r for r in envelope["contract_evidence"]["connector"] if r["component_id"] == group["terms"][0]["connector_id"])
+    if abs(record["connector_axes_global"][axis][0]) != 1.0:
+        pytest.skip("the control's joint group is not on a unit axis component")
+    above = 1.0 + 2.0 ** -52
+    record["connector_axes_global"][axis][0] = above if record["connector_axes_global"][axis][0] > 0 else -above
+    # Every joint-area group of this connector on this axis (one per end node) takes the component.
+    bound = [g for g in envelope["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"]
+             if "effective_area_bits" in g and g["component"] == group["component"] and g["terms"][0]["connector_id"] == record["component_id"]]
+    for g in bound:
+        g["direction_component_magnitude"] = above
+    validate_pressure_evidence(envelope)
+    group["direction_component_magnitude"] = 1.0 + 2.0 ** -51
+    with pytest.raises(ValueError):
+        validate_pressure_evidence(envelope)

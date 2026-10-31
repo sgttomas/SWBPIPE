@@ -190,9 +190,11 @@ fn the_agent_cannot_write_k_and_the_person_enters_it_before_solving() {
     valve["modifiers"] = json!({"stiffness_scaling_user_value": {"value": 15, "unit": "none"}, "source_reference": "agent-stated"});
     let insert = user_intent("insert", "insert_component_symbol", "Component", "component:valve-agent", "components", "not_present", &valve.to_string(), "none", "dimensionless", "agent");
     assert!(apply_operation(&model, &insert, Some(&hash(&model))).diagnostics.iter().any(|d| d.code == "OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED"));
+    // The agent's bend is a geometry-only marker: the pressure-free route
+    // solves it as a straight chord and says so (DEL-03-03).
     for mode in MODES {
         let before = diagnostics(&model, mode);
-        for code in ["BEND_USER_MODIFIER_INPUT_MISSING", "BRANCH_USER_MODIFIER_INPUT_MISSING"] {
+        for code in ["BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD", "BRANCH_USER_MODIFIER_INPUT_MISSING"] {
             assert!(before.iter().any(|(c, s)| c == code && s == "warning"), "{} without the person's entries: {code}", mode.as_str());
         }
     }
@@ -207,7 +209,7 @@ fn the_agent_cannot_write_k_and_the_person_enters_it_before_solving() {
     assert_eq!(bend["modifiers"]["flexibility_factor_user_value"]["value"], json!(1.8));
     for mode in MODES {
         let after = diagnostics(&finished, mode);
-        for code in ["BEND_USER_MODIFIER_INPUT_MISSING", "BRANCH_USER_MODIFIER_INPUT_MISSING"] {
+        for code in ["BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD", "BEND_USER_MODIFIER_INPUT_MISSING", "BRANCH_USER_MODIFIER_INPUT_MISSING"] {
             assert!(!after.iter().any(|(c, _)| c == code), "{} after the person's entries: {code}", mode.as_str());
         }
     }
