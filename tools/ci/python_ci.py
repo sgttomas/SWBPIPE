@@ -93,8 +93,8 @@ SYNTHETIC_BASES_INPUTS = {
     'fixtures/canonical_hash/cases.json',
 }
 
-# The reference-system fixture check (DEL-09-01 Work/reference-system.md): its generator, files and specification,
-# and the product inputs its EX solve and self-weight capture read: the runner and its path dependencies
+# The reference-system fixture check (DEL-09-01 Work/reference-system.md): its generator and files, and the
+# product inputs its EX solve and self-weight capture read: the runner and its path dependencies
 # (prefixes and exact files). Full runs include it through BROAD.
 REFERENCE_SYSTEM_TEST = 'tests/test_reference_system_fixture.py'
 REFERENCE_SYSTEM_PREFIXES = ('fixtures/reference_system/', 'core/product_physics/', 'core/runner/', 'core/loads/',
@@ -102,7 +102,6 @@ REFERENCE_SYSTEM_PREFIXES = ('fixtures/reference_system/', 'core/product_physics
                              'core/reporting/', 'validation/benchmarks/mechanics/',
                              'validation/benchmarks/nonlinear/', 'validation/benchmarks/stress/')
 REFERENCE_SYSTEM_INPUTS = {
-    'execution/PKG-09/DEL-09-01/Work/reference-system.md',
     'schemas/model.schema.yaml',
     'schemas/load_reference_state.schema.json',
 }

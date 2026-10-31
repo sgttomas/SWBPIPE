@@ -26,7 +26,6 @@ if str(ROOT / "tests") not in sys.path:
 from schema_validation import JsonSchemaDependencyMissing, _skip_or_note_missing_jsonschema, validate_instance  # noqa: E402
 
 FIXTURE = ROOT / "fixtures" / "reference_system"
-SPEC = ROOT / "execution" / "PKG-09" / "DEL-09-01" / "Work" / "reference-system.md"
 SCHEMA = ROOT / "schemas" / "model.schema.yaml"
 
 
@@ -217,27 +216,12 @@ def test_every_tranche_one_case_solves_on_ex_with_nothing_refused(solved):
 
 
 # -- (d) the §10 ledger and the pending flags agree --------------------------------------------------------------------
-def spec_ledger():
-    text = SPEC.read_text(encoding="utf-8")
-    section = text.split("## 10. Pending-family ledger", 1)[1].split("\n## ", 1)[0]
-    lines = [line for line in section.splitlines() if line.startswith("|")]
-    header = [cell.strip() for cell in lines[0].strip("|").split("|")]
-    assert header == ["Family or analysis", "State", "Row / lane", "Expected until then"]
-    assert set(lines[1].replace("|", "").strip()) <= {"-", " "}
-    rows = []
-    for line in lines[2:]:
-        cells = [cell.strip() for cell in line.strip().strip("|").split(" | ")]
-        assert len(cells) == 4, line
-        rows.append(tuple(cells))
-    return rows
-
-
-def test_the_spec_ledger_and_the_authoring_pending_flags_agree():
-    spec = spec_ledger()
+def test_the_generator_ledger_and_the_authoring_pending_flags_agree():
+    # The specification's §10 table is compared with these by tools/validation/test_reference_system_ledger.py,
+    # which runs in the repository checks (the product checkout carries no execution/ records).
     authored = [(row["family"], row["state"], row["row_lane"], row["expected_until_then"])
                 for row in AUTHORING["pending"]]
-    assert authored == spec
-    assert [tuple(row) for row in GENERATOR.LEDGER] == spec
+    assert authored == [tuple(row) for row in GENERATOR.LEDGER]
     for row in AUTHORING["pending"]:
         assert row["in_tranche_1"] == row["state"].startswith("in tranche 1"), row["family"]
 

@@ -200,8 +200,7 @@
         "core/**",
         "validation/**",
         "tests/**",
-        "fixtures/reference_system/**",
-        "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+        "fixtures/reference_system/**"
       ],
       "checks": [
         "piping-pytest"

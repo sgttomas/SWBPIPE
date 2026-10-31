@@ -170,6 +170,7 @@ code_paths:
 - validation/references/t3_r1/**
 - fixtures/reference_system/**
 - tests/test_reference_system_fixture.py
+- tools/validation/test_reference_system_ledger.py
 checks:
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py
@@ -185,3 +186,4 @@ checks:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
+- tools/validation/test_reference_system_ledger.py
