@@ -10,6 +10,7 @@
  * JSON and stress-neutral exports and the rule check admit it at that standing, and
  * every other output surface refuses it by name. All data are invented. */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { materialProjection } from "../pressure-authoring/PressureAuthoringPanel";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -51,9 +52,8 @@ async function queued(click: () => void, queue: ReturnType<typeof vi.fn>): Promi
 
 describe("the L line authored on the desktop (T4-U2)", () => {
   it("is authored from its corner through the panels, equals the applier's document and solves through the native job path", async () => {
-    // Material E/nu (an existing rich form; queued directly here).
-    const keys = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
-    const projection = (m: Json) => Object.fromEntries(keys.filter(k => m[k] !== undefined).map(k => [k, m[k]]));
+    // Material E/nu (an existing rich form; queued directly here with its projection).
+    const projection = (m: Json) => materialProjection(m);
     let model = await apply(corner, makeRichIntent({ object_type: "Material", ref: "material:steel" }, "set_field", "constitutive_properties",
       await canonicalJsonString(projection(corner.materials![0])), projection(expected.materials![0]), "Constitutive properties"));
 
