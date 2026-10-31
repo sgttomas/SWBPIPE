@@ -2574,10 +2574,11 @@ fn b3b_witness_inputs_and_routes() {
 /// (`o4_text_only_envelope_diff`).
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
+// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "85e38b97c9cea2579f7851e4c570923ba2ba1494c7226480847f46ca76802ab8", "20b803927df33f8fd7711a93456dc8c195ded62a32103a1f5ae9137fcec903fb", "df425e31871b43cc704ac44a33612936643a638987128ec655118b46972c51fb"),
-    ("dense_scrutiny", "aeb67070108feb991b68d0292cafc341442e789b36cf3a64a38ae24b3ad33e8d", "b7d67c35225103f8883105d2bce903c12513c1fb32e8692de885a64fc33f99e8", "3bb19d83cb9e2c9f3cbbaff82b68053c02a4ede07f11904127c91cacfc4f74c0"),
+    ("sparse_interactive", "51d1f663a3d53d2a8749af611bc88210e75a263df7cdcc0117edf48fc2f8e991", "551c93310818a72a5723aba18ebbcca2f038cf35a6207f63a9b8f9934c45dfec", "843c0c5283d13a174dcdb880aeb93d95192ae1e31ffd4bf75658e99e0919f767"),
+    ("dense_scrutiny", "7c0a2c4679fe6d0a3e9a0af1e28e86b4413b66ca1d127c60205ee9cf6fa4a4f0", "344c7c1b4a5c4771195074344637d3b1ce95adae2bb7f709f87d60b4a4bb38c2", "f4ea7c0e9c51609a2384d76de432ac6ff9038c51da5834e75a6b9b95e9059d84"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2591,7 +2592,8 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "ec4efec7c106b89bba777da86c25bc102ba19edde1137f93067c9e0a6a3dccf3", "90a8149726fda81c7cdfbfac89edb0f7e09d05dacc2be2236033bc699fa5feff"),("dense_scrutiny", "480d78d2fe374d3a7b77d45a79cc90286e5abde3f0ab65cc73cce27670c6b0e0", "793061d926e872b7694ea6501d2ed5dff001fd864443755b4303c0f5e1d1f261")];
+// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "82585e00eeeb5ef391e4fc3c0f5723d1f9f93bfe1af3d5261dc08e90abbe90f0", "1d9757cda123079da5e9d9a5e728696ae8a8aeb109d1d45a5586a413593e3ec5"),("dense_scrutiny", "d8b6c6242a417f1f2fb95a303b4f2d9984ef83982ad9d40bf6049ffabec4242e", "f4995a76c3ceee52b4a13cdfcc928bea96f60fcb84b067ca8f039237b0940e88")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3624,11 +3626,12 @@ fn two_member_exact(reversed: bool) -> Value {
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
+// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "6e51ec3ae70ec29902ed1b2bcc20c2897bd768a938921fa031d9c891d6708da2"),
-    (false, "dense_scrutiny", "b79d089cb5fe2692043cc03705352ddce0e8bc3f11cf3d8b0e02bd393791d3af"),
-    (true, "sparse_interactive", "1c86d73ff8a0c45d64b87c1800d5095e43c3865230d1857dd5b62f9dbc2d9fd7"),
-    (true, "dense_scrutiny", "24161f641d2c5fc06e9562b7e3b7163ebfeccccfd986743a372dad4a02de4240")];
+    (false, "sparse_interactive", "544db7266252f5577f3d4659dcfcfd83595941bec98d2a4d584aa69fbb34236a"),
+    (false, "dense_scrutiny", "01e1f966e1baf017462062217ddf2f35a25c6f28b2e58f99d64ce55dd0cba34f"),
+    (true, "sparse_interactive", "020b4d3b3dce58b3654e12489b0f1a6132055d2274851241b1d66902de9f53f0"),
+    (true, "dense_scrutiny", "77fdb372822c842acfd274bd29c3d246978220d8c9a478866e1b90dea030d3ac")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3677,8 +3680,9 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// it moved (with the old text these pins reproduce); read from this test's writer line.
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "c2fe2ef5afc2d02bce091eb78780f2fdfb136fd9cb3bfb412db86839854a52f5"),
-    ("dense_scrutiny", "59320549ea9d70a357129e0713cc7e9b01874d8d24920ff235e1d685cdfe96f5")];
+// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "07dbf4c56767cf64af137135ba11204a569ef86ffc249d8c8eab79f248c21e8b"),
+    ("dense_scrutiny", "187a018bc3e5c0c97b454fd1d95e2014dbdc37313b950f48211c7555077387f5")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

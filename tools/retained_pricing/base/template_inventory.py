@@ -68,7 +68,12 @@ def split_args(inner):
 
 PH = re.compile(r"\{\{|\}\}|\{([^{}]*)\}")
 
+RUST_UNICODE = re.compile(r"\\u\{([0-9A-Fa-f]{1,6})\}")
+
 def template_facts(lit, rest):
+    # §8.33 (RT-A3): Rust's `\u{HEX}` escape (as in u4b_evidence.rs's "{pipe_id}\u{0}{location}") is not
+    # Python's; rewrite it to `\UXXXXXXXX` so it decodes to its one character. Other literals are unchanged.
+    lit = RUST_UNICODE.sub(lambda m: "\\U%08x" % int(m.group(1), 16), lit)
     body = bytes(lit, "utf-8").decode("unicode_escape") if "\\" in lit else lit
     literal_bytes, placeholders, pos = 0, [], 0
     last = 0
