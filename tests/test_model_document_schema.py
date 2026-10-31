@@ -130,6 +130,9 @@ UNBOUND_FROZEN_INPUTS = {
        "0.1.0 KD5 nonlinear reference request; its reference set carries no SHA256SUMS"
        for name in ("f1_explicit_request", "f1_mu0_request", "f1_request", "f2_request", "u1_request",
                     "u1_rx_request", "u1_spring_request")},
+    "validation/platform/windows_runner_startup_probe/fixtures/solve.json":
+        "0.8.0 Windows startup probe's exact failed diagnostic input (its README; inactive, not compiled); bound by the "
+        "sha256 tools/release/provenance_scope.json records, not a SHA256SUMS",
 }
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
