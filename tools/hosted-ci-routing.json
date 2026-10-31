@@ -66,6 +66,14 @@
     },
     {
       "paths": [
+        "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+      ],
+      "checks": [
+        "piping-python"
+      ]
+    },
+    {
+      "paths": [
         ".github/workflows/app-v4.yml"
       ],
       "checks": [

@@ -83,6 +83,16 @@ SYNTHETIC_BASES_INPUTS = {
     'fixtures/canonical_hash/cases.json',
 }
 
+# The reference-system fixture check (DEL-09-01 Work/reference-system.md): its generator, files and specification,
+# and the product inputs its EX solve and self-weight capture read (prefixes and exact files).
+REFERENCE_SYSTEM_TEST = 'tests/test_reference_system_fixture.py'
+REFERENCE_SYSTEM_PREFIXES = ('fixtures/reference_system/', 'core/product_physics/', 'core/runner/', 'core/loads/')
+REFERENCE_SYSTEM_INPUTS = {
+    'execution/PKG-09/DEL-09-01/Work/reference-system.md',
+    'schemas/model.schema.yaml',
+    'schemas/load_reference_state.schema.json',
+}
+
 
 def helper_consumers(project, helper):
     """Direct test imports of the established shared test helpers only."""
@@ -179,6 +189,8 @@ def select(project, plan, repository_checks_run=False):
                 patterns.append(J7_RF_CENSUS_TEST)
             if local in SYNTHETIC_BASES_INPUTS:
                 patterns.append(SYNTHETIC_BASES_TEST)
+            if local in REFERENCE_SYSTEM_INPUTS or local.startswith(REFERENCE_SYSTEM_PREFIXES):
+                patterns.append(REFERENCE_SYSTEM_TEST)
             patterns.extend(PINNED_FIXTURE_READERS.get(local, []))
             if local.startswith('core/model_transform/'):
                 patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',

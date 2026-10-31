@@ -98,6 +98,14 @@ def test_synthetic_base_writer_inputs_select_its_check():
     assert ci.SYNTHETIC_BASES_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
 
 
+def test_reference_system_inputs_select_its_fixture_check():
+    for path in sorted(ci.REFERENCE_SYSTEM_INPUTS) + ['fixtures/reference_system/reference_system.json',
+                                                       'core/product_physics/src/self_weight.rs']:
+        assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
+        assert (PROJECT / path).is_file(), path
+    assert ci.REFERENCE_SYSTEM_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
+
+
 def test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes():
     import hashlib
     for path, readers in sorted(ci.PINNED_FIXTURE_READERS.items()):
