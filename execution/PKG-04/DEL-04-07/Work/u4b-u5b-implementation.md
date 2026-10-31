@@ -633,6 +633,11 @@ station-independent; t4_u4b inferred convention 2).
   `component_equal_factor_intensified_bending_stress_v1` rows. On a realized arc it keeps the
   info diagnostic `COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED`. It is never used as both
   directional factors, which is the mutant `sif_one_scalar_for_both_directions`.
+- **The bend modifier warning follows the consumer** (DEL-03-03). `BEND_USER_MODIFIER_INPUT_MISSING`
+  takes a realized bend's user SIF to be the whole pair and a marker's to be the scalar. A realized
+  bend with the scalar only, a half pair or neither keeps the warning; with the scalar only, its
+  message states that the scalar is not applied to realized arcs and that the in-plane and
+  out-of-plane pair is required.
 
 **Rows.** intensified = hypot(i_ip M_z, i_op M_y)/Z_b at each station and basis.
 - **Formation.** It is formed from the same station's published bending stress rows, by a fixed

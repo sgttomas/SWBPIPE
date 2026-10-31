@@ -1,4 +1,5 @@
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt } from "../../services/embeddedAgentSession";
+import { requeueRetainedRecord, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -1374,13 +1375,22 @@ export function useWorkspaceSession() {
     return () => { retained.status = event.type === "withdrawn" ? "withdrawn" : "unknown"; };
   }), [sessionEvents]);
 
-  async function handleQueueOperationBatch(batch: OperationBatch): Promise<void> {
-    await registerOperationBatch(batch);
+  async function handleQueueOperationBatch(batch: OperationBatch, options: { importContext?: ImportContext } = {}): Promise<void> {
+    await registerOperationBatch(batch, options.importContext ? { importContext: options.importContext } : {});
+  }
+
+  /** Requeue a stored record with its author re-derived host-side (DEL-16-03).
+   * Returns the refusal, if any, for display beside the stored record. */
+  async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
+    const result = requeueRetainedRecord(intent, index);
+    if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
+    await registerOperationBatch(result.batch);
+    return null;
   }
 
   /** Queue a batch and return its registration key, or null when it was not registered.
    * `reveal: false` (the run sheet, §5.1) leaves the section and focus where they are. */
-  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext } = {}): Promise<string | null> {
+  async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext } = {}): Promise<string | null> {
     if (!model) return null;
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
@@ -1398,7 +1408,8 @@ export function useWorkspaceSession() {
       // The registered submission is immutable: runs resolve it by key and never
       // read a caller's entry contents.
       const registered = deepFreeze({ key, batch: submitted, basisModel, basisHash, basisRevision: revision, requiresPreview,
-        ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}) });
+        ...(options.agentContext ? { agentContext: structuredClone(options.agentContext) } : {}),
+        ...(options.importContext ? { importContext: structuredClone(options.importContext) } : {}) });
       batchRegistrations.current.set(key, { entry: registered, epoch: queueEpoch });
       if (options.agentContext) agentProposalStandingRef.current.set(key, {status:"pending_review",outcomeModelHash:null});
       setQueuedBatches((current) => [...current, registered]);
@@ -1503,7 +1514,7 @@ export function useWorkspaceSession() {
         model: clonePreviewModel(entry.basisModel),
         selection: selection ?? defaultSelection(entry.basisModel)
       };
-      const batchReceipt = { batch: entry.batch, outcome, ...(entry.agentContext ? {agentContext:entry.agentContext} : {}) };
+      const batchReceipt = { batch: entry.batch, outcome, ...(entry.agentContext ? {agentContext:entry.agentContext} : {}), ...(entry.importContext ? {importContext:entry.importContext} : {}) };
       const reviewContext = structuredClone(entry.batch.operations);
       const appliedReceiptId = `applied-${entry.key}`;
       const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
@@ -4103,6 +4114,7 @@ export function useWorkspaceSession() {
       handleQueueEditorIntent,
       handleClearReviewQueue,
       handleQueueOperationBatch,
+      handleRequeueRetainedRecord,
       registerOperationBatch,
       handleRunOperationBatch,
       handleDismissRetiredBatch,

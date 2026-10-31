@@ -49,7 +49,14 @@ Table view the viewport toolbar is not shown, so the context menus of the
 tree, the bulk grid and the engineering tables are then the routes to Hide
 selected, Isolate selected and Fit selection. The removal builders moved
 unchanged from `PropertyInspector.tsx`; their `source_ref` still names the inspector, because
-the intent is the same intent, whichever surface queues it.
+the intent is the same intent, whichever surface queues it. Each deletion's `before` is the
+summary the operation applier compares (`node_delete_display`, `pipe_delete_display`, the
+support's trimmed label): trimmed labels, and coordinates in the applier's number form, which
+never uses an exponent (1e-7 is `0.0000001`). The formatters in `removalIntents.ts` are the
+one source for every node, pipe and support deletion, including a reconnect's "Also delete
+node O" and the embedded agent's `swbpipe_read_records` (DEL-16-06); any other text is refused as stale (`OP-STALE-BEFORE-VALUE`).
+`removalIntents.test.ts` applies each through the wasm engine with padded labels and
+exponent coordinates.
 
 Commands not offered because none exists yet: copying an identifier, listing
 every entity of a kind and inserting before an entity. They are not added here.

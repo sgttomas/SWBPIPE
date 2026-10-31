@@ -98,6 +98,23 @@ def test_synthetic_base_writer_inputs_select_its_check():
     assert ci.SYNTHETIC_BASES_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
 
 
+def test_reference_system_inputs_select_its_fixture_check():
+    for path in sorted(ci.REFERENCE_SYSTEM_INPUTS) + ['fixtures/reference_system/reference_system.json',
+                                                       'core/product_physics/src/self_weight.rs']:
+        assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
+        assert (PROJECT / path).is_file(), path
+    assert ci.REFERENCE_SYSTEM_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
+    # The runner's solver kernels and units reach the EX solve.
+    for path in ['core/solver/curved_bend/src/lib.rs', 'core/solver/sparse_direct/src/lib.rs', 'core/units/src/lib.rs']:
+        assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
+    # Full runs (dispatch, push) and a full-fallback numerical plan include it.
+    assert ci.REFERENCE_SYSTEM_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch', 'paths': []})
+    assert ci.REFERENCE_SYSTEM_TEST in ci.select(PROJECT, {'event': 'push', 'paths': ['README.md']})
+    assert ci.REFERENCE_SYSTEM_TEST in ci.select(PROJECT, {
+        'event': 'pull_request', 'paths': ['core/solver/frame_kernel/src/lib.rs'],
+        'piping_numerical_selection': {'classification': 'full-fallback'}})
+
+
 def test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes():
     import hashlib
     for path, readers in sorted(ci.PINNED_FIXTURE_READERS.items()):
@@ -181,3 +198,18 @@ def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job()
     for path in ('tests/conftest.py', 'tests/test_ci_numerical.py'):
         assert 'tests/test_ci_numerical.py' in ci.select(PROJECT, {'event': 'pull_request', 'paths': [path]}), path
     assert 'tests/test_ci_python.py' in selected('tests/test_ci_python.py')
+
+
+def test_model_version_literal_guard_follows_every_root_it_scans():
+    spec = importlib.util.spec_from_file_location('version_literals', PROJECT / ci.MODEL_VERSION_LITERAL_TEST)
+    guard = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guard)
+    scanned = {guard.DESKTOP_TS, guard.DESKTOP_RS, guard.APPLIER_RS, *guard.EXTENDED_RS, *guard.PYTHON_VERSION_ROOTS}
+    routed = {PROJECT / root.rstrip('/') for root in ci.MODEL_VERSION_LITERAL_ROOTS}
+    assert routed == scanned
+    for path in ('apps/desktop/src-tauri/src/embedded_agent/session_fixture.rs', 'apps/desktop/src/services/modelSchemaVersion.ts',
+                 'core/product_physics/src/model_format.rs', 'core/model_operations/operation_applier/src/lib.rs',
+                 'tools/validation/validate_claims_language.py'):
+        assert ci.MODEL_VERSION_LITERAL_TEST in selected(path), path
+    assert ci.MODEL_VERSION_LITERAL_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert ci.MODEL_VERSION_LITERAL_TEST not in selected('core/security/redaction/controls.py')
