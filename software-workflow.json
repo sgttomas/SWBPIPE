@@ -220,7 +220,8 @@
       "paths": [
         "core/**",
         "validation/**",
-        "tests/**"
+        "tests/**",
+        "fixtures/reference_system/**"
       ],
       "checks": [
         "piping-pytest"
