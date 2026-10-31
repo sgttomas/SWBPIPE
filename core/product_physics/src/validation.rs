@@ -1310,7 +1310,11 @@ fn validate_components(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) 
                     ),
                     "BEND_USER_MODIFIER_INPUT_MISSING",
                     "warning",
-                    "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
+                    if bend_scalar_sif_on_realized_arc(component) {
+                        "bend/elbow component realized as a curved bend: its scalar sif_user_value is not applied to realized arcs; the in-plane and out-of-plane SIF pair (sif_in_plane_user_value, sif_out_of_plane_user_value), user-entered flexibility factor, and modifier source reference are required before intensified stress rows can be generated"
+                    } else {
+                        "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated"
+                    },
                     vec![component.id.clone()],
                 ));
             }
@@ -1603,13 +1607,36 @@ fn bend_modifier_missing(component: &crate::PreviewComponent) -> bool {
     let Some(modifiers) = &component.modifiers else {
         return true;
     };
-    modifiers.sif_user_value.is_none()
+    // The user SIF this bend's consumer uses: on a realized curved bend the whole
+    // directional pair (the directional rows, `u4b_rows::directional_pair`; the
+    // scalar is never applied to a realized arc), on a geometry-only marker the
+    // scalar. A half pair or a pair on a marker is refused by
+    // `validate_directional_sifs` and supplies none.
+    let sif_missing = if crate::is_curved_bend_macro_component(component) {
+        !bend_directional_pair_present(modifiers)
+    } else {
+        modifiers.sif_user_value.is_none()
+    };
+    sif_missing
         || modifiers.flexibility_factor_user_value.is_none()
         || modifiers
             .source_reference
             .as_deref()
             .map(|value| value.trim().is_empty())
             .unwrap_or(true)
+}
+
+fn bend_directional_pair_present(modifiers: &crate::ComponentModifierInput) -> bool {
+    modifiers.sif_in_plane_user_value.is_some() && modifiers.sif_out_of_plane_user_value.is_some()
+}
+
+/// A realized curved bend carrying the scalar SIF without the whole pair: its
+/// only SIF is one no published row of a realized arc applies.
+fn bend_scalar_sif_on_realized_arc(component: &crate::PreviewComponent) -> bool {
+    crate::is_curved_bend_macro_component(component)
+        && component.modifiers.as_ref().is_some_and(|modifiers| {
+            modifiers.sif_user_value.is_some() && !bend_directional_pair_present(modifiers)
+        })
 }
 
 fn bend_modifier_invalid(component: &crate::PreviewComponent) -> bool {
