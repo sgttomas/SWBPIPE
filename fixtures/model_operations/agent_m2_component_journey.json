@@ -1,0 +1,971 @@
+{
+ "document": "SWBPIPE embedded-agent milestone 2 component journey fixture (RT-E1, DEL-16-06)",
+ "data": "Invented. A small pressure-free model with one of each component family and the support families, built from the desktop blank by sequential agent proposals; not library, catalog or code data and not a numerical reference.",
+ "blank": {
+  "createdAt": "2026-10-30T00:00:00Z",
+  "model": {
+   "schema_version": "0.8.0",
+   "document_kind": "openpipestress.product_preview.model",
+   "data_boundary": {
+    "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
+    "protected_source_policy": "no_protected_standards_content_inserted",
+    "private_data_policy": "local_user_document_not_committed_to_repository",
+    "professional_boundary": "human_review_required_no_software_approval_claim"
+   },
+   "project": {
+    "id": "project:blank-local-20261030t000000z",
+    "name": "Blank Local Model",
+    "description": "User-created local blank model document. Add explicit nodes, pipe runs, supports, materials, loads, and combinations through structured editors before solving.",
+    "units": {
+     "length": "m",
+     "force": "N",
+     "moment": "N*m",
+     "pressure": "Pa",
+     "stress": "Pa",
+     "temperature": "degC",
+     "angle": "rad"
+    }
+   },
+   "analysis_status": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED"
+   },
+   "materials": [],
+   "sections": [],
+   "nodes": [],
+   "pipe_segments": [],
+   "supports": [],
+   "components": [],
+   "load_cases": [],
+   "combinations": [],
+   "diagnostics": [
+    {
+     "id": "diagnostic:blank-project:authoring-target",
+     "code": "BLANK_PROJECT_AUTHORING_TARGET",
+     "severity": "blocking",
+     "source": "apps/desktop/src/services/projectService.ts",
+     "affected_refs": [
+      "project:blank-local-20261030t000000z"
+     ],
+     "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+    }
+   ]
+  }
+ },
+ "host": {
+  "proposalHandle": "fixture-proposal",
+  "requestRef": "fixture-request",
+  "stamp": {
+   "author_type": "agent",
+   "operation_status": "proposed",
+   "validation": {
+    "schema_validation": "not_run",
+    "constraint_validation": "not_run",
+    "unit_validation": "not_run",
+    "diff_preview_status": "not_run",
+    "application_status": "not_applied"
+   },
+   "audit_boundary": {
+    "mutation_route": "structured_operations_only",
+    "direct_model_mutation_allowed": false,
+    "requires_user_acceptance": true,
+    "mutates_accepted_model_state": false
+   },
+   "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+   }
+  }
+ },
+ "proposals": [
+  {
+   "phase": "geometry",
+   "operations": [
+    {
+     "operation_id": "op:m2:1",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Material",
+      "ref": "material:m2"
+     },
+     "change": {
+      "change_id": "change:m2:1",
+      "change_kind": "create_material",
+      "field_label": "material",
+      "field_path": "materials",
+      "before": "not_present",
+      "after": "{\"id\":\"material:m2\",\"label\":\"M2 steel (invented)\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":76923076923,\"unit\":\"Pa\"},\"thermal_expansion_coefficient\":{\"value\":1.2e-05,\"unit\":\"1/degC\"},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "Pa",
+      "dimension": "stress",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: material."
+    },
+    {
+     "operation_id": "op:m2:2",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n1"
+     },
+     "change": {
+      "change_id": "change:m2:2",
+      "change_kind": "create_node",
+      "field_label": "node node:n1",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n1\",\"label\":\"N1\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n1."
+    },
+    {
+     "operation_id": "op:m2:3",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n2"
+     },
+     "change": {
+      "change_id": "change:m2:3",
+      "change_kind": "create_node",
+      "field_label": "node node:n2",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n2\",\"label\":\"N2\",\"position\":{\"x\":3,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n2."
+    },
+    {
+     "operation_id": "op:m2:4",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n3"
+     },
+     "change": {
+      "change_id": "change:m2:4",
+      "change_kind": "create_node",
+      "field_label": "node node:n3",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n3\",\"label\":\"N3\",\"position\":{\"x\":6,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n3."
+    },
+    {
+     "operation_id": "op:m2:5",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n4"
+     },
+     "change": {
+      "change_id": "change:m2:5",
+      "change_kind": "create_node",
+      "field_label": "node node:n4",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n4\",\"label\":\"N4\",\"position\":{\"x\":6,\"y\":3,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n4."
+    },
+    {
+     "operation_id": "op:m2:6",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n5"
+     },
+     "change": {
+      "change_id": "change:m2:6",
+      "change_kind": "create_node",
+      "field_label": "node node:n5",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n5\",\"label\":\"N5\",\"position\":{\"x\":6,\"y\":4,\"z\":-0.025},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n5."
+    },
+    {
+     "operation_id": "op:m2:7",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n6"
+     },
+     "change": {
+      "change_id": "change:m2:7",
+      "change_kind": "create_node",
+      "field_label": "node node:n6",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n6\",\"label\":\"N6\",\"position\":{\"x\":6,\"y\":5,\"z\":-0.025},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n6."
+    },
+    {
+     "operation_id": "op:m2:8",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n8"
+     },
+     "change": {
+      "change_id": "change:m2:8",
+      "change_kind": "create_node",
+      "field_label": "node node:n8",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n8\",\"label\":\"N8\",\"position\":{\"x\":6,\"y\":8,\"z\":-0.025},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n8."
+    },
+    {
+     "operation_id": "op:m2:9",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Node",
+      "ref": "node:n7"
+     },
+     "change": {
+      "change_id": "change:m2:9",
+      "change_kind": "create_node",
+      "field_label": "node node:n7",
+      "field_path": "nodes",
+      "before": "not_present",
+      "after": "{\"id\":\"node:n7\",\"label\":\"N7\",\"position\":{\"x\":3,\"y\":0,\"z\":2},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: node node:n7."
+    },
+    {
+     "operation_id": "op:m2:10",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p1"
+     },
+     "change": {
+      "change_id": "change:m2:10",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p1",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p1\",\"label\":\"P1\",\"from\":\"node:n1\",\"to\":\"node:n2\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p1."
+    },
+    {
+     "operation_id": "op:m2:11",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p2"
+     },
+     "change": {
+      "change_id": "change:m2:11",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p2",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p2\",\"label\":\"P2\",\"from\":\"node:n2\",\"to\":\"node:n3\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p2."
+    },
+    {
+     "operation_id": "op:m2:12",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p3"
+     },
+     "change": {
+      "change_id": "change:m2:12",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p3",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p3\",\"label\":\"P3\",\"from\":\"node:n3\",\"to\":\"node:n4\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":-1,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p3."
+    },
+    {
+     "operation_id": "op:m2:13",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p4"
+     },
+     "change": {
+      "change_id": "change:m2:13",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p4",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p4\",\"label\":\"P4\",\"from\":\"node:n4\",\"to\":\"node:n5\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":-1,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p4."
+    },
+    {
+     "operation_id": "op:m2:14",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p5"
+     },
+     "change": {
+      "change_id": "change:m2:14",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p5",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p5\",\"label\":\"P5\",\"from\":\"node:n5\",\"to\":\"node:n6\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":-1,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p5."
+    },
+    {
+     "operation_id": "op:m2:15",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p6"
+     },
+     "change": {
+      "change_id": "change:m2:15",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p6",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p6\",\"label\":\"P6\",\"from\":\"node:n6\",\"to\":\"node:n8\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":-1,\"y\":0,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p6."
+    },
+    {
+     "operation_id": "op:m2:16",
+     "operation_kind": "connect",
+     "target": {
+      "object_type": "Element",
+      "ref": "pipe:p7"
+     },
+     "change": {
+      "change_id": "change:m2:16",
+      "change_kind": "connect_pipe_run",
+      "field_label": "pipe pipe:p7",
+      "field_path": "pipe_segments",
+      "before": "not_present",
+      "after": "{\"id\":\"pipe:p7\",\"label\":\"P7\",\"from\":\"node:n2\",\"to\":\"node:n7\",\"section\":{\"outside_diameter\":{\"value\":0.2,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:m2\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "m",
+      "dimension": "length",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: pipe pipe:p7."
+    }
+   ],
+   "assumptions": []
+  },
+  {
+   "phase": "components",
+   "operations": [
+    {
+     "operation_id": "op:m2:17",
+     "operation_kind": "insert",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:bend-n3"
+     },
+     "change": {
+      "change_id": "change:m2:17",
+      "change_kind": "insert_component_symbol",
+      "field_label": "bend component:bend-n3",
+      "field_path": "components",
+      "before": "not_present",
+      "after": "{\"id\":\"component:bend-n3\",\"label\":\"Bend at N3\",\"kind\":\"bend\",\"node\":\"node:n3\",\"geometry\":{\"bend_pipe_ref\":\"pipe:p2\",\"bend_radius\":{\"value\":0.3,\"unit\":\"m\"},\"bend_angle\":{\"value\":90,\"unit\":\"deg\"},\"bend_geometry_source_reference\":\"the person's request\"},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: bend component:bend-n3."
+    },
+    {
+     "operation_id": "op:m2:18",
+     "operation_kind": "insert",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:tee-n2"
+     },
+     "change": {
+      "change_id": "change:m2:18",
+      "change_kind": "insert_component_symbol",
+      "field_label": "tee component:tee-n2",
+      "field_path": "components",
+      "before": "not_present",
+      "after": "{\"id\":\"component:tee-n2\",\"label\":\"Tee at N2\",\"kind\":\"tee\",\"node\":\"node:n2\",\"geometry\":{\"branch_header_pipe_ref\":\"pipe:p1\",\"branch_branch_pipe_ref\":\"pipe:p7\",\"branch_run_size\":{\"value\":0.2,\"unit\":\"m\"},\"branch_header_size\":{\"value\":0.2,\"unit\":\"m\"},\"branch_connection_angle\":{\"value\":90,\"unit\":\"deg\"},\"branch_connection_type\":\"stated welded tee\",\"branch_reinforcement_reference\":\"stated no reinforcement\",\"branch_geometry_source_reference\":\"the person's request\"},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: tee component:tee-n2."
+    },
+    {
+     "operation_id": "op:m2:19",
+     "operation_kind": "insert",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:reducer-n4"
+     },
+     "change": {
+      "change_id": "change:m2:19",
+      "change_kind": "insert_component_symbol",
+      "field_label": "reducer component:reducer-n4",
+      "field_path": "components",
+      "before": "not_present",
+      "after": "{\"id\":\"component:reducer-n4\",\"label\":\"Eccentric reducer at N4\",\"kind\":\"reducer\",\"node\":\"node:n4\",\"geometry\":{\"rigid_pipe_ref\":\"pipe:p4\",\"rigid_body_length\":{\"value\":0.3,\"unit\":\"m\"},\"end_a_size\":{\"value\":0.2,\"unit\":\"m\"},\"end_b_size\":{\"value\":0.15,\"unit\":\"m\"},\"weight\":{\"value\":900,\"unit\":\"N\"},\"center_of_gravity\":{\"x\":0,\"y\":0.15,\"z\":0,\"unit\":\"m\"},\"connection_end_a_reference\":\"stated end A\",\"connection_end_b_reference\":\"stated end B\",\"stiffness_behavior_reference\":\"stated rigid behaviour\",\"rigid_component_source_reference\":\"the person's request\",\"eccentric_offset\":{\"x\":0,\"y\":0,\"z\":-0.025,\"unit\":\"m\"}},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: reducer component:reducer-n4."
+    },
+    {
+     "operation_id": "op:m2:20",
+     "operation_kind": "insert",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:valve-n5"
+     },
+     "change": {
+      "change_id": "change:m2:20",
+      "change_kind": "insert_component_symbol",
+      "field_label": "valve component:valve-n5",
+      "field_path": "components",
+      "before": "not_present",
+      "after": "{\"id\":\"component:valve-n5\",\"label\":\"Valve at N5\",\"kind\":\"valve\",\"node\":\"node:n5\",\"geometry\":{\"rigid_pipe_ref\":\"pipe:p5\",\"rigid_body_length\":{\"value\":0.4,\"unit\":\"m\"},\"end_a_size\":{\"value\":0.15,\"unit\":\"m\"},\"end_b_size\":{\"value\":0.15,\"unit\":\"m\"},\"weight\":{\"value\":900,\"unit\":\"N\"},\"center_of_gravity\":{\"x\":0,\"y\":0.15,\"z\":0,\"unit\":\"m\"},\"connection_end_a_reference\":\"stated end A\",\"connection_end_b_reference\":\"stated end B\",\"stiffness_behavior_reference\":\"stated rigid behaviour\",\"rigid_component_source_reference\":\"the person's request\"},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: valve component:valve-n5."
+    },
+    {
+     "operation_id": "op:m2:21",
+     "operation_kind": "insert",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:flange-n6"
+     },
+     "change": {
+      "change_id": "change:m2:21",
+      "change_kind": "insert_component_symbol",
+      "field_label": "flange component:flange-n6",
+      "field_path": "components",
+      "before": "not_present",
+      "after": "{\"id\":\"component:flange-n6\",\"label\":\"Flange at N6\",\"kind\":\"flange\",\"node\":\"node:n6\",\"geometry\":{\"rigid_pipe_ref\":\"pipe:p6\",\"rigid_body_length\":{\"value\":0.1,\"unit\":\"m\"},\"end_a_size\":{\"value\":0.15,\"unit\":\"m\"},\"end_b_size\":{\"value\":0.15,\"unit\":\"m\"},\"weight\":{\"value\":900,\"unit\":\"N\"},\"center_of_gravity\":{\"x\":0,\"y\":0.15,\"z\":0,\"unit\":\"m\"},\"connection_end_a_reference\":\"stated end A\",\"connection_end_b_reference\":\"stated end B\",\"stiffness_behavior_reference\":\"stated rigid behaviour\",\"rigid_component_source_reference\":\"the person's request\"},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: flange component:flange-n6."
+    },
+    {
+     "operation_id": "op:m2:22",
+     "operation_kind": "insert",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:joint-n7"
+     },
+     "change": {
+      "change_id": "change:m2:22",
+      "change_kind": "insert_component_symbol",
+      "field_label": "expansion_joint component:joint-n7",
+      "field_path": "components",
+      "before": "not_present",
+      "after": "{\"id\":\"component:joint-n7\",\"label\":\"Expansion joint at N7 (annotation)\",\"kind\":\"expansion_joint\",\"node\":\"node:n7\",\"mechanics_interface\":{\"solver_consumption\":\"not_solver_consumed\"},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: expansion_joint component:joint-n7."
+    }
+   ],
+   "assumptions": []
+  },
+  {
+   "phase": "supports",
+   "operations": [
+    {
+     "operation_id": "op:m2:23",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n1"
+     },
+     "change": {
+      "change_id": "change:m2:23",
+      "change_kind": "create_support",
+      "field_label": "support support:n1",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n1\",\"label\":\"Anchor N1\",\"node\":\"node:n1\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"family\":\"anchor\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n1."
+    },
+    {
+     "operation_id": "op:m2:24",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n8"
+     },
+     "change": {
+      "change_id": "change:m2:24",
+      "change_kind": "create_support",
+      "field_label": "support support:n8",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n8\",\"label\":\"Anchor N8\",\"node\":\"node:n8\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"family\":\"anchor\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n8."
+    },
+    {
+     "operation_id": "op:m2:25",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n4-guide"
+     },
+     "change": {
+      "change_id": "change:m2:25",
+      "change_kind": "create_support",
+      "field_label": "support support:n4-guide",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n4-guide\",\"label\":\"Guide N4\",\"node\":\"node:n4\",\"restraints\":[\"UX\",\"UZ\"],\"family\":\"guide\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n4-guide."
+    },
+    {
+     "operation_id": "op:m2:26",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n5-vs"
+     },
+     "change": {
+      "change_id": "change:m2:26",
+      "change_kind": "create_support",
+      "field_label": "support support:n5-vs",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n5-vs\",\"label\":\"Rest N5\",\"node\":\"node:n5\",\"restraints\":[\"UZ\"],\"family\":\"vertical_support\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n5-vs."
+    },
+    {
+     "operation_id": "op:m2:27",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n5-friction"
+     },
+     "change": {
+      "change_id": "change:m2:27",
+      "change_kind": "create_support",
+      "field_label": "support support:n5-friction",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n5-friction\",\"label\":\"Friction N5\",\"node\":\"node:n5\",\"restraints\":[\"UX\"],\"family\":\"nonlinear\",\"nonlinear\":{\"behavior\":\"friction\",\"dof\":\"UY\",\"initial_state\":\"sticking\",\"friction_coefficient\":{\"value\":0.3,\"unit\":\"1\"},\"normal_reaction_source\":{\"support_ref\":\"support:n5-vs\",\"dof\":\"UZ\"}},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n5-friction."
+    },
+    {
+     "operation_id": "op:m2:28",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n4-gap"
+     },
+     "change": {
+      "change_id": "change:m2:28",
+      "change_kind": "create_support",
+      "field_label": "support support:n4-gap",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n4-gap\",\"label\":\"Gap N4\",\"node\":\"node:n4\",\"restraints\":[\"UY\"],\"family\":\"nonlinear\",\"nonlinear\":{\"behavior\":\"gap\",\"dof\":\"UZ\",\"initial_state\":\"inactive\",\"closes_when\":\"positive_displacement\",\"gap\":{\"value\":0.002,\"unit\":\"m\"}},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n4-gap."
+    },
+    {
+     "operation_id": "op:m2:29",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n7-spring"
+     },
+     "change": {
+      "change_id": "change:m2:29",
+      "change_kind": "create_support",
+      "field_label": "support support:n7-spring",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n7-spring\",\"label\":\"Variable spring N7\",\"node\":\"node:n7\",\"restraints\":[\"UZ\"],\"family\":\"variable_spring_hanger\",\"hanger\":{\"hanger_type\":\"variable_spring_hanger\",\"source_reference\":\"the person's request\",\"stiffness\":{\"dof\":\"UZ\",\"value\":{\"value\":50000,\"unit\":\"N/m\"}},\"installed_load\":{\"value\":1000,\"unit\":\"N\"},\"cold_load\":{\"value\":1000,\"unit\":\"N\"},\"hot_load\":{\"value\":1100,\"unit\":\"N\"},\"travel_range\":{\"value\":0.05,\"unit\":\"m\"}},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n7-spring."
+    },
+    {
+     "operation_id": "op:m2:30",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n6-constant"
+     },
+     "change": {
+      "change_id": "change:m2:30",
+      "change_kind": "create_support",
+      "field_label": "support support:n6-constant",
+      "field_path": "supports",
+      "before": "not_present",
+      "after": "{\"id\":\"support:n6-constant\",\"label\":\"Constant effort N6\",\"node\":\"node:n6\",\"restraints\":[\"UZ\"],\"family\":\"constant_effort_support\",\"hanger\":{\"hanger_type\":\"constant_effort_support\",\"source_reference\":\"the person's request\",\"constant_load\":{\"value\":1500,\"unit\":\"N\"},\"travel_range\":{\"value\":0.05,\"unit\":\"m\"}},\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: support support:n6-constant."
+    }
+   ],
+   "assumptions": []
+  },
+  {
+   "phase": "loads",
+   "operations": [
+    {
+     "operation_id": "op:m2:31",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:31",
+      "change_kind": "create_load_case",
+      "field_label": "load case",
+      "field_path": "load_cases",
+      "before": "not_present",
+      "after": "{\"id\":\"case:m2\",\"label\":\"M2 temperature rise\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: load case."
+    },
+    {
+     "operation_id": "op:m2:32",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:32",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p1",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p1\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p1\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p1."
+    },
+    {
+     "operation_id": "op:m2:33",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:33",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p2",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p2\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p2\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p2."
+    },
+    {
+     "operation_id": "op:m2:34",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:34",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p3",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p3\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p3\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p3."
+    },
+    {
+     "operation_id": "op:m2:35",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:35",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p4",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p4\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p4\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p4."
+    },
+    {
+     "operation_id": "op:m2:36",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:36",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p5",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p5\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p5\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p5."
+    },
+    {
+     "operation_id": "op:m2:37",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:37",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p6",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p6\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p6\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p6."
+    },
+    {
+     "operation_id": "op:m2:38",
+     "operation_kind": "create",
+     "target": {
+      "object_type": "Load",
+      "ref": "case:m2"
+     },
+     "change": {
+      "change_id": "change:m2:38",
+      "change_kind": "create_primitive_load",
+      "field_label": "delta T on pipe:p7",
+      "field_path": "primitive_loads",
+      "before": "not_present",
+      "after": "{\"id\":\"thermal:pipe:p7\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:p7\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":80,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "degC",
+      "dimension": "temperature_interval",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: delta T on pipe:p7."
+    }
+   ],
+   "assumptions": []
+  },
+  {
+   "phase": "corrections",
+   "operations": [
+    {
+     "operation_id": "op:m2:39",
+     "operation_kind": "modify",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n4-guide"
+     },
+     "change": {
+      "change_id": "change:m2:39",
+      "change_kind": "update_support",
+      "field_label": "guide N4 restrains UX only",
+      "field_path": "configuration",
+      "before": "BEFORE:support:n4-guide:configuration",
+      "after": "{\"family\":\"guide\",\"restraints\":[\"UX\"],\"provenance\":\"invented RT-E1 milestone 2 input stated by the person; not library, catalog or code data\"}",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: guide N4 restrains UX only."
+    },
+    {
+     "operation_id": "op:m2:40",
+     "operation_kind": "delete",
+     "target": {
+      "object_type": "Component",
+      "ref": "component:flange-n6"
+     },
+     "change": {
+      "change_id": "change:m2:40",
+      "change_kind": "delete_component",
+      "field_label": "remove the flange at N6",
+      "field_path": "components",
+      "before": "BEFORE:component:flange-n6:delete",
+      "after": "deleted",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: remove the flange at N6."
+    },
+    {
+     "operation_id": "op:m2:41",
+     "operation_kind": "delete",
+     "target": {
+      "object_type": "Support",
+      "ref": "support:n4-gap"
+     },
+     "change": {
+      "change_id": "change:m2:41",
+      "change_kind": "delete_support",
+      "field_label": "remove the gap at N4",
+      "field_path": "supports",
+      "before": "BEFORE:support:n4-gap:delete",
+      "after": "not_present",
+      "unit": "none",
+      "dimension": "dimensionless",
+      "source_note": "Stated in the person's milestone 2 request."
+     },
+     "rationale": "Build the milestone 2 model: remove the gap at N4."
+    }
+   ],
+   "assumptions": []
+  }
+ ],
+ "person": {
+  "bendCorner": "node:n3",
+  "bendMarker": "component:bend-n3",
+  "bendRadius": {
+   "value": 0.3,
+   "unit": "m"
+  },
+  "bendK": {
+   "value": 1.8,
+   "unit": "none"
+  },
+  "bendSifInPlane": {
+   "value": 2.1,
+   "unit": "none"
+  },
+  "bendSifOutOfPlane": {
+   "value": 1.8,
+   "unit": "none"
+  },
+  "tee": "component:tee-n2",
+  "teeK": {
+   "value": 1,
+   "unit": "none"
+  },
+  "teeHeaderSif": {
+   "value": 1.4,
+   "unit": "none"
+  },
+  "teeBranchSif": {
+   "value": 1.6,
+   "unit": "none"
+  },
+  "source": "values the person entered from their own design basis (invented)"
+ }
+}

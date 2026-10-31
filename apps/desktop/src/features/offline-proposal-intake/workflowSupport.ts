@@ -4,7 +4,8 @@ import type { OperationBatch } from "../../services/operationBatchService";
 export type WorkflowProps = {
   model: PreviewModel;
   selection: EntityRef;
-  onQueueBatch: (batch: OperationBatch) => void;
+  /** `importContext` is passed only by offline intake: the file's claimed attribution, for display. */
+  onQueueBatch: (batch: OperationBatch, options?: { importContext?: import("../../services/operationAuthorship").ImportContext }) => void;
   busy?: boolean;
   requestEpoch?: number;
 };

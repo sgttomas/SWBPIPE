@@ -103,3 +103,14 @@ describe("one preview predicate (run sheet S2 prerequisite, O6)", () => {
     expect(apply("b")).toBeEnabled();
   });
 });
+
+describe("imported batch attribution (DEL-16-03)", () => {
+  it("marks an imported batch as unverified and shows the claimed attribution only as display context", () => {
+    const imported = { ...entry("i", ["set_field"]), importContext: { kind: "offline_intake" as const, fileBatchId: "batch:file",
+      claimed: [{ operationId: "op:set_field", authorType: "user", source: { source_role: "engineer" } }] } };
+    renderPanel([imported], {});
+    const context = screen.getByRole("region", { name: "Imported proposal context" });
+    expect(within(context).getByText("Imported; attribution unverified. Every operation is recorded as agent-proposed.")).toBeInTheDocument();
+    expect(within(context).getByText(/op:set_field: "user"/)).toBeInTheDocument();
+  });
+});

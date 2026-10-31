@@ -1,0 +1,109 @@
+id: DEL-04-10
+name: Response-spectrum analysis
+needs:
+- from: DEL-04-09
+  condition: >-
+    DEL-04-10 computes its modal responses on DEL-04-09's published modal basis: the frequencies, the
+    shapes in their normalization case, the generalized masses, the participation factors and effective
+    masses on the uniform-support-motion excitation p_k = (M R_k)_f (consistent-mass coupling to restrained
+    DOFs included), the cluster structure and the integrity standing, from a modal request that admits the
+    model on its route (PF or EX), names, where DEL-04-09 requires one, the state case whose resolved state
+    defines the modal model (DEL-04-09 D-w),
+    and includes dynamic-only restraints (snubbers). It reads DEL-04-09's mass model, unchanged, for the
+    missing-mass correction. A modal set that DEL-04-09 refuses is not used; a set published Sensitive
+    is used with that standing carried to the spectrum result (Design §1, §2).
+  gating: true
+  evidence: execution/PKG-04/DEL-04-09/ScopeOfWork.md
+- from: DEL-02-01
+  condition: >-
+    Model document 0.9.0 carries the snubber support family (`SupportFamily` `snubber`: translational
+    restraints only, optionally one finite dynamic stiffness, a skew `direction` with exactly one
+    restraint, no hanger or nonlinear member, refused by every static solve until DEL-04-10's slice) and
+    the top-level `spectra[]` records (Work `model-document-0.9.0.md` §2.4, agreed and frozen at the
+    document lane's `31bde47a2`, pending its merge to main). DEL-04-10 defines their
+    solve meaning; the document lane owns their shape and validation (Design §4.1, §5). Selected basis:
+    the document lane's design at `c42a72491`.
+  gating: true
+  when: Before the response-spectrum build slice.
+- from: DEL-04-03
+  condition: >-
+    A snubber enters the dynamic stiffness as a rigid restraint of its translational DOFs, or as a spring
+    of its stated stiffness on its global DOF, through DEL-04-03's restraint partition and spring
+    assembly; with a skew direction, by the static path's nullspace basis (rigid) or the rank-1 term
+    k·d dᵀ/(dᵀd) (finite), admitted exactly when the static path admits skew. Static load-case solves
+    on both routes ignore it, with a disclosure (Design §5).
+  gating: true
+  evidence: core/solver/linear_supports
+- from: DEL-04-04
+  condition: >-
+    Nonlinear supports enter the modal basis, and so the spectrum solve, at the converged state of the
+    named state case that DEL-04-09 resolves and solves; DEL-04-10 reads no support state of its own.
+  gating: true
+  evidence: core/solver/nonlinear_supports
+- from: DEL-04-07
+  condition: >-
+    The spectrum entry sits beside DEL-04-07's product solve entries and DEL-04-09's modal entry. It
+    recovers element forces, moments and support loads from modal displacement vectors, and solves the
+    missing-mass static correction, with DEL-04-07's built model, stiffness assembly and restraint
+    reduction on the route the model takes, unchanged.
+  gating: true
+  evidence: core/product_physics/src/lib.rs
+- from: DEL-05-02
+  condition: >-
+    A spectrum result is a set of unsigned combined magnitudes. Its combination with static cases (for
+    example sustained plus seismic by absolute sum or SRSS) is DEL-05-02's load-case algebra, which
+    admits the spectrum result as an unsigned operand; DEL-04-10 does not combine with static cases
+    itself and never treats an unsigned magnitude as signed (Design §4.5).
+  gating: true
+  when: Before spectrum results are offered as operands of a load-case combination.
+- from: DEL-02-02
+  condition: >-
+    Spectral ordinates, frequencies, periods, damping ratios and scale factors are normalized through
+    DEL-02-02's unit catalog, including the frequency families DEL-04-09 needs; DEL-04-10 defines no
+    unit or conversion of its own.
+  gating: true
+  evidence: core/units/README.md
+- from: DEL-00-06
+  condition: >-
+    The spectrum profile and its semantic table join the result envelope, and the spectrum run kind joins
+    the analysis-run record, under DEL-00-06's diagnostics and result-envelope contract and the
+    one-version rule. Refusals and warnings are typed diagnostics under that contract.
+  gating: true
+  when: Before spectrum results are published.
+- from: DEL-04-08
+  condition: >-
+    A change to a priced source or a reviewed input is re-registered under DEL-04-08's actual-source
+    pricing law (D3) in the change that makes it, and keeps the AC-004 stack witnesses passing. The
+    spectrum entry never enters the retained Direct entry or D1.
+  gating: true
+  evidence: execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md
+- from: DEL-07-05
+  condition: >-
+    The spectrum results view follows the results viewer's output and claims contracts.
+  gating: false
+- from: DEL-08-01
+  condition: >-
+    The report's response-spectrum section follows the report generator's section and claims contracts.
+  gating: false
+- from: external:nrc-nureg-cr
+  condition: >-
+    A published response-spectrum piping problem (first, NUREG/CR-1677 Vol. 1) may be compared as
+    comparison evidence only with that report's own redistribution evidence, recorded per fixture under
+    `docs/IP_AND_DATA_BOUNDARY.md` §4; a report with uncertain rights is held for the owner's review.
+    It is not required for completion; the closed-form references are (ScopeOfWork REQ-009).
+  gating: false
+# Planned paths: none of these exists yet (Design §7).
+code_paths:
+- core/product_physics/src/spectrum.rs
+- core/product_physics/src/spectrum/**
+- core/product_physics/tests/spectrum_*.rs
+- core/reporting/result_export/src/spectrum_evidence.rs
+- core/reporting/result_export/tests/spectrum_*.rs
+- fixtures/results/semantic_contract_v0_3_spectrum_1.json
+- fixtures/results/spectrum_*.json
+- tests/verifiers/spectrum_evidence.py
+- tests/test_spectrum_*.py
+- validation/references/f2_spectrum/**
+- apps/desktop/src/features/results/SpectrumResultsPanel*
+# Planned checks: registered by each slice (ScopeOfWork VER-001 to VER-009).
+checks: []
