@@ -409,15 +409,17 @@ nothing is written before a native save.
 
 - **What a bound import restores.** Ids from `node_map`, `element_map` (including bend
   components), `support_map`, `load_case_map`, `material_map`, `load_map` and the
-  `pressure_map` regions.
+  `pressure_map` regions, and with sidecar format 4 from `section_map`: the library sections
+  the pipes reference, and each pipe's `section_ref`.
+  - **Sections (format 4, implemented; Q-2).** The writer writes a PIPE record per library
+    section (or none) and OD and wall, so two sections with equal OD and wall stay apart, and
+    records each record's section id, or null, in `section_map`. A restored section has the
+    record's OD and wall, type `pipe`, the record name as its name and the record's line as
+    its provenance; its original name and provenance are the writer's omitted loss entries.
+    Sections no pipe references are omitted. Formats 3, 2 and the legacy format keep their
+    handling (no library is restored), and the self-digest is unchanged. Design: import
+    Design §15 **Format 4: section identities**.
 - **What it does not restore:**
-  - **Sections.** The writer names PIPE records `P1`, `P2`, … by distinct OD and wall, and
-    format 3 has no `section_map`. The import therefore writes no section library and no
-    `section_ref`, and two sections with equal OD and wall share one record. Sections are in the identity set (A-3), so sidecar format 4,
-    which adds `section_map` ids, is required for C6-5 (Q-2). Formats 3, 2 and the legacy
-    format keep their current handling, and the self-digest is unchanged. Format 4 is
-    designed in import Design §15 **Format 4: section identities**, and is not yet
-    implemented.
   - **The project.** The import forms `project:mbf-<12 hex>`, so an import is a new unsaved
     document, not the original project. The project id is outside the identity set because it
     identifies the store's project, not a model entity, and an import must not collide with
@@ -623,7 +625,8 @@ ruling governs.
 
 - **Q-1:** byte-parity port accepted.
 - **Q-2:** sidecar format 4 adds `section_map` ids. Formats 3, 2 and legacy keep their current
-  handling, and the self-digest is unchanged.
+  handling, and the self-digest is unchanged. Implemented (import Design §15, **Format 4: section
+  identities**).
 - **Q-3:** admitted public sources exist today for layout, bends, anchors, guides, limit stops,
   skewed restraints, hangers (semantics only), materials, force loads, load cases, OPTEMP and
   OPPRES. None exist yet for valves, reducers, flanges, rigid elements or nozzles. The lane is
