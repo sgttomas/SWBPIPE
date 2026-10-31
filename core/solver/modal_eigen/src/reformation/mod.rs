@@ -53,6 +53,7 @@ use open_pipe_stress_frame_kernel::structural::retained_api::WideError;
 use open_pipe_stress_frame_kernel::tie_rod::TieRod;
 use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
+use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::Dd;
 use mass::{
     arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
@@ -150,6 +151,10 @@ pub enum ReformationFailure {
         dof: usize,
         index: usize,
     },
+    /// An assembled re-formed entry, nonzero, outside the admission range
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`); `element` is the first element
+    /// contributing to it. Row and column are free indices.
+    PencilRangeUnsupported(PencilRangeUnsupported),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -393,6 +398,7 @@ pub fn reform_element_mass(
 /// for a restrained DOF).
 #[derive(Debug, Clone, PartialEq)]
 struct Mapped {
+    element: usize,
     rows: Vec<Option<usize>>,
     matrix: ElementMatrix,
 }
@@ -429,7 +435,11 @@ impl ReformedPencil {
                 }
                 rows.push(entry);
             }
-            Ok(Mapped { rows, matrix })
+            Ok(Mapped {
+                element,
+                rows,
+                matrix,
+            })
         };
         let mut pencil = Self {
             dimension,
@@ -459,6 +469,23 @@ impl ReformedPencil {
                 let d = section_derivation_difference(&q, &formed);
                 pencil.section_difference =
                     Some(pencil.section_difference.map_or(d, |p| p.combine(d)));
+            }
+        }
+        for (matrix, list) in [
+            (PencilMatrix::Stiffness, &pencil.stiffness),
+            (PencilMatrix::Mass, &pencil.mass),
+        ] {
+            for ((row, col), value) in Self::assembled(list) {
+                if let Err(range) = check_entry(matrix, row, col, value.to_f64()) {
+                    let element = list
+                        .iter()
+                        .find(|e| e.rows.contains(&Some(row)) && e.rows.contains(&Some(col)))
+                        .map_or(0, |e| e.element);
+                    return Err(ReformationError {
+                        element,
+                        failure: ReformationFailure::PencilRangeUnsupported(range),
+                    });
+                }
             }
         }
         Ok(pencil)
@@ -557,6 +584,14 @@ pub enum FormationError {
     ZeroStiffnessDiagonal {
         index: usize,
     },
+    /// A nonzero formed entry outside the admission range
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`).
+    PencilRangeUnsupported(PencilRangeUnsupported),
+    /// A computed quantity (`quantity`) that is not finite, or not normal
+    /// or exactly zero.
+    ResultOutOfRange {
+        quantity: &'static str,
+    },
 }
 
 impl fmt::Display for FormationError {
@@ -600,6 +635,7 @@ pub struct FormationDifference {
 /// Lower-triangle formed entries, ascending, checked.
 fn formed_lower(
     n: usize,
+    matrix: PencilMatrix,
     entries: &[SymmetricMatrixEntry],
 ) -> Result<Vec<((usize, usize), f64)>, FormationError> {
     let mut out = Vec::with_capacity(entries.len());
@@ -621,6 +657,7 @@ fn formed_lower(
         } else {
             (e.col, e.row)
         };
+        check_entry(matrix, key.0, key.1, e.value).map_err(FormationError::PencilRangeUnsupported)?;
         out.push((key, e.value));
     }
     out.sort_by_key(|x| x.0);
@@ -704,8 +741,8 @@ pub fn formation_difference(
     formed_mass: &[SymmetricMatrixEntry],
 ) -> Result<FormationDifference, FormationError> {
     let n = pencil.dimension;
-    let k = formed_lower(n, formed_stiffness)?;
-    let m = formed_lower(n, formed_mass)?;
+    let k = formed_lower(n, PencilMatrix::Stiffness, formed_stiffness)?;
+    let m = formed_lower(n, PencilMatrix::Mass, formed_mass)?;
     let mut scaling = vec![Dd::ZERO; n];
     for (index, d) in scaling.iter_mut().enumerate() {
         let diagonal = k

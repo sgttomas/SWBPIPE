@@ -35,6 +35,7 @@ use std::collections::BTreeSet;
 use std::error::Error;
 use std::fmt;
 
+use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{DdAccumulator, WideDd};
 use crate::matrix::SymmetricMatrix;
 
@@ -74,6 +75,9 @@ pub enum NormalizationCase {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ModalQuantityError {
+    /// A nonzero entry of M_ff outside the admission range
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`).
+    PencilRangeUnsupported(PencilRangeUnsupported),
     DimensionMismatch {
         name: &'static str,
         expected: usize,
@@ -110,6 +114,7 @@ pub enum ModalQuantityError {
 impl fmt::Display for ModalQuantityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::PencilRangeUnsupported(range) => write!(f, "{range}"),
             Self::DimensionMismatch {
                 name,
                 expected,
@@ -163,6 +168,7 @@ impl<'a> ModalBasis<'a> {
         tau_t: f64,
     ) -> Result<Self, ModalQuantityError> {
         let n = mass.dimension();
+        check_dense(PencilMatrix::Mass, mass).map_err(ModalQuantityError::PencilRangeUnsupported)?;
         if free_dofs.len() != n {
             return Err(ModalQuantityError::DimensionMismatch {
                 name: "free_dofs",
@@ -621,7 +627,18 @@ mod tests {
     fn participation_quantities_are_range_safe() {
         let dofs = [free(1, Dof::Ux)];
         let zero = [0.0];
+        // Review round 3: the witness masses lie outside the admission
+        // range and are refused at entry.
         for s in [1e200, 1e-200, f64::MAX, f64::MIN_POSITIVE] {
+            let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
+            let p = [s];
+            assert!(matches!(
+                ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [s, 0.0, 0.0], 1.0, TAU_T),
+                Err(ModalQuantityError::PencilRangeUnsupported(_))
+            ));
+        }
+        let p2 = |e: i32| 2f64.powi(e);
+        for s in [p2(290), p2(-290), p2(300), p2(-300)] {
             let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
             let p = [s];
             let basis =
@@ -635,10 +652,11 @@ mod tests {
         }
         // A participation factor that truly overflows is refused, not
         // published as infinite.
-        let mass = SymmetricMatrix::from_diagonal(&[1e-300]).unwrap();
-        let p = [1e10];
+        // (p_k is not a pencil entry and is not range-checked.)
+        let mass = SymmetricMatrix::from_diagonal(&[p2(-300)]).unwrap();
+        let p = [1e300];
         let basis =
-            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1e10, 0.0, 0.0], 1.0, TAU_T)
+            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1e300, 0.0, 0.0], 1.0, TAU_T)
                 .unwrap();
         assert_eq!(
             normalize_mode(2, &[1.0], &basis),
@@ -651,48 +669,52 @@ mod tests {
     }
 
     /// Review round 2, item 3: φ = 1, M_ff = 10⁻³⁰⁰, p_x = 10⁻²⁰⁰,
-    /// T_x = 10²⁰⁰. Γ = 10¹⁰⁰, m_eff = 10⁻¹⁰⁰ and the fraction 10⁻³⁰⁰, but
-    /// q/T = 10⁻⁴⁰⁰ underflowed before Γ multiplied it and the fraction was
-    /// published as 0.
+    /// T_x = 10²⁰⁰. q/T = 10⁻⁴⁰⁰ underflowed before Γ multiplied it and the
+    /// fraction was published as 0. Since review round 3 that M_ff is
+    /// outside the admission range and refused at entry. Within the range,
+    /// M_ff = 2⁻³⁰⁰, p_x = 2⁻²⁰⁰ and T_x = 2²⁰⁰ publish Γ = 2¹⁰⁰,
+    /// m_eff = 2⁻¹⁰⁰ and the fraction 2⁻³⁰⁰, each exact.
     #[test]
     fn a_small_fraction_is_not_lost_to_an_intermediate_underflow() {
         let dofs = [free(1, Dof::Ux)];
         let zero = [0.0];
         let mass = SymmetricMatrix::from_diagonal(&[1e-300]).unwrap();
         let p = [1e-200];
+        assert!(matches!(
+            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1e200, 0.0, 0.0], 1.0, TAU_T),
+            Err(ModalQuantityError::PencilRangeUnsupported(_))
+        ));
+        let p2 = |e: i32| 2f64.powi(e);
+        let mass = SymmetricMatrix::from_diagonal(&[p2(-300)]).unwrap();
+        let p = [p2(-200)];
         let basis =
-            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1e200, 0.0, 0.0], 1.0, TAU_T)
+            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [p2(200), 0.0, 0.0], 1.0, TAU_T)
                 .unwrap();
         let mode = normalize_mode(0, &[1.0], &basis).unwrap();
-        // Each is the exact quotient of binary64 operands rounded once,
-        // within 2u of the decimal value's binary64 rounding.
-        let close = |actual: f64, expected: f64| {
-            assert!(
-                (actual - expected).abs() <= 2.0 * f64::EPSILON * expected,
-                "{actual:e} vs {expected:e}"
-            );
-        };
-        close(mode.participation[0], 1e100);
-        close(mode.effective_mass[0], 1e-100);
-        close(mode.effective_mass_fraction[0].unwrap(), 1e-300);
+        assert_eq!(mode.participation[0], p2(100));
+        assert_eq!(mode.effective_mass[0], p2(-100));
+        assert_eq!(mode.effective_mass_fraction[0], Some(p2(-300)));
     }
 
     /// Review round 2, item 5: M_ff = diag(10³⁰⁸, 10³⁰⁸) and the shape
-    /// (1, 1) give m = 2·10³⁰⁸, which overflows: refused as out of range,
-    /// not as NonPositiveGeneralizedMass { NaN }.
+    /// (1, 1) give m = 2·10³⁰⁸, which overflowed and was refused as
+    /// NonPositiveGeneralizedMass { NaN }. Since review round 3 that M_ff is
+    /// outside the admission range and refused at entry; within it m cannot
+    /// overflow (m ≤ n²·2³⁰⁰ with a normalized shape). The finiteness check
+    /// still precedes positivity.
     #[test]
     fn an_overflowing_generalized_mass_is_out_of_range() {
         let dofs = [free(1, Dof::Ux), free(1, Dof::Uy)];
         let zero = [0.0, 0.0];
         let mass = SymmetricMatrix::from_diagonal(&[1e308, 1e308]).unwrap();
-        let basis =
-            ModalBasis::new(&mass, &dofs, [&zero, &zero, &zero], [0.0; 3], 1.0, TAU_T).unwrap();
         assert_eq!(
-            normalize_mode(4, &[1.0, 1.0], &basis),
-            Err(ModalQuantityError::QuantityOutOfRange {
-                mode: 4,
-                name: "generalized_mass",
-                direction: None,
+            ModalBasis::new(&mass, &dofs, [&zero, &zero, &zero], [0.0; 3], 1.0, TAU_T)
+                .unwrap_err(),
+            ModalQuantityError::PencilRangeUnsupported(PencilRangeUnsupported {
+                matrix: PencilMatrix::Mass,
+                row: 0,
+                col: 0,
+                value: 1e308,
             })
         );
     }

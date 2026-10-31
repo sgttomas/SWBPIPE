@@ -18,11 +18,13 @@
 //! numerical-mechanics routines only. It does not encode design code
 //! compliance checks, protected standards content, or private project data.
 
+pub mod admission;
 pub mod clusters;
 pub mod dd;
 pub mod dense;
 pub mod matrix;
 pub mod modal_quantities;
+pub mod norm_estimate;
 pub mod orthogonality;
 pub mod reformation;
 pub mod sturm;

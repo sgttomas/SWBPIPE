@@ -56,11 +56,28 @@ fn parameters() -> SturmParameters {
     }
 }
 
+/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// the production values are recorded under DEC-026, not here. With
+/// c_μ = 1, the review-round-3 artifact lies about 2× below δ_μ and the
+/// smallest retained μ of every admitted fixture case at least 7.4·10² above
+/// it (E-RIGID-SCALE-1e6), so κ_μ = 10 sits between them (README).
+const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
+const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
+
+/// The smallest retained μ over κ_μ·δ_μ: how far the resolution floor is
+/// below the retained spectrum (+∞ with a zero floor or no mode).
+fn floor_margin(solution: &DenseEigenSolution) -> f64 {
+    let smallest = solution.mu.iter().copied().fold(f64::INFINITY, f64::min);
+    smallest / (RESOLUTION_FLOOR_MULTIPLE * solution.resolution_floor)
+}
+
 /// Test-local dense options and thresholds.
 fn dense_options() -> DenseOptions {
     DenseOptions {
         infinite_mu_relative_threshold: 1e-12,
         mass_pivot_relative_threshold: MASS_PIVOT_RELATIVE_THRESHOLD,
+        resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
+        resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -661,15 +678,27 @@ fn round_six_underflow_witness_is_out_of_range() {
     let s = 2f64.powi(-600);
     let k = vec![vec![tiny, 0.0], vec![0.0, tiny]];
     let m = vec![vec![2.0 * s, s], vec![s, 2.0 * s]];
+    // Since review round 3 the witness's entries are outside the admission
+    // range and the pencil is refused at entry.
+    assert!(matches!(
+        ShiftPencil::from_dense(&sym(&k), &sym(&m)),
+        Err(SturmError::PencilRangeUnsupported(_))
+    ));
+    // Within the range the formation's own range check still applies:
+    // K = I₂, M = 2⁻³⁰⁰·[[2, 1], [1, 2]] and σ = 2⁻⁸⁰⁰, so σ·m₁₂ = 2⁻¹¹⁰⁰
+    // rounds to zero.
+    let s = 2f64.powi(-300);
+    let k = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
+    let m = vec![vec![2.0 * s, s], vec![s, 2.0 * s]];
     let shifted = pencil_of(&k, &m);
-    let outcome = count_at_shift(&shifted, s, &[], &parameters()).unwrap();
-    eprintln!("round-6 underflow witness: {}", describe(&outcome));
+    let outcome = count_at_shift(&shifted, 2f64.powi(-800), &[], &parameters()).unwrap();
+    eprintln!("round-6 underflow, in range: {}", describe(&outcome));
     let SturmOutcome::Refused {
         reason: SturmRefusal::OutOfRange,
         evidence,
     } = &outcome
     else {
-        panic!("round-6 underflow witness must be OutOfRange");
+        panic!("the in-range underflow must be OutOfRange");
     };
     assert!(matches!(
         evidence.candidates[0].decision,
@@ -725,6 +754,7 @@ fn finite_count_is_established_with_structural_zeros() {
         Some(8)
     );
     let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
+    eprintln!("T17: resolution-floor margin {:.2e}", floor_margin(&solution));
     assert_eq!(solution.structurally_massless_count, 9);
     assert!(!solution.finite_count_unresolved, "mu {:?}", solution.mu);
     // A coupling that is not structural leaves the count unestablished.
@@ -793,7 +823,9 @@ fn a_rescaled_neighbour_vector_keeps_its_separation_constraint() {
 /// λ = 1, e_λ = 1 − 2⁻³⁰, σ = 2. φ₂² = 2⁻¹²⁰⁰ underflowed before it met
 /// k₂₂ and m₂₂, the quotient came out as 786433 instead of ≈ 1.00000095,
 /// and σ was accepted. The true separation, 2⁻³⁰·q ≈ 9.31·10⁻¹⁰, is below
-/// κ_s·e_b ≈ 4.07·10⁻⁸: σ is unseparated.
+/// κ_s·e_b ≈ 4.07·10⁻⁸: σ was then shown unseparated with the
+/// extended-exponent quotient; since review round 3 the witness is refused
+/// at admission.
 #[test]
 fn a_weighted_square_below_the_binary64_range_still_meets_its_weight() {
     let p = |e: i32| 2f64.powi(e);
@@ -802,34 +834,29 @@ fn a_weighted_square_below_the_binary64_range_still_meets_its_weight() {
         vec![p(-240) + p(-222), p(378)],
         vec![p(378), (1.0 + p(-22)) * p(1000)],
     ];
-    let pencil = pencil_of(&k, &m);
-    let vector = [1.0, p(-600)];
+    // Since review round 3 the witness's entries (2³⁷⁹, 2¹⁰⁰⁰) are outside
+    // the admission range and the pencil is refused at entry.
+    assert!(matches!(
+        ShiftPencil::from_dense(&sym(&k), &sym(&m)),
+        Err(SturmError::PencilRangeUnsupported(_))
+    ));
+    // Within the range: φ = 2⁻⁶⁰⁰·(1, 1), whose squares are below binary64,
+    // on K = I₂ and M = diag(1, 3). The quotient is 4/2 = 2, so at σ = ½
+    // beside λ = 1 (e_λ = 0) the separation is ½·2 = 1.
+    let pencil = pencil_of(
+        &vec![vec![1.0, 0.0], vec![0.0, 1.0]],
+        &vec![vec![1.0, 0.0], vec![0.0, 3.0]],
+    );
+    let vector = [p(-600), p(-600)];
     let neighbour = Neighbour {
         eigenvalue: 1.0,
-        relative_error_estimate: 1.0 - p(-30),
+        relative_error_estimate: 0.0,
         vector: &vector,
     };
-    let outcome = count_at_shift(&pencil, 2.0, &[neighbour], &parameters()).unwrap();
-    eprintln!("round-2 weighted-square witness: {}", describe(&outcome));
-    assert!(
-        matches!(
-            outcome,
-            SturmOutcome::Refused {
-                reason: SturmRefusal::Unseparated,
-                ..
-            }
-        ),
-        "{}",
-        describe(&outcome)
-    );
+    let outcome = count_at_shift(&pencil, 0.5, &[neighbour], &parameters()).unwrap();
     let candidate = &outcome.evidence().candidates[0];
-    assert_eq!(candidate.decision, ShiftDecision::Unseparated);
-    // s / (formation term) bounds the ratio from above; the quotient is
-    // ≈ 1.00000095, so s ≈ 2⁻³⁰.
-    let formation_term = candidate.formation_term.unwrap();
-    let s = candidate.formation_separation_ratio.unwrap() * formation_term;
-    let q = s / p(-30);
-    assert!((q - (1.0 + 4.0 * p(-22))).abs() <= 1e-12, "q = {q}");
+    let separation = candidate.formation_separation_ratio.unwrap() * candidate.formation_term.unwrap();
+    assert!((separation - 1.0).abs() <= 4.0 * f64::EPSILON, "{separation}");
 }
 
 /// Finding 1, the typed refusals: a neighbour whose mass quotient is not
@@ -853,13 +880,11 @@ fn neighbour_quotients_and_separations_out_of_range_are_refused() {
             value: 0.0
         })
     );
-    // A subnormal quotient (an overflowing one is bounded by the scaled
-    // row sums of |M|, which the pencil requires finite).
-    let tiny = pencil_of(&identity, &vec![vec![1e-310, 0.0], vec![0.0, 1e-310]]);
-    let ones = [1.0, 1.0];
+    // A subnormal mass, which gave a subnormal quotient, is outside the
+    // admission range since review round 3 and refused at entry.
     assert!(matches!(
-        count_at_shift(&tiny, 0.5, &[neighbour(1.0, 0.0, &ones)], &parameters()),
-        Err(SturmError::NeighbourMassQuotient { index: 0, .. })
+        ShiftPencil::from_dense(&sym(&identity), &sym(&vec![vec![1e-310, 0.0], vec![0.0, 1e-310]])),
+        Err(SturmError::PencilRangeUnsupported(_))
     ));
     // s = (|λ − σ| − e_λ·λ)·q with e_λ·λ overflowing (−∞), and with the
     // product by q overflowing (+∞).
@@ -910,8 +935,8 @@ fn a_structural_zero_is_condensed_out() {
 /// μ = 10⁻²⁰ was counted infinite in its place: one infinite μ against one
 /// structural zero, resolved, with the mode lost. Condensed, K̂ =
 /// diag(2/3, 10²⁰) and M̂ = I: μ = (3/2, 10⁻²⁰). At τ_μ = 10⁻¹⁸ the 10²⁰
-/// mode is classified infinite and the count is unresolved; at τ_μ = 0 it
-/// is returned and the count is resolved.
+/// mode is classified infinite and the count is unresolved; at τ_μ = 0 the
+/// resolution floor (review round 3) still classifies it infinite.
 #[test]
 fn a_finite_mode_traded_for_a_structural_zero_is_not_concealed() {
     let k = vec![
@@ -938,12 +963,62 @@ fn a_finite_mode_traded_for_a_structural_zero_is_not_concealed() {
     assert_eq!(solution.mode_count(), 1);
     assert!((solution.eigenvalues[0] - 2.0 / 3.0).abs() <= 4.0 * f64::EPSILON);
     assert!(solution.finite_count_unresolved);
+    // Since review round 3 the resolution floor applies as well: with
+    // τ_μ = 0, μ = 10⁻²⁰ is still below κ_μ·δ_μ (δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖
+    // ≈ 5·10⁻¹⁶ here), so the 10²⁰ mode is not relied on and the count
+    // stays unresolved.
     let solution = solve_dense_pencil(&sym(&k), &sym(&m), &options(0.0)).unwrap();
-    assert_eq!(solution.mode_count(), 2);
-    assert!((solution.eigenvalues[1] - 1e20).abs() <= 4.0 * f64::EPSILON * 1e20);
-    assert!(!solution.finite_count_unresolved);
-    // The 10²⁰ mode is the third DOF alone.
-    assert_eq!(&solution.vector(1)[..2], &[0.0, 0.0]);
+    assert!(solution.resolution_floor > 1e-20);
+    assert_eq!(solution.mode_count(), 1);
+    assert!(solution.finite_count_unresolved);
+}
+
+/// Review round 3, finding 5 (design §3.2 item 5, "Resolution floor"):
+/// K = [[1, 1], [1, 3]], M = diag(1, 2⁻¹⁰⁰), τ_μ = 10⁻¹⁸. The true second
+/// μ is about 2⁻¹⁰⁰/2, far below the reduction's resolution; it came back as
+/// a rounding artifact near 2⁻⁵² (λ ≈ 2⁵²) above τ_μ·μ_max, retained, with
+/// the count resolved. A retained μ must now exceed κ_μ·δ_μ too, so the
+/// artifact is classified infinite and the count is unresolved.
+#[test]
+fn a_rounding_artifact_below_the_resolution_floor_is_not_retained() {
+    let k = vec![vec![1.0, 1.0], vec![1.0, 3.0]];
+    let m = vec![vec![1.0, 0.0], vec![0.0, 2f64.powi(-100)]];
+    let options = DenseOptions {
+        infinite_mu_relative_threshold: 1e-18,
+        ..dense_options()
+    };
+    let solution = solve_dense_pencil(&sym(&k), &sym(&m), &options).unwrap();
+    eprintln!(
+        "resolution-floor witness: μ_max {:e}, ν(K̂) {:e}, ‖M‖ {:e}, δ_μ {:e}, threshold {:e}, \
+         retained {:?}, below threshold {}, nonpositive {}",
+        solution.mu_max,
+        solution.condensed_inverse_norm_estimate,
+        solution.condensed_mass_norm,
+        solution.resolution_floor,
+        solution.classification_threshold,
+        solution.mu,
+        solution.below_threshold_mu_count,
+        solution.nonpositive_mu_count
+    );
+    assert_eq!(solution.mode_count(), 1);
+    assert_eq!(
+        solution.below_threshold_mu_count + solution.nonpositive_mu_count,
+        1
+    );
+    assert!(solution.finite_count_unresolved);
+    // The artifact itself, retained when κ_μ is set negligible: below δ_μ.
+    let observe = DenseOptions {
+        resolution_floor_multiple: 1e-30,
+        ..options
+    };
+    let artifact = solve_dense_pencil(&sym(&k), &sym(&m), &observe).unwrap();
+    let mu = artifact.mu[1];
+    eprintln!(
+        "resolution-floor witness: artifact μ {mu:e} (λ {:e}), δ_μ/μ {:.2e}",
+        artifact.eigenvalues[1],
+        artifact.resolution_floor / mu
+    );
+    assert!(mu > 0.0 && mu <= artifact.resolution_floor);
 }
 
 /// A genuine finite μ classified infinite leaves the count unresolved
@@ -1098,11 +1173,13 @@ fn placed_gap_shifts_count_exactly_with_no_refusal() {
             established_finite_mode_count(&sym(&pencil.m), MASS_PIVOT_RELATIVE_THRESHOLD);
         let resolved = !solution.finite_count_unresolved;
         eprintln!(
-            "{}: n {}, finite {}, established {:?}, dense resolved {resolved}",
+            "{}: n {}, finite {}, established {:?}, dense resolved {resolved}, \
+             resolution-floor margin {:.2e}",
             pencil.id,
             pencil.k.len(),
             pencil.n_finite,
-            established
+            established,
+            floor_margin(&solution)
         );
         if let (Some(count), true) = (established, resolved) {
             assert_eq!(count, solution.mode_count());

@@ -34,12 +34,29 @@ use open_pipe_stress_modal_eigen::SymmetricMatrix;
 
 const U: f64 = f64::EPSILON / 2.0;
 
+/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// the production values are recorded under DEC-026, not here. With
+/// c_μ = 1, the review-round-3 artifact lies about 2× below δ_μ and the
+/// smallest retained μ of every admitted fixture case at least 7.4·10² above
+/// it (E-RIGID-SCALE-1e6), so κ_μ = 10 sits between them (README).
+const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
+const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
+
+/// The smallest retained μ over κ_μ·δ_μ: how far the resolution floor is
+/// below the retained spectrum (+∞ with a zero floor or no mode).
+fn floor_margin(solution: &DenseEigenSolution) -> f64 {
+    let smallest = solution.mu.iter().copied().fold(f64::INFINITY, f64::min);
+    smallest / (RESOLUTION_FLOOR_MULTIPLE * solution.resolution_floor)
+}
+
 /// Test-local algorithm parameters; the production values are fixed by the
 /// design (M1b), not by these tests.
 fn options() -> DenseOptions {
     DenseOptions {
         infinite_mu_relative_threshold: 1e-12,
         mass_pivot_relative_threshold: 1e-12,
+        resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
+        resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -526,6 +543,10 @@ fn singular_lumped_mass_reports_infinite_eigenvalues() {
         0
     );
     assert!(!solution.finite_count_unresolved);
+    eprintln!(
+        "singular lumped mass: resolution-floor margin {:.2e}",
+        floor_margin(&solution)
+    );
     let exact_mu: Vec<f64> = (1..=n_mass)
         .map(|j| {
             1.0 / (2.0

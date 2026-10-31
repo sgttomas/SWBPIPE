@@ -13,12 +13,16 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{Dd, DdAccumulator};
 use crate::matrix::SymmetricMatrix;
 use crate::reformation::ReformedPencil;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrthogonalityError {
+    /// A nonzero entry of M outside the admission range
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`).
+    PencilRangeUnsupported(PencilRangeUnsupported),
     DimensionMismatch {
         mode: usize,
         expected: usize,
@@ -42,6 +46,7 @@ pub enum OrthogonalityError {
 impl fmt::Display for OrthogonalityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Self::PencilRangeUnsupported(range) => write!(f, "{range}"),
             Self::DimensionMismatch {
                 mode,
                 expected,
@@ -81,6 +86,7 @@ pub fn m_orthogonality(
     vectors: &[&[f64]],
 ) -> Result<MOrthogonality, OrthogonalityError> {
     let n = mass.dimension();
+    check_dense(PencilMatrix::Mass, mass).map_err(OrthogonalityError::PencilRangeUnsupported)?;
     check_vectors(n, vectors)?;
     let products: Vec<Vec<Dd>> = vectors
         .iter()
@@ -230,22 +236,33 @@ mod tests {
     /// overflowed or underflowed before its square root (NaN).
     #[test]
     fn the_denominator_does_not_leave_the_range() {
+        let one = [1.0];
+        // Since review round 3 these masses are outside the admission range
+        // and refused at entry.
         for s in [1e200, 1e-200, f64::MAX, f64::MIN_POSITIVE] {
             let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
-            let one = [1.0];
+            assert!(matches!(
+                m_orthogonality(&mass, &[&one, &one]),
+                Err(OrthogonalityError::PencilRangeUnsupported(_))
+            ));
+        }
+        let p2 = |e: i32| 2f64.powi(e);
+        for s in [p2(300), p2(-300)] {
+            let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
             let result = m_orthogonality(&mass, &[&one, &one]).unwrap();
             assert_eq!(result.max_ratio, 1.0, "M = {s:e}");
             assert_eq!(result.pair, Some((0, 1)));
         }
-        // An indefinite M with |φ₁ᵀMφ₂| far above √(m₁m₂): the ratio
-        // overflows and is refused.
-        let indefinite = SymmetricMatrix::from_rows(&[vec![1e-300, 1e300], vec![1e300, 1e-300]])
-            .unwrap();
+        // An indefinite M with |φ₁ᵀMφ₂| far above √(m₁m₂): within the
+        // admission range the ratio, 2⁶⁰⁰, is finite and reported.
+        let indefinite =
+            SymmetricMatrix::from_rows(&[vec![p2(-300), p2(300)], vec![p2(300), p2(-300)]])
+                .unwrap();
         let (e1, e2) = ([1.0, 0.0], [0.0, 1.0]);
-        assert!(matches!(
-            m_orthogonality(&indefinite, &[&e1, &e2]),
-            Err(OrthogonalityError::RatioOutOfRange { pair: (0, 1), .. })
-        ));
+        assert_eq!(
+            m_orthogonality(&indefinite, &[&e1, &e2]).unwrap().max_ratio,
+            p2(600)
+        );
     }
 
     #[test]

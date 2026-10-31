@@ -68,11 +68,28 @@ const MASS_PIVOT_RELATIVE_THRESHOLD: f64 = 1e-12;
 /// measured values are printed (about 10⁻¹⁴ at most).
 const ETA_CORRECT: f64 = 1e-12;
 
+/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// the production values are recorded under DEC-026, not here. With
+/// c_μ = 1, the review-round-3 artifact lies about 2× below δ_μ and the
+/// smallest retained μ of every admitted fixture case at least 7.4·10² above
+/// it (E-RIGID-SCALE-1e6), so κ_μ = 10 sits between them (README).
+const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
+const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
+
+/// The smallest retained μ over κ_μ·δ_μ: how far the resolution floor is
+/// below the retained spectrum (+∞ with a zero floor or no mode).
+fn floor_margin(solution: &DenseEigenSolution) -> f64 {
+    let smallest = solution.mu.iter().copied().fold(f64::INFINITY, f64::min);
+    smallest / (RESOLUTION_FLOOR_MULTIPLE * solution.resolution_floor)
+}
+
 /// Test-local dense options (as in `sturm_counts.rs`).
 fn dense_options() -> DenseOptions {
     DenseOptions {
         infinite_mu_relative_threshold: 1e-12,
         mass_pivot_relative_threshold: MASS_PIVOT_RELATIVE_THRESHOLD,
+        resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
+        resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -594,6 +611,15 @@ fn largest_eta(case: &Case, f: &Formed) -> (f64, f64) {
 fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
     for case in eigen_cases() {
         let f = formed(&case, entries(&case.k), entries(&case.m));
+        // Every case with an established count is resolved under the floor.
+        if f.solution.established_finite_mode_count.is_some() {
+            assert!(!f.solution.finite_count_unresolved, "{}", case.id);
+        }
+        eprintln!(
+            "{}: resolution-floor margin {:.2e}",
+            case.id,
+            floor_margin(&f.solution)
+        );
         let p = pencil(&case, &f);
         let k_hat: BTreeMap<Pair, Dd> = p.assembled_stiffness().into_iter().collect();
         let m_hat: BTreeMap<Pair, Dd> = p.assembled_mass().into_iter().collect();
@@ -1067,10 +1093,13 @@ fn small_bore_and_short_member_models_are_admitted_with_their_full_count() {
         );
         let solution = solve_dense_pencil(k, m, &dense_options()).unwrap();
         eprintln!(
-            "{name}: n {n}, modes {}, μ range {:.2e} to {:.2e}",
+            "{name}: n {n}, modes {}, μ range {:.2e} to {:.2e}, δ_μ {:.2e}, \
+             resolution-floor margin {:.2e}",
             solution.mode_count(),
             solution.mu.last().unwrap(),
-            solution.mu_max
+            solution.mu_max,
+            solution.resolution_floor,
+            floor_margin(&solution)
         );
         assert_eq!(solution.mode_count(), n, "{name}");
         assert!(!solution.finite_count_unresolved, "{name}");

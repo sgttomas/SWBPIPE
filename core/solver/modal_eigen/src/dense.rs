@@ -26,7 +26,10 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
+use crate::dd::max_propagating_nan;
 use crate::matrix::SymmetricMatrix;
+use crate::norm_estimate::inverse_one_norm_estimate;
 
 /// Live n²-sized binary64 buffers at the dense path's peak phase: the
 /// caller's K and M, the Cholesky factor R of K with the massless DOFs
@@ -70,6 +73,12 @@ pub struct DenseOptions {
     /// least this (see [`established_finite_mode_count`]). Must be finite
     /// and in [0, 1).
     pub mass_pivot_relative_threshold: f64,
+    /// c_μ of the resolution floor δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖_∞ (design §3.2
+    /// item 5). Finite and positive.
+    pub resolution_floor_constant: f64,
+    /// κ_μ: a retained μ must exceed κ_μ·δ_μ as well as τ_μ·μ_max. Finite
+    /// and positive.
+    pub resolution_floor_multiple: f64,
     /// The most implicit QL iterations allowed for any one eigenvalue.
     pub max_ql_iterations_per_eigenvalue: usize,
 }
@@ -81,6 +90,9 @@ pub enum DenseError {
         mass: usize,
     },
     EmptySystem,
+    /// A nonzero formed entry outside the admission range
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`).
+    PencilRangeUnsupported(PencilRangeUnsupported),
     InvalidOption {
         name: &'static str,
     },
@@ -106,6 +118,7 @@ impl fmt::Display for DenseError {
                 "stiffness is {stiffness}x{stiffness} but mass is {mass}x{mass}"
             ),
             Self::EmptySystem => write!(f, "the pencil has no degrees of freedom"),
+            Self::PencilRangeUnsupported(range) => write!(f, "{range}"),
             Self::InvalidOption { name } => write!(f, "invalid dense option `{name}`"),
             Self::NonPositivePivot { index, value } => write!(
                 f,
@@ -142,10 +155,19 @@ pub struct DenseEigenSolution {
     /// The largest condensed μ, against which the relative threshold is
     /// applied (0 when n_m = 0).
     pub mu_max: f64,
+    /// ν(K̂), the Hager–Higham estimate of ‖K̂⁻¹‖₁ from the condensed
+    /// Cholesky factor (+∞ when a solve overflowed).
+    pub condensed_inverse_norm_estimate: f64,
+    /// ‖M_mm‖_∞.
+    pub condensed_mass_norm: f64,
+    /// δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖_∞, the resolution floor of the reduction.
+    pub resolution_floor: f64,
+    /// max(τ_μ·μ_max, κ_μ·δ_μ): a retained μ exceeds it.
+    pub classification_threshold: f64,
     /// Condensed μ ≤ 0: classified infinite, not returned.
     pub nonpositive_mu_count: usize,
-    /// Condensed 0 < μ ≤ threshold × max μ: classified infinite, not
-    /// returned.
+    /// Condensed 0 < μ ≤ the classification threshold: classified infinite,
+    /// not returned.
     pub below_threshold_mu_count: usize,
     /// Total implicit QL iterations.
     pub ql_iterations: usize,
@@ -161,11 +183,12 @@ pub struct DenseEigenSolution {
     pub established_finite_mode_count: Option<usize>,
     /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
     /// when a request needs the whole finite spectrum), design §3.2 item 5:
-    /// a μ of the condensed pencil is classified infinite (μ ≤ τ_μ·μ_max,
-    /// of either sign), or the count is not established. The condensed
-    /// pencil has exactly n_m finite eigenvalues in exact arithmetic, so a
-    /// μ classified infinite there is a finite mode lost to rounding or to
-    /// the threshold.
+    /// a μ of the condensed pencil is classified infinite (at or below
+    /// max(τ_μ·μ_max, κ_μ·δ_μ), of either sign), or the count is not
+    /// established. The condensed pencil has exactly n_m finite eigenvalues
+    /// in exact arithmetic, so a μ classified infinite there is a finite
+    /// mode lost to rounding or to the threshold, and the resolution floor
+    /// keeps a rounding artifact from standing in for it.
     pub finite_count_unresolved: bool,
 }
 
@@ -196,6 +219,8 @@ pub fn solve_dense_pencil(
     if n == 0 {
         return Err(DenseError::EmptySystem);
     }
+    check_dense(PencilMatrix::Stiffness, stiffness).map_err(DenseError::PencilRangeUnsupported)?;
+    check_dense(PencilMatrix::Mass, mass).map_err(DenseError::PencilRangeUnsupported)?;
     let threshold = options.infinite_mu_relative_threshold;
     if !(threshold.is_finite() && (0.0..1.0).contains(&threshold)) {
         return Err(DenseError::InvalidOption {
@@ -207,6 +232,14 @@ pub fn solve_dense_pencil(
         return Err(DenseError::InvalidOption {
             name: "mass_pivot_relative_threshold",
         });
+    }
+    for (name, value) in [
+        ("resolution_floor_constant", options.resolution_floor_constant),
+        ("resolution_floor_multiple", options.resolution_floor_multiple),
+    ] {
+        if !(value.is_finite() && value > 0.0) {
+            return Err(DenseError::InvalidOption { name });
+        }
     }
 
     // Set 0 (structurally massless) first, then the massive DOFs, each
@@ -240,12 +273,35 @@ pub fn solve_dense_pencil(
         sort_ascending(&mut d, &mut work, nm);
     }
 
+    // The resolution floor (design §3.2 item 5): δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖,
+    // ν(K̂) from solves with the condensed factor R_mm.
+    let (condensed_inverse_norm_estimate, _) = inverse_one_norm_estimate(nm, |x| {
+        let mut y = x.to_vec();
+        forward_solve_row(&r, n, n0, &mut y);
+        back_solve_block(&r, n, n0, &mut y);
+        Some(y)
+    });
+    let condensed_mass_norm = massive.iter().fold(0.0, |norm, &i| {
+        let row: f64 = massive.iter().map(|&j| mass.get(i, j).abs()).sum();
+        max_propagating_nan(norm, row)
+    });
+    let resolution_floor = options.resolution_floor_constant
+        * n as f64
+        * (f64::EPSILON / 2.0)
+        * condensed_inverse_norm_estimate
+        * condensed_mass_norm;
+
     // d is ascending μ; λ ascending is μ descending. Reverse the rows so the
     // finite modes come first, then keep those above the threshold.
     let mu_max = d.last().copied().unwrap_or(0.0);
     let mut nonpositive_mu_count = 0;
     let mut below_threshold_mu_count = 0;
-    let cut = threshold * mu_max;
+    let cut = max_propagating_nan(
+        threshold * mu_max,
+        options.resolution_floor_multiple * resolution_floor,
+    );
+    // A NaN threshold classifies every μ as infinite.
+    let cut = if cut.is_nan() { f64::INFINITY } else { cut };
     for &mu in &d {
         if !(mu > 0.0) {
             nonpositive_mu_count += 1;
@@ -290,6 +346,10 @@ pub fn solve_dense_pencil(
         mu: d,
         vectors: work,
         mu_max,
+        condensed_inverse_norm_estimate,
+        condensed_mass_norm,
+        resolution_floor,
+        classification_threshold: cut,
         nonpositive_mu_count,
         below_threshold_mu_count,
         ql_iterations,
@@ -416,6 +476,20 @@ fn forward_solve_row(r: &[f64], n: usize, offset: usize, row: &mut [f64]) {
             s -= r_row[p] * row[p];
         }
         row[j] = s / r[base + j];
+    }
+}
+
+/// Solves R_bbᵀ y = w in place, R_bb the trailing diagonal block of R from
+/// `offset` (back substitution by columns of R_bbᵀ, R's contiguous rows).
+fn back_solve_block(r: &[f64], n: usize, offset: usize, row: &mut [f64]) {
+    for i in (0..row.len()).rev() {
+        let base = (offset + i) * n + offset;
+        let value = row[i] / r[base + i];
+        row[i] = value;
+        let r_row = &r[base..base + i];
+        for p in 0..i {
+            row[p] -= r_row[p] * value;
+        }
     }
 }
 
@@ -730,6 +804,8 @@ mod tests {
         DenseOptions {
             infinite_mu_relative_threshold: 1e-12,
             mass_pivot_relative_threshold: 1e-12,
+            resolution_floor_constant: 1.0,
+            resolution_floor_multiple: 1.0,
             max_ql_iterations_per_eigenvalue: 30,
         }
     }

@@ -66,7 +66,9 @@ use open_pipe_stress_sparse_direct::{
     SymmetricMatrixEntry, SymmetricProfileMatrix,
 };
 
+use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::WideDd;
+use crate::norm_estimate::inverse_one_norm_estimate;
 use crate::matrix::SymmetricMatrix;
 
 /// c_f of the formation term: one rounding each for σ·m_ij, the
@@ -78,9 +80,7 @@ pub const FORMATION_ROUNDING_CONSTANT: f64 = 5.0;
 /// integer.
 pub const MAX_GAP_POSITION_LEVEL: u32 = 32;
 
-/// The Hager–Higham estimator's iteration limit (Higham 1988, Algorithm 4.1;
-/// LAPACK xLACN2 uses the same).
-pub const INVERSE_NORM_MAX_ITERATIONS: usize = 5;
+pub use crate::norm_estimate::INVERSE_NORM_MAX_ITERATIONS;
 
 const U: f64 = f64::EPSILON / 2.0;
 
@@ -105,6 +105,9 @@ pub enum SturmError {
         row: usize,
         col: usize,
     },
+    /// A nonzero entry outside the admission range
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`).
+    PencilRangeUnsupported(PencilRangeUnsupported),
     /// k_ii ≤ 0: D = diag(|k_ii|^-½) is not formed for a stiffness that is
     /// not positive definite.
     NonPositiveStiffnessDiagonal {
@@ -148,6 +151,7 @@ impl fmt::Display for SturmError {
             }
             Self::DuplicateEntry { row, col } => write!(f, "entry ({row}, {col}) is given twice"),
             Self::NonFiniteEntry { row, col } => write!(f, "entry ({row}, {col}) is not finite"),
+            Self::PencilRangeUnsupported(range) => write!(f, "{range}"),
             Self::NonPositiveStiffnessDiagonal { index } => {
                 write!(f, "stiffness diagonal {index} is not positive")
             }
@@ -552,6 +556,13 @@ impl ShiftPencil {
                 } else {
                     (entry.col, entry.row)
                 };
+                let matrix = if is_mass {
+                    PencilMatrix::Mass
+                } else {
+                    PencilMatrix::Stiffness
+                };
+                check_entry(matrix, row, col, entry.value)
+                    .map_err(SturmError::PencilRangeUnsupported)?;
                 merged.push((row, col, is_mass, entry.value));
             }
         }
@@ -862,7 +873,8 @@ fn evaluate(
     let gamma_n = nu_f / (1.0 - nu_f);
     let factor_term = gamma_n * factor_norm;
     let backward_error = factor_term + formation_term;
-    let (inverse_norm_estimate, inverse_norm_solves) = inverse_one_norm_estimate(&factorization, n);
+    let (inverse_norm_estimate, inverse_norm_solves) =
+        inverse_one_norm_estimate(n, |x| factorization.solve_ordered(x).ok());
     let conditioning_product = backward_error * inverse_norm_estimate;
     let conditioning_limit = 1.0 / parameters.conditioning_multiple;
 
@@ -934,90 +946,6 @@ fn factor_observations(factorization: &ProfileFactorization, n: usize) -> (f64, 
     }
     let norm = w.iter().fold(0.0f64, |acc, &x| acc.max(x));
     (norm, max_abs_lower, max_abs_pivot)
-}
-
-/// The Hager–Higham estimate of ‖A⁻¹‖₁ (Hager 1984; Higham 1988,
-/// Algorithm 4.1, with its alternative estimate), A symmetric so that
-/// A⁻ᵀ = A⁻¹, with solves through the factorization in its ordered numbering
-/// (a permutation leaves the 1-norm unchanged). Every vector it evaluates
-/// gives a lower bound ‖A⁻¹x‖₁/‖x‖₁, and the largest is returned. A solve
-/// that overflows gives +∞. Returns (ν, solves).
-fn inverse_one_norm_estimate(factorization: &ProfileFactorization, n: usize) -> (f64, usize) {
-    if n == 0 {
-        return (0.0, 0);
-    }
-    let mut solves = 0;
-    let mut solve = |x: &[f64]| {
-        solves += 1;
-        factorization.solve_ordered(x).ok()
-    };
-    let norm1 = |y: &[f64]| y.iter().fold(0.0, |acc, x| acc + x.abs());
-    let signs = |y: &[f64]| -> Vec<f64> {
-        y.iter()
-            .map(|&x| if x >= 0.0 { 1.0 } else { -1.0 })
-            .collect()
-    };
-    let argmax_abs = |z: &[f64]| {
-        let mut best = 0;
-        for (i, x) in z.iter().enumerate() {
-            if x.abs() > z[best].abs() {
-                best = i;
-            }
-        }
-        best
-    };
-
-    let estimate = (|| {
-        let x = vec![1.0 / n as f64; n];
-        let y = solve(&x)?;
-        let mut estimate = norm1(&y);
-        if n == 1 {
-            return Some(estimate);
-        }
-        let mut xi = signs(&y);
-        let z = solve(&xi)?;
-        let mut j = argmax_abs(&z);
-        let mut iteration = 2;
-        loop {
-            let mut e = vec![0.0; n];
-            e[j] = 1.0;
-            let y = solve(&e)?;
-            let previous = estimate;
-            let current = norm1(&y);
-            estimate = estimate.max(current);
-            let next_xi = signs(&y);
-            if next_xi == xi || current <= previous {
-                break;
-            }
-            xi = next_xi;
-            let z = solve(&xi)?;
-            let last = j;
-            j = argmax_abs(&z);
-            if z[last].abs() == z[j].abs() || iteration >= INVERSE_NORM_MAX_ITERATIONS {
-                break;
-            }
-            iteration += 1;
-        }
-        let denominator = (n - 1) as f64;
-        let alternative: Vec<f64> = (0..n)
-            .map(|i| {
-                let magnitude = 1.0 + i as f64 / denominator;
-                if i % 2 == 0 {
-                    magnitude
-                } else {
-                    -magnitude
-                }
-            })
-            .collect();
-        let y = solve(&alternative)?;
-        Some(estimate.max(2.0 * norm1(&y) / (3.0 * n as f64)))
-    })();
-    (
-        estimate
-            .filter(|value| value.is_finite())
-            .unwrap_or(f64::INFINITY),
-        solves,
-    )
 }
 
 /// σ at log-fraction t of the gap (lo, hi): repeated geometric means
@@ -1323,7 +1251,7 @@ mod tests {
         let profile =
             SymmetricProfileMatrix::from_dense(&[vec![2.0, 0.0], vec![0.0, -0.25]]).unwrap();
         let factorization = factorize_ldlt(&profile).unwrap();
-        let (nu, solves) = inverse_one_norm_estimate(&factorization, 2);
+        let (nu, solves) = inverse_one_norm_estimate(2, |x| factorization.solve_ordered(x).ok());
         assert_eq!(nu, 4.0);
         assert!(solves >= 3);
     }
