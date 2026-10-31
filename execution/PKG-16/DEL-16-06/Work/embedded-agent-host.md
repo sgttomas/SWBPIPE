@@ -378,6 +378,45 @@ for this authorized host slice; its matching scope wording must explicitly
 separate the current integration from that older program before integration.
 Neither standalone App qualification nor workflow-act machinery is inferred.
 
+## Author routes and the trust boundary
+
+The applier refuses an agent-authored write of any value the person enters:
+the bend flexibility factor k (`OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED`) and,
+from RT-E1 M2-D1 (approved by Agent 0), every other component modifier
+(`OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED`). Those are the SIFs, stiffness
+scaling and stiffness, and the modifier source. The refusal applies to a field
+edit, a component created with modifiers, or a library record copying modifier
+members. It reads `author_type`. The live catalog route refuses author and
+source fields in the agent's arguments and stamps `agent`. Offline intake now
+stamps every imported operation `agent` host-side. Requeue of retained records
+re-stamps recognizable agent or imported content `agent` and refuses a
+claimed-`user` record that writes a person-entered value (DEL-16-03
+`Work/operation-authorship.md`).
+
+**Residual, accepted by Agent 0 (2026-10-31):** a record saved before this
+change that was imported claiming `user`, and that writes none of the protected
+values, keeps `user`'s leniency when it is requeued: it may have no source and
+an empty rationale, which an `agent` operation may not. The protected values are
+k, the SIFs and other component modifiers, bend realization and insertion, and
+library modifier members, and none of them can be reached this way. Re-stamping
+every ambiguous `user` record as `agent` would misattribute the person's own
+saved edits, so that is not done.
+
+**Residual, recorded on Agent 0's decision:** any trusted webview code can
+assert `author_type: user` to the applier commands. A source-role check in the
+applier would prove nothing more, because the source is equally the webview's
+claim. This is the same trust assumption as the live session's: the bundled
+webview is trusted, and the native host binds an agent's calls to the admitted
+session.
+
+**Library and hanger values.** A library or hanger record that the person
+explicitly chooses to apply, from a library the person imported, is the
+person's own act. Its k, SIFs and other modifiers count as user-entered under
+the owner's ruling. The applied record keeps its library provenance, so each
+value's source stays traceable. The embedded agent cannot route
+`apply_library_record`: the catalog's closed change kinds exclude it, and the
+applier refuses an agent-authored library record that copies modifier members.
+
 ## Live-session integration candidate
 
 `Work/agent-live-session.md` describes the native command, private workspace

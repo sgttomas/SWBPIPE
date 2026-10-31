@@ -145,15 +145,20 @@ describe("bounded workflow actual engine tests", () => {
     fill(model); fireEvent.click(screen.getByRole("button", { name: "Generate self-weight plan" }));
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("density")); expect(queue).not.toHaveBeenCalled();
   });
-  it("retains untrusted offline metadata and flags exactly, including fields backend must reject", async () => {
+  it("stamps imported operations agent-authored and keeps claimed attribution for display only", async () => {
     const model = await loadPreviewModel(); const queue = vi.fn();
     const payload = { batch_id: "batch:offline", source: { external: "unverified" }, operations: [
-      { author_type: "agent", source: { source_role: "offline agent" }, rationale: "Exact rationale", audit_boundary: { requires_user_acceptance: false }, custom: "unchanged" }
+      { author_type: "user", source: { source_role: "offline agent" }, rationale: "Exact rationale", audit_boundary: { requires_user_acceptance: false }, custom: "unchanged" }
     ] };
     expect(parseOfflineBatch(JSON.stringify(payload))).toEqual(payload);
     render(<OfflineProposalIntakePanel model={model} selection={{ type: "project", id: model.project.id }} onQueueBatch={queue} capabilityReference={{ source: "manager catalog" }} />);
     enter("Proposal batch JSON", JSON.stringify(payload)); fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
-    expect(queue).toHaveBeenCalledWith(payload);
+    const [queued, options] = queue.mock.calls[0];
+    // Everything else the file asserts is kept exactly; the author and source are the host's.
+    expect(queued).toEqual({ ...payload, operations: [{ ...payload.operations[0], author_type: "agent",
+      source: { source_ref: "offline-import:batch:offline:1", source_channel: "offline_intake", source_role: "imported" } }] });
+    expect(options.importContext).toEqual({ kind: "offline_intake", fileBatchId: "batch:offline",
+      claimed: [{ operationId: "#1", authorType: "user", source: { source_role: "offline agent" } }] });
     expect(screen.getByRole("link", { name: "Download capability and schema reference" })).toHaveAttribute("download", "piping-operation-capabilities.json");
     const result = await applyOperationBatch(model, parseOfflineBatch(JSON.stringify(payload)), await computeModelHash(model));
     expect(result.validation.application_status).toBe("blocked"); expect(result.applied_model).toBeNull();
@@ -201,7 +206,11 @@ describe("bounded workflow actual engine tests", () => {
     expect(example.wire).toMatchObject({ change_kind: "reconnect_pipe_run", field_path: "pipe_segments", unit: "none", dimension: "dimensionless" });
     expect(JSON.parse(example.batch.operations[0].change.after)).toEqual({ pipe_ref: "pipe:P", end: "to", target_node_ref: "node:C" });
     enter("Proposal batch JSON", JSON.stringify(example.batch)); fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
-    expect(queue).toHaveBeenCalledWith(example.batch);
+    // Intake stamps the example's operations agent-authored with a host source; nothing else changes.
+    const [queued, options] = queue.mock.calls[0];
+    expect(queued).toEqual({ ...example.batch, operations: example.batch.operations.map((operation: Record<string, unknown>, index: number) => ({ ...operation, author_type: "agent",
+      source: { source_ref: `offline-import:${example.batch.batch_id}:${index + 1}`, source_channel: "offline_intake", source_role: "imported" } })) });
+    expect(options.importContext.kind).toBe("offline_intake");
     const outcome = await validateOperationBatch(model, queue.mock.calls[0][0], await computeModelHash(model));
     expect(outcome.validation.batch_validation_status).toBe("passed");
     // Cached against the model hash: the same promise result, no second search.

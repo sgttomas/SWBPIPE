@@ -13870,9 +13870,11 @@ describe("Tier3 shared batch and proposed context", () => {
 
   it("retains a malformed restored member as untrusted data and rejects it without crashing or accepting", async () => {
     await openBatchContext([null] as unknown as EditorOperationIntent[]);
-    await requeueFirstContext();
-    fireEvent.click(screen.getByTestId("validate-batch-operation-batch-1"));
-    await waitFor(() => expect(screen.getByText(/Blocked. Temporary changes were rolled back/)).toBeInTheDocument());
+    // DEL-16-03: a stored record that is not an operation names no author, so it is
+    // refused at requeue, beside the record, before any batch is registered.
+    fireEvent.click(screen.getByTestId("requeue-context-0"));
+    expect(await screen.findByTestId("requeue-refusal-0")).toHaveTextContent("This stored record is not an operation and cannot be requeued.");
+    expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches");
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
@@ -13949,9 +13951,30 @@ describe("Tier3 adversarial batch publication", () => {
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied");
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
     expect(screen.queryByTestId("batch-receipt")).not.toBeInTheDocument();
+    // The saved null member names no author: requeue refuses it beside the record (DEL-16-03).
     fireEvent.click(screen.getByTestId("requeue-context-1"));
-    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 queued batches"));
+    expect(await screen.findByTestId("requeue-refusal-1")).toHaveTextContent("This stored record is not an operation and cannot be requeued.");
+    expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records");
+  });
+
+  it("refuses beside the stored record to requeue a claimed-user write of a value only the person enters", async () => {
+    const basis = await loadPreviewModel();
+    const { makeRichIntent } = await import("./features/rich-authoring/formSupport");
+    const claimed = makeRichIntent({ object_type: "Component", ref: "component:C-110" }, "set_field", "modifiers.sif_user_value.value", "TBD", 1.5, "Bend SIF");
+    claimed.author_type = "user";
+    delete (claimed as Partial<EditorOperationIntent>).source;
+    await openBatchContext([claimed]);
+    fireEvent.click(screen.getByTestId("operation-tab-details"));
+    const record = screen.getByTestId("requeue-context-0").closest("details")!;
+    fireEvent.click(within(record).getByText(/proposed context; acceptance unknown/));
+    record.open = true;
+    fireEvent.click(screen.getByTestId("requeue-context-0"));
+    const refusal = await screen.findByTestId("requeue-refusal-0");
+    expect(refusal).toBeVisible();
+    expect(refusal).toHaveTextContent("Enter the value again in the component inspector.");
+    expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches");
+    expect(basis.components.some(component => component.id === "component:C-110")).toBe(true);
   });
 
   it("blocks replacement during Save, then discards a pending batch when another model opens", async () => {

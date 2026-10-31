@@ -1,9 +1,12 @@
 import { useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { usePreparation, type WorkflowProps } from "./workflowSupport";
+import { stampImportedBatch } from "../../services/operationAuthorship";
 
 // Only envelope parsing happens here. The shared engine performs strict operation validation.
-// Returning the original parsed object preserves all asserted author/source/rationale/flags.
+// The parsed object keeps every asserted field; queueing then stamps each operation
+// agent-authored with a host source (`stampImportedBatch`), keeping the file's claimed
+// author and source only as display context.
 export function parseOfflineBatch(text: string): OperationBatch {
   const value: unknown = JSON.parse(text);
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -42,7 +45,7 @@ export function OfflineProposalIntakePanel(props: WorkflowProps & {
   return <section id="offline-proposal-intake" tabIndex={-1} aria-label="Offline proposal intake">
     <h3>Review an imported proposal</h3>
     <p>Paste or open an operation batch. All changes are reviewed together before you choose to apply them.</p>
-    <p>Author attribution is supplied by the file and is not verified identity. This workflow has no connected agent provider.</p>
+    <p>Imported operations are recorded as agent-proposed. The author and source the file claims are shown in review but are not verified and do not change how the operations are checked. Values only you enter (a bend flexibility factor k, SIFs and other component modifiers) are refused from an import; enter them in the component inspector. This workflow has no connected agent provider.</p>
     {disabledReason && <p id="offline-proposal-disabled-reason" role="status">{disabledReason}</p>}
     <label>Proposal file<input type="file" accept=".json,application/json" aria-describedby={disabledReason ? "offline-proposal-disabled-reason" : undefined} title={disabledReason} disabled={props.busy || state.pending}
       onChange={event => {
@@ -53,12 +56,12 @@ export function OfflineProposalIntakePanel(props: WorkflowProps & {
     <label>Proposal batch JSON<textarea value={text} aria-describedby={disabledReason ? "offline-proposal-disabled-reason" : undefined} title={disabledReason} disabled={props.busy || state.pending}
       onChange={event => setText(event.target.value)} rows={10} /></label>
     <button type="button" aria-describedby={disabledReason ? "offline-proposal-disabled-reason" : undefined} title={disabledReason} disabled={props.busy || state.pending || !text.trim()} onClick={() => {
-      try { props.onQueueBatch(parseOfflineBatch(text)); state.setError(""); }
+      try { const imported = stampImportedBatch(parseOfflineBatch(text)); props.onQueueBatch(imported.batch, { importContext: imported.context }); state.setError(""); }
       catch (cause) { state.setError(cause instanceof Error ? cause.message : String(cause)); }
     }}>Queue imported batch for review</button>
     {state.error && <p role="alert">{state.error}</p>}
     <details onToggle={(event) => { if ((event.currentTarget as HTMLDetailsElement).open) loadExamples(); }}><summary>Offline authoring reference</summary>
-      <p>Keep author, source, rationale and review flags intact. The application checks the complete batch through the shared operation engine.</p>
+      <p>Keep rationale and review flags intact. The application records every imported operation as agent-proposed and checks the complete batch through the shared operation engine.</p>
       {props.capabilityReference === undefined ? <p>The capability reference is not available in this view.</p> : <>
         {props.loadOperationExamples ? <p data-testid="operation-examples-status">{examplesState === "loading"
           ? "Checking an executable reconnect example against this model with the shared engine."
