@@ -11234,16 +11234,6 @@
       ]
     },
     {
-      "id": "diagnostic:component:component-bend-pipe-BEND:bend-modifiers",
-      "code": "BEND_USER_MODIFIER_INPUT_MISSING",
-      "severity": "warning",
-      "message": "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:bend:pipe:BEND"
-      ]
-    },
-    {
       "id": "diagnostic:load:load-force-node-D-global_x:category-mapping",
       "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
       "severity": "warning",

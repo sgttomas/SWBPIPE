@@ -9,6 +9,41 @@ function safeToken(value: string): string {
   return value.replace(/[^A-Za-z0-9_.:-]+/g, "-");
 }
 
+// A deletion's `before` must equal the summary the operation applier compares
+// byte for byte (operation_applier lib.rs `node_delete_display`,
+// `pipe_delete_display` and the support's trimmed label), or the deletion is
+// refused as stale (`OP-STALE-BEFORE-VALUE`). Every deletion of these records
+// builds its `before` here.
+
+/** The applier's `display_number`: an integral value below 1e15 as an integer,
+ * any other in Rust's shortest round-trip decimal, which never uses an exponent
+ * (1e-7 is `0.0000001`, 2.5e21 is `2500000000000000000000`). */
+export function applierDisplayNumber(value: number): string {
+  if (Number.isInteger(value) && Math.abs(value) < 1e15) return String(value);
+  const text = String(value);
+  const match = /^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(text);
+  if (!match) return text;
+  const [, sign, lead, fraction = "", exponent] = match;
+  const digits = lead + fraction;
+  const point = 1 + Number(exponent);
+  if (point <= 0) return `${sign}0.${"0".repeat(-point)}${digits}`;
+  if (point >= digits.length) return sign + digits + "0".repeat(point - digits.length);
+  return `${sign}${digits.slice(0, point)}.${digits.slice(point)}`;
+}
+
+export function nodeDeletionSummary(node: PreviewModel["nodes"][number]): string {
+  const { x, y, z } = node.position;
+  return `${node.label.trim()}; x=${applierDisplayNumber(x)}; y=${applierDisplayNumber(y)}; z=${applierDisplayNumber(z)}`;
+}
+
+export function pipeDeletionSummary(pipe: PreviewModel["pipe_segments"][number]): string {
+  return `${pipe.label.trim()}; ${pipe.from.trim()}->${pipe.to.trim()}; material=${pipe.material.trim()}`;
+}
+
+export function supportDeletionSummary(support: PreviewModel["supports"][number]): string {
+  return support.label.trim();
+}
+
 export function buildDeleteSupportIntent(
   support: PreviewModel["supports"][number],
   model: PreviewModel
@@ -33,7 +68,7 @@ export function buildDeleteSupportIntent(
       change_kind: "delete_support",
       field_label: "Explicit support deletion",
       field_path: "supports",
-      before: support.label,
+      before: supportDeletionSummary(support),
       after: "not_present",
       unit: "none",
       dimension: "dimensionless",
@@ -66,7 +101,7 @@ export function buildDeleteSupportIntent(
 
 export function buildDeleteNodeIntent(node: PreviewModel["nodes"][number], model: PreviewModel): EditorOperationIntent {
   const nodeId = node.id.trim();
-  const before = `${node.label}; x=${node.position.x}; y=${node.position.y}; z=${node.position.z}`;
+  const before = nodeDeletionSummary(node);
   return {
     operation_id: `op:delete-node-${safeToken(nodeId)}`,
     operation_kind: "delete",
@@ -122,7 +157,7 @@ export function buildDeletePipeIntent(
   model: PreviewModel
 ): EditorOperationIntent {
   const pipeId = pipe.id.trim();
-  const before = `${pipe.label}; ${pipe.from}->${pipe.to}; material=${pipe.material}`;
+  const before = pipeDeletionSummary(pipe);
   return {
     operation_id: `op:delete-pipe-${safeToken(pipeId)}`,
     operation_kind: "delete",

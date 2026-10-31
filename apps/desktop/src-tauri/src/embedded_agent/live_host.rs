@@ -84,6 +84,9 @@ pub(crate) enum Action {
         expected: Option<String>,
         endpoint: String,
         model: String,
+        /// Required: no window is assumed for the person's provider.
+        #[serde(rename = "contextWindow")]
+        context_window: u32,
         #[serde(rename = "credentialMode")]
         credential_mode: String,
         key: Option<String>,
@@ -708,6 +711,7 @@ impl Owner {
                         expected,
                         endpoint,
                         model,
+                        context_window,
                         credential_mode,
                         key,
                     } => {
@@ -719,7 +723,7 @@ impl Owner {
                             ),
                             _ => return Err(Error::Input),
                         };
-                        store.save(expected.as_deref(), &endpoint, &model, change)
+                        store.save(expected.as_deref(), &endpoint, &model, context_window, change)
                     }
                     _ => unreachable!(),
                 };
@@ -764,6 +768,7 @@ impl Owner {
                     &self.registry,
                     runtime_paths,
                     config.model.clone(),
+                    config.context_window,
                     provider,
                     config.secret.take(),
                     &owner.token,
@@ -1021,7 +1026,7 @@ fn validate_actual(
         return Err(Error::Evidence);
     }
     match proof {
-        Proof::Read if matches!(meta.tool, Tool::Summary | Tool::Nodes) => {}
+        Proof::Read if matches!(meta.tool, Tool::Summary | Tool::Nodes | Tool::ReadRecords) => {}
         Proof::Failure
             if value["data"].is_null()
                 && matches!(

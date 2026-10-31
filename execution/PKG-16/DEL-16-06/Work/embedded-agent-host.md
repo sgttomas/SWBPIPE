@@ -72,12 +72,15 @@ metadata. Version 2 also adds bounded proposal assumptions and distinguishes
 live-basis admission from completion against retained proposal/run evidence,
 repairing independent review findings. Version 3 (RT-E1 milestone 1, below)
 changes the admitted operation intents, the summary and the result-read input;
-limits and the dynamic projection rule are unchanged. The App copy stays
+limits and the dynamic projection rule are unchanged. Version 4 (milestone 2,
+below) adds a seventh read tool and the component, support-configuration and
+deletion intents. The App copy stays
 origin evidence and is not a second editable catalog. A local contract commit,
 integration into main, and demonstrated runtime conformance are distinct facts.
 
-The six tools read the summary, read nodes, propose operations, observe a
-proposal, solve, and read results. Version 2 admitted only native
+Versions 1 to 3 had six tools: read the summary, read nodes, propose
+operations, observe a proposal, solve, and read results. Version 4 adds
+`swbpipe_read_records`. Version 2 admitted only native
 `EditorOperationIntent` `modify` / `Node` / `set_field` on `position.x`,
 `position.y` or `position.z`, which could not build a model.
 
@@ -147,6 +150,150 @@ person's Apply in the running app; that is the pinned live W9-A witness, still
 to be run. Criterion 17's reference system is not established by W9-A. That system is
 specified in DEL-09-01 `Work/reference-system.md`; its §11.3 lists the operation families
 the agent needs, from which the later catalog milestones take their admitted kinds.
+
+### Catalog version 4: components, supports and corrections (milestone 2)
+
+`swbpipe-catalog/4` admits these further native discriminators toward exit
+criterion 1's families (the reference system is DEL-09-01's, PR #17):
+
+| Change kind | Operation / object / field | Use |
+|---|---|---|
+| `insert_component_symbol` | insert / Component / `components` | bend marker, tee, reducer (eccentric offset), valve, flange, expansion joint |
+| `set_field` | modify / Component / `objective_connector.hardware\|pressure_model` | tie rods, effective-area pressure model |
+| `update_support` | modify / Support / `configuration` | change a support's family, restraints, stiffness, hanger or nonlinear behaviour |
+| `delete_component`, `delete_support`, `delete_pipe_run`, `delete_node` | delete | correct an applied build; refused while dependents exist, never cascading |
+
+**Prompt cost.** Every turn carries the tool declarations, which matters for a
+local model. Version 4 replaces version 3's per-kind intent variants with one
+intent schema whose `change_kind` and `field_path` are closed enumerations of
+the admitted values, plus one compact kind table in the proposal tool's
+description. The catalog's `admittedOperations` rows then admit only the listed
+(operation kind, object type, change kind, field path) combinations; the host
+checks them in `validate_proposal_context` after schema validation, and they are
+not part of the declarations. Each row must lie inside the declared schema and
+none may repeat, or the catalog does not load. Per-kind unit, dimension and
+`before` forms are guidance; the applier refuses any that are wrong.
+
+| Catalog | Declarations (bytes, compact JSON) | About tokens | Admitted kinds |
+|---|---|---|---|
+| v3 | 23,806 | 6,000 | 9 |
+| v4 as first drafted (16 pinned variants, long guidance) | 40,650 | 10,200 | 16 |
+| v4 | 17,530 | 4,400 | 16 |
+
+Adding a kind now costs one table row of guidance (about 100 to 400 bytes) and
+enumeration values, not a repeated envelope. The exact route's objective-connector
+shape is not spelled out in the declarations; the agent asks the person for its
+stiffness, axes and offsets. An on-demand guide tool is the route if that proves
+insufficient.
+
+`create_support`'s guidance names guides, line stops, springs, variable spring
+and constant-effort hangers, and gap, lift-off, one-way and friction behaviour.
+The milestone 2 journey creates anchors, a guide, a vertical support, a
+variable spring hanger, a constant-effort support and nonlinear friction and
+gap supports; line stops, plain springs and spring hangers are covered by
+guidance only. Creation needs at least one linear restraint, and a
+nonlinear behaviour acts on a DOF the support does not restrain linearly.
+
+**k and SIF stay the person's (owner ruling, O5).** No `modifiers` field,
+`bend_realization`, `insert_bend_at_corner` or `apply_library_record` is
+admitted, and the applier refuses an agent-authored bend or tee insertion that
+carries modifiers, as it refuses any agent-written k. The agent proposes a bend as a geometry marker and a tee
+without modifiers. The person then realizes each bend through Insert bend at
+corner (converting the agent's marker, keeping its id) and enters k, the SIFs
+and their source in the app. Insert bend at corner moves the corner and
+shortens its two pipes, so it is refused while anything attaches to them: the
+journey asks for it right after the components proposal, before supports or
+loads. Batch review submissions are immutable, so k is entered after Apply as
+the person's own operation, never inside the agent's batch. Until then the
+solver warns (`BEND_USER_MODIFIER_INPUT_MISSING`,
+`BRANCH_USER_MODIFIER_INPUT_MISSING`) rather than refuses; the summary's
+`componentsAwaitingUserModifiers` reports the same condition so the agent asks
+before solving. An unrealized bend marker behaves differently on the two
+routes. The exact route refuses it before solving
+(`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`), so `swbpipe_solve` refuses up front and
+names the bends the person must realize. The pressure-free route solves it as a
+straight chord: k does not affect the chord's stiffness, a supplied positive
+scalar SIF applies to the chord, and without one no intensified measure is
+published. The solve result's message names those bends and says which have a
+scalar SIF, so a result is never reported as if they were realized. Identifiers
+in tool messages and in `componentsAwaitingUserModifiers` are bounded to the
+catalog's limits. Identifier lengths here are JavaScript string lengths, that is
+UTF-16 code units; 160 code units are never more than the 160 characters the
+catalog schema's `maxLength` allows. A message names the leading bends whose
+lengths, each plus two for the separator, sum to at most 300 code units (200 for
+the bends without a scalar SIF) and ends with an ellipsis if any are left out,
+so it stays inside the 1,000-character message bound. The summary lists the
+first 32 identifiers of at most 160 code units, omitting longer ones, while
+`count` stays complete.
+
+**Applier refusal (M2-D1).** The applier refuses an agent-authored write of k
+or any other component modifier, whatever route the operation takes; see
+"Author routes and the trust boundary" below for the codes, the routes that
+stamp `agent` and the accepted residuals.
+
+`swbpipe_read_records` reads a bounded page of components, supports, pipes or
+nodes at the current live basis, like node reads. Each record carries its
+canonical JSON text and the exact `before` texts its admitted edits and
+deletions require, as the applier compares them: the engine's canonical JSON
+for a component and a support configuration, and for a deletion the applier's
+own summary (trimmed label; a node's coordinates in the applier's number form,
+which never uses an exponent). A record whose deletion the applier would refuse
+for a missing label or coordinate carries no `delete` text. The bounds:
+
+- Each text (`recordText` and every `before` value): the UTF-8 byte length of
+  the raw string is at most 16,384.
+- The page: each entry is measured as the UTF-8 byte length of the compact
+  `JSON.stringify({id, recordText, before})`. Entries are accepted, up to the
+  requested limit (at most 50), while the running sum of those lengths is at
+  most 49,152; the next entry starts the next page. Array punctuation and the
+  result envelope are not counted. The whole serialized result is separately
+  capped at 64 KiB, and exceeding that cap is an `execution_error`.
+- A record id, like a node id in `swbpipe_read_nodes`, is a non-empty string of
+  at most 160 UTF-16 code units.
+
+A record over any of these bounds, including a single entry over 49,152 bytes,
+fails the whole call as `unavailable`; nothing is cut or skipped. The message
+names the record, except when its id is itself the cause. The cursor is bound
+to its family.
+It is a read through the existing `embedded_agent_host` command; no Tauri or
+ingress command is added. Load-case and primitive-load deletions are not yet
+admitted, because their `before` texts are private to the load-case panel.
+
+A reference-system build exceeds one 16-operation proposal. The agent builds in
+phases, each applied by the person before the next: materials, nodes and pipes;
+components; the person's bend realization and modifiers; supports; loads; then
+any corrections.
+
+Milestone 2 evidence, on the candidate named in its PR:
+
+- `core/model_operations/operation_applier/tests/agent_m2_component_journey.rs`
+  applies the five agent proposals of
+  `fixtures/model_operations/agent_m2_component_journey.json` to the desktop
+  blank document, including an edit and two deletions whose `before` texts it
+  derives as the applier compares them. The invented pressure-free model has
+  one of each component family (the expansion joint is annotation-only on this
+  route) and six support families (anchor, guide, vertical support, nonlinear
+  friction and gap, variable spring hanger, constant effort). Built by the agent alone, it solves in both
+  solver modes with the two modifier warnings, and an agent-written k is
+  refused. In the journey order, with the person's bend realization, k, SIFs
+  and source entered after the components proposal, it solves with neither
+  warning. This is a build-and-solve check on invented data, not a numerical
+  reference.
+- `embeddedAgentM2.test.ts` applies the same proposals through the desktop
+  batch service on the wasm engine, with the corrections' `before` texts taken
+  from the session's record producer, and checks the awaiting-modifiers report.
+  It also deletes a support, a pipe and two nodes with padded labels and
+  coordinates such as 1e-7 and 2.5e21 using the producer's texts, and confirms
+  the applier refuses the ECMAScript form. `embeddedAgentSession.test.ts` covers
+  record pages, exact texts, UTF-8 byte bounds, the family-bound cursor,
+  long-identifier bounds and the scalar-SIF wording of both solve paths. The catalog tests admit the new variants and refuse every
+  modifiers path, bend realization, bend insertion, library record and other
+  component or support field.
+
+The exact route's objective-connector expansion joint and its tie rods are
+admitted with guidance but are not exercised by this witness. Tees, nonlinear
+and constant-effort supports, and reducers in pressure regions are refused on
+the exact route until RT-A3 and RT-S2/S3 land.
 
 The internal descriptor/result convention follows stateless MCP 2026-07-28,
 with explicit workspace/proposal/run/page handles. It is projected to Codex
@@ -377,6 +524,45 @@ R7/F3 reference and candidate-generator program in DEL-16-04 are not the plan
 for this authorized host slice; its matching scope wording must explicitly
 separate the current integration from that older program before integration.
 Neither standalone App qualification nor workflow-act machinery is inferred.
+
+## Author routes and the trust boundary
+
+The applier refuses an agent-authored write of any value the person enters:
+the bend flexibility factor k (`OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED`) and,
+from RT-E1 M2-D1 (approved by Agent 0), every other component modifier
+(`OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED`). Those are the SIFs, stiffness
+scaling and stiffness, and the modifier source. The refusal applies to a field
+edit, a component created with modifiers, or a library record copying modifier
+members. It reads `author_type`. The live catalog route refuses author and
+source fields in the agent's arguments and stamps `agent`. Offline intake now
+stamps every imported operation `agent` host-side. Requeue of retained records
+re-stamps recognizable agent or imported content `agent` and refuses a
+claimed-`user` record that writes a person-entered value (DEL-16-03
+`Work/operation-authorship.md`).
+
+**Residual, accepted by Agent 0 (2026-10-31):** a record saved before this
+change that was imported claiming `user`, and that writes none of the protected
+values, keeps `user`'s leniency when it is requeued: it may have no source and
+an empty rationale, which an `agent` operation may not. The protected values are
+k, the SIFs and other component modifiers, bend realization and insertion, and
+library modifier members, and none of them can be reached this way. Re-stamping
+every ambiguous `user` record as `agent` would misattribute the person's own
+saved edits, so that is not done.
+
+**Residual, recorded on Agent 0's decision:** any trusted webview code can
+assert `author_type: user` to the applier commands. A source-role check in the
+applier would prove nothing more, because the source is equally the webview's
+claim. This is the same trust assumption as the live session's: the bundled
+webview is trusted, and the native host binds an agent's calls to the admitted
+session.
+
+**Library and hanger values.** A library or hanger record that the person
+explicitly chooses to apply, from a library the person imported, is the
+person's own act. Its k, SIFs and other modifiers count as user-entered under
+the owner's ruling. The applied record keeps its library provenance, so each
+value's source stays traceable. The embedded agent cannot route
+`apply_library_record`: the catalog's closed change kinds exclude it, and the
+applier refuses an agent-authored library record that copies modifier members.
 
 ## Live-session integration candidate
 
@@ -611,8 +797,9 @@ ScopeOfWork commitments and dependency conditions remain open and unchanged.
    full criterion 17 reference separately from the smaller W9-A witness. A hosted
    journey must not be mislabeled as a local-model witness. Native packaging and
    product release remain separate owner acts. Catalog version 3 admits the
-   W9-A kinds with the component evidence above; the live W9-A witness and the
-   reference system's kinds remain.
+   W9-A kinds and version 4 the component, support and correction kinds, with
+   the component evidence above. The live W9-A witness, the reference system
+   itself and its remaining load and analysis kinds remain.
 
 The selected supplier/model pin and actual harmless round trip are recorded in
 [`agent-local-witness.md`](agent-local-witness.md). Those bounded observations do
