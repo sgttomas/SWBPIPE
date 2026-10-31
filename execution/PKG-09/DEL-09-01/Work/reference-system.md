@@ -479,10 +479,10 @@ the criterion text is the owner's, and Agent 0 takes the question to the owner w
 RT-U2 walkthrough results.
 
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
-chains: from A, from the tee, and the branch) and about 1,920 follow-up form entries,
-about 1,450 of them the per-member load/reference states and pressure regions of the
-three cases. The run sheet's
-estimate is about 130 minutes, against the provisional 30; it is not a measurement. On
+chains: from A, from the tee, and the branch) and about 640 follow-up form entries, 168
+of them the per-member load/reference states and pressure regions of the three cases
+since the fills and case copies of #38. The run sheet's estimate is about 75 minutes
+(about 130 before #38), against the provisional 30; it is not a measurement. On
 `main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
 and the three bends are entered by forms (run sheet §2, §6). The full model adds the
 tee, the reducer, the other non-rigid supports, five more cases with their regions, the
