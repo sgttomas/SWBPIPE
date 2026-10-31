@@ -2,7 +2,8 @@
 
 **Row:** RT-A4 (Must), serving exit criterion 1 ("three-axis static seismic
 with SRSS and absolute-sum combination") and RT-V1. **Basis:** main
-`8cab1b3e5` (2026-10-30). **Status:** revision 1, design for review; the
+`8cab1b3e5` (2026-10-30). **Status:** revision 2, after Codex review r1 (on
+`bba44aac7`: one P1 and six P2s, each resolved below and marked "r1"); the
 algebra kernel (§3) is the first build slice. Risk class: numerical meaning
 and persistence, so every slice takes targeted regression checks and
 independent scrutiny (AGENTS.md, Work and verification).
@@ -55,10 +56,21 @@ here records or implies acceptance, issuance or release.
     `load_case` stays required in the schema except where `combination` is
     present (an `oneOf` on `CombinationTerm`); no member is renamed.
   - `minuend_id`, `subtrahend_id` and `operand_ids` may name a load case or a
-    combination. An id used as an operand that names both a load case and a
-    combination is refused, blocking, as `LOAD_COMBINATION_OPERAND_AMBIGUOUS`
-    (ids are unique per entity kind, not across kinds; `validation.rs`
-    `detect_duplicate_ids`).
+    combination. Ids are unique per entity kind, not across kinds
+    (`validation.rs` `detect_duplicate_ids`), so one id can name both. **It
+    resolves to the load case when one has that id**, as every such reference
+    does today, and to a combination only when no load case has it (r1 F3). A
+    flat document with a combination and a load case sharing an id therefore
+    keeps its meaning and its bytes. A combination shadowed this way is named
+    through `CombinationTerm.combination`, or renamed; the desktop shows each
+    reference's resolved target. No diagnostic is added, since one would change
+    a flat document's envelope.
+  - **Declared operating comparisons name load cases only** (r1 F7). A
+    subtraction with `difference_basis` (and so with `subtrahend_support_state`)
+    whose minuend or subtrahend resolves to a combination is refused, blocking,
+    as `LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE`: G-1 needs each
+    operand's primitive-load multiset and `minuend_final` needs a final support
+    status, which a combination has neither of.
   - **Acyclic.** The graph whose edges run from a combination to each
     combination it names must have no cycle; a cycle is
     `LOAD_COMBINATION_OPERAND_CYCLE` (blocking, naming every combination on it).
@@ -107,14 +119,31 @@ finite), in authored term order:
     (fᵢ, xᵢ); term order cannot move a bit. The tests show it (V-3).
 - **The square root, exactly.** S = Σ zᵢ² is held exactly (`add_product(zᵢ, zᵢ)`).
   A candidate r comes from √ of S rounded once at a scale 2⁻²ᵏ chosen from the
-  largest |zᵢ| (`round_scaled`), so the scaled value is finite, times 2ᵏ. It is
-  then moved one ulp at a time on the destination grid (subnormal results
-  included) until the exact sign of S − m², at each neighbouring midpoint m, says
-  it is nearest, ties to even. With r and its neighbour r⁺ binary64,
-  4(S − m²) = 4S − r² − 2r·r⁺ − r⁺², a sum of products of binary64 values, so its
-  sign is exact in a second accumulator (4S as each zᵢ² added four times). This
-  is the method of `correct_norm::norm3` step 3, carried to n terms on the exact
-  accumulator, and lives in LCA beside the factor-sum rule; FK is not edited.
+  largest |zᵢ| (`round_scaled`), so the scaled value is finite, times 2ᵏ; a
+  candidate that is infinite or above MAX (the largest finite binary64) is
+  clamped to MAX before adjustment (r1 F6). It is then moved one ulp at a time
+  on the destination grid (subnormal results included) until the exact sign of
+  S − m², at each neighbouring midpoint m, says it is nearest, ties to even.
+  - **Midpoints with finite products.** Each midpoint is m = r + g/2 above r
+    or m = r − g′/2 below it, where g and g′ are the upper and lower gaps at r
+    (g′ = g/2 at the bottom of a normal binade), both powers of two, finite,
+    nonzero and representable, including the subnormal gap 2⁻¹⁰⁷⁴ (half of it
+    is not representable, so the gap itself is used). Then
+    4(S − m²) = 4S − 4r² ∓ 4·r·g − g·g, a sum of products of finite binary64
+    values (4S and 4r² as four additions each), so its sign is exact in a
+    second accumulator; g·g ≥ 2⁻²¹⁴⁸, the accumulator's quantum. No neighbour
+    r⁺ is formed, so the identity holds at r = MAX, whose upper gap is 2⁹⁷¹,
+    where r⁺ would be infinite.
+  - **Overflow.** R is `NonRepresentable` exactly when S ≥ (MAX + 2⁹⁷⁰)²,
+    the virtual midpoint above MAX, tested by that identity at r = MAX. At
+    equality the tie goes to the even neighbour 2¹⁰²⁴, which overflows, so
+    equality is refused (IEEE 754 rounding to nearest). V-1 tests S just
+    below, at and just above the threshold; SRSS(MAX, 1) rounds to MAX and
+    SRSS(MAX, MAX) is refused.
+
+  This is the method of `correct_norm::norm3` step 3, carried to n terms on the
+  exact accumulator, and lives in LCA beside the factor-sum rule; FK is not
+  edited.
   Bound: every product is at most 2²⁰⁵⁰ in magnitude and the accumulator carries
   64 bits beyond 2⁴¹⁹⁵, so at most 2⁶² terms; the kernel refuses more than 2³²
   terms by name rather than relying on it.
@@ -137,20 +166,39 @@ finite), in authored term order:
   components, as for a linear combination. For SRSS this equals the SRSS of the
   operands' own magnitudes in exact arithmetic. For absolute sums it bounds
   every signed combination's magnitude, max over signs of ‖Σ sᵢfᵢvᵢ‖, from
-  above. The evidence states which.
+  above, since each component |Σ sᵢfᵢvᵢ,c| ≤ Σ |fᵢvᵢ,c|. The evidence states
+  which.
 - **`never_combined`** kinds publish no row, as today.
 - **Sign convention.** A and R are unsigned. Row metadata reads, for example,
   "unsigned value: the absolute sum of |factor × source result| over explicit
   user terms; not an equilibrium state", and "unsigned value: the square root
   of the sum of squares of factor × source result over explicit user terms; not
   an equilibrium state". `metadata.basis` takes `explicit_user_absolute_sum` and
-  `explicit_user_srss`. These texts enter the reader vocabulary (DEL-08-04).
+  `explicit_user_srss`, except on EX's combined stress rows, which keep their
+  operand rows' whole `metadata.basis` (recovery token and `; section_basis=`
+  suffix included), exactly as `combined_row` does today, so their structural
+  key and pressure-2 signature survive (r1 F5). On every row the derivation is
+  stated by `basis_ref` (`ref_type` `combination`) and the sign convention.
+  These texts enter the reader vocabulary (DEL-08-04).
 - **Support groups** publish whole or not at all, and **`LOAD_COMBINATION_SOURCE_RESULT_MISSING`**
   and **`LOAD_COMBINATION_ROW_WITHHELD`** apply unchanged.
 - **Nested operands.** A combination operand supplies its own published rows
   under the same base ids (PF) or structural keys (EX). A row the operand
   withheld or omitted is missing for every combination that names it, under the
-  existing missing-source code. An operand combination withheld whole by a gate
+  existing missing-source code.
+  - **PF pairing (r1 F4).** PF matches a source row to the reference row by
+    kind, unit, entity and the whole metadata (`lib.rs`
+    `combination_source_identity_matches`), and a combination row's metadata
+    carries its derivation (basis and sign convention), so a load-case row and
+    a combination row of the same quantity would not pair. When any operand is
+    a combination, rows pair by kind, unit, entity and every metadata field
+    except `basis` and `sign_convention`, which describe derivation, not the
+    physical quantity; any section-basis suffix within `basis` is still
+    compared. When every operand is a load case, the match is today's, byte for
+    byte.
+  - **EX pairing.** EX's typed structural key already excludes derivation
+    fields; with F5's rule a combined stress row keeps the section basis the
+    key reads, so nested EX rows pair as primitive ones do. An operand combination withheld whole by a gate
   withholds its dependants whole: `LOAD_COMBINATION_OPERAND_WITHHELD` (warning),
   naming the operand and its own code.
 - **Headlines and maxima** stay primitive-case only, as today.
@@ -160,35 +208,51 @@ finite), in authored term order:
 Gates apply to every basis as stated; the flat cases reduce to today's gates
 exactly.
 
-### 5.1 The fixed-load count κ (constant effort)
+### 5.1 The fixed-load count κ (constant effort and installed references)
 
 A consuming constant-effort support's force acts in every case state (RT-A3
-D-2), so each case carries it once. Give each operand a **fixed-load count** κ,
+D-2), and so does a connector's or tie rod's nonzero installed reference
+(K·q_ref, EX gate 3, `exact-combinations.md` §4), so each case carries every
+fixed load once (r1 F2). Give each operand a **fixed-load count** κ,
 an exact dyadic rational:
 - a load case: κ = 1;
 - `mechanics`: κ = Σᵢ fᵢκᵢ, exact;
 - `result_state_subtraction`: κ = κₘ − κₛ;
 - `range_envelope`: κ is the operands' common κ when all are equal exactly;
   otherwise κ is mixed;
-- `absolute_sum`, `srss`: κ = 0 (they are admitted only as below).
+- `absolute_sum`, `srss`: κ = 0, which is exact because they are admitted only
+  when every operand's κ is exactly 0 (below).
 
-Where the model has a consuming constant-effort support (PF
-`consuming_constant_effort`; EX once RT-A3 admits the family), a combination is
+Where the model has a fixed-load source (PF: a consuming constant-effort
+support, `consuming_constant_effort`; EX: a nonzero installed reference, and a
+constant-effort support once RT-A3 admits the family), a combination is
 withheld when:
-- `mechanics`: |κ − 1| > 2⁻⁴⁶, the unit factor-sum rule with κᵢ in place of 1
-  (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`, unchanged for flat
-  combinations);
-- `absolute_sum`, `srss`: any operand has |κᵢ| > 2⁻⁴⁶ or a mixed κ
-  (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`, warning). An unsigned
-  combination of states that each carry the fixed force would count it once per
-  term with its sign discarded, which no state of the system has;
+- `mechanics`: |κ − 1| > 2⁻⁴⁶, the unit factor-sum rule with κᵢ in place of 1.
+  The code is today's for the source: `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`
+  or `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE` (both when both apply),
+  unchanged for flat combinations. Today EX's gate 3 reads the outer factors
+  only; nested, it reads κ, so `mechanics(1·(A − B))` (κ = 0) is withheld, as it
+  must be;
+- `absolute_sum`, `srss`: any operand's κ is not exactly 0, or is mixed
+  (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND` or
+  `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`, warning). An unsigned
+  combination of states that each carry the fixed load would count it once per
+  term with its sign discarded, which no state of the system has. **Exact zero,
+  not the 2⁻⁴⁶ tolerance (r1 F1):** with a tolerance, an operand
+  D = (1 + 2⁻⁴⁶)A − B has κ = 2⁻⁴⁶ and carries 2⁻⁴⁶ of the fixed load; an
+  absolute sum of 2⁴⁶·D would carry the whole fixed load once and still be
+  given κ = 0, and B plus it would publish the fixed load twice under κ = 1.
+  Requiring exact zero makes the reset to κ = 0 true. A difference of two load
+  cases, (base + EQx) − base, has κ = 0 exactly;
 - `mechanics`, `absolute_sum` or `srss` naming an operand with a mixed κ
   (`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, warning).
 
-Subtractions and envelopes are not gated, as today. The comparison is exact on
-the dyadic κ and the bound is the factor-sum rule's 64ε, by the same argument
-(`pressure-contract.md`, "Constant-effort combinations"). It is implemented once,
-in LCA beside `factor_sum_within_unit_tolerance`.
+Subtractions and envelopes are not gated, as today. Every κ is propagated
+exactly (dyadic, in the exact accumulator), never rounded, so a scaled operand's
+residual is carried, not lost; the only tolerance is the unit factor-sum rule's
+64ε at a `mechanics` combination's own κ, by that rule's argument
+(`pressure-contract.md`, "Constant-effort combinations"). It is implemented
+once, in LCA beside `factor_sum_within_unit_tolerance`.
 
 **Consequence for authoring.** In a model with a consuming constant-effort
 support, the operands of an SRSS or absolute sum are differences: for each
@@ -210,8 +274,8 @@ sustained ± E, with E an SRSS or absolute sum of seismic responses, and in a
 nonlinear model such a `mechanics` combination was withheld. In a model with
 nonlinear supports, a `mechanics` combination is admitted exactly when:
 - one term names a solved load case with factor exactly 1, and
-- every other term has κ = 0 (|κ| ≤ 2⁻⁴⁶ under §5.1's comparison): a
-  difference, an absolute sum or an SRSS, or a combination of those.
+- every other term has κ exactly 0 (§5.1, r1 F1): a difference, an absolute
+  sum or an SRSS, or a combination of those.
 
 It is formed from rows, with each operand's standing recorded in slice 1a's
 shape, and its row text reads "a solved state plus derived differences or
@@ -226,19 +290,26 @@ withheld (V-9).
 
 ### 5.3 Modulus basis
 
-The mixed-modulus gate (`COMBINATION_MODULUS_BASIS_MIXED`) extends to absolute
-sums and SRSS, over the load cases reached through nested operands.
+The mixed-modulus gate (`COMBINATION_MODULUS_BASIS_MIXED`) and EX's
+resolved-stiffness gate (`COMBINATION_RESOLVED_STIFFNESS_MIXED`) extend to
+absolute sums and SRSS. For `mechanics`, `absolute_sum` and `srss` they compare
+the facts of **every load case reached through the operand graph**,
+transitively, including through subtractions and envelopes (r1 F2). Today the
+stiffness facts are looked up by primitive case id, so a combination id would
+yield none and pass. A subtraction or envelope spanning different stiffness
+stays publishable on its own, as today, but cannot then be an operand of a
+gated combination.
 
 ## 6. Refusals and diagnostics (summary)
 
 | Code | Where | Severity |
 |---|---|---|
-| `LOAD_COMBINATION_OPERAND_AMBIGUOUS` | validator, solve | blocking |
+| `LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE` | validator, solve | blocking |
 | `LOAD_COMBINATION_OPERAND_CYCLE` | validator, solve | blocking |
 | `LOAD_COMBINATION_OPERAND_UNKNOWN` | validator, solve | blocking |
 | `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED`, `LOAD_COMBINATION_NESTED_UNSUPPORTED` | solve, interim until wiring; the applier refuses authoring | warning, withholds |
 | `LOAD_COMBINATION_OPERAND_WITHHELD` | solve | warning |
-| `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`, `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` | solve | warning |
+| `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`, `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`, `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` | solve | warning |
 | `NonRepresentable` | row withheld as "load-case algebra refused" | in `LOAD_COMBINATION_ROW_WITHHELD` |
 
 ## 7. Verification
@@ -250,7 +321,9 @@ generator (exact `fractions.Fraction`, integer square root, no product code).
   zeros and −0.0; one term; opposite signs; dyadic and non-dyadic factors;
   values spanning 2⁻¹⁰⁷⁴ to 2¹⁰²³, including subnormal results and an R in the
   subnormal binade; overflow of zᵢ and of R (refused); near-midpoint roots
-  (S = m² ± one quantum); exact squares (R exact). The generator rounds the
+  (S = m² ± one quantum); exact squares (R exact); the overflow threshold
+  S = (MAX + 2⁹⁷⁰)² and one quantum either side, SRSS(MAX, 1) = MAX and
+  SRSS(MAX, MAX) refused. The generator rounds the
   exact root with `math.isqrt` on a scaled integer and a remainder test, which is
   independent of the midpoint method.
 - **V-2, norm agreement.** R equals `norm3` for two and three unit-factor terms
@@ -265,9 +338,16 @@ generator (exact `fractions.Fraction`, integer square root, no product code).
   modes (wiring slice).
 - **V-6, κ gate.** A model with a consuming constant-effort support: SRSS over
   load cases withheld; SRSS over (base + EQ) − base admitted; sustained + SRSS
-  (κ = 1) admitted on a linear model; a mixed envelope operand withheld.
-- **V-7, nesting.** Cycles of length 1, 2 and 3 refused; ambiguity refused; a
-  later-declared operand evaluated first; a withheld operand withholding its
+  (κ = 1) admitted on a linear model; a mixed envelope operand withheld; r1
+  F1's chain, absolute_sum(2⁴⁶·((1 + 2⁻⁴⁶)A − B)), withheld. On EX with a
+  nonzero installed reference: mechanics(1·(A − B)) withheld under gate 3, and
+  an SRSS over load cases withheld. Gates 1-2 over a nested operand whose
+  reached cases differ in stiffness: withheld.
+- **V-7, nesting.** Cycles of length 1, 2 and 3 refused; an id shared by a
+  load case and a combination resolves to the load case, byte for byte as on
+  main; `difference_basis` naming a combination refused; sustained (a load
+  case) plus an SRSS pairs every ordinary row on PF; a later-declared operand
+  evaluated first; a withheld operand withholding its
   dependants; result order a function of the document.
 - **V-9, OQ-1 rule.** In a nonlinear model: sustained + SRSS of differences
   admitted, with its label and operand standing; withheld under
