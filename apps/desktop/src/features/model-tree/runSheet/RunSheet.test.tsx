@@ -445,3 +445,97 @@ describe("run sheet S1 fixture batches queued from the UI (§7 S2)", () => {
     else expect(register.mock.calls[0][0]).toEqual(expected);
   });
 });
+
+describe("run sheet ids and sources, padding and pipe numbering (G1–G3; §1.2, §3.2)", () => {
+  it("the Ids and sources group is shown and hidden like Section extras, with labelled cells whose origin is derived until entered", () => {
+    renderSheet();
+    const toggle = screen.getByRole("button", { name: "Ids and sources" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("run-sheet-cell-r1-supportId")).toBeNull();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Section extras" })).toHaveAttribute("aria-expanded", "false");
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "3");
+    type("r2", "material", "material:steel");
+    code("r2", "support", "a");
+    type("r2", "restraints", "*");
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N20");
+    expect(cell("r2", "supportId")).toHaveAccessibleDescription(/^derived: support: and the support node's id token/);
+    expect(cell("r2", "supportLabel")).toHaveAccessibleName("Row 2 Support label: N20");
+    type("r2", "supportId", "support:RS-A");
+    type("r2", "supportLabel", "Anchor A (invented)");
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:RS-A");
+    expect(cell("r2", "supportId")).toHaveAccessibleDescription(/^entered/);
+    expect(cell("r2", "supportLabel")).toHaveAccessibleName("Row 2 Support label: Anchor A (invented)");
+    // Clearing an entered id returns it to its derived value.
+    act(() => cell("r2", "supportId").focus());
+    fireEvent.keyDown(cell("r2", "supportId"), { key: "Backspace" });
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N20");
+    // Bend cells on a row that is not a bend are refused, and the refusal names the cell.
+    expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id:");
+    type("r2", "bendStartId", "node:X");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleDescription(/refused: Bend start id applies only to B rows; clear it\./);
+    type("r2", "bendSource", "s", { key: "Tab" });
+    expect(cell("r2", "bendSource")).toHaveAccessibleDescription(/refused: Bend geometry source applies only to B rows; clear it\./);
+    // Tab moves from Pipe id into the group, in column order.
+    act(() => cell("r2", "pipeId").focus());
+    fireEvent.keyDown(cell("r2", "pipeId"), { key: "Tab" });
+    expect(cell("r2", "supportId")).toHaveFocus();
+    fireEvent.click(toggle);
+    expect(screen.queryByTestId("run-sheet-cell-r2-supportId")).toBeNull();
+  });
+
+  it("a bend row shows its derived ids and the sheet's Source until they are entered", () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole("button", { name: "Ids and sources" }));
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    code("r2", "kind", "b");
+    type("r2", "dx", "3");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id: node:N20-T1");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleDescription(/^derived: the corner node's id token/);
+    expect(cell("r2", "bendSource")).toHaveAccessibleName("Row 2 Bend geometry source: invented sheet source");
+    expect(cell("r2", "bendSource")).toHaveAccessibleDescription(/^derived: the sheet's Source/);
+    type("r2", "bendArcId", "pipe:B1-ARC");
+    type("r2", "bendSource", "invented bend geometry source");
+    expect(cell("r2", "bendArcId")).toHaveAccessibleName("Row 2 Bend arc id: pipe:B1-ARC");
+    expect(cell("r2", "bendArcId")).toHaveAccessibleDescription(/^entered/);
+    expect(cell("r2", "bendSource")).toHaveAccessibleName("Row 2 Bend geometry source: invented bend geometry source");
+    // An entered id that the model holds is refused in its own cell.
+    type("r2", "bendEndId", "node:A");
+    expect(cell("r2", "bendEndId")).toHaveAccessibleDescription(/refused: Bend end id node:A now exists in the model\./);
+  });
+
+  it("pads numbers and numbers a pipe by its start node; both fields are labelled and fixed once a row has a number", () => {
+    renderSheet();
+    const pad = screen.getByLabelText("Pad numbers to N digits");
+    const from = screen.getByLabelText("Pipe number from");
+    expect(pad).toHaveValue("");
+    expect(from).toHaveValue("end");
+    fireEvent.change(screen.getByLabelText("Node id prefix"), { target: { value: "node:RS-" } });
+    fireEvent.change(screen.getByLabelText("Pipe id prefix"), { target: { value: "pipe:RS-P" } });
+    fireEvent.change(pad, { target: { value: "3" } });
+    fireEvent.change(from, { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    expect(pad).toBeEnabled();
+    code("r1", "kind", "p");
+    expect(screen.getByLabelText("Pad numbers to N digits")).toBeDisabled();
+    expect(screen.getByLabelText("Pipe number from")).toBeDisabled();
+    expect(screen.getByLabelText("Node id prefix")).toBeDisabled();
+    type("r1", "dx", "30");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "0.4");
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id: node:RS-010");
+    expect(cell("r2", "nodeId")).toHaveAccessibleName("Row 2 Node id: node:RS-020");
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:RS-P010");
+    expect(cell("r2", "pipeId")).toHaveAccessibleDescription(/^derived: the sheet's numbering, by its start node node:RS-010 \(row 1\)/);
+  });
+
+  it("an invalid padding disables Queue with the reason", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pad numbers to N digits"), { target: { value: "0" } });
+    expect(screen.getByTestId("run-sheet-queue-reason")).toHaveTextContent("Pad numbers to a whole number of digits from 1 to 16, or leave it blank.");
+  });
+});

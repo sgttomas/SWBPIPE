@@ -519,3 +519,58 @@ describe("run sheet S2: a bend whose tangent node was deleted outside the sheet 
   });
 });
 
+
+describe("run sheet ids and sources through the wasm engine (G1–G3)", () => {
+  it("two supports at one node and two consecutive bends, with entered ids, labels and geometry source, validate and apply with ids exactly as entered", async () => {
+    const { result } = await harness();
+    // Header numbering: node:RS- / pipe:RS-P, pad 3, start 10, step 10, pipes numbered by their start node.
+    act(() => result.current.store.update((current) => ({
+      ...current, header: { ...current.header, numbering: { nodePrefix: "node:RS-", pipePrefix: "pipe:RS-P", start: 10, step: 10, pad: 3, pipeNumber: "start" } },
+    })));
+    const element = { od: "0.1143", wall: "0.00602", material: "material:steel", orientation: "0 0 1" };
+    const batchId = await queueRows(result, [
+      { kind: "P", dx: "20", dy: "20" },
+      { dx: "3", ...element, support: "L", restraints: "UX", supportId: "support:RS-LS1", supportLabel: "Line stop LS1 (invented)" },
+      { kind: "S", support: "V", restraints: "UZ", supportId: "support:RS-V020", supportLabel: "Vertical support V020 (invented)" },
+      { kind: "B", dy: "3", bendRadius: "0.5", k: "1.5", kSource: "invented k", nodeId: "node:RS-C1",
+        bendStartId: "node:RS-035", bendEndId: "node:RS-036", bendArcId: "pipe:RS-P035", bendComponentId: "component:RS-B1", bendSource: "invented bend geometry source" },
+      { kind: "B", dx: "3", k: "1.5", kSource: "invented k", nodeId: "node:RS-C2",
+        bendStartId: "node:RS-045", bendEndId: "node:RS-046", bendArcId: "pipe:RS-P045", bendComponentId: "component:RS-B2" },
+      { dz: "3", orientation: "1 0 0" },
+    ]);
+    // A batch with a bend applies only after a clean validation of that exact batch.
+    await act(async () => { await result.current.session.operations.handleRunOperationBatch(entryOf(result, batchId), false); });
+    await apply(result, batchId);
+    expect(statusList(result)).toEqual(["applied", "applied", "applied", "applied", "applied", "applied"]);
+    const model = result.current.session.model.model!;
+    // The applied rows show the ids their batch created.
+    const applied = sheetView({ state: result.current.store.state, statuses: result.current.store.statuses, model, conversions: new Map(), reservedIds: [], lookup: result.current.store.lookup });
+    expect(applied.rows.map((row) => row.resolved.ids.pipe ?? null)).toEqual([null, "pipe:RS-P010", null, "pipe:RS-P020", "pipe:RS-P050", "pipe:RS-P060"]);
+    expect(applied.rows.map((row) => row.resolved.ids.support ?? null)).toEqual([null, "support:RS-LS1", "support:RS-V020", null, null, null]);
+    expect((model.supports ?? []).filter((support) => support.node === "node:RS-020").map((support) => [support.id, support.label, support.family, support.restraints])).toEqual([
+      ["support:RS-LS1", "Line stop LS1 (invented)", "line_stop", ["UX"]],
+      ["support:RS-V020", "Vertical support V020 (invented)", "vertical_support", ["UZ"]],
+    ]);
+    const nodeIds = new Set(model.nodes.map((node) => node.id));
+    for (const id of ["node:RS-010", "node:RS-020", "node:RS-035", "node:RS-036", "node:RS-045", "node:RS-046", "node:RS-060"]) expect(nodeIds.has(id), id).toBe(true);
+    for (const id of ["node:RS-C1", "node:RS-C2"]) expect(nodeIds.has(id), id).toBe(false);
+    const sheetPipes = model.pipe_segments.filter((pipe) => pipe.id.startsWith("pipe:RS-")).map((pipe) => [pipe.id, pipe.from, pipe.to]);
+    expect(sheetPipes).toEqual(expect.arrayContaining([
+      ["pipe:RS-P010", "node:RS-010", "node:RS-020"],
+      ["pipe:RS-P020", "node:RS-020", "node:RS-035"],
+      ["pipe:RS-P035", "node:RS-035", "node:RS-036"],
+      ["pipe:RS-P050", "node:RS-036", "node:RS-045"],
+      ["pipe:RS-P045", "node:RS-045", "node:RS-046"],
+      ["pipe:RS-P060", "node:RS-046", "node:RS-060"],
+    ]));
+    expect(sheetPipes).toHaveLength(6);
+    const bends = model.components.filter((component) => component.kind === "bend").map((component) => {
+      const geometry = component.geometry as { bend_pipe_ref?: string; bend_geometry_source_reference?: string };
+      return [component.id, component.node, geometry.bend_pipe_ref, geometry.bend_geometry_source_reference];
+    });
+    expect(bends).toEqual([
+      ["component:RS-B1", "node:RS-035", "pipe:RS-P035", "invented bend geometry source"],
+      ["component:RS-B2", "node:RS-045", "pipe:RS-P045", SOURCE],
+    ]);
+  });
+});

@@ -13,7 +13,7 @@ import { cornerContext } from "../../bend-authoring/BendAuthoringForms";
 import { BEND_LABELS, buildRunSheetBatch, mapOutcomeToRows, projectedCornerContext, type RunSheetBuild } from "./runSheetBatch";
 import {
   DEFAULT_NUMBERING, MAX_NUMBER_SEARCH, MESSAGES, OPTIONAL_SECTION_COLUMNS, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, initialIdState, modelIds,
-  reservedOperationIds, resolveRunSheet, resolveRunSheetWithEngine,
+  numberText, numberingProblem, reservedOperationIds, resolveRunSheet, resolveRunSheetWithEngine,
   type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetIdState, type RunSheetInput, type RunSheetRowInput, type RunSheetRule,
 } from "./runSheetModel";
 
@@ -158,7 +158,7 @@ function displayed(row: ResolvedRunSheetRow, resolved: ResolvedRunSheet, changeK
         radius: row.bend!.radius, flexibility_factor: { value: row.bend!.k, unit: "none" }, flexibility_source_reference: row.bend!.kSource,
         new_nodes: [{ id: row.ids.bend!.start, label: BEND_LABELS.start, provenance: source }, { id: row.ids.bend!.end, label: BEND_LABELS.end, provenance: source }],
         new_pipe: { id: row.ids.bend!.arc, label: BEND_LABELS.arc, provenance: source },
-        component: { id: row.ids.bend!.component, label: BEND_LABELS.component, provenance: source, geometry_source_reference: source },
+        component: { id: row.ids.bend!.component, label: BEND_LABELS.component, provenance: source, geometry_source_reference: row.bendSource!.value },
       };
     default:
       throw new Error(changeKind);
@@ -631,7 +631,7 @@ describe("run sheet S1: sheet rules §4.2", () => {
     expect(duplicate.rows[1].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.idUsed("pipe:P20") });
     expect(duplicate.rows[2].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.idUsed("pipe:P20") });
     const support = resolveSync(sheet([{ key: "r1", kind: "F", node: "node:A", support: "A", restraints: "*" }]));
-    expect(support.rows[0].refusals).toEqual([{ rule: "ids", column: "Ids", message: MESSAGES.idUsed("support:A") }]);
+    expect(support.rows[0].refusals).toEqual([{ rule: "ids", column: "Support id", message: MESSAGES.idUsed("support:A", "Support id") }]);
     const blank = resolveRunSheet(input, { model, idState: initialIdState() });
     expect(blank.rows[1].refusals).toEqual([
       { rule: "ids", column: "Ids", message: MESSAGES.idBlank("node") },
@@ -744,5 +744,203 @@ describe("run sheet S1: numbering terminates (r1 P2-2)", () => {
     expect(resolved.blockers).toContainEqual({ rule: "numbering", message: MESSAGES.numberingInvalid });
     expect(resolved.rows[1].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.numberingInvalid });
     expect(resolved.queueable).toBe(false);
+  });
+});
+
+// ---- Ids and sources, padding and pipe numbering (G1–G3; design §1.2, §3.2, §4.2).
+const RS = { nodePrefix: "node:RS-", pipePrefix: "pipe:RS-P", start: 10, step: 10, pad: 3 } as const;
+
+describe("run sheet ids: padded numbers (G3)", () => {
+  it("pads numbers to N digits; a wider number keeps its digits; blank is no padding", () => {
+    expect(idsForNumber(RS, 10)).toEqual({ node: "node:RS-010", pipe: "pipe:RS-P010", support: "support:RS-010",
+      bend: { start: "node:RS-010-T1", end: "node:RS-010-T2", arc: "pipe:RS-010-bend", component: "component:RS-010-bend" } });
+    expect(idsForNumber(RS, 100).node).toBe("node:RS-100");
+    expect(idsForNumber(RS, 1000).node).toBe("node:RS-1000");
+    expect(numberText(RS, -5)).toBe("-005");
+    expect(idsForNumber({ ...RS, pad: undefined }, 10).node).toBe("node:RS-10");
+  });
+  it("padding is a whole number of 1 to 16 digits; anything else is refused at the sheet and assigns no number", () => {
+    for (const pad of [0, 1.5, 17, Number.NaN]) {
+      expect(numberingProblem({ ...RS, pad })).toBe(MESSAGES.numberingPad);
+      const input = sheet([startE, { key: "r2", dx: "1", ...ELEMENT }], { numbering: { ...RS, pad } });
+      const model = basis();
+      const resolved = resolveRunSheet(input, { model, idState: idStateFor(input, model) });
+      expect(resolved.blockers).toContainEqual({ rule: "numbering", message: MESSAGES.numberingPad });
+      expect(resolved.rows[1].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.numberingPad });
+    }
+    expect(numberingProblem({ ...RS, pad: 16 })).toBeNull();
+    expect(numberingProblem({ ...RS, pipeNumber: "middle" as never })).toBe(MESSAGES.numberingPipe);
+  });
+  it("reservation covers the padded ids a number yields", () => {
+    const state = assignRowNumber(initialIdState(RS), RS, "a", new Set(["node:RS-10", "pipe:RS-P010"]));
+    expect(state.assigned.a).toBe(20);
+    const bend = assignRowNumber(initialIdState(RS), RS, "a", new Set(["component:RS-010-bend"]));
+    expect(bend.assigned.a).toBe(20);
+  });
+});
+
+describe("run sheet ids: a pipe numbered by its start node (G3)", () => {
+  const BY_START = { ...RS, pipeNumber: "start" } as const;
+  const chain = (rows: RunSheetRowInput[]) => resolveSync(sheet(rows, { numbering: BY_START }));
+  const P: RunSheetRowInput = { key: "r1", kind: "P", dx: "30", dy: "30" };
+  it("a pipe takes the number of the row whose end node is its start node", () => {
+    const resolved = chain([P, { key: "r2", dx: "1", ...ELEMENT }, { key: "r3", dy: "1" }]);
+    expect(resolved.rows.map((row) => [row.ids.node, row.ids.pipe])).toEqual([["node:RS-010", undefined], ["node:RS-020", "pipe:RS-P010"], ["node:RS-030", "pipe:RS-P020"]]);
+    expect(resolved.rows[2].pipeIdRule).toBe("the sheet's numbering, by its start node node:RS-020 (row 2)");
+    expect(resolved.queueable).toBe(true);
+  });
+  it("the end-node option is the default and unchanged", () => {
+    const resolved = resolveSync(sheet([P, { key: "r2", dx: "1", ...ELEMENT }], { numbering: RS }));
+    expect(resolved.rows[1].ids.pipe).toBe("pipe:RS-P020");
+    expect(resolved.rows[1].pipeIdRule).toBeUndefined();
+  });
+  it("a start node that is not sheet-numbered falls back to the row's own number, with its origin", () => {
+    // A stored model node.
+    const stored = chain([startE, { key: "r2", dx: "1", ...ELEMENT }]);
+    expect(stored.rows[1].ids.pipe).toBe("pipe:RS-P020");
+    expect(stored.rows[1].pipeIdRule).toBe("the sheet's numbering, by its end node; its start node node:E has no sheet number");
+    expect(stored.rows[1].refusals).toEqual([]);
+    // An entered node id.
+    const entered = chain([{ ...P, ids: { node: "node:X1" } }, { key: "r2", dx: "1", ...ELEMENT }]);
+    expect(entered.rows[1].ids.pipe).toBe("pipe:RS-P020");
+    expect(entered.rows[1].pipeIdRule).toMatch(/its start node node:X1 has no sheet number$/);
+  });
+  it("a second pipe from one node falls back too: the first pipe in sheet order keeps the start node's number", () => {
+    const resolved = chain([P, { key: "r2", dx: "1", ...ELEMENT }, { key: "r3", dy: "1" }, { key: "r4", kind: "F", node: "node:RS-020" }, { key: "r5", dz: "1", orientation: "1 0 0" }]);
+    expect(resolved.rows[2].ids.pipe).toBe("pipe:RS-P020");
+    expect(resolved.rows[4].ids.pipe).toBe("pipe:RS-P050");
+    expect(resolved.rows[4].pipeIdRule).toBe("the sheet's numbering, by its end node; pipe:RS-P020 is already taken by another pipe");
+    expect(resolved.queueable).toBe(true);
+  });
+  it("the fallback never takes the id of the pipe that starts at its own end node: that pipe keeps it and the fallback is entered", () => {
+    const resolved = chain([startE, { key: "r2", dx: "1", ...ELEMENT }, { key: "r3", dy: "1" }]);
+    expect(resolved.rows[2].ids.pipe).toBe("pipe:RS-P020");
+    expect(resolved.rows[1].ids.pipe).toBe("");
+    expect(resolved.rows[1].refusals).toEqual([{ rule: "ids", column: "Ids", message: MESSAGES.idBlank("pipe"), detail: MESSAGES.pipeNumberTaken("pipe:RS-P020", 3) }]);
+    const typed = chain([startE, { key: "r2", dx: "1", ...ELEMENT, ids: { pipe: "pipe:RS-P001" } }, { key: "r3", dy: "1" }]);
+    expect(typed.rows.map((row) => row.ids.pipe)).toEqual([undefined, "pipe:RS-P001", "pipe:RS-P020"]);
+    expect(typed.queueable).toBe(true);
+  });
+  it("an applied row keeps the pipe its batch created; a later row cannot take that id", () => {
+    const input = sheet([startE, { key: "r2", dx: "1", ...ELEMENT, storedPipeId: "pipe:RS-P020", storedEnd: { x: 1, y: 6, z: 0 } }, { key: "r3", dy: "1" }], { numbering: BY_START });
+    const model = basis();
+    const resolved = resolveRunSheet(input, { model, idState: idStateFor(input, model) });
+    expect(resolved.rows[1].ids.pipe).toBe("pipe:RS-P020");
+    expect(resolved.rows[2].ids.pipe).toBe("pipe:RS-P030");
+    expect(resolved.rows[2].pipeIdRule).toMatch(/pipe:RS-P020 is already taken/);
+  });
+});
+
+describe("run sheet ids: support id and label (G1)", () => {
+  it("an entered support id and label are used as entered; blank derives them as before", async () => {
+    const resolved = resolveSync(sheet([startE, { key: "r2", dx: "1", ...ELEMENT, support: "A", restraints: "*", ids: { support: "support:RS-A" }, supportLabel: "Anchor A (invented)" },
+      { key: "r3", dy: "1", support: "V", restraints: "UZ" }]));
+    expect(resolved.rows[1].ids.support).toBe("support:RS-A");
+    expect(resolved.rows[1].labels.support).toBe("Anchor A (invented)");
+    expect(resolved.rows[2].ids.support).toBe("support:N30");
+    expect(resolved.rows[2].labels.support).toBe("N30");
+    const build = await buildRunSheetBatch(resolved);
+    const supports = build.batch.operations.filter((op) => op.change.change_kind === "create_support").map((op) => JSON.parse(op.change.after));
+    expect(supports.map((after) => [after.id, after.label, after.node])).toEqual([["support:RS-A", "Anchor A (invented)", "node:N20"], ["support:N30", "N30", "node:N30"]]);
+    expect(build.rows[1].ownedIds).toContain("support:RS-A");
+  });
+  it("support id and label on a row without a support code are refused by name", () => {
+    const resolved = resolveSync(sheet([startE, { key: "r2", dx: "1", ...ELEMENT, ids: { support: "support:X" }, supportLabel: "X" }]));
+    expect(resolved.rows[1].refusals).toEqual([
+      { rule: "support", column: "Support id", message: MESSAGES.notApplicable("Support id", "a row with a support code") },
+      { rule: "support", column: "Support label", message: MESSAGES.notApplicable("Support label", "a row with a support code") },
+    ]);
+  });
+  it("two supports at one node: a run row's support and an S row's, each with its own id", async () => {
+    const rows: RunSheetRowInput[] = [startE,
+      { key: "r2", dx: "1", ...ELEMENT, support: "L", restraints: "UX", ids: { support: "support:LS1" }, supportLabel: "Line stop LS1" },
+      { key: "r3", kind: "S", support: "V", restraints: "UZ", ids: { support: "support:V1" }, supportLabel: "Vertical support V1" },
+      { key: "r4", dy: "1" }];
+    const resolved = resolveSync(sheet(rows));
+    expect(resolved.rows.flatMap((row) => row.refusals)).toEqual([]);
+    const build = await buildRunSheetBatch(resolved);
+    const supports = build.batch.operations.filter((op) => op.change.change_kind === "create_support").map((op) => JSON.parse(op.change.after));
+    expect(supports.map((after) => [after.id, after.node, after.family])).toEqual([["support:LS1", "node:N20", "line_stop"], ["support:V1", "node:N20", "vertical_support"]]);
+    const outcome = await apply(basis(), build.batch);
+    expect(outcome.validation.application_status, JSON.stringify(outcome.diagnostics)).toBe("applied_to_session_model");
+    expect(outcome.applied_model!.supports!.filter((support) => support.node === "node:N20").map((support) => [support.id, support.label])).toEqual([["support:LS1", "Line stop LS1"], ["support:V1", "Vertical support V1"]]);
+    // Derived, the two would share support:N20, and both rows are refused in the Support id cell.
+    const derived = resolveSync(sheet(rows.map((row) => ({ ...row, ids: undefined }))));
+    for (const row of [1, 2]) expect(derived.rows[row].refusals).toContainEqual({ rule: "ids", column: "Support id", message: MESSAGES.idUsed("support:N20", "Support id") });
+  });
+  it("entered support ids are refused when reserved, in the model or duplicated", () => {
+    const run = (ids: { support: string }, reserved: string[] = []) => resolveSync(sheet([startE, { key: "r2", dx: "1", ...ELEMENT, support: "A", restraints: "*", ids }]), { reserved }).rows[1].refusals;
+    expect(run({ support: "support:A" })).toEqual([{ rule: "ids", column: "Support id", message: MESSAGES.idUsed("support:A", "Support id") }]);
+    expect(run({ support: "support:Q" }, ["support:Q"])).toEqual([{ rule: "ids", column: "Support id", message: MESSAGES.idUsed("support:Q", "Support id") }]);
+    expect(run({ support: "node:N20" })).toContainEqual({ rule: "ids", column: "Support id", message: MESSAGES.idUsed("node:N20", "Support id") });
+  });
+});
+
+describe("run sheet ids: bend ids and geometry source (G2)", () => {
+  const BEND_SOURCE = "invented bend geometry source";
+  const twoBends = (): RunSheetInput => {
+    const input = structuredClone(caseOf("two-bend-chain").sheet);
+    input.rows[1] = { ...input.rows[1], ids: { node: "node:C1", bendStart: "node:B1-S", bendEnd: "node:B1-E", bendArc: "pipe:B1-ARC", bendComponent: "component:B1" }, bendSource: BEND_SOURCE };
+    input.rows[2] = { ...input.rows[2], ids: { node: "node:C2", bendStart: "node:B2-S", bendEnd: "node:B2-E", bendArc: "pipe:B2-ARC", bendComponent: "component:B2" } };
+    return input;
+  };
+  it("entered bend ids and geometry source reach insert_bend_at_corner and the projection; the engine applies them as entered", async () => {
+    const input = twoBends();
+    const model = basis();
+    const resolved = resolveRunSheet(input, { model, idState: idStateFor(input, model) });
+    expect(resolved.rows.flatMap((row) => row.refusals)).toEqual([]);
+    expect(resolved.rows[1].bendSource).toEqual({ value: BEND_SOURCE, origin: { kind: "entered" } });
+    expect(resolved.rows[2].bendSource).toEqual({ value: input.source, origin: { kind: "derived", rule: "the sheet's Source" } });
+    const build = await buildRunSheetBatch(resolved);
+    const inserts = build.batch.operations.map((op, index) => [op, index] as const).filter(([op]) => op.change.change_kind === "insert_bend_at_corner");
+    const afters = inserts.map(([op]) => JSON.parse(op.change.after));
+    expect(afters.map((after) => [after.new_nodes.map((node: { id: string }) => node.id), after.new_pipe.id, after.component.id, after.component.geometry_source_reference])).toEqual([
+      [["node:B1-S", "node:B1-E"], "pipe:B1-ARC", "component:B1", BEND_SOURCE],
+      [["node:B2-S", "node:B2-E"], "pipe:B2-ARC", "component:B2", input.source],
+    ]);
+    // Consecutive bends: the second corner's context names the first bend's entered outgoing tangent.
+    expect(inserts[1][0].change.before).toContain('"from":"node:B1-E"');
+    for (const [op, index] of inserts) {
+      const prefix = await apply(basis(), { batch_id: `batch:prefix-${index}`, operations: build.batch.operations.slice(0, index) });
+      expect(op.change.before).toBe(await canonicalJsonString(cornerContext(prefix.applied_model!, op.target.ref)));
+    }
+    expect(build.rows[1].ownedIds).toEqual(["pipe:P20", "node:B1-S", "node:B1-E", "pipe:B1-ARC", "component:B1"]);
+    const outcome = await apply(basis(), build.batch);
+    expect(outcome.validation.application_status, JSON.stringify(outcome.diagnostics)).toBe("applied_to_session_model");
+    const applied = outcome.applied_model!;
+    for (const id of ["node:B1-S", "node:B1-E", "node:B2-S", "node:B2-E"]) expect(applied.nodes.some((node) => node.id === id), id).toBe(true);
+    for (const id of ["node:C1", "node:C2"]) expect(applied.nodes.some((node) => node.id === id), id).toBe(false);
+    expect(applied.pipe_segments.filter((pipe) => pipe.id.endsWith("-ARC")).map((pipe) => [pipe.id, pipe.from, pipe.to])).toEqual([["pipe:B1-ARC", "node:B1-S", "node:B1-E"], ["pipe:B2-ARC", "node:B2-S", "node:B2-E"]]);
+    const components = applied.components.filter((component) => component.kind === "bend");
+    expect(components.map((component) => [component.id, (component.geometry as { bend_geometry_source_reference?: string }).bend_geometry_source_reference])).toEqual([["component:B1", BEND_SOURCE], ["component:B2", input.source]]);
+  });
+  it("blank bend ids and source derive from the corner and the sheet's Source, as before", () => {
+    const resolved = resolveSync(caseOf("two-bend-chain").sheet);
+    expect(resolved.rows[1].ids.bend).toEqual({ start: "node:N20-T1", end: "node:N20-T2", arc: "pipe:N20-bend", component: "component:N20-bend" });
+    expect(resolved.rows[1].bendSource!.value).toBe(resolved.source);
+  });
+  it("bend ids and source on a row that is not a bend are refused by name", () => {
+    const resolved = resolveSync(sheet([startE, { key: "r2", dx: "1", ...ELEMENT, ids: { bendStart: "node:S", bendEnd: "node:T", bendArc: "pipe:A", bendComponent: "component:C" }, bendSource: "s" }]));
+    expect(resolved.rows[1].refusals).toEqual([
+      ...["Bend start id", "Bend end id", "Bend arc id", "Bend component id"].map((cell) => ({ rule: "bend", column: cell, message: MESSAGES.notApplicable(cell, "B rows") })),
+      { rule: "bend", column: "Bend geometry source", message: MESSAGES.notApplicable("Bend geometry source", "B rows") },
+    ]);
+    expect(resolved.rows[1].ids.bend).toBeUndefined();
+  });
+  it("entered bend ids are refused when reserved, in the model or duplicated, in their own cell", () => {
+    const input = twoBends();
+    const model = basis();
+    const refusals = (mutate: (rows: RunSheetRowInput[]) => void, reserved: string[] = []) => {
+      const copy = structuredClone(input);
+      mutate(copy.rows);
+      return resolveRunSheet(copy, { model, idState: idStateFor(copy, model), reservedIds: reserved }).rows.map((row) => row.refusals);
+    };
+    expect(refusals((rows) => { rows[1].ids!.bendStart = "node:A"; })[1]).toEqual([{ rule: "ids", column: "Bend start id", message: MESSAGES.idUsed("node:A", "Bend start id") }]);
+    expect(refusals(() => undefined, ["pipe:B2-ARC"])[2]).toEqual([{ rule: "ids", column: "Bend arc id", message: MESSAGES.idUsed("pipe:B2-ARC", "Bend arc id") }]);
+    const duplicate = refusals((rows) => { rows[2].ids!.bendComponent = "component:B1"; });
+    for (const row of [1, 2]) expect(duplicate[row]).toEqual([{ rule: "ids", column: "Bend component id", message: MESSAGES.idUsed("component:B1", "Bend component id") }]);
+    // A tangent named like its own corner, or like a later row's node.
+    expect(refusals((rows) => { rows[1].ids!.bendEnd = "node:C1"; })[1]).toContainEqual({ rule: "ids", column: "Bend end id", message: MESSAGES.idUsed("node:C1", "Bend end id") });
+    expect(refusals((rows) => { rows[1].ids!.bendEnd = "node:N40"; })[3]).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.idUsed("node:N40") });
   });
 });

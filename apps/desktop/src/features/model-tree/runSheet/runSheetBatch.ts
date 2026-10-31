@@ -183,10 +183,11 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
         { id: ids.end, label: BEND_LABELS.end, provenance: source },
       ],
       new_pipe: { id: ids.arc, label: BEND_LABELS.arc, provenance: source },
-      component: { id: ids.component, label: BEND_LABELS.component, provenance: source, geometry_source_reference: source },
+      component: { id: ids.component, label: BEND_LABELS.component, provenance: source, geometry_source_reference: row.bendSource!.value },
     };
     push(row, { operationKind: "modify", objectType: "Node", ref: corner, changeKind: "insert_bend_at_corner", fieldLabel: "Run-sheet bend at corner", fieldPath: "bend_at_corner", before, after, unit: "none", dimension: "dimensionless" });
-    // The corner leaves `nodes`; the first pipe in model order now ends at T1 and the second at T2.
+    // The corner leaves `nodes`; the first pipe in model order now ends at T1 and the second at
+    // T2, by the ids the row shows (entered or derived), so a later corner's context names them.
     projection.nodes = projection.nodes.filter((node) => node.id !== corner);
     context.pipes.forEach((meeting, order) => {
       const pipe = projection.pipe_segments.find((item) => item.id === meeting.id)!;
