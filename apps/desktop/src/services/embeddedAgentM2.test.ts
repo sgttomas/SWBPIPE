@@ -12,6 +12,7 @@ import type { PreviewModel } from "../types";
 import { componentsAwaitingUserModifiers, engineDisplayNumber, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
+import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "../features/model-tree/removalIntents";
 
 const { proposalHandle, requestRef } = fixture.host;
 const FAMILY: Record<string, RecordFamily> = { component: "components", support: "supports" };
@@ -61,10 +62,15 @@ describe("embedded agent milestone 2 component journey (webview link)", () => {
     for (const [family, id, objectType, changeKind] of deletions) {
       const record = records[family].find(entry => entry.id === id)!;
       const before = (await recordBefore(family, record, await canonicalJsonString(record))).delete;
+      // The inspector's own Delete sends the same text (removalIntents.ts, since #29).
+      const inspector = family === "supports" ? buildDeleteSupportIntent(record as unknown as PreviewModel["supports"][number], model)
+        : family === "pipe_segments" ? buildDeletePipeIntent(record as unknown as PreviewModel["pipe_segments"][number], model)
+        : buildDeleteNodeIntent(record as unknown as PreviewModel["nodes"][number], model);
+      expect(inspector.change.before).toBe(before);
       const operation = { operation_id: `op:delete:${id}`, operation_kind: "delete", target: { object_type: objectType, ref: id }, change: { change_id: `change:delete:${id}`, change_kind: changeKind, field_label: "Deletion", field_path: family, before, after: "not_present", unit: "none", dimension: "dimensionless", source_note: "invented" }, rationale: "invented" };
       const hash = await computeModelHash(model);
       if (id === "node:free-a") {
-        // The ECMAScript text with the untrimmed label is what the applier refuses as stale.
+        // An untrimmed label with ECMAScript numbers (what the inspector sent before #29) is refused as stale.
         const stale = { ...operation, change: { ...operation.change, before: "  Free é A ; x=1e-7; y=2.5e+21; z=0.30000000000000004" } };
         const refused = await applyOperationBatch(model, { batch_id: "agent-stale", operations: stampAgentOperations([stale], proposalHandle, requestRef), source_model_hash: hash!.value }, hash);
         expect(refused.validation.batch_validation_status).not.toBe("passed");
