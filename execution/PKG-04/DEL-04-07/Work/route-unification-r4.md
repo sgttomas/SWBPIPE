@@ -960,6 +960,36 @@ for 2–3 cases. Publication and output volume dominate, not the solve.
   nonlinear wall before P is scheduled.
 - **M-3.** A K6 extension with a nonlinear-loop stage, after P.
 
+### 5.4a Measured M-1a and M-2 (RT-A3, 2026-10-31)
+
+These were measured in one `t3_exclusive.sh` window, 01:39:14–01:50:21Z.
+
+**Basis and caveats.**
+- The build was a release build of the measurement driver against `claude/rt-a3-tee`, including its then-uncommitted tee work (increment 1), in `sparse_interactive` mode.
+- The host was the development machine, not the 16 GiB base machine.
+- A concurrent single-threaded pytest process (no cargo) from another task ran during the window.
+- The models were invented generated racks: tees, about one support per 8 nodes, and 8 cases on EX (weight, pressure, two thermal, four lateral) or 7 on PF.
+- The driver times parse, the entry call and serialization separately, so solve and publication are one figure.
+- The generator, driver and window script were scratch material. DEL-04-05's performance lane takes the generator into its maintained harness.
+
+| Run | Nodes | Solve + publication | Serialization | Peak RSS | Rows | JSON |
+|---|---|---|---|---|---|---|
+| M-1a, EX linear | 1,000 | 71.3 s | 0.40 s | 2.64 GB | 1,022,753 | 754 MB |
+| M-1a, EX linear | 2,000 | 346.3 s | 0.81 s | 4.47 GB | 2,046,521 | 1.51 GB |
+| M-2, PF nonlinear | 250 | 4.2 s | 0.06 s | 0.63 GB | 152,582 | 112 MB |
+| M-2, PF nonlinear | 500 | 16.5 s | 0.11 s | 2.12 GB | 305,711 | 225 MB |
+| M-2, PF nonlinear | 1,000 | 71.1 s | 0.23 s | 6.40 GB | 611,807 | 450 MB |
+| M-2, PF nonlinear | 1,500 | 149.3 s | 0.35 s | 11.18 GB | 918,127 | 675 MB |
+| M-2, PF nonlinear | 2,000 | refused in 0.12 s | | 0.16 GB | 0 | |
+
+The 2,000-node PF run was refused by `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`, with a leading-buffer estimate of 14.79 GB against 11.60 GB. M-2 scales one-way supports as N/10 and explicit-normal friction as N/40, and took 1–4 active-set iterations per case.
+
+**Readings.**
+- **EX linear time** grows about as n^2.3 between 1,000 and 2,000 nodes, while rows grow linearly. A dry-run stack sample places the dominant cost in `u4b_rows::published`, a linear scan of every published row per member, station and basis lookup, shared by both routes. RT-A3 increment 1b repairs it, with byte-identical output, and M-1a is re-measured after it.
+- **PF nonlinear at 2,000 nodes with the guard lifted** is an extrapolation, not a measurement: about 230–300 s (time exponent 1.8–2.1) and about 16–20 GB peak RSS (RSS exponent 1.4–2). The dense loop therefore does not fit the 16 GiB base machine, and stage P is needed on both routes (Agent 0, 2026-10-31).
+- **Result volume** is about 244k rows per linear case at 2,000 nodes, or 2.05 M rows and 1.5 GB of JSON for 8 cases. The desktop path (IPC, reader, parse, render) and the result-volume design belong to DEL-04-05's performance lane, not to RT-A3 (Agent 0, 2026-10-31).
+- **Finding for the performance lane: warning volume.** The generated racks raise one `LOAD_CATEGORY_PREVIEW_MAPPED` warning per authored line load: 9,995 on the 2,000-node EX rack and 4,995 at 1,000 nodes. In results and reports this is unusable noise. Aggregating it is a usability fix for that lane to design (Agent 0, 2026-10-31).
+
 ### 5.5 Verdict
 
 **Linear.** EX plausibly meets the 2,000-node linear target per case. A multi-case run may
