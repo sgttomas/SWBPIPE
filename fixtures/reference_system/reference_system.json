@@ -6043,7 +6043,7 @@
       "provenance": "invented reference-system fixture input (DEL-09-01 Work/reference-system.md); not standard, supplier, commercial or project data"
     }
   ],
-  "schema_version": "0.8.0",
+  "schema_version": "0.9.0",
   "sections": [
     {
       "id": "section:RS-S270",
