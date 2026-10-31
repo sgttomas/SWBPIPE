@@ -669,15 +669,24 @@ solver produced. There is no rule-check attestation under R.
   `checked_v1_domain_canonical("openpipestress.user_release.solved_model.v1", model)`;
 - after the unchanged solve wrapper has produced the result bytes the worker
   delivers: `d_S`, the same over `"openpipestress.user_release.solved_result.v1"`
-  and the value parsed back from those exact bytes. The parsed value is dropped
-  before the frames are sent. (Revision 4, slice r2a, #1664:
+  and the value those exact bytes hold, i.e. the value they parse back into.
+  (Revision 4, slice r2a, #1664:
   `run_linear_static_preview_value_with_mode` returns a typed
   `MechanicsEnvelope`, not a `Value`, so there is no result value to digest
   before serialization. Parsing the delivered bytes back digests what the
   webview receives, which is the round trip the equality argument below relies
   on. `serde_json::to_value` before serializing would also hold a full copy,
   without existing pricing; a streaming typed writer would change priced source,
-  so neither is used.)
+  so neither is used.) Since RT-U4 the worker computes `d_S` from the bytes
+  without parsing them back whole (`result_text_digest.rs`): containers larger
+  than 256 KiB are split over the borrowed text, each smaller piece is parsed
+  at its true depth and written by `checked_v1_domain_canonical` itself, and
+  the framing follows that writer's key order and escaping. The digest's
+  meaning is unchanged: it equals the SHA-256 of
+  `checked_v1_domain_canonical` over `serde_json::from_str` of the bytes, and
+  it is absent exactly when that parse fails or the checked profile refuses
+  (the module's documentation states the equality rule by rule;
+  differential tests and the 250- and 500-node rack results check it).
 
 Each digest streams through `ByteSink` into a SHA-256 hasher, so no canonical
 text is held. If the checked profile refuses either value, the worker sends no
@@ -735,10 +744,17 @@ user-visible condition is the same; native admission now enforces it.
   `solve_worker.rs:1037-1090`), and
   the protocol text of `solve_worker.rs:10-25`.
 - **DEL-04-07 memory accounting:**
-  - The `d_S` pass holds one parsed copy of the delivered result while it
-    runs, within the result text's ingress materialization bound
-    (`ingress::prescan`); on the bundled demo the worker's counted peak goes
-    from 3,936,832 to 4,842,992 bytes, with the grant unchanged (#1664).
+  - The `d_S` pass holds at most one parsed piece of the delivered result at
+    a time: a piece of at most 256 KiB of text (or one larger scalar or
+    RawValue-token object, which no product result holds), plus the member
+    list of each split object on the open path (40 bytes per member). Until
+    RT-U4 it held one parsed copy of the whole result; both lie within the
+    result text's ingress materialization bound (`ingress::prescan`). On the
+    bundled demo the worker's counted peak went from 3,936,832 to 4,842,992
+    bytes with the digest passes (#1664); since RT-U4 the `d_S` pass peaks at
+    373,920 bytes on the demo's 615,264-byte result (3,701,440 before), and
+    the counted worker peak is 3,939,200 bytes with or without the digest
+    passes, with the grant unchanged.
   - Beyond that copy, the worker's two passes allocate only transient pieces in its counted
     heap; no canonical text is held. The pieces live at once are (Codex
     round 3, non-blocking):
@@ -788,9 +804,10 @@ user-visible condition is the same; native admission now enforces it.
 the bytes it receives are not RFC 8785 (§1). A host-side digest would need the
 host to parse the result, which needs a new lease and changes the custody
 design. The worker already holds the model value it materialized for the
-solve, and the result bytes it delivers. For `d_S` it parses those bytes back
-into one transient copy, inside the result text's ingress materialization
-bound (above), and drops it before the frames are sent. So the host side of
+solve, and the result bytes it delivers. For `d_S` it digests the value those
+bytes hold, one bounded piece at a time since RT-U4 (one transient copy before
+it), inside the result text's ingress materialization bound (above), and holds
+none of it once the frames are sent. So the host side of
 the solve needs no new parse and no new lease (Codex round 4 at revision 4,
 N3).
 
