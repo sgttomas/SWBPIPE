@@ -355,6 +355,20 @@ impl WideDd {
         Self::normalize(value, 0)
     }
 
+    /// The value as a double-double (both words scaled by 2^exponent):
+    /// exact while both stay normal.
+    pub fn to_dd(self) -> Dd {
+        Dd {
+            hi: scale_by_pow2(self.mantissa.hi, self.exponent),
+            lo: scale_by_pow2(self.mantissa.lo, self.exponent),
+        }
+    }
+
+    /// value·2^exponent, exact for a finite double-double.
+    pub fn from_dd_scaled(value: Dd, exponent: i32) -> WideDd {
+        Self::normalize(value, exponent)
+    }
+
     pub fn is_zero(self) -> bool {
         self.mantissa.is_zero()
     }
@@ -362,6 +376,11 @@ impl WideDd {
     /// Finite and greater than zero, however small.
     pub fn is_positive(self) -> bool {
         self.is_finite() && self.mantissa.hi > 0.0
+    }
+
+    /// Finite and not below zero.
+    pub fn is_non_negative(self) -> bool {
+        self.is_finite() && self.mantissa.hi >= 0.0
     }
 
     pub fn mul(self, other: WideDd) -> WideDd {

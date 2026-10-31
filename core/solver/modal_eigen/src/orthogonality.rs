@@ -1,9 +1,10 @@
 //! M-orthogonality of a set of modes (design §3.4, check 3):
 //! max over i ≠ j of |φᵢᵀMφⱼ| / √(m_i m_j), with m_i = φᵢᵀMφᵢ, in
-//! double-double with an extended exponent (`dd::WideDd`): Mφⱼ, the
-//! bilinear forms, the generalized masses and their roots keep their own
-//! exponent, so no intermediate leaves range while the ratio is
-//! representable. The ratio must be finite, and normal or exactly zero. A ratio that
+//! the bilinear forms summed exactly (`exact::ExactSum`: Mφⱼ as exact terms,
+//! then φᵢᵀ(Mφⱼ)), so no contribution is lost before a cancellation, and the
+//! generalized masses, their roots and the ratios in double-double with an
+//! extended exponent (`dd::WideDd`). The largest ratio is published: an
+//! overflow refuses, a nonzero value below the normal range is 0, flagged. A ratio that
 //! is not finite is refused. The measure is invariant to the shape
 //! normalization. The tolerance it is judged against belongs to the caller.
 //!
@@ -16,6 +17,7 @@ use std::fmt;
 
 use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::WideDd;
+use crate::exact::{ExactSum, Term};
 use crate::matrix::SymmetricMatrix;
 use crate::reformation::ReformedPencil;
 
@@ -93,14 +95,16 @@ pub fn m_orthogonality(
     let n = mass.dimension();
     check_dense(PencilMatrix::Mass, mass).map_err(OrthogonalityError::PencilRangeUnsupported)?;
     check_vectors(n, vectors)?;
-    let products: Vec<Vec<WideDd>> = vectors
+    let products: Vec<Vec<Vec<Term>>> = vectors
         .iter()
         .map(|v| {
             (0..n)
                 .map(|i| {
-                    v.iter().enumerate().fold(WideDd::ZERO, |row, (j, &vj)| {
-                        row.add(WideDd::from_f64(mass.get(i, j)).mul_f64(vj))
-                    })
+                    let mut row = ExactSum::new();
+                    for (j, &vj) in v.iter().enumerate() {
+                        row.add_product(&[mass.get(i, j), vj]);
+                    }
+                    row.terms()
                 })
                 .collect()
         })
@@ -108,14 +112,17 @@ pub fn m_orthogonality(
     from_products(vectors, &products)
 }
 
-/// Check 3 on the re-formed M̂: M̂φⱼ element by element in `WideDd`
-/// (`ReformedPencil::mass_product`), then each φᵢᵀ(M̂φⱼ).
+/// Check 3 on the re-formed M̂: M̂φⱼ element by element, exactly
+/// (`ReformedPencil::mass_product_exact`), then each φᵢᵀ(M̂φⱼ).
 pub fn m_orthogonality_reformed(
     pencil: &ReformedPencil,
     vectors: &[&[f64]],
 ) -> Result<MOrthogonality, OrthogonalityError> {
     check_vectors(pencil.dimension(), vectors)?;
-    let products: Vec<Vec<WideDd>> = vectors.iter().map(|v| pencil.mass_product(v)).collect();
+    let products: Vec<Vec<Vec<Term>>> = vectors
+        .iter()
+        .map(|v| pencil.mass_product_exact(v).iter().map(ExactSum::terms).collect())
+        .collect();
     from_products(vectors, &products)
 }
 
@@ -141,13 +148,17 @@ fn check_vectors(n: usize, vectors: &[&[f64]]) -> Result<(), OrthogonalityError>
 /// normal or exactly zero.
 fn from_products(
     vectors: &[&[f64]],
-    products: &[Vec<WideDd>],
+    products: &[Vec<Vec<Term>>],
 ) -> Result<MOrthogonality, OrthogonalityError> {
+    // φᵢᵀ(Mφⱼ) summed exactly from the exact terms of Mφⱼ, then rounded
+    // once: no contribution is lost before the cancellation that a pair of
+    // orthogonal modes produces.
     let bilinear = |i: usize, j: usize| -> WideDd {
-        vectors[i]
-            .iter()
-            .zip(&products[j])
-            .fold(WideDd::ZERO, |acc, (&x, mv)| acc.add(mv.mul_f64(x)))
+        let mut sum = ExactSum::new();
+        for (&x, terms) in vectors[i].iter().zip(&products[j]) {
+            sum.add_terms_product(terms, &[x]);
+        }
+        sum.to_wide()
     };
     let mut roots = Vec::with_capacity(vectors.len());
     for mode in 0..vectors.len() {

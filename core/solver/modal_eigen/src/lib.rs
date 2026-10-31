@@ -22,6 +22,7 @@ pub mod admission;
 pub mod clusters;
 pub mod dd;
 pub mod dense;
+pub mod exact;
 pub mod matrix;
 pub mod modal_quantities;
 pub mod norm_estimate;

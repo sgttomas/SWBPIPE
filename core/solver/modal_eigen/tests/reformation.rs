@@ -536,6 +536,19 @@ fn component_range_refusals() {
     assert!(component_mass(&body(2560.0, 9.8125, [0.25, -0.375, 0.125])).is_ok());
 }
 
+/// The smallest μ over δ_μ with κ_μ set negligible, so no mode is dropped
+/// by the floor: how far above the floor the whole computed spectrum lies.
+fn raw_floor_margin(case: &Case) -> f64 {
+    let (k, m) = (entries(&case.k), entries(&case.m));
+    let n = case.free.len();
+    let options = DenseOptions {
+        resolution_floor_multiple: 1e-300,
+        ..dense_options()
+    };
+    let s = solve_dense_pencil(&dense(n, &k), &dense(n, &m), &options).unwrap();
+    s.mu.iter().copied().fold(f64::INFINITY, f64::min) / s.resolution_floor
+}
+
 /// The dense eigenpairs of the formed pencil: the fixture's K_ff and M_ff
 /// rounded once to binary64 (the hi words).
 struct Formed {
@@ -611,15 +624,23 @@ fn largest_eta(case: &Case, f: &Formed) -> (f64, f64) {
 fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
     for case in eigen_cases() {
         let f = formed(&case, entries(&case.k), entries(&case.m));
+        eprintln!(
+            "{}: resolution-floor margin {:.2e}, raw μ_min/δ_μ {:.2e} (δ_μ {:.2e}, ν {:.2e}, \
+             ‖M̃‖ {:.2e}, μ_min {:.2e}, below threshold {}, nonpositive {})",
+            case.id,
+            floor_margin(&f.solution),
+            raw_floor_margin(&case),
+            f.solution.resolution_floor,
+            f.solution.condensed_inverse_norm_estimate,
+            f.solution.condensed_mass_norm,
+            f.solution.mu.iter().copied().fold(f64::INFINITY, f64::min),
+            f.solution.below_threshold_mu_count,
+            f.solution.nonpositive_mu_count
+        );
         // Every case with an established count is resolved under the floor.
         if f.solution.established_finite_mode_count.is_some() {
             assert!(!f.solution.finite_count_unresolved, "{}", case.id);
         }
-        eprintln!(
-            "{}: resolution-floor margin {:.2e}",
-            case.id,
-            floor_margin(&f.solution)
-        );
         let p = pencil(&case, &f);
         let k_hat: BTreeMap<Pair, Dd> = p.assembled_stiffness().into_iter().collect();
         let m_hat: BTreeMap<Pair, Dd> = p.assembled_mass().into_iter().collect();

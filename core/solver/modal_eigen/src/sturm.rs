@@ -67,7 +67,8 @@ use open_pipe_stress_sparse_direct::{
 };
 
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
-use crate::dd::{max_propagating_nan, WideDd};
+use crate::dd::max_propagating_nan;
+use crate::exact::ExactSum;
 use crate::norm_estimate::inverse_one_norm_estimate;
 use crate::matrix::SymmetricMatrix;
 
@@ -689,24 +690,24 @@ impl ShiftPencil {
 
     /// φ̃ᵀM̃φ̃ / ‖φ̃‖₂² = φᵀMφ / Σ_i k_ii·φ_i², rounded once. φ̃ = D⁻¹φ is
     /// taken with the exact D = diag(k_ii^-½). Each weighted term w·φ_i·φ_j
-    /// and both sums are formed in [`WideDd`], so a square that underflows
-    /// or overflows in binary64 still meets its weight (review round 2: φ₂²
-    /// = 2⁻¹²⁰⁰ against k₂₂ = 2¹⁰⁰⁰). The vector is nonzero and finite.
+    /// enters both sums exactly ([`ExactSum`]), so a square below or above
+    /// binary64 still meets its weight (review round 2) and no contribution
+    /// is lost before a cancellation (review round 4); the sums are rounded
+    /// once and divided in `WideDd`. The vector is nonzero and finite.
     fn mass_quotient(&self, vector: &[f64]) -> f64 {
-        let mut quadratic = WideDd::ZERO;
-        let mut norm = WideDd::ZERO;
+        let mut quadratic = ExactSum::new();
+        let mut norm = ExactSum::new();
         for e in &self.entries {
-            let x = WideDd::from_f64(vector[e.row]);
-            let y = WideDd::from_f64(vector[e.col]);
-            let xy = x.mul(y);
+            let (x, y) = (vector[e.row], vector[e.col]);
             if e.row == e.col {
-                norm = norm.add(xy.mul_f64(e.stiffness));
-                quadratic = quadratic.add(xy.mul_f64(e.mass));
+                norm.add_product(&[e.stiffness, x, x]);
+                quadratic.add_product(&[e.mass, x, x]);
             } else {
-                quadratic = quadratic.add(xy.mul_f64(e.mass).mul_f64(2.0));
+                // 2·m_ij·x·y: the factor 2 as an exponent.
+                quadratic.add_product_scaled(&[e.mass, x, y], 1);
             }
         }
-        quadratic.div(norm).to_f64()
+        quadratic.to_wide().div(norm.to_wide()).to_f64()
     }
 
     /// The scaled shifted lower entries, in pattern order, and max|ã_jj|.

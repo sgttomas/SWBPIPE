@@ -55,6 +55,7 @@ use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
 use crate::admission::{check_entry, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{max_propagating_nan, Dd, WideDd};
+use crate::exact::ExactSum;
 use mass::{
     arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
 };
@@ -501,60 +502,84 @@ impl ReformedPencil {
         self.section_difference
     }
 
-    fn product(list: &[Mapped], n: usize, x: &[f64]) -> Vec<WideDd> {
-        let mut y = vec![WideDd::ZERO; n];
+    /// Σ_b factor·e_ab·x_b into each row's exact sum, element by element.
+    fn product_into(list: &[Mapped], x: &[f64], factor: Option<f64>, rows: &mut [ExactSum]) {
         for e in list {
             for (a, ra) in e.rows.iter().enumerate() {
                 let Some(ra) = *ra else { continue };
-                let mut acc = y[ra];
                 for (b, rb) in e.rows.iter().enumerate() {
                     let Some(rb) = *rb else { continue };
-                    if x[rb] != 0.0 {
-                        acc = acc.add(WideDd::from_dd(e.matrix.get(a, b)).mul_f64(x[rb]));
+                    if x[rb] == 0.0 {
+                        continue;
+                    }
+                    match factor {
+                        None => rows[ra].add_dd_product(e.matrix.get(a, b), &[x[rb]]),
+                        Some(f) => rows[ra].add_dd_product(e.matrix.get(a, b), &[f, x[rb]]),
                     }
                 }
-                y[ra] = acc;
             }
         }
-        y
     }
 
-    /// K̂x in double-double with an extended exponent (`WideDd`), element by
-    /// element in operand order.
+    fn exact_product(&self, list: &[Mapped], x: &[f64]) -> Vec<ExactSum> {
+        assert_eq!(
+            x.len(),
+            self.dimension,
+            "vector length differs from the pencil"
+        );
+        let mut rows = vec![ExactSum::new(); self.dimension];
+        Self::product_into(list, x, None, &mut rows);
+        rows
+    }
+
+    /// K̂x, each row summed exactly over the elements' double-double
+    /// entries times x, then rounded once.
     pub fn stiffness_product(&self, x: &[f64]) -> Vec<WideDd> {
-        assert_eq!(
-            x.len(),
-            self.dimension,
-            "vector length differs from the pencil"
-        );
-        Self::product(&self.stiffness, self.dimension, x)
+        self.exact_product(&self.stiffness, x)
+            .iter()
+            .map(ExactSum::to_wide)
+            .collect()
     }
 
-    /// M̂x in double-double with an extended exponent (`WideDd`), element by
-    /// element in operand order.
+    /// M̂x, each row summed exactly, then rounded once.
     pub fn mass_product(&self, x: &[f64]) -> Vec<WideDd> {
-        assert_eq!(
-            x.len(),
-            self.dimension,
-            "vector length differs from the pencil"
-        );
-        Self::product(&self.mass, self.dimension, x)
+        self.exact_product(&self.mass, x)
+            .iter()
+            .map(ExactSum::to_wide)
+            .collect()
     }
 
-    fn assembled(list: &[Mapped]) -> BTreeMap<(usize, usize), Dd> {
-        let mut out: BTreeMap<(usize, usize), Dd> = BTreeMap::new();
+    /// M̂x, each row as its exact sum.
+    pub fn mass_product_exact(&self, x: &[f64]) -> Vec<ExactSum> {
+        self.exact_product(&self.mass, x)
+    }
+
+    /// The assembled entries, each the exact sum of the element
+    /// contributions.
+    fn assembled_exact(list: &[Mapped]) -> BTreeMap<(usize, usize), ExactSum> {
+        let mut out: BTreeMap<(usize, usize), ExactSum> = BTreeMap::new();
         for e in list {
             for (a, ra) in e.rows.iter().enumerate() {
                 let Some(ra) = *ra else { continue };
                 for (b, rb) in e.rows.iter().enumerate().take(a + 1) {
                     let Some(rb) = *rb else { continue };
                     let key = if ra >= rb { (ra, rb) } else { (rb, ra) };
-                    let slot = out.entry(key).or_insert(Dd::ZERO);
-                    *slot = slot.add(e.matrix.get(a, b));
+                    let entry = e.matrix.get(a, b);
+                    let slot = out.entry(key).or_default();
+                    slot.add_f64(entry.hi);
+                    slot.add_f64(entry.lo);
                 }
             }
         }
         out
+    }
+
+    /// The assembled entries rounded once to double-double.
+    fn assembled(list: &[Mapped]) -> BTreeMap<(usize, usize), Dd> {
+        Self::assembled_exact(list)
+            .into_iter()
+            .map(|(key, sum)| (key, sum.to_wide().to_dd()))
+            .collect()
     }
 
     /// The assembled K̂ on the free DOFs, lower triangle, ascending.
@@ -681,13 +706,13 @@ fn formed_lower(
 fn scaled_norm(
     n: usize,
     d: &[Dd],
-    entries: impl Iterator<Item = ((usize, usize), Dd)>,
+    entries: impl Iterator<Item = ((usize, usize), WideDd)>,
     quantity: &'static str,
 ) -> Result<(f64, usize), FormationError> {
     let mut rows = vec![WideDd::ZERO; n];
     for ((r, c), v) in entries {
         let s = WideDd::from_dd(d[r])
-            .mul(WideDd::from_dd(v))
+            .mul(v)
             .mul(WideDd::from_dd(d[c]))
             .abs();
         rows[r] = rows[r].add(s);
@@ -711,28 +736,47 @@ fn difference(
     n: usize,
     d: &[Dd],
     formed: &[((usize, usize), f64)],
-    reformed: &BTreeMap<(usize, usize), Dd>,
+    reformed: &BTreeMap<(usize, usize), ExactSum>,
     names: [&'static str; 2],
 ) -> Result<(MatrixDifference, f64), FormationError> {
-    // One accumulator per stored formed entry, in the formed order.
-    let mut accumulators = vec![Dd::ZERO; formed.len()];
+    // One exact accumulator per stored formed entry, in the formed order:
+    // the formed value minus every element contribution, rounded once.
+    let mut accumulators: Vec<ExactSum> = formed
+        .iter()
+        .map(|&(_, f)| {
+            let mut sum = ExactSum::new();
+            sum.add_f64(f);
+            sum
+        })
+        .collect();
     let mut off_pattern = BTreeMap::new();
-    for (key, &v) in reformed {
+    for (key, sum) in reformed {
         match formed.binary_search_by_key(key, |x| x.0) {
-            Ok(at) => accumulators[at] = accumulators[at].add(v),
-            Err(_) if !v.is_zero() => {
-                off_pattern.insert(*key, v);
+            Ok(at) => {
+                for (value, exponent) in sum.terms() {
+                    accumulators[at].add_scaled(-value, exponent);
+                }
             }
-            Err(_) => {}
+            Err(_) => {
+                let value = sum.to_wide();
+                if !value.is_zero() {
+                    off_pattern.insert(*key, value.neg());
+                }
+            }
         }
     }
     let deltas = formed
         .iter()
         .zip(&accumulators)
-        .map(|(&(key, f), &r)| (key, Dd::from_f64(f).sub(r)))
-        .chain(off_pattern.iter().map(|(&key, &v)| (key, v.neg())));
+        .map(|(&(key, _), sum)| (key, sum.to_wide()))
+        .chain(off_pattern.iter().map(|(&key, &v)| (key, v)));
     let (norm, row) = scaled_norm(n, d, deltas, names[0])?;
-    let (reformed_norm, _) = scaled_norm(n, d, reformed.iter().map(|(&k, &v)| (k, v)), names[1])?;
+    let (reformed_norm, _) = scaled_norm(
+        n,
+        d,
+        reformed.iter().map(|(&k, sum)| (k, sum.to_wide())),
+        names[1],
+    )?;
     Ok((
         MatrixDifference {
             norm,
@@ -768,14 +812,14 @@ pub fn formation_difference(
         n,
         &scaling,
         &k,
-        &ReformedPencil::assembled(&pencil.stiffness),
+        &ReformedPencil::assembled_exact(&pencil.stiffness),
         ["stiffness formation difference", "re-formed stiffness norm"],
     )?;
     let (mass, reformed_mass_norm) = difference(
         n,
         &scaling,
         &m,
-        &ReformedPencil::assembled(&pencil.mass),
+        &ReformedPencil::assembled_exact(&pencil.mass),
         ["mass formation difference", "re-formed mass norm"],
     )?;
     Ok(FormationDifference {
@@ -867,22 +911,28 @@ pub fn residual_estimate(
     if !(eigenvalue.is_finite() && eigenvalue > 0.0) {
         return Err(ResidualError::InvalidEigenvalue);
     }
-    let kx = pencil.stiffness_product(vector);
-    let mx = pencil.mass_product(vector);
-    // Every square, norm and the generalized mass in WideDd: φ may be scaled
-    // arbitrarily, and η, κ_λ and e_λ do not depend on its scale.
+    // r̂_i = Σ K̂_ib φ_b − λ Σ M̂_ib φ_b summed exactly per row, so the
+    // cancellation of an accurate pair exposes no rounding, and φᵀM̂φ summed
+    // exactly from M̂φ's exact terms. The squares and norms (sums of
+    // nonnegative terms) are in WideDd: φ may be scaled arbitrarily, and η,
+    // κ_λ and e_λ do not depend on its scale.
+    let mut rows = vec![ExactSum::new(); n];
+    ReformedPencil::product_into(&pencil.stiffness, vector, None, &mut rows);
+    ReformedPencil::product_into(&pencil.mass, vector, Some(-eigenvalue), &mut rows);
+    let mx = pencil.mass_product_exact(vector);
     let lambda = WideDd::from_f64(eigenvalue);
     let mut residual = WideDd::ZERO;
     let mut tilde = WideDd::ZERO;
-    let mut generalized = WideDd::ZERO;
+    let mut generalized_sum = ExactSum::new();
     for i in 0..n {
         let d = WideDd::from_dd(scaling.scaling[i]);
-        let r = kx[i].sub(mx[i].mul(lambda)).mul(d);
+        let r = rows[i].to_wide().mul(d);
         residual = residual.add(r.mul(r));
         let t = WideDd::from_f64(vector[i]).div(d);
         tilde = tilde.add(t.mul(t));
-        generalized = generalized.add(mx[i].mul_f64(vector[i]));
+        generalized_sum.add_terms_product(&mx[i].terms(), &[vector[i]]);
     }
+    let generalized = generalized_sum.to_wide();
     let out_of_range = |quantity| ResidualError::ResultOutOfRange { quantity };
     if !generalized.is_finite() {
         return Err(out_of_range("generalized_mass"));
@@ -956,14 +1006,17 @@ mod tests {
     fn scaled_norm_refuses_a_nan_row() {
         let d = [Dd::from_f64(1.0), Dd::from_f64(1.0)];
         let entries = [
-            ((0, 0), Dd::from_f64(2.0)),
-            ((1, 1), Dd::from_f64(f64::NAN)),
+            ((0, 0), WideDd::from_f64(2.0)),
+            ((1, 1), WideDd::from_f64(f64::NAN)),
         ];
         assert_eq!(
             scaled_norm(2, &d, entries.into_iter(), "test"),
             Err(FormationError::ResultOutOfRange { quantity: "test" })
         );
-        let finite = [((0, 0), Dd::from_f64(2.0)), ((1, 0), Dd::from_f64(-3.0))];
+        let finite = [
+            ((0, 0), WideDd::from_f64(2.0)),
+            ((1, 0), WideDd::from_f64(-3.0)),
+        ];
         assert_eq!(scaled_norm(2, &d, finite.into_iter(), "test"), Ok((5.0, 0)));
     }
 

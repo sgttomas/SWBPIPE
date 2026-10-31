@@ -73,8 +73,9 @@ pub struct DenseOptions {
     /// least this (see [`established_finite_mode_count`]). Must be finite
     /// and in [0, 1).
     pub mass_pivot_relative_threshold: f64,
-    /// c_μ of the resolution floor δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖_∞ (design §3.2
-    /// item 5). Finite and positive.
+    /// c_μ of the resolution floor δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞ on the
+    /// diagonally equilibrated pencil (design §3.2 item 5). Finite and
+    /// positive.
     pub resolution_floor_constant: f64,
     /// κ_μ: a retained μ must exceed κ_μ·δ_μ as well as τ_μ·μ_max. Finite
     /// and positive.
@@ -108,6 +109,15 @@ pub enum DenseError {
         index: usize,
         limit: usize,
     },
+    /// An intermediate of the reduction that is not finite: the stiffness
+    /// factor, the reduced matrix C or an eigenvalue of C (`stage`, `index`
+    /// into its flat list), checked before any classification
+    /// (`MODAL_PENCIL_RANGE_UNSUPPORTED`: the admitted pencil's reduction
+    /// leaves the binary64 range).
+    ReductionOutOfRange {
+        stage: &'static str,
+        index: usize,
+    },
     /// A returned μ or λ that is not a positive normal number, or a mode
     /// shape component that is not finite (`index` into the flat list).
     ResultOutOfRange {
@@ -133,6 +143,11 @@ impl fmt::Display for DenseError {
             Self::QlIterationLimit { index, limit } => write!(
                 f,
                 "implicit QL did not converge for eigenvalue {index} within {limit} iterations"
+            ),
+            Self::ReductionOutOfRange { stage, index } => write!(
+                f,
+                "{}: the dense reduction's {stage} [{index}] is not finite",
+                crate::admission::PENCIL_RANGE_UNSUPPORTED
             ),
             Self::ResultOutOfRange { quantity, index } => {
                 write!(f, "dense result `{quantity}`[{index}] is out of range")
@@ -164,12 +179,14 @@ pub struct DenseEigenSolution {
     /// The largest condensed μ, against which the relative threshold is
     /// applied (0 when n_m = 0).
     pub mu_max: f64,
-    /// ν(K̂), the Hager–Higham estimate of ‖K̂⁻¹‖₁ from the condensed
-    /// Cholesky factor (+∞ when a solve overflowed).
+    /// ν(K̃̂), the Hager–Higham estimate of ‖K̃̂⁻¹‖₁ for the equilibrated
+    /// condensed stiffness K̃̂ = D_m K̂ D_m, D = diag(k_jj)^−½, from the
+    /// condensed Cholesky factor (+∞ when a solve overflowed).
     pub condensed_inverse_norm_estimate: f64,
-    /// ‖M_mm‖_∞.
+    /// ‖M̃_mm‖_∞ = ‖D_m M_mm D_m‖_∞.
     pub condensed_mass_norm: f64,
-    /// δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖_∞, the resolution floor of the reduction.
+    /// δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞, the resolution floor of the reduction,
+    /// invariant to a diagonal rescaling of the basis.
     pub resolution_floor: f64,
     /// max(τ_μ·μ_max, κ_μ·δ_μ): a retained μ exceeds it.
     pub classification_threshold: f64,
@@ -261,11 +278,16 @@ pub fn solve_dense_pencil(
         .collect();
     let order: Vec<usize> = massless.iter().chain(&massive).copied().collect();
     let (r, min_cholesky_pivot_ratio) = cholesky_ordered(stiffness, &order)?;
+    check_finite("stiffness factor", &r)?;
 
     // The work buffer is reserved at n_m·n so the recovered shapes fit in
     // place (`DENSE_PATH_PEAK_N2_BUFFERS`).
     let mut work = Vec::with_capacity(nm * n);
     reduce_mass(&r, n, n0, mass, &massive, &mut work);
+    // No NaN may reach the classification, where it would count as μ ≤ 0
+    // (review round 4: an admitted, exactly SPD K whose factor's inverse
+    // overflows).
+    check_finite("reduced matrix", &work)?;
     let mut d = vec![0.0; nm];
     let mut e = vec![0.0; nm];
     let mut ql_iterations = 0;
@@ -279,19 +301,27 @@ pub fn solve_dense_pencil(
             nm,
             options.max_ql_iterations_per_eigenvalue,
         )?;
+        check_finite("eigenvalues of the reduced matrix", &d)?;
         sort_ascending(&mut d, &mut work, nm);
     }
 
-    // The resolution floor (design §3.2 item 5): δ_μ = c_μ·n·u·ν(K̂)·‖M_mm‖,
-    // ν(K̂) from solves with the condensed factor R_mm.
+    // The resolution floor (design §3.2 item 5) on the diagonally
+    // equilibrated pencil, D = diag(k_jj)^−½ as in the Sturm counts, a
+    // congruence: δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖, with K̃̂ = D_m K̂ D_m, so
+    // K̃̂⁻¹x = D_m⁻¹ K̂⁻¹ D_m⁻¹ x from solves with the condensed factor R_mm.
+    let root: Vec<f64> = massive.iter().map(|&j| stiffness.get(j, j).sqrt()).collect();
     let (condensed_inverse_norm_estimate, _) = inverse_one_norm_estimate(nm, |x| {
-        let mut y = x.to_vec();
+        let mut y: Vec<f64> = x.iter().zip(&root).map(|(v, s)| v * s).collect();
         forward_solve_row(&r, n, n0, &mut y);
         back_solve_block(&r, n, n0, &mut y);
-        Some(y)
+        Some(y.iter().zip(&root).map(|(v, s)| v * s).collect())
     });
-    let condensed_mass_norm = massive.iter().fold(0.0, |norm, &i| {
-        let row: f64 = massive.iter().map(|&j| mass.get(i, j).abs()).sum();
+    let condensed_mass_norm = massive.iter().enumerate().fold(0.0, |norm, (a, &i)| {
+        let row: f64 = massive
+            .iter()
+            .enumerate()
+            .map(|(b, &j)| mass.get(i, j).abs() / root[a] / root[b])
+            .sum();
         max_propagating_nan(norm, row)
     });
     let resolution_floor = options.resolution_floor_constant
@@ -368,6 +398,13 @@ pub fn solve_dense_pencil(
         established_finite_mode_count: established,
         finite_count_unresolved,
     })
+}
+
+fn check_finite(stage: &'static str, values: &[f64]) -> Result<(), DenseError> {
+    match values.iter().position(|v| !v.is_finite()) {
+        Some(index) => Err(DenseError::ReductionOutOfRange { stage, index }),
+        None => Ok(()),
+    }
 }
 
 /// Every returned μ and λ is a positive normal number and every shape

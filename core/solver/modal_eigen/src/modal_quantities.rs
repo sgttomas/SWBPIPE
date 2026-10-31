@@ -24,12 +24,15 @@
 //! DOFs) and the direction's total mass T_k = R_kᵀ M R_k. This module does
 //! not form either. Per direction k:
 //! Γ_k = φᵀp_k / m, m_eff,k = (φᵀp_k)² / m and the fraction m_eff,k / T_k,
-//! with m = φᵀ M_ff φ. Each is computed from the published vector in
-//! double-double with an extended exponent (`dd::WideDd`): every product,
-//! sum and quotient, (φᵀp_k)² and m·T_k included, keeps its exponent
-//! separately, so no intermediate underflows or overflows, and each
-//! quantity is rounded to binary64 once. A published quantity that is not
-//! finite refuses the mode (`QuantityOutOfRange`).
+//! with m = φᵀ M_ff φ. Each is computed from the published vector: the
+//! bilinear forms m and φᵀp_k are summed exactly (`exact::ExactSum`), so no
+//! contribution is lost to alignment or rounding before a cancellation,
+//! and the quotients and products of them ((φᵀp_k)², m·T_k) are formed in
+//! double-double with an extended exponent (`dd::WideDd`); each quantity is
+//! rounded to binary64 once. A published quantity that overflows or is NaN
+//! refuses the mode (`QuantityOutOfRange`); one whose exact value is
+//! nonzero but below the normal range is published as 0 and flagged,
+//! decided on the exact value.
 
 use std::collections::BTreeSet;
 use std::error::Error;
@@ -37,6 +40,7 @@ use std::fmt;
 
 use crate::admission::{check_dense, PencilMatrix, PencilRangeUnsupported};
 use crate::dd::{DdAccumulator, WideDd};
+use crate::exact::ExactSum;
 use crate::matrix::SymmetricMatrix;
 
 /// The six DOFs of a node, in global axes, in global DOF order.
@@ -285,26 +289,26 @@ pub struct BelowNormalRange {
     pub effective_mass_fraction: [bool; 3],
 }
 
-/// xᵀ M y in [`WideDd`]: each row sum Σ_j M_ij y_j, then multiplied by
-/// x_i, rows in ascending order.
+/// xᵀ M y, every product x_i·M_ij·y_j summed exactly ([`ExactSum`]) and
+/// rounded once.
 fn mass_bilinear(mass: &SymmetricMatrix, x: &[f64], y: &[f64]) -> WideDd {
     let n = mass.dimension();
-    let mut total = WideDd::ZERO;
+    let mut sum = ExactSum::new();
     for i in 0..n {
-        let mut row = WideDd::ZERO;
         for (j, &yj) in y.iter().enumerate() {
-            row = row.add(WideDd::from_f64(mass.get(i, j)).mul_f64(yj));
+            sum.add_product(&[x[i], mass.get(i, j), yj]);
         }
-        total = total.add(row.mul_f64(x[i]));
     }
-    total
+    sum.to_wide()
 }
 
-/// Σ a_i b_i in [`WideDd`], ascending.
+/// Σ a_i b_i, summed exactly and rounded once.
 fn wide_dot(a: &[f64], b: &[f64]) -> WideDd {
-    a.iter().zip(b).fold(WideDd::ZERO, |sum, (&x, &y)| {
-        sum.add(WideDd::from_f64(x).mul_f64(y))
-    })
+    let mut sum = ExactSum::new();
+    for (&x, &y) in a.iter().zip(b) {
+        sum.add_product(&[x, y]);
+    }
+    sum.to_wide()
 }
 
 /// Largest magnitude among the free DOFs selected by `select`, with ties to
@@ -366,8 +370,12 @@ pub fn normalize_mode(
     let reference = reference.ok_or(ModalQuantityError::ZeroShape { mode })?;
     let pivot = phi[reference];
     // Every shape component is published: an overflow refuses, and a
-    // nonzero component below the normal range is published as 0, flagged.
-    // The quantities below are formed from the published shape.
+    // nonzero component whose exact quotient is below the normal range is
+    // published as 0, flagged. The class is decided exactly, before
+    // rounding (|v| < |pivot|·2⁻¹⁰²², compared in WideDd, where both sides
+    // are exact): 2⁻¹⁰²² − 2⁻¹⁰⁷⁵ rounds to the smallest normal number. The
+    // quantities below are formed from the published shape.
+    let threshold = WideDd::from_f64(pivot.abs()).mul_f64(f64::MIN_POSITIVE);
     let mut below_normal_range = BelowNormalRange::default();
     let mut shape = Vec::with_capacity(n);
     for (index, &v) in phi.iter().enumerate() {
@@ -375,7 +383,8 @@ pub fn normalize_mode(
         if !s.is_finite() {
             return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
         }
-        if v != 0.0 && !s.is_normal() {
+        let below = v != 0.0 && !WideDd::from_f64(v.abs()).sub(threshold).is_non_negative();
+        if below {
             below_normal_range.shape.push(index);
             shape.push(0.0);
         } else {
@@ -817,6 +826,54 @@ mod tests {
         assert_eq!(flags.effective_mass_fraction, [true, false, false]);
         assert_eq!(flags.participation, [false; 3]);
         assert!(!flags.generalized_mass && flags.shape.is_empty());
+    }
+
+    /// Review round 4, item 2: three Ux DOFs, M_ff = diag(1, 2⁻³⁰⁰, 1),
+    /// p_x = M·1 and φ = (1, 2⁻⁷⁰¹, −1). The exact φᵀp = 1 + 2⁻¹⁰⁰¹ − 1 =
+    /// 2⁻¹⁰⁰¹ and Γ = φᵀp/m = 2⁻¹⁰⁰² are normal, but the extended-exponent
+    /// sum dropped 2⁻¹⁰⁰¹ beside 1 and published both as unflagged zeros.
+    /// The exact accumulation keeps it.
+    #[test]
+    fn a_contribution_dropped_by_alignment_is_not_exposed_by_cancellation() {
+        let p2 = |e: i32| 2f64.powi(e);
+        let mass = SymmetricMatrix::from_diagonal(&[1.0, p2(-300), 1.0]).unwrap();
+        let dofs = [free(0, Dof::Ux), free(1, Dof::Ux), free(2, Dof::Ux)];
+        let p = [1.0, p2(-300), 1.0];
+        let z = [0.0; 3];
+        let total = 2.0 + p2(-300);
+        let basis =
+            ModalBasis::new(&mass, &dofs, [&p, &z, &z], [total, 0.0, 0.0], 1.0, TAU_T).unwrap();
+        let mode = normalize_mode(0, &[1.0, p2(-701), -1.0], &basis).unwrap();
+        assert_eq!(mode.generalized_mass, 2.0);
+        assert_eq!(mode.excitation_product[0], p2(-1001));
+        assert_eq!(mode.participation[0], p2(-1002));
+        assert_eq!(mode.below_normal_range.excitation_product, [false; 3]);
+        assert_eq!(mode.below_normal_range.participation, [false; 3]);
+        // m_eff = 2⁻²⁰⁰³ and the fraction are below the range: flagged.
+        assert_eq!(mode.effective_mass[0], 0.0);
+        assert!(mode.below_normal_range.effective_mass[0]);
+        assert!(mode.below_normal_range.effective_mass_fraction[0]);
+    }
+
+    /// Review round 4, item 5: φ = (2, 2⁻¹⁰²¹ − 2⁻¹⁰⁷⁴) with M = I. The
+    /// second shape component's exact quotient 2⁻¹⁰²² − 2⁻¹⁰⁷⁵ rounds to the
+    /// smallest normal number and was published unflagged; classified on
+    /// the exact quotient, it is below the range: 0, flagged.
+    #[test]
+    fn a_shape_quotient_is_classified_before_rounding() {
+        let mass = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        let dofs = [free(1, Dof::Ux), free(1, Dof::Uy)];
+        let z = [0.0, 0.0];
+        let basis = ModalBasis::new(&mass, &dofs, [&z, &z, &z], [0.0; 3], 1.0, TAU_T).unwrap();
+        let tiny = 2f64.powi(-1021) - f64::from_bits(1);
+        assert_eq!(tiny / 2.0, f64::MIN_POSITIVE);
+        let mode = normalize_mode(0, &[2.0, tiny], &basis).unwrap();
+        assert_eq!(mode.shape, vec![1.0, 0.0]);
+        assert_eq!(mode.below_normal_range.shape, vec![1]);
+        // Exactly 2⁻¹⁰²² is normal and published as it is.
+        let edge = normalize_mode(0, &[2.0, 2f64.powi(-1021)], &basis).unwrap();
+        assert_eq!(edge.shape, vec![1.0, f64::MIN_POSITIVE]);
+        assert!(edge.below_normal_range.shape.is_empty());
     }
 
     #[test]

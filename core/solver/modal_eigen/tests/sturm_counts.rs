@@ -25,7 +25,8 @@
 use open_pipe_stress_modal_eigen::clusters::cluster_ids;
 use open_pipe_stress_modal_eigen::dd::{Dd, DdAccumulator};
 use open_pipe_stress_modal_eigen::dense::{
-    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseOptions,
+    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseError,
+    DenseOptions,
 };
 use open_pipe_stress_modal_eigen::sturm::{
     count_above_spectrum, count_at_shift, count_in_gap, Gap, GapLower, Neighbour, ShiftDecision,
@@ -1019,6 +1020,104 @@ fn a_rounding_artifact_below_the_resolution_floor_is_not_retained() {
         artifact.resolution_floor / mu
     );
     assert!(mu > 0.0 && mu <= artifact.resolution_floor);
+}
+
+/// Review round 4, item 1: n = 130, M = I and K = LLᵀ with L unit lower
+/// bidiagonal, subdiagonal 16 (entries 1, 16 and 257: admitted and exactly
+/// SPD). L⁻¹ has entries (−16)^k, so the reduced matrix overflows; its NaN
+/// μ were counted as μ ≤ 0 and truncated, and the call returned Ok with no
+/// modes. The reduced matrix and every eigenvalue are now checked first.
+#[test]
+fn a_reduction_that_overflows_is_refused_not_emptied() {
+    let n = 130;
+    let mut k = vec![vec![0.0; n]; n];
+    for i in 0..n {
+        k[i][i] = if i == 0 { 1.0 } else { 257.0 };
+        if i + 1 < n {
+            k[i][i + 1] = 16.0;
+            k[i + 1][i] = 16.0;
+        }
+    }
+    let m: Vec<Vec<f64>> = (0..n)
+        .map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect())
+        .collect();
+    let result = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options());
+    eprintln!("overflowing reduction: {result:?}", result = result.as_ref().map(|s| s.mode_count()));
+    assert!(matches!(
+        result,
+        Err(DenseError::ReductionOutOfRange { .. })
+    ));
+}
+
+/// Review round 4, item 3: K = M = diag(2²⁶, 2⁻²⁶) is congruent to
+/// K = M = I (two modes at λ = 1). Unequilibrated, ν(K̂)·‖M‖ = 2⁵² put the
+/// floor above both μ = 1 and lost them; on the equilibrated pencil
+/// (D = diag(k_jj)^−½) the floor is that of the identity.
+#[test]
+fn the_resolution_floor_is_invariant_to_a_diagonal_rescaling() {
+    let p = |e: i32| 2f64.powi(e);
+    let k = vec![vec![p(26), 0.0], vec![0.0, p(-26)]];
+    let solution = solve_dense_pencil(&sym(&k), &sym(&k), &dense_options()).unwrap();
+    assert_eq!(solution.eigenvalues, vec![1.0, 1.0]);
+    assert!(!solution.finite_count_unresolved);
+    let identity = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
+    let reference = solve_dense_pencil(&sym(&identity), &sym(&identity), &dense_options()).unwrap();
+    assert_eq!(solution.resolution_floor, reference.resolution_floor);
+
+    // One pencil (with a structurally massless DOF, condensed) under several
+    // diagonal congruences S·K·S, S·M·S: the same resolved modes. Powers of
+    // two scale every operation exactly, so μ and δ_μ are bit-identical;
+    // other scalings agree to rounding.
+    let base_k = vec![
+        vec![4.0, 1.0, 0.0, 0.5],
+        vec![1.0, 3.0, 1.0, 0.0],
+        vec![0.0, 1.0, 2.0, 0.25],
+        vec![0.5, 0.0, 0.25, 5.0],
+    ];
+    let base_m = vec![
+        vec![2.0, 0.5, 0.0, 0.0],
+        vec![0.5, 1.0, 0.0, 0.0],
+        vec![0.0, 0.0, 1.0, 0.0],
+        vec![0.0, 0.0, 0.0, 0.0],
+    ];
+    let congruent = |s: &[f64], a: &Rows| -> Rows {
+        (0..4)
+            .map(|i| (0..4).map(|j| s[i] * a[i][j] * s[j]).collect())
+            .collect()
+    };
+    let base = solve_dense_pencil(&sym(&base_k), &sym(&base_m), &dense_options()).unwrap();
+    assert!(!base.finite_count_unresolved);
+    assert_eq!(base.mode_count(), 3);
+    for s in [
+        [p(20), p(-20), p(10), p(-30)],
+        [p(-40), p(40), p(-40), p(40)],
+        [p(60), 1.0, p(-60), p(5)],
+    ] {
+        let scaled = solve_dense_pencil(
+            &sym(&congruent(&s, &base_k)),
+            &sym(&congruent(&s, &base_m)),
+            &dense_options(),
+        )
+        .unwrap();
+        assert_eq!(scaled.mu, base.mu, "{s:?}");
+        assert_eq!(scaled.resolution_floor, base.resolution_floor, "{s:?}");
+        assert!(!scaled.finite_count_unresolved);
+    }
+    for s in [[3.0, 1e5, 7e-4, 1.0], [1e-30, 1e30, 1.0, 1e-10]] {
+        let scaled = solve_dense_pencil(
+            &sym(&congruent(&s, &base_k)),
+            &sym(&congruent(&s, &base_m)),
+            &dense_options(),
+        )
+        .unwrap();
+        assert!(!scaled.finite_count_unresolved, "{s:?}");
+        assert_eq!(scaled.mode_count(), base.mode_count());
+        for (a, b) in scaled.eigenvalues.iter().zip(&base.eigenvalues) {
+            assert!((a - b).abs() <= 1e-13 * b, "{s:?}: {a} vs {b}");
+        }
+        let ratio = scaled.resolution_floor / base.resolution_floor;
+        assert!((0.5..=2.0).contains(&ratio), "{s:?}: floor ratio {ratio}");
+    }
 }
 
 /// A genuine finite μ classified infinite leaves the count unresolved
