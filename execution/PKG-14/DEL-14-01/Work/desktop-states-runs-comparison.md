@@ -481,7 +481,11 @@ the History panel and `useModelStateHistory.ts`.
   take 256 KiB of arguments each (r7; 4 KiB for the first three before). A
   request over the budget is refused by name at ingress
   (`INGRESS-ARGS-TOO-LARGE`). The browser preview refuses them all
-  (`MODEL-STATE-STORE-UNAVAILABLE`).
+  (`MODEL-STATE-STORE-UNAVAILABLE`). `read_analysis_run` and the comparison
+  admission refuse a run whose stored result or run record exceeds the
+  desktop's displayable-result limit (64 MiB, RT-U4) with
+  `STORED-RESULT-TOO-LARGE`, judged from both stored lengths before either is
+  loaded; the run is unchanged (DEL-04-07 `Work/memory-budget-decision.md`).
 - **Request.** It carries the transient record, the result's JSON text (stored
   as given), the manifest's canonical text, the session's base, and optionally
   the state the session expects (`state_id`, checked:

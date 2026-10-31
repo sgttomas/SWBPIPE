@@ -27,6 +27,7 @@ status poll, the cancellation receipt and the terminal transition).
 | Cancellation | `cancellation_status`, once `cancellation_requested` |
 | Completion | the completed event's `result_row_count` and `diagnostic_count` |
 | Refusal | `resource.refusal`: its reading, the refusal point's retry path (`describeSolveRefusalRetry`) and its exact code with its byte fields |
+| Result too large (RT-U4) | a job refused natively with `PREVIEW-SOLVE-RESULT-TOO-LARGE` (event `solve-preview-result-too-large`, `isResultTooLargeSolveJob`): `error_message`, which states the result's size and the 64 MiB limit, the cause (the per-station result detail of the model and its load cases), what the person can do now (a solve covers every load case and combination in the model, so remove the cases and combinations the review does not need, solve the cases in smaller groups in separate copies of the model document, with the combinations in a copy holding only the cases they use, or split a large model into parts), and the exact code with both byte counts. It is not a memory-pool refusal and no result exists. |
 | Failure | `error_message`, or the worker-failure reading (`describeSolveWorkerFailure`) |
 | Events | the run's entries of `events`, in order, with their state and message (entries of the record held when the run started are left out) |
 
@@ -85,6 +86,11 @@ job reports.
   - a refusal's reading, retry path and exact code;
   - a worker failure;
   - completion counts, Close until the next run, and closing on a model change.
+- `src/features/workspace/resultTooLarge.session.test.tsx` runs a job the native
+  host refused for its result's size through the workspace session. The Solve and
+  progress panels show the size, limit, cause and what the person can reduce or split; no result, run record
+  or manifest enters the session and nothing is taken; Record Run reports no run;
+  Save Project saves the model without a mechanics result.
 - `src/App.solveProgress.test.tsx` runs a native job in the full shell. The
   panel opens on Analyze → Run, shows the running stage, and its Cancel sends
   exactly one `cancel_preview_mechanics_job` with the job's token. It then

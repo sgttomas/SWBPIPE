@@ -3,10 +3,11 @@
 // records that replace it when the model changes, and the poll that waits for a
 // backend job. No React.
 
-import { awaitPreviewMechanicsJob } from "../../services/previewService";
+import { awaitPreviewMechanicsJob, describeResultTooLarge, ResultTooLargeError, resultTooLargeCode } from "../../services/previewService";
 import type {
   BackendSolveJobCancellationReceipt,
   BackendSolveJobStatus,
+  ResultTooLarge,
   SolveJobStartReceipt
 } from "../../services/previewService";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, ResourceUnavailableError } from "../../services/memoryPool";
@@ -353,6 +354,40 @@ export function refusedSolveJob(
   };
 }
 
+/** The refused event of a job whose result was too large to display. */
+const RESULT_TOO_LARGE_EVENT = "solve-preview-result-too-large";
+
+/** A job the native host refused because its result is larger than the
+ * desktop can display. It is not a memory-pool refusal: the job's resource
+ * record keeps no refusal, and the plain reading, with the code and exact
+ * figures, is the job's message. No result exists in the app. */
+export function resultTooLargeSolveJob(current: SolveJobAuditState, refusal: ResultTooLarge): SolveJobAuditState {
+  const message = `${describeResultTooLarge(refusal)} Code: ${resultTooLargeCode(refusal)}.`;
+  return {
+    ...current,
+    state: "refused",
+    resource: { ...current.resource, queue_reason: null },
+    events: [
+      ...current.events,
+      {
+        event_id: RESULT_TOO_LARGE_EVENT,
+        state: "refused",
+        message,
+        result_available: false,
+        diagnostic_count: 0,
+        result_row_count: 0,
+        analysis_status: []
+      }
+    ],
+    error_message: message
+  };
+}
+
+/** Whether a job was refused because its result is too large to display. */
+export function isResultTooLargeSolveJob(job: SolveJobAuditState): boolean {
+  return job.state === "refused" && [...job.events].reverse().find((item) => item.state === "refused")?.event_id === RESULT_TOO_LARGE_EVENT;
+}
+
 /** A completed job whose result take the native memory ledger refused. */
 export function refusedAtTakeSolveJob(current: SolveJobAuditState, error: ResourceUnavailableError): SolveJobAuditState {
   return refusedSolveJob(current, error.refusal, error.pool, "take");
@@ -563,6 +598,7 @@ export function failSolveJob(current: SolveJobAuditState, error: unknown): Solve
   // The take and the start record their own refusals; one reaching here came
   // from a native command of the session's solve steps.
   if (error instanceof ResourceUnavailableError) return refusedSolveJob(current, error.refusal, error.pool, "session_step");
+  if (error instanceof ResultTooLargeError) return resultTooLargeSolveJob(current, error.refusal);
   // A crashed or protocol-breaking solve worker is a failure, never a refusal.
   const worker = describeSolveWorkerFailure(String(error));
   return {

@@ -7,7 +7,8 @@ import inventedPreviewModel from "../../../../fixtures/product_preview/invented_
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, resultArrayBuffer, solveBytes } from "../test/nativeMechanicsReplay";
 import { minimalPreviewStatement } from "../test-support/retiredPrecision";
 import { checkedJsonText } from "./hashService";
-import { ResourceUnavailableError } from "./memoryPool";
+import { ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
+import nativeSolveJobs from "../../src-tauri/src/solve_jobs.rs?raw";
 import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding } from "../features/results/resultStanding";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -42,6 +43,11 @@ import {
   startPreviewMechanicsJob,
   takePreviewMechanicsJobResult,
   validateBrowserMechanicsFixture,
+  parseResultTooLarge,
+  describeResultTooLarge,
+  describeStoredResultWithheld,
+  ResultTooLargeError,
+  RESULT_TOO_LARGE_CODE,
   type PreviewSolverMode,
 } from "./previewService";
 import {
@@ -645,7 +651,7 @@ describe("native mechanics failure boundary", () => {
     const failure = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push(status.resource) }).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(ResourceUnavailableError);
     expect((failure as ResourceUnavailableError).refusal).toEqual(refusal);
-    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: The solve needed more memory (6 GiB) than could be reserved while it ran: macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal.");
+    expect((failure as Error).message).toBe("RESOURCE_UNAVAILABLE: The solve needed more memory (6 GiB) than could be reserved while it ran: macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.");
     expect(seen.at(-1)).toMatchObject({ route_pricing: "ordinary_worker_capped", worker_grant_bytes: null, worker_peak_grant_bytes: 4 * 2 ** 30 });
     expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
   });
@@ -668,6 +674,73 @@ describe("native mechanics failure boundary", () => {
       expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
     }
   );
+});
+
+describe("a result too large to display (RT-U4)", () => {
+  const TOO_LARGE = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE" as const, result_bytes: 3_950_000_000, limit_bytes: 67_108_864 };
+  const SENTENCE = "The solve finished, but its result is 3.68 GiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
+
+  it("rejects a job refused for its result's size with the plain reason, the sizes and the limit, and takes nothing", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const answer = await replay.invoke(command, args, options);
+      return command === "poll_preview_mechanics_job"
+        ? { ...answer, state: "refused", result_available: false, result_bytes: null, resource_refusal: null, result_too_large: TOO_LARGE,
+          error_message: "PREVIEW-SOLVE-RESULT-TOO-LARGE: backend-solve-job-1's result is 3950000000 bytes, above the 67108864 bytes the desktop can display; it was discarded without being read" }
+        : answer;
+    });
+    const seen: unknown[] = [];
+    const failure = await runPreviewMechanics(pair.model, "sparse_interactive", { onStatus: (status) => seen.push(status.result_too_large) }).catch((error: unknown) => error);
+    expect(seen.at(-1)).toEqual(TOO_LARGE);
+    expect(failure).toBeInstanceOf(ResultTooLargeError);
+    expect(failure).not.toBeInstanceOf(ResourceUnavailableError);
+    expect((failure as ResultTooLargeError).refusal).toEqual(TOO_LARGE);
+    expect((failure as Error).message).toBe(`PREVIEW-SOLVE-RESULT-TOO-LARGE: ${SENTENCE}`);
+    expect((failure as Error).message).not.toMatch(/UTF-8/);
+    expect(invokeMock.mock.calls.some(([command]) => command === "take_preview_mechanics_job_result")).toBe(false);
+  });
+
+  it("uses the native refusal's code; the limit itself comes from the native status", () => {
+    expect(nativeSolveJobs).toContain(`pub(crate) const RESULT_TOO_LARGE_CODE: &str = "${RESULT_TOO_LARGE_CODE}";`);
+    expect(nativeSolveJobs).toContain("pub(crate) const MAX_DISPLAYABLE_RESULT_BYTES: u64 = 64 << 20;");
+    // The native stored-result refusals give the same advice in the same words.
+    expect(nativeSolveJobs).toContain(`pub(crate) const SOLVE_RESULT_REDUCTION_OPTIONS: &str = "${SOLVE_RESULT_REDUCTION_OPTIONS}";`);
+  });
+
+  it("shows exact bytes when the rounded size and limit would read the same", () => {
+    expect(describeResultTooLarge({ ...TOO_LARGE, result_bytes: 67_108_865 })).toMatch(/^The solve finished, but its result is 67108865 bytes, above the desktop's display limit of 67108864 bytes\. /);
+    expect(describeResultTooLarge({ ...TOO_LARGE, result_bytes: 70_000_000 })).toMatch(/^The solve finished, but its result is 66\.76 MiB, above the desktop's display limit of 64 MiB\. /);
+    const withheld = { code: "STORED-RESULT-TOO-LARGE" as const, result_bytes: 1_000, analysis_run_bytes: 67_108_865, limit_bytes: 67_108_864 };
+    expect(describeStoredResultWithheld(withheld)).toMatch(/^This project's stored analysis-run record is 67108865 bytes, above the desktop's display limit of 67108864 bytes, so its saved run was not opened/);
+  });
+
+  it("reads the refusal only in its declared form", () => {
+    expect(parseResultTooLarge(TOO_LARGE)).toEqual(TOO_LARGE);
+    expect(parseResultTooLarge({ ...TOO_LARGE, extra: 1 })).toEqual(TOO_LARGE);
+    expect(parseResultTooLarge(null)).toBeNull();
+    expect(parseResultTooLarge({ ...TOO_LARGE, code: "OTHER" })).toBeNull();
+    expect(parseResultTooLarge({ ...TOO_LARGE, result_bytes: -1 })).toBeNull();
+    expect(parseResultTooLarge({ ...TOO_LARGE, limit_bytes: 1.5 })).toBeNull();
+    // A size within the limit is not this refusal.
+    expect(parseResultTooLarge({ ...TOO_LARGE, result_bytes: TOO_LARGE.limit_bytes })).toBeNull();
+  });
+
+  it("calls only a decoder's invalid-bytes verdict invalid UTF-8; a decode that fails for size says so", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation(async (command: string) => command === "take_preview_mechanics_job_result" ? new Uint8Array([0x7b, 0xff, 0x7d]).buffer : undefined);
+    await expect(takePreviewMechanicsJobResult("job:invalid-bytes")).rejects.toThrow("PREVIEW-SOLVE-RESULT-UTF8-INVALID: the native result bytes are not UTF-8");
+    const decode = vi.spyOn(TextDecoder.prototype, "decode").mockImplementation(() => { throw new RangeError("Out of memory"); });
+    try {
+      invokeMock.mockImplementation(async (command: string) => command === "take_preview_mechanics_job_result" ? resultArrayBuffer("{}") : undefined);
+      const failure = await takePreviewMechanicsJobResult("job:too-big-to-decode").catch((error: unknown) => error);
+      expect((failure as Error).message).toBe("PREVIEW-SOLVE-RESULT-DECODE-FAILED: the webview could not decode the native result of 2 bytes into text (RangeError: Out of memory); its UTF-8 validity was not determined");
+      // The undecodable delivery is released, as an unreadable one is.
+      expect(invokeMock.mock.calls.at(-1)).toEqual(["dispose_preview_mechanics_result", { jobId: "job:too-big-to-decode" }]);
+    } finally {
+      decode.mockRestore();
+    }
+  });
 });
 
 describe("delivered result custody", () => {
