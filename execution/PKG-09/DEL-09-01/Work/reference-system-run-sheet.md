@@ -1,6 +1,6 @@
 # Reference system run sheet (exit criterion 7)
 
-**Basis:** `main` at `66ecc9f17`; fixture `fixtures/reference_system/reference_system.json`
+**Basis:** `main` at `66ecc9f17`, and at `5bb2f9ff0` for the tee (§3.6 item 3); fixture `fixtures/reference_system/reference_system.json`
 (tranche 1, model document 0.8.0) and its specification `reference-system.md` beside this
 document. Release target `docs/RELEASE_TARGET_v1.0.md` §4, criterion 7. Desktop paths are
 relative to `apps/desktop/src/`.
@@ -204,10 +204,10 @@ RT-E1's finding). So bends follow the run sheet and precede §3.7–§3.12.
 The bends shorten pipes the sheet created, so those rows read "Changed outside the sheet"
 (`run-sheet-entry.md` §3.6). That is expected.
 
-### 3.6 Components (16 min)
+### 3.6 Components (18.75 min)
 
 Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features/component-creation/RigidDraftFields.tsx:11-32`,
-`ConnectorDraftFields.tsx:36-73`). **Queue ⟨kind⟩**, Apply.
+`ConnectorDraftFields.tsx:36-73`; the tee's at `PropertyInspector.tsx:948-969`). **Queue ⟨kind⟩**, Apply.
 
 1. **Valve and flanges** (10 min). Length unit m and Weight unit N, as prefilled. Solver
    consumption mechanics_geometry_only; Stiffness scale 10.0 with source ⟨S5⟩; Geometry
@@ -240,6 +240,28 @@ Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features
    internal_differential_zero_external_v1, source ⟨S5⟩; Stiffness source reference ⟨S5⟩;
    Measurement restraints `invented; no measurement`; Basis transform reference `none`;
    Validity statement `invented test object; no applicability claim`; Provenance ⟨P⟩.
+3. **Tee RS-T1** (2.75 min), after the run sheet, which makes RS-130 join RS-P120, RS-P130
+   and RS-P210.
+   1. **New component**: ID `component:RS-T1`; Label `Tee T1`; Kind tee; **New component
+      node** RS-130; **New tee header pipe** RS-P120; **New tee branch pipe** RS-P210
+      (`PropertyInspector.tsx:947-951`); **Connection angle** 90 with **Angle unit** deg
+      (prefilled rad); Geometry source ⟨S5⟩; Provenance ⟨P⟩. **Queue tee**, Apply. The form
+      also requires **Run size**, **Header size**, **Connection type** and **Reinforcement
+      reference** before it queues (`component-creation/componentIntent.ts:380-392`), and the
+      applier refuses a tee without them (`OP-CREATE-TEE-GEOMETRY-INVALID`,
+      `core/model_operations/operation_applier/src/lib.rs:3387-3446`). Spec §5 gives none of
+      the four and the fixture carries none (gap G10), so the person enters values the
+      specification does not yet supply, and the record gains four members the fixture lacks.
+      The created tee has no `modifiers` and no `mechanics_interface` (`lib.rs:2987-3006`),
+      which the solver reads as mechanics_geometry_only
+      (`core/product_physics/src/preview_physics.rs:307-313`), as for the fixture's record.
+   2. The person's SIFs (spec §11.3): select `component:RS-T1`, **Start task from current
+      selection**, **Property to edit** = Header SIF user value, value 2.4, **Add**, Apply;
+      again with Branch SIF user value, 2.0 (`PropertyInspector.tsx:474-560, 1981-1998`).
+      The fixture's `modifiers.source_reference` ⟨S5⟩ cannot be entered: the inspector offers
+      no modifier-source property on a tee, only on a rigid component as "Stiffness scale
+      source" (`PropertyInspector.tsx:1920-2009, 2097-2105`), although the applier accepts the
+      field (`lib.rs:679-682`) (gap G11).
 
 ### 3.7 Supports (13 min)
 
@@ -286,7 +308,7 @@ included. **Queue reference configurations**, Apply.
 The self-weight generator creates its case and refuses an existing case id
 (`core/product_physics/src/self_weight.rs:205-222, 446`), so RS-SUS, RS-OPE and RS-SAM are
 created here. It reads the finished geometry, sections and components, so it follows
-§3.3–§3.7. *Review changes* › **Self weight** (`App.tsx:548, 591-593`;
+§3.3–§3.7; the tee carries no weight. *Review changes* › **Self weight** (`App.tsx:548, 591-593`;
 `features/self-weight-authoring/SelfWeightPlanPanel.tsx:87-141`): **Self-weight action**
 Create a self-weight case; **Gravity value** -9.80665; **Gravity unit** m/s^2; **Gravity
 direction** Global Z; **Self-weight pipes**: every pipe except RS-P180 (25). Per case:
@@ -375,9 +397,9 @@ The solve time on the desktop is not measured here.
 
 ### 3.14 What still differs from the fixture
 
-The route above gives the fixture's ids, numbers and units. Text and form differences
-remain, none in criterion
-6's identity set or a numerical value:
+The route above gives the fixture's ids, numbers and units, except for the tee (G10,
+G11). Text and form differences remain, none in criterion 6's identity set or, apart from
+the tee's, a numerical value:
 
 - the project's id, name and description (`projectService.ts:440-455`);
 - labels the sheet or forms derive: pipe labels, and the bend form's "Bend start", "Bend
@@ -390,7 +412,9 @@ remain, none in criterion
 - each self-weight primitive's provenance records the hash of the model it was generated
   from, which differs from the fixture generator's capture model;
 - array order: the bend operation appends its nodes, arc and component
-  (`bend_authoring.rs:699-701, 710, 729`), so records are compared by id.
+  (`bend_authoring.rs:699-701, 710, 729`), so records are compared by id;
+- the tee: the desktop record carries the run size, header size, connection type and
+  reinforcement reference the form requires (G10), and lacks the modifier source (G11).
 
 ## 4. Pending families
 
@@ -399,7 +423,6 @@ run-sheet rows do not change.
 
 | Row (spec §10) | Lane | Step it adds |
 |---|---|---|
-| Tee RS-T1 | RT-A3 increment 1 | After §3.6: tee at RS-130, header RS-P120, branch RS-P210, angle 90°, the person's SIFs 2.4 / 2.0 with source |
 | Eccentric reducer RS-R1 | RT-A3 increment 2 | After §3.6: reducer on RS-P150 at RS-160, offset (0, 0, +25) mm, 300 N at the body midpoint, scale 2.0; before §3.9 |
 | Constant effort RS-CE1 | RT-A3 increment 3 | §3.7: RS-100, UZ, constant load 9.0 kN with its travel or movement limit and source |
 | Lift-off, friction, gap | RT-A3 increments 4–5 | §3.7: RS-LO1 (RS-110, UZ), RS-FR1 (RS-120, UY, μ 0.30, normal from RS-FR1V UZ), RS-G1 (RS-140, UX, 5 mm) |
@@ -419,6 +442,9 @@ run-sheet rows do not change.
 An entry is one typed value, selection or checkbox; buttons that add a row (**Add …**) and
 queue or apply buttons are not entries; a quantity whose unit is not prefilled is
 two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not measurements.
+The tee's row uses the rates of its neighbours: its form entries at the rigid-component
+form's rate (about 5.5 s per entry: §3.6's 10 minutes less the six end-size edits, over
+its 60 form entries) and each SIF edit at the RS-050 correction's 0.75 minutes.
 
 | Step | Entries | Queue/apply cycles | Estimate (min) |
 |---|---|---|---|
@@ -430,6 +456,7 @@ two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not
 | 3.5 Bends and SIFs | 39 | 6 | 5.5 |
 | 3.6 Valve and flanges, with end-size edits | 84 | 9 | 10 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
+| 3.6 Tee RS-T1 (14 form entries, four of them G10's) and the person's two SIFs | 20 | 3 | 2.75 |
 | 3.7 Supports | 98 | 11 | 13 |
 | 3.8 Reference configuration | 14 | 1 | 1.5 |
 | 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
@@ -437,14 +464,15 @@ two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not
 | 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **737** | **48** | **about 75 (74.5)** |
+| **Total** | **757** | **51** | **about 77 (77.25)** |
 
-The estimate is about 75 minutes, two and a half times the provisional 30. It was about 130
+The estimate is about 77 minutes, about two and a half times the provisional 30; the tee
+(#45) added 2.75. It was about 130
 before #38's fills and case copies (gaps G7, G8), which brought the per-member load/reference
 state and pressure regions (§3.8, §3.10, §3.11) from about 1,450 entries and 66.5 minutes to
 168 entries and about 11.5 minutes; those entry counts are the authoring lane's, measured by
 its round-trip test of the fixture (#38). The component and support forms (§3.6, §3.7) are
-now the largest share, about 29 minutes; the run-sheet support and bend cells under review
+now the largest share, about 32 minutes; the run-sheet support and bend cells under review
 (#41, G1–G3) would move most of §3.5 and §3.7 into §3.4. The run sheet itself is about 8.
 
 ## 6. Gaps found
@@ -462,11 +490,14 @@ cost §5 shows. None is worked around outside the operation route.
 | G6 | **New component** has one length unit for body length, end sizes and centre of gravity | `componentIntent.ts:534-551` | DEL-03-05 | Six end-size edits (§3.6) |
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
-| G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 48 apply cycles (§5) |
+| G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 51 apply cycles (§5) |
+| G10 | Tee creation requires a run size, header size, connection type and reinforcement reference, which spec §5 and the fixture do not give; the solver warns of their absence on the fixture (`BRANCH_GEOMETRY_INPUT_MISSING`) | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) or DEL-03-05 (tee creation) | Enters values the spec does not supply (§3.6) |
+| G11 | No modifier-source entry for a tee: the inspector offers header and branch SIFs but not `modifiers.source_reference`, which it offers only on rigid components | `PropertyInspector.tsx:1920-2009, 2097-2105`; applier field rule `lib.rs:679-682` | DEL-03-05 | Leaves the SIF source unentered (§3.6) |
 
 **RT-G2 candidates not named in spec §11.2:**
 - support-id and bend-id cells in the run sheet, as the design's row detail describes (G1,
   G2);
 - a numbering pattern with padding, and an option to name a pipe by its start node (G3);
 - a unit per quantity on the rigid-component form (G6);
-- applying several queued intents as one reviewed batch (G9).
+- applying several queued intents as one reviewed batch (G9);
+- a modifier-source field for a tee, beside its SIFs (G11).

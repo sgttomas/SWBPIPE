@@ -1106,6 +1106,23 @@
     {
       "collection": "components",
       "fields": {
+        "geometry.branch_branch_pipe_ref": "agent_authorable",
+        "geometry.branch_connection_angle": "agent_authorable",
+        "geometry.branch_geometry_source_reference": "agent_authorable",
+        "geometry.branch_header_pipe_ref": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "modifiers.branch_branch_sif_user_value": "person",
+        "modifiers.branch_header_sif_user_value": "person",
+        "modifiers.source_reference": "person",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-T1"
+    },
+    {
+      "collection": "components",
+      "fields": {
         "geometry.center_of_gravity": "agent_authorable",
         "geometry.connection_end_a_reference": "agent_authorable",
         "geometry.connection_end_b_reference": "agent_authorable",
@@ -1518,11 +1535,11 @@
       "entities": [
         "component:RS-T1"
       ],
-      "expected_until_then": "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`",
+      "expected_until_then": "—",
       "family": "Tee RS-T1 with user SIFs",
-      "in_tranche_1": false,
-      "row_lane": "RT-A3 increment 1 (`claude/rt-a3-tee`)",
-      "state": "pending; the junction at RS-130 is in tranche 1 without the component"
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
     },
     {
       "entities": [
@@ -1675,20 +1692,7 @@
       "state": "pending"
     }
   ],
-  "pending_inputs": [
-    {
-      "fields": {
-        "geometry.branch_branch_pipe_ref": "agent_authorable",
-        "geometry.branch_connection_angle": "agent_authorable",
-        "geometry.branch_header_pipe_ref": "agent_authorable",
-        "modifiers.branch_branch_sif_user_value": "person",
-        "modifiers.branch_header_sif_user_value": "person",
-        "modifiers.source_reference": "person"
-      },
-      "id": "component:RS-T1",
-      "ledger_family": "Tee RS-T1 with user SIFs"
-    }
-  ],
+  "pending_inputs": [],
   "self_weight": {
     "cases": [
       "load:RS-SUS",

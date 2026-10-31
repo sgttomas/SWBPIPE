@@ -3,8 +3,8 @@
 
 Checks that the committed files are the generator's output, that the model is a current model document, that it
 solves on EX with every tranche-1 case solved and nothing refused, that the spec's §10 ledger and the authoring
-file's pending flags agree, and that no key result carries an expected value without a recorded basis. Invented
-inputs only."""
+file's pending flags agree, that no key result carries an expected value without a recorded basis, EQ-1/2/3/5 in
+both solver modes, and KR-05's presence (the tee's rows, no values). Invented inputs only."""
 
 from __future__ import annotations
 
@@ -109,8 +109,8 @@ def test_the_model_validates_as_the_current_model_document():
 def test_tranche_one_holds_its_families_and_leaves_the_pending_ones_out():
     ids = all_ids(MODEL)
     assert len(MODEL["nodes"]) == 27 and len(MODEL["pipe_segments"]) == 26
-    for present in ("component:RS-B1", "component:RS-B2", "component:RS-B3", "component:RS-F1", "component:RS-V1",
-                    "component:RS-F2", "component:RS-EJ1", "support:RS-FR1V", "load:RS-SUS", "load:RS-OPE",
+    for present in ("component:RS-B1", "component:RS-B2", "component:RS-B3", "component:RS-T1", "component:RS-F1",
+                    "component:RS-V1", "component:RS-F2", "component:RS-EJ1", "support:RS-FR1V", "load:RS-SUS", "load:RS-OPE",
                     "load:RS-SAM", "combination:RS-EXP", "combination:RS-dSAM"):
         assert present in ids, present
     for row in AUTHORING["pending"]:
@@ -122,17 +122,23 @@ def test_tranche_one_holds_its_families_and_leaves_the_pending_ones_out():
         assert all("pipe:RS-P180" not in region["member_pipe_ids"] for region in case["pressure_regions"])
 
 
-def test_authoring_marks_person_only_for_the_bend_k_sifs_and_their_source():
+def test_authoring_marks_person_only_for_the_bend_k_the_bend_and_tee_sifs_and_their_source():
     person = {(entry["id"], path) for entry in AUTHORING["inputs"] for path, mark in entry["fields"].items()
               if mark == "person"}
     expected = {(f"component:{tag}", f"modifiers.{field}") for tag in ("RS-B1", "RS-B2", "RS-B3")
                 for field in ("flexibility_factor_user_value", "sif_in_plane_user_value", "sif_out_of_plane_user_value",
                               "source_reference")}
+    expected |= {("component:RS-T1", f"modifiers.{field}") for field in ("branch_header_sif_user_value",
+                                                                         "branch_branch_sif_user_value",
+                                                                         "source_reference")}
     assert person == expected
     assert {mark for entry in AUTHORING["inputs"] for mark in entry["fields"].values()} == {"person",
                                                                                              "agent_authorable"}
-    tee = AUTHORING["pending_inputs"][0]
-    assert tee["fields"]["modifiers.branch_header_sif_user_value"] == "person"
+    assert AUTHORING["pending_inputs"] == []
+    tee = next(c for c in MODEL["components"] if c["id"] == "component:RS-T1")
+    assert (tee["kind"], tee["node"]) == ("tee", "node:RS-130")
+    assert (tee["geometry"]["branch_header_pipe_ref"], tee["geometry"]["branch_branch_pipe_ref"]) == \
+        ("pipe:RS-P120", "pipe:RS-P210")
     model_bends = {c["id"]: c for c in MODEL["components"] if c["kind"] == "bend"}
     for bend in AUTHORING["bends"]:
         component = model_bends[bend["component"]]
@@ -204,6 +210,9 @@ def test_every_tranche_one_case_solves_on_ex_with_nothing_refused(solved):
                                                                                  row["expected_until_then"])}
     assert not codes & pending_codes, codes & pending_codes
     assert not {c for c in codes if c and c.startswith("SELF_WEIGHT")}
+    # RG-1, RG-2 and RG-3 meet at RS-130 with every terminal transferring to the wall, at one pressure, and every pipe
+    # there is in a region: the junction is no closure (RT-A3 increment 1, D-1).
+    assert not codes & {"EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER", "EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS"}
     cases = [case["id"] for case in MODEL["load_cases"]]
     assert cases == ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"]
     quality = {entry["basis_ref"]["ref_id"]: entry for entry in envelope["numerical_quality"]["cases"]}
@@ -257,7 +266,7 @@ MAGNITUDES = {"displacement_magnitude": ("global_nodal_displacement_x", "global_
               "support_reaction_force_magnitude_v2": FORCES, "support_reaction_moment_magnitude_v2": MOMENTS}
 # Case rows that are not signed component rows: maxima, extremes, intensified measures and solver records. The product
 # combines none of them (COMBINATION_STRESS_MAXIMUM_UNAVAILABLE, COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE).
-NOT_COMPONENT_ROWS = {"curved_bend_directional_intensified_bending_maximum_v1",
+NOT_COMPONENT_ROWS = {"branch_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_maximum_v1",
                       "curved_bend_directional_intensified_bending_stress_v1", "element_local_normal_stress_extreme",
                       "element_local_transverse_shear_stress_maximum", "pipe_elastic_normal_stress_maximum_v2",
                       "linear_solver_mode_basis"}
@@ -290,7 +299,12 @@ def summarise(output):
             rows.setdefault(basis, []).append({"key": row_key(row), "value": row["value"], "id": row["id"]})
     withheld = {code["affected_refs"][0]: code["message"] for code in envelope["diagnostics"]
                 if code.get("code") == "LOAD_COMBINATION_ROW_WITHHELD"}
-    return {"rows": rows, "withheld": withheld, "status": envelope["status"]["mechanics"]}
+    intensified = {case["load_case_id"]: case.get("intensified_measures") or []
+                   for case in envelope["contract_evidence"].get("exact_cases", [])}
+    unavailable = {code["affected_refs"][0] for code in envelope["diagnostics"]
+                   if code.get("code") == "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE"}
+    return {"rows": rows, "withheld": withheld, "status": envelope["status"]["mechanics"], "intensified": intensified,
+            "intensified_unavailable": unavailable}
 
 
 @pytest.fixture(scope="module", params=SOLVER_MODES)
@@ -425,6 +439,47 @@ def test_eq3_expansion_equals_operating_minus_sustained_on_every_component_row(m
     eq3["rows"], eq3["withheld"] = len(exp), withheld_ids
     print(f"{mode} EQ-3 {eq3}")
     assert not failures, failures[:20]
+
+
+# KR-05 (spec §9.1): presence is an identity, checked here; its values come later from a verified solve, so no value is
+# read. The tee RS-T1 at RS-130 names RS-P120 (header, which ends there: end_j) and RS-P210 (branch, which starts there:
+# end_i); each side publishes one row per section basis, bound to its intensified_measures record.
+BRANCH_KIND = "branch_intensified_bending_stress_v1"
+KR05_ENDS = {("pipe:RS-P120", "end_j"): ("branch_header", 2.4), ("pipe:RS-P210", "end_i"): ("branch_branch", 2.0)}
+SECTION_BASES = ("nominal_section", "reduced_section")
+
+
+def test_kr05_the_tee_publishes_its_header_and_branch_rows_on_both_section_bases(mode_rows):
+    mode, summary = mode_rows
+    tee = next(c for c in MODEL["components"] if c["id"] == "component:RS-T1")
+    pipes = {p["id"]: p for p in MODEL["pipe_segments"]}
+    for (pipe, location), _ in KR05_ENDS.items():
+        assert pipes[pipe]["to" if location == "end_j" else "from"] == tee["node"], pipe
+    expected = {(BRANCH_KIND, "Pa", pipe, location, "intensified_bending", "pipe_section", basis)
+                for pipe, location in KR05_ENDS for basis in SECTION_BASES}
+    found = {}
+    for case in ("load:RS-SUS", "load:RS-OPE"):
+        keys = [row["key"] for row in summary["rows"][case] if row["key"][0] == BRANCH_KIND]
+        assert sorted(keys) == sorted(expected), (mode, case, keys)
+        records = {(r["pipe_id"], r["location"], r["section_basis"]): (r["factor_role"], r["sif"])
+                   for r in summary["intensified"][case] if r.get("component_id") == tee["id"]}
+        assert records == {(pipe, location, basis): role for (pipe, location), role in KR05_ENDS.items()
+                           for basis in SECTION_BASES}, (mode, case, records)
+        found[case] = len(keys)
+    # RS-EXP is listed for KR-05 "where published": the combination withholds intensified rows by name.
+    exp_keys = [row["key"] for row in summary["rows"]["combination:RS-EXP"] if row["key"][0] == BRANCH_KIND]
+    if not exp_keys:
+        assert "combination:RS-EXP" in summary["intensified_unavailable"], mode
+    else:
+        assert sorted(exp_keys) == sorted(expected), (mode, exp_keys)
+    found["combination:RS-EXP"] = len(exp_keys)
+    print(f"{mode} KR-05 presence rows {found}")
+
+
+def test_kr05_names_its_presence_check_and_no_expected_value():
+    entry = next(e for e in KEY_RESULTS["results"] if e["id"] == "KR-05")
+    assert entry["expected"] is None and entry["basis"] == "verified_solve"
+    assert entry["check"]["kind"] == "presence" and entry["check"]["test"] == "tests/test_reference_system_fixture.py"
 
 
 def test_eq1_eq2_expected_values_are_the_frozen_references():

@@ -413,12 +413,16 @@ Each closed-form reference is computed by an independent generator in
 frozen there for the tranche-1 cases (the total weight and its moment about the origin,
 recomputed from §3–§5 without the captured self-weight); EQ-3 and EQ-5 are identities
 recorded in its README. `tests/test_reference_system_fixture.py` checks all four in both
-solver modes. RS-HYD's weight with the test contents is referenced when RS-HYD lands.
+solver modes. RS-HYD's weight with the test contents is referenced when RS-HYD lands. The
+same test checks KR-05's presence, an identity: the tee's rows at the RS-130 ends of
+RS-P120 and RS-P210 on both section bases in RS-SUS and RS-OPE (RS-EXP withholds
+intensified rows); KR-05's values wait for a verified solve.
 
 ## 10. Pending-family ledger
 
 State on `main` at `276e581b3`, as verified by the tranche-1 solve on EX
-(`tests/test_reference_system_fixture.py`, 2026-10-30). Tranche 1 of the fixture contains
+(`tests/test_reference_system_fixture.py`, 2026-10-30); the tee row at `5bb2f9ff0`
+(RT-A3 increment 1, #45), verified the same way on 2026-10-31. Tranche 1 of the fixture contains
 every family marked "in tranche 1", and RS-SUS, RS-OPE and RS-SAM solve on EX with no
 blocking diagnostic. A pending family keeps its geometry slot and ids; when its row lands, the
 generator adds its entities without moving a node. "Expected until then" is the refusal
@@ -433,7 +437,7 @@ or absence a solve of the full model shows today.
 | Pressure (five regions, shared terminals `transfers_to_wall`) | in tranche 1 | — | — |
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
 | Variable spring as a user-stiffness spring | in tranche 1 | — | — |
-| Tee RS-T1 with user SIFs | pending; the junction at RS-130 is in tranche 1 without the component | RT-A3 increment 1 (`claude/rt-a3-tee`) | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
+| Tee RS-T1 with user SIFs | in tranche 1 | — | — |
 | Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | RT-A3 increment 4; with the connector, increment 5 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
@@ -486,14 +490,16 @@ the criterion text is the owner's, and Agent 0 takes the question to the owner w
 RT-U2 walkthrough results.
 
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
-chains: from A, from the tee, and the branch) and about 640 follow-up form entries, 168
+chains: from A, from the tee, and the branch) and about 660 follow-up form entries, 168
 of them the per-member load/reference states and pressure regions of the three cases
-since the fills and case copies of #38. The run sheet's estimate is about 75 minutes
-(about 130 before #38), against the provisional 30; it is not a measurement. On
-`main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
-and the three bends are entered by forms (run sheet §2, §6). The full model adds the
-tee, the reducer, the other non-rigid supports, five more cases with their regions, the
-other eight combinations and the three analysis requests.
+since the fills and case copies of #38, and 20 the tee RS-T1 with the person's SIFs. The
+run sheet's estimate is about 77 minutes (about 130 before #38), against the provisional
+30; it is not a measurement. On `main` the sheet cannot carry the fixture's support or
+bend ids, so all eleven supports and the three bends are entered by forms (run sheet §2,
+§6), and the tee's form requires four members spec §5 does not give and has no field for
+its modifier source (run sheet G10, G11). The full model adds the reducer, the other
+non-rigid supports, five more cases with their regions, the other eight combinations and
+the three analysis requests.
 
 **What a fuller run sheet would absorb** (an RT-G2 candidate, Agent 0, 2026-10-31):
 - a component column per row: flange, valve, reducer and tee, with weight and stiffness

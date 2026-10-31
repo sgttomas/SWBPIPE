@@ -55,6 +55,11 @@
         "RS-OPE",
         "RS-EXP"
       ],
+      "check": {
+        "check": "in RS-SUS and RS-OPE the solve publishes exactly four branch_intensified_bending_stress_v1 rows, at the RS-130 ends of RS-P120 (header, component:RS-T1 branch_header) and RS-P210 (branch, branch_branch), each on the nominal and the reduced section basis, with their intensified_measures records; RS-EXP publishes none today (the combination withholds intensified rows by name, COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE), and the same four if it ever publishes them; presence and basis only, no value",
+        "kind": "presence",
+        "test": "tests/test_reference_system_fixture.py"
+      },
       "description": "Tee intensified stress rows at the header (RS-P120) and branch (RS-P210) ends at RS-130, on both section bases",
       "expected": null,
       "id": "KR-05",
