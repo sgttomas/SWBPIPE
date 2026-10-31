@@ -194,18 +194,20 @@ def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job()
 
 
 def test_model_version_literal_guard_follows_every_root_it_scans():
-    spec = importlib.util.spec_from_file_location('version_literals', PROJECT / ci.MODEL_VERSION_LITERAL_TEST)
+    """The guard is selected by its derived roots, which include every root it scans: the selector names
+    none of them itself (tests/test_verifier_independence.py forbids naming `tests/verifiers` outside tests)."""
+    test = 'tests/test_model_version_literals.py'
+    spec = importlib.util.spec_from_file_location('version_literals', PROJECT / test)
     guard = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(guard)
     scanned = {guard.DESKTOP_TS, guard.DESKTOP_RS, guard.APPLIER_RS, *guard.EXTENDED_RS, *guard.PYTHON_VERSION_ROOTS}
-    routed = {PROJECT / root.rstrip('/') for root in ci.MODEL_VERSION_LITERAL_ROOTS}
-    assert routed == scanned
+    assert {(PROJECT / root) for root in ci.derived_tests(PROJECT)[test]} >= scanned
     for path in ('apps/desktop/src-tauri/src/embedded_agent/session_fixture.rs', 'apps/desktop/src/services/modelSchemaVersion.ts',
                  'core/product_physics/src/model_format.rs', 'core/model_operations/operation_applier/src/lib.rs',
-                 'tools/validation/validate_claims_language.py'):
-        assert ci.MODEL_VERSION_LITERAL_TEST in selected(path), path
-    assert ci.MODEL_VERSION_LITERAL_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
-    assert ci.MODEL_VERSION_LITERAL_TEST not in selected('core/security/redaction/controls.py')
+                 'tools/validation/validate_claims_language.py', 'tests/verifiers/u4b.py'):
+        assert test in selected(path), path
+    assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert test not in selected('core/gui/pkg02_boundary.py')
 
 
 def test_every_maintained_test_runs_when_a_path_it_reads_changes():
