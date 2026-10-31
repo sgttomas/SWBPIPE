@@ -605,6 +605,13 @@ impl SolveJobRegistry {
         self.pool.acquire_interactive(bytes).map_err(|refusal| self.unavailable(refusal))
     }
 
+    /// Admits a native reader's argument lease (C1 native custody):
+    /// interactive, bounded with all its growth by the per-invocation budget
+    /// and the 12 GiB default ([`MemoryPool::acquire_interactive_capped`]).
+    pub(crate) fn acquire_interactive_ingress_capped(&self, bytes: u64) -> Result<Lease, SolveJobError> {
+        self.pool.acquire_interactive_capped(bytes).map_err(|refusal| self.unavailable(refusal))
+    }
+
     /// Admits a native reader's parse of a held result (C1 native custody):
     /// an adaptive lease of `bytes`, re-sampled while refused only for
     /// headroom, as the result and custody leases are, and refused

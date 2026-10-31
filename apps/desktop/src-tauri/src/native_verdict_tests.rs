@@ -61,21 +61,23 @@ fn body(args: &Value) -> InvokeBody {
 fn args(job_id: &str, model: Option<&str>, invocation: Option<&str>) -> Value {
     json!({"jobId": job_id, "modelJson": model, "invocationJson": invocation})
 }
-/// The command's two steps in this thread: admission, then the blocking read.
+/// The command's two steps in this thread: the executor's reservation, then the blocking part.
 fn read_verdict(registry: &SolveJobRegistry, job_id: &str, model: Option<&str>, invocation: Option<&str>) -> Result<String, CommandError<String>> {
-    read(admit(registry, &body(&args(job_id, model, invocation)), &headers(Some(INGRESS_ARGS_JSON_V1)))?)
+    let (raw, lease) = reserve(registry, &body(&args(job_id, model, invocation)), &headers(Some(INGRESS_ARGS_JSON_V1)))?;
+    run(registry.clone(), raw, lease)
 }
 
-/// A test gate on the read, per held result (by its address, which is
-/// unique across the tests' registries, unlike job ids): [`read`] passes it
-/// after its leases are admitted and before the reader runs, counting each
-/// entry and waiting while it is closed.
+/// A test gate in [`run`], per registry (by its pool's address, unique
+/// across the tests' registries, unlike job ids) and stage: `admit` as the
+/// blocking part starts, before the arguments' admission; `read` after the
+/// leases are admitted and before the reader runs. It counts each entry and
+/// waits while it is closed.
 pub(crate) mod gate {
     use std::sync::{Arc, Condvar, Mutex};
     use std::time::{Duration, Instant};
 
     pub(crate) struct Gate {
-        held: usize,
+        key: String,
         state: Mutex<(bool, usize)>,
         changed: Condvar,
     }
@@ -89,9 +91,11 @@ pub(crate) mod gate {
             GATES.lock().unwrap().retain(|g| !Arc::ptr_eq(g, &self.0));
         }
     }
-    pub(crate) fn hold(registry: &crate::solve_jobs::SolveJobRegistry, job: &str, open: bool) -> Held {
-        let held = Arc::as_ptr(&registry.held_result(job).unwrap()) as usize;
-        let gate = Arc::new(Gate { held, state: Mutex::new((open, 0)), changed: Condvar::new() });
+    pub(crate) fn key(registry: &crate::solve_jobs::SolveJobRegistry, stage: &str) -> String {
+        format!("{:p}:{stage}", Arc::as_ptr(registry.pool()))
+    }
+    pub(crate) fn hold(registry: &crate::solve_jobs::SolveJobRegistry, stage: &str, open: bool) -> Held {
+        let gate = Arc::new(Gate { key: key(registry, stage), state: Mutex::new((open, 0)), changed: Condvar::new() });
         GATES.lock().unwrap().push(gate.clone());
         Held(gate)
     }
@@ -117,8 +121,8 @@ pub(crate) mod gate {
             true
         }
     }
-    pub(crate) fn pass(held: usize) {
-        let gate = GATES.lock().unwrap().iter().find(|g| g.held == held).cloned();
+    pub(crate) fn pass(key: String) {
+        let gate = GATES.lock().unwrap().iter().find(|g| g.key == key).cloned();
         let Some(gate) = gate else { return };
         let mut state = gate.state.lock().unwrap();
         state.1 += 1;
@@ -178,10 +182,10 @@ fn the_verdict_needs_a_known_job_holding_its_result() {
     wait_terminal(&registry, &receipt.job_id);
     registry.dispose_result(&receipt.job_id).unwrap();
     // The args are admitted as every raw-body command's.
-    match admit(&registry, &body(&args("job-1", None, None)), &headers(None)) {
+    match reserve(&registry, &body(&args("job-1", None, None)), &headers(None)) {
         Err(CommandError::Ingress(SolveJobError::InvalidRequest { message })) => assert!(message.starts_with("INGRESS-HEADER-REQUIRED"), "{message}"),
         Err(other) => panic!("{other:?}"),
-        Ok(_) => panic!("admitted without the ingress header"),
+        Ok(_) => panic!("reserved without the ingress header"),
     }
 }
 
@@ -196,7 +200,9 @@ fn the_parse_is_admitted_through_the_pool_and_refused_by_name_when_it_does_not_f
     let job = retained(&registry, &gate, &text);
     let request = args(&job, None, None);
     let raw = serde_json::to_vec(&request).unwrap();
-    let args_lease = command_ingress::lease_bytes(ingress::prescan(&raw).unwrap(), ArgsDecoding::Moved).unwrap();
+    // The raw body's copy, then the args' admission bound (`reserve`, `run`).
+    let args_lease = ingress::allocation_envelope(raw.len() as u64).unwrap()
+        + command_ingress::lease_bytes(ingress::prescan(&raw).unwrap(), ArgsDecoding::Moved).unwrap();
     let needed = ingress::prescan(text.as_bytes()).unwrap().materialization_bytes + registry.pool().reserved_total() + args_lease;
     host.set(|s| s.headroom_bytes = Some(needed - 1));
     match refusal(read_verdict(&registry, &job, None, None).unwrap_err()) {
@@ -407,38 +413,54 @@ fn native_verdicts_are_the_committed_reader_outcomes_on_the_whole_corpus() {
     assert_eq!(check_inputs(&inputs), 561);
 }
 
-/// Review F1: the read runs in a blocking task, never on the async runtime's
-/// workers. More reads than the runtime has workers are held inside the
-/// reader at once, and another async command still runs to completion.
+/// The worker threads of the runtime the command's futures run on (Tauri's),
+/// as that runtime reports them: an environment that configures more workers
+/// (`TOKIO_WORKER_THREADS`) raises the reads the executor tests hold with it.
+fn runtime_workers() -> usize {
+    let workers = tauri::async_runtime::handle().inner().metrics().num_workers();
+    // Each held read occupies one of the blocking pool's 512 threads.
+    assert!(workers > 0 && workers * 2 + 2 <= 512, "{workers} runtime workers");
+    workers
+}
+
+/// Review F1 and R1: the arguments' admission and the read run in a blocking
+/// task, never on the async runtime's workers. At each stage, more commands
+/// than the runtime has workers are held inside it at once (at admission with
+/// a large model text each), and another async command still completes.
+/// Run on the executor instead, at most one held command per worker enters.
 #[test]
-fn reads_run_off_the_async_executor() {
+fn admission_and_reads_run_off_the_async_executor() {
     let host = ScriptedHost::normal();
     let (registry, gate) = gated(&host);
     let text = read_text(DEMO);
     let job = retained(&registry, &gate, &text);
-    let expected = open_pipe_stress_operation_applier::reader_dispatch_json(&text, None, None).unwrap();
-    let held = gate::hold(&registry, &job, false);
-    // More than the runtime's workers (one per core by default).
-    let reads = std::thread::available_parallelism().map_or(8, |n| n.get()) * 2 + 2;
-    let handles: Vec<_> = (0..reads)
-        .map(|_| {
-            let (registry, body) = (registry.clone(), body(&args(&job, None, None)));
-            tauri::async_runtime::spawn(async move { verdict(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).await })
-        })
-        .collect();
-    assert!(held.0.wait_entered(reads, Duration::from_secs(60)), "only {} of {reads} reads entered the reader", held.0.entered());
-    // Another command, on the same runtime, while every read is held.
-    let (sender, receiver) = std::sync::mpsc::channel();
-    let (probe_registry, probe_job) = (registry.clone(), job.clone());
-    tauri::async_runtime::spawn(async move {
-        let _ = sender.send(probe_registry.status(&probe_job).map(|status| status.state));
-    });
-    assert_eq!(receiver.recv_timeout(Duration::from_secs(10)).expect("the runtime ran no other task while reads were held").unwrap(), "completed");
-    held.0.open();
-    for handle in handles {
-        assert_eq!(tauri::async_runtime::block_on(handle).unwrap().unwrap(), expected);
+    // A model text of 2 MiB: admission prescans and parses it.
+    let model = format!("{{\"pad\":\"{}\"}}", "x".repeat(2 << 20));
+    let expected = open_pipe_stress_operation_applier::reader_dispatch_json(&text, Some(&model), None).unwrap();
+    let commands = runtime_workers() * 2 + 2;
+    for stage in ["admit", "read"] {
+        let held = gate::hold(&registry, stage, false);
+        let handles: Vec<_> = (0..commands)
+            .map(|_| {
+                let (registry, body) = (registry.clone(), body(&args(&job, Some(&model), None)));
+                tauri::async_runtime::spawn(async move { verdict(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).await })
+            })
+            .collect();
+        assert!(held.0.wait_entered(commands, Duration::from_secs(60)), "{stage}: only {} of {commands} commands entered", held.0.entered());
+        // Another command, on the same runtime, while every one is held.
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let (probe_registry, probe_job) = (registry.clone(), job.clone());
+        tauri::async_runtime::spawn(async move {
+            let _ = sender.send(probe_registry.status(&probe_job).map(|status| status.state));
+        });
+        let probe = receiver.recv_timeout(Duration::from_secs(10));
+        assert_eq!(probe.unwrap_or_else(|_| panic!("{stage}: the runtime ran no other task")).unwrap(), "completed");
+        held.0.open();
+        for handle in handles {
+            assert_eq!(tauri::async_runtime::block_on(handle).unwrap().unwrap(), expected, "{stage}");
+        }
+        drop(held);
     }
-    drop(held);
     registry.dispose_result(&job).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
 }
@@ -549,10 +571,11 @@ fn a_refused_parse_commits_no_memory_and_never_reaches_the_reader() {
     let text = read_text(DEMO);
     let job = retained(&registry, &gate, &text);
     let materialization = ingress::prescan(text.as_bytes()).unwrap().materialization_bytes;
-    let held = gate::hold(&registry, &job, true);
-    let admitted = admit(&registry, &body(&args(&job, None, None)), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+    let held = gate::hold(&registry, "read", true);
+    let (raw, lease) = reserve(&registry, &body(&args(&job, None, None)), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
     host.set(|s| s.headroom_bytes = Some(materialization / 2));
-    let (outcome, measured) = ingress::counting::measure(|| read(admitted));
+    let handle = registry.clone();
+    let (outcome, measured) = ingress::counting::measure(|| run(handle, raw, lease));
     assert!(matches!(refusal(outcome.unwrap_err()), ResourceRefusal::HeadroomInsufficient { .. }));
     assert_eq!(held.0.entered(), 0, "the reader was reached");
     // Only the refusal and its pool status were allocated: nothing near the parse.
@@ -593,5 +616,80 @@ fn the_parse_lease_is_capped_at_the_12_gib_default() {
     registry.configure_pool(192 * GIB, 4 * GIB, false).unwrap();
     assert_eq!(cap(&registry, 4 * GIB + 1), above(4 * GIB + 1, 4 * GIB));
     assert_eq!(cap(&registry, 4 * GIB), Ok(4 * GIB));
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Review R2: the diagnostic parse that finds the reader's refusal is priced
+/// and admitted before it allocates. A held source with an escaped string
+/// decoding to 2 MiB needs a scratch of that order to be read; with a malformed model
+/// and too little headroom for it, the refusal comes first and nothing
+/// proportional to either text is allocated. With headroom, the reader's
+/// exact refusal, in its order, follows. The priced bounds cover what the
+/// diagnostic parse allocates, for an admitted and a refused text.
+#[test]
+fn diagnostics_are_admitted_before_they_allocate() {
+    let escaped = "\\n".repeat(2 << 20);
+    let source = format!("{{\"s\":\"{escaped}\"}}");
+    let (_, allowances) = ingress::prescan_allowances(source.as_bytes()).unwrap();
+    let (_, measured) = ingress::counting::measure(|| reader_parse_error("source", &source));
+    assert!(measured.peak_priced >= 2 << 20 && measured.peak_priced <= allowances, "{measured:?} against {allowances}");
+    let refused = format!("{{\"s\":\"{escaped}");
+    let (error, measured) = ingress::counting::measure(|| reader_parse_error("model", &refused));
+    assert!(error.is_some());
+    let bound = ingress::length_allowances(refused.len() as u64).unwrap();
+    assert!(measured.peak_priced >= 2 << 20 && measured.peak_priced <= bound, "{measured:?} against {bound}");
+
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let job = retained(&registry, &gate, &source);
+    let (raw, lease) = reserve(&registry, &body(&args(&job, Some("{"), None)), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+    host.set(|s| s.headroom_bytes = Some(allowances / 2));
+    let handle = registry.clone();
+    let (outcome, measured) = ingress::counting::measure(|| run(handle, raw, lease));
+    assert!(matches!(refusal(outcome.unwrap_err()), ResourceRefusal::HeadroomInsufficient { .. }));
+    assert!(measured.peak_priced < 64 * 1024, "{measured:?}");
+    host.set(|s| s.headroom_bytes = Some(64 * crate::memory_pool::test_host::GIB));
+    match read_verdict(&registry, &job, Some("{"), None).unwrap_err() {
+        CommandError::Command(text) => {
+            assert_eq!(text, "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: EOF while parsing an object at line 1 column 1");
+            assert_eq!(text, open_pipe_stress_operation_applier::reader_dispatch_json(&source, Some("{"), None).unwrap_err());
+        }
+        other => panic!("{other:?}"),
+    }
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Review R3: the args lease, at admission and at every growth, is capped by
+/// the per-invocation budget and never above the 12 GiB default, under the
+/// pool lock, as the parse lease is. Checked on the pool method and on the
+/// lease the command's own reservation takes.
+#[test]
+fn the_args_lease_is_capped_at_the_12_gib_default() {
+    use crate::memory_pool::test_host::GIB;
+    let host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
+    let registry = SolveJobRegistry::new(MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5)));
+    let admitted = |bytes: u64| match registry.acquire_interactive_ingress_capped(bytes) {
+        Ok(lease) => Ok(lease.bytes()),
+        Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(refusal),
+        Err(other) => panic!("{other:?}"),
+    };
+    let above = |bytes: u64, budget: u64| Err(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes: budget });
+    let grown = |bytes: u64| {
+        let (_, mut lease) = reserve(&registry, &body(&args("job-1", None, None)), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+        lease.grow_to(bytes).map(|()| lease.bytes())
+    };
+    for (budget, cap) in [(None, 12 * GIB), (Some(64 * GIB), 12 * GIB), (Some(4 * GIB), 4 * GIB)] {
+        if let Some(budget) = budget {
+            registry.configure_pool(192 * GIB, budget, false).unwrap();
+        }
+        assert_eq!(admitted(cap), Ok(cap), "{budget:?}");
+        assert_eq!(admitted(cap + 1), above(cap + 1, cap), "{budget:?}");
+        assert_eq!(grown(cap), Ok(cap), "{budget:?}");
+        assert_eq!(grown(cap + 1).map_err(Some), above(cap + 1, cap).map_err(Some), "{budget:?}");
+    }
+    // The ordinary interactive lease keeps the configured budget (64 GiB here).
+    registry.configure_pool(192 * GIB, 64 * GIB, false).unwrap();
+    assert!(registry.acquire_interactive_ingress(13 * GIB).is_ok());
     assert_eq!(registry.pool().reserved_total(), 0);
 }

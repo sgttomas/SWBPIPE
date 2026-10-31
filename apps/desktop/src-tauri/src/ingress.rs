@@ -551,6 +551,27 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
     scan(input, None).map(|(bound, _)| bound)
 }
 
+/// [`prescan`] and its fixed allowances: the scratch buffer, the array
+/// transient, the float allowance, the error allowance and the solve
+/// wrapper. They bound what parsing `input` into a type that builds no
+/// strings and no containers allocates (`native_verdict`'s diagnostic parse,
+/// which goes through `Value`'s parser path and builds nothing).
+pub(crate) fn prescan_allowances(input: &[u8]) -> Result<(IngressBound, u64), IngressInvalid> {
+    scan(input, None).map(|(bound, regions)| (bound, regions.allowances))
+}
+
+/// The same allowances for a text the prescan refused, from its length
+/// alone: its scratch priced as if the whole text were one escaped string or
+/// float-path number (the scratch holds one at a time), plus the float and
+/// error allowances. `None` on overflow.
+pub(crate) fn length_allowances(len: u64) -> Option<u64> {
+    let largest = len.checked_add(SCRATCH_ESCAPE_SLACK.max(SCRATCH_NUMBER_SLACK))?;
+    let capacity = largest.checked_mul(2)?.max(SCRATCH_MIN_CAPACITY);
+    [allocation_envelope(capacity)?, allocation_envelope(capacity / 2)?, FLOAT_PARSE_ALLOWANCE_BYTES, ERROR_ALLOWANCE_BYTES]
+        .into_iter()
+        .try_fold(0u64, u64::checked_add)
+}
+
 /// [`prescan`], which also attributes each priced allocation of the bound M
 /// to a region of the typed value `root` the decoder builds from it, by the
 /// path the decoder follows (DEL-04-07 memory-budget decision, "Report-package

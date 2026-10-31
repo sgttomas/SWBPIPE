@@ -593,6 +593,21 @@ impl MemoryPool {
     /// consulted. It is not re-sampled here: most interactive commands run on
     /// the main thread (see the module docs).
     pub(crate) fn acquire_interactive(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
+        self.acquire_interactive_under(bytes, |budget| budget)
+    }
+
+    /// [`Self::acquire_interactive`] for a native reader's arguments (C1
+    /// native custody, DEL-04-05 `c1-native-custody-plan.md` §8): the lease
+    /// and every growth of it ([`Lease::grow_to`], under the pool lock) are
+    /// bounded by the per-invocation budget and never above the owner-adopted
+    /// [`DEFAULT_INVOCATION_BUDGET_BYTES`], whatever budget is configured.
+    pub(crate) fn acquire_interactive_capped(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
+        self.acquire_interactive_under(bytes, |budget| budget.min(DEFAULT_INVOCATION_BUDGET_BYTES))
+    }
+
+    /// An interactive lease bounded by `cap(budget)`, which the lease keeps
+    /// as the budget it was admitted under.
+    fn acquire_interactive_under(self: &Arc<Self>, bytes: u64, cap: impl Fn(u64) -> u64) -> Result<Lease, ResourceRefusal> {
         let mut state = self.lock();
         let verdict = (|| {
             let sample = self.host.sample();
@@ -600,11 +615,9 @@ impl MemoryPool {
             if sample.capacity_bytes.is_none() {
                 return Err(ResourceRefusal::CapacityUnknown);
             }
-            if bytes > state.invocation_budget_bytes {
-                return Err(ResourceRefusal::IngressExceedsBudget {
-                    required_bytes: bytes,
-                    budget_bytes: state.invocation_budget_bytes,
-                });
+            let budget_bytes = cap(state.invocation_budget_bytes);
+            if bytes > budget_bytes {
+                return Err(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes });
             }
             self.admit_bytes_locked(&mut state, bytes, AdmissionClass::Interactive)
         })();
@@ -619,7 +632,7 @@ impl MemoryPool {
             purpose: LeasePurpose::Ingress,
             class: AdmissionClass::Interactive,
             worker_id: None,
-            admitted_budget_bytes: state.invocation_budget_bytes,
+            admitted_budget_bytes: cap(state.invocation_budget_bytes),
         })
     }
 
