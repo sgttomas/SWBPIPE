@@ -522,6 +522,13 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             if !(signed(kind) || recomputed(kind)) || support_kind(kind) {
                 continue;
             }
+            // Invariant: unreachable on current producers. `Key::of` refuses only a
+            // row without metadata other than a displacement magnitude. The case rows
+            // without metadata are `displacement_magnitude`, `reaction_resultant` and
+            // `open_formula_stress_summary` (lib.rs:6049, 6224 and 6973, in
+            // `solve_prepared_load_case`), the last two not combined kinds, and the
+            // source receipt's bare rows (`source_receipt/rows.rs` `bare`), published
+            // only by a source-selected case, which a document with a combination never has.
             let Some(key) = Key::of(row) else {
                 withhold(&mut built, row.id.clone(), MISSING_KEY_FIELDS);
                 continue;
@@ -577,6 +584,11 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             outcomes[place] = Some(Outcome::Missing(missing));
             continue;
         }
+        // Invariant: unreachable on current producers. Every signed-linear and
+        // recomputed kind of the pressure-2 table has unit N, N*m, Pa, MPa, m, mm or
+        // rad, each mapped by `algebra_dimension` (lib.rs:14975), as
+        // `combined_kind_units_have_an_algebra_dimension` checks; a row of such a kind
+        // in another unit has no pressure-2 signature (result_export `semantic_contract.rs`).
         let Some(dimension) = algebra_dimension(template) else {
             let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
             built.recoveries.truncate(built.recoveries.len() - kept);
@@ -588,6 +600,20 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             Some(value) => {
                 outcomes[place] = Some(Outcome::Row { value, sources });
             }
+            // Invariant: unreachable with physical rows. `algebra_value` refuses only a
+            // non-finite operand (`AlgebraQuantity::new`, load_case_algebra lib.rs:83)
+            // or an evaluation finding. An operand is a case row, finite
+            // (`solve_prepared_load_case` refuses any other, lib.rs:7203), or recovered
+            // from one: zero, the row, or the row over the published wall area, positive
+            // (`source_geometry.rs:55`), non-finite only by overflow. The operands share
+            // one dimension and two automatic statuses, and validation refuses the other
+            // findings' inputs before the solve: a repeated or non-finite term
+            // (validation.rs:2044 and 2065), a self-subtraction (2110) and a repeated
+            // range operand (2173). A result outside binary64 is not a refusal: a linear
+            // sum rounds to the signed infinity (`combination_value`, load_case_algebra
+            // lib.rs:604) and a subtraction overflows to it (lib.rs:421). The value entry
+            // refuses factors above 2^53 but the typed entry accepts any finite factor;
+            // either way an infinite row blocks the envelope (lib.rs:3563), not this branch.
             None => {
                 let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
                 built.recoveries.truncate(built.recoveries.len() - kept);
@@ -610,6 +636,14 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
                 .iter()
                 .map(|&(kind, component)| key.with(kind, component, "node", "global", key.unit, ""))
                 .collect();
+            // Invariant: the refused, missing and absent-component paths below are
+            // unreachable. Every operand case that reaches `append` published each
+            // model node's magnitude and three displacement components once
+            // (`solve_prepared_load_case`, lib.rs:6017-6065): a case that returns
+            // without them adds a blocking diagnostic, on which the case loop returns
+            // the blocked envelope (`run_linear_static_preview_observed_inner`,
+            // lib.rs:3255-3410). So each component key is in `seen`, with one row in
+            // every operand: not co-keyed, not a tie rod, in mm, and finite (above).
             let mut vector = [0.0; 3];
             let mut missing: Vec<String> = Vec::new();
             let mut refused = false;
@@ -976,6 +1010,154 @@ mod tests {
         assert!(recover(&key("element_local_axial_normal_stress", "axial_normal_stress", "midspan", "element_local", "nominal_section"), "case:b", &rows, &facts(true, false)).is_none());
         // Mismatched bases never pair: the section basis is part of the key.
         assert_ne!(key(MEMBRANE, "c", "midspan", "f", "nominal_section"), key(MEMBRANE, "c", "midspan", "f", "reduced_section"));
+    }
+
+    /// Every signed-linear and recomputed kind of the pressure-2 table has a unit the
+    /// load-case algebra gives a dimension (phase 1's dimensionless invariant).
+    #[test]
+    fn combined_kind_units_have_an_algebra_dimension() {
+        let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json")).unwrap();
+        for signature in table["rows"].as_array().unwrap() {
+            let kind = signature["kind"].as_str().unwrap();
+            if signed(kind) || recomputed(kind) {
+                let mut published = row(kind, "pipe:p", "midspan", "c", 1.0);
+                published.unit = signature["unit"].as_str().unwrap().into();
+                assert!(algebra_dimension(&published).is_some(), "{kind} {}", published.unit);
+            }
+        }
+    }
+
+    /// A row of `case` with its own id.
+    fn in_case(case: &str, id: &str, mut published: ResultItem) -> ResultItem {
+        published.id = id.into();
+        published.basis_ref = Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: case.into() });
+        published
+    }
+
+    /// `build` of one combination over `results`, with no pressure regions, load
+    /// states or connectors.
+    fn build_of(combination: Value, results: &[ResultItem], exact_cases: &[Value]) -> Built {
+        let combination: PreviewCombination = serde_json::from_value(combination).unwrap();
+        let expression = CombinationExpression::resolve(&combination).unwrap();
+        let facts = Facts { exact_cases, pressure: &[], load_reference_states: &[], connector: &json!([]) };
+        build(&combination, &expression, &expression.operand_ids(), results, &facts)
+    }
+
+    fn mechanics(terms: &[(&str, f64)]) -> Value {
+        json!({"id": "comb:1", "basis": "mechanics",
+            "terms": terms.iter().map(|(case, factor)| json!({"load_case": case, "factor": factor})).collect::<Vec<_>>()})
+    }
+
+    /// #49's unreached defensive path (a): a key that is not a tie rod's, carried by
+    /// several rows of one operand, is withheld as missing a key field, naming the
+    /// rows of the first operand that carries several, in publication order; the
+    /// other keys publish. The expected outcome is the pre-#49 code's (e1a483b6c).
+    #[test]
+    fn co_keyed_rows_that_are_not_tie_rods_are_withheld_as_missing_a_key_field() {
+        let axial = |case: &str, id: &str, pipe: &str, value: f64| in_case(case, id, row(AXIAL_FORCE, pipe, "midspan", "axial_force", value));
+        let results = [
+            axial("case:a", "a:p", "pipe:p", 1.0),
+            axial("case:a", "a:q", "pipe:q", 3.0),
+            axial("case:a", "a:r1", "pipe:r", 1.0),
+            axial("case:a", "a:r2", "pipe:r", 1.0),
+            axial("case:a", "a:r3", "pipe:r", 1.0),
+            axial("case:b", "b:p1", "pipe:p", 2.0),
+            axial("case:b", "b:q", "pipe:q", 4.0),
+            axial("case:b", "b:p2", "pipe:p", 5.0),
+            axial("case:b", "b:r1", "pipe:r", 1.0),
+            axial("case:b", "b:r2", "pipe:r", 1.0),
+        ];
+        let built = build_of(mechanics(&[("case:a", 1.0), ("case:b", 2.0)]), &results, &[]);
+        let names = ["b:p1", "b:p2", "a:r1", "a:r2", "a:r3"];
+        assert_eq!(built.withheld_evidence, names.iter().map(|name| json!({"name": name, "reason": MISSING_KEY_FIELDS})).collect::<Vec<_>>());
+        assert_eq!(built.withheld, names.iter().map(|name| format!("{name} ({MISSING_KEY_FIELDS})")).collect::<Vec<_>>());
+        assert_eq!(built.rows.len(), 1);
+        assert_eq!((built.rows[0].value, built.rows[0].source_result_refs.clone()), (11.0, vec!["a:q".to_string(), "b:q".to_string()]));
+        assert_eq!(built.row_evidence.len(), 1);
+        assert!(built.missing.is_empty() && built.recoveries.is_empty());
+    }
+
+    /// #49's unreached defensive path (b): a key recovered in one operand and
+    /// missing in another is a missing source, and its recovered witness is rolled
+    /// back; an earlier key's kept witness keeps its index. The expected outcome is
+    /// the pre-#49 code's (e1a483b6c).
+    #[test]
+    fn a_recovery_beside_a_missing_operand_is_rolled_back() {
+        let wall = |case: &str, id: &str, location: &str, value: f64| in_case(case, id, row(WALL_FORCE, "pipe:p", location, "wall_axial_force", value));
+        let axial = |id: &str, location: &str, value: f64| in_case("case:b", id, row(AXIAL_FORCE, "pipe:p", location, "axial_force", value));
+        let results = [
+            wall("case:a", "a:wall:mid", "midspan", 10.0),
+            wall("case:a", "a:wall:end_j", "end_j", 20.0),
+            axial("b:axial:mid", "midspan", 7.0),
+            axial("b:axial:end_j", "end_j", 9.0),
+            wall("case:c", "c:wall:mid", "midspan", 30.0),
+        ];
+        // case:b publishes the member outside every region, so it recovers both wall
+        // keys; case:c does not publish the member, so it recovers neither.
+        let exact_cases = [json!({"load_case_id": "case:b", "pipe_sections": [{"pipe_id": "pipe:p"}]})];
+        let built = build_of(mechanics(&[("case:a", 1.0), ("case:b", 1.0), ("case:c", 1.0)]), &results, &exact_cases);
+        assert_eq!(built.recoveries.len(), 1);
+        assert_eq!((built.recoveries[0]["location"].as_str(), built.recoveries[0]["source_result_id"].as_str()), (Some("midspan"), Some("b:axial:mid")));
+        assert_eq!(built.rows.len(), 1);
+        assert_eq!(built.rows[0].value, 47.0);
+        assert_eq!(built.rows[0].source_result_refs, ["a:wall:mid", "b:axial:mid", "c:wall:mid"]);
+        assert_eq!(built.row_evidence[0]["sources"], json!([
+            {"load_case_id": "case:a", "result_id": "a:wall:mid"},
+            {"load_case_id": "case:b", "recovery_index": 0},
+            {"load_case_id": "case:c", "result_id": "c:wall:mid"},
+        ]));
+        assert_eq!(built.missing, [
+            json!({"source_result_id": "a:wall:end_j", "missing_load_case_ids": ["case:c"]}),
+            json!({"source_result_id": "b:axial:mid", "missing_load_case_ids": ["case:a", "case:c"]}),
+            json!({"source_result_id": "b:axial:end_j", "missing_load_case_ids": ["case:a", "case:c"]}),
+        ]);
+        assert!(built.withheld.is_empty());
+    }
+
+    /// #49's unreached defensive path (c): a support group is published whole or
+    /// withheld by name. Withheld: a component missing in an operand, magnitudes in
+    /// no operand, and (range envelopes only) a magnitude missing in an operand. The
+    /// expected outcome is the pre-#49 code's (e1a483b6c).
+    #[test]
+    fn a_support_group_with_a_missing_source_row_is_withheld_whole() {
+        let support = |case: &str, entity: &str, kind: &str, component: &str, value: f64| {
+            in_case(case, &format!("{case}:{entity}:{component}"), row(kind, entity, "node", component, value))
+        };
+        let mut results = Vec::new();
+        for (case, scale) in [("case:a", 1.0), ("case:b", 2.0)] {
+            for entity in ["supp:s1", "supp:s2", "supp:s3", "supp:s4"] {
+                for (slot, component) in SUPPORT_COMPONENTS.iter().enumerate() {
+                    // s1 lacks Mz in case:b.
+                    if !(entity == "supp:s1" && case == "case:b" && *component == "Mz") {
+                        results.push(support(case, entity, SUPPORT_COMPONENT, component, scale * (slot + 1) as f64));
+                    }
+                }
+                // s3 publishes no magnitude; s4 publishes its magnitudes in case:a only.
+                if entity != "supp:s3" && (entity != "supp:s4" || case == "case:a") {
+                    results.push(support(case, entity, SUPPORT_FORCE, "force_magnitude", 100.0 * scale));
+                    results.push(support(case, entity, SUPPORT_MOMENT, "moment_magnitude", 200.0 * scale));
+                }
+            }
+        }
+        let withheld = |names: &[&str]| -> Vec<Value> {
+            names.iter().map(|name| json!({"name": format!("support-action:7:{name}"), "reason": SUPPORT_SOURCE_MISSING})).collect()
+        };
+        let built = build_of(mechanics(&[("case:a", 1.0), ("case:b", 1.0)]), &results, &[]);
+        assert_eq!(built.withheld_evidence, withheld(&["supp:s1", "supp:s3"]));
+        assert_eq!(built.withheld, [format!("support-action:7:supp:s1 ({SUPPORT_SOURCE_MISSING})"), format!("support-action:7:supp:s3 ({SUPPORT_SOURCE_MISSING})")]);
+        // s2 and s4 publish whole: six components (3 x their slot) and the two norms.
+        assert_eq!(built.rows.len(), 16);
+        assert_eq!(built.rows.len(), built.row_evidence.len());
+        for group in built.rows.chunks(8) {
+            let values: Vec<f64> = group.iter().map(|r| r.value).collect();
+            assert_eq!(values[..6], [3.0, 6.0, 9.0, 12.0, 15.0, 18.0]);
+            assert_eq!(values[6..], [norm3(3.0, 6.0, 9.0), norm3(12.0, 15.0, 18.0)]);
+        }
+        assert_eq!(built.rows.iter().map(|r| r.entity_ref.as_str()).collect::<HashSet<_>>(), HashSet::from(["supp:s2", "supp:s4"]));
+        let range = build_of(json!({"id": "comb:1", "basis": "range_envelope", "operand_ids": ["case:b", "case:a"], "mode": "max"}), &results, &[]);
+        assert_eq!(range.withheld_evidence, withheld(&["supp:s1", "supp:s3", "supp:s4"]));
+        assert_eq!(range.rows.len(), 8);
+        assert_eq!(range.rows.iter().map(|r| r.value).collect::<Vec<_>>(), [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 200.0, 400.0]);
     }
 
     /// An operand's standing is its load case's record: a quality record of another
