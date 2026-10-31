@@ -117,13 +117,14 @@ payload-free enum and the request is never printed.
 
 ## Stub run
 
-Candidate: app built from `01f4b375d` (frontend and native-smoke executable),
-controller at `7fc3386d2`; macOS ARM. The bundle was a private copy of the
+Candidate: app and controller built from `68a80d47b` (this branch with main
+merged after #40, so the agent code is the reviewed version on main); macOS
+ARM. The bundle was a private copy of the
 retained bundle at `targets/appv4-host/aarch64-apple-darwin/debug/bundle/macos/SWBPIPE.app`
 (the originals untouched), whose supplier matched the pin
 (`112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b`), with the
 fresh executable (SHA-256
-`af4ba4ecb514307cc554f5eea369d979169cdbd5e5a5d5dfa3be41b7cc093286`) placed in it.
+`776f7b079dfb17eab59a21742d59b87f56394c29ad58b498eb03f980b5de7fa7`) placed in it.
 
 Seal: ad-hoc local seal of a private test copy, not distribution signing
 (`codesign --force --sign - --options runtime` on the app copy only; no
@@ -133,11 +134,11 @@ identity, team id or Keychain item). Its identity output was
 re-signed; its SHA-256 and its own signature verified unchanged before each
 launch.
 
-The evidence run, 2026-10-31T11:37:29Z to 11:37:45Z UTC, under `t3_slot.sh`:
+The evidence run, 2026-10-31T12:30:57Z to 12:31:27Z UTC, under `t3_slot.sh`:
 
 | Check | Observed |
 |---|---|
-| Free-memory gate | 50.7 GiB free; this stub run used a 16 GiB gate (no model runs), the live default stays 50 GiB |
+| Free-memory gate | 48.4 GiB free; this stub run used a 16 GiB gate (no model runs), the live default stays 50 GiB |
 | Standalone preflight | passed (probe exits, boundary checks, `preflight_complete`) |
 | Gate | supplier published, observed, anchored to its group, then `READY` |
 | Driver | all seven steps; one agent batch of 11 operations; receipt after the stand-in Apply |
@@ -147,8 +148,11 @@ The evidence run, 2026-10-31T11:37:29Z to 11:37:45Z UTC, under `t3_slot.sh`:
 | Cleanup | app exit 0; supplier exit observed with status 0 and absent; `qualified_native_owned_group`; no resident process |
 
 The result JSON SHA-256 is
-`c4219fd42c794a8a4d10460da34b736c03ca672c7d61d4bf5467a34a7c922cab`; it holds
-no credential and is a local report that no permanent check reads.
+`54e0688017a448fd2a2cbeb6a7d0c05b4886030469baecbcdb162d168d1f2ab6`; it holds
+no credential and is a local report that no permanent check reads. The same
+journey had passed at 11:37:29Z to 11:37:45Z on an earlier candidate carrying
+a draft of #40's fix; it was repeated on this candidate so the evidence names
+the reviewed code. Each run used a fresh private bundle copy, removed after.
 
 Earlier attempts, each a short launch that left nothing resident (run 1's three
 listed "residents" were the controller's own wrapper, whose arguments name the
@@ -156,7 +160,8 @@ app; the check now matches executables): runs 1 to 9 (11:13 to 11:34 UTC)
 stopped before the supplier started, while the two defects and two driver
 waits (the bundled demo's load, Start's refusal line) were found and fixed;
 run 10 (11:36) completed the journey and was judged against row ids of the
-wrong shape, which the judge now matches as the product forms them. These
+wrong shape, which the judge now matches as the product forms them; run 11
+(11:37) passed on the draft candidate. These
 runs qualify the scenario's plumbing with a scripted provider, not model
 behaviour.
 
