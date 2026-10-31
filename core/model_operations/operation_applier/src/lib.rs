@@ -1044,6 +1044,16 @@ pub fn reader_row_semantics_json(row_json: &str, source_json: Option<&str>) -> R
     let source = optional_reader_input("source", source_json)?;
     Ok(rv::row_semantics(&row, source.as_ref()).to_string())
 }
+/// [`reader_row_semantics_json`] of each row of a JSON array, in order, with the
+/// source parsed and read once: the array of the outcomes a call per row returns.
+pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<&str>) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let Value::Array(rows) = parse_reader_input("rows", rows_json)? else {
+        return Err("WASM-ENGINE-INPUT-JSON-INVALID: rows is not a JSON array".into());
+    };
+    let source = optional_reader_input("source", source_json)?;
+    Ok(rv::row_semantics_each(&rows, source.as_ref()).to_string())
+}
 
 fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
     serde_json::from_str(text).map_err(|error| {
@@ -1325,6 +1335,13 @@ mod wasm_api {
     #[wasm_bindgen]
     pub fn reader_row_semantics_json(row_json: &str, source_json: Option<String>) -> Result<String, JsError> {
         super::reader_row_semantics_json(row_json, source_json.as_deref())
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// The row semantics of each row of a JSON array, the source read once.
+    #[wasm_bindgen]
+    pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<String>) -> Result<String, JsError> {
+        super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
             .map_err(|error| JsError::new(&error))
     }
 

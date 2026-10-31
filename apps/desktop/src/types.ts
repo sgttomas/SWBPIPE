@@ -1433,4 +1433,11 @@ export type LocalProjectEnvelope = {
   model_hash: ModelHashEvidence | null;
   project_envelope_hash: ProjectEnvelopeHashEvidence | null;
   model_document_version: ModelDocumentVersionStatus | null;
+  /** Set at open when the stored run (result and analysis-run record) was
+   * withheld for its size (RT-U4); `mechanics_result` and `analysis_run` are then null. */
+  stored_result_withheld?: StoredResultWithheld | null;
 };
+
+/** A project's stored run withheld at open because a stored column exceeds the
+ * desktop's display limit, judged by its stored byte length; the stored run is unchanged. */
+export type StoredResultWithheld = { code: "STORED-RESULT-TOO-LARGE"; result_bytes: number; analysis_run_bytes: number; limit_bytes: number };

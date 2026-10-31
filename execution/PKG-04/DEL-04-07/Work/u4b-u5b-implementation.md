@@ -634,10 +634,17 @@ station-independent; t4_u4b inferred convention 2).
   info diagnostic `COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED`. It is never used as both
   directional factors, which is the mutant `sif_one_scalar_for_both_directions`.
 - **The bend modifier warning follows the consumer** (DEL-03-03). `BEND_USER_MODIFIER_INPUT_MISSING`
-  takes a realized bend's user SIF to be the whole pair and a marker's to be the scalar. A realized
-  bend with the scalar only, a half pair or neither keeps the warning; with the scalar only, its
-  message states that the scalar is not applied to realized arcs and that the in-plane and
-  out-of-plane pair is required.
+  applies to realized bends only, and takes a realized bend's user SIF to be the whole pair. A
+  realized bend with the scalar only, a half pair or neither keeps the warning; with the scalar
+  only, its message states that the scalar is not applied to realized arcs and that the in-plane
+  and out-of-plane pair is required.
+- **A geometry-only bend is disclosed as a chord** (DEL-03-03). On preview-physics-2 every
+  geometry-only bend, complete or not, takes the warning `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`. It
+  states that the bend is solved as a straight chord, that its flexibility factor k is not applied
+  (only a realized arc's stiffness applies k), and that realizing the bend applies k. It also states
+  either that the scalar SIF is applied as equal-factor intensification when the run solves, or
+  that no positive scalar SIF was entered. On the exact route the marker is refused by `EXACT_PRESSURE_FAMILY_NOT_ADMITTED`,
+  whose text already says this, so neither warning is added there.
 
 **Rows.** intensified = hypot(i_ip M_z, i_op M_y)/Z_b at each station and basis.
 - **Formation.** It is formed from the same station's published bending stress rows, by a fixed

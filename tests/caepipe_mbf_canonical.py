@@ -30,6 +30,8 @@ EXCLUDED_LOSSES = (
     "combinations (not exported)",
     "pressure-region ids and region provenance (bound imports restore the ids from the sidecar's pressure_map; "
     "regions are compared by their member pipes, terminals with closure transfer, and pressure)",
+    "section names, section provenance and library order, and library sections no pipe references (the writer "
+    "lists them as omitted); bound, each pipe's section_ref and each referenced section's OD and t are compared",
 )
 __doc__ += "".join(f"\n- {item}" for item in EXCLUDED_LOSSES) + "\n"
 
@@ -268,6 +270,15 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
                             ("E", e), ("nu", nu), ("G", g), ("alpha", alpha)):
             out.values[("pipe", key, name)] = value
         out.sets[("pipe", key)] = pipe["material"]
+    if oriented:  # bound (Design §15, Format 4): each pipe's library section, and each referenced section's OD and t
+        library = {section["id"]: section for section in model.get("sections") or []}
+        for pipe in model["pipe_segments"]:
+            reference = pipe.get("section_ref")
+            out.sets[("section_ref", pipes[pipe["id"]])] = reference
+            if reference is not None:
+                properties = library[reference]["properties"]
+                out.values[("section", reference, "OD")] = si(properties["outside_diameter"])
+                out.values[("section", reference, "t")] = si(properties["wall_thickness"])
     restrained: dict[str, set[str]] = {}
     supports = {}
     for support in model["supports"]:
@@ -385,6 +396,11 @@ def bounds(model: Mapping[str, Any], writer: Any, printed: Printed, names: Mappi
     for pipe in model["pipe_segments"]:
         ends = (names[pipe["from"]], names[pipe["to"]])
         pipe_keys[pipe["id"]] = [key for key in (ends, tuple(sorted(ends))) if ("pipe", key, "OD") in reference.values][0]
+    for pipe in model["pipe_segments"]:  # a referenced section's OD and t: its pipes' PIPE record, printed directly
+        if pipe.get("section_ref") is not None:
+            od, t = printed.sections[element[pipe["id"]]["section"]]
+            out[("section", pipe["section_ref"], "OD")] = printed_bound(od, 1e-3)
+            out[("section", pipe["section_ref"], "t")] = printed_bound(t, 1e-3)
     for pipe_id, key in pipe_keys.items():
         entry = element[pipe_id]
         od, t = printed.sections[entry["section"]]
@@ -533,14 +549,16 @@ def _unoriented_key(key: tuple) -> tuple:
 
 
 def unoriented(form: Canonical, limits: Mapping[tuple, float]) -> tuple[Canonical, dict[tuple, float]]:
-    """A canonical form and its bounds with pipe ends unordered and per-support identities dropped (unbound)."""
+    """A canonical form and its bounds with pipe ends unordered and per-support and section identities dropped
+    (unbound)."""
     def unordered(key: tuple, value: Any) -> Any:
         return (frozenset(value[0]), value[1]) if key[0] == "region" else value
 
-    return (Canonical({_unoriented_key(key): value for key, value in form.values.items()},
+    bound_only = ("support", "section", "section_ref")  # identities an unbound import does not restore
+    return (Canonical({_unoriented_key(key): value for key, value in form.values.items() if key[0] not in bound_only},
                       {_unoriented_key(key): unordered(key, value) for key, value in form.sets.items()
-                       if key[0] != "support"}),
-            {_unoriented_key(key): value for key, value in limits.items()})
+                       if key[0] not in bound_only}),
+            {_unoriented_key(key): value for key, value in limits.items() if key[0] not in bound_only})
 
 
 # --- the sidecar's self-digest (Design §15), written independently of si_writer.sidecar_canonical_bytes ---------------

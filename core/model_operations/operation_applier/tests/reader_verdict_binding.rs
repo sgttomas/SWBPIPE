@@ -2,7 +2,8 @@
 //! They parse the JSON text and return `result_export::reader_verdict`'s outcome;
 //! the desktop's wasm build compiles these same functions (`wasm_api`).
 use open_pipe_stress_operation_applier::{
-    reader_dispatch_json, reader_row_semantics_json, reader_transport_json, reader_validate_json,
+    reader_dispatch_json, reader_row_semantics_each_json, reader_row_semantics_json, reader_transport_json,
+    reader_validate_json,
 };
 use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
 use serde_json::{json, Value};
@@ -91,6 +92,35 @@ fn text_that_is_not_json_is_an_input_error() {
     invalid(reader_validate_json("pressure", "nul", None, None).unwrap_err(), "source");
     invalid(reader_transport_json("pressure", "nul").unwrap_err(), "source");
     invalid(reader_row_semantics_json("{", None).unwrap_err(), "row");
+    invalid(reader_row_semantics_each_json("[{", None).unwrap_err(), "rows");
+    invalid(reader_row_semantics_each_json("[]", Some("{")).unwrap_err(), "source");
+    assert_eq!(reader_row_semantics_each_json("{}", None).unwrap_err(), "WASM-ENGINE-INPUT-JSON-INVALID: rows is not a JSON array");
+}
+
+/// The batched row semantics are the per-row outcomes, in order: every row of an
+/// admitted source and of its refused copy, with no source, and a contradictory row.
+#[test]
+fn the_batched_row_semantics_are_the_per_row_outcomes() {
+    let mut refused: Value = serde_json::from_str(SOURCE).unwrap();
+    refused["carrier_evidence"] = json!({});
+    let refused = refused.to_string();
+    for source_text in [SOURCE, LOAD_REFERENCE, refused.as_str()] {
+        let source: Value = serde_json::from_str(source_text).unwrap();
+        let mut rows = source["results"].as_array().unwrap().clone();
+        let mut contradictory = rows[0].clone();
+        contradictory["metadata"]["basis"] = json!("recovered_from_local_element_stiffness");
+        contradictory["kind"] = json!("element_local_axial_normal_stress");
+        contradictory["unit"] = json!("MPa");
+        rows.push(contradictory);
+        rows.push(json!(null));
+        let texts: Vec<String> = rows.iter().map(Value::to_string).collect();
+        let joined = format!("[{}]", texts.join(","));
+        for source_json in [Some(source_text), Some("null"), None] {
+            let each = outcome(reader_row_semantics_each_json(&joined, source_json).unwrap());
+            let single: Vec<Value> = texts.iter().map(|row| outcome(reader_row_semantics_json(row, source_json).unwrap())).collect();
+            assert_eq!(each, Value::Array(single));
+        }
+    }
 }
 
 /// E17 through the wasm engine's entry point, run natively: the governed G7

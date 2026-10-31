@@ -136,14 +136,15 @@ MATERIAL_ORIGINS = ("project_invented", "user_supplied")
 
 # The field sweep (Design §17.1). The fields each member's reader writes (to the MBF or the sidecar), checks against
 # what is written, or refuses by name; every other non-empty field is listed once, as one omitted loss entry per field.
-_HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "nodes",
-                    "pipe_segments", "supports", "components", "load_cases", "combinations",
+_HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "sections",
+                    "nodes", "pipe_segments", "supports", "components", "load_cases", "combinations",
                     "reference_configurations", "model_settings", "shear_model", "spectra"}
 _HANDLED_FIELDS = {
     "materials": {"id", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient",
                   "temperature_points", "expansion_laws"},
     "nodes": {"id", "position"},
-    "pipe_segments": {"id", "from", "to", "section", "material", "y_reference"},
+    "sections": {"id", "section_type", "properties"},
+    "pipe_segments": {"id", "from", "to", "section", "section_ref", "material", "y_reference"},
     "pipe_segments.section": {"outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance",
                               "insulation_thickness", "material_density", "contents_density", "insulation_density"},
     "supports": {"id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear", "direction"},
@@ -162,11 +163,11 @@ _NOT_CARRIED = "the MBF has no field for it and the sidecar does not carry it"
 _OMITTED_REASONS = {
     "data_boundary": "the import writes its own data boundary for the local document",
     "analysis_status": "the analysis state is not in the MBF; the import starts it afresh",
-    "sections": "each pipe segment's own section is written as a PIPE record; the section library is not",
     "diagnostics": "stored diagnostics are not in the MBF; the import's validation forms its own",
     "materials.constitutive_basis": "the MBF carries E and the Poisson ratio; the import forms its own basis",
     "materials.provenance_record": "only its origin classification is carried, in the sidecar's material_map",
-    "pipe_segments.section_ref": "the pipe segment's own section is written; the section library is not",
+    "sections.name": "the PIPE record has no name field; the import names the section by its PIPE record",
+    "sections.provenance": "the import names the MBF line as the section's provenance",
     "supports.properties": "display properties the solve ignores",
     "components.completeness": "a derived finding; the import's validation forms its own",
     "components.modifiers.sif_user_value": "BSIF carries the directional pair; the scalar SIF is a different "
@@ -185,9 +186,10 @@ IMPORTED_PROJECT_UNITS = {"length": "mm", "force": "N", "moment": "N*m", "pressu
 _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
 # The writer sidecar's format (Design §15). Format 2 records the effective value of every field, never null or another
-# sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`. A sidecar without
+# sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`; format 4 is format 3
+# with `section_map`, each PIPE record's library section id or null (Format 4: section identities). A sidecar without
 # `sidecar_format` is a legacy one, from main's tranche-1 writer.
-SIDECAR_FORMAT = 3
+SIDECAR_FORMAT = 4
 SIDECAR_DIGEST_KEY = "sidecar_sha256"
 _MAX_NODES = 9999  # node numbers 10, 20, ... stay below 99999
 
@@ -229,10 +231,11 @@ class MbfSiResult:
         }
 
     def sidecar(self, mbf_sha256: str) -> dict[str, Any]:
-        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 3: what a bound
+        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 4: what a bound
         import restores and the MBF does not carry, each field with its effective value. What the MBF determines
-        (layout order, record names, numbers, bend geometry, sections) is not repeated in it. Its `sidecar_sha256` is
-        the self-digest of the rest (sidecar_self_digest)."""
+        (layout order, record names, numbers, bend geometry, section values) is not repeated in it; `section_map`
+        holds each PIPE record's library section id, or null. Its `sidecar_sha256` is the self-digest of the rest
+        (sidecar_self_digest)."""
         record = self.to_dict()
 
         def element(entry: Mapping[str, Any]) -> dict[str, Any]:
@@ -251,6 +254,8 @@ class MbfSiResult:
             "load_case_map": record["load_case_map"],
             "material_map": {key: {name: entry[name] for name in ("swbpipe_material", "origin")}
                              for key, entry in record["material_map"].items()},
+            "section_map": {key: {"swbpipe_section": entry["swbpipe_section"]}
+                            for key, entry in record["section_map"].items()},
             "load_map": {key: {name: entry[name] for name in ("load_case", "category", "target", "direction")}
                          for key, entry in record["load_map"].items()},
             "pressure_map": {"contract": pressure["contract"], "shear_model": pressure["shear_model"],
@@ -473,6 +478,7 @@ class _Writer:
         self.t_ref_f: Any = None
         self.nodes: dict[str, tuple[float, float, float]] = {}
         self.materials: dict[str, dict[str, Any]] = {}
+        self.library: list[Mapping[str, Any]] = []
         self.pipes: dict[str, dict[str, Any]] = {}
         self.node_restraints: dict[str, set[str]] = {}
         self.node_supports: dict[str, list[str]] = {}
@@ -608,6 +614,7 @@ class _Writer:
             return self.refused()
         self.read_nodes()
         self.read_materials()
+        self.read_sections()
         self.read_pipes()
         self.read_components()
         self.read_supports()
@@ -787,6 +794,48 @@ class _Writer:
             self.materials[material["id"]] = {"E": e_mpa, "nu": nu, "alpha": alpha, "has_alpha": has_alpha,
                                               "origin": material_origin(material)}
 
+    def read_sections(self) -> None:
+        """The section library (Design §15, Format 4): each record a pipe segment's `section_ref` may bind."""
+        for section in _list(self.model.get("sections"), self, "model.sections"):
+            if not isinstance(section, Mapping) or not isinstance(section.get("id"), str):
+                self.invalid("model.sections", "each section needs a string id")
+                continue
+            self.library.append(section)
+
+    def bind_section(self, pipe: Mapping[str, Any], section: Mapping[str, Any], entity: str) -> str | None:
+        """The library section id the pipe binds, or None without `section_ref`. A binding the solve refuses
+        (product_physics resolve_shared_sections) is refused by name, since the import could not restore it."""
+        reference = pipe.get("section_ref")
+        if reference is None:
+            return None
+        if not isinstance(reference, str) or runtime_blank(reference) or \
+                sum(1 for item in self.library if item["id"] == reference) != 1:
+            self.refuse("MBF-SI-REFERENCE-UNRESOLVED", entity,
+                        f"{entity} section_ref {reference!r} must name exactly one section in model.sections")
+            return None
+        shared = next(item for item in self.library if item["id"] == reference)
+        properties = shared.get("properties")
+        def quantity(value: Any) -> bool:
+            return (isinstance(value, Mapping) and set(value) == {"value", "unit"}
+                    and not isinstance(value["value"], bool) and isinstance(value["value"], (int, float))
+                    and isinstance(value["unit"], str))
+
+        if shared.get("section_type") != "pipe" or not isinstance(properties, Mapping) \
+                or set(properties) != {"outside_diameter", "wall_thickness"} \
+                or not all(quantity(properties[name]) for name in properties):
+            self.refuse("MBF-SI-SECTION-BINDING-UNSUPPORTED", entity,
+                        f"{entity} section_ref {reference!r} binds a section that is not of type pipe with exactly "
+                        "outside_diameter and wall_thickness quantities, which the solve refuses")
+            return None
+        stale = [name for name in ("outside_diameter", "wall_thickness")
+                 if any(section[name][key] != properties[name][key] for key in ("value", "unit"))]
+        if stale:
+            self.refuse("MBF-SI-SECTION-REFERENCE-STALE", entity,
+                        f"{entity} section {' and '.join(stale)} differ from section {reference!r} in value or unit "
+                        "(SECTION_REFERENCE_CACHE_STALE); the import would restore the section from the pipe's values")
+            return None
+        return reference
+
     def read_pipes(self) -> None:
         for pipe in _list(self.model.get("pipe_segments"), self, "model.pipe_segments"):
             if not isinstance(pipe, Mapping) or not isinstance(pipe.get("id"), str):
@@ -814,8 +863,9 @@ class _Writer:
             section = self.read_section(pipe.get("section"), entity)
             if section is None:
                 continue
+            section_ref = self.bind_section(pipe, pipe["section"], entity)  # the pipe stays read: no cascade
             self.pipes[pipe["id"]] = {"from": start, "to": end, "material": material_id, "y_reference": y_reference,
-                                      **section}
+                                      "section_ref": section_ref, **section}
 
     def omit_orientation(self) -> None:
         orientation = [pipe_id for pipe_id, pipe in self.pipes.items()
@@ -1460,6 +1510,12 @@ class _Writer:
             self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.materials",
                       f"materials {', '.join(unused)} are not exported; the MBF writes only the materials its pipe "
                       "segments use")
+        bound = {pipe["section_ref"] for pipe in self.pipes.values()}
+        unbound = list(dict.fromkeys(section["id"] for section in self.library if section["id"] not in bound))
+        if unbound:
+            self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.sections",
+                      f"sections {', '.join(unbound)} are not exported; the MBF writes only the sections its pipe "
+                      "segments reference")
         found: dict[str, list[str]] = {}
 
         def sweep(record: Any, path: str, entity: str) -> None:
@@ -1475,8 +1531,8 @@ class _Writer:
             kept = {key: value for key, value in units.items() if IMPORTED_PROJECT_UNITS.get(key) != value}
             if kept:
                 found["project.units"] = [f"{key} {value}" for key, value in kept.items()]
-        prefixes = {"materials": "material", "nodes": "node", "pipe_segments": "pipe", "supports": "support",
-                    "components": "component", "load_cases": "load_case"}
+        prefixes = {"materials": "material", "sections": "section", "nodes": "node", "pipe_segments": "pipe",
+                    "supports": "support", "components": "component", "load_cases": "load_case"}
         for member, prefix in prefixes.items():
             records = self.model.get(member)
             for record in records if isinstance(records, list) else []:
@@ -1515,7 +1571,7 @@ class _Writer:
             incident.setdefault(pipe["to"], []).append((pipe_id, pipe["from"]))
         for node in sorted(set(self.nodes) - set(incident)):
             entity = f"node:{node}"
-            referenced = node in self.node_restraints or any(
+            referenced = node in self.node_restraints or node in self.node_springs or any(
                 record.get("target", {}).get("node") == node for record in self.load_records.values()
             )
             if referenced:
@@ -1617,11 +1673,13 @@ class _Writer:
                 "elements": [],
             }
             material_map[name]["origin"] = material["origin"] or "undeclared"  # the import then needs a declaration
-        section_key = (_num(pipe["od"]), _num(pipe["thk"]))
+        # A record per library section (or none) and OD and wall (Design §15, Format 4), as materials are per id.
+        section_key = (pipe["section_ref"], _num(pipe["od"]), _num(pipe["thk"]))
         if section_key not in sections:
             name = f"P{len(sections) + 1}"
             sections[section_key] = name
-            section_map[name] = {"outside_diameter_mm": pipe["od"], "wall_thickness_mm": pipe["thk"], "elements": []}
+            section_map[name] = {"outside_diameter_mm": pipe["od"], "wall_thickness_mm": pipe["thk"], "elements": [],
+                                 "swbpipe_section": pipe["section_ref"]}
         delta = self.delta_t.get(pipe_id, 0.0)
         pressure = self.pipe_pressure.get(pipe_id, 0.0)
         load_key = (_num(delta), _num(pressure))
@@ -1682,8 +1740,8 @@ class _Writer:
                 if bend_names != names:
                     self.refuse("MBF-SI-BEND-UNSUPPORTED", self.bends[bend_id]["entity"],
                                 f"{self.bends[bend_id]['entity']}: pipe:{bend_id} and its incoming straight pipe:{pipe_id} "
-                                "differ in material, weight, section, temperature or pressure; the target program writes them as "
-                                "one layout row with one set of properties")
+                                "differ in material, weight, section (or its section_ref alone), temperature or "
+                                "pressure; the target program writes them as one layout row with one set of properties")
                 attributes[bend_id] = bend_names
                 members.append((bend_id, row["near"], row["far"]))
             for member_id, member_start, member_end in members:
@@ -2008,6 +2066,16 @@ class _Writer:
             "unresolved_assumptions, constraints, equipment_interfaces, rule_pack_refs) are not exported."
         )
         self.assumptions.extend(notes)
+
+
+def runtime_blank(text: str) -> bool:
+    """Rust `str::trim().is_empty()`: empty or only Unicode White_Space. Python's `str.strip` also removes
+    U+001C..U+001F, which Rust keeps, so the set is spelled out."""
+    return all(character in _RUST_WHITESPACE for character in text)
+
+
+_RUST_WHITESPACE = frozenset("\t\n\x0b\x0c\r \x85\xa0\u1680\u2028\u2029\u202f\u205f\u3000"
+                             + "".join(chr(code) for code in range(0x2000, 0x200B)))
 
 
 def _list(value: Any, writer: _Writer, entity: str) -> list[Any]:

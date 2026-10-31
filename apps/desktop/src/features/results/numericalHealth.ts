@@ -173,7 +173,9 @@ export function parseNumericalHealth(value: unknown): NumericalHealth | null {
 }
 
 const CACHE_LIMIT = 8;
-const cache = new Map<string, NumericalHealth | null>();
+/** Readings by source text, then by the findings' text: a lookup keys on the source
+ * text itself, never on a copy of it joined to the findings. */
+const cache = new Map<string, Map<string, NumericalHealth | null>>();
 let cacheOwner: unknown = null;
 
 /** The Rust indicator for this result and the reader's findings for it (the standing
@@ -187,17 +189,18 @@ export function readNumericalHealth(result: MechanicsResult, readerFindings?: re
   let sourceJson: string;
   try { sourceJson = readerSourceText(result); } catch { return null; }
   const findingsJson = readerFindings ? JSON.stringify([...readerFindings]) : undefined;
-  const key = `${findingsJson ?? ""}\u0000${sourceJson}`;
-  if (cache.has(key)) {
-    const kept = cache.get(key)!;
-    cache.delete(key);
-    cache.set(key, kept);
-    return kept;
-  }
+  const key = findingsJson ?? "";
+  let readings = cache.get(sourceJson);
+  if (readings) { cache.delete(sourceJson); cache.set(sourceJson, readings); }
+  if (readings?.has(key)) return readings.get(key)!;
   let health: NumericalHealth | null;
   try { health = parseNumericalHealth(JSON.parse(engine.numericalHealthJson(sourceJson, findingsJson))); } catch { health = null; }
-  cache.set(key, health);
-  while (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value!);
+  if (!readings) {
+    readings = new Map();
+    cache.set(sourceJson, readings);
+    while (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value!);
+  }
+  readings.set(key, health);
   return health;
 }
 

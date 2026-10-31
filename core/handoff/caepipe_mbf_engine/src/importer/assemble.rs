@@ -129,8 +129,9 @@ impl<'a> Importer<'a> {
             self.incomplete("node_map", &in_file, &in_sidecar, "nodes");
         }
 
-        // materials (§7)
+        // materials (§7) and library sections (§15, Format 4)
         let (materials, material_ids) = self.assemble_materials(&mut id_map, &mut claims)?;
+        let (sections, section_of) = self.assemble_sections(&mut id_map, &mut claims, length_unit)?;
 
         // pipes, weights and temperatures
         let factor = if self.si { 0.001 } else { 0.0254 };
@@ -208,6 +209,9 @@ impl<'a> Importer<'a> {
                     ],
                 );
                 pipe.insert("provenance".into(), Value::str(self.provenance(element.line)));
+                if let Some(section_id) = section_of.get(&element.section) {
+                    pipe.insert("section_ref".into(), Value::str(section_id.clone()));
+                }
                 let restored = if self.bound { entry.get("y_reference").filter(|value| !value.is_null()).cloned() } else { None };
                 let names = if reversed { [b.clone(), a.clone()] } else { [a.clone(), b.clone()] };
                 let ends_m: Vec<V3> = names.iter().map(|name| {
@@ -554,6 +558,9 @@ impl<'a> Importer<'a> {
             ],
         );
         model.insert("materials".into(), Value::List(materials));
+        if !sections.is_empty() {
+            model.insert("sections".into(), Value::List(sections));
+        }
         model.insert("nodes".into(), Value::List(nodes));
         model.insert("pipe_segments".into(), Value::List(pipes));
         model.insert("supports".into(), Value::List(supports));
@@ -827,6 +834,74 @@ impl<'a> Importer<'a> {
             return Err(Stop::Refused);
         }
         Ok((materials, material_ids))
+    }
+
+    /// Design §15, Format 4: a format-4 sidecar's `section_map` restores, for each PIPE record with a library
+    /// section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
+    /// its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
+    /// Returns the entries and the id by record name. Other formats and unbound imports form none.
+    fn assemble_sections(
+        &mut self,
+        id_map: &mut Dict,
+        claims: &mut Claims,
+        length_unit: &str,
+    ) -> R<(Vec<Value>, HashMap<String, String>)> {
+        let mut used: Vec<String> = Vec::new();
+        for element in &self.build.elements {
+            if !used.contains(&element.section) {
+                used.push(element.section.clone());
+            }
+        }
+        let format4 = self.sidecar_format == Some(crate::sidecar::SIDECAR_FORMAT);
+        let entries = if format4 { self.map("section_map") } else { Dict::new() };
+        if self.bound && format4 {
+            let in_sidecar: Vec<String> = entries.keys().cloned().collect();
+            self.incomplete("section_map", &used, &in_sidecar, "sections");
+        }
+        let mut sections = Vec::new();
+        let mut section_of: HashMap<String, String> = HashMap::new();
+        for name in &used {
+            let Some(swb_id) = entries.get(name).and_then(|entry| entry.get_or_null("swbpipe_section").as_str()) else {
+                continue;
+            };
+            let swb_id = swb_id.to_string();
+            let record = self.pipes.get(name).expect("section").clone();
+            if self.rebound {
+                self.unconfirmed.push(swb_id.clone());
+            }
+            self.claim(claims, &swb_id, &format!("MBF section {name}"), record.line);
+            section_of.insert(name.clone(), swb_id.clone());
+            if !id_map.contains_key(&"section_map".to_string()) {
+                id_map.insert("section_map".into(), Value::Dict(Dict::new()));
+            }
+            id_map
+                .get_mut(&"section_map".to_string())
+                .and_then(Value::as_dict_mut)
+                .expect("section_map")
+                .insert(name.clone(), Value::str(swb_id.clone()));
+            let quantity = |number: &Option<Num>| {
+                dict![("value", Value::Float(number.as_ref().expect("value").value)), ("unit", Value::str(length_unit))]
+            };
+            sections.push(dict![
+                ("id", Value::str(swb_id)),
+                ("name", Value::str(name.clone())),
+                ("section_type", Value::str("pipe")),
+                ("properties", dict![("outside_diameter", quantity(&record.od)), ("wall_thickness", quantity(&record.thk))]),
+                ("provenance", Value::str(self.provenance(record.line))),
+            ]);
+        }
+        if self.rebound {
+            for name in entries.keys() {
+                if !used.contains(name) {
+                    let message = format!("sidecar PIPE record {name} has no counterpart in this MBF");
+                    self.listed("omitted", "MBF-IMPORT-SIDECAR-ENTRY-ABSENT", 0, &format!("section_map[{name}]"), &message);
+                }
+            }
+        }
+        if self.has_errors() {
+            return Err(Stop::Refused);
+        }
+        Ok((sections, section_of))
     }
 
     fn list_unused(&mut self, material_ids: &HashMap<String, String>) {

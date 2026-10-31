@@ -969,11 +969,11 @@ fn u4b_directional_sif_refusals() {
     assert!(out.diagnostics.iter().any(|d| d.code == "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED"));
 }
 
-/// DEL-03-03: `BEND_USER_MODIFIER_INPUT_MISSING` is satisfied by the user SIF
-/// the bend's consumer uses: on a realized bend only the whole directional
-/// pair (scalar only, a half pair or neither leave it; the scalar-only message
-/// says the scalar is not applied to realized arcs), on a geometry-only marker
-/// the scalar (a pair there stays refused).
+/// DEL-03-03: `BEND_USER_MODIFIER_INPUT_MISSING` applies to realized bends and
+/// is satisfied only by the whole directional pair (scalar only, a half pair or
+/// neither leave it; the scalar-only message says the scalar is not applied to
+/// realized arcs). A geometry-only marker never takes it (it takes
+/// `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`; a pair there stays refused).
 #[test]
 fn u4b_bend_modifier_warning_follows_the_sif_consumer() {
     let (cases, _) = inputs();
@@ -1025,7 +1025,7 @@ fn u4b_bend_modifier_warning_follows_the_sif_consumer() {
         let (message, _) = warning(one);
         assert!(scalar_not_applied(&message), "scalar without {half}: {message:?}");
     }
-    // Geometry-only marker.
+    // Geometry-only marker: never this warning.
     let marker = |request: &Value| {
         let mut request = request.clone();
         request["model"]["components"][0]["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
@@ -1033,13 +1033,68 @@ fn u4b_bend_modifier_warning_follows_the_sif_consumer() {
     };
     let (message, out) = warning(marker(&request));
     assert!(out.diagnostics.iter().any(|d| d.code == validation::BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC));
-    assert!(message.is_some() && !scalar_not_applied(&message), "pair on a marker: {message:?}");
+    assert!(message.is_none(), "pair on a marker: {message:?}");
     let mut marker_scalar = marker(&without_pair(&request));
     modifiers(&mut marker_scalar).insert("sif_user_value".into(), scalar);
-    let (message, out) = warning(marker_scalar);
-    assert!(message.is_none(), "scalar on a marker: {:?}", out.diagnostics);
-    let (message, _) = warning(marker(&without_pair(&request)));
-    assert!(message.is_some() && !scalar_not_applied(&message), "neither on a marker: {message:?}");
+    for request in [marker_scalar, marker(&without_pair(&request))] {
+        let (message, out) = warning(request);
+        assert!(message.is_none(), "marker: {:?}", out.diagnostics);
+    }
+}
+
+/// DEL-03-03: every geometry-only bend on preview-physics-2 takes
+/// `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`, complete or not: it is solved as a
+/// straight chord and its k is not applied; the text states whether its scalar
+/// SIF is applied. On the exact route the marker is refused by name instead.
+#[test]
+fn u4b_geometry_only_bend_is_disclosed_as_a_chord() {
+    const CHORD: &str = "bend/elbow component is geometry only: it is solved as a straight chord, its flexibility factor k is not applied, and ";
+    const REALIZE: &str = "; realize the bend (mechanics_interface.solver_consumption curved_bend_macro_element) to apply k";
+    let (cases, _) = inputs();
+    let request = |id: &str| build_request(cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap());
+    let chord = |request: Value| {
+        let out = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive).unwrap();
+        let found: Vec<_> = out.diagnostics.iter().filter(|d| d.code == validation::BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD).cloned().collect();
+        assert!(!out.diagnostics.iter().any(|d| d.code == "BEND_USER_MODIFIER_INPUT_MISSING"), "{:?}", out.diagnostics);
+        (found, out)
+    };
+    // A complete marker: k, a positive scalar SIF and a source.
+    let marker = |mut request: Value| {
+        let component = &mut request["model"]["components"][0];
+        component["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
+        let modifiers = component["modifiers"].as_object_mut().unwrap();
+        modifiers.remove("sif_in_plane_user_value");
+        modifiers.remove("sif_out_of_plane_user_value");
+        modifiers.insert("sif_user_value".into(), json!({"value": 2.0, "unit": "none"}));
+        request
+    };
+    let preview = request("U4B-ARC90-OOP-PREVIEW");
+    let (found, out) = chord(marker(preview.clone()));
+    assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
+    assert!(out.results.iter().any(|r| r.kind == preview_physics::INTENSIFIED_KIND), "the scalar is applied");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert_eq!((found[0].severity.as_str(), found[0].affected_refs.clone()), ("warning", vec!["component:bend:pipe:BEND".to_string()]));
+    assert_eq!(found[0].message, format!("{CHORD}its scalar SIF is applied as equal-factor intensification when the run solves{REALIZE}"));
+    // A marker without a SIF (k and source kept), and with none of its modifiers.
+    let mut no_sif = marker(preview.clone());
+    no_sif["model"]["components"][0]["modifiers"].as_object_mut().unwrap().remove("sif_user_value");
+    let mut bare = marker(preview.clone());
+    bare["model"]["components"][0].as_object_mut().unwrap().remove("modifiers");
+    for request in [no_sif, bare] {
+        let (found, out) = chord(request);
+        assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
+        assert!(!out.results.iter().any(|r| r.kind == preview_physics::INTENSIFIED_KIND));
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].message, format!("{CHORD}no positive scalar SIF was entered, so no intensified measure is published for it{REALIZE}"));
+    }
+    // A realized bend takes neither.
+    let (found, _) = chord(preview);
+    assert!(found.is_empty());
+    // The exact route refuses the marker by name and adds neither warning.
+    let (found, out) = chord(marker(request("U4B-L90-P")));
+    assert_eq!(out.status.mechanics, "MODEL_INCOMPLETE");
+    assert!(out.diagnostics.iter().any(|d| d.code == "EXACT_PRESSURE_FAMILY_NOT_ADMITTED"));
+    assert!(found.is_empty(), "{found:?}");
 }
 
 /// §7.4: end-i tension and compression with nonzero bending: σ± follow the
