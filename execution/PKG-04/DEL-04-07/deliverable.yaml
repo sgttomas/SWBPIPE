@@ -329,6 +329,7 @@ code_paths:
 - validation/platform/windows_worker_fixture/**
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/arc_tangent_direction_magnitude.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs
 - core/product_physics/tests/pressure_section_geometry.rs

@@ -1445,7 +1445,18 @@ fn assembly(
             )?;
         }
         let magnitude = number(&group["direction_component_magnitude"])?;
-        require(magnitude > 0.0 && magnitude <= 1.0, "RHS_DIRECTION")?;
+        // A straight member's direction is its chord over the chord's length,
+        // which the monotone binary64 sum and sqrt never round below a
+        // component's magnitude, so it is at most 1. A realized arc's end
+        // tangent is formed as c*d + s*n without renormalizing, and a component
+        // can round above 1 by a few units in the last place (DEL-04-07 Work
+        // `pressure-contract.md`, "Direction magnitudes of arc tangents"): a
+        // group with a term on a realized arc of its region takes that bound.
+        let on_arc = array(&group["terms"])?.iter().any(|term| {
+            let (Some(region_id), Some(pipe)) = (term["region_id"].as_str(), term["pipe_id"].as_str()) else { return false };
+            regions.get(&(case, region_id)).is_some_and(|region| crate::arc_evidence::members(region, true).is_ok_and(|arcs| arcs.contains(pipe)))
+        });
+        require(magnitude > 0.0 && magnitude <= if on_arc { ARC_TANGENT_COMPONENT_BOUND } else { 1.0 }, "RHS_DIRECTION")?;
         number(&group["coefficient_sum"])?;
         number(&group["assembled_force_n"])?;
         require(
@@ -1536,6 +1547,13 @@ fn assembly(
     }
     Ok(())
 }
+
+/// The largest direction-component magnitude of a realized arc's end tangent
+/// t = c*d + s*n, formed without renormalizing (`curved_bend::arc_geometry`):
+/// 1 + 16u with u = 2^-53, against a first-order formation bound of about 12u
+/// (DEL-04-07 Work `pressure-contract.md`, "Direction magnitudes of arc
+/// tangents"). A straight member's direction stays at most 1.
+pub(crate) const ARC_TANGENT_COMPONENT_BOUND: f64 = 1.0 + 8.0 * f64::EPSILON;
 
 /// Current exact-retained G7 transport checks on the receipt's pressure-2
 /// projection. Preserve the member/material/geometry/maximum/region/assembly

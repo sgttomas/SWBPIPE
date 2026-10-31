@@ -578,7 +578,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         for pid, nominal in extrema_by_basis[sb.NOMINAL].items():
             if pid in extrema_by_basis[sb.REDUCED]:
                 _basis(sb.extrema_twins, nominal, extrema_by_basis[sb.REDUCED][pid], sections[cid, pid])
-        _validate_rhs(case["pressure_rhs_assembly"], cid)
+        _validate_rhs(case["pressure_rhs_assembly"], cid, {entry.get("pipe_id") for entry in case["pipe_sections"] if isinstance(entry, Mapping) and entry.get("member_kind") == ARC_MEMBER_KIND})
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()
@@ -1034,7 +1034,14 @@ def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
         _require(False, "temperature selection")
 
 
-def _validate_rhs(rhs: Any, cid: str) -> None:
+# A realized arc's end tangent t = c*d + s*n is formed without renormalizing, so a component can round above 1 by a
+# few units in the last place: 1 + 16u (u = 2^-53) against a first-order formation bound of about 12u. A straight
+# member's chord direction stays at most 1 (DEL-04-07 Work `pressure-contract.md`, "Direction magnitudes of arc
+# tangents"; Rust `physics_evidence::ARC_TANGENT_COMPONENT_BOUND`).
+ARC_TANGENT_COMPONENT_BOUND = 1.0 + 8.0 * math.ulp(1.0)
+
+
+def _validate_rhs(rhs: Any, cid: str, arcs: set[Any] = frozenset()) -> None:
     _shape(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
     _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
@@ -1065,7 +1072,9 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
             continue
         _shape(group, {"node_ref", "component", "pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "pressure RHS group")
         _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and all(isinstance(group[k], str) and len(group[k]) == 16 and all(c in "0123456789abcdef" for c in group[k]) for k in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "pressure RHS group source")
-        _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
+        on_arc = isinstance(group["terms"], list) and any(isinstance(term, Mapping) and term.get("pipe_id") in arcs for term in group["terms"])
+        bound = ARC_TANGENT_COMPONENT_BOUND if on_arc else 1.0
+        _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and 0 < group["direction_component_magnitude"] <= bound and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
         key = (group["node_ref"], group["component"], group["pressure_bits"], group["source_inner_radius_hi_bits"], group["source_inner_radius_lo_bits"], group["direction_component_magnitude"])
         _require(key not in groups, "duplicate pressure RHS group")
         groups.add(key)
