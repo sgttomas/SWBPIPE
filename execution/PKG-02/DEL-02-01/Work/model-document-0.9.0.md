@@ -684,16 +684,30 @@ document carrying none of them has today's meaning.
     unit of the frequency family for `frequency` or the time family for
     `period`; the ordinate unit of the acceleration family, present exactly when
     `ordinate` is `acceleration`. **The unit catalog has no frequency family
-    today (r2 F6), so S1 carries it** (SWBPIPE Agent 0 and the dynamics lane,
-    2026-10-31), as the part of DEL-02-02's `core/units` extension that 0.9.0
-    needs: dimension id `frequency`, vector time⁻¹ with angle exponent 0, and
-    canonical unit `Hz` (symbol `Hz`), with no other display unit; the token
-    joins both `schemas/units.schema.yaml` and the crate vocabulary
-    (`schema_dimension_enum_matches_crate_vocabulary`). DEL-04-09's M1b reuses
-    it and adds its other families as separate dimensions (`angular_frequency`
-    in rad/s, never convertible to Hz by dimension; rad/m; m/rad; kg·m²).
-    Period stays on `time`. `core/units/src` is priced, so S1's D3 turn prices
-    it;
+    today (r2 F6), so S1 carries it, with the rest of the dynamics unit set**
+    (SWBPIPE Agent 0 and the dynamics lane, 2026-10-31), so that `core/units`
+    changes and is priced once. These are DEL-02-02's families, needed by
+    DEL-04-09 Design §1.5 (D-p); M1b reuses them and defines none of its own.
+    Each is a separate named dimension, checked by name as `LinearStiffness`
+    and `ForcePerLength` are, never matched by vector; vectors are (length,
+    mass, time, temperature, angle):
+
+    | Dimension | Vector | Canonical unit | Display units |
+    |---|---|---|---|
+    | `frequency` | (0,0,−1,0,0) | `unit:hertz`, `Hz` | none |
+    | `angular_frequency` | (0,0,−1,0,1) | `unit:radian_per_second`, `rad/s` | none |
+    | `rotation_per_length` | (−1,0,0,0,1) | `unit:radian_per_meter`, `rad/m` | `rad/mm`, `rad/in` |
+    | `length_per_rotation` | (1,0,0,0,−1) | `unit:meter_per_radian`, `m/rad` | `mm/rad`, `in/rad` |
+    | `mass_moment_of_inertia` | (2,1,0,0,0) | `unit:kilogram_square_meter`, `kg*m^2` | `lb*in^2`, `lb*ft^2` |
+
+    `angular_frequency` carries the angle exponent, so it never converts to
+    Hz. Display factors are definitional only (0.0254 m/in, 0.3048 m/ft,
+    0.45359237 kg/lb), each with a conversion round-trip witness as the crate's
+    others have. All five join `schemas/units.schema.yaml`, the crate
+    vocabulary (`schema_dimension_enum_matches_crate_vocabulary`) and
+    `canonical_unit`. Period stays on `time`; modal shapes use the existing
+    `rotation` and dimensionless. `core/units/src` is priced, so S1's D3 turn
+    prices it;
   - `g_value`: a `Quantity` in acceleration units with a positive, finite
     value, required exactly when `ordinate` is `g_multiple` (r2 F7: zero or a
     negative value is `SPECTRUM_RECORD_INVALID`);
@@ -944,7 +958,7 @@ any later one must transform it exactly or refuse.
 
 | Slice | Content | Checks and review gates |
 |---|---|---|
-| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`, and §2.4's members), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the `frequency` unit family (§2.4), the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
+| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`, and §2.4's members), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the dynamics unit families (§2.4), the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
 | **S2. PF resolution** | Temperature, added weight and wind exposure resolution (§1.5); the correctly rounded ΔT; removal of `LOAD_CASE_CONDITION_USE_UNSUPPORTED`; retained-route placement or decline; wasm preview export | E1–E7; the Python reference table; D3 if D1-reachable code moves. The PR states explicitly that typed ΔT is unchanged (OC-5 as decided): a test shows every frozen reference (SHA-bound requests, the reader corpora, the retained successors and `expected.json`'s inputs) solves byte-identically before and after, and `expected.json` is not edited. Independent numerical scrutiny by a separate agent of ΔT, order and the twin. |
 | **S3a. Applier authoring** | §4.2's operations; reference guards; bend and split rules | One regression per operation and refusal; save and reopen byte for byte; contract corpus additions. Persistence review. |
 | **S3b. Desktop** | Condition-set manager, inspector field, bulk change, load-manager control, support direction, the run-sheet column (with B1's slice if B1 has not landed) | `desktop-test`; run-sheet inheritance and projection tests; native smoke where open/save changes. |
