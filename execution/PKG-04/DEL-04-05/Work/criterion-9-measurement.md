@@ -204,3 +204,44 @@ RT-A3's exclusive window (2026-10-31 01:39–01:50Z) measured its own scratch ra
 - EX linear: 71 s at 1,000 nodes and 346 s at 2,000 nodes, with 2.05 M rows and 1.51 GB;
 - PF nonlinear: 149 s and 11.2 GB at 1,500 nodes;
 - 2,000 nodes refused by the dense-memory guard.
+
+## 6. The desktop's displayable-result limit
+
+An earlier window gave the real desktop app linear-ex rack results of 0.46 GB and more. At
+0.46 GB the webview (WebContent) hung, at 0.92 and 1.84 GB it crashed with no message, and
+3.68 GB was refused as `PREVIEW-SOLVE-RESULT-UTF8-INVALID` although the bytes are valid UTF-8
+(a webview size limit was reached during decode). Persistence stayed clean throughout.
+
+The desktop therefore refuses a result above `MAX_DISPLAYABLE_RESULT_BYTES` = 64 MiB
+(67,108,864 bytes; `apps/desktop/src-tauri/src/solve_jobs.rs`) before any of it is read,
+with `PREVIEW-SOLVE-RESULT-TOO-LARGE`, its size and the limit (DEL-04-07
+`Work/memory-budget-decision.md`). The Solve panel names the cause, the per-station result
+detail of the model and its load cases, and says what can be done now: solve fewer load cases
+or combinations at once, or a smaller model. It also says a summary-first results view is
+planned.
+
+**Measured basis.** An exclusive window on 2026-10-31 on the development host (Apple M5 Max,
+128 GiB, not the base machine) ran the native-smoke release build `6c2f02d81` with injected
+linear-ex rack results. Every run reached the reader verdict without a hang or crash:
+
+| Result | WebContent peak footprint | Time to verdict |
+|---|---|---|
+| 39.1 MiB | 3.22 GB (79×) | 14.9 s |
+| 55.1 MiB | 3.69 GB (64×) | 14.8 s |
+| 79.0 MiB | 5.04 GB (61×) | 21.3 s |
+| 140.7 MiB | 8.04 GB (54×) | 64.5 s |
+
+A 22.3 MiB run's WebContent process was not identified, so it gives no figure.
+
+- **Margin.** Interpolated at 64 MiB: about 4.2 GB of WebContent, about 17 s to the verdict
+  and an app peak under 0.5 GB. Beside the OS and the app on a 16 GiB machine that leaves
+  roughly 1.8× headroom. This is an engineering margin from one host, not a measurement on
+  the base machine.
+- **Not host-derived.** The value is fixed in the product; it does not follow the host's
+  physical memory.
+- **Re-measured later.** It is re-measured after the desktop's result-reader fixes.
+
+§5.3's dry runs published about 1.8 MB of linear-ex result per node (0.46 GB at 250 nodes),
+so a linear-ex rack of roughly 36 nodes or more now ends refused at this limit. Criterion 9's
+linear clock at 2,000 nodes therefore cannot reach first paint until the result-volume design
+lands. That is recorded here, not relaxed.

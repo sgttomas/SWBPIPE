@@ -108,15 +108,20 @@ const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discar
 
 /// The largest solve result the desktop hands to its webview: 64 MiB.
 ///
-/// Basis (RT-U4, measured on the development host with linear-ex rack
-/// results in the real desktop app): the webview grows to about 45-60x the
-/// result's bytes while it receives, decodes and reads them (0.46 GB hung it
-/// at 19-21 GB; 0.92 and 1.84 GB crashed it; 147 MB reached the verdict at
-/// about 8 GB). At about 55x, 64 MiB gives about 3.5 GB of webview memory,
-/// about half the 147 MB case's 8 GB, a margin chosen for a 16 GiB machine.
-/// It is a fixed product value, deliberately not derived from this host's
-/// physical memory, and is to be re-measured after the desktop's result
-/// reader is fixed. A larger result is refused truthfully
+/// Basis (RT-U4; DEL-04-05 `Work/criterion-9-measurement.md` §6): an
+/// exclusive window on 2026-10-31 on the development host (Apple M5 Max,
+/// 128 GiB, not the base machine), native-smoke release build `6c2f02d81`,
+/// with injected linear-ex rack results. Each run reached the reader verdict;
+/// the webview (WebContent) peak footprint was 3.22 GB at 39.1 MiB (79x),
+/// 3.69 GB at 55.1 MiB (64x), 5.04 GB at 79.0 MiB (61x) and 8.04 GB at
+/// 140.7 MiB (54x). Interpolated at 64 MiB: about 4.2 GB of WebContent, about
+/// 17 s to the verdict and an app peak under 0.5 GB, which beside the OS and
+/// the app on a 16 GiB machine leaves roughly 1.8x headroom. That is an
+/// engineering margin from one host, not a measurement on the base machine.
+/// Results of 0.46 GB and more hung or crashed WebContent in an earlier window.
+/// The value is fixed in the product, deliberately not derived from the
+/// host's physical memory, and is re-measured after the desktop's result
+/// reader fixes. A larger result is refused truthfully
 /// ([`RESULT_TOO_LARGE_CODE`]) rather than sent to a webview that cannot
 /// hold it.
 pub(crate) const MAX_DISPLAYABLE_RESULT_BYTES: u64 = 64 << 20;
