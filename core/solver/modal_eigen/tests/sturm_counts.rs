@@ -58,10 +58,11 @@ fn parameters() -> SturmParameters {
 }
 
 /// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
-/// the production values are recorded under DEC-026, not here. With
-/// c_μ = 1, the review-round-3 artifact lies about 2× below δ_μ and the
-/// smallest retained μ of every admitted fixture case at least 7.4·10² above
-/// it (E-RIGID-SCALE-1e6), so κ_μ = 10 sits between them (README).
+/// the production values are recorded under DEC-026, not here. On the
+/// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
+/// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
+/// cases at least 1.6·10⁷ above it, except E-RIGID-SCALE-1e6, whose six
+/// stiff modes lie 5 to 330 times below it (README: an open conflict).
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
 
