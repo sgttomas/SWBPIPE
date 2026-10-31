@@ -57,11 +57,12 @@ TURNS = [
     "(E 200 GPa, G 76.923 GPa, alpha 1.2e-5 per degC), nodes node:a (0,0,0), node:c (4,0,0) and "
     "node:d (4,3,0) m, pipes pipe:a-c and pipe:c-d (OD 0.2 m, wall 0.01 m), anchors at node:a and "
     "node:d, and one thermal load case raising both pipes by 100 degC. Do not solve yet.",
-    "I applied the batch. Confirm it was applied, solve the model and report node:c's displacements "
-    "and rotations.",
+    "I applied the batch. Confirm it was applied, solve the model and report node:c's six displacements "
+    "and rotations, displacements in mm and rotations in rad, each to at least six significant digits.",
 ]
 NODAL_KINDS = [f"global_nodal_{q}_{axis}" for q in ("displacement", "rotation") for axis in "xyz"]
-EXPECTED_TREE = [("node", "node:a"), ("node", "node:c"), ("node", "node:d")]
+# The tree rows the driver enumerates, by the operation that creates each.
+TREE_TYPES = {"Node": "node", "Element": "pipe", "Support": "support"}
 LINE_LIMIT, OUTPUT_LIMIT = 16384, 2 * 1024 * 1024
 
 
@@ -296,17 +297,16 @@ def judge(report, reference, operations, captured=None):
     count = re.match(r"(\d+) proposed changes\b", str(batch.get("summary") or ""))
     if not count or int(count.group(1)) != len(operations):
         failures.append(f"batch summary {batch.get('summary')!r}")
-    # The proposal context lists the batch's operations in order; they are the fixture's.
-    listed = "Operations: " + ", ".join(op["operation_id"] for op in operations)
-    context = str(batch.get("context") or "")
-    at = context.find(listed)
-    if at < 0 or context[at + len(listed):at + len(listed) + 1] in (",", *"0123456789"):
-        failures.append("batch context does not list exactly the fixture's operations")
+    # The batch as Batch review shows it submitted: the fixture's operations, in order.
+    if batch.get("submitted") != [operation_key(op) for op in operations]:
+        failures.append("the submitted batch is not the fixture's operations in order")
     if not batch.get("apply_message"):
         failures.append("no batch receipt after Apply")
-    tree = report.get("tree") or {}
-    if set(tree) != {f"{kind}:{entity}" for kind, entity in EXPECTED_TREE} or not all(tree.values()):
-        failures.append(f"model tree rows {tree}")
+    # Every node, pipe and support row the tree shows, against the entities the batch creates.
+    expected_rows = sorted([TREE_TYPES[op["target"]["object_type"]], op["target"]["ref"]]
+                           for op in operations if op["target"]["object_type"] in TREE_TYPES)
+    if sorted(list(row) for row in report.get("tree_rows") or []) != expected_rows:
+        failures.append(f"model tree rows {report.get('tree_rows')}, expected {expected_rows}")
     rows = (report.get("results") or {}).get("rows") or []
     shown = {}
     scales = reference["zero_scales"]
@@ -355,10 +355,23 @@ def judge(report, reference, operations, captured=None):
                 item = read.get(row_id)
                 if item and (item.get("kind"), item.get("entityRef"), item.get("unit"), item.get("value")) != (kind, "node:c", unit, value):
                     failures.append(f"agent value {row_id} differs from the window")
-            report_text = " ".join(str(line) for line in (report.get("turn2") or {}).get("messages") or [])
-            if not all(f"{item['kind']} {item['value']} {item['unit']}" in report_text for item in read.values()):
-                failures.append("the agent's report in the window omits a value it read")
+    # The agent's report in the window states each of the six motions the window shows:
+    # exactly in stub mode, to four significant figures in live mode (a model may round).
+    agent_lines = [str(line) for line in (report.get("turn2") or {}).get("messages") or [] if str(line).startswith("Agent:")]
+    stated = [float(n) for n in re.findall(r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?", " ".join(agent_lines))]
+    stated = [n for n in stated if math.isfinite(n)]
+    for row_id, (_, value, _) in sorted(shown.items()):
+        exact = captured is not None
+        if not any(n == value if exact else (abs(n - value) <= 5e-4 * abs(value) if value else n == 0) for n in stated):
+            failures.append(f"the agent's report in the window does not state {row_id} ({value!r})")
     return failures
+
+
+def operation_key(operation):
+    """An operation as the judge compares it: id, kind and target."""
+    change, target = operation.get("change") or {}, operation.get("target") or {}
+    return [operation.get("operation_id"), f"{operation.get('operation_kind')}/{target.get('object_type')}/"
+            f"{change.get('change_kind')}/{change.get('field_path')}", target.get("ref")]
 
 
 # ---------------------------------------------------------------------------
@@ -464,7 +477,7 @@ def run(args, key, root):
         plan = {"provider": {"endpoint": stub.endpoint if stub else args.endpoint, "model": args.model,
                              "contextWindow": args.context_window},
                 "turns": TURNS, "resultProbe": "node:c",
-                "expectTreeRows": [list(row) for row in EXPECTED_TREE],
+                "treeTypes": sorted(TREE_TYPES.values()),
                 "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
         env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
                "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
@@ -488,17 +501,27 @@ def run(args, key, root):
             if observer:
                 observer.sample()
 
+        refused = None
         while app.poll() is None:
             safety()
-            if observer is None and (scope := lines.scope()):
+            if sdk is None and (scope := lines.scope()):
                 if scope.get("appPid") != app.pid:
                     raise Refusal("app_identity")
                 sdk = scope["sdkPid"]
                 result["supplier"] = {"pid": sdk, "scope": scope["scope"]}
-                observer = Scope(sdk)
-                if observer.exited:
-                    raise Refusal("supplier_exited_before_gate")
-                anchor = anchor_start(args.process_probe, sdk, app)
+                # One admission, inside the native gate's window, while the app holds the
+                # original supplier unreaped (so its id cannot be reused). It is never
+                # retried: on refusal READY is not written, the gate expires and native
+                # cleanup ends the supplier, as the product does for a failed start.
+                try:
+                    observer = Scope(sdk)
+                    if observer.exited:
+                        raise Refusal("supplier_exited_before_gate")
+                    anchor = anchor_start(args.process_probe, sdk, app)
+                except Exception as error:  # noqa: BLE001
+                    refused = str(error) if isinstance(error, Refusal) else type(error).__name__
+                    result["anchorRefused"] = refused
+                    continue
                 result["anchor"] = {"pid": anchor.pid, "group": sdk}
                 descriptor = os.open(gate, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
                 with os.fdopen(descriptor, "wb") as handle:
@@ -510,8 +533,10 @@ def run(args, key, root):
         if app.returncode != 0:
             raise Refusal("app_nonzero")
         if observer is None:
-            raise Refusal("supplier_never_published")
+            raise Refusal(f"anchor_refused: {refused}" if refused else "supplier_never_published")
         bounded_wait(lambda: observer.sample() and not pid_live(sdk), time.monotonic() + 5, check=safety)
+        if refused:
+            raise Refusal(f"anchor_refused: {refused}")
         if observer.status is None or not os.WIFEXITED(observer.status) or os.WEXITSTATUS(observer.status) != 0:
             raise Refusal("supplier_nonzero_or_signal")
         # The anchor has no supplier writer. Retire it via its own Child, not its group.
@@ -533,15 +558,13 @@ def run(args, key, root):
         result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     finally:
         if app and app.poll() is None:
-            if sdk is None and lines and (late := lines.scope()) and late.get("appPid") == app.pid:
-                sdk = late["sdkPid"]  # published after the loop's last look
-            anchor, outcome = release_app(app, sdk, anchor, lambda: anchor_start(args.process_probe, sdk, app))
-            if anchor is not None and not result.get("anchor"):
-                result["anchor"] = {"pid": anchor.pid, "group": sdk}
+            outcome = release_app(app, anchor, supplier_gone(observer), not (home / RUNTIME_DIR).exists())
+            result["release"] = outcome
             if outcome == "retained_original_app_custody":
                 result["rescue"] = outcome
                 result["passed"] = False
                 result["failure"] = result.get("failure") or outcome
+                retain(app, root)
             result.setdefault("app", {})["status"] = app.returncode
         if anchor is not None:
             try:
@@ -570,28 +593,42 @@ def run(args, key, root):
     return result
 
 
-def release_app(app, sdk, anchor, start_anchor, attempts=3, pause=.2):
-    """End a launch that did not end itself. The original app is the supplier's custodian
-    until an anchor holds the supplier's group: with a published supplier and no anchor,
-    one is tried while the app still holds it, and if none can be established the app is
-    left running (custody retained, the run fails) rather than killed, which could orphan
-    the supplier with no owned rescue. Otherwise the owned app is killed by its own
-    handle and the anchor, if any, rescues the supplier's group afterwards."""
+# Start creates this before any supplier can be spawned, so its absence proves none was.
+RUNTIME_DIR = Path("Library/Application Support/com.chirality.swbpipe/embedded-agent/runtime")
+RETAINED = Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.retained"
+
+
+def supplier_gone(observer):
+    """True only when the kqueue observer of the original supplier has seen it exit."""
+    if observer is None:
+        return False
+    try:
+        return bool(observer.sample())
+    except Exception:  # noqa: BLE001  (an invalid observation proves nothing)
+        return False
+
+
+def release_app(app, anchor, supplier_exited, no_supplier_spawned):
+    """End a launch that did not end itself, from evidence only. The owned app is killed by
+    its own handle when an anchor holds the supplier's group (it rescues the group after),
+    when the original supplier was observed to exit, or when Start never prepared a
+    runtime, so no supplier existed. Otherwise the app is the supplier's only custodian and
+    is left running (custody retained, the run fails); nothing is retried, so no saved id
+    is reused after the native gate's window."""
     if app.poll() is not None:
-        return anchor, None
-    for _ in range(attempts if sdk is not None and anchor is None else 0):
-        try:
-            anchor = start_anchor()
-            break
-        except Exception:  # noqa: BLE001  (never converted into a PID signal)
-            if app.poll() is not None:
-                break
-            time.sleep(pause)
-    if sdk is not None and anchor is None:
-        return anchor, "retained_original_app_custody"
+        return None
+    if anchor is None and not supplier_exited and not no_supplier_spawned:
+        return "retained_original_app_custody"
     app.kill()
     app.wait(timeout=5)
-    return anchor, "killed_owned_app"
+    return "killed_owned_app"
+
+
+def retain(app, root):
+    """A host latch that outlives this controller: no further attempt starts until a person
+    has quit the retained app normally (its quit performs native cleanup) and removed it."""
+    RETAINED.write_text(json.dumps({"appPid": app.pid, "output": str(root),
+                                    "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}) + "\n")
 
 
 KEY_BYTES = 8192
@@ -625,6 +662,11 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cancel-file", type=Path)
     args = parser.parse_args()
+    # A retained run's latch refuses before anything is read, created or launched.
+    if RETAINED.exists():
+        print(f"refused: a previous attempt retained its app ({RETAINED.read_text().strip()}). Quit that app "
+              f"normally, confirm no process remains under its output directory, then remove {RETAINED}.", file=sys.stderr)
+        return 2
     if args.mode == "live" and not args.endpoint:
         parser.error("live mode needs --endpoint")
     if args.mode == "stub" and args.key_stdin:
@@ -656,7 +698,7 @@ def main():
             result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     key = None
     (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "residents", "startedAt", "endedAt")}))
+    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "rescue", "release", "residents", "startedAt", "endedAt")}))
     return 0 if result["passed"] else 1
 
 

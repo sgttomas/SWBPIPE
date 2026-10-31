@@ -145,6 +145,20 @@
     return { standing: ended, messages };
   }
 
+  // The batch as Batch review shows it submitted ("Submitted changes and source metadata"):
+  // each operation's id, kind and target, in order.
+  function submittedOperations(entry) {
+    const shown = [...entry.querySelectorAll("details")].find((item) => item.querySelector("summary")?.textContent.trim().startsWith("Submitted changes"));
+    try {
+      const batch = JSON.parse(shown?.querySelector("pre")?.textContent ?? "null");
+      return (batch?.operations ?? []).slice(0, 64).map((operation) => [
+        bounded(operation.operation_id, 160),
+        bounded(`${operation.operation_kind}/${operation.target?.object_type}/${operation.change?.change_kind}/${operation.change?.field_path}`, 200),
+        bounded(operation.target?.ref, 160)
+      ]);
+    } catch { return null; }
+  }
+
   // The stand-in click: Batch review's own Validate (when its preview gate asks) and Apply.
   async function applyAgentBatch(report, timeouts) {
     const entry = await waitFor("agent batch in Batch review", () => liveBatches()[0] ?? null, timeouts.ui);
@@ -154,7 +168,8 @@
       batch_id: bounded(entry.querySelector("h4")?.textContent),
       batches_shown: liveBatches().length,
       context: bounded(entry.querySelector('[aria-label="Agent proposal context"]')?.textContent),
-      summary: bounded([...entry.querySelectorAll("p")].map((item) => item.textContent).find((line) => /proposed changes/.test(line)))
+      summary: bounded([...entry.querySelectorAll("p")].map((item) => item.textContent).find((line) => /proposed changes/.test(line))),
+      submitted: submittedOperations(entry)
     };
     press(button(panel(), "Open Batch review"), "Open Batch review");
     await waitFor("Batch review shown", () => byTestId("operation-tab-review")?.getAttribute("aria-pressed") === "true", timeouts.ui);
@@ -174,7 +189,11 @@
 
   // The model tree's rows and the Results section's rows for the probe entity, as shown.
   async function observeModelAndResults(plan, report, timeouts) {
-    report.tree = Object.fromEntries(plan.expectTreeRows.map(([type, id]) => [`${type}:${id}`, Boolean(byTestId(`tree-row-${encodeURIComponent(type)}-${encodeURIComponent(id)}`))]));
+    // Every row of the listed types the tree shows, not only the expected ones.
+    report.tree_rows = [...document.querySelectorAll('[data-testid^="tree-row-"]')].map((row) => {
+      const [type, ...id] = row.getAttribute("data-testid").slice("tree-row-".length).split("-");
+      return [decodeURIComponent(type), decodeURIComponent(id.join("-"))];
+    }).filter(([type]) => plan.treeTypes.includes(type)).slice(0, 200);
     await showSection("results");
     report.results = { standing: await waitFor("result standing", () => text("numerical-result-standing"), timeouts.ui) };
     const proof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;

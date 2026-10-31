@@ -33,15 +33,24 @@ It establishes no acceptance, release or criterion 17 standing.
     app and original supplier identities and holds the protocol; the
     controller checks the app identity, observes the supplier by kqueue
     (exit, exit status, fork), joins an owned anchor to its group, and only
-    then writes `READY`;
+    then writes `READY`. That admission is made once, inside the gate's window,
+    while the app holds the original supplier unreaped so its id cannot be
+    reused; it is never retried. If it is refused, `READY` is not written, the
+    gate expires and native cleanup ends the supplier, as the product does for
+    a failed start, and the run fails;
   - rescue is the anchor's own group, never a recorded PID. A launch that does
-    not end itself is released by `release_app`: with a published supplier and
-    no anchor, one is tried while the app still holds the supplier, and if none
-    can be established the app is left running (custody retained, the run
-    fails) rather than killed, which could orphan the supplier with no owned
-    rescue. After the run the supplier's zero exit and absence are required,
-    and a read-only listing of executables must find nothing under the app
-    copy, the run's HOME or the supplier's runtime scope;
+    not end itself is released by `release_app`, from evidence only: the owned
+    app is killed by its own handle when an anchor holds the supplier's group,
+    when the kqueue observer saw the original supplier exit, or when Start
+    never prepared its runtime directory (created before any spawn), so no
+    supplier existed. Otherwise the app is the supplier's only custodian and is
+    left running, the run fails, and a host latch
+    (`/private/tmp/swbpipe-agent-journey-<uid>.retained`) refuses every further
+    attempt until a person has quit that app normally (its quit performs
+    native cleanup), confirmed nothing remains and removed the latch. After a
+    run the supplier's zero exit and absence are required, and a read-only
+    listing of executables must find nothing under the app copy, the run's HOME
+    or the supplier's runtime scope;
   - the fixture mode's standalone preflight (probes only, no supplier or relay)
     runs before each launch, the bundle's supplier must match the pin in
     `agent-witness-pin.json`, one attempt runs at a time on the host, and a
@@ -49,12 +58,15 @@ It establishes no acceptance, release or criterion 17 standing.
   - it judges: the seven driver steps; each turn completed (the bare standing
     "Ready."; a failed or interrupted turn is not) with an agent message in the
     window; exactly one agent batch whose count is exactly the fixture's 11 and
-    whose proposal context lists exactly the fixture's operations in order; a
-    receipt after Apply; exactly the expected tree rows; and `node:c`'s six
-    nodal motions as the Results section shows them, each finite and in its
-    unit, against `validation/references/w9_benchmarks/references.json` (W9-A)
-    under that file's criterion (relative 1e-9, zero rows on the family
-    scale).
+    whose submitted operations, as Batch review shows them, are the fixture's
+    ids, kinds and targets in order; a receipt after Apply; every node, pipe
+    and support row the tree shows, equal to the entities the batch creates;
+    `node:c`'s six nodal motions as the Results section shows them, each finite
+    and in its unit, against `validation/references/w9_benchmarks/references.json`
+    (W9-A) under that file's criterion (relative 1e-9, zero rows on the family
+    scale); and the agent's report in the window stating each of those six
+    values (exactly with the stub; to four significant figures live, where a
+    model may round).
 - **Provider key substitution** (option (b), live mode only),
   `apps/desktop/src-tauri/src/native_smoke.rs` and `embedded_agent/live_host.rs`.
   With `SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin` and the driver on stdin, the

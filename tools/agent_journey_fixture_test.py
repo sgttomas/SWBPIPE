@@ -114,14 +114,15 @@ def observed_report(reference, operations, nudge=0.0):
             values.append({"id": row_id, "kind": f"global_nodal_{'displacement' if displacement else 'rotation'}_{r['component'][1]}",
                            "entityRef": "node:c", "value": value, "unit": unit})
     agent = "Agent: node:c: " + "; ".join(f"{v['kind']} {v['value']} {v['unit']}" for v in values)
-    ids = ", ".join(op["operation_id"] for op in operations)
+    rows_expected = [[fixture.TREE_TYPES[op["target"]["object_type"]], op["target"]["ref"]]
+                     for op in operations if op["target"]["object_type"] in fixture.TREE_TYPES]
     report = {"steps": fixture.STEPS,
               "turn1": {"standing": "Ready.", "messages": ["You: build", "Agent: proposed"]},
               "turn2": {"standing": "Ready.", "messages": ["You: solve", agent]},
-              "batch": {"batch_id": "agent-x", "batches_shown": 1, "context": f"Proposed by agent.Operations: {ids}Original agent reference",
+              "batch": {"batch_id": "agent-x", "batches_shown": 1,
                         "summary": f"{len(operations)} proposed changes. Bound to the model used to prepare this batch.",
-                        "apply_message": "Applied"},
-              "tree": {f"{kind}:{entity}": True for kind, entity in fixture.EXPECTED_TREE},
+                        "submitted": [fixture.operation_key(op) for op in operations], "apply_message": "Applied"},
+              "tree_rows": [list(row) for row in rows_expected],
               "results": {"rows": rows, "model_sha256": "sha256:" + "c" * 64}}
     hash_ = {"value": "c" * 64}
     captured = [{"outcome": {"status": "applied", "data": {"outcomeModelHash": hash_}}},
@@ -130,7 +131,7 @@ def observed_report(reference, operations, nudge=0.0):
     return report, captured
 
 
-def judged(mutate=None, captured_mutate=None, nudge=0.0):
+def judged(mutate=None, captured_mutate=None, nudge=0.0, live=False):
     reference = fixture.w9a_reference()
     operations = json.loads(fixture.FIXTURE.read_text())["routes"]["PF"]["operations"]
     report, captured = observed_report(reference, operations, nudge)
@@ -138,7 +139,7 @@ def judged(mutate=None, captured_mutate=None, nudge=0.0):
         mutate(report)
     if captured_mutate:
         captured_mutate(captured)
-    return fixture.judge(report, reference, operations, captured)
+    return fixture.judge(report, reference, operations, None if live else captured)
 
 
 def test_the_judge_accepts_the_reference_and_names_each_departure():
@@ -160,7 +161,18 @@ def test_the_judge_refuses_a_failed_or_silent_turn():
     assert "turn2: no agent message in the window" in judged(silent)
     def unreported(report):
         report["turn2"]["messages"] = ["You: solve", "Agent: done"]
-    assert "the agent's report in the window omits a value it read" in judged(unreported)
+    assert any("does not state" in why for why in judged(unreported))
+
+
+def test_live_mode_checks_the_report_against_the_window_too():
+    assert judged(live=True) == []
+    def wrong(report):
+        report["turn2"]["messages"] = ["You: solve", "Agent: done. node:c ux = 999 mm; no rotations reported."]
+    assert sum("does not state" in why for why in judged(wrong, live=True)) >= 4
+    def rounded(report):
+        report["turn2"]["messages"] = ["You: solve", "Agent: ux 4.77111 mm, uy -3.58687 mm, uz 0 mm, rx 0 rad, ry 0 rad, rz 0.000786714 rad"]
+    assert judged(rounded, live=True) == []
+    assert any("does not state" in why for why in judged(rounded))  # stub mode states values exactly
 
 
 def test_the_judge_refuses_nonfinite_values():
@@ -185,15 +197,23 @@ def test_the_judge_checks_the_batch_and_tree_exactly():
     def more(report):
         report["batch"]["summary"] = "111 proposed changes. Bound to the model used to prepare this batch."
     assert any(why.startswith("batch summary") for why in judged(more))
-    def extra(report):
-        report["batch"]["context"] = report["batch"]["context"].replace("Original", ", op:w9a:12Original")
-    assert "batch context does not list exactly the fixture's operations" in judged(extra)
+    def renamed(report):
+        report["batch"]["submitted"][-1][0] = report["batch"]["submitted"][-1][0] + "-wrong"
+    assert "the submitted batch is not the fixture's operations in order" in judged(renamed)
+    def reordered(report):
+        report["batch"]["submitted"].reverse()
+    assert "the submitted batch is not the fixture's operations in order" in judged(reordered)
     def partial(report):
-        report["tree"] = {"node:node:a": True}
+        report["tree_rows"] = report["tree_rows"][:1]
     assert any(why.startswith("model tree rows") for why in judged(partial))
+    def extra(report):
+        report["tree_rows"].append(["node", "node:e"])
+    assert any(why.startswith("model tree rows") for why in judged(extra))
 
 
 class FakeApp:
+    pid = 4321
+
     def __init__(self, alive=True):
         self.alive, self.killed = alive, False
     def poll(self):
@@ -204,18 +224,37 @@ class FakeApp:
         return 0
 
 
-def test_release_never_kills_the_supplier_custodian_without_an_anchor():
-    def refused():
-        raise fixture.Refusal("anchor_identity")
+def test_release_kills_the_owned_app_only_on_evidence():
+    # Unknown custody (no anchor, no observed exit, a runtime prepared): the app is kept.
     app = FakeApp()
-    assert fixture.release_app(app, 4321, None, refused, pause=0) == (None, "retained_original_app_custody")
-    assert not app.killed
-    app = FakeApp()
-    anchor = object()
-    assert fixture.release_app(app, 4321, None, lambda: anchor, pause=0) == (anchor, "killed_owned_app") and app.killed
-    app = FakeApp()
-    assert fixture.release_app(app, None, None, refused, pause=0) == (None, "killed_owned_app") and app.killed
-    assert fixture.release_app(FakeApp(alive=False), 4321, None, refused) == (None, None)
+    assert fixture.release_app(app, None, False, False) == "retained_original_app_custody" and not app.killed
+    for anchor, exited, unspawned in ((object(), False, False), (None, True, False), (None, False, True)):
+        app = FakeApp()
+        assert fixture.release_app(app, anchor, exited, unspawned) == "killed_owned_app" and app.killed
+    assert fixture.release_app(FakeApp(alive=False), None, False, False) is None
+
+
+def test_an_invalid_observation_is_not_evidence_of_exit():
+    class Broken:
+        def sample(self):
+            raise fixture.Refusal("scope_observation")
+    class Exited:
+        def sample(self):
+            return True
+    assert fixture.supplier_gone(None) is False
+    assert fixture.supplier_gone(Broken()) is False
+    assert fixture.supplier_gone(Exited()) is True
+
+
+def test_retained_custody_latches_the_host(tmp_path, monkeypatch):
+    latch = tmp_path / "retained"
+    monkeypatch.setattr(fixture, "RETAINED", latch)
+    fixture.retain(FakeApp(), tmp_path / "run")
+    record = json.loads(latch.read_text())
+    assert set(record) == {"appPid", "output", "at"}
+    monkeypatch.setattr(sys, "argv", ["agent_journey_fixture.py", "--app", "x", "--process-probe", "x", "--boundary-probe", "x",
+                                      "--mode", "stub", "--output", str(tmp_path / "next")])
+    assert fixture.main() == 2 and not (tmp_path / "next").exists()
 
 
 def test_the_key_is_one_bounded_newline_terminated_printable_line():
