@@ -1312,6 +1312,23 @@ export function useWorkspaceSession() {
     setOperationTab("review");
   }
 
+  /** G9 (DEL-07-02 `Work/queued-changes-batch.md`): moves the person's queued single
+   * changes, in the order they were queued, into batch review as one batch. Nothing is
+   * applied here: the batch is validated and then applied entirely or not at all, and a
+   * change whose `before` depends on another queued change is refused by name there,
+   * never rebased. Changes another author queued stay single. */
+  async function handleReviewQueuedIntentsAsBatch(): Promise<void> {
+    const moving = [...editorIntents].reverse().filter((intent) => intent.author_type === "user");
+    if (moving.length < 2) return;
+    const key = await registerOperationBatch({ batch_id: `queued-changes-${++batchSequence.current}`, operations: moving.map((intent) => structuredClone(intent)) });
+    if (!key) return;
+    const moved = new Set(moving.map(intentKey));
+    setEditorIntents((current) => current.filter((intent) => !moved.has(intentKey(intent))));
+    setOperationOutcomes((current) => Object.fromEntries(Object.entries(current).filter(([queued]) => !moved.has(queued))));
+    const kept = editorIntents.length - moving.length;
+    setOperationMessage(`${moving.length} queued changes moved to batch review as one batch. Validate it, then apply the entire batch.${kept ? ` ${kept} change${kept === 1 ? "" : "s"} from another author stay${kept === 1 ? "s" : ""} queued singly.` : ""}`);
+  }
+
   function handleClearReviewQueue() {
     requestEpochRef.current += 1;
     setRequestEpoch(requestEpochRef.current);
@@ -4130,6 +4147,7 @@ export function useWorkspaceSession() {
       handleApplyDraftReview,
       handleValidateIntent,
       handleApplyIntent,
+      handleReviewQueuedIntentsAsBatch,
       handleUndoSessionModelEdit,
       handleRedoSessionModelEdit,
       invalidateDirectDraftContext
