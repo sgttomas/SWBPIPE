@@ -35,7 +35,7 @@
 // ok. A message is quoted verbatim; `needs_review` marks one a person should judge.
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,6 +50,8 @@ const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windo
 const BIN_NAME = "openpipestress-desktop";
 const BINDING = "perf-binding.json";
 const INJECT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT";
+// The directory the injected file must lie in (the hook refuses anything else).
+const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
 const SEVERITY = ["crash", "half_written_save", "misleading_message", "hang", "refused_with_message", "ok"];
 
 const sha256File = (file) => {
@@ -65,10 +67,67 @@ function canonical(value) {
 }
 const git = (...args) => spawnSync("git", args, { cwd: project, encoding: "utf8" }).stdout.trim();
 
+// A plan names runs and files by bare names only: no separator, no `..`, no leading dot.
+const PLAN_NAME = /^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$/;
+const MODES = new Set(["native", "injected"]);
+
+/** `name` when it is a bare plan name, else a refusal naming `what`. */
+export function planName(name, what) {
+  if (typeof name !== "string" || !PLAN_NAME.test(name) || name.includes("..")) {
+    throw new Error(`perf plan: ${what} ${JSON.stringify(name)} is not a bare name ([A-Za-z0-9._-], no separator, no "..", no leading dot)`);
+  }
+  return name;
+}
+
+/** The path of `name` inside `root`, refused if it resolves outside it. An existing
+ * path is checked again after resolving symbolic links (both sides), and `mustExist`
+ * requires a regular file there. */
+export function containedPath(root, name, { mustExist = false } = {}) {
+  const base = path.resolve(root);
+  const candidate = path.resolve(base, planName(name, "file name"));
+  const inside = (outer, inner) => {
+    const relative = path.relative(outer, inner);
+    return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+  };
+  if (!inside(base, candidate)) throw new Error(`perf plan: ${name} resolves outside ${base}`);
+  if (lstatSync(candidate, { throwIfNoEntry: false })) {
+    let real;
+    try { real = realpathSync(candidate); } catch { throw new Error(`perf plan: ${name} is a dangling symbolic link in ${base}`); }
+    if (!inside(realpathSync(base), real)) throw new Error(`perf plan: ${name} resolves (through a symbolic link) outside ${base}`);
+    if (mustExist && !statSync(real).isFile()) throw new Error(`perf plan: ${name} is not a regular file`);
+  } else if (mustExist) {
+    throw new Error(`perf plan: ${name} does not exist in ${base}`);
+  }
+  return candidate;
+}
+
+/** Refuses a plan whose run ids, modes, file names or subsets are not what it may name. */
+export function validatePlan(plan) {
+  if (!Array.isArray(plan.runs) || !plan.subsets || typeof plan.subsets !== "object") throw new Error("perf plan: runs and subsets are required");
+  const ids = new Set();
+  for (const run of plan.runs) {
+    planName(run.id, "run id");
+    if (ids.has(run.id)) throw new Error(`perf plan: run id ${run.id} is repeated`);
+    ids.add(run.id);
+    if (!MODES.has(run.mode)) throw new Error(`perf plan: run ${run.id} has mode ${JSON.stringify(run.mode)}`);
+    planName(run.model, `run ${run.id}'s model`);
+    if (run.mode === "injected") planName(run.result, `run ${run.id}'s result`);
+    else if (run.result !== undefined) throw new Error(`perf plan: native run ${run.id} names a result`);
+    for (const key of ["estimate_s", "timeout_s", "paint_ms"]) {
+      if (!Number.isFinite(run[key]) || run[key] <= 0) throw new Error(`perf plan: run ${run.id} has ${key} ${JSON.stringify(run[key])}`);
+    }
+  }
+  for (const [subset, members] of Object.entries(plan.subsets)) {
+    planName(subset, "subset");
+    if (!Array.isArray(members) || members.some((id) => !ids.has(id))) throw new Error(`perf plan: subset ${subset} names an unknown run`);
+  }
+  return plan;
+}
+
 export function loadPlan(file) {
   const plan = JSON.parse(readFileSync(file, "utf8"));
   if (plan.schema !== "swbpipe.desktop-perf-plan/v1") throw new Error(`${file}: not a desktop perf plan`);
-  return plan;
+  return validatePlan(plan);
 }
 
 export function selectRuns(plan, { subset, runs }) {
@@ -252,15 +311,19 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
 
 async function runOne(run, ctx) {
   const record = { id: run.id, mode: run.mode, model: run.model, started_at: new Date().toISOString() };
-  const modelSource = path.join(ctx.models, run.model);
-  if (!existsSync(modelSource)) return { ...record, class: "skipped", detail: `model missing: ${modelSource}` };
-  const resultFile = run.mode === "injected" ? path.join(ctx.results, run.result) : null;
-  if (resultFile && !existsSync(resultFile)) return { ...record, class: "skipped", detail: `injected result missing: ${resultFile}` };
-  const root = mkdtempSync(path.join(ctx.scratch, `run-${run.id}-`));
+  // Every plan-named source and destination stays inside its root (validatePlan, containedPath).
+  let modelSource, resultFile;
+  try {
+    modelSource = containedPath(ctx.models, run.model, { mustExist: true });
+    resultFile = run.mode === "injected" ? containedPath(ctx.results, run.result, { mustExist: true }) : null;
+  } catch (error) {
+    return { ...record, class: "skipped", detail: error.message };
+  }
+  const root = mkdtempSync(path.join(ctx.scratch, `run-${planName(run.id, "run id")}-`));
   const home = path.join(root, "home");
   mkdirSync(path.join(home, "Downloads"), { recursive: true });
-  const modelPath = path.join(root, run.model);
-  copyFileSync(modelSource, modelPath);
+  const modelPath = containedPath(root, run.model);
+  copyFileSync(modelSource, modelPath, constants.COPYFILE_EXCL);
   const document = JSON.parse(readFileSync(modelPath, "utf8"));
   run = { ...run, project_id: document.project.id };
   record.project_id = run.project_id;
@@ -275,7 +338,11 @@ async function runOne(run, ctx) {
   };
   const env = { ...process.env, HOME: home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
   delete env[INJECT_ENV];
-  if (resultFile) env[INJECT_ENV] = resultFile;
+  delete env[INJECT_ROOT_ENV];
+  if (resultFile) {
+    env[INJECT_ENV] = resultFile;
+    env[INJECT_ROOT_ENV] = realpathSync(ctx.results);
+  }
   const baseline = webkitPids();
   const startedMs = Date.now();
   const app = spawn(ctx.binary, [], { cwd: root, env, stdio: ["ignore", "ignore", "pipe"], detached: true });
@@ -353,6 +420,13 @@ async function runOne(run, ctx) {
   return record;
 }
 
+/** The run's scratch at the end: removed whole, or with --keep only the app copy is
+ * removed and every run's directory (`kept` in its record) stays. */
+export function finishScratch({ scratch, binary, keep }) {
+  if (keep) rmSync(binary, { force: true });
+  else rmSync(scratch, { recursive: true, force: true });
+}
+
 async function runPlan(options) {
   const binding = JSON.parse(readFileSync(path.join(options.appDir, BINDING), "utf8"));
   const bound = binding.binary.path;
@@ -397,7 +471,7 @@ async function runPlan(options) {
   };
   const file = path.join(options.out, `perf-report-${new Date().toISOString().replace(/[:.]/g, "").slice(0, 15)}Z.json`);
   writeFileSync(file, `${JSON.stringify(report, null, 1)}\n`);
-  rmSync(scratch, { recursive: true, force: true });
+  finishScratch({ scratch, binary, keep: options.keep });
   console.log(`perf run: ${records.length} runs in ${report.elapsed_s.toFixed(0)} s; report ${file}`);
   for (const record of records) console.log(`  ${record.id}: ${record.class}`);
 }

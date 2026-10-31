@@ -4,7 +4,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
-import { classify, formatPlan, loadPlan, selectRuns, summarizeSamples } from "./perf.mjs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { classify, containedPath, finishScratch, formatPlan, loadPlan, planName, selectRuns, summarizeSamples, validatePlan } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -95,4 +98,67 @@ test("the driver loads in a webview-like context and hands its steps to a test",
   vm.runInNewContext(readFileSync(new URL("./perf-driver.js", import.meta.url), "utf8"), context);
   assert.deepEqual(Object.keys(hooks).sort(), ["recordRun", "saveProject", "solve", "waitFor"]);
   await assert.rejects(hooks.waitFor("nothing", () => null, 30, 5), /timed out after 30 ms waiting for nothing/);
+});
+
+test("plan names are bare: traversal, separators, absolute paths and dot names are refused", () => {
+  for (const bad of ["../victim.json", "../../../victim.json", "a/b.json", "/etc/passwd", "..", ".", ".hidden", "a\\b", "", "x".repeat(200), 7, null]) {
+    assert.throws(() => planName(bad, "name"), /not a bare name/, String(bad));
+  }
+  for (const good of ["linear-ex-n0250.json", "injected-linear-ex-n2000", "a_b.result.json"]) assert.equal(planName(good, "name"), good);
+  const run = { id: "r", mode: "injected", model: "m.json", result: "r.json", estimate_s: 1, timeout_s: 1, paint_ms: 1 };
+  assert.doesNotThrow(() => validatePlan({ runs: [run], subsets: { s: ["r"] } }));
+  assert.throws(() => validatePlan({ runs: [{ ...run, model: "../../victim.json" }], subsets: {} }), /model/);
+  assert.throws(() => validatePlan({ runs: [{ ...run, result: "/tmp/x.json" }], subsets: {} }), /result/);
+  assert.throws(() => validatePlan({ runs: [{ ...run, id: "../x" }], subsets: {} }), /run id/);
+  assert.throws(() => validatePlan({ runs: [{ ...run, mode: "other" }], subsets: {} }), /mode/);
+  assert.throws(() => validatePlan({ runs: [run, run], subsets: {} }), /repeated/);
+  assert.throws(() => validatePlan({ runs: [run], subsets: { s: ["missing"] } }), /unknown run/);
+  assert.throws(() => validatePlan({ runs: [{ ...run, mode: "native" }], subsets: {} }), /native run r names a result/);
+});
+
+test("contained paths stay inside their root, also through symbolic links", (t) => {
+  const base = mkdtempSync(path.join(os.tmpdir(), "perf-contained-"));
+  t.after(() => rmSync(base, { recursive: true, force: true }));
+  const root = path.join(base, "root");
+  const outside = path.join(base, "outside");
+  mkdirSync(root);
+  mkdirSync(outside);
+  writeFileSync(path.join(root, "model.json"), "{}");
+  writeFileSync(path.join(outside, "victim.json"), "{}");
+  mkdirSync(path.join(root, "dir.json"));
+  symlinkSync(path.join(outside, "victim.json"), path.join(root, "escape.json"));
+  symlinkSync(path.join(root, "model.json"), path.join(root, "inner.json"));
+  symlinkSync(path.join(base, "nowhere.json"), path.join(root, "dangling.json"));
+  assert.equal(containedPath(root, "model.json", { mustExist: true }), path.join(root, "model.json"));
+  assert.equal(containedPath(root, "inner.json", { mustExist: true }), path.join(root, "inner.json"));
+  assert.equal(containedPath(root, "new.json"), path.join(root, "new.json"));
+  assert.throws(() => containedPath(root, "escape.json", { mustExist: true }), /outside/);
+  assert.throws(() => containedPath(root, "escape.json"), /outside/, "a destination that is a link out is refused too");
+  assert.throws(() => containedPath(root, "dangling.json"), /dangling/);
+  assert.throws(() => containedPath(root, "dir.json", { mustExist: true }), /not a regular file/);
+  assert.throws(() => containedPath(root, "absent.json", { mustExist: true }), /does not exist/);
+  assert.throws(() => containedPath(root, "../outside/victim.json"), /not a bare name/);
+  assert.throws(() => containedPath(root, path.join(outside, "victim.json")), /not a bare name/);
+  // A root that is itself reached through a link still contains its own files.
+  symlinkSync(root, path.join(base, "root-link"));
+  assert.equal(containedPath(path.join(base, "root-link"), "model.json", { mustExist: true }), path.join(base, "root-link", "model.json"));
+});
+
+test("--keep keeps each run's directory; only the app copy is removed", (t) => {
+  const base = mkdtempSync(path.join(os.tmpdir(), "perf-keep-"));
+  t.after(() => rmSync(base, { recursive: true, force: true }));
+  const make = (name) => {
+    const scratch = path.join(base, name);
+    mkdirSync(path.join(scratch, "run-a-1"), { recursive: true });
+    writeFileSync(path.join(scratch, "run-a-1", "report.json"), "{}");
+    writeFileSync(path.join(scratch, "openpipestress-desktop"), "app");
+    return { scratch, binary: path.join(scratch, "openpipestress-desktop") };
+  };
+  const kept = make("kept");
+  finishScratch({ ...kept, keep: true });
+  assert.ok(existsSync(path.join(kept.scratch, "run-a-1", "report.json")));
+  assert.ok(!existsSync(kept.binary));
+  const removed = make("removed");
+  finishScratch({ ...removed, keep: false });
+  assert.ok(!existsSync(removed.scratch));
 });

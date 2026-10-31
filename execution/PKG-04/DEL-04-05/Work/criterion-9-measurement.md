@@ -240,15 +240,19 @@ are in `apps/desktop`:
   present exactly where that one is. The diagnostics global and its snapshot are unchanged.
 - **Result injection** (`src-tauri/src/native_smoke_inject.rs`), compiled only under the
   `native-smoke` feature. When `SWBPIPE_NATIVE_SMOKE_INJECT_RESULT` names a file, a started job
-  skips its worker and publishes the file's bytes. Everything after that is the product's own
+  skips its worker and publishes the file's bytes. The file must be a regular file, not a link,
+  inside the directory `SWBPIPE_NATIVE_SMOKE_INJECT_ROOT` names (the runner's results
+  directory). Injection forges solve provenance, so a native-smoke build must never be
+  distributed. Everything after that is the product's own
   path: the result lease, the attestation (the worker's `d_M` and `d_S` functions),
   publication, poll, take and IPC. What differs from a solve:
   - no worker runs, so `worker_peak_footprint_bytes` stays unset;
   - `d_M`, `d_S` and their parsed values are computed in the app process before `job_done`.
 
   The file must be `release_timing --write` output from the very document the app opens.
-  `native_smoke_reach_scan_tests.rs` fails if the variable or the module is named outside the
-  gate. A product release build (no feature) does not contain the variable's name; the check
+  `native_smoke_reach_scan_tests.rs` parses the crate's sources (`syn`) and fails on any use
+  of the module, its entry or its variables outside a node gated by
+  `#[cfg(feature = "native-smoke")]`. A product release build (no feature) does not contain the variable's name; the check
   is in the PR record.
 - **Driver and runner.**
   - `native-smoke/perf-driver.js` opens the model, runs Analyze → Run (sparse) and waits for

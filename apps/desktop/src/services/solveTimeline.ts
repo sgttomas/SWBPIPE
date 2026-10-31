@@ -54,12 +54,28 @@ export type SolvePassKind =
 export type SolveOutcome = "running" | "completed" | "failed" | "refused" | "cancelled" | "superseded";
 type Detail = Readonly<Record<string, string | number | boolean | null>>;
 
-// A code: a lower-case token (`sparse_interactive`, `completed`) or an upper-case one with
-// optional hyphenated parts (`SOURCE_PHYSICS_RHS_DIRECTION`, `PREVIEW-SOLVE-RESULT-UTF8-INVALID`).
-const CODE = /^(?:[a-z][a-z0-9_]{0,63}|[A-Z][A-Z0-9_]{0,63}(?:-[A-Z0-9_]{1,63}){0,8})$/;
-/** `value` when it is a code (no path, identifier or message text can match), else null. */
+// The strings the timeline may keep, and nothing else:
+// - the lower-case values it records: solver modes and native job states, exactly;
+// - the repository's upper-case codes: at least two segments joined by `_` or `-`, starting
+//   with a prefix the solve path's codes use (`SOURCE_PHYSICS_RHS_DIRECTION`,
+//   `SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED`, `PREVIEW-SOLVE-RESULT-UTF8-INVALID`).
+// An identifier (`secret_project`, `ALICE`, `RK-H0012`), a file name or message text matches
+// neither and is dropped.
+const LOWER_CODES: ReadonlySet<string> = new Set([
+  "sparse_interactive", "dense_scrutiny",
+  "queued", "running", "completed", "cancelled", "failed", "refused"
+]);
+const CODE_PREFIXES = [
+  "SOURCE_", "SOLVE_", "SOLVE-", "PREVIEW_", "PREVIEW-", "RESOURCE_", "MEMORY_", "CAPTURE_", "CHANGED_",
+  "UNCODED_", "CALLER_", "CHECKED-JSON-", "JSON_", "RESULT_READER_", "READER_", "RETAINED_PRECISION_",
+  "WASM-ENGINE-", "ANALYSIS_", "ANALYSIS-", "INPUT-MANIFEST-", "BROWSER_"
+] as const;
+const UPPER_CODE = /^[A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+){1,15}$/;
+/** `value` when it is one of the timeline's codes (see above), else null. */
 export function codeOrNull(value: unknown): string | null {
-  return typeof value === "string" && CODE.test(value) ? value : null;
+  if (typeof value !== "string" || value.length > 96) return null;
+  if (LOWER_CODES.has(value)) return value;
+  return UPPER_CODE.test(value) && CODE_PREFIXES.some((prefix) => value.startsWith(prefix)) ? value : null;
 }
 /** The leading code of an error's message (`CODE: …` or `CODE …`), else null. */
 export function errorCode(error: unknown): string | null {
@@ -243,10 +259,15 @@ export function readSolveTimeline(): SolveTimelineSnapshot | null {
   };
 }
 
+// Objects and functions alike, through every own key (a function's own properties too), so
+// nothing reachable from the global can be extended or changed.
 function deepFreeze<T>(value: T): T {
-  if (value && typeof value === "object" && !Object.isFrozen(value)) {
-    for (const nested of Object.values(value)) deepFreeze(nested);
+  if (value && (typeof value === "object" || typeof value === "function") && !Object.isFrozen(value)) {
     Object.freeze(value);
+    for (const key of Reflect.ownKeys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (descriptor && "value" in descriptor) deepFreeze(descriptor.value);
+    }
   }
   return value;
 }

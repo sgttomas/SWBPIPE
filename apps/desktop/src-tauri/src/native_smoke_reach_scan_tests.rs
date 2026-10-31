@@ -3,21 +3,158 @@
 //! never enables the `native-smoke` feature, cannot reach it. Runs in every
 //! `cargo test` of this crate, with or without the feature.
 //!
-//! - Outside the module itself, every source line that names the module, its
-//!   entry, its environment variable or the constant holding it is directly
-//!   preceded (comments aside) by exactly `#[cfg(feature = "native-smoke")]`.
-//!   Comment lines are not code and are skipped.
-//! - The module is declared once, in `lib.rs`.
-//! - No feature of this crate implies `native-smoke`, and it is not a default.
+//! Each source file is parsed (`syn`, as the user-release reach scan does) and
+//! its syntax tree walked. A use of the injection — an identifier naming the
+//! module, its entry or its environment constants, a string literal naming its
+//! environment variables, or a macro's or non-doc attribute's tokens naming any
+//! of them (`env!`, `include!`, `#[path = …]`) — is accepted only inside a node
+//! whose own attributes include exactly `#[cfg(feature = "native-smoke")]`: an
+//! item, an impl item, a `let`, a macro statement, or an `if`, block, call,
+//! method call, macro or `match` expression statement. Anything else naming the
+//! injection fails the scan, including a gate on the wrong node (an unrelated
+//! statement on the same line) or a gate on another condition. Comments and doc
+//! attributes are not code and are ignored. A file that does not parse fails.
 //!
-//! The release binary check (the variable's name absent from a product build)
-//! is in DEL-04-05 `Work/criterion-9-measurement.md`, "Desktop measurement".
+//! Also: the module is declared once, in `lib.rs`; no feature of this crate
+//! implies `native-smoke`, and it is not a default. The release-binary check
+//! (the variables' names absent from a product build) is in the PR record.
 
 use std::path::{Path, PathBuf};
+use syn::visit::{self, Visit};
+use syn::{Attribute, Expr, ImplItem, Item, Stmt};
 
-const GATE: &str = "#[cfg(feature = \"native-smoke\")]";
-const NEEDLES: [&str; 4] = ["SWBPIPE_NATIVE_SMOKE_INJECT_RESULT", "native_smoke_inject", "injected_outcome", "INJECT_RESULT_ENV"];
+const NEEDLES: [&str; 6] = [
+    "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT",
+    "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT",
+    "native_smoke_inject",
+    "injected_outcome",
+    "INJECT_RESULT_ENV",
+    "INJECT_ROOT_ENV",
+];
 const EXEMPT: [&str; 2] = ["native_smoke_inject.rs", "native_smoke_reach_scan_tests.rs"];
+
+fn names_the_injection(text: &str) -> bool {
+    NEEDLES.iter().any(|needle| text.contains(needle))
+}
+
+/// Exactly `#[cfg(feature = "native-smoke")]` among `attrs`.
+fn gated(attrs: &[Attribute]) -> bool {
+    attrs.iter().any(|attr| {
+        attr.path().is_ident("cfg")
+            && matches!(&attr.meta, syn::Meta::List(list) if list.tokens.to_string() == "feature = \"native-smoke\"")
+    })
+}
+
+fn item_attrs(item: &Item) -> &[Attribute] {
+    match item {
+        Item::Const(i) => &i.attrs,
+        Item::Enum(i) => &i.attrs,
+        Item::ExternCrate(i) => &i.attrs,
+        Item::Fn(i) => &i.attrs,
+        Item::ForeignMod(i) => &i.attrs,
+        Item::Impl(i) => &i.attrs,
+        Item::Macro(i) => &i.attrs,
+        Item::Mod(i) => &i.attrs,
+        Item::Static(i) => &i.attrs,
+        Item::Struct(i) => &i.attrs,
+        Item::Trait(i) => &i.attrs,
+        Item::TraitAlias(i) => &i.attrs,
+        Item::Type(i) => &i.attrs,
+        Item::Union(i) => &i.attrs,
+        Item::Use(i) => &i.attrs,
+        _ => &[],
+    }
+}
+
+fn impl_item_attrs(item: &ImplItem) -> &[Attribute] {
+    match item {
+        ImplItem::Const(i) => &i.attrs,
+        ImplItem::Fn(i) => &i.attrs,
+        ImplItem::Type(i) => &i.attrs,
+        ImplItem::Macro(i) => &i.attrs,
+        _ => &[],
+    }
+}
+
+/// The attributes of the expression statements a gate is accepted on; any
+/// other expression's gate is not recognized (so its contents count as ungated).
+fn expr_attrs(expr: &Expr) -> &[Attribute] {
+    match expr {
+        Expr::If(e) => &e.attrs,
+        Expr::Block(e) => &e.attrs,
+        Expr::Call(e) => &e.attrs,
+        Expr::MethodCall(e) => &e.attrs,
+        Expr::Macro(e) => &e.attrs,
+        Expr::Match(e) => &e.attrs,
+        _ => &[],
+    }
+}
+
+#[derive(Default)]
+struct Scan {
+    depth: usize,
+    found: Vec<String>,
+}
+
+impl Scan {
+    fn within(&mut self, gate: bool, walk: impl FnOnce(&mut Self)) {
+        self.depth += usize::from(gate);
+        walk(self);
+        self.depth -= usize::from(gate);
+    }
+    fn note(&mut self, what: &str, text: String) {
+        if self.depth == 0 && names_the_injection(&text) {
+            self.found.push(format!("{what}: {text}"));
+        }
+    }
+}
+
+impl<'ast> Visit<'ast> for Scan {
+    fn visit_item(&mut self, node: &'ast Item) {
+        self.within(gated(item_attrs(node)), |scan| visit::visit_item(scan, node));
+    }
+    fn visit_impl_item(&mut self, node: &'ast ImplItem) {
+        self.within(gated(impl_item_attrs(node)), |scan| visit::visit_impl_item(scan, node));
+    }
+    fn visit_stmt(&mut self, node: &'ast Stmt) {
+        let gate = match node {
+            Stmt::Local(local) => gated(&local.attrs),
+            Stmt::Macro(mac) => gated(&mac.attrs),
+            Stmt::Expr(expr, _) => gated(expr_attrs(expr)),
+            Stmt::Item(_) => false,
+        };
+        self.within(gate, |scan| visit::visit_stmt(scan, node));
+    }
+    fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
+        self.note("identifier", node.to_string());
+    }
+    fn visit_lit_str(&mut self, node: &'ast syn::LitStr) {
+        self.note("string", node.value());
+    }
+    fn visit_macro(&mut self, node: &'ast syn::Macro) {
+        self.note("macro tokens", node.tokens.to_string());
+        visit::visit_macro(self, node);
+    }
+    fn visit_attribute(&mut self, node: &'ast Attribute) {
+        // Doc text is not code; every other attribute is (`#[path = "…"]` is a string
+        // the default walk visits; a list's tokens are read here).
+        if node.path().is_ident("doc") {
+            return;
+        }
+        if let syn::Meta::List(list) = &node.meta {
+            self.note("attribute", list.tokens.to_string());
+        }
+        visit::visit_attribute(self, node);
+    }
+}
+
+/// Every use of the injection in `source` outside the native-smoke gate.
+fn ungated(source: &str) -> Result<Vec<String>, syn::Error> {
+    let file = syn::parse_file(source)?;
+    let mut scan = Scan::default();
+    scan.visit_file(&file);
+    Ok(scan.found)
+}
 
 fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in std::fs::read_dir(dir).unwrap() {
@@ -30,28 +167,8 @@ fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
     }
 }
 
-fn is_comment(line: &str) -> bool {
-    line.trim_start().starts_with("//")
-}
-
-/// Every line of `text` naming a needle whose preceding code line is not the gate.
-fn ungated(text: &str) -> Vec<(usize, String)> {
-    let lines: Vec<&str> = text.lines().collect();
-    let mut found = Vec::new();
-    for (index, line) in lines.iter().enumerate() {
-        if is_comment(line) || !NEEDLES.iter().any(|needle| line.contains(needle)) {
-            continue;
-        }
-        let previous = lines[..index].iter().rev().find(|line| !line.trim().is_empty() && !is_comment(line));
-        if previous.map(|line| line.trim()) != Some(GATE) {
-            found.push((index + 1, line.trim().to_string()));
-        }
-    }
-    found
-}
-
 #[test]
-fn the_result_injection_is_named_only_under_the_native_smoke_gate() {
+fn the_result_injection_is_used_only_under_the_native_smoke_gate() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut files = Vec::new();
     sources(&root.join("src"), &mut files);
@@ -65,14 +182,16 @@ fn the_result_injection_is_named_only_under_the_native_smoke_gate() {
         }
         let text = std::fs::read_to_string(file).unwrap();
         declarations += text.lines().filter(|line| line.trim() == "mod native_smoke_inject;").count();
-        for (line, code) in ungated(&text) {
-            problems.push(format!("{}:{line}: {code}", file.strip_prefix(root).unwrap().display()));
+        let relative = file.strip_prefix(root).unwrap().display().to_string();
+        match ungated(&text) {
+            Ok(found) => problems.extend(found.into_iter().map(|use_| format!("{relative}: {use_}"))),
+            Err(error) => problems.push(format!("{relative}: does not parse ({error})")),
         }
     }
-    assert!(problems.is_empty(), "named outside the native-smoke gate:\n{}", problems.join("\n"));
+    assert!(problems.is_empty(), "the injection is used outside the native-smoke gate:\n{}", problems.join("\n"));
     assert_eq!(declarations, 1, "the module is declared once");
     let lib = std::fs::read_to_string(root.join("src/lib.rs")).unwrap();
-    assert!(lib.contains(&format!("{GATE}\nmod native_smoke_inject;\n")), "lib.rs declares it under the gate");
+    assert!(lib.contains("#[cfg(feature = \"native-smoke\")]\nmod native_smoke_inject;\n"), "lib.rs declares it under the gate");
 
     let manifest = std::fs::read_to_string(root.join("Cargo.toml")).unwrap();
     let features = manifest.split("[features]").nth(1).and_then(|rest| rest.split("\n[").next()).expect("a [features] table");
@@ -84,14 +203,44 @@ fn the_result_injection_is_named_only_under_the_native_smoke_gate() {
 }
 
 #[test]
-fn the_scan_finds_an_ungated_name() {
-    let gated = format!("{GATE}\nif let Some(o) = crate::native_smoke_inject::injected_outcome(p, b, c) {{}}\n");
-    assert!(ungated(&gated).is_empty());
-    let commented = format!("{GATE}\n// a note\nmod native_smoke_inject;\n");
-    assert!(ungated(&commented).is_empty());
-    assert_eq!(ungated("let v = std::env::var(\"SWBPIPE_NATIVE_SMOKE_INJECT_RESULT\");\n").len(), 1);
-    assert_eq!(ungated("#[cfg(any(test, feature = \"native-smoke\"))]\nmod native_smoke_inject;\n").len(), 1);
-    assert_eq!(ungated(&format!("{GATE}\nfn a() {{}}\nfn b() {{ injected_outcome(); }}\n")).len(), 1);
-    // A comment line naming it is not code.
-    assert!(ungated("// see native_smoke_inject.rs\n").is_empty());
+fn gated_uses_pass() {
+    let accepted = [
+        "#[cfg(feature = \"native-smoke\")]\nmod native_smoke_inject;",
+        "#[cfg(feature = \"native-smoke\")] use crate::native_smoke_inject::injected_outcome;",
+        "fn run() { let x = || { #[cfg(feature = \"native-smoke\")] if let Some(o) = crate::native_smoke_inject::injected_outcome(p, r, c) { return o; } 0 }; }",
+        "impl R { #[cfg(feature = \"native-smoke\")] fn hook(&self) { crate::native_smoke_inject::injected_outcome(); } }",
+        "fn f() { #[cfg(feature = \"native-smoke\")] let path = std::env::var_os(\"SWBPIPE_NATIVE_SMOKE_INJECT_RESULT\"); }",
+        "/// Mentions native_smoke_inject and SWBPIPE_NATIVE_SMOKE_INJECT_RESULT in a doc comment.\nfn f() {} // and native_smoke_inject in a comment",
+    ];
+    for source in accepted {
+        assert_eq!(ungated(source).unwrap(), Vec::<String>::new(), "{source}");
+    }
+}
+
+#[test]
+fn ungated_uses_fail() {
+    let refused = [
+        // The gate removed.
+        "mod native_smoke_inject;",
+        "fn f() { let path = std::env::var_os(\"SWBPIPE_NATIVE_SMOKE_INJECT_RESULT\"); }",
+        "fn f() { crate::native_smoke_inject::injected_outcome(p, r, c); }",
+        // A gated dummy statement, then the use on the same line.
+        "fn f() { #[cfg(feature = \"native-smoke\")] let _a = 0; let path = std::env::var_os(\"SWBPIPE_NATIVE_SMOKE_INJECT_ROOT\"); }",
+        "#[cfg(feature = \"native-smoke\")] fn a() {} fn b() { injected_outcome(); }",
+        "fn f() { #[cfg(feature = \"native-smoke\")] let _a = 0; if let Some(o) = injected_outcome() { drop(o) } }",
+        // A gate on another condition.
+        "#[cfg(any(test, feature = \"native-smoke\"))] mod native_smoke_inject;",
+        "#[cfg(not(feature = \"native-smoke\"))] mod native_smoke_inject;",
+        "#[cfg_attr(feature = \"native-smoke\", allow(dead_code))] mod native_smoke_inject;",
+        // A gate on an expression whose gate the scan does not accept.
+        "fn f() { let v = #[cfg(feature = \"native-smoke\")] (std::env::var(\"SWBPIPE_NATIVE_SMOKE_INJECT_RESULT\")); }",
+        // Reached through a macro or another module's path.
+        "fn f() { let v = env!(\"SWBPIPE_NATIVE_SMOKE_INJECT_RESULT\"); }",
+        "#[path = \"native_smoke_inject.rs\"] mod other;",
+        "const NAME: &str = \"SWBPIPE_NATIVE_SMOKE_INJECT_RESULT\";",
+    ];
+    for source in refused {
+        assert!(!ungated(source).unwrap().is_empty(), "accepted, should be refused: {source}");
+    }
+    assert!(ungated("fn f( {").is_err(), "a file that does not parse is a failure, not a pass");
 }

@@ -150,7 +150,48 @@ describe("the latest solve's timeline (RT-U4)", () => {
   });
 });
 
+describe("the codes the timeline keeps", () => {
+  it("keeps its own codes and drops identifiers, file names and message text", () => {
+    for (const kept of ["sparse_interactive", "dense_scrutiny", "completed", "refused", "SOURCE_PHYSICS_RHS_DIRECTION",
+      "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", "PREVIEW-SOLVE-RESULT-UTF8-INVALID", "CAPTURE_MISMATCH", "RESOURCE_UNAVAILABLE"]) {
+      expect(codeOrNull(kept)).toBe(kept);
+    }
+    for (const dropped of ["secret_project", "ALICE", "SECRET_PROJECT", "RK-H0012", "RK-linear-ex-82", "linear-ex-n0250.json",
+      "rack.json", "model", "project", "sparse", "Completed", "SOURCE_", "SOURCE", "source_physics_rhs_direction",
+      "backend-solve-job-1", "project:RK-linear-ex-82", "/Users/someone/rack.json", "SOURCE_PHYSICS RHS", `SOURCE_${"A".repeat(100)}`]) {
+      expect(codeOrNull(dropped), dropped).toBeNull();
+    }
+    expect(errorCode(new Error("ALICE: something"))).toBeNull();
+    expect(errorCode(new Error("RK-H0012 refused"))).toBeNull();
+  });
+});
+
 describe("the solve timeline's own global, beside the unchanged diagnostics global", () => {
+  it("is frozen through and through: its functions and every object it returns", () => {
+    "use strict";
+    const api = globalThis.__openPipeStressSolveTimelineV1!;
+    for (const key of ["schema", "readCurrent"] as const) {
+      expect(Object.getOwnPropertyDescriptor(api, key)).toMatchObject({ writable: false, configurable: false });
+    }
+    expect(Object.isFrozen(api.readCurrent)).toBe(true);
+    expect(() => { (api.readCurrent as unknown as Record<string, unknown>).extra = 1; }).toThrow(TypeError);
+    expect((api.readCurrent as unknown as Record<string, unknown>).extra).toBeUndefined();
+    for (const key of Reflect.ownKeys(api.readCurrent)) {
+      expect(Object.getOwnPropertyDescriptor(api.readCurrent, key)).toMatchObject({ configurable: false });
+    }
+    expect(() => { (api as unknown as Record<string, unknown>).readCurrent = () => null; }).toThrow(TypeError);
+    const run = beginSolveTimeline({ solver_mode: "sparse_interactive" });
+    run.mark("job_done", { state: "completed", result_bytes: 1 });
+    recordSolvePass("checked_json_text", performance.now(), 1);
+    const read = api.readCurrent()!;
+    const objects: unknown[] = [read, read.marks, read.passes, ...read.marks, ...read.marks.map((mark) => mark.detail), ...read.passes];
+    for (const object of objects.filter(Boolean)) {
+      expect(Object.isFrozen(object)).toBe(true);
+      expect(() => { (object as Record<string, unknown>).extra = 1; }).toThrow(TypeError);
+    }
+    expect(() => { (read.marks[1].detail as Record<string, unknown>).state = "x"; }).toThrow(TypeError);
+  });
+
   it("is a frozen, non-writable, non-configurable data property with schema and readCurrent only", () => {
     const descriptor = Object.getOwnPropertyDescriptor(globalThis, SOLVE_TIMELINE_GLOBAL)!;
     expect(descriptor).toMatchObject({ writable: false, configurable: false, enumerable: false });
