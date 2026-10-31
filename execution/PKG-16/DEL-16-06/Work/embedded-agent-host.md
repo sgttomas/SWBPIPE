@@ -217,9 +217,14 @@ scalar SIF applies to the chord, and without one no intensified measure is
 published. The solve result's message names those bends and says which have a
 scalar SIF, so a result is never reported as if they were realized. Identifiers
 in tool messages and in `componentsAwaitingUserModifiers` are bounded to the
-catalog's limits: a message names the leading bends that fit and ends with an
-ellipsis, and the summary lists up to 32 identifiers of at most 160 characters
-while `count` stays complete.
+catalog's limits. Identifier lengths here are JavaScript string lengths, that is
+UTF-16 code units; 160 code units are never more than the 160 characters the
+catalog schema's `maxLength` allows. A message names the leading bends whose
+lengths, each plus two for the separator, sum to at most 300 code units (200 for
+the bends without a scalar SIF) and ends with an ellipsis if any are left out,
+so it stays inside the 1,000-character message bound. The summary lists the
+first 32 identifiers of at most 160 code units, omitting longer ones, while
+`count` stays complete.
 
 **Applier refusal (M2-D1).** The applier refuses an agent-authored write of k
 or any other component modifier, whatever route the operation takes; see
@@ -233,10 +238,23 @@ deletions require, as the applier compares them: the engine's canonical JSON
 for a component and a support configuration, and for a deletion the applier's
 own summary (trimmed label; a node's coordinates in the applier's number form,
 which never uses an exponent). A record whose deletion the applier would refuse
-for a missing label or coordinate carries no `delete` text. Bounds are UTF-8
-bytes: each text at most 16 KiB, and a page stops before 48 KiB of serialized
-entries. A record whose own entry exceeds a page is reported unavailable, never
-cut. The cursor is bound to its family.
+for a missing label or coordinate carries no `delete` text. The bounds:
+
+- Each text (`recordText` and every `before` value): the UTF-8 byte length of
+  the raw string is at most 16,384.
+- The page: each entry is measured as the UTF-8 byte length of the compact
+  `JSON.stringify({id, recordText, before})`. Entries are accepted, up to the
+  requested limit (at most 50), while the running sum of those lengths is at
+  most 49,152; the next entry starts the next page. Array punctuation and the
+  result envelope are not counted. The whole serialized result is separately
+  capped at 64 KiB, and exceeding that cap is an `execution_error`.
+- A record id, like a node id in `swbpipe_read_nodes`, is a non-empty string of
+  at most 160 UTF-16 code units.
+
+A record over any of these bounds, including a single entry over 49,152 bytes,
+fails the whole call as `unavailable`; nothing is cut or skipped. The message
+names the record, except when its id is itself the cause. The cursor is bound
+to its family.
 It is a read through the existing `embedded_agent_host` command; no Tauri or
 ingress command is added. Load-case and primitive-load deletions are not yet
 admitted, because their `before` texts are private to the load-case panel.
