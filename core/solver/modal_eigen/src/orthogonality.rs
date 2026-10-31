@@ -2,12 +2,17 @@
 //! max over i ≠ j of |φᵢᵀMφⱼ| / √(m_i m_j), with m_i = φᵢᵀMφᵢ, in
 //! double-double. The measure is invariant to the shape normalization. The
 //! tolerance it is judged against belongs to the caller.
+//!
+//! Check 3 evaluates it on the re-formed M̂
+//! ([`m_orthogonality_reformed`], M̂φⱼ element by element); the measure on
+//! a formed dense M ([`m_orthogonality`]) is kept for formed-pencil tests.
 
 use std::error::Error;
 use std::fmt;
 
 use crate::dd::{Dd, DdAccumulator};
 use crate::matrix::SymmetricMatrix;
+use crate::reformation::ReformedPencil;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum OrthogonalityError {
@@ -63,18 +68,7 @@ pub fn m_orthogonality(
     vectors: &[&[f64]],
 ) -> Result<MOrthogonality, OrthogonalityError> {
     let n = mass.dimension();
-    for (mode, v) in vectors.iter().enumerate() {
-        if v.len() != n {
-            return Err(OrthogonalityError::DimensionMismatch {
-                mode,
-                expected: n,
-                actual: v.len(),
-            });
-        }
-        if let Some(index) = v.iter().position(|x| !x.is_finite()) {
-            return Err(OrthogonalityError::NonFinite { mode, index });
-        }
-    }
+    check_vectors(n, vectors)?;
     let products: Vec<Vec<Dd>> = vectors
         .iter()
         .map(|v| {
@@ -89,6 +83,40 @@ pub fn m_orthogonality(
                 .collect()
         })
         .collect();
+    from_products(vectors, &products)
+}
+
+/// Check 3 on the re-formed M̂: M̂φⱼ element by element in double-double
+/// (`ReformedPencil::mass_product`), then each φᵢᵀ(M̂φⱼ).
+pub fn m_orthogonality_reformed(
+    pencil: &ReformedPencil,
+    vectors: &[&[f64]],
+) -> Result<MOrthogonality, OrthogonalityError> {
+    check_vectors(pencil.dimension(), vectors)?;
+    let products: Vec<Vec<Dd>> = vectors.iter().map(|v| pencil.mass_product(v)).collect();
+    from_products(vectors, &products)
+}
+
+fn check_vectors(n: usize, vectors: &[&[f64]]) -> Result<(), OrthogonalityError> {
+    for (mode, v) in vectors.iter().enumerate() {
+        if v.len() != n {
+            return Err(OrthogonalityError::DimensionMismatch {
+                mode,
+                expected: n,
+                actual: v.len(),
+            });
+        }
+        if let Some(index) = v.iter().position(|x| !x.is_finite()) {
+            return Err(OrthogonalityError::NonFinite { mode, index });
+        }
+    }
+    Ok(())
+}
+
+fn from_products(
+    vectors: &[&[f64]],
+    products: &[Vec<Dd>],
+) -> Result<MOrthogonality, OrthogonalityError> {
     let bilinear = |i: usize, j: usize| -> Dd {
         let mut acc = DdAccumulator::new();
         for (x, mv) in vectors[i].iter().zip(&products[j]) {

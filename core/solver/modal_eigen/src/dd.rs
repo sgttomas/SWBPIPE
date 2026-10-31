@@ -142,6 +142,75 @@ impl Dd {
     }
 }
 
+impl Dd {
+    /// π in double-double: hi = fl(π) and lo = fl(π − hi).
+    pub fn pi() -> Dd {
+        Dd {
+            hi: f64::from_bits(0x4009_21fb_5444_2d18),
+            lo: f64::from_bits(0x3ca1_a626_3314_5c07),
+        }
+    }
+
+    /// The value times 2^k, exact barring overflow and underflow.
+    pub fn mul_pow2(self, k: i32) -> Dd {
+        let scale = 2f64.powi(k);
+        Dd {
+            hi: self.hi * scale,
+            lo: self.lo * scale,
+        }
+    }
+
+    /// Σ terms in the order given, each added in double-double: exact when
+    /// the terms are nonoverlapping and span at most 106 bits.
+    pub fn from_terms(terms: &[f64]) -> Dd {
+        terms.iter().fold(Dd::ZERO, |sum, &t| sum.add_f64(t))
+    }
+
+    pub fn is_zero(self) -> bool {
+        self.hi == 0.0 && self.lo == 0.0
+    }
+}
+
+/// The largest series term kept is above 2^-110 of the reduced argument.
+const ATAN_SERIES_STOP: f64 = 7.703719777548943e-34; // 2^-110
+
+/// atan t for 0 ≤ t ≤ 1, in double-double. While t > 1/8 the half-angle
+/// step t ← t/(1 + √(1 + t²)) is applied (at most three times on [0, 1]),
+/// then the series t − t³/3 + t⁵/5 − … is summed until a term falls below
+/// 2⁻¹¹⁰·t (at most 19 terms for t ≤ 1/8), and the result is scaled back by
+/// 2^k. Each step is a few double-double roundings, so the relative error is
+/// a small multiple of 2⁻¹⁰⁶.
+pub fn atan_unit(t: Dd) -> Dd {
+    assert!(
+        t.hi >= 0.0 && t.hi <= 1.0,
+        "atan_unit argument outside [0, 1]"
+    );
+    let one = Dd::from_f64(1.0);
+    let mut t = t;
+    let mut halvings = 0;
+    while t.hi > 0.125 {
+        t = t.div(one.add(one.add(t.mul(t)).sqrt()));
+        halvings += 1;
+    }
+    if t.is_zero() {
+        return Dd::ZERO;
+    }
+    let t2 = t.mul(t);
+    let mut power = t;
+    let mut terms = Vec::new();
+    for n in 0..40u32 {
+        let term = power.div(Dd::from_f64(f64::from(2 * n + 1)));
+        if n > 0 && term.hi.abs() < ATAN_SERIES_STOP * t.hi {
+            break;
+        }
+        terms.push(if n % 2 == 0 { term } else { term.neg() });
+        power = power.mul(t2);
+    }
+    // Smallest first.
+    let sum = terms.iter().rev().fold(Dd::ZERO, |s, &x| s.add(x));
+    sum.mul_pow2(halvings)
+}
+
 /// A dot-product accumulator: each binary64 product enters exactly and the
 /// running sum is kept in double-double, in the order the terms are added.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -311,6 +380,28 @@ mod tests {
             .add_f64(two_pow(-80));
         assert_eq!(value.to_f64(), 1.0 + two_pow(-52));
         assert_eq!(Dd::from_f64(1.0).add_f64(two_pow(-53)).to_f64(), 1.0);
+    }
+
+    #[test]
+    fn pi_and_atan() {
+        // Machin: π = 16 atan(1/5) − 4 atan(1/239), an independent route to π.
+        let fifth = Dd::from_f64(1.0).div(Dd::from_f64(5.0));
+        let small = Dd::from_f64(1.0).div(Dd::from_f64(239.0));
+        let machin = atan_unit(fifth)
+            .mul_pow2(4)
+            .sub(atan_unit(small).mul_pow2(2))
+            .mul_pow2(2);
+        let pi = Dd::pi();
+        assert_eq!(pi.hi, std::f64::consts::PI);
+        assert!(machin.sub(pi).to_f64().abs() <= 8.0 * two_pow(-106) * pi.hi);
+        // atan 1 = π/4 through three half-angle steps.
+        let quarter = atan_unit(Dd::from_f64(1.0)).mul_pow2(2);
+        assert!(quarter.sub(pi).to_f64().abs() <= 8.0 * two_pow(-106) * pi.hi);
+        // atan(2 − √3) = π/12.
+        let three = Dd::from_f64(3.0).sqrt();
+        let twelfth = atan_unit(Dd::from_f64(2.0).sub(three)).mul_f64(12.0);
+        assert!(twelfth.sub(pi).to_f64().abs() <= 16.0 * two_pow(-106) * pi.hi);
+        assert_eq!(atan_unit(Dd::ZERO), Dd::ZERO);
     }
 
     #[test]

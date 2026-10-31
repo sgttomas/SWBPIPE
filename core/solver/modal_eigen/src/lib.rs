@@ -22,6 +22,7 @@ pub mod dense;
 pub mod matrix;
 pub mod modal_quantities;
 pub mod orthogonality;
+pub mod reformation;
 pub mod sturm;
 
 pub use matrix::{MatrixError, SymmetricMatrix};

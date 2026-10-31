@@ -17,6 +17,7 @@ dependencies = [
 name = "open_pipe_stress_modal_eigen"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_frame_kernel",
  "open_pipe_stress_sparse_direct",
 ]
 
