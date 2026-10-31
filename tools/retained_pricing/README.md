@@ -48,7 +48,7 @@ the original basis `2243be380b` to its equivalent extracted commit; a shallow cl
 
 **Revision.** Any revision whose code the rules cover.
 
-**Tools.** Python 3.9 or later, `git` and `tar`. The chain's scripts call `python3`; the driver puts its own interpreter first on `PATH`.
+**Tools.** Python 3.9 or later and `git`. The chain's scripts call `python3`; the driver puts its own interpreter first on `PATH`, and the driver and the chain run in Python's UTF-8 mode.
 
 **Optional environment.**
 - `RP_OUT`: the default for `--out`.
@@ -83,14 +83,17 @@ All outputs go to `--out`.
 ## Pipeline
 
 1. Resolve the revision (use `source:<original-sha>` for an explicit original
-   Chirality identity), then `git archive` its SWBPIPE source tree without
-   `execution/`. Both standalone and original monorepo layouts are supported.
+   Chirality identity), then write its SWBPIPE source tree without `execution/`
+   from the raw committed blobs (`ls-tree -r`, `cat-file --batch`); no attribute
+   or git setting changes a byte. Both standalone and original monorepo layouts are supported.
 2. Carry the base chain's line-keyed rules (`base/*.g4.json`, `base/sens.py`, `base/premise_pins.json`) from the basis to the revision with `lib/linemap_rules.py --prune-deleted`.
    - **Keymap.** `lib/linemap_lib.py` maps each key in order:
      1. **Offset:** by the cumulative offset, checked.
      2. **Function:** by the same ordinal `fn` definition.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
+
+     The hunks come from `git diff -U0` with the histogram algorithm and every other output-affecting setting pinned on the command line. Every git read runs through `lib/pinned_git.py`, with no global or system configuration, no output-changing `GIT_*` variable and strict UTF-8 decoding, so the user's git setup cannot change a carry (retained-pricing-rules.md §1.2).
    - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported. Dictionary rules are discarded by their original key identity before insertion at mapped keys, so a deleted old key cannot overwrite or prune an unrelated live rule remapped to that spelling.
    - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
      - `{"as": "deleted", "why": …}` prunes it;
@@ -143,6 +146,7 @@ All outputs go to `--out`.
 - **Atom values.** Values come from the in-build law test. The tree's ASSUMED strides are only the chain's own check.
 - **Runtime and CI.** A full run takes about one minute of CPU on one core. The full run is not in CI. `tests/test_retained_pricing_tool.py` runs for any change under this directory and covers:
   - the key carry, the prune, and the `fewer_definitions` stop and its resolutions, on two-commit fixture repositories;
+  - the same carry, with and without a rename, under adverse repository-local configuration and attributes, `GIT_*` variables and global configuration and attributes; UTF-8 reading under an ASCII locale; the snapshot's raw bytes under adverse attributes;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
   - the generator's basis line.
