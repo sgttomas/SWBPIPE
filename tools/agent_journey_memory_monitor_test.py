@@ -106,7 +106,7 @@ def test_slow_sample_is_not_stamped_fresh_after_the_read(tmp_path):
     assert (root / "cancel").exists() and not (root / "heartbeat.json").exists()
 
 
-def test_monitor_refusal_reaches_the_existing_owned_custody_path(tmp_path, monkeypatch):
+def test_monitor_refusal_helper_and_release_helper_preserve_unknown_custody(tmp_path, monkeypatch):
     from tools.agent_journey_fixture_test import FakeApp
     root = private(tmp_path)
     args = SimpleNamespace(mode="live", memory_heartbeat=root / "heartbeat.json", cancel_file=root / "cancel")
@@ -172,3 +172,99 @@ def test_unadmitted_directory_is_not_written(tmp_path):
     root.mkdir(mode=0o755)
     assert monitor.monitor(root, telemetry=lambda: pytest.fail("no telemetry")) == 1
     assert not list(root.iterdir())
+
+
+@pytest.mark.parametrize("changes", [
+    {"freeBytes": monitor.MIN_FREE_BYTES - 1}, {"freeBytes": True}, {"version": 2},
+    {"version": True}, {"extra": 1}, {"sampledAt": 10 ** 400},
+])
+def test_consumer_refuses_low_wrong_version_and_malformed_record_values(tmp_path, changes):
+    root = private(tmp_path)
+    record = {"version": 1, "sampledAt": 10, "freeBytes": monitor.MIN_FREE_BYTES}
+    record.update(changes)
+    (root / "heartbeat.json").write_text(json.dumps(record))
+    with pytest.raises(monitor.MonitorRefusal):
+        monitor.check_health(root / "heartbeat.json", root / "cancel", clock=lambda: 10.0)
+    assert (root / "cancel").exists()
+
+
+def test_consumer_refuses_nonregular_health_and_producer_refuses_nonfresh_directory(tmp_path):
+    root = private(tmp_path)
+    (root / "heartbeat.json").mkdir()
+    with pytest.raises(monitor.MonitorRefusal):
+        monitor.check_health(root / "heartbeat.json", root / "cancel", clock=lambda: 10)
+    assert (root / "cancel").exists()
+    assert monitor.monitor(root, telemetry=lambda: pytest.fail("no telemetry for a reused directory")) == 1
+
+
+def test_producer_stops_when_the_consumer_has_already_cancelled(tmp_path):
+    root = private(tmp_path)
+    def wait(seconds):
+        (root / "cancel").touch()
+    assert monitor.monitor(root, telemetry=lambda: monitor.MIN_FREE_BYTES, clock=lambda: 10, wait=wait) == 1
+    assert (root / "cancel").exists()
+
+
+@pytest.mark.parametrize("failure_at", [1, 2, 3, 4, 5, 8])
+def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanup(tmp_path, monkeypatch, failure_at):
+    """Actual run(), all OS/process/telemetry effects replaced by deterministic objects."""
+    import io
+    from unittest.mock import Mock
+    from tools.agent_journey_fixture_test import FakeApp
+    root = private(tmp_path)
+    bundle = root / "Copy.app" / "Contents"
+    (bundle / "MacOS").mkdir(parents=True)
+    (bundle / "Resources" / "agent-supplier").mkdir(parents=True)
+    (bundle / "Resources" / "agent-supplier" / "codex").touch()
+    run_root = root / "run"
+    run_root.mkdir()
+    args = SimpleNamespace(mode="live", app=bundle / "MacOS" / "app", model="invented",
+        context_window=32768, endpoint="unused", turn_timeout=1, deadline=10, release_grace=0,
+        process_probe=root / "unused-probe", cancel_file=root / "cancel", memory_heartbeat=root / "heartbeat.json")
+    app = FakeApp()
+    app.stdin, app.stderr = io.BytesIO(), None
+    scope = {"appPid": app.pid, "sdkPid": 9876, "scope": "invented"}
+    lines = SimpleNamespace(error=None, scope=lambda: scope, scopes=lambda: [scope], lines=[], thread=Mock())
+    observer = SimpleNamespace(exited=False, status=0, invalid=None, sample=lambda: not app.alive, close=Mock())
+    anchor = SimpleNamespace(pid=5432, kill=Mock(), wait=Mock(), stdin=io.BytesIO(), stdout=io.BytesIO())
+    events, checks = [], []
+    launch = Mock(return_value=app)
+    monkeypatch.setattr(journey, "sha256", lambda p: json.loads(journey.PIN.read_text())["codex"]["binarySha256"])
+    monkeypatch.setattr(journey, "preflight", lambda *a: {"passed": True})
+    monkeypatch.setattr(journey.subprocess, "Popen", launch)
+    monkeypatch.setattr(journey, "Lines", lambda *a: lines)
+    monkeypatch.setattr(journey, "Scope", lambda *a: observer)
+    monkeypatch.setattr(journey, "anchor_start", lambda *a: anchor)
+    monkeypatch.setattr(journey, "cleanup_anchor", lambda value: events.append(("rescue", value)))
+    monkeypatch.setattr(journey, "answer_gate", lambda p, value: events.append(("gate", value)) or True)
+    monkeypatch.setattr(journey, "residents", lambda *a: [])
+    monkeypatch.setattr(journey, "pid_live", lambda *a: False)
+    monkeypatch.setattr(journey, "judge", lambda *a: [])
+    (run_root / "report.json").write_text("{}")
+    monkeypatch.setattr(journey, "RETAINED", root / "retained")
+    monkeypatch.setattr(journey.time, "sleep", lambda *a: None)
+    def health(*a):
+        checks.append(len(checks) + 1)
+        if len(checks) == failure_at:
+            raise monitor.MonitorRefusal("health_expired")
+        if len(checks) == 4 and failure_at >= 5:
+            app.alive = False  # normal simulated app exit, so the next checks are exit/success
+    monkeypatch.setattr(journey.memory_monitor, "check_health", health)
+    result = journey.run(args, None, run_root)
+    assert result["failure"] == "memory_monitor_health_expired" and not result["passed"]
+    assert len(checks) == failure_at
+    if failure_at == 1:
+        launch.assert_not_called()
+    elif failure_at == 2:
+        assert not app.killed and (root / "retained").exists()
+    elif failure_at in (3, 4):
+        assert app.killed and ("rescue", anchor) in events
+        assert ("gate", b"REFUSE\n" if failure_at == 3 else b"READY\n") in events
+        if failure_at == 3:
+            assert ("gate", b"READY\n") not in events
+    else:
+        assert not app.killed
+        if failure_at == 8:
+            anchor.kill.assert_called_once()  # only the owned anchor's ordinary retirement
+        else:
+            assert ("rescue", anchor) in events

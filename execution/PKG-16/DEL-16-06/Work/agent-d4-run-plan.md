@@ -254,6 +254,11 @@ The lease is not an OS real-time guarantee: a suspended consumer cannot act
 until scheduled; the maximum observed response must be recorded in the later
 authorized run. The native gate holds before admission; existing anchor/custody
 rules are unchanged. No native or real telemetry test has run for the follow-up.
+Producer and consumer must use the same Python interpreter's system-wide
+monotonic clock. Prevent or record host sleep in the authorized window; Darwin's
+clock pauses during sleep, within the excluded suspension of all observers.
+Confirm the first healthy heartbeat before presenting the one-read credential
+input, rather than spending it on an unready monitor directory.
 
 Safety-tool threat model: accidental telemetry failure/malformed output,
 producer exceptions/abrupt loss/stall, publication/cancel I/O failure, and stale

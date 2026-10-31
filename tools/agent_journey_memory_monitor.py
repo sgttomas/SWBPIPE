@@ -91,7 +91,7 @@ def check_health(heartbeat, cancel_file, *, clock=time.monotonic):
         return
     except MonitorRefusal as error:
         reason = str(error)
-    except (OSError, ValueError, TypeError):
+    except (OSError, ValueError, TypeError, ArithmeticError):
         pass
     try:
         cancel(cancel_file)
