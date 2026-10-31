@@ -44,6 +44,8 @@ import {
   takePreviewMechanicsJobResult,
   validateBrowserMechanicsFixture,
   parseResultTooLarge,
+  describeResultTooLarge,
+  describeStoredResultWithheld,
   ResultTooLargeError,
   RESULT_TOO_LARGE_CODE,
   type PreviewSolverMode,
@@ -675,7 +677,7 @@ describe("native mechanics failure boundary", () => {
 });
 
 describe("a result too large to display (RT-U4)", () => {
-  const TOO_LARGE = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE", result_bytes: 3_950_000_000, limit_bytes: 67_108_864 };
+  const TOO_LARGE = { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE" as const, result_bytes: 3_950_000_000, limit_bytes: 67_108_864 };
   const SENTENCE = "The solve finished, but its result is 3.68 GiB, above the desktop's display limit of 64 MiB. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
 
   it("rejects a job refused for its result's size with the plain reason, the sizes and the limit, and takes nothing", async () => {
@@ -702,6 +704,13 @@ describe("a result too large to display (RT-U4)", () => {
   it("uses the native refusal's code; the limit itself comes from the native status", () => {
     expect(nativeSolveJobs).toContain(`pub(crate) const RESULT_TOO_LARGE_CODE: &str = "${RESULT_TOO_LARGE_CODE}";`);
     expect(nativeSolveJobs).toContain("pub(crate) const MAX_DISPLAYABLE_RESULT_BYTES: u64 = 64 << 20;");
+  });
+
+  it("shows exact bytes when the rounded size and limit would read the same", () => {
+    expect(describeResultTooLarge({ ...TOO_LARGE, result_bytes: 67_108_865 })).toMatch(/^The solve finished, but its result is 67108865 bytes, above the desktop's display limit of 67108864 bytes\. /);
+    expect(describeResultTooLarge({ ...TOO_LARGE, result_bytes: 70_000_000 })).toMatch(/^The solve finished, but its result is 66\.76 MiB, above the desktop's display limit of 64 MiB\. /);
+    const withheld = { code: "STORED-RESULT-TOO-LARGE" as const, result_bytes: 1_000, analysis_run_bytes: 67_108_865, limit_bytes: 67_108_864 };
+    expect(describeStoredResultWithheld(withheld)).toMatch(/^This project's stored analysis-run record is 67108865 bytes, above the desktop's display limit of 67108864 bytes, so its saved run was not opened/);
   });
 
   it("reads the refusal only in its declared form", () => {

@@ -4155,3 +4155,31 @@ fn the_run_comparison_command_answers_lengths_only_and_releases_every_lease() {
         assert_eq!(pool.pool_status().reserved_bytes, 0, "{code}");
     }
 }
+
+/// RT-U4: a recorded run whose stored result exceeds the displayable limit is
+/// refused by its stored length before it is loaded, and stays unchanged.
+#[test]
+fn a_recorded_run_above_the_display_limit_is_refused_by_its_stored_length() {
+    let path = store_with_project("too-large");
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "000000000000000000000000000000c1", 1_000);
+    let submitted = request(&solved, "Run");
+    let stored_bytes = submitted.result_json.clone();
+    let length = stored_bytes.len() as u64;
+    let outcome = record(&path, submitted, T0).unwrap();
+    let id = outcome.run.recording_id.clone();
+    let read = |limit: u64| read_run_in_store_within(&path, PROJECT, &id, &UnmeteredReadMemory, limit).and_then(Metered::into_unreserved);
+    // One byte under, and at, the limit: read as before.
+    assert_eq!(read(length + 1).unwrap().result_json, stored_bytes);
+    assert_eq!(read(length).unwrap().result_json, stored_bytes);
+    // One byte over: refused by name with both sizes; nothing is loaded.
+    let error = read(length - 1).map(|_| ()).unwrap_err();
+    assert_eq!(error, format!(
+        "STORED-RESULT-TOO-LARGE: recorded run `{id}`'s stored result is {}, above the desktop's display limit of {}, so it was not read: the per-station result detail of that run is too large for the desktop to display. The recorded run is kept unchanged. A run solved with fewer load cases and combinations at once, or a smaller model, stays within the limit.",
+        crate::solve_jobs::display_size(length),
+        crate::solve_jobs::display_size(length - 1)
+    ));
+    // The stored run is unchanged and still reads in full at the product limit.
+    assert!(length < crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES);
+    assert_eq!(read_run_in_store(&path, PROJECT, &id).unwrap().result_json, stored_bytes);
+}

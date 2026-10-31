@@ -128,6 +128,23 @@ const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discar
 pub(crate) const MAX_DISPLAYABLE_RESULT_BYTES: u64 = 64 << 20;
 /// The code of a job refused because its result exceeds the displayable limit.
 pub(crate) const RESULT_TOO_LARGE_CODE: &str = "PREVIEW-SOLVE-RESULT-TOO-LARGE";
+/// The code of a stored result (a project's saved run or a recorded run)
+/// withheld from the webview because it exceeds [`MAX_DISPLAYABLE_RESULT_BYTES`];
+/// it is judged by its stored byte length before it is loaded, and the stored
+/// bytes are never changed.
+pub(crate) const STORED_RESULT_TOO_LARGE_CODE: &str = "STORED-RESULT-TOO-LARGE";
+
+/// A byte count for messages: exact, then in MiB or GiB (two decimals at most),
+/// for example `67108865 bytes (64 MiB)`.
+pub(crate) fn display_size(bytes: u64) -> String {
+    const MIB: f64 = (1u64 << 20) as f64;
+    const GIB: f64 = (1u64 << 30) as f64;
+    let exact = bytes as f64;
+    let (value, unit) = if exact >= GIB { (exact / GIB, "GiB") } else { (exact / MIB, "MiB") };
+    let rounded = format!("{value:.2}");
+    let rounded = rounded.trim_end_matches('0').trim_end_matches('.');
+    format!("{bytes} bytes ({rounded} {unit})")
+}
 
 /// A result refused for its size: the bytes the worker announced and the
 /// limit they exceed. The result itself was never read.
@@ -2776,6 +2793,14 @@ mod tests {
         assert_eq!(wait_terminal(&registry, &receipt.job_id).state, "completed");
         registry.dispose_all_results();
         assert_eq!((registry.pool().reserved_total(), registry.pool().running_workers()), (0, 0));
+    }
+
+    #[test]
+    fn sizes_in_messages_are_exact() {
+        assert_eq!(display_size(67_108_864), "67108864 bytes (64 MiB)");
+        assert_eq!(display_size(67_108_865), "67108865 bytes (64 MiB)");
+        assert_eq!(display_size(3_950_000_000), "3950000000 bytes (3.68 GiB)");
+        assert_eq!(display_size(0), "0 bytes (0 MiB)");
     }
 
     /// The displayable-result limit (RT-U4): a fixed 64 MiB product value.

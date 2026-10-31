@@ -17,6 +17,7 @@ import type {
   ResourceRefusal,
   SelectedReviewTarget,
   SolveResourceGrant,
+  StoredResultWithheld,
 } from "../types";
 import {
   verifyCurrentSessionInputManifest,
@@ -258,10 +259,28 @@ export function parseResultTooLarge(value: unknown): ResultTooLarge | null {
   return { code, result_bytes, limit_bytes };
 }
 
+/** A size and the limit for a message: rounded, or in exact bytes when the
+ * rounded figures would read the same (for example 64 MiB + 1 byte). */
+function sizeAgainstLimit(bytes: number, limit: number): [string, string] {
+  const [size, bound] = [formatBytes(bytes), formatBytes(limit)];
+  return size === bound ? [`${bytes} bytes`, `${limit} bytes`] : [size, bound];
+}
+
 /** Plain-language reading of a result-size refusal: the sizes, the cause and
  * what the person can do now. */
 export function describeResultTooLarge(refusal: ResultTooLarge): string {
-  return `The solve finished, but its result is ${formatBytes(refusal.result_bytes)}, above the desktop's display limit of ${formatBytes(refusal.limit_bytes)}. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: ${SOLVE_RESULT_REDUCTION_OPTIONS}`;
+  const [size, limit] = sizeAgainstLimit(refusal.result_bytes, refusal.limit_bytes);
+  return `The solve finished, but its result is ${size}, above the desktop's display limit of ${limit}. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. A solve covers every load case and combination in the model, so to come under the limit: ${SOLVE_RESULT_REDUCTION_OPTIONS}`;
+}
+
+/** Plain-language reading of a project's stored run withheld at open: the
+ * sizes, the cause, that the model is open and the stored run unchanged, and
+ * what the person can do now. */
+export function describeStoredResultWithheld(withheld: StoredResultWithheld): string {
+  const runOver = withheld.analysis_run_bytes > withheld.limit_bytes && withheld.result_bytes <= withheld.limit_bytes;
+  const [size, limit] = sizeAgainstLimit(runOver ? withheld.analysis_run_bytes : withheld.result_bytes, withheld.limit_bytes);
+  const what = runOver ? "This project's stored analysis-run record" : "This project's stored result";
+  return `${what} is ${size}, above the desktop's display limit of ${limit}, so its saved run was not opened: the per-station result detail of that run is too large for the desktop to display. The model is open and can be edited, and the saved run is kept unchanged in the project. Saving the project in place is refused while it holds that run; keep model edits with File > Save Model Document…, or solve again within the limit and save that result to replace it. Code: ${withheld.code} (result_bytes=${withheld.result_bytes}, analysis_run_bytes=${withheld.analysis_run_bytes}, limit_bytes=${withheld.limit_bytes}).`;
 }
 
 /** The refusal's code and exact figures, for example

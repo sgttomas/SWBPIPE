@@ -1868,6 +1868,20 @@ pub(crate) fn read_run_in_store_with(
     recording_id: &str,
     memory: &dyn ReadMemory,
 ) -> Result<Metered<AnalysisRunRead>, String> {
+    read_run_in_store_within(path, project_id, recording_id, memory, crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)
+}
+
+/// [`read_run_in_store_with`] with the displayable-result limit given (tests
+/// lower it). A stored result whose byte length exceeds it is refused
+/// `STORED-RESULT-TOO-LARGE` from that length alone, before anything of the
+/// run is reserved or loaded; the stored run is unchanged (RT-U4).
+pub(crate) fn read_run_in_store_within(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    limit: u64,
+) -> Result<Metered<AnalysisRunRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
@@ -1883,6 +1897,15 @@ pub(crate) fn read_run_in_store_with(
         .ok_or_else(not_found)?;
     let length = |value: i64| u64::try_from(value).unwrap_or(0);
     let (result_length, manifest_length) = (length(lengths.0), length(lengths.1));
+    if result_length > limit {
+        return Err(format!(
+            "{}: recorded run `{}`'s stored result is {}, above the desktop's display limit of {}, so it was not read: the per-station result detail of that run is too large for the desktop to display. The recorded run is kept unchanged. A run solved with fewer load cases and combinations at once, or a smaller model, stays within the limit.",
+            crate::solve_jobs::STORED_RESULT_TOO_LARGE_CODE,
+            stored_read::shown(recording_id),
+            crate::solve_jobs::display_size(result_length),
+            crate::solve_jobs::display_size(limit)
+        ));
+    }
     let what = format!("recorded run `{recording_id}`", recording_id = stored_read::shown(&recording_id));
     // Loaded here: the result and the manifest (the summaries reserve their
     // own; the canonical texts are reserved when they are built).

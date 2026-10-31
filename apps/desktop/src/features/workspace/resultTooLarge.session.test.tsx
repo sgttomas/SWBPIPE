@@ -44,6 +44,8 @@ async function session() {
   }, { jobIdPrefix: `unit-result-too-large:${++sequence}` });
   const saved: Json[] = [];
   let refusing = false;
+  /** What `open_local_project` returns, and a refusal `save_local_project` answers with, when set. */
+  const native: { opened: Json | null; saveRefusal: string | null } = { opened: null, saveRefusal: null };
   invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
     switch (command) {
       case "get_local_storage_capability": return storage;
@@ -55,9 +57,11 @@ async function session() {
       case "list_model_states": return [];
       case "list_analysis_runs": return [];
       case "record_analysis_run": throw new Error("record_analysis_run must not be called");
+      case "open_local_project": return structuredClone(native.opened);
       case "save_local_project": {
         const request = args.request as Json;
         saved.push(request);
+        if (native.saveRefusal) throw native.saveRefusal;
         return {
           summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved current project model snapshot without external file copies." },
           model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
@@ -83,7 +87,7 @@ async function session() {
   render(<Harness />);
   await waitFor(() => expect(current.model.model).not.toBeNull());
   await waitFor(() => expect(current.model.modelHash).not.toBeNull());
-  return { state: () => current, saved, transport, refuse: () => { refusing = true; } };
+  return { state: () => current, saved, transport, native, refuse: () => { refusing = true; } };
 }
 
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command);
@@ -140,6 +144,31 @@ describe("a solve refused because its result is too large to display (RT-U4)", (
     expect(saved[0].model.project.id).toBe(model!.project.id);
     expect(saved[0].mechanics_result ?? null).toBeNull();
     expect(saved[0].analysis_run ?? null).toBeNull();
+  });
+
+  it("opens a project whose saved run was withheld for its size: the model opens, the person is told, nothing is hashed or kept as a result, and the refused save is shown", async () => {
+    const { state, saved, native } = await session();
+    await act(async () => { await state().project.handleSaveProject(); });
+    const envelope = { ...structuredClone(saved[0]), summary: { project_id: saved[0].model.project.id, project_name: saved[0].project_name, message: "Opened local SQLite project snapshot." },
+      editor_intents: [], proposal: null, selected_review_target: null, project_envelope_hash: { value: "sha256:stored" }, model_document_version: null };
+    const withheld = { code: "STORED-RESULT-TOO-LARGE", result_bytes: 67_108_865, analysis_run_bytes: 9_000_000, limit_bytes: 67_108_864 };
+    native.opened = { ...envelope, mechanics_result: null, analysis_run: null, stored_result_withheld: withheld };
+    await act(async () => { await state().project.handleOpenProject(envelope.summary.project_id); });
+    expect(state().model.model?.project.id).toBe(envelope.summary.project_id);
+    expect(state().results.result).toBeNull();
+    expect(state().results.analysisRun).toBeNull();
+    expect(state().results.historicalRun).toBeNull();
+    // The rounded sizes would read the same (64 MiB), so the exact bytes are shown.
+    expect(state().project.projectMessage).toBe(
+      "Opened local SQLite project snapshot. This project's stored result is 67108865 bytes, above the desktop's display limit of 67108864 bytes, so its saved run was not opened: the per-station result detail of that run is too large for the desktop to display. The model is open and can be edited, and the saved run is kept unchanged in the project. Saving the project in place is refused while it holds that run; keep model edits with File > Save Model Document…, or solve again within the limit and save that result to replace it. Code: STORED-RESULT-TOO-LARGE (result_bytes=67108865, analysis_run_bytes=9000000, limit_bytes=67108864).");
+    // The withheld run is not hashed as if the project held no run.
+    await waitFor(() => expect(state().project.projectEnvelopeHashIntegrity?.integrity_status).toBe("hash_recompute_unavailable"));
+    // A save in place sends no result, and the native refusal is shown as it reads.
+    const refusal = "STORED-RESULT-TOO-LARGE: Not saved. Project `x` holds a stored result of 67108865 bytes (64 MiB) (its analysis-run record 9000000 bytes (8.58 MiB)), above the desktop's display limit of 67108864 bytes (64 MiB), so it was not opened, and saving the project in place would replace it with no result. The stored result is kept unchanged. Model edits can be kept with File > Save Model Document…; a new solve within the limit replaces the stored result when the project is saved.";
+    native.saveRefusal = refusal;
+    await act(async () => { await state().project.handleSaveProject(); });
+    expect(saved.at(-1).mechanics_result ?? null).toBeNull();
+    expect(state().project.projectMessage).toBe(`Save failed: ${refusal}`);
   });
 
   it("shows the reason in the solve progress panel as the run ends", async () => {
