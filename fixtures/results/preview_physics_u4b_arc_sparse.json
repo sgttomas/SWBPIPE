@@ -7345,30 +7345,10 @@
       ]
     },
     {
-      "id": "diagnostic:component:component-bend-pipe-BEND1:bend-modifiers",
-      "code": "BEND_USER_MODIFIER_INPUT_MISSING",
-      "severity": "warning",
-      "message": "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:bend:pipe:BEND1"
-      ]
-    },
-    {
       "id": "diagnostic:component:component-bend-pipe-BEND2:bend-geometry",
       "code": "BEND_GEOMETRY_INPUT_MISSING",
       "severity": "warning",
       "message": "bend/elbow component requires explicit radius, angle (unless realized as a curved bend), and invented or cleared geometry source to support component provenance review",
-      "source": "core/product_physics",
-      "affected_refs": [
-        "component:bend:pipe:BEND2"
-      ]
-    },
-    {
-      "id": "diagnostic:component:component-bend-pipe-BEND2:bend-modifiers",
-      "code": "BEND_USER_MODIFIER_INPUT_MISSING",
-      "severity": "warning",
-      "message": "bend/elbow component requires user-entered SIF, user-entered flexibility factor, and modifier source reference before stress modifier rows can be generated",
       "source": "core/product_physics",
       "affected_refs": [
         "component:bend:pipe:BEND2"

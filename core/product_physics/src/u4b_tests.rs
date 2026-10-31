@@ -950,6 +950,51 @@ fn u4b_directional_sif_refusals() {
     assert!(out.diagnostics.iter().any(|d| d.code == "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED"));
 }
 
+/// DEL-03-03: `BEND_USER_MODIFIER_INPUT_MISSING` is satisfied on a realized
+/// bend by the whole directional pair or the scalar SIF; neither, a half pair
+/// (refused) or a pair on a marker (refused) leaves it.
+#[test]
+fn u4b_bend_modifier_warning_honours_the_directional_pair() {
+    let (cases, _) = inputs();
+    let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == "U4B-ARC90-OOP-PREVIEW").unwrap();
+    let request = build_request(case);
+    let warned = |request: Value| {
+        let out = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive).unwrap();
+        (out.diagnostics.iter().any(|d| d.code == "BEND_USER_MODIFIER_INPUT_MISSING"), out)
+    };
+    fn modifiers(request: &mut Value) -> &mut serde_json::Map<String, Value> {
+        request["model"]["components"][0]["modifiers"].as_object_mut().unwrap()
+    }
+    let (warning, out) = warned(request.clone());
+    assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
+    assert!(out.results.iter().any(|r| r.kind == u4b_rows::DIRECTIONAL_KIND), "the pair is consumed");
+    assert!(!warning, "pair: {:?}", out.diagnostics);
+    let mut scalar = request.clone();
+    modifiers(&mut scalar).remove("sif_in_plane_user_value");
+    modifiers(&mut scalar).remove("sif_out_of_plane_user_value");
+    modifiers(&mut scalar).insert("sif_user_value".into(), json!({"value": 2.0, "unit": "none"}));
+    let (warning, out) = warned(scalar);
+    assert!(!warning, "scalar: {:?}", out.diagnostics);
+    let mut neither = request.clone();
+    modifiers(&mut neither).remove("sif_in_plane_user_value");
+    modifiers(&mut neither).remove("sif_out_of_plane_user_value");
+    let (warning, out) = warned(neither);
+    assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
+    assert!(warning, "neither: {:?}", out.diagnostics);
+    for half in ["sif_in_plane_user_value", "sif_out_of_plane_user_value"] {
+        let mut one = request.clone();
+        modifiers(&mut one).remove(half);
+        let (warning, out) = warned(one);
+        assert!(out.diagnostics.iter().any(|d| d.code == validation::BEND_DIRECTIONAL_SIF_INCOMPLETE), "{half}");
+        assert!(warning, "without {half}: {:?}", out.diagnostics);
+    }
+    let mut marker = request.clone();
+    marker["model"]["components"][0]["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
+    let (warning, out) = warned(marker);
+    assert!(out.diagnostics.iter().any(|d| d.code == validation::BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC));
+    assert!(warning, "pair on a marker: {:?}", out.diagnostics);
+}
+
 /// §7.4: end-i tension and compression with nonzero bending: σ± follow the
 /// j-side stress rows, not the node-on-element end-force rows.
 #[test]

@@ -1603,7 +1603,13 @@ fn bend_modifier_missing(component: &crate::PreviewComponent) -> bool {
     let Some(modifiers) = &component.modifiers else {
         return true;
     };
-    modifiers.sif_user_value.is_none()
+    // A realized bend's whole directional pair is its user SIF (the directional
+    // rows, `u4b_rows::directional_pair`); a half pair or a pair on a marker is
+    // refused by `validate_directional_sifs` and supplies none.
+    let directional_pair = crate::is_curved_bend_macro_component(component)
+        && modifiers.sif_in_plane_user_value.is_some()
+        && modifiers.sif_out_of_plane_user_value.is_some();
+    (modifiers.sif_user_value.is_none() && !directional_pair)
         || modifiers.flexibility_factor_user_value.is_none()
         || modifiers
             .source_reference
