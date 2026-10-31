@@ -1519,6 +1519,163 @@ whitespace and the JSON spelling of a number are not content. The sidecar reache
 importer as a parsed JSON object, and the canonical form sorts its members and writes the
 value of each number.
 
+**Format 4: section identities** (Q-2; A-3; desktop design §1.3 C6-5 and §4.4). *Status:
+designed, not implemented. The writer still records format 3.* When this lands, the
+paragraphs above (**Input**, **Sidecar format**, the parser, *Import*), §14's consistent
+edits, §17.1 and §18.2 are revised to match, and this status line goes.
+
+*What format 4 records.* Format 4 is format 3 plus one map, `section_map`: PIPE record name
+→ `{"swbpipe_section": <section id or null>}`. The id is the library section
+(`sections[].id`) that every pipe written with that record references through
+`section_ref`. Null states that those pipes have no `section_ref`; nothing fills it. Every
+record the layout uses has exactly one entry, and there is no other entry. Element entries
+are unchanged: a pipe's `section_ref` follows from its record (the layout's `P` carry) and
+that record's entry, so it is not repeated per element. The map carries one identity per
+record and the binding of pipes to it. It carries no section content.
+
+*How the writer forms records.* The writer keys PIPE records by (`section_ref` or none, OD,
+wall) instead of (OD, wall). Records are still numbered `P1`, `P2`, … in layout order.
+Two library sections with equal OD and wall therefore get two records with equal values,
+and so does a referenced section and an unreferenced pipe of the same OD and wall. One
+record whose sidecar entry lists several sections, with a `section_ref` per element, was
+rejected for these reasons:
+
+- It is the writer's rule for materials already: one record per material id, and
+  `material_map` maps the record name to `swbpipe_material`. `section_map` is then an
+  identity map keyed by CAEPIPE name like the others, with no per-element copy that would
+  need its own agreement check.
+- A bend's pipe and its incoming straight are one layout row with one record, so they must
+  already share a record (`MBF-SI-BEND-UNSUPPORTED`). Bend authoring already requires them
+  to share `section_ref` (`OP-BEND-CORNER-SECTION-MISMATCH`). Keying by `section_ref` can
+  newly refuse only a bend whose two pipes differ in `section_ref` alone, which authoring
+  does not produce.
+- The MBF itself keeps the sections apart, so an unbound import and the target program
+  see as many sections as the library binds.
+- The MBF text is unchanged for every model in which all pipes of one OD and wall share one
+  `section_ref`, or none.
+
+A pipe with `section_ref` must bind as the solve binds it (`resolve_shared_sections` in
+product_physics). Otherwise the writer refuses, because the import could not restore it:
+
+- `MBF-SI-REFERENCE-UNRESOLVED`: `section_ref` is blank, or does not name exactly one
+  library section (the solve's `SECTION_REFERENCE_INVALID`);
+- `MBF-SI-SECTION-BINDING-UNSUPPORTED`: the section's `section_type` is not `pipe`, or its
+  `properties` are not exactly `outside_diameter` and `wall_thickness`, each a length
+  quantity (`SECTION_BINDING_UNSUPPORTED`, `SECTION_REFERENCE_INVALID`);
+- `MBF-SI-SECTION-REFERENCE-STALE`: the pipe's inline OD or wall differs from the section's
+  in value or unit (`SECTION_REFERENCE_CACHE_STALE`).
+
+All pipes of one section therefore have one OD and wall, and each section id is on exactly
+one record.
+
+*What a bound format-4 import restores.* For each entry with an id:
+
+- one `sections[]` entry:
+  - `id` from the sidecar;
+  - `section_type` `pipe`, the only type a `section_ref` binds;
+  - `properties` `outside_diameter` and `wall_thickness`, each the same quantity the import
+    writes into the inline section of the record's pipes: the record's value in the
+    import's length unit. The binding is therefore never stale;
+  - `name` the PIPE record name, as every imported entity is labelled by its CAEPIPE name;
+  - `provenance` the PIPE record's line (§16.1).
+- `section_ref` set to that id on every pipe written with that record.
+
+The `sections` entries follow record order. The member is written only when it is
+non-empty, so an unbound import, a format-2 or format-3 import and a format-4 sidecar
+whose entries are all null give exactly today's output. The output `id_map` gains
+`section_map` (record name → id) only when an id is restored.
+
+Inline sections are formed exactly as today (OD, wall, and §8's corrosion-allowance rule).
+A library entry holds only OD and wall, the two properties a binding admits. It never
+holds a value that the inline section lacks or contradicts, and the importer invents no
+value. These are not restored and stay loss entries: a section's name, provenance, tags,
+notes and `provenance_record`; library sections no pipe references; and the section fields
+the PIPE record does not carry (below). The identity file carries none of them. A field
+the MBF lacks is not moved into it.
+
+*Rebind route.* Section ids are applied by PIPE record name, as materials are, and each is
+reported `rebound_unconfirmed`. An entry naming a record that the file lacks is
+`MBF-IMPORT-SIDECAR-ENTRY-ABSENT` (`omitted`). A record without an entry binds no library
+section.
+
+*Unchanged.* An unbound import forms no `sections` and no `section_ref`. Format-2, format-3
+and legacy sidecars import exactly as before, with no library and no `section_ref`. A
+format-2 or format-3 sidecar carrying `section_map` is refused by path, as today. A legacy
+`section_map` keeps its legacy shape and checks.
+
+*Refusals for a malformed format-4 `section_map`.* All come before assembly unless noted.
+
+- `MBF-IMPORT-SIDECAR-INVALID`, by JSON path:
+  - `section_map` missing;
+  - `section_map` not an object, or an entry that is not an object, has a key other than
+    `swbpipe_section` or lacks it;
+  - `swbpipe_section` neither null nor a string that is non-empty after trimming;
+  - an empty record name;
+  - an id that two entries give, at the later entry in sorted key order (one-to-one, as
+    `node_map` is).
+- `MBF-IMPORT-SIDECAR-CONFLICT`:
+  - bound, an entry for a record that the file lacks or that no element uses, at
+    `section_map[<name>]`;
+  - bound, a record an element uses with no entry, at `section_map`, naming the record;
+  - a restored id equal to another restored or formed id, at `section_map[<name>]`.
+- The self-digest, exactly as for format 3: missing or malformed is `-INVALID`, and a wrong
+  digest is `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`.
+- After assembly, `MBF-IMPORT-SIDECAR-NOT-REPRODUCED` for anything else the writer would
+  not reproduce. For example, two null entries for records of equal OD and wall are
+  refused, because the writer would write one record.
+
+*Regeneration identity and self-digest.* The writer records format 4. A bound import of a
+format-2, format-3 or format-4 sidecar regenerates, and the regenerated sidecar is
+compared in the given sidecar's format. For formats 2 and 3 it is compared without
+`section_map`. Their imports restore no `section_ref`, so the writer keys the records by OD
+and wall alone, as the writer that wrote them did. For format 4, `section_map` regenerates
+from the restored `sections` and `section_ref`: each pipe has the same key, in the same
+layout order, so each record has the same name and entry. Section ids pass from the model
+to the sidecar unchanged, so §14's consistent edits gain section ids. A renamed id, or an
+entry set to null where no record merge results, imports as stated. The self-digest is
+unchanged: the same canonical serialisation of the whole sidecar without
+`sidecar_sha256`, which now covers `section_map` too. A sidecar claims a self-digest when
+`sidecar_format` is 3 or 4. The seeded mutation test gains a format-4 fixture with two
+sections of equal OD and wall and an unreferenced pipe of the same OD and wall.
+
+*Criterion 6.*
+
+- C6-5: section ids are restored, and no section identity is reported unrecoverable.
+- C6-6: §18.2's canonical form adds, when bound, each pipe's `section_ref`, and each
+  referenced section's id with its OD and t (printed-directly bound). Its exclusions gain
+  section names, section provenance and library order. Unreferenced library sections are
+  an omission the writer lists.
+
+*The writer's loss entries after the change.*
+
+- `sections` is no longer a `MBF-SI-MEMBER-NOT-EXPORTED` member. Its handled fields are
+  `id` (the sidecar), `section_type` (`pipe`, implied, otherwise refused) and `properties`
+  (written as the record's OD and wall).
+- `pipe_segments.section_ref` is handled: written as the pipe's record and that record's
+  `section_map` entry. It gets no loss entry.
+- Library sections no pipe references get one `MBF-SI-FIELD-NOT-EXPORTED` at
+  `model.sections`, naming each id, as unused materials do.
+- Through the sweep, `sections.name` gets `MBF-SI-FIELD-NOT-EXPORTED` ("the PIPE record has
+  no name field; the import names the section by its record"). `provenance`, `tags`,
+  `notes` and `provenance_record` are listed as for any entity.
+
+*PipeSection fields in the PIPE record today* (unchanged here; widening this coverage needs
+source admission and is a separate increment):
+
+- Written: `outside_diameter` (field 2) and `wall_thickness` (field 3), in mm.
+- Written as 0, refused if non-zero (`MBF-SI-SECTION-UNSUPPORTED`): `corrosion_allowance`
+  (field 4; under the exact pressure contract an absent one is refused,
+  `MBF-SI-CORROSION-ALLOWANCE-MISSING`), `mill_tolerance` (field 5) and
+  `insulation_thickness` (field 7).
+- Omitted (`MBF-SI-SECTION-FIELD-NOT-EXPORTED`): `material_density`, `contents_density`
+  and `insulation_density`. Field 6 is written as 0, and weight travels only as weight
+  primitives.
+- Fields with no SWBPIPE counterpart: lining density and thickness (fields 8 and 9) are
+  written as 0, and soil (field 10) is not written.
+
+The reference system's sections (DEL-09-01 §4.2) state a non-zero mill tolerance,
+corrosion allowance and insulation, so the writer still refuses them after this change.
+
 **Legacy sidecars.** A sidecar without `sidecar_format` is legacy: written by main's
 tranche-1 writer (`si_writer.py` up to 42a86df92f) through `run_pilot.py`. That writer
 recorded the seven maps other than `pressure_map` and the digest. Its element entries carry

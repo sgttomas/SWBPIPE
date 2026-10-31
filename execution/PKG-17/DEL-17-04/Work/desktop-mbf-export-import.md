@@ -412,10 +412,12 @@ nothing is written before a native save.
   `pressure_map` regions.
 - **What it does not restore:**
   - **Sections.** The writer names PIPE records `P1`, `P2`, … by distinct OD and wall, and
-    format 3 has no `section_map`. Section ids are therefore formed again, and two sections
-    with equal OD and wall merge. Sections are in the identity set (A-3), so sidecar format 4,
+    format 3 has no `section_map`. The import therefore writes no section library and no
+    `section_ref`, and two sections with equal OD and wall share one record. Sections are in the identity set (A-3), so sidecar format 4,
     which adds `section_map` ids, is required for C6-5 (Q-2). Formats 3, 2 and the legacy
-    format keep their current handling, and the self-digest is unchanged.
+    format keep their current handling, and the self-digest is unchanged. Format 4 is
+    designed in import Design §15 **Format 4: section identities**, and is not yet
+    implemented.
   - **The project.** The import forms `project:mbf-<12 hex>`, so an import is a new unsaved
     document, not the original project. The project id is outside the identity set because it
     identifies the store's project, not a model entity, and an import must not collide with
