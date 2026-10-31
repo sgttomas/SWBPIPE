@@ -27,9 +27,11 @@ const PROVIDER_SQL_V1:&str="CREATE TABLE provider(singleton INTEGER PRIMARY KEY 
 const ADD_CONTEXT_WINDOW_SQL:&str="ALTER TABLE provider ADD COLUMN context_window INTEGER CHECK(context_window IS NULL OR context_window BETWEEN 8192 AND 131072)";
 const PROVIDER_SQL:&str="CREATE TABLE provider(singleton INTEGER PRIMARY KEY CHECK(singleton=1),revision TEXT NOT NULL,endpoint TEXT NOT NULL,model TEXT NOT NULL,account TEXT REFERENCES credentials(account), context_window INTEGER CHECK(context_window IS NULL OR context_window BETWEEN 8192 AND 131072))";
 const SCHEMA_VERSION: i64 = 2;
-/// Person-entered context window bounds, in tokens. The upper bound keeps a
-/// full conversation inside the relay's 2 MiB request cap
-/// (`relay_policy::REQUEST_BYTES`); the lower is the supplier's former fixed value.
+/// Person-entered context window bounds, in tokens: a selected policy bound,
+/// chosen with the relay's 2 MiB request cap (`relay_policy::REQUEST_BYTES`) in
+/// view. Tokens do not bound serialized bytes, so that byte cap still applies
+/// independently and can refuse a long conversation below this window. The
+/// lower bound is the supplier's former fixed value.
 pub const CONTEXT_WINDOW_MIN: u32 = 8192;
 pub const CONTEXT_WINDOW_MAX: u32 = 131_072;
 
@@ -1425,6 +1427,38 @@ mod tests {
         let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         let reopened = Store::open(&f.0, k, r).unwrap();
         assert_eq!(reopened.snapshot().unwrap().provider.unwrap().context_window, Some(65536));
+    }
+    #[test]
+    fn a_version_one_provider_with_a_saved_key_is_refused_before_any_keychain_read_and_keeps_its_key() {
+        // A v2 store with an active Keychain credential, taken back to the exact
+        // version 1 schema, as the previous build left it.
+        let (f, mut s, k) = setup();
+        let saved = s
+            .save(None, "https://provider.example/v1", "invented-model", 32768, key())
+            .unwrap()
+            .provider
+            .unwrap();
+        s.db.execute_batch("ALTER TABLE provider DROP COLUMN context_window;PRAGMA user_version=1;").unwrap();
+        assert_eq!(ddl(&s), PROVIDER_SQL_V1);
+        drop(s);
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut s = Store::open(&f.0, k.clone(), r).unwrap();
+        let migrated = s.snapshot().unwrap().provider.unwrap();
+        assert_eq!((migrated.revision.as_str(), migrated.credential_mode, migrated.context_window), (saved.revision.as_str(), CredentialMode::Keychain, None));
+        let loads = k.0.lock().unwrap().loads;
+        assert_eq!(s.load(&migrated.revision).unwrap_err(), Error::ContextWindowRequired);
+        assert_eq!(k.0.lock().unwrap().loads, loads, "no Keychain item is read for a refused Start");
+        let kept = s
+            .save(Some(&migrated.revision), "https://provider.example/v1", "invented-model", 65536, CredentialChange::Keep)
+            .unwrap()
+            .provider
+            .unwrap();
+        assert_eq!((kept.credential_mode, kept.context_window), (CredentialMode::Keychain, Some(65536)));
+        let loaded = s.load(&kept.revision).unwrap();
+        assert_eq!(loaded.context_window, 65536);
+        assert!(loaded.secret.is_some(), "the migrated credential is the one loaded");
+        assert_eq!(k.0.lock().unwrap().loads, loads + 1);
+        assert_eq!(k.0.lock().unwrap().creates, 1, "Keep created no new credential");
     }
     #[test]
     fn the_context_window_is_bounded_on_save_and_in_storage() {

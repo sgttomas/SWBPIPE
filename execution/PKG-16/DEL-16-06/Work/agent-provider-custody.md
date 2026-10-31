@@ -131,9 +131,10 @@ the supplier truncates or compacts. The person now enters it with the provider.
 validated before any transaction; it is stored with and changes the provider
 revision, returned in the snapshot and shown in the panel beside the model, and
 written to the supplier's read-only `config.toml` at Start. There is no default.
-The upper bound keeps a full conversation within the relay's 2 MiB request cap
-(`relay_policy::REQUEST_BYTES`); a larger bound would also need that cap and its
-admission reviewed.
+The upper bound is a selected policy bound, chosen with the relay's 2 MiB request
+cap (`relay_policy::REQUEST_BYTES`) in view. Tokens do not bound serialized bytes,
+so that cap still applies independently and can refuse a long conversation below
+the window; a larger bound would also need the cap and its admission reviewed.
 
 Version 2 adds one nullable column through
 `ALTER TABLE provider ADD COLUMN context_window INTEGER CHECK(context_window IS NULL
@@ -144,11 +145,15 @@ Opening a version 1 store first admits it against the exact version 1 schema, th
 migrates in one immediate transaction; every existing value is kept and the window
 is NULL. Start refuses a NULL window as `context_window_required` before any
 Keychain read, and the panel asks the person to enter it; nothing is assumed. Any
-other version still refuses. A stored window outside the bounds is `corrupt`. No
+other version still refuses. Opening a version 1 store upgrades it permanently:
+an earlier build then refuses the version 2 store as `corrupt`, keeping its data
+but not using it, so going back needs a version-2-capable build. A stored window outside the bounds is `corrupt`. No
 command, ingress shape beyond the typed field on the existing `provider_save`
 action, Keychain item or permission is added. Qualified native runs so far used
 8,192 tokens only; larger windows, including the supplier's compaction behaviour,
-are not yet observed. Reopen and every operation/phase validate this before
+are not yet observed. The historical summary witness
+(`tools/agent_host_witness.py`) keeps its own recorded 8,192-token configuration
+and is not the route for larger-window qualification. Reopen and every operation/phase validate this before
 native effects; matching version fields alone do not admit triggers, views,
 indices or changed constraints.
 SQLite uses synchronous FULL, DELETE journaling, foreign keys, bounded pages and
