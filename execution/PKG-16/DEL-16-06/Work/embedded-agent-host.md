@@ -144,7 +144,9 @@ Milestone 1 evidence, on the candidate named in its PR:
 These establish the catalog, stamp, applier and solver links separately. They
 do not establish a model's tool use, the native webview review journey or the
 person's Apply in the running app; that is the pinned live W9-A witness, still
-to be run. Criterion 17's reference system is not established by W9-A.
+to be run. Criterion 17's reference system is not established by W9-A. That system is
+specified in DEL-09-01 `Work/reference-system.md`; its §11.3 lists the operation families
+the agent needs, from which the later catalog milestones take their admitted kinds.
 
 The internal descriptor/result convention follows stateless MCP 2026-07-28,
 with explicit workspace/proposal/run/page handles. It is projected to Codex

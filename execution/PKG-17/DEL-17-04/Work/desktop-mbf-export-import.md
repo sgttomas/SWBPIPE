@@ -486,10 +486,12 @@ nothing is written before a native save.
 - Whether the target program reads the file belongs to the validation lane's private evidence
   (RT-V2, DEL-17-05), not to criterion 6.
 
-**The reference system (O-1).** Neither the release target nor the DEL-17-04 or DEL-17-05
-records named it; criterion 1 calls it "an invented reference system". W-17 authors it as an
-invented fixture with its run sheet (criteria 1 and 7), starting from the families that
-exist now and adding the rest as their rows land. Families without an admitted public MBF
+**The reference system (O-1).** Criterion 1 calls it "an invented reference system". Agent 0
+placed it in DEL-09-01 (2026-10-31, replacing this section's earlier assignment to W-17): it
+is specified in DEL-09-01 `Work/reference-system.md` and generated as
+`fixtures/reference_system/reference_system.json`, with its run sheet (criteria 1 and 7),
+starting from the families that exist now and adding the rest as their rows land. That
+specification's §11.1 lists the families criterion 6 expects in the loss report. Families without an admitted public MBF
 source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are authored in the
 fixture and expected in the loss report until their sources exist. The fixture is named here
 and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
@@ -558,7 +560,8 @@ ruling governs.
 - **A-5:** the sibling `<stem>.swbpipe-ids.json`. An unbound import says why it is unbound.
 - **A-6:** retired when slice 4 lands. The stop rule on `apps/desktop/native-smoke/expected.json`
   stands.
-- **O-1:** W-17 authors the reference system as an invented fixture with its run sheet (§5).
+- **O-1:** the reference system is an invented fixture with its run sheet (§5), owned by
+  DEL-09-01 (`Work/reference-system.md`) since Agent 0's placement of 2026-10-31.
 
 | Id | Decision | Recommendation | Consequence | Blocks |
 |---|---|---|---|---|
