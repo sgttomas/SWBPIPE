@@ -2,7 +2,7 @@ import { Square, X } from "lucide-react";
 import { useId, useReducer, useRef } from "react";
 import type { SolveJobAuditState, SolveJobEvent } from "../../types";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
-import { describeSolveRefusalRetry, solveRefusalPoint } from "../workspace/solveJobAudit";
+import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 
 /** The words for each job state the solve-job record carries. */
 const STATE_LABELS: Record<SolveJobEvent["state"], string> = {
@@ -190,6 +190,9 @@ export function SolveProgressPanel({
             Refusal code: <code data-testid="solve-progress-refusal-code">{resourceRefusalCode(refusal)}</code>
           </p>
         </div>
+      ) : null}
+      {job && isResultTooLargeSolveJob(job) ? (
+        <p className="memory-pool-message warning" data-testid="solve-progress-result-too-large">{job.error_message}</p>
       ) : null}
       {state === "failed" ? (
         <p className="memory-pool-message error" data-testid="solve-progress-failure">

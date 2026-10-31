@@ -5,7 +5,7 @@ import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, So
 import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
-import { describeSolveRefusalRetry, solveRefusalPoint } from "../workspace/solveJobAudit";
+import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -43,6 +43,7 @@ export function SolvePanel({
   const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   const refusalPoint = solveRefusalPoint(solveJob);
+  const resultTooLarge = isResultTooLargeSolveJob(solveJob);
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
       <div className="panel-title">Execution</div>
@@ -70,7 +71,10 @@ export function SolvePanel({
           {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
         </span>
       </div>
-      {solveJob.error_message ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
+      {solveJob.error_message && !resultTooLarge ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
+      {resultTooLarge ? (
+        <p role="status" className="memory-pool-message warning" data-testid="solve-job-result-too-large">{solveJob.error_message}</p>
+      ) : null}
       <RulePackRunReferences manifest={inputManifest} record={analysisRun} testId="solve-rule-pack-refs" />
       {solveJob.state === "failed" && describeSolveWorkerFailure(solveJob.error_message) ? (
         <p role="status" className="memory-pool-message error" data-testid="solve-job-worker-failure">
@@ -178,6 +182,7 @@ function readinessSummary({
       value: result
         ? `${result.results.length} computed result rows; ${solverDisplayWithToken(mechanicsStatus)}`
         : solveJob.state === "failed" ? `Solve job state: ${solveJob.state}; ${solverDisplayWithToken(solveJob.state)}`
+        : isResultTooLargeSolveJob(solveJob) ? "Solve job state: refused; the result is too large for the desktop to display, so no result was kept"
         : solveJob.state === "refused" ? "Solve job state: refused by the native memory pool; no result was published"
         : `preview run not started; ${hasRecordedUnsolvedModelStatus(mechanicsStatus) ? solverDisplayWithToken(mechanicsStatus) : statusDisplayWithToken(mechanicsStatus)}`,
       tone: result ? "ok" : "info"
