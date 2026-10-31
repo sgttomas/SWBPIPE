@@ -638,25 +638,29 @@ class ReachabilitySafetyTests(unittest.TestCase):
             plan = hosted_ci.make_plan(ROOT, profile, 'pull_request', mapping[base], mapping[head])
             selected = plan['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'reachability', selected['fallback_reasons'])
-            # #1246 also edits the desktop manifest read by VR's feature guard.
-            expected = 11 if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else 10
+            # #1246 also edits the desktop manifest read by VR's feature guard. Each count includes
+            # DEL-04-05's release timing driver (core/solver/release_timing), which depends on
+            # product_physics.
+            expected = 12 if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else 11
             self.assertEqual(len(selected['manifests']), expected)
             self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
         for path in ['fixtures/unknown-new-input.json','tools/unknown-new-input.py']:
             selected = hosted_ci.select_paths([ci.PROJECT + path], profile)['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'full-fallback')
-            # 42 discovered crates since the MBF engine (core/handoff/caepipe_mbf_engine) joined the 41 of the
-            # pressure-source join, which added core/numerics/correct_norm.
-            self.assertEqual(len(selected['manifests']), 42)
+            # 43 discovered crates since DEL-04-05's release timing driver (core/solver/release_timing)
+            # joined the 42 of the MBF engine (core/handoff/caepipe_mbf_engine), which joined the 41 of
+            # the pressure-source join, which added core/numerics/correct_norm.
+            self.assertEqual(len(selected['manifests']), 43)
         # D8's one current corpus retains its exact reader reachability.
         selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
-        self.assertEqual(len(selected['manifests']), 10)
+        # Ten readers, and DEL-04-05's release timing driver through product_physics.
+        self.assertEqual(len(selected['manifests']), 11)
         self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
         # The retired snapshot has no current reader edge; unknown reads stay full.
         retired = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
         self.assertEqual(retired['classification'], 'full-fallback')
-        self.assertEqual(len(retired['manifests']), 42)
+        self.assertEqual(len(retired['manifests']), 43)  # every discovered crate
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
