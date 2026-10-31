@@ -371,8 +371,8 @@ Hanger sizing is a request beside the model. It sizes RS-VS1 and RS-CE1 from an 
 private catalogue (invented records only, OC-4; forthcoming as
 `fixtures/reference_system/invented_hanger_catalogue.json` with DEL-04-11's engine
 increment) and produces a hanger table. The procedure, its load cases and its record
-selection rule belong to DEL-04-11 (Agent 0's D-1; its design `Work/hanger-sizing.md` is
-forthcoming with that deliverable's PR). Sizing
+selection rule belong to DEL-04-11 (Agent 0's D-1; design
+`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`). Sizing
 never overwrites RS-VS1's or RS-CE1's entered inputs. The geometry slots and the key
 results of §9.1 are fixed here.
 

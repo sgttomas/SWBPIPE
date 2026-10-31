@@ -88,8 +88,8 @@ because there are no members yet.
 1. Same panel, **Create explicit E/nu material** (`PressureAuthoringPanel.tsx:46-65`):
    **Exact material ID** `material:RS-M1`; **Exact material label** `RS-M1 invented
    carbon-steel-like material`; **Constitutive basis** homogeneous_isotropic_E_nu_v1;
-   **Elastic modulus E** 200 GPa; **Poisson ratio nu** 0.3, unit 1; **Constitutive
-   provenance** ⟨P⟩. **Queue exact material**, Apply.
+   **Elastic modulus E** 200 GPa; **Poisson ratio nu** 0.3, unit 1; **Thermal expansion coefficient** 1.2e-5 1/K (`PressureAuthoringPanel.tsx:70`, since #36);
+   **Constitutive provenance** ⟨P⟩. **Queue exact material**, Apply.
 2. Select the material in the Model tree. Inspector, "Temperature-dependent properties"
    (`features/material-temperature/MaterialTemperatureForm.tsx:52-89`): **Add temperature
    point** four times, each with ID, Temperature, Elastic modulus, Poisson ratio (unit 1),
@@ -107,12 +107,6 @@ because there are no members yet.
    **Add expansion law**; definition engineering_secant; ID `law:RS-M1-SECANT`; datum
    temperature 20 degC; data constant; constant coefficient 1.2e-5 1/K; provenance ⟨P⟩.
    **Queue expansion laws**, Apply.
-4. No route reproduces the fixture's exact material shape, an E/nu material with a
-   material-level `thermal_expansion_coefficient` (1.2e-5 1/K) and no shear modulus (gap G5,
-   §6). The person leaves the member absent. The fixture's thermal states use the expansion
-   law, not this member. An alternative keeps α but adds a member the fixture lacks: create
-   the material with **New material** (E, G, α), then use **Exact material E/nu** to add the
-   basis and ν, which preserves α. That leaves a shear modulus the E/nu basis does not use.
 
 ### 3.3 Sections (3 min)
 
@@ -332,7 +326,8 @@ row by row (`:125-220`):
 - **Element states**, 26 per case, one per pipe in model order:
   - RS-SUS and RS-SAM: material selection exact_point, material `material:RS-M1`, point
     `point:RS-M1-T020`; thermal state unchanged_reference, provenance ⟨P⟩`; no temperature
-    in this case`.
+    in this case`, except RS-P180, whose provenance is ⟨P⟩`; replaced span RS-P180: zero
+    eigenstrain (spec §5.1)` in every case.
   - RS-OPE: operating temperature 210 degC; material selection temperature_interpolation,
     `material:RS-M1`, selection temperature 210 degC, piecewise_linear, forbidden; thermal
     state free_length_state, expansion law `law:RS-M1-SECANT`. RS-P180 has no operating
@@ -367,8 +362,8 @@ The solve time on the desktop is not measured here.
 
 ### 3.14 What still differs from the fixture
 
-The route above gives the fixture's ids, numbers and units except the material's
-`thermal_expansion_coefficient` (§3.2). Text and form differences remain, none in criterion
+The route above gives the fixture's ids, numbers and units. Text and form differences
+remain, none in criterion
 6's identity set or a numerical value:
 
 - the project's id, name and description (`projectService.ts:440-455`);
@@ -415,7 +410,7 @@ two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not
 | Step | Entries | Queue/apply cycles | Estimate (min) |
 |---|---|---|---|
 | 3.1 Pressure profile | 2 | 1 | 1 |
-| 3.2 Material | 61 | 3 | 6 |
+| 3.2 Material | 63 | 3 | 6 |
 | 3.3 Sections | 21 | 3 | 3 |
 | 3.4 Run sheet: 26 rows (88 cells, 40 of them ids) and header (10) | 98 | 1 | 8 |
 | 3.4 RS-050 correction | 3 | 1 | 0.75 |
@@ -429,7 +424,7 @@ two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not
 | 3.11 Analysis states | 1,047 | 3 | 44 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **2,020** | **48** | **about 130 (129.5)** |
+| **Total** | **2,022** | **48** | **about 130 (129.5)** |
 
 The estimate is about 130 minutes, more than four times the provisional 30. The run sheet
 itself is about 8 of them. The per-member load/reference state (§3.8, §3.10, §3.11) is about
@@ -449,7 +444,7 @@ cost §5 shows. None is worked around outside the operation route.
 | G2 | No bend-id cells: a `B` row's tangent nodes, arc and component ids derive from the corner; its geometry source is the sheet's Source and its labels are fixed | `runSheetModel.ts:249-252, 738-740`; `runSheetBatch.ts:177-186` | DEL-07-02 | Plain runs to the corner, then "Insert bend at corner" (§3.5) |
 | G3 | Numbering cannot pad numbers or name a pipe by its start node | `runSheetModel.ts:244-247`; design §3.2 | DEL-07-02 | Types 40 ids (§3.4) |
 | G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:629-633` | DEL-07-02 | One X-position edit (§3.4) |
-| G5 | No route reproduces the fixture's exact material: an E/nu material with a material-level thermal expansion coefficient and no shear modulus. The E/nu form has no α field; setting α on a material that lacks it is refused (`OP-QUANTITY-OBJECT-MISSING`). **New material** (E, G, α) followed by **Exact material E/nu** keeps α but leaves a shear modulus the fixture does not carry. A library apply can write α only from an imported library. | `PressureAuthoringPanel.tsx:21-28, 46-65`; `PropertyInspector.tsx:2767-2791, 3091`; `operation_applier/src/lib.rs:15587-15606`; `library_apply.rs:90-101` | DEL-07-03 | Leaves the member absent, or takes the extra shear modulus (§3.2) |
+| G5 | Closed by #36 (authoring lane I1): the E/nu create form takes the material-level thermal expansion coefficient, and a wasm-engine test creates RS-M1 from the form equal to the fixture's record | `PressureAuthoringPanel.tsx:70` | DEL-07-03 | §3.2 step 1 |
 | G6 | **New component** has one length unit for body length, end sizes and centre of gravity | `componentIntent.ts:534-551` | DEL-03-05 | Six end-size edits (§3.6) |
 | G7 | Element states, load sources and reference-configuration members are entered one row at a time, with no "every member" fill and no copy from another case | `LoadReferenceStateInputs.tsx:38-85, 125-169, 205-220` | DEL-07-03 | About 1,210 entries (§3.8, §3.11) |
 | G8 | Pressure regions are entered per case, with no copy from another case | `PressureAuthoringPanel.tsx:135-184` | DEL-07-03 | Enters the five regions three times (§3.10) |
@@ -463,6 +458,5 @@ cost §5 shows. None is worked around outside the operation route.
   primitive of this case, factor 1" for load sources, and copying an analysis state or a
   pressure-region set from another case (G7, G8). The condition-set column §11.2 names
   removes the temperature entries only;
-- the thermal expansion coefficient on the E/nu create form (G5);
 - a unit per quantity on the rigid-component form (G6);
 - applying several queued intents as one reviewed batch (G9).
