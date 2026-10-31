@@ -7,7 +7,8 @@ four P2s and the OC-3, OC-5 and OC-7 conditions), r2 (on `a87d8df6b8`: the
 canonical decimal, the rounding width and the zero result) and r3 (on
 `9bf77e607c`: "Ready for Agent 0", with two P3s), all resolved. Agent 0 decided
 OC-1 to OC-9 and ND-1 under the owner's 2026-10-27 delegation (#1703), adopted
-as recommended (§6). Design only; no product code yet.
+as recommended (§6). Revision 5 (2026-10-30) adds the members SWBPIPE Agent 0
+joined before S1 (§2.4); its review is pending. Design only; no product code yet.
 Survey item C1 (operating-condition sets) with the solver lane's two 0.9.0
 members. Risk class: persistence and numerical meaning, so every build slice
 takes targeted regression checks and independent scrutiny by a separate agent
@@ -36,12 +37,18 @@ acceptance, issuance or release; those are the owner's acts.
   behaviour; no model-document-version gate is added for them.
 - **Agent 0, 2026-10-27, R-7** (`supports[].direction`), carried exactly in §2.1.
 - **Agent 0, 2026-10-27, "Shape"** (`combinations[].difference_basis`, gates G-1
-  and G-2, EX refusal; `subtrahend_support_state` not adopted), carried exactly in
-  §2.2.
+  and G-2, EX refusal), carried exactly in §2.2. Its "`subtrahend_support_state`
+  not adopted" is superseded by Agent 0's 2026-10-30 decision below.
 - **Agent 0, B1 O7:** the run sheet's operating-condition column is deferred to
   C1, and C1 carries it (§4.1).
 - **Agent 0, 2026-10-27, #1703** (owner's delegation): OC-1 to OC-9 and ND-1
   adopted as recommended, with the notes on OC-4, OC-5 and OC-7 (§6).
+- **SWBPIPE Agent 0, 2026-10-30, on the load-case plan:** `absolute_sum` and
+  `srss`, combinations taking earlier combinations as inputs (acyclic), the
+  hydrotest test-condition member and `subtrahend_support_state` (`own |
+  minuend_final`) join 0.9.0 before S1, each refused by name until its slice
+  lands; the dynamics lane's snubber support family joins when it is sent
+  (§2.4). The member list is frozen with the dynamics lane and Agent 0 before S1.
 - **Brief for this design (Agent 0 through the manager):** all 0.9.0 members in
   one version step; `load_cases[].kind` token `operating` is desktop vocabulary
   with no schema change; the element assignment is preferably stored explicitly.
@@ -586,11 +593,18 @@ owner's to decide.
 - **Interim (S1 until the solver lane's 1b):** the solve withholds the
   combination with the warning `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`,
   and the applier refuses authoring it. 1b removes both and adds G-1/G-2.
-- **`subtrahend_support_state` is not adopted.** Its room is reserved: the name,
-  the enum `own | minuend_final` (absent = `own`), admission only with
-  `difference_basis`, and publication under the combination, never as the
-  sustained case's rows. `Combination` is a closed record, so a document carrying
-  it is refused as an unknown field, and adopting it later takes a version step.
+- **`subtrahend_support_state` is adopted in 0.9.0** (Agent 0, 2026-10-30;
+  RT-A5's Should item), in the room reserved here: the enum `own |
+  minuend_final`, absent meaning `own`, admitted only with `difference_basis`
+  (otherwise `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED`, blocking; a
+  null or unknown token is `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN`,
+  blocking). `minuend_final` solves the subtrahend at the minuend's final
+  support status, a held-constraint comparison that is not an admissible
+  sustained state, and publishes under the combination, never as the sustained
+  case's rows (DEL-05-02 `operating-case.md` §5 option 2). Interim until its
+  slice: `own` behaves as absence; the solve withholds a `minuend_final`
+  combination with the warning `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`,
+  and the applier refuses authoring it.
 
 ### 2.3 `load_cases[].kind` token `operating`
 
@@ -598,11 +612,34 @@ Desktop vocabulary only: the load manager offers `operating` among its kind
 suggestions (`LoadCaseManagerPanel.tsx` metadata options). `kind` stays a free
 string the solver ignores. No schema change.
 
+### 2.4 Members joined before S1 (Agent 0, 2026-10-30)
+
+Each is optional, closed and refused by name at solve until its slice lands. A
+document carrying none of them has today's meaning.
+
+- **`combinations[].basis` tokens `absolute_sum` and `srss`** (RT-A4), and
+  **combinations as inputs**: `CombinationTerm.combination`, exactly one of
+  `load_case` and `combination` per term; `minuend_id`, `subtrahend_id` and
+  `operand_ids` naming a load case or a combination; acyclic. Codes, numerical
+  definition and interim refusals: DEL-05-02 Work
+  [`absolute-sum-srss-combinations.md`](../../../PKG-05/DEL-05-02/Work/absolute-sum-srss-combinations.md)
+  §2-§3, §6.
+- **`load_cases[].test_condition`** (RT-A6): `{kind: "hydrostatic",
+  held_supports: "springs_and_constant_effort" | "none"}`, both required. The
+  test contents density is the case's `condition_use.contents_density` (§1.6),
+  whose consumer this is. Interim: `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`,
+  blocking at solve. DEL-05-01 Work
+  [`hydrostatic-test.md`](../../../PKG-05/DEL-05-01/Work/hydrostatic-test.md).
+- **`combinations[].subtrahend_support_state`** (RT-A5 Should): §2.2.
+- **Snubber support family** (RT-A8, the dynamics lane, DEL-04-09): a
+  dynamic-only restraint. Its member text is the dynamics lane's and is added
+  here when sent; until then this list is not frozen.
+
 ## 3. The 0.9.0 version step
 
 ### 3.1 Version 0.9.0
 
-0.9.0 is 0.8.0 plus the optional members of §1.2, §2.1 and §2.2. An 0.8.0
+0.9.0 is 0.8.0 plus the optional members of §1.2, §2.1, §2.2 and §2.4. An 0.8.0
 document whose version string alone is changed is a valid 0.9.0 document with the
 same meaning: it carries none of the new members, and an absent member changes
 nothing. No member is renamed or re-keyed (FR-MOD-003).
@@ -682,7 +719,11 @@ their states.
   `OperatingCondition`, `ConditionValues`, `AddedWeight`, `ConditionExposure`,
   `ConditionUse`; members `condition_sets`, `PipeSegment.condition_set_ref`,
   `LoadCase.condition_use`, `Support.direction` (`$ref` `Vector3`, described as
-  dimensionless), `Combination.difference_basis`. `PressureRegion.pressure`
+  dimensionless), `Combination.difference_basis`, `Combination.subtrahend_support_state`,
+  the `Combination.basis` tokens `absolute_sum` and `srss`,
+  `CombinationTerm.combination` (a `oneOf` with `load_case`), `$defs`
+  `TestCondition` with `LoadCase.test_condition`, and the snubber family (§2.4).
+  `PressureRegion.pressure`
   stays required in the schema except where the case carries
   `condition_use.pressure` (an `if`/`then` on `LoadCase`). Every record stays
   closed; the schema stays structural.
@@ -821,7 +862,7 @@ any later one must transform it exactly or refuse.
 
 | Slice | Content | Checks and review gates |
 |---|---|---|
-| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
+| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`, and §2.4's members), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
 | **S2. PF resolution** | Temperature, added weight and wind exposure resolution (§1.5); the correctly rounded ΔT; removal of `LOAD_CASE_CONDITION_USE_UNSUPPORTED`; retained-route placement or decline; wasm preview export | E1–E7; the Python reference table; D3 if D1-reachable code moves. The PR states explicitly that typed ΔT is unchanged (OC-5 as decided): a test shows every frozen reference (SHA-bound requests, the reader corpora, the retained successors and `expected.json`'s inputs) solves byte-identically before and after, and `expected.json` is not edited. Independent numerical scrutiny by a separate agent of ΔT, order and the twin. |
 | **S3a. Applier authoring** | §4.2's operations; reference guards; bend and split rules | One regression per operation and refusal; save and reopen byte for byte; contract corpus additions. Persistence review. |
 | **S3b. Desktop** | Condition-set manager, inspector field, bulk change, load-manager control, support direction, the run-sheet column (with B1's slice if B1 has not landed) | `desktop-test`; run-sheet inheritance and projection tests; native smoke where open/save changes. |
@@ -969,8 +1010,9 @@ counted on main `66a83a2b68`: each occurs once.
 
 ## 8. Coordination
 
-- **0.9.0 members.** C1's members, `direction` and `difference_basis` are the
-  only ones known. Any other lane that needs a member joins through Agent 0
+- **0.9.0 members.** C1's members, `direction`, `difference_basis` and the
+  members of §2.4 are the only ones known; the snubber family is awaited from
+  the dynamics lane. Any other lane that needs a member joins through Agent 0
   before S1's ripple; after it, the next member is a 0.10.0 step.
 - **Order.** S1 after #1678 in the pricing queue; the solver lane's 1b and skew
   kernel after S1; S2 after S1; S3a after S1 (it can run beside S2); S3b after
