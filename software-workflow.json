@@ -198,7 +198,10 @@
     },
     {
       "paths": [
-        "core/solver/modal_eigen/**"
+        "core/solver/modal_eigen/**",
+        "core/solver/sparse_direct/**",
+        "core/solver/frame_kernel/**",
+        "core/numerics/correct_norm/**"
       ],
       "checks": [
         "modal-eigen-test"
