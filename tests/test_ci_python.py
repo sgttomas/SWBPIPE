@@ -123,7 +123,7 @@ def test_reference_system_inputs_select_its_fixture_check():
                                                        'core/product_physics/src/self_weight.rs']:
         assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
         assert (PROJECT / path).is_file(), path
-    assert ci.REFERENCE_SYSTEM_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
+    assert ci.REFERENCE_SYSTEM_TEST not in by_rules('fixtures/results/pressure_source_reader_corpus.json')
     # The runner's solver kernels and units reach the EX solve.
     for path in ['core/solver/curved_bend/src/lib.rs', 'core/solver/sparse_direct/src/lib.rs', 'core/units/src/lib.rs']:
         assert ci.REFERENCE_SYSTEM_TEST in selected(path), path

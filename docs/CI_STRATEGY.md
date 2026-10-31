@@ -54,8 +54,8 @@ desktop tests read select it, and with it the product job. A Markdown file that
 desktop source only names, as a string outside tests, test-support and lines that
 import, require, fetch, read or open it, and under no named directory, is display
 text: an in-place edit of it (a regular file before and after) does not select the
-suite, while adding, deleting, renaming or retyping it still does. (Under `docs/`,
-the edit still starts the Python job for the claims-language test.) The plan lists such edits as `named_document_edits`. An unreadable
+suite, while adding, deleting, renaming or retyping it still does. (The edit still starts
+the Python job, whose tests read every path.) The plan lists such edits as `named_document_edits`. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
 so a pass without it is never reused for a run that needs it. The product job
@@ -154,27 +154,37 @@ Edited product tests are run directly; shared CI/input changes expand the select
 Every maintained Python test, under `tests/` or beside the tool it tests
 (outside the Repository checks suites), is also selected by the paths it reads,
 derived from its own code by `tools/ci/python_test_reads.py`, in addition to any
-rule above that names it:
-- project paths it writes as literals or f-strings, or builds by `/` from a
-  project- or `__file__`-anchored base. A name resolves through its bindings in
-  its function, else the module: assignments, loop targets and
-  `pytest.mark.parametrize` values. A slot or name with unknown values becomes
-  `*` in an f-string, and cuts a `/` chain to its known base;
-- directory scans (`glob`, `rglob`, `iterdir`, `os.walk`) over such a base, kept
-  as glob patterns, so a file added later is matched too;
-- the project modules it imports, transitively;
-- the non-test files it names, which it may load or run, together with their own
-  reads.
+rule above that names it. The derivation fails toward over-selection: a false
+negative is the failure it exists to prevent, so wherever the code does not show
+a value it keeps a superset root rather than drop the read. Its roots are:
+- project paths written as literals or f-strings, or built by `/`, `joinpath`,
+  `os.path.join`, `str.format` or `%`. A name resolves through its bindings in its
+  own scope (a parameter or comprehension target shadows outer bindings):
+  assignments, loop and `with` targets, `pytest.mark.parametrize` values,
+  fixtures, defaults and the file's own call arguments. Unknown text may contain
+  `/`, so a path with an unknown part becomes `<known prefix>/**/<known suffix>`,
+  and one with no known part is `**`, every path;
+- a temporary or other outside directory, which mirrors the project when a test
+  copies it there, keeps its known suffix (`**/core/x.rs`); a parameter whose
+  caller lies outside the file contributes no root of its own, since the
+  caller's argument is the read;
+- directory scans (`glob`, `rglob`, `iterdir`, `os.walk`, `os.listdir`) and `git
+  ls-files`, `git grep` and `git ls-tree` pathspecs, as glob patterns that also
+  match files added later;
+- the project modules it imports, transitively, and the non-test files it names,
+  which it may load or run, together with their own reads.
 
-An imported module's own reads are not the test's roots. A test whose scan the
-code cannot show precisely declares `CI_READS`, which stands in for its derived
-scans; `tests/test_ci_python.py` fails if an entry stops naming a tracked path, or
-if the test scans a directory no declared pattern covers. Tests that no rule names
-join the broad cohort. A path any of them, or an always-run test, reads starts the
-Python job even where no path rule routes it (desktop source, a policy document).
-`python_ci.UNROUTED` names each test deliberately left out, with its reason;
-`tests/test_ci_python.py` fails on any other test that only its own edit would
-select.
+A file whose directory scan or pathspec the code does not show at all declares
+`CI_READS` beside it, which stands in for its scans; `tests/test_ci_python.py`
+fails on such a scan without one, on an entry that stops naming a tracked path,
+and on a shown scan no entry covers. An imported module's own reads are not the
+test's roots. Tests that no rule names join the broad cohort. A path any test
+reads starts the Python job even where no path rule routes it. About a third of
+the tests read paths their code does not show (data-driven fixture lists,
+injected globals, subprocess output), so they reach every path, and every pull
+request now starts the Python job. `python_ci.UNROUTED` names each test
+deliberately left out, with its reason; `tests/test_ci_python.py` fails on any
+other test that only its own edit would select.
 The Python job retains xdist `--dist loadscope`: the current retained-precision
 corpus uses parametrized items across shard classes, and the O4 envelope checks
 use separate classes so these expensive modules can occupy multiple workers.
