@@ -58,12 +58,15 @@
     await waitFor(`operation tab ${tab}`, () => byTestId(`operation-tab-${tab}`)?.getAttribute("aria-pressed") === "true", 10000);
   }
   const standing = () => text("embedded-agent-standing") ?? "";
+  const statusLines = () => [...(panel()?.querySelectorAll('p[role="status"]') ?? [])].map((item) => item.textContent.trim());
   const conversation = () => [...(panel()?.querySelectorAll('[aria-label="Draft agent conversation"] p') ?? [])].map((item) => bounded(item.textContent, 8000));
   const projectRowIds = () => [...document.querySelectorAll('[data-testid^="tree-row-project-"]')]
     .map((row) => decodeURIComponent(row.getAttribute("data-testid").slice("tree-row-project-".length)));
   const liveBatches = () => [...document.querySelectorAll('article[data-testid^="batch-"]')].filter((item) => item.getAttribute("data-retired") !== "true");
 
   async function newBlank(report, timeouts) {
+    // The app opens its bundled demo first; New Blank Project waits for that load.
+    await waitFor("app shell and first project", () => byTestId("desktop-preview-shell") && projectRowIds().length > 0, timeouts.start);
     const previous = projectRowIds()[0] ?? null;
     await call("native_smoke_menu", { commandId: "file.new-blank" });
     await waitFor("units dialog", () => byTestId("project-units-dialog"), timeouts.ui);
@@ -99,14 +102,25 @@
       if (alert) throw new Error(`provider: ${alert}`);
       return [...panel().querySelectorAll('p[role="status"]')].map((item) => item.textContent).find((line) => line.startsWith("Provider saved")) ?? null;
     }, timeouts.ui);
-    await waitFor("Start enabled", () => button(panel(), "Start agent") && !button(panel(), "Start agent").disabled, timeouts.ui);
-    report.started_at = new Date().toISOString();
-    press(button(panel(), "Start agent"), "Start agent");
-    report.ready = await waitFor("agent ready", () => {
-      const alert = panel()?.querySelector('p[role="alert"]')?.textContent;
-      if (alert) throw new Error(`start: ${alert}`);
-      return standing().startsWith("Ready") ? standing() : null;
-    }, timeouts.start);
+    // Start refuses until the new blank's fingerprint is ready; a person waits and presses again.
+    report.start_attempts = [];
+    for (let attempt = 1; ; attempt++) {
+      await waitFor("Start enabled", () => button(panel(), "Start agent") && !button(panel(), "Start agent").disabled, timeouts.ui);
+      report.started_at = new Date().toISOString();
+      press(button(panel(), "Start agent"), "Start agent");
+      await sleep(300); // lets the press clear the previous attempt's status line
+      const outcome = await waitFor("agent ready", () => {
+        const alert = panel()?.querySelector('p[role="alert"]')?.textContent;
+        if (alert) throw new Error(`start: ${alert}`);
+        if (standing().startsWith("Ready")) return { ready: standing() };
+        const refusal = statusLines().find((line) => line.startsWith("Open a model and wait for its fingerprint") || line.startsWith("The request did not complete"));
+        return refusal ? { refusal } : null;
+      }, timeouts.start);
+      report.start_attempts.push(outcome.ready ?? outcome.refusal);
+      if (outcome.ready) { report.ready = outcome.ready; break; }
+      if (attempt >= 10) throw new Error(`start: ${outcome.refusal}`);
+      await sleep(1000);
+    }
   }
 
   // One turn: type, Send, then wait for the turn to start and to end.
@@ -189,6 +203,7 @@
       await step("stop", () => stop(report, timeouts));
     } catch (error) {
       report.error = bounded(error?.message ?? error);
+      report.panel_status = statusLines().map((line) => bounded(line, 400));
       try { await stop(report, { ui: 20000 }); } catch (stopError) { report.stop_error = bounded(stopError?.message ?? stopError); }
     }
     report.finished_at = new Date().toISOString();

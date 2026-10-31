@@ -349,11 +349,13 @@ def sha256(path):
 
 
 def residents(markers):
-    """Read-only: processes whose command names one of the run's own paths."""
-    out = subprocess.run(["/bin/ps", "-axo", "pid=,ppid=,pgid=,command="], capture_output=True, text=True, check=True).stdout
+    """Read-only: processes whose executable lies under one of the run's own paths
+    (not an argument naming one, as the wrapper that launched this controller does)."""
+    out = subprocess.run(["/bin/ps", "-axo", "pid=,ppid=,pgid=,comm="], capture_output=True, text=True, check=True).stdout
     found = []
     for line in out.splitlines():
-        if any(marker in line for marker in markers) and str(os.getpid()) != line.split()[0]:
+        fields = line.split(None, 3)
+        if len(fields) == 4 and any(marker in fields[3] for marker in markers):
             found.append(line.strip()[:300])
     return found
 
@@ -518,7 +520,10 @@ def run(args, key, root):
             stub.__exit__()
         if lines:
             lines.thread.join(timeout=5)
-            result["stderr"] = [line for line in lines.lines if line.startswith(("[native-smoke]", "[native-smoke-agent-scope]"))][-200:]
+            # The stub run has no secret anywhere, so its full stderr is kept for diagnosis;
+            # a live run keeps only the harness's own records.
+            kept = lines.lines if args.mode == "stub" else [line for line in lines.lines if line.startswith(("[native-smoke]", "[native-smoke-agent-scope]"))]
+            result["stderr"] = [line[:2000] for line in kept[-200:]]
         time.sleep(1)
         remaining = residents([str(args.app.parents[2]), str(home), f"swbpipe-agent-{(result.get('supplier') or {}).get('scope', '-')}"])
         result["residents"] = remaining
