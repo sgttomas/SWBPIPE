@@ -7,7 +7,8 @@ four P2s and the OC-3, OC-5 and OC-7 conditions), r2 (on `a87d8df6b8`: the
 canonical decimal, the rounding width and the zero result) and r3 (on
 `9bf77e607c`: "Ready for Agent 0", with two P3s), all resolved. Agent 0 decided
 OC-1 to OC-9 and ND-1 under the owner's 2026-10-27 delegation (#1703), adopted
-as recommended (§6). Design only; no product code yet.
+as recommended (§6). Revision 5 (2026-10-30) adds the members SWBPIPE Agent 0
+joined before S1 (§2.4); its review is pending. Design only; no product code yet.
 Survey item C1 (operating-condition sets) with the solver lane's two 0.9.0
 members. Risk class: persistence and numerical meaning, so every build slice
 takes targeted regression checks and independent scrutiny by a separate agent
@@ -36,12 +37,18 @@ acceptance, issuance or release; those are the owner's acts.
   behaviour; no model-document-version gate is added for them.
 - **Agent 0, 2026-10-27, R-7** (`supports[].direction`), carried exactly in §2.1.
 - **Agent 0, 2026-10-27, "Shape"** (`combinations[].difference_basis`, gates G-1
-  and G-2, EX refusal; `subtrahend_support_state` not adopted), carried exactly in
-  §2.2.
+  and G-2, EX refusal), carried exactly in §2.2. Its "`subtrahend_support_state`
+  not adopted" is superseded by Agent 0's 2026-10-30 decision below.
 - **Agent 0, B1 O7:** the run sheet's operating-condition column is deferred to
   C1, and C1 carries it (§4.1).
 - **Agent 0, 2026-10-27, #1703** (owner's delegation): OC-1 to OC-9 and ND-1
   adopted as recommended, with the notes on OC-4, OC-5 and OC-7 (§6).
+- **SWBPIPE Agent 0, 2026-10-30, on the load-case plan:** `absolute_sum` and
+  `srss`, combinations taking earlier combinations as inputs (acyclic), the
+  hydrotest test-condition member and `subtrahend_support_state` (`own |
+  minuend_final`) join 0.9.0 before S1, each refused by name until its slice
+  lands; the dynamics lane's snubber family and spectra records join (§2.4).
+  Agent 0 froze the list on 2026-10-31.
 - **Brief for this design (Agent 0 through the manager):** all 0.9.0 members in
   one version step; `load_cases[].kind` token `operating` is desktop vocabulary
   with no schema change; the element assignment is preferably stored explicitly.
@@ -524,7 +531,14 @@ owner's to decide.
 - **Admitted only on** a support whose explicit `family` is `line_stop` or
   `spring`, that acts on exactly one DOF (its single restraint token, or its
   stiffness DOF), that DOF translational (UX, UY, UZ), and that carries no
-  `nonlinear` member. Rotational skew is refused for now.
+  `nonlinear` member. Rotational skew is refused for now. A `snubber` (§2.4)
+  is admitted on the same terms (Agent 0's list, 2026-10-31, at the dynamics
+  lane's request): exactly one translational restraint, with any `stiffness` on
+  that DOF; it acts along d as a skewed line stop does. With more than one
+  restraint, `direction` stays `SUPPORT_DIRECTION_RECORD_UNSUPPORTED`. A
+  skewed snubber is under the snubber's interim static refusal like any
+  snubber, so the axis-aligned lowering below never reaches one; its dynamic
+  meaning is DEL-04-10's.
 - **Absent means axis-aligned** along the record's DOF; the product never writes
   `direction` unprompted.
 - **Sign.** Published scalars are positive along +d.
@@ -586,11 +600,18 @@ owner's to decide.
 - **Interim (S1 until the solver lane's 1b):** the solve withholds the
   combination with the warning `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`,
   and the applier refuses authoring it. 1b removes both and adds G-1/G-2.
-- **`subtrahend_support_state` is not adopted.** Its room is reserved: the name,
-  the enum `own | minuend_final` (absent = `own`), admission only with
-  `difference_basis`, and publication under the combination, never as the
-  sustained case's rows. `Combination` is a closed record, so a document carrying
-  it is refused as an unknown field, and adopting it later takes a version step.
+- **`subtrahend_support_state` is adopted in 0.9.0** (Agent 0, 2026-10-30;
+  RT-A5's Should item), in the room reserved here: the enum `own |
+  minuend_final`, absent meaning `own`, admitted only with `difference_basis`
+  (otherwise `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED`, blocking; a
+  null or unknown token is `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN`,
+  blocking). `minuend_final` solves the subtrahend at the minuend's final
+  support status, a held-constraint comparison that is not an admissible
+  sustained state, and publishes under the combination, never as the sustained
+  case's rows (DEL-05-02 `operating-case.md` §5 option 2). Interim until its
+  slice: `own` behaves as absence; the solve withholds a `minuend_final`
+  combination with the warning `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED`,
+  and the applier refuses authoring it.
 
 ### 2.3 `load_cases[].kind` token `operating`
 
@@ -598,11 +619,127 @@ Desktop vocabulary only: the load manager offers `operating` among its kind
 suggestions (`LoadCaseManagerPanel.tsx` metadata options). `kind` stays a free
 string the solver ignores. No schema change.
 
+### 2.4 Members joined before S1 (Agent 0, 2026-10-30)
+
+Each is optional, closed and refused by name at solve until its slice lands. A
+document carrying none of them has today's meaning.
+
+- **`combinations[].basis` tokens `absolute_sum` and `srss`** (RT-A4), and
+  **combinations as inputs**: `CombinationTerm.combination`, exactly one of
+  `load_case` and `combination` per term; `minuend_id`, `subtrahend_id` and
+  `operand_ids` naming a load case or a combination; acyclic. Codes, numerical
+  definition and interim refusals: DEL-05-02 Work
+  [`absolute-sum-srss-combinations.md`](../../../PKG-05/DEL-05-02/Work/absolute-sum-srss-combinations.md)
+  §2-§3, §6.
+- **`load_cases[].test_condition`** (RT-A6): `{kind: "hydrostatic",
+  held_supports: "springs_and_constant_effort" | "none"}`, both required. The
+  test contents density is the case's `condition_use.contents_density` (§1.6),
+  whose consumer this is. Interim: `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`,
+  blocking at solve. DEL-05-01 Work
+  [`hydrostatic-test.md`](../../../PKG-05/DEL-05-01/Work/hydrostatic-test.md).
+- **`combinations[].subtrahend_support_state`** (RT-A5 Should): §2.2.
+- **Snubber support family** (RT-A8; the dynamics lane's text, 2026-10-30;
+  its final meaning is DEL-04-10's). `SupportFamily` gains the token
+  `"snubber"`; no new object member. A snubber uses `Support`'s existing members.
+  - `restraints`: one or more of `ux`, `uy`, `uz`; a rotational DOF is
+    `SNUBBER_ROTATIONAL_RESTRAINT_UNSUPPORTED`.
+  - `stiffness` (the existing `SupportStiffness`) is optional. Absent, the
+    snubber is rigid in its restraints. Present, `restraints` is exactly
+    `[stiffness.dof]` with a positive finite value in a stiffness unit;
+    otherwise `SNUBBER_STIFFNESS_INVALID`.
+  - A `hanger`, or a non-null `nonlinear`, on a snubber is `SNUBBER_MEMBER_CONFLICT`.
+  - `direction` (§2.1) is admitted on a snubber with exactly one translational
+    restraint, any `stiffness` being on that DOF; the snubber then acts along
+    `direction`.
+  - These are document-level (schema, `validate_support_family_tokens`, the
+    applier and the solve's validation), blocking.
+  - **Existing support gates (r2 F5).** `validation.rs`
+    `validate_connected_input_contracts` refuses a finite stiffness on any
+    family but spring and variable-spring hanger
+    (`SUPPORT_STIFFNESS_FAMILY_UNSUPPORTED`). S1 admits an explicit `snubber`
+    there, its stiffness being dynamic; null-family inference and the hanger and
+    constant-effort detection are unchanged, and an inferred family is never a
+    snubber. Regression: a valid stiff snubber reaches
+    `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` and no other code.
+  - **Interim:** every static solve on both routes refuses a model containing a
+    snubber, blocking, as `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`, naming the
+    support: "snubbers are dynamic-only restraints; the response-spectrum
+    analysis that uses them is not built yet". DEL-04-10's slice replaces the
+    refusal with its final meaning: static solves ignore a snubber, disclosed
+    as "dynamic-only restraint, not active in static cases"; modal (when
+    requested) and spectrum restrain with it.
+- **`spectra[]`** (RT-A8; the dynamics lane's text, 2026-10-30): top-level
+  records of user-entered spectra, data only, so that a spectrum is entered
+  once. Each is a closed `Spectrum` (r2 F8): required `id`, `abscissa`,
+  `ordinate`, `units`, `damping_ratio`, `interpolation`, `points`, and `g_value`
+  exactly when `ordinate` is `g_multiple`; optional `label` (string), `tags`
+  (`Tags`) and `notes` (`Notes`). An authored `null` is refused for every
+  member, as §1.2 rules. `units.abscissa` is always required and
+  `units.ordinate` exactly when `ordinate` is `acceleration` (r3);
+  `interpolation` requires both its members.
+  - `id` (`Id`, unique among spectra, `SPECTRUM_ID_DUPLICATE`; `EMPTY_ID` as
+    for any entity);
+  - `abscissa`: `"frequency"` | `"period"`; `ordinate`: `"acceleration"` |
+    `"g_multiple"`;
+  - `units`: closed `{abscissa, ordinate}`, catalog unit strings: the abscissa
+    unit of the frequency family for `frequency` or the time family for
+    `period`; the ordinate unit of the acceleration family, present exactly when
+    `ordinate` is `acceleration`. **The unit catalog has no frequency family
+    today (r2 F6), so S1 carries it, with the rest of the dynamics unit set**
+    (SWBPIPE Agent 0 and the dynamics lane, 2026-10-31), so that `core/units`
+    changes and is priced once. These are DEL-02-02's families, needed by
+    DEL-04-09 Design §1.5 (D-p); M1b reuses them and defines none of its own.
+    Each is a separate named dimension, checked by name as `LinearStiffness`
+    and `ForcePerLength` are, never matched by vector; vectors are (length,
+    mass, time, temperature, angle):
+
+    | Dimension | Vector | Canonical unit | Display units |
+    |---|---|---|---|
+    | `frequency` | (0,0,−1,0,0) | `unit:hertz`, `Hz` | none |
+    | `angular_frequency` | (0,0,−1,0,1) | `unit:radian_per_second`, `rad/s` | none |
+    | `rotation_per_length` | (−1,0,0,0,1) | `unit:radian_per_meter`, `rad/m` | `rad/mm`, `rad/in` |
+    | `length_per_rotation` | (1,0,0,0,−1) | `unit:meter_per_radian`, `m/rad` | `mm/rad`, `in/rad` |
+    | `rotational_generalized_mass` | (2,1,0,0,−2) | `unit:kilogram_square_meter_per_square_radian`, `kg*m^2/rad^2` | `lb*in^2/rad^2`, `lb*ft^2/rad^2` |
+
+    `angular_frequency` carries the angle exponent, so it never converts to
+    Hz. `rotational_generalized_mass` replaces a plain kg·m² family (the
+    dynamics lane's review, 2026-10-31): with angle tracked as an exponent,
+    Γ in rad/m and a generalized mass in kg·m²·rad⁻² keep Γ²·m = m_eff in kg,
+    and match kinetic energy in J with rotations in rad; nothing needs plain
+    kg·m². Display factors are definitional only (0.0254 m/in, 0.3048 m/ft,
+    0.45359237 kg/lb), each with a conversion round-trip witness as the crate's
+    others have. All five join `schemas/units.schema.yaml`, the crate
+    vocabulary (`schema_dimension_enum_matches_crate_vocabulary`) and
+    `canonical_unit`. Period stays on `time`; modal shapes use the existing
+    `rotation` and dimensionless. `core/units/src` is priced, so S1's D3 turn
+    prices it;
+  - `g_value`: a `Quantity` in acceleration units with a positive, finite
+    value, required exactly when `ordinate` is `g_multiple` (r2 F7: zero or a
+    negative value is `SPECTRUM_RECORD_INVALID`);
+  - `damping_ratio`: dimensionless, required, finite, in [0, 1);
+  - `interpolation`: closed `{abscissa, ordinate}`, each `"linear"` | `"log"`,
+    both required, no default;
+  - `points`: an array of `[x, y]` number pairs, at least two, x strictly
+    increasing and positive, y positive and finite.
+
+  Any other violation is `SPECTRUM_RECORD_INVALID`, naming the record and the
+  field (document-level, blocking). Spectra are referenced only from
+  DEL-04-10's spectrum analysis request, never from load cases; direction,
+  scale and method stay on that request. No solve reads them in 0.9.0, so a
+  document's static results do not depend on them (as E5 for unused condition
+  sets), and every displayed spectrum carries §1.2's label "not used by the
+  solve in 0.9.0" until DEL-04-10's slice.
+
+The dynamics lane needs no other member (no per-mode mass and no contents
+member; concentrated masses are W-17's, later). **The member list is frozen**
+(SWBPIPE Agent 0, 2026-10-31, at `31bde47a2`, with the dynamics lane's
+confirmation): any further member is a 0.10.0 step, planned as one step.
+
 ## 3. The 0.9.0 version step
 
 ### 3.1 Version 0.9.0
 
-0.9.0 is 0.8.0 plus the optional members of §1.2, §2.1 and §2.2. An 0.8.0
+0.9.0 is 0.8.0 plus the optional members of §1.2, §2.1, §2.2 and §2.4. An 0.8.0
 document whose version string alone is changed is a valid 0.9.0 document with the
 same meaning: it carries none of the new members, and an absent member changes
 nothing. No member is renamed or re-keyed (FR-MOD-003).
@@ -682,7 +819,12 @@ their states.
   `OperatingCondition`, `ConditionValues`, `AddedWeight`, `ConditionExposure`,
   `ConditionUse`; members `condition_sets`, `PipeSegment.condition_set_ref`,
   `LoadCase.condition_use`, `Support.direction` (`$ref` `Vector3`, described as
-  dimensionless), `Combination.difference_basis`. `PressureRegion.pressure`
+  dimensionless), `Combination.difference_basis`, `Combination.subtrahend_support_state`,
+  the `Combination.basis` tokens `absolute_sum` and `srss`,
+  `CombinationTerm.combination` (a `oneOf` with `load_case`), `$defs`
+  `TestCondition` with `LoadCase.test_condition`, the `SupportFamily` token
+  `snubber`, and `$defs` `Spectrum` with top-level `spectra` (§2.4).
+  `PressureRegion.pressure`
   stays required in the schema except where the case carries
   `condition_use.pressure` (an `if`/`then` on `LoadCase`). Every record stays
   closed; the schema stays structural.
@@ -821,7 +963,7 @@ any later one must transform it exactly or refuse.
 
 | Slice | Content | Checks and review gates |
 |---|---|---|
-| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
+| **S1. The 0.9.0 version step** | Every 0.9.0 member at once: schema, closed wire, validator, all document-level codes, interim solve refusals (`condition_use`, skew `direction`, `difference_basis`, and §2.4's members), axis-aligned `direction` on today's path, geometry operations carrying `condition_set_ref`, the dynamics unit families (§2.4), the version constants in all four implementations, the table, the ripple, reader classification, user guide, D3 and registration | `version_states.json` on the applier, src-tauri, TS and Python; refusal on every 0.8.0 §3.1 surface; ruling a2 and the recorded table basis; annotated equivalence (E5) and axis `direction` equivalence (twin without `direction`, byte for byte, both modes, including d = −e_x, d = (2,0,0), and d = (0,3,0) on a UX record, which solves as its UY twin); leaf comparison; literal guard; D3 `price`, `compare`, `generate --check`; AC-004 witnesses under the exclusive lane; native smoke compared with main; `piping-pytest`, `desktop-test`, affected crates, hosted `harness`. Independent review of the ripple and the registration. |
 | **S2. PF resolution** | Temperature, added weight and wind exposure resolution (§1.5); the correctly rounded ΔT; removal of `LOAD_CASE_CONDITION_USE_UNSUPPORTED`; retained-route placement or decline; wasm preview export | E1–E7; the Python reference table; D3 if D1-reachable code moves. The PR states explicitly that typed ΔT is unchanged (OC-5 as decided): a test shows every frozen reference (SHA-bound requests, the reader corpora, the retained successors and `expected.json`'s inputs) solves byte-identically before and after, and `expected.json` is not edited. Independent numerical scrutiny by a separate agent of ΔT, order and the twin. |
 | **S3a. Applier authoring** | §4.2's operations; reference guards; bend and split rules | One regression per operation and refusal; save and reopen byte for byte; contract corpus additions. Persistence review. |
 | **S3b. Desktop** | Condition-set manager, inspector field, bulk change, load-manager control, support direction, the run-sheet column (with B1's slice if B1 has not landed) | `desktop-test`; run-sheet inheritance and projection tests; native smoke where open/save changes. |
@@ -969,8 +1111,9 @@ counted on main `66a83a2b68`: each occurs once.
 
 ## 8. Coordination
 
-- **0.9.0 members.** C1's members, `direction` and `difference_basis` are the
-  only ones known. Any other lane that needs a member joins through Agent 0
+- **0.9.0 members.** C1's members, `direction`, `difference_basis` and the
+  members of §2.4 are the whole list, frozen by Agent 0 on 2026-10-31
+  (§2.4). Anything further is one planned 0.10.0 step. Any other lane that needs a member joins through Agent 0
   before S1's ripple; after it, the next member is a 0.10.0 step.
 - **Order.** S1 after #1678 in the pricing queue; the solver lane's 1b and skew
   kernel after S1; S2 after S1; S3a after S1 (it can run beside S2); S3b after
