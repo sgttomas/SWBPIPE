@@ -29,7 +29,7 @@ acceptance, issuance or release.
 | Member | Type | Required | Meaning |
 |---|---|---|---|
 | `kind` | enum `["hydrostatic"]` | yes | The case is a hydrostatic test. Results and reports mark it as a test case. |
-| `held_supports` | enum `["springs_and_constant_effort", "none"]` | yes | `springs_and_constant_effort`: every spring support (family `spring`, and `variable_spring_hanger` or `spring_hanger` hangers) and every constant-effort support acts in this case as a rigid restraint on the DOF it acts on, and its spring or constant force does not act. `none`: supports act as in every other case. |
+| `held_supports` | enum `["springs_and_constant_effort", "none"]` | yes | `springs_and_constant_effort`: every spring support (family `spring`, and `variable_spring_hanger` or `spring_hanger` hangers) and every constant-effort support acts in this case as a rigid restraint on the DOF it acts on, and neither its stiffness nor any force law acts: no constant force, and no variable-spring preload (DEL-04-11 D-3's F = F_cold − k·u; agreed with DEL-04-11, 2026-10-31). `none`: supports act as in every other case. |
 
 - Nothing is defaulted, and an authored `null` is refused (0.9.0 §1.2's rule).
   `held_supports` is entered, never inferred from `kind`; the desktop's
@@ -58,6 +58,20 @@ acceptance, issuance or release.
   self-weight staleness check (`inspect_applied_self_weight`), and the EX
   ledger entry (`analysis_state.load_sources`). EX does not provide
   per-case contents weight today (`exactReportLimitations.ts`).
+  **Planned shape** (to be designed and reviewed here; agreed in outline with
+  the dynamics lane, 2026-10-31, because modal's mass must equal a named
+  state's self-weight basis): one resolver,
+  `case_contents_density(model, case, pipe)`, giving condition key k's density
+  when the case's `condition_use.contents_density` names k, and the section's
+  otherwise. Both mass-per-length functions (`stable_mass_per_length`,
+  `exact_generation_mass_per_length`) read through it, the self-weight
+  dependency projection records the resolved value and its source, and modal
+  calls the same resolver and mass function for its named state, so the two
+  bases cannot drift. The resolver is a public crate function callable for any
+  named case id outside self-weight generation (DEL-04-09's state-case mass
+  calls it directly); until it lands, modal refuses a state case that resolves
+  condition contents, as the solve does. A condition's `added_weight` is a `weight` primitive,
+  not self-weight lineage.
 - **PF.** Whether PF admits a pressure-free test case (contents weight and held
   supports only) or refuses `test_condition` by name.
 - **Marking.** The result envelope's case record, the report's load-case

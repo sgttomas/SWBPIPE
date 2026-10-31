@@ -118,6 +118,12 @@ pub const EXACT: &str = "retained_source_blocks_exact_v1";
 pub const MAX_BASIS: &str = "retained_source_endpoint_normal_max_v1";
 pub const MAX_SIGN: &str = "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate";
 pub const SUPPORT_SIGN: &str = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate";
+/// Whether a model document's case carries model document 0.9.0's `condition_use`
+/// (DEL-02-01 Design `model-document-0.9.0.md` §3.7): the independent source readers
+/// decline it by name until S2 settles where the condition lowering sits.
+pub(crate) fn model_uses_conditions(model: &Value) -> bool {
+    model["load_cases"].as_array().is_some_and(|cases| cases.iter().any(|case| case.get("condition_use").is_some()))
+}
 fn require(ok: bool, detail: &str) -> Result<(), String> {
     if ok {
         Ok(())
@@ -1366,6 +1372,8 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
         if let Some(invocation) = actual_invocation {
             let model = &invocation["request"]["model"];
             require(model["schema_version"] == "0.8.0", "ACTUAL_MODEL_SCHEMA")?;
+            // Model document 0.9.0 (§3.7): a case's `condition_use` is declined by name.
+            require(!model_uses_conditions(model), "ACTUAL_CONDITION_USE")?;
             require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
         }
     }
@@ -1629,5 +1637,28 @@ mod review_repair_tests {
                 Some(format!("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:{stage}"))
             );
         }
+    }
+
+    /// Model document 0.9.0 (§3.7): an invocation whose model carries a case's
+    /// `condition_use` is declined by name before any source check.
+    #[test]
+    fn a_case_condition_use_is_declined_by_name() {
+        let model = |case: serde_json::Value| serde_json::json!({"load_cases": [{"id": "a"}, case]});
+        assert!(!super::model_uses_conditions(&model(serde_json::json!({"id": "b"}))));
+        assert!(super::model_uses_conditions(&model(serde_json::json!({"id": "b", "condition_use": {"temperature": "OPE"}}))));
+        assert!(super::model_uses_conditions(&model(serde_json::json!({"id": "b", "condition_use": null}))));
+        // Through the reader: the n05 statement with its own invocation, whose case now uses conditions.
+        let source: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+        ))
+        .unwrap();
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let mut invocation = serde_json::json!({"request": request, "solver_mode": "sparse_interactive"});
+        assert!(super::validate(&source, Some(&invocation)).is_ok());
+        invocation["request"]["model"]["load_cases"][0]["condition_use"] = serde_json::json!({"temperature": "OPE"});
+        assert_eq!(super::validate(&source, Some(&invocation)), Err("PHYSICS_SOURCE_ACTUAL_CONDITION_USE".into()));
     }
 }

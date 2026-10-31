@@ -905,6 +905,17 @@ D3 is touched; AC-004's text is not.
 
 ## 4. Run sheet and desktop authoring
 
+**Split between lanes (agreed between the load-cases and authoring lanes,
+2026-10-31; placed by Agent 0, 2026-10-31).** S3a, the applier operations of §4.2
+with their refusals, guards and contract corpus, admitted in atomic
+`apply_operation_batch` batches with per-step refusals, and a wasm export of
+the engine's per-pipe condition resolution for the load manager's preview, is
+the load-cases lane's. S3b, every desktop surface of §4.1 and §4.2 (the
+run-sheet column, the condition-set manager, inspector and bulk-change fields,
+support Direction, the load manager's Conditions control and the combination
+editor with its templates), is the authoring lane's (DEL-07-02, DEL-07-03).
+Each reviews the other's side of the operation payloads before they freeze.
+
 ### 4.1 The run sheet's Condition set column (O7)
 
 - **Column.** "Condition set": an existing set id, chosen from the model's sets.

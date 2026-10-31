@@ -81,7 +81,10 @@ fn validate_connected_input_contracts(model: &PreviewModel, diagnostics: &mut Ve
         // Match build_model: constant-effort records never contribute stiffness.
         let spring_family = !constant_effort
             && (support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support));
-        if let Some(stiffness) = support_stiffness_input(support) {
+        // Model document 0.9.0 (§2.4, r2 F5): an explicit snubber's stiffness is dynamic, and
+        // its own rules are `document_members`'. An inferred family is never a snubber.
+        let snubber = support.family.as_deref() == Some("snubber");
+        if let Some(stiffness) = support_stiffness_input(support).filter(|_| !snubber) {
             if !spring_family {
                 diagnostics.push(diag(
                     &format!("diagnostic:support:{}:unused-stiffness", stable_suffix(&support.id)),
@@ -1900,13 +1903,11 @@ fn validate_combinations(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>
 
     for combination in &model.combinations {
         match combination.basis.as_str() {
-            "mechanics" => validate_mechanics_combination(combination, &load_case_ids, diagnostics),
-            "result_state_subtraction" => {
-                validate_subtraction_combination(combination, &load_case_ids, diagnostics)
-            }
-            "range_envelope" => {
-                validate_range_envelope_combination(combination, &load_case_ids, diagnostics)
-            }
+            // Model document 0.9.0 (absolute-sum-srss §2): the unsigned bases take the
+            // mechanics shape; the solve withholds them in S1 after this validation.
+            "mechanics" | "absolute_sum" | "srss" => validate_mechanics_combination(combination, &load_case_ids, diagnostics),
+            "result_state_subtraction" => validate_subtraction_combination(combination, diagnostics),
+            "range_envelope" => validate_range_envelope_combination(combination, diagnostics),
             _ => {
                 diagnostics.push(diag(
                     &format!(
@@ -1915,7 +1916,7 @@ fn validate_combinations(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>
                     ),
                     "LOAD_COMBINATION_BASIS_UNSUPPORTED",
                     "blocking",
-                    "load combination basis must be one of the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`; code/rule and owner-basis combinations remain private/deferred",
+                    "load combination basis must be one of the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`, `absolute_sum`, `srss`; code/rule and owner-basis combinations remain private/deferred",
                     vec![combination.id.clone(), combination.basis.clone()],
                 ));
             }
@@ -1984,16 +1985,35 @@ fn validate_mechanics_combination(
             vec![combination.id.clone()],
         ));
     }
+    // Model document 0.9.0: a term names exactly one of a load case and a combination.
+    if combination
+        .terms
+        .iter()
+        .any(|term| term.authored_load_case() == term.combination.is_some())
+    {
+        diagnostics.push(combination_shape_diag(
+            combination,
+            "each combination term carries exactly one of load_case and combination",
+        ));
+        return;
+    }
+    fn operand(term: &crate::PreviewCombinationTerm) -> (bool, &str) {
+        match &term.combination {
+            Some(id) => (true, id.as_str()),
+            None => (false, term.load_case.as_str()),
+        }
+    }
     let mut seen = HashSet::new();
     for (index, term) in combination.terms.iter().enumerate() {
+        let (_, operand_id) = operand(term);
         // The load-case algebra refuses a repeated operand, which would leave
         // every combined row unevaluated; block it by name here instead, once
         // per repeated case (at its second occurrence), so the diagnostic id
         // stays unique however often the case repeats.
-        if !seen.insert(term.load_case.as_str()) {
+        if !seen.insert(operand(term)) {
             let earlier = combination.terms[..index]
                 .iter()
-                .filter(|other| other.load_case == term.load_case)
+                .filter(|other| operand(other) == operand(term))
                 .count();
             if earlier != 1 {
                 continue;
@@ -2002,12 +2022,12 @@ fn validate_mechanics_combination(
                 &format!(
                     "diagnostic:combination:{}:{}:duplicate",
                     stable_suffix(&combination.id),
-                    stable_suffix(&term.load_case)
+                    stable_suffix(operand_id)
                 ),
                 "LOAD_COMBINATION_DUPLICATE_TERM",
                 "blocking",
                 "mechanics combination terms must name each load case once; a duplicate term is blocked",
-                vec![combination.id.clone(), term.load_case.clone()],
+                vec![combination.id.clone(), operand_id.to_string()],
             ));
             continue;
         }
@@ -2016,28 +2036,28 @@ fn validate_mechanics_combination(
                 &format!(
                     "diagnostic:combination:{}:{}:factor",
                     stable_suffix(&combination.id),
-                    stable_suffix(&term.load_case)
+                    stable_suffix(operand_id)
                 ),
                 "LOAD_COMBINATION_FACTOR_INVALID",
                 "blocking",
                 "load combination factor must be finite and explicitly user supplied",
-                vec![combination.id.clone(), term.load_case.clone()],
+                vec![combination.id.clone(), operand_id.to_string()],
             ));
         }
-        expect_known_combination_load_case(
-            combination,
-            load_case_ids,
-            &term.load_case,
-            diagnostics,
-        );
+        // A term's `combination` is judged with the document's other operands
+        // (`document_members`, LOAD_COMBINATION_OPERAND_UNKNOWN).
+        if term.combination.is_none() {
+            expect_known_combination_load_case(
+                combination,
+                load_case_ids,
+                &term.load_case,
+                diagnostics,
+            );
+        }
     }
 }
 
-fn validate_subtraction_combination(
-    combination: &PreviewCombination,
-    load_case_ids: &HashSet<&str>,
-    diagnostics: &mut Vec<Diagnostic>,
-) {
+fn validate_subtraction_combination(combination: &PreviewCombination, diagnostics: &mut Vec<Diagnostic>) {
     if !combination.terms.is_empty()
         || combination.operand_ids.is_some()
         || combination.mode.is_some()
@@ -2069,15 +2089,12 @@ fn validate_subtraction_combination(
             vec![combination.id.clone(), minuend.to_string()],
         ));
     }
-    expect_known_combination_load_case(combination, load_case_ids, minuend, diagnostics);
-    expect_known_combination_load_case(combination, load_case_ids, subtrahend, diagnostics);
+    // Model document 0.9.0 (absolute-sum-srss §2): an operand names a load case, or a
+    // combination when no load case has the id; one naming neither is judged with the
+    // document's other operands (`document_members`, LOAD_COMBINATION_OPERAND_UNKNOWN).
 }
 
-fn validate_range_envelope_combination(
-    combination: &PreviewCombination,
-    load_case_ids: &HashSet<&str>,
-    diagnostics: &mut Vec<Diagnostic>,
-) {
+fn validate_range_envelope_combination(combination: &PreviewCombination, diagnostics: &mut Vec<Diagnostic>) {
     if !combination.terms.is_empty()
         || combination.minuend_id.is_some()
         || combination.subtrahend_id.is_some()
@@ -2139,8 +2156,8 @@ fn validate_range_envelope_combination(
             ));
             continue;
         }
-        expect_known_combination_load_case(combination, load_case_ids, operand_id, diagnostics);
     }
+    // Unknown operands: `document_members` (LOAD_COMBINATION_OPERAND_UNKNOWN).
 }
 
 /// T4-U4b (model 0.6.0; DEL-04-07 Design `u4b-u5b-implementation.md` §2.6):

@@ -5015,6 +5015,10 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         "G8",
         "INVOCATION_MISMATCH",
     )?;
+    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7): until S2
+    // settles where the condition lowering sits for the retained routes, this reader
+    // declines an invocation whose model carries a case's `condition_use`, by name.
+    need(!crate::physics_source::model_uses_conditions(model), "G8", "CONDITION_USE_UNSUPPORTED")?;
     need(
         // B7a: the producer's pressure-free branch is the current version
         // without a contract (`model_format::is_pressure_free`); 0.4.0 stays

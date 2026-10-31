@@ -190,12 +190,16 @@ def test_known_vocabularies():
     assert set(d["SupportFamily"]["enum"]) == {
         "anchor", "guide", "line_stop", "vertical_support", "spring", "variable_spring_hanger",
         "spring_hanger", "constant_effort_support", "nonlinear",
+        # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4): the dynamics lane's snubber.
+        "snubber",
     }
     assert {"UX", "UY", "UZ", "RX", "RY", "RZ"} <= set(d["Dof"]["enum"])
     assert {"weight", "distributed_force", "thermal", "concentrated_force", "concentrated_moment",
             "imposed_displacement", "pressure"} <= set(d["LoadCategory"]["enum"])
     assert {"global_x", "global_y", "global_z", "rotation_x", "rotation_y", "rotation_z"} <= set(d["LoadDirection"]["enum"])
-    assert d["Combination"]["properties"]["basis"]["enum"] == ["mechanics", "result_state_subtraction", "range_envelope"]
+    assert d["Combination"]["properties"]["basis"]["enum"] == ["mechanics", "result_state_subtraction", "range_envelope",
+                                                                # Model document 0.9.0 (§2.4; RT-A4).
+                                                                "absolute_sum", "srss"]
     assert d["Combination"]["properties"]["mode"]["enum"] == ["min", "max", "min_abs", "max_abs"]
     assert {"one_way", "gap", "lift_off", "friction"} <= set(d["NonlinearSupport"]["properties"]["behavior"]["enum"])
     contract = d["PressureContract"]

@@ -195,6 +195,12 @@ def _schema_shape(value, rule, schema, resolved=False):
 
 
 
+def model_uses_conditions(model: Any) -> bool:
+    """Whether a case of the model carries model document 0.9.0's condition_use (Rust `model_uses_conditions`)."""
+    cases = model.get("load_cases") if isinstance(model, Mapping) else None
+    return isinstance(cases, list) and any(isinstance(case, Mapping) and "condition_use" in case for case in cases)
+
+
 def _require(condition: Any, detail: str) -> None:
     if not condition:
         raise ValueError("PHYSICS_SOURCE_" + detail)
@@ -682,6 +688,9 @@ def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mappin
         if actual_invocation is not None:
             model = _get(_get(actual_invocation, "request"), "model")
             _require(_get(model, "schema_version") == MODEL_VERSION, "ACTUAL_MODEL_SCHEMA")
+            # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.7): a case's condition_use is
+            # declined by name, as the Rust reader does.
+            _require(not model_uses_conditions(model), "ACTUAL_CONDITION_USE")
             # The load/reference-state group keys on its authored presence, never on a version.
             _require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")
         if resolved:

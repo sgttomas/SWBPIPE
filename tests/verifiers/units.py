@@ -103,6 +103,17 @@ CATALOG = (
     Unit("kg/m", "mass_per_length", 1.0),
     Unit("lb/ft", "mass_per_length", POUND_MASS / FOOT),
     Unit("m^3/m", "volume_per_length", 1.0),
+    Unit("Hz", "frequency", 1.0),
+    Unit("rad/s", "angular_frequency", 1.0),
+    Unit("rad/m", "rotation_per_length", 1.0),
+    Unit("rad/mm", "rotation_per_length", 1_000.0),
+    Unit("rad/in", "rotation_per_length", 1.0 / INCH),
+    Unit("m/rad", "length_per_rotation", 1.0),
+    Unit("mm/rad", "length_per_rotation", 0.001),
+    Unit("in/rad", "length_per_rotation", INCH),
+    Unit("kg*m^2/rad^2", "rotational_generalized_mass", 1.0),
+    Unit("lb*in^2/rad^2", "rotational_generalized_mass", POUND_MASS * SQUARE_INCH),
+    Unit("lb*ft^2/rad^2", "rotational_generalized_mass", POUND_MASS * (FOOT * FOOT)),
 )
 
 # canonical_unit(dimension), as a catalog entry; TBD has none.
@@ -120,6 +131,9 @@ CANONICAL = {
     "thermal_expansion_coefficient": ("1/K", "thermal_expansion_coefficient"),
     "second_moment_area": ("m^4", "second_moment_area"), "section_modulus": ("m^3", "section_modulus"),
     "mass_per_length": ("kg/m", "mass_per_length"), "volume_per_length": ("m^3/m", "volume_per_length"),
+    "frequency": ("Hz", "frequency"), "angular_frequency": ("rad/s", "angular_frequency"),
+    "rotation_per_length": ("rad/m", "rotation_per_length"), "length_per_rotation": ("m/rad", "length_per_rotation"),
+    "rotational_generalized_mass": ("kg*m^2/rad^2", "rotational_generalized_mass"),
 }
 DIMENSIONS = frozenset(CANONICAL) | {"TBD"}
 # unit_supports_dimension: a unit of the first dimension serves the second.
