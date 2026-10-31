@@ -68,8 +68,10 @@ needs:
     `materials_for_modulus_basis_observed`, chooses its path by `PreviewSolverMode`, and sizes its dense
     guard against the dense scrutiny ceiling (`DENSE_SCRUTINY_CEILING_BYTES`). It admits both routes:
     on EX, the same assembly with the D-5 nominal-wall sections and no load-dependent stiffness, and the
-    families EX admits as RT-A3 extends them. Load/reference-state documents and Timoshenko straights on
-    either route are refused by name (Design §1.2, D-r).
+    families EX admits as RT-A3 extends them. On a load/reference-state document it resolves the named
+    state case with DEL-04-07's `case_state::resolve::resolve_case` and builds with the resolved per-member
+    pairs (`build_model_for_members`), as the static path does (D-w). Timoshenko straights on either route
+    are refused by name (Design §1.2, D-r).
   gating: true
   evidence: core/product_physics/src/lib.rs
 - from: DEL-05-01
@@ -78,8 +80,11 @@ needs:
     length (`stable_mass_per_length`: on PF `STABLE_MASS_METHOD` `source_od_effective_wall_areas/v1`, on EX
     `EXACT_MASS_METHOD` `source_od_nominal_wall_pressure_bore_areas/v1`) and the
     component eligibility function (`component_weights`), both exposed `pub(crate)` without change of
-    meaning. It runs the generator in inspection mode (`generate_operations(…, true)`) for the identity
-    check, and reads applied self-weight evidence (`inspect_applied_self_weight`, the component
+    meaning. For the identity check it adds, in M1a, one `pub(crate)` inspection entry that evaluates the
+    generator's loads for a named source case of the intact model, keeping that case's condition context and
+    writing under scratch identities, without clearing or adding cases (`generate_operations(…, true)` refuses
+    an existing case id and its lineage caller clears cases); on condition contents it reads the load-case
+    lane's shared `case_contents_density` once RT-A6 lands, and until then such a state is refused. It and reads applied self-weight evidence (`inspect_applied_self_weight`, the component
     primitives' `normalized_acceleration_m_per_s2`) for the acceleration agreement (Design §2.3, §2.5).
   gating: true
   evidence: core/product_physics/src/self_weight.rs

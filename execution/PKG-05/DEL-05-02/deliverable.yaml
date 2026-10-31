@@ -265,6 +265,7 @@ checks:
 # Rust (hosted numerical selection).
 - core/loads/load_case_algebra/src/lib.rs
 - core/loads/load_case_algebra/src/s11k_tests.rs
+- core/loads/load_case_algebra/src/unsigned_tests.rs
 - core/reporting/result_export/tests/retained_precision_contract.rs
 - core/reporting/result_export/tests/retained_precision_carriers.rs
 - core/reporting/result_export/tests/base_reader_outcomes.rs
