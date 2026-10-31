@@ -28,7 +28,12 @@ NONLINEAR_INTEGRATION = ROOT / "core" / "solver" / "nonlinear_integration" / "sr
 SIZES = (250, 500, 1000, 1500, 2000)
 # The model document version whose shapes rack_model.py was written against. When the current version moves, the
 # test below fails on purpose: the generator needs a re-check, not only a new version token.
-RACK_SHAPES_VERSION = "0.8.0"
+# S1 re-check: the explicit per-case primitives/pressure regions and the labelled
+# interim HYD/subtraction forms remain admitted at 0.9.0. Condition resolution,
+# test_condition, unsigned/nested combinations and difference_basis still await
+# their owning slices; the ledger retains those limits. All three small racks
+# solve with the integrated 0.9.0 runner; the hashes were regenerated from it.
+RACK_SHAPES_VERSION = "0.9.0"
 
 
 def load_generator():
