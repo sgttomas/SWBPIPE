@@ -797,7 +797,7 @@ pub(crate) enum WorkerOutcome {
     Failed(String),
     Refused(ResourceRefusal),
     /// The result's announced length (`RSLT {R}`) was refused by
-    /// [`SupervisorHooks::result_announced`]: the worker was killed before a
+    /// [`SupervisorHooks::result_limit`]: the worker was killed before a
     /// result lease was admitted or any result byte was read.
     ResultTooLarge { result_bytes: u64, limit_bytes: u64 },
     /// Killed on request (cancellation or session reset).
