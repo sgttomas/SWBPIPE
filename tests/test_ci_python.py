@@ -155,7 +155,7 @@ def test_verifier_edits_select_their_importing_tests():
             'tests/test_rust_reader.py'} <= chosen
     # Transitive: this test imports only `reader_verdict` and `source_blocks`; `source_blocks` imports `.canonical_json`.
     assert 'tests/test_base_reader_verifier.py' in selected('tests/verifiers/canonical_json.py')
-    assert 'tests/test_retained_precision_si_first.py' not in selected('tests/verifiers/reader_verdict.py')
+    assert 'tests/test_retained_precision_si_first.py' not in by_rules('tests/verifiers/reader_verdict.py')
     assert set(selected('tests/verifiers/__init__.py')) >= chosen
 
 
@@ -190,7 +190,6 @@ def test_unrelated_changes_select_no_verifier_importers():
     family = {path.relative_to(PROJECT).as_posix() for pattern in ci.FAMILIES['qualification'] for path in PROJECT.glob(pattern)}
     expected = set(ci.BASE) | family | set(ci.test_tree_importers(PROJECT, [support])) | readers(support)
     assert set(selected(support)) == expected
-    assert verifier - expected
 
 
 def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes():
@@ -204,7 +203,7 @@ def test_supplier_bundle_inputs_keep_preparation_and_canonical_build_checks():
     for path in ci.AGENT_SUPPLIER_BUNDLE_INPUTS:
         assert {ci.AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py'} <= set(selected(path)), path
     assert ci.AGENT_SUPPLIER_BUNDLE_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
-    assert ci.AGENT_SUPPLIER_BUNDLE_TEST not in selected('core/security/redaction/controls.py')
+    assert ci.AGENT_SUPPLIER_BUNDLE_TEST not in by_rules('core/security/redaction/controls.py')
 
 
 def test_repository_numerical_routing_checks_are_not_duplicated_in_product_job():
@@ -491,3 +490,34 @@ def test_git_pathspecs_and_unshown_scans_are_derived_or_declared():
                 for local in ci.python_test_reads._closure(PROJECT, test)
                 if ci.python_test_reads._reader(PROJECT, local).declared() is not None}
     assert {'tests/test_caepipe_correlation.py', 'tools/retained_pricing/price.py'} <= declared
+
+
+# Review of #28, round 3 (head 870bbff).
+
+def test_an_imported_helpers_input_reads_select_the_test():
+    """Finding 1: the preview tables both tests open through imported helpers (traced: `rp._preview_statics()` and
+    the u4b corpus's own table reads) select them."""
+    tables = ('fixtures/results/semantic_contract_v0_3_preview_physics_2.json',
+              'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json',
+              'fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json')
+    for test in ('tests/test_retained_precision_b2.py', 'tests/test_u4b_retained_tau.py'):
+        for path in tables:
+            assert test in selected(path), (test, path)
+
+
+def test_too_many_pattern_forms_collapse_to_a_covering_prefix():
+    """Finding 2: `a{a}z/a{b}z/...` past the alternatives cap is every path under its known directories, never only
+    the first forms."""
+    reads = ci.python_test_reads
+    text = 'fixtures/' + '/'.join('a' + reads.SLOT + 'z' for _ in range(5)) + '/x'
+    roots = reads.to_roots(text)
+    for path in ('fixtures/aqz/arz/asz/atz/auz/x', 'fixtures/aq/r/z/a1z/a2z/a3z/a4z/x', 'fixtures/a1z/a2z/a3z/a4z/aq/r/z/x'):
+        assert any(reads.root_matches(path, root) for root in roots), path
+
+
+def test_a_printf_specification_is_consumed_whole(tmp_path):
+    """Finding 3: `%03d` is one unknown slot, not `%0` followed by a literal `3d`."""
+    reads = ci.python_test_reads
+    (tmp_path / 'm.py').write_text('from pathlib import Path\nPath("fixtures/case_%03d.json" % 7).read_text()\n')
+    roots = {root for text in reads._Reader(tmp_path, 'm.py').chain_paths() for root in reads.to_roots(text)}
+    assert any(reads.root_matches('fixtures/case_007.json', root) for root in roots), roots

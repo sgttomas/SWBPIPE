@@ -152,6 +152,7 @@
         "tools/agent_supplier_bundle_test.py",
         "tools/release/build_signed_app.py",
         "tests/test_release_signed_build_script.py",
+        "docs/**",
         "software-workflow.json"
       ],
       "checks": [
@@ -251,6 +252,7 @@
     },
     {
       "paths": [
+        "_harness/**",
         "api/**",
         "apps/desktop/**",
         "docs/**",
@@ -271,14 +273,12 @@
     {
       "paths": [
         "core/**",
-        "tools/retained_pricing/**",
-        "tools/repository_history.py",
+        "tools/**",
         "fixtures/product_preview/pressure_source/**",
         "fixtures/results/**",
         "schemas/load_reference_state.schema.json",
         "schemas/physics_source_recovery.schema.json",
         "schemas/retained_precision_mp_v2.schema.json",
-        "tools/ci/python_test_reads.py",
         "software-workflow.json"
       ],
       "checks": [
@@ -287,6 +287,7 @@
     },
     {
       "paths": [
+        "core/**",
         "validation/benchmarks/numerical_integrity/**",
         "validation/benchmarks/numerical_robustness/runner/**",
         "tools/ci/python_test_reads.py",
