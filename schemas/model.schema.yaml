@@ -2721,8 +2721,8 @@
         "variable_spring_hanger",
         "spring_hanger",
         "constant_effort_support",
-        "snubber",
-        "nonlinear"
+        "nonlinear",
+        "snubber"
       ]
     },
     "SupportStiffness": {
