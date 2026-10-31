@@ -185,12 +185,20 @@ const SHEAR_Z: usize = 5;
 /// of that member (`bend_pressure::append_arc_pressure_results`), so when no
 /// row of the member precedes its start, its first matching row is its first
 /// matching row from the start on. When one does precede it (a repeated
-/// element id), the lookup scans every row, as before.
+/// element id), the lookup scans every row, as before. Entities are held by
+/// a hash of their id; a collision only sends a member to the full scan.
 #[derive(Debug, Default)]
 pub(crate) struct PublishedScope {
     synced: usize,
-    entities: HashSet<String>,
+    entities: HashSet<u64>,
     stale: bool,
+}
+
+fn entity_hash(id: &str) -> u64 {
+    use std::hash::{DefaultHasher, Hash, Hasher};
+    let mut hasher = DefaultHasher::new();
+    id.hash(&mut hasher);
+    hasher.finish()
 }
 
 impl PublishedScope {
@@ -203,13 +211,9 @@ impl PublishedScope {
             self.synced = 0;
             self.stale = false;
         }
-        for row in &results[self.synced..] {
-            if !self.entities.contains(&row.entity_ref) {
-                self.entities.insert(row.entity_ref.clone());
-            }
-        }
+        self.entities.extend(results[self.synced..].iter().map(|row| entity_hash(&row.entity_ref)));
         self.synced = results.len();
-        if self.entities.contains(pipe) {
+        if self.entities.contains(&entity_hash(pipe)) {
             // The member may remove rows before `synced`; rebuild next time.
             self.stale = true;
             None
