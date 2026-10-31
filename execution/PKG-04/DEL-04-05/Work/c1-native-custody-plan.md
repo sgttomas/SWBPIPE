@@ -249,6 +249,11 @@ byte-identical records. The TS builder stays as the oracle in tests until C2.
   and appears in no user-facing text.
 - The interim 64 MiB refusal (#51) becomes "over the worker budget" only for the S path. It
   stays for the C2-pending consumers (slice 4).
+- The window reports the native verdict's own working memory (the hashed id set, the
+  evidence indexes, the semantics batch) as a measured peak, separately from the leased
+  parse (Agent 0, 2026-10-31). If it is a material share of the app peak, C1 gains a bound
+  or a lease for it before the PR leaves draft, and the proposed DEL-04-07 note does not
+  call it an unpriced residual. That note goes to the owner only after this measurement.
 
 ## 3. Which webview features read `result.results`, and their replacement
 
