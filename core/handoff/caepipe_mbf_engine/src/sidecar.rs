@@ -12,8 +12,11 @@ use sha2::{Digest, Sha256};
 
 pub const KEYED_MAPS: [&str; 7] =
     ["node_map", "element_map", "support_map", "load_case_map", "material_map", "section_map", "load_map"];
-pub const SIDECAR_FORMAT: i64 = 3;
-pub const SIDECAR_FORMATS: [i64; 2] = [2, 3];
+/// The current writer's format: 4, which is 3 with `section_map` (Design §15, Format 4: section identities).
+pub const SIDECAR_FORMAT: i64 = 4;
+pub const SIDECAR_FORMATS: [i64; 3] = [2, 3, SIDECAR_FORMAT];
+/// The formats that carry the self-digest and may record springs.
+pub const DIGESTED_FORMATS: [i64; 2] = [3, SIDECAR_FORMAT];
 pub const SIDECAR_DIGEST_KEY: &str = "sidecar_sha256";
 pub const DOFS: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 pub const RIGID_FAMILIES: [&str; 4] = ["anchor", "guide", "line_stop", "vertical_support"];
@@ -240,6 +243,8 @@ enum F {
     Support,
     Material,
     Section,
+    SectionIdentity,
+    TextOrNull,
     Target,
     Load,
     Contract,
@@ -401,6 +406,12 @@ impl SidecarParser {
                 ],
                 &[],
             ),
+            // Format 4: the library section a PIPE record's pipes reference, or null for none (Design §15).
+            F::SectionIdentity => self.record(value, path, &[("swbpipe_section", F::TextOrNull)], &[]),
+            F::TextOrNull => match value {
+                Value::Null => Value::Null,
+                _ => self.parse_field(&F::Text, value, path),
+            },
             F::Target => {
                 if let Some(dict) = value.as_dict() {
                     let keys: std::collections::BTreeSet<&str> = dict.keys().map(String::as_str).collect();
@@ -449,7 +460,7 @@ impl SidecarParser {
             }
             F::Format => match value {
                 Value::Int(number) if SIDECAR_FORMATS.iter().any(|format| &BigInt::from(*format) == number) => value.clone(),
-                _ => self.fail(path, "must be 2 or 3, a format this importer reads (or absent, for a legacy sidecar)"),
+                _ => self.fail(path, "must be 2 or 3 or 4, a format this importer reads (or absent, for a legacy sidecar)"),
             },
             F::Items(item, length, nonempty) => {
                 let Some(items) = value.as_list() else { return self.fail(path, "must be a list") };
@@ -512,7 +523,7 @@ impl SidecarParser {
         let restrained = ("restrained", F::Items(Box::new(choice(&DOFS)), None, true));
         let entry = if self.current {
             let mut families: Vec<&'static str> = RIGID_FAMILIES.to_vec();
-            if self.format_number == Some(SIDECAR_FORMAT) {
+            if self.format_number.is_some_and(|number| DIGESTED_FORMATS.contains(&number)) {
                 families.push(SPRING_FAMILY);
             }
             self.record(
@@ -621,7 +632,7 @@ impl SidecarParser {
         if !self.current {
             return self.fail(
                 path,
-                "is not a field main's tranche-1 writer records; a sidecar with pressure has sidecar_format 2 or 3",
+                "is not a field main's tranche-1 writer records; a sidecar with pressure has sidecar_format 2 or 3 or 4",
             );
         }
         let entry = self.record(
@@ -673,8 +684,11 @@ impl SidecarParser {
             let mut fields: Vec<(&str, F)> = maps.iter().filter(|(name, _)| *name != "section_map").cloned().collect();
             fields.push(("mbf_sha256", F::Digest));
             fields.push(("sidecar_format", F::Format));
-            if matches!(format_value, Some(Value::Int(number)) if number == &BigInt::from(SIDECAR_FORMAT)) {
+            if self.format_number.is_some_and(|number| DIGESTED_FORMATS.contains(&number)) {
                 fields.push((SIDECAR_DIGEST_KEY, F::Digest));
+            }
+            if self.format_number == Some(SIDECAR_FORMAT) {
+                fields.push(("section_map", F::Mapping(Box::new(F::SectionIdentity))));
             }
             self.record(sidecar, "", &fields, &[])
         } else {
@@ -748,6 +762,20 @@ impl SidecarParser {
                     failures.push((format!("node_map[{swb_id}]"), format!("names CAEPIPE node {name} as {previous} does; it must be one-to-one")));
                 }
                 names.insert(name, swb_id.clone());
+            }
+        }
+        if self.format_number == Some(SIDECAR_FORMAT) {
+            let mut sections: crate::value::OMap<String, String> = crate::value::OMap::new();
+            for (name, entry) in out.get("section_map").and_then(Value::as_dict).into_iter().flat_map(|map| map.iter()) {
+                let Some(swb_id) = entry.get("swbpipe_section").and_then(Value::as_str) else { continue };
+                if let Some(previous) = sections.get(&swb_id.to_string()) {
+                    failures.push((
+                        format!("section_map[{name}].swbpipe_section"),
+                        format!("names section {swb_id} as PIPE record {previous} does; it must be one-to-one"),
+                    ));
+                } else {
+                    sections.insert(swb_id.to_string(), name.clone());
+                }
             }
         }
         for (path, reason) in failures {

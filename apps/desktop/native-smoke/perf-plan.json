@@ -1,0 +1,21 @@
+{
+  "schema": "swbpipe.desktop-perf-plan/v1",
+  "budget_s": 880,
+  "sample_interval_ms": 200,
+  "timeouts": { "start_ms": 60000, "open_ms": 90000, "record_ms": 150000, "save_ms": 150000 },
+  "runs": [
+    {"id": "injected-linear-ex-n0082", "mode": "injected", "model": "linear-ex-n0082.json", "result": "linear-ex-n0082.result.json", "estimate_s": 40, "timeout_s": 120, "paint_ms": 60000},
+    {"id": "native-linear-ex-n0082", "mode": "native", "model": "linear-ex-n0082.json", "estimate_s": 45, "timeout_s": 120, "paint_ms": 90000},
+    {"id": "injected-linear-ex-n0250", "mode": "injected", "model": "linear-ex-n0250.json", "result": "linear-ex-n0250.result.json", "estimate_s": 130, "timeout_s": 130, "paint_ms": 110000},
+    {"id": "injected-linear-ex-n0500", "mode": "injected", "model": "linear-ex-n0500.json", "result": "linear-ex-n0500.result.json", "estimate_s": 130, "timeout_s": 130, "paint_ms": 110000},
+    {"id": "injected-linear-ex-n1000", "mode": "injected", "model": "linear-ex-n1000.json", "result": "linear-ex-n1000.result.json", "estimate_s": 130, "timeout_s": 130, "paint_ms": 110000},
+    {"id": "injected-linear-ex-n2000", "mode": "injected", "model": "linear-ex-n2000.json", "result": "linear-ex-n2000.result.json", "estimate_s": 130, "timeout_s": 130, "paint_ms": 110000},
+    {"id": "native-linear-ex-n0250", "mode": "native", "model": "linear-ex-n0250.json", "estimate_s": 150, "timeout_s": 150, "paint_ms": 130000},
+    {"id": "native-linear-ex-n0500", "mode": "native", "model": "linear-ex-n0500.json", "estimate_s": 170, "timeout_s": 170, "paint_ms": 150000}
+  ],
+  "subsets": {
+    "functional": ["injected-linear-ex-n0082", "native-linear-ex-n0082"],
+    "window": ["injected-linear-ex-n0250", "injected-linear-ex-n0500", "injected-linear-ex-n1000", "injected-linear-ex-n2000", "native-linear-ex-n0250", "native-linear-ex-n0500"],
+    "injected": ["injected-linear-ex-n0250", "injected-linear-ex-n0500", "injected-linear-ex-n1000", "injected-linear-ex-n2000"]
+  }
+}

@@ -4155,3 +4155,87 @@ fn the_run_comparison_command_answers_lengths_only_and_releases_every_lease() {
         assert_eq!(pool.pool_status().reserved_bytes, 0, "{code}");
     }
 }
+
+/// RT-U4: a recorded run of `PROJECT` whose stored result text is padded by
+/// `result_pad` spaces (stored as given; its checked hash is unchanged) and
+/// whose record's run name is longer by `name_pad` characters (resealed), so
+/// each stored column's length varies independently of the other. Returns the
+/// store, the recording id and the stored lengths of the result and the record.
+fn sized_run(label: &str, result_pad: usize, name_pad: usize) -> (PathBuf, String, u64, u64) {
+    let path = store_with_project(label);
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "000000000000000000000000000000c1", 1_000);
+    let mut submitted = request(&solved, "Run");
+    submitted.result_json = submitted.result_json.replacen("{ ", &format!("{{{}", " ".repeat(result_pad + 1)), 1);
+    let name = format!("{}{}", submitted.run_record["analysis_run"]["run_name"].as_str().unwrap(), "n".repeat(name_pad));
+    submitted.run_record["analysis_run"]["run_name"] = json!(name);
+    reseal(&mut submitted.run_record);
+    let id = record(&path, submitted, T0).unwrap().run.recording_id;
+    let (result, run_record): (i64, i64) = crate::open_project_store(&path).unwrap().0
+        .query_row("SELECT octet_length(result_json), octet_length(run_record_json) FROM analysis_runs WHERE recording_id = ?1", params![id], |row| Ok((row.get(0)?, row.get(1)?)))
+        .unwrap();
+    (path, id, result as u64, run_record as u64)
+}
+
+/// The refusal of a recorded run whose stored `what` is `bytes` long, above `limit`.
+fn undisplayable(id: &str, what: &str, bytes: u64, limit: u64) -> String {
+    let cause = if what == "stored result" {
+        "the per-station result detail of that run is too large for the desktop to display"
+    } else {
+        "its per-row result references, which grow with the result, are too large for the desktop to display"
+    };
+    format!(
+        "STORED-RESULT-TOO-LARGE: recorded run `{id}`'s {what} is {}, above the desktop's display limit of {}, so it was not read: {cause}. The recorded run is kept unchanged. A solve covers every load case and combination in the model, so for a new run under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.",
+        crate::solve_jobs::display_size(bytes),
+        crate::solve_jobs::display_size(limit)
+    )
+}
+
+/// The recorded-run read (Check record, and each side of a comparison) and the
+/// comparison's admission at limits one byte over, at and one byte under the
+/// length of `column`; returns nothing, asserting the stored run unchanged, its
+/// stored columns byte for byte.
+fn assert_bounded_by(path: &Path, id: &str, what: &str, length: u64) {
+    let read = |limit: u64| read_run_in_store_within(path, PROJECT, id, &UnmeteredReadMemory, limit).and_then(Metered::into_unreserved);
+    let admit = |limit: u64| admit_run_comparison_in_store_within(path, PROJECT, &[id.to_string()], Some(0), u64::MAX, &UnmeteredReadMemory, limit);
+    let stored = read_run_in_store(path, PROJECT, id).unwrap();
+    let raw = || -> (String, String) {
+        crate::open_project_store(path).unwrap().0
+            .query_row("SELECT result_json, run_record_json FROM analysis_runs WHERE recording_id = ?1", params![id], |row| Ok((row.get(0)?, row.get(1)?)))
+            .unwrap()
+    };
+    let raw_before = raw();
+    for limit in [length + 1, length] {
+        let read = read(limit).unwrap_or_else(|error| panic!("limit {limit}: {error}"));
+        assert_eq!((&read.result_json, &read.record), (&stored.result_json, &stored.record), "limit {limit}");
+        assert!(admit(limit).is_ok(), "limit {limit}");
+    }
+    let expected = undisplayable(id, what, length, length - 1);
+    assert_eq!(read(length - 1).map(|_| ()).unwrap_err(), expected);
+    assert_eq!(admit(length - 1).map(|_| ()).unwrap_err(), expected);
+    let after = read_run_in_store(path, PROJECT, id).unwrap();
+    assert_eq!((after.result_json, after.record), (stored.result_json, stored.record), "the stored run is unchanged");
+    assert!(raw() == raw_before, "the stored columns are byte-for-byte unchanged");
+}
+
+/// RT-U4: a recorded run is refused `STORED-RESULT-TOO-LARGE` by whichever
+/// stored column, the result or the run record, exceeds the displayable limit,
+/// from both stored lengths before either is loaded; each column's length is
+/// varied with the other's held, on the read and the comparison's admission.
+#[test]
+fn a_recorded_run_is_refused_by_whichever_stored_column_exceeds_the_limit() {
+    // The result the larger column (padded past the record).
+    let (path, id, result, record_bytes) = sized_run("result-larger", 6_000, 0);
+    assert!(result - 1 > record_bytes, "result {result} record {record_bytes}");
+    assert_bounded_by(&path, &id, "stored result", result);
+    // The record the larger column, at two record lengths over the same result.
+    let (path, id, result, record_bytes) = sized_run("record-larger", 0, 0);
+    let (longer_path, longer_id, same_result, longer_record) = sized_run("record-larger-longer", 0, 3_000);
+    assert_eq!(same_result, result, "the result's length is held");
+    assert!(longer_record > record_bytes && record_bytes - 1 > result, "result {result} records {record_bytes} {longer_record}");
+    assert_bounded_by(&path, &id, "stored run record", record_bytes);
+    assert_bounded_by(&longer_path, &longer_id, "stored run record", longer_record);
+    // Both are far below the product limit and read in full there.
+    assert!(longer_record < crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES);
+    assert!(read_run_in_store(&longer_path, PROJECT, &longer_id).is_ok());
+}

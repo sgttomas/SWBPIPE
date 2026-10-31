@@ -294,6 +294,94 @@ impl<'m> Writer<'m> {
         Ok(())
     }
 
+    /// The section library (Design §15, Format 4): each record a pipe segment's `section_ref` may bind.
+    pub fn read_sections(&mut self) {
+        let model: &'m Value = self.model;
+        let records: &'m [Value] = match model.get_or_null("sections") {
+            Value::Null => &[],
+            Value::List(items) => items,
+            _ => {
+                self.invalid("model.sections", "model.sections must be a list");
+                &[]
+            }
+        };
+        for section in records {
+            if !matches!(section, Value::Dict(_)) || section.get("id").and_then(Value::as_str).is_none() {
+                self.invalid("model.sections", "each section needs a string id");
+                continue;
+            }
+            self.library.push(section);
+        }
+    }
+
+    /// The library section id the pipe binds, or None without `section_ref`. A binding the solve refuses
+    /// (product_physics resolve_shared_sections) is refused by name, since the import could not restore it.
+    fn bind_section(&mut self, pipe: &Value, section: &Value, entity: &str) -> R<Option<String>> {
+        let reference = pipe.get_or_null("section_ref");
+        if reference.is_null() {
+            return Ok(None);
+        }
+        let count = match reference.as_str() {
+            Some(id) if !id.trim().is_empty() => {
+                self.library.iter().filter(|item| item.get_or_null("id").as_str() == Some(id)).count()
+            }
+            _ => 0,
+        };
+        if count != 1 {
+            let message = format!("{entity} section_ref {} must name exactly one section in model.sections", repr(reference)?);
+            self.refuse("MBF-SI-REFERENCE-UNRESOLVED", entity, &message);
+            return Ok(None);
+        }
+        let id = reference.as_str().expect("str").to_string();
+        let shared = *self.library.iter().find(|item| item.get_or_null("id").as_str() == Some(id.as_str())).expect("one");
+        let quantity = |value: &Value| match value {
+            Value::Dict(record) => {
+                record.len() == 2
+                    && matches!(record.get(&"value".to_string()), Some(Value::Int(_) | Value::Float(_)))
+                    && matches!(record.get(&"unit".to_string()), Some(Value::Str(_)))
+            }
+            _ => false,
+        };
+        let properties = shared.get_or_null("properties");
+        let supported = shared.get_or_null("section_type").as_str() == Some("pipe")
+            && match properties {
+                Value::Dict(record) => {
+                    record.len() == 2
+                        && ["outside_diameter", "wall_thickness"].iter().all(|name| record.contains_key(&name.to_string()))
+                        && record.values().all(quantity)
+                }
+                _ => false,
+            };
+        if !supported {
+            let message = format!(
+                "{entity} section_ref {} binds a section that is not of type pipe with exactly outside_diameter and \
+                 wall_thickness quantities, which the solve refuses",
+                repr(reference)?
+            );
+            self.refuse("MBF-SI-SECTION-BINDING-UNSUPPORTED", entity, &message);
+            return Ok(None);
+        }
+        let stale: Vec<&str> = ["outside_diameter", "wall_thickness"]
+            .into_iter()
+            .filter(|name| {
+                let (inline, shared) = (section.get_or_null(name), properties.get_or_null(name));
+                !py_eq(inline.get_or_null("value"), shared.get_or_null("value"))
+                    || !py_eq(inline.get_or_null("unit"), shared.get_or_null("unit"))
+            })
+            .collect();
+        if !stale.is_empty() {
+            let message = format!(
+                "{entity} section {} differ from section {} in value or unit (SECTION_REFERENCE_CACHE_STALE); the \
+                 import would restore the section from the pipe's values",
+                stale.join(" and "),
+                repr(reference)?
+            );
+            self.refuse("MBF-SI-SECTION-REFERENCE-STALE", entity, &message);
+            return Ok(None);
+        }
+        Ok(Some(id))
+    }
+
     pub fn read_pipes(&mut self) -> R<()> {
         for pipe in self.list(self.model.get_or_null("pipe_segments"), "model.pipe_segments") {
             let Some(id) = pipe.get("id").and_then(Value::as_str) else {
@@ -330,7 +418,8 @@ impl<'m> Writer<'m> {
             };
             let y_reference = pipe.get_or_null("y_reference").clone();
             let Some((od, thk)) = self.read_section(pipe.get_or_null("section"), &entity)? else { continue };
-            self.pipes.insert(id, Pipe { from: start, to: end, material, y_reference, od, thk });
+            let section_ref = self.bind_section(&pipe, pipe.get_or_null("section"), &entity)?; // the pipe stays read
+            self.pipes.insert(id, Pipe { from: start, to: end, material, y_reference, section_ref, od, thk });
         }
         Ok(())
     }
@@ -1131,6 +1220,21 @@ impl<'m> Writer<'m> {
             );
             self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.materials", &message);
         }
+        let bound: BTreeSet<&str> = self.pipes.values().filter_map(|pipe| pipe.section_ref.as_deref()).collect();
+        let mut unbound: Vec<&str> = Vec::new();
+        for section in &self.library {
+            let id = section.get_or_null("id").as_str().expect("str");
+            if !bound.contains(id) && !unbound.contains(&id) {
+                unbound.push(id);
+            }
+        }
+        if !unbound.is_empty() {
+            let message = format!(
+                "sections {} are not exported; the MBF writes only the sections its pipe segments reference",
+                unbound.join(", ")
+            );
+            self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.sections", &message);
+        }
         let mut found: OMap<String, Vec<String>> = OMap::new();
         fn sweep(found: &mut OMap<String, Vec<String>>, record: &Value, path: &str, entity: &str) {
             if let Value::Dict(dict) = record {
@@ -1161,7 +1265,7 @@ impl<'m> Writer<'m> {
             }
         }
         let prefixes = [
-            ("materials", "material"), ("nodes", "node"), ("pipe_segments", "pipe"), ("supports", "support"),
+            ("materials", "material"), ("sections", "section"), ("nodes", "node"), ("pipe_segments", "pipe"), ("supports", "support"),
             ("components", "component"), ("load_cases", "load_case"),
         ];
         for (member, prefix) in prefixes {

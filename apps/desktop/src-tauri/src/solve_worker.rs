@@ -34,13 +34,16 @@
 //!   result counts.
 //!
 //! The solve attestation: before the solve the worker digests the model value
-//! it materialized (`d_M`), and after the unchanged solve it parses the
-//! producer's bytes back into a value and digests it (`d_S`), each streamed
-//! through the checked canonical writer into SHA-256, holding no canonical
-//! text; the parsed value is dropped before the frames are sent. A value the
-//! checked profile refuses gives status 0; the solve and its bytes are
-//! unchanged either way. The parent hands the attestation to the registry
-//! with the result, and never to the webview.
+//! it materialized (`d_M`), and after the unchanged solve it digests the
+//! result value the producer's bytes hold (`d_S`), each streamed through the
+//! checked canonical writer into SHA-256, holding no canonical text. `d_S` is
+//! computed from the bytes ([`crate::result_text_digest`]): it equals parsing
+//! them back into a value and digesting that, but holds at most one bounded
+//! piece of the value at a time, and nothing of it once the frames are sent
+//! (RT-U4; the digest's meaning is unchanged). A value the checked profile
+//! refuses gives status 0; the solve and its bytes are unchanged either way.
+//! The parent hands the attestation to the registry with the result, and
+//! never to the webview.
 //!
 //! The grant (a [`LeasePurpose::Worker`] lease) starts at the process reserve
 //! plus the request's ingress bound, rounded up to 1 MiB, and grows on demand
@@ -104,7 +107,10 @@
 //! every moment, records it as the job's `worker_peak_footprint_bytes` and
 //! refuses the result if it exceeded the budget.
 //!
-//! A result of R bytes must not exceed the grant; its result lease is
+//! A result of R bytes must not exceed the grant, nor the job's result
+//! limit if its hooks set one ([`SupervisorHooks::result_limit`]; the solve
+//! job's displayable-result limit), which is checked on the announced R
+//! before anything is admitted or read; its result lease is
 //! acquired while the grant is still held, the bytes are read into an
 //! exact-capacity buffer, the child must exit 0, and only after the child is
 //! reaped is the grant released. A kill (cancellation, session reset, refusal
@@ -553,12 +559,14 @@ pub(crate) fn attested_solve(
 }
 
 /// `d_S`: the solver entry returns a typed envelope, so the result value is
-/// the producer's exact bytes parsed back (the value the webview receives),
-/// digested streamed and dropped at once. `None` if the checked profile
-/// refuses it.
+/// the one the producer's exact bytes hold (the value the webview receives).
+/// Its digest is computed from those bytes by
+/// [`crate::result_text_digest::text_digest`], which equals parsing them back
+/// into a value and digesting it streamed, without materializing the whole
+/// value (RT-U4). `None` if the bytes do not parse or the checked profile
+/// refuses the value.
 pub(crate) fn result_digest(result: &str) -> Option<[u8; 32]> {
-    let value: serde_json::Value = serde_json::from_str(result).ok()?;
-    crate::solve_attestation::streamed_digest(SOLVED_RESULT_DOMAIN, &value)
+    crate::result_text_digest::text_digest(SOLVED_RESULT_DOMAIN, result)
 }
 
 // ---------------------------------------------------------------------------
@@ -793,6 +801,10 @@ pub(crate) enum WorkerOutcome {
     Completed { result: Vec<u8>, lease: Lease, attestation: Option<SolveAttestation> },
     Failed(String),
     Refused(ResourceRefusal),
+    /// The result's announced length (`RSLT {R}`) was refused by
+    /// [`SupervisorHooks::result_limit`]: the worker was killed before a
+    /// result lease was admitted or any result byte was read.
+    ResultTooLarge { result_bytes: u64, limit_bytes: u64 },
     /// Killed on request (cancellation or session reset).
     Terminated,
 }
@@ -808,6 +820,13 @@ pub(crate) trait SupervisorHooks {
     /// A measured physical footprint of the worker (reported before any
     /// growth it causes; at the result, its lifetime maximum).
     fn footprint_observed(&mut self, footprint_bytes: u64);
+    /// The largest result, in bytes, this job may hand over: an announced
+    /// length above it ends the job [`WorkerOutcome::ResultTooLarge`] before
+    /// its result lease is admitted or any of its bytes is read. None (the
+    /// default): no such bound.
+    fn result_limit(&self) -> Option<u64> {
+        None
+    }
 }
 
 /// One worker job's fixed terms.
@@ -1200,6 +1219,12 @@ pub(crate) fn supervise(
                 }
                 if hooks.cancelled() {
                     control.kill();
+                    break;
+                }
+                // Refused on the announced length alone: the worker is killed
+                // and no lease is admitted and no byte of the result is read.
+                if let Some(limit_bytes) = hooks.result_limit().filter(|limit| length > *limit) {
+                    verdict = end(WorkerOutcome::ResultTooLarge { result_bytes: length, limit_bytes });
                     break;
                 }
                 // The result lease is admitted while the grant is still held. It
