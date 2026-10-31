@@ -146,7 +146,7 @@ All outputs go to `--out`.
 - **Atom values.** Values come from the in-build law test. The tree's ASSUMED strides are only the chain's own check.
 - **Runtime and CI.** A full run takes about one minute of CPU on one core. The full run is not in CI. `tests/test_retained_pricing_tool.py` runs for any change under this directory and covers:
   - the key carry, the prune, and the `fewer_definitions` stop and its resolutions, on two-commit fixture repositories;
-  - the same carry, with and without a rename, under adverse repository-local configuration and attributes, `GIT_*` variables and global configuration and attributes; UTF-8 reading under an ASCII locale; the snapshot's raw bytes under adverse attributes;
+  - the same carry, with and without a rename, under adverse repository-local configuration, attributes and replace refs, `GIT_*` variables and global configuration and attributes; UTF-8 reading in the carry, the driver and a chain step under an ASCII locale; the snapshot's raw bytes under adverse attributes and replace refs;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
   - the generator's basis line.
