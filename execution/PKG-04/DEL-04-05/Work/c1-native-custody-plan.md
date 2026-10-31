@@ -303,8 +303,15 @@ leaves none.
 - `toLowerCase` against Rust's `to_lowercase`: the same Unicode default case mapping, including
   final sigma. A character whose mapping differs between the two engines' Unicode versions would
   differ; the parity covers Greek, Turkish dotted I, ß and emoji.
-- A filter string with a lone surrogate cannot be sent as JSON to the native side. The panel's
-  filter would match nothing with it.
+- JavaScript can send a lone surrogate as an escaped JSON string, and its UTF-16 substring
+  search can match half an astral character. Native serde refuses that query as
+  `INGRESS-ARGS-INVALID`; slice 4 must display the typed refusal, rather than an empty page.
+
+The recovery page cap counts the complete serialized header (receipt fields, job id and
+lengths) and exact case text bytes before including a case. A page truncates before the cap;
+an oversized singleton case is refused. Invalid filter-list bounds are checked before the
+first source parse/index build. The semantics command uses Tauri's raw byte response body,
+with a native response-body test and an ArrayBuffer adapter test covering that connection.
 
 ### Slice 4: the webview switch
 
@@ -321,6 +328,11 @@ leaves none.
     reads again. Disposing the job drops all of its entries.
   - The wasm path stays for saved and historical values until slice 6.
 - Panels and overlays read S. The results table pages (§3).
+  - The native semantics command returns raw JSON bytes (an ArrayBuffer through Tauri). The
+    verdict command returns JSON through Tauri and is delivered as an already parsed value;
+    its slice-4 adapter must accept that actual delivery type.
+  - Clamp a past-end table page to the last page from the query's total, as `paginateResults`
+    does; the low-level native query intentionally returns an empty page past the end.
   - S's cache key is (job id, model-text SHA-256, exact standing, including findings). An
     edited model or changed standing invalidates S; disposing the job drops its entries.
     The header's job id alone does not establish the model or standing binding.

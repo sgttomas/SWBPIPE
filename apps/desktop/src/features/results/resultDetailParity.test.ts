@@ -18,6 +18,7 @@ import {
   decodeSourceRecovery,
   panelDetailFilter,
   queryResultRows,
+  readResultRowSemantics,
   resultRowPages,
   type DetailFilter,
   type ResultDetailInvoke
@@ -247,6 +248,16 @@ describe("C1 slice 3: the detail responses' reader", () => {
     }, ['{"basis_ref":{"ref_id":"L-2"}}']);
     const facts = decodeSourceRecovery(recovery);
     expect([facts.status, facts.cases[0].refId, facts.cases[0].text]).toEqual(["partial", "L-2", '{"basis_ref":{"ref_id":"L-2"}}']);
+  });
+
+  it("decodes the semantics ArrayBuffer delivered by Tauri's raw response body", async () => {
+    const text = '[{"ok":true,"signature":null,"complete_metadata":false,"canonical_metadata":{}}]';
+    const invoke: ResultDetailInvoke = async (command, args) => {
+      expect(command).toBe("read_preview_mechanics_job_row_semantics");
+      expect(args).toEqual({ jobId: "job-1", ordinals: [4] });
+      return new TextEncoder().encode(text).buffer;
+    };
+    expect(await readResultRowSemantics(invoke, "job-1", [4])).toEqual(JSON.parse(text));
   });
 
   it("pages every row through an adapter and refuses nothing silently", async () => {

@@ -67,7 +67,8 @@
 //!   magic `SWBDETv1`, the header's length as a little-endian u64, the JSON
 //!   header, then the texts it lists, concatenated (each by its length in
 //!   `lengths`, in order), with nothing after the last. The semantics
-//!   response is the outcome array's JSON text.
+//!   response is the outcome array's JSON text sent as a raw byte body, so
+//!   Tauri delivers an ArrayBuffer to the adapter.
 //! - **Filters, as the TypeScript reads them.** Each member is optional;
 //!   those present must all admit a row (`family`, `frame` and `case` equal
 //!   to `"all"`, and empty lists, admit every row, as the panel's and the
@@ -809,9 +810,9 @@ pub(crate) fn run_rows_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: Le
     let limit = page_limit(args.decode("limit")?)?;
     drop(args);
     let filter = filter.unwrap_or_default();
+    let scans = !filter.prepare()?.admits_every_row();
     let held = registry.held_result(&job_id)?;
     let index = index(&registry, &held)?;
-    let scans = !filter.prepare()?.admits_every_row();
     let working = registry.acquire_result_parse(WORKING_ALLOWANCE_BYTES.saturating_add(if scans { index.row_parse_bytes } else { 0 }))?;
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
@@ -959,6 +960,12 @@ pub(crate) async fn row_semantics(registry: &SolveJobRegistry, body: &InvokeBody
     command(registry, body, headers, SEMANTICS_COMMAND, run_semantics).await
 }
 
+/// Preserve the JSON text as a raw IPC body. A String response instead makes
+/// Tauri parse the array before the adapter's JSON-text decoder receives it.
+pub(crate) fn semantics_response(json: String) -> tauri::ipc::Response {
+    tauri::ipc::Response::new(json.into_bytes())
+}
+
 /// Counts the bytes written.
 struct Counter(u64);
 
@@ -1039,6 +1046,7 @@ fn kind_of(value: Option<&Value>) -> &'static str {
 /// The recovery facts and a page of the recorded cases, with their exact
 /// texts' positions in `case_texts` when `raw`.
 pub(crate) fn recovery_header(
+    job_id: &str,
     receipt: Option<&Value>,
     evidence: Option<&Value>,
     case_texts: &[&str],
@@ -1056,33 +1064,6 @@ pub(crate) fn recovery_header(
     let distinct: HashSet<&str> = receipt_ids.iter().copied().collect();
     let coverage = receipt_ids.len() == physical_ids.len() && distinct.len() == receipt_ids.len() && receipt_ids.iter().all(|id| physical_ids.contains(id));
     let start = offset.min(cases.len() as u64) as usize;
-    let mut page = Vec::new();
-    let mut texts = Vec::new();
-    let mut bound = HEADER_FIXED_BYTES + 16;
-    for (index, (entry, case)) in cases.iter().enumerate().skip(start).take(limit) {
-        let text_len = if raw { case_texts[*entry].len() as u64 } else { 0 };
-        let facts = json!({
-            "index": index,
-            "entry": entry,
-            "ref_id": receipt_ids[index],
-            "selected_method": case.get("selected_method").cloned().unwrap_or(Value::Null),
-            "outcome": case.get("outcome").cloned().unwrap_or(Value::Null),
-            "text": if raw { json!(texts.len()) } else { Value::Null },
-        });
-        let next = bound + HEADER_BYTES_PER_ROW + facts.to_string().len() as u64 + text_len;
-        if next > max_bytes {
-            if page.is_empty() {
-                return Err(response_limit(format!("recorded case {index}"), next, max_bytes));
-            }
-            break;
-        }
-        bound = next;
-        if raw {
-            texts.push(*entry);
-        }
-        page.push(facts);
-    }
-    let returned = page.len();
     let status = body_record.and_then(|b| b.get("status"));
     let header = json!({
         "document_kind": RECOVERY_KIND,
@@ -1099,11 +1080,55 @@ pub(crate) fn recovery_header(
         "physical_case_count": exact_cases.len(),
         "receipt_ids_distinct": distinct.len() == receipt_ids.len(),
         "coverage_matches": coverage,
+        "job_id": job_id,
         "offset": offset,
-        "returned": returned,
-        "truncated": start + returned < cases.len() && returned < limit,
-        "cases": page,
+        "returned": 0,
+        "truncated": false,
+        "cases": [],
+        "lengths": [],
     });
+    let mut header = header;
+    let mut texts = Vec::new();
+    let mut text_bytes = 0u64;
+    for (index, (entry, case)) in cases.iter().enumerate().skip(start).take(limit) {
+        let facts = json!({
+            "index": index,
+            "entry": entry,
+            "ref_id": receipt_ids[index],
+            "selected_method": case.get("selected_method").cloned().unwrap_or(Value::Null),
+            "outcome": case.get("outcome").cloned().unwrap_or(Value::Null),
+            "text": if raw { json!(texts.len()) } else { Value::Null },
+        });
+        header["cases"].as_array_mut().expect("a page").push(facts);
+        if raw {
+            texts.push(*entry);
+        }
+        let returned = header["cases"].as_array().expect("a page").len();
+        header["returned"] = json!(returned);
+        header["truncated"] = json!(start + returned < cases.len() && returned < limit);
+        header["lengths"] = json!(texts.iter().map(|&entry| case_texts[entry].len()).collect::<Vec<_>>());
+        let candidate_text_bytes = text_bytes.saturating_add(if raw { case_texts[*entry].len() as u64 } else { 0 });
+        // Count the complete serialized header, including its dynamic receipt
+        // fields, job id, and lengths. A fixed estimate can strand a fitting case.
+        let mut counter = Counter(0);
+        serde_json::to_writer(&mut counter, &header).expect("a header serializes");
+        let bytes = 16u64.saturating_add(counter.0).saturating_add(candidate_text_bytes);
+        if bytes > max_bytes {
+            header["cases"].as_array_mut().expect("a page").pop();
+            if raw {
+                texts.pop();
+            }
+            if returned == 1 {
+                return Err(response_limit(format!("recorded case {index}"), bytes, max_bytes));
+            }
+            break;
+        }
+        text_bytes = candidate_text_bytes;
+    }
+    let returned = header["cases"].as_array().expect("a page").len();
+    header["returned"] = json!(returned);
+    header["truncated"] = json!(start + returned < cases.len() && returned < limit);
+    header["lengths"] = json!(texts.iter().map(|&entry| case_texts[entry].len()).collect::<Vec<_>>());
     Ok((header, texts))
 }
 
@@ -1157,12 +1182,9 @@ pub(crate) fn run_recovery_within(registry: SolveJobRegistry, raw: Vec<u8>, copy
         }
     }
     drop(scan);
-    let (header, positions) = recovery_header(receipt.as_ref(), evidence.as_ref(), &case_texts, offset, limit, raw_texts, max_bytes)?;
+    let (header, positions) = recovery_header(&job_id, receipt.as_ref(), evidence.as_ref(), &case_texts, offset, limit, raw_texts, max_bytes)?;
     drop((receipt, evidence));
-    let mut header = header;
-    header["job_id"] = json!(job_id);
     let texts: Vec<&str> = positions.iter().map(|&entry| case_texts[entry]).collect();
-    header["lengths"] = json!(texts.iter().map(|text| text.len()).collect::<Vec<_>>());
     let (response, written) = respond(&header, &texts, |bytes| {
         if bytes > max_bytes {
             return Err(response_limit("the recovery page".into(), bytes, max_bytes));

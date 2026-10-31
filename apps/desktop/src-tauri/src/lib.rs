@@ -2254,13 +2254,14 @@ async fn lookup_preview_mechanics_job_rows(
 /// C1 native custody (slice 3): the reader's row semantics of a batch of a
 /// retained result's rows, `reader_verdict::row_semantics_each` with the held
 /// source (`result_detail`). Raw args body `{jobId, ordinals}`; the response
-/// is the outcome array's JSON. Admission and the read run in a blocking task.
+/// is the outcome array's JSON as raw bytes, so Tauri delivers an ArrayBuffer.
+/// Admission and the read run in a blocking task.
 #[tauri::command]
 async fn read_preview_mechanics_job_row_semantics(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
-    result_detail::row_semantics(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+    result_detail::row_semantics(&registry, invoke.body(), invoke.headers()).await.map(result_detail::semantics_response)
 }
 
 /// C1 native custody (slice 3): the recorded source-block recovery facts of

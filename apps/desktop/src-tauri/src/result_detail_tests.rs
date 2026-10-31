@@ -285,6 +285,81 @@ fn pages_stay_within_the_response_limit_and_still_reach_every_row() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+#[test]
+fn invalid_filter_lists_are_refused_before_the_first_index_build() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let job = retained(&registry, &gate, r#"{"results":[{"id":"a"}]}"#);
+    let held = registry.held_result(&job).unwrap();
+    assert!(held.detail_slot().lock().unwrap().is_none());
+    let many: Vec<String> = (0..=MAX_KEYS).map(|i| format!("kind:{i}")).collect();
+    let message = command_text(rows(&registry, &json!({"jobId": job, "filter": {"kinds": many}, "offset": 0, "limit": 1})).unwrap_err());
+    assert!(message.starts_with(REQUEST_INVALID), "{message}");
+    assert!(held.detail_slot().lock().unwrap().is_none());
+    drop(held);
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+#[test]
+fn semantics_use_tauris_raw_response_body() {
+    use tauri::ipc::{InvokeResponseBody, IpcResponse};
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let job = retained(&registry, &gate, r#"{"results":[{"id":"a","kind":"x"}]}"#);
+    let json = semantics(&registry, &json!({"jobId": job, "ordinals": [0]})).unwrap();
+    match semantics_response(json.clone()).body().unwrap() {
+        InvokeResponseBody::Raw(bytes) => assert_eq!(bytes, json.as_bytes()),
+        InvokeResponseBody::Json(_) => panic!("Tauri would parse the array before the adapter receives it"),
+    }
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+#[test]
+fn small_recovery_responses_truncate_without_stranding_a_fitting_case() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let source = json!({
+        "results": [],
+        "source_block_recovery": {
+            "receipt_sha256": "a".repeat(64),
+            "body": {"status": "qualified", "receipt_version": 1, "publication_sha256": "b".repeat(64),
+                "cases": [
+                    {"basis_ref": {"ref_id": "case:a"}, "selected_method": "method", "outcome": "qualified"},
+                    {"basis_ref": {"ref_id": "case:b"}, "selected_method": "method", "outcome": "qualified"},
+                ]},
+        },
+        "contract_evidence": {"exact_cases": [{"load_case_id": "case:a"}, {"load_case_id": "case:b"}]},
+    }).to_string();
+    let job = retained(&registry, &gate, &source);
+    for raw in [false, true] {
+        let one = json!({"jobId": job, "offset": 0, "limit": 1, "raw": raw});
+        let bytes = call(&registry, RECOVERY_COMMAND, run_recovery, &one).unwrap();
+        let max = bytes.len() as u64;
+        let exact = call(&registry, RECOVERY_COMMAND, |r, b, l| run_recovery_within(r, b, l, max), &one).unwrap();
+        assert_eq!(exact, bytes);
+        let message = command_text(call(&registry, RECOVERY_COMMAND, |r, b, l| run_recovery_within(r, b, l, max - 1), &one).unwrap_err());
+        assert!(message.starts_with(RESPONSE_LIMIT), "{message}");
+        let mut got = Vec::new();
+        let mut offset = 0;
+        while offset < 2 {
+            let request = json!({"jobId": job, "offset": offset, "limit": 2, "raw": raw});
+            let bytes = call(&registry, RECOVERY_COMMAND, |r, b, l| run_recovery_within(r, b, l, max), &request).unwrap();
+            assert!(bytes.len() as u64 <= max);
+            let page = decode(&bytes);
+            assert_eq!(page.header["returned"], 1);
+            assert_eq!(page.header["truncated"], offset == 0);
+            got.push(page.header["cases"][0]["ref_id"].clone());
+            if raw { assert_eq!(page.texts.len(), 1); }
+            offset += 1;
+        }
+        assert_eq!(got, [json!("case:a"), json!("case:b")]);
+    }
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
 // ---------------------------------------------------------------------------
 // Committed outcomes (the TypeScript filters' parity, resultDetailParity.test.ts)
 // ---------------------------------------------------------------------------
