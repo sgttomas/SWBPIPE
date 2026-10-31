@@ -1007,6 +1007,10 @@ fn a_rounding_artifact_below_the_resolution_floor_is_not_retained() {
         solution.below_threshold_mu_count,
         solution.nonpositive_mu_count
     );
+    eprintln!(
+        "resolution-floor witness: screened {:?}, τ_f {:e}, vectors {:?}",
+        solution.screened, solution.formed_backward_error_threshold, solution.vectors
+    );
     assert_eq!(solution.mode_count(), 1);
     assert_eq!(
         solution.below_threshold_mu_count + solution.nonpositive_mu_count,

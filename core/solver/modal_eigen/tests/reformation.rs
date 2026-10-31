@@ -1185,3 +1185,39 @@ fn orthogonality_of_a_close_pencil_is_finite_and_reported() {
     assert!(result.max_ratio.is_finite());
     assert_eq!(result.pair, Some((0, 1)));
 }
+
+/// Scratch probe (to be removed): the screen's candidate measures.
+#[test]
+fn zz_rigid_scale_probe() {
+    use open_pipe_stress_modal_eigen::exact::ExactSum;
+    let rq = |k: &SymmetricMatrix, m: &SymmetricMatrix, phi: &[f64]| {
+        let (mut a, mut b) = (ExactSum::new(), ExactSum::new());
+        for i in 0..phi.len() {
+            for j in 0..phi.len() {
+                a.add_product(&[phi[i], k.get(i, j), phi[j]]);
+                b.add_product(&[phi[i], m.get(i, j), phi[j]]);
+            }
+        }
+        a.to_wide().div(b.to_wide()).to_f64()
+    };
+    let mut cases: Vec<(String, SymmetricMatrix, SymmetricMatrix)> = Vec::new();
+    for case in eigen_cases() {
+        if case.id == "E-RIGID-SCALE-1e6" || case.id.starts_with("E-POINTMASS") {
+            let n = case.free.len();
+            cases.push((case.id.clone(), dense(n, &entries(&case.k)), dense(n, &entries(&case.m))));
+        }
+    }
+    let w = SymmetricMatrix::from_rows(&[vec![1.0, 1.0], vec![1.0, 3.0]]).unwrap();
+    let wm = SymmetricMatrix::from_diagonal(&[1.0, 2f64.powi(-100)]).unwrap();
+    cases.push(("round-3 witness".into(), w, wm));
+    for (id, k, m) in &cases {
+        let options = DenseOptions { infinite_mu_relative_threshold: if id.starts_with("round") { 1e-18 } else { 1e-12 }, ..dense_options() };
+        let s = solve_dense_pencil(k, m, &options).unwrap();
+        eprintln!("{id}: modes {} τ_f {:e}", s.mode_count(), s.formed_backward_error_threshold);
+        for x in &s.screened {
+            let mode = s.eigenvalues.iter().position(|&l| l == x.eigenvalue);
+            let rho = mode.map(|i| (rq(k, m, s.vector(i)) - x.eigenvalue).abs() / x.eigenvalue);
+            eprintln!("  λ {:e}: η_f {:?} ω_f {:?} |ρ−λ|/λ {:?}", x.eigenvalue, x.formed_backward_error, x.formed_componentwise_backward_error, rho);
+        }
+    }
+}

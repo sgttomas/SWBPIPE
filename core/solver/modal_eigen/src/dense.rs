@@ -397,16 +397,17 @@ pub fn solve_dense_pencil(
         }
         let eigenvalue = 1.0 / mu;
         let phi = &work[row * n..(row + 1) * n];
-        let backward_error =
-            formed_backward_error(stiffness, mass, stiffness_norm, mass_norm, eigenvalue, phi);
-        let retained = backward_error.is_some_and(|eta| eta <= tau_f);
+        let (normwise, componentwise) =
+            formed_backward_errors(stiffness, mass, stiffness_norm, mass_norm, eigenvalue, phi);
+        let retained = normwise.is_some_and(|eta| eta <= tau_f);
         if retained {
             retained_rows.push(row);
         }
         screened.push(ScreenedMode {
             mu,
             eigenvalue,
-            formed_backward_error: backward_error,
+            formed_backward_error: normwise,
+            formed_componentwise_backward_error: componentwise,
             retained,
         });
     }
@@ -460,37 +461,61 @@ fn infinity_norm(a: &SymmetricMatrix) -> f64 {
     })
 }
 
-/// η_f = ‖Kφ − λMφ‖₂ / ((‖K‖_∞ + λ‖M‖_∞)·‖φ‖₂) on the formed pencil, each
-/// residual row summed exactly ([`ExactSum`]) and rounded once, the norms in
-/// `WideDd`. `None` when it is not finite, or nonzero below the normal
-/// range (a compared value).
-fn formed_backward_error(
+/// The backward errors of a pair on the formed pencil, each residual row
+/// r_i = Σ_j (K_ij − λM_ij)φ_j summed exactly ([`ExactSum`]) and rounded once:
+/// - normwise, η_f = ‖r‖₂ / ((‖K‖_∞ + λ‖M‖_∞)·‖φ‖₂);
+/// - componentwise (Oettli–Prager), ω_f = max_i |r_i| / (|K||φ| + λ|M||φ|)_i,
+///   the smallest ε for which the pair is exact for a pencil whose every
+///   entry is perturbed by at most ε relative to itself. It is invariant to
+///   a diagonal congruence, and it does not let a large entry of M stand in
+///   for a perturbation of a small one, which the normwise measure does.
+///
+/// Each is `None` when not finite, or nonzero below the normal range.
+fn formed_backward_errors(
     stiffness: &SymmetricMatrix,
     mass: &SymmetricMatrix,
     stiffness_norm: f64,
     mass_norm: f64,
     eigenvalue: f64,
     phi: &[f64],
-) -> Option<f64> {
+) -> (Option<f64>, Option<f64>) {
     let n = phi.len();
     let mut residual = WideDd::ZERO;
     let mut shape = WideDd::ZERO;
+    let mut componentwise = WideDd::ZERO;
     for i in 0..n {
         let mut row = ExactSum::new();
+        let mut magnitude = ExactSum::new();
         for (j, &x) in phi.iter().enumerate() {
-            row.add_product(&[stiffness.get(i, j), x]);
-            row.add_product(&[-eigenvalue, mass.get(i, j), x]);
+            let (k, m) = (stiffness.get(i, j), mass.get(i, j));
+            row.add_product(&[k, x]);
+            row.add_product(&[-eigenvalue, m, x]);
+            magnitude.add_product(&[k.abs(), x.abs()]);
+            magnitude.add_product(&[eigenvalue, m.abs(), x.abs()]);
         }
         let r = row.to_wide();
         residual = residual.add(r.mul(r));
         let x = WideDd::from_f64(phi[i]);
         shape = shape.add(x.mul(x));
+        let scale = magnitude.to_wide();
+        let ratio = if r.is_zero() {
+            WideDd::ZERO
+        } else if scale.is_zero() {
+            WideDd::from_f64(f64::INFINITY)
+        } else {
+            r.abs().div(scale)
+        };
+        if !ratio.is_finite() || ratio.sub(componentwise).is_positive() {
+            componentwise = ratio;
+        }
     }
-    let scale = WideDd::from_f64(stiffness_norm).add(WideDd::from_f64(eigenvalue).mul_f64(mass_norm));
-    residual
+    let scale =
+        WideDd::from_f64(stiffness_norm).add(WideDd::from_f64(eigenvalue).mul_f64(mass_norm));
+    let normwise = residual
         .sqrt()
         .div(scale.mul(shape.sqrt()))
-        .to_normal_or_zero()
+        .to_normal_or_zero();
+    (normwise, componentwise.to_normal_or_zero())
 }
 
 /// A μ at or below the classification threshold and its screen (design
@@ -499,9 +524,12 @@ fn formed_backward_error(
 pub struct ScreenedMode {
     pub mu: f64,
     pub eigenvalue: f64,
-    /// η_f of the recovered pair on the formed pencil; `None` when it is
-    /// not representable (the pair is not retained).
+    /// η_f, the normwise backward error of the recovered pair on the formed
+    /// pencil (published; `None` when not representable).
     pub formed_backward_error: Option<f64>,
+    /// ω_f, the componentwise backward error, which decides: retained when
+    /// ω_f ≤ τ_f (`None`, not retained, when not representable).
+    pub formed_componentwise_backward_error: Option<f64>,
     pub retained: bool,
 }
 
