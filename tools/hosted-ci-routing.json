@@ -2384,6 +2384,7 @@
               "apps/desktop/src-tauri/src/report_render_exact.rs",
               "apps/desktop/src-tauri/src/report_render_exact_tests.rs",
               "apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs",
+              "apps/desktop/src-tauri/src/result_text_digest.rs",
               "apps/desktop/src-tauri/src/rule_check_object_form_tests.rs",
               "apps/desktop/src-tauri/src/rule_solver_selection.rs",
               "apps/desktop/src-tauri/src/rule_solver_selection_tests.rs",
