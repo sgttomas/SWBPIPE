@@ -467,6 +467,25 @@ fn u4b_corpus_models_are_current() {
     }
 }
 
+/// The two arc envelopes are their writers' current output (the
+/// `exact_pressure_connected` and `preview_physics_capture` examples, sparse,
+/// `--model` on [`CORPUS_MODELS`]); nothing else re-runs the producer on them.
+#[test]
+fn u4b_corpus_envelopes_are_current() {
+    let exact = LinearStaticPreviewRequest {
+        model: serde_json::from_str(include_str!("../tests/fixtures/u4b_l90_p_model.json")).unwrap(),
+        materials: Vec::new(),
+    };
+    let exact = serde_json::to_string_pretty(&run_linear_static_preview_with_mode(exact, PreviewSolverMode::SparseInteractive)).unwrap() + "\n";
+    assert!(exact == include_str!("../../../fixtures/results/pressure_u4b_arc_sparse.json"),
+        "fixtures/results/pressure_u4b_arc_sparse.json: regenerate with `cargo run --example exact_pressure_connected -- sparse --model tests/fixtures/u4b_l90_p_model.json`");
+    let model: Value = serde_json::from_str(include_str!("../tests/fixtures/u4b_z_preview_rev_model.json")).unwrap();
+    let preview = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), PreviewSolverMode::SparseInteractive).unwrap();
+    let preview = serde_json::to_string_pretty(&preview).unwrap() + "\n";
+    assert!(preview == include_str!("../../../fixtures/results/preview_physics_u4b_arc_sparse.json"),
+        "fixtures/results/preview_physics_u4b_arc_sparse.json: regenerate with `cargo run --example preview_physics_capture -- sparse --model tests/fixtures/u4b_z_preview_rev_model.json`");
+}
+
 #[test]
 fn u4b_requests_follow_the_binding_rules() {
     let (cases, _) = inputs();
@@ -950,49 +969,77 @@ fn u4b_directional_sif_refusals() {
     assert!(out.diagnostics.iter().any(|d| d.code == "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED"));
 }
 
-/// DEL-03-03: `BEND_USER_MODIFIER_INPUT_MISSING` is satisfied on a realized
-/// bend by the whole directional pair or the scalar SIF; neither, a half pair
-/// (refused) or a pair on a marker (refused) leaves it.
+/// DEL-03-03: `BEND_USER_MODIFIER_INPUT_MISSING` is satisfied by the user SIF
+/// the bend's consumer uses: on a realized bend only the whole directional
+/// pair (scalar only, a half pair or neither leave it; the scalar-only message
+/// says the scalar is not applied to realized arcs), on a geometry-only marker
+/// the scalar (a pair there stays refused).
 #[test]
-fn u4b_bend_modifier_warning_honours_the_directional_pair() {
+fn u4b_bend_modifier_warning_follows_the_sif_consumer() {
     let (cases, _) = inputs();
     let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == "U4B-ARC90-OOP-PREVIEW").unwrap();
     let request = build_request(case);
-    let warned = |request: Value| {
+    let warning = |request: Value| {
         let out = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive).unwrap();
-        (out.diagnostics.iter().any(|d| d.code == "BEND_USER_MODIFIER_INPUT_MISSING"), out)
+        let message = out.diagnostics.iter().find(|d| d.code == "BEND_USER_MODIFIER_INPUT_MISSING").map(|d| d.message.clone());
+        (message, out)
+    };
+    let scalar_not_applied = |message: &Option<String>| {
+        message.as_deref().is_some_and(|m| m.contains("sif_user_value is not applied to realized arcs") && m.contains("sif_in_plane_user_value, sif_out_of_plane_user_value"))
     };
     fn modifiers(request: &mut Value) -> &mut serde_json::Map<String, Value> {
         request["model"]["components"][0]["modifiers"].as_object_mut().unwrap()
     }
-    let (warning, out) = warned(request.clone());
+    fn without_pair(request: &Value) -> Value {
+        let mut request = request.clone();
+        modifiers(&mut request).remove("sif_in_plane_user_value");
+        modifiers(&mut request).remove("sif_out_of_plane_user_value");
+        request
+    }
+    let scalar = json!({"value": 2.0, "unit": "none"});
+    // Realized bend.
+    let (message, out) = warning(request.clone());
     assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
     assert!(out.results.iter().any(|r| r.kind == u4b_rows::DIRECTIONAL_KIND), "the pair is consumed");
-    assert!(!warning, "pair: {:?}", out.diagnostics);
-    let mut scalar = request.clone();
-    modifiers(&mut scalar).remove("sif_in_plane_user_value");
-    modifiers(&mut scalar).remove("sif_out_of_plane_user_value");
-    modifiers(&mut scalar).insert("sif_user_value".into(), json!({"value": 2.0, "unit": "none"}));
-    let (warning, out) = warned(scalar);
-    assert!(!warning, "scalar: {:?}", out.diagnostics);
-    let mut neither = request.clone();
-    modifiers(&mut neither).remove("sif_in_plane_user_value");
-    modifiers(&mut neither).remove("sif_out_of_plane_user_value");
-    let (warning, out) = warned(neither);
+    assert!(message.is_none(), "pair: {:?}", out.diagnostics);
+    let mut both = request.clone();
+    modifiers(&mut both).insert("sif_user_value".into(), scalar.clone());
+    let (message, out) = warning(both);
+    assert!(message.is_none(), "pair and scalar: {:?}", out.diagnostics);
+    let mut scalar_only = without_pair(&request);
+    modifiers(&mut scalar_only).insert("sif_user_value".into(), scalar.clone());
+    let (message, out) = warning(scalar_only);
     assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
-    assert!(warning, "neither: {:?}", out.diagnostics);
+    assert!(!out.results.iter().any(|r| r.kind == u4b_rows::DIRECTIONAL_KIND || r.kind == preview_physics::INTENSIFIED_KIND), "the scalar is not applied");
+    assert!(scalar_not_applied(&message), "scalar only: {message:?}");
+    let (message, out) = warning(without_pair(&request));
+    assert_eq!(out.status.mechanics, "MECHANICS_SOLVED");
+    assert!(message.is_some() && !scalar_not_applied(&message), "neither: {message:?}");
     for half in ["sif_in_plane_user_value", "sif_out_of_plane_user_value"] {
         let mut one = request.clone();
         modifiers(&mut one).remove(half);
-        let (warning, out) = warned(one);
+        let (message, out) = warning(one.clone());
         assert!(out.diagnostics.iter().any(|d| d.code == validation::BEND_DIRECTIONAL_SIF_INCOMPLETE), "{half}");
-        assert!(warning, "without {half}: {:?}", out.diagnostics);
+        assert!(message.is_some() && !scalar_not_applied(&message), "without {half}: {message:?}");
+        modifiers(&mut one).insert("sif_user_value".into(), scalar.clone());
+        let (message, _) = warning(one);
+        assert!(scalar_not_applied(&message), "scalar without {half}: {message:?}");
     }
-    let mut marker = request.clone();
-    marker["model"]["components"][0]["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
-    let (warning, out) = warned(marker);
+    // Geometry-only marker.
+    let marker = |request: &Value| {
+        let mut request = request.clone();
+        request["model"]["components"][0]["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only");
+        request
+    };
+    let (message, out) = warning(marker(&request));
     assert!(out.diagnostics.iter().any(|d| d.code == validation::BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC));
-    assert!(warning, "pair on a marker: {:?}", out.diagnostics);
+    assert!(message.is_some() && !scalar_not_applied(&message), "pair on a marker: {message:?}");
+    let mut marker_scalar = marker(&without_pair(&request));
+    modifiers(&mut marker_scalar).insert("sif_user_value".into(), scalar);
+    let (message, out) = warning(marker_scalar);
+    assert!(message.is_none(), "scalar on a marker: {:?}", out.diagnostics);
+    let (message, _) = warning(marker(&without_pair(&request)));
+    assert!(message.is_some() && !scalar_not_applied(&message), "neither on a marker: {message:?}");
 }
 
 /// §7.4: end-i tension and compression with nonzero bending: σ± follow the
