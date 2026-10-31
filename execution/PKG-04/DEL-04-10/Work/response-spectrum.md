@@ -6,6 +6,8 @@
 
 **Notation.** DOFs are free (f) or rigidly restrained (c); a denotes all DOFs. R_k is the rigid unit translation along global k over **all** DOFs (1 on each node's k translation, 0 on rotations). M and K are the full assembled mass and stiffness of the dynamic model (DEL-04-09's mass model; the dynamic stiffness, snubbers included, §5). Springs to ground act on displacement relative to the ground. φ_i is a free-DOF mode with eigenvalue ω_i² and generalized mass m_i = φ_iᵀM_ffφ_i; φ̂_i is φ_i extended by zeros on the restrained DOFs.
 
+**Constraint convention.** Restraints are applied by a constraint basis E with full DOFs u = E·w (partitioned elimination of axis restraints, and the static path's nullspace basis T for skewed restraints, DEL-04-09 Design §1.3). Wherever this design writes free-row selection (·)_f, M_ff, K_ff or zero padding φ̂, read the congruence forms K_r = EᵀKE, M_r = EᵀME, p_r = EᵀM R_k and φ̂ = E·φ; the restrained-row quantities (reactions) are recovered from the full residual K u + M ü_t − f over all DOFs. For axis restraints only, E selects the free DOFs and the two notations coincide.
+
 ---
 
 ## 1. Basis
@@ -30,7 +32,8 @@
 For direction k, spectrum S_k (pseudo-acceleration, §4.1) and scale s_k:
 - **Spectral pseudo-acceleration of mode i:** A_ik = s_k·S_k(f_i), interpolated by the spectrum's stated rule (§4.1).
 - **Peak modal coordinate:** q_ik = Γ_ik·A_ik/ω_i², and the modal displacement u_ik = q_ik·φ_i. Γ_ik·φ_i, and so u_ik, does not depend on the scaling of φ_i, in either of DEL-04-09's normalization cases; in case (b), q_ik is a rotation and u_ik is still in metres and radians.
-- **Modal recovery.** In mode i the relative acceleration at the peak is −ω_i² u_ik plus a part in phase with the ground acceleration (q̈_i = −ω_i²q_i − Γ_ik ẍ_g). The first part is the periodic modal response:
+- **[decided] Damping and the recovery approximation.** Damping is classical modal damping, represented only through the spectra at their damping ratio ζ; the model has no damping matrix. Each mode's response quantities are recovered at its **displacement extremum** (q̇_i = 0), the pseudo-static modal recovery of piping spectrum practice. The velocity-proportional parts of element forces and reactions (from the damped modal equation q̈ + 2ζωq̇ + ω²q = −Γẍ_g) are neglected. This is an adopted, disclosed approximation: for the one-element axial witness at ζ = 0.5 it understates a reaction amplitude by 5 % (√2.5 against 1.5); its relative effect is of order ζ²/2 for a reaction dominated by its inertia term, about 0.1 % at ζ = 0.05. The admitted damping range is 0 ≤ ζ ≤ ζ_max = 0.2, an algorithm parameter stated in the result; a spectrum with a larger damping ratio is refused (`SPECTRUM_DAMPING_OUT_OF_RANGE`). A damped force and reaction reference is frozen (§6).
+- **Modal recovery.** In mode i, at its displacement extremum, the relative acceleration is −ω_i² u_ik plus a part in phase with the ground acceleration (q̈_i = −ω_i²q_i − Γ_ik ẍ_g in the undamped form). The first part is the periodic modal response:
   - displacements and rotations: u_ik;
   - element end forces: (K_e − ω_i² M_e)·u_ik,e;
   - support reactions: (K_cf − ω_i² M_cf)·u_ik.
@@ -41,9 +44,9 @@ For direction k, spectrum S_k (pseudo-acceleration, §4.1) and scale s_k:
 
 ### 4.1 Spectra and their interpolation
 
-- **[decided] Where spectra live.** Spectrum tables are top-level `spectra[]` records of model document 0.9.0, as agreed with the document lane and recorded in its design (DEL-02-01 Work `model-document-0.9.0.md` §2.4, branch `claude/rt-load-cases` at `cdf8a8d80`, pending its merge to main): abscissa (frequency or period), ordinate (acceleration, or a g multiple with a required positive g value), damping ratio, interpolation and points. A spectrum is entered once and referenced only by the spectrum request. Directions, scale factors and method choices stay on the request.
+- **[decided] Where spectra live.** Spectrum tables are top-level `spectra[]` records of model document 0.9.0, as agreed with the document lane and recorded in its design (DEL-02-01 Work `model-document-0.9.0.md` §2.4; selected basis: branch `claude/rt-load-cases` at `c42a72491`, the member list frozen at `31bde47a2` with its later validation and unit clarifications, pending merge to main): abscissa (frequency or period), ordinate (acceleration, or a g multiple with a required positive g value), damping ratio, interpolation and points. A spectrum is entered once and referenced only by the spectrum request. Directions, scale factors and method choices stay on the request.
 - **[decided] Ordinate convention: pseudo-acceleration.** Every ordinate is the **pseudo-spectral acceleration** ω²·S_d(ω, ζ), with S_d the peak relative displacement of a linear oscillator at the spectrum's damping ζ. It is not the peak absolute acceleration of a damped oscillator, which differs for ζ > 0. The request, the result and every surface state this convention. A spectrum of another kind must be converted by the user before entry; F2 converts none. (Review finding 2.)
-- **[decided] Domains** (beyond the document's own rules): abscissae positive, finite and strictly increasing; ordinates positive and finite; g value positive and finite; damping ratio in [0, 1). There is no zero-period point: the rigid response is defined by the rigid frequency (§4.3), not by a T = 0 ordinate.
+- **[decided] Domains** (beyond the document's own rules): abscissae positive, finite and strictly increasing; ordinates positive and finite; g value positive and finite; damping ratio in [0, 1) by the document, and in [0, ζ_max = 0.2] for a spectrum solve (§3). There is no zero-period point: the rigid response is defined by the rigid frequency (§4.3), not by a T = 0 ordinate.
 - **[decided] Interpolation.** The user chooses linear or logarithmic on each axis; there is no default. A spectrum is interpolated on the abscissa it is entered in, at f_i or at T_i = 1/f_i. A **logarithmic abscissa** gives the same value whichever abscissa is entered, since log T = −log f; a linear abscissa does not, so the entered abscissa governs.
 - **[decided] No extrapolation.** A periodic mode (§4.3) or a rigid frequency outside a spectrum's tabulated range is refused by name (`SPECTRUM_FREQUENCY_OUT_OF_RANGE`, naming the mode or the rigid frequency, and the spectrum).
 - **[decided] Scale factors** are positive and finite, one per direction, and scale the whole response of that direction, rigid part included (§4.3).
@@ -83,7 +86,7 @@ Applied to each response quantity separately, with R_i the signed periodic value
 
 ## 5. Snubbers
 
-- **[decided] Document shape** (agreed with the load-case manager, who owns the 0.9.0 member list, frozen 2026-10-31 at `31bde47a2`; DEL-02-01 Work `model-document-0.9.0.md` §2.4, pending its merge): `SupportFamily` gains `snubber`, reusing `Support`'s members:
+- **[decided] Document shape** (agreed with the load-case manager, who owns the 0.9.0 member list, frozen 2026-10-31 at `31bde47a2`; selected basis `c42a72491`, as §4.1; DEL-02-01 Work `model-document-0.9.0.md` §2.4, pending its merge): `SupportFamily` gains `snubber`, reusing `Support`'s members:
   - restraints are translational DOFs only (`SNUBBER_ROTATIONAL_RESTRAINT_UNSUPPORTED`);
   - an optional `stiffness` gives one finite dynamic stiffness on exactly its one restrained DOF (`SNUBBER_STIFFNESS_INVALID`);
   - `hanger` and a non-null `nonlinear` are refused on a snubber (`SNUBBER_MEMBER_CONFLICT`);
@@ -99,6 +102,7 @@ Applied to each response quantity separately, with R_i the signed periodic value
 
 - **[decided]** `validation/references/f2_spectrum/`: a standard-library Python generator, exact rationals of the binary64 inputs and `decimal` for roots, invented data only, frozen JSON and `SHA256SUMS`, written by a TASK that reads no product code and refuted by a second TASK before any comparison. Cases:
   - a single degree of freedom under a stated spectrum, each interpolation rule, and a damped case showing the pseudo-acceleration convention (S_d = A/ω², not the absolute-acceleration peak);
+  - a damped force and reaction case showing the displacement-extremum recovery and the size of the neglected velocity term;
   - a one-element consistent-mass axial witness (u/A = m/(2k)) and a restrained-mass witness (support reaction including the attached mass's inertia);
   - a two- or three-degree-of-freedom chain with closed-form modes, under SRSS, CQC (ζ series and a closely spaced pair with opposite-sign contributions) and grouping;
   - a uniform cantilever with distributed mass under a flat spectrum, with the rigid response for 1, 2 and 3 periodic modes converging to the all-mode value, and a case with an extracted rigid mode entering the static solve;
@@ -117,8 +121,10 @@ Planned, as in `deliverable.yaml`: `core/product_physics/src/spectrum.rs` with a
 
 Defined now so the commitment is testable; built after the uniform-motion core, refused by name until then (`SPECTRUM_INDEPENDENT_SUPPORT_MOTION_UNSUPPORTED`).
 - **Groups.** Each support group g has its own spectrum per direction.
-- **Influence vectors.** For group g and direction k, ψ_gk is the static displacement of the free DOFs under unit motion along k of the group's restrained DOFs, with the other groups fixed: ψ_gk,f = −K_ff⁻¹K_fc R_gk,c. The excitation is p_gk = (M ψ̂_gk)_f, with ψ̂_gk carrying R_gk,c on the restrained DOFs, and Γ_igk = φ_iᵀp_gk / m_i.
+- **Groups of compliant supports.** Every ground spring and finite-stiffness snubber is assigned to a support group by the user (a required input for independent support motion, with no default), because its base moves with that group.
+- **Influence vectors.** For group g and direction k, ψ_gk is the static displacement of the free DOFs under unit motion along k of the group's restrained DOFs and of the bases of its compliant supports, with the other groups fixed: K_ff ψ_gk,f = −K_fc R_gk,c + Σ_{s in g} K_s R_k, with K_s the ground stiffness of compliant support s (so that the sum over all groups gives ψ = R_k, the uniform case). A unit move of a rigid support joined by k to a free node that also has a ground spring k_s of the same group gives ψ = 1, not k/(k + k_s). The excitation is p_gk = (M ψ̂_gk)_f, with ψ̂_gk carrying R_gk,c on the restrained DOFs, and Γ_igk = φ_iᵀp_gk / m_i.
 - **Order.** Per mode and direction, group responses are combined first by the user's group rule (SRSS or absolute sum), then modes by the modal rule, then directions. This follows the order of the published independent-support-motion benchmarks (NUREG/CR-1677 Vol. 2, cited for method only). For two modes with group contributions (1, 0) and (0, 1), absolute sum then SRSS gives √2; the other order would give 2, and is not used.
+- **No CQC with independent support motion.** Group-first combination yields nonnegative per-mode magnitudes, which carry neither the signs nor the cross-group correlation CQC's cross terms need (two modes with group contributions (+1, 0) and (−1, 0) at ζ = 0.05 and frequency ratio 1.01 give 0.140 by signed CQC but 1.995 from magnitudes). CQC is therefore refused for independent support motion (`SPECTRUM_INDEPENDENT_SUPPORT_MOTION_CQC_UNSUPPORTED`) until a method with signed group contributions and stated cross-group correlation is adopted. SRSS and grouping, which use magnitudes, are offered.
 - **Rigid response** per group, by §4.3 with p_gk and the group's rigid acceleration.
 - **Not included:** the pseudo-static response to differential support displacement, which is seismic anchor movement (RT-A10, a static load case). Its combination with the spectrum result is DEL-05-02's.
 

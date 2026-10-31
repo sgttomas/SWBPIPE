@@ -54,7 +54,7 @@ For each mode it publishes the frequency, circular frequency and period; the sha
 - DEL-05-01: the self-weight generator and its mass per length on both routes;
 - DEL-03-05: rigid-family components;
 - DEL-04-08: the retained-memory pricing law;
-- DEL-02-02: units, including the unit families for modal quantities (frequency, angular frequency, rotation per length, length per rotation, mass moment of inertia), before M1b;
+- DEL-02-02: units, including the unit families for modal quantities (frequency, angular frequency, rotation per length, length per rotation, rotational generalized mass in kg·m²·rad⁻²; carried by model document 0.9.0's S1), before M1b;
 - DEL-00-06: the diagnostics and result-envelope contract;
 - DEL-04-05, DEL-05-03, DEL-10-05: non-gating;
 - published piping benchmarks, such as the NUREG/CR reports, as external sources, each only with its own redistribution evidence (REQ-009).

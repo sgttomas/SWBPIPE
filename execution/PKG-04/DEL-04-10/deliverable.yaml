@@ -10,7 +10,7 @@ needs:
     model on its route (PF or EX), names the solved case at which nonlinear supports are linearized,
     and includes dynamic-only restraints (snubbers). It reads DEL-04-09's mass model, unchanged, for the
     missing-mass correction. A modal set that DEL-04-09 refuses is not used; a set published Sensitive
-    is used with that standing carried to the spectrum result (Design §2).
+    is used with that standing carried to the spectrum result (Design §1, §2).
   gating: true
   evidence: execution/PKG-04/DEL-04-09/ScopeOfWork.md
 - from: DEL-02-01
@@ -20,14 +20,17 @@ needs:
     restraint, no hanger or nonlinear member, refused by every static solve until DEL-04-10's slice) and
     the top-level `spectra[]` records (Work `model-document-0.9.0.md` §2.4, agreed and frozen at the
     document lane's `31bde47a2`, pending its merge to main). DEL-04-10 defines their
-    solve meaning; the document lane owns their shape and validation (Design §3.1, §4).
+    solve meaning; the document lane owns their shape and validation (Design §4.1, §5). Selected basis:
+    the document lane's design at `c42a72491`.
   gating: true
   when: Before the response-spectrum build slice.
 - from: DEL-04-03
   condition: >-
-    A snubber enters the dynamic stiffness as a rigid restraint of its translational DOFs, or as a
-    diagonal spring of its stated stiffness, through DEL-04-03's restraint partition and spring
-    assembly, unchanged. Static solves on both routes ignore it, with a disclosure (Design §4).
+    A snubber enters the dynamic stiffness as a rigid restraint of its translational DOFs, or as a spring
+    of its stated stiffness on its global DOF, through DEL-04-03's restraint partition and spring
+    assembly; with a skew direction, by the static path's nullspace basis (rigid) or the rank-1 term
+    k·d dᵀ/(dᵀd) (finite), admitted exactly when the static path admits skew. Static load-case solves
+    on both routes ignore it, with a disclosure (Design §5).
   gating: true
   evidence: core/solver/linear_supports
 - from: DEL-04-04
@@ -49,7 +52,7 @@ needs:
     A spectrum result is a set of unsigned combined magnitudes. Its combination with static cases (for
     example sustained plus seismic by absolute sum or SRSS) is DEL-05-02's load-case algebra, which
     admits the spectrum result as an unsigned operand; DEL-04-10 does not combine with static cases
-    itself and never treats an unsigned magnitude as signed (Design §3.5).
+    itself and never treats an unsigned magnitude as signed (Design §4.5).
   gating: true
   when: Before spectrum results are offered as operands of a load-case combination.
 - from: DEL-02-02
@@ -88,7 +91,7 @@ needs:
     `docs/IP_AND_DATA_BOUNDARY.md` §4; a report with uncertain rights is held for the owner's review.
     It is not required for completion; the closed-form references are (ScopeOfWork REQ-009).
   gating: false
-# Planned paths: none of these exists yet (Design §6).
+# Planned paths: none of these exists yet (Design §7).
 code_paths:
 - core/product_physics/src/spectrum.rs
 - core/product_physics/src/spectrum/**
