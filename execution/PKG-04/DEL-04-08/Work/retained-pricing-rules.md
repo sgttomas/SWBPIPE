@@ -1909,6 +1909,24 @@ The merged tree at native atoms (`7e7fef2d4`), against ⌊0.9M⌋:
 
 **Fit.** All 80 native evaluations (eight phases, both modes, the merged tree and four points) fit at `7e7fef2d4`, at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the upward-rounded 5 % TEXT reserve. The tightest headroom is merged dense W3, **+2,320,081,932 B**, which is **40,835,169 B below §8.32's +2,360,917,101 B** (E + R +38,891,800 B and reserve +1,943,369 B). Each unmerged point's tightest is also dense W3: L(3,0) +2,940,586,002 B, L(2,1) +3,601,574,169 B, L(1,2) +4,537,455,781 B and E +2,406,200,253 B. Registration does not establish acceptance, issuance or release.
 
+### 8.35 RT-U4 reader bundle: `reader_verdict.rs` content re-pin (the id set and the batched row semantics)
+
+This turn re-pins `reader_verdict.rs` after two RT-U4 performance changes to it, which keep every reader outcome byte for byte. No coefficient moves and nothing re-registers. The governing text is DEL-04-08 [b7-plan.md](b7-plan.md) ("`reader_verdict`").
+
+**Priced source.** The head is `6c7c46533`, which carries the source changes and the pins. Against the basis, the only priced source change is RE `reader_verdict.rs`:
+- `994b84459`: `ordinary_findings` keeps the emitted ids in a hashed `IdSet` instead of a list scanned per id. A string id equals exactly the string ids of the same text, so those are hashed; any other id is compared by `Value` equality, as before. `ordinary_case_eligible` reads the set.
+- `212817b24`: `row_semantics_each`, `row_semantics` of each of several rows with the table selected once. `row_semantics` is the same code for one row (`row_table`, `row_semantics_in`).
+
+The bundle's other changes are in the desktop and in `operation_applier`, which the tool does not read. The merge with main `e1a483b6c` (`6fb16c028`) changes no file under the tool's crate directories (`base/crate_dirs.txt`) or under `tools/retained_pricing/`.
+
+**Route and multiplicity.** None of the changed functions is reached from the retained roots. Neither route's loop log names a `reader_verdict.rs` loop (0 of 4,598 entries at L (3,0), 0 of 5,450 at E): `ordinary_findings`, `ordinary_case_eligible`, `IdSet`, `row_semantics_each`, `row_table` and `row_semantics_in` are reached only through `standing`, `dispatch` and `row_semantics`, as §3.5 states for `route()`'s callers, and through the wasm and runner entries. `validate`, which U4B-RD names as a reader entry, is unchanged. No rule is added.
+
+**Comparison basis.** The basis is main `cfd17e103`. Its committed tool (main's `tools/` at that revision, run with `--repo`) prices it with exit 0, and `generate --check` of that tree with §8.33's basis line reproduces the committed block (1,695 lines, an empty diff).
+
+**Run and comparison.** `run 6c7c46533` completes on all four points with no unmapped header and no unclassified argument, and both O-10 checks pass with zero findings. The line map carries 874 keys with no unmapped key, 37 prunes and seven reviewed resolutions, the basis run's entry for entry. `compare` against the basis tree gives `identical_but_basis`: **1,586 coefficients equal, 0 higher, 0 lower**; the merged check is unchanged (sparse 8,744,772,859 B, dense 8,803,904,203 B). `generate --check` of the head tree with §8.33's basis line reproduces the committed block (an empty diff). The registered block, `REGISTERED_PROFILES`, the reviewed inputs, the native law-test pins and AC-004's witness results therefore all stand. The witnesses need no re-run, because no coefficient or registration moves.
+
+**Pins.** `reader_verdict.rs`'s two full-file pins move together, `b43843aa…` → `e3513a24…`: OP1A-PF/RD (`_op1a_pins`, §8.31) and TIM-PF/RD/CD-ID (`_TIM_PINS`, §8.32). No body pin and no snapshot key moves.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -1932,7 +1950,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.33's source, `7e7fef2d4`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.35's head, `6c7c46533`, which prices coefficient-identically to §8.33's source, `7e7fef2d4`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -2013,3 +2031,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Nonlinear pressure-free combination operand standing actual-source D3", "§8.31" (OP1A-PF, OP1A-RD, OP1A-BN, OP1A-ER, OP1A-ID, OP1A-OWN) | §8.31 |
 | "Pressure-free Timoshenko, transverse-shear factor and canonical-decimal temperature identity actual-source D3", "§8.32" (TIM-OWN, TIM-PF, TIM-RD, TIM-ID, TIM-BN, CD-ID) | §8.32 |
 | "Tees and implicit pressure junctions on the exact route actual-source D3", "§8.33" (RTA3-JW, RTA3-ID, RTA3-BB) | §8.33 |
+| "RT-U4 reader bundle: `reader_verdict.rs` content re-pin", "§8.35" | §8.35 |
