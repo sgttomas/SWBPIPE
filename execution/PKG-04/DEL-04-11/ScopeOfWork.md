@@ -55,12 +55,16 @@ to §7):
 1. **Hot-load basis.** The weight case is solved with every candidate made a rigid
    restraint of its single translational DOF. Each candidate's reaction is its hot-load
    basis W.
-2. **Travel.** The weight case and each named operating case are solved with every
-   candidate replaced by a force W. Each candidate's travel in an operating case is its
-   displacement there minus its displacement in the weight case.
-3. **Variable records.** The cold load and the operating loads follow from the record's
-   rate, under the person's hot or cold load design. The load variation follows under
-   the person's reference load.
+2. **Positions.** The weight case (the cold condition) and each named operating case are
+   solved with every candidate replaced by a force W. Each candidate's positions are its
+   displacements there, measured from the drawn geometry, which is the installed
+   position.
+3. **Variable records.** A variable spring set to its cold load at the installed position
+   carries that load minus its rate times its displacement, the one law used throughout.
+   - The cold load is chosen so that the spring carries W in the design operating case
+     (hot design) or in the cold condition (cold design).
+   - The load variation is the change of load between the cold condition and each
+     operating case, over the person's reference load.
 4. **Fit.** Each catalogue record is tested against its working load range, its travel
    range with the person's allowance, and the person's variation limit.
 5. **Selection.** A fitting record is selected by the person's rule.
@@ -158,11 +162,15 @@ suitability, and nothing here determines code compliance.
     nonlinear, a snubber or an anchor, shares its node and DOF with no other support,
     and is referenced by no other model object.
   - Its present family and hanger data are not read.
+  - On an EX load/reference-state document, it has in every named case an ordinary
+    support state: active, with no imposed motion or device reference. That entry is the
+    support's own declaration, not a blocking reference.
   - Its force acts along the positive axis of its DOF (DEC-049's convention).
-  - Each failure is refused by name. A candidate whose hot-load basis is not positive is
-    reported as refused while the others are sized (Design §3).
-- **AC-002** — Each candidate refusal is exercised by a maintained test that asserts its
-  code and named support. A placeholder support of each admitted family is sized.
+  - Each failure is refused by name, and refuses the request. A hot-load basis that is
+    not positive also refuses the request, naming every such candidate (Design §3).
+- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the
+  non-positive hot-load refusal are exercised by maintained tests that assert the code
+  and the named supports. A placeholder support of each admitted family is sized.
 
 ### Solution
 
@@ -172,8 +180,9 @@ suitability, and nothing here determines code compliance.
     settings and requests no retained-precision recovery.
   - It is never saved, never returned as a model, never in undo history and never
     passed through the operation route.
-  - On an EX load/reference-state document, each added force is entered in its case's
-    source ledger.
+  - On an EX load/reference-state document, a candidate made rigid keeps its support
+    state, and a candidate replaced by a force loses its support state with the support.
+    Each added force is entered in its case's source ledger.
   - Nonlinear supports converge in each derived solve to the states that case produces.
   - The support state W is formed in is a required input. Only the weight case's own
     state is admitted until the solve can hold another case's state.
@@ -187,22 +196,28 @@ suitability, and nothing here determines code compliance.
   - each kind of derived document, and that the stored model is byte-identical after a
     run;
   - that the solve-time lowering is applied to derived documents;
-  - the EX ledger entry;
+  - on EX, the support-state reconciliation for rigid, force and spring candidates, and
+    the ledger entry, with each derived document admitted by the solve;
   - the state disclosures and warnings on a lift-off model;
   - the refusal on a failed derived solve.
 - **REQ-004** — *Loads, fit and selection.*
-  - **Loads.** Under hot design, a variable spring's cold load is the hot-load basis
-    plus its rate times the design case's travel. Under cold design, it is the hot-load
-    basis. Each operating load is the cold load minus the rate times that case's travel.
-  - **Variation.** Load variation is the difference between the cold and operating loads
-    over the chosen reference load.
+  - **One origin.** Every position is measured from the drawn geometry, the installed
+    position. A variable spring set to its cold load F_cold carries F_cold − k·u at
+    position u, in sizing, verification, application and the solve.
+  - **Loads.** Under hot design, F_cold is chosen so that the spring carries the hot-load
+    basis in the design operating case. Under cold design, it is chosen so that the spring
+    carries it in the cold condition. The cold-condition and operating loads follow from
+    the law.
+  - **Variation.** Load variation is the difference between the cold-condition load and
+    each operating load, over the chosen reference load.
   - **Variable record fit.** A variable record fits when, in order:
     1. it carries a rate, a working load range and a travel range;
     2. its stiffness DOF matches the candidate;
-    3. every operating load is positive;
-    4. the load envelope, widened by the rate times the allowance at each end, lies
-       within its working load range;
-    5. the travel span plus twice the allowance is within its travel range;
+    3. the cold-condition load and every operating load are positive;
+    4. the loads over the travel span, widened by the rate times the allowance at each
+       end, lie within its working load range;
+    5. the travel span (over the installed position, the cold condition and every
+       operating case) plus twice the allowance is within its travel range;
     6. every variation is within the limit.
   - **Constant record fit.** A constant record fits when it carries a working load range
     and a travel range, the hot-load basis lies within its range, and the travel test is
@@ -217,21 +232,40 @@ suitability, and nothing here determines code compliance.
   - the free-riser travel;
   - every load, variation, fit outcome and selection, the selection exactly.
 
-  This holds over hot and cold design, both reference loads, the allowance,
-  multi-case governing, fallback, no fit, non-positive loads and a DOF mismatch.
+  This holds over hot and cold design, both reference loads, the allowance, a
+  cold-condition position that is not zero, multi-case governing, fallback, no fit,
+  non-positive loads and a DOF mismatch.
   Mutation tests show each method choice changing the result as its rule predicts.
   Results are byte-identical on repeated runs.
 - **REQ-005** — *Verification pass.*
-  - The weight case and each operating case are solved again. Each selected variable
-    record is modelled as a spring of its rate with a force equal to its cold load, and
-    each constant selection or unfitted candidate as a force equal to its hot-load
-    basis.
-  - The verified loads, variations and departure from the hot-load basis are published.
-  - Each fit test that the verified values fail is warned by name.
+  - **Solves.** The weight case and each operating case are solved again with:
+    - each selected variable record as a spring of its rate with a force equal to its
+      cold load, the same law as REQ-004;
+    - each constant selection as a force equal to its hot-load basis;
+    - each unfitted candidate as a force equal to its hot-load basis.
+  - **Basis.** The result states the configuration assumed for each candidate. When a
+    candidate has no fit, the verification is marked as conditional on that assumption,
+    which applying the selected records alone does not reproduce.
+  - **Every selected family.** The verified positions, travel span and travel test are
+    published for every selected family.
+  - **Variable selections.** The verified cold-condition and operating loads are
+    published, with:
+    - the verified variations, each the difference between the verified cold-condition
+      load and that case's verified operating load, over the reference load;
+    - the departure from the hot-load basis.
+  - **Warnings.** Each fit test that the verified values fail is warned by name: the
+    travel test for a constant selection, and the load, travel and variation tests for a
+    variable one.
   - No selection is changed automatically (Design §7).
-- **AC-005** — The one-spring closed-form reference and a lift-off case are reproduced.
-  A selection whose verified loads fail a test produces its warning, and the selection
-  is unchanged.
+- **AC-005** — The following are reproduced:
+  - the one-spring closed-form reference, with its verified variation formed from both
+    verified loads;
+  - a mixed variable and constant reference, in which the constant support's verified
+    travel fails its test and warns;
+  - a lift-off case.
+
+  A selection whose verified values fail a test produces its warning, and the selection
+  is unchanged. The conditional marking appears when a candidate has no fit.
 
 ### Library, results and application
 
@@ -367,20 +401,25 @@ suitability, and nothing here determines code compliance.
 ### Spring preload
 
 - **REQ-014** — *A variable spring carries its cold load.*
-  - On both routes, the solve models a variable spring hanger as its stiffness plus its
-    `cold_load`, applied as a constant force along its stiffness DOF in every load case,
-    through the constant-effort seam and under the same combination gate. The spring
-    carries the cold load minus its rate times the displacement.
-  - `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired. A warning is published
-    where `installed_load` and `cold_load` differ.
-  - Documents that carry `cold_load` solve differently after the change. The change and
-    the release-notes material state this.
+  - **Preload.** On both routes, the solve models a variable spring hanger as its
+    stiffness plus its `cold_load`. The cold load is applied as a constant force along
+    its stiffness DOF in every load case, through the constant-effort seam and under the
+    same combination gate. The spring carries the cold load minus its rate times its
+    displacement from the drawn geometry, relative to its base where the base moves.
+  - **Held springs.** In a case whose test condition holds springs, a held spring is a
+    rigid restraint of its DOF, and neither its stiffness nor its preload acts.
+  - **Recovery.** The spring's published support force includes the preload.
+  - **Diagnostics.** `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired. A warning
+    is published where `installed_load` and `cold_load` differ.
+  - **Behaviour change.** Documents that carry `cold_load` solve differently after the
+    change. The change and the release-notes material state this.
   - DEL-04-03's support model and commitment text change with this requirement (Agent 0,
     D-3, 2026-10-31; Design §11).
 - **AC-014** — When built:
-  - the preload reference agrees with the force-plus-spring derived solve;
-  - targeted regression covers the spring-hanger tests and diagnostics, and the
-    combination gate;
+  - the preload reference agrees with the force-plus-spring derived solve, in
+    displacements and in published support forces, including a moved base;
+  - targeted regression covers the spring-hanger tests and diagnostics, the
+    combination gate, and a held and an unheld spring, with no preload on the held one;
   - the retained route is re-priced, with the registration reviewed;
   - the reference system's spring results are updated with that lane.
 

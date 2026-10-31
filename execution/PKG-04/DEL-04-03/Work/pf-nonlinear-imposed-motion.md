@@ -727,9 +727,14 @@ D-3, under the engineering-judgment and scope delegations of
 - **The reason.** That is the normative model of a set spring. Without it, a
   hanger sized and applied under DEL-04-11 cannot reproduce its own table in
   the model's cases.
-- **How it is built.** The force enters through the constant-effort seam and
-  its combination gate. `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired,
-  and a warning is added where `installed_load` and `cold_load` differ.
+- **How it is built.**
+  - The force enters through the constant-effort seam and its combination gate.
+  - The spring's published support force includes the preload: F_cold − k·(u − g)
+    for a moved base.
+  - A spring held by a hydrotest's held supports is rigid, with no stiffness and
+    no preload.
+  - `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired, and a warning is
+    added where `installed_load` and `cold_load` differ.
 - **Effect.** Documents that carry `cold_load` solve differently afterwards.
 - **Until then.** The limitation above stands until DEL-04-11's increment 6
   builds this (DEL-04-11 `Work/hanger-sizing.md` §11, ScopeOfWork REQ-014).

@@ -34,10 +34,10 @@ invented.
 - **[decided] The method** (D-4), for the candidate supports the person names:
   1. *Hot-load basis W.* Solve the weight case with every candidate made a rigid
      restraint of its DOF. W is the candidate's reaction.
-  2. *Travel.* Solve the weight case (the cold reference) and each operating case with
-     every candidate replaced by its force W and no stiffness. A candidate's travel in
-     an operating case is its displacement there minus its displacement in the cold
-     reference.
+  2. *Positions.* Solve the weight case (the cold condition) and each operating case with
+     every candidate replaced by its force W and no stiffness. A candidate's positions are
+     its displacements there, measured from the model's drawn geometry, which is the
+     installed position (§6).
   3. *Loads and fit.* For each catalogue record, form the cold and operating loads and
      the load variation, and test the record against its working load range, its travel
      range and the variation limit.
@@ -57,7 +57,7 @@ project, as it does for the modal request; the request records the values actual
 | `candidates` | A non-empty list of support ids, each once, each with its `family_policy`: `variable`, `constant` or `variable_else_constant` | `HANGER_SIZING_CANDIDATES_REQUIRED`, `HANGER_SIZING_CANDIDATE_DUPLICATE`, `HANGER_SIZING_FAMILY_POLICY_REQUIRED` |
 | `weight_case` | A load case of the model | `HANGER_SIZING_WEIGHT_CASE_REQUIRED` |
 | `weight_support_state` | Which nonlinear-support state W is formed in (§5). Only `own_solve` is admitted until the operating-status machinery of RT-A5 lands | `HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED`, `HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED` |
-| `design_operating_case` | The load case whose travel sets a variable spring's cold load (§6.1) | `HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED` |
+| `design_operating_case` | The load case in which a hot-designed variable spring carries W (§6.1) | `HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED` |
 | `check_operating_cases` | Further load cases checked against the same setting; may be empty, but must be stated | `HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED` |
 | `load_design` | `hot` or `cold` (§6.1) | `HANGER_SIZING_LOAD_DESIGN_REQUIRED` |
 | `variation_limit` | A positive finite ratio; the result states it also as a percentage | `HANGER_SIZING_VARIATION_LIMIT_REQUIRED`, `HANGER_SIZING_VARIATION_LIMIT_INVALID` |
@@ -87,7 +87,16 @@ project, as it does for the modal request; the request records the values actual
   - carries no `nonlinear` member and is not a snubber or an anchor;
   - shares its node and DOF with no other support;
   - is referenced by no other model object, such as a friction normal-force source, a
-    support-targeted imposed displacement or a boundary association.
+    support-targeted imposed displacement or a boundary association;
+  - on an EX load/reference-state document, has in every named case an ordinary support
+    state: participation `active_model_device`, with no `boundary_motion`, `base_motion`
+    or `device_reference`.
+
+  The support-state entry that every support needs on such a document is the support's
+  own participation declaration. It is not a reference that blocks candidacy, and the
+  derived documents reconcile it (§4.1). A candidate whose support state moves it, or
+  that declares a reference, is refused (`HANGER_SIZING_CANDIDATE_MOVED`), because a
+  hanger's travel would then include an imposed motion that sizing does not separate.
 
   Its present family does not matter: a `vertical_support`, a `spring`, a
   `variable_spring_hanger`, a `spring_hanger` or a `constant_effort_support` placeholder
@@ -97,17 +106,19 @@ project, as it does for the modal request; the request records the values actual
   Each failure is refused by name: `HANGER_SIZING_CANDIDATE_UNKNOWN`,
   `HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED` (none, several or a rotation),
   `HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED`, `HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED`,
-  `HANGER_SIZING_CANDIDATE_DOF_SHARED`, `HANGER_SIZING_CANDIDATE_REFERENCED`.
+  `HANGER_SIZING_CANDIDATE_DOF_SHARED`, `HANGER_SIZING_CANDIDATE_REFERENCED`,
+  `HANGER_SIZING_CANDIDATE_MOVED`.
 - **[decided] Direction.** A candidate's force acts along the positive axis of its DOF,
   the DEC-049 convention constant effort already uses
   (`core/product_physics/src/lib.rs`, `add_constant_effort_support_loads`). Nothing
-  infers "up". A candidate whose W is not positive is refused per candidate
+  infers "up". A candidate whose W is not positive is refused
   (`HANGER_SIZING_LOAD_NOT_POSITIVE`, stating W): the reaction would put the hanger in
   the opposite sense, and sizing never flips a sign.
 - **[decided] One refusal refuses the request.** Any refusal of §2 or §3 refuses the
   whole request with every finding listed, because the derived solves replace all
-  candidates together. A candidate whose W is not positive is the exception: it is
-  reported in the table as refused and the others are sized.
+  candidates together. This includes a W that is not positive, found after S_W: the
+  force-replacement solves would otherwise be built on a load the hanger cannot carry.
+  Every such candidate is named, so that the person can remove it and run again.
 
 ## 4. Derived solves
 
@@ -124,12 +135,15 @@ project, as it does for the modal request; the request records the values actual
   - *Rigid candidate* (solve S_W): the candidate's configuration is replaced by a rigid
     linear restraint of its DOF, with its `hanger`, `stiffness` and `nonlinear` members
     removed. Increment 1 fixes the family token from those both routes admit as a
-    rigid single-DOF restraint.
+    rigid single-DOF restraint. On an EX load/reference-state document, its ordinary
+    support-state entry is kept unchanged.
   - *Force candidate* (solves S_C and S_Oi): the candidate support is removed, and a
     nodal force of magnitude W along the positive axis of its DOF is added to the solved
-    case at its node. On an EX load/reference-state document, the force is also entered
-    in that case's `analysis_state.load_sources` ledger with factor 1, so that it is in
-    the case's declared source ledger.
+    case at its node. On an EX load/reference-state document:
+    - the candidate's support-state entry is removed with it, because a support state
+      that names no support is refused (`LOAD_STATE_SUPPORT_UNKNOWN`);
+    - the force is entered in that case's `analysis_state.load_sources` ledger with
+      factor 1, so that it is in the case's declared source ledger.
   - *Selected candidate* (solves V_C and V_Oi, §7): see §7.
   - Each derived document keeps only the case it solves and no combinations. Added
     primitive ids are in a reserved namespace (`load:hanger-sizing:…`) that is disjoint
@@ -145,16 +159,23 @@ project, as it does for the modal request; the request records the values actual
 | Solve | Case | Candidates | Read |
 |---|---|---|---|
 | S_W | weight case | rigid | W: each candidate's reaction along its DOF |
-| S_C | weight case | force W | u_C: each candidate's displacement along its DOF (the cold reference) |
+| S_C | weight case | force W | u_C: each candidate's displacement along its DOF (the cold condition) |
 | S_Oi | each operating case i | force W | u_i: each candidate's displacement along its DOF |
 | V_C, V_Oi | weight case and each operating case | selected (§7) | the verified loads |
 
-- **Travel.** d_i = u_i − u_C, signed along the candidate's positive DOF axis. In a
-  linear model u_C is zero to rounding at every candidate, because the force W equals
-  the rigid reaction. With lift-off, gaps or friction it need not be zero, so it is
-  always subtracted and published.
+- **[decided] One origin: the installed position.** Every displacement is measured from
+  the model's drawn geometry, u = 0, signed along the candidate's positive DOF axis.
+  The drawn geometry is the position at which the hanger is installed and set: the pipe
+  is erected at its drawn position and the spring is preset there. One law then holds
+  everywhere, in sizing, verification, application and the solve's preload (§11):
+  a variable spring set to F_cold carries **F(u) = F_cold − k·u**.
+  - In a linear model, u_C is zero to rounding at every candidate, because the force W
+    equals the rigid reaction.
+  - With lift-off, gaps or friction, u_C need not be zero. It is never subtracted, so
+    no second origin arises. It enters the loads and the travel span as the cold
+    condition's position (§6), and it is published.
 - **[decided] All candidates move together.** Each solve replaces every candidate at
-  once, as the method requires, so each W and d_i already includes the effect of the
+  once, as the method requires, so each W, u_C and u_i already includes the effect of the
   other candidates' supports being rigid or replaced by forces.
 - **[decided] A failed derived solve refuses the request.** If any derived solve is
   refused, fails to converge or publishes a blocking diagnostic, the request is refused
@@ -186,7 +207,7 @@ project, as it does for the modal request; the request records the values actual
   2026-10-31; DEL-05-02 `Work/operating-case.md` §0). A held status can need a tensile
   reaction at a unilateral support, which is not an admissible state of the weight case.
   When that occurs, the result discloses it as such. [open] O-1.
-- **[decided] Travel uses each operating case's own state**, and the cold reference uses
+- **[decided] Positions use each operating case's own state**, and the cold condition uses
   the weight case's own state with the candidates as forces.
 - **[decided] Disclosure.** The result publishes each nonlinear support's state in S_W,
   S_C and every S_Oi. A support whose state in S_W differs from its state in
@@ -203,31 +224,40 @@ project, as it does for the modal request; the request records the values actual
 
 The symbols are:
 - W, the hot-load basis;
-- d_i, the travel in operating case i; d_D is the design operating case's travel;
+- u_C, the candidate's position in the cold condition (S_C);
+- u_i, its position in operating case i (S_Oi), and u_D in the design operating case;
+- every position is measured from the installed position, u = 0 (§4.2);
 - k, a variable record's rate;
 - [F_min, F_max], a record's working load range;
 - T, a record's travel range;
 - a, the travel allowance;
 - λ, the variation limit.
 
-All loads are positive along the candidate's DOF. A spring's force on the pipe falls as
-the pipe moves along the positive axis: F = F_cold − k·d.
+All loads are positive along the candidate's DOF. A variable spring set to F_cold at the
+installed position carries F(u) = F_cold − k·u, falling as the pipe moves along the
+positive axis.
 
 ### 6.1 Variable spring loads
 
-- **Hot design** (`load_design: hot`): the spring carries W in the design operating case.
-  F_cold = W + k·d_D, and F_i = F_cold − k·d_i for every operating case, so F_D = W.
-- **Cold design** (`load_design: cold`): the spring carries W in the cold position.
-  F_cold = W, and F_i = W − k·d_i.
-- **[decided]** These are the only two designs. Each is a statement of where the spring
-  is set equal to the weight it supports, and practice uses both, so the person chooses.
-  The installed load equals the cold load: the spring is set at installation in the cold
-  position.
+- **The loads.** F_cold is the spring's setting at the installed position, which is
+  written to `cold_load` and `installed_load` on application (§9) and consumed by the
+  solve (§11). From it:
+  - F_C = F_cold − k·u_C, the load in the cold condition;
+  - F_i = F_cold − k·u_i, the load in operating case i.
+- **Hot design** (`load_design: hot`): the spring carries W in the design operating case,
+  F_D = W, so F_cold = W + k·u_D.
+- **Cold design** (`load_design: cold`): the spring carries W in the cold condition,
+  F_C = W, so F_cold = W + k·u_C.
+- **[decided]** These are the only two designs. Each states where the spring carries
+  the weight it supports, and practice uses both, so the person chooses. In a linear
+  model u_C = 0, and cold design sets F_cold = W.
 
 ### 6.2 Load variation
 
-- For each operating case i: v_i = |F_cold − F_i| / R_i = k·|d_i| / R_i, where R_i is the
-  reference load:
+- For each operating case i, the variation is the change of load between the cold
+  condition and that case:
+  v_i = |F_C − F_i| / R_i = k·|u_i − u_C| / R_i,
+  where R_i is the reference load:
   - F_i for `variation_reference: operating_load`;
   - W for `variation_reference: design_load`.
 - **[decided]** Both references occur in practice, so the person chooses. They coincide
@@ -237,12 +267,13 @@ the pipe moves along the positive axis: F = F_cold − k·d.
 
 ### 6.3 Travel and allowance
 
-- The travel span is the interval from min(0, d_1 … d_n) to max(0, d_1 … d_n). It
-  includes the cold position, 0.
+- The travel span is the interval from the least to the greatest of {0, u_C, u_1 … u_n}.
+  It includes the installed position and the cold condition.
 - **[decided] The allowance a is added at each end.** The required travel is
-  span + 2a. For a variable record the load envelope is
-  [min(F_cold, F_i) − k·a, max(F_cold, F_i) + k·a]. Adding the allowance at each end is
-  stated so that one number has one meaning; the person enters a.
+  span + 2a. For a variable record, the load envelope is the loads at the ends of the
+  span widened by k·a at each end: [F_cold − k·(max + a), F_cold − k·(min − a)], with
+  min and max the ends of the span. Adding the allowance at each end is stated so that
+  one number has one meaning; the person enters a.
 
 ### 6.4 Fit tests
 
@@ -251,7 +282,7 @@ Records are tested in this order, and the first failure is the record's reason.
 **Variable record** (`hanger_type: variable_spring_hanger`):
 - E1: the record carries a stiffness, a `working_load_range` and a `travel_range`;
 - E2: its stiffness `dof` equals the candidate's DOF;
-- V0: every F_i > 0;
+- V0: F_C > 0 and every F_i > 0;
 - L: the load envelope lies within [F_min, F_max];
 - T: span + 2a ≤ T;
 - V: every v_i ≤ λ.
@@ -283,29 +314,45 @@ Notes on the tests:
 - **[decided]** Both rules occur in practice, so the person chooses; the tie-breaks
   make every selection deterministic.
 - **No fit.** The outcome is "no record fits", with the count of records that failed
-  each test (§8.1). The candidate is not sized, and nothing is assumed in its place.
+  each test (§8.1). The candidate is not sized, and nothing is assumed in its place in
+  the table.
 
 ## 7. Verification pass
 
 - **[decided] Re-solve with the selections in place.** Sizing estimates every load from
-  W and d_i, which were computed with the candidates rigid or replaced by forces. A
+  W, u_C and u_i, which were computed with the candidates rigid or replaced by forces. A
   spring's rate redistributes load, so the selections are checked by solving again:
   - V_C, the weight case, and V_Oi, each operating case;
   - each candidate with a selected variable record becomes a spring of rate k on its
     DOF together with a nodal force F_cold along the positive axis. This is exactly the
-    model of a spring set to its cold load at the reference position (§11);
-  - each candidate with a selected constant record, and each candidate with no fit,
-    becomes a force W.
-  - These are derived documents as in §4.1, with the same EX ledger entry for every
-    added force.
-- **Published, per candidate with a variable selection:**
-  - the verified loads F_C^v = F_cold − k·u_C^v and F_i^v = F_cold − k·u_i^v;
-  - the verified variations, formed as in §6.2 with F_i^v;
-  - F_D^v − W, the departure from the hot-load basis.
+    law F(u) = F_cold − k·u from the installed position (§4.2), the model the solve
+    itself uses once the preload is built (§11);
+  - each candidate with a selected constant record becomes a force W;
+  - each candidate with no fit stays a force W, as in S_C and S_Oi.
+  - These are derived documents as in §4.1. On EX, each candidate keeps its support
+    state when it is a spring and loses it when it is a force, and every added force is
+    entered in the ledger.
+- **[decided] The verification's basis is stated.** The result publishes, per candidate,
+  the configuration the verification assumed: a spring of the selected record, a constant
+  force, or, for no fit, the force W. When any candidate has no fit, the verification is
+  marked as conditional on that assumption. Applying the selected records alone does not
+  reproduce it, because an unresolved candidate stays as the person last left it in the
+  model (§9).
+- **Published, for every candidate:**
+  - the verified positions, the verified travel span and the T test with the allowance,
+    for every selected family, so that a constant support pushed further by its
+    neighbours' springs is caught;
+  - for a variable selection, the verified loads F_C^v = F_cold − k·u_C^v and
+    F_i^v = F_cold − k·u_i^v, and the verified variations
+    v_i^v = |F_C^v − F_i^v| / R_i^v = k·|u_i^v − u_C^v| / R_i^v, with R_i^v = F_i^v for
+    the operating-load reference and W for the design-load reference;
+  - for a variable selection, F_D^v − W (hot design) or F_C^v − W (cold design), the
+    departure from the hot-load basis.
 
-  Each failed test (V0, L, T or V, formed with the verified loads and travels
-  u_i^v − u_C^v) is reported by name (`HANGER_SIZING_VERIFICATION_TEST_FAILED`,
-  warning).
+  Each failed test, formed with the verified values, is reported by name
+  (`HANGER_SIZING_VERIFICATION_TEST_FAILED`, warning):
+  - V0, L, T and V for a variable selection;
+  - T for a constant selection; its L is unchanged, because its load stays W.
 - **[decided] No automatic iteration.** The selection stands as sized, and the
   verification reports how it behaves. Re-sizing after applying a selection is the
   person's choice: the next request then sees the applied springs as candidates or as
@@ -323,10 +370,11 @@ Notes on the tests:
 - the library id, `hanger_id` and name, and the record's type;
 - for a variable record: k, [F_min, F_max] and T;
 - W, F_cold (variable) or the constant load W (constant);
-- for each operating case: F_i, d_i and v_i; the governing case for travel and the one
+- u_C and F_C; for each operating case: u_i, F_i and v_i; the governing case for travel and the one
   for variation;
 - the required travel span + 2a;
-- the verified loads and variations of §7;
+- the verification's assumed configuration, and the verified positions, travel, loads,
+  variations and test outcomes of §7, for every selected family;
 - for a candidate with no fit or a fallback: the number of records failing each test,
   E1 to V.
 
@@ -336,7 +384,7 @@ Notes on the tests:
 revision hash, the route, the case ids and the load kinds of each case after lowering.
 
 - **[decided] Per-record evaluations are recomputed, not stored.** Selection is a pure
-  function of W, the d_i, the request and the library. The desktop's detail view for one
+  function of W, u_C, the u_i, the request and the library. The desktop's detail view for one
   candidate calls the same Rust function to list every record with its first failed test,
   so the table's size is independent of the catalogue's size (§10).
 - **Publication.** Results are published under the profile
@@ -345,7 +393,7 @@ revision hash, the route, the case ids and the load kinds of each case after low
   gains a hanger-sizing run kind that carries the request. These join the result
   envelope under DEL-00-06's contract and its one-version rule.
 - **[decided] Readers.** A Rust product reader and a test-only Python verifier, which
-  shares no code with the producer, each recompute from the published W, d_i, u_C, the
+  shares no code with the producer, each recompute from the published W, u_C, u_i, the
   request and the library document:
   - F_cold, F_i and v_i;
   - every fit test of the selected record;
@@ -394,8 +442,11 @@ This design defines what sizing needs from it.
 - **The batch writes**, into existing model members only:
   - the record's family, stiffness, travel range, references and combined provenance,
     as the builder does today;
-  - for a variable record, the sized `cold_load` and `installed_load` (both F_cold) and
-    `hot_load` (F_D), in place of the record's own load entries;
+  - for a variable record, the sized `cold_load` and `installed_load` (both F_cold, the
+    setting at the installed position, which is what the solve consumes, §11) and
+    `hot_load` (F_D), in place of the record's own load entries. Where u_C is not zero,
+    the cold-condition load F_C differs from F_cold. The table shows both, and the model
+    stores the setting;
   - for a constant record, `constant_load` = W.
 - **Provenance.** Each sized value's source note names the sizing run, its request
   digest and the record, so the model says where every number came from. The record's
@@ -444,10 +495,13 @@ This design defines what sizing needs from it.
 
 **Decision** (Agent 0, 2026-10-31, D-3 (a), under the engineering-judgment and scope
 delegations of `loop/LOOP_INIT.md`): a variable spring is modelled as its stiffness plus
-its cold (preset) load at the model's reference position. The solve consumes
-`hanger.cold_load` as a constant force along the support's stiffness DOF, in every load
-case, together with the spring's stiffness. The spring then carries
-F = F_cold − k·u.
+its cold (preset) load at the model's reference position, the drawn geometry, which is
+the installed position of §4.2. The solve consumes `hanger.cold_load` as a constant force
+along the support's stiffness DOF, in every load case except where the support is held
+(below), together with the spring's stiffness. The spring then carries
+F = F_cold − k·u, or F_cold − k·(u − g) where its base moves by g. That is the same law
+sizing uses, so an applied selection reproduces the table's verification in the model's
+own cases.
 
 **Reason.** That is the normative model of a set spring. Without it, a sized and applied
 spring is a spring from zero load. The model's own sustained and operating cases would
@@ -458,17 +512,25 @@ DEL-04-03 `Work/pf-nonlinear-imposed-motion.md`) is settled this way.
 **What changes, built as increment 6 after the engine increments:**
 - The force enters through the constant-effort seam: one ledger term per support,
   before the system is reduced, so dense, sparse and nonlinear solves consume it alike.
-  The factor-sum gate that withholds a combination that would count a constant-effort
-  force more than once applies to it in the same way. RT-A3 shares the seam and is told
-  when the increment starts.
+  The factor-sum gate applies to it in the same way: a combination whose factors would
+  count a constant-effort force other than exactly once is withheld. RT-A3 shares the seam
+  and is told when the increment starts.
+- **Support-action recovery.** The published support force of a variable spring
+  includes its preload: F_cold − k·(u − g), not −k·(u − g) alone. Today's recovery forms
+  the spring's action from stiffness alone (`core/product_physics/src/lib.rs`, the
+  spring support-action rows), so the increment changes the recovery and its readers
+  with the assembly. Otherwise the displacements would be right and the reported hanger
+  force wrong.
 - `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired. A new warning,
   `SPRING_HANGER_INSTALLED_COLD_LOAD_DIFFER`, is published when `installed_load` and
   `cold_load` differ. `hot_load` stays review data.
 - **Behaviour change.** Documents saved before the change that carry `cold_load` solve
   differently afterwards. The PR and the release-notes material state this explicitly.
 - **Evidence:**
-  - closed-form references;
-  - targeted regression on the existing spring-hanger tests;
+  - closed-form references, with the published support forces of the ordinary model
+    compared with the sizing verification, not only its displacements;
+  - targeted regression on the existing spring-hanger tests, with a held and an unheld
+    spring, showing that a held spring carries no preload;
   - re-pricing under DEL-04-08's rules, because it adds a ledger term;
   - an xhigh review.
 - **Coordination.** The reference system's RS-VS1 KR-03 follows, and the increment-6 PR
@@ -491,19 +553,28 @@ any product comparison. All values are invented.
 - **R-1, rigid reactions:** two- and three-span continuous beams under uniform weight,
   closed form (Euler–Bernoulli). W at the interior supports.
 - **R-2, free riser growth:** a vertical riser anchored at its base, with a hanger at its
-  top and a horizontal leg whose far end is free vertically. Travel d = α·ΔT·H, and
-  u_C = 0.
-- **R-3, arithmetic:** F_cold, F_i, v_i, the fit tests and both selection rules over an
-  invented catalogue, as exact identities. It covers hot and cold design, both variation
-  references, the allowance, multi-case governing, fallback, no fit, W ≤ 0, F_i ≤ 0 and
-  a DOF mismatch.
+  top and a horizontal leg whose far end is free vertically. The operating position is
+  u = α·ΔT·H, and u_C = 0.
+- **R-3, arithmetic:** F_cold, F_C, F_i, v_i, the fit tests and both selection rules
+  over an invented catalogue, as exact identities. It covers:
+  - hot and cold design, both variation references and the allowance;
+  - a nonzero u_C, under both designs, with the one origin of §4.2;
+  - multi-case governing, fallback and no fit;
+  - F_C ≤ 0, F_i ≤ 0 and a DOF mismatch.
+- **R-3b, W ≤ 0:** the whole request is refused, with every such candidate named.
 - **R-4, verification pass:** a one-spring beam with a spring of rate k and force F_cold,
-  closed form, giving F^v and the load redistribution.
+  closed form. It gives F_C^v, F^v, the verified variation formed from F_C^v and F_i^v,
+  and the load redistribution.
+- **R-4b, mixed verification:** a variable and a constant selection on one model, where
+  the variable spring's redistribution moves the constant support beyond its travel
+  range. The verified T test of the constant selection fails, and its warning is
+  published.
 - **R-5, lift-off:** a beam on a lift-off support beside a candidate, with the state
   differing between S_W and S_O. Each state and the disclosure are asserted, and the
   values follow the active-set solution in closed form.
 - **R-6, preload (increment 6):** the spring model of §11 against the force-plus-spring
-  derived solve of R-4, which must agree to rounding.
+  derived solve of R-4. Displacements and published support forces must agree to
+  rounding, including a moved spring base and a held spring that carries no preload.
 - **R-7, the reference system:** RS-VS1 and RS-CE1 sized from an invented catalogue in
   `fixtures/reference_system/`, recorded as KR-10 once its families solve on EX. Its
   basis is a verified solve.
