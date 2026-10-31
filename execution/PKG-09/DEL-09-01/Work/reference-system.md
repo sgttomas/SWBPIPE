@@ -335,9 +335,12 @@ case's `condition_use.contents_density` (0.9.0 §1.6). No temperature applies.
 ### 8.4 Modal
 
 Modal analysis is a request beside the model, not a model member. The request names
-RS-OPE as its linearization state (the dynamics lane's M5: nonlinear supports
-linearized in the status of a named solved case). Modes up to 60 Hz are extracted, with
-at least the first ten reported.
+RS-OPE as its required state case. Modal admits load/reference-state documents through
+that case (Agent 0's decision, made binding by the dynamics lane's I0, #22): the modal
+model's stiffness, member moduli, support states and contents mass come from RS-OPE's
+resolved state, nonlinear supports are linearized in its status (M5), and
+`boundary_motion` degrees of freedom stay restrained. Modes up to 60 Hz are extracted,
+with at least the first ten reported.
 
 ### 8.5 Response spectrum
 
