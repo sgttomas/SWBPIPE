@@ -391,6 +391,14 @@ on that source. See the governing rules' §8.31 and §10.
 
 `base/template_inventory.py` reads Rust's `\u{HEX}` escape as its one character. The registration and its basis are §8.33's (`7e7fef2d4`); main `d290563ea` reproduces §8.32's block and is its comparison basis. See the governing rules' §8.33 and `tests/test_833_rt_a3.py`.
 
+### §8.36: the station quantities' member-scoped published-row index (RT-A3 increment 1b)
+
+`base/u4b_u5b_owners_model.py` adds two positive owners, which `base/ordinary_caps.py` charges per case in `OrdinaryRecovery`. Both are guarded by named premises and a digest of `u4b_rows.rs`'s index span (`published_index`):
+- RTA3B-PS: each case's `PublishedScope` entity set, a u64 table of at most the case's rows (P_final; a case's rows only grow on D1, P2), with its previous table.
+- RTA3B-MR: each member's `MemberRows` slots, 30 push-grown `Vec<usize>` holding at most its rows per member, charged at the exact largest capacity over every split plus one old backing.
+
+The registration is §8.36's (`4c2a1c05f`); main `ae729fc96` reproduces §8.33's block and is its comparison basis. See the governing rules' §8.36 and `tests/test_836_rt_a3_1b.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
