@@ -1,0 +1,700 @@
+//! Dense path (design §3.2): K = R Rᵀ, C = R⁻¹ M R⁻ᵀ, Householder
+//! tridiagonalization with accumulated transformations, implicit QL with
+//! Wilkinson shifts (the tql2 procedure), λ = 1/μ and φ = R⁻ᵀ z.
+//!
+//! The tridiagonalization and QL steps follow Golub & Van Loan, *Matrix
+//! Computations* (4th ed.), §8.3 (Householder tridiagonalization and the
+//! implicit symmetric QR step with Wilkinson shift; QL is the same iteration
+//! run from the other end), in the procedure arrangement of Bowdler, Martin,
+//! Reinsch and Wilkinson's tred2 and tql2 (Wilkinson & Reinsch, *Handbook
+//! for Automatic Computation* II, 1971). The code is written for this crate.
+//!
+//! Every loop runs in a fixed order on one thread, and only correctly rounded
+//! binary64 operations are used (`hypot` is formed here from `sqrt`, not taken
+//! from the platform library), so a repeated run gives bit-identical output.
+
+use std::error::Error;
+use std::fmt;
+
+use crate::matrix::SymmetricMatrix;
+
+/// Live n²-sized binary64 buffers at the dense path's peak phase: the
+/// caller's K and M, the Cholesky factor R, and one work buffer that holds in
+/// turn M R⁻ᵀ, C, the accumulated Householder transformations, the QL
+/// eigenvectors and finally the returned mode shapes. O(n) work vectors are
+/// not counted. The Sturm counts of §3.2 item 7 (not in this crate yet) add
+/// their own profiles when they land.
+pub const DENSE_PATH_PEAK_N2_BUFFERS: u64 = 4;
+
+/// Bytes per n² entry at the peak phase, for design §3.2's
+/// `DENSE_MODAL_BYTES_PER_ENTRY`: [`DENSE_PATH_PEAK_N2_BUFFERS`] × 8.
+pub const DENSE_PATH_BYTES_PER_ENTRY: u64 = DENSE_PATH_PEAK_N2_BUFFERS * 8;
+
+/// Peak n²-buffer memory of the dense path, in bytes:
+/// [`DENSE_PATH_BYTES_PER_ENTRY`] × n². It applies no budget.
+pub fn dense_path_peak_bytes(n: u64) -> u128 {
+    DENSE_PATH_BYTES_PER_ENTRY as u128 * n as u128 * n as u128
+}
+
+/// Design §3.2's operation estimate 9n³ + s·n³/3 for `s` Sturm
+/// factorizations, rounded up to a whole flop. It applies no budget.
+pub fn dense_path_flop_estimate(n: u64, sturm_factorizations: u64) -> u128 {
+    let cube = n as u128 * n as u128 * n as u128;
+    9 * cube + (sturm_factorizations as u128 * cube).div_ceil(3)
+}
+
+/// Algorithm parameters of the dense path. There is no default: the
+/// production values are fixed and recorded by the design (M1b), not here.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DenseOptions {
+    /// μ ≤ this × max μ (and every μ ≤ 0) is treated as an infinite
+    /// eigenvalue of the pencil, from a singular M, and is counted but not
+    /// returned. Must be finite and in [0, 1).
+    pub infinite_mu_relative_threshold: f64,
+    /// The most implicit QL iterations allowed for any one eigenvalue.
+    pub max_ql_iterations_per_eigenvalue: usize,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum DenseError {
+    DimensionMismatch {
+        stiffness: usize,
+        mass: usize,
+    },
+    EmptySystem,
+    InvalidOption {
+        name: &'static str,
+    },
+    /// The Cholesky factorization of K met a pivot that is not positive (or
+    /// is NaN). `index` is the row of K, in the caller's numbering.
+    NonPositivePivot {
+        index: usize,
+        value: f64,
+    },
+    /// Implicit QL did not converge for the eigenvalue at tridiagonal position
+    /// `index` within the stated iteration limit.
+    QlIterationLimit {
+        index: usize,
+        limit: usize,
+    },
+}
+
+impl fmt::Display for DenseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::DimensionMismatch { stiffness, mass } => write!(
+                f,
+                "stiffness is {stiffness}x{stiffness} but mass is {mass}x{mass}"
+            ),
+            Self::EmptySystem => write!(f, "the pencil has no degrees of freedom"),
+            Self::InvalidOption { name } => write!(f, "invalid dense option `{name}`"),
+            Self::NonPositivePivot { index, value } => write!(
+                f,
+                "stiffness is not positive definite: Cholesky pivot {index} is {value:e}"
+            ),
+            Self::QlIterationLimit { index, limit } => write!(
+                f,
+                "implicit QL did not converge for eigenvalue {index} within {limit} iterations"
+            ),
+        }
+    }
+}
+
+impl Error for DenseError {}
+
+/// The finite eigenpairs of K φ = λ M φ, λ ascending.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DenseEigenSolution {
+    /// Order of the pencil.
+    pub dimension: usize,
+    /// λ = 1/μ, ascending.
+    pub eigenvalues: Vec<f64>,
+    /// μ, the eigenvalues of C, in the same order (descending).
+    pub mu: Vec<f64>,
+    /// Mode shapes φ = R⁻ᵀ z, row-major: mode i is
+    /// `vectors[i * dimension..(i + 1) * dimension]`. Unnormalized: z has
+    /// unit Euclidean norm, so φᵀKφ = 1 to rounding.
+    pub vectors: Vec<f64>,
+    /// The largest μ, against which the relative threshold is applied.
+    pub mu_max: f64,
+    /// μ ≤ 0: infinite eigenvalues, not returned.
+    pub nonpositive_mu_count: usize,
+    /// 0 < μ ≤ threshold × max μ: treated as infinite, not returned.
+    pub below_threshold_mu_count: usize,
+    /// Total implicit QL iterations.
+    pub ql_iterations: usize,
+    /// min over j of R_jj² / K_jj, a Cholesky pivot-ratio observation (not a
+    /// condition number).
+    pub min_cholesky_pivot_ratio: f64,
+}
+
+impl DenseEigenSolution {
+    pub fn mode_count(&self) -> usize {
+        self.eigenvalues.len()
+    }
+
+    pub fn vector(&self, mode: usize) -> &[f64] {
+        &self.vectors[mode * self.dimension..(mode + 1) * self.dimension]
+    }
+}
+
+/// Solves K φ = λ M φ for K symmetric positive definite and M symmetric
+/// positive semidefinite (possibly singular), both dense n×n.
+pub fn solve_dense_pencil(
+    stiffness: &SymmetricMatrix,
+    mass: &SymmetricMatrix,
+    options: &DenseOptions,
+) -> Result<DenseEigenSolution, DenseError> {
+    let n = stiffness.dimension();
+    if mass.dimension() != n {
+        return Err(DenseError::DimensionMismatch {
+            stiffness: n,
+            mass: mass.dimension(),
+        });
+    }
+    if n == 0 {
+        return Err(DenseError::EmptySystem);
+    }
+    let threshold = options.infinite_mu_relative_threshold;
+    if !(threshold.is_finite() && (0.0..1.0).contains(&threshold)) {
+        return Err(DenseError::InvalidOption {
+            name: "infinite_mu_relative_threshold",
+        });
+    }
+
+    let (r, min_cholesky_pivot_ratio) = cholesky_lower(stiffness)?;
+    let mut work = reduce_mass(&r, mass, n);
+    let mut d = vec![0.0; n];
+    let mut e = vec![0.0; n];
+    householder_tridiagonalize(&mut work, n, &mut d, &mut e);
+    transpose_in_place(&mut work, n);
+    let ql_iterations = implicit_ql(
+        &mut d,
+        &mut e,
+        &mut work,
+        n,
+        options.max_ql_iterations_per_eigenvalue,
+    )?;
+    sort_ascending(&mut d, &mut work, n);
+
+    // d is ascending μ; λ ascending is μ descending. Reverse the rows so the
+    // finite modes come first, then keep those above the threshold.
+    let mu_max = d[n - 1];
+    let mut nonpositive_mu_count = 0;
+    let mut below_threshold_mu_count = 0;
+    let cut = threshold * mu_max;
+    for &mu in &d {
+        if !(mu > 0.0) {
+            nonpositive_mu_count += 1;
+        } else if mu <= cut {
+            below_threshold_mu_count += 1;
+        }
+    }
+    let kept = n - nonpositive_mu_count - below_threshold_mu_count;
+    d.reverse();
+    for i in 0..n / 2 {
+        swap_rows(&mut work, n, i, n - 1 - i);
+    }
+    d.truncate(kept);
+    work.truncate(kept * n);
+    for row in work.chunks_exact_mut(n) {
+        back_transform(&r, n, row);
+    }
+    drop(r);
+    let eigenvalues = d.iter().map(|&mu| 1.0 / mu).collect();
+    Ok(DenseEigenSolution {
+        dimension: n,
+        eigenvalues,
+        mu: d,
+        vectors: work,
+        mu_max,
+        nonpositive_mu_count,
+        below_threshold_mu_count,
+        ql_iterations,
+        min_cholesky_pivot_ratio,
+    })
+}
+
+/// K = R Rᵀ with R lower triangular, row by row (Cholesky–Banachiewicz).
+/// Returns R in an n² row-major buffer (upper part zero) and the smallest
+/// pivot ratio R_jj² / K_jj.
+fn cholesky_lower(k: &SymmetricMatrix) -> Result<(Vec<f64>, f64), DenseError> {
+    let n = k.dimension();
+    let mut r = vec![0.0; n * n];
+    let mut min_ratio = f64::INFINITY;
+    for i in 0..n {
+        let k_row = k.lower_row(i);
+        for j in 0..=i {
+            let mut s = k_row[j];
+            for p in 0..j {
+                s -= r[i * n + p] * r[j * n + p];
+            }
+            if i == j {
+                if !(s > 0.0) {
+                    return Err(DenseError::NonPositivePivot { index: i, value: s });
+                }
+                let ratio = s / k_row[i];
+                if ratio < min_ratio {
+                    min_ratio = ratio;
+                }
+                r[i * n + i] = s.sqrt();
+            } else {
+                r[i * n + j] = s / r[j * n + j];
+            }
+        }
+    }
+    Ok((r, min_ratio))
+}
+
+/// Solves x Rᵀ = b for the row vector x in place (R x_ᵀ = b_ᵀ, forward
+/// substitution over R's contiguous rows).
+fn forward_solve_row(r: &[f64], n: usize, row: &mut [f64]) {
+    for j in 0..n {
+        let r_row = &r[j * n..j * n + j];
+        let mut s = row[j];
+        for p in 0..j {
+            s -= r_row[p] * row[p];
+        }
+        row[j] = s / r[j * n + j];
+    }
+}
+
+/// Solves Rᵀ φ = z in place (back substitution by columns of Rᵀ, which are
+/// R's contiguous rows).
+fn back_transform(r: &[f64], n: usize, row: &mut [f64]) {
+    for i in (0..n).rev() {
+        let value = row[i] / r[i * n + i];
+        row[i] = value;
+        let r_row = &r[i * n..i * n + i];
+        for p in 0..i {
+            row[p] -= r_row[p] * value;
+        }
+    }
+}
+
+/// C = R⁻¹ M R⁻ᵀ in one n² buffer: rows of M R⁻ᵀ, transpose (giving R⁻¹ M,
+/// since M is symmetric), rows again, then symmetrize from the lower
+/// triangle.
+fn reduce_mass(r: &[f64], mass: &SymmetricMatrix, n: usize) -> Vec<f64> {
+    let mut work = vec![0.0; n * n];
+    for i in 0..n {
+        for j in 0..n {
+            work[i * n + j] = mass.get(i, j);
+        }
+    }
+    for row in work.chunks_exact_mut(n) {
+        forward_solve_row(r, n, row);
+    }
+    transpose_in_place(&mut work, n);
+    for row in work.chunks_exact_mut(n) {
+        forward_solve_row(r, n, row);
+    }
+    for i in 0..n {
+        for j in i + 1..n {
+            work[i * n + j] = work[j * n + i];
+        }
+    }
+    work
+}
+
+fn transpose_in_place(a: &mut [f64], n: usize) {
+    for i in 0..n {
+        for j in i + 1..n {
+            a.swap(i * n + j, j * n + i);
+        }
+    }
+}
+
+fn swap_rows(a: &mut [f64], n: usize, i: usize, j: usize) {
+    if i == j {
+        return;
+    }
+    let (lo, hi) = if i < j { (i, j) } else { (j, i) };
+    let (head, tail) = a.split_at_mut(hi * n);
+    head[lo * n..lo * n + n].swap_with_slice(&mut tail[..n]);
+}
+
+/// Two distinct rows as mutable slices, `(row i, row j)`.
+fn row_pair(a: &mut [f64], n: usize, i: usize, j: usize) -> (&mut [f64], &mut [f64]) {
+    debug_assert!(i < j);
+    let (head, tail) = a.split_at_mut(j * n);
+    (&mut head[i * n..i * n + n], &mut tail[..n])
+}
+
+/// √(a² + b²) without overflow, from correctly rounded operations only.
+fn hypot(a: f64, b: f64) -> f64 {
+    let (a, b) = (a.abs(), b.abs());
+    let (big, small) = if a >= b { (a, b) } else { (b, a) };
+    if big == 0.0 {
+        return 0.0;
+    }
+    let ratio = small / big;
+    big * (1.0 + ratio * ratio).sqrt()
+}
+
+/// Householder reduction of the symmetric matrix in `v` (lower triangle
+/// read) to tridiagonal form T = Qᵀ A Q, with Q accumulated into `v`.
+/// On return `d` holds T's diagonal, `e[i]` the subdiagonal T(i, i−1)
+/// (e[0] = 0) and `v` holds Q, column j the j-th basis vector.
+///
+/// Rows are reduced from the last upwards. For row i the Householder vector
+/// is formed from its scaled leading part (scaling by the 1-norm avoids
+/// overflow and underflow); the rank-two update A ← A − u wᵀ − w uᵀ is applied
+/// to the leading i×i block; the transformations are then accumulated from
+/// the first upwards.
+fn householder_tridiagonalize(v: &mut [f64], n: usize, d: &mut [f64], e: &mut [f64]) {
+    for j in 0..n {
+        d[j] = v[(n - 1) * n + j];
+    }
+    for i in (1..n).rev() {
+        let mut scale = 0.0;
+        let mut h = 0.0;
+        for k in 0..i {
+            scale += d[k].abs();
+        }
+        if scale == 0.0 {
+            e[i] = d[i - 1];
+            for j in 0..i {
+                d[j] = v[(i - 1) * n + j];
+                v[i * n + j] = 0.0;
+                v[j * n + i] = 0.0;
+            }
+        } else {
+            for k in 0..i {
+                d[k] /= scale;
+                h += d[k] * d[k];
+            }
+            let f = d[i - 1];
+            let mut g = h.sqrt();
+            if f > 0.0 {
+                g = -g;
+            }
+            e[i] = scale * g;
+            h -= f * g;
+            d[i - 1] = f - g;
+            for j in 0..i {
+                e[j] = 0.0;
+            }
+            // w = A u / h, accumulated over the lower triangle.
+            for j in 0..i {
+                let f = d[j];
+                v[j * n + i] = f;
+                let mut g = e[j] + v[j * n + j] * f;
+                for k in j + 1..i {
+                    g += v[k * n + j] * d[k];
+                    e[k] += v[k * n + j] * f;
+                }
+                e[j] = g;
+            }
+            let mut f = 0.0;
+            for j in 0..i {
+                e[j] /= h;
+                f += e[j] * d[j];
+            }
+            let hh = f / (h + h);
+            for j in 0..i {
+                e[j] -= hh * d[j];
+            }
+            for j in 0..i {
+                let f = d[j];
+                let g = e[j];
+                for k in j..i {
+                    v[k * n + j] -= f * e[k] + g * d[k];
+                }
+                d[j] = v[(i - 1) * n + j];
+                v[i * n + j] = 0.0;
+            }
+        }
+        d[i] = h;
+    }
+    // Accumulate Q.
+    for i in 0..n - 1 {
+        v[(n - 1) * n + i] = v[i * n + i];
+        v[i * n + i] = 1.0;
+        let h = d[i + 1];
+        if h != 0.0 {
+            for k in 0..=i {
+                d[k] = v[k * n + i + 1] / h;
+            }
+            for j in 0..=i {
+                let mut g = 0.0;
+                for k in 0..=i {
+                    g += v[k * n + i + 1] * v[k * n + j];
+                }
+                for k in 0..=i {
+                    v[k * n + j] -= g * d[k];
+                }
+            }
+        }
+        for k in 0..=i {
+            v[k * n + i + 1] = 0.0;
+        }
+    }
+    for j in 0..n {
+        d[j] = v[(n - 1) * n + j];
+        v[(n - 1) * n + j] = 0.0;
+    }
+    v[(n - 1) * n + n - 1] = 1.0;
+    e[0] = 0.0;
+}
+
+/// Implicit QL with Wilkinson shifts on the tridiagonal (d, e), applying
+/// each Givens rotation to the rows of `z` (row j is the j-th vector, the
+/// transpose of the Householder accumulation). Returns the total iteration
+/// count.
+///
+/// For each l, the first negligible subdiagonal at or below l
+/// (|e_m| ≤ ε·max_{j≤l}(|d_j| + |e_j|), ε = 2⁻⁵²) bounds the unreduced block
+/// l..=m. The shift is the eigenvalue of the leading 2×2 block nearer d_l;
+/// it is applied explicitly to the block and accumulated in `shift_total`,
+/// and a QL sweep of rotations from m−1 up to l chases the bulge.
+fn implicit_ql(
+    d: &mut [f64],
+    e: &mut [f64],
+    z: &mut [f64],
+    n: usize,
+    limit: usize,
+) -> Result<usize, DenseError> {
+    for i in 1..n {
+        e[i - 1] = e[i];
+    }
+    e[n - 1] = 0.0;
+    let eps = f64::EPSILON;
+    let mut shift_total = 0.0;
+    let mut tst1: f64 = 0.0;
+    let mut total = 0;
+    for l in 0..n {
+        tst1 = tst1.max(d[l].abs() + e[l].abs());
+        let mut m = l;
+        while m < n - 1 && e[m].abs() > eps * tst1 {
+            m += 1;
+        }
+        if m > l {
+            let mut iterations = 0;
+            loop {
+                if iterations == limit {
+                    return Err(DenseError::QlIterationLimit { index: l, limit });
+                }
+                iterations += 1;
+                total += 1;
+                // Shift.
+                let g = d[l];
+                let mut p = (d[l + 1] - g) / (2.0 * e[l]);
+                let mut r = hypot(p, 1.0);
+                if p < 0.0 {
+                    r = -r;
+                }
+                d[l] = e[l] / (p + r);
+                d[l + 1] = e[l] * (p + r);
+                let dl1 = d[l + 1];
+                let mut h = g - d[l];
+                for value in &mut d[l + 2..n] {
+                    *value -= h;
+                }
+                shift_total += h;
+                // QL sweep.
+                p = d[m];
+                let mut c = 1.0;
+                let mut c2 = c;
+                let mut c3 = c;
+                let el1 = e[l + 1];
+                let mut s = 0.0;
+                let mut s2 = 0.0;
+                for i in (l..m).rev() {
+                    c3 = c2;
+                    c2 = c;
+                    s2 = s;
+                    let g = c * e[i];
+                    h = c * p;
+                    r = hypot(p, e[i]);
+                    e[i + 1] = s * r;
+                    s = e[i] / r;
+                    c = p / r;
+                    p = c * d[i] - s * g;
+                    d[i + 1] = h + s * (c * g + s * d[i]);
+                    let (row_i, row_next) = row_pair(z, n, i, i + 1);
+                    for k in 0..n {
+                        let h = row_next[k];
+                        row_next[k] = s * row_i[k] + c * h;
+                        row_i[k] = c * row_i[k] - s * h;
+                    }
+                }
+                p = -s * s2 * c3 * el1 * e[l] / dl1;
+                e[l] = s * p;
+                d[l] = c * p;
+                if e[l].abs() <= eps * tst1 {
+                    break;
+                }
+            }
+        }
+        d[l] += shift_total;
+        e[l] = 0.0;
+    }
+    Ok(total)
+}
+
+/// Selection sort of d ascending, swapping the rows of z with it. Equal
+/// values keep their positions, so the order is a fixed function of d.
+fn sort_ascending(d: &mut [f64], z: &mut [f64], n: usize) {
+    for i in 0..n.saturating_sub(1) {
+        let mut k = i;
+        let mut p = d[i];
+        for (j, &value) in d.iter().enumerate().skip(i + 1) {
+            if value < p {
+                k = j;
+                p = value;
+            }
+        }
+        if k != i {
+            d.swap(i, k);
+            swap_rows(z, n, i, k);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn options() -> DenseOptions {
+        // Test-local values; the production values are the design's (M1b).
+        DenseOptions {
+            infinite_mu_relative_threshold: 1e-12,
+            max_ql_iterations_per_eigenvalue: 30,
+        }
+    }
+
+    #[test]
+    fn non_positive_pivot_names_its_index() {
+        let k = SymmetricMatrix::from_rows(&[vec![1.0, 2.0], vec![2.0, 1.0]]).unwrap();
+        let m = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        assert_eq!(
+            solve_dense_pencil(&k, &m, &options()),
+            Err(DenseError::NonPositivePivot {
+                index: 1,
+                value: -3.0
+            })
+        );
+        let singular = SymmetricMatrix::from_rows(&[
+            vec![4.0, 2.0, 0.0],
+            vec![2.0, 1.0, 0.0],
+            vec![0.0, 0.0, 1.0],
+        ])
+        .unwrap();
+        let m3 = SymmetricMatrix::from_diagonal(&[1.0, 1.0, 1.0]).unwrap();
+        assert_eq!(
+            solve_dense_pencil(&singular, &m3, &options()),
+            Err(DenseError::NonPositivePivot {
+                index: 1,
+                value: 0.0
+            })
+        );
+        let negative = SymmetricMatrix::from_diagonal(&[-1.0]).unwrap();
+        let m1 = SymmetricMatrix::from_diagonal(&[1.0]).unwrap();
+        assert_eq!(
+            solve_dense_pencil(&negative, &m1, &options()),
+            Err(DenseError::NonPositivePivot {
+                index: 0,
+                value: -1.0
+            })
+        );
+    }
+
+    #[test]
+    fn iteration_limit_is_a_typed_error() {
+        let n = 12;
+        let mut rows = vec![vec![0.0; n]; n];
+        for i in 0..n {
+            rows[i][i] = 2.0;
+            if i + 1 < n {
+                rows[i][i + 1] = -1.0;
+                rows[i + 1][i] = -1.0;
+            }
+        }
+        let k = SymmetricMatrix::from_rows(&rows).unwrap();
+        let m = SymmetricMatrix::from_diagonal(&vec![1.0; n]).unwrap();
+        let mut opts = options();
+        opts.max_ql_iterations_per_eigenvalue = 0;
+        assert_eq!(
+            solve_dense_pencil(&k, &m, &opts),
+            Err(DenseError::QlIterationLimit { index: 0, limit: 0 })
+        );
+        opts.max_ql_iterations_per_eigenvalue = 30;
+        assert!(solve_dense_pencil(&k, &m, &opts).is_ok());
+    }
+
+    #[test]
+    fn invalid_inputs_are_refused() {
+        let k = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        let m = SymmetricMatrix::from_diagonal(&[1.0]).unwrap();
+        assert_eq!(
+            solve_dense_pencil(&k, &m, &options()),
+            Err(DenseError::DimensionMismatch {
+                stiffness: 2,
+                mass: 1
+            })
+        );
+        let empty = SymmetricMatrix::from_rows(&[]).unwrap();
+        assert_eq!(
+            solve_dense_pencil(&empty, &empty, &options()),
+            Err(DenseError::EmptySystem)
+        );
+        for bad in [-1e-3, 1.0, f64::NAN] {
+            let opts = DenseOptions {
+                infinite_mu_relative_threshold: bad,
+                ..options()
+            };
+            assert_eq!(
+                solve_dense_pencil(&k, &k, &opts),
+                Err(DenseError::InvalidOption {
+                    name: "infinite_mu_relative_threshold"
+                })
+            );
+        }
+    }
+
+    #[test]
+    fn identity_stiffness_with_diagonal_mass_is_exact() {
+        // R = I and C = M exactly; a diagonal C takes tred2's zero-scale
+        // branch (no arithmetic on d) and QL finds every subdiagonal zero, so
+        // μ is each mass exactly and λ = 1/μ is one correctly rounded
+        // division. Exact equality is therefore the expectation.
+        let masses = [3.0, 0.5, 7.0, 1.25, 0.0];
+        let k = SymmetricMatrix::from_diagonal(&[1.0; 5]).unwrap();
+        let m = SymmetricMatrix::from_diagonal(&masses).unwrap();
+        let solution = solve_dense_pencil(&k, &m, &options()).unwrap();
+        assert_eq!(solution.mu, vec![7.0, 3.0, 1.25, 0.5]);
+        assert_eq!(
+            solution.eigenvalues,
+            vec![1.0 / 7.0, 1.0 / 3.0, 1.0 / 1.25, 1.0 / 0.5]
+        );
+        assert_eq!(solution.nonpositive_mu_count, 1);
+        assert_eq!(solution.below_threshold_mu_count, 0);
+        assert_eq!(solution.ql_iterations, 0);
+        // Mode i is the unit vector of the DOF carrying that mass, to sign.
+        for (mode, dof) in [(0, 2), (1, 0), (2, 3), (3, 1)] {
+            let v = solution.vector(mode);
+            for (j, &value) in v.iter().enumerate() {
+                assert_eq!(value.abs(), if j == dof { 1.0 } else { 0.0 });
+            }
+        }
+    }
+
+    #[test]
+    fn memory_and_work_formulas() {
+        assert_eq!(DENSE_PATH_BYTES_PER_ENTRY, 32);
+        assert_eq!(dense_path_peak_bytes(1000), 32_000_000);
+        assert_eq!(dense_path_flop_estimate(10, 0), 9_000);
+        // 9·1000 + ⌈2·1000/3⌉ = 9000 + 667.
+        assert_eq!(dense_path_flop_estimate(10, 2), 9_667);
+        assert_eq!(dense_path_flop_estimate(3, 1), 9 * 27 + 9);
+    }
+
+    #[test]
+    fn hypot_is_exact_on_pythagorean_triples() {
+        assert_eq!(hypot(3.0, 4.0), 5.0);
+        assert_eq!(hypot(-5.0, 12.0), 13.0);
+        assert_eq!(hypot(0.0, 0.0), 0.0);
+        assert_eq!(hypot(1e300, 1e300), 1e300 * 2.0f64.sqrt());
+    }
+}

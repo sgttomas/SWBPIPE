@@ -29,6 +29,16 @@
         "apps/desktop/src-tauri/Cargo.toml"
       ]
     },
+    "modal-eigen-test": {
+      "cwd": ".",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--manifest-path",
+        "core/solver/modal_eigen/Cargo.toml"
+      ]
+    },
     "piping-pytest": {
       "cwd": ".",
       "command": [
@@ -174,6 +184,14 @@
       ],
       "checks": [
         "desktop-rust-test"
+      ]
+    },
+    {
+      "paths": [
+        "core/solver/modal_eigen/**"
+      ],
+      "checks": [
+        "modal-eigen-test"
       ]
     },
     {
