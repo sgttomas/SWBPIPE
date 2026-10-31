@@ -390,9 +390,17 @@ members. It reads `author_type`. The live catalog route refuses author and
 source fields in the agent's arguments and stamps `agent`. Offline intake now
 stamps every imported operation `agent` host-side. Requeue of retained records
 re-stamps recognizable agent or imported content `agent` and refuses a
-claimed-`user` record that writes a person-entered value. A legacy record
-claiming `user` otherwise keeps user treatment (DEL-16-03
+claimed-`user` record that writes a person-entered value (DEL-16-03
 `Work/operation-authorship.md`).
+
+**Residual, accepted by Agent 0 (2026-10-31):** a record saved before this
+change that was imported claiming `user`, and that writes none of the protected
+values, keeps `user`'s leniency when it is requeued: it may have no source and
+an empty rationale, which an `agent` operation may not. The protected values are
+k, the SIFs and other component modifiers, bend realization and insertion, and
+library modifier members, and none of them can be reached this way. Re-stamping
+every ambiguous `user` record as `agent` would misattribute the person's own
+saved edits, so that is not done.
 
 **Residual, recorded on Agent 0's decision:** any trusted webview code can
 assert `author_type: user` to the applier commands. A source-role check in the

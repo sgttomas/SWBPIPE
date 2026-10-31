@@ -50,7 +50,8 @@ author is read from the record itself (`requeueRetainedRecord`):
   carry an empty rationale, which an `agent` operation may not. A record saved
   before this change that was imported claiming `user` therefore keeps that
   user treatment when requeued, unless it writes a person-entered value. That
-  exception for legacy records is Agent 0's decision.
+  exception for legacy records was accepted by Agent 0 on 2026-10-31 and is
+  recorded as a residual in DEL-16-06 `Work/embedded-agent-host.md`.
 - A refusal is shown beside the stored record, where the person pressed
   Requeue.
 - A record naming no recognizable author is refused.
