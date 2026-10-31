@@ -5,6 +5,8 @@ import {
   clone, isLoadStateModel, LOAD_STATE_CONTRACT, LoadStateFeedback, LoadStateNeedsCurrent, member, NOT_PRESENT, NumberText,
   Quantity, replaceAt, rows, switchVariant, Text, toPayload, useLoadStateQueue, type LoadStateTarget
 } from "./loadStateAuthoring";
+import { CopyFromCase, EverySourceFill, TemplateFill } from "./BulkFillControls";
+import { copyAnalysisState } from "./bulkFill";
 
 type LoadCase = PreviewModel["load_cases"][number];
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
@@ -34,6 +36,8 @@ export function LoadReferenceStateInputs(props: RichFormProps & { loadCase: Load
     {props.loadCase ? <AnalysisStateEditor key={props.loadCase.id} {...props} loadCase={props.loadCase} /> : <p>No load case is selected.</p>}
   </section>;
 }
+
+const pipeOptions = (model: PreviewModel) => model.pipe_segments.map(p => ({ value: p.id, label: p.label && p.label !== p.id ? `${p.label} (${p.id})` : p.id }));
 
 function ReferenceConfigurationsEditor(props: RichFormProps) {
   const current = props.model.reference_configurations;
@@ -72,6 +76,7 @@ function ReferenceConfigurationsEditor(props: RichFormProps) {
             </fieldset>;
           })}
           <button type="button" onClick={() => setMembers([...members, {}])}>Add member to reference configuration {n}</button>
+          <TemplateFill name={`Reference configuration ${n} member`} noun="pipe" list={members} keyName="pipe_ref" targets={pipeOptions(props.model)} onChange={setMembers} />
           <Text label={`Reference configuration ${n} provenance`} value={configuration.provenance} onChange={v => editAt(c, member(configuration, "provenance", v))} />
           <button type="button" onClick={() => setDraft(list.filter((_, i) => i !== c))}>Remove reference configuration {n}</button>
         </fieldset>;
@@ -99,6 +104,11 @@ function AnalysisStateEditor(props: RichFormProps & { loadCase: LoadCase }) {
     <h4>Analysis state — {caseName}</h4>
     <p>{current === undefined ? "analysis_state is absent for this case." : current === null ? "analysis_state is an explicit null for this case." : "analysis_state is applied for this case."}</p>
     <fieldset disabled={state.busy}>
+      <CopyFromCase what="analysis state" cases={model.load_cases.filter(c => c.id !== loadCase.id && c.analysis_state && typeof c.analysis_state === "object").map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
+        const { draft: copied, dropped } = copyAnalysisState(model.load_cases.find(c => c.id === id)?.analysis_state, primitives);
+        setDraft(copied);
+        return `Copied the analysis state of ${id}.${dropped.length ? ` ${dropped.length} load source${dropped.length === 1 ? " names a primitive" : "s name primitives"} this case does not hold and ${dropped.length === 1 ? "was" : "were"} left out; add this case's own with "Add every primitive of this case".` : ""} Review the draft before queueing.`;
+      }} />
       <Text label="Analysis state contract" value={draft.contract} choices={[LOAD_STATE_CONTRACT]} onChange={v => set("contract", v)} />
       <Text label="Reference configuration" value={draft.reference_configuration_ref} choices={references} onChange={v => set("reference_configuration_ref", v)} />
       <ElementStates model={model} value={rows(draft.element_states)} onChange={v => set("element_states", v)} />
@@ -128,6 +138,7 @@ function ElementStates({ model, value, onChange }: ListProps & { model: PreviewM
   const materials = model.materials ?? [];
   return <fieldset><legend>Element states</legend>
     <ListStatus name="element_states" value={value} onChange={onChange} add="Add element state" />
+    <TemplateFill name="Element state" noun="pipe" list={list} keyName="pipe_ref" targets={pipeOptions(model)} onChange={onChange} />
     {list.map((row, e) => {
       const k = `Element state ${e + 1}`;
       const set = (key: string, next: unknown) => onChange(replaceAt(list, e, member(row, key, next)));
@@ -173,6 +184,7 @@ function SupportStates({ model, value, onChange }: ListProps & { model: PreviewM
   const supports = model.supports.map(s => s.id);
   return <fieldset><legend>Support states</legend>
     <ListStatus name="support_states" value={value} onChange={onChange} add="Add support state" />
+    <TemplateFill name="Support state" noun="support" list={list} keyName="support_ref" targets={model.supports.map(s => ({ value: s.id, label: s.label || s.id }))} onChange={onChange} />
     {list.map((row, s) => {
       const k = `Support state ${s + 1}`;
       const set = (key: string, next: unknown) => onChange(replaceAt(list, s, member(row, key, next)));
@@ -207,6 +219,7 @@ function LoadSources({ primitives, value, onChange }: ListProps & { primitives: 
   return <fieldset><legend>Load sources</legend>
     <p>Each stored primitive of this case that the state includes, with its explicit factor.</p>
     <ListStatus name="load_sources" value={value} onChange={onChange} add="Add load source" />
+    <EverySourceFill list={list} primitives={primitives} onChange={onChange} />
     {list.map((row, i) => {
       const k = `Load source ${i + 1}`;
       const set = (key: string, next: unknown) => onChange(replaceAt(list, i, member(row, key, next)));

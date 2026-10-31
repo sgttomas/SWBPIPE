@@ -3,6 +3,8 @@ import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireTe
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import { DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, type ShearModel } from "./pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
+import { CopyFromCase } from "../load-cases/BulkFillControls";
+import { copyPressureRegions } from "../load-cases/bulkFill";
 
 export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
 export function materialProjection(material: object): DraftRecord {
@@ -159,7 +161,13 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
     <p>{props.loadCase.pressure_regions === undefined ? "No pressure-region declaration has been applied." : `${props.loadCase.pressure_regions.length} applied regions.`} Terminal order and closure transfer are user-authored. {signed
       ? "The solver checks continuity, physical compatibility and tangency: straight runs stay collinear, direction changes happen only at realized bends, and a direction change above 1e-3 rad at a bend's end is refused as a mitre. A geometry-only bend cannot carry pressure: realize it first. Tees, valves, joints and other fittings are refused by name."
       : "The solver checks continuity, straightness and physical compatibility."}</p>
-    <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
+    <fieldset disabled={state.busy}>
+      <CopyFromCase what="pressure regions" cases={props.model.load_cases.filter(c => c.id !== props.loadCase.id && (c.pressure_regions?.length ?? 0) > 0).map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
+        const copied = copyPressureRegions(props.model.load_cases.find(c => c.id === id)?.pressure_regions, id, props.loadCase.id);
+        setRows(copied);
+        return `Copied ${copied.length} region${copied.length === 1 ? "" : "s"} from ${id}, with ids for this case: ${copied.map(r => String(r.id)).join(", ")}. Review the draft before queueing.`;
+      }} />
+      {rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
       <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
       <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
       {props.model.schema_version === MODEL_SCHEMA_VERSION && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}
