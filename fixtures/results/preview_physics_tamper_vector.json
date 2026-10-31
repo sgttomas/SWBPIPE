@@ -71,7 +71,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/449/metadata/coordinate_system",
+          "path": "/results/521/metadata/coordinate_system",
           "value": "element_local"
         }
       ],
@@ -130,7 +130,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/162/value",
+          "path": "/results/186/value",
           "value": -1.0
         }
       ],
@@ -157,7 +157,7 @@
       "ops": [
         {
           "op": "add",
-          "path": "/results/162/metadata/extra",
+          "path": "/results/186/metadata/extra",
           "value": "x"
         }
       ],
@@ -192,7 +192,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/328/source_result_refs",
+          "path": "/results/376/source_result_refs",
           "value": null
         }
       ],
@@ -292,7 +292,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/81/value",
+          "path": "/results/93/value",
           "value": 11.396537565350796
         }
       ],
@@ -304,7 +304,7 @@
       "ops": [
         {
           "op": "remove",
-          "path": "/results/82"
+          "path": "/results/94"
         }
       ],
       "expect": "refused"
@@ -315,7 +315,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/83/value",
+          "path": "/results/95/value",
           "value": -0.6188852080335594
         }
       ],
