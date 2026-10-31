@@ -1,0 +1,1706 @@
+{
+  "bends": [
+    {
+      "arc_y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "component": "component:RS-B1",
+      "corner": {
+        "node_id_while_drafting": "node:RS-B1-CORNER",
+        "note": "the corner node exists only before the bend is inserted; Insert bend at corner removes it (bend_authoring.rs insert_at_corner)",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 1
+        }
+      },
+      "creates": {
+        "arc_pipe": "pipe:RS-P065",
+        "component": "component:RS-B1",
+        "tangent_nodes": [
+          "node:RS-070",
+          "node:RS-075"
+        ]
+      },
+      "order": "insert before any support, load, region or reference names the corner or either straight (OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED)",
+      "person_inputs": {
+        "flexibility_factor": {
+          "unit": "none",
+          "value": 4.2
+        },
+        "flexibility_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5",
+        "sif_in_plane_user_value": {
+          "unit": "1",
+          "value": 2.1
+        },
+        "sif_out_of_plane_user_value": {
+          "unit": "1",
+          "value": 1.8
+        },
+        "sif_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5"
+      },
+      "radius": {
+        "unit": "m",
+        "value": 0.4
+      },
+      "straight_runs": [
+        {
+          "after": [
+            "node:RS-060",
+            "node:RS-070"
+          ],
+          "before": [
+            "node:RS-060",
+            "node:RS-B1-CORNER"
+          ],
+          "pipe": "pipe:RS-P060"
+        },
+        {
+          "after": [
+            "node:RS-075",
+            "node:RS-080"
+          ],
+          "before": [
+            "node:RS-B1-CORNER",
+            "node:RS-080"
+          ],
+          "pipe": "pipe:RS-P070"
+        }
+      ]
+    },
+    {
+      "arc_y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "component": "component:RS-B2",
+      "corner": {
+        "node_id_while_drafting": "node:RS-B2-CORNER",
+        "note": "the corner node exists only before the bend is inserted; Insert bend at corner removes it (bend_authoring.rs insert_at_corner)",
+        "position": {
+          "x": 6,
+          "y": 0,
+          "z": 7
+        }
+      },
+      "creates": {
+        "arc_pipe": "pipe:RS-P085",
+        "component": "component:RS-B2",
+        "tangent_nodes": [
+          "node:RS-090",
+          "node:RS-095"
+        ]
+      },
+      "order": "insert before any support, load, region or reference names the corner or either straight (OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED)",
+      "person_inputs": {
+        "flexibility_factor": {
+          "unit": "none",
+          "value": 4.2
+        },
+        "flexibility_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5",
+        "sif_in_plane_user_value": {
+          "unit": "1",
+          "value": 2.1
+        },
+        "sif_out_of_plane_user_value": {
+          "unit": "1",
+          "value": 1.8
+        },
+        "sif_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5"
+      },
+      "radius": {
+        "unit": "m",
+        "value": 0.4
+      },
+      "straight_runs": [
+        {
+          "after": [
+            "node:RS-080",
+            "node:RS-090"
+          ],
+          "before": [
+            "node:RS-080",
+            "node:RS-B2-CORNER"
+          ],
+          "pipe": "pipe:RS-P080"
+        },
+        {
+          "after": [
+            "node:RS-095",
+            "node:RS-100"
+          ],
+          "before": [
+            "node:RS-B2-CORNER",
+            "node:RS-100"
+          ],
+          "pipe": "pipe:RS-P090"
+        }
+      ]
+    },
+    {
+      "arc_y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -1.0
+      },
+      "component": "component:RS-B3",
+      "corner": {
+        "node_id_while_drafting": "node:RS-B3-CORNER",
+        "note": "the corner node exists only before the bend is inserted; Insert bend at corner removes it (bend_authoring.rs insert_at_corner)",
+        "position": {
+          "x": 6,
+          "y": 15,
+          "z": 2
+        }
+      },
+      "creates": {
+        "arc_pipe": "pipe:RS-P225",
+        "component": "component:RS-B3",
+        "tangent_nodes": [
+          "node:RS-220",
+          "node:RS-225"
+        ]
+      },
+      "order": "insert before any support, load, region or reference names the corner or either straight (OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED)",
+      "person_inputs": {
+        "flexibility_factor": {
+          "unit": "none",
+          "value": 3.6
+        },
+        "flexibility_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5",
+        "sif_in_plane_user_value": {
+          "unit": "1",
+          "value": 2.3
+        },
+        "sif_out_of_plane_user_value": {
+          "unit": "1",
+          "value": 1.9
+        },
+        "sif_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5"
+      },
+      "radius": {
+        "unit": "m",
+        "value": 0.25
+      },
+      "straight_runs": [
+        {
+          "after": [
+            "node:RS-215",
+            "node:RS-220"
+          ],
+          "before": [
+            "node:RS-215",
+            "node:RS-B3-CORNER"
+          ],
+          "pipe": "pipe:RS-P220"
+        },
+        {
+          "after": [
+            "node:RS-225",
+            "node:RS-230"
+          ],
+          "before": [
+            "node:RS-B3-CORNER",
+            "node:RS-230"
+          ],
+          "pipe": "pipe:RS-P230"
+        }
+      ]
+    }
+  ],
+  "document_kind": "swbpipe.reference_system.authoring",
+  "inputs": [
+    {
+      "collection": "materials",
+      "fields": {
+        "constitutive_basis": "agent_authorable",
+        "elastic_modulus": "agent_authorable",
+        "expansion_laws": "agent_authorable",
+        "label": "agent_authorable",
+        "poisson_ratio": "agent_authorable",
+        "provenance": "agent_authorable",
+        "temperature_points": "agent_authorable",
+        "thermal_expansion_coefficient": "agent_authorable"
+      },
+      "id": "material:RS-M1"
+    },
+    {
+      "collection": "sections",
+      "fields": {
+        "name": "agent_authorable",
+        "properties.outside_diameter": "agent_authorable",
+        "properties.wall_thickness": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section_type": "agent_authorable"
+      },
+      "id": "section:RS-S270"
+    },
+    {
+      "collection": "sections",
+      "fields": {
+        "name": "agent_authorable",
+        "properties.outside_diameter": "agent_authorable",
+        "properties.wall_thickness": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section_type": "agent_authorable"
+      },
+      "id": "section:RS-S220"
+    },
+    {
+      "collection": "sections",
+      "fields": {
+        "name": "agent_authorable",
+        "properties.outside_diameter": "agent_authorable",
+        "properties.wall_thickness": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section_type": "agent_authorable"
+      },
+      "id": "section:RS-S170"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-010"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-020"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-030"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-040"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-050"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-060"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-070"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-075"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-080"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-090"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-095"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-100"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-110"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-120"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-130"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-140"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-150"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-160"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-170"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-180"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-190"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-200"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-210"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-215"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-220"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-225"
+    },
+    {
+      "collection": "nodes",
+      "fields": {
+        "label": "agent_authorable",
+        "position": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "node:RS-230"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P010"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P020"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P030"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P040"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P050"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P060"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P065"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P070"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P080"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P085"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P090"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P100"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P110"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P120"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P130"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P140"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P150"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P160"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P170"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P180"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P190"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P200"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P210"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P220"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P225"
+    },
+    {
+      "collection": "pipe_segments",
+      "fields": {
+        "from": "agent_authorable",
+        "label": "agent_authorable",
+        "material": "agent_authorable",
+        "provenance": "agent_authorable",
+        "section.contents_density": "agent_authorable",
+        "section.corrosion_allowance": "agent_authorable",
+        "section.insulation_density": "agent_authorable",
+        "section.insulation_thickness": "agent_authorable",
+        "section.material_density": "agent_authorable",
+        "section.mill_tolerance": "agent_authorable",
+        "section.outside_diameter": "agent_authorable",
+        "section.wall_thickness": "agent_authorable",
+        "section_ref": "agent_authorable",
+        "to": "agent_authorable",
+        "y_reference": "agent_authorable"
+      },
+      "id": "pipe:RS-P230"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "geometry.bend_geometry_source_reference": "agent_authorable",
+        "geometry.bend_pipe_ref": "agent_authorable",
+        "geometry.bend_radius": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.flexibility_factor_user_value": "person",
+        "modifiers.sif_in_plane_user_value": "person",
+        "modifiers.sif_out_of_plane_user_value": "person",
+        "modifiers.source_reference": "person",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-B1"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "geometry.bend_geometry_source_reference": "agent_authorable",
+        "geometry.bend_pipe_ref": "agent_authorable",
+        "geometry.bend_radius": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.flexibility_factor_user_value": "person",
+        "modifiers.sif_in_plane_user_value": "person",
+        "modifiers.sif_out_of_plane_user_value": "person",
+        "modifiers.source_reference": "person",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-B2"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "geometry.bend_geometry_source_reference": "agent_authorable",
+        "geometry.bend_pipe_ref": "agent_authorable",
+        "geometry.bend_radius": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.flexibility_factor_user_value": "person",
+        "modifiers.sif_in_plane_user_value": "person",
+        "modifiers.sif_out_of_plane_user_value": "person",
+        "modifiers.source_reference": "person",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-B3"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "geometry.center_of_gravity": "agent_authorable",
+        "geometry.connection_end_a_reference": "agent_authorable",
+        "geometry.connection_end_b_reference": "agent_authorable",
+        "geometry.end_a_size": "agent_authorable",
+        "geometry.end_b_size": "agent_authorable",
+        "geometry.rigid_body_length": "agent_authorable",
+        "geometry.rigid_component_source_reference": "agent_authorable",
+        "geometry.rigid_pipe_ref": "agent_authorable",
+        "geometry.stiffness_behavior_reference": "agent_authorable",
+        "geometry.weight": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.source_reference": "agent_authorable",
+        "modifiers.stiffness_scaling_user_value": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-F1"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "geometry.center_of_gravity": "agent_authorable",
+        "geometry.connection_end_a_reference": "agent_authorable",
+        "geometry.connection_end_b_reference": "agent_authorable",
+        "geometry.end_a_size": "agent_authorable",
+        "geometry.end_b_size": "agent_authorable",
+        "geometry.rigid_body_length": "agent_authorable",
+        "geometry.rigid_component_source_reference": "agent_authorable",
+        "geometry.rigid_pipe_ref": "agent_authorable",
+        "geometry.stiffness_behavior_reference": "agent_authorable",
+        "geometry.weight": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.source_reference": "agent_authorable",
+        "modifiers.stiffness_scaling_user_value": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-V1"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "geometry.center_of_gravity": "agent_authorable",
+        "geometry.connection_end_a_reference": "agent_authorable",
+        "geometry.connection_end_b_reference": "agent_authorable",
+        "geometry.end_a_size": "agent_authorable",
+        "geometry.end_b_size": "agent_authorable",
+        "geometry.rigid_body_length": "agent_authorable",
+        "geometry.rigid_component_source_reference": "agent_authorable",
+        "geometry.rigid_pipe_ref": "agent_authorable",
+        "geometry.stiffness_behavior_reference": "agent_authorable",
+        "geometry.weight": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.source_reference": "agent_authorable",
+        "modifiers.stiffness_scaling_user_value": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-F2"
+    },
+    {
+      "collection": "components",
+      "fields": {
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "objective_connector.calibration.includes_pressure_dependent_tangent": "agent_authorable",
+        "objective_connector.calibration.installed_geometry": "agent_authorable",
+        "objective_connector.calibration.kind": "agent_authorable",
+        "objective_connector.connector_axes_global": "agent_authorable",
+        "objective_connector.end_i.initial_node_axes_global": "agent_authorable",
+        "objective_connector.end_i.node_ref": "agent_authorable",
+        "objective_connector.end_i.offset_local": "agent_authorable",
+        "objective_connector.end_j.initial_node_axes_global": "agent_authorable",
+        "objective_connector.end_j.node_ref": "agent_authorable",
+        "objective_connector.end_j.offset_local": "agent_authorable",
+        "objective_connector.hardware.kind": "agent_authorable",
+        "objective_connector.hardware.rods": "agent_authorable",
+        "objective_connector.installed_reference_temperature": "agent_authorable",
+        "objective_connector.motion_basis": "agent_authorable",
+        "objective_connector.pressure_model.effective_area": "agent_authorable",
+        "objective_connector.pressure_model.kind": "agent_authorable",
+        "objective_connector.pressure_model.pressure_basis": "agent_authorable",
+        "objective_connector.pressure_model.source_reference": "agent_authorable",
+        "objective_connector.provenance.basis_transform_reference": "agent_authorable",
+        "objective_connector.provenance.measurement_restraints": "agent_authorable",
+        "objective_connector.provenance.source_reference": "agent_authorable",
+        "objective_connector.provenance.validity_statement": "agent_authorable",
+        "objective_connector.q_ref.rotation": "agent_authorable",
+        "objective_connector.q_ref.translation": "agent_authorable",
+        "objective_connector.reference_state": "agent_authorable",
+        "objective_connector.stiffness.coefficient_unit": "agent_authorable",
+        "objective_connector.stiffness.coordinate_order": "agent_authorable",
+        "objective_connector.stiffness.provenance.basis_transform_reference": "agent_authorable",
+        "objective_connector.stiffness.provenance.measurement_restraints": "agent_authorable",
+        "objective_connector.stiffness.provenance.source_reference": "agent_authorable",
+        "objective_connector.stiffness.representation": "agent_authorable",
+        "objective_connector.stiffness.rotation_scale": "agent_authorable",
+        "objective_connector.stiffness.translation_scale": "agent_authorable",
+        "objective_connector.stiffness.upper_triangle": "agent_authorable",
+        "objective_connector.stiffness.version": "agent_authorable",
+        "objective_connector.temperature_applicability": "agent_authorable",
+        "objective_connector.topology.span_ref": "agent_authorable",
+        "objective_connector.topology.type": "agent_authorable",
+        "objective_connector.version": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-EJ1"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-A"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-B"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-C"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-LS1"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-V060"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-FR1V"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-V140"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-G2"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-V200"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-G3"
+    },
+    {
+      "collection": "reference_configurations",
+      "fields": {
+        "geometry_ref.kind": "agent_authorable",
+        "label": "agent_authorable",
+        "member_references": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "reference:RS-INSTALLED"
+    },
+    {
+      "collection": "load_cases",
+      "fields": {
+        "analysis_state": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "pressure_regions": "agent_authorable",
+        "primitive_loads": "agent_authorable",
+        "provenance": "agent_authorable",
+        "status": "agent_authorable"
+      },
+      "id": "load:RS-SUS"
+    },
+    {
+      "collection": "load_cases",
+      "fields": {
+        "analysis_state": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "pressure_regions": "agent_authorable",
+        "primitive_loads": "agent_authorable",
+        "provenance": "agent_authorable",
+        "status": "agent_authorable"
+      },
+      "id": "load:RS-OPE"
+    },
+    {
+      "collection": "load_cases",
+      "fields": {
+        "analysis_state": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "pressure_regions": "agent_authorable",
+        "primitive_loads": "agent_authorable",
+        "provenance": "agent_authorable",
+        "status": "agent_authorable"
+      },
+      "id": "load:RS-SAM"
+    },
+    {
+      "collection": "combinations",
+      "fields": {
+        "basis": "agent_authorable",
+        "label": "agent_authorable",
+        "minuend_id": "agent_authorable",
+        "provenance": "agent_authorable",
+        "subtrahend_id": "agent_authorable"
+      },
+      "id": "combination:RS-EXP"
+    },
+    {
+      "collection": "combinations",
+      "fields": {
+        "basis": "agent_authorable",
+        "label": "agent_authorable",
+        "minuend_id": "agent_authorable",
+        "provenance": "agent_authorable",
+        "subtrahend_id": "agent_authorable"
+      },
+      "id": "combination:RS-dSAM"
+    },
+    {
+      "collection": "document",
+      "fields": {
+        "schema_version": "agent_authorable"
+      },
+      "id": "schema_version"
+    },
+    {
+      "collection": "document",
+      "fields": {
+        "pressure_contract": "agent_authorable"
+      },
+      "id": "pressure_contract"
+    },
+    {
+      "collection": "document",
+      "fields": {
+        "project": "agent_authorable"
+      },
+      "id": "project"
+    },
+    {
+      "collection": "document",
+      "fields": {
+        "analysis_status": "agent_authorable"
+      },
+      "id": "analysis_status"
+    }
+  ],
+  "marks": {
+    "agent_authorable": "every other authored input",
+    "person": "entered by the person, with its source: the bend k, the bend SIFs, the tee SIFs and their sources (spec §11.3; OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED)"
+  },
+  "model_document": "reference_system.json",
+  "model_document_version": "0.8.0",
+  "pending": [
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "Straight members, sections, temperature-dependent material",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "Realized bends with user k and SIFs",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "Valve and flanges, weight at CoG, stiffness scale",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "Expansion joint with tie rods, pressurized",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "Pressure (five regions, shared terminals `transfers_to_wall`)",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "Anchors, guides, line stop, vertical supports",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
+    },
+    {
+      "entities": [
+        "support:RS-VS1"
+      ],
+      "expected_until_then": "`SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRAVEL_MISSING` (blocking)",
+      "family": "Variable spring as a user-stiffness spring",
+      "in_tranche_1": false,
+      "row_lane": "reference-system manager / Agent 0 (§6 inputs); RT-A11 / RT-S3 (hanger loads)",
+      "state": "pending; refused on main for a modelling reason, so RS-VS1 is left out of tranche 1 (tranche-1 TASK, 2026-10-30): main requires installed, cold and hot loads and a travel range or movement limit on a `variable_spring_hanger`, which §6 leaves absent"
+    },
+    {
+      "entities": [
+        "component:RS-T1"
+      ],
+      "expected_until_then": "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`",
+      "family": "Tee RS-T1 with user SIFs",
+      "in_tranche_1": false,
+      "row_lane": "RT-A3 increment 1 (`claude/rt-a3-tee`)",
+      "state": "pending; the junction at RS-130 is in tranche 1 without the component"
+    },
+    {
+      "entities": [
+        "component:RS-R1"
+      ],
+      "expected_until_then": "`EXACT_PRESSURE_REDUCER_IN_REGION`",
+      "family": "Eccentric reducer RS-R1 in region RG-R",
+      "in_tranche_1": false,
+      "row_lane": "RT-A3 increment 2",
+      "state": "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region"
+    },
+    {
+      "entities": [
+        "support:RS-CE1"
+      ],
+      "expected_until_then": "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`",
+      "family": "Constant-effort support RS-CE1",
+      "in_tranche_1": false,
+      "row_lane": "RT-A3 increment 3",
+      "state": "pending"
+    },
+    {
+      "entities": [
+        "support:RS-LO1",
+        "support:RS-FR1",
+        "support:RS-G1"
+      ],
+      "expected_until_then": "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`",
+      "family": "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)",
+      "in_tranche_1": false,
+      "row_lane": "RT-A3 increment 4; with the connector, increment 5",
+      "state": "pending"
+    },
+    {
+      "entities": [
+        "support:RS-FR1V"
+      ],
+      "expected_until_then": "a nonlinear friction normal source is refused on both routes",
+      "family": "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7",
+      "in_tranche_1": false,
+      "row_lane": "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07 `Work/route-unification-r4.md` §0a)",
+      "state": "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "RS-SUS, RS-OPE (thermal, modulus by temperature)",
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1 as linear cases (load/reference-state group)"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "basis not recorded",
+      "family": "RS-EXP",
+      "in_tranche_1": true,
+      "row_lane": "RT-A5 slice 1b / load-cases lane (0.9.0)",
+      "state": "in tranche 1 as a subtraction; `difference_basis` pending"
+    },
+    {
+      "entities": [
+        "load:RS-WIN",
+        "load:RS-EQX",
+        "load:RS-EQY",
+        "load:RS-EQZ",
+        "combination:RS-dWIN",
+        "combination:RS-dEQX",
+        "combination:RS-dEQY",
+        "combination:RS-dEQZ"
+      ],
+      "expected_until_then": "`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`",
+      "family": "RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature",
+      "in_tranche_1": false,
+      "row_lane": "#1678 / load-cases lane",
+      "state": "pending"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "—",
+      "family": "RS-SAM (`boundary_motion` on rigid anchor RS-C)",
+      "in_tranche_1": true,
+      "row_lane": "— (plain EX documents: RT-A3)",
+      "state": "in tranche 1, on the load/reference-state document beside the temperature state; it shares #1678's conflict with wind and seismic"
+    },
+    {
+      "entities": [
+        "combination:RS-EQ-SRSS",
+        "combination:RS-EQ-ABS",
+        "combination:RS-OCC-SRSS",
+        "combination:RS-OCC-ABS"
+      ],
+      "expected_until_then": "not authorable at 0.8.0",
+      "family": "RS-EQ-SRSS, RS-EQ-ABS, RS-OCC-SRSS, RS-OCC-ABS",
+      "in_tranche_1": false,
+      "row_lane": "RT-A4 / load-cases lane (0.9.0 S1, then its slice)",
+      "state": "pending"
+    },
+    {
+      "entities": [
+        "load:RS-HYD"
+      ],
+      "expected_until_then": "not authorable at 0.8.0",
+      "family": "RS-HYD",
+      "in_tranche_1": false,
+      "row_lane": "RT-A6 / load-cases lane (0.9.0, then its slice)",
+      "state": "pending"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "authored per case at 0.8.0",
+      "family": "Operating condition set",
+      "in_tranche_1": false,
+      "row_lane": "RT-G5 / load-cases lane (0.9.0)",
+      "state": "pending"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "no modal analysis",
+      "family": "Modal (RS-OPE linearization)",
+      "in_tranche_1": false,
+      "row_lane": "RT-A7 / dynamics lane (DEL-04-09, M5 in scope)",
+      "state": "pending"
+    },
+    {
+      "entities": [
+        "spectrum:RS-SP1"
+      ],
+      "expected_until_then": "no spectrum analysis; `spectra[]` not authorable at 0.8.0",
+      "family": "Response spectrum, RS-SP1",
+      "in_tranche_1": false,
+      "row_lane": "RT-A8 / dynamics lane (DEL-04-10, proposed)",
+      "state": "pending"
+    },
+    {
+      "entities": [],
+      "expected_until_then": "no sizing procedure",
+      "family": "Hanger sizing and table",
+      "in_tranche_1": false,
+      "row_lane": "RT-A11 / owner to be assigned by Agent 0",
+      "state": "pending"
+    }
+  ],
+  "pending_inputs": [
+    {
+      "fields": {
+        "geometry.branch_branch_pipe_ref": "agent_authorable",
+        "geometry.branch_connection_angle": "agent_authorable",
+        "geometry.branch_header_pipe_ref": "agent_authorable",
+        "modifiers.branch_branch_sif_user_value": "person",
+        "modifiers.branch_header_sif_user_value": "person",
+        "modifiers.source_reference": "person"
+      },
+      "id": "component:RS-T1",
+      "ledger_family": "Tee RS-T1 with user SIFs"
+    }
+  ],
+  "self_weight": {
+    "cases": [
+      "load:RS-SUS",
+      "load:RS-OPE",
+      "load:RS-SAM"
+    ],
+    "generator": "self-weight generator (self_weight.rs), captured in self_weight_capture.json",
+    "gravity": {
+      "axis": "global_z",
+      "unit": "m/s^2",
+      "value": -9.80665
+    },
+    "mark": "agent_authorable",
+    "pipe_refs": [
+      "pipe:RS-P010",
+      "pipe:RS-P020",
+      "pipe:RS-P030",
+      "pipe:RS-P040",
+      "pipe:RS-P050",
+      "pipe:RS-P060",
+      "pipe:RS-P065",
+      "pipe:RS-P070",
+      "pipe:RS-P080",
+      "pipe:RS-P085",
+      "pipe:RS-P090",
+      "pipe:RS-P100",
+      "pipe:RS-P110",
+      "pipe:RS-P120",
+      "pipe:RS-P130",
+      "pipe:RS-P140",
+      "pipe:RS-P150",
+      "pipe:RS-P160",
+      "pipe:RS-P170",
+      "pipe:RS-P190",
+      "pipe:RS-P200",
+      "pipe:RS-P210",
+      "pipe:RS-P220",
+      "pipe:RS-P225",
+      "pipe:RS-P230"
+    ]
+  },
+  "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+}
