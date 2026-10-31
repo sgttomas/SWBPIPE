@@ -235,7 +235,9 @@ support here needs a skew.
 The constant-effort force acts along the positive UZ axis, its single translational
 restraint (DEC-049). The spring's installed, cold and hot loads are left absent: entered
 loads are not applied as preload on main (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`),
-and hanger sizing reports its own loads (§8.8). The constant-effort load is an input;
+and hanger sizing reports its own loads (§8.8). On `main` a `variable_spring_hanger` without
+them, or without a travel range or movement limit, is refused (`SPRING_HANGER_LOAD_MISSING`,
+`SPRING_HANGER_TRAVEL_MISSING`), so RS-VS1 is pending in tranche 1 (§10). The constant-effort load is an input;
 hanger sizing's sized load is a result and does not overwrite it.
 
 ## 7. Pressure regions
@@ -289,7 +291,10 @@ times, so they are differences, not the plain occasional cases (load-cases manag
 | RS-SAM | W + P + anchor RS-C moved UX +15 mm, UY −10 mm | Seismic anchor movement |
 
 W is generated self-weight of every member except RS-P180 (gravity as §2), with component weights at
-their centres of gravity in place of their members' distributed weight (W-15). Wind is
+their centres of gravity in place of their members' distributed weight (W-15). The fixture's W
+is the product's self-weight generator's output for each case (`self_weight.rs`, through
+`core/loads/self_weight_wasm`), captured in `fixtures/reference_system/self_weight_capture.json`;
+the fixture generator copies it and computes no weight. Wind is
 DEC-068's uniform pressure over the marked members (wind on a replaced span is
 refused). On EX, the anchor movement is `analysis_state.support_states[].boundary_motion`
 with meaning `absolute_reference_displacement`; the support-targeted primitive is
@@ -394,8 +399,10 @@ Each closed-form reference is computed by an independent generator in
 
 ## 10. Pending-family ledger
 
-State on `main` at `4d8cb7b0c`. Tranche 1 of the fixture contains every family marked
-"in tranche 1". A pending family keeps its geometry slot and ids; when its row lands, the
+State on `main` at `276e581b3`, as verified by the tranche-1 solve on EX
+(`tests/test_reference_system_fixture.py`, 2026-10-30). Tranche 1 of the fixture contains
+every family marked "in tranche 1", and RS-SUS, RS-OPE and RS-SAM solve on EX with no
+blocking diagnostic. A pending family keeps its geometry slot and ids; when its row lands, the
 generator adds its entities without moving a node. "Expected until then" is the refusal
 or absence a solve of the full model shows today.
 
@@ -407,7 +414,7 @@ or absence a solve of the full model shows today.
 | Expansion joint with tie rods, pressurized | in tranche 1 | — | — |
 | Pressure (five regions, shared terminals `transfers_to_wall`) | in tranche 1 | — | — |
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
-| Variable spring as a user-stiffness spring | in tranche 1 | — | — |
+| Variable spring as a user-stiffness spring | pending; refused on main for a modelling reason, so RS-VS1 is left out of tranche 1 (tranche-1 TASK, 2026-10-30): main requires installed, cold and hot loads and a travel range or movement limit on a `variable_spring_hanger`, which §6 leaves absent | reference-system manager / Agent 0 (§6 inputs); RT-A11 / RT-S3 (hanger loads) | `SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRAVEL_MISSING` (blocking) |
 | Tee RS-T1 with user SIFs | pending; the junction at RS-130 is in tranche 1 without the component | RT-A3 increment 1 (`claude/rt-a3-tee`) | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
