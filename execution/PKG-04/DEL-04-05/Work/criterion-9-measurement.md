@@ -274,6 +274,36 @@ are in `apps/desktop`:
   - The window below ran on documents carrying the same members, added by an interim
     adapter that this change retires.
 
+- **Threat model of the kit** (accepted for PR #53's permissions review). Findings outside
+  it are recorded, not repaired.
+  - *Reach scan.* It guards against honest edits that drop, move or weaken the
+    `native-smoke` gate, or that add an ungated use by name. It is not a defence against
+    deliberate obfuscation. The authoritative guarantee is the cargo feature itself,
+    evidenced by the product-binary `strings`/`nm` check in the PR record. Known out-of-model
+    cases:
+    - a `concat!`-built name;
+    - an escaped literal in a `cfg_attr(…, path = …)`;
+    - an `include!` bridge of a non-.rs file;
+    - a build script.
+  - *Hook and runner.* They guard against mistakes in plan text and caller input: traversal
+    names, links present when checked, wrong roots. They are not a defence against a hostile
+    local process changing the scratch directories concurrently. The two time-of-check to
+    time-of-use findings, in the hook's check-then-open and the runner's check-then-copy, are
+    recorded out of model. Native-smoke builds are never distributed.
+  - *Timeline.* A string it keeps must be on its exact code table (`solveTimelineCodes.ts`).
+    The table is generated from the sources whose codes it records, and a test fails when
+    the two differ.
+- **Open matter: the product-binary check is not on hosted CI.** Hosted CI builds no product
+  release binary:
+  - the desktop Rust job runs `cargo test --locked --manifest-path
+    apps/desktop/src-tauri/Cargo.toml`, whose debug test binaries also hold the reach scan's
+    own search strings;
+  - `desktop-build` builds the frontend only (`npm run build:desktop`).
+
+  A `strings`/`nm` step on every head would need a new release build. So the check stays a
+  per-PR record (`SWBPIPE_NATIVE_SMOKE`, `native_smoke_inject` and `injected_outcome` absent
+  from the product binary) until a release build exists in CI.
+
 ### 6.1 Desktop window
 
 The window ran on 2026-10-31 from 12:43:58 to 12:56:24Z, as one `t3_exclusive.sh` invocation

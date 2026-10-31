@@ -30,6 +30,14 @@
 //   SQLite store, classifies the run and writes OUT/perf-report-<UTC>.json. Each run's
 //   throwaway directory (its store can hold gigabytes) is removed unless --keep.
 //
+// Threat model (accepted for PR #53's permissions review): the plan checks (bare names,
+// containedPath) and the injection root guard against mistakes in plan text and caller input:
+// traversal names, absolute paths, links present when checked, wrong roots. They are NOT a
+// defence against a hostile local process that changes the scratch, models or results
+// directories concurrently (a time-of-check to time-of-use race between containedPath and the
+// copy or the app's open); that finding is recorded out of model. Native-smoke builds are
+// never distributed.
+//
 // Classes (a run can show several; `class` is the most severe): crash (which process),
 // half_written_save, misleading_message, hang (timeout), refused_with_message (quoted),
 // ok. A message is quoted verbatim; `needs_review` marks one a person should judge.

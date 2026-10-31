@@ -231,8 +231,11 @@ export function retainedNativeMechanicsInvocation(source: MechanicsResult, model
     ? structuredClone(nativeSourceInvocations.get(source)!.capture.invocation) : null;
 }
 
+/** The solver modes (`PreviewSolverMode`); the solve timeline's code table lists them. */
+export const PREVIEW_SOLVER_MODES: readonly PreviewSolverMode[] = ["sparse_interactive", "dense_scrutiny"];
+
 function assertPreviewSolverMode(value: unknown): asserts value is PreviewSolverMode {
-  if (value !== "sparse_interactive" && value !== "dense_scrutiny") {
+  if (!PREVIEW_SOLVER_MODES.includes(value as PreviewSolverMode)) {
     throw new Error(`PREVIEW_SOLVER_MODE_UNSUPPORTED: ${String(value)}`);
   }
 }
@@ -280,7 +283,8 @@ export type BackendSolveJobCancellationReceipt = {
 
 /** The solver-mode header of the raw-bytes start command. */
 export const SOLVER_MODE_HEADER = "x-swbpipe-solver-mode";
-const BACKEND_JOB_STATES: readonly BackendSolveJobState[] = ["queued", "running", "completed", "cancelled", "failed", "refused"];
+/** The native job states; the solve timeline's code table lists them. */
+export const BACKEND_JOB_STATES: readonly BackendSolveJobState[] = ["queued", "running", "completed", "cancelled", "failed", "refused"];
 const TERMINAL_JOB_STATES: readonly BackendSolveJobState[] = ["completed", "cancelled", "failed", "refused"];
 export const SOLVE_JOB_POLL_INTERVAL_MS = 50;
 

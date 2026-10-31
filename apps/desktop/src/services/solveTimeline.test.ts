@@ -156,7 +156,8 @@ describe("the codes the timeline keeps", () => {
       "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", "PREVIEW-SOLVE-RESULT-UTF8-INVALID", "CAPTURE_MISMATCH", "RESOURCE_UNAVAILABLE"]) {
       expect(codeOrNull(kept)).toBe(kept);
     }
-    for (const dropped of ["secret_project", "ALICE", "SECRET_PROJECT", "RK-H0012", "RK-linear-ex-82", "linear-ex-n0250.json",
+    for (const dropped of ["SOURCE_CUSTOMER_ACME", "ANALYSIS_PROJECT_SECRET", "SOURCE_PHYSICS_ACME_CORP", "PREVIEW-SOLVE-ACME",
+      "SOLVE_JOB_FOR_CUSTOMER_X", "secret_project", "ALICE", "SECRET_PROJECT", "RK-H0012", "RK-linear-ex-82", "linear-ex-n0250.json",
       "rack.json", "model", "project", "sparse", "Completed", "SOURCE_", "SOURCE", "source_physics_rhs_direction",
       "backend-solve-job-1", "project:RK-linear-ex-82", "/Users/someone/rack.json", "SOURCE_PHYSICS RHS", `SOURCE_${"A".repeat(100)}`]) {
       expect(codeOrNull(dropped), dropped).toBeNull();

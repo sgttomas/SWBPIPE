@@ -24,6 +24,8 @@
  * `uiDiagnostics.ts` under the very condition that installs `__openPipeStressUiDiagnosticsV1`,
  * so it is present exactly where that one is; the diagnostics global itself is unchanged. */
 
+import { LOCAL_REASON_CODES, READER_VERDICT_CODES, SOLVE_PATH_CODES } from "./solveTimelineCodes";
+
 export const SOLVE_TIMELINE_SCHEMA = "swbpipe.solve-timeline/v1" as const;
 export const SOLVE_TIMELINE_GLOBAL = "__openPipeStressSolveTimelineV1" as const;
 
@@ -54,28 +56,20 @@ export type SolvePassKind =
 export type SolveOutcome = "running" | "completed" | "failed" | "refused" | "cancelled" | "superseded";
 type Detail = Readonly<Record<string, string | number | boolean | null>>;
 
-// The strings the timeline may keep, and nothing else:
+// The strings the timeline may keep, and nothing else: an EXACT allow-list, no pattern.
 // - the lower-case values it records: solver modes and native job states, exactly;
-// - the repository's upper-case codes: at least two segments joined by `_` or `-`, starting
-//   with a prefix the solve path's codes use (`SOURCE_PHYSICS_RHS_DIRECTION`,
-//   `SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED`, `PREVIEW-SOLVE-RESULT-UTF8-INVALID`).
-// An identifier (`secret_project`, `ALICE`, `RK-H0012`), a file name or message text matches
-// neither and is dropped.
-const LOWER_CODES: ReadonlySet<string> = new Set([
+// - the codes of `solveTimelineCodes.ts`, generated from the sources whose codes it can record
+//   (`scripts/solveTimelineCodes.mjs`; `solveTimelineCodes.test.ts` fails when they differ).
+// Anything else, however code-shaped (`SOURCE_CUSTOMER_ACME`, `ANALYSIS_PROJECT_SECRET`), an
+// identifier (`secret_project`, `ALICE`, `RK-H0012`), a file name or message text is dropped.
+export const LOWER_CODES: readonly string[] = [
   "sparse_interactive", "dense_scrutiny",
   "queued", "running", "completed", "cancelled", "failed", "refused"
-]);
-const CODE_PREFIXES = [
-  "SOURCE_", "SOLVE_", "SOLVE-", "PREVIEW_", "PREVIEW-", "RESOURCE_", "MEMORY_", "CAPTURE_", "CHANGED_",
-  "UNCODED_", "CALLER_", "CHECKED-JSON-", "JSON_", "RESULT_READER_", "READER_", "RETAINED_PRECISION_",
-  "WASM-ENGINE-", "ANALYSIS_", "ANALYSIS-", "INPUT-MANIFEST-", "BROWSER_"
-] as const;
-const UPPER_CODE = /^[A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+){1,15}$/;
+];
+const KEPT: ReadonlySet<string> = new Set([...LOWER_CODES, ...SOLVE_PATH_CODES, ...READER_VERDICT_CODES, ...LOCAL_REASON_CODES]);
 /** `value` when it is one of the timeline's codes (see above), else null. */
 export function codeOrNull(value: unknown): string | null {
-  if (typeof value !== "string" || value.length > 96) return null;
-  if (LOWER_CODES.has(value)) return value;
-  return UPPER_CODE.test(value) && CODE_PREFIXES.some((prefix) => value.startsWith(prefix)) ? value : null;
+  return typeof value === "string" && KEPT.has(value) ? value : null;
 }
 /** The leading code of an error's message (`CODE: …` or `CODE …`), else null. */
 export function errorCode(error: unknown): string | null {

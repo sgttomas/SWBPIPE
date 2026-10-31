@@ -25,6 +25,15 @@
 //! path. A missing root, a link, a file outside it or anything but a regular
 //! file fails the job.
 //!
+//! Threat model (accepted for PR #53's permissions review). These checks guard
+//! against mistakes in caller input: a wrong root, a name that leaves it, or a
+//! link present when the file is checked. They are NOT a defence against a
+//! hostile local process that changes the directories while the file is
+//! checked and opened (a time-of-check to time-of-use race, for example
+//! swapping a parent directory for a link between the check and the open).
+//! That finding is recorded out of model, not repaired: native-smoke builds
+//! run only on the developer's own host and are never distributed.
+//!
 //! **A native-smoke build must never be distributed.** Injection publishes
 //! arbitrary bytes as this session's solve, with a solve attestation computed
 //! over them: it forges solve provenance. Nothing in a product build can reach

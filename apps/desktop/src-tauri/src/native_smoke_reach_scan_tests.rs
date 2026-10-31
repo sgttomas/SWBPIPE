@@ -16,8 +16,19 @@
 //! attributes are not code and are ignored. A file that does not parse fails.
 //!
 //! Also: the module is declared once, in `lib.rs`; no feature of this crate
-//! implies `native-smoke`, and it is not a default. The release-binary check
-//! (the variables' names absent from a product build) is in the PR record.
+//! implies `native-smoke`, and it is not a default.
+//!
+//! Threat model (accepted for PR #53's permissions review). The scan guards
+//! against honest edits that drop, move or weaken the `native-smoke` gate, or
+//! add an ungated use by name. It is NOT a defence against deliberate
+//! obfuscation. The authoritative guarantee is the cargo feature itself,
+//! evidenced by the product-binary `strings`/`nm` check recorded in the PR.
+//! Known out-of-model cases (the reviewer's bypasses), not repaired:
+//! - a name built by `concat!("SWBPIPE_NATIVE_SMOKE_", "INJECT_RESULT")`;
+//! - an escaped literal, as in
+//!   `#[cfg_attr(…, path = "native_smoke_\x69nject.rs")]`;
+//! - an `include!("bridge.inc")` of a non-.rs file that re-exports the hook;
+//! - a build script.
 
 use std::path::{Path, PathBuf};
 use syn::visit::{self, Visit};

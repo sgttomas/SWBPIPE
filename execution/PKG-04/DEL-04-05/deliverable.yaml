@@ -178,6 +178,7 @@ checks:
 - tests/test_performance_rack_model.py
 - apps/desktop/native-smoke/perf.test.mjs
 - apps/desktop/src/services/solveTimeline.test.ts
+- apps/desktop/src/services/solveTimelineCodes.test.ts
 - apps/desktop/src/services/solveTimelineGlobal.gate.test.ts
 - apps/desktop/src/services/solveTimelineGlobal.install.test.ts
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs
