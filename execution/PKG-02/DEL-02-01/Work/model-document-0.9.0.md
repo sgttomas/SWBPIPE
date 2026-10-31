@@ -631,9 +631,54 @@ document carrying none of them has today's meaning.
   blocking at solve. DEL-05-01 Work
   [`hydrostatic-test.md`](../../../PKG-05/DEL-05-01/Work/hydrostatic-test.md).
 - **`combinations[].subtrahend_support_state`** (RT-A5 Should): §2.2.
-- **Snubber support family** (RT-A8, the dynamics lane, DEL-04-09): a
-  dynamic-only restraint. Its member text is the dynamics lane's and is added
-  here when sent; until then this list is not frozen.
+- **Snubber support family** (RT-A8; the dynamics lane's text, 2026-10-30;
+  its final meaning is DEL-04-10's). `SupportFamily` gains the token
+  `"snubber"`; no new object member. A snubber uses `Support`'s existing members.
+  - `restraints`: one or more of `ux`, `uy`, `uz`; a rotational DOF is
+    `SNUBBER_ROTATIONAL_RESTRAINT_UNSUPPORTED`.
+  - `stiffness` (the existing `SupportStiffness`) is optional. Absent, the
+    snubber is rigid in its restraints. Present, `restraints` is exactly
+    `[stiffness.dof]` with a positive finite value in a stiffness unit;
+    otherwise `SNUBBER_STIFFNESS_INVALID`.
+  - A `hanger`, or a non-null `nonlinear`, on a snubber is `SNUBBER_MEMBER_CONFLICT`.
+  - These are document-level (schema, `validate_support_family_tokens`, the
+    applier and the solve's validation), blocking.
+  - **Interim:** every static solve on both routes refuses a model containing a
+    snubber, blocking, as `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`, naming the
+    support: "snubbers are dynamic-only restraints; the response-spectrum
+    analysis that uses them is not built yet". DEL-04-10's slice replaces the
+    refusal with its final meaning: static solves ignore a snubber, disclosed
+    as "dynamic-only restraint, not active in static cases"; modal (when
+    requested) and spectrum restrain with it.
+- **`spectra[]`** (RT-A8; the dynamics lane's text, 2026-10-30): top-level
+  records of user-entered spectra, data only, so that a spectrum is entered
+  once. Each is a closed `Spectrum`:
+  - `id` (unique among spectra, `SPECTRUM_ID_DUPLICATE`), `label`, `tags`,
+    `notes`;
+  - `abscissa`: `"frequency"` | `"period"`; `ordinate`: `"acceleration"` |
+    `"g_multiple"`;
+  - `units`: closed `{abscissa, ordinate}`, catalog unit strings: the abscissa
+    unit of the frequency or time family; the ordinate unit of the acceleration
+    family, present exactly when `ordinate` is `acceleration`;
+  - `g_value`: a `Quantity` in acceleration units, required exactly when
+    `ordinate` is `g_multiple`;
+  - `damping_ratio`: dimensionless, required, finite, in [0, 1);
+  - `interpolation`: closed `{abscissa, ordinate}`, each `"linear"` | `"log"`,
+    both required, no default;
+  - `points`: an array of `[x, y]` number pairs, at least two, x strictly
+    increasing and positive, y positive and finite.
+
+  Any other violation is `SPECTRUM_RECORD_INVALID`, naming the record and the
+  field (document-level, blocking). Spectra are referenced only from
+  DEL-04-10's spectrum analysis request, never from load cases; direction,
+  scale and method stay on that request. No solve reads them in 0.9.0, so a
+  document's static results do not depend on them (as E5 for unused condition
+  sets), and every displayed spectrum carries §1.2's label "not used by the
+  solve in 0.9.0" until DEL-04-10's slice.
+
+The dynamics lane needs no other member (no per-mode mass and no contents
+member; concentrated masses are W-17's, later). With these, the list is
+complete pending its confirmation by the dynamics lane and Agent 0 before S1.
 
 ## 3. The 0.9.0 version step
 
@@ -722,7 +767,8 @@ their states.
   dimensionless), `Combination.difference_basis`, `Combination.subtrahend_support_state`,
   the `Combination.basis` tokens `absolute_sum` and `srss`,
   `CombinationTerm.combination` (a `oneOf` with `load_case`), `$defs`
-  `TestCondition` with `LoadCase.test_condition`, and the snubber family (§2.4).
+  `TestCondition` with `LoadCase.test_condition`, the `SupportFamily` token
+  `snubber`, and `$defs` `Spectrum` with top-level `spectra` (§2.4).
   `PressureRegion.pressure`
   stays required in the schema except where the case carries
   `condition_use.pressure` (an `if`/`then` on `LoadCase`). Every record stays
@@ -1011,8 +1057,8 @@ counted on main `66a83a2b68`: each occurs once.
 ## 8. Coordination
 
 - **0.9.0 members.** C1's members, `direction`, `difference_basis` and the
-  members of §2.4 are the only ones known; the snubber family is awaited from
-  the dynamics lane. Any other lane that needs a member joins through Agent 0
+  members of §2.4 are the only ones known. The list is frozen once the
+  dynamics lane and Agent 0 confirm it, before S1. Any other lane that needs a member joins through Agent 0
   before S1's ripple; after it, the next member is a 0.10.0 step.
 - **Order.** S1 after #1678 in the pricing queue; the solver lane's 1b and skew
   kernel after S1; S2 after S1; S3a after S1 (it can run beside S2); S3b after
