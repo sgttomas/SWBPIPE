@@ -5,8 +5,8 @@
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis); 2026-10-28 (v1.0 target: §1, §7, §11.5, §12.9, §17.5, §23, §24 R4 and V1)  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds), by SCA-013 (2026-10-27, modal analysis), by SCA-014 (2026-10-28, response spectrum) and by the owner's v1.0-target rulings of 2026-10-28 (§2)  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis); 2026-10-28 (v1.0 target: §1, §7, §11.5, §12.9, §17.5, §23, §24 R4 and V1); 2026-10-31 (§12.4, hanger sizing)  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds), by SCA-013 (2026-10-27, modal analysis), by SCA-014 (2026-10-28, response spectrum), by the owner's v1.0-target rulings of 2026-10-28 (§2) and by SCA-015 (2026-10-31, hanger sizing)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -721,6 +721,8 @@ The product shall support, over time:
 - sliding support.
 
 The MVP may start with anchors, guides, vertical supports, directional restraints, and linear springs.
+
+Hanger sizing is required for v1.0 (SCA-015; `docs/RELEASE_TARGET_v1.0.md` RT-A11). The engine shall size variable spring hangers and constant-effort supports from the user's own imported hanger catalogue records. Every method choice shall be a required user input: the weight and operating cases, the load design, the load-variation limit and its reference, the travel allowance and the selection rule. The engine shall report the sized loads, travels and selected records as results with their basis, a hanger table, and shall change the model only when the person applies a selection. No catalogue ships. A variable spring hanger is modelled as its stiffness plus its cold (preset) load.
 
 ### 12.5 Load Types
 
