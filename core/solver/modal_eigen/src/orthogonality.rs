@@ -1,7 +1,8 @@
 //! M-orthogonality of a set of modes (design §3.4, check 3):
 //! max over i ≠ j of |φᵢᵀMφⱼ| / √(m_i m_j), with m_i = φᵢᵀMφᵢ, in
-//! double-double, the denominator formed as √m_i·√m_j so that it does not
-//! leave the binary64 range while the ratio is representable. A ratio that
+//! double-double, with each √m_i kept as a root near 1 and a power of two,
+//! the powers applied to φᵢᵀMφⱼ, so that no intermediate leaves the
+//! binary64 range while the ratio is representable. A ratio that
 //! is not finite is refused. The measure is invariant to the shape
 //! normalization. The tolerance it is judged against belongs to the caller.
 //!
@@ -145,14 +146,18 @@ fn from_products(
                 value: m.to_f64(),
             });
         }
-        generalized.push(m.sqrt());
+        generalized.push(scaled_sqrt(m));
     }
     let mut max_ratio = 0.0;
     let mut pair = None;
     for i in 0..vectors.len() {
         for j in i + 1..vectors.len() {
-            let scale = generalized[i].mul(generalized[j]);
-            let ratio = bilinear(i, j).abs().div(scale).to_f64();
+            let ((root_i, k_i), (root_j, k_j)) = (generalized[i], generalized[j]);
+            let ratio = bilinear(i, j)
+                .abs()
+                .mul_pow2(-(k_i + k_j))
+                .div(root_i.mul(root_j))
+                .to_f64();
             if !ratio.is_finite() {
                 return Err(OrthogonalityError::RatioOutOfRange {
                     pair: (i, j),
@@ -166,6 +171,19 @@ fn from_products(
         }
     }
     Ok(MOrthogonality { max_ratio, pair })
+}
+
+/// √m = 2^k·√(m·2^−2k) for m positive and finite, returned as
+/// (√(m·2^−2k), k) with the even power of two 2^−2k bringing m into
+/// [1, 4). The ratio is formed as (|φᵢᵀMφⱼ|·2^−(k_i+k_j)) / (root_i·root_j),
+/// so no double-double product or quotient meets the ends of the binary64
+/// range unless the ratio itself does.
+fn scaled_sqrt(m: Dd) -> (Dd, i32) {
+    // A subnormal m (biased exponent 0) is taken at 2⁻¹⁰²², so that 2^−2k
+    // stays finite.
+    let exponent = (((m.hi.to_bits() >> 52) & 0x7ff) as i32 - 1023).max(-1022);
+    let k = exponent.div_euclid(2);
+    (m.mul_pow2(-2 * k).sqrt(), k)
 }
 
 #[cfg(test)]
@@ -212,7 +230,7 @@ mod tests {
     /// overflowed or underflowed before its square root (NaN).
     #[test]
     fn the_denominator_does_not_leave_the_range() {
-        for s in [1e200, 1e-200, f64::MAX] {
+        for s in [1e200, 1e-200, f64::MAX, f64::MIN_POSITIVE] {
             let mass = SymmetricMatrix::from_diagonal(&[s]).unwrap();
             let one = [1.0];
             let result = m_orthogonality(&mass, &[&one, &one]).unwrap();
