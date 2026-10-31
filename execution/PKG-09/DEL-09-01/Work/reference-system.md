@@ -368,10 +368,13 @@ RS-SAM and RS-WIN/RS-EQx together until #1678 lands (§10).
 ### 8.8 Hanger sizing
 
 Hanger sizing is a request beside the model. It sizes RS-VS1 and RS-CE1 from an invented
-private catalogue (`fixtures/reference_system/`, invented records only, OC-4) and
-produces a hanger table. The procedure, its load cases and its record selection rule
-belong to RT-A11's owner, not yet assigned. The geometry slots and the key results of
-§9.1 are fixed here.
+private catalogue (invented records only, OC-4; forthcoming as
+`fixtures/reference_system/invented_hanger_catalogue.json` with DEL-04-11's engine
+increment) and produces a hanger table. The procedure, its load cases and its record
+selection rule belong to DEL-04-11 (Agent 0's D-1; design
+`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`). Sizing
+never overwrites RS-VS1's or RS-CE1's entered inputs. The geometry slots and the key
+results of §9.1 are fixed here.
 
 ## 9. Key results
 
@@ -437,7 +440,7 @@ or absence a solve of the full model shows today.
 | Operating condition set | pending | RT-G5 / load-cases lane (0.9.0) | authored per case at 0.8.0 |
 | Modal (RS-OPE linearization) | pending | RT-A7 / dynamics lane (DEL-04-09, M5 in scope) | no modal analysis |
 | Response spectrum, RS-SP1 | pending | RT-A8 / dynamics lane (DEL-04-10, proposed) | no spectrum analysis; `spectra[]` not authorable at 0.8.0 |
-| Hanger sizing and table | pending | RT-A11 / owner to be assigned by Agent 0 | no sizing procedure |
+| Hanger sizing and table | pending | RT-A11 / DEL-04-11 | no sizing procedure |
 | Snubber RS-SN1 (RS-110, UX, rigid) | pending | RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber) | `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0 |
 
 The generator keeps a pending flag per row of this table, and the fixture test checks
@@ -475,10 +478,15 @@ else, with small counts. That reading is Agent 0's working reading for now (2026
 the criterion text is the owner's, and Agent 0 takes the question to the owner with the
 RT-U2 walkthrough results.
 
-Counts: about 30 run-sheet rows (three chains: from A, from the tee, and the branch),
-and follow-up form entries for the components (eight), the non-rigid supports (seven),
-the pressure contract and regions (one contract, five regions per pressurized case),
-the load cases (eight), the combinations (ten) and the three analysis requests.
+Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
+chains: from A, from the tee, and the branch) and about 640 follow-up form entries, 168
+of them the per-member load/reference states and pressure regions of the three cases
+since the fills and case copies of #38. The run sheet's estimate is about 75 minutes
+(about 130 before #38), against the provisional 30; it is not a measurement. On
+`main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
+and the three bends are entered by forms (run sheet §2, §6). The full model adds the
+tee, the reducer, the other non-rigid supports, five more cases with their regions, the
+other eight combinations and the three analysis requests.
 
 **What a fuller run sheet would absorb** (an RT-G2 candidate, Agent 0, 2026-10-31):
 - a component column per row: flange, valve, reducer and tee, with weight and stiffness

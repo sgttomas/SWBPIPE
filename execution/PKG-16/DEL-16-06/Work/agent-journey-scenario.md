@@ -104,26 +104,11 @@ the reference and its named departures, and the driver's command set).
 ## Defects the journey found
 
 The first launches exercised the webview journey for the first time and found
-two product defects, both fixed here with regressions:
-
-- **The agent could never start.** The workspace snapshot published the model
-  hash only when `uiModelRevision === modelRevision.current`, two different
-  counters (project loads advance only the second), so Start always refused
-  with "Open a model and wait for its fingerprint before starting." The hash
-  owner now records the model revision its hash was computed for, and the
-  snapshot publishes the hash only for that revision
-  (`features/workspace/agentWorkspaceSnapshot.session.test.tsx`: Start passes
-  the workspace check after the first load and after an applied edit, and
-  refuses while the edited model's hash is pending; both cases failed before).
-- **Registration refused every real basis.** The workspace and the operation
-  engine write a model hash value as `sha256:<hex>`, while the catalog's `hash`
-  value is the 64 hex digits alone, so `register` refused (`AGENT-Input`). The
-  session now converts at the boundary (`agentHash`): the registered and
-  updated basis, the current-basis comparison, the solve receipt comparison and
-  the `evaluatedModelHash` and `outcomeModelHash` it returns are in the
-  catalog's form; the operation batch keeps the engine's form. The session
-  tests had used a bare hex value; a test with the workspace's real form is
-  added.
+that the merged agent could never start in the real app: the workspace
+snapshot compared two different revision counters, and the workspace's
+`sha256:` hash form failed the catalog's bare-hex `hash` schema at `register`.
+Both were fixed in their own PR (#40, merge `cc91aadc9`), with regressions;
+`agent-live-session.md` records them and the binding rule.
 
 To read a refusal the Agent panel generalizes, a native-smoke build also
 prints the host's refusal code and the request's kind on stderr

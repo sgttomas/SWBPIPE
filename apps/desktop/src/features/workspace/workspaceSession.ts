@@ -4003,9 +4003,11 @@ export function useWorkspaceSession() {
   // created until a later explicit panel action requests start/configuration.
   const agentOwnerRef = useRef<import("../../services/embeddedAgentSession").WorkspaceExecution | null>(null);
   agentOwnerRef.current = {
-    // The hash is published only for the model revision it was computed for. (Comparing
-    // uiModelRevision with modelRevision.current mixed two counters: project loads advance
-    // only the second, so the agent could never start.)
+    // The hash is published only for the model revision it was computed for, read live from
+    // the owner so a closure from an earlier render cannot pair an older hash with a newer
+    // model. (Comparing uiModelRevision with modelRevision.current mixed two counters that
+    // advance on different events; the [model] layout effect also advances the second, so
+    // they differ from the first load on and the agent could never start.)
     snapshot: () => ({ model: currentModel.current, hash: currentHashOwned && modelHashOwner.current?.modelRevision === modelRevision.current && projectSessionGeneration === projectSessionGenerationRef.current ? modelHash : null,
       revision: modelRevision.current, generation: projectSessionGenerationRef.current,
       result: currentSolvedResultRef.current, standing: { eligible: numericallyEligible, health: numericalHealth } }),

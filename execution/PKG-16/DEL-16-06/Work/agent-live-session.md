@@ -125,11 +125,45 @@ relabelled as an EOF pass.
 The selected ARM source/native candidate is qualified to the bounded lifecycle
 and isolation extent below; the actual webview command/review journey remains
 unexercised here. `agent-journey-scenario.md` exercises it with a scripted
-provider and records the two defects that first run found. Targeted checks cover controller EOF/cancellation/latching,
+provider; its first runs exposed the two Start defects recorded below. Targeted checks cover controller EOF/cancellation/latching,
 workspace authority, outcome-before-delivery, stale preparation, source pages,
 late actuals and original native group preservation. The native run used the retained actual bundle resources with verified stock
 0.160 bytes and current candidate native-smoke code in a fresh app copy. ARM evidence cannot qualify Intel; the
 public gate remains unavailable on any unqualified architecture.
+
+**Start defects the webview journey exposed (RT-E1 D4, 2026-10-31).** The first
+run of the agent's journey in the real app window (prerequisite 2 of the D4 live
+run) found that the merged agent could never start there, for two reasons:
+
+- The workspace snapshot published the model hash only when
+  `uiModelRevision === modelRevision.current`. Those counters advance on
+  different events (each publication advances both, and the `[model]` layout
+  effect advances `modelRevision` again), so they differ from the first load on
+  (1 and 3 there) and Start always refused with "Open a model and wait for its
+  fingerprint before starting." The binding rule is now: the hash owner records
+  the model revision its hash was computed for, and the snapshot publishes the
+  hash only when that equals `modelRevision.current`, read live from the owner,
+  together with the existing generation and ownership checks. A hash from
+  before an edit is therefore never published while the edited model's hash is
+  pending, nor paired with a model an undo restored before React re-renders.
+- The workspace and the operation engine write a hash value as `sha256:<hex>`,
+  but the catalog's `hash` value is the 64 hex digits alone, so `register`
+  refused every real basis. The session converts at the boundary, strictly in
+  both directions: a workspace hash must be `sha256:` and 64 lowercase hex
+  digits (`agentHash`, else `AGENT-ENGINE-HASH-FORM-REFUSED`), and a hash from
+  the agent's basis must be 64 lowercase hex digits (`catalogHash`, else
+  `AGENT-CATALOG-HASH-FORM-REFUSED`); nothing else passes through. The
+  registered and updated basis, the current-basis comparison, the solve
+  receipt comparison and the returned `evaluatedModelHash` and
+  `outcomeModelHash` (with its proof record) use the catalog's form; the
+  operation batch and its validation keep the engine's form.
+
+Unit tests had used a hand-made hash and never a real project load, so neither
+showed. `features/workspace/agentWorkspaceSnapshot.session.test.tsx` (load,
+edit, pending hash, and undo read before React re-renders) and the
+`embeddedAgentSession.test.ts` cases (engine-form workspace hashes, basis
+updates, applied outcome and proof, validation inputs, and both refusals) now
+cover them.
 
 DEL-16-06 ScopeOfWork claims/ACs and all dependency conditions remain unchanged:
 this implements their existing binding, proposal and cleanup duties, not their
