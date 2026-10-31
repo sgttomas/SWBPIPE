@@ -7,11 +7,11 @@ vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}))
 const hash={algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_scope:'model_payload',payload_ref:'invented',value:'a'.repeat(64),hash_status:'computed_local_preview'} as ModelHashEvidence;
 const basis:AgentBasis={workspaceHandle:'workspace-invented',applicationGeneration:1,modelRevision:1,modelHash:hash,stateId:null,runId:null};
 function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {resolve,promise};}
-function setup(){
+function setup(workspaceHash:ModelHashEvidence=hash){
  let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
  const model={schema_version:'0.8.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',label:'N1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
  let result:MechanicsResult|null=null;
- const owner:WorkspaceExecution={snapshot:()=>({model,hash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
+ const owner:WorkspaceExecution={snapshot:()=>({model,hash:workspaceHash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
  const invoke=vi.fn(async(value:Record<string,unknown>):Promise<unknown>=>{
   sent.push(value);
@@ -32,6 +32,16 @@ function setup(){
 afterEach(()=>{vi.useRealTimers();vi.clearAllMocks();});
 async function drain(){for(let i=0;i<16;i++)await Promise.resolve();}
 describe('workspace-owned live embedded agent adapter',()=>{
+ it('gives the agent the catalog form of the workspace hash, without its sha256: prefix',async()=>{
+  vi.useFakeTimers();const {session,sent,owner,call}=setup({...hash,value:`sha256:${hash.value}`});
+  await session.start('revision');await session.poll();await drain();
+  expect((sent.find(v=>v.kind==='register')!.basis as {modelHash:ModelHashEvidence}).modelHash).toEqual(hash);
+  expect(JSON.parse(session.actual('invented-session:1')!.outcome).status).toBe('ok');
+  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:{...hash,value:`sha256:${hash.value}`},solverMode:'sparse_interactive',health:'ok'});
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  const solved=JSON.parse(session.actual('invented-session:2')!.outcome);expect(solved.status).toBe('completed');expect(solved.data.evaluatedModelHash).toEqual(hash);
+  await session.close();
+ });
  it('constructs without any native call or timer',()=>{const {invoke}=setup();expect(invoke).not.toHaveBeenCalled();});
  it('keeps private authority outside tool responses and records actual before delivery',async()=>{
   vi.useFakeTimers();const {session,sent}=setup();await session.start('revision');await session.poll();await drain();
