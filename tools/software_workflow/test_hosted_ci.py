@@ -20,6 +20,13 @@ PROFILE = json.loads((Path(__file__).resolve().parents[1] / "hosted-ci-routing.j
 # function of the project, the manifests and the declarations it is given.
 SOURCE_READS = {}
 load_numerical_module = hosted_ci.numerical_module
+real_python_reach = hosted_ci.python_reach
+
+
+def source_python_reach(root, paths):
+    """A fixture checkout models a diff, not the product: the Python tests that read its paths are this
+    checkout's."""
+    return real_python_reach(SOURCE_ROOT, paths)
 
 
 def shared_numerical_module(root):
@@ -58,9 +65,11 @@ def browser_selection(paths, profile=PROFILE):
 class HostedCITests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        patcher = patch('hosted_ci.numerical_module', shared_numerical_module)
-        patcher.start()
-        cls.addClassCleanup(patcher.stop)
+        for target, replacement in (('hosted_ci.numerical_module', shared_numerical_module),
+                                    ('hosted_ci.python_reach', source_python_reach)):
+            patcher = patch(target, replacement)
+            patcher.start()
+            cls.addClassCleanup(patcher.stop)
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

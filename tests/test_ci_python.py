@@ -21,8 +21,17 @@ def test_sensitive_families_follow_their_inputs():
     assert 'tests/test_qualification_physics.py' in selected('tests/test_qualification_physics.py')
 
 
+def readers(path):
+    """The derived tests whose own reads include `path`."""
+    return {test for test, roots in ci.derived_tests(PROJECT).items()
+            if any(path == root or path.startswith(root + '/') for root in roots)}
+
+
 def test_unrelated_security_change_does_not_expand_to_full_suite():
-    assert selected('core/security/redaction/controls.py') == sorted(ci.BASE)
+    path = 'core/security/redaction/controls.py'
+    assert readers(path)
+    assert set(selected(path)) == set(ci.BASE) | readers(path)
+    assert not set(ci.FAMILIES['qualification']) & set(selected(path))
 
 
 def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
@@ -38,10 +47,11 @@ def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
     }
     assert set(selected('core/model_operations/validation_preview/engine.py')) == base | {
         'tests/test_operation_validation_preview.py',
-    }
-    assert set(selected('tools/retained_pricing/lib/linemap_lib.py')) == base | {'tests/test_retained_pricing_tool.py'}
-    assert selected('core/gui/pkg02_boundary.py') == sorted(base)
-    assert selected('core/units/schema_vocabulary.py') == sorted(base)
+    } | readers('core/model_operations/validation_preview/engine.py')
+    assert set(selected('tools/retained_pricing/lib/linemap_lib.py')) == base | {'tests/test_retained_pricing_tool.py'} | readers(
+        'tools/retained_pricing/lib/linemap_lib.py')
+    for path in ('core/gui/pkg02_boundary.py', 'core/units/schema_vocabulary.py'):
+        assert set(selected(path)) == base | readers(path)
 
 
 
@@ -145,9 +155,9 @@ def test_test_tree_imports_are_followed_without_unrelated_tests():
 
 def test_unrelated_changes_select_no_verifier_importers():
     verifier = set(selected('tests/verifiers/retained_precision.py')) - set(ci.BASE)
-    # A product module sharing a verifier's name is not a verifier.
-    assert selected('core/analysis_runs/compatibility.py') == sorted(ci.BASE)
-    assert selected('core/units/schema_vocabulary.py') == sorted(ci.BASE)
+    # A product module sharing a verifier's name is not a verifier: it selects only the tests that read it.
+    for path in ('core/analysis_runs/compatibility.py', 'core/units/schema_vocabulary.py'):
+        assert set(selected(path)) == set(ci.BASE) | readers(path)
     assert not verifier & set(selected('tests/qualification_fixture_support.py'))
 
 
@@ -196,3 +206,99 @@ def test_model_version_literal_guard_follows_every_root_it_scans():
         assert ci.MODEL_VERSION_LITERAL_TEST in selected(path), path
     assert ci.MODEL_VERSION_LITERAL_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
     assert ci.MODEL_VERSION_LITERAL_TEST not in selected('core/security/redaction/controls.py')
+
+
+def test_every_maintained_test_runs_when_a_path_it_reads_changes():
+    """No maintained Python test runs only when its own file is edited: a rule names it, or it is derived
+    from the paths it reads, or it is left unrouted with a reason."""
+    tracked = ci.python_test_reads.tracked(PROJECT)
+    named, derived = ci.named_tests(PROJECT), ci.derived_tests(PROJECT)
+    assert set(ci.UNROUTED) <= set(ci.python_test_reads.maintained_tests(PROJECT))
+    dispatch = set(ci.select(PROJECT, {'event': 'workflow_dispatch'}))
+    for test in ci.python_test_reads.maintained_tests(PROJECT):
+        if test in ci.UNROUTED or test in named:
+            continue
+        assert derived[test], test
+        assert test in dispatch, test
+        root = derived[test][0]
+        probe = root if root not in tracked or (PROJECT / root).is_file() else min(
+            path for path in tracked if path.startswith(root + '/') and (PROJECT / path).is_file())
+        assert test in selected(probe), (test, probe)
+        assert test in selected(test), test
+
+
+def test_formerly_never_run_guards_follow_their_roots():
+    cases = {
+        'tools/retained_pricing/tests/test_w8_topology_model.py': 'core/product_physics/src/validation.rs',
+        'tools/retained_pricing/tests/test_silent_zero_guard.py': 'core/product_physics/src/case_state/resolve.rs',
+        'tools/retained_pricing/tests/test_w1_reductions.py': 'tools/retained_pricing/price.py',
+        'tools/agent_host_witness_test.py': 'tools/agent_host_witness.py',
+        'tools/agent_live_session_fixture_test.py': 'tools/agent_live_session_fixture.py',
+        'validation/benchmarks/numerical_integrity/test_reference.py': 'validation/benchmarks/numerical_integrity/generate.py',
+        'validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py':
+            'validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py',
+        'tests/test_performance_harness_runner.py': 'core/solver/performance_harness/runner/k6_runner.py',
+        'tests/test_caepipe_mbf_importer.py': 'core/handoff/caepipe_mbf/importer.py',
+        'tests/test_user_guide_status_wording.py': 'docs/user_guide/index.md',
+        'tests/test_release_notarize_script.py': 'tools/release/notarize_app.py',
+    }
+    for test, path in cases.items():
+        assert test in selected(path), (test, path)
+        assert test not in selected('core/units/schema_vocabulary.py'), test
+    assert 'core/solver/performance_harness/runner/test_k6_runner.py' not in selected(
+        'core/solver/performance_harness/runner/k6_runner.py')
+
+
+def test_reads_follow_imports_and_path_loaded_models_not_imported_modules_reads():
+    reads = ci.python_test_reads.test_reads(PROJECT)
+    # The W-8 model the test loads by path pins validation.rs; the test itself does not name it.
+    assert 'core/product_physics/src/validation.rs' not in (PROJECT / 'tools/retained_pricing/tests/test_w8_topology_model.py').read_text()
+    assert 'core/product_physics/src/validation.rs' in reads['tools/retained_pricing/tests/test_w8_topology_model.py']
+    # Imports resolve through the package, transitively.
+    assert 'core/security/redaction/controls.py' in reads['tests/test_caepipe_benchmark.py']
+    # The runner build helper is imported, not path-loaded: the crates it builds are not the test's roots.
+    assert 'tools/runner/build_runner.py' in reads['tests/test_units_authority_setup.py']
+    assert 'core/product_physics' not in reads['tests/test_caepipe_mbf_importer.py']
+    # Roots the Python job cannot read, and whole top-level directories, are never roots.
+    assert not [root for roots in reads.values() for root in roots
+                if '/' not in root or root.startswith('execution/') and not root.startswith('execution/_DAG')]
+
+
+def test_repository_check_tests_are_the_governance_step_s():
+    workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
+    line, = [line for line in workflow.splitlines() if 'python3 -m pytest -q -n auto' in line]
+    assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
+
+
+def test_derived_roots_route_a_local_check_that_runs_the_test():
+    """software-workflow.json registers each derived test for every path it reads."""
+    import json
+    import sys
+    sys.path.insert(0, str(PROJECT / 'tools/software_workflow'))
+    from software_workflow_common import matches
+    registry = json.loads((PROJECT / 'software-workflow.json').read_text())
+
+    def runs(check, test):
+        return any(test == arg or test.startswith(arg.rstrip('/') + '/') for arg in registry['checks'][check]['command'])
+    tracked = ci.python_test_reads.tracked(PROJECT)
+    for test, roots in ci.derived_tests(PROJECT).items():
+        for root in roots:
+            probe = root if root not in tracked or (PROJECT / root).is_file() else root + '/x'
+            checks = {check for rule in registry['path_rules'] if matches(probe, rule['paths']) for check in rule['checks']}
+            assert any(runs(check, test) for check in checks), (test, root)
+
+
+def test_a_path_only_a_python_test_reads_starts_the_python_job():
+    sys_path = str(PROJECT / 'tools/software_workflow')
+    import sys
+    if sys_path not in sys.path:
+        sys.path.insert(0, sys_path)
+    import hosted_ci
+    _, profile = hosted_ci.load_profile(hosted_ci.PROFILE)
+    for path in ('docs/user_guide/index.md', 'apps/desktop/src/services/modelSchemaVersion.ts'):
+        selection = hosted_ci.select_paths([path], profile)
+        assert selection['modes']['piping-python'] == 'full', path
+        assert path in selection['reasons']['piping-python']
+    # The always-run security tests read their policy documents.
+    assert hosted_ci.select_paths(['docs/security/telemetry_policy.md'], profile)['modes']['piping-python'] == 'full'
+    assert hosted_ci.select_paths(['docs/PRD.md'], profile)['modes']['piping-python'] == 'not-applicable'

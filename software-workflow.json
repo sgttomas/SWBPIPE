@@ -99,6 +99,29 @@
         "-q",
         "tests/test_model_version_literals.py"
       ]
+    },
+    "retained-pricing-tool-tests": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/retained_pricing/tests",
+        "-n",
+        "auto"
+      ]
+    },
+    "benchmark-reference-tests": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "validation/benchmarks/numerical_integrity/test_reference.py",
+        "validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py"
+      ]
     }
   },
   "always_checks": [],
@@ -223,6 +246,74 @@
       ],
       "checks": [
         "model-version-literals"
+      ]
+    },
+    {
+      "paths": [
+        "api/**",
+        "apps/desktop/**",
+        "docs/BUILD_AND_RELEASE.md",
+        "docs/IP_AND_DATA_BOUNDARY.md",
+        "docs/PROFESSIONAL_BOUNDARY.md",
+        "docs/RELEASE_NOTES_TEMPLATE.md",
+        "docs/RELEASE_QUALITY_GATES.md",
+        "docs/VALIDATION_STRATEGY.md",
+        "docs/architecture/**",
+        "docs/security/**",
+        "docs/user_guide/**",
+        "execution/_DAG/**",
+        "fixtures/**",
+        "schemas/**",
+        "tools/agent_supplier_bundle.py",
+        "tools/agent_supplier_resource.py",
+        "tools/caepipe_correlation/**",
+        "tools/fixtures/**",
+        "tools/release/**",
+        "tools/repository_history.py",
+        "tools/retained_pricing/**",
+        "tools/runner/**",
+        "tools/serialization/**",
+        "tools/units/**",
+        "tools/validation/**",
+        "tools/ci/python_test_reads.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "piping-pytest"
+      ]
+    },
+    {
+      "paths": [
+        "tools/retained_pricing/**",
+        "tools/repository_history.py",
+        "core/loads/**",
+        "core/numerics/**",
+        "core/product_physics/**",
+        "core/reporting/result_export/**",
+        "core/serialization/canonical_json/**",
+        "core/solver/**",
+        "core/units/**",
+        "fixtures/product_preview/pressure_source/**",
+        "fixtures/results/**",
+        "schemas/load_reference_state.schema.json",
+        "schemas/physics_source_recovery.schema.json",
+        "schemas/retained_precision_mp_v2.schema.json",
+        "tools/ci/python_test_reads.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "retained-pricing-tool-tests"
+      ]
+    },
+    {
+      "paths": [
+        "validation/benchmarks/numerical_integrity/**",
+        "validation/benchmarks/numerical_robustness/runner/**",
+        "tools/ci/python_test_reads.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "benchmark-reference-tests"
       ]
     }
   ]

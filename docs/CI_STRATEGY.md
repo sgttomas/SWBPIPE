@@ -150,6 +150,17 @@ from the tests' own imports so no non-test module names the verifiers;
 and a declared byte-pinned fixture selects the tests that pin it;
 full-fallback plans retain the broad Python cohort and directly edited tests.
 Edited product tests are run directly; shared CI/input changes expand the selection.
+Every other maintained Python test, under `tests/` or beside the tool it tests
+(outside the Repository checks suites), is selected by the paths it reads,
+derived from its own code by `tools/ci/python_test_reads.py`: project paths it
+writes as literals or builds by `/` from a project- or `__file__`-anchored base,
+the project modules it imports (transitively), and the files it loads by path
+together with their own reads. An imported module's own reads are not the test's
+roots. Such tests join the broad cohort. A path one of them, or an always-run
+test, reads starts the Python job even where no path rule routes it (desktop
+source, a policy document). `python_ci.UNROUTED` names each test deliberately
+left out, with its reason; `tests/test_ci_python.py` fails on any other test that
+only its own edit would select.
 The Python job retains xdist `--dist loadscope`: the current retained-precision
 corpus uses parametrized items across shard classes, and the O4 envelope checks
 use separate classes so these expensive modules can occupy multiple workers.

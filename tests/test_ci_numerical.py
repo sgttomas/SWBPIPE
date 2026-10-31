@@ -660,7 +660,9 @@ class ReachabilitySafetyTests(unittest.TestCase):
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
-        for path, python in [('tests/test_persistence_schema.py', 'full'), ('apps/desktop/src/App.tsx', 'not-applicable')]:
+        # Desktop source starts the Python job only for the Python tests that read it (tools/ci/python_test_reads.py).
+        for path, python in [('tests/test_persistence_schema.py', 'full'), ('apps/desktop/src/App.tsx', 'full'),
+                             ('package.json', 'not-applicable')]:
             result = hosted_ci.select_paths([ci.PROJECT + path], profile)
             self.assertEqual(result['modes']['piping'], 'full')
             self.assertEqual(result['modes']['piping-python'], python)
