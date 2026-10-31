@@ -478,10 +478,26 @@ impl MemoryPool {
         purpose: LeasePurpose,
         cancelled: &dyn Fn() -> bool,
     ) -> Result<Lease, ResampleStop> {
+        self.acquire_resampling_checked(bytes, purpose, cancelled, &|_| None)
+    }
+
+    /// [`Self::acquire_resampling`] with `check`, a standing refusal tested
+    /// under the lock before each attempt's verdict.
+    fn acquire_resampling_checked(
+        self: &Arc<Self>,
+        bytes: u64,
+        purpose: LeasePurpose,
+        cancelled: &dyn Fn() -> bool,
+        check: &dyn Fn(&PoolState) -> Option<ResourceRefusal>,
+    ) -> Result<Lease, ResampleStop> {
         debug_assert_ne!(purpose, LeasePurpose::Worker, "worker grants wait in the queue instead");
         let deadline = Instant::now().checked_add(self.resample_window);
         let mut state = self.lock();
         loop {
+            if let Some(refusal) = check(&state) {
+                state.last_refusal = Some(refusal.clone());
+                return Err(ResampleStop::Refused(refusal));
+            }
             let refusal = match self.verdict_locked(&mut state, bytes, purpose) {
                 Ok(()) => {
                     let budget = state.invocation_budget_bytes;
@@ -508,6 +524,22 @@ impl MemoryPool {
                 return Err(ResampleStop::Refused(refusal));
             }
         }
+    }
+
+    /// [`Self::acquire_resampling`] for a native reader's parse of a held
+    /// result (C1 native custody, DEL-04-05 `c1-native-custody-plan.md`):
+    /// before every attempt, under the pool lock, `bytes` above the
+    /// per-invocation budget, and never above the owner-adopted
+    /// [`DEFAULT_INVOCATION_BUDGET_BYTES`] whatever budget is configured, is
+    /// refused `ingress_exceeds_budget` (it stands; it is not re-sampled).
+    /// Otherwise the unchanged adaptive verdict applies.
+    pub(crate) fn acquire_result_parse(self: &Arc<Self>, bytes: u64, cancelled: &dyn Fn() -> bool) -> Result<Lease, ResampleStop> {
+        self.acquire_resampling_checked(bytes, LeasePurpose::Ingress, cancelled, &|state| {
+            let cap = state.invocation_budget_bytes.min(DEFAULT_INVOCATION_BUDGET_BYTES);
+            // Before a capacity is known no budget applies; the verdict refuses it.
+            (state.capacity_bytes.is_some() && bytes > cap)
+                .then_some(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes: cap })
+        })
     }
 
     fn acquire_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, purpose: LeasePurpose) -> Result<Lease, ResourceRefusal> {

@@ -30,7 +30,7 @@ fn root() -> std::path::PathBuf {
 fn read_text(path: &str) -> String {
     std::fs::read_to_string(root().join(path)).unwrap_or_else(|e| panic!("{path}: {e}"))
 }
-fn read(path: &str) -> Value {
+fn read_json(path: &str) -> Value {
     serde_json::from_str(&read_text(path)).unwrap()
 }
 
@@ -61,8 +61,72 @@ fn body(args: &Value) -> InvokeBody {
 fn args(job_id: &str, model: Option<&str>, invocation: Option<&str>) -> Value {
     json!({"jobId": job_id, "modelJson": model, "invocationJson": invocation})
 }
+/// The command's two steps in this thread: admission, then the blocking read.
 fn read_verdict(registry: &SolveJobRegistry, job_id: &str, model: Option<&str>, invocation: Option<&str>) -> Result<String, CommandError<String>> {
-    verdict(registry, &body(&args(job_id, model, invocation)), &headers(Some(INGRESS_ARGS_JSON_V1)))
+    read(admit(registry, &body(&args(job_id, model, invocation)), &headers(Some(INGRESS_ARGS_JSON_V1)))?)
+}
+
+/// A test gate on the read, per held result (by its address, which is
+/// unique across the tests' registries, unlike job ids): [`read`] passes it
+/// after its leases are admitted and before the reader runs, counting each
+/// entry and waiting while it is closed.
+pub(crate) mod gate {
+    use std::sync::{Arc, Condvar, Mutex};
+    use std::time::{Duration, Instant};
+
+    pub(crate) struct Gate {
+        held: usize,
+        state: Mutex<(bool, usize)>,
+        changed: Condvar,
+    }
+    static GATES: Mutex<Vec<Arc<Gate>>> = Mutex::new(Vec::new());
+
+    /// Registers a gate for `job`, open or closed; it is removed (and opened) on drop.
+    pub(crate) struct Held(pub Arc<Gate>);
+    impl Drop for Held {
+        fn drop(&mut self) {
+            self.0.open();
+            GATES.lock().unwrap().retain(|g| !Arc::ptr_eq(g, &self.0));
+        }
+    }
+    pub(crate) fn hold(registry: &crate::solve_jobs::SolveJobRegistry, job: &str, open: bool) -> Held {
+        let held = Arc::as_ptr(&registry.held_result(job).unwrap()) as usize;
+        let gate = Arc::new(Gate { held, state: Mutex::new((open, 0)), changed: Condvar::new() });
+        GATES.lock().unwrap().push(gate.clone());
+        Held(gate)
+    }
+    impl Gate {
+        pub(crate) fn open(&self) {
+            self.state.lock().unwrap().0 = true;
+            self.changed.notify_all();
+        }
+        pub(crate) fn entered(&self) -> usize {
+            self.state.lock().unwrap().1
+        }
+        /// Whether `count` reads have entered within `limit`.
+        pub(crate) fn wait_entered(&self, count: usize, limit: Duration) -> bool {
+            let deadline = Instant::now() + limit;
+            let mut state = self.state.lock().unwrap();
+            while state.1 < count {
+                let now = Instant::now();
+                if now >= deadline {
+                    return false;
+                }
+                state = self.changed.wait_timeout(state, deadline - now).unwrap().0;
+            }
+            true
+        }
+    }
+    pub(crate) fn pass(held: usize) {
+        let gate = GATES.lock().unwrap().iter().find(|g| g.held == held).cloned();
+        let Some(gate) = gate else { return };
+        let mut state = gate.state.lock().unwrap();
+        state.1 += 1;
+        gate.changed.notify_all();
+        while !state.0 {
+            state = gate.changed.wait(state).unwrap();
+        }
+    }
 }
 fn invalid_message(error: CommandError<String>) -> String {
     match error {
@@ -78,14 +142,6 @@ fn refusal(error: CommandError<String>) -> ResourceRefusal {
 }
 
 const DEMO: &str = "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json";
-
-#[test]
-fn the_parse_is_priced_by_the_prescan_materialization() {
-    let text = read_text(DEMO);
-    assert_eq!(source_parse_bytes(&text).unwrap(), ingress::prescan(text.as_bytes()).unwrap().materialization_bytes);
-    // A text the prescan refuses is refused as the reader's own parse refuses it.
-    assert!(source_parse_bytes("{\"a\": NaN}").unwrap_err().starts_with("WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: "));
-}
 
 #[test]
 fn the_verdict_reads_a_retained_result_which_stays_retained_and_takeable() {
@@ -122,9 +178,10 @@ fn the_verdict_needs_a_known_job_holding_its_result() {
     wait_terminal(&registry, &receipt.job_id);
     registry.dispose_result(&receipt.job_id).unwrap();
     // The args are admitted as every raw-body command's.
-    match verdict(&registry, &body(&args("job-1", None, None)), &headers(None)) {
+    match admit(&registry, &body(&args("job-1", None, None)), &headers(None)) {
         Err(CommandError::Ingress(SolveJobError::InvalidRequest { message })) => assert!(message.starts_with("INGRESS-HEADER-REQUIRED"), "{message}"),
-        other => panic!("{other:?}"),
+        Err(other) => panic!("{other:?}"),
+        Ok(_) => panic!("admitted without the ingress header"),
     }
 }
 
@@ -140,7 +197,7 @@ fn the_parse_is_admitted_through_the_pool_and_refused_by_name_when_it_does_not_f
     let request = args(&job, None, None);
     let raw = serde_json::to_vec(&request).unwrap();
     let args_lease = command_ingress::lease_bytes(ingress::prescan(&raw).unwrap(), ArgsDecoding::Moved).unwrap();
-    let needed = source_parse_bytes(&text).unwrap() + registry.pool().reserved_total() + args_lease;
+    let needed = ingress::prescan(text.as_bytes()).unwrap().materialization_bytes + registry.pool().reserved_total() + args_lease;
     host.set(|s| s.headroom_bytes = Some(needed - 1));
     match refusal(read_verdict(&registry, &job, None, None).unwrap_err()) {
         ResourceRefusal::HeadroomInsufficient { required_bytes, available_bytes } => {
@@ -155,30 +212,6 @@ fn the_parse_is_admitted_through_the_pool_and_refused_by_name_when_it_does_not_f
     // Nothing the verdict admitted is left behind.
     host.set(|s| s.pressure = PressureLevel::Normal);
     registry.dispose_result(&job).unwrap();
-    assert_eq!(registry.pool().reserved_total(), 0);
-}
-
-#[test]
-fn argument_texts_that_are_not_json_are_refused_as_the_reader_refuses_them() {
-    let host = ScriptedHost::normal();
-    let (registry, gate) = gated(&host);
-    let job = retained(&registry, &gate, &read_text(DEMO));
-    for (model, invocation, label) in [(Some("{"), None, "model"), (None, Some("[1,"), "invocation")] {
-        match read_verdict(&registry, &job, model, invocation).unwrap_err() {
-            CommandError::Command(text) => assert!(text.starts_with(&format!("WASM-ENGINE-INPUT-JSON-INVALID: {label} is not valid JSON")), "{text}"),
-            other => panic!("{other:?}"),
-        }
-    }
-    // A held text that is not JSON: the reader's own refusal text.
-    let bad = retained(&registry, &gate, "{\"a\": 1e999}");
-    match read_verdict(&registry, &bad, None, None).unwrap_err() {
-        CommandError::Command(text) => {
-            assert_eq!(text, open_pipe_stress_operation_applier::reader_dispatch_json("{\"a\": 1e999}", None, None).unwrap_err());
-        }
-        other => panic!("{other:?}"),
-    }
-    registry.dispose_result(&job).unwrap();
-    registry.dispose_result(&bad).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
@@ -229,7 +262,7 @@ fn text(value: &Value) -> String {
     serde_json::to_string(value).unwrap()
 }
 fn model_at(path: &str) -> Value {
-    let v = read(path);
+    let v = read_json(path);
     if v.get("model").is_some() { v["model"].clone() } else { v }
 }
 
@@ -272,7 +305,7 @@ fn file_backed_corpus() -> Vec<Input> {
         ("pressure_source/load_reference_source", &["n05", "n06", "fields", "mixed", "eigen_motion"][..], true),
     ] {
         for name in names {
-            let request = read(&format!("fixtures/product_preview/{dir}/{name}.request.json"));
+            let request = read_json(&format!("fixtures/product_preview/{dir}/{name}.request.json"));
             for mode in modes {
                 inputs.push(Input {
                     id: format!("{dir}/{name}-{mode}"),
@@ -292,7 +325,7 @@ fn file_backed_corpus() -> Vec<Input> {
             invocation: None,
         });
     }
-    for case in read("fixtures/results/pressure_v3_combination_reader_corpus.json")["cases"].as_array().unwrap() {
+    for case in read_json("fixtures/results/pressure_v3_combination_reader_corpus.json")["cases"].as_array().unwrap() {
         inputs.push(Input {
             id: format!("combination/{}", case["label"].as_str().unwrap()),
             source: text(&case["envelope"]),
@@ -305,7 +338,7 @@ fn file_backed_corpus() -> Vec<Input> {
 
 /// The committed native outcomes by id.
 fn committed() -> BTreeMap<String, Value> {
-    read("fixtures/results/base_reader_outcomes.json")["entries"]
+    read_json("fixtures/results/base_reader_outcomes.json")["entries"]
         .as_array()
         .unwrap()
         .iter()
@@ -372,4 +405,193 @@ fn native_verdicts_are_the_committed_reader_outcomes_on_the_whole_corpus() {
         .collect();
     assert_eq!(inputs.len(), committed().len());
     assert_eq!(check_inputs(&inputs), 561);
+}
+
+/// Review F1: the read runs in a blocking task, never on the async runtime's
+/// workers. More reads than the runtime has workers are held inside the
+/// reader at once, and another async command still runs to completion.
+#[test]
+fn reads_run_off_the_async_executor() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let text = read_text(DEMO);
+    let job = retained(&registry, &gate, &text);
+    let expected = open_pipe_stress_operation_applier::reader_dispatch_json(&text, None, None).unwrap();
+    let held = gate::hold(&registry, &job, false);
+    // More than the runtime's workers (one per core by default).
+    let reads = std::thread::available_parallelism().map_or(8, |n| n.get()) * 2 + 2;
+    let handles: Vec<_> = (0..reads)
+        .map(|_| {
+            let (registry, body) = (registry.clone(), body(&args(&job, None, None)));
+            tauri::async_runtime::spawn(async move { verdict(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).await })
+        })
+        .collect();
+    assert!(held.0.wait_entered(reads, Duration::from_secs(60)), "only {} of {reads} reads entered the reader", held.0.entered());
+    // Another command, on the same runtime, while every read is held.
+    let (sender, receiver) = std::sync::mpsc::channel();
+    let (probe_registry, probe_job) = (registry.clone(), job.clone());
+    tauri::async_runtime::spawn(async move {
+        let _ = sender.send(probe_registry.status(&probe_job).map(|status| status.state));
+    });
+    assert_eq!(receiver.recv_timeout(Duration::from_secs(10)).expect("the runtime ran no other task while reads were held").unwrap(), "completed");
+    held.0.open();
+    for handle in handles {
+        assert_eq!(tauri::async_runtime::block_on(handle).unwrap().unwrap(), expected);
+    }
+    drop(held);
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Review F2: a source, model or invocation text that is not JSON is refused
+/// with the reader's own text, byte for byte: the text
+/// `operation_applier::reader_dispatch_json` returns (the wasm engine's, which
+/// `baseReaderWasmEquivalence.test.ts` pins to the same literals). The
+/// source is checked first, then the model, then the invocation, as the
+/// reader parses them.
+pub(crate) const NOT_JSON_CASES: [(&str, &str, &str, &str); 9] = [
+    // (where, the bad text, the model's text when the bad text is the source, the refusal)
+    ("model", "{", "", "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: EOF while parsing an object at line 1 column 1"),
+    ("invocation", "[1,", "", "WASM-ENGINE-INPUT-JSON-INVALID: invocation is not valid JSON: EOF while parsing a value at line 1 column 3"),
+    ("model", "\"\\ud800\"", "", "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: unexpected end of hex escape at line 1 column 8"),
+    ("model", "[1e999]", "", "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: number out of range at line 1 column 6"),
+    ("invocation", "{\"a\":1} x", "", "WASM-ENGINE-INPUT-JSON-INVALID: invocation is not valid JSON: trailing characters at line 1 column 9"),
+    ("source", "{\"a\": NaN}", "{", "WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: expected value at line 1 column 7"),
+    ("source", "{\"a\": 1e999}", "{", "WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: number out of range at line 1 column 11"),
+    ("source", "", "", "WASM-ENGINE-INPUT-JSON-INVALID: source is not valid JSON: recursion limit exceeded at line 1 column 128"),
+    // A model the prescan admits and serde_json refuses, before a refused invocation.
+    ("invocation+model", "[1,", "[1e999]", "WASM-ENGINE-INPUT-JSON-INVALID: model is not valid JSON: number out of range at line 1 column 6"),
+];
+
+/// A text nested 128 deep, beyond serde_json's recursion limit.
+fn deep() -> String {
+    "[".repeat(128) + &"]".repeat(128)
+}
+
+#[test]
+fn texts_that_are_not_json_are_refused_with_the_readers_exact_text() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let good = read_text(DEMO);
+    let good_job = retained(&registry, &gate, &good);
+    for (place, bad, model, refusal) in NOT_JSON_CASES {
+        let deep_text = deep();
+        let bad = if bad.is_empty() { deep_text.as_str() } else { bad };
+        let (source, job, model, invocation) = match place {
+            "source" => {
+                let job = retained(&registry, &gate, bad);
+                (bad.to_string(), job, (!model.is_empty()).then_some(model), None)
+            }
+            "model" => (good.clone(), good_job.clone(), Some(bad), None),
+            "invocation+model" => (good.clone(), good_job.clone(), Some(model), Some(bad)),
+            _ => (good.clone(), good_job.clone(), None, Some(bad)),
+        };
+        let reader = open_pipe_stress_operation_applier::reader_dispatch_json(&source, model, invocation).unwrap_err();
+        match read_verdict(&registry, &job, model, invocation).unwrap_err() {
+            CommandError::Command(text) => {
+                assert_eq!(text, reader, "{place} {bad}");
+                assert_eq!(text, refusal, "{place} {bad}");
+            }
+            other => panic!("{place} {bad}: {other:?}"),
+        }
+        if job != good_job {
+            registry.dispose_result(&job).unwrap();
+        }
+    }
+    registry.dispose_result(&good_job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Review F3: the one exception. A text with serde_json's private `RawValue`
+/// token as an object key is refused here, in the held result and in the
+/// caller's model and invocation alike, by the prescan's own text; serde_json
+/// without `raw_value` (the wasm engine's) reads it as an ordinary key
+/// (`reader_parse_error` finds nothing, and `baseReaderWasmEquivalence.test.ts`
+/// reads these texts through the wasm engine).
+pub(crate) const RAW_VALUE_TEXT: &str = "{\"$serde_json::private::RawValue\":1}";
+
+#[test]
+fn a_raw_value_token_key_is_the_one_refused_exception() {
+    assert_eq!(reader_parse_error("model", RAW_VALUE_TEXT), None);
+    let reason = ingress::prescan(RAW_VALUE_TEXT.as_bytes()).unwrap_err();
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let good = read_text(DEMO);
+    let good_job = retained(&registry, &gate, &good);
+    let raw_job = retained(&registry, &gate, RAW_VALUE_TEXT);
+    for (label, job, model, invocation) in [
+        ("source", &raw_job, None, None),
+        ("model", &good_job, Some(RAW_VALUE_TEXT), None),
+        ("invocation", &good_job, None, Some(RAW_VALUE_TEXT)),
+    ] {
+        let want = format!("WASM-ENGINE-INPUT-JSON-INVALID: {label} is not valid JSON: {} at byte {}", reason.reason, reason.offset);
+        match read_verdict(&registry, job, model, invocation).unwrap_err() {
+            CommandError::Command(text) => assert_eq!(text, want),
+            other => panic!("{label}: {other:?}"),
+        }
+    }
+    assert_eq!(
+        format!("{} at byte {}", reason.reason, reason.offset),
+        "reserved RawValue token key at byte 33",
+        "the prescan's reason, as the desktop shows it"
+    );
+    registry.dispose_result(&good_job).unwrap();
+    registry.dispose_result(&raw_job).unwrap();
+}
+
+/// Ruling B2 (a): the parse's lease is sized from the held bytes by the
+/// allocation-free prescan and admitted before the parse allocates anything,
+/// so a refusal commits no memory and never reaches the reader.
+#[test]
+fn a_refused_parse_commits_no_memory_and_never_reaches_the_reader() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let text = read_text(DEMO);
+    let job = retained(&registry, &gate, &text);
+    let materialization = ingress::prescan(text.as_bytes()).unwrap().materialization_bytes;
+    let held = gate::hold(&registry, &job, true);
+    let admitted = admit(&registry, &body(&args(&job, None, None)), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+    host.set(|s| s.headroom_bytes = Some(materialization / 2));
+    let (outcome, measured) = ingress::counting::measure(|| read(admitted));
+    assert!(matches!(refusal(outcome.unwrap_err()), ResourceRefusal::HeadroomInsufficient { .. }));
+    assert_eq!(held.0.entered(), 0, "the reader was reached");
+    // Only the refusal and its pool status were allocated: nothing near the parse.
+    assert!(measured.peak_priced < 64 * 1024 && measured.peak_priced * 100 < materialization, "{measured:?} against {materialization}");
+    host.set(|s| s.headroom_bytes = Some(64 * crate::memory_pool::test_host::GIB));
+    assert!(read_verdict(&registry, &job, None, None).is_ok());
+    assert_eq!(held.0.entered(), 1);
+    drop(held);
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Ruling B2 (b): each parse lease is capped by the per-invocation budget and
+/// never above the owner-adopted 12 GiB default, whatever budget is
+/// configured: above it the lease is refused `ingress_exceeds_budget` (not
+/// re-sampled), at it the lease is admitted.
+#[test]
+fn the_parse_lease_is_capped_at_the_12_gib_default() {
+    use crate::memory_pool::test_host::GIB;
+    use crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES;
+    assert_eq!(DEFAULT_INVOCATION_BUDGET_BYTES, 12 * GIB);
+    let host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
+    let registry = SolveJobRegistry::new(MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5)));
+    let cap = |registry: &SolveJobRegistry, bytes: u64| match registry.acquire_result_parse(bytes) {
+        Ok(lease) => Ok(lease.bytes()),
+        Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(refusal),
+        Err(other) => panic!("{other:?}"),
+    };
+    let above = |bytes: u64, budget: u64| Err(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes: budget });
+    // The default budget.
+    assert_eq!(cap(&registry, 12 * GIB), Ok(12 * GIB));
+    assert_eq!(cap(&registry, 12 * GIB + 1), above(12 * GIB + 1, 12 * GIB));
+    // A larger configured budget does not raise the cap.
+    registry.configure_pool(192 * GIB, 64 * GIB, false).unwrap();
+    assert_eq!(cap(&registry, 12 * GIB + 1), above(12 * GIB + 1, 12 * GIB));
+    assert_eq!(cap(&registry, 12 * GIB), Ok(12 * GIB));
+    // A smaller one lowers it.
+    registry.configure_pool(192 * GIB, 4 * GIB, false).unwrap();
+    assert_eq!(cap(&registry, 4 * GIB + 1), above(4 * GIB + 1, 4 * GIB));
+    assert_eq!(cap(&registry, 4 * GIB), Ok(4 * GIB));
+    assert_eq!(registry.pool().reserved_total(), 0);
 }

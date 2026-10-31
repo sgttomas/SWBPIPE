@@ -607,9 +607,11 @@ impl SolveJobRegistry {
 
     /// Admits a native reader's parse of a held result (C1 native custody):
     /// an adaptive lease of `bytes`, re-sampled while refused only for
-    /// headroom, as the result and custody leases are.
+    /// headroom, as the result and custody leases are, and refused
+    /// `ingress_exceeds_budget` above the per-invocation budget or the
+    /// 12 GiB default ([`MemoryPool::acquire_result_parse`]).
     pub(crate) fn acquire_result_parse(&self, bytes: u64) -> Result<Lease, SolveJobError> {
-        match self.pool.acquire_resampling(bytes, LeasePurpose::Ingress, &|| false) {
+        match self.pool.acquire_result_parse(bytes, &|| false) {
             Ok(lease) => Ok(lease),
             Err(ResampleStop::Refused(refusal)) => Err(self.unavailable(refusal)),
             Err(ResampleStop::Cancelled) => unreachable!("a result parse is never cancelled"),
