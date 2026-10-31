@@ -27,6 +27,7 @@ import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibil
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
+import { errorCode, isSolveJob, markSolveStage, noteSolveResult, timedSolvePass } from "./solveTimeline";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
@@ -118,9 +119,10 @@ const receivedBytes = new WeakMap<MechanicsResult, { bytes: string; fingerprint:
 /** b7-plan R1, "Exact bytes to the desktop": the native solve job hands over the
  * producer's exact serialized bytes, never a re-encoded value. The result is
  * read from them once, and they are kept beside it. */
-function receiveResultBytes(bytes: unknown): MechanicsResult {
+function receiveResultBytes(bytes: unknown, timed = false): MechanicsResult {
   if (typeof bytes !== "string") throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
   const result = JSON.parse(bytes) as MechanicsResult;
+  if (timed) { markSolveStage("parse_end"); noteSolveResult(result, bytes.length); }
   try { receivedBytes.set(result, { bytes, fingerprint: nativeContentFingerprint(result) }); } catch { /* not checked JSON: no bytes are kept for it */ }
   // R2: the base-route readers read these bytes too, while the result is unchanged.
   rememberReceivedText(result, bytes);
@@ -139,6 +141,10 @@ const jobInvocations = new Map<string, CapturedNativeInvocation>();
 // The checked guard rejects lossy/non-JSON inputs, and the extra paths retain
 // negative-zero identity that JSON text alone deliberately normalizes.
 function nativeContentFingerprint(value: unknown): string {
+  // RT-U4: timed for the latest solve's timeline (solveTimeline.ts); unchanged otherwise.
+  return timedSolvePass("native_fingerprint", () => nativeContentFingerprintOf(value), (text) => text.length);
+}
+function nativeContentFingerprintOf(value: unknown): string {
   const checked = checkedJsonText(value);
   const negativeZeros: string[] = [];
   const visit = (item: unknown, path: string) => {
@@ -159,10 +165,12 @@ function captureNativeInvocation(model: PreviewModel | null | undefined, solverM
     return { invocation, fingerprint: nativeContentFingerprint(invocation), callerModel: model, callerFingerprint: nativeContentFingerprint(model), invalidated: false, terminalClaimed: false };
   } catch { return null; } // Raw native diagnostics remain available; no registration.
 }
-async function validateCapturedSource(source: MechanicsResult, capture: CapturedNativeInvocation | null): Promise<void> {
-  if (!capture || capture.invalidated) return;
+/** Registers the source when its checks pass. Returns null when it registered, else a
+ * code for why not (for the RT-U4 timeline only; nothing decides on it). */
+async function validateCapturedSource(source: MechanicsResult, capture: CapturedNativeInvocation | null): Promise<string | null> {
+  if (!capture || capture.invalidated) return "CAPTURE_UNAVAILABLE";
   try {
-    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
+    if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CAPTURE_MISMATCH";
     const sourceFingerprint = nativeContentFingerprint(source);
     // Registration is reachable only after actual direct IPC or a completed
     // known job. Method-specific source-block validation composes here when its
@@ -192,9 +200,13 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // the accepted reader, so its refusal is recorded and no native registration follows.
     if (isRetainedRoute(sourceContract(source)) || isRetainedIdentity(source.producer?.semantic_contract_id)) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
     await canonicalSha256HexCheckedV1(source);
-    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
+    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CHANGED_DURING_VALIDATION";
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });
-  } catch { /* Preserve received source for inspection, without qualified standing. */ }
+    return null;
+  } catch (error) {
+    // Preserve received source for inspection, without qualified standing.
+    return errorCode(error) ?? "UNCODED_REFUSAL";
+  }
 }
 /** Query only: headers, hashes, clones and saved records cannot mint registration. */
 export function hasNativeMechanicsInvocation(
@@ -221,8 +233,11 @@ export function retainedNativeMechanicsInvocation(source: MechanicsResult, model
     ? structuredClone(nativeSourceInvocations.get(source)!.capture.invocation) : null;
 }
 
+/** The solver modes (`PreviewSolverMode`); the solve timeline's code table lists them. */
+export const PREVIEW_SOLVER_MODES: readonly PreviewSolverMode[] = ["sparse_interactive", "dense_scrutiny"];
+
 function assertPreviewSolverMode(value: unknown): asserts value is PreviewSolverMode {
-  if (value !== "sparse_interactive" && value !== "dense_scrutiny") {
+  if (!PREVIEW_SOLVER_MODES.includes(value as PreviewSolverMode)) {
     throw new Error(`PREVIEW_SOLVER_MODE_UNSUPPORTED: ${String(value)}`);
   }
 }
@@ -329,7 +344,8 @@ export type BackendSolveJobCancellationReceipt = {
 
 /** The solver-mode header of the raw-bytes start command. */
 export const SOLVER_MODE_HEADER = "x-swbpipe-solver-mode";
-const BACKEND_JOB_STATES: readonly BackendSolveJobState[] = ["queued", "running", "completed", "cancelled", "failed", "refused"];
+/** The native job states; the solve timeline's code table lists them. */
+export const BACKEND_JOB_STATES: readonly BackendSolveJobState[] = ["queued", "running", "completed", "cancelled", "failed", "refused"];
 const TERMINAL_JOB_STATES: readonly BackendSolveJobState[] = ["completed", "cancelled", "failed", "refused"];
 export const SOLVE_JOB_POLL_INTERVAL_MS = 50;
 
@@ -448,13 +464,22 @@ function decodeResultBytes(raw: unknown): string {
  * A refused take (for example `custody_full`) leaves the result with the native
  * host, and the job's capture stays available for a later take. */
 export async function takePreviewMechanicsJobResult(jobId: string): Promise<MechanicsResult> {
+  // RT-U4: marks the latest solve's timeline when this is its job.
+  const timed = isSolveJob(jobId);
+  if (timed) markSolveStage("take_start");
   let raw: unknown;
   try { raw = await invoke<unknown>("take_preview_mechanics_job_result", { jobId }); }
   catch (error) { throw nativeInvokeError(error); }
+  if (timed) {
+    const bytes = (raw as { byteLength?: unknown } | null)?.byteLength;
+    markSolveStage("take_end", { bytes: typeof bytes === "number" ? bytes : null });
+  }
   const capture = jobInvocations.get(jobId) ?? null;
   let result: MechanicsResult;
   try {
-    result = receiveResultBytes(decodeResultBytes(raw));
+    const text = decodeResultBytes(raw);
+    if (timed) markSolveStage("decode_end", { chars: text.length });
+    result = receiveResultBytes(text, timed);
   } catch (error) {
     // The app received bytes it cannot read: retire the capture and release custody.
     if (capture) { capture.terminalClaimed = true; capture.invalidated = true; }
@@ -466,7 +491,9 @@ export async function takePreviewMechanicsJobResult(jobId: string): Promise<Mech
   if (capture && !capture.terminalClaimed) {
     capture.terminalClaimed = true;
     try {
-      await validateCapturedSource(result, capture);
+      if (timed) markSolveStage("reader_verdict_start");
+      const unregistered = await validateCapturedSource(result, capture);
+      if (timed) markSolveStage("reader_verdict_end", { registered: unregistered === null, reason_code: unregistered });
     } finally {
       if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
     }
