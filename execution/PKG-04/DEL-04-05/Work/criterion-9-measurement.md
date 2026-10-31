@@ -144,3 +144,75 @@ RT-A3's exclusive window (2026-10-31 01:39–01:50Z) measured its own scratch ra
 - EX linear: 71 s at 1,000 nodes and 346 s at 2,000 nodes, with 2.05 M rows and 1.51 GB;
 - PF nonlinear: 149 s and 11.2 GB at 1,500 nodes;
 - 2,000 nodes refused by the dense-memory guard.
+
+## 6. Desktop measurement
+
+The desktop part of the clock (§1's last three rows) is measured on the app itself. Its pieces
+are in `apps/desktop`:
+
+- **Timeline** (`src/services/solveTimeline.ts`). It records observations only and changes
+  no behaviour. The latest solve's marks are taken at `performance.now()`:
+  - `solve_requested`, `job_started`, then `job_done` (with `result_bytes`,
+    `worker_peak_footprint_bytes` and `worker_peak_grant_bytes`);
+  - `take_start`, `take_end` (bytes), `decode_end`, `parse_end`;
+  - `reader_verdict_start` and `reader_verdict_end` (registered or not, with the reason);
+  - `analysis_run_built`, `result_set`, `result_committed` (the layout effect), and
+    `first_paint` (two animation frames later).
+
+  Every pass of `checked_json_text`, `native_fingerprint`, `reader_written_text` and each wasm
+  reader call is counted and timed per stage. A pass counts as full-envelope when it reads at
+  least half the result's text. The first failure is recorded with its stage.
+  `__openPipeStressUiDiagnosticsV1.readCurrent().solveTimeline` exposes the timeline once a
+  solve has started; the idle snapshot is unchanged.
+- **Result injection** (`src-tauri/src/native_smoke_inject.rs`), compiled only under the
+  `native-smoke` feature. When `SWBPIPE_NATIVE_SMOKE_INJECT_RESULT` names a file, a started job
+  skips its worker and publishes the file's bytes. Everything after that is the product's own
+  path: the result lease, the attestation (the worker's `d_M` and `d_S` functions),
+  publication, poll, take and IPC. What differs from a solve:
+  - no worker runs, so `worker_peak_footprint_bytes` stays unset;
+  - `d_M`, `d_S` and their parsed values are computed in the app process before `job_done`.
+
+  The file must be `release_timing --write` output from the very document the app opens.
+  `native_smoke_reach_scan_tests.rs` fails if the variable or the module is named outside the
+  gate. A product release build (no feature) does not contain the variable's name; the check
+  is in the PR record.
+- **Driver and runner.**
+  - `native-smoke/perf-driver.js` opens the model, runs Analyze → Run (sparse) and waits for
+    first paint or a failure. It then attempts Record Run… and Save Local Project and records
+    each outcome verbatim.
+  - `native-smoke/perf.mjs` builds a release app with the feature (`--build`). It runs each
+    planned run (one model, one mode, one launch, a throwaway HOME) and samples the app, its
+    workers and the WebKit processes started for it every 200 ms (`perf-sampler.py`,
+    `proc_pid_rusage`). It then inspects the SQLite store, classifies the run and writes
+    `perf-report-<UTC>.json`. The classes are `ok`, `refused_with_message`, `crash` (with the
+    process), `hang`, `misleading_message` and `half_written_save`.
+- **Interim adapter** (`native-smoke/perf-model-adapter.mjs`). The desktop's Open Model
+  Document refuses the generator's racks with `MODEL-FILE-SHAPE`. The missing members are
+  `data_boundary`, `diagnostics`, the labels of nodes, pipes, supports and components, load
+  case `kind` and `status`, and `terms` on subtraction combinations. The adapter adds only
+  those absent members. At 82 nodes, `release_timing` publishes the same rows and bytes from
+  the adapted document as from the original. It is retired once the generator emits the
+  desktop shape.
+
+**Functional run (82 nodes, 2026-10-31, development host, shared slot, not evidence).**
+`linear-ex` at 82 nodes, adapted, gives a 147,491,921-byte result with 153,178 rows. The native
+solve and the injected result end the same way:
+
+- **Reader.** The result reaches the reader. The wasm dispatch takes 53 s and validation 8 to
+  10 s.
+- **Refusal.** The reader then refuses with `SOURCE_PHYSICS_RHS_DIRECTION`, because seven
+  pressure groups publish `direction_component_magnitude` = 1.0000000000000002 and the reader
+  requires values ≤ 1.
+- **Status.** The session reports `SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED`, and Record Run
+  is unavailable (`RUN-RECORD-NO-RUN`).
+- **Memory.** WebContent's footprint peaked at 8.1 to 8.2 GB.
+
+Until that producer and reader disagreement is resolved, no `linear-ex` rack gets past the
+reader verdict. The window then measures the stages up to the verdict and the failure modes
+on the way there.
+
+**Window** (≤ 15 min, one `t3_exclusive.sh` invocation; the commands are in the PR record):
+
+- injected results at 250, 500, 1,000 and 2,000 nodes, at most 130 s each;
+- native solves at 250 and 500 nodes, at most 150 s and 170 s;
+- budget 880 s. A run ends at its first failure, its report or its timeout.

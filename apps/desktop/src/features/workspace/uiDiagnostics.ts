@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import type { EntityRef, Vec3 } from "../../types";
+import { readSolveTimeline, type SolveTimelineSnapshot } from "../../services/solveTimeline";
 
 export const UI_DIAGNOSTICS_SCHEMA = "openpipestress.ui-diagnostics/v1" as const;
 
@@ -151,9 +152,12 @@ export type UiDiagnosticsSnapshot = Readonly<{
       }>;
     }>;
   }> | Unavailable;
+  /** RT-U4 (DEL-04-05): the latest solve's timeline (`services/solveTimeline.ts`);
+   * present only once a solve has started, so the idle snapshot is unchanged. */
+  solveTimeline?: SolveTimelineSnapshot;
 }>;
 
-export type UiDiagnosticsPublication = Omit<UiDiagnosticsSnapshot, "schema" | "snapshotSequence" | "capturedAt">;
+export type UiDiagnosticsPublication = Omit<UiDiagnosticsSnapshot, "schema" | "snapshotSequence" | "capturedAt" | "solveTimeline">;
 
 export type UiProjectionContext = Readonly<{
   modelGeneration: number;
@@ -249,7 +253,8 @@ export function clearUiDiagnosticsPublisher(): void {
 
 function materializeCurrentPublisher(): UiDiagnosticsSnapshot {
   const publication = latestSnapshotFactory?.();
-  const basis = publication ?? currentSnapshot;
+  const basis: UiDiagnosticsPublication = publication ?? withoutSolveTimeline(currentSnapshot);
+  const solveTimeline = readSolveTimeline();
   if (pendingAssignment && publication?.model.assignment.status === "committed" &&
       publication.model.assignment.generation === pendingAssignment.generation) {
     pendingAssignment = null;
@@ -261,10 +266,17 @@ function materializeCurrentPublisher(): UiDiagnosticsSnapshot {
     capturedAt: performance.now(),
     model: pendingAssignment
       ? { ...basis.model, assignment: pendingAssignment }
-      : basis.model
+      : basis.model,
+    ...(solveTimeline ? { solveTimeline } : {})
   });
   lastAcceptedModelGeneration = currentSnapshot.model.generation;
   return currentSnapshot;
+}
+
+function withoutSolveTimeline(snapshot: UiDiagnosticsSnapshot): UiDiagnosticsPublication {
+  const copy: Record<string, unknown> = { ...snapshot };
+  delete copy.solveTimeline;
+  return copy as UiDiagnosticsPublication;
 }
 
 function readCurrent(): UiDiagnosticsSnapshot {

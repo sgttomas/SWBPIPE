@@ -34,6 +34,10 @@ mod stored_read;
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
+#[cfg(feature = "native-smoke")]
+mod native_smoke_inject;
+#[cfg(test)]
+mod native_smoke_reach_scan_tests;
 mod native_result_download;
 mod report_package_bridge;
 mod report_package_save;

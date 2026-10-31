@@ -925,6 +925,12 @@ impl SolveJobRegistry {
         // The worker is reaped inside `supervise`, also while it unwinds; only
         // then is the grant released.
         let outcome = catch_unwind(AssertUnwindSafe(|| {
+            // Native smoke builds only: an injected result instead of the worker
+            // (RT-U4 desktop measurement; `native_smoke_inject.rs`).
+            #[cfg(feature = "native-smoke")]
+            if let Some(outcome) = crate::native_smoke_inject::injected_outcome(&self.pool, &input.0, &|| self.cancellation_requested(&job_id)) {
+                return outcome;
+            }
             let mut hooks = JobHooks { registry: &self, job_id: &job_id };
             crate::solve_worker::supervise(&terms, &mut grant, input, &mut hooks)
         }));
