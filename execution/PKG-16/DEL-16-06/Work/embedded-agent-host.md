@@ -70,18 +70,83 @@ implementation contract. Its origin is App commit
 The initial local version 1 changed catalog identity/standing and added origin
 metadata. Version 2 also adds bounded proposal assumptions and distinguishes
 live-basis admission from completion against retained proposal/run evidence,
-repairing independent review findings. Native operation intents, limits and
-dynamic projection are unchanged. The App copy stays
+repairing independent review findings. Version 3 (RT-E1 milestone 1, below)
+changes the admitted operation intents, the summary and the result-read input;
+limits and the dynamic projection rule are unchanged. The App copy stays
 origin evidence and is not a second editable catalog. A local contract commit,
 integration into main, and demonstrated runtime conformance are distinct facts.
 
 The six tools read the summary, read nodes, propose operations, observe a
-proposal, solve, and read results. Initial proposals admit native
-`EditorOperationIntent` only: `modify` / `Node` / `set_field` for
-`position.x`, `position.y`, or `position.z`. This cannot build W9-A or the full
-criterion 17 reference system. Further native operation discriminators and
-subschemas must be added before those journeys; do not add a parallel field
-language or infer completeness from a coordinate-edit witness.
+proposal, solve, and read results. Version 2 admitted only native
+`EditorOperationIntent` `modify` / `Node` / `set_field` on `position.x`,
+`position.y` or `position.z`, which could not build a model.
+
+### Catalog version 3: building W9-A from blank (milestone 1)
+
+`swbpipe-catalog/3` keeps the six tools and admits these native discriminators,
+each pinned in its own `operationIntent` variant (operation kind, object type,
+field path, unit/dimension and the `before` form). The applier's change kinds
+are used as they are; `add_object`/`remove_object` in
+`schemas/model_operation.schema.json` are not applier kinds and are not used.
+
+| Change kind | Operation / object / field | Use |
+|---|---|---|
+| `set_field` | modify / Node / `position.x\|y\|z` | move a node (v2) |
+| `create_material` | create / Material / `materials` | E with G or ν, α |
+| `create_node` | create / Node / `nodes` | node position |
+| `connect_pipe_run` | connect / Element / `pipe_segments` | straight pipe, inline section |
+| `create_support` | create / Support / `supports` | restraint set |
+| `create_load_case` | create / Load / `load_cases` | primitive user load case |
+| `create_primitive_load` | create / Load / `primitive_loads` | thermal, force, moment, imposed displacement |
+| `update_load` | modify / Load / `pressure_regions` | regions before the exact route |
+| `set_field` | modify / Model / `pressure_profile` | activate `3.0.0/exact_pressure_v3` and its shear model |
+
+Everything else is refused at the schema: deletes, components, bend insertion,
+library records, combinations and model settings. The applier remains the
+semantic validator and still refuses an agent-written bend flexibility factor.
+A proposal is one atomic batch; each step applies to the document the previous
+step left, so later operations may name ids created earlier in the batch.
+
+The agent sends `operation_id`, `operation_kind`, `target`, `change` and
+`rationale` only. The host (`embeddedAgentSession.ts` `stampAgentOperations`)
+stamps `operation_status: proposed`, `author_type: agent`, `queue_id`, `source`,
+not-run `validation` and the constant `audit_boundary` and
+`professional_boundary` records; the catalog refuses any of these in the
+arguments. This keeps the native batch unchanged while the full W9-A exact-route
+build (13 operations) measures about 9 KB of arguments, inside the 16 KiB
+`argumentBytes` limit; the full native form measured about 17.6 KB. `after`
+remains the applier's JSON text, so the host re-encodes no agent number. The
+schema keyword `description` is now admitted as projected guidance only; it
+asserts and confers nothing.
+
+The summary adds `projectId`, `schemaVersion`, `pressureContract` and
+`pressureProfileBefore` (the exact `before` text `pressure_profile` requires),
+and lists the admitted kinds. `swbpipe_read_results` takes an optional
+`filter` on result kinds and entity references; a cursor is bound to its filter.
+
+Milestone 1 evidence, on the candidate named in its PR:
+
+- `core/model_operations/operation_applier/tests/agent_w9a_journey.rs` applies
+  the fixture's W9-A proposal (`fixtures/model_operations/agent_w9a_journey.json`),
+  stamped as `author_type: agent`, to the desktop blank document as one batch
+  and solves it on PF and on EX (Euler-Bernoulli) in both solver modes. All 90
+  frozen W9-A rows of `validation/references/w9_benchmarks/references.json` meet
+  the W-9 criterion in each run, and a stale basis applies nothing.
+- `embedded_agent/catalog.rs` tests admit the fixture's arguments for both
+  routes within `argumentBytes`, refuse other kinds, fields and host fields, and
+  bound the thread/start frame with all six declarations and maximum
+  instructions under the 128 KiB frame cap.
+- `embeddedAgentW9a.test.ts` binds the blank document and the host stamp to the
+  fixture and applies the stamped batch through the desktop batch service on the
+  wasm engine; `embeddedAgentSession.test.ts` covers the summary fields and the
+  filtered, filter-bound result cursor.
+
+These establish the catalog, stamp, applier and solver links separately. They
+do not establish a model's tool use, the native webview review journey or the
+person's Apply in the running app; that is the pinned live W9-A witness, still
+to be run. Criterion 17's reference system is not established by W9-A. That system is
+specified in DEL-09-01 `Work/reference-system.md`; its §11.3 lists the operation families
+the agent needs, from which the later catalog milestones take their admitted kinds.
 
 The internal descriptor/result convention follows stateless MCP 2026-07-28,
 with explicit workspace/proposal/run/page handles. It is projected to Codex
@@ -545,7 +610,9 @@ ScopeOfWork commitments and dependency conditions remain open and unchanged.
 5. Add admitted operation kinds for the build/solve/explain journey; verify the
    full criterion 17 reference separately from the smaller W9-A witness. A hosted
    journey must not be mislabeled as a local-model witness. Native packaging and
-   product release remain separate owner acts.
+   product release remain separate owner acts. Catalog version 3 admits the
+   W9-A kinds with the component evidence above; the live W9-A witness and the
+   reference system's kinds remain.
 
 The selected supplier/model pin and actual harmless round trip are recorded in
 [`agent-local-witness.md`](agent-local-witness.md). Those bounded observations do

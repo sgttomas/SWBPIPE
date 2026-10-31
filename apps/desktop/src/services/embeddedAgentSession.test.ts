@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EmbeddedAgentSession, type WorkspaceExecution, type AgentRunReceipt } from './embeddedAgentSession';
-import type { PreviewModel, ModelHashEvidence } from '../types';
+import type { PreviewModel, ModelHashEvidence, MechanicsResult } from '../types';
 import type { AgentBasis } from './embeddedAgentBridge';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
@@ -9,8 +9,9 @@ const basis:AgentBasis={workspaceHandle:'workspace-invented',applicationGenerati
 function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {resolve,promise};}
 function setup(){
  let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
- const model={project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
- const owner:WorkspaceExecution={snapshot:()=>({model,hash,revision,generation,result:null,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
+ const model={schema_version:'0.8.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
+ let result:MechanicsResult|null=null;
+ const owner:WorkspaceExecution={snapshot:()=>({model,hash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
  const invoke=vi.fn(async(value:Record<string,unknown>):Promise<unknown>=>{
   sent.push(value);
@@ -26,7 +27,7 @@ function setup(){
   }
  });
  const session=new EmbeddedAgentSession(owner,invoke);
- return {session,owner,invoke,sent,edit:()=>{revision++;},retire:()=>{generation++;},call:(name:string,a:Record<string,unknown>={},ref='invented-session:1',turnId='turn-1')=>{tool=name;args=a;reference=ref;turn=turnId;}};
+ return {session,owner,invoke,sent,model,setResult:(value:MechanicsResult)=>{result=value;},edit:()=>{revision++;},retire:()=>{generation++;},call:(name:string,a:Record<string,unknown>={},ref='invented-session:1',turnId='turn-1')=>{tool=name;args=a;reference=ref;turn=turnId;}};
 }
 afterEach(()=>{vi.useRealTimers();vi.clearAllMocks();});
 async function drain(){for(let i=0;i<16;i++)await Promise.resolve();}
@@ -108,6 +109,37 @@ describe('workspace-owned live embedded agent adapter',()=>{
   frame={...frame,messages:[{itemId:'large',kind:'final',text:'x'.repeat(65000)}]};await session.poll();
   frame={...frame,messages:[{itemId:'new',kind:'final',text:'y'.repeat(1000)}]};await session.poll();
   expect(last!.truncated).toBe(true);expect(last!.messages).toHaveLength(1);remove();await session.close();
+ });
+
+ it('reports the admitted kinds, project identity and the exact pressure-profile before-text',async()=>{
+  vi.useFakeTimers();const {session,sent,model}=setup();await session.start('revision');await session.poll();await drain();
+  let data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
+  expect(data).toMatchObject({projectId:'invented',schemaVersion:'0.8.0',pressureContract:null,pressureProfileBefore:'{"schema_version":"0.8.0"}'});
+  expect(data.admittedOperationKinds).toContain('connect/Element/connect_pipe_run');expect(data.admittedOperationKinds).toHaveLength(9);
+  await session.close();
+  (model as unknown as Record<string,unknown>).pressure_contract={version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'};
+  await session.start('revision');await session.poll();await drain();
+  data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
+  expect(data.pressureProfileBefore).toBe('{"pressure_contract":{"mode":"exact_pressure_v3","shear_model":"euler_bernoulli","version":"3.0.0"},"schema_version":"0.8.0"}');
+  await session.close();
+ });
+ it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent,setResult}=setup();
+  const rows=Array.from({length:60},(_,i)=>({id:`r${i}`,kind:i%2?'support_reaction_component_v2':'global_nodal_displacement_x',entity_ref:i%4<2?'support:a':'node:c',unit:'N',value:i}));
+  setResult({run_id:'run-1',results:rows} as unknown as MechanicsResult);
+  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:hash,solverMode:'sparse_interactive',health:'ok'});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const runHandle=JSON.parse(session.actual('invented-session:1')!.outcome).data.runHandle;
+  const filter={kinds:['support_reaction_component_v2'],entityRefs:['support:a']};
+  call('swbpipe_read_results',{runHandle,page:{cursor:null,limit:50},filter},'invented-session:2');await session.poll();await drain();
+  const page=JSON.parse(session.actual('invented-session:2')!.outcome).data;
+  expect(page.values.map((v:{id:string})=>v.id)).toEqual(rows.filter(r=>r.kind==='support_reaction_component_v2'&&r.entity_ref==='support:a').map(r=>r.id));
+  expect(page.nextCursor).toBeNull();
+  call('swbpipe_read_results',{runHandle,page:{cursor:null,limit:10}},'invented-session:3');await session.poll();await drain();
+  const first=JSON.parse(session.actual('invented-session:3')!.outcome).data;expect(first.values).toHaveLength(10);expect(first.nextCursor).toEqual(expect.any(String));
+  call('swbpipe_read_results',{runHandle,page:{cursor:first.nextCursor,limit:10},filter},'invented-session:4');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:4')!.outcome).status).toBe('execution_error');
+  expect(sent.some(v=>v.kind==='complete')).toBe(true);await session.close();
  });
 
 });

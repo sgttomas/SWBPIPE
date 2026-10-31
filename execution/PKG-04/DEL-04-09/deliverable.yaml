@@ -8,16 +8,17 @@ needs:
     (`curved_bend`, its arc length and `consistent_uniform_nodal_loads` for the arc resultant check). Its
     modal formation check re-forms K, in at least double-double precision, through one new read-only
     frame_kernel entry exposing K-D5's p128 element re-formation (`intended_stiffness_pass`,
-    `formation_check.rs`) without K-D5's D5C1 criterion, which judges a static correction and is not
+    `formation_check.rs`) as a pure function of caller-supplied element geometry, section properties,
+    moduli and stiffness scales (DEL-04-09 supplies its own re-derived ones), without K-D5's D5C1 criterion, which judges a static correction and is not
     reused (M1b), and evaluates residuals with `exact_sum`. Both paths take their Sturm counts from
     `sparse_direct`'s public API (`reverse_cuthill_mckee`, `SymmetricProfileMatrix::from_entries_with_order`,
     `factorize_ldlt` with its `nonpositive_pivot_count` and `first_nonpositive_pivot`, and `solve_ordered`)
-    plus one new read-only accessor on `ProfileFactorization` returning max|L_ij| and the pivot magnitudes,
-    with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
+    plus one new read-only accessor on `ProfileFactorization` exposing borrowing iterators over the strictly
+    lower factor's stored entries and the pivots, with no mutation and no allocation (M1b, used unchanged by M2's sparse path). Both seams are additions
     to DEL-04-01's code in priced crates, re-registered under D3 in their change. The Sturm count relies
     on `nonpositive_pivot_count` being the number of negative pivots of the unpivoted LDLᵀ, and is relied
-    on only at shifts separated from the computed eigenvalues by a stated multiple of the estimated
-    backward error that the accessor's growth observations feed (Design §3.2, §3.3, §3.4).
+    on only under the conditioning and separation premises, whose backward-error estimate the accessor's
+    factor entries feed (Design §3.2, §3.3, §3.4).
   gating: true
   evidence: core/solver/sparse_direct/src/lib.rs
 - from: DEL-04-02
@@ -29,17 +30,21 @@ needs:
   evidence: core/solver/straight_pipe
 - from: DEL-04-03
   condition: >-
-    DEL-04-09 reduces M with the restrained DOFs of DEL-04-03's linear supports, takes spring stiffness
-    on the global diagonal, and keeps imposed-displacement DOFs restrained without their motion values
+    DEL-04-09 reduces K and M with the restrained DOFs of DEL-04-03's linear supports, takes axis spring
+    stiffness on the global diagonal and a skewed spring as the rank-1 term k·d dᵀ/(dᵀd), reduces a skewed
+    rigid restraint by the static path's nullspace basis (admitted exactly when the static path admits
+    skew, Design §1.3), and keeps imposed-displacement DOFs restrained without their motion values
     (`imposed_motion.rs`). Constant-effort supports contribute no stiffness and no mass.
   gating: true
   evidence: core/solver/linear_supports
 - from: DEL-04-04
   condition: >-
-    DEL-04-09 linearizes each nonlinear support at the converged state of a named solved case, read from
-    DEL-04-04's published support states (`nonlinear_support_active_set_state_code` rows): active or
-    sticking restrains the support's DOF with the stiffness the static solve uses in that state, inactive
-    or sliding frees it. An absent, unsolved or unconverged case is refused by name (Design §1.2, D-s).
+    DEL-04-09 linearizes each nonlinear support at the final state of a named load case, which the modal
+    entry solves with DEL-04-04's active-set solver on the current model in the same run. Each state enters
+    as the solver represents it (`prescribed_displacement_for_state`): active one-way and lift-off supports,
+    closed gaps and sticking friction are rigid constraints; inactive, open and sliding supports are free,
+    sliding friction with its force frozen as a disclosed approximation. An absent case or an unconverged
+    solve is refused by name (Design §1.3, D-s).
   gating: true
   evidence: core/solver/nonlinear_supports
 - from: DEL-02-01
@@ -89,7 +94,7 @@ needs:
 - from: DEL-04-08
   condition: >-
     F1 touches priced sources (PP `lib.rs`, `self_weight.rs`, the `sparse_direct` accessor and the frame_kernel
-    re-formation entry, both in M1b, and DEL-02-02's unit families in `core/units`) and the reviewed
+    re-formation entry, both in M1b) and the reviewed
     `core/product_physics/Cargo.lock`. Each such change is
     re-registered under DEL-04-08's actual-source pricing law (D3, `tools/retained_pricing`) in the change
     that makes it, and keeps the AC-004 stack witnesses passing. F1 never enters the retained Direct entry
@@ -101,12 +106,14 @@ needs:
     The extraction cut-off (frequency), the weight-to-mass acceleration and every mass input are
     normalized through DEL-02-02's unit catalog and dimension checks (`open_pipe_stress_units`); results
     are displayed in project units. Every published modal quantity has integer unit exponents. The catalog
-    gains the families the modal results need and does not yet have: frequency (Hz canonical), angular
-    frequency (rad/s), rotation per length (rad/m), length per rotation (m/rad) and mass moment of inertia
-    (kg·m²); period uses the existing Time (s). DEL-02-02 makes that extension, a priced change under D3.
-    DEL-04-09 defines no unit or conversion of its own (Design §1.5).
+    gains the dimensions the modal results need: `frequency` (Hz), `angular_frequency` (rad/s),
+    `rotation_per_length` (rad/m), `length_per_rotation` (m/rad) and `rotational_generalized_mass`
+    (kg·m²·rad⁻², case (b)'s generalized mass); period uses the existing Time (s). They are DEL-02-02's
+    families, carried by model document 0.9.0's first slice (S1) in its D3 turn (agreed with the load-case
+    lane, Work `model-document-0.9.0.md` §2.4 at `c42a72491`). DEL-04-09 defines no unit or conversion of
+    its own (Design §1.5).
   gating: true
-  when: The unit families before M1b publishes modal results.
+  when: The unit families (with 0.9.0's S1) before M1b publishes modal results.
   evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
