@@ -30,6 +30,7 @@ use std::{
 struct Config {
     state: PathBuf,
     model: String,
+    context_window: u32,
     endpoint: String,
     key: Option<String>,
     mode: String,
@@ -311,6 +312,7 @@ fn run_inner() -> Result<(), &'static str> {
             state: config.state.clone(),
         },
         config.model,
+        config.context_window,
         provider,
         secret,
         "native-fixture-private-session-token",

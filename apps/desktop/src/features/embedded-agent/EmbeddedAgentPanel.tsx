@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { CSV_PREAMBLE_NOTICE } from '../result-export/csvTable';
 import { EmbeddedAgentSession, type AgentSessionView } from '../../services/embeddedAgentSession';
 
-type Provider = {revision:string;endpoint:string;model:string;credentialMode:'none'|'keychain'};
+type Provider = {revision:string;endpoint:string;model:string;contextWindow:number|null;credentialMode:'none'|'keychain'};
+/** The person's provider context window, in tokens; the native store enforces the same bounds. */
+const CONTEXT_WINDOW={min:8192,max:131072};
 type Snapshot = {provider:Provider|null;cleanupPending:number|null;cleanupError:unknown};
 const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
 function snapshot(value:unknown):Snapshot {
  if(!object(value)||!(value.provider===null||object(value.provider)))throw new Error('INVALID-SETTINGS');
  const provider=value.provider;
- if(provider&&!(typeof provider.revision==='string'&&typeof provider.endpoint==='string'&&typeof provider.model==='string'&&['none','keychain'].includes(String(provider.credentialMode))))throw new Error('INVALID-SETTINGS');
+ if(provider&&!(typeof provider.revision==='string'&&typeof provider.endpoint==='string'&&typeof provider.model==='string'&&(provider.contextWindow===null||Number.isInteger(provider.contextWindow))&&['none','keychain'].includes(String(provider.credentialMode))))throw new Error('INVALID-SETTINGS');
  return {provider:provider as Provider|null,cleanupPending:typeof value.cleanupPending==='number'?value.cleanupPending:null,cleanupError:value.cleanupError};
 }
 function settingsError(error:unknown):string {
@@ -17,7 +19,8 @@ function settingsError(error:unknown):string {
   if(error.reenter_key.reason==='denied')return 'This build cannot use the saved key. Re-enter your key.';
  }
  switch(error){
-  case 'invalid_input':return 'Use a local HTTP endpoint or a hosted HTTPS endpoint and a non-empty model identifier.';
+  case 'invalid_input':return `Use a local HTTP endpoint or a hosted HTTPS endpoint, a non-empty model identifier and a context window from ${CONTEXT_WINDOW.min} to ${CONTEXT_WINDOW.max} tokens.`;
+  case 'context_window_required':return "Enter the model's context window in tokens and save the provider before starting.";
   case 'corrupt':return 'Provider settings could not be verified.';
   case 'stale':return 'Settings changed. Refresh them before saving.';
   case 'new_credential_required':return 'Enter a key for this provider, or select no API key.';
@@ -44,12 +47,12 @@ const initial:AgentSessionView={status:'closed',closed:true,turnActive:false,tur
  * never writes them to a browser store, log, file or conversation. */
 export function EmbeddedAgentPanel({session,active,onReview}:{session:EmbeddedAgentSession;active:boolean;onReview:()=>void}) {
  const [available,setAvailable]=useState<boolean|null>(null),[unavailable,setUnavailable]=useState('');
- const [saved,setSaved]=useState<Snapshot|null>(null),[endpoint,setEndpoint]=useState(''),[model,setModel]=useState('');
+ const [saved,setSaved]=useState<Snapshot|null>(null),[endpoint,setEndpoint]=useState(''),[model,setModel]=useState(''),[contextWindow,setContextWindow]=useState('');
  const [credentialMode,setCredentialMode]=useState<'keep'|'replace'|'no_key'>('no_key'),[key,setKey]=useState('');
  const [view,setView]=useState<AgentSessionView>(initial),[text,setText]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState<string|null>(null);
  const [settingsOpen,setSettingsOpen]=useState(true);
  useEffect(()=>session.subscribe(setView),[session]);
- function adopt(next:Snapshot){setSaved(next);if(next.provider){setEndpoint(next.provider.endpoint);setModel(next.provider.model);setCredentialMode(next.provider.credentialMode==='keychain'?'keep':'no_key');}}
+ function adopt(next:Snapshot){setSaved(next);if(next.provider){setEndpoint(next.provider.endpoint);setModel(next.provider.model);setContextWindow(next.provider.contextWindow===null?'':String(next.provider.contextWindow));setCredentialMode(next.provider.credentialMode==='keychain'?'keep':'no_key');}}
  async function settings(request:Record<string,unknown>){
   const reply=await session.provider(request);
   if(!object(reply)||reply.status!=='ok'){setMessage(settingsError(object(reply)?reply.error:null));return null;}
@@ -71,7 +74,9 @@ export function EmbeddedAgentPanel({session,active,onReview}:{session:EmbeddedAg
  async function perform(action:()=>Promise<unknown>){if(busy)return;setBusy(true);setMessage(null);try{await action();}catch(error){setMessage(error instanceof Error&&error.message==='AGENT-WORKSPACE-NOT-READY'?'Open a model and wait for its fingerprint before starting.':'The request did not complete. Check the session status before trying again.');}finally{setBusy(false);}}
  async function save(){
   const entered=key;setKey('');
-  const result=await settings({kind:'provider_save',expected:saved?.provider?.revision??null,endpoint,model,credentialMode,...(credentialMode==='replace'?{key:entered}:{})});
+  const tokens=Number(contextWindow);
+  if(!/^[0-9]+$/.test(contextWindow)||tokens<CONTEXT_WINDOW.min||tokens>CONTEXT_WINDOW.max){setKey(entered);setMessage(settingsError('invalid_input'));return;}
+  const result=await settings({kind:'provider_save',expected:saved?.provider?.revision??null,endpoint,model,contextWindow:tokens,credentialMode,...(credentialMode==='replace'?{key:entered}:{})});
   if(result){setSettingsOpen(false);setMessage(result.cleanupPending===0?'Provider saved.':result.cleanupPending===null?'Provider saved; credential cleanup status is unavailable.':'Provider saved; stale credential cleanup is pending.');}
  }
  async function start(){
@@ -91,6 +96,7 @@ export function EmbeddedAgentPanel({session,active,onReview}:{session:EmbeddedAg
     <form onSubmit={event=>{event.preventDefault();void perform(save);}} autoComplete="off">
      <label>Endpoint<input aria-label="Agent endpoint" type="url" value={endpoint} maxLength={2048} placeholder="https://provider.example/v1" onChange={event=>setEndpoint(event.target.value)} disabled={busy||running} required/></label>
      <label>Model<input aria-label="Agent model" value={model} maxLength={1024} onChange={event=>setModel(event.target.value)} disabled={busy||running} required/></label>
+     <label>Context window (tokens)<input aria-label="Agent context window" type="number" inputMode="numeric" min={CONTEXT_WINDOW.min} max={CONTEXT_WINDOW.max} step={1} value={contextWindow} placeholder="the window your provider serves" onChange={event=>setContextWindow(event.target.value)} disabled={busy||running} required/></label>
      <label>Authentication<select aria-label="Agent authentication" value={credentialMode} onChange={event=>{setCredentialMode(event.target.value as typeof credentialMode);setKey('');}} disabled={busy||running}>
       {saved?.provider?.credentialMode==='keychain'?<option value="keep">Keep saved key</option>:null}
       <option value="replace">Enter a key</option><option value="no_key">No API key</option>
@@ -98,11 +104,11 @@ export function EmbeddedAgentPanel({session,active,onReview}:{session:EmbeddedAg
      {credentialMode==='replace'?<label>API key<input aria-label="Agent API key" type="password" value={key} maxLength={4096} autoComplete="off" onChange={event=>setKey(event.target.value)} disabled={busy||running} required/></label>:null}
      <button type="submit" disabled={busy||running}>Save provider</button>
      <button type="button" disabled={busy||running} onClick={()=>void perform(async()=>{await settings({kind:'provider_snapshot'});})}>Refresh settings</button>
-     {saved?.provider?<button type="button" disabled={busy||running} onClick={()=>void perform(async()=>{const result=await settings({kind:'provider_clear',expected:saved.provider!.revision});if(result){setEndpoint('');setModel('');setKey('');setCredentialMode('no_key');setMessage('Provider cleared.');}})}>Clear provider</button>:null}
+     {saved?.provider?<button type="button" disabled={busy||running} onClick={()=>void perform(async()=>{const result=await settings({kind:'provider_clear',expected:saved.provider!.revision});if(result){setEndpoint('');setModel('');setContextWindow('');setKey('');setCredentialMode('no_key');setMessage('Provider cleared.');}})}>Clear provider</button>:null}
      {saved?.cleanupPending!==0&&saved!==null?<button type="button" disabled={busy||running} onClick={()=>void perform(async()=>{await settings({kind:'provider_recover'});})}>Retry credential cleanup</button>:null}
     </form>
    </details>
-   {saved?.provider?<p>{saved.provider.model} · {saved.provider.endpoint}</p>:<p>Save a provider and model to begin.</p>}
+   {saved?.provider?<p>{saved.provider.model} · {saved.provider.contextWindow===null?'context window not entered':`${saved.provider.contextWindow.toLocaleString('en-US')}-token context window`} · {saved.provider.endpoint}</p>:<p>Save a provider and model to begin.</p>}
    <div>
     <button type="button" disabled={busy||running||!saved?.provider} onClick={()=>void perform(start)}>Start agent</button>
     <button type="button" disabled={busy||!running||!view.turnActive||view.turnStatus!=='in_progress'} onClick={()=>void perform(()=>session.interrupt())}>Interrupt turn</button>

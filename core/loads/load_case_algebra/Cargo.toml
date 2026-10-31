@@ -11,3 +11,6 @@ path = "src/lib.rs"
 [dependencies]
 open_pipe_stress_primitive_loads = { path = "../primitive_loads" }
 open_pipe_stress_frame_kernel = { path = "../../solver/frame_kernel" }
+
+[dev-dependencies]
+open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }

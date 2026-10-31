@@ -19,7 +19,21 @@ const MAX_DB_BYTES: u64 = 2 * 1024 * 1024;
 const APP_ID: i64 = 0x53574241;
 const DB_NAME: &str = "provider-settings.sqlite3";
 const CREDENTIALS_SQL:&str="CREATE TABLE credentials(account TEXT PRIMARY KEY,owner TEXT NOT NULL,endpoint TEXT NOT NULL,phase TEXT NOT NULL CHECK(phase IN('pending','active','retired')))";
-const PROVIDER_SQL:&str="CREATE TABLE provider(singleton INTEGER PRIMARY KEY CHECK(singleton=1),revision TEXT NOT NULL,endpoint TEXT NOT NULL,model TEXT NOT NULL,account TEXT REFERENCES credentials(account))";
+const PROVIDER_SQL_V1:&str="CREATE TABLE provider(singleton INTEGER PRIMARY KEY CHECK(singleton=1),revision TEXT NOT NULL,endpoint TEXT NOT NULL,model TEXT NOT NULL,account TEXT REFERENCES credentials(account))";
+/// Version 2 adds the person-entered model context window. NULL is a setting
+/// saved before the field existed: it is refused at Start, never defaulted.
+/// Fresh and migrated stores both reach version 2 through this one statement,
+/// so the stored DDL is SQLite's own rewrite of version 1, byte for byte.
+const ADD_CONTEXT_WINDOW_SQL:&str="ALTER TABLE provider ADD COLUMN context_window INTEGER CHECK(context_window IS NULL OR context_window BETWEEN 8192 AND 131072)";
+const PROVIDER_SQL:&str="CREATE TABLE provider(singleton INTEGER PRIMARY KEY CHECK(singleton=1),revision TEXT NOT NULL,endpoint TEXT NOT NULL,model TEXT NOT NULL,account TEXT REFERENCES credentials(account), context_window INTEGER CHECK(context_window IS NULL OR context_window BETWEEN 8192 AND 131072))";
+const SCHEMA_VERSION: i64 = 2;
+/// Person-entered context window bounds, in tokens: a selected policy bound,
+/// chosen with the relay's 2 MiB request cap (`relay_policy::REQUEST_BYTES`) in
+/// view. Tokens do not bound serialized bytes, so that byte cap still applies
+/// independently and can refuse a long conversation below this window. The
+/// lower bound is the supplier's former fixed value.
+pub const CONTEXT_WINDOW_MIN: u32 = 8192;
+pub const CONTEXT_WINDOW_MAX: u32 = 131_072;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -33,6 +47,7 @@ pub enum Error {
     NotConfigured,
     NewCredentialRequired,
     RecoveryRequired,
+    ContextWindowRequired,
     Keychain(KeyError),
     ReenterKey { reason: KeyError },
 }
@@ -52,6 +67,9 @@ impl Error {
                 "Previous credential cleanup is pending. Restore Keychain access and retry cleanup."
             }
             Self::Stale => "Provider settings changed. Read them again before saving.",
+            Self::ContextWindowRequired => {
+                "Enter the model's context window in provider settings before starting."
+            }
             Self::Busy => "Another provider settings operation is running.",
             _ => "Provider configuration is unavailable.",
         }
@@ -133,6 +151,7 @@ pub struct Metadata {
     pub revision: String,
     pub endpoint: String,
     pub model: String,
+    pub context_window: Option<u32>,
     pub credential_mode: CredentialMode,
 }
 #[derive(Debug, PartialEq, Eq, Serialize)]
@@ -150,6 +169,7 @@ struct Stored {
 pub struct LoadedProvider {
     pub revision: String,
     pub model: String,
+    pub context_window: u32,
     pub provider: Provider,
     pub secret: Option<Secret>,
     _backing: Lease,
@@ -208,6 +228,7 @@ impl<K: Keychain> Store<K> {
         )
         .map_err(sql)?;
         db.busy_timeout(std::time::Duration::ZERO).map_err(sql)?;
+        let mut migrate = false;
         if !created {
             let app: i64 = db
                 .pragma_query_value(None, "application_id", |r| r.get(0))
@@ -215,10 +236,17 @@ impl<K: Keychain> Store<K> {
             let version: i64 = db
                 .pragma_query_value(None, "user_version", |r| r.get(0))
                 .map_err(sql)?;
-            if app != APP_ID || version != 1 {
+            if app != APP_ID {
                 return Err(Error::Corrupt);
             }
-            validate_schema(&db)?;
+            match version {
+                1 => {
+                    validate_schema_at(&db, 1, PROVIDER_SQL_V1)?;
+                    migrate = true;
+                }
+                SCHEMA_VERSION => validate_schema(&db)?,
+                _ => return Err(Error::Corrupt),
+            }
         }
         db.execute_batch("PRAGMA trusted_schema=OFF;PRAGMA foreign_keys=ON;PRAGMA journal_mode=DELETE;PRAGMA synchronous=FULL;PRAGMA cache_size=-256;PRAGMA max_page_count=256;").map_err(sql)?;
         if created {
@@ -226,11 +254,23 @@ impl<K: Keychain> Store<K> {
                 .transaction_with_behavior(TransactionBehavior::Immediate)
                 .map_err(sql)?;
             tx.execute_batch(&format!(
-                "{CREDENTIALS_SQL};{PROVIDER_SQL};PRAGMA user_version=1;"
+                "{CREDENTIALS_SQL};{PROVIDER_SQL_V1};{ADD_CONTEXT_WINDOW_SQL};PRAGMA user_version={SCHEMA_VERSION};"
             ))
             .map_err(sql)?;
             tx.pragma_update(None, "application_id", APP_ID)
                 .map_err(sql)?;
+            tx.commit().map_err(sql)?;
+        } else if migrate {
+            // Version 1 to 2: the existing row keeps every value and gains a
+            // NULL window, which Start refuses until the person enters one.
+            let tx = db
+                .transaction_with_behavior(TransactionBehavior::Immediate)
+                .map_err(sql)?;
+            validate_schema_at(&tx, 1, PROVIDER_SQL_V1)?;
+            tx.execute_batch(&format!(
+                "{ADD_CONTEXT_WINDOW_SQL};PRAGMA user_version={SCHEMA_VERSION};"
+            ))
+            .map_err(sql)?;
             tx.commit().map_err(sql)?;
         }
         validate_schema(&db)?;
@@ -262,13 +302,17 @@ impl<K: Keychain> Store<K> {
         expected: Option<&str>,
         endpoint: &str,
         model: &str,
+        context_window: u32,
         change: CredentialChange,
     ) -> Result<Snapshot, Error> {
         let _lease = self.admission()?;
         let _gate = gate(&self.directory)?;
         let provider = Provider::new(endpoint).map_err(|_| Error::InvalidInput)?;
         let endpoint = provider.endpoint().to_owned();
-        if !valid_model(model) || expected.is_some_and(|v| !identifier(v)) {
+        if !valid_model(model)
+            || !valid_context_window(context_window)
+            || expected.is_some_and(|v| !identifier(v))
+        {
             return Err(Error::InvalidInput);
         }
         let tx = self
@@ -322,7 +366,7 @@ impl<K: Keychain> Store<K> {
             if self.faults.fail_publish {
                 tx.pragma_update(None, "query_only", true).unwrap();
             }
-            publish(&tx, current.as_ref(), &endpoint, model, Some(&key))?;
+            publish(&tx, current.as_ref(), &endpoint, model, context_window, Some(&key))?;
             let committed = snapshot(&tx)?;
             tx.commit().map_err(sql)?;
             committed
@@ -332,7 +376,7 @@ impl<K: Keychain> Store<K> {
             } else {
                 None
             };
-            publish(&tx, current.as_ref(), &endpoint, model, key)?;
+            publish(&tx, current.as_ref(), &endpoint, model, context_window, key)?;
             let committed = snapshot(&tx)?;
             tx.commit().map_err(sql)?;
             committed
@@ -428,6 +472,12 @@ impl<K: Keychain> Store<K> {
         validate_schema(&tx)?;
         let current = stored(&tx)?.ok_or(Error::NotConfigured)?;
         matches_revision(Some(&current), Some(expected))?;
+        // Settings saved before the field existed carry no window; nothing is
+        // assumed for them, and no Keychain item is read.
+        let context_window = current
+            .metadata
+            .context_window
+            .ok_or(Error::ContextWindowRequired)?;
         // A committed active key remains usable while retired-item deletion is
         // unresolved (for example after an app rename). Unpublished intents
         // still block loading; they do not establish a committed credential.
@@ -456,6 +506,7 @@ impl<K: Keychain> Store<K> {
         Ok(LoadedProvider {
             revision: current.metadata.revision,
             model: current.metadata.model,
+            context_window,
             provider,
             secret,
             _backing: _lease,
@@ -512,6 +563,9 @@ fn identifier(s: &str) -> bool {
 fn valid_model(s: &str) -> bool {
     !s.is_empty() && s.len() <= 1024 && !s.chars().any(char::is_control)
 }
+fn valid_context_window(tokens: u32) -> bool {
+    (CONTEXT_WINDOW_MIN..=CONTEXT_WINDOW_MAX).contains(&tokens)
+}
 fn matches_revision(current: Option<&Stored>, expected: Option<&str>) -> Result<(), Error> {
     if current.map(|c| c.metadata.revision.as_str()) == expected {
         Ok(())
@@ -533,13 +587,16 @@ fn sql(error: rusqlite::Error) -> Error {
     }
 }
 fn validate_schema(db: &Connection) -> Result<(), Error> {
+    validate_schema_at(db, SCHEMA_VERSION, PROVIDER_SQL)
+}
+fn validate_schema_at(db: &Connection, schema_version: i64, provider_sql: &str) -> Result<(), Error> {
     let app: i64 = db
         .pragma_query_value(None, "application_id", |r| r.get(0))
         .map_err(sql)?;
     let version: i64 = db
         .pragma_query_value(None, "user_version", |r| r.get(0))
         .map_err(sql)?;
-    if app != APP_ID || version != 1 {
+    if app != APP_ID || version != schema_version {
         return Err(Error::Corrupt);
     }
     let count: i64 = db
@@ -562,7 +619,7 @@ fn validate_schema(db: &Connection) -> Result<(), Error> {
             None,
         ),
         ("table", "credentials", "credentials", Some(CREDENTIALS_SQL)),
-        ("table", "provider", "provider", Some(PROVIDER_SQL)),
+        ("table", "provider", "provider", Some(provider_sql)),
     ];
     let mut statement = db
         .prepare("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name")
@@ -600,7 +657,7 @@ fn stored(db: &Connection) -> Result<Option<Stored>, Error> {
     }
     let row = db
         .query_row(
-            "SELECT revision,endpoint,model,account FROM provider WHERE singleton=1",
+            "SELECT revision,endpoint,model,account,context_window FROM provider WHERE singleton=1",
             [],
             |r| {
                 Ok((
@@ -608,12 +665,13 @@ fn stored(db: &Connection) -> Result<Option<Stored>, Error> {
                     r.get::<_, String>(1)?,
                     r.get::<_, String>(2)?,
                     r.get::<_, Option<String>>(3)?,
+                    r.get::<_, Option<i64>>(4)?,
                 ))
             },
         )
         .optional()
         .map_err(sql)?;
-    let Some((revision, endpoint, model, account)) = row else {
+    let Some((revision, endpoint, model, account, context_window)) = row else {
         let active: i64 = db
             .query_row(
                 "SELECT count(*) FROM credentials WHERE phase='active'",
@@ -626,6 +684,15 @@ fn stored(db: &Connection) -> Result<Option<Stored>, Error> {
         } else {
             Err(Error::Corrupt)
         };
+    };
+    let context_window = match context_window {
+        None => None,
+        Some(tokens) => Some(
+            u32::try_from(tokens)
+                .ok()
+                .filter(|t| valid_context_window(*t))
+                .ok_or(Error::Corrupt)?,
+        ),
     };
     if !identifier(&revision)
         || !valid_model(&model)
@@ -665,6 +732,7 @@ fn stored(db: &Connection) -> Result<Option<Stored>, Error> {
             revision,
             endpoint,
             model,
+            context_window,
             credential_mode: if key.is_some() {
                 CredentialMode::Keychain
             } else {
@@ -730,6 +798,7 @@ fn publish(
     current: Option<&Stored>,
     endpoint: &str,
     model: &str,
+    context_window: u32,
     key: Option<&CredentialKey>,
 ) -> Result<(), Error> {
     if let Some(old) = current.and_then(|c| c.key.as_ref()) {
@@ -748,7 +817,7 @@ fn publish(
         )
         .map_err(sql)?;
     }
-    db.execute("INSERT INTO provider(singleton,revision,endpoint,model,account) VALUES(1,?1,?2,?3,?4) ON CONFLICT(singleton) DO UPDATE SET revision=excluded.revision,endpoint=excluded.endpoint,model=excluded.model,account=excluded.account",params![nonce()?,endpoint,model,key.map(|k|k.account.as_str())]).map_err(sql)?;
+    db.execute("INSERT INTO provider(singleton,revision,endpoint,model,account,context_window) VALUES(1,?1,?2,?3,?4,?5) ON CONFLICT(singleton) DO UPDATE SET revision=excluded.revision,endpoint=excluded.endpoint,model=excluded.model,account=excluded.account,context_window=excluded.context_window",params![nonce()?,endpoint,model,key.map(|k|k.account.as_str()),context_window]).map_err(sql)?;
     Ok(())
 }
 
@@ -870,7 +939,7 @@ mod tests {
     fn review_regression_both_mutable_endpoints_cannot_retarget_a_saved_key() {
         let (_f, mut s, _k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         s.db.execute(
             "UPDATE provider SET endpoint='https://other.example/v1'",
@@ -892,7 +961,7 @@ mod tests {
         let (_f, mut s, k) = setup();
         s.db.execute_batch("CREATE TRIGGER hostile AFTER INSERT ON provider BEGIN UPDATE credentials SET phase='retired';DELETE FROM provider;END;").unwrap();
         assert_eq!(
-            s.save(None, "https://provider.example/v1", "model", key())
+            s.save(None, "https://provider.example/v1", "model", 32768, key())
                 .unwrap_err(),
             Error::Corrupt
         );
@@ -916,6 +985,7 @@ mod tests {
                 None,
                 "https://provider.example/v1",
                 "model",
+                32768,
                 CredentialChange::NoKey,
             )
             .expect("save committed before read failure");
@@ -930,7 +1000,7 @@ mod tests {
     fn review_regression_postcommit_clear_error_preserves_committed_removal() {
         let (_f, mut s, _k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         s.faults.drop_provider_after_commit = true;
         let result = s
@@ -950,6 +1020,7 @@ mod tests {
                 None,
                 "http://127.0.0.1:8123/v1",
                 "invented-model",
+                32768,
                 CredentialChange::NoKey,
             )
             .unwrap();
@@ -966,6 +1037,7 @@ mod tests {
                 None,
                 "https://provider.example/v1/",
                 "invented-model",
+                32768,
                 key(),
             )
             .unwrap();
@@ -997,11 +1069,11 @@ mod tests {
     fn stale_revision_and_bad_inputs_do_not_touch_settings_or_keychain() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         let creates = k.0.lock().unwrap().creates;
         assert_eq!(
-            s.save(None, "https://other.example/v1", "model", key())
+            s.save(None, "https://other.example/v1", "model", 32768, key())
                 .unwrap_err(),
             Error::Stale
         );
@@ -1010,6 +1082,7 @@ mod tests {
                 Some(revision(&a)),
                 "http://off-host.example/v1",
                 "model",
+                32768,
                 key()
             )
             .unwrap_err(),
@@ -1020,6 +1093,7 @@ mod tests {
                 Some(revision(&a)),
                 "https://provider.example/v1",
                 "bad\nmodel",
+                32768,
                 key()
             )
             .unwrap_err(),
@@ -1032,13 +1106,14 @@ mod tests {
     fn saved_key_cannot_be_retargeted_to_another_endpoint_by_keep() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "first", key())
+            .save(None, "https://provider.example/v1", "first", 32768, key())
             .unwrap();
         assert_eq!(
             s.save(
                 Some(revision(&a)),
                 "https://other.example/v1",
                 "second",
+                32768,
                 CredentialChange::Keep
             )
             .unwrap_err(),
@@ -1049,6 +1124,7 @@ mod tests {
                 Some(revision(&a)),
                 "https://PROVIDER.example:443/v1/",
                 "second",
+                32768,
                 CredentialChange::Keep,
             )
             .unwrap();
@@ -1061,7 +1137,7 @@ mod tests {
         let (f, mut s, k) = setup();
         k.0.lock().unwrap().insert_then_fail = true;
         assert_eq!(
-            s.save(None, "https://provider.example/v1", "model", key())
+            s.save(None, "https://provider.example/v1", "model", 32768, key())
                 .unwrap_err(),
             Error::Keychain(KeyError::Unknown)
         );
@@ -1079,7 +1155,7 @@ mod tests {
     fn failed_new_key_does_not_replace_current_provider_or_choose_another_store() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         k.0.lock().unwrap().fail_create = Some(KeyError::InteractionRequired);
         assert_eq!(
@@ -1087,6 +1163,7 @@ mod tests {
                 Some(revision(&a)),
                 "https://other.example/v1",
                 "model",
+                32768,
                 key()
             )
             .unwrap_err(),
@@ -1101,7 +1178,7 @@ mod tests {
     fn acl_change_is_reentry_and_replacement_removes_only_owned_stale_item() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         k.0.lock().unwrap().fail_load = Some(KeyError::Denied);
         assert_eq!(
@@ -1115,6 +1192,7 @@ mod tests {
                 Some(revision(&a)),
                 "https://provider.example/v1",
                 "model",
+                32768,
                 CredentialChange::Replace(Secret::new("invented-reentered-key".into()).unwrap()),
             )
             .unwrap();
@@ -1131,7 +1209,7 @@ mod tests {
     fn cleanup_failure_preserves_saved_outcome_and_durable_owned_handle() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         k.0.lock().unwrap().fail_delete = Some(KeyError::InteractionRequired);
         let b = s
@@ -1139,6 +1217,7 @@ mod tests {
                 Some(revision(&a)),
                 "https://other.example/v1",
                 "model",
+                32768,
                 key(),
             )
             .unwrap();
@@ -1162,7 +1241,7 @@ mod tests {
     fn only_missing_and_denied_loads_are_reentry_other_failures_remain_errors() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         for reason in [
             KeyError::Missing,
@@ -1187,7 +1266,7 @@ mod tests {
     fn clear_removes_only_the_current_owned_item_and_never_reuses_its_revision() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         let cleared = s.clear(revision(&a)).unwrap();
         assert!(cleared.provider.is_none());
@@ -1227,7 +1306,7 @@ mod tests {
     fn a_metadata_commit_failure_keeps_old_profile_and_durable_cleanup_intent() {
         let (_f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         s.faults.fail_publish = true;
         assert_eq!(
@@ -1235,6 +1314,7 @@ mod tests {
                 Some(revision(&a)),
                 "https://other.example/v1",
                 "model",
+                32768,
                 key()
             )
             .unwrap_err(),
@@ -1255,16 +1335,16 @@ mod tests {
         let mut b = Store::open(&f.0, k.clone(), r).unwrap();
         let lock = gate(&f.0).unwrap();
         assert_eq!(
-            b.save(None, "https://provider.example/v1", "model", key())
+            b.save(None, "https://provider.example/v1", "model", 32768, key())
                 .unwrap_err(),
             Error::Busy
         );
         drop(lock);
         let saved = a
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         assert_eq!(
-            b.save(None, "https://other.example/v1", "model", key())
+            b.save(None, "https://other.example/v1", "model", 32768, key())
                 .unwrap_err(),
             Error::Stale
         );
@@ -1274,7 +1354,7 @@ mod tests {
     fn corrupted_binding_and_unknown_schema_refuse_before_reading_any_credential() {
         let (f, mut s, k) = setup();
         let a = s
-            .save(None, "https://provider.example/v1", "model", key())
+            .save(None, "https://provider.example/v1", "model", 32768, key())
             .unwrap();
         s.db.execute(
             "UPDATE credentials SET endpoint='https://other.example/v1' WHERE phase='active'",
@@ -1287,6 +1367,117 @@ mod tests {
         drop(s);
         let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         assert!(matches!(Store::open(&f.0, k, r), Err(Error::Corrupt)));
+    }
+    /// A version 1 store, written as the previous build wrote it.
+    fn version_one(f: &Fixture, row: Option<(&str, &str)>) {
+        let path = f.0.join(DB_NAME);
+        OpenOptions::new().write(true).create_new(true).mode(0o600).open(&path).unwrap();
+        let db = Connection::open(&path).unwrap();
+        db.execute_batch(&format!("{CREDENTIALS_SQL};{PROVIDER_SQL_V1};PRAGMA user_version=1;")).unwrap();
+        db.pragma_update(None, "application_id", APP_ID).unwrap();
+        if let Some((endpoint, model)) = row {
+            db.execute(
+                "INSERT INTO provider(singleton,revision,endpoint,model,account) VALUES(1,?1,?2,?3,NULL)",
+                params!["b".repeat(48), endpoint, model],
+            )
+            .unwrap();
+        }
+    }
+    fn ddl(s: &Store<Keys>) -> String {
+        s.db.query_row("SELECT sql FROM sqlite_schema WHERE name='provider'", [], |r| r.get(0)).unwrap()
+    }
+    #[test]
+    fn fresh_and_migrated_stores_hold_the_same_version_two_schema() {
+        let (_f, fresh, _k) = setup();
+        assert_eq!(ddl(&fresh), PROVIDER_SQL);
+        let f = Fixture::new();
+        version_one(&f, None);
+        let k = Keys(Arc::new(Mutex::new(Vault::default())));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let migrated = Store::open(&f.0, k, r).unwrap();
+        assert_eq!(ddl(&migrated), PROVIDER_SQL);
+        let version: i64 = migrated.db.pragma_query_value(None, "user_version", |r| r.get(0)).unwrap();
+        assert_eq!(version, SCHEMA_VERSION);
+        assert_eq!(migrated.snapshot().unwrap().provider, None);
+    }
+    #[test]
+    fn a_version_one_provider_keeps_its_values_and_is_refused_at_start_until_a_window_is_entered() {
+        let f = Fixture::new();
+        version_one(&f, Some(("http://127.0.0.1:8123/v1", "invented-model")));
+        let k = Keys(Arc::new(Mutex::new(Vault::default())));
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut s = Store::open(&f.0, k.clone(), r).unwrap();
+        let old = s.snapshot().unwrap().provider.unwrap();
+        assert_eq!((old.revision.as_str(), old.endpoint.as_str(), old.model.as_str()), ("b".repeat(48).as_str(), "http://127.0.0.1:8123/v1", "invented-model"));
+        assert_eq!(old.context_window, None);
+        assert_eq!(serde_json::to_value(&old).unwrap()["contextWindow"], serde_json::Value::Null);
+        assert_eq!(s.load(&old.revision).unwrap_err(), Error::ContextWindowRequired);
+        assert_eq!(serde_json::to_value(Error::ContextWindowRequired).unwrap(), "context_window_required");
+        assert_eq!(k.0.lock().unwrap().loads, 0, "no Keychain item is read for a refused Start");
+        let saved = s
+            .save(Some(&old.revision), "http://127.0.0.1:8123/v1", "invented-model", 65536, CredentialChange::NoKey)
+            .unwrap()
+            .provider
+            .unwrap();
+        assert_eq!(saved.context_window, Some(65536));
+        assert_ne!(saved.revision, old.revision, "the window is part of a new provider revision");
+        assert_eq!(s.load(&saved.revision).unwrap().context_window, 65536);
+        // Reopening keeps version 2 and the saved window.
+        drop(s);
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let reopened = Store::open(&f.0, k, r).unwrap();
+        assert_eq!(reopened.snapshot().unwrap().provider.unwrap().context_window, Some(65536));
+    }
+    #[test]
+    fn a_version_one_provider_with_a_saved_key_is_refused_before_any_keychain_read_and_keeps_its_key() {
+        // A v2 store with an active Keychain credential, taken back to the exact
+        // version 1 schema, as the previous build left it.
+        let (f, mut s, k) = setup();
+        let saved = s
+            .save(None, "https://provider.example/v1", "invented-model", 32768, key())
+            .unwrap()
+            .provider
+            .unwrap();
+        s.db.execute_batch("ALTER TABLE provider DROP COLUMN context_window;PRAGMA user_version=1;").unwrap();
+        assert_eq!(ddl(&s), PROVIDER_SQL_V1);
+        drop(s);
+        let r = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut s = Store::open(&f.0, k.clone(), r).unwrap();
+        let migrated = s.snapshot().unwrap().provider.unwrap();
+        assert_eq!((migrated.revision.as_str(), migrated.credential_mode, migrated.context_window), (saved.revision.as_str(), CredentialMode::Keychain, None));
+        let loads = k.0.lock().unwrap().loads;
+        assert_eq!(s.load(&migrated.revision).unwrap_err(), Error::ContextWindowRequired);
+        assert_eq!(k.0.lock().unwrap().loads, loads, "no Keychain item is read for a refused Start");
+        let kept = s
+            .save(Some(&migrated.revision), "https://provider.example/v1", "invented-model", 65536, CredentialChange::Keep)
+            .unwrap()
+            .provider
+            .unwrap();
+        assert_eq!((kept.credential_mode, kept.context_window), (CredentialMode::Keychain, Some(65536)));
+        let loaded = s.load(&kept.revision).unwrap();
+        assert_eq!(loaded.context_window, 65536);
+        assert!(loaded.secret.is_some(), "the migrated credential is the one loaded");
+        assert_eq!(k.0.lock().unwrap().loads, loads + 1);
+        assert_eq!(k.0.lock().unwrap().creates, 1, "Keep created no new credential");
+    }
+    #[test]
+    fn the_context_window_is_bounded_on_save_and_in_storage() {
+        let (_f, mut s, k) = setup();
+        for bad in [0, 8191, 131_073, u32::MAX] {
+            assert_eq!(
+                s.save(None, "http://127.0.0.1:8123/v1", "invented-model", bad, CredentialChange::NoKey).unwrap_err(),
+                Error::InvalidInput
+            );
+        }
+        assert_eq!(s.snapshot().unwrap().provider, None, "a refused save writes nothing");
+        assert_eq!(k.0.lock().unwrap().creates, 0);
+        for good in [CONTEXT_WINDOW_MIN, CONTEXT_WINDOW_MAX] {
+            let expected = s.snapshot().unwrap().provider.map(|p| p.revision);
+            let saved = s.save(expected.as_deref(), "http://127.0.0.1:8123/v1", "invented-model", good, CredentialChange::NoKey).unwrap();
+            assert_eq!(saved.provider.unwrap().context_window, Some(good));
+        }
+        // The column's own CHECK refuses an out-of-range value written around the store.
+        assert!(s.db.execute("UPDATE provider SET context_window=262145", []).is_err());
     }
     #[test]
     fn admission_refuses_before_any_persistent_or_keychain_effect() {
