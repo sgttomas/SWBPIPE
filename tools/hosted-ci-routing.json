@@ -2379,6 +2379,8 @@
               "apps/desktop/src-tauri/src/model_states.rs",
               "apps/desktop/src-tauri/src/native_result_download.rs",
               "apps/desktop/src-tauri/src/native_smoke.rs",
+              "apps/desktop/src-tauri/src/native_verdict.rs",
+              "apps/desktop/src-tauri/src/native_verdict_tests.rs",
               "apps/desktop/src-tauri/src/object_form_tests.rs",
               "apps/desktop/src-tauri/src/report_package_bridge.rs",
               "apps/desktop/src-tauri/src/report_package_save.rs",

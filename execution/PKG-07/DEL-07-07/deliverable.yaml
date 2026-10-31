@@ -230,6 +230,7 @@ code_paths:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/result_text_digest.rs
+- apps/desktop/src-tauri/src/native_verdict.rs
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/services/memoryPool.ts
 - apps/desktop/src/features/workspace/solveJobAudit.ts
@@ -247,4 +248,5 @@ checks:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/result_text_digest.rs
+- apps/desktop/src-tauri/src/native_verdict_tests.rs
 - tests/test_solve_execution_ux.py

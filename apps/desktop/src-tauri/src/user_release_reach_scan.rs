@@ -542,9 +542,12 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// module, parameter path or scanned name is added. The
 /// headless runner's two (code review r9 at #1682) each write one `Reader`
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
-/// no scanned name).
+/// no scanned name). `app_invoke_handler` was re-pinned after C1 slice 1
+/// (DEL-04-05 `c1-native-custody-plan.md`) added one ordinary handler entry,
+/// `read_preview_mechanics_job_verdict` (reviewed: no `mod`, no
+/// `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "1260b32b13fb6a12443b27442533556730781b961dd5fc0a2f7443eabb298d79"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "d4013b45aa1b66171a9b4a5dd08c1803732fa075c0dbe09828975e29b419d6ce"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];
