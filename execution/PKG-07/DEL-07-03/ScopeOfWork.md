@@ -100,6 +100,10 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 >
 > Current implementation (at `62c1efd75b`): the rule-pack surface that ships is a manager, not a reference-only editor. `apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx` lists, creates, opens, saves and deletes project-scoped local rule packs, shows validation findings and generates and stamps checksums; its `ExpressionComposer.tsx`, `DeclarationsEditor.tsx` and `CheckDefinitionsEditor.tsx` build the document structure. It calls `apps/desktop/src/services/rulePackService.ts` and the desktop commands in `apps/desktop/src-tauri/src/lib.rs`. Private material, section and component libraries are imported, validated and stored locally through `apps/desktop/src/features/library/LibraryManagerPanel.tsx` and `apps/desktop/src/services/libraryImportService.ts`. Material, section and component fields are edited in the model-tree tables and the property-inspector forms (`apps/desktop/src/features/model-tree/`, with `material-temperature/`, `bend-authoring/`, `component-creation/` and `rich-authoring/`); an Insert bend at corner intent from `bend-authoring/` is applied only through batch review, after a clean preview of that exact batch on the current model (DEL-07-02 Design `run-sheet-entry.md` §3.5, O6); load cases in `apps/desktop/src/features/load-cases/`; self-weight plans in `apps/desktop/src/features/self-weight-authoring/`. The editor-kind behaviour recorded in CLM-017 is that of the reference module `core/gui/editors/engine.py` (`tests/test_gui_editors_contract.py`), which the desktop does not call.
 >
+> Current implementation (G5, RT-G3): the E/ν material create form takes an optional material-level thermal expansion coefficient, written through `create_material`; `Work/authoring-speed.md` §1 records the route and its evidence.
+>
+> Current implementation (G7, G8, RT-G2): the load/reference-state and pressure-region editors offer draft-only fill and copy controls (fill from a template row to every, a range of, or chosen pipes or supports; every primitive of a case with an entered factor; copy an analysis state or a pressure-region set from another case). Each draft is still submitted whole as one reviewed intent; `Work/authoring-speed.md` §3 records the controls and their evidence.
+>
 ### CLM-006 — References
 
 > ##### References
@@ -552,8 +556,6 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 ### CLM-041 — D-41 R5 T5 PDU-041 guidance
 
 > ##### D-41 R5 T5 PDU-041 guidance
->
-> Current implementation (G5, RT-G3): the E/ν material create form takes an optional material-level thermal expansion coefficient, written through `create_material`; `Work/authoring-speed.md` §1 records the route and its evidence.
 >
 >
 > SCA-011 supplies the forward ownership binding: DEL-07-03 owns load-case/combination editing and self-weight-plan interaction; DEL-07-02 owns support/restraint creation and editing; DEL-07-09 retains R-005/R-006 coverage accountability. Historical PDU-041 observations remain source-bound evidence, not a continuing absence-of-owner rule. Existing unsupported behavior and unmet verification remain visible.
