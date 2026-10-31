@@ -39,13 +39,16 @@ pub(crate) const HOOP: &str = "pipe_toroidal_membrane_hoop_stress_v1";
 pub(crate) const RADIAL: &str = "pipe_toroidal_radial_surface_stress_v1";
 pub(crate) const DIRECTIONAL: &str = "curved_bend_directional_intensified_bending_stress_v1";
 pub(crate) const DIRECTIONAL_MAX: &str = "curved_bend_directional_intensified_bending_maximum_v1";
-pub(crate) const KINDS: [&str; 6] = [EXTREME, SHEAR_MAX, HOOP, RADIAL, DIRECTIONAL, DIRECTIONAL_MAX];
+/// RT-A3 increment 1: a branch connection's intensified row (pressure-2 only).
+pub(crate) const BRANCH: &str = "branch_intensified_bending_stress_v1";
+pub(crate) const KINDS: [&str; 7] = [EXTREME, SHEAR_MAX, HOOP, RADIAL, DIRECTIONAL, DIRECTIONAL_MAX, BRANCH];
 
 pub(crate) const EXTREMES_BASIS: &str = "section_extremes_from_published_stress_rows_v1";
 pub(crate) const SHEAR_STRAIGHT_BASIS: &str = "saint_venant_annulus_flexure_v1";
 pub(crate) const SHEAR_ARC_BASIS: &str = "local_straight_annulus_on_arc";
 pub(crate) const HOOP_BASIS: &str = "bore_load_transferred_toroidal_membrane_v1";
 pub(crate) const DIRECTIONAL_BASIS: &str = "user_directional_sif_times_tangent_frame_bending_stress_v1";
+pub(crate) const BRANCH_BASIS: &str = "user_branch_sif_times_basis_bending_stress_rows_v1";
 /// The preview arc marker: every arc component stress row's token.
 pub(crate) const PREVIEW_ARC_BASIS: &str = "nominal_straight_beam_formula_on_arc_resultants";
 
@@ -59,6 +62,7 @@ pub(crate) const RADIAL_SIGN: &str = "tension-positive radial stress of the toru
 pub(crate) const DIRECTIONAL_SIGN: &str = "nonnegative hypot(i_ip*Mz, i_op*My)/Z in the arc tangent frame with the user-entered directional SIFs of its intensified_measures record (i_ip on the in-plane Mz, i_op on the out-of-plane My); not a code stress; no flexibility factor, axial or torsion term; never combined";
 pub(crate) const ARC_MAXIMUM_SIGN: &str = "nonnegative maximum |Nw/As|+hypot(My,Mz)/Z along the arc, bounded over the binary64 arc problem formed from the published end-j force and the uniform intensities; torsional shear remains separate; no code stress or equivalent stress claim";
 pub(crate) const DIRECTIONAL_MAX_SIGN: &str = "nonnegative along-arc maximum of hypot(i_ip*Mz, i_op*My)/Z with the user-entered directional SIFs of its intensified_measures record, bounded over the binary64 arc problem formed from the published end-j force and the uniform intensities; never combined";
+pub(crate) const BRANCH_SIGN: &str = "nonnegative i*hypot(My,Mz)/Z at the member end, formed as 1e6*hypot(i*sigma_z, i*sigma_y) from the same end's and basis's published bending stress rows, with the user-entered tee header or branch SIF i of its intensified_measures record; not a code effective section modulus; not a code stress; no flexibility factor, axial or torsion term; never combined";
 
 pub(crate) const ARC_APPROXIMATION: &str = "arc_closed_form_section_statics";
 pub(crate) const ARC_DIRECTIONAL_APPROXIMATION: &str = "arc_closed_form_directional_intensified";
@@ -74,6 +78,8 @@ pub(crate) const RECORD_KEYS: [&str; 13] = [
     "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions", "approximation",
     "coefficient_basis", "enclosure_scope",
 ];
+/// RT-A3 increment 1: a branch record's keys (pressure-2 adds `section_basis`).
+pub(crate) const BRANCH_RECORD_KEYS: [&str; 7] = ["pipe_id", "result_id", "location", "component_id", "factor_role", "sif", "sif_source_reference"];
 /// The directional station record's keys (pressure-2 adds `section_basis`).
 pub(crate) const STATION_RECORD_KEYS: [&str; 5] = ["pipe_id", "result_id", "location", "i_in_plane", "i_out_of_plane"];
 
@@ -174,6 +180,12 @@ impl<'a> Index<'a> {
             let Some(case) = case_of(row) else { continue };
             let md = &row["metadata"];
             let (Some(entity), Some(kind)) = (row["entity_ref"].as_str(), row["kind"].as_str()) else { continue };
+            // RT-A3: a branch row's identity is its component as well as its slot
+            // (two tees may name one pipe end); its record binds it by id
+            // (`branch_records`), and no check looks it up by slot.
+            if kind == BRANCH {
+                continue;
+            }
             let slot = (case, entity, kind, md["component"].as_str().unwrap_or(""), md["location"].as_str().unwrap_or(""), basis_of(row));
             if map.insert(slot, row).is_some() && KINDS.contains(&kind) {
                 return Err(route.fail("ROW_SLOT_DUPLICATE"));
@@ -286,8 +298,12 @@ pub(crate) fn row_semantics(row: &Value, route: Route, arc: bool) -> Check {
         RADIAL => ("Pa", &["toroidal_inner_radial_stress", "toroidal_outer_radial_stress"], HOOP_BASIS, RADIAL_SIGN.to_string(), true, true),
         DIRECTIONAL => ("Pa", &["intensified_bending"], DIRECTIONAL_BASIS, DIRECTIONAL_SIGN.to_string(), true, true),
         DIRECTIONAL_MAX => ("Pa", &["intensified_bending_maximum"], DIRECTIONAL_BASIS, DIRECTIONAL_MAX_SIGN.to_string(), false, true),
+        BRANCH => ("Pa", &["intensified_bending"], BRANCH_BASIS, BRANCH_SIGN.to_string(), true, false),
         _ => return Ok(()),
     };
+    // RT-A3 increment 1: a branch row is the exact route's, at a straight
+    // member's end.
+    route.require(kind != BRANCH || (route == Route::Exact && !arc && matches!(location, "end_i" | "end_j")), "ROW_KIND_UNSUPPORTED")?;
     route.require(!(arc_only && !arc), "ARC_ROW_ON_STRAIGHT")?;
     route.require(route == Route::Exact || !matches!(kind, HOOP | RADIAL), "ROW_KIND_UNSUPPORTED")?;
     route.require(
@@ -497,7 +513,129 @@ pub(crate) fn exact_model_checks(source: &Value, model: &Value) -> Check {
     // W-15 slice d (DEL-03-05 Design §5): the bodies the model's eligibility
     // predicate expects, with their records.
     crate::component_body::model_checks(source, model, crate::semantic_contract::pressure_rows_contract())?;
-    directional_model_checks(source, model, Route::Exact)
+    directional_model_checks(source, model, Route::Exact)?;
+    branch_model_checks(source, model)
+}
+
+/// RT-A3 increment 1: the branch records of one pressure-2 case, told apart
+/// from the directional records by key set: each bound to one branch row of
+/// its member, end, basis and case, recomputed bit for bit from that end's
+/// and basis's bending rows and the record's SIF. Returns the bound row ids.
+pub(crate) fn branch_records<'a>(
+    case: &'a str,
+    records: &'a [Value],
+    rows: &HashMap<&'a str, &'a Value>,
+    index: &Index<'_>,
+) -> Result<HashSet<&'a str>, String> {
+    let route = Route::Exact;
+    let mut bound = HashSet::new();
+    for record in records {
+        let ours = record.as_object().is_some_and(|o| o.len() == BRANCH_RECORD_KEYS.len() + 1
+            && BRANCH_RECORD_KEYS.iter().all(|k| o.contains_key(*k)) && o.contains_key("section_basis"));
+        if !ours {
+            continue;
+        }
+        let pipe = record["pipe_id"].as_str().ok_or_else(|| route.fail("INTENSIFIED_SHAPE"))?;
+        let id = record["result_id"].as_str().ok_or_else(|| route.fail("INTENSIFIED_SHAPE"))?;
+        let location = record["location"].as_str().filter(|l| matches!(*l, "end_i" | "end_j")).ok_or_else(|| route.fail("INTENSIFIED_SHAPE"))?;
+        route.require(record["component_id"].as_str().is_some_and(|c| !c.is_empty())
+            && matches!(record["factor_role"].as_str(), Some("branch_header" | "branch_branch"))
+            && record["sif_source_reference"].as_str().is_some_and(|r| !r.is_empty()), "INTENSIFIED_SHAPE")?;
+        let sif = record["sif"].as_f64().filter(|v| v.is_finite() && *v > 0.0).ok_or_else(|| route.fail("INTENSIFIED_RANGE"))?;
+        let basis = record["section_basis"].as_str().unwrap_or("-");
+        let row = rows.get(id).ok_or_else(|| route.fail("INTENSIFIED_RESULT_MISSING"))?;
+        route.require(bound.insert(id), "INTENSIFIED_DUPLICATE")?;
+        route.require(case_of(row) == Some(case) && row["entity_ref"] == pipe && basis_of(row) == basis
+            && row["kind"] == BRANCH && row["metadata"]["location"] == location, "INTENSIFIED_BINDING")?;
+        let y = index.value(case, pipe, "element_local_bending_normal_stress_y", "bending_normal_stress_y", location, basis);
+        let z = index.value(case, pipe, "element_local_bending_normal_stress_z", "bending_normal_stress_z", location, basis);
+        let (Some(y), Some(z)) = (y, z) else { return Err(route.fail("INTENSIFIED_OPERANDS")) };
+        let value = row["value"].as_f64().unwrap_or(f64::NAN);
+        route.require(value.to_bits() == (1e6 * norm2(sif * z, sif * y)).to_bits(), "INTENSIFIED_VALUE")?;
+    }
+    Ok(bound)
+}
+
+/// RT-A3 increment 1: the branch rows bound to the captured model, by the
+/// producer's association rule. A `branch`, `tee` or `branch_connection`
+/// component whose `mechanics_interface.solver_consumption` is absent or
+/// `mechanics_geometry_only` associates its header pipe with its positive
+/// finite `branch_header_sif_user_value` and its branch pipe with its
+/// `branch_branch_sif_user_value`, at each end of that pipe at the
+/// component's node, where the pipe is not a realized arc. In every solved
+/// case each association has its row on both bases, its record carries the
+/// model's component, side, factor (bit for bit) and source reference (the
+/// producer's: `modifiers.source_reference`, or `source_reference_missing`
+/// when absent or blank), each record once, and no other branch row or
+/// record is published.
+pub(crate) fn branch_model_checks(source: &Value, model: &Value) -> Check {
+    let route = Route::Exact;
+    if model.get("components").is_none_or(Value::is_null) || source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return Ok(());
+    }
+    fn items(v: &Value) -> &[Value] {
+        v.as_array().map(Vec::as_slice).unwrap_or(&[])
+    }
+    let pipes = items(&model["pipe_segments"]);
+    let mut expected: BTreeMap<(String, &str), (&str, &str, u64, &str)> = BTreeMap::new();
+    for case in items(&source["contract_evidence"]["exact_cases"]) {
+        let arcs = items(&case["pipe_sections"]).iter()
+            .filter(|s| s["member_kind"] == "realized_arc").filter_map(|s| s["pipe_id"].as_str()).collect::<HashSet<_>>();
+        for component in items(&model["components"]) {
+            let consumption = component["mechanics_interface"]["solver_consumption"].as_str().unwrap_or("mechanics_geometry_only");
+            if !matches!(component["kind"].as_str(), Some("branch" | "tee" | "branch_connection")) || consumption != "mechanics_geometry_only" {
+                continue;
+            }
+            let (Some(id), Some(node)) = (component["id"].as_str(), component["node"].as_str()) else { continue };
+            let geometry = &component["geometry"];
+            let modifiers = &component["modifiers"];
+            let header = geometry["branch_header_pipe_ref"].as_str();
+            // The producer's `preview_physics::source_reference`.
+            let reference = modifiers["source_reference"].as_str().filter(|r| !r.trim().is_empty()).unwrap_or("source_reference_missing");
+            for pipe in pipes {
+                let Some(pipe_id) = pipe["id"].as_str() else { continue };
+                let (role, value) = if header == Some(pipe_id) {
+                    ("branch_header", &modifiers["branch_header_sif_user_value"])
+                } else if geometry["branch_branch_pipe_ref"].as_str() == Some(pipe_id) {
+                    ("branch_branch", &modifiers["branch_branch_sif_user_value"])
+                } else {
+                    continue;
+                };
+                let Some(sif) = value["value"].as_f64().filter(|v| v.is_finite() && *v > 0.0) else { continue };
+                if arcs.contains(pipe_id) {
+                    continue;
+                }
+                for (location, end) in [("end_i", "from"), ("end_j", "to")] {
+                    if pipe[end].as_str() == Some(node) {
+                        expected.insert((format!("{pipe_id}\u{0}{location}"), id), (role, pipe_id, sif.to_bits(), reference));
+                    }
+                }
+            }
+        }
+        let case_id = case["load_case_id"].as_str().ok_or_else(|| route.fail("INTENSIFIED_MODEL"))?;
+        let mut seen = HashSet::new();
+        for record in items(&case["intensified_measures"]) {
+            if record.get("factor_role").is_none() {
+                continue;
+            }
+            let key = (format!("{}\u{0}{}", record["pipe_id"].as_str().unwrap_or(""), record["location"].as_str().unwrap_or("")), record["component_id"].as_str().unwrap_or(""));
+            let want = expected.get(&(key.0.clone(), key.1)).ok_or_else(|| route.fail("INTENSIFIED_MODEL"))?;
+            route.require(record["factor_role"] == want.0 && record["sif"].as_f64().map(f64::to_bits) == Some(want.2)
+                && record["sif_source_reference"] == want.3, "INTENSIFIED_MODEL_FACTORS")?;
+            route.require(seen.insert((key, record["section_basis"].as_str().unwrap_or(""))), "INTENSIFIED_DUPLICATE")?;
+        }
+        for (key, _) in &expected {
+            for basis in ["nominal_section", "reduced_section"] {
+                route.require(seen.contains(&((key.0.clone(), key.1), basis)), "INTENSIFIED_MODEL_COVERAGE")?;
+            }
+        }
+        route.require(seen.len() == 2 * expected.len(), "INTENSIFIED_MODEL")?;
+        for row in items(&source["results"]).iter().filter(|r| r["kind"] == BRANCH && r["basis_ref"]["ref_id"] == case_id) {
+            route.require(row["entity_ref"].as_str().is_some_and(|p| expected.values().any(|(_, pipe, _, _)| *pipe == p)), "INTENSIFIED_MODEL")?;
+        }
+        expected.clear();
+    }
+    Ok(())
 }
 
 /// The members a case's `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` warnings name.

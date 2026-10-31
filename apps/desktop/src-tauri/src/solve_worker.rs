@@ -34,13 +34,16 @@
 //!   result counts.
 //!
 //! The solve attestation: before the solve the worker digests the model value
-//! it materialized (`d_M`), and after the unchanged solve it parses the
-//! producer's bytes back into a value and digests it (`d_S`), each streamed
-//! through the checked canonical writer into SHA-256, holding no canonical
-//! text; the parsed value is dropped before the frames are sent. A value the
-//! checked profile refuses gives status 0; the solve and its bytes are
-//! unchanged either way. The parent hands the attestation to the registry
-//! with the result, and never to the webview.
+//! it materialized (`d_M`), and after the unchanged solve it digests the
+//! result value the producer's bytes hold (`d_S`), each streamed through the
+//! checked canonical writer into SHA-256, holding no canonical text. `d_S` is
+//! computed from the bytes ([`crate::result_text_digest`]): it equals parsing
+//! them back into a value and digesting that, but holds at most one bounded
+//! piece of the value at a time, and nothing of it once the frames are sent
+//! (RT-U4; the digest's meaning is unchanged). A value the checked profile
+//! refuses gives status 0; the solve and its bytes are unchanged either way.
+//! The parent hands the attestation to the registry with the result, and
+//! never to the webview.
 //!
 //! The grant (a [`LeasePurpose::Worker`] lease) starts at the process reserve
 //! plus the request's ingress bound, rounded up to 1 MiB, and grows on demand
@@ -553,12 +556,14 @@ pub(crate) fn attested_solve(
 }
 
 /// `d_S`: the solver entry returns a typed envelope, so the result value is
-/// the producer's exact bytes parsed back (the value the webview receives),
-/// digested streamed and dropped at once. `None` if the checked profile
-/// refuses it.
+/// the one the producer's exact bytes hold (the value the webview receives).
+/// Its digest is computed from those bytes by
+/// [`crate::result_text_digest::text_digest`], which equals parsing them back
+/// into a value and digesting it streamed, without materializing the whole
+/// value (RT-U4). `None` if the bytes do not parse or the checked profile
+/// refuses the value.
 pub(crate) fn result_digest(result: &str) -> Option<[u8; 32]> {
-    let value: serde_json::Value = serde_json::from_str(result).ok()?;
-    crate::solve_attestation::streamed_digest(SOLVED_RESULT_DOMAIN, &value)
+    crate::result_text_digest::text_digest(SOLVED_RESULT_DOMAIN, result)
 }
 
 // ---------------------------------------------------------------------------

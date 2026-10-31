@@ -160,6 +160,7 @@ def models() -> dict[str, tuple[dict, str, float]]:
         "pressure-tee-bar": (writer_tests.pressurized_tee(), "PRESSURE TEE", 20.0),
         "pressure-us-psi": (writer_tests.pressurized_us_cantilever(), "PRESSURE US", 20.0),
         "writer-springs": (writer_tests.sprung_cantilever(), "SPRING", 20.0),
+        "writer-sections": (writer_tests.sectioned_bent_l(), "SECTIONS", 20.0),
         "z-vertical-si": (z_import(Z_VERTICAL_SI).model, "Z VERTICAL SI", 20.0),
         "z-vertical-english": (z_import(Z_VERTICAL_ENGLISH).model, "Z VERTICAL ENGLISH", 20.0),
     })
@@ -245,7 +246,7 @@ def test_bound_import_equals_the_source_within_the_derived_bounds(trips, name):
 
 
 def test_every_excluded_loss_and_model_is_listed():
-    assert len(canon.EXCLUDED_LOSSES) == 8
+    assert len(canon.EXCLUDED_LOSSES) == 9
     assert set(EXCLUDED) == {"writer-bent-l-reversed"}
     trip = Trip("writer-bent-l-reversed", *([EXCLUDED["writer-bent-l-reversed"][0], "REVERSED L", 20.0]))
     reference = trip.reference()
@@ -301,6 +302,11 @@ def test_bound_import_restores_the_sidecar_identities_and_reports_the_rest(trips
                         support.get("family")) for support in source["supports"]}
     assert ids(imported["components"]) == ids(source.get("components"))
     assert ids(imported["materials"]) == {pipe["material"] for pipe in source["pipe_segments"]}
+    # Sidecar format 4: each pipe's section_ref, and the library sections the pipes reference (Design §15).
+    assert {pipe["id"]: pipe.get("section_ref") for pipe in imported["pipe_segments"]} == {
+        pipe["id"]: pipe.get("section_ref") for pipe in source["pipe_segments"]}
+    assert ids(imported.get("sections")) == {pipe["section_ref"] for pipe in source["pipe_segments"]
+                                             if pipe.get("section_ref") is not None}
     assert ids(imported["load_cases"]) <= ids(source["load_cases"])
     unrecoverable = " ".join(item["location"] + " " + item["reason"] for item in trip.bound.loss_report
                              if item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE")
@@ -318,6 +324,26 @@ def test_bound_import_restores_the_sidecar_identities_and_reports_the_rest(trips
     for component in imported["components"]:  # the component's tangent node is not in the sidecar
         assert f"bend {component['label'].split()[-1]}" in unrecoverable
     assert "not export" in unrecoverable
+
+
+def test_two_library_sections_of_equal_od_and_wall_keep_their_ids_through_a_round_trip(trips):
+    # C6-5 for sections (Design §15, Format 4): section:A and section:B have one OD and wall, and S3 has the same
+    # with no section. A bound import restores both ids and every section_ref; nothing about them is reported
+    # unrecoverable; the re-export is the same text; the unreferenced section:unused is the writer's listed omission.
+    trip = trips["writer-sections"]
+    imported = trip.bound.model
+    assert [(item["id"], item["section_type"]) for item in imported["sections"]] == [
+        ("section:A", "pipe"), ("section:B", "pipe")]
+    for section in imported["sections"]:
+        source = next(item for item in trip.model["sections"] if item["id"] == section["id"])
+        assert {key: canon.si(value) for key, value in section["properties"].items()} == pytest.approx(
+            {key: canon.si(value) for key, value in source["properties"].items()}, rel=1e-12)
+    assert not [item for item in trip.bound.loss_report if item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE"
+                and "section" in item["location"]]
+    again = render_caepipe_mbf_si(imported, title=trip.title, reference_temperature_c=trip.t_ref)
+    assert again.text == trip.text
+    assert "section:unused" in next(item["reason"] for item in trip.writer.loss_report
+                                    if item["entity"] == "model.sections")
 
 
 def test_summed_primitives_are_many_to_one_and_reported():
@@ -378,6 +404,8 @@ def legacy(result, data: bytes) -> dict:
     for entry in old["material_map"].values():
         if entry["origin"] == "undeclared":
             del entry["origin"]
+    for entry in old["section_map"].values():  # format 4's library section id, which that writer never recorded
+        del entry["swbpipe_section"]
     return {**old, "mbf_sha256": hashlib.sha256(data).hexdigest()}
 
 
@@ -1578,7 +1606,7 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
         at(f"support_map[{swb_id}].restrained", "refused",
            lambda s, k=swb_id, v=other: s["support_map"][k].update(restrained=v))
         # A spring (format 3) and a rigid support each read as the other kind: the MBF's springs and rigid DOFs differ.
-        if sidecar.get("sidecar_format") == 3 and len(entry["restrained"]) == 1:
+        if sidecar.get("sidecar_format") in (3, 4) and len(entry["restrained"]) == 1:
             at(f"support_map[{swb_id}].family", "refused", lambda s, k=swb_id, v=entry["family"]: s["support_map"][
                 k].update(family="line_stop" if v == "spring" else "spring", family_authored=True))
         inferred = "anchor" if len(entry["restrained"]) == 6 else "guide"
@@ -1592,6 +1620,9 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
     for swb_id, label in sidecar["load_case_map"].items():
         at(f"load_case_map[{swb_id}]", "refused", lambda s, k=swb_id, v=other_label[label]: s["load_case_map"].update(
             {k: v}))
+    for name, entry in sidecar.get("section_map", {}).items():  # ids pass unchanged (Design §15, Format 4)
+        at(f"section_map[{name}].swbpipe_section", "imported",
+           lambda s, k=name: s["section_map"][k].update(swbpipe_section="section:other"))
     for name, entry in sidecar["material_map"].items():
         at(f"material_map[{name}].swbpipe_material", "imported",
            lambda s, k=name: s["material_map"][k].update(swbpipe_material="mat:other"))
@@ -1636,7 +1667,7 @@ def sidecar_replacements(sidecar: dict, data: bytes) -> list[tuple[str, dict, st
             at(f"pressure_map.regions[{index}].terminals[{end}].provenance", "imported",
                lambda s, t=terminal: t(s).update(provenance="another invented provenance"))
     at("mbf_sha256", "unbound", lambda s: s.update(mbf_sha256="0" * 64))
-    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=4))
+    at("sidecar_format", "refused", lambda s: s.update(sidecar_format=3))  # format 3 has no section_map
     at("sidecar_format", "refused", lambda s: s.update(sidecar_format=2))  # format 2 has no self-digest field
     return found
 
@@ -1678,9 +1709,10 @@ def summed_model() -> dict:
 
 MUTATION_BASES = {"pressurized": lambda: writer_tests.pressurized_l(), "pressure-free": lambda: writer_tests.bent_l(),
                   "summed": summed_model, "springs": lambda: writer_tests.sprung_cantilever(),
-                  "contract-only": contract_only_model, "authored-orientation": authored_orientation_model}
+                  "contract-only": contract_only_model, "authored-orientation": authored_orientation_model,
+                  "sections": lambda: writer_tests.sectioned_bent_l()}
 # Bases without a pressure contract. Every base's export runs the preflight, which is total (VER-002 r3).
-PRESSURE_FREE_BASES = ("pressure-free", "summed", "springs")
+PRESSURE_FREE_BASES = ("pressure-free", "summed", "springs", "sections")
 
 
 @pytest.mark.parametrize("base_model", sorted(MUTATION_BASES))
@@ -1753,7 +1785,7 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
         given = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, pressure_closure=CLOSURE,
                                 source_label="stale")
         assert given.status == "refused", label
-        if sidecar.get("sidecar_format") == SIDECAR_FORMAT and canon.redigested(sidecar) != sidecar:
+        if sidecar.get("sidecar_format") in (3, SIDECAR_FORMAT) and canon.redigested(sidecar) != sidecar:
             assert refusals(given) == {("MBF-IMPORT-SIDECAR-DIGEST-MISMATCH", "sidecar_sha256")}, label
             outcomes["stale"] += 1
         else:
@@ -1762,13 +1794,19 @@ def test_every_mutated_sidecar_is_refused_by_name_or_restores_the_same_model(bas
     # Removing one of the summed entries leaves a sidecar the writer writes for a model with one primitive there: a
     # consistent edit, which imports as that model (§14); it is the only mutation that imports.
     consistent = {f"load_map/{key}: removed" for keys in summed.values() for key in keys}
+    # A record's null library section given an id is a consistent edit too: the import restores that section and
+    # the writer regenerates the id (Design §15, Format 4). An id set to null is not, in these bases: the record's
+    # pipes would then merge with a null record of the same OD and wall, which the writer writes as one.
+    consistent |= {f"section_map/{name}/swbpipe_section: string for null"
+                   for name, entry in base["section_map"].items() if entry["swbpipe_section"] is None}
     for label, sidecar in mutations:
         stale(sidecar, label)
         imported = run(sidecar, "mutated")
         errors = {item["code"] for item in imported.diagnostics if item["severity"] == "error"}
         if label in consistent:
             assert imported.status == "imported" and imported.source["binding"] == "bound", label
-            assert regeneration_difference(sidecar, imported) is None and not groups(imported), label
+            assert regeneration_difference(sidecar, imported) is None, label
+            assert not label.startswith("load_map/") or not groups(imported), label
             outcomes["equal"] += 1
             continue
         if label.endswith(": removed") or label.endswith(": map deleted") or ": null for " in label:
@@ -2197,7 +2235,8 @@ def test_every_comparison_model_regenerates_its_sidecar_identically_or_with_iden
         if groups(trip.bound):
             excluded_models.add(name)
     assert excluded_models == {"writer-cancelling-forces"}
-    assert len(REVERSIBLE) == 24  # tranche 3 added writer-springs; the bend SIF pair added writer-bent-l-sifs
+    assert len(REVERSIBLE) == 25  # tranche 3 added writer-springs; the bend SIF pair added writer-bent-l-sifs;
+    # sidecar format 4 added writer-sections
 
 
 def test_a_straight_recorded_as_a_bend_is_refused_on_both_routes():
@@ -2612,13 +2651,13 @@ def test_the_self_digest_is_the_sha256_of_the_hand_derived_canonical_form():
 
 
 def test_every_writer_sidecar_carries_its_self_digest_and_imports_verified(trips):
-    # The writer's sidecar of every comparison model is format 3, its self-digest the test's own RFC 8785 digest of
+    # The writer's sidecar of every comparison model is format 4, its self-digest the test's own RFC 8785 digest of
     # it, and it imports as given, verified. Written as JSON in another layout and read back, it is the same content
     # and imports the same model. With its members reordered it has the same self-digest: JSON leaves an object's
     # members unordered, and the canonical form sorts them, so a reorder is not an edit.
     for name in REVERSIBLE:
         trip = trips[name]
-        assert trip.sidecar["sidecar_format"] == SIDECAR_FORMAT == 3, name
+        assert trip.sidecar["sidecar_format"] == SIDECAR_FORMAT == 4, name
         assert trip.sidecar["sidecar_sha256"] == canon.self_digest(trip.sidecar), name
         assert sidecar_self_digest(reordered(trip.sidecar)) == trip.sidecar["sidecar_sha256"], name
         assert trip.bound.status == "imported" and trip.bound.source["sidecar_self_digest"] == "verified", name
@@ -2669,13 +2708,14 @@ def test_a_malformed_or_removed_self_digest_is_refused_and_a_deliberate_downgrad
                                  source_label="malformed")
         assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}, value
     removed = {key: value for key, value in sidecar.items() if key != "sidecar_sha256"}
-    for options in ({}, {"rebind_by_node_number": True}):  # format 3 without its digest is not read as format 2
+    for options in ({}, {"rebind_by_node_number": True}):  # format 4 without its digest is not read as format 2
         result = import_as_given(data, sidecar=removed, material_provenance=INVENTED, source_label="removed",
                                  **options)
         assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}, options
         assert any("not read as an older format" in item["message"] for item in result.diagnostics)
-    # Format 2 has no self-digest field, and a legacy sidecar none either.
-    result = import_as_given(data, sidecar={**sidecar, "sidecar_format": 2}, material_provenance=INVENTED,
+    # Format 2 has no self-digest field (and, like format 3, no section_map), and a legacy sidecar none either.
+    without_sections = {key: value for key, value in sidecar.items() if key != "section_map"}
+    result = import_as_given(data, sidecar={**without_sections, "sidecar_format": 2}, material_provenance=INVENTED,
                              source_label="kept")
     assert refusals(result) == {("MBF-IMPORT-SIDECAR-INVALID", "sidecar_sha256")}
     legacy_data = LEGACY_MBF_TEXT.encode("ascii")
@@ -2690,10 +2730,15 @@ def test_a_malformed_or_removed_self_digest_is_refused_and_a_deliberate_downgrad
     # A deliberate editor can drop the digest and claim format 2: the self-digest cannot stop that, and the import
     # says the sidecar carries none. The parser, the agreement rule and the regeneration identity still govern
     # meaning: an unchanged downgrade imports the same model, and an MBF-determined edit with it is still refused.
-    downgraded = {**removed, "sidecar_format": 2}
+    downgraded = {key: value for key, value in removed.items() if key != "section_map"} | {"sidecar_format": 2}
     result = import_as_given(data, sidecar=downgraded, material_provenance=INVENTED, source_label="downgraded")
     base = import_as_given(data, sidecar=sidecar, material_provenance=INVENTED, source_label="base")
     assert result.status == "imported" and result.model_bytes() == base.model_bytes()
+    # Format 3 is format 4 without section_map: this model binds no library section, so it imports the same model.
+    as_three = canon.redigested({**without_sections, "sidecar_format": 3})
+    three = import_as_given(data, sidecar=as_three, material_provenance=INVENTED, source_label="format 3")
+    assert three.status == "imported" and three.model_bytes() == base.model_bytes(), three.diagnostics
+    assert three.source["sidecar_self_digest"] == "verified"
     assert result.source["sidecar_self_digest"] == "absent"
     assert ("MBF-IMPORT-SIDECAR-NO-SELF-DIGEST", "info") in {(item["code"], item["severity"])
                                                             for item in result.diagnostics}

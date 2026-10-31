@@ -14,7 +14,7 @@
 //! and in wasm. Where the port cannot reproduce the Python exactly it fails closed ([`ImportError::Unsupported`])
 //! instead of approximating it. The crate does no file I/O and depends on no reporting crate.
 //!
-//! A bound import with a format 2 or 3 sidecar ends with the regeneration identity: the SI writer regenerates the
+//! A bound import with a format 2, 3 or 4 sidecar ends with the regeneration identity: the SI writer regenerates the
 //! sidecar from the imported model and the given sidecar must equal it (Design `caepipe-mbf-import.md` §14). The
 //! crate's own writer ([`SiWriter`], [`regenerate_caepipe_sidecar`]) does this unless the caller supplies another
 //! [`SidecarRegenerator`]; and the writer's own preflight (`MBF-SI-PREFLIGHT-REFUSED`) is this crate's importer.
@@ -53,7 +53,7 @@ pub const IMPORT_PROFILE_ID: &str = importer::IMPORT_PROFILE_ID;
 pub const REPORT_KIND: &str = importer::REPORT_KIND;
 pub const MBF_VERSION: &str = importer::MBF_VERSION;
 /// The sidecar formats the importer reads (legacy has no `sidecar_format`).
-pub const SIDECAR_FORMATS: [i64; 2] = sidecar::SIDECAR_FORMATS;
+pub const SIDECAR_FORMATS: [i64; 3] = sidecar::SIDECAR_FORMATS;
 
 /// The writer sidecar as the caller has it.
 #[derive(Clone, Debug)]
@@ -75,7 +75,7 @@ pub enum Reference {
 /// What the writer's `regenerate_caepipe_sidecar` returns.
 #[derive(Clone, Debug)]
 pub enum Regenerated {
-    /// The sidecar the writer records for the model (format 3, with its self-digest).
+    /// The sidecar the writer records for the model (format 4, with its self-digest and section_map).
     Sidecar(Value),
     /// The writer refuses the model: the codes of its error diagnostics.
     Refused(Vec<String>),
@@ -99,7 +99,7 @@ pub struct ImportOptions<'a> {
     pub shear_model: Option<Value>,
     pub rebind_by_node_number: bool,
     pub source_label: String,
-    /// The writer for the regeneration identity of a bound format 2 or 3 import; None is the crate's own
+    /// The writer for the regeneration identity of a bound format 2, 3 or 4 import; None is the crate's own
     /// ([`SiWriter`]).
     pub regenerator: Option<&'a dyn SidecarRegenerator>,
     /// Test knob mirroring `PD1_VERSIONS = ()` (profile decision PD-1 withdrawn: the base rule TBD-17-04-007).

@@ -382,6 +382,15 @@ replace only its `rules/o10_rules.py` with this turn's, and run main
 `9ef6c4c469` with `--repo` pointing at the repository. OP1A's branch is inactive
 on that source. See the governing rules' §8.31 and §10.
 
+### §8.33: tees and implicit pressure junctions on the exact route (RT-A3 increment 1)
+
+`rules/o10_rules.py` adds the following rules; none adds an owner on D1:
+- RTA3-JW: the junction warnings' node map is filled only from a case's pressure regions, explicitly empty on E (D1.5) and absent on L, so its node loop and `ending` maps are bounded at 0.
+- RTA3-ID: the warnings' argument classes, site-specific.
+- RTA3-BB: the branch rows' basis loop (at most two bases) sits inside the association loop that D1.4's empty components bound at 0.
+
+`base/template_inventory.py` reads Rust's `\u{HEX}` escape as its one character. The registration and its basis are §8.33's (`7e7fef2d4`); main `d290563ea` reproduces §8.32's block and is its comparison basis. See the governing rules' §8.33 and `tests/test_833_rt_a3.py`.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

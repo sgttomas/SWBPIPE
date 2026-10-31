@@ -1286,10 +1286,12 @@ fn u4b_cases(
         }
         // Directional records: every directional row bound, by key set.
         let records = case.get("intensified_measures").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
-        let bound = u::directional_records(route, case_id, records, rows, &index, marked_arcs, true)?;
+        let mut bound = u::directional_records(route, case_id, records, rows, &index, marked_arcs, true)?;
+        // RT-A3 increment 1: the branch records, by their own key set.
+        bound.extend(u::branch_records(case_id, records, rows, &index)?);
         require(bound.len() == records.len(), "INTENSIFIED_SHAPE")?;
         for row in results.iter().filter(|r| r["basis_ref"]["ref_id"] == case_id) {
-            if matches!(row["kind"].as_str(), Some(u::DIRECTIONAL | u::DIRECTIONAL_MAX)) {
+            if matches!(row["kind"].as_str(), Some(u::DIRECTIONAL | u::DIRECTIONAL_MAX | u::BRANCH)) {
                 require(bound.contains(text(&row["id"])?), "INTENSIFIED_ROW_UNBOUND")?;
             }
         }
@@ -1374,7 +1376,10 @@ fn assembly(
             let axis = match group["component"].as_str() { Some("Fx")=>0, Some("Fy")=>1, Some("Fz")=>2, _=>return Err("SOURCE_PHYSICS_RHS_GROUP_NODE".into()) };
             require(nodes.contains(node), "RHS_GROUP_NODE")?;
             let magnitude = number(&group["direction_component_magnitude"])?;
-            require(magnitude > 0.0 && magnitude <= 1.0, "RHS_DIRECTION")?;
+            // An authored connector axis may carry a component just above 1
+            // (FK's orthonormality guard admits it), so the magnitude is bound
+            // exactly to the axis below (`RHS_JOINT_DIRECTION`), not to 1.
+            require(magnitude > 0.0, "RHS_DIRECTION")?;
             let area_bits = text(&group["effective_area_bits"])?;
             let pressure_bits = text(&group["pressure_bits"])?;
             require([area_bits,pressure_bits].iter().all(|bits| bits.len()==16 && u64::from_str_radix(bits,16).is_ok_and(|bits| f64::from_bits(bits).is_finite())), "RHS_SOURCE_BITS")?;
@@ -1445,7 +1450,29 @@ fn assembly(
             )?;
         }
         let magnitude = number(&group["direction_component_magnitude"])?;
-        require(magnitude > 0.0 && magnitude <= 1.0, "RHS_DIRECTION")?;
+        // DEL-04-07 Work `pressure-contract.md`, "Direction magnitudes of arc
+        // tangents". A straight member's direction is its frame axis, the chord
+        // scaled by a rounded reciprocal of a norm that dominates every
+        // component, so it is at most 1. A realized arc's end tangent is formed
+        // as c*d + s*n without renormalizing, and a component can round above 1;
+        // a term on a realized arc of its region is therefore bound exactly to
+        // the component, on the group's axis, of one of that arc's published
+        // end tangents (`arc_end_tangents_global`), and a group with no arc term
+        // keeps the bound 1.
+        let axis = match group["component"].as_str() { Some("Fx") => 0, Some("Fy") => 1, _ => 2 };
+        let mut on_arc = false;
+        for term in array(&group["terms"])? {
+            let (Some(region_id), Some(pipe)) = (term["region_id"].as_str(), term["pipe_id"].as_str()) else { continue };
+            let Some(region) = regions.get(&(case, region_id)) else { continue };
+            if !crate::arc_evidence::members(region, true).is_ok_and(|arcs| arcs.contains(pipe)) {
+                continue;
+            }
+            on_arc = true;
+            let tangents = array(&region["geometry"])?.iter().find(|g| g["pipe_id"] == pipe)
+                .and_then(|g| g["arc_end_tangents_global"].as_array()).ok_or("SOURCE_PHYSICS_RHS_DIRECTION")?;
+            require(tangents.iter().any(|t| t[axis].as_f64().is_some_and(|c| c.abs().to_bits() == magnitude.to_bits())), "RHS_DIRECTION")?;
+        }
+        require(magnitude > 0.0 && (on_arc || magnitude <= 1.0), "RHS_DIRECTION")?;
         number(&group["coefficient_sum"])?;
         number(&group["assembled_force_n"])?;
         require(
