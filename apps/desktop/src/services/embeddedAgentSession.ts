@@ -9,6 +9,7 @@ import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
 import { canonicalJsonString } from './hashService';
+import { nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -59,24 +60,15 @@ export function componentsAwaitingUserModifiers(model:PreviewModel):string[]{
  }
  return awaiting;
 }
-/** The applier's `display_number`: an integral value below 1e15 as an integer,
- * any other in Rust's shortest round-trip decimal, which never uses an exponent. */
-export function engineDisplayNumber(value:number):string{
- if(Number.isInteger(value)&&Math.abs(value)<1e15)return String(value);
- const text=String(value),match=/^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(text);if(!match)return text;
- const [,sign,lead,fraction='',exponent]=match,digits=lead+fraction,point=1+Number(exponent);
- if(point<=0)return `${sign}0.${'0'.repeat(-point)}${digits}`;
- return point>=digits.length?sign+digits+'0'.repeat(point-digits.length):`${sign}${digits.slice(0,point)}.${digits.slice(point)}`;
-}
-const trimmed=(value:unknown)=>typeof value==='string'?value.trim():'';
-/** The deletion summaries the applier compares (node_delete_display, pipe_delete_display,
- * the support's trimmed label); empty when the applier would refuse the record's deletion. */
+/** The deletion summary the applier compares, from the same formatters as the
+ * inspector's Delete (removalIntents.ts); empty when the applier would refuse the
+ * record's deletion (a blank label, endpoint or material, or a non-finite coordinate). */
 function deleteText(family:Exclude<RecordFamily,'components'>,record:Record<string,unknown>):string{
- const label=trimmed(record.label);if(!label)return '';
- if(family==='supports')return label;
- if(family==='pipe_segments'){const [from,to,material]=[record.from,record.to,record.material].map(trimmed);return from&&to&&material?`${label}; ${from}->${to}; material=${material}`:'';}
- const position=plain(record.position)?record.position:{},axes=(['x','y','z'] as const).map(axis=>position[axis]);
- return axes.every(value=>typeof value==='number'&&Number.isFinite(value))?`${label}; x=${engineDisplayNumber(axes[0] as number)}; y=${engineDisplayNumber(axes[1] as number)}; z=${engineDisplayNumber(axes[2] as number)}`:'';
+ if(blankText(record.label))return '';
+ if(family==='supports')return supportDeletionSummary(record as unknown as PreviewModel['supports'][number]);
+ if(family==='pipe_segments')return [record.from,record.to,record.material].some(blankText)?'':pipeDeletionSummary(record as unknown as PreviewModel['pipe_segments'][number]);
+ const position=plain(record.position)?record.position:{};
+ return (['x','y','z'] as const).every(axis=>typeof position[axis]==='number'&&Number.isFinite(position[axis]))?nodeDeletionSummary(record as unknown as PreviewModel['nodes'][number]):'';
 }
 /** Bend markers the person has not realized (no curved macro-element yet). */
 export function unrealizedBends(model:PreviewModel):string[]{

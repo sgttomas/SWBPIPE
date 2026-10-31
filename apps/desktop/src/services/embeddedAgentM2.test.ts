@@ -9,7 +9,7 @@
 import { describe, expect, it } from "vitest";
 import fixture from "../../../../fixtures/model_operations/agent_m2_component_journey.json";
 import type { PreviewModel } from "../types";
-import { componentsAwaitingUserModifiers, engineDisplayNumber, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
+import { componentsAwaitingUserModifiers, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
 import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from "../features/model-tree/removalIntents";
@@ -62,7 +62,7 @@ describe("embedded agent milestone 2 component journey (webview link)", () => {
     for (const [family, id, objectType, changeKind] of deletions) {
       const record = records[family].find(entry => entry.id === id)!;
       const before = (await recordBefore(family, record, await canonicalJsonString(record))).delete;
-      // The inspector's own Delete sends the same text (removalIntents.ts, since #29).
+      // The inspector's own Delete sends the same text: both use removalIntents.ts's formatters.
       const inspector = family === "supports" ? buildDeleteSupportIntent(record as unknown as PreviewModel["supports"][number], model)
         : family === "pipe_segments" ? buildDeletePipeIntent(record as unknown as PreviewModel["pipe_segments"][number], model)
         : buildDeleteNodeIntent(record as unknown as PreviewModel["nodes"][number], model);
@@ -82,9 +82,12 @@ describe("embedded agent milestone 2 component journey (webview link)", () => {
     expect(model.nodes.map(entry => entry.id)).not.toContain("node:free-a");
   });
 
-  it("formats numbers as the applier's display_number does", () => {
-    expect([0, -0, 2, -3, 1e15, 2.5e21, 0.5, 1e-7, -1.5e-8, 1.2345e-12, 0.1 + 0.2, 123456789.125].map(engineDisplayNumber))
-      .toEqual(["0", "0", "2", "-3", "1000000000000000", "2500000000000000000000", "0.5", "0.0000001", "-0.000000015", "0.0000000000012345", "0.30000000000000004", "123456789.125"]);
+  it("gives no delete text for a record whose deletion the applier would refuse", async () => {
+    const before = (family: RecordFamily, record: Record<string, unknown>) => recordBefore(family, record, "{}");
+    expect(await before("nodes", { id: "node:a", label: "  ", position: { x: 0, y: 0, z: 0 } })).toEqual({});
+    expect(await before("nodes", { id: "node:a", label: "A", position: { x: 0, y: Number.NaN, z: 0 } })).toEqual({});
+    expect(await before("pipe_segments", { id: "pipe:a", label: "P", from: "node:a", to: "node:b", material: " " })).toEqual({});
+    expect(Object.keys(await before("supports", { id: "support:a", node: "node:a", restraints: ["UX"] }))).toEqual(["configuration"]);
   });
 
   it("stops reporting a component once the person's k, SIFs and source are entered", () => {
