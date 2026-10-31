@@ -128,8 +128,10 @@ code_paths:
 - core/product_physics/src/validation.rs
 - core/product_physics/src/exact_admission.rs
 - core/product_physics/src/preview_physics.rs
+- core/product_physics/src/u4b_rows.rs
 - apps/desktop/src/features/component-creation/componentIntent.ts
 checks:
 - tests/test_component_section_schema.py
 - core/product_physics/tests/preview_physics_runtime.rs
 - core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/rt_a3_tee_references.rs

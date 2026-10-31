@@ -48,7 +48,7 @@ pub(crate) struct Row {
 
 struct Attributes {
     materials: OMap<(String, String), String>,
-    sections: OMap<(String, String), String>,
+    sections: OMap<(Option<String>, String, String), String>,
     loads: OMap<(String, String), String>,
     material_map: Dict,
     section_map: Dict,
@@ -248,6 +248,7 @@ impl<'m> Writer<'m> {
         for node in unconnected {
             let entity = format!("node:{node}");
             let referenced = self.node_restraints.contains_key(&node)
+                || self.node_springs.contains_key(&node)
                 || self.load_records.values().any(|record| {
                     record.get(&"target".to_string()).map(|target| target.get_or_null("node").as_str() == Some(node.as_str())).unwrap_or(false)
                 });
@@ -363,9 +364,9 @@ impl<'m> Writer<'m> {
     }
 
     fn pipe_attributes(&mut self, pipe_id: &str, state: &mut Attributes) -> (String, String, String) {
-        let (material_id, od, thk) = {
+        let (material_id, od, thk, section_ref) = {
             let pipe = self.pipes.get(&pipe_id.to_string()).expect("pipe");
-            (pipe.material.clone(), pipe.od, pipe.thk)
+            (pipe.material.clone(), pipe.od, pipe.thk, pipe.section_ref.clone())
         };
         let mut density = 0.0;
         if let Some(&weight) = self.weight.get(&pipe_id.to_string()) {
@@ -394,7 +395,8 @@ impl<'m> Writer<'m> {
             entry.as_dict_mut().expect("dict").insert("origin".into(), Value::str(material.origin.unwrap_or("undeclared")));
             state.material_map.insert(name, entry);
         }
-        let section_key = (num(od), num(thk));
+        // A record per library section (or none) and OD and wall (Design §15, Format 4), as materials are per id.
+        let section_key = (section_ref.clone(), num(od), num(thk));
         if !state.sections.contains_key(&section_key) {
             let name = format!("P{}", state.sections.len() + 1);
             state.sections.insert(section_key.clone(), name.clone());
@@ -404,6 +406,7 @@ impl<'m> Writer<'m> {
                     ("outside_diameter_mm", Value::Float(od)),
                     ("wall_thickness_mm", Value::Float(thk)),
                     ("elements", Value::List(Vec::new())),
+                    ("swbpipe_section", section_ref.map(Value::Str).unwrap_or(Value::Null)),
                 ],
             );
         }
@@ -497,8 +500,8 @@ impl<'m> Writer<'m> {
                     let entity = self.bends.get(bend_id).expect("bend").entity.clone();
                     let message = format!(
                         "{entity}: pipe:{bend_id} and its incoming straight pipe:{pipe_id} differ in material, weight, \
-                         section, temperature or pressure; the target program writes them as one layout row with one \
-                         set of properties"
+                         section (or its section_ref alone), temperature or pressure; the target program writes them as \
+                         one layout row with one set of properties"
                     );
                     self.refuse("MBF-SI-BEND-UNSUPPORTED", &entity, &message);
                 }

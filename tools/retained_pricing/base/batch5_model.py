@@ -34,7 +34,10 @@ PINS = {
         # W-16 stage 2 D3 (§8.29): the moved nonlinear grounds (R-b, empty on D1) and the spring bases with their formed
         # loads (R-c: zero bases and no term on D1, W16S-SG), passed to the loop and the spring rows; `before` moves above
         # the spring-base map. Carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "94fbe3706ce20357cf723546b6e0d22d168f570084df16a2745ee9c816cf0e83",
+        # RT-A3 increment 1 D3 (§8.33): on the exact route a straight member's branch-connection rows
+        # (u4b_rows::append_branch_intensified, records extended into directional_measures); D1.4 admits no component,
+        # so no association, row or record. Carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "ad463fe666362a2b94252fc012fc19af2d5daf48eea6e09d85c47793d3bec323",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -86,7 +89,11 @@ PINS = {
 # region loop; it maps terminals of the case's regions by node (a BTreeMap and two Vecs per node) and refuses a shared
 # terminal node with a compensated terminal (diagnostics only). Every admitted E case has `pressure_regions: []` (D1.5),
 # so the map stays empty (no allocation) and nothing is pushed; L never reaches it. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "4922de7d03256f051775e5f09efd30f932db5652381f9bb25dfe9de0e12bc5bb"
+# RT-A3 increment 1 D3 (§8.33): the prefix adds junction_closure_warnings, its per-case helper and a `warn` helper
+# (scalar_string imported), called once per solve entry beside validate_profile. It returns at once without an exact
+# contract (L); on E every case's `pressure_regions` is `Some([])` (D1.5), so its node map and member set stay empty
+# (no allocation), its loops run zero times and nothing is pushed. No carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "d43a8a1aa904ba15099e35694f97b94b628f5139c1b3e2cf4627728e34125e0a"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

@@ -1223,7 +1223,7 @@ front of this guard. It catches an accidental or partial edit. It does not repla
 or bear on authorship.
 
 **The regeneration identity** is the exact-digest route's guard of record. After assembly,
-a bound import of a format-2 or format-3 sidecar has the writer regenerate the sidecar from the imported
+a bound import of a format-2, format-3 or format-4 sidecar has the writer regenerate the sidecar from the imported
 model (`regenerate_caepipe_sidecar`). No MBF is written and the writer's export preflight
 is not run.
 
@@ -1268,9 +1268,9 @@ MBF-determined field it retains (§15).
 **Consistent edits.** The digest binds only the MBF, and the MBF has no carrier for the
 sidecar (TBD-17-01-003, TBD-17-04-003; O-6). The self-digest binds the sidecar only to
 itself, and an editor can recompute it (§15). Some values pass from the model to the sidecar
-unchanged: ids, `reversed`, an authored `y_reference` or `family`, a recorded `origin`, a
-thermal direction, the shear model of a contract, region ids, and closure transfers with
-their provenance. Such a value regenerates as the sidecar gives it, so an edit of one imports
+unchanged: ids (format 4's section ids included), `reversed`, an authored `y_reference` or
+`family`, a recorded `origin`, a thermal direction, the shear model of a contract, region ids,
+and closure transfers with their provenance. Such a value regenerates as the sidecar gives it, so an edit of one imports
 as stated. Removing one of two primitives the MBF sums is such an edit too: the other then
 names the file's primitive alone. A user who edited a
 sidecar's identities, or whose sidecar the exact-digest route refuses, asks for the rebind
@@ -1336,7 +1336,8 @@ writer no longer refuses the exact pressure contract or its regions
 (`MBF-SI-PRESSURE-UNSUPPORTED` stays for the cases §9.4 lists and for pressure primitives).
 The writer's new codes are `MBF-SI-PRESSURE-CASE-UNSUPPORTED`, `MBF-SI-CORROSION-ALLOWANCE-MISSING`,
 `MBF-SI-PRESSURE-REGION-FORMAT` and `MBF-SI-PREFLIGHT-REFUSED` (refusals),
-`MBF-SI-PRESSURE-REGION-ZERO` and `MBF-SI-SHEAR-MODEL-NOT-EXPORTED` (omitted).
+`MBF-SI-PRESSURE-REGION-ZERO` and `MBF-SI-SHEAR-MODEL-NOT-EXPORTED` (omitted). Sidecar format 4 (§15)
+adds the writer's `MBF-SI-SECTION-BINDING-UNSUPPORTED` and `MBF-SI-SECTION-REFERENCE-STALE`.
 
 The writer refuses the corresponding cases of its own conversions as
 `MBF-SI-VALUE-OUT-OF-RANGE` (§5.2, §18.2), and the same code for every value it derives
@@ -1374,12 +1375,13 @@ digest in `mbf_render.json` beside a legacy sidecar. For that layout only, the f
 takes the companion's digest (*Loading*, below).
 
 **Sidecar format** (independent review VER-002 r10 to r12). The current writer records
-`sidecar_format` = 3, which is format 2 with its self-digest (below). A format-2 sidecar
+`sidecar_format` = 4: format 3 plus `section_map` (**Format 4: section identities**, below).
+Format 3 is format 2 with its self-digest (below). A format-2 sidecar
 holds what a bound import restores and the MBF does
 not carry, every field with its effective value; it never uses null, or another sentinel, as
 a value a default then fills, and it does not repeat what the MBF determines (layout order,
 record names, material and section numbers, bend geometry, CAEPIPE kinds and names; no
-`section_map`). Its fields:
+`section_map` before format 4). Its fields:
 
 - `node_map`: id → CAEPIPE name;
 - `element_map`: id → `from`, `to`, `reversed`, and for a straight its effective
@@ -1387,7 +1389,7 @@ record names, material and section numbers, bend geometry, CAEPIPE kinds and nam
   written MBF's own positions as an import derives it) with `y_reference_authored`, for a
   bend `bend` with its `component` id;
 - `support_map`: id → `node`, `restrained`, the effective `family` (the authored one, or the
-  solve's inference: anchor with six DOFs, else guide) and `family_authored`. Format 3 also
+  solve's inference: anchor with six DOFs, else guide) and `family_authored`. Formats 3 and 4 also
   records a spring (tranche 3, §12): one translation, `family: spring`, `family_authored` true.
   Its stiffness is in the MBF (`TRAK`) and is not repeated; no new field is added;
 - `load_case_map`: id → label; `material_map`: name → `swbpipe_material` id and `origin`
@@ -1400,7 +1402,8 @@ record names, material and section numbers, bend geometry, CAEPIPE kinds and nam
   effective `shear_model` (the contract's, or the route's `euler_bernoulli` without a
   contract) and `regions` (each `id`, `members`, two `terminals`; none without a contract).
 
-The parser refuses a format-2 or format-3 sidecar missing any field, with null in any, or with a field
+The parser refuses a format-2, format-3 or format-4 sidecar missing any field, with null in any (but a
+format-4 record's null library section), or with a field
 outside this list, by JSON path (`MBF-IMPORT-SIDECAR-INVALID`). Each recorded value the MBF
 or a derivation also determines must agree with it, or the import is refused
 (`MBF-IMPORT-SIDECAR-CONFLICT`, or `-INVALID` for the parser's own checks): the CAEPIPE
@@ -1421,7 +1424,7 @@ straight (`MBF-IMPORT-SIDECAR-CONFLICT` at `element_map[<id>].bend`, on both rou
 r13).
 
 **The self-digest** (Agent 0, under the owner's delegation, after tranche 2). A format-3
-sidecar is a format-2 sidecar plus one field, `sidecar_sha256`. Its value is the lowercase
+sidecar is a format-2 sidecar plus one field, `sidecar_sha256`; format 4 carries it too. Its value is the lowercase
 hex SHA-256 of the sidecar's canonical serialisation, taken without that field.
 
 *Why a new format and not an optional field in format 2.* With a new format number, each
@@ -1475,10 +1478,10 @@ supplied. Nothing is added, merged or normalised before the check.
 - **Companion digest.** `load_sidecar` returns the file's bytes unchanged, for the importer
   to parse. There is one exception, which applies only to legacy sidecars, the format that
   relied on it: a legacy sidecar (no `sidecar_format`) without `mbf_sha256` takes the digest
-  of the `mbf_render.json` beside it, and that companion is parsed strictly too. A format-2
-  or format-3 sidecar always recorded its own `mbf_sha256` and never takes the companion's.
-  Deleting it is a partial edit: format 3 refuses it by its self-digest, and format 2 by the
-  parser.
+  of the `mbf_render.json` beside it, and that companion is parsed strictly too. A format-2,
+  format-3 or format-4 sidecar always recorded its own `mbf_sha256` and never takes the
+  companion's. Deleting it is a partial edit: formats 3 and 4 refuse it by the self-digest,
+  and format 2 by the parser.
 - **Sweep.** These steps changed content before the check, and each is now closed:
   - the companion backfill, which applied to any sidecar without `mbf_sha256`;
   - `json.loads` keeping the last of repeated members;
@@ -1492,8 +1495,9 @@ supplied. Nothing is added, merged or normalised before the check.
 
 *Import.* The self-digest is checked before the parser or any route reads the sidecar. The
 check runs on every route: the exact-digest route, the explicit rebind, and the route that
-leaves a sidecar of another MBF unapplied. A sidecar claims format 3 when `sidecar_format`
-is the integer 3. Such a sidecar is refused, and nothing of it is applied, in three cases:
+leaves a sidecar of another MBF unapplied. A sidecar claims a self-digest when
+`sidecar_format` is the integer 3 or 4. Such a sidecar is refused, and nothing of it is
+applied, in three cases:
 
 - **Digest missing.** Refused as `MBF-IMPORT-SIDECAR-INVALID` at `sidecar_sha256`. A removed
   digest is not read as format 2.
@@ -1506,8 +1510,8 @@ A verified import reports `source.sidecar_self_digest` = `verified`. Two kinds o
 carry no self-digest: a format-2 sidecar, written before the self-digest existed, and a
 legacy sidecar. Each imports exactly as before, and the import says so by name
 (`MBF-IMPORT-SIDECAR-NO-SELF-DIGEST`, info; `source.sidecar_self_digest` = `absent`).
-Only format 3 has `sidecar_sha256`: a format-2 or legacy sidecar that carries it is refused
-by path. The writer's preflight (§9.4) re-imports the writer's own output with its
+Only formats 3 and 4 have `sidecar_sha256`: a format-2 or legacy sidecar that carries it is
+refused by path. The writer's preflight (§9.4) re-imports the writer's own output with its
 self-digest.
 
 *What it proves and what it does not.* The self-digest detects accidental or partial edits:
@@ -1518,6 +1522,167 @@ over exactly the values they governed before. Authorship is still not claimed. K
 whitespace and the JSON spelling of a number are not content. The sidecar reaches the
 importer as a parsed JSON object, and the canonical form sorts its members and writes the
 value of each number.
+
+**Format 4: section identities** (Q-2; A-3; desktop design §1.3 C6-5 and §4.4). Implemented
+in both twins, the Python and the Rust engine crate.
+
+*What format 4 records.* Format 4 is format 3 plus one map, `section_map`: PIPE record name
+→ `{"swbpipe_section": <section id or null>}`. The id is the library section
+(`sections[].id`) that every pipe written with that record references through
+`section_ref`. Null states that those pipes have no `section_ref`; nothing fills it. Every
+record the layout uses has exactly one entry, and there is no other entry. Element entries
+are unchanged: a pipe's `section_ref` follows from its record (the layout's `P` carry) and
+that record's entry, so it is not repeated per element. The map carries one identity per
+record and the binding of pipes to it. It carries no section content.
+
+*How the writer forms records.* The writer keys PIPE records by (`section_ref` or none, OD,
+wall) instead of (OD, wall). Records are still numbered `P1`, `P2`, … in layout order.
+Two library sections with equal OD and wall therefore get two records with equal values,
+and so does a referenced section and an unreferenced pipe of the same OD and wall. One
+record whose sidecar entry lists several sections, with a `section_ref` per element, was
+rejected for these reasons:
+
+- It is the writer's rule for materials already: one record per material id, and
+  `material_map` maps the record name to `swbpipe_material`. `section_map` is then an
+  identity map keyed by CAEPIPE name like the others, with no per-element copy that would
+  need its own agreement check.
+- A bend's pipe and its incoming straight are one layout row with one record, so they must
+  already share a record (`MBF-SI-BEND-UNSUPPORTED`). Bend authoring already requires them
+  to share `section_ref` (`OP-BEND-CORNER-SECTION-MISMATCH`). Keying by `section_ref` can
+  newly refuse only a bend whose two pipes differ in `section_ref` alone, which authoring
+  does not produce.
+- The MBF itself keeps the sections apart, so an unbound import and the target program
+  see as many sections as the library binds.
+- The MBF text is unchanged for every model in which all pipes of one OD and wall share one
+  `section_ref`, or none.
+
+The writer reads `model.sections` as a list of records with string ids; another shape is
+`MBF-SI-INPUT-INVALID`. A null `section_ref` is absent, as the solve reads it. A pipe with
+`section_ref` must bind as the solve binds it (`resolve_shared_sections` in
+product_physics). Otherwise the writer refuses, because the import could not restore it:
+
+- `MBF-SI-REFERENCE-UNRESOLVED`: `section_ref` is blank, or does not name exactly one
+  library section (the solve's `SECTION_REFERENCE_INVALID`);
+- `MBF-SI-SECTION-BINDING-UNSUPPORTED`: the section's `section_type` is not `pipe`, or its
+  `properties` are not exactly `outside_diameter` and `wall_thickness`, each a length
+  quantity (`SECTION_BINDING_UNSUPPORTED`, `SECTION_REFERENCE_INVALID`);
+- `MBF-SI-SECTION-REFERENCE-STALE`: the pipe's inline OD or wall differs from the section's
+  in value or unit (`SECTION_REFERENCE_CACHE_STALE`).
+
+All pipes of one section therefore have one OD and wall, and each section id is on exactly
+one record.
+
+*What a bound format-4 import restores.* For each entry with an id:
+
+- one `sections[]` entry:
+  - `id` from the sidecar;
+  - `section_type` `pipe`, the only type a `section_ref` binds;
+  - `properties` `outside_diameter` and `wall_thickness`, each the same quantity the import
+    writes into the inline section of the record's pipes: the record's value in the
+    import's length unit. The binding is therefore never stale;
+  - `name` the PIPE record name, as every imported entity is labelled by its CAEPIPE name;
+  - `provenance` the PIPE record's line (§16.1).
+- `section_ref` set to that id on every pipe written with that record.
+
+The `sections` entries follow record order. The member is written only when it is
+non-empty, so an unbound import, a format-2 or format-3 import and a format-4 sidecar
+whose entries are all null give exactly today's output. The output `id_map` gains
+`section_map` (record name → id) only when an id is restored.
+
+Inline sections are formed exactly as today (OD, wall, and §8's corrosion-allowance rule).
+A library entry holds only OD and wall, the two properties a binding admits. It never
+holds a value that the inline section lacks or contradicts, and the importer invents no
+value. These are not restored and stay loss entries: a section's name, provenance, tags,
+notes and `provenance_record`; library sections no pipe references; and the section fields
+the PIPE record does not carry (below). The identity file carries none of them. A field
+the MBF lacks is not moved into it.
+
+*Rebind route.* Section ids are applied by PIPE record name, as materials are, and each is
+reported `rebound_unconfirmed`. An entry naming a record that the file lacks is
+`MBF-IMPORT-SIDECAR-ENTRY-ABSENT` (`omitted`). A record without an entry binds no library
+section.
+
+*Unchanged.* An unbound import forms no `sections` and no `section_ref`. Format-2, format-3
+and legacy sidecars import exactly as before, with no library and no `section_ref`. A
+format-2 or format-3 sidecar carrying `section_map` is refused by path, as today. A legacy
+`section_map` keeps its legacy shape and checks.
+
+*Refusals for a malformed format-4 `section_map`.* All come before assembly unless noted.
+
+- `MBF-IMPORT-SIDECAR-INVALID`, by JSON path:
+  - `section_map` missing;
+  - `section_map` not an object, or an entry that is not an object, has a key other than
+    `swbpipe_section` or lacks it;
+  - `swbpipe_section` neither null nor a string that is non-empty after trimming;
+  - an empty record name;
+  - an id that two entries give, at the later entry's `swbpipe_section` (one-to-one, as
+    `node_map` is).
+- `MBF-IMPORT-SIDECAR-CONFLICT`:
+  - bound, an entry for a record that the file lacks or that no element uses, or a record
+    an element uses with no entry, at `section_map`, naming the records (as the other maps'
+    completeness is refused);
+  - a restored id equal to another restored or formed id, at `MBF section <name>`, or at the
+    later entity that takes it.
+- The self-digest, exactly as for format 3: missing or malformed is `-INVALID`, and a wrong
+  digest is `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`.
+- After assembly, `MBF-IMPORT-SIDECAR-NOT-REPRODUCED` for anything else the writer would
+  not reproduce. For example, two null entries for records of equal OD and wall are
+  refused, because the writer would write one record (the first differing path is the
+  later record's entry, such as `section_map[P3]`).
+
+*Regeneration identity and self-digest.* The writer records format 4. A bound import of a
+format-2, format-3 or format-4 sidecar regenerates, and the regenerated sidecar is
+compared in the given sidecar's format. For formats 2 and 3 it is compared without
+`section_map`. Their imports restore no `section_ref`, so the writer keys the records by OD
+and wall alone, as the writer that wrote them did. For format 4, `section_map` regenerates
+from the restored `sections` and `section_ref`: each pipe has the same key, in the same
+layout order, so each record has the same name and entry. Section ids pass from the model
+to the sidecar unchanged, so §14's consistent edits gain section ids. A renamed id, or an
+entry set to null where no record merge results, imports as stated. The self-digest is
+unchanged: the same canonical serialisation of the whole sidecar without
+`sidecar_sha256`, which now covers `section_map` too. A sidecar claims a self-digest when
+`sidecar_format` is 3 or 4. The seeded mutation test gains a format-4 fixture with two
+sections of equal OD and wall and an unreferenced pipe of the same OD and wall.
+
+*Criterion 6.*
+
+- C6-5: section ids are restored, and no section identity is reported unrecoverable.
+- C6-6: §18.2's canonical form adds, when bound, each pipe's `section_ref`, and each
+  referenced section's id with its OD and t (printed-directly bound). Its exclusions gain
+  section names, section provenance and library order. Unreferenced library sections are
+  an omission the writer lists.
+
+*The writer's loss entries after the change.*
+
+- `sections` is no longer a `MBF-SI-MEMBER-NOT-EXPORTED` member. Its handled fields are
+  `id` (the sidecar), `section_type` (`pipe`, implied, otherwise refused) and `properties`
+  (written as the record's OD and wall).
+- `pipe_segments.section_ref` is handled: written as the pipe's record and that record's
+  `section_map` entry. It gets no loss entry.
+- Library sections no pipe references get one `MBF-SI-FIELD-NOT-EXPORTED` at
+  `model.sections`, naming each id, as unused materials do.
+- Through the sweep, `sections.name` gets `MBF-SI-FIELD-NOT-EXPORTED` ("the PIPE record has
+  no name field; the import names the section by its record"). `provenance`, `tags`,
+  `notes` and `provenance_record` are listed as for any entity.
+- A bend's pipe and its incoming straight that differ in `section_ref` alone are refused as
+  `MBF-SI-BEND-UNSUPPORTED`, whose text says so ("section (or its section_ref alone)").
+
+*PipeSection fields in the PIPE record today* (unchanged here; widening this coverage needs
+source admission and is a separate increment):
+
+- Written: `outside_diameter` (field 2) and `wall_thickness` (field 3), in mm.
+- Written as 0, refused if non-zero (`MBF-SI-SECTION-UNSUPPORTED`): `corrosion_allowance`
+  (field 4; under the exact pressure contract an absent one is refused,
+  `MBF-SI-CORROSION-ALLOWANCE-MISSING`), `mill_tolerance` (field 5) and
+  `insulation_thickness` (field 7).
+- Omitted (`MBF-SI-SECTION-FIELD-NOT-EXPORTED`): `material_density`, `contents_density`
+  and `insulation_density`. Field 6 is written as 0, and weight travels only as weight
+  primitives.
+- Fields with no SWBPIPE counterpart: lining density and thickness (fields 8 and 9) are
+  written as 0, and soil (field 10) is not written.
+
+The reference system's sections (DEL-09-01 §4.2) state a non-zero mill tolerance,
+corrosion allowance and insulation, so the writer still refuses them after this change.
 
 **Legacy sidecars.** A sidecar without `sidecar_format` is legacy: written by main's
 tranche-1 writer (`si_writer.py` up to 42a86df92f) through `run_pilot.py`. That writer
@@ -1585,7 +1750,9 @@ the identities, and the splits, that it explicitly preserves:
 - support families, from `support_map[...].family`;
 - straight-pipe orientation, from `element_map[...].y_reference` (§10.5);
 - the pressure contract and pressure regions, from `pressure_map`, checked against the
-  file (§9.4).
+  file (§9.4);
+- format 4: library sections and each pipe's `section_ref`, from `section_map`
+  (**Format 4: section identities**).
 
 **The sidecar parser** (independent review VER-002 r7, r8). The whole sidecar is parsed into
 typed values before anything reads it, and the import reads only the parsed values. Each key
@@ -1599,7 +1766,8 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 `family`, `origin`, `direction` or `y_reference`, still parses:
 
 - top level: format 2 as listed under **Sidecar format**, format 3 the same with
-  `sidecar_sha256` (**The self-digest**); a legacy sidecar holds the seven
+  `sidecar_sha256` (**The self-digest**), format 4 format 3 with `section_map` (record name →
+  `swbpipe_section`, a non-empty id or null; **Format 4**); a legacy sidecar holds the seven
   maps below (no `pressure_map`) and `mbf_sha256`, a lowercase SHA-256 or null. The entries
   below are a legacy sidecar's ("optionally": its documented omissions; format 2 keeps only
   the fields listed above);
@@ -1612,7 +1780,7 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 - `support_map`: id → `node`, `restrained` (a non-empty list of distinct DOFs), and
   `caepipe_kind` (`anchor`, `restraint`) and `family` (`anchor`, `guide`, `line_stop`,
   `vertical_support`; `anchor` only with all six DOFs; legacy also null or absent; format 2
-  also `family_authored`; format 3 also `spring`, only on exactly one translation with
+  also `family_authored`; formats 3 and 4 also `spring`, only on exactly one translation with
   `family_authored` true); the supports at each node
   together must pass the solve's support rules (§12). A bound import compares the file's rigid
   DOFs with the union of the non-spring entries at the node, and its spring DOFs with the spring
@@ -1622,7 +1790,8 @@ union of what every SWBPIPE writer version records, so a sidecar from an older r
 - `material_map`: name → `swbpipe_material` id, the four numbers the writer records,
   `temperatures_c`, `elements` and `origin` (one of `MATERIAL_ORIGINS`, format 2 also
   `"undeclared"`; legacy optionally absent);
-- `section_map`: name → its two numbers and `elements`;
+- `section_map`: legacy, name → its two numbers and `elements`; format 4, name →
+  `swbpipe_section`;
 - `load_map`: `<case>/<load id>` → `load_case`, `category` (the writer's five), `target`
   (exactly a `node`, a `pipe`, or a `support` with its `dof`), `caepipe_load_case`, `mbf`,
   `caepipe_node` or `caepipe_element` by target, and `direction` (a token the solve parses;
@@ -1657,15 +1826,17 @@ aliases. The check against the file of what the parser
 admits stays where it was: ownership and pressure of regions (§9.4), supports' DOF sets per
 node (§12), the frame check of `y_reference` (§10.5).
 
-A seeded mutation test exercises the parser on the writer's format-3 sidecars of six invented files
+A seeded mutation test exercises the parser on the writer's format-4 sidecars of seven invented files
 (pressurized, pressure-free, with a contract and no region, with an authored non-default
-orientation, with two forces the MBF sums, and with two springs, tranche 3). Each field is swapped for every other JSON type, each container emptied, each
+orientation, with two forces the MBF sums, with two springs, tranche 3, and with two library
+sections of equal OD and wall and a pipe of the same OD and wall with none, format 4). Each field is swapped for every other JSON type, each container emptied, each
 number made huge or non-finite, an unknown key added and each key removed, and each of the
-eight maps deleted and emptied. Each import passes a closure declaration, so a bound import
+nine maps deleted and emptied. Each import passes a closure declaration, so a bound import
 that fell through to unbound formation would succeed and be caught. Every mutated import is
-refused with a named `MBF-IMPORT-*` code and never raises. The one exception is removing
-one of the two summed entries, a consistent edit (§14), which imports as the model it
-yields. Inside each entry reported as summed, the test also changes the category, the
+refused with a named `MBF-IMPORT-*` code and never raises. The exceptions are consistent
+edits (§14), which import as the model they yield: removing one of the two summed entries,
+and giving a record's null library section an id (format 4). An id set to null is refused in
+these files, since its pipes would merge with a null record of the same OD and wall. Inside each entry reported as summed, the test also changes the category, the
 target, the direction and the case, and adds an entry under the summed primitive's formed
 id (a duplicate primitive id). Each is refused, and the identity alone, which sets aside
 only the summed identity, refuses each too. The regeneration identity alone,
@@ -1681,7 +1852,7 @@ refuses it. One the writer copies from the model unchanged imports and regenerat
 (§14). Each mutation and replacement is imported as a deliberate editor would leave it:
 its self-digest is recomputed, so it reaches the guards above. Each is imported a second
 time with its self-digest left stale, as an accidental edit leaves it. Where the sidecar
-still claims format 3 with a well-formed digest and canonical content, the self-digest
+still claims format 3 or 4 with a well-formed digest and canonical content, the self-digest
 alone refuses it (`MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`). Otherwise the parser refuses it
 by path.
 
@@ -1724,8 +1895,8 @@ caller explicitly asks for `rebind_by_node_number`.
   says the ids are rebound and unconfirmed.
 - **What rebinding does.** It applies the sidecar
   by CAEPIPE name only: nodes by number, pipes by from/to names with their `reversed` flag,
-  supports by node with their DOF split and family, bends by TI number, materials by name.
-  It restores no case or primitive id, orientation, origin or pressure state: those are
+  supports by node with their DOF split and family, bends by TI number, materials by name,
+  and format 4's library sections by PIPE record name. It restores no case or primitive id, orientation, origin or pressure state: those are
   formed or declared as on the unbound route. It keeps the parser, the element variant and
   ambiguity checks (§15 above) and does not run the regeneration identity (§14).
 - **Unconfirmed identity.** Whether CAEPIPE keeps names is open (TBD-17-04-008). Every
@@ -1737,7 +1908,8 @@ caller explicitly asks for `rebind_by_node_number`.
   colliding with a formed id, is refused (`MBF-IMPORT-SIDECAR-CONFLICT`).
 
 **Output.** `id_map.json` holds CAEPIPE name → SWBPIPE id for every node (including
-`nA`/`nB`), element, support, bend, material and load case, and `region_map` (region id →
+`nA`/`nB`), element, support, bend, material and load case, `section_map` (PIPE record →
+section id) when a format-4 sidecar restores a section, and `region_map` (region id →
 CAEPIPE elements) when the file has pressure. It also lists the straights whose
 `y_reference` the import derived (`y_reference_derived`), the regeneration identity's one
 input beyond the model (§14), and for each summed primitive the sidecar entries it sums
@@ -1844,7 +2016,9 @@ writer sidecar for a bound import (§15).
 | `project.units` any unit other than the import's (mm, N, N*m, MPa, Pa, degC, deg) | Omitted | A display choice the MBF does not keep |
 | `project` other fields (`id`, `name`, `description`, `tags`, `notes`) | Omitted | No MBF field; the title is the caller's |
 | `data_boundary`, `analysis_status` | Omitted | The import writes its own |
-| `sections` (library), `pipe_segments.section_ref` | Omitted | Each pipe's own section is written as a `PIPE` record |
+| `sections` (library) `id`, `section_type`, `properties`; `pipe_segments.section_ref` | Written / refused | A `PIPE` record per library section (or none) and OD and wall; the record's section id in the sidecar's `section_map` (format 4, §15); a binding the solve refuses is refused (`MBF-SI-REFERENCE-UNRESOLVED`, `MBF-SI-SECTION-BINDING-UNSUPPORTED`, `MBF-SI-SECTION-REFERENCE-STALE`) |
+| `sections` that no pipe segment references | Omitted (`MBF-SI-FIELD-NOT-EXPORTED`, entity `model.sections`, naming each id) | The MBF writes only the sections its pipes reference |
+| `sections` `name`, `provenance` (and `tags`, `notes`, `provenance_record`) | Omitted | The PIPE record has no name field; the import names the section by its record and its line |
 | `diagnostics` | Omitted | The import's validation forms its own |
 | `lines`, `unresolved_assumptions`, `rule_pack_refs`, `constraints`, `equipment_interfaces` | Omitted | No MBF record |
 | `combinations` | Omitted (`MBF-SI-COMBINATION-NOT-EXPORTED`) | The target program forms its own |
@@ -1862,6 +2036,7 @@ writer sidecar for a bound import (§15).
 | `section` densities | Omitted (`MBF-SI-SECTION-FIELD-NOT-EXPORTED`) | Weight only from weight primitives |
 | `supports` `id`, `node`, `restraints`, `family`, `stiffness` | Written / refused | `KA`, `FIXD`, `TRAK` (§12); family in the sidecar |
 | `supports` `hanger`, `nonlinear` | Refused | Not exported |
+| A support, rigid or spring, at a node no pipe segment reaches | Refused (`MBF-SI-TOPOLOGY-UNSUPPORTED`) | No layout row carries it; a spring alone there raised KeyError before |
 | `supports` `properties` | Omitted | Display properties the solve ignores |
 | `supports` `boundary_association` | Omitted | No MBF field |
 | `components` other than a realized curved bend | Refused | §11 |
@@ -2002,7 +2177,7 @@ declares it invented. The boundary guard (§18.4) requires the sidecar.
    spring that imports as written and the runner refuses as `NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED`.
    The round trip adds `writer-springs` (the cantilever with
    a 250000 N/m and a 1.5 lbf/in spring) to the reversible and byte-reproducible subsets; the
-   parser's spring vocabulary is refused by path outside format 3.
+   parser's spring vocabulary is refused by path outside formats 3 and 4.
 
 The weight-density conversion, the G derivation, the ΔT mapping and the rational
 summation change numerical meaning. They therefore get targeted regression tests (items
@@ -2024,7 +2199,11 @@ following hold:
   records in W differs in at least one printed field the importer reads. For example, ΔT
   values of 0.1 and 0.100000001 at T_ref = 20 give two LOADS records that both print
   T1 = 20.1. The import cannot tell their roles apart, and re-export merges them, so that
-  model is outside the subset.
+  model is outside the subset. One exception: on a bound format-4 import, PIPE records
+  that print equal values are distinct when their `section_map` entries differ (§15,
+  format 4). The restored section identity keeps them apart, and re-export writes them
+  as distinct records again. Two such records with equal entries, or two whose
+  differing values collide only in print, are still outside the subset.
 
 **The byte-reproducible subset** is the part of the reversible subset for which, in
 addition:
@@ -2050,7 +2229,9 @@ reproduction by name.
 - absent versus zero α, and absent versus zero section fields;
 - combinations, which are not exported;
 - pressure-region ids and region provenance (bound imports restore the ids from
-  `pressure_map`).
+  `pressure_map`);
+- section names, section provenance and library order, and library sections no pipe
+  references (the writer lists them as omitted).
 
 Each exclusion is listed in the test so that it stays explicit.
 
@@ -2058,7 +2239,9 @@ Each exclusion is listed in the test so that it stays explicit.
 
 - node positions;
 - per pipe: endpoint pair, oriented only when the sidecar is bound; OD; t; E; ν, the
-  writer's, given or derived; G; and α;
+  writer's, given or derived; G; and α; when bound, its `section_ref` (format 4, §15);
+- when bound, per referenced library section: its id with OD and t, each with the
+  printed-directly bound of its pipes' PIPE record;
 - per node: the union of restrained DOFs of its rigid supports, and per support when the sidecar
   is bound; per node and DOF, the spring stiffness in N/m, bounded as printed directly from its
   `TRAK` component in N/mm (× 10³);
@@ -2414,7 +2597,8 @@ After tranche 2 (Agent 0, under the owner's delegation), the sidecar self-digest
 SHA-256 of the RFC 8785 serialisation of the rest. The importer verifies it before anything
 reads the sidecar, on every route. A mismatch, and a format-3 sidecar without the digest,
 are refused by name. Format-2 and legacy sidecars import as before and are reported as
-carrying no self-digest.
+carrying no self-digest. Sidecar format 4 (§15, **Format 4: section identities**) followed
+for criterion 6 (Q-2): the writer records it, and formats 3, 2 and legacy import as before.
 
 **From the authored cases (§18.3): implemented** (Agent 0's assignment under the owner's delegation,
 2026-10-27). Two support spellings in exported MBF files (observed format behaviour) are read in §12:
@@ -2441,7 +2625,10 @@ intermediate bend nodes; loops.
 - **Writer and pilot tool (implemented):** `family` in `support_map` (§12); primitive
   direction in `load_map` (§15); an explicit material `origin` in `material_map` (§7.4);
   straight-pipe `y_reference` in `element_map` (§10.5); exact US-customary normalization
-  (§5.2); the schema-enum version check (§19); and `mbf_sha256` in `id_map.json` (§15).
+  (§5.2); the schema-enum version check (§19); `mbf_sha256` in `id_map.json` (§15); and
+  sidecar format 4's `section_map` with PIPE records per library section (§15, both twins).
+  Format 4 changes no ScopeOfWork meaning (REQ-016 covers it) and no `deliverable.yaml`
+  check or path.
 - **Decomposition:** DEL-17-04's description in `execution/_Decomposition/SOFTWARE_DECOMP.md`
   should include bounded MBF model import alongside export. Its ID, package home and
   supporting scope mappings stay unchanged.

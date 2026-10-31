@@ -44,6 +44,11 @@ derived from it is regenerated here, never edited by hand:
           (after the W-7 rows; apply-u4b keeps them there and carries them to
           preview-physics-retained-1). Never combined. Idempotent; `--check` reports a
           difference instead of writing.
+  apply-branch  the RT-A3 increment 1 branch-connection intensified signatures on pressure-2
+          (after the W-7 rows; apply-u4b and apply-w7 keep them there and derive carries them
+          to physics-retained-1), their basis vocabulary, and pressure-2's result-schema
+          basis enum and closed branch record. Never combined. Idempotent; `--check` reports
+          a difference instead of writing.
 
 Typical sequence after editing pressure-2 (or merging another edit of it):
 
@@ -306,9 +311,10 @@ def u4b_tables(files: dict) -> None:
     hashes = {}
     for name, exact in (("pressure_2", True), ("preview_physics_2", False)):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
-        # W-7's rows, then W-16's, follow the U4b rows and keep their numbers (apply-w7, apply-w16).
-        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS + W16_KINDS]
-        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS + W16_KINDS]
+        # W-7's rows, then W-16's and RT-A3's, follow the U4b rows and keep their numbers
+        # (apply-w7, apply-w16, apply-branch).
+        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS + W16_KINDS + BRANCH_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS + W16_KINDS + BRANCH_KINDS]
         rows = marked(rows + u4b_rows(exact, highest(rows) + 1) + w7)
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
@@ -397,9 +403,9 @@ def w7_rows(first: int) -> list:
 def w7_tables(files: dict) -> None:
     for name, bases in (("pressure_2", [W7_BASIS, W7_WALL_BASIS]), ("preview_physics_2", [W7_BASIS])):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
-        # W-16's rows (apply-w16) follow W-7's and keep their numbers.
-        w16 = [r for r in table["rows"] if r["kind"] in W16_KINDS]
-        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS + W16_KINDS]
+        # W-16's rows (apply-w16) and RT-A3's (apply-branch) follow W-7's and keep their numbers.
+        w16 = [r for r in table["rows"] if r["kind"] in W16_KINDS + BRANCH_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS + W16_KINDS + BRANCH_KINDS]
         rows = rows + w7_rows(highest(rows) + 1) + w16
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
@@ -499,6 +505,84 @@ def apply_w16(check: bool) -> int:
     return 1 if check and stale else 0
 
 
+# ---------------------------------------------------------------- apply-branch
+# RT-A3 increment 1 (DEL-04-07 Design pressure-contract.md, "Tees and pressure junctions"): a
+# branch connection's intensified row on the exact route, `branch_intensified_bending_stress_v1`
+# (Pa, intensified_bending), one signature number with a nominal and a reduced basis variant on
+# pressure-2 only, appended after the W-7 rows and numbered after the table's highest id; derive
+# carries them to physics-retained-1. Never combined and not eligible for governing ratios.
+# pressure-2's result schema gains the two basis tokens and the closed branch record of
+# `intensified_measures`. Idempotent; `--check` reports a difference.
+
+BRANCH_KIND = "branch_intensified_bending_stress_v1"
+BRANCH_KINDS = (BRANCH_KIND,)
+BRANCH_TOKEN = "user_branch_sif_times_basis_bending_stress_rows_v1"
+BRANCH_BASES = [BRANCH_TOKEN + suffix for suffix in SUFFIXES]
+
+
+def branch_rows(first: int) -> list:
+    out = []
+    for basis in BASES:
+        sid = ("supported-source-%03d-%s-%s" % (first, BRANCH_TOKEN, basis)).replace("_", "-")
+        row = signature(sid, BRANCH_KIND, "Pa", "intensified_bending", BRANCH_TOKEN + "; section_basis=" + basis)
+        row["combination_algebra"] = algebra(BRANCH_KIND)
+        out.append(collections.OrderedDict(row))
+    return out
+
+
+def branch_record() -> dict:
+    return collections.OrderedDict([
+        ("type", "object"), ("additionalProperties", False),
+        ("required", ["pipe_id", "result_id", "location", "component_id", "factor_role", "sif", "sif_source_reference", "section_basis"]),
+        ("properties", collections.OrderedDict([
+            ("pipe_id", {"type": "string", "minLength": 1}),
+            ("result_id", {"type": "string", "minLength": 1}),
+            ("location", {"enum": ["end_i", "end_j"]}),
+            ("component_id", {"type": "string", "minLength": 1}),
+            ("factor_role", {"enum": ["branch_header", "branch_branch"]}),
+            ("sif", {"type": "number", "exclusiveMinimum": 0}),
+            ("sif_source_reference", {"type": "string", "minLength": 1}),
+            ("section_basis", {"enum": list(BASES)})]))])
+
+
+def branch_tables(files: dict) -> None:
+    table = json.loads(files[TABLE % "pressure_2"], object_pairs_hook=collections.OrderedDict)
+    rows = [r for r in table["rows"] if r["kind"] not in BRANCH_KINDS]
+    rows = rows + branch_rows(highest(rows) + 1)
+    table["rows"] = rows
+    table["source_signature_count"] = len(rows)
+    table["source_kind_count"] = len({r["kind"] for r in rows})
+    extend(table["canonical_metadata_vocabulary"]["basis"]["enum"], BRANCH_BASES)
+    files[TABLE % "pressure_2"] = table_text(table)
+
+
+def branch_schemas(files: dict) -> None:
+    path = "schemas/results_pressure_2.v0.3.schema.json"
+    schema = json.loads(files[path], object_pairs_hook=collections.OrderedDict)
+    defs = schema["$defs"]
+    extend(defs["PressureResultMetadata"]["properties"]["basis"]["enum"], BRANCH_BASES)
+    variants = defs["PressureExactCase"]["properties"]["intensified_measures"]["items"]["oneOf"]
+    variants[:] = [v for v in variants if "factor_role" not in v.get("required", [])] + [branch_record()]
+    files[path] = schema_text(schema, files[path])
+
+
+BRANCH_PATHS = [TABLE % "pressure_2", "schemas/results_pressure_2.v0.3.schema.json"]
+
+
+def apply_branch(check: bool) -> int:
+    current = {p: (PROJECT / p).read_text(encoding="utf-8") for p in BRANCH_PATHS}
+    files = dict(current)
+    branch_tables(files)
+    branch_schemas(files)
+    stale = [p for p in BRANCH_PATHS if files[p] != current[p]]
+    for path in BRANCH_PATHS:
+        state = "unchanged" if path not in stale else ("differs" if check else "written")
+        if path in stale and not check:
+            (PROJECT / path).write_text(files[path], encoding="utf-8")
+        print(f"{path}: {state}; sha256 {hashlib.sha256(files[path].encode('utf-8')).hexdigest()}")
+    return 1 if check and stale else 0
+
+
 # ---------------------------------------------------------------- schemas
 
 def token_variants(items):
@@ -590,7 +674,10 @@ def pressure_schema(schema) -> None:
     walk(defs, rename)
     case = defs["PressureExactCase"]
     case["properties"]["pipe_stress_extrema"]["items"] = token_variants(case["properties"]["pipe_stress_extrema"]["items"])
-    case["properties"]["intensified_measures"] = {"type": "array", "minItems": 1, "items": {"oneOf": directional_records(None, True)}}
+    # RT-A3's branch record (apply-branch) is kept after the directional records.
+    kept = [v for v in case["properties"].get("intensified_measures", {}).get("items", {}).get("oneOf", [])
+            if "factor_role" in v.get("required", [])]
+    case["properties"]["intensified_measures"] = {"type": "array", "minItems": 1, "items": {"oneOf": directional_records(None, True) + kept}}
 
     def enums(node):
         values = node.get("enum")
@@ -825,6 +912,8 @@ def main(argv: list[str]) -> int:
     w7_parser.add_argument("--check", action="store_true")
     w16_parser = sub.add_parser("apply-w16")
     w16_parser.add_argument("--check", action="store_true")
+    branch_parser = sub.add_parser("apply-branch")
+    branch_parser.add_argument("--check", action="store_true")
     derive_parser = sub.add_parser("derive")
     derive_parser.add_argument("--check", action="store_true")
     repin_parser = sub.add_parser("repin", description=(
@@ -841,6 +930,8 @@ def main(argv: list[str]) -> int:
         return apply_w7(args.check)
     if args.command == "apply-w16":
         return apply_w16(args.check)
+    if args.command == "apply-branch":
+        return apply_branch(args.check)
     if args.command == "derive":
         return derive(args.check)
     return repin(args.from_rev, args.dry_run)

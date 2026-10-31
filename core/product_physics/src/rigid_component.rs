@@ -278,7 +278,8 @@ pub(crate) const SECTION_ROLE: &str = "reference_pipe_section";
 /// preview-physics-2): every row kind whose physical dimension is stress. A
 /// body member's row of one of these kinds carries the record. Pinned to the
 /// tables by `w15_rigid_scaling_tests::stress_kinds_are_the_tables_stress_rows`.
-pub(crate) const STRESS_KINDS: [&str; 17] = [
+pub(crate) const STRESS_KINDS: [&str; 18] = [
+    "branch_intensified_bending_stress_v1",
     "component_equal_factor_intensified_bending_stress_v1",
     "curved_bend_directional_intensified_bending_maximum_v1",
     "curved_bend_directional_intensified_bending_stress_v1",

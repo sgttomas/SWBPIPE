@@ -96,9 +96,10 @@ const MAXIMUM_KINDS: [&str; 3] = [
     "element_local_normal_stress_extreme",
     "element_local_transverse_shear_stress_maximum",
 ];
-const INTENSIFIED_KINDS: [&str; 2] = [
+const INTENSIFIED_KINDS: [&str; 3] = [
     "curved_bend_directional_intensified_bending_stress_v1",
     "curved_bend_directional_intensified_bending_maximum_v1",
+    "branch_intensified_bending_stress_v1",
 ];
 
 fn fail(code: &str) -> String {
