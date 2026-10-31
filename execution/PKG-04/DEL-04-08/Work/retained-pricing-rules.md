@@ -1909,6 +1909,23 @@ The merged tree at native atoms (`7e7fef2d4`), against ⌊0.9M⌋:
 
 **Fit.** All 80 native evaluations (eight phases, both modes, the merged tree and four points) fit at `7e7fef2d4`, at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the upward-rounded 5 % TEXT reserve. The tightest headroom is merged dense W3, **+2,320,081,932 B**, which is **40,835,169 B below §8.32's +2,360,917,101 B** (E + R +38,891,800 B and reserve +1,943,369 B). Each unmerged point's tightest is also dense W3: L(3,0) +2,940,586,002 B, L(2,1) +3,601,574,169 B, L(1,2) +4,537,455,781 B and E +2,406,200,253 B. Registration does not establish acceptance, issuance or release.
 
+### 8.34 Bend warnings in `validate_components` re-pin (DEL-03-03: the geometry-only marker disclosure)
+
+This turn follows §8.33 and re-pins W-8's `validate_components` body after DEL-03-03's second change to its bend arm, branch `claude/bend-marker-preview-text`. That change gives every geometry-only bend on preview-physics-2 `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD` and restricts `BEND_USER_MODIFIER_INPUT_MISSING` to realized bends. §8.33 already re-pinned the function for #25's change (`47c36c4e…`). The governing text is DEL-04-07 [u4b-u5b-implementation.md](../../DEL-04-07/Work/u4b-u5b-implementation.md) §2.6.
+
+**Priced source.** The head is `42aa104c0`, which merges main `539392f96` (carrying §8.33's registration). Against that basis, the only priced source change is PP `validation.rs`:
+- `validate_components`' bend arm pushes `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`, with one of three static texts chosen by `bend_geometry_only_on_preview`. It guards `BEND_USER_MODIFIER_INPUT_MISSING` by `is_curved_bend_macro_component`, keeping that warning's two texts.
+- New helpers: `bend_geometry_only_on_preview`, `bend_directional_pair_present` and `bend_scalar_sif_on_realized_arc`. Not all of them are allocation-free. On an ordinary bend, `bend_geometry_only_on_preview` and `bend_scalar_sif_on_realized_arc` reach `component_solver_consumption` (lib.rs, `.to_string()`), and each `diag` call owns its id and message.
+
+**Route and multiplicity.** The pricing conclusion rests on retained multiplicity, not on the helpers being allocation-free. Every changed statement, the helper calls included, sits in `validate_components`' loop over `model.components`. D1 refuses any component (P2, D1.4: `F::Components`), so that loop runs 0 times on both routes, through the registered `model.components → 0` rule (as for W8-BT). Whatever the bend arm allocates on an ordinary run therefore has retained multiplicity 0. The new `diag(` call, its `format!` id (`stable_suffix` of the component id, the inherited IN128 class) and its message need no rule, and none is added. W8-ND's node-degree statements, the branch-topology check and `branch_topology_invalid` are unchanged.
+
+**Comparison basis.** The basis is main `539392f96`, which carries §8.33's registered block. Main's committed tool prices `539392f96` with exit 0: `generate --check` of that tree with §8.33's basis line reproduces §8.33's registered block (an empty diff).
+
+**Run and comparison.** `run 42aa104c0` completes on all four points with no unmapped header and no unclassified argument, and both O-10 checks pass with zero findings. The line map carries 874 keys with no unmapped key, 37 prunes and seven reviewed resolutions, the basis run's entry for entry. `compare` against the basis tree gives `identical_but_basis`: **1,586 coefficients equal, 0 higher, 0 lower**. D, TAV, the row bounds and every merged coefficient are unchanged. `generate --check` of the head tree with §8.33's basis line reproduces the committed block (an empty diff). §8.33's registered block, `REGISTERED_PROFILES`, the reviewed inputs, the native law-test pins and AC-004's witness results therefore all stand. The witnesses need no re-run, because no coefficient or registration moves. The branch's later commits change only tests, fixtures and this text.
+
+**Pins.** One body pin moves: `validate_components` in `w8_topology_model.py`, `47c36c4e…` (§8.33) → `bd72c122…`. No full-file pin covers `validation.rs`. No snapshot key moves.
+
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -1932,7 +1949,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.33's source, `7e7fef2d4`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.34's head, `42aa104c0`, which prices coefficient-identically to §8.33's source, `7e7fef2d4`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -2013,3 +2030,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Nonlinear pressure-free combination operand standing actual-source D3", "§8.31" (OP1A-PF, OP1A-RD, OP1A-BN, OP1A-ER, OP1A-ID, OP1A-OWN) | §8.31 |
 | "Pressure-free Timoshenko, transverse-shear factor and canonical-decimal temperature identity actual-source D3", "§8.32" (TIM-OWN, TIM-PF, TIM-RD, TIM-ID, TIM-BN, CD-ID) | §8.32 |
 | "Tees and implicit pressure junctions on the exact route actual-source D3", "§8.33" (RTA3-JW, RTA3-ID, RTA3-BB) | §8.33 |
+| "Bend warnings in `validate_components` re-pin", "§8.34" | §8.34 |

@@ -205,8 +205,10 @@ shortens its two pipes, so it is refused while anything attaches to them: the
 journey asks for it right after the components proposal, before supports or
 loads. Batch review submissions are immutable, so k is entered after Apply as
 the person's own operation, never inside the agent's batch. Until then the
-solver warns (`BEND_USER_MODIFIER_INPUT_MISSING`,
-`BRANCH_USER_MODIFIER_INPUT_MISSING`) rather than refuses; the summary's
+pressure-free solver warns rather than refuses: a geometry-only bend marker
+takes `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`, and a realized bend or a tee
+without its modifiers takes `BEND_USER_MODIFIER_INPUT_MISSING` or
+`BRANCH_USER_MODIFIER_INPUT_MISSING`. The summary's
 `componentsAwaitingUserModifiers` reports the same condition so the agent asks
 before solving. An unrealized bend marker behaves differently on the two
 routes. The exact route refuses it before solving
