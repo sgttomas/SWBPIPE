@@ -13,6 +13,9 @@ export type ComponentDraft = {
   primaryPipeRef: string;
   secondaryPipeRef: string;
   lengthUnit: string;
+  endASizeUnit: string;
+  endBSizeUnit: string;
+  centerOfGravityUnit: string;
   angleUnit: string;
   forceUnit: string;
   bendRadius: string;
@@ -48,7 +51,7 @@ export type ComponentDraft = {
 export const RIGID_SOLVER_CONSUMPTIONS = ["mechanics_geometry_only", "not_solver_consumed"] as const;
 /** The owner's R10 ruling (DEL-03-05, 2026-10-24) on the centre of gravity. */
 export const CENTER_OF_GRAVITY_CONVENTION =
-  "Centre of gravity: global X/Y/Z from the component's node, in the length unit. Self-weight applies the weight at the node with the moment r × F.";
+  "Centre of gravity: global X/Y/Z from the component's node, in its entered length unit. Self-weight applies the weight at the node with the moment r × F.";
 
 /** T4-U3/T4-U2: an expansion joint is authored as an objective connector
  * (objective_connector 1.0.0) on a 3.0.0/exact_pressure_v3 document, replacing
@@ -281,6 +284,9 @@ export function defaultComponentDraft(
     secondaryPipeRef: "",
     // W-17 §3: an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
     lengthUnit: units?.length ?? "TBD",
+    endASizeUnit: units?.length ?? "TBD",
+    endBSizeUnit: units?.length ?? "TBD",
+    centerOfGravityUnit: units?.length ?? "TBD",
     angleUnit: units?.angle ?? "TBD",
     forceUnit: units?.force ?? "TBD",
     bendRadius: "",
@@ -404,6 +410,9 @@ export function isComponentDraftValid(
       positiveFinite(draft.endASize) &&
       positiveFinite(draft.endBSize) &&
       validUnit(draft.lengthUnit) &&
+      validUnit(draft.endASizeUnit) &&
+      validUnit(draft.endBSizeUnit) &&
+      validUnit(draft.centerOfGravityUnit) &&
       positiveFinite(draft.weight) &&
       validUnit(draft.forceUnit) &&
       finiteNumber(draft.centerOfGravityX) &&
@@ -535,14 +544,14 @@ function componentGeometry(draft: ComponentDraft): Record<string, unknown> {
   return {
     rigid_pipe_ref: draft.primaryPipeRef.trim(),
     rigid_body_length: { value: Number(draft.rigidBodyLength), unit: draft.lengthUnit.trim() },
-    end_a_size: { value: Number(draft.endASize), unit: draft.lengthUnit.trim() },
-    end_b_size: { value: Number(draft.endBSize), unit: draft.lengthUnit.trim() },
+    end_a_size: { value: Number(draft.endASize), unit: draft.endASizeUnit.trim() },
+    end_b_size: { value: Number(draft.endBSize), unit: draft.endBSizeUnit.trim() },
     weight: { value: Number(draft.weight), unit: draft.forceUnit.trim() },
     center_of_gravity: {
       x: Number(draft.centerOfGravityX),
       y: Number(draft.centerOfGravityY),
       z: Number(draft.centerOfGravityZ),
-      unit: draft.lengthUnit.trim()
+      unit: draft.centerOfGravityUnit.trim()
     },
     connection_end_a_reference: draft.connectionEndAReference.trim(),
     connection_end_b_reference: draft.connectionEndBReference.trim(),

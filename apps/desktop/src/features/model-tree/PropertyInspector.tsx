@@ -974,14 +974,17 @@ export function PropertyInspector({
           {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
             <>
               <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
+              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
               <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
+              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
               <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
-              <ComponentUnitSelect label="Length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
               <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
               <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
               <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
               <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
               <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
+              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
               <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
               <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
               <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
@@ -2662,7 +2665,7 @@ function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute 
     return `length=${length}; angle=${angle}`;
   }
   const force = propertyUnitValidationStatus(route, draft.forceUnit, "force");
-  return `length=${length}; force=${force}`;
+  return `body_length=${length}; end_a_size=${propertyUnitValidationStatus(route, draft.endASizeUnit, "length")}; end_b_size=${propertyUnitValidationStatus(route, draft.endBSizeUnit, "length")}; center_of_gravity=${propertyUnitValidationStatus(route, draft.centerOfGravityUnit, "length")}; force=${force}`;
 }
 
 function propertyUnitValidationStatus(route: UnitCatalogRoute | null, unit: string, dimension: string): string {
