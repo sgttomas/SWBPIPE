@@ -1,6 +1,7 @@
 // G5 (DEL-07-03, DEL-09-01 run sheet §3.2): the E/nu create form reproduces the
 // reference system's material RS-M1, including its material-level thermal
 // expansion coefficient, through the operation engine (the wasm export apply uses).
+// G5b: the coefficient is added to an existing material afterwards, to the same record.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,7 +11,7 @@ import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { computeModelHash } from "../../services/hashService";
 import { applyModelOperation, warmupOperationEngine } from "../../services/operationService";
 import { buildBlankLoadStateModelDocument } from "../../services/projectService";
-import { PressureAuthoringPanel } from "./PressureAuthoringPanel";
+import { MaterialConstitutiveForm, PressureAuthoringPanel } from "./PressureAuthoringPanel";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const reference = JSON.parse(readFileSync(path.join(projectRoot, "fixtures/reference_system/reference_system.json"), "utf8")) as PreviewModel;
@@ -35,4 +36,18 @@ it("creates RS-M1 with its thermal expansion coefficient exactly as the referenc
   const applied = await applyModelOperation(model, queue.mock.calls[0][0] as EditorOperationIntent, await computeModelHash(model));
   expect(applied.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
   expect((applied.applied_model as PreviewModel).materials).toEqual([expected]);
+});
+
+it("adds RS-M1's coefficient to the existing material afterwards, to the same record (G5b)", async () => {
+  const expected = structuredClone(reference.materials![0]) as Record<string, unknown>;
+  delete expected.temperature_points; delete expected.expansion_laws;
+  const { thermal_expansion_coefficient: alpha, ...withoutAlpha } = expected;
+  let model = buildBlankLoadStateModelDocument(new Date("2026-10-31T00:00:00Z"));
+  model = { ...model, materials: [withoutAlpha as NonNullable<PreviewModel["materials"]>[number]] };
+  const queue = vi.fn(); render(<MaterialConstitutiveForm model={model} selection={{ type: "material", id: "material:RS-M1" }} onQueueIntent={queue} />);
+  change("Thermal expansion coefficient value", "1.2e-5"); change("Thermal expansion coefficient unit", "1/K");
+  fireEvent.click(screen.getByRole("button", { name: "Queue constitutive properties" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  const applied = await applyModelOperation(model, queue.mock.calls[0][0] as EditorOperationIntent, await computeModelHash(model));
+  expect(applied.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
+  expect((applied.applied_model as PreviewModel).materials).toEqual([{ ...withoutAlpha, thermal_expansion_coefficient: alpha }]);
 });
