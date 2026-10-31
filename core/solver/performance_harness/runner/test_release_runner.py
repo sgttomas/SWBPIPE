@@ -427,8 +427,11 @@ class MetadataHasNoHostIdentifiers(unittest.TestCase):
         finally:
             os.unlink(binary)
         text = json.dumps(md)
+        # The runner's own fixed labels are not host data; a host or user name such as a CI
+        # runner's "runner" would otherwise match them.
+        host_text = json.dumps({k: v for k, v in md.items() if k not in ('runner', 'driver_schema')})
         for identifier in {socket.gethostname(), platform.node(), getpass.getuser()} - {''}:
-            self.assertNotIn(identifier, text)
+            self.assertNotIn(identifier, host_text)
         for key in md:
             self.assertNotIn(key, ('hostname', 'node', 'user', 'serial', 'path'))
         for value in text.split('"'):
