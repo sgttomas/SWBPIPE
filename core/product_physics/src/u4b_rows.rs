@@ -182,7 +182,8 @@ const SHEAR_Z: usize = 5;
 /// entities already have rows in this case's `results`, so that a member's
 /// lookups need not scan every earlier row. Within one member's iteration
 /// the case loop only appends rows, edits rows of that member, or removes rows
-/// of that member (`bend_pressure::append_arc_pressure_results`), so when no
+/// of that member (`bend_pressure::append_arc_pressure_results` and
+/// `append_exact_pressure_results`), so when no
 /// row of the member precedes its start, its first matching row is its first
 /// matching row from the start on. When one does precede it (a repeated
 /// element id), the lookup scans every row, as before. Entities are held by
@@ -860,7 +861,7 @@ mod lookup_tests {
         assert!(full.iter().any(Option::is_some) && full.iter().any(Option::is_none));
         let mut indexed = MemberRows::new("pipe:P", Some(start));
         assert_eq!(every_lookup(&results, &mut indexed), full);
-        // Rows appended after the first lookups are found in order.
+        // Appending another matching row preserves the earlier first match.
         results.push(stress("pipe:P", SHEAR_Y, "y", "midspan", None, 1e3));
         results.push(stress("pipe:P", SHEAR_Z, "z", "elsewhere", None, 1e4));
         assert_eq!(every_lookup(&results, &mut indexed), every_lookup(&results, &mut MemberRows::new("pipe:P", None)));
@@ -881,5 +882,36 @@ mod lookup_tests {
         assert_eq!(scope.begin(&results, "pipe:P"), None);
         let mut rows = MemberRows::new("node:A", None);
         assert_eq!(published(&results, &mut rows, AXIAL, None, "end_i", None), Some(3.0));
+    }
+
+    #[test]
+    fn fallback_rebuilds_after_removal_and_replacement_at_the_same_length() {
+        let mut scope = PublishedScope::default();
+        let mut results = vec![
+            stress("node:A", AXIAL, "y", "end_i", None, 1.0),
+            stress("pipe:P", AXIAL, "y", "end_i", None, 2.0),
+        ];
+        assert_eq!(scope.begin(&results, "node:A"), None);
+        // A fallback member can remove an earlier row and append another
+        // entity below the old sync position without changing the length.
+        results.retain(|r| r.entity_ref != "node:A");
+        results.push(stress("pipe:S", AXIAL, "y", "end_i", None, 3.0));
+        let start = scope.begin(&results, "pipe:S");
+        assert_eq!(start, None);
+        assert_eq!(published(&results, &mut MemberRows::new("pipe:S", start), AXIAL, None, "end_i", None), Some(3.0));
+    }
+
+    #[test]
+    fn the_index_finds_a_previously_absent_row_appended_after_lookup() {
+        let mut results = vec![stress("node:A", AXIAL, "y", "end_i", None, 1.0)];
+        let mut rows = MemberRows::new("pipe:P", Some(results.len()));
+        results.push(stress("pipe:P", AXIAL, "y", "end_i", Some(SectionBasis::Nominal), 2.0));
+        assert_eq!(published(&results, &mut rows, AXIAL, Some("y"), "end_i", Some(SectionBasis::Nominal)), Some(2.0));
+        assert_eq!(published(&results, &mut rows, SHEAR_Y, Some("y"), "midspan", Some(SectionBasis::Reduced)), None);
+        results.push(stress("pipe:P", SHEAR_Y, "y", "midspan", Some(SectionBasis::Reduced), -0.0));
+        let indexed = published(&results, &mut rows, SHEAR_Y, Some("y"), "midspan", Some(SectionBasis::Reduced)).map(f64::to_bits);
+        let scanned = published(&results, &mut MemberRows::new("pipe:P", None), SHEAR_Y, Some("y"), "midspan", Some(SectionBasis::Reduced)).map(f64::to_bits);
+        assert_eq!(indexed, Some((-0.0_f64).to_bits()));
+        assert_eq!(indexed, scanned);
     }
 }

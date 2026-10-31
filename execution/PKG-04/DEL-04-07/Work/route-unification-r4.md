@@ -1095,20 +1095,25 @@ Both runs returned `MECHANICS_SOLVED` with no blocking diagnostics. RSS is the
 whole-process `/usr/bin/time -l` maximum, including serialization; the driver
 reports entry/publication and serialization times separately. The row and byte
 counts are unchanged. The 2,000-node result still takes over two minutes; this
-lookup repair does not establish exit criterion 9.
+lookup repair does not establish exit criterion 9. The first window used a
+different source, including uncommitted tee work and concurrent pytest, so
+these windows are not a controlled A/B comparison. The 2,000-node peak RSS
+increased from 4.47 to 5.161 GB; that increase is unexplained by this evidence.
 
 The maintained release runner's **window2 linear EX, 1,000-node** rack also
 completed, with its own prebuilt timing binary on the same source head:
 
-| Run | Runner wall time | Peak RSS | Peak sampled physical footprint |
+| Run | Runner wall time | Peak RSS | Peak lifetime-max physical footprint |
 |---|---|---|---|
 | Timing | 141.672 s | 15.053 GB | 10.944 GB |
 | Attribution | 142.408 s | 10.875 GB | 11.034 GB |
 
 Both runner records classify the run `ok`. They use a different model and
 measurement path from M-1a and must not be substituted for it. RSS and physical
-footprint are different observations; the latter is sampled, while RSS is the
-runner's recorded maximum. Neither row is a true nonlinear EX rack. The earlier
+footprint are different observations. The footprint column records the
+kernel's lifetime maximum as read by the sampler, while RSS is the runner's
+recorded maximum. The timing run's 15.053 GB RSS on this 1,000-node rack also
+leaves base-machine headroom unestablished. Neither row is a true nonlinear EX rack. The earlier
 PF nonlinear results and dense-memory refusal in §5.4a remain applicable limits;
 S5/S6/S7 admission and P's scale repair remain unfinished.
 
@@ -1116,13 +1121,30 @@ S5/S6/S7 admission and P's scale repair remain unfinished.
 first possible row, and `MemberRows` indexes its station/basis quantities. An
 entity-id collision falls back to the original first-match scan. The saved
 comparison corpus covers 469 documents in both modes (938 serialized results
-or refusals), including the collision case, byte for byte against main
-`ae729fc96`; this is regression evidence, not a proof for every input. The two
-lookup unit tests cover index/scan agreement and collision fallback. Independent
-scrutiny must also examine the allocation bounds in DEL-04-08 §8.36 before
-integration. DEL-04-07's ScopeOfWork and dependency conditions do not change:
+or refusals), including the collision case: index source `4c2a1c05f` against
+main `ae729fc96`, byte for byte. It did not compare frozen `8517ee24` binaries;
+the index implementation is unchanged, but the binary build identities rest
+on the original run record. Ten entries were dropped from `list.txt` to
+`list2.txt` without recorded reasons: the 10,000-node UI rack, four
+`exact_report_package_requests/pressure_2_*` requests, the user-release
+`pressure_2_straight` request and four reader/result corpora. Witness-input
+variants of the four report requests remain in the corpus. This is bounded
+regression evidence, not a proof for every input or a complete fixture census.
+
+Independent scrutiny of `8517ee24` confirmed first-row equivalence and the
+RTA3B-PS/MR allocation arithmetic on the actual D1 domain. It found the original
+tests missed same-length removal/replacement after fallback and discovery of a
+previously absent row after an earlier lookup; focused regressions now cover
+those cases. It also found §8.36's grow-only premise false: both arc and exact
+pressure publication can retain rows. The current charge is sound because
+removals shrink lengths and every length seen by `begin` is bounded by P_final;
+the guard and premise need repair when shared pricing resumes. The old §8.36
+coefficient increase is unadopted evidence. After S1 integrates first, 1b must
+merge main and derive pricing, laws, fixtures and routing from the combined
+source, with focused scrutiny of changed proof; no generated block or pin is
+transplanted by hand. DEL-04-07's ScopeOfWork and dependency conditions do not change:
 this repair changes lookup/storage strategy within its existing publication
-contract and admits no new family. Retained storage is governed by §8.36;
+contract and admits no new family. Retained storage still needs the combined-source registration;
 no acceptance or release standing follows from these observations.
 
 ### 5.5 Verdict
