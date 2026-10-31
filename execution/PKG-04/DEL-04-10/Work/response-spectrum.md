@@ -13,7 +13,7 @@
 ## 1. Basis
 
 - **[decided] The modal basis is DEL-04-09's.** F2 consumes a published modal result: f_i, ω_i, φ_i in its normalization case, m_i, the participation factors Γ_ik, cluster ids and the result's standing. It reads DEL-04-09's mass model for the inertia terms below. It forms no mass and solves no eigenproblem of its own (AX-002).
-- **[decided] The modal request for a spectrum solve** includes dynamic-only restraints (§5) and, if the model has nonlinear supports, names the solved case at which DEL-04-09 linearizes them. Both are DEL-04-09 request inputs; F2 adds no support state of its own.
+- **[decided] The modal request for a spectrum solve** includes dynamic-only restraints (§5) and, where DEL-04-09 requires one (a load/reference-state document or nonlinear supports), names the state case whose resolved state defines the modal model. Both are DEL-04-09 request inputs; F2 adds no support state of its own.
 - **[decided] Routes.** PF and EX both, as far as the modal basis admits them.
 
 ## 2. Uniform support motion

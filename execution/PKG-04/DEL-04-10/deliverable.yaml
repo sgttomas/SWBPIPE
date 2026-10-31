@@ -7,7 +7,8 @@ needs:
     shapes in their normalization case, the generalized masses, the participation factors and effective
     masses on the uniform-support-motion excitation p_k = (M R_k)_f (consistent-mass coupling to restrained
     DOFs included), the cluster structure and the integrity standing, from a modal request that admits the
-    model on its route (PF or EX), names the solved case at which nonlinear supports are linearized,
+    model on its route (PF or EX), names the state case whose resolved state defines the modal model
+    (DEL-04-09 D-w),
     and includes dynamic-only restraints (snubbers). It reads DEL-04-09's mass model, unchanged, for the
     missing-mass correction. A modal set that DEL-04-09 refuses is not used; a set published Sensitive
     is used with that standing carried to the spectrum result (Design §1, §2).
@@ -36,7 +37,7 @@ needs:
 - from: DEL-04-04
   condition: >-
     Nonlinear supports enter the modal basis, and so the spectrum solve, at the converged state of the
-    named solved case that DEL-04-09 linearizes; DEL-04-10 reads no support state of its own.
+    named state case that DEL-04-09 resolves and solves; DEL-04-10 reads no support state of its own.
   gating: true
   evidence: core/solver/nonlinear_supports
 - from: DEL-04-07
