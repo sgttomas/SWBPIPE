@@ -98,8 +98,4 @@ impl SymmetricMatrix {
         self.data[row * self.n + col]
     }
 
-    /// Row `i` of the lower triangle, columns `0..=i`.
-    pub(crate) fn lower_row(&self, i: usize) -> &[f64] {
-        &self.data[i * self.n..i * self.n + i + 1]
-    }
 }

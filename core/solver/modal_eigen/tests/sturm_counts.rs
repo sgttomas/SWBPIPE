@@ -788,8 +788,52 @@ fn a_rescaled_neighbour_vector_keeps_its_separation_constraint() {
     }
 }
 
+/// Review round 2, item 2: K = [[2⁻²⁴⁰, 2³⁷⁹], [2³⁷⁹, 2¹⁰⁰⁰]],
+/// M = [[2⁻²⁴⁰ + 2⁻²²², 2³⁷⁸], [2³⁷⁸, (1 + 2⁻²²)·2¹⁰⁰⁰]], φ = (1, 2⁻⁶⁰⁰),
+/// λ = 1, e_λ = 1 − 2⁻³⁰, σ = 2. φ₂² = 2⁻¹²⁰⁰ underflowed before it met
+/// k₂₂ and m₂₂, the quotient came out as 786433 instead of ≈ 1.00000095,
+/// and σ was accepted. The true separation, 2⁻³⁰·q ≈ 9.31·10⁻¹⁰, is below
+/// κ_s·e_b ≈ 4.07·10⁻⁸: σ is unseparated.
+#[test]
+fn a_weighted_square_below_the_binary64_range_still_meets_its_weight() {
+    let p = |e: i32| 2f64.powi(e);
+    let k = vec![vec![p(-240), p(379)], vec![p(379), p(1000)]];
+    let m = vec![
+        vec![p(-240) + p(-222), p(378)],
+        vec![p(378), (1.0 + p(-22)) * p(1000)],
+    ];
+    let pencil = pencil_of(&k, &m);
+    let vector = [1.0, p(-600)];
+    let neighbour = Neighbour {
+        eigenvalue: 1.0,
+        relative_error_estimate: 1.0 - p(-30),
+        vector: &vector,
+    };
+    let outcome = count_at_shift(&pencil, 2.0, &[neighbour], &parameters()).unwrap();
+    eprintln!("round-2 weighted-square witness: {}", describe(&outcome));
+    assert!(
+        matches!(
+            outcome,
+            SturmOutcome::Refused {
+                reason: SturmRefusal::Unseparated,
+                ..
+            }
+        ),
+        "{}",
+        describe(&outcome)
+    );
+    let candidate = &outcome.evidence().candidates[0];
+    assert_eq!(candidate.decision, ShiftDecision::Unseparated);
+    // s / (formation term) bounds the ratio from above; the quotient is
+    // ≈ 1.00000095, so s ≈ 2⁻³⁰.
+    let formation_term = candidate.formation_term.unwrap();
+    let s = candidate.formation_separation_ratio.unwrap() * formation_term;
+    let q = s / p(-30);
+    assert!((q - (1.0 + 4.0 * p(-22))).abs() <= 1e-12, "q = {q}");
+}
+
 /// Finding 1, the typed refusals: a neighbour whose mass quotient is not
-/// positive and finite is refused before any shift, and a separation that
+/// positive and normal is refused before any shift, and a separation that
 /// is not finite refuses the candidate instead of entering the minimum.
 #[test]
 fn neighbour_quotients_and_separations_out_of_range_are_refused() {
@@ -809,11 +853,12 @@ fn neighbour_quotients_and_separations_out_of_range_are_refused() {
             value: 0.0
         })
     );
-    // φᵀMφ = 4·6·10³⁰⁷ overflows (each scaled row sum of |M| is finite).
-    let huge = pencil_of(&identity, &vec![vec![6e307, 6e307], vec![6e307, 6e307]]);
+    // A subnormal quotient (an overflowing one is bounded by the scaled
+    // row sums of |M|, which the pencil requires finite).
+    let tiny = pencil_of(&identity, &vec![vec![1e-310, 0.0], vec![0.0, 1e-310]]);
     let ones = [1.0, 1.0];
     assert!(matches!(
-        count_at_shift(&huge, 0.5, &[neighbour(1.0, 0.0, &ones)], &parameters()),
+        count_at_shift(&tiny, 0.5, &[neighbour(1.0, 0.0, &ones)], &parameters()),
         Err(SturmError::NeighbourMassQuotient { index: 0, .. })
     ));
     // s = (|λ − σ| − e_λ·λ)·q with e_λ·λ overflowing (−∞), and with the
@@ -836,38 +881,78 @@ fn neighbour_quotients_and_separations_out_of_range_are_refused() {
     }
 }
 
-/// Finding 3 under the amended rule (design §3.2 item 5, revised in I1):
-/// the count is resolved only when the number of μ classified infinite,
-/// negatives included, equals the number of structurally massless DOFs.
-/// K = [[2, 1], [1, 1]], M = diag(1, 0): DOF 1 is structurally massless and
-/// C's zero eigenvalue comes back as μ ≈ −1.1·10⁻¹⁶. One infinite μ, one
-/// structural zero: resolved.
+/// Finding 3, under the condensation rule (design §3.2 item 5, revised
+/// after review round 2): K = [[2, 1], [1, 1]], M = diag(1, 0). DOF 1 is
+/// structurally massless; uncondensed, C's zero eigenvalue came back as
+/// μ ≈ −1.1·10⁻¹⁶. Condensed, K̂ = 2 − 1·1⁻¹·1 = 1 and M̂ = 1: one μ = 1,
+/// none classified infinite, resolved, and the shape recovered on the
+/// massless DOF as φ₁ = −K₁₁⁻¹K₁₀φ₀ = −φ₀.
 #[test]
-fn a_negative_mu_of_a_structural_zero_is_matched_by_count() {
+fn a_structural_zero_is_condensed_out() {
     let k = vec![vec![2.0, 1.0], vec![1.0, 1.0]];
     let m = vec![vec![1.0, 0.0], vec![0.0, 0.0]];
     let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
-    eprintln!(
-        "structural-zero witness: mu_max {:e}, nonpositive {}, below threshold {}, massless {}",
-        solution.mu_max,
-        solution.nonpositive_mu_count,
-        solution.below_threshold_mu_count,
-        solution.structurally_massless_count
-    );
     assert_eq!(solution.structurally_massless_count, 1);
-    assert_eq!(solution.nonpositive_mu_count, 1);
-    assert_eq!(solution.mode_count(), 1);
+    assert_eq!(solution.condensed_dimension, 1);
+    assert_eq!(solution.nonpositive_mu_count, 0);
+    assert_eq!(solution.below_threshold_mu_count, 0);
+    assert_eq!(solution.eigenvalues, vec![1.0]);
+    let phi = solution.vector(0);
+    assert_eq!(phi[1], -phi[0]);
+    assert_eq!(phi[0].abs(), 1.0);
     assert_eq!(solution.established_finite_mode_count, Some(1));
     assert!(!solution.finite_count_unresolved);
 }
 
-/// The amended rule still refuses a genuine finite μ classified infinite
-/// beside a structural zero, because the counts then differ.
+/// Review round 2, item 1: with τ_μ = 10⁻¹⁸, K = [[1, 1, 0], [1, 3, 0],
+/// [0, 0, 10²⁰]] and M = diag(1, 0, 1). Uncondensed, the 10²⁰ mode came
+/// back as λ = 2⁵² (μ = 2⁻⁵², the structural zero's rounding) and its own
+/// μ = 10⁻²⁰ was counted infinite in its place: one infinite μ against one
+/// structural zero, resolved, with the mode lost. Condensed, K̂ =
+/// diag(2/3, 10²⁰) and M̂ = I: μ = (3/2, 10⁻²⁰). At τ_μ = 10⁻¹⁸ the 10²⁰
+/// mode is classified infinite and the count is unresolved; at τ_μ = 0 it
+/// is returned and the count is resolved.
+#[test]
+fn a_finite_mode_traded_for_a_structural_zero_is_not_concealed() {
+    let k = vec![
+        vec![1.0, 1.0, 0.0],
+        vec![1.0, 3.0, 0.0],
+        vec![0.0, 0.0, 1e20],
+    ];
+    let m = vec![
+        vec![1.0, 0.0, 0.0],
+        vec![0.0, 0.0, 0.0],
+        vec![0.0, 0.0, 1.0],
+    ];
+    let options = |threshold| DenseOptions {
+        infinite_mu_relative_threshold: threshold,
+        ..dense_options()
+    };
+    let solution = solve_dense_pencil(&sym(&k), &sym(&m), &options(1e-18)).unwrap();
+    eprintln!(
+        "round-2 witness at τ_μ = 1e-18: λ {:?}, μ_max {:e}, below threshold {}",
+        solution.eigenvalues, solution.mu_max, solution.below_threshold_mu_count
+    );
+    assert_eq!(solution.structurally_massless_count, 1);
+    assert_eq!(solution.below_threshold_mu_count, 1);
+    assert_eq!(solution.mode_count(), 1);
+    assert!((solution.eigenvalues[0] - 2.0 / 3.0).abs() <= 4.0 * f64::EPSILON);
+    assert!(solution.finite_count_unresolved);
+    let solution = solve_dense_pencil(&sym(&k), &sym(&m), &options(0.0)).unwrap();
+    assert_eq!(solution.mode_count(), 2);
+    assert!((solution.eigenvalues[1] - 1e20).abs() <= 4.0 * f64::EPSILON * 1e20);
+    assert!(!solution.finite_count_unresolved);
+    // The 10²⁰ mode is the third DOF alone.
+    assert_eq!(&solution.vector(1)[..2], &[0.0, 0.0]);
+}
+
+/// A genuine finite μ classified infinite leaves the count unresolved
+/// whether or not a structural zero is beside it.
 /// - The round-6 block (a finite mode whose μ rounds to about 0) with a
-///   third, structurally massless DOF: two infinite μ, one structural zero.
-/// - K = diag(1, 10¹³, 1), M = diag(1, 1, 0): μ = (1, 10⁻¹³, 0), the finite
-///   10⁻¹³ at or below τ_μ·μ_max = 10⁻¹². The mass block is diagonal and
-///   established, so the count half alone decides.
+///   third, structurally massless DOF.
+/// - K = diag(1, 10¹³, 1), M = diag(1, 1, 0): condensed μ = (1, 10⁻¹³),
+///   the finite 10⁻¹³ at or below τ_μ·μ_max = 10⁻¹². The mass block is
+///   diagonal and established, so the classification alone decides.
 #[test]
 fn a_finite_mu_classified_infinite_beside_a_structural_zero_is_unresolved() {
     let scale = 2f64.powi(-52);
@@ -886,7 +971,7 @@ fn a_finite_mu_classified_infinite_beside_a_structural_zero_is_unresolved() {
     assert_eq!(solution.structurally_massless_count, 1);
     assert_eq!(
         solution.nonpositive_mu_count + solution.below_threshold_mu_count,
-        2
+        1
     );
     assert!(solution.finite_count_unresolved);
 
@@ -903,10 +988,7 @@ fn a_finite_mu_classified_infinite_beside_a_structural_zero_is_unresolved() {
     let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
     assert_eq!(solution.structurally_massless_count, 1);
     assert_eq!(solution.below_threshold_mu_count, 1);
-    assert_eq!(
-        solution.nonpositive_mu_count + solution.below_threshold_mu_count,
-        2
-    );
+    assert_eq!(solution.nonpositive_mu_count, 0);
     assert_eq!(solution.established_finite_mode_count, Some(2));
     assert!(solution.finite_count_unresolved);
 }

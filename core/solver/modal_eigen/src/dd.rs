@@ -256,6 +256,146 @@ pub fn dot(a: &[f64], b: &[f64]) -> Dd {
     acc.value()
 }
 
+/// e with 2^e ≤ |x| < 2^(e+1), for x finite and nonzero (subnormals
+/// included).
+pub fn binary_exponent(x: f64) -> i32 {
+    let bits = x.abs().to_bits();
+    let biased = (bits >> 52) as i32;
+    if biased == 0 {
+        // Subnormal: x = mantissa·2⁻¹⁰⁷⁴.
+        63 - bits.leading_zeros() as i32 - 1074
+    } else {
+        biased - 1023
+    }
+}
+
+/// x·2^k, applied in steps of at most 2^±1022 that each stay normal while
+/// the result does; exact when the result is normal.
+pub fn scale_by_pow2(mut x: f64, mut k: i32) -> f64 {
+    let pow2 = |e: i32| f64::from_bits(((e + 1023) as u64) << 52);
+    while k > 1022 {
+        x *= pow2(1022);
+        k -= 1022;
+    }
+    while k < -1022 {
+        x *= pow2(-1022);
+        k += 1022;
+    }
+    x * pow2(k)
+}
+
+/// A double-double with a separate exponent: `mantissa·2^exponent`, the
+/// mantissa's high word in [1, 2) in magnitude (or zero). Products,
+/// quotients and sums of binary64 values keep about 106 bits whatever their
+/// magnitudes, so no intermediate underflows or overflows; only the final
+/// [`WideDd::to_f64`] meets the binary64 range. Used where weighted terms
+/// span more than the binary64 exponent range (design §3.4, the range
+/// premise of the formed quantities).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct WideDd {
+    pub mantissa: Dd,
+    pub exponent: i32,
+}
+
+/// Exponent differences beyond this drop the smaller addend: it lies below
+/// 2⁻¹⁰⁰⁰ of the larger, far under the double-double resolution.
+const WIDE_ALIGNMENT_LIMIT: i32 = 1000;
+
+impl WideDd {
+    pub const ZERO: WideDd = WideDd {
+        mantissa: Dd::ZERO,
+        exponent: 0,
+    };
+
+    fn normalize(value: Dd, exponent: i32) -> WideDd {
+        if value.hi == 0.0 || !value.hi.is_finite() {
+            return WideDd {
+                mantissa: if value.hi == 0.0 { Dd::ZERO } else { value },
+                exponent: 0,
+            };
+        }
+        let shift = binary_exponent(value.hi);
+        WideDd {
+            mantissa: value.mul_pow2(-shift),
+            exponent: exponent + shift,
+        }
+    }
+
+    /// Exact for every finite x (a subnormal included); a non-finite x is
+    /// carried to [`WideDd::to_f64`].
+    pub fn from_f64(x: f64) -> WideDd {
+        if x == 0.0 || !x.is_finite() {
+            return WideDd {
+                mantissa: Dd::from_f64(if x == 0.0 { 0.0 } else { x }),
+                exponent: 0,
+            };
+        }
+        let shift = binary_exponent(x);
+        WideDd {
+            mantissa: Dd::from_f64(scale_by_pow2(x, -shift)),
+            exponent: shift,
+        }
+    }
+
+    pub fn is_zero(self) -> bool {
+        self.mantissa.is_zero()
+    }
+
+    pub fn mul(self, other: WideDd) -> WideDd {
+        Self::normalize(
+            self.mantissa.mul(other.mantissa),
+            self.exponent + other.exponent,
+        )
+    }
+
+    pub fn mul_f64(self, b: f64) -> WideDd {
+        self.mul(Self::from_f64(b))
+    }
+
+    pub fn div(self, other: WideDd) -> WideDd {
+        Self::normalize(
+            self.mantissa.div(other.mantissa),
+            self.exponent - other.exponent,
+        )
+    }
+
+    pub fn add(self, other: WideDd) -> WideDd {
+        if other.is_zero() {
+            return self;
+        }
+        if self.is_zero() {
+            return other;
+        }
+        let (big, small) = if self.exponent >= other.exponent {
+            (self, other)
+        } else {
+            (other, self)
+        };
+        let shift = small.exponent - big.exponent;
+        if shift < -WIDE_ALIGNMENT_LIMIT {
+            return big;
+        }
+        Self::normalize(
+            big.mantissa.add(small.mantissa.mul_pow2(shift)),
+            big.exponent,
+        )
+    }
+
+    pub fn neg(self) -> WideDd {
+        WideDd {
+            mantissa: self.mantissa.neg(),
+            exponent: self.exponent,
+        }
+    }
+
+    /// The binary64 value: the mantissa rounded once, then scaled. It
+    /// overflows to ±∞, or underflows to a subnormal or zero, only when the
+    /// value itself is outside the binary64 normal range.
+    pub fn to_f64(self) -> f64 {
+        scale_by_pow2(self.mantissa.to_f64(), self.exponent)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -49,9 +49,14 @@ use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
 const NORMWISE: f64 = 1e-29;
 
-/// The multiple of the first-order bound n·u·√(λ_iλ_j)/λ_1 within which the
-/// dense modes are M̂-orthogonal (pair by pair; see the reference test).
-const ORTHOGONALITY_MULTIPLE: f64 = 10.0;
+/// An empirical threshold for this fixture, not a derived bound and not the
+/// production tolerance (that is measured under DEC-026): the dense modes of
+/// the eleven eigen cases are M̂-orthogonal within it. Measured largest
+/// value 1.3·10⁻⁸ (printed by the reference test). A general first-order
+/// bound n·u·√(λ_iλ_j)/λ₁ was withdrawn after review round 2: it omits the
+/// reduction and back-transform errors (see
+/// `orthogonality_of_a_close_pencil_is_finite_and_reported`).
+const FIXTURE_ORTHOGONALITY_THRESHOLD: f64 = 1e-7;
 
 /// Test-local mass-pivot threshold τ_m of the finite-mode count (as in
 /// `sturm_counts.rs`).
@@ -644,34 +649,16 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
             .collect();
         let orth_hat = m_orthogonality_reformed(&p, &vectors).unwrap();
         let orth = m_orthogonality(&dense(case.free.len(), &f.m), &vectors).unwrap();
-        // Check 3 on M̂, pair by pair, against the first-order orthogonality
-        // of a backward-stable symmetric eigensolver: the computed z are
-        // exact eigenvectors of C + E with ‖E‖ = O(n·u·‖C‖), so
-        // |φᵢᵀMφⱼ| = |zᵢᵀCzⱼ| ≲ n·u·μ_max and the normalized product is
-        // ≲ n·u·μ_max/√(μ_i μ_j) = n·u·√(λ_i λ_j)/λ_1. M̂ differs from the
-        // formed M by rounding (‖DΔMD‖ ≤ 2ε above), which is inside that.
-        let n_u = case.free.len() as f64 * f64::EPSILON / 2.0;
-        let lambda = &f.solution.eigenvalues;
-        let mut worst = 0.0f64;
-        for i in 0..vectors.len() {
-            for j in i + 1..vectors.len() {
-                let ratio = m_orthogonality_reformed(&p, &[vectors[i], vectors[j]])
-                    .unwrap()
-                    .max_ratio;
-                let first_order = n_u * (lambda[i].sqrt() * lambda[j].sqrt()) / lambda[0];
-                worst = worst.max(ratio / first_order);
-            }
-        }
         assert!(
-            worst <= ORTHOGONALITY_MULTIPLE,
-            "{}: orthogonality {worst:e} times n·u·√(λ_iλ_j)/λ_1",
-            case.id
+            orth_hat.max_ratio <= FIXTURE_ORTHOGONALITY_THRESHOLD,
+            "{}: orthogonality on M̂ {:e}",
+            case.id,
+            orth_hat.max_ratio
         );
         eprintln!(
             "{}: n {}, modes {}, K̂ {ek:.1e}, M̂ {em:.1e}, ‖DΔKD‖ {:.1e}, ‖DΔMD‖ {:.1e}, \
              off-pattern {}/{}, max η {eta:.2e}, max e_λ {:.2e}, max cluster e_λ {:.2e}, \
-             max |λ−λ_ref|/λ_ref ÷ e_λ {ratio:.2e}, orthogonality on M̂ {:.2e} (formed M {:.2e}, \
-             {worst:.2e} of the first-order bound)",
+             max |λ−λ_ref|/λ_ref ÷ e_λ {ratio:.2e}, orthogonality on M̂ {:.2e} (formed M {:.2e})",
             case.id,
             case.free.len(),
             f.solution.mode_count(),
@@ -1088,4 +1075,27 @@ fn small_bore_and_short_member_models_are_admitted_with_their_full_count() {
         assert_eq!(solution.mode_count(), n, "{name}");
         assert!(!solution.finite_count_unresolved, "{name}");
     }
+}
+
+/// Review round 2, item 4: K = M = [[2, 1], [1, ½ + 2⁻³⁰]], a close
+/// (here coincident) pencil, every λ = 1. The measured ratio, about
+/// 2.65·10⁻¹², exceeds the withdrawn first-order bound
+/// 10·n·u·√(λ_iλ_j)/λ₁ ≈ 2.2·10⁻¹⁵, which omits the reduction and
+/// back-transform errors. The ratio is finite and reported; no bound is
+/// asserted on it.
+#[test]
+fn orthogonality_of_a_close_pencil_is_finite_and_reported() {
+    let rows = vec![vec![2.0, 1.0], vec![1.0, 0.5 + 2f64.powi(-30)]];
+    let matrix = SymmetricMatrix::from_rows(&rows).unwrap();
+    let solution = solve_dense_pencil(&matrix, &matrix, &dense_options()).unwrap();
+    assert_eq!(solution.mode_count(), 2);
+    let vectors: Vec<&[f64]> = (0..2).map(|i| solution.vector(i)).collect();
+    let result = m_orthogonality(&matrix, &vectors).unwrap();
+    let withdrawn = 10.0 * 2.0 * (f64::EPSILON / 2.0);
+    eprintln!(
+        "close pencil: λ {:?}, orthogonality {:.3e} (withdrawn first-order bound {withdrawn:.2e})",
+        solution.eigenvalues, result.max_ratio
+    );
+    assert!(result.max_ratio.is_finite());
+    assert_eq!(result.pair, Some((0, 1)));
 }

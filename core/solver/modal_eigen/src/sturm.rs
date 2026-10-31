@@ -23,9 +23,10 @@
 //!    w = |L̂|·(|D̂|·v), the unit diagonal of L̂ included.
 //! 4. **Premises**, all evaluated for the evidence, decided in this order:
 //!    - separation: s_j(σ) = (|λ_j − σ| − e_λ,j·λ_j)·(φ̃_jᵀM̃φ̃_j)/‖φ̃_j‖₂²
-//!      ≥ κ_s·e_b for each neighbouring eigenvalue supplied. The quotient
-//!      is formed from φ_j scaled by a power of two and must be positive
-//!      and finite; a separation that is not finite refuses the candidate
+//!      ≥ κ_s·e_b for each neighbouring eigenvalue supplied. The quotient's
+//!      weighted terms and sums are formed with an extended exponent
+//!      (`dd::WideDd`), and the quotient must be positive and normal; a
+//!      separation that is not finite refuses the candidate
 //!      (`SeparationOutOfRange`), so no NaN reaches the comparison;
 //!    - growth: g = max(1, max|L̂_ij|)²·max|d̂_j|/max|ã_jj| ≤ g_max;
 //!    - conditioning: e_b·ν ≤ 1/κ_c, with ν the Hager–Higham estimate of
@@ -65,7 +66,7 @@ use open_pipe_stress_sparse_direct::{
     SymmetricMatrixEntry, SymmetricProfileMatrix,
 };
 
-use crate::dd::{Dd, DdAccumulator};
+use crate::dd::WideDd;
 use crate::matrix::SymmetricMatrix;
 
 /// c_f of the formation term: one rounding each for σ·m_ij, the
@@ -122,8 +123,8 @@ pub enum SturmError {
     InvalidNeighbour {
         index: usize,
     },
-    /// The neighbour's mass quotient φᵀMφ / Σ_i k_ii·φ_i², formed from the
-    /// vector scaled by a power of two, is not a positive finite number. A
+    /// The neighbour's mass quotient φᵀMφ / Σ_i k_ii·φ_i², formed with an
+    /// extended exponent, is not a positive normal binary64 number. A
     /// vector with φᵀMφ ≤ 0 is not a mode of a finite positive eigenvalue,
     /// and a separation formed from it is meaningless.
     NeighbourMassQuotient {
@@ -159,7 +160,7 @@ impl fmt::Display for SturmError {
             }
             Self::NeighbourMassQuotient { index, value } => write!(
                 f,
-                "the mass quotient of neighbouring eigenvalue {index} is {value:e}, not positive and finite"
+                "the mass quotient of neighbouring eigenvalue {index} is {value:e}, not positive and normal"
             ),
             Self::InvalidGap => write!(f, "the gap's ends are not positive and ascending"),
             Self::InvalidShift => write!(f, "the shift is not a positive finite number"),
@@ -674,28 +675,26 @@ impl ShiftPencil {
         self.entries.len()
     }
 
-    /// φ̃ᵀM̃φ̃ / ‖φ̃‖₂² = φᵀMφ / Σ_i k_ii·φ_i², in double-double, rounded
-    /// once. φ̃ = D⁻¹φ is taken with the exact D = diag(k_ii^-½). The quotient
-    /// does not depend on φ's scale, so φ is first scaled by the power of two
-    /// that brings its largest |φ_i| into [1, 2): exact for every component
-    /// that stays normal, and the squares neither overflow nor underflow.
-    /// The vector is nonzero and finite.
+    /// φ̃ᵀM̃φ̃ / ‖φ̃‖₂² = φᵀMφ / Σ_i k_ii·φ_i², rounded once. φ̃ = D⁻¹φ is
+    /// taken with the exact D = diag(k_ii^-½). Each weighted term w·φ_i·φ_j
+    /// and both sums are formed in [`WideDd`], so a square that underflows
+    /// or overflows in binary64 still meets its weight (review round 2: φ₂²
+    /// = 2⁻¹²⁰⁰ against k₂₂ = 2¹⁰⁰⁰). The vector is nonzero and finite.
     fn mass_quotient(&self, vector: &[f64]) -> f64 {
-        let largest = vector.iter().fold(0.0f64, |acc, x| acc.max(x.abs()));
-        let shift = -binary_exponent(largest);
-        let scaled: Vec<f64> = vector.iter().map(|&x| scale_by_pow2(x, shift)).collect();
-        let mut quadratic = DdAccumulator::new();
-        let mut norm = DdAccumulator::new();
+        let mut quadratic = WideDd::ZERO;
+        let mut norm = WideDd::ZERO;
         for e in &self.entries {
-            let (x, y) = (scaled[e.row], scaled[e.col]);
+            let x = WideDd::from_f64(vector[e.row]);
+            let y = WideDd::from_f64(vector[e.col]);
+            let xy = x.mul(y);
             if e.row == e.col {
-                norm.add_dd(Dd::product(x, x).mul_f64(e.stiffness));
-                quadratic.add_dd(Dd::product(x, x).mul_f64(e.mass));
+                norm = norm.add(xy.mul_f64(e.stiffness));
+                quadratic = quadratic.add(xy.mul_f64(e.mass));
             } else {
-                quadratic.add_dd(Dd::product(x, y).mul_f64(e.mass).mul_f64(2.0));
+                quadratic = quadratic.add(xy.mul_f64(e.mass).mul_f64(2.0));
             }
         }
-        quadratic.value().div(norm.value()).to_f64()
+        quadratic.div(norm).to_f64()
     }
 
     /// The scaled shifted lower entries, in pattern order, and max|ã_jj|.
@@ -751,34 +750,6 @@ fn scale(value: f64, d_i: f64, d_j: f64) -> f64 {
     (d_i * value) * d_j
 }
 
-/// e with 2^e ≤ |x| < 2^(e+1), for x finite and nonzero (subnormals
-/// included).
-fn binary_exponent(x: f64) -> i32 {
-    let bits = x.abs().to_bits();
-    let biased = (bits >> 52) as i32;
-    if biased == 0 {
-        // Subnormal: x = mantissa·2⁻¹⁰⁷⁴.
-        63 - bits.leading_zeros() as i32 - 1074
-    } else {
-        biased - 1023
-    }
-}
-
-/// x·2^k, applied in steps of at most 2^±1022 that each stay normal while
-/// the result does; exact when the result is normal.
-fn scale_by_pow2(mut x: f64, mut k: i32) -> f64 {
-    let pow2 = |e: i32| f64::from_bits(((e + 1023) as u64) << 52);
-    while k > 1022 {
-        x *= pow2(1022);
-        k -= 1022;
-    }
-    while k < -1022 {
-        x *= pow2(-1022);
-        k += 1022;
-    }
-    x * pow2(k)
-}
-
 struct PreparedNeighbour {
     eigenvalue: f64,
     relative_error_estimate: f64,
@@ -804,7 +775,7 @@ fn prepare_neighbours(
                 return Err(SturmError::InvalidNeighbour { index });
             }
             let mass_quotient = pencil.mass_quotient(nb.vector);
-            if !(mass_quotient.is_finite() && mass_quotient > 0.0) {
+            if !(mass_quotient.is_normal() && mass_quotient > 0.0) {
                 return Err(SturmError::NeighbourMassQuotient {
                     index,
                     value: mass_quotient,

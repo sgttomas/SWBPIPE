@@ -24,17 +24,18 @@
 //! DOFs) and the direction's total mass T_k = R_kᵀ M R_k. This module does
 //! not form either. Per direction k:
 //! Γ_k = φᵀp_k / m, m_eff,k = (φᵀp_k)² / m and the fraction m_eff,k / T_k,
-//! with m = φᵀ M_ff φ. Each is computed in double-double from the published
-//! vector and rounded once, in a range-safe order: m_eff,k = Γ_k·φᵀp_k and
-//! the fraction Γ_k·(φᵀp_k / T_k), never through the square (φᵀp_k)², which
-//! leaves the binary64 range while m_eff,k is representable. A published
-//! quantity that is not finite refuses the mode.
+//! with m = φᵀ M_ff φ. Each is computed from the published vector in
+//! double-double with an extended exponent (`dd::WideDd`): every product,
+//! sum and quotient, (φᵀp_k)² and m·T_k included, keeps its exponent
+//! separately, so no intermediate underflows or overflows, and each
+//! quantity is rounded to binary64 once. A published quantity that is not
+//! finite refuses the mode (`QuantityOutOfRange`).
 
 use std::collections::BTreeSet;
 use std::error::Error;
 use std::fmt;
 
-use crate::dd::{dot, Dd, DdAccumulator};
+use crate::dd::{DdAccumulator, WideDd};
 use crate::matrix::SymmetricMatrix;
 
 /// The six DOFs of a node, in global axes, in global DOF order.
@@ -251,19 +252,26 @@ pub struct NormalizedMode {
     pub effective_mass_fraction: [Option<f64>; 3],
 }
 
-/// φᵀ M φ in double-double: each row sum Σ_j M_ij φ_j is accumulated with
-/// exact products, then multiplied by φ_i, rows in ascending order.
-pub(crate) fn mass_bilinear(mass: &SymmetricMatrix, x: &[f64], y: &[f64]) -> Dd {
+/// xᵀ M y in [`WideDd`]: each row sum Σ_j M_ij y_j, then multiplied by
+/// x_i, rows in ascending order.
+fn mass_bilinear(mass: &SymmetricMatrix, x: &[f64], y: &[f64]) -> WideDd {
     let n = mass.dimension();
-    let mut total = DdAccumulator::new();
+    let mut total = WideDd::ZERO;
     for i in 0..n {
-        let mut row = DdAccumulator::new();
+        let mut row = WideDd::ZERO;
         for (j, &yj) in y.iter().enumerate() {
-            row.add_product(mass.get(i, j), yj);
+            row = row.add(WideDd::from_f64(mass.get(i, j)).mul_f64(yj));
         }
-        total.add_dd(row.value().mul_f64(x[i]));
+        total = total.add(row.mul_f64(x[i]));
     }
-    total.value()
+    total
+}
+
+/// Σ a_i b_i in [`WideDd`], ascending.
+fn wide_dot(a: &[f64], b: &[f64]) -> WideDd {
+    a.iter().zip(b).fold(WideDd::ZERO, |sum, (&x, &y)| {
+        sum.add(WideDd::from_f64(x).mul_f64(y))
+    })
 }
 
 /// Largest magnitude among the free DOFs selected by `select`, with ties to
@@ -328,17 +336,18 @@ pub fn normalize_mode(
 
     let m = mass_bilinear(basis.mass, &shape, &shape);
     let generalized_mass = m.to_f64();
-    if !(generalized_mass > 0.0) {
-        return Err(ModalQuantityError::NonPositiveGeneralizedMass {
-            mode,
-            value: generalized_mass,
-        });
-    }
+    // Finiteness first: an overflowing m is out of range, not non-positive.
     if !generalized_mass.is_finite() {
         return Err(ModalQuantityError::QuantityOutOfRange {
             mode,
             name: "generalized_mass",
             direction: None,
+        });
+    }
+    if !(generalized_mass > 0.0) {
+        return Err(ModalQuantityError::NonPositiveGeneralizedMass {
+            mode,
+            value: generalized_mass,
         });
     }
     let mut excitation_product = [0.0; 3];
@@ -357,13 +366,13 @@ pub fn normalize_mode(
                 })
             }
         };
-        let q = dot(&shape, basis.excitation[k]);
-        let gamma = q.div(m);
+        let q = wide_dot(&shape, basis.excitation[k]);
+        let q_squared = q.mul(q);
         excitation_product[k] = finite("excitation_product", q.to_f64())?;
-        participation[k] = finite("participation", gamma.to_f64())?;
-        effective_mass[k] = finite("effective_mass", gamma.mul(q).to_f64())?;
+        participation[k] = finite("participation", q.div(m).to_f64())?;
+        effective_mass[k] = finite("effective_mass", q_squared.div(m).to_f64())?;
         if basis.total_mass[k] > 0.0 {
-            let fraction = gamma.mul(q.div(Dd::from_f64(basis.total_mass[k])));
+            let fraction = q_squared.div(m.mul_f64(basis.total_mass[k]));
             effective_mass_fraction[k] =
                 Some(finite("effective_mass_fraction", fraction.to_f64())?);
         }
@@ -637,6 +646,53 @@ mod tests {
                 mode: 2,
                 name: "participation",
                 direction: Some(0),
+            })
+        );
+    }
+
+    /// Review round 2, item 3: φ = 1, M_ff = 10⁻³⁰⁰, p_x = 10⁻²⁰⁰,
+    /// T_x = 10²⁰⁰. Γ = 10¹⁰⁰, m_eff = 10⁻¹⁰⁰ and the fraction 10⁻³⁰⁰, but
+    /// q/T = 10⁻⁴⁰⁰ underflowed before Γ multiplied it and the fraction was
+    /// published as 0.
+    #[test]
+    fn a_small_fraction_is_not_lost_to_an_intermediate_underflow() {
+        let dofs = [free(1, Dof::Ux)];
+        let zero = [0.0];
+        let mass = SymmetricMatrix::from_diagonal(&[1e-300]).unwrap();
+        let p = [1e-200];
+        let basis =
+            ModalBasis::new(&mass, &dofs, [&p, &zero, &zero], [1e200, 0.0, 0.0], 1.0, TAU_T)
+                .unwrap();
+        let mode = normalize_mode(0, &[1.0], &basis).unwrap();
+        // Each is the exact quotient of binary64 operands rounded once,
+        // within 2u of the decimal value's binary64 rounding.
+        let close = |actual: f64, expected: f64| {
+            assert!(
+                (actual - expected).abs() <= 2.0 * f64::EPSILON * expected,
+                "{actual:e} vs {expected:e}"
+            );
+        };
+        close(mode.participation[0], 1e100);
+        close(mode.effective_mass[0], 1e-100);
+        close(mode.effective_mass_fraction[0].unwrap(), 1e-300);
+    }
+
+    /// Review round 2, item 5: M_ff = diag(10³⁰⁸, 10³⁰⁸) and the shape
+    /// (1, 1) give m = 2·10³⁰⁸, which overflows: refused as out of range,
+    /// not as NonPositiveGeneralizedMass { NaN }.
+    #[test]
+    fn an_overflowing_generalized_mass_is_out_of_range() {
+        let dofs = [free(1, Dof::Ux), free(1, Dof::Uy)];
+        let zero = [0.0, 0.0];
+        let mass = SymmetricMatrix::from_diagonal(&[1e308, 1e308]).unwrap();
+        let basis =
+            ModalBasis::new(&mass, &dofs, [&zero, &zero, &zero], [0.0; 3], 1.0, TAU_T).unwrap();
+        assert_eq!(
+            normalize_mode(4, &[1.0, 1.0], &basis),
+            Err(ModalQuantityError::QuantityOutOfRange {
+                mode: 4,
+                name: "generalized_mass",
+                direction: None,
             })
         );
     }

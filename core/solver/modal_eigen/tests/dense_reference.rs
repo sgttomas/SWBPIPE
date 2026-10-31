@@ -517,10 +517,15 @@ fn singular_lumped_mass_reports_infinite_eigenvalues() {
             .collect::<Vec<_>>(),
     );
     let solution = solve(&k, &m);
+    // The 9 infinite eigenvalues are the condensed massless DOFs; no μ of
+    // the condensed pencil is classified infinite.
+    assert_eq!(solution.structurally_massless_count, n_mass + 1);
+    assert_eq!(solution.condensed_dimension, n_mass);
     assert_eq!(
         solution.nonpositive_mu_count + solution.below_threshold_mu_count,
-        n_mass + 1
+        0
     );
+    assert!(!solution.finite_count_unresolved);
     let exact_mu: Vec<f64> = (1..=n_mass)
         .map(|j| {
             1.0 / (2.0

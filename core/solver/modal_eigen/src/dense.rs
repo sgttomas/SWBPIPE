@@ -2,6 +2,16 @@
 //! tridiagonalization with accumulated transformations, implicit QL with
 //! Wilkinson shifts (the tql2 procedure), λ = 1/μ and φ = R⁻ᵀ z.
 //!
+//! **Condensation of the massless subspace** (design §3.2 item 5). The
+//! structurally massless DOFs (set 0, rows and columns of M exactly zero)
+//! are eliminated before the reduction: K is factored with set 0 ordered
+//! first, K_perm = R Rᵀ with R = [[R₀₀, 0], [R_m0, R_mm]], so R_mm R_mmᵀ is
+//! the condensed stiffness K̂ = K_mm − K_m0·K₀₀⁻¹·K_0m, and the reduction runs
+//! on C = R_mm⁻¹ M_mm R_mm⁻ᵀ of order n_m. The shapes are recovered as
+//! R⁻ᵀ·[0; z], whose set-0 part is φ₀ = −R₀₀⁻ᵀ R_m0ᵀ φ_m = −K₀₀⁻¹K_0m φ_m. With
+//! no massless DOF the order is the identity and the arithmetic is the
+//! uncondensed path's.
+//!
 //! The tridiagonalization and QL steps follow Golub & Van Loan, *Matrix
 //! Computations* (4th ed.), §8.3 (Householder tridiagonalization and the
 //! implicit symmetric QR step with Wilkinson shift; QL is the same iteration
@@ -19,10 +29,14 @@ use std::fmt;
 use crate::matrix::SymmetricMatrix;
 
 /// Live n²-sized binary64 buffers at the dense path's peak phase: the
-/// caller's K and M, the Cholesky factor R, and one work buffer that holds in
-/// turn M R⁻ᵀ, C, the accumulated Householder transformations, the QL
-/// eigenvectors and finally the returned mode shapes. O(n) work vectors are
-/// not counted. The Sturm counts of §3.2 item 7 run after the solve, when
+/// caller's K and M, the Cholesky factor R of K with the massless DOFs
+/// ordered first (the condensation forms K̂ inside R, as its trailing
+/// block, and adds no buffer), and one work buffer of n_m·n entries that
+/// holds in turn M_mm R_mm⁻ᵀ, C, the accumulated Householder
+/// transformations and the QL eigenvectors (n_m² of it), and finally the
+/// returned mode shapes, recovered in place on the massless DOFs (kept·n).
+/// O(n) work vectors are not counted. The equilibrated Cholesky of M_mm
+/// (n_m², the finite-mode count) runs after R is released. The Sturm counts of §3.2 item 7 run after the solve, when
 /// R and the work buffer are released, and add their own storage (`sturm`
 /// module docs, "Memory").
 pub const DENSE_PATH_PEAK_N2_BUFFERS: u64 = 4;
@@ -112,19 +126,26 @@ impl Error for DenseError {}
 pub struct DenseEigenSolution {
     /// Order of the pencil.
     pub dimension: usize,
+    /// n_m, the order of the condensed pencil: n minus the structurally
+    /// massless DOFs.
+    pub condensed_dimension: usize,
     /// λ = 1/μ, ascending.
     pub eigenvalues: Vec<f64>,
-    /// μ, the eigenvalues of C, in the same order (descending).
+    /// μ, the eigenvalues of the condensed C, in the same order
+    /// (descending).
     pub mu: Vec<f64>,
-    /// Mode shapes φ = R⁻ᵀ z, row-major: mode i is
-    /// `vectors[i * dimension..(i + 1) * dimension]`. Unnormalized: z has
-    /// unit Euclidean norm, so φᵀKφ = 1 to rounding.
+    /// Mode shapes over all n DOFs in the caller's numbering, row-major:
+    /// mode i is `vectors[i * dimension..(i + 1) * dimension]`, recovered
+    /// on the massless DOFs (module docs). Unnormalized: z has unit
+    /// Euclidean norm, so φᵀKφ = 1 to rounding.
     pub vectors: Vec<f64>,
-    /// The largest μ, against which the relative threshold is applied.
+    /// The largest condensed μ, against which the relative threshold is
+    /// applied (0 when n_m = 0).
     pub mu_max: f64,
-    /// μ ≤ 0: infinite eigenvalues, not returned.
+    /// Condensed μ ≤ 0: classified infinite, not returned.
     pub nonpositive_mu_count: usize,
-    /// 0 < μ ≤ threshold × max μ: treated as infinite, not returned.
+    /// Condensed 0 < μ ≤ threshold × max μ: classified infinite, not
+    /// returned.
     pub below_threshold_mu_count: usize,
     /// Total implicit QL iterations.
     pub ql_iterations: usize,
@@ -140,12 +161,11 @@ pub struct DenseEigenSolution {
     pub established_finite_mode_count: Option<usize>,
     /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
     /// when a request needs the whole finite spectrum), design §3.2 item 5:
-    /// the number of μ classified infinite (μ ≤ τ_μ·μ_max, negatives
-    /// included) differs from the number of structurally massless DOFs, or
-    /// the count is not established. The zero μ of a structurally massless
-    /// DOF comes back as a tiny value of either sign, so the match is by
-    /// count; a genuine finite μ at or below the threshold makes the counts
-    /// differ.
+    /// a μ of the condensed pencil is classified infinite (μ ≤ τ_μ·μ_max,
+    /// of either sign), or the count is not established. The condensed
+    /// pencil has exactly n_m finite eigenvalues in exact arithmetic, so a
+    /// μ classified infinite there is a finite mode lost to rounding or to
+    /// the threshold.
     pub finite_count_unresolved: bool,
 }
 
@@ -189,24 +209,40 @@ pub fn solve_dense_pencil(
         });
     }
 
-    let (r, min_cholesky_pivot_ratio) = cholesky_lower(stiffness)?;
-    let mut work = reduce_mass(&r, mass, n);
-    let mut d = vec![0.0; n];
-    let mut e = vec![0.0; n];
-    householder_tridiagonalize(&mut work, n, &mut d, &mut e);
-    transpose_in_place(&mut work, n);
-    let ql_iterations = implicit_ql(
-        &mut d,
-        &mut e,
-        &mut work,
-        n,
-        options.max_ql_iterations_per_eigenvalue,
-    )?;
-    sort_ascending(&mut d, &mut work, n);
+    // Set 0 (structurally massless) first, then the massive DOFs, each
+    // ascending.
+    let massless = structurally_massless_dofs(mass);
+    let n0 = massless.len();
+    let nm = n - n0;
+    let massive: Vec<usize> = (0..n)
+        .filter(|i| massless.binary_search(i).is_err())
+        .collect();
+    let order: Vec<usize> = massless.iter().chain(&massive).copied().collect();
+    let (r, min_cholesky_pivot_ratio) = cholesky_ordered(stiffness, &order)?;
+
+    // The work buffer is reserved at n_m·n so the recovered shapes fit in
+    // place (`DENSE_PATH_PEAK_N2_BUFFERS`).
+    let mut work = Vec::with_capacity(nm * n);
+    reduce_mass(&r, n, n0, mass, &massive, &mut work);
+    let mut d = vec![0.0; nm];
+    let mut e = vec![0.0; nm];
+    let mut ql_iterations = 0;
+    if nm > 0 {
+        householder_tridiagonalize(&mut work, nm, &mut d, &mut e);
+        transpose_in_place(&mut work, nm);
+        ql_iterations = implicit_ql(
+            &mut d,
+            &mut e,
+            &mut work,
+            nm,
+            options.max_ql_iterations_per_eigenvalue,
+        )?;
+        sort_ascending(&mut d, &mut work, nm);
+    }
 
     // d is ascending μ; λ ascending is μ descending. Reverse the rows so the
     // finite modes come first, then keep those above the threshold.
-    let mu_max = d[n - 1];
+    let mu_max = d.last().copied().unwrap_or(0.0);
     let mut nonpositive_mu_count = 0;
     let mut below_threshold_mu_count = 0;
     let cut = threshold * mu_max;
@@ -217,27 +253,39 @@ pub fn solve_dense_pencil(
             below_threshold_mu_count += 1;
         }
     }
-    let kept = n - nonpositive_mu_count - below_threshold_mu_count;
-    let structurally_massless_count = structurally_massless_dofs(mass).len();
+    let kept = nm - nonpositive_mu_count - below_threshold_mu_count;
     d.reverse();
-    for i in 0..n / 2 {
-        swap_rows(&mut work, n, i, n - 1 - i);
+    for i in 0..nm / 2 {
+        swap_rows(&mut work, nm, i, nm - 1 - i);
     }
     d.truncate(kept);
-    work.truncate(kept * n);
+    work.truncate(kept * nm);
+    // Rows of n_m to rows of n, last first so no row is overwritten before
+    // it moves (within the reserved capacity, no reallocation).
+    work.resize(kept * n, 0.0);
+    for i in (0..kept).rev() {
+        work.copy_within(i * nm..(i + 1) * nm, i * n);
+    }
+    let mut ordered = vec![0.0; n];
     for row in work.chunks_exact_mut(n) {
-        back_transform(&r, n, row);
+        // φ in the factor's order is R⁻ᵀ·[0; z] (module docs).
+        ordered[..n0].fill(0.0);
+        ordered[n0..].copy_from_slice(&row[..nm]);
+        back_transform(&r, n, &mut ordered);
+        for (k, &dof) in order.iter().enumerate() {
+            row[dof] = ordered[k];
+        }
     }
     drop(r);
     // After R is released, so the mass block's factor does not add to the
     // peak n² buffers.
     let established = established_finite_mode_count(mass, pivot_threshold);
-    let finite_count_unresolved = nonpositive_mu_count + below_threshold_mu_count
-        != structurally_massless_count
-        || established.is_none();
+    let finite_count_unresolved =
+        nonpositive_mu_count + below_threshold_mu_count > 0 || established.is_none();
     let eigenvalues = d.iter().map(|&mu| 1.0 / mu).collect();
     Ok(DenseEigenSolution {
         dimension: n,
+        condensed_dimension: nm,
         eigenvalues,
         mu: d,
         vectors: work,
@@ -246,7 +294,7 @@ pub fn solve_dense_pencil(
         below_threshold_mu_count,
         ql_iterations,
         min_cholesky_pivot_ratio,
-        structurally_massless_count,
+        structurally_massless_count: n0,
         established_finite_mode_count: established,
         finite_count_unresolved,
     })
@@ -320,25 +368,30 @@ pub fn established_finite_mode_count(
     Some(m)
 }
 
-/// K = R Rᵀ with R lower triangular, row by row (Cholesky–Banachiewicz).
-/// Returns R in an n² row-major buffer (upper part zero) and the smallest
-/// pivot ratio R_jj² / K_jj.
-fn cholesky_lower(k: &SymmetricMatrix) -> Result<(Vec<f64>, f64), DenseError> {
+/// P K Pᵀ = R Rᵀ with R lower triangular, row by row
+/// (Cholesky–Banachiewicz), for the ordering P given by `order` (position
+/// i holds DOF `order[i]`). Returns R in an n² row-major buffer (upper part
+/// zero) and the smallest pivot ratio R_jj² / K_jj. A pivot error names
+/// the DOF in the caller's numbering.
+fn cholesky_ordered(k: &SymmetricMatrix, order: &[usize]) -> Result<(Vec<f64>, f64), DenseError> {
     let n = k.dimension();
     let mut r = vec![0.0; n * n];
     let mut min_ratio = f64::INFINITY;
     for i in 0..n {
-        let k_row = k.lower_row(i);
+        let k_ij = |j: usize| k.get(order[i], order[j]);
         for j in 0..=i {
-            let mut s = k_row[j];
+            let mut s = k_ij(j);
             for p in 0..j {
                 s -= r[i * n + p] * r[j * n + p];
             }
             if i == j {
                 if !(s > 0.0) {
-                    return Err(DenseError::NonPositivePivot { index: i, value: s });
+                    return Err(DenseError::NonPositivePivot {
+                        index: order[i],
+                        value: s,
+                    });
                 }
-                let ratio = s / k_row[i];
+                let ratio = s / k_ij(i);
                 if ratio < min_ratio {
                     min_ratio = ratio;
                 }
@@ -351,16 +404,18 @@ fn cholesky_lower(k: &SymmetricMatrix) -> Result<(Vec<f64>, f64), DenseError> {
     Ok((r, min_ratio))
 }
 
-/// Solves x Rᵀ = b for the row vector x in place (R x_ᵀ = b_ᵀ, forward
-/// substitution over R's contiguous rows).
-fn forward_solve_row(r: &[f64], n: usize, row: &mut [f64]) {
-    for j in 0..n {
-        let r_row = &r[j * n..j * n + j];
+/// Solves x R_bbᵀ = b for the row vector x in place, R_bb the trailing
+/// diagonal block of R from row and column `offset` (forward substitution
+/// over R's contiguous rows).
+fn forward_solve_row(r: &[f64], n: usize, offset: usize, row: &mut [f64]) {
+    for j in 0..row.len() {
+        let base = (offset + j) * n + offset;
+        let r_row = &r[base..base + j];
         let mut s = row[j];
         for p in 0..j {
             s -= r_row[p] * row[p];
         }
-        row[j] = s / r[j * n + j];
+        row[j] = s / r[base + j];
     }
 }
 
@@ -377,29 +432,38 @@ fn back_transform(r: &[f64], n: usize, row: &mut [f64]) {
     }
 }
 
-/// C = R⁻¹ M R⁻ᵀ in one n² buffer: rows of M R⁻ᵀ, transpose (giving R⁻¹ M,
-/// since M is symmetric), rows again, then symmetrize from the lower
-/// triangle.
-fn reduce_mass(r: &[f64], mass: &SymmetricMatrix, n: usize) -> Vec<f64> {
-    let mut work = vec![0.0; n * n];
-    for i in 0..n {
-        for j in 0..n {
-            work[i * n + j] = mass.get(i, j);
+/// C = R_mm⁻¹ M_mm R_mm⁻ᵀ into `work` (n_m² entries), R_mm the trailing
+/// block of R from `offset` and M_mm the rows and columns `massive` of M:
+/// rows of M_mm R_mm⁻ᵀ, transpose (giving R_mm⁻¹ M_mm, since M is
+/// symmetric), rows again, then symmetrize from the lower triangle.
+fn reduce_mass(
+    r: &[f64],
+    n: usize,
+    offset: usize,
+    mass: &SymmetricMatrix,
+    massive: &[usize],
+    work: &mut Vec<f64>,
+) {
+    let nm = massive.len();
+    work.clear();
+    for &i in massive {
+        work.extend(massive.iter().map(|&j| mass.get(i, j)));
+    }
+    if nm == 0 {
+        return;
+    }
+    for row in work.chunks_exact_mut(nm) {
+        forward_solve_row(r, n, offset, row);
+    }
+    transpose_in_place(work, nm);
+    for row in work.chunks_exact_mut(nm) {
+        forward_solve_row(r, n, offset, row);
+    }
+    for i in 0..nm {
+        for j in i + 1..nm {
+            work[i * nm + j] = work[j * nm + i];
         }
     }
-    for row in work.chunks_exact_mut(n) {
-        forward_solve_row(r, n, row);
-    }
-    transpose_in_place(&mut work, n);
-    for row in work.chunks_exact_mut(n) {
-        forward_solve_row(r, n, row);
-    }
-    for i in 0..n {
-        for j in i + 1..n {
-            work[i * n + j] = work[j * n + i];
-        }
-    }
-    work
 }
 
 fn transpose_in_place(a: &mut [f64], n: usize) {
@@ -786,8 +850,12 @@ mod tests {
             solution.eigenvalues,
             vec![1.0 / 7.0, 1.0 / 3.0, 1.0 / 1.25, 1.0 / 0.5]
         );
-        assert_eq!(solution.nonpositive_mu_count, 1);
+        // The massless DOF is condensed out: no μ is classified infinite.
+        assert_eq!(solution.structurally_massless_count, 1);
+        assert_eq!(solution.condensed_dimension, 4);
+        assert_eq!(solution.nonpositive_mu_count, 0);
         assert_eq!(solution.below_threshold_mu_count, 0);
+        assert!(!solution.finite_count_unresolved);
         assert_eq!(solution.ql_iterations, 0);
         // Mode i is the unit vector of the DOF carrying that mass, to sign.
         for (mode, dof) in [(0, 2), (1, 0), (2, 3), (3, 1)] {
