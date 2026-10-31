@@ -129,7 +129,7 @@ fn authored(material_op: bool) -> Value {
     let reference = i7_l_line();
     let mut model = corner_document();
     if material_op {
-        let keys = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"];
+        let keys = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient", "provenance"];
         let projection = |m: &Value| Value::Object(keys.iter().filter_map(|k| m.get(*k).map(|v| ((*k).into(), v.clone()))).collect());
         let target = projection(&reference["materials"][0]);
         model = apply(&model, &structured("set_field", "Material", "material:steel", "constitutive_properties", Some(&projection(&model["materials"][0])), &target));

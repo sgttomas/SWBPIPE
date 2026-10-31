@@ -129,10 +129,10 @@ deliverable; "new" means a scope change assigns it.
 | RT-A5 | Sustained, operating and expansion sets. The expansion basis is recorded; sustained can take the operating support status | Must (basis), Should (status) | Slice 1a built: nonlinear PF operand standing (#1752). `difference_basis` designed in model document 0.9.0 (#1703); the document is still 0.8.0 | slice 1b with 0.9.0 / DEL-05-02, DEL-02-01 |
 | RT-A6 | Hydrostatic test: test pressure, test contents, springs held, marked as a test case | Must | PF blocks hydrotest pressure (PP `validation.rs:62-66`); no test condition exists | unscheduled / DEL-05-01, after RT-G5 |
 | RT-A7 | Modal analysis (PRD §12.9) | Must | Design only (DEL-04-09 CLM-003) | M1a–M3 / DEL-04-09 |
-| RT-A8 | Response spectrum, uniform support motion: user spectra, mode and directional combination, missing mass; snubbers as dynamic-only restraints. Independent (multi-level) support motion is Should | Must (uniform), Should (independent) | Absent | SCA-014 / owning deliverable to be assigned |
+| RT-A8 | Response spectrum, uniform support motion: user spectra, mode and directional combination, missing mass; snubbers as dynamic-only restraints. Independent (multi-level) support motion is Should | Must (uniform), Should (independent) | Absent | I5 of the dynamics lane / DEL-04-10 |
 | RT-A9 | Static occasional: wind, three-axis seismic g | Must | DEC-068 generators on PF and plain EX documents (#1698); partial-span wind on Timoshenko members (#1742). Refused on EX load/reference-state documents | EX load/reference-state documents / DEL-05-01 |
 | RT-A10 | Imposed displacement, including seismic anchor movement | Must | EX `boundary_motion`. PF imposed motion with nonlinear supports built (#1671); constant-effort targets refused | constant-effort targets; EX via R-4 / DEL-04-03 |
-| RT-A11 | Hanger sizing from the user's private catalogue, with a hanger table | Must | Records import and apply one to a support (`features/hanger-selection`); no sizing procedure | unscheduled / new |
+| RT-A11 | Hanger sizing from the user's private catalogue, with a hanger table | Must | Records import and apply one to a support (`features/hanger-selection`); no sizing procedure. Design and scope placed by SCA-015 (DEL-04-11 `Work/hanger-sizing.md`), not built | increments 1–6 / DEL-04-11 |
 | RT-A12 | Cold spring | Should | Absent | unscheduled / DEL-05-01 |
 | RT-A13 | Numerical diagnostics and health | Must | Built (FR-SOL-015; #1544, #1665) | — / DEL-04-06 |
 | RT-A14 | Harmonic, time history, force spectrum, buried pipe; verified bounds | Later | Absent; verified bounds dormant and owner-held (DEL-04-08) | — |
@@ -153,7 +153,7 @@ deliverable; "new" means a scope change assigns it.
 | RT-K5 | Timoshenko straights on PF | Should | Built: opt-in Timoshenko straights on PF (#1663, DEL-05-03 `Work/pf-timoshenko.md`) | — / DEL-05-03 |
 | RT-S1 | Linear restraints and springs | Must | Built on both routes | — / DEL-04-03 |
 | RT-S2 | Gaps, lift-off, friction | Must | PF only. Friction is static and history-free; rotational gap and rotational friction are refused | RT-A3 / DEL-04-04 |
-| RT-S3 | Variable spring and constant-effort supports | Must | Variable spring = user-stiffness spring; entered installed, cold and hot loads are not applied as preload and each warns `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` (#1742). Constant effort on PF only | R-4 / DEL-04-03 |
+| RT-S3 | Variable spring and constant-effort supports | Must | Variable spring = user-stiffness spring; entered installed, cold and hot loads are not applied as preload and each warns `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` (#1742). Constant effort on PF only. The cold load becomes a preload (Agent 0, 2026-10-31, D-3), designed in DEL-04-11 `Work/hanger-sizing.md` §11, not built | R-4 / DEL-04-03; preload by DEL-04-11 increment 6 |
 | RT-L1 | Weight, pressure, thermal (many cases), user forces including relief thrust, wind | Must | Pressure on EX only; thermal per case; DEC-068 wind | RT-A3, RT-G5 / DEL-05-01, DEL-05-05 |
 | RT-L2 | Bourdon effect (pressure elongation) as an option, off by default and clearly labelled. Pressure-dependent flexibility and SIF corrections are out of scope; users enter their own k and SIF | Should | EX excludes Bourdon opening and pressure stiffening of k/SIF, and discloses it (DEL-04-07 `Work/pressure-contract.md` D-3) | unscheduled / DEL-04-07 |
 
@@ -167,8 +167,8 @@ deliverable; "new" means a scope change assigns it.
 | RT-R4 | Calculation report with a section composer | Must | Local-private render and package on both routes (W-3, #1648); section composer designed (DEL-08-01 `Work/report-section-composer.md`), not built | composer build / DEL-08-01 |
 | RT-R5 | Shareable report released by the user | Must | Built on both routes: route 010 native admission (W-18b r2c, #1682) and exact-route results (D-6, #1745); privacy fixes (#1692, #1722) | later slice in `report-user-release.md` §10 / DEL-08-01, DEL-12-02 |
 | RT-R6 | CSV export of every results table | Must | Built: CSV serializer and export on every results and comparison table, with a coverage guard; saving requires explicit local-private intent (#1720, #1726) | — / DEL-08-04 |
-| RT-R7 | MBF export from the desktop | Must | Headless SI pilot writer writes bend SIFs as BSIF (#1730); desktop design adopted. Rust writer port and desktop export not built; the desktop panel is a preview | slices 2, 4, 6 / DEL-17-04, DEL-07-12 |
-| RT-R8 | MBF import into the desktop | Must | Rust MBF engine crate with an importer port byte-identical to the Python importer and parity tests (#1728, #1734); not yet used by the desktop | slices 5–7 / DEL-17-04, DEL-07-12 |
+| RT-R7 | MBF export from the desktop | Must | Headless SI pilot writer writes bend SIFs as BSIF (#1730); desktop design adopted. Rust writer port and desktop export not built; the desktop panel is a preview. Criterion 6's model is the reference system (DEL-09-01 `Work/reference-system.md`; fixture `fixtures/reference_system/`); its §11.1 lists the families expected in the loss report | slices 2, 4, 6 / DEL-17-04, DEL-07-12 |
+| RT-R8 | MBF import into the desktop | Must | Rust MBF engine crate with an importer port byte-identical to the Python importer and parity tests (#1728, #1734); not yet used by the desktop. The round trip is checked on the reference system (DEL-09-01) once slices 4–6 land | slices 5–7 / DEL-17-04, DEL-07-12 |
 | RT-R9 | PCF, glTF, handoff package, native JSON | Should | Save Handoff (#1600); PCF and glTF text withheld | — / DEL-17-07, DEL-17-08, DEL-15-01 |
 
 ### Human factors, validation, release
@@ -332,3 +332,6 @@ after the walkthrough.
   - The native-smoke `expected.json` values.
 - **Edits.** Decisions edit the row they govern. This file is not a log; Git
   keeps its history.
+- **Limitations list.** The release limitations that criterion 3 refers to
+  are kept in `docs/RELEASE_LIMITATIONS_v1.0.md`. Lanes draft entries there;
+  accepting one is the owner's act.

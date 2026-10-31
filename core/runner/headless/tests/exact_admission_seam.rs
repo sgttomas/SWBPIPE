@@ -109,11 +109,12 @@ fn a_v3_document_with_a_realized_bend_solves_and_exports_under_pressure_1() {
 
 #[test]
 fn families_not_yet_admitted_are_blocked_by_name_without_export_in_both_modes() {
-    let mut tee = v3();
-    tee["model"]["components"] = json!([{"id":"component:tee","kind":"tee",
+    // RT-A3 admits the tee, the earlier sample; `other` stays refused.
+    let mut other = v3();
+    other["model"]["components"] = json!([{"id":"component:other","kind":"other",
         "node":"node:fixture-tip","provenance":"invented_u2a_control"}]);
     for (name, payload, id, family) in [
-        ("tee", tee, "component:tee", "branch connection (tee)"),
+        ("other", other, "component:other", "component"),
         ("geometry-only bend", bend("mechanics_geometry_only"), "component:bend", "geometry-only bend"),
     ] {
         for mode in MODES {

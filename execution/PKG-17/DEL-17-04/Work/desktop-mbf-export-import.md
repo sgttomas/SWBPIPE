@@ -123,7 +123,7 @@ Criterion 1 lists the reference system's contents. On `main` today:
 | Straight pipe; temperature-independent material; section | RT-G1, RT-G3 | written | read |
 | Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`) | refused (O-7 ruling) |
 | Realized bend with user k | RT-K1 | written | read |
-| User SIFs | RT-K1 | not written, and not reported: the writer test's invented L with `sif_in_plane_user_value` and `sif_out_of_plane_user_value` writes byte-identical text, with no loss entry or diagnostic (Q-6) | later ("SIF user values", import Design §20.3) |
+| User SIFs | RT-K1 | a realized bend's directional pair is written as the bend comment `BSIF` (#1730); the scalar `sif_user_value` is not written | read: `BSIF` on a bend row restores the pair |
 | Tee with user modifiers | RT-K2 | refused (`MBF-SI-COMPONENT-UNSUPPORTED`) | not read |
 | Eccentric reducer, valves, flanges, rigid items, weight at CoG | RT-K3 | refused | later (§20.3) |
 | Expansion joint with tie rods | RT-K4 | refused | not read; not in §20.3 |
@@ -164,7 +164,8 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   - It builds for both the native target and wasm.
   - It exposes `render_si(model, settings)`, `sidecar(result, mbf_sha256)` and
     `import(bytes, options)`. These use the Python codes, messages, maps and JSON outputs
-    unchanged.
+    unchanged. As built (slice 2, §6), `sidecar` is the result's method
+    `WriterResult::sidecar(mbf_sha256)`, as in the Python's `MbfSiResult`.
 - **Parity.** Committed vectors from every public writer and import test model, the pilot
   cases, the invented import fixtures and the authored cases (#1702).
   - The Rust and Python outputs must be byte-identical: MBF text, sidecar bytes, each result's
@@ -486,10 +487,12 @@ nothing is written before a native save.
 - Whether the target program reads the file belongs to the validation lane's private evidence
   (RT-V2, DEL-17-05), not to criterion 6.
 
-**The reference system (O-1).** Neither the release target nor the DEL-17-04 or DEL-17-05
-records named it; criterion 1 calls it "an invented reference system". W-17 authors it as an
-invented fixture with its run sheet (criteria 1 and 7), starting from the families that
-exist now and adding the rest as their rows land. Families without an admitted public MBF
+**The reference system (O-1).** Criterion 1 calls it "an invented reference system". Agent 0
+placed it in DEL-09-01 (2026-10-31, replacing this section's earlier assignment to W-17): it
+is specified in DEL-09-01 `Work/reference-system.md` and generated as
+`fixtures/reference_system/reference_system.json`, with its run sheet (criteria 1 and 7),
+starting from the families that exist now and adding the rest as their rows land. That
+specification's §11.1 lists the families criterion 6 expects in the loss report. Families without an admitted public MBF
 source (today valves, reducers, flanges, rigid elements and nozzles; Q-3) are authored in the
 fixture and expected in the loss report until their sources exist. The fixture is named here
 and in RT-R7/R8's status column; the release target's criterion text is the owner's and is
@@ -513,6 +516,47 @@ Each slice is one PR. Every test must fail without its wiring.
 A bound format 2 or 3 import in slice 3 needs slice 2's writer, which it takes through the
 `SidecarRegenerator` trait. Slice 4 needs slice 2, slice 5 needs slice 3, and slice 6
 needs slices 4 and 5.
+
+**Slice 2, as implemented (2026-10-30).** `core/handoff/caepipe_mbf_engine/src/writer/` ports
+`si_writer.py` byte for byte.
+
+- **API.** `render_si(model, &WriterSettings)` returns `WriterResult`, the `MbfSiResult` port,
+  with its maps, loss report and assumptions, `to_dict()` and its canonical bytes, and
+  `sidecar(mbf_sha256)` (format 3 with its self-digest) and its file bytes.
+  `regenerate_caepipe_sidecar` is ported.
+  - `WriterSettings` also carries the Python's `piping_code` argument.
+  - The title, reference temperatures and piping code are `Value`s, because the Python takes
+    any value and refuses or `str()`s it.
+  - `max_layout_rows` is `Option`, so the product's `None` (Q-4) is expressible.
+- **Regeneration and preflight.** The crate's writer (`SiWriter`) is the importer's regenerator
+  when `ImportOptions::regenerator` is None. `ImportError::RegeneratorRequired` is removed.
+  The `SidecarRegenerator` trait stays public. The writer's preflight
+  (`MBF-SI-PREFLIGHT-REFUSED`) runs the Rust importer.
+- **Errors.** A Python exception the writer raises is `ImportError::Python` with the same type
+  and message. An input the port cannot reproduce fails closed as `ImportError::Unsupported`:
+  a NaN load category, whose set membership the Python decides by object identity, and the
+  sidecar parser's internal sentinel.
+  - **Nesting bound** (reviews r1 and r2 of #32). No value may sit inside more than 256 lists and
+    dicts (`MAX_VALUE_NESTING`, counted as the sidecar parser counts its own bound of 64). Every
+    public operation that walks a caller's `Value` checks this first, without recursion. That covers the
+    writer's model and settings, the regeneration, `import`'s parsed options, `sidecar_self_digest`,
+    `canonical_bytes`, `dumps_sorted`, the `to_dict`, bytes and sidecar methods of both
+    result types, whose fields a caller may set, and a caller's `SidecarRegenerator` output.
+    A refused value the crate owns is dropped without recursion. A deeper value fails closed as `Unsupported`
+    (those methods now return `ImportError`, which keeps the Python's exceptions as
+    `ImportError::Python`). Equality (`py_eq`) does not recurse. A test runs every walk at the
+    bound on a 1 MiB stack, wasm's default, in debug and release builds. The Python may still
+    accept a deeper value, up to its own recursion limit.
+- **Parity.** `tools/fixtures/caepipe_mbf_writer_vectors.py` records the inputs of every writer
+  call the suites make, the corpus the import vectors write back, the correlation cases and
+  generated coverage inputs. Each input is replayed through the unpatched Python for its
+  expected outputs.
+  - `tests/writer_parity.rs` and `tests/test_caepipe_mbf_writer_parity.py` replay the vectors.
+    Every `MBF-SI-*` code is emitted.
+  - `tests/parity.rs` now checks each recorded regeneration against the Rust writer's own.
+- **Open.** One Python defect is recorded and ported unchanged. A spring support at a node no
+  pipe segment reaches raises `KeyError` instead of a named refusal. This lane fixes it in both
+  twins in a later slice, with its vectors regenerated.
 
 ## 7. Boundaries
 
@@ -558,7 +602,8 @@ ruling governs.
 - **A-5:** the sibling `<stem>.swbpipe-ids.json`. An unbound import says why it is unbound.
 - **A-6:** retired when slice 4 lands. The stop rule on `apps/desktop/native-smoke/expected.json`
   stands.
-- **O-1:** W-17 authors the reference system as an invented fixture with its run sheet (§5).
+- **O-1:** the reference system is an invented fixture with its run sheet (§5), owned by
+  DEL-09-01 (`Work/reference-system.md`) since Agent 0's placement of 2026-10-31.
 
 | Id | Decision | Recommendation | Consequence | Blocks |
 |---|---|---|---|---|

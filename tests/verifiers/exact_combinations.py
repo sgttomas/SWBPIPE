@@ -94,7 +94,8 @@ AXIAL_FORCE = "element_local_axial_force"
 TIE_ROD_ROW, MISSING_KEY_FIELDS, DIMENSIONLESS = "tie-rod row", "row missing key fields", "dimensionless row"
 ALGEBRA_REFUSED, SUPPORT_SOURCE_MISSING = "load-case algebra refused", "source support row missing in an operand case"
 MAXIMUM_KINDS = {"pipe_elastic_normal_stress_maximum_v2", "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"}
-INTENSIFIED_KINDS = {"curved_bend_directional_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_maximum_v1"}
+INTENSIFIED_KINDS = {"curved_bend_directional_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_maximum_v1",
+                     "branch_intensified_bending_stress_v1"}
 UNITS = {"mm", "rad", "N", "N*m", "MPa", "Pa", "m"}
 BOUND = Fraction(1, 2 ** 46)
 

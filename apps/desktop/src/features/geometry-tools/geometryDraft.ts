@@ -3,6 +3,7 @@ import type { OperationBatch } from "../../services/operationBatchService";
 import { canonicalJsonString } from "../../services/hashService";
 import { makeRichIntent } from "../rich-authoring/formSupport";
 import { number, text } from "./batchFormSupport";
+import { nodeDeletionSummary } from "../model-tree/removalIntents";
 
 export type NewIdentity = { id: string; label: string; provenance: string };
 export type CopyIdentity = NewIdentity & { source_ref: string };
@@ -125,7 +126,7 @@ function deleteNodeIntent(model: PreviewModel, nodeId: string, id: string): Edit
     operation_id: `op:${id}:delete-node`, operation_kind: "delete", operation_status: "proposed", author_type: "user", source: { ...SOURCE },
     target: { object_type: "Node", ref: nodeId },
     change: { change_id: `change:${id}:delete-node`, change_kind: "delete_node", field_label: "Delete the node the reconnect leaves", field_path: "nodes",
-      before: `${node.label}; x=${node.position.x}; y=${node.position.y}; z=${node.position.z}`, after: "not_present", unit: "none", dimension: "dimensionless",
+      before: nodeDeletionSummary(node), after: "not_present", unit: "none", dimension: "dimensionless",
       source_note: "Explicit user choice to delete the node a reconnect leaves with no pipe." },
     validation: { ...PENDING }, ...structuredClone(BOUNDARY),
     rationale: `Explicit deletion of ${nodeId}, left with no pipe by the reconnect in the same batch.`

@@ -1,6 +1,6 @@
 # R-4: route unification. The exact pressure route admits every family the pressure-free route has
 
-> **Status: adopted plan; S1–S8/P unbuilt; stage 2 built (#1671); §8.30 corrections in flight (`31bc02cd0e`); superseded by any later Design text.**
+> **Status: adopted plan, carried by RT-A3 in the order tee, reducers in regions, constant-effort, nonlinear supports, then S6 connectors, S3, S7, P and R-3 (Agent 0, 2026-10-30; S7 added the same day, see below). Built: stage 2 (#1671); the §8.30 corrections; S1's tee and junction part (RT-A3 increment 1), with junctions recognised implicitly at shared terminal nodes and no `junction` token (D-1, recorded in [pressure-contract.md](pressure-contract.md) "Tees and pressure junctions"). S1's reducer part and S2–S8/P are unbuilt. Superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`; those name working files that are not retained.
@@ -36,6 +36,14 @@ Arithmetic for §5 and the reference values in §3 and §4 is in
 `scratch/solver-r4/estimates.py` (exact rationals, no product code).
 
 ---
+
+## 0a. Scope decision: S7 in RT-A3 (Agent 0, 2026-10-30)
+
+Agent 0 added S7, a nonlinear support as a friction normal source (§3.8), to RT-A3's scope. The decision was made under the owner's 2026-10-27 delegation, on the RT-A3 manager's recommendation. A lift-off friction shoe is the ordinary resting support in real models, so exit criterion 1's reference system (DEL-09-01 `reference-system.md`, FR1 at RS-120 with its one-way FR1V) must exercise it.
+
+- **Order.** Increments 1–4, then S6, S3, S7, P and R-3. S7 moves ahead of P only if the M-1a/M-2 measurements show that P can wait.
+- **Interim.** Until S7 lands, the reference fixture gives FR1 a linear rest as its normal source (option (a)). That substitution is recorded in DEL-09-01's pending-family ledger against S7.
+- **Verification.** S7 changes numerical meaning on both routes, so it takes its own confirmation references (F-2a, F-2b and F-3 in §3.8 at least) and the independent xhigh review.
 
 ## 00. Codex round-1 corrections (2026-10-28; these supersede the sections they name)
 
@@ -951,6 +959,36 @@ for 2–3 cases. Publication and output volume dominate, not the solve.
   under a hard memory cap (expected: about 15 GB, refused or killed). This confirms §5.2's
   nonlinear wall before P is scheduled.
 - **M-3.** A K6 extension with a nonlinear-loop stage, after P.
+
+### 5.4a Measured M-1a and M-2 (RT-A3, 2026-10-31)
+
+These were measured in one `t3_exclusive.sh` window, 01:39:14–01:50:21Z.
+
+**Basis and caveats.**
+- The build was a release build of the measurement driver against `claude/rt-a3-tee`, including its then-uncommitted tee work (increment 1), in `sparse_interactive` mode.
+- The host was the development machine, not the 16 GiB base machine.
+- A concurrent single-threaded pytest process (no cargo) from another task ran during the window.
+- The models were invented generated racks: tees, about one support per 8 nodes, and 8 cases on EX (weight, pressure, two thermal, four lateral) or 7 on PF.
+- The driver times parse, the entry call and serialization separately, so solve and publication are one figure.
+- The generator, driver and window script were scratch material. DEL-04-05's performance lane takes the generator into its maintained harness.
+
+| Run | Nodes | Solve + publication | Serialization | Peak RSS | Rows | JSON |
+|---|---|---|---|---|---|---|
+| M-1a, EX linear | 1,000 | 71.3 s | 0.40 s | 2.64 GB | 1,022,753 | 754 MB |
+| M-1a, EX linear | 2,000 | 346.3 s | 0.81 s | 4.47 GB | 2,046,521 | 1.51 GB |
+| M-2, PF nonlinear | 250 | 4.2 s | 0.06 s | 0.63 GB | 152,582 | 112 MB |
+| M-2, PF nonlinear | 500 | 16.5 s | 0.11 s | 2.12 GB | 305,711 | 225 MB |
+| M-2, PF nonlinear | 1,000 | 71.1 s | 0.23 s | 6.40 GB | 611,807 | 450 MB |
+| M-2, PF nonlinear | 1,500 | 149.3 s | 0.35 s | 11.18 GB | 918,127 | 675 MB |
+| M-2, PF nonlinear | 2,000 | refused in 0.12 s | | 0.16 GB | 0 | |
+
+The 2,000-node PF run was refused by `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`, with a leading-buffer estimate of 14.79 GB against 11.60 GB. M-2 scales one-way supports as N/10 and explicit-normal friction as N/40, and took 1–4 active-set iterations per case.
+
+**Readings.**
+- **EX linear time** grows about as n^2.3 between 1,000 and 2,000 nodes, while rows grow linearly. A dry-run stack sample places the dominant cost in `u4b_rows::published`, a linear scan of every published row per member, station and basis lookup, shared by both routes. RT-A3 increment 1b repairs it, with byte-identical output, and M-1a is re-measured after it.
+- **PF nonlinear at 2,000 nodes with the guard lifted** is an extrapolation, not a measurement: about 230–300 s (time exponent 1.8–2.1) and about 16–20 GB peak RSS (RSS exponent 1.4–2). The dense loop therefore does not fit the 16 GiB base machine, and stage P is needed on both routes (Agent 0, 2026-10-31).
+- **Result volume** is about 244k rows per linear case at 2,000 nodes, or 2.05 M rows and 1.5 GB of JSON for 8 cases. The desktop path (IPC, reader, parse, render) and the result-volume design belong to DEL-04-05's performance lane, not to RT-A3 (Agent 0, 2026-10-31).
+- **Finding for the performance lane: warning volume.** The generated racks raise one `LOAD_CATEGORY_PREVIEW_MAPPED` warning per authored line load: 9,995 on the 2,000-node EX rack and 4,995 at 1,000 nodes. In results and reports this is unusable noise. Aggregating it is a usability fix for that lane to design (Agent 0, 2026-10-31).
 
 ### 5.5 Verdict
 

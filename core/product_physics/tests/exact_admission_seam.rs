@@ -417,9 +417,8 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
         let components = [
             // T4-U2 admits the realized bend (see the A3 test below).
             // W-15 admits valve, flange, reducer, rigid and specialty (see the
-            // W-15 tests below).
+            // W-15 tests below); RT-A3 the tee (`rt_a3_tee_references.rs`).
             (bend(base, false), "geometry-only bend"),
-            (simple(base, "component:tee", "tee"), "branch connection"),
             (simple(base, "component:other", "other"), "component"),
             (annotation_joint(base), "expansion joint (annotation only"),
         ];

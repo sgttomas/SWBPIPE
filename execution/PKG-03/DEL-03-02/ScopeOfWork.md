@@ -394,6 +394,12 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 
 Retain the user-imported hanger schema contract under DEL-03-02. DEL-03-07 owns provenance/fixture checking, DEL-07-03 the library editor, and DEL-07-09 coverage. No catalog is bundled and schema ownership does not move to coverage.
 
+**Format 1.1.0** (SCA-015; Agent 0, D-2, 2026-10-31). The schema admits `schema_version` `1.0.0` and `1.1.0`.
+- **The range.** A 1.1.0 record's `hanger` may carry `working_load_range` with a `minimum` and a `maximum`, each a force quantity with its own provenance. The import boundary refuses a minimum that is not below its maximum by name.
+- **Compatibility.** A 1.0.0 document imports unchanged. The new field in a 1.0.0 document stays an unknown field and is refused, and a stored 1.0.0 document needs no migration.
+- **Meaning.** DEL-04-11 owns the sizing meaning of the range (its `Work/hanger-sizing.md` §8.2). A record without it imports and is not sizable.
+- **Evidence.** The change takes an xhigh persistence review and import compatibility tests for 1.0.0.
+
 - **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
 - **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
 - **VER-002** — Validate schema-valid/invalid hanger-library records against the owned schema and preserve provenance/unit links; UI visibility cannot substitute for schema conformance.

@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
+TABLE_SHA256 = '5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -53,8 +53,9 @@ DEPENDENCIES = {
     # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
     # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
     # reads the document without its combination rows and records, then the combination pass re-derives them
-    # (was ef200d25...).
-    MODULE: 'c82a0f11e77162692306e8ff275218596d343e2777a2bad0c4192b790861fbee',
+    # (was ef200d25...); then RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): the
+    # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...).
+    MODULE: 'f27242f055f91b09b649e5a2ddc4e6b76cf9ddd7325bd9df3d7839bc5d609b83',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

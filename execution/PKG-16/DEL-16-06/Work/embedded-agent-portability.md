@@ -33,7 +33,8 @@ itself for criterion 17; no parallel field/operation language is introduced.
 
 ## User provider configuration and credentials
 
-The person configures provider endpoint, model identifier and credential mode.
+The person configures provider endpoint, model identifier, the model's context
+window in tokens and credential mode.
 Local plain HTTP is limited to literal loopback addresses; a non-loopback
 provider origin requires HTTPS with certificate and hostname validation. Parse
 the origin with a maintained URL parser. Reject userinfo, fragments, ambiguous

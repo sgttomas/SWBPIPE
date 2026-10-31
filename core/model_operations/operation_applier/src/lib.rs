@@ -1500,6 +1500,26 @@ fn run_with_context(
             vec![target_ref.clone()],
         );
     }
+    // RT-E1 M2-D1 (owner ruling: users enter their own k and SIF): every other
+    // user-entered component modifier (SIFs, stiffness scaling and stiffness,
+    // and the modifier source) is the user's too, on every route that can
+    // write one: a component field edit, a component record created with
+    // modifiers, or a library record copying modifier members.
+    let writes_modifier = !writes_flexibility
+        && ((object_type == "Component" && field_path.starts_with("modifiers."))
+            || (change_kind == "insert_component_symbol"
+                && serde_json::from_str::<Value>(&after).is_ok_and(|v| v.get("modifiers").is_some()))
+            || (change_kind == library_apply::CHANGE_KIND && library_apply::writes_modifiers(intent)));
+    if writes_modifier && string_at(intent, &["author_type"]).as_deref() != Some("user") {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED",
+            "blocking",
+            "Component modifiers (SIFs, stiffness scaling and stiffness, and their source) are entered by the user; an agent-authored operation cannot write them.".into(),
+            "Enter the modifier yourself in the component inspector.",
+            vec![target_ref.clone()],
+        );
+    }
 
     let mut geometry_edit = None;
     if matches!(
