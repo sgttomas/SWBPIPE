@@ -206,3 +206,55 @@ fn a_model_holding_the_parsers_sentinel_is_refused_as_unsupported_by_the_writer(
     settings.title = Value::List(vec![Value::Bad]);
     assert!(matches!(mbf::render_si(&writer_model(), &settings), Err(ImportError::Unsupported(_))));
 }
+
+/// `levels` lists nested in one another (the innermost holds null), built without recursion.
+fn chain(levels: usize) -> Value {
+    let mut value = Value::Null;
+    for _ in 0..levels {
+        value = Value::List(vec![value]);
+    }
+    value
+}
+
+/// Leaks a deep value: dropping it would recurse once per level (review r1 of #32, P1).
+fn leak(value: Value) {
+    std::mem::forget(value);
+}
+
+#[test]
+fn a_hostile_depth_is_refused_before_any_walk_and_the_limit_itself_is_taken() {
+    let limit = mbf::value::MAX_VALUE_NESTING;
+    // At the limit the writer runs (the Python omits the unknown member); one level more is refused unwalked.
+    let mut model = writer_model();
+    model.as_dict_mut().unwrap().insert("unused".into(), chain(limit - 1));
+    assert!(mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")).is_ok());
+    for levels in [limit, 50_000] {
+        let mut model = writer_model();
+        model.as_dict_mut().unwrap().insert("unused".into(), chain(levels));
+        match mbf::render_si(&model, &mbf::WriterSettings::new("INVENTED")) {
+            Err(ImportError::Unsupported(reason)) => assert!(reason.contains("deeper than"), "{reason}"),
+            other => panic!("expected an unsupported-input refusal, got {other:?}"),
+        }
+        assert!(matches!(
+            mbf::regenerate_caepipe_sidecar(&model, &"0".repeat(64), &[], mbf::Reference::None),
+            Err(ImportError::Unsupported(_))
+        ));
+        let mut settings = mbf::WriterSettings::new("INVENTED");
+        settings.title = chain(levels + 1);
+        assert!(matches!(mbf::render_si(&writer_model(), &settings), Err(ImportError::Unsupported(_))));
+        leak(std::mem::replace(&mut settings.title, Value::Null));
+        let mut options = ImportOptions::new("invented-test");
+        options.material_provenance = Some(chain(levels + 1));
+        assert!(matches!(mbf::import(MBF.as_bytes(), &options), Err(ImportError::Unsupported(_))));
+        leak(options.material_provenance.take().unwrap());
+        options.sidecar = Some(SidecarInput::Parsed(chain(levels + 1)));
+        assert!(matches!(mbf::import(MBF.as_bytes(), &options), Err(ImportError::Unsupported(_))));
+        if let Some(SidecarInput::Parsed(value)) = options.sidecar.take() {
+            leak(value);
+        }
+        let deep = chain(levels + 1);
+        assert!(mbf::sidecar_self_digest(&deep).is_err());
+        leak(deep);
+        leak(model);
+    }
+}

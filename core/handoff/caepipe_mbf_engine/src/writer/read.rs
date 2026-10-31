@@ -233,7 +233,11 @@ impl<'m> Writer<'m> {
                 nu = self.quantity(material.get_or_null("poisson_ratio"), DIMENSIONLESS, "1", &entity, "poisson_ratio")?;
                 if let (Some(nu), Some(e), Some(g)) = (nu, e_mpa, g_mpa) {
                     if g > 0.0 {
-                        let implied = e / (2.0 * (1.0 + nu));
+                        let denominator = 2.0 * (1.0 + nu);
+                        if denominator == 0.0 {
+                            return Err(py(PyError { kind: "ZeroDivisionError", message: "float division by zero".into() }));
+                        }
+                        let implied = e / denominator;
                         if (implied - g).abs() > 1e-9 * g {
                             let message = format!(
                                 "{entity} gives both poisson_ratio and shear_modulus; the MBF carries the Poisson ratio \
@@ -732,7 +736,8 @@ impl<'m> Writer<'m> {
             let is_unsupported = |value: &Value| unsupported.iter().any(|item| py_eq(item, value));
             for load in &loads {
                 if matches!(load, Value::Dict(_)) && is_unsupported(load.get_or_null("category")) {
-                    let category = load.get_or_null("category");
+                    // The Python subscripts `load["category"]` here: an absent key (not an explicit null) raises.
+                    let category = load.get("category").ok_or_else(|| py(key_error("category")))?;
                     let code = if str_in(category, &["pressure", "hydrotest"]) {
                         "MBF-SI-PRESSURE-UNSUPPORTED"
                     } else {

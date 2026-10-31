@@ -190,7 +190,26 @@ impl ImportResult {
 
 /// `import_caepipe_mbf(data, sidecar=..., material_provenance=..., pressure_closure=..., shear_model=...,
 /// rebind_by_node_number=..., source_label=...)`.
+///
+/// A parsed value in `options` nested deeper than [`value::MAX_VALUE_NESTING`] fails closed
+/// ([`ImportError::Unsupported`]) before anything walks it.
 pub fn import(data: &[u8], options: &ImportOptions) -> Result<ImportResult, ImportError> {
+    let parsed = [
+        ("sidecar", match &options.sidecar {
+            Some(SidecarInput::Parsed(value)) => Some(value),
+            _ => None,
+        }),
+        ("material_provenance", options.material_provenance.as_ref()),
+        ("pressure_closure", options.pressure_closure.as_ref()),
+        ("shear_model", options.shear_model.as_ref()),
+    ];
+    for (name, value) in parsed {
+        if let Some(value) = value {
+            if let Err(value::Unrepresentable::TooDeep) = value::screen(value) {
+                return Err(ImportError::Unsupported(value::unrepresentable(value::Unrepresentable::TooDeep, name)));
+            }
+        }
+    }
     importer::Importer::new(data, options, false).run()
 }
 
@@ -205,7 +224,8 @@ pub fn documented_orientations(data: &[u8]) -> Result<Option<Vec<((String, Strin
 }
 
 /// `canonical_bytes(value)`: `json.dumps(value, sort_keys=True, indent=2, ensure_ascii=True, allow_nan=False)`
-/// and a final newline.
+/// and a final newline. It recurses: a caller's own value must pass [`value::screen`] first (every value the crate's
+/// entry points return does).
 pub fn canonical_bytes(value: &Value) -> Result<Vec<u8>, PyError> {
     pyfmt::canonical_bytes(value)
 }
@@ -216,7 +236,11 @@ pub fn parse_sidecar_json(data: &[u8]) -> Result<Value, SidecarJsonError> {
 }
 
 /// si_writer `sidecar_self_digest(sidecar)`, or the path and reason that leave it without a canonical form.
+/// A sidecar nested deeper than [`value::MAX_VALUE_NESTING`] has no digest here: `("sidecar", reason)`.
 pub fn sidecar_self_digest(sidecar: &Value) -> Result<String, (String, String)> {
+    if let Err(value::Unrepresentable::TooDeep) = value::screen(sidecar) {
+        return Err(("sidecar".into(), value::unrepresentable(value::Unrepresentable::TooDeep, "sidecar")));
+    }
     match sidecar::sidecar_self_digest(sidecar) {
         Ok(digest) => Ok(digest),
         Err(Ok(error)) => Err((error.path, error.reason)),

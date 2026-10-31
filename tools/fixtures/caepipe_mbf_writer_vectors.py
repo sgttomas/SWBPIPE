@@ -270,6 +270,14 @@ def coverage_inputs() -> list[tuple[str, dict, dict]]:
     variant("material-poisson-missing",
             lambda m: [(material.pop("poisson_ratio", None), material.pop("shear_modulus", None)) for material in m["materials"]])
     variant("model-settings", lambda m: m.update(model_settings={"invented": "coverage"}))
+    # Review r1 of #32: a Poisson ratio of -1 beside a shear modulus divides by zero (ZeroDivisionError); a load with no
+    # category key is subscripted (KeyError), while an explicit null category is refused by name.
+    variant("material-poisson-minus-one",
+            lambda m: m["materials"][0].update(poisson_ratio={"value": -1.0, "unit": "1"},
+                                               shear_modulus=m["materials"][0].get("shear_modulus")
+                                               or {"value": 80.0, "unit": "GPa"}))
+    variant("load-category-absent", lambda m: first_load(m).pop("category"))
+    variant("load-category-null", lambda m: first_load(m).update(category=None))
     variant("node-not-exported", lambda m: free_node(m))
     variant("reference-configurations", lambda m: m.update(reference_configurations=[{"id": "invented"}]))
     variant("section-density", lambda m: m["pipe_segments"][0]["section"].update(material_density={"value": 7850.0, "unit": "kg/m3"}))

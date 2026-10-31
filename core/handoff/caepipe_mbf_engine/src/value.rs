@@ -256,6 +256,54 @@ pub fn small_int(value: &Value) -> Option<i64> {
     }
 }
 
+/// The deepest container nesting a public entry point takes as a [`Value`] (a value inside one list or dict is at
+/// depth 1). The port's recursive walks (equality, formatting, cloning) stay within any build's stack below it, the
+/// wasm build's included; the sidecar JSON parser has the same bound ([`crate::MAX_SIDECAR_NESTING`]).
+pub const MAX_VALUE_NESTING: usize = 64;
+
+/// What [`screen`] finds wrong with a value given to a public entry point, found without recursion.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Unrepresentable {
+    /// Containers nest deeper than [`MAX_VALUE_NESTING`].
+    TooDeep,
+    /// The sidecar parser's internal sentinel, which no Python value is.
+    Sentinel,
+}
+
+/// Screens `value` iteratively, so a hostile depth cannot overflow the stack before it is refused.
+pub fn screen(value: &Value) -> Result<(), Unrepresentable> {
+    let mut stack: Vec<(&Value, usize)> = vec![(value, 0)];
+    while let Some((item, depth)) = stack.pop() {
+        match item {
+            Value::Bad => return Err(Unrepresentable::Sentinel),
+            Value::List(items) => {
+                if depth >= MAX_VALUE_NESTING {
+                    return Err(Unrepresentable::TooDeep);
+                }
+                stack.extend(items.iter().map(|child| (child, depth + 1)));
+            }
+            Value::Dict(dict) => {
+                if depth >= MAX_VALUE_NESTING {
+                    return Err(Unrepresentable::TooDeep);
+                }
+                stack.extend(dict.values().map(|child| (child, depth + 1)));
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+/// The `Unsupported` reason for an unrepresentable value given as `name`.
+pub fn unrepresentable(problem: Unrepresentable, name: &str) -> String {
+    match problem {
+        Unrepresentable::Sentinel => format!("the {name} holds a value that is not a JSON value"),
+        Unrepresentable::TooDeep => {
+            format!("the {name} nests containers deeper than {MAX_VALUE_NESTING}, which this port does not follow")
+        }
+    }
+}
+
 /// Build a dict in insertion order: `dict![("a", v), ...]`.
 #[macro_export]
 #[doc(hidden)]

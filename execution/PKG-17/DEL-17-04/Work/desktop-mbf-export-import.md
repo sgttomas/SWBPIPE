@@ -536,6 +536,12 @@ needs slices 4 and 5.
   and message. An input the port cannot reproduce fails closed as `ImportError::Unsupported`:
   a NaN load category, whose set membership the Python decides by object identity, and the
   sidecar parser's internal sentinel.
+  - **Nesting bound** (review r1 of #32). A `Value` given to a public entry point (the writer's
+    model and settings, the regeneration's model, `import`'s parsed options and
+    `sidecar_self_digest`) is screened without recursion. Containers nested deeper than 64
+    (`MAX_VALUE_NESTING`, the sidecar parser's bound) fail closed as `Unsupported` before
+    anything walks them, so a hostile depth cannot overflow the stack natively or in wasm. The
+    Python may still write such a model when the deep member is one it omits.
 - **Parity.** `tools/fixtures/caepipe_mbf_writer_vectors.py` records the inputs of every writer
   call the suites make, the corpus the import vectors write back, the correlation cases and
   generated coverage inputs. Each input is replayed through the unpatched Python for its

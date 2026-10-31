@@ -576,20 +576,11 @@ impl WriterResult {
     }
 }
 
-/// Fails closed on the sidecar parser's internal sentinel, which no Python value is.
+/// Fails closed on a value the port does not take: the sidecar parser's internal sentinel, which no Python value is,
+/// and containers nested beyond [`crate::value::MAX_VALUE_NESTING`], where the Python may still write (an omitted
+/// member is never walked) but the port's recursive walks are not followed that deep. The screen does not recurse.
 fn representable(value: &Value, name: &str) -> R<()> {
-    fn bad(value: &Value) -> bool {
-        match value {
-            Value::Bad => true,
-            Value::List(items) => items.iter().any(bad),
-            Value::Dict(dict) => dict.values().any(bad),
-            _ => false,
-        }
-    }
-    if bad(value) {
-        return Err(ImportError::Unsupported(format!("the {name} holds a value that is not a JSON value")));
-    }
-    Ok(())
+    crate::value::screen(value).map_err(|problem| ImportError::Unsupported(crate::value::unrepresentable(problem, name)))
 }
 
 /// `render_caepipe_mbf_si(model, title=..., reference_temperature_c=..., max_layout_rows=...,
