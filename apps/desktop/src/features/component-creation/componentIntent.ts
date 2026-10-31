@@ -406,23 +406,34 @@ export function isComponentDraftValid(
   }
   return Boolean(
     incidentPipe(model, draft.node, draft.primaryPipeRef) &&
-      positiveFinite(draft.rigidBodyLength) &&
-      positiveFinite(draft.endASize) &&
-      positiveFinite(draft.endBSize) &&
-      validUnit(draft.lengthUnit) &&
-      validUnit(draft.endASizeUnit) &&
-      validUnit(draft.endBSizeUnit) &&
-      validUnit(draft.centerOfGravityUnit) &&
-      positiveFinite(draft.weight) &&
-      validUnit(draft.forceUnit) &&
-      finiteNumber(draft.centerOfGravityX) &&
-      finiteNumber(draft.centerOfGravityY) &&
-      finiteNumber(draft.centerOfGravityZ) &&
-      draft.connectionEndAReference.trim() &&
-      draft.connectionEndBReference.trim() &&
-      draft.stiffnessBehaviorReference.trim() &&
-      rigidInterfacesValid(draft)
+      rigidGeometryIssues(draft).length === 0
   );
+}
+
+/** The rigid forms and run-sheet component rows share these completeness rules.
+ * Unit dimensions, references and persisted shape remain the operation engine's. */
+export function rigidGeometryIssues(draft: ComponentDraft): Array<{ field: keyof ComponentDraft; message: string }> {
+  const issues: Array<{ field: keyof ComponentDraft; message: string }> = [];
+  for (const field of ["rigidBodyLength", "endASize", "endBSize", "weight"] as const) {
+    if (!positiveFinite(draft[field])) issues.push({ field, message: "Enter a finite positive value." });
+  }
+  for (const field of ["lengthUnit", "endASizeUnit", "endBSizeUnit", "centerOfGravityUnit", "forceUnit"] as const) {
+    if (!validUnit(draft[field])) issues.push({ field, message: "Choose a unit." });
+  }
+  for (const field of ["centerOfGravityX", "centerOfGravityY", "centerOfGravityZ"] as const) {
+    if (!finiteNumber(draft[field])) issues.push({ field, message: "Enter a finite value." });
+  }
+  for (const field of ["connectionEndAReference", "connectionEndBReference", "stiffnessBehaviorReference"] as const) {
+    if (!draft[field].trim()) issues.push({ field, message: "Enter the reference." });
+  }
+  if (!rigidInterfacesValid(draft)) {
+    const scale = draft.rigidStiffnessScale.trim();
+    const source = draft.rigidScaleSourceReference.trim();
+    if (scale && !positiveFinite(scale)) issues.push({ field: "rigidStiffnessScale", message: "Enter a finite positive stiffness scale." });
+    if (Boolean(scale) !== Boolean(source)) issues.push({ field: scale ? "rigidScaleSourceReference" : "rigidStiffnessScale", message: "Enter the stiffness scale and its source together." });
+    if (draft.rigidSolverConsumption && !(RIGID_SOLVER_CONSUMPTIONS as readonly string[]).includes(draft.rigidSolverConsumption)) issues.push({ field: "rigidSolverConsumption", message: "Choose an offered solver consumption mode or leave it undeclared." });
+  }
+  return issues;
 }
 
 /** W-15: a stiffness scale is finite positive and entered with its source
