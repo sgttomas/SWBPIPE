@@ -63,7 +63,9 @@ def snapshot(repo, rev, dst):
     """git archive of projects/chirality-piping at rev (execution/ excluded) into dst."""
     os.makedirs(dst)
     prefix = project_prefix(repo, rev)
-    arc = git(repo, "archive", rev, prefix.rstrip("/") or ".", f":(exclude){prefix}execution")
+    # The snapshot is the committed bytes: no user or system end-of-line setting or global attributes file converts them.
+    arc = git(repo, "-c", "core.autocrlf=false", "-c", "core.eol=lf", "-c", "core.attributesFile=/dev/null",
+              "archive", rev, prefix.rstrip("/") or ".", f":(exclude){prefix}execution")
     subprocess.run(["tar", "-x", "-C", dst], input=arc, check=True)
     return os.path.join(dst, prefix)
 

@@ -91,6 +91,8 @@ All outputs go to `--out`.
      2. **Function:** by the same ordinal `fn` definition.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
+
+     The hunks come from `git diff -U0` with the histogram algorithm and every other output-affecting setting pinned on the command line, so the user's git configuration cannot change a carry (retained-pricing-rules.md §1.2).
    - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported. Dictionary rules are discarded by their original key identity before insertion at mapped keys, so a deleted old key cannot overwrite or prune an unrelated live rule remapped to that spelling.
    - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
      - `{"as": "deleted", "why": …}` prunes it;
@@ -143,6 +145,7 @@ All outputs go to `--out`.
 - **Atom values.** Values come from the in-build law test. The tree's ASSUMED strides are only the chain's own check.
 - **Runtime and CI.** A full run takes about one minute of CPU on one core. The full run is not in CI. `tests/test_retained_pricing_tool.py` runs for any change under this directory and covers:
   - the key carry, the prune, and the `fewer_definitions` stop and its resolutions, on two-commit fixture repositories;
+  - the same carry under adverse git diff settings (`diff.algorithm`, the indent heuristic, hunk context, colour, renames, an external diff);
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
   - the generator's basis line.

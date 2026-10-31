@@ -60,13 +60,14 @@ def repo(tmp_path):
     return r
 
 
-def carry(tmp_path, repo, old, new, rules, resolutions=None):
+def carry(tmp_path, repo, old, new, rules, resolutions=None, git_env=None):
     (tmp_path / "crates.txt").write_text("core/x/src\n")
     (tmp_path / "rules.json").write_text(json.dumps(rules))
     out = tmp_path / "out"
     r = subprocess.run([sys.executable, str(TOOL / "lib" / "linemap_rules.py"), "--prune-deleted", str(repo), old, new, str(out),
                         str(tmp_path / "rules.json")],
-                       env=dict(os.environ, LINEMAP_CRATES=str(tmp_path / "crates.txt"), LINEMAP_RESOLUTIONS=resolutions or ""),
+                       env=dict(os.environ, LINEMAP_CRATES=str(tmp_path / "crates.txt"), LINEMAP_RESOLUTIONS=resolutions or "",
+                                **(git_env or {})),
                        capture_output=True, text=True)
     report = json.loads((out / "g7_linemap.out.json").read_text())
     return r.returncode, json.loads((out / "rules.json").read_text()), report
@@ -102,6 +103,40 @@ def test_a_site_whose_text_changed_stops_the_carry(tmp_path, repo):
     assert rc == 1
     assert [u[1] for u in report["summary"]["unmapped"]] == ["lib.rs:2"]
     assert report["summary"]["unmapped"][0][3] == "replaced"
+
+
+# Two revisions whose -U0 hunks differ by diff algorithm. Myers keeps fn d's two lines (old 17 and 18) in fn d (new 24,
+# 25); histogram matches them to the new fn g's equal lines (new 18, 19). The text check accepts either, so only the
+# diff algorithm decides. Histogram is what every registered run used: the expectation pins that, not the better match.
+ALGO_OLD = ("fn a() {\n    x();\n    y();\n}\n\nfn b() {\n    y();\n    x();\n}\n\n"
+            "fn c() {\n    let s = 1;\n    x();\n}\n\nfn d() {\n    let s = 1;\n    x();\n}\n\n")
+ALGO_NEW = ("fn a() {\n    x();\n    y();\n}\n\nfn b() {\n    y();\n    x();\n}\n\n"
+            "fn c() {\n    let s = 1;\n    x();\n    x();\n}\nfn g() {\n    x();\n    let s = 1;\n    x();\n}\n\n\n"
+            "fn d() {\n    let s = 1;\n    x();\nfn f() {\n    let s = 1;\n}\n\n}\n\n")
+HOSTILE_GIT = [("diff.algorithm", "myers"), ("diff.algorithm", "patience"), ("diff.algorithm", "minimal"),
+               ("diff.indentHeuristic", "false"), ("diff.interHunkContext", "10"), ("color.ui", "always"),
+               ("diff.renames", "false"), ("diff.external", "true")]
+
+
+def git_settings(*pairs):
+    """Only these settings, as `git -c` gives them: no global or system configuration."""
+    env = {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_COUNT": str(len(pairs))}
+    for i, (k, v) in enumerate(pairs):
+        env[f"GIT_CONFIG_KEY_{i}"], env[f"GIT_CONFIG_VALUE_{i}"] = k, v
+    return env
+
+
+@pytest.mark.parametrize("setting", HOSTILE_GIT, ids=lambda s: "=".join(s))
+def test_the_carry_does_not_depend_on_the_user_s_git_diff_settings(tmp_path, repo, setting):
+    old, new = commit(repo, ALGO_OLD), commit(repo, ALGO_NEW)
+    hunks = {a: git(repo, "diff", "-U0", f"--diff-algorithm={a}", old, new) for a in ("myers", "histogram")}
+    assert hunks["myers"] != hunks["histogram"]            # the fixture still tells the algorithms apart
+    rules = {"site_total": {"lib.rs:17": 1, "lib.rs:18": 2}}
+    (tmp_path / "neutral").mkdir()
+    (tmp_path / "hostile").mkdir()
+    expected = carry(tmp_path / "neutral", repo, old, new, rules, git_env=git_settings())
+    assert expected[:2] == (0, {"site_total": {"lib.rs:18": 1, "lib.rs:19": 2}})
+    assert carry(tmp_path / "hostile", repo, old, new, rules, git_env=git_settings(setting)) == expected
 
 
 # The review's case: two `fn f`; B::f deleted and A::f's signature edited in the same change. The count falls from 2 to
