@@ -473,7 +473,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // same ranges, the closed modules main's byte for byte, the merged suffix #1663's; unchanged.
             // Combined D3 at fc0e6dd877 versus main 7a43b7dde9: rechecked
             // 0d01d7e2… versus 6dc09d33…; only inspected identity dispatch differs.
-            complete_suffix_sha256: "0d01d7e25d89e3214322197da2bbf26e6cd76bdcc09783c4a25a14971343ee79",
+            // Re-audited at §8.33 (RT-A3 increment 1, 7e7fef2d4) against main d290563ea's 0d01d7e2…: only
+            // the closed `b7b_current_table_tests` module changed (pressure-2's 135 -> 137 rows, with its
+            // comment); the inspected production after the resume and E14 are byte-identical.
+            complete_suffix_sha256: "0d4f2d6a73b16098eada396616bdecbc73926ce56e55ca2faa5c56c5c6f44150",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -1953,9 +1956,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 /// registration is separate below.
 // §8.32 candidate: independent resident table +322,013 B; source TEXT
 // +12,908 B in W and +13,204 B in X. The AC-004 stack witnesses passed 6/6 at 84824b20f0.
+// §8.33 (RT-A3 increment 1, 7e7fef2d4): the readers' branch row-kind arm +38,864,448 B and the v3
+// identity text +2,946 B of TAV_W, the identity text +2,946 B of TAV_X, and the two resident tables'
+// branch signatures +24,406 B of STATICS: W phases +38,891,800 B and X phases +27,352 B in both modes.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_559_878_321, 6_901_872_882, 8_856_055_542, 8_644_215_969, 7_722_244_196, 8_607_481_325, 7_338_881_987, 7_012_171_863],
-    [6_619_009_665, 6_961_004_226, 8_915_186_886, 8_703_347_313, 7_781_375_540, 8_666_612_669, 7_398_013_331, 7_071_303_207],
+    [6_598_770_121, 6_940_764_682, 8_894_947_342, 8_683_107_769, 7_761_135_996, 8_607_508_677, 7_338_909_339, 7_012_199_215],
+    [6_657_901_465, 6_999_896_026, 8_954_078_686, 8_742_239_113, 7_820_267_340, 8_666_640_021, 7_398_040_683, 7_071_330_559],
 ];
 
 #[test]
