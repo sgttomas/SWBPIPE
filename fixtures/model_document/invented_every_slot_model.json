@@ -171,7 +171,8 @@
         }
       },
       "material": "material:steel",
-      "provenance": "invented_example"
+      "provenance": "invented_example",
+      "condition_set_ref": "condition_set:CS-1"
     }
   ],
   "supports": [
@@ -201,7 +202,7 @@
     {
       "id": "support:SN-1",
       "label": "Snubber",
-      "node": "node:N-2",
+      "node": "node:N-3",
       "family": "snubber",
       "restraints": [
         "UY"
