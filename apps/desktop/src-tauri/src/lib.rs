@@ -2195,8 +2195,9 @@ async fn take_preview_mechanics_job_result(
 /// retained result, read natively from the held bytes (`native_verdict`).
 /// Raw args body `{jobId, modelJson?, invocationJson?}`; the response is the
 /// reader's outcome JSON, as the wasm engine's `reader_dispatch_json` returns
-/// it. The arguments are admitted here; the read (the parse's admission,
-/// which re-samples, the parse and the reader) runs in a blocking task.
+/// it. Only the header check, copy reservation and body copy run here;
+/// argument admission, diagnostics, parse admission and the reader run in
+/// a blocking task.
 #[tauri::command]
 async fn read_preview_mechanics_job_verdict(
     invoke: tauri::ipc::Request<'_>,

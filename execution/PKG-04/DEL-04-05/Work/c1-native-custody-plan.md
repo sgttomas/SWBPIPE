@@ -328,6 +328,11 @@ byte-identical records. The TS builder stays as the oracle in tests until C2.
   - The command adds only the `RawValue` exception and ingress and resource refusals,
     which are typed `RESOURCE_UNAVAILABLE` and `INVALID_REQUEST`, as for every native
     command.
+  - Diagnostic parses also require adaptive pool admission. Under critical pressure or
+    insufficient headroom, even a malformed text can return `RESOURCE_UNAVAILABLE`
+    before its JSON diagnostic is computed. Native consumers must preserve that typed
+    resource refusal rather than report a parse failure; the JSON diagnostic becomes
+    available when memory permits the diagnostic parse.
   - Diagnostics move to S in slice 2, copied from the parsed envelope and checked equal to
     `result.diagnostics`.
 

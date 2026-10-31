@@ -423,6 +423,22 @@ fn runtime_workers() -> usize {
     workers
 }
 
+/// The executor's reservation must not prescan or parse the argument body.
+/// A malformed body is copied under its lease and refused only by `run`.
+#[test]
+fn reserve_does_not_prescan_or_parse_the_body() {
+    let host = ScriptedHost::normal();
+    let (registry, _) = gated(&host);
+    let malformed = br#"{"jobId":"#;
+    let body = InvokeBody::Raw(malformed.to_vec());
+    let (raw, lease) = reserve(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+    assert_eq!(raw, malformed);
+    assert!(registry.pool().reserved_total() > 0);
+    let error = run(registry.clone(), raw, lease).unwrap_err();
+    assert!(matches!(refusal(error), ResourceRefusal::IngressInvalid { .. }));
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
 /// Review F1 and R1: the arguments' admission and the read run in a blocking
 /// task, never on the async runtime's workers. At each stage, more commands
 /// than the runtime has workers are held inside it at once (at admission with
