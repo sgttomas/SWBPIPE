@@ -25,10 +25,15 @@ statement about the system or the product (F-PIP-2, F-PIP-3).
 - **⟨S5⟩** = `invented user value, DEL-09-01 Work/reference-system.md §5`
 
 **Queue and apply.** Every form below queues an operation. A single intent is applied with
-**Apply** under *Review changes* (`features/operations/OperationApplyPanel.tsx:105-114`); a
-batch with **Validate batch**, then **Apply entire batch** (`features/toolkit/BatchReviewPanel.tsx:122-123`).
-A batch holding `insert_bend_at_corner` applies only after a clean validation of that
-batch (`BatchReviewPanel.tsx:24-32`).
+**Apply** under *Review changes* (`features/operations/OperationApplyPanel.tsx`). Since #54,
+**Review all N queued changes as one batch** can move independent user intents to batch
+review in queue order. The move applies nothing; **Apply entire batch** validates and
+applies all or none, as one Undo (`features/toolkit/BatchReviewPanel.tsx`). **Validate
+batch** checks without applying and is required first for preview-gated operations,
+including `insert_bend_at_corner`. Dependent before-values are never adjusted; shared
+operation ids are named and refused before anything leaves the single queue. §5 retains
+the per-intent cycle counts before optional G9 batching; it assigns no separate timing
+rate to an Apply cycle, so no numerical time credit for batching is inferred.
 
 ## 2. Preconditions
 
@@ -571,11 +576,11 @@ cost §5 shows. None is worked around outside the operation route.
 | G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections at creation; no later end-size edits (§3.6) |
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
-| G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 32 apply cycles before G9 batching (§5) |
+| G9 | Closed by #54: independent queued user intents can move to one reviewed atomic batch, with named refusals for stale dependencies and duplicate operation ids | DEL-07-02 `Work/queued-changes-batch.md`; `queuedChangesBatch.test.tsx` | DEL-07-02 | Optional batching under Review changes; §5 retains 32 per-intent cycles before batching, with no inferred time credit |
 | G10 | Closed in DEL-09-01: tee creation requires a run size, header size, connection type and reinforcement reference; spec §5 now gives invented values, which EX does not read | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) | §3.6 |
 | G11 | No modifier-source entry for a tee: the inspector offers header and branch SIFs but not `modifiers.source_reference`, which it offers only on rigid components | `PropertyInspector.tsx:1920-2009, 2097-2105`; applier field rule `lib.rs:679-682` | DEL-03-05 | Leaves the SIF source unentered (§3.6) |
 
 **RT-G2 candidates not named in spec §11.2:**
 - a unit per quantity on the rigid-component form (G6, implemented; see DEL-03-05 `Work/component-quantity-units.md`);
-- applying several queued intents as one reviewed batch (G9);
+- applying several queued intents as one reviewed batch (G9, implemented in #54);
 - a modifier-source field for a tee, beside its SIFs (G11).
