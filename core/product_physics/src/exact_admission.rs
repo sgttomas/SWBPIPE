@@ -8,7 +8,12 @@
 //! reducer, rigid and specialty components with the DEC-045 stiffness scale of
 //! their mapped straight member, an equivalent pipe of the mapped section; a
 //! reducer whose mapped member belongs to a pressure region is refused by
-//! [`REDUCER_IN_REGION`]. Other families retain their named refusals. Admission
+//! [`REDUCER_IN_REGION`]. RT-A3 increment 1 (DEL-04-07 Design
+//! `pressure-contract.md`, "Tees and pressure junctions") admits the branch
+//! connection (tee) as the metadata record it is on the pressure-free route,
+//! with its user SIFs as intensified rows on both section bases
+//! (`u4b_rows::append_branch_intensified`). Other families retain their named
+//! refusals. Admission
 //! of another family must supply those consumers together; lifting a refusal
 //! alone cannot establish mechanics.
 
@@ -35,13 +40,26 @@ pub(crate) const REDUCER_IN_REGION_TEXT: &str = "reducer maps a member of this p
 /// §8.30 correction 1 (RT-A3; R-4 design C-1): the case-specific refusal of a
 /// node where terminals of two or more pressure regions meet and at least one
 /// of them is `separately_supported_or_compensated`
-/// (`pressure_runtime::refuse_compensated_shared_terminals`). Temporary: R-4
-/// stage S1's junction admission replaces it.
+/// (`pressure_runtime::refuse_compensated_shared_terminals`). RT-A3 increment
+/// 1 (D-1) represents a pressure junction implicitly by such a shared node
+/// with every terminal there `transfers_to_wall`, so this refusal stays: a
+/// compensated terminal cannot be part of a junction.
 pub(crate) const SHARED_TERMINAL_JUNCTION: &str =
     "EXACT_PRESSURE_SHARED_TERMINAL_JUNCTION_UNSUPPORTED";
 /// The static tail of [`SHARED_TERMINAL_JUNCTION`]'s text, after the node,
 /// its regions and the compensated regions are named.
-pub(crate) const SHARED_TERMINAL_JUNCTION_TEXT: &str = "3.0.0/exact_pressure_v3 has no junction representation yet, and a compensated terminal at a junction can omit its member's share (p*Ai along the member's outward axis) of the junction's pressure load -sum(p*Ai*s) from the pipe solve, so the exact route refuses the junction rather than analyse it without that load; this temporary refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; where the members share one fluid space, transfers_to_wall at every terminal of the node carries that load";
+pub(crate) const SHARED_TERMINAL_JUNCTION_TEXT: &str = "3.0.0/exact_pressure_v3 represents a pressure junction as a node where regions end with transfers_to_wall at every terminal, whose caps (p*Ai along each member's outward axis) sum to the junction's pressure load -sum(p*Ai*s); a compensated terminal at the node would omit its member's share from the pipe solve, so the exact route refuses the node rather than analyse it without that load; the refusal also applies where the omitted share or the resultant is zero or cancels, such as a zero-pressure compensated branch or equal opposed compensated caps; declare transfers_to_wall at every terminal of the node";
+
+/// RT-A3 increment 1 (D-1): the warning of a pressure junction whose regions
+/// carry different pressures (`pressure_runtime::junction_closure_warnings`).
+pub(crate) const JUNCTION_PRESSURES_DIFFER: &str = "EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER";
+/// The static tail of [`JUNCTION_PRESSURES_DIFFER`]'s text.
+pub(crate) const JUNCTION_PRESSURES_DIFFER_TEXT: &str = "the junction is analysed as a closure inside the fitting, such as a blind or a check valve between the regions, and its pressure load is the exact sum of the regions' caps at the node; if the regions share one fluid space, correct their pressures; confirm the closure is intended";
+/// RT-A3 increment 1 (D-1): the warning of a pipe at a pressure junction that
+/// belongs to no pressure region of the case.
+pub(crate) const JUNCTION_PIPE_OUTSIDE_REGIONS: &str = "EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS";
+/// The static tail of [`JUNCTION_PIPE_OUTSIDE_REGIONS`]'s text.
+pub(crate) const JUNCTION_PIPE_OUTSIDE_REGIONS_TEXT: &str = "the pipe is analysed as unpressurized and closed off at the node, and the junction's pressure load is the exact sum of the regions' caps there; if the pipe carries the same fluid, add it to a pressure region ending at the node; confirm the closure is intended";
 
 /// The sole exact pressure contract declared on a current model document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,7 +122,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     let identity = if selected {
         "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     } else {
-        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise). Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     };
     let source = if selected {
         "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing. No code compliance or professional acceptance is produced, and actual numerical admission remains separate."
@@ -270,15 +288,15 @@ impl ExactFamily {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
     /// The extension point: T4-U3 admits the objective connector; T4-U2 the
-    /// realized bend; W-15 the rigid family.
+    /// realized bend; W-15 the rigid family; RT-A3 the branch connection.
     Admitted,
     /// A refusal's code and text, both static (no text is composed here).
     Refused { code: &'static str, message: &'static str },
 }
 
 /// The current admission table: the objective connector, the realized bend,
-/// the rigid family, equivalent-static generation and load combinations are
-/// admitted with their integrated mechanics.
+/// the rigid family, the branch connection, equivalent-static generation and
+/// load combinations are admitted with their integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
@@ -307,6 +325,13 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // combinations over the primitive cases, formed from their published
         // rows (`exact_combinations`); the retained sub-route keeps refusing them.
         (ExactContract::PressureV3, ExactFamily::Combination) => Admission::Admitted,
+        // RT-A3 increment 1: a branch connection (tee) is the pressure-free
+        // route's metadata record at its node (no element, no assembled branch
+        // flexibility); its user SIFs give the intensified rows on both bases
+        // (`u4b_rows::append_branch_intensified`). Pressure reaches a tee only
+        // through regions that end at its node (a region's internal node may
+        // not touch an outside pipe), where the terminal caps form the junction.
+        (ExactContract::PressureV3, ExactFamily::Branch) => Admission::Admitted,
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
@@ -408,14 +433,14 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_the_realized_bend_the_rigid_family_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
                     if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
                         | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
-                        | ExactFamily::RigidComponent | ExactFamily::EquivalentStatic
-                        | ExactFamily::Combination) => {}
+                        | ExactFamily::RigidComponent | ExactFamily::Branch
+                        | ExactFamily::EquivalentStatic | ExactFamily::Combination) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.
                 Admission::Refused { code, message } if family == ExactFamily::GeometryOnlyBend => {

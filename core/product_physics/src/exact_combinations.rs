@@ -729,7 +729,7 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
     let has_maximum = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
         && matches!(r.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | u4b_rows::EXTREME_KIND | u4b_rows::SHEAR_MAX_KIND));
     let has_intensified = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
-        && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND));
+        && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND | u4b_rows::BRANCH_KIND));
     let mut records = Vec::new();
     let mut appended = Vec::new();
     for combination in &model.combinations {

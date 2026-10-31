@@ -107,9 +107,10 @@ fn declare_support_state(document: &mut Value, support: &str) {
     }
 }
 
-/// A still-refused component family (W-15 admits the valve, the earlier sample).
-fn tee(base: Base) -> Value {
-    json!({"id":"component:tee","kind":"tee","node":base.tip(),"provenance":PROVENANCE})
+/// A still-refused component family (W-15 admits the valve and RT-A3 the tee,
+/// the earlier samples).
+fn other(base: Base) -> Value {
+    json!({"id":"component:other","kind":"other","node":base.tip(),"provenance":PROVENANCE})
 }
 
 fn gap(base: Base) -> Value {
@@ -131,9 +132,9 @@ fn combination(base: Base) -> Value {
         "provenance":PROVENANCE})
 }
 
-fn with_tee(base: Base) -> Value {
+fn with_other(base: Base) -> Value {
     let mut document = base.document();
-    push(&mut document, "components", tee(base));
+    push(&mut document, "components", other(base));
     document
 }
 
@@ -270,21 +271,21 @@ fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
 fn a1_precedence_follows_emission_order() {
     for base in [Base::X0, Base::Y0] {
         // A component is refused; W-16 slice b admits the combination beside it.
-        let mut document = with_tee(base);
+        let mut document = with_other(base);
         document["model"]["combinations"] = json!([combination(base)]);
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
-        position(&envelope, FAMILY, &["component:tee"]);
+        position(&envelope, FAMILY, &["component:other"]);
         assert!(!envelope["diagnostics"].as_array().unwrap().iter()
             .any(|d| d["code"] == FAMILY && d["affected_refs"] == json!(["combination:sum"])));
 
         // Component before support.
         let mut document = with_support(base, gap(base), true);
-        push(&mut document, "components", tee(base));
+        push(&mut document, "components", other(base));
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
         assert!(
-            position(&envelope, FAMILY, &["component:tee"])
+            position(&envelope, FAMILY, &["component:other"])
                 < position(&envelope, FAMILY, &["support:gap"])
         );
 

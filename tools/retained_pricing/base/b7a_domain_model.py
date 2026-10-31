@@ -132,7 +132,7 @@ import runpy
 # FK formation_check.rs and SP lib.rs re-form and bound a Timoshenko partial-span load. Re-pinned after review.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': '7c3be9bab1a0e5dac865c86d2274fa58ca4566aebba7582f6ec9def1353bbec4', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': 'b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': 'bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347', 'core/reporting/result_export/src/retained_precision.rs': 'ef83e0ec2da3532eb0f5d3650d015abb0a885de58aef0633d07411660640c312', 'core/product_physics/src/model_format.rs': '7313c52beb6fcd9cbfd774c6ec6a0280eece1aa46eb5a63056078dc310e8bec6', 'core/product_physics/src/pressure_runtime.rs': '53207391b0596fcca6c9539cd45ab0e023282a40aaca7d2538fcae34b3d80b28', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '41e7627e7874887252263170fe8d2569f2f8fd470fb0c3f5a4719915886f7125', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '1e503ad97c1bde73cb292006cdfe8b80abb78f73d0134a8030ad34b393410840', 'core/reporting/result_export/src/physics_source.rs': '1050e77c104a078ebb3b9abd571ac70d183934df9487178f72fe06ecdc41df24'}
+SOURCE_FILES = {'core/product_physics/src/lib.rs': '56ea5ca6cee2fbf3163d0d0840f32b13a8e482c805b9eb7b620ac60a4b6b4f13', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': 'b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '9f94323ee8d377563fdbde1b5ea31cb400cc924244075ad5a472db201467ae06', 'core/reporting/result_export/src/retained_precision.rs': '17f88ee2b5ae7de5fb0c22471f87387a066cbfd21e102b76f75b9bf54c164f25', 'core/product_physics/src/model_format.rs': '7313c52beb6fcd9cbfd774c6ec6a0280eece1aa46eb5a63056078dc310e8bec6', 'core/product_physics/src/pressure_runtime.rs': '8b4f390187e62d77b9f3316e3826bac0ca680b6d4decb9332e43e8a7126dacba', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '1174fa193e3d4e1d3e388737c7ada2386471177db7e185ded35a39943b161065', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '6417f7d1a889c96f4dcfd6cab21a10a2ca54b2a93e5c5591ce66cb3bf7c2059d', 'core/reporting/result_export/src/physics_source.rs': '1050e77c104a078ebb3b9abd571ac70d183934df9487178f72fe06ecdc41df24'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -393,26 +393,28 @@ def text_decisions(snapshot, resolved):
         # W-7 D3 (§8.20): every key below moved with unchanged text (lib.rs +5/+8/+37: the aggregation's retain, the
         # case solve's member row position and global end block; retained_product.rs +29/+30/+36: the global end
         # completion and the failed manifest's placeholders; retained_precision.rs +10: the global end kind).
-        (pp + "lib.rs:12103", {"load_case_id": inp}),
-        (pp + "lib.rs:12117", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12124", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12129", {"load.load_id": inp}),
-        (pp + "lib.rs:12130", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12131", {"bend.component_id": inp}),
-        (pp + "lib.rs:12132", {"load_case_id": inp}),
-        (pp + "lib.rs:12191", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12198", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12203", {"load.load_id": inp}),
-        (pp + "lib.rs:12204", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12205", {"bend.component_id": inp}),
-        (pp + "lib.rs:12206", {"load_case_id": inp}),
-        (pp + "lib.rs:12245", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12252", {"load.load_id": inp, "load_case_id": inp}),
+        # RT-A3 increment 1 D3 (§8.33): every lib.rs key below 2900 stands; later keys move +2 (the junction warnings'
+        # call), +7 (the branch model diagnostics) and +12 (the case solve's branch rows), unchanged text.
+        (pp + "lib.rs:12115", {"load_case_id": inp}),
+        (pp + "lib.rs:12129", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12136", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12141", {"load.load_id": inp}),
+        (pp + "lib.rs:12142", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12143", {"bend.component_id": inp}),
+        (pp + "lib.rs:12144", {"load_case_id": inp}),
+        (pp + "lib.rs:12203", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12210", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12215", {"load.load_id": inp}),
+        (pp + "lib.rs:12216", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12217", {"bend.component_id": inp}),
+        (pp + "lib.rs:12218", {"load_case_id": inp}),
+        (pp + "lib.rs:12257", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12264", {"load.load_id": inp, "load_case_id": inp}),
         # W-16 slice c (§8.27): certified_loads' two generated-id prefix formats move into lib.rs'
         # is_generated_equivalent_static_load (the kind arm and the any-kind arm) with the same input id; both are
         # reached only from an admitted equivalent-static case (W16C-ES: none on D1).
-        (pp + "lib.rs:10669", {"load_case.id": inp}),
-        (pp + "lib.rs:10670", {"load_case.id": inp}),
+        (pp + "lib.rs:10681", {"load_case.id": inp}),
+        (pp + "lib.rs:10682", {"load_case.id": inp}),
         (pp + 'retained_product.rs:4773', {"stable_suffix(id)": inp}),
         (pp + 'retained_product.rs:4774', {"id": inp}),
         (pp + 'retained_product.rs:4782', {"id": inp, "id.len()": inp, "component": static}),
@@ -423,9 +425,9 @@ def text_decisions(snapshot, resolved):
         (pp + 'retained_product.rs:4850', {"ordinary.document_kind": static}),
         (pp + 'retained_product.rs:4851', {"ordinary.model_ref": inp}),
         (pp + "lib.rs:1299", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3522", {"context.semantic_id()": static}),
-        (pp + "lib.rs:6091", {"support.id": inp}),
-        (pp + "lib.rs:6837", {"pipe.element_id": inp}),
+        (pp + "lib.rs:3529", {"context.semantic_id()": static}),
+        (pp + "lib.rs:6098", {"support.id": inp}),
+        (pp + "lib.rs:6844", {"pipe.element_id": inp}),
         (pp + "model_format.rs:28", {"version": static}),  # model document 0.8.0 (§8.26): +2 (the module comment), same text
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.

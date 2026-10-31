@@ -2898,6 +2898,8 @@ fn run_linear_static_preview_observed_inner(
     let mut diagnostics = Vec::new();
 
     pressure_runtime::validate_profile(&model, &mut diagnostics);
+    // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
+    pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
     // W-16 slice a: the named imposed-displacement checks (and the exact
     // route's refusal) run ahead of generic validation.
@@ -3283,6 +3285,11 @@ fn run_linear_static_preview_observed_inner(
     let preview = (!pressure_runtime::is_exact(&model)).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
+    if pressure_runtime::is_exact(&model) {
+        // RT-A3 increment 1: the branch connections' model-level diagnostics.
+        let arc_pipes = built.curved_bend_elements.iter().map(|bend| bend.pipe_id.as_str()).collect::<HashSet<_>>();
+        u4b_rows::branch_model_diagnostics(&model, &arc_pipes, &mut diagnostics);
+    }
     if preview.is_none() {
         withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);
     }
@@ -6932,6 +6939,11 @@ fn solve_prepared_load_case(
                 bases: bases.clone(), poisson, directional, toroidal,
             });
             directional_measures.extend(station.directional_records);
+            // RT-A3 increment 1: a tee's intensified rows at this straight
+            // member's ends, on both bases, from the rows just published.
+            if exact && macro_bend.is_none() {
+                directional_measures.extend(u4b_rows::append_branch_intensified(model, &mut results, &load_case.id, &pipe.element_id, &bases));
+            }
             if let Some(bend) = macro_bend {
                 let pressure_area_product = pressure_state.filter(|state| state.arc.is_some())
                     .and_then(|state| state.sections.cap_pair(state.pressure).ok()).map(|caps| caps[1]);

@@ -1215,6 +1215,16 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
+    // §8.33 D3 at 7e7fef2d4 (RT-A3 increment 1: tees and implicit pressure junctions on the exact
+    // route, with main's bend SIF warning fix; retained-pricing-rules.md §8.33): D1.4 refuses every
+    // component and D1.5 empties every E case's regions, so the branch rows, the branch model
+    // diagnostics, the branch records and the junction warnings are zero there (RTA3-BB, RTA3-JW).
+    // The readers' new branch row-kind arm raises TAV_W by 38,864,448 B and the v3 identity text
+    // TAV_W and TAV_X by 2,946 B; the pressure-2 table's two branch signatures (inherited by
+    // physics-retained-1) raise STATICS. 12 coefficients rise, none fall. The reviewed inputs
+    // physics-retained-1 (#8), the pressure-2 result schema (#10) and pressure-2 (#11), counted
+    // from 0, take their RT-A3 bytes; the identity, the other ten inputs, reader layouts and
+    // threshold are unchanged. §8.32's registration was the previous one.
     // §8.30 D3 at 03436d1ff0 (the shared-terminal junction refusal, the nonlinear dense memory
     // guard, the hanger-load warning and W-16t's partial-span wind on Timoshenko members, on main
     // 47774b4727; retained-pricing-rules.md §8.30): D1.5 empties the junction's node map, D1.6
@@ -1292,7 +1302,7 @@ static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // previous registration. The one registered entry supplies G0; its genuine profile, input,
     // witness and resource checks still govern.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c;../../schemas/results_pressure_2.v0.3.schema.json=ce085117a3501ecc87e08afa478e187c770cc11057b9d9c637022c8ec3fea9b9;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919;../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json=a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
+    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=c7bcf0ceb82372fbf5f9958446ffe3f9c1ca3eb2384c47663514d21f89a885bb;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c;../../schemas/results_pressure_2.v0.3.schema.json=258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6;../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json=a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     reader_layouts: [
         TypeLayout { size: 56, align: 8 },
         TypeLayout { size: 64, align: 8 },
@@ -1401,7 +1411,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at fc0e6dd877: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at 7e7fef2d45: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1436,8 +1446,8 @@ pub(super) mod profile {
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
     pub(crate) const TEXT_D: u64 = 76356; // D
     pub(crate) const TEXT_D_ENV: u64 = 28775; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7400322162; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7397721462; // TAV_text_requested
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7439189556; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7436588856; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
     pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 274415016; // Text(diag_env)
     pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 449831490; // Text(diag_total)
@@ -2774,7 +2784,7 @@ pub(super) mod profile {
         Form { name: "O_base_dense", constant: 259055215, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2212), (26, 1408), (29, 24), (31, 896), (32, 96), (37, 256), (38, 256), (39, 1536), (40, 40960), (42, 96), (44, 192), (46, 576), (49, 84096), (53, 384), (57, 576), (59, 288), (60, 384), (61, 4416), (63, 1308), (64, 224), (65, 384), (67, 197184), (69, 267), (74, 4), (75, 3), (79, 12), (80, 4), (92, 1344), (104, 6), (105, 6), (106, 12), (107, 6), (108, 6), (109, 48), (110, 771), (111, 3), (112, 12), (113, 3), (114, 3), (115, 6), (116, 3), (117, 384), (120, 143328), (126, 131936), (127, 12), (128, 384), (129, 3072), (131, 5226), (133, 15), (135, 1443180), (137, 3), (140, 1152), (141, 34176), (142, 1536), (143, 1664), (144, 128), (145, 21360), (150, 256), (151, 55350), (152, 19968), (153, 6144), (154, 6), (155, 12312), (159, 28), (162, 3), (163, 15), (171, 96), (172, 96), (176, 768), (179, 786432), (187, 20388), (191, 672), (192, 1200), (193, 1728), (194, 5280), (195, 4608), (199, 5184), (205, 6), (206, 3), (209, 6), (210, 3), (211, 32), (212, 32), (213, 32), (214, 768), (215, 384), (227, 1344), (228, 12), (229, 6144), (230, 1536), (232, 12864), (233, 15744), (236, 3456), (237, 192), (242, 7680), (243, 3), (244, 52411), (245, 5280), (246, 1152), (251, 11721), (253, 6), (263, 9), (264, 96), (265, 32), (275, 12), (277, 12), (278, 24), (279, 126144), (280, 128), (282, 132), (283, 121255), (284, 96), (286, 256), (288, 96), (289, 24576), (292, 448), (301, 108293), (302, 228777), (303, 1728), (304, 6912), (306, 1728), (307, 7616), (317, 192), (320, 332), (322, 288), (323, 10238)] },
         Form { name: "O_base_sparse", constant: 237695695, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2212), (26, 1408), (29, 24), (31, 896), (32, 96), (37, 256), (38, 256), (39, 1536), (40, 40960), (42, 96), (44, 192), (46, 576), (49, 84096), (53, 384), (57, 576), (59, 288), (60, 384), (61, 4416), (62, 3456), (63, 4764), (64, 224), (65, 384), (67, 197184), (69, 267), (74, 4), (75, 3), (79, 12), (80, 4), (92, 1344), (104, 6), (105, 6), (106, 12), (107, 6), (108, 6), (109, 48), (110, 771), (111, 3), (112, 12), (113, 3), (114, 3), (115, 6), (116, 3), (117, 384), (120, 143328), (126, 131936), (127, 12), (128, 384), (129, 3072), (131, 5226), (133, 15), (135, 283116), (137, 3), (140, 1152), (141, 34176), (142, 1536), (143, 1664), (144, 128), (145, 21360), (150, 256), (151, 55350), (152, 19968), (153, 6144), (154, 6), (155, 12312), (159, 28), (162, 3), (163, 15), (171, 96), (172, 96), (176, 768), (179, 786432), (187, 20388), (191, 672), (192, 1200), (193, 1728), (194, 5280), (195, 4032), (199, 5184), (205, 6), (206, 3), (209, 6), (210, 3), (211, 32), (212, 32), (213, 32), (214, 768), (215, 384), (227, 1344), (228, 12), (229, 6144), (230, 1536), (232, 12864), (233, 15744), (236, 3456), (237, 192), (242, 7680), (243, 3), (244, 52411), (245, 5280), (246, 1152), (251, 11721), (253, 6), (263, 9), (264, 96), (265, 32), (275, 12), (277, 12), (278, 24), (279, 126144), (280, 128), (282, 132), (283, 121255), (284, 96), (286, 256), (288, 96), (289, 12288), (292, 448), (301, 108293), (302, 211497), (303, 1728), (306, 3456), (307, 9920), (317, 192), (320, 332), (322, 288), (323, 10232)] },
         Form { name: "STAGED", constant: 377292898, terms: &[(11, 5094), (126, 28775), (162, 1), (244, 12393), (283, 49572), (301, 9354)] },
-        Form { name: "STATICS", constant: 581834, terms: &[(11, 7782), (301, 30852)] },
+        Form { name: "STATICS", constant: 586272, terms: &[(11, 7806), (301, 30924)] },
         Form { name: "SUCC", constant: 608343826, terms: &[(11, 272449), (301, 359532)] },
         Form { name: "T07_moving", constant: 1797413, terms: &[] },
         Form { name: "T11", constant: 9838041, terms: &[(43, 32), (45, 8), (46, 96), (77, 5), (78, 1), (102, 3), (103, 2), (132, 64), (160, 23), (164, 3), (166, 96), (174, 384), (185, 192), (192, 576), (196, 12), (218, 96), (238, 64), (262, 3), (266, 96), (268, 768), (269, 96), (270, 96), (271, 384), (272, 96), (273, 384), (274, 96), (283, 672), (293, 384), (295, 64), (299, 384), (302, 1), (318, 96), (319, 6), (321, 576)] },
@@ -2810,8 +2820,8 @@ pub(super) mod profile {
         Form { name: "T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (116, 1), (139, 1), (165, 3), (224, 2048), (251, 4131), (301, 17137)] },
         Form { name: "T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (116, 3), (224, 6144), (251, 12393), (301, 26625)] },
         Form { name: "T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "TAV_W", constant: 5063976946, terms: &[] },
-        Form { name: "TAV_X", constant: 5516270488, terms: &[] },
+        Form { name: "TAV_W", constant: 5102844340, terms: &[] },
+        Form { name: "TAV_X", constant: 5516273434, terms: &[] },
         Form { name: "TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "W1_MEMBER_READER", constant: 6291456, terms: &[] },
         Form { name: "success__BODY", constant: 228635850, terms: &[(11, 127033), (301, 142979)] },
@@ -2824,7 +2834,7 @@ pub(super) mod profile {
         Form { name: "success__O_base_dense", constant: 259055215, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2212), (26, 1408), (29, 24), (31, 896), (32, 96), (37, 256), (38, 256), (39, 1536), (40, 40960), (42, 96), (44, 192), (46, 576), (49, 84096), (53, 384), (57, 576), (59, 288), (60, 384), (61, 4416), (63, 1308), (64, 224), (65, 384), (67, 197184), (69, 267), (74, 4), (75, 3), (79, 12), (80, 4), (92, 1344), (104, 6), (105, 6), (106, 12), (107, 6), (108, 6), (109, 48), (110, 771), (111, 3), (112, 12), (113, 3), (114, 3), (115, 6), (116, 3), (117, 384), (120, 143328), (126, 131936), (127, 12), (128, 384), (129, 3072), (131, 5226), (133, 15), (135, 1443180), (137, 3), (140, 1152), (141, 34176), (142, 1536), (143, 1664), (144, 128), (145, 21360), (150, 256), (151, 55350), (152, 19968), (153, 6144), (154, 6), (155, 12312), (159, 28), (162, 3), (163, 15), (171, 96), (172, 96), (176, 768), (179, 786432), (187, 20388), (191, 672), (192, 1200), (193, 1728), (194, 5280), (195, 4608), (199, 5184), (205, 6), (206, 3), (209, 6), (210, 3), (211, 32), (212, 32), (213, 32), (214, 768), (215, 384), (227, 1344), (228, 12), (229, 6144), (230, 1536), (232, 12864), (233, 15744), (236, 3456), (237, 192), (242, 7680), (243, 3), (244, 52411), (245, 5280), (246, 1152), (251, 11721), (253, 6), (263, 9), (264, 96), (265, 32), (275, 12), (277, 12), (278, 24), (279, 126144), (280, 128), (282, 132), (283, 121255), (284, 96), (286, 256), (288, 96), (289, 24576), (292, 448), (301, 108293), (302, 228777), (303, 1728), (304, 6912), (306, 1728), (307, 7616), (317, 192), (320, 332), (322, 288), (323, 10238)] },
         Form { name: "success__O_base_sparse", constant: 237695695, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2212), (26, 1408), (29, 24), (31, 896), (32, 96), (37, 256), (38, 256), (39, 1536), (40, 40960), (42, 96), (44, 192), (46, 576), (49, 84096), (53, 384), (57, 576), (59, 288), (60, 384), (61, 4416), (62, 3456), (63, 4764), (64, 224), (65, 384), (67, 197184), (69, 267), (74, 4), (75, 3), (79, 12), (80, 4), (92, 1344), (104, 6), (105, 6), (106, 12), (107, 6), (108, 6), (109, 48), (110, 771), (111, 3), (112, 12), (113, 3), (114, 3), (115, 6), (116, 3), (117, 384), (120, 143328), (126, 131936), (127, 12), (128, 384), (129, 3072), (131, 5226), (133, 15), (135, 283116), (137, 3), (140, 1152), (141, 34176), (142, 1536), (143, 1664), (144, 128), (145, 21360), (150, 256), (151, 55350), (152, 19968), (153, 6144), (154, 6), (155, 12312), (159, 28), (162, 3), (163, 15), (171, 96), (172, 96), (176, 768), (179, 786432), (187, 20388), (191, 672), (192, 1200), (193, 1728), (194, 5280), (195, 4032), (199, 5184), (205, 6), (206, 3), (209, 6), (210, 3), (211, 32), (212, 32), (213, 32), (214, 768), (215, 384), (227, 1344), (228, 12), (229, 6144), (230, 1536), (232, 12864), (233, 15744), (236, 3456), (237, 192), (242, 7680), (243, 3), (244, 52411), (245, 5280), (246, 1152), (251, 11721), (253, 6), (263, 9), (264, 96), (265, 32), (275, 12), (277, 12), (278, 24), (279, 126144), (280, 128), (282, 132), (283, 121255), (284, 96), (286, 256), (288, 96), (289, 12288), (292, 448), (301, 108293), (302, 211497), (303, 1728), (306, 3456), (307, 9920), (317, 192), (320, 332), (322, 288), (323, 10232)] },
         Form { name: "success__STAGED", constant: 377292898, terms: &[(11, 5094), (126, 28775), (162, 1), (244, 12393), (283, 49572), (301, 9354)] },
-        Form { name: "success__STATICS", constant: 581834, terms: &[(11, 7782), (301, 30852)] },
+        Form { name: "success__STATICS", constant: 586272, terms: &[(11, 7806), (301, 30924)] },
         Form { name: "success__SUCC", constant: 608343826, terms: &[(11, 272449), (301, 359532)] },
         Form { name: "success__T07_moving", constant: 1797413, terms: &[] },
         Form { name: "success__T11", constant: 9838041, terms: &[(43, 32), (45, 8), (46, 96), (77, 5), (78, 1), (102, 3), (103, 2), (132, 64), (160, 23), (164, 3), (166, 96), (174, 384), (185, 192), (192, 576), (196, 12), (218, 96), (238, 64), (262, 3), (266, 96), (268, 768), (269, 96), (270, 96), (271, 384), (272, 96), (273, 384), (274, 96), (283, 672), (293, 384), (295, 64), (299, 384), (302, 1), (318, 96), (319, 6), (321, 576)] },
@@ -2860,8 +2870,8 @@ pub(super) mod profile {
         Form { name: "success__T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (116, 1), (139, 1), (165, 3), (224, 2048), (251, 4131), (301, 17137)] },
         Form { name: "success__T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (116, 3), (224, 6144), (251, 12393), (301, 26625)] },
         Form { name: "success__T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "success__TAV_W", constant: 5063976946, terms: &[] },
-        Form { name: "success__TAV_X", constant: 5516270488, terms: &[] },
+        Form { name: "success__TAV_W", constant: 5102844340, terms: &[] },
+        Form { name: "success__TAV_X", constant: 5516273434, terms: &[] },
         Form { name: "success__TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "success__W1_MEMBER_READER", constant: 6291456, terms: &[] },
     ];
@@ -3089,7 +3099,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8638772195, "W3 publication (T16) with the staged copy"), (8697903539, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8677663995, "W3 publication (T16) with the staged copy"), (8736795339, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 
