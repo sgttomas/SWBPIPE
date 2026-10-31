@@ -888,6 +888,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
 
   // ---- Rules that need the whole sheet.
   const reservedOutside = new Set<string>([...modelIds(model), ...(context.reservedIds ?? [])]);
+  // A pipe id fixed when first shown stays reserved to its row (§3.2), deleted or overridden.
+  const fixedOwners = new Map(Object.entries(fixedPipes).map(([rowKey, fixed]) => [fixed.id, rowKey]));
   const holders = new Map<string, number>();
   /** Each id a row creates, with the cell that shows it: node and pipe in Ids, the others in their own cells. */
   const createdIds = (row: ResolvedRunSheetRow): Array<{ id: string; cell: string; column: string }> => {
@@ -901,7 +903,8 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   for (const row of rows) for (const { id } of createdIds(row)) holders.set(id, (holders.get(id) ?? 0) + 1);
   for (const row of rows) {
     for (const { id, cell, column } of createdIds(row)) {
-      if (reservedOutside.has(id) || (holders.get(id) ?? 0) > 1) {
+      const owner = fixedOwners.get(id);
+      if (reservedOutside.has(id) || (holders.get(id) ?? 0) > 1 || (owner !== undefined && owner !== row.key)) {
         row.refusals.push({ rule: "ids", column, message: MESSAGES.idUsed(id, cell) });
       }
     }

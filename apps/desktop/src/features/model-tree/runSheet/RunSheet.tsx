@@ -265,9 +265,15 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   latest.current = { model, reservedIds, conversions };
   async function queue() {
     if (queueingRef.current || operationBusy) return;
-    const snapshot = store.current();
     const { model: basis, reservedIds: reserved, conversions: known } = latest.current;
-    const fresh = sheetView({ state: snapshot, statuses: reconcileRunSheet(snapshot, store.lookup), model: basis, conversions: known, reservedIds: reserved, lookup: store.lookup });
+    const viewOf = (state: RunSheetState) => sheetView({ state, statuses: reconcileRunSheet(state, store.lookup), model: basis, conversions: known, reservedIds: reserved, lookup: store.lookup });
+    // Pipe ids an edit in the same keystroke shows for the first time are fixed before the
+    // snapshot (§3.2), so the display's own recording cannot look like a change to the sheet.
+    const shown = store.current();
+    const recorded = recordShownPipeIds(shown, viewOf(shown));
+    if (recorded !== shown) store.update(() => recorded);
+    const snapshot = store.current();
+    const fresh = viewOf(snapshot);
     if (fresh.queueBlocked) {
       announce(`Queue disabled: ${fresh.queueBlocked}`);
       return;

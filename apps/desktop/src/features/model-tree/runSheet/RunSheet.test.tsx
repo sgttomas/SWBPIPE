@@ -582,6 +582,26 @@ describe("run sheet review regressions (PR #41)", () => {
     expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P10");
   });
 
+  it("re-check finding 2: Ctrl+Enter that commits a run's first dX and queues registers the batch with the pipe id it shows", async () => {
+    const validate = vi.spyOn(operationBatchService, "validateOperationBatch");
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pipe number from"), { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    code("r1", "kind", "p");
+    type("r1", "dx", "30");
+    type("r1", "dy", "30");
+    for (const [column, text] of [["od", "0.1143"], ["wall", "0.00602"], ["material", "material:steel"], ["orientation", "0 0 1"]] as const) type("r1", column, text, { key: "Tab" });
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1", { key: "Enter", ctrlKey: true });
+    await waitFor(() => expect(live()).toHaveTextContent(/Queued rows 1, 2 as batch:run-sheet-sheet-1-1|changed while the batch was built|Queue (refused|failed)/));
+    expect(live()).toHaveTextContent("Queued rows 1, 2 as batch:run-sheet-sheet-1-1");
+    expect(register).toHaveBeenCalledTimes(1);
+    const batch = register.mock.calls[0][0] as OperationBatch;
+    expect(batch.operations.find((op) => op.change.change_kind === "connect_pipe_run")!.target.ref).toBe("pipe:P10");
+    expect(validate).toHaveBeenCalled();
+    expect(harness.store!.current().idState.pipes).toEqual({ r2: { id: "pipe:P10", rule: "the sheet's numbering, by its start node node:N10 (row 1)" } });
+  });
+
   it("finding 3: collapsing a group that holds the focused cell moves the tab stop to a shown cell of the same row (both groups)", () => {
     renderSheet();
     for (const [group, hidden, before] of [["Ids and sources", "supportId", "pipeId"], ["Section extras", "millTolerance", "contentsDensity"]] as const) {

@@ -231,7 +231,8 @@ Ids are entity identity, not order (FR-MOD-003).
     in the sheet's id state, like the row's number, the first time the row
     shows it with a start node. From then on it is the row's pipe id and is
     reserved: inserts, appends, queueing and applying never change it, and no
-    other row takes it, even after the row is deleted. If the row's start
+    other row takes it, derived or entered, even after the row is deleted or
+    its own id is overwritten. If the row's start
     later changes so that the id no longer fits, the id is kept and its origin
     says it was fixed when first shown; the person may overwrite it. Nothing
     is recorded while a unit conversion is pending, since positions decide
@@ -508,8 +509,9 @@ are never deleted by the sheet.
   `handleQueueOperationBatch` (`src/features/workspace/workspaceSession.ts:1277-1306`).
   - Queue reads no render: the batch and the values the ledger records are
     built from one snapshot of the sheet's committed state, so an edit
-    committed by Ctrl/⌘+Enter is the one queued. If the sheet changes while
-    the batch is built, nothing is queued.
+    committed by Ctrl/⌘+Enter is the one queued. Queue first fixes any pipe id
+    that edit shows for the first time (§3.2), then takes the snapshot. If the
+    sheet changes while the batch is built, nothing is queued.
   - While the batch is checked, the acting rows are queued and read-only. An
     engine refusal returns them to draft by the `refused` transition (§3.6),
     with the refusal on the failing row, and the batch is not handed over.

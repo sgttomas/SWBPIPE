@@ -973,3 +973,29 @@ describe("run sheet ids: a start-node pipe id is fixed once shown (PR #41 findin
     expect(state.pipes).toEqual({ r2: { id: "pipe:P10", rule: "r" } });
   });
 });
+
+describe("run sheet ids: entered ids respect fixed pipe ids (PR #41 re-check finding 1)", () => {
+  const BY_START = { ...DEFAULT_NUMBERING, pipeNumber: "start" } as const;
+  const P: RunSheetRowInput = { key: "r1", kind: "P", dx: "30", dy: "30" };
+  const resolveWith = (rows: RunSheetRowInput[], pipes: RunSheetIdState["pipes"]) => {
+    const input = sheet(rows, { numbering: BY_START });
+    const model = basis();
+    return resolveRunSheet(input, { model, idState: { ...idStateFor(input, model), pipes } });
+  };
+  it("an id entered on another row is refused when a deleted row's fixed pipe id holds it", () => {
+    const resolved = resolveWith([P, { key: "r3", dx: "1", ...ELEMENT, ids: { pipe: "pipe:P10" } }], { gone: { id: "pipe:P10", rule: "r" } });
+    expect(resolved.rows[1].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.idUsed("pipe:P10") });
+    expect(resolved.queueable).toBe(false);
+  });
+  it("an id entered on another row is refused when the fixed row overrode its own id; the owning row may use its own", () => {
+    const pipes = { r2: { id: "pipe:P10", rule: "r" } };
+    const overridden = resolveWith([P, { key: "r2", dx: "1", ...ELEMENT, ids: { pipe: "pipe:X" } }, { key: "r3", dy: "1", ids: { pipe: "pipe:P10" } }], pipes);
+    expect(overridden.rows[1].refusals).toEqual([]);
+    expect(overridden.rows[2].refusals).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.idUsed("pipe:P10") });
+    const own = resolveWith([P, { key: "r2", dx: "1", ...ELEMENT, ids: { pipe: "pipe:P10" } }], pipes);
+    expect(own.rows[1].refusals).toEqual([]);
+    // Any other id cell entered as a fixed pipe id is refused too.
+    const support = resolveWith([P, { key: "r3", dx: "1", ...ELEMENT, support: "A", restraints: "*", ids: { support: "pipe:P10" } }], { gone: { id: "pipe:P10", rule: "r" } });
+    expect(support.rows[1].refusals).toContainEqual({ rule: "ids", column: "Support id", message: MESSAGES.idUsed("pipe:P10", "Support id") });
+  });
+});
