@@ -5498,7 +5498,7 @@
         ]
       },
       "core/handoff/caepipe_mbf_engine/tests/parity.rs": {
-        "sha256": "39875904a158d2d71279b3d71128f003ec30dbfb1fb85b44f673f15cd21a2430",
+        "sha256": "39f36ca917acfb4e2bb7ab35b2f5c65f3426293a99f4e1336d7149b9665ad075",
         "source_trees": [
           "core/handoff/caepipe_mbf_engine/Cargo.toml"
         ],
@@ -5527,7 +5527,7 @@
         ]
       },
       "core/handoff/caepipe_mbf_engine/tests/writer_parity.rs": {
-        "sha256": "1ae8a7f4de680b2aed824ef09fdeea0a86e944ff42f3fef1f87e06b12e6bfb71",
+        "sha256": "8d1658b662882874f6356dd22b41e80cdaa6e95b636b50bbf68ac01937e3a2a1",
         "source_trees": [
           "core/handoff/caepipe_mbf_engine/Cargo.toml"
         ],
