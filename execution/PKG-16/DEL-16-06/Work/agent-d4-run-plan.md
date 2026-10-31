@@ -1,6 +1,6 @@
 # D4: one joined local-model W9-A witness
 
-Plan revision D4-1, 2026-10-31. This is the run specification for Agent 0 to
+Plan revision D4-2, 2026-10-31. This is the run specification for Agent 0 to
 present with the single-read credential request. It supersedes the earlier
 thread draft's 64k assumption, three-attempt estimate and anchor/corner result
 scope. No resource window is booked. Preparing or merging this plan authorizes
@@ -78,41 +78,93 @@ settings file into evidence: it contains authentication configuration. App
 reports only the selected nonsecret fields through Agent 0.
 
 Before booking, remaining ordinary offline prerequisites are selected
-asset/probe hash checks and context sizing with the retained tokenizer. Repeat
-the runtime comparison if any file changes before the run. No download, substitute,
-64k assumption or server setting change is permitted on a mismatch. The exact
-tokenizer runtime is not installed in this lane's Python environments; token
-counts below are allocations, not measured usage. Resolve that offline check
-through Agent 0/App before inference. Standalone native denial preflight and
+asset/probe hash checks and resolution of the supplier/provider serialization
+limits below. Repeat the runtime comparison if any file changes before the run.
+No download, substitute, 64k assumption or server setting change is permitted
+on a mismatch. Standalone native denial preflight and
 post-seal checks remain run-preparation steps requiring native authorization;
 they have not run under this resume.
 
 ## Two turns within 32,768 tokens
 
 Use the controller's exact `TURNS`, low supplier reasoning effort, and ordinary
-provider `contextWindow=32768`. The declarations are 17,530 compact JSON bytes
-(measured offline), not 17,530 tokens. Budget all repeated declarations and
-supplier instructions once in each request's resident context; do not add their
-size again merely because another tool call sends the same definitions.
+provider `contextWindow=32768`. The declarations are 17,530 compact JSON bytes,
+not tokens. The installed oMLX conversion additionally fills missing schema
+descriptions: its resulting template-tool JSON is 20,691 compact bytes. Counting
+the catalog alone would omit both that transformation and Qwen's tool preamble.
 
-| Resident context allocation, tokens | End of turn 1 | Peak turn 2, including retained turn 1 |
+Offline sizing used App's existing Python runner with `-B -S`,
+`PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`, and its
+`framework-mlx-base` site-packages: tokenizers 0.22.2, jinja2 3.1.6, pinned
+tokenizer vocab 248077. No AutoTokenizer, engine, server, settings or model was
+imported/started. The three tokenizer/template hashes match the model pin.
+
+The one-time `scratch/rt-e1/d4-sizing.py` has SHA-256
+`cbbe8e9367628171e32694332a5c607d7b8be2398754741892e43a59b0f6e5c0`.
+Its result `d4-sizing.json` has SHA-256
+`a47c7e708dd32c2742dad00afc57e8d629d35e1c651f5b8e8edc3e3d3cdacee1`.
+These are bounded run-planning evidence for this consumer, not maintained test
+dependencies. The result binds each input file, reconstructed history and
+rendered prompt by SHA-256. Histories use the selected `TURNS`, exact Rust
+`INSTRUCTIONS` string, resolved seven-tool catalog and stub14's six real tool
+outcomes; the selected Script reconstructs calls and completion text. Tool
+outputs/arguments use compact sorted-key JSON and invented fixed call ids.
+
+The sizing extracts only pure functions from installed oMLX source: Responses
+input/tool conversion, tool-template conversion including description defaults,
+and the installed Transformers Jinja compiler. It does not import oMLX. The
+renderer therefore uses the actual immutable sandbox, trim/lstrip settings,
+loop-controls extension and non-HTML-escaping `tojson` implementation, rather
+than Jinja's different default filter. Render text-only, nonpartial messages,
+consolidated leading system, `add_generation_prompt=True`, no BOS,
+EOS `<|im_end|>`, PAD `<|endoftext|>`. Count with the pinned Tokenizer;
+`add_special_tokens=False` and True produced identical token ids. Both
+`enable_thinking` and `preserve_thinking` were measured as False and True;
+the ranges include all four combinations. Empty stub reasoning is not live
+reasoning evidence.
+
+| Reconstructed input snapshot | Measured prompt tokens |
+| --- | ---: |
+| Turn 1, initial request | 6,458–6,460 |
+| Turn 1, after summary | 7,027–7,029 |
+| Turn 1, after proposal outcome, before completion | 10,156–10,158 |
+| Turn 2, initial request with retained turn 1 | 10,248–10,262 |
+| Turn 2, after summary | 10,823–10,837 |
+| Turn 2, after observe | 11,825–11,839 |
+| Turn 2, after solve | 12,666–12,680 |
+| Turn 2, after filtered results, before report | 13,881–13,895 |
+
+These counts establish the specified reconstructed prompts, not the actual
+stock-supplier/provider wire envelope. The stub kept request metadata and tool
+outcomes, not raw request bodies. Extra supplier developer/reminder instructions,
+wire-schema rewriting, per-model template overrides, custom tokenizer routing,
+server-added tools and actual reasoning/history serialization remain unresolved.
+Source tracing confirms oMLX's Responses conversion → system preparation →
+tool conversion → engine template → encode path, but does not establish which
+runtime overrides the retained server will use. No settings file was read to
+fill that gap. Provider equivalence is conditional on the stated selection.
+
+| Token budget | Turn 1 | Turn 2 peak, including retained turn 1 |
 | --- | ---: | ---: |
-| Declarations, base instructions, supplier wrappers | 8,192 | 8,192 |
-| Turn 1 request, summary and tool outcomes other than the proposal | 2,048 | 2,048 |
-| Turn 1 proposal, reasoning and completion | 8,192 | 8,192 |
-| Turn 2 request, summary/observe/solve/filtered-read arguments and outcomes | 0 | 4,096 |
-| Turn 2 reasoning and six-value report | 0 | 2,048 |
-| Planned maximum | 18,432 | 24,576 |
-| Reserved margin to 32,768 | 14,336 | 8,192 |
+| Largest measured reconstructed input | 10,158 | 13,895 |
+| Unresolved supplier/provider envelope reserve | 2,048 | 2,048 |
+| Live arguments/tool-result variation reserve | 2,048 | 4,096 |
+| Live reasoning reserve (all retained/current reasoning) | 4,096 | 4,096 |
+| Remaining completion/report reserve | 512 | 2,048 |
+| Planned total | 18,862 | 26,183 |
+| Margin to 32,768 | 13,906 | 6,585 |
 
-These are exact planning ceilings, not per-phase caps implemented by the
-controller. Offline tokenizer sizing must fit these allocations, including
-serialization/template overhead and retained reasoning. At the authorized live
-check App must establish the actual served 32,768 window and compatible output
-allowance. Record usage if exposed; context refusal, compaction, unexpected
-extra tool work or exhaustion is a failed attempt, not permission to enlarge
-the window or retry. The 2 MiB relay request cap and catalog byte/row limits
-apply independently of tokens.
+Reserves are planning allowances, not measured live outputs, proved maxima or
+per-phase controller caps. Before inference, resolve the missing serialization
+identity from the pinned supplier/provider source or an already-authorized
+request capture, then recount if it differs. This resume authorizes no native
+capture to close that prerequisite. If an unknown envelope or future output
+cannot be bounded within its reserve, report that dependency to Agent 0 rather
+than claiming a 32k fit. At the authorized live check App must establish actual
+served context and compatible output allowance. Record usage if exposed;
+context refusal, compaction, unexpected extra work or exhaustion is a failed
+attempt, not permission to enlarge the window or retry. The 2 MiB relay request
+cap and catalog byte/row limits apply independently of tokens.
 
 Turn 1 asks for the PF W9-A frame as one review batch: E 200 GPa, G 76.923 GPa,
 alpha 1.2e-5/degC, nodes A(0,0,0), C(4,0,0), D(4,3,0) m, two pipes OD 0.2 m,
