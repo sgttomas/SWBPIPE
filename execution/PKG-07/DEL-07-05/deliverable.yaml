@@ -364,6 +364,8 @@ checks:
 - apps/desktop/src/features/results/keyResults.test.ts
 # C1 slice 2 (DEL-04-05): these builders are the oracle of the native summary S; a builder change fails this parity until result_summary_tables.rs follows.
 - apps/desktop/src/features/results/resultSummaryParity.test.ts
+# C1 slice 3 (DEL-04-05): rowsUnderFilters, paginateResults and PhysicsSourceEvidencePanel are the oracle of the native detail query and recovery facts; a change fails this parity until result_detail.rs follows.
+- apps/desktop/src/features/results/resultDetailParity.test.ts
 - apps/desktop/src/features/results/KeyResultsPanel.test.tsx
 - apps/desktop/src/features/results/ResultsPanel.keyResults.test.tsx
 - apps/desktop/src/features/viewport/PipeViewport.keyResults.test.tsx

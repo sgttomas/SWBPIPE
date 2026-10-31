@@ -172,13 +172,16 @@ fn parse(label: &str, text: &str) -> Result<Value, CommandError<String>> {
 pub(crate) fn family_counts(source: &Value) -> Value {
     let rows = tables::rows(source);
     let table = rv::route(source).ok().map(|(_, table)| table);
-    tables::family_counts(
-        rows.len(),
-        rows.iter().map(|row| match table.map(|table| semantic_contract::signature_in(table, row)) {
-            Some(Ok(Some(signature))) if signature["category"] == "physical_quantity" => signature["family"].as_str().unwrap_or("other"),
-            _ => "other",
-        }),
-    )
+    tables::family_counts(rows.len(), rows.iter().map(|row| row_family(table, row)))
+}
+
+/// A row's family under the source's table (`semanticLabels(result).family`),
+/// as [`family_counts`] reads it; the results detail filter reads it too.
+pub(crate) fn row_family(table: Option<&'static Value>, row: &Value) -> &'static str {
+    match table.map(|table| semantic_contract::signature_in(table, row)) {
+        Some(Ok(Some(signature))) if signature["category"] == "physical_quantity" => signature["family"].as_str().unwrap_or("other"),
+        _ => "other",
+    }
 }
 
 /// The envelope members S carries, the per-row combination evidence counted

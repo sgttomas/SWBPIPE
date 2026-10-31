@@ -36,7 +36,7 @@ fn read_json(path: &str) -> Value {
 
 /// A registry whose jobs' workers return the text their gate releases. The
 /// re-sampling window is short, so a headroom refusal stands quickly.
-fn gated(host: &Arc<ScriptedHost>) -> (SolveJobRegistry, Arc<Gate>) {
+pub(crate) fn gated(host: &Arc<ScriptedHost>) -> (SolveJobRegistry, Arc<Gate>) {
     let gate = Gate::new("verdict");
     let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5));
     pool.set_max_running_workers(16);
@@ -45,7 +45,7 @@ fn gated(host: &Arc<ScriptedHost>) -> (SolveJobRegistry, Arc<Gate>) {
 }
 
 /// A completed job retaining `text` as its result.
-fn retained(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> String {
+pub(crate) fn retained(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> String {
     let started = gate.started_count();
     let receipt = registry.start(MODEL, None).unwrap_or_else(|e| panic!("{e:?}"));
     gate.wait_started(started + 1);
@@ -257,11 +257,11 @@ fn a_reader_share_holds_the_bytes_and_their_lease_together() {
 }
 
 /// One corpus input: its id, the statement text, and its model and invocation texts.
-struct Input {
-    id: String,
-    source: String,
-    model: Option<String>,
-    invocation: Option<String>,
+pub(crate) struct Input {
+    pub(crate) id: String,
+    pub(crate) source: String,
+    pub(crate) model: Option<String>,
+    pub(crate) invocation: Option<String>,
 }
 
 fn text(value: &Value) -> String {
@@ -275,7 +275,7 @@ fn model_at(path: &str) -> Value {
 /// The corpus's file-backed statements, as `base_reader_outcomes.rs`
 /// `build_corpus` builds them (its first 52 entries), each statement as its
 /// file's own text.
-fn file_backed_corpus() -> Vec<Input> {
+pub(crate) fn file_backed_corpus() -> Vec<Input> {
     let mut inputs = Vec::new();
     let results: [(&str, Option<&str>); 17] = [
         ("preview_physics_connected_sparse", Some("fixtures/model_operations/precision_connected_ui_model.json")),
@@ -343,7 +343,7 @@ fn file_backed_corpus() -> Vec<Input> {
 }
 
 /// The committed native outcomes by id.
-fn committed() -> BTreeMap<String, Value> {
+pub(crate) fn committed() -> BTreeMap<String, Value> {
     read_json("fixtures/results/base_reader_outcomes.json")["entries"]
         .as_array()
         .unwrap()
@@ -416,7 +416,7 @@ fn native_verdicts_are_the_committed_reader_outcomes_on_the_whole_corpus() {
 /// The worker threads of the runtime the command's futures run on (Tauri's),
 /// as that runtime reports them: an environment that configures more workers
 /// (`TOKIO_WORKER_THREADS`) raises the reads the executor tests hold with it.
-fn runtime_workers() -> usize {
+pub(crate) fn runtime_workers() -> usize {
     let workers = tauri::async_runtime::handle().inner().metrics().num_workers();
     // Each held read occupies one of the blocking pool's 512 threads.
     assert!(workers > 0 && workers * 2 + 2 <= 512, "{workers} runtime workers");

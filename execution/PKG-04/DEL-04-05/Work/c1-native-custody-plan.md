@@ -155,9 +155,9 @@ groups and ratios and `componentBodyNotices`, which look rows up by id (slice 3)
 and the overlays' drawing for a chosen case, quantity and resolution (reaction arrows,
 deformation, rotation glyphs, colour), which runs on the display planes.
 
-`source_block_recovery` stays omitted as the design requires. Slice 4 must serve its
-`body.status` to `ResultsPanel` and its evidence to `PhysicsSourceEvidencePanel` through
-a native status projection and bounded detail queries, without restoring a full-envelope fetch.
+`source_block_recovery` stays omitted as the design requires. Slice 3's recovery query serves
+its `body.status` to `ResultsPanel` and its evidence to `PhysicsSourceEvidencePanel` in bounded
+pages; slice 4 switches those panels to it, without restoring a full-envelope fetch.
 
 **Tests:**
 - Rust (`result_summary_tests.rs`):
@@ -198,24 +198,113 @@ a native status projection and bounded detail queries, without restoring a full-
   outside the semantic tables' vocabulary (the tables have none); `source_result_refs` that is not
   an array; model ids that are not strings.
 
-### Slice 3: paged detail and batched semantics
+### Slice 3: paged detail and batched semantics (implemented on `claude/rt-perf-c1-custody`; review pending)
 
 **Files:**
-- `src-tauri/src/result_detail.rs`: an index of row byte ranges in the held text, built in
-  the same pass as S (one `(start, end)` pair per row).
-- Command `query_preview_mechanics_job_rows {jobId, filter:{set, kind, entity, station,
-  text}, offset, limit}` returns `{total, rows: [exact row texts]}`.
-- Command `read_preview_mechanics_job_row_semantics {jobId, rowIds}` returns one batched
-  `reader_verdict::row_semantics` call per page, from the same table as
-  `readerRowSemantics`.
-- A row returned is the byte range of the held text, so it is byte-identical to the
-  envelope's row (§2.2 of the design).
+- `src-tauri/src/result_detail.rs` (the index and the four commands) and `result_detail_tests.rs`.
+- `src/services/resultDetail.ts`: the commands' types, decoders and adapters. No panel, session or
+  agent calls them before slice 4. `src/test-support/resultDetailEmulation.ts` answers them over the
+  full rows with the TypeScript readers, for the parity test and slice 4's replay.
+- `HeldResult` holds the index's slot; `lib.rs` registers the four commands (raw args bodies under
+  `command_ingress`).
+
+**The index** (a refinement of "built in the same pass as S": S parses into a `Value`, which keeps no
+byte offsets, and S is built per model and standing, while the index is not). The first detail query
+on a held result builds it, once:
+1. the prescan of the held text (allocation-free);
+2. one parse into a `Value`, under the parse lease of M, only to read the route's table, because
+   `reader_verdict::route` reads the whole source; the `Value` is dropped before anything else
+   allocates;
+3. three passes that build nothing, through serde_json's borrowed `RawValue`: the last `results`
+   member (as `Value` keeps the last of a duplicated key), a count of its elements, and their
+   `(start, end)` ranges into an index allocated at its exact capacity, each row prescanned for its
+   priced parse.
+
+The index holds 16 bytes per row, the table, the largest row's priced parse and the scan
+allowances. It lives in the `HeldResult` with its own lease and is released with the bytes (disposal,
+take or session reset). Concurrent first queries wait for one build; a refused or panicked build
+leaves none.
+
+**Commands:**
+- `query_preview_mechanics_job_rows {jobId, filter, offset, limit}` returns `{total, ordinals,
+  rows}`, the rows as byte ranges of the held text, in publication order. `limit` is 1–1,000.
+  - A page stops early (`truncated`) rather than exceed 64 MiB, today's whole-result limit, so it
+    always holds at least one row, and paging on from `offset + returned` reaches every row. A row
+    too large by itself is refused by name (`RESULT-DETAIL-RESPONSE-LIMIT`).
+  - The filter has the panel's members (text, family, frame, case, kind, selected entity), the
+    agent's (kinds and entities, each any of a list) and the plan's (set as `basis_ref.ref_id`,
+    station as `metadata.location`, ids). `"all"` and empty lists admit every row, as today.
+  - Each member reads the row as the TypeScript does: family through the route's table, as S's
+    counts read it; the text search's members, truthiness, `String` and number text,
+    `trim`/`toLowerCase` and substring.
+  - Where the TypeScript filter throws (a `null` row, a `source_result_refs` that is not iterable),
+    the query is refused by name (`RESULT-DETAIL-FILTER-TYPE-ERROR`).
+  - An unfiltered page reads no row. A filtered one parses one row at a time.
+- `lookup_preview_mechanics_job_rows {jobId, ordinals?, ids?, kinds?, match}`:
+  - rows by exact ordinal;
+  - by id or kind, the first (`results.find`) or last (`new Map(results.map(...))`) row.
+  - Every row with an id is the query with `filter.ids`.
+  - At most 1,000 keys, in one response within the limit.
+- `read_preview_mechanics_job_row_semantics {jobId, ordinals}`: one `row_semantics_each` over up to
+  1,000 rows with the held source, the table `readerRowSemantics` reads. It parses the held text
+  each call, under the parse lease of M, as the wasm engine parses the source text each call. The
+  public reader entries take the source, not its table; a table-level public entry would be an
+  engine-lane change.
+- `query_preview_mechanics_job_source_recovery {jobId, offset, limit, raw?}`:
+  - what `ResultsPanel` and `PhysicsSourceEvidencePanel` read from `source_block_recovery`: its
+    presence and kinds, the recorded status, `receipt_sha256`, `receipt_version`,
+    `publication_sha256`, the recorded and physical case counts, the distinct-id and coverage
+    agreement;
+  - a page of the recorded cases' facts (id, selected method, outcome) and, with `raw`, each case's
+    exact recorded text.
+  - It parses `source_block_recovery` and `contract_evidence` alone, found by the borrowing pass,
+    each under its prescan's lease. These are recorded labels; they grant no eligibility.
+- The row, lookup and recovery responses are binary: `SWBDETv1`, the header's length (u64 LE), the
+  JSON header, then the texts it lists by length.
 
 **Tests:**
-- Concatenating the pages of the unfiltered query reproduces `results` exactly.
-- Each filter equals the TS filter over the full rows.
-- The semantics equal `readerRowSemantics` per row on the corpus (`rows.sha256` of
-  `base_reader_outcomes.json`).
+- Rust (`result_detail_tests.rs`, 12 tests):
+  - unfiltered paging at limits 1, 7 and 1,000 rebuilds `results` byte for byte over 92 sources
+    (the 52 file-backed corpus statements and the 40 cases' results), in order;
+  - bounds and shapes: zero, past-end and huge offsets, limit 0 and 1,001, invalid arguments,
+    empty, absent and non-array results, a duplicated member, whitespace and exponents kept;
+  - the response limit, with pages still reaching every row;
+  - the committed outcomes: 2,700 queries, 200 lookups and 58 recovery pages of
+    `fixtures/results/result_detail_cases.json`, through the commands on retained jobs. Each must
+    equal `result_detail_outcomes.json` (`RESULT_DETAIL_OUTCOMES_WRITE=1` rewrites it), and each row
+    and case text must be its source token;
+  - the batched semantics give `base_reader_outcomes.json`'s `rows.sha256` on every row of the
+    corpus statements that pin it, which the wasm engine's `readerRowSemanticsJson` is also pinned
+    to;
+  - refusals by name where the TypeScript throws;
+  - the index admitted before it allocates, refused allocating nothing of its size, and its lease
+    held with the bytes through dispose, take and a read in flight; one build under concurrent
+    first queries; a panicked build leaving none; query leases ending with the query; the
+    executor (more commands held at admission and read than the runtime has workers, while
+    another completes).
+- vitest (`resultDetailParity.test.ts`):
+  - the cases file equals its generator (`test-support/resultDetailCases.ts`: the summary cases'
+    results, two retained-source pressure results, and 10 invented results for search over every
+    member type, JavaScript number text, Unicode case mapping, duplicate ids, throwing rows, empty
+    and absent results, a duplicated member, whitespace and incoherent recovery evidence);
+  - every outcome equals the TypeScript readers over the full rows: `rowsUnderFilters` with its kind
+    and selected entity, `paginateResults` on the panel's pages, the agent's `readResults`
+    predicate, `find` and `Map` lookups, and `PhysicsSourceEvidencePanel`'s own rendering on the
+    composite results;
+  - the decoders refuse every other layout by name.
+
+**Limits stated for review:**
+- The parity's agent leg copies `readResults`' predicate (it is inline in `embeddedAgentSession.ts`).
+  A change there would not fail it; slice 4's switch replaces that predicate with the query.
+- Each filtered query and lookup parses every row, one at a time. Each semantics batch parses the
+  whole source. Both are linear in the rows per call, as today's webview reads are. Slice 7 measures
+  them; an index of the filtered members, or a public table-level semantics entry, is a later
+  refinement.
+- `toLowerCase` against Rust's `to_lowercase`: the same Unicode default case mapping, including
+  final sigma. A character whose mapping differs between the two engines' Unicode versions would
+  differ; the parity covers Greek, Turkish dotted I, ß and emoji.
+- A filter string with a lone surrogate cannot be sent as JSON to the native side. The panel's
+  filter would match nothing with it.
 
 ### Slice 4: the webview switch
 
@@ -470,7 +559,10 @@ They're updated in the slice that changes the flow, never deleted without a repl
    other working set is bounded by entities and sets, not rows (the tables' `Value`s, about
    1.4 kB per listed displacement or support value, the value table and the header text), plus
    the ids the intensified-bending rows name. Slice 7 measures them; if they're material, the
-   lease adds a working-memory factor, as the report package's does.
+   lease adds a working-memory factor, as the report package's does. Slice 3's detail queries
+   price their row parses, the semantics' source parse and their responses (§8); unpriced are
+   `route`'s and `row_semantics_each`'s working memory, one row's search text, and the delivery
+   copies after return.
 4. **Admission class: confirmed by Agent 0 (2026-10-31),** pressure-gated through the
    shared pool, on two conditions now implemented in slice 1 (§8):
    - the lease is sized before any parse allocation;
@@ -542,6 +634,21 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   counting pass and before the response is allocated. The response lease covers construction
   and ends when the command returns; it does not cover the returned buffer during delivery.
   Each is capped as above.
+- **The detail's leases** (slice 3), under the same rules:
+  - the args lease as the verdict's;
+  - building the index: the diagnostic leases of `prescan_in_order`; the parse lease of M while the
+    route is read; then the scan lease (the prescan's allowances) over the borrowing passes, with
+    the index lease, 16 bytes per row and the index's own allocation, admitted before the index
+    is allocated.
+  - **The index lease persists with the index** and is released with the held bytes by the last
+    holder. It stays ingress-purpose, so interactive admissions never credit it as resident.
+  - each query's working lease, before it allocates: the largest row's priced parse for a scan
+    that reads rows; each requested row's plus M for the semantics; the two members' prescan
+    bounds for the recovery, with the receipt's again for the recorded values a page copies; twice
+    a lookup's requested key bytes; and a fixed 4 MiB allowance for the header and the selection,
+    which the 1,000-row and 1,000-key bounds limit;
+  - a response lease of the response's exact length before it is allocated, ending when the
+    command returns.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
   Tauri makes of the body before the command runs, plus the returned response buffer and
   Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

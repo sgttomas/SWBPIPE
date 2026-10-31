@@ -237,6 +237,11 @@ code_paths:
 - apps/desktop/src-tauri/src/result_planes.rs
 - apps/desktop/src/services/resultSummary.ts
 - apps/desktop/src/test-support/resultSummaryCases.ts
+# C1 slice 3: the paged detail of a held result (rows, lookups, batched semantics, recorded recovery facts) and its webview reader (nothing calls it before slice 4).
+- apps/desktop/src-tauri/src/result_detail.rs
+- apps/desktop/src/services/resultDetail.ts
+- apps/desktop/src/test-support/resultDetailCases.ts
+- apps/desktop/src/test-support/resultDetailEmulation.ts
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/services/memoryPool.ts
 - apps/desktop/src/features/workspace/solveJobAudit.ts
@@ -262,6 +267,8 @@ checks:
 - apps/desktop/src-tauri/src/native_verdict_tests.rs
 - apps/desktop/src-tauri/src/result_summary_tests.rs
 - apps/desktop/src/features/results/resultSummaryParity.test.ts
+- apps/desktop/src-tauri/src/result_detail_tests.rs
+- apps/desktop/src/features/results/resultDetailParity.test.ts
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs

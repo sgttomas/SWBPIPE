@@ -373,17 +373,24 @@ struct SolveJobRecord {
 /// them. The record and each native reader in flight share it by `Arc`, so
 /// a disposal while a reader holds it releases both only when that reader
 /// drops it, and the pool never counts the bytes as released while they are
-/// still held.
+/// still held. Its row index (slice 3, [`crate::result_detail`]), built on
+/// the first detail query with its own lease, lives and is released with it.
 #[derive(Debug)]
 pub(crate) struct HeldResult {
     text: String,
     lease: Lease,
+    detail: Mutex<Option<Arc<crate::result_detail::DetailIndex>>>,
 }
 
 impl HeldResult {
     /// The producer's exact bytes.
     pub(crate) fn text(&self) -> &str {
         &self.text
+    }
+
+    /// The row index's slot: empty until the first detail query builds it.
+    pub(crate) fn detail_slot(&self) -> &Mutex<Option<Arc<crate::result_detail::DetailIndex>>> {
+        &self.detail
     }
 }
 
@@ -1190,7 +1197,7 @@ impl SolveJobRegistry {
         record.worker = None;
         record.resource.worker_grant_bytes = None;
         record.result_bytes = Some(result.len() as u64);
-        record.result = Some(Arc::new(HeldResult { text: result, lease }));
+        record.result = Some(Arc::new(HeldResult { text: result, lease, detail: Mutex::new(None) }));
         if let Some(digests) = record.digests.as_mut() {
             digests.result_sha256 = Some(result_sha256);
         }
@@ -1281,7 +1288,8 @@ impl SolveJobRegistry {
         // Readers take their share only under this lock, so a sole holder
         // here stays the sole holder.
         let held = record.result.take().expect("checked above");
-        let HeldResult { text, mut lease } = match Arc::try_unwrap(held) {
+        // The row index, if built, leaves native custody with the bytes; its lease is released here.
+        let HeldResult { text, mut lease, detail: _ } = match Arc::try_unwrap(held) {
             Ok(held) => held,
             Err(held) => {
                 record.result = Some(held);

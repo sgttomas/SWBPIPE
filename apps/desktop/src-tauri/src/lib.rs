@@ -41,6 +41,7 @@ mod native_smoke_reach_scan_tests;
 mod native_result_download;
 mod native_verdict;
 mod result_planes;
+mod result_detail;
 mod result_summary;
 mod result_summary_tables;
 mod report_package_bridge;
@@ -2221,6 +2222,58 @@ async fn read_preview_mechanics_job_summary(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     result_summary::summary(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): a page of a retained result's rows, the
+/// exact published bytes, read natively (`result_detail`). Raw args body
+/// `{jobId, filter, offset, limit}`; the response is binary: a JSON header
+/// (total, ordinals, lengths) and the rows' texts. Only the header check,
+/// copy reservation and body copy run here; admission, indexing, filtering
+/// and the response run in a blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): rows of a retained result by exact ordinal,
+/// or the first or last row with an id or kind (`result_detail`). Raw args
+/// body `{jobId, ordinals?, ids?, kinds?, match}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the lookup run in a
+/// blocking task.
+#[tauri::command]
+async fn lookup_preview_mechanics_job_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::lookup_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): the reader's row semantics of a batch of a
+/// retained result's rows, `reader_verdict::row_semantics_each` with the held
+/// source (`result_detail`). Raw args body `{jobId, ordinals}`; the response
+/// is the outcome array's JSON. Admission and the read run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_row_semantics(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::row_semantics(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): the recorded source-block recovery facts of
+/// a retained result and a page of its recorded cases (`result_detail`). Raw
+/// args body `{jobId, offset, limit, raw?}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the read run in a
+/// blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_source_recovery(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_source_recovery(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
 }
 
 #[tauri::command]
@@ -5488,6 +5541,10 @@ macro_rules! app_invoke_handler {
             take_preview_mechanics_job_result,
             read_preview_mechanics_job_verdict,
             read_preview_mechanics_job_summary,
+            query_preview_mechanics_job_rows,
+            lookup_preview_mechanics_job_rows,
+            read_preview_mechanics_job_row_semantics,
+            query_preview_mechanics_job_source_recovery,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,

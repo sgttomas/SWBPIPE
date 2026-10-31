@@ -224,7 +224,7 @@ fn distinct<'a>(values: impl IntoIterator<Item = Option<&'a Value>>) -> Vec<Opti
 }
 
 /// JavaScript's `String.prototype.trim` white space: WhiteSpace and LineTerminator.
-fn js_space(c: char) -> bool {
+pub(crate) fn js_space(c: char) -> bool {
     matches!(
         c,
         '\u{9}' | '\u{a}' | '\u{b}' | '\u{c}' | '\u{d}' | ' ' | '\u{a0}' | '\u{1680}' | '\u{2000}'..='\u{200a}'
@@ -593,10 +593,7 @@ pub(crate) fn frame_counts(source: &Value) -> Value {
     let mut counts: Vec<(&str, u64)> = Vec::new();
     let mut index: HashMap<&str, usize> = HashMap::new();
     for row in rows(source) {
-        let frame = match str_of(meta(row, "coordinate_system")) {
-            Some(frame) if frame.chars().any(|c| !js_space(c)) => frame,
-            _ => UNSTATED_FRAME,
-        };
+        let frame = result_frame(row);
         let at = *index.entry(frame).or_insert_with(|| {
             counts.push((frame, 0));
             counts.len() - 1
@@ -612,6 +609,15 @@ pub(crate) fn frame_counts(source: &Value) -> Value {
     let ordered = counts.iter().all(|(frame, _)| class(frame) != 2 || frame.chars().all(|c| c == '_' || c.is_ascii_lowercase()));
     counts.sort_by(|a, b| class(a.0).cmp(&class(b.0)).then_with(|| if ordered { utf16_cmp(a.0, b.0) } else { std::cmp::Ordering::Equal }));
     json!({"counts": counts.iter().map(|(frame, count)| json!([frame, count])).collect::<Vec<_>>(), "others_ordered": ordered})
+}
+
+/// `resultFrame(item)`: the frame a row states (`metadata.coordinate_system`,
+/// a string with a character that is not white space), else `unstated`.
+pub(crate) fn result_frame(row: &Value) -> &str {
+    match str_of(meta(row, "coordinate_system")) {
+        Some(frame) if frame.chars().any(|c| !js_space(c)) => frame,
+        _ => UNSTATED_FRAME,
+    }
 }
 
 /// `navigatorCases(result.results)`.

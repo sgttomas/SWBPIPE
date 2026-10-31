@@ -984,8 +984,9 @@ function ResultsNavigator({
   );
 }
 
-/** The rows the text, family, frame and case filters admit, in result order. */
-function rowsUnderFilters(
+/** The rows the text, family, frame and case filters admit, in result order. Exported as the
+ * oracle of the native detail query's filter (`resultDetailParity.test.ts`). */
+export function rowsUnderFilters(
   rows: MechanicsResult["results"],
   labels: RowLabels,
   filters: Readonly<{ filterText: string; familyFilter: ResultFamilyFilter; frame: string; caseKey: string; kind?: string | null }>
@@ -1024,7 +1025,8 @@ type ResultPage = {
   end: number;
 };
 
-function paginateResults(resultItems: MechanicsResult["results"], pageIndex: number, pageSize: number): ResultPage {
+/** Exported as the oracle of the native detail query's pages (`resultDetailParity.test.ts`). */
+export function paginateResults(resultItems: MechanicsResult["results"], pageIndex: number, pageSize: number): ResultPage {
   const pageCount = Math.max(1, Math.ceil(resultItems.length / pageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), pageCount - 1);
   const startIndex = safePageIndex * pageSize;
