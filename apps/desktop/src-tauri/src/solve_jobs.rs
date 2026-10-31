@@ -134,6 +134,11 @@ pub(crate) const RESULT_TOO_LARGE_CODE: &str = "PREVIEW-SOLVE-RESULT-TOO-LARGE";
 /// bytes are never changed.
 pub(crate) const STORED_RESULT_TOO_LARGE_CODE: &str = "STORED-RESULT-TOO-LARGE";
 
+/// What a person can reduce or split today so a solve publishes less result
+/// detail (a solve covers every load case and combination in the model); the
+/// same words as the desktop's `SOLVE_RESULT_REDUCTION_OPTIONS` (`memoryPool.ts`).
+pub(crate) const SOLVE_RESULT_REDUCTION_OPTIONS: &str = "remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
+
 /// A byte count for messages: exact, then in MiB or GiB (two decimals at most),
 /// for example `67108865 bytes (64 MiB)`.
 pub(crate) fn display_size(bytes: u64) -> String {

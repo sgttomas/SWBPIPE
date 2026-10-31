@@ -7,7 +7,7 @@ import inventedPreviewModel from "../../../../fixtures/product_preview/invented_
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, resultArrayBuffer, solveBytes } from "../test/nativeMechanicsReplay";
 import { minimalPreviewStatement } from "../test-support/retiredPrecision";
 import { checkedJsonText } from "./hashService";
-import { ResourceUnavailableError } from "./memoryPool";
+import { ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
 import nativeSolveJobs from "../../src-tauri/src/solve_jobs.rs?raw";
 import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding } from "../features/results/resultStanding";
@@ -704,6 +704,8 @@ describe("a result too large to display (RT-U4)", () => {
   it("uses the native refusal's code; the limit itself comes from the native status", () => {
     expect(nativeSolveJobs).toContain(`pub(crate) const RESULT_TOO_LARGE_CODE: &str = "${RESULT_TOO_LARGE_CODE}";`);
     expect(nativeSolveJobs).toContain("pub(crate) const MAX_DISPLAYABLE_RESULT_BYTES: u64 = 64 << 20;");
+    // The native stored-result refusals give the same advice in the same words.
+    expect(nativeSolveJobs).toContain(`pub(crate) const SOLVE_RESULT_REDUCTION_OPTIONS: &str = "${SOLVE_RESULT_REDUCTION_OPTIONS}";`);
   });
 
   it("shows exact bytes when the rounded size and limit would read the same", () => {

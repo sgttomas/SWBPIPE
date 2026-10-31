@@ -11178,6 +11178,34 @@ mod stored_result_limit_tests {
         assert_eq!(refuse_dropping_withheld_run(&transaction, "project:absent", None, &Value::Null, 0), Ok(()));
     }
 
+    /// The project's run record (`analysis_run_json`, a v0.3 record with one
+    /// result reference and checksum per published row, so it grows with the
+    /// result) is held to the same limit by its own stored length, at open and
+    /// in the save guard, with a result well within it.
+    #[test]
+    fn a_stored_run_record_above_the_limit_is_withheld_and_kept() {
+        let store = scratch_store("stored-limit-record");
+        const RECORD: u64 = 40;
+        seed(&store, &text_of(5), &text_of(RECORD));
+        let before = stored(&store);
+        let (mut connection, _) = open_project_store(&store).unwrap();
+        for limit in [RECORD + 1, RECORD] {
+            let record = load_project_within(&connection, Some(ID), limit).unwrap().unwrap();
+            assert_eq!((record.mechanics_result, record.analysis_run, record.withheld), (text_of(5), text_of(RECORD), None), "limit {limit}");
+        }
+        let record = load_project_within(&connection, Some(ID), RECORD - 1).unwrap().unwrap();
+        assert_eq!((record.mechanics_result, record.analysis_run), (Value::Null, Value::Null));
+        assert_eq!(record.withheld, Some(StoredResultWithheld { code: "STORED-RESULT-TOO-LARGE", result_bytes: 5, analysis_run_bytes: RECORD, limit_bytes: RECORD - 1 }));
+        let transaction = immediate_transaction(&mut connection).unwrap();
+        assert_eq!(refuse_dropping_withheld_run(&transaction, ID, None, &Value::Null, RECORD + 1), Ok(()));
+        assert_eq!(refuse_dropping_withheld_run(&transaction, ID, None, &Value::Null, RECORD), Ok(()));
+        let error = refuse_dropping_withheld_run(&transaction, ID, None, &Value::Null, RECORD - 1).unwrap_err();
+        assert!(error.contains("(its analysis-run record 40 bytes (0 MiB)), above the desktop's display limit of 39 bytes (0 MiB)"), "{error}");
+        drop(transaction);
+        drop(connection);
+        assert_eq!(stored(&store), before, "the stored row is unchanged");
+    }
+
     /// At the product limit, through the commands' store functions: a stored
     /// result of 64 MiB + 1 bytes is withheld at open and kept by a refused
     /// save; one of exactly 64 MiB opens and saves as before.
