@@ -167,8 +167,8 @@ deliverable; "new" means a scope change assigns it.
 | RT-R4 | Calculation report with a section composer | Must | Local-private render and package on both routes (W-3, #1648); section composer designed (DEL-08-01 `Work/report-section-composer.md`), not built | composer build / DEL-08-01 |
 | RT-R5 | Shareable report released by the user | Must | Built on both routes: route 010 native admission (W-18b r2c, #1682) and exact-route results (D-6, #1745); privacy fixes (#1692, #1722) | later slice in `report-user-release.md` §10 / DEL-08-01, DEL-12-02 |
 | RT-R6 | CSV export of every results table | Must | Built: CSV serializer and export on every results and comparison table, with a coverage guard; saving requires explicit local-private intent (#1720, #1726) | — / DEL-08-04 |
-| RT-R7 | MBF export from the desktop | Must | Headless SI pilot writer writes bend SIFs as BSIF (#1730); desktop design adopted. Rust writer port and desktop export not built; the desktop panel is a preview | slices 2, 4, 6 / DEL-17-04, DEL-07-12 |
-| RT-R8 | MBF import into the desktop | Must | Rust MBF engine crate with an importer port byte-identical to the Python importer and parity tests (#1728, #1734); not yet used by the desktop | slices 5–7 / DEL-17-04, DEL-07-12 |
+| RT-R7 | MBF export from the desktop | Must | Headless SI pilot writer writes bend SIFs as BSIF (#1730); desktop design adopted. Rust writer port and desktop export not built; the desktop panel is a preview. Criterion 6's model is the reference system (DEL-09-01 `Work/reference-system.md`; fixture `fixtures/reference_system/`); its §11.1 lists the families expected in the loss report | slices 2, 4, 6 / DEL-17-04, DEL-07-12 |
+| RT-R8 | MBF import into the desktop | Must | Rust MBF engine crate with an importer port byte-identical to the Python importer and parity tests (#1728, #1734); not yet used by the desktop. The round trip is checked on the reference system (DEL-09-01) once slices 4–6 land | slices 5–7 / DEL-17-04, DEL-07-12 |
 | RT-R9 | PCF, glTF, handoff package, native JSON | Should | Save Handoff (#1600); PCF and glTF text withheld | — / DEL-17-07, DEL-17-08, DEL-15-01 |
 
 ### Human factors, validation, release
@@ -332,3 +332,6 @@ after the walkthrough.
   - The native-smoke `expected.json` values.
 - **Edits.** Decisions edit the row they govern. This file is not a log; Git
   keeps its history.
+- **Limitations list.** The release limitations that criterion 3 refers to
+  are kept in `docs/RELEASE_LIMITATIONS_v1.0.md`. Lanes draft entries there;
+  accepting one is the owner's act.
