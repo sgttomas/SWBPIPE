@@ -321,6 +321,8 @@ code_paths:
 - apps/desktop/src-tauri/src/exact_source_binding.rs
 # W-18b slice (r2a): the solve worker's attestation, its ATST frame and the registry's attestation table.
 - apps/desktop/src-tauri/src/solve_attestation.rs
+# RT-U4: d_S computed from the result text without the parse-back (same digest).
+- apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/worker_alloc.rs
 # The temperature identity's canonical-decimal corpus writer (pressure-contract.md).
@@ -352,6 +354,7 @@ checks:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
 - apps/desktop/src-tauri/src/solve_attestation.rs
+- apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 # The exact temperature identity: tie regressions, domain refusal and the repr corpus.
 - core/product_physics/src/case_state/temperature.rs
