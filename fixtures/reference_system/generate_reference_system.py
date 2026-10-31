@@ -8,7 +8,8 @@ generator writes three files beside itself:
 - `reference_system.json`: the model document, tranche 1 (every family the §10 ledger marks
   "in tranche 1"), on the exact route EX;
 - `authoring.json`: the authoring marks, the bend corners and the pending ledger (RT-E1's input);
-- `key_results.json`: the named results and equilibrium references of §9, with no expected value.
+- `key_results.json`: the named results and equilibrium references of §9, each expected value naming its
+  frozen record under `validation/references/reference_system/` (EXPECTED).
 
 W (spec §8.1) is the product's own self-weight generator's output
 (`core/product_physics/src/self_weight.rs` through `core/loads/self_weight_wasm`), captured in
@@ -291,12 +292,12 @@ KEY_RESULTS = [
     ("KR-10", "Hanger table: per hanger, the sized load, travel and selected invented record", ["hanger sizing"],
      "verified_solve", "verified solve"),
     ("EQ-1", "The sum of vertical reactions over all supports, the spring and the constant-effort support included, "
-     "equals the total weight, in RS-SUS, RS-OPE and RS-HYD (with the test contents)", ["RS-SUS", "RS-OPE", "RS-HYD"],
-     "closed_form", "closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated "
-     "mass bases"),
-    ("EQ-2", "In RS-SUS, RS-OPE and RS-HYD the horizontal reaction resultant is zero, and the reaction moment "
-     "resultant equals minus the moment of the weight", ["RS-SUS", "RS-OPE", "RS-HYD"], "closed_form",
-     "closed form from the inputs"),
+     "equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands",
+     ["RS-SUS", "RS-OPE", "RS-SAM", "RS-HYD"], "closed_form", "closed form: the total weight recomputed independently "
+     "from the inputs (§4, §5) on EX's stated mass bases"),
+    ("EQ-2", "In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and "
+     "the reaction moment resultant about the origin equals minus the moment of the weight",
+     ["RS-SUS", "RS-OPE", "RS-SAM", "RS-HYD"], "closed_form", "closed form from the inputs"),
     ("EQ-3", "On every published signed component row, RS-EXP equals RS-OPE - RS-SUS; magnitude rows are "
      "recomputed from the combined components; withheld rows are excluded", ["RS-EXP", "RS-OPE", "RS-SUS"],
      "identity", "exact identity"),
@@ -311,6 +312,38 @@ KEY_RESULTS = [
     ("EQ-7", "Spectrum directional combination recomputed from the published per-direction results", ["spectrum"],
      "identity", "exact identity"),
 ]
+
+
+# Frozen expected values (spec §1): copied from the independent references in REFERENCES (EQ-1, EQ-2; the fixture
+# test checks the copy against references.json) or naming the identity and its record (EQ-3, EQ-5). The tranche-1
+# cases only: RS-HYD's weight (test contents) is not yet referenced.
+REFERENCES = "validation/references/reference_system/references.json"
+REFERENCES_README = "validation/references/reference_system/README.md"
+EXPECTED = {
+    "EQ-1": {
+        "basis_record": REFERENCES, "key": "W_total_N", "unit": "N", "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
+        "check": "the sum of the global Z reaction components over every support equals W_total",
+        "exact": "(3300) + (66155686593423/5000000000)*pi + (1363190839087/160000000000)*pi*sqrt(257) + "
+                 "(124534361799687/800000000000)*pi^2",
+        "value": 46832.31956637544,
+    },
+    "EQ-2": {
+        "basis_record": REFERENCES, "key": "weight_moment_about_origin_N_m", "unit": "N*m",
+        "cases": ["RS-SUS", "RS-OPE", "RS-SAM"],
+        "check": "the horizontal (X, Y) reaction resultant is zero, and the reaction moment resultant about the origin "
+                 "(sum of r x F + M over every support) equals minus the weight's moment about the origin",
+        "value": [-444952.3802374701, 250652.31673076993, 0.0],
+    },
+    "EQ-3": {
+        "basis_record": REFERENCES_README, "cases": ["RS-EXP", "RS-OPE", "RS-SUS"],
+        "identity": "on every published signed component row, RS-EXP = RS-OPE - RS-SUS; magnitude rows equal the norm "
+                    "of the combined components; rows the combination withholds are excluded and listed",
+    },
+    "EQ-5": {
+        "basis_record": REFERENCES_README, "cases": ["RS-dSAM"],
+        "identity": "the RS-dSAM reaction resultant force and its moment about the origin are zero",
+    },
+}
 
 
 # -- helpers --------------------------------------------------------------------------------------------------------
@@ -744,9 +777,9 @@ def key_results():
         "specification": SPEC,
         "rule": "an expected value enters only from a closed-form reference with an independent generator, an exact "
                 "identity or a verified solve, frozen in validation/references/reference_system/ with its basis "
-                "recorded (spec §1); none is entered here",
+                "recorded (spec §1); each expected value here names that record",
         "results": [{"id": rid, "description": description, "cases": cases, "basis": basis, "spec_basis": spec_basis,
-                     "expected": None} for rid, description, cases, basis, spec_basis in KEY_RESULTS],
+                     "expected": EXPECTED.get(rid)} for rid, description, cases, basis, spec_basis in KEY_RESULTS],
     }
 
 

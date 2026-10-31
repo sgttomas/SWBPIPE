@@ -29,8 +29,31 @@ half-entered coefficient) and `createExactMaterial.engine.test.tsx`, which creat
 form on a blank load/reference model, applies it through the wasm operation engine and compares the
 material with `fixtures/reference_system/reference_system.json`.
 
-**Remaining (G5b).** Adding or changing the coefficient on an existing E/ν material that lacks
-one follows separately.
+## 2. The coefficient on an existing material (G5b)
+
+**Gap.** An existing E/ν material's coefficient could not be added, changed or removed. The
+constitutive projection (`operation_applier/src/pressure_authoring.rs` `MATERIAL_KEYS`) excluded it,
+and `set_field thermal_expansion_coefficient.value` refuses a material that lacks the quantity
+(`OP-QUANTITY-OBJECT-MISSING`). No design text, pricing registration or provenance rule gave a
+reason for the exclusion; `create_material` and the library apply route already admit the member.
+
+**Change.** The constitutive projection, in the engine and in the desktop's existing-material editor,
+includes `thermal_expansion_coefficient`. The editor shows the field with E, ν and provenance;
+clearing it and queueing removes the member, explicitly.
+
+- When the coefficient is present, the engine requires the project temperature unit to be stated and
+  to be a temperature unit (`OP-UNIT-METADATA-MISSING`, `OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE`),
+  and the coefficient to be a finite quantity in an accepted thermal-expansion unit, as on
+  `create_material`. Its sign is the user's. Nothing is converted or completed.
+- A caller whose projection still omits the coefficient is refused as stale
+  (`OP-BEFORE-VALUE-MISMATCH`) on a material that carries one. It is never read as a removal.
+
+**Evidence.** `operation_applier/tests/exact_authoring.rs`
+`constitutive_properties_add_change_and_remove_the_thermal_expansion_coefficient` (add, change,
+unit and value refusals, project-unit refusals, the stale-projection refusal and removal);
+`l_line_authoring.rs` and the desktop `lLineAuthoring.test.tsx` now use the full projection; the
+desktop form test and the wasm round trip that adds RS-M1's coefficient to the existing material
+(`createExactMaterial.engine.test.tsx`).
 
 ## 3. Fill and copy for per-member and per-case lists (G7, G8)
 
