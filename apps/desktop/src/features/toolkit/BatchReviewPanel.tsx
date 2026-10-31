@@ -5,6 +5,8 @@ import type { ModelHashEvidence, OperationOutcomeDiagnostic, PreviewModel } from
 export type QueuedBatch = {
   /** Immutable original agent attribution and assumptions, outside native intents. */
   agentContext?: import("../../services/embeddedAgentSession").AgentContext;
+  /** Immutable display-only claimed attribution of an offline import. */
+  importContext?: import("../../services/operationAuthorship").ImportContext;
   key: string;
   batch: OperationBatch;
   basisModel: PreviewModel;
@@ -61,7 +63,7 @@ export function PREVIEW_REQUIRED_REASON(batch: OperationBatch): string {
   const named = (kinds.length ? kinds : ["an operation that requires preview"]).join(" and ");
   return `This batch contains ${named}. Validate it on the current model first; Apply is enabled only after a preview with no blocking finding.`;
 }
-export type BatchReceipt = { batch: OperationBatch; outcome: OperationBatchOutcome; agentContext?: import("../../services/embeddedAgentSession").AgentContext };
+export type BatchReceipt = { batch: OperationBatch; outcome: OperationBatchOutcome; agentContext?: import("../../services/embeddedAgentSession").AgentContext; importContext?: import("../../services/operationAuthorship").ImportContext };
 type Props = {
   batches: QueuedBatch[];
   outcomes: Record<string, OperationBatchOutcome>;
@@ -115,6 +117,7 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
           <article key={entry.key} data-testid={`batch-${entry.key}`}>
             <h4>{entry.batch.batch_id}</h4>
             <AgentProposalContext context={entry.agentContext} />
+            <ImportedProposalContext context={entry.importContext} />
             <p>{entry.batch.operations.length} proposed changes. {stale ? reason : "Bound to the model used to prepare this batch."}</p>
             <button type="button" data-testid={`validate-batch-${entry.key}`} disabled={stale || busy} title={reason} onClick={() => onValidate(entry)}>Validate batch</button>
             <button type="button" data-testid={`apply-batch-${entry.key}`} disabled={stale || busy || gated} title={applyReason} onClick={() => onApply(entry)}>Apply entire batch</button>
@@ -128,6 +131,7 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
         <details key={`${index}:${receipt.batch.batch_id}`} data-testid="batch-receipt">
           <summary>Applied batch: {receipt.batch.batch_id}</summary>
           <AgentProposalContext context={receipt.agentContext} />
+          <ImportedProposalContext context={receipt.importContext} />
           <BatchOutcome outcome={receipt.outcome} onSelectRef={onSelectRef} />
           <pre>{JSON.stringify({ submitted: receipt.batch, outcome: receipt.outcome }, null, 2)}</pre>
         </details>
@@ -145,6 +149,15 @@ function AgentProposalContext({context}:{context:QueuedBatch["agentContext"]}) {
       return <li key={`${index}:${assumption.assumptionId}`}><strong>{assumption.assumptionId}</strong>: {assumption.statement} <span>Operations: {assumption.affectedOperationIds.join(", ")}</span></li>;
     })}</ul>}
     <details><summary>Original agent reference</summary><p>{context.threadId} · {context.turnId} · {context.callId}</p><p>{context.requestRef}</p></details>
+  </section>;
+}
+
+function ImportedProposalContext({context}:{context:QueuedBatch["importContext"]}) {
+  if(!context)return null;
+  return <section aria-label="Imported proposal context">
+    <p>Imported; attribution unverified. Every operation is recorded as agent-proposed.</p>
+    <details><summary>Attribution the file claims (display only)</summary><ul>{context.claimed.map((claim,index)=>
+      <li key={`${index}:${claim.operationId}`}>{claim.operationId}: {JSON.stringify(claim.authorType)} · {JSON.stringify(claim.source)}</li>)}</ul></details>
   </section>;
 }
 

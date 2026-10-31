@@ -269,6 +269,7 @@ function AppSession() {
     handleQueueEditorIntent,
     handleClearReviewQueue,
     handleQueueOperationBatch,
+    handleRequeueRetainedRecord,
     registerOperationBatch,
     handleRunOperationBatch,
     handleDismissRetiredBatch,
@@ -556,7 +557,7 @@ function AppSession() {
                     <summary>{String(intent?.operation_id ?? "Unrecognized operation record")} — proposed context; acceptance unknown</summary>
                     <pre>{JSON.stringify(intent, null, 2)}</pre>
                     <button type="button" data-testid={`requeue-context-${index}`} disabled={operationBusy} title={operationBusy ? "Wait for the current operation to finish." : undefined}
-                      onClick={() => void handleQueueOperationBatch({ batch_id: `requeue-${index}`, operations: [intent] })}>
+                      onClick={() => void handleRequeueRetainedRecord(intent, index)}>
                       Requeue for fresh validation
                     </button>
                   </details>
