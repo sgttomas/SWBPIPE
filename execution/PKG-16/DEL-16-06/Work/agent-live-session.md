@@ -130,6 +130,32 @@ late actuals and original native group preservation. The native run used the ret
 0.160 bytes and current candidate native-smoke code in a fresh app copy. ARM evidence cannot qualify Intel; the
 public gate remains unavailable on any unqualified architecture.
 
+**Start defects the webview journey exposed (RT-E1 D4, 2026-10-31).** The first
+run of the agent's journey in the real app window (prerequisite 2 of the D4 live
+run) found that the merged agent could never start there, for two reasons:
+
+- The workspace snapshot published the model hash only when
+  `uiModelRevision === modelRevision.current`. Those are different counters:
+  model edits advance the first, every model change including a project load
+  advances the second, so they differ from the first load on and Start always
+  refused with "Open a model and wait for its fingerprint before starting."
+  The binding rule is now: the hash owner records the model revision its hash
+  was computed for, and the snapshot publishes the hash only when that equals
+  `modelRevision.current`, together with the existing generation and ownership
+  checks. A hash from before an edit is therefore never published while the
+  edited model's hash is pending.
+- The workspace and the operation engine write a hash value as `sha256:<hex>`,
+  but the catalog's `hash` value is the 64 hex digits alone, so `register`
+  refused every real basis. The session converts at the boundary
+  (`agentHash`): the registered and updated basis, the current-basis
+  comparison, the solve receipt comparison and the returned
+  `evaluatedModelHash` and `outcomeModelHash` use the catalog's form; the
+  operation batch keeps the engine's form.
+
+Unit tests had used a hand-made hash and never a real project load, so neither
+showed. `features/workspace/agentWorkspaceSnapshot.session.test.tsx` and a
+`sha256:`-form case in `embeddedAgentSession.test.ts` now cover them.
+
 DEL-16-06 ScopeOfWork claims/ACs and all dependency conditions remain unchanged:
 this implements their existing binding, proposal and cleanup duties, not their
 acceptance. deliverable.yaml adds source/check pointers. DEL-08-01's exact unsafe
