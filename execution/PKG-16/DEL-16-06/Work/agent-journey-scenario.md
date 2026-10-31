@@ -101,11 +101,79 @@ once), the embedded-agent tests with and without the feature, a product
 outcomes, the event stream, loopback-only answering, the judge's acceptance of
 the reference and its named departures, and the driver's command set).
 
+## Defects the journey found
+
+The first launches exercised the webview journey for the first time and found
+two product defects, both fixed here with regressions:
+
+- **The agent could never start.** The workspace snapshot published the model
+  hash only when `uiModelRevision === modelRevision.current`, two different
+  counters (project loads advance only the second), so Start always refused
+  with "Open a model and wait for its fingerprint before starting." The hash
+  owner now records the model revision its hash was computed for, and the
+  snapshot publishes the hash only for that revision
+  (`features/workspace/agentWorkspaceSnapshot.session.test.tsx`: Start passes
+  the workspace check after the first load and after an applied edit, and
+  refuses while the edited model's hash is pending; both cases failed before).
+- **Registration refused every real basis.** The workspace and the operation
+  engine write a model hash value as `sha256:<hex>`, while the catalog's `hash`
+  value is the 64 hex digits alone, so `register` refused (`AGENT-Input`). The
+  session now converts at the boundary (`agentHash`): the registered and
+  updated basis, the current-basis comparison, the solve receipt comparison and
+  the `evaluatedModelHash` and `outcomeModelHash` it returns are in the
+  catalog's form; the operation batch keeps the engine's form. The session
+  tests had used a bare hex value; a test with the workspace's real form is
+  added.
+
+To read a refusal the Agent panel generalizes, a native-smoke build also
+prints the host's refusal code and the request's kind on stderr
+(`[native-smoke-agent-host] register refused AGENT-Input`); the code is a
+payload-free enum and the request is never printed.
+
 ## Stub run
 
-Pending: the stub run needs a private copy of the retained bundle that holds
-the pinned supplier, named by its owner. Its start and end times, result and
-cleanup evidence are recorded here when it has run.
+Candidate: app built from `01f4b375d` (frontend and native-smoke executable),
+controller at `7fc3386d2`; macOS ARM. The bundle was a private copy of the
+retained bundle at `targets/appv4-host/aarch64-apple-darwin/debug/bundle/macos/SWBPIPE.app`
+(the originals untouched), whose supplier matched the pin
+(`112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b`), with the
+fresh executable (SHA-256
+`af4ba4ecb514307cc554f5eea369d979169cdbd5e5a5d5dfa3be41b7cc093286`) placed in it.
+
+Seal: ad-hoc local seal of a private test copy, not distribution signing
+(`codesign --force --sign - --options runtime` on the app copy only; no
+identity, team id or Keychain item). Its identity output was
+`Signature=adhoc`, `TeamIdentifier=not set`,
+`CodeDirectory flags=0x10002(adhoc,runtime)`. The supplier was not sealed or
+re-signed; its SHA-256 and its own signature verified unchanged before each
+launch.
+
+The evidence run, 2026-10-31T11:37:29Z to 11:37:45Z UTC, under `t3_slot.sh`:
+
+| Check | Observed |
+|---|---|
+| Free-memory gate | 50.7 GiB free; this stub run used a 16 GiB gate (no model runs), the live default stays 50 GiB |
+| Standalone preflight | passed (probe exits, boundary checks, `preflight_complete`) |
+| Gate | supplier published, observed, anchored to its group, then `READY` |
+| Driver | all seven steps; one agent batch of 11 operations; receipt after the stand-in Apply |
+| Stub provider | summary, propose, message; summary, observe (`applied`), solve (`completed`), read results, message; no unexpected step; no request carried an Authorization header |
+| Window | `node:a`, `node:c`, `node:d` in the tree; `node:c` ux 4.771112073942932 mm, uy -3.586865438767269 mm, uz 0, rx 0, ry 0, rz 0.0007867143613246695 rad, each within W9-A's criterion |
+| Agreement | the solve was on the applied model's hash; the agent's six read values equal the window's |
+| Cleanup | app exit 0; supplier exit observed with status 0 and absent; `qualified_native_owned_group`; no resident process |
+
+The result JSON SHA-256 is
+`c4219fd42c794a8a4d10460da34b736c03ca672c7d61d4bf5467a34a7c922cab`; it holds
+no credential and is a local report that no permanent check reads.
+
+Earlier attempts, each a short launch that left nothing resident (run 1's three
+listed "residents" were the controller's own wrapper, whose arguments name the
+app; the check now matches executables): runs 1 to 9 (11:13 to 11:34 UTC)
+stopped before the supplier started, while the two defects and two driver
+waits (the bundled demo's load, Start's refusal line) were found and fixed;
+run 10 (11:36) completed the journey and was judged against row ids of the
+wrong shape, which the judge now matches as the product forms them. These
+runs qualify the scenario's plumbing with a scripted provider, not model
+behaviour.
 
 ## Open
 
