@@ -19,6 +19,9 @@ use serde_json::{json, Value};
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const PROVENANCE: &str = "invented_arc_tangent_direction_control";
 const ONE_PLUS_ULP: u64 = 0x3ff0_0000_0000_0001;
+/// The sparse envelope, kept for the Python verifier's positive case
+/// (`tests/test_pressure_arc_readers.py`); `ARC_TANGENT_WRITE_FIXTURE=1` writes it.
+const FIXTURE: &str = include_str!("../../../fixtures/results/pressure_arc_tangent_above_one_sparse.json");
 
 fn q(value: f64, unit: &str) -> Value {
     json!({"value": value, "unit": unit})
@@ -68,6 +71,14 @@ fn an_arc_tangent_component_above_one_is_published_and_read() {
     let document = document();
     for mode in MODES {
         let envelope = serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap()).unwrap();
+        if mode == PreviewSolverMode::SparseInteractive {
+            let bytes = serde_json::to_string_pretty(&json!({"model": document["model"], "envelope": envelope})).unwrap() + "\n";
+            if std::env::var_os("ARC_TANGENT_WRITE_FIXTURE").is_some() {
+                std::fs::write(concat!(env!("CARGO_MANIFEST_DIR"), "/../../fixtures/results/pressure_arc_tangent_above_one_sparse.json"), &bytes).unwrap();
+            } else {
+                assert!(bytes == FIXTURE, "the arc tangent fixture is stale; regenerate it with ARC_TANGENT_WRITE_FIXTURE=1");
+            }
+        }
         assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {:#?}", envelope["diagnostics"]);
         let above = groups(&envelope).iter()
             .filter(|g| g["direction_component_magnitude"].as_f64().unwrap().to_bits() == ONE_PLUS_ULP)

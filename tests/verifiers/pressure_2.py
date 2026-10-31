@@ -1084,7 +1084,7 @@ def _validate_rhs(rhs: Any, cid: str, arc_tangents: Mapping[tuple[Any, Any], Any
             if tangents is None:
                 continue
             on_arc = True
-            _require(isinstance(tangents, list) and any(isinstance(t, list) and len(t) == 3 and _number(t[axis]) and abs(t[axis]) == magnitude for t in tangents), "pressure RHS arc direction")
+            _require(isinstance(tangents, list) and any(isinstance(t, list) and len(t) == 3 and _number(t[axis]) and abs(float(t[axis])) == float(magnitude) for t in tangents), "pressure RHS arc direction")
         _require(0 < magnitude and (on_arc or magnitude <= 1), "pressure RHS group values")
         key = (group["node_ref"], group["component"], group["pressure_bits"], group["source_inner_radius_hi_bits"], group["source_inner_radius_lo_bits"], group["direction_component_magnitude"])
         _require(key not in groups, "duplicate pressure RHS group")

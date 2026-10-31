@@ -8,6 +8,7 @@ and its arc-refusal check with it, as in the Rust twin.)
 """
 from copy import deepcopy
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -237,6 +238,25 @@ def test_arc_tangent_magnitude_binds_to_the_published_tangent(label, envelope):
     if not on_arc:
         pytest.skip("no arc pressure group in this case")
     off = deepcopy(envelope)
-    _groups(off)[on_arc[0]]["direction_component_magnitude"] = _groups(off)[on_arc[0]]["direction_component_magnitude"] * (1 + 2.0 ** -40)
+    group = _groups(off)[on_arc[0]]
+    group["direction_component_magnitude"] = math.nextafter(group["direction_component_magnitude"], math.inf)
+    with pytest.raises(Exception, match="pressure RHS arc direction"):
+        validate_pressure_evidence(off)
+
+
+ABOVE_ONE = json.loads((PROJECT / "fixtures/results/pressure_arc_tangent_above_one_sparse.json").read_text())
+
+
+def test_an_arc_tangent_component_above_one_is_admitted():
+    """The RT-U4 rack bend's tangent component 1 + 2^-52 (written by
+    core/product_physics/tests/arc_tangent_direction_magnitude.rs): the verifier admits it, bound to the published
+    tangent, with and without the model; one ulp off is refused."""
+    envelope = ABOVE_ONE["envelope"]
+    above = [g for g in _groups(envelope) if g["direction_component_magnitude"] > 1.0]
+    assert above and all(g["direction_component_magnitude"] == 1.0 + 2.0 ** -52 for g in above)
+    validate_pressure_evidence(deepcopy(envelope))
+    off = deepcopy(envelope)
+    group = next(g for g in _groups(off) if g["direction_component_magnitude"] > 1.0)
+    group["direction_component_magnitude"] = math.nextafter(group["direction_component_magnitude"], math.inf)
     with pytest.raises(Exception, match="pressure RHS arc direction"):
         validate_pressure_evidence(off)
