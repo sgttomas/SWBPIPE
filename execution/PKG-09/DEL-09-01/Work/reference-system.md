@@ -175,7 +175,7 @@ default k, SIF or stiffness.
 | RS-B1 | realized bend (`curved_bend_macro_element`) | RS-P065 | R 0.400 m, 90°; k 4.2; SIF in-plane 2.1, out-of-plane 1.8 |
 | RS-B2 | realized bend | RS-P085 | R 0.400 m, 90°; k 4.2; SIF 2.1 / 1.8 |
 | RS-B3 | realized bend | RS-P225 | R 0.250 m, 90°; k 3.6; SIF 2.3 / 1.9 |
-| RS-T1 | `tee` at RS-130 | header `RS-P120`, branch `RS-P210` | `branch_header_sif_user_value` 2.4; `branch_branch_sif_user_value` 2.0; connection angle 90° |
+| RS-T1 | `tee` at RS-130 | header `RS-P120`, branch `RS-P210` | `branch_header_sif_user_value` 2.4; `branch_branch_sif_user_value` 2.0; connection angle 90°; run size 170 mm (the branch outlet) and header size 270 mm; connection type `invented unreinforced tee`; reinforcement reference `invented: no reinforcement`. The sizes, type and reference are descriptive geometry that tee creation requires; EX joins the tee rigidly and reads none of them. No flexibility factor: branch flexibility is assembled on neither route |
 | RS-R1 | `reducer`, eccentric | RS-P150, node RS-160 | end sizes 270 / 220 mm; `eccentric_offset` (0, 0, +25) mm (from the centreline at RS-160 to the centreline at RS-150, the body's other end); weight 300 N, CoG at the body midpoint; stiffness scale 2.0 |
 | RS-F1 | `flange` | RS-P020, node RS-030 | weight 350 N; CoG at the body midpoint; stiffness scale 10.0 |
 | RS-V1 | `valve` | RS-P030, node RS-040 | weight 2600 N; CoG offset (0, 0, +0.30) m from the body midpoint (actuator above); stiffness scale 10.0 |
@@ -496,8 +496,7 @@ since the fills and case copies of #38, and 20 the tee RS-T1 with the person's S
 run sheet's estimate is about 77 minutes (about 130 before #38), against the provisional
 30; it is not a measurement. On `main` the sheet cannot carry the fixture's support or
 bend ids, so all eleven supports and the three bends are entered by forms (run sheet §2,
-§6), and the tee's form requires four members spec §5 does not give and has no field for
-its modifier source (run sheet G10, G11). The full model adds the reducer, the other
+§6), and the tee's inspector has no field for its modifier source (run sheet G11). The full model adds the reducer, the other
 non-rigid supports, five more cases with their regions, the other eight combinations and
 the three analysis requests.
 

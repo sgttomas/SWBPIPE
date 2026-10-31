@@ -245,13 +245,12 @@ Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features
    1. **New component**: ID `component:RS-T1`; Label `Tee T1`; Kind tee; **New component
       node** RS-130; **New tee header pipe** RS-P120; **New tee branch pipe** RS-P210
       (`PropertyInspector.tsx:947-951`); **Connection angle** 90 with **Angle unit** deg
-      (prefilled rad); Geometry source ⟨S5⟩; Provenance ⟨P⟩. **Queue tee**, Apply. The form
-      also requires **Run size**, **Header size**, **Connection type** and **Reinforcement
-      reference** before it queues (`component-creation/componentIntent.ts:380-392`), and the
-      applier refuses a tee without them (`OP-CREATE-TEE-GEOMETRY-INVALID`,
-      `core/model_operations/operation_applier/src/lib.rs:3387-3446`). Spec §5 gives none of
-      the four and the fixture carries none (gap G10), so the person enters values the
-      specification does not yet supply, and the record gains four members the fixture lacks.
+      (prefilled rad); **Run size** 170 and **Header size** 270, in mm; **Connection type**
+      `invented unreinforced tee`; **Reinforcement reference** `invented: no reinforcement`;
+      Geometry source ⟨S5⟩; Provenance ⟨P⟩. **Queue tee**, Apply. The form requires the four
+      descriptive members before it queues (`component-creation/componentIntent.ts:380-392`),
+      and the applier refuses a tee without them (`OP-CREATE-TEE-GEOMETRY-INVALID`,
+      `core/model_operations/operation_applier/src/lib.rs:3387-3446`); spec §5 supplies them.
       The created tee has no `modifiers` and no `mechanics_interface` (`lib.rs:2987-3006`),
       which the solver reads as mechanics_geometry_only
       (`core/product_physics/src/preview_physics.rs:307-313`), as for the fixture's record.
@@ -397,9 +396,9 @@ The solve time on the desktop is not measured here.
 
 ### 3.14 What still differs from the fixture
 
-The route above gives the fixture's ids, numbers and units, except for the tee (G10,
-G11). Text and form differences remain, none in criterion 6's identity set or, apart from
-the tee's, a numerical value:
+The route above gives the fixture's ids, numbers and units, except the tee's modifier
+source (G11). Text and form differences remain, none in criterion 6's identity set or a
+numerical value:
 
 - the project's id, name and description (`projectService.ts:440-455`);
 - labels the sheet or forms derive: pipe labels, and the bend form's "Bend start", "Bend
@@ -413,8 +412,7 @@ the tee's, a numerical value:
   from, which differs from the fixture generator's capture model;
 - array order: the bend operation appends its nodes, arc and component
   (`bend_authoring.rs:699-701, 710, 729`), so records are compared by id;
-- the tee: the desktop record carries the run size, header size, connection type and
-  reinforcement reference the form requires (G10), and lacks the modifier source (G11).
+- the tee: the desktop record lacks `modifiers.source_reference` (G11).
 
 ## 4. Pending families
 
@@ -456,7 +454,7 @@ its 60 form entries) and each SIF edit at the RS-050 correction's 0.75 minutes.
 | 3.5 Bends and SIFs | 39 | 6 | 5.5 |
 | 3.6 Valve and flanges, with end-size edits | 84 | 9 | 10 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
-| 3.6 Tee RS-T1 (14 form entries, four of them G10's) and the person's two SIFs | 20 | 3 | 2.75 |
+| 3.6 Tee RS-T1 (14 form entries) and the person's two SIFs | 20 | 3 | 2.75 |
 | 3.7 Supports | 98 | 11 | 13 |
 | 3.8 Reference configuration | 14 | 1 | 1.5 |
 | 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
@@ -491,7 +489,7 @@ cost §5 shows. None is worked around outside the operation route.
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
 | G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 51 apply cycles (§5) |
-| G10 | Tee creation requires a run size, header size, connection type and reinforcement reference, which spec §5 and the fixture do not give; the solver warns of their absence on the fixture (`BRANCH_GEOMETRY_INPUT_MISSING`) | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) or DEL-03-05 (tee creation) | Enters values the spec does not supply (§3.6) |
+| G10 | Closed in DEL-09-01: tee creation requires a run size, header size, connection type and reinforcement reference; spec §5 now gives invented values, which EX does not read | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) | §3.6 |
 | G11 | No modifier-source entry for a tee: the inspector offers header and branch SIFs but not `modifiers.source_reference`, which it offers only on rigid components | `PropertyInspector.tsx:1920-2009, 2097-2105`; applier field rule `lib.rs:679-682` | DEL-03-05 | Leaves the SIF source unentered (§3.6) |
 
 **RT-G2 candidates not named in spec §11.2:**

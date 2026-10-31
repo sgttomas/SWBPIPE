@@ -1108,8 +1108,12 @@
       "fields": {
         "geometry.branch_branch_pipe_ref": "agent_authorable",
         "geometry.branch_connection_angle": "agent_authorable",
+        "geometry.branch_connection_type": "agent_authorable",
         "geometry.branch_geometry_source_reference": "agent_authorable",
         "geometry.branch_header_pipe_ref": "agent_authorable",
+        "geometry.branch_header_size": "agent_authorable",
+        "geometry.branch_reinforcement_reference": "agent_authorable",
+        "geometry.branch_run_size": "agent_authorable",
         "kind": "agent_authorable",
         "label": "agent_authorable",
         "modifiers.branch_branch_sif_user_value": "person",

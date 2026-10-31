@@ -150,6 +150,11 @@ BENDS = [
 # the record carries none; with no mechanics_interface it is consumed as mechanics_geometry_only, the solver's default
 # (preview_physics.rs solver_consumption), and the desktop's tee creation writes none either.
 TEE = ("RS-T1", "RS-130", "RS-P120", "RS-P210", 2.4, 2.0, 90)
+# §5: the tee's descriptive geometry, which tee creation requires (geometry only; EX joins the tee rigidly).
+TEE_RUN_SIZE_MM = 170.0  # the branch outlet, RS-S170's outside diameter
+TEE_HEADER_SIZE_MM = 270.0  # the header run, RS-S270's outside diameter
+TEE_CONNECTION_TYPE = "invented unreinforced tee"
+TEE_REINFORCEMENT_REFERENCE = "invented: no reinforcement"
 # Rigid family: tag, kind, member, node, weight (N), CoG offset from the body midpoint (m, global), stiffness scale.
 RIGID = [
     ("RS-F1", "flange", "RS-P020", "RS-030", 350, ("0", "0", "0"), 10.0),
@@ -473,7 +478,10 @@ def components():
     rows.append({
         "id": f"component:{tag}", "label": f"Tee {tag[3:]}", "kind": "tee", "node": f"node:{node}",
         "geometry": {"branch_header_pipe_ref": f"pipe:{header}", "branch_branch_pipe_ref": f"pipe:{branch}",
-                     "branch_connection_angle": q(angle, "deg"), "branch_geometry_source_reference": SOURCE},
+                     "branch_run_size": q(TEE_RUN_SIZE_MM, "mm"), "branch_header_size": q(TEE_HEADER_SIZE_MM, "mm"),
+                     "branch_connection_angle": q(angle, "deg"), "branch_connection_type": TEE_CONNECTION_TYPE,
+                     "branch_reinforcement_reference": TEE_REINFORCEMENT_REFERENCE,
+                     "branch_geometry_source_reference": SOURCE},
         "modifiers": {"branch_header_sif_user_value": q(sif_header, "none"),
                       "branch_branch_sif_user_value": q(sif_branch, "none"), "source_reference": SOURCE},
         "provenance": PROVENANCE,
