@@ -195,14 +195,15 @@ fn fixture() -> Vec<Case> {
                     acceleration: bits(f[3]),
                     center_of_gravity: v3(&f[4..7]),
                 })),
-            "spring" => c
-                .as_mut()
-                .unwrap()
-                .elements
-                .push(ElementOperand::Spring(SpringOperand::Axis {
-                    dof: u(1),
-                    stiffness: bits(f[2]),
-                })),
+            "spring" => {
+                c.as_mut()
+                    .unwrap()
+                    .elements
+                    .push(ElementOperand::Spring(SpringOperand::Axis {
+                        dof: u(1),
+                        stiffness: bits(f[2]),
+                    }))
+            }
             "section" => {
                 let v = dd(f[3], f[4]);
                 c.as_mut().unwrap().sections.insert((u(1), f[2].into()), v);
@@ -215,7 +216,10 @@ fn fixture() -> Vec<Case> {
             "lump" => {
                 let v = dd(f[5], f[6]);
                 let case = c.as_mut().unwrap();
-                case.lumps.entry((u(1), u(2))).or_default().insert((u(3), u(4)), v);
+                case.lumps
+                    .entry((u(1), u(2)))
+                    .or_default()
+                    .insert((u(3), u(4)), v);
             }
             "cmass" => {
                 let v = dd(f[4], f[5]);
@@ -226,11 +230,17 @@ fn fixture() -> Vec<Case> {
                 let v = dd(f[3], f[4]);
                 c.as_mut().unwrap().mfull.insert((u(1), u(2)), v);
             }
-            "free" => c.as_mut().unwrap().free = f[1..].iter().map(|s| s.parse().unwrap()).collect(),
+            "free" => {
+                c.as_mut().unwrap().free = f[1..].iter().map(|s| s.parse().unwrap()).collect()
+            }
             "k" | "m" => {
                 let v = dd(f[3], f[4]);
                 let case = c.as_mut().unwrap();
-                let target = if f[0] == "k" { &mut case.k } else { &mut case.m };
+                let target = if f[0] == "k" {
+                    &mut case.k
+                } else {
+                    &mut case.m
+                };
                 target.insert((u(1), u(2)), v);
             }
             "eig" => {
@@ -245,18 +255,23 @@ fn fixture() -> Vec<Case> {
 }
 
 fn mass_cases() -> Vec<Case> {
-    fixture().into_iter().filter(|c| c.free.is_empty()).collect()
+    fixture()
+        .into_iter()
+        .filter(|c| c.free.is_empty())
+        .collect()
 }
 fn eigen_cases() -> Vec<Case> {
-    fixture().into_iter().filter(|c| !c.free.is_empty()).collect()
+    fixture()
+        .into_iter()
+        .filter(|c| !c.free.is_empty())
+        .collect()
 }
 
 /// max |x̂ − x| / max |x| over a set of positions (both maps' keys).
-fn normwise(
-    actual: &BTreeMap<Pair, Dd>,
-    expected: &BTreeMap<Pair, Dd>,
-) -> f64 {
-    let scale = expected.values().fold(0.0f64, |m, v| m.max(v.abs().to_f64()));
+fn normwise(actual: &BTreeMap<Pair, Dd>, expected: &BTreeMap<Pair, Dd>) -> f64 {
+    let scale = expected
+        .values()
+        .fold(0.0f64, |m, v| m.max(v.abs().to_f64()));
     let mut worst = 0.0f64;
     for key in actual.keys().chain(expected.keys()) {
         let a = actual.get(key).copied().unwrap_or(Dd::ZERO);
@@ -266,7 +281,9 @@ fn normwise(
     worst
 }
 
-fn square<const N: usize>(m: &open_pipe_stress_modal_eigen::reformation::ElementMatrix) -> BTreeMap<Pair, Dd> {
+fn square<const N: usize>(
+    m: &open_pipe_stress_modal_eigen::reformation::ElementMatrix,
+) -> BTreeMap<Pair, Dd> {
     let mut out = BTreeMap::new();
     for r in 0..N {
         for c in 0..N {
@@ -280,7 +297,10 @@ fn square<const N: usize>(m: &open_pipe_stress_modal_eigen::reformation::Element
 }
 
 fn upper(full: &BTreeMap<Pair, Dd>) -> BTreeMap<Pair, Dd> {
-    full.iter().filter(|(k, _)| k.0 <= k.1).map(|(k, v)| (*k, *v)).collect()
+    full.iter()
+        .filter(|(k, _)| k.0 <= k.1)
+        .map(|(k, v)| (*k, *v))
+        .collect()
 }
 
 #[test]
@@ -339,7 +359,12 @@ fn element_masses_match_on_both_bases() {
             match &case.elements[index] {
                 ElementOperand::Straight(s) if s.carries_mass => {
                     let e = normwise(&upper(&square::<12>(&contributions[0])), &case.emass[&k]);
-                    assert!(e <= NORMWISE, "{} {} straight {k}: {e:e}", case.id, case.basis);
+                    assert!(
+                        e <= NORMWISE,
+                        "{} {} straight {k}: {e:e}",
+                        case.id,
+                        case.basis
+                    );
                     straight = straight.max(e);
                 }
                 ElementOperand::Straight(_) => {
@@ -348,8 +373,14 @@ fn element_masses_match_on_both_bases() {
                 }
                 ElementOperand::Arc(_) => {
                     for side in 0..2 {
-                        let e = normwise(&square::<6>(&contributions[side]), &case.lumps[&(k, side)]);
-                        assert!(e <= NORMWISE, "{} {} arc {k}/{side}: {e:e}", case.id, case.basis);
+                        let e =
+                            normwise(&square::<6>(&contributions[side]), &case.lumps[&(k, side)]);
+                        assert!(
+                            e <= NORMWISE,
+                            "{} {} arc {k}/{side}: {e:e}",
+                            case.id,
+                            case.basis
+                        );
                         if case.id == "M-ARC-SMALL" {
                             small_arc = small_arc.max(e);
                         } else {
@@ -390,7 +421,9 @@ fn small_arc_lumps_keep_their_leading_values() {
     let mut worst = 0.0f64;
     for side in 0..2 {
         let expected = &case.lumps[&(0, side)];
-        let scale = expected.values().fold(0.0f64, |m, v| m.max(v.abs().to_f64()));
+        let scale = expected
+            .values()
+            .fold(0.0f64, |m, v| m.max(v.abs().to_f64()));
         for (&(r, c), &e) in expected {
             if e.abs().to_f64() < 1e-24 * scale {
                 continue;
@@ -436,11 +469,26 @@ fn component_range_refusals() {
         center_of_gravity: r,
     };
     let witnesses = [
-        (body(5e-324, 9.8125, [0.0; 3]), ComponentRangeOperand::Weight),
-        (body(1e-300, 1e10, [0.0; 3]), ComponentRangeOperand::MassQuotient),
-        (body(f64::MAX, 0.5, [0.0; 3]), ComponentRangeOperand::MassQuotient),
-        (body(1.0, 1e-300, [1e10, 0.0, 0.0]), ComponentRangeOperand::SpatialBlock),
-        (body(f64::MAX, 1.001953125, [0.0; 3]), ComponentRangeOperand::WeightProduct),
+        (
+            body(5e-324, 9.8125, [0.0; 3]),
+            ComponentRangeOperand::Weight,
+        ),
+        (
+            body(1e-300, 1e10, [0.0; 3]),
+            ComponentRangeOperand::MassQuotient,
+        ),
+        (
+            body(f64::MAX, 0.5, [0.0; 3]),
+            ComponentRangeOperand::MassQuotient,
+        ),
+        (
+            body(1.0, 1e-300, [1e10, 0.0, 0.0]),
+            ComponentRangeOperand::SpatialBlock,
+        ),
+        (
+            body(f64::MAX, 1.001953125, [0.0; 3]),
+            ComponentRangeOperand::WeightProduct,
+        ),
     ];
     for (b, operand) in witnesses {
         assert_eq!(component_mass(&b), Err(operand), "{b:?}");
@@ -466,7 +514,11 @@ struct Formed {
 
 fn entries(map: &BTreeMap<Pair, Dd>) -> Vec<SymmetricMatrixEntry> {
     map.iter()
-        .map(|(&(row, col), v)| SymmetricMatrixEntry { row, col, value: v.hi })
+        .map(|(&(row, col), v)| SymmetricMatrixEntry {
+            row,
+            col,
+            value: v.hi,
+        })
         .collect()
 }
 
@@ -486,7 +538,12 @@ fn formed(case: &Case, k: Vec<SymmetricMatrixEntry>, m: Vec<SymmetricMatrixEntry
     for (index, &dof) in case.free.iter().enumerate() {
         map[dof] = Some(index);
     }
-    Formed { k, m, solution, map }
+    Formed {
+        k,
+        m,
+        solution,
+        map,
+    }
 }
 
 fn pencil(case: &Case, f: &Formed) -> ReformedPencil {
@@ -501,8 +558,13 @@ fn largest_eta(case: &Case, f: &Formed) -> (f64, f64) {
     let mut eta = 0.0f64;
     let mut estimate = 0.0f64;
     for mode in 0..f.solution.mode_count() {
-        let r = residual_estimate(&p, &d.scaling, f.solution.eigenvalues[mode], f.solution.vector(mode))
-            .unwrap();
+        let r = residual_estimate(
+            &p,
+            &d.scaling,
+            f.solution.eigenvalues[mode],
+            f.solution.vector(mode),
+        )
+        .unwrap();
         eta = eta.max(r.backward_error);
         estimate = estimate.max(r.error_estimate);
     }
@@ -520,7 +582,11 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
         let k_hat: BTreeMap<Pair, Dd> = p.assembled_stiffness().into_iter().collect();
         let m_hat: BTreeMap<Pair, Dd> = p.assembled_mass().into_iter().collect();
         let (ek, em) = (normwise(&k_hat, &case.k), normwise(&m_hat, &case.m));
-        assert!(ek <= NORMWISE && em <= NORMWISE, "{}: K {ek:e}, M {em:e}", case.id);
+        assert!(
+            ek <= NORMWISE && em <= NORMWISE,
+            "{}: K {ek:e}, M {em:e}",
+            case.id
+        );
         let d = formation_difference(&p, &f.k, &f.m).unwrap();
         // The formed entries are the exact ones rounded once, so ΔK and ΔM
         // are rounding (≤ u = 2⁻⁵³ relative per entry) beside a re-formation
@@ -532,17 +598,28 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
         for mode in 0..f.solution.mode_count() {
             let lambda = f.solution.eigenvalues[mode];
             let r = residual_estimate(&p, &d.scaling, lambda, f.solution.vector(mode)).unwrap();
-            assert!(r.backward_error <= ETA_CORRECT, "{} mode {mode}: η {:e}", case.id, r.backward_error);
+            assert!(
+                r.backward_error <= ETA_CORRECT,
+                "{} mode {mode}: η {:e}",
+                case.id,
+                r.backward_error
+            );
             eta = eta.max(r.backward_error);
             estimates.push(r.error_estimate);
             if let Some(reference) = case.eigenvalues.get(mode) {
-                let error = Dd::from_f64(lambda).sub(*reference).abs().div(*reference).to_f64();
+                let error = Dd::from_f64(lambda)
+                    .sub(*reference)
+                    .abs()
+                    .div(*reference)
+                    .to_f64();
                 ratio = ratio.max(error / r.error_estimate);
             }
         }
         let ids = cluster_ids(&f.solution.eigenvalues, 1e-8).unwrap();
         let cluster = cluster_error_estimates(&estimates, &ids);
-        let vectors: Vec<&[f64]> = (0..f.solution.mode_count()).map(|i| f.solution.vector(i)).collect();
+        let vectors: Vec<&[f64]> = (0..f.solution.mode_count())
+            .map(|i| f.solution.vector(i))
+            .collect();
         let orth_hat = m_orthogonality_reformed(&p, &vectors).unwrap();
         let orth = m_orthogonality(&dense(case.free.len(), &f.m), &vectors).unwrap();
         eprintln!(
@@ -568,7 +645,10 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
 /// difference and in η.
 #[test]
 fn a_perturbed_formed_entry_shows_in_eta_and_the_formation_difference() {
-    let case = eigen_cases().into_iter().find(|c| c.id == "E-CANT-4").unwrap();
+    let case = eigen_cases()
+        .into_iter()
+        .find(|c| c.id == "E-CANT-4")
+        .unwrap();
     let base = formed(&case, entries(&case.k), entries(&case.m));
     let (eta0, _) = largest_eta(&case, &base);
     let p = pencil(&case, &base);
@@ -577,7 +657,10 @@ fn a_perturbed_formed_entry_shows_in_eta_and_the_formation_difference() {
         let (mut k, mut m) = (base.k.clone(), base.m.clone());
         // The tip's transverse stiffness (or mass) diagonal, free row 19.
         let list = if target == "k" { &mut k } else { &mut m };
-        let entry = list.iter_mut().find(|e| e.row == 19 && e.col == 19).unwrap();
+        let entry = list
+            .iter_mut()
+            .find(|e| e.row == 19 && e.col == 19)
+            .unwrap();
         entry.value *= 1.0 + relative;
         let f = formed(&case, k, m);
         let d = formation_difference(&p, &f.k, &f.m).unwrap();
@@ -611,7 +694,10 @@ fn a_perturbed_formed_entry_shows_in_eta_and_the_formation_difference() {
 /// names the defect directly.
 #[test]
 fn a_doubled_derived_area_shows_in_eta() {
-    let case = eigen_cases().into_iter().find(|c| c.id == "E-CANT-4").unwrap();
+    let case = eigen_cases()
+        .into_iter()
+        .find(|c| c.id == "E-CANT-4")
+        .unwrap();
     let n = case.free.len();
     let base = formed(&case, entries(&case.k), entries(&case.m));
     // The formed K with 2A, element by element through the seam, rounded
@@ -619,7 +705,9 @@ fn a_doubled_derived_area_shows_in_eta() {
     let defective = |factor: f64| -> Vec<SymmetricMatrixEntry> {
         let mut acc: BTreeMap<Pair, Dd> = BTreeMap::new();
         for element in &case.elements {
-            let ElementOperand::Straight(s) = element else { panic!("straights only") };
+            let ElementOperand::Straight(s) = element else {
+                panic!("straights only")
+            };
             let q = derive_section(&s.section, case.basis()).unwrap();
             let wide = |x: Dd| WideOperand { hi: x.hi, lo: x.lo };
             let k = reform_straight(&StraightOperands {
@@ -652,7 +740,11 @@ fn a_doubled_derived_area_shows_in_eta() {
         }
         acc.into_iter()
             .filter(|(_, v)| v.hi != 0.0)
-            .map(|((row, col), v)| SymmetricMatrixEntry { row, col, value: v.to_f64() })
+            .map(|((row, col), v)| SymmetricMatrixEntry {
+                row,
+                col,
+                value: v.to_f64(),
+            })
             .collect()
     };
     let control = formed(&case, defective(1.0), base.m.clone());
@@ -690,13 +782,24 @@ fn a_doubled_derived_area_shows_in_eta() {
 
 #[test]
 fn reruns_are_bit_identical() {
-    let case = eigen_cases().into_iter().find(|c| c.id == "E-L-LINE-K3").unwrap();
+    let case = eigen_cases()
+        .into_iter()
+        .find(|c| c.id == "E-L-LINE-K3")
+        .unwrap();
     let run = || {
         let f = formed(&case, entries(&case.k), entries(&case.m));
         let p = pencil(&case, &f);
         let d = formation_difference(&p, &f.k, &f.m).unwrap();
         let r: Vec<_> = (0..f.solution.mode_count())
-            .map(|i| residual_estimate(&p, &d.scaling, f.solution.eigenvalues[i], f.solution.vector(i)).unwrap())
+            .map(|i| {
+                residual_estimate(
+                    &p,
+                    &d.scaling,
+                    f.solution.eigenvalues[i],
+                    f.solution.vector(i),
+                )
+                .unwrap()
+            })
             .collect();
         (p.assembled_stiffness(), p.assembled_mass(), d, r)
     };

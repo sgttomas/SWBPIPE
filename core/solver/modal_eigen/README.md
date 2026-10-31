@@ -1,6 +1,6 @@
 # Modal Eigen Core
 
-This crate is the dense eigen core of F1 modal analysis, DEL-04-09 (`execution/PKG-04/DEL-04-09/`). It is governed by `Work/modal-analysis.md`, and this README names the design sections each part implements. It uses the Rust standard library and one in-repo path dependency, `sparse_direct` (DEL-04-01; it brings `frame_kernel` and `correct_norm` with it), for the LDLᵀ behind the Sturm counts. No product crate depends on it yet.
+This crate is the dense eigen core of F1 modal analysis, DEL-04-09 (`execution/PKG-04/DEL-04-09/`). It is governed by `Work/modal-analysis.md`, and this README names the design sections each part implements. It uses the Rust standard library and two in-repo path dependencies of DEL-04-01: `sparse_direct`, for the LDLᵀ behind the Sturm counts, and `frame_kernel`, for its p128 element re-formation seam (seam (i)); `correct_norm` comes with them. No product crate depends on it yet.
 
 ## What it does
 
@@ -18,6 +18,11 @@ This crate is the dense eigen core of F1 modal analysis, DEL-04-09 (`execution/P
   - It computes the generalized mass m = φᵀM_ffφ, Γ_k = φᵀp_k/m, m_eff,k = (φᵀp_k)²/m, the fractions m_eff,k/T_k and their cumulative sums. Each is computed in double-double and rounded once.
   - The caller supplies the excitation p_k = (M R_k)_f and the total mass T_k = R_kᵀ M R_k (D-v). The module does not form them.
 - **`orthogonality`**: the M-orthogonality measure of §3.4, check 3: max over i ≠ j of |φᵢᵀMφⱼ|/√(m_i m_j), in double-double.
+- **`reformation`**: check 1's re-formation and formation difference and checks 2 and 3 on the re-formed pencil (design §3.4):
+  - `section`: A, I, J = 2I, m̄ by category, j̄ and ī = j̄/2 (contents excluded) re-derived in double-double from OD, wall, the mill deduction and, on EX, the nominal wall and the pressure bore t_r = (t − c_m) − c_a, on `source_od_effective_wall_areas/v1` (PF) and `source_od_nominal_wall_pressure_bore_areas/v1` (EX), with the double-double π; and the section-derivation difference against the binary64 A, I and J a formation used.
+  - `mass`: the consistent straight mass with the bending-plane sign map [u_y, θ_z] / [u_z, −θ_y] and Rayleigh rotary inertia, turned with the member frame; the two half-arc lumps with centreline and section rotary inertia, α = 2·atan(s/(1 + c)) in double-double and the cancelling entries (sin α − α, α/2 − sin 2α/4, J_c,22 ≈ α⁵/20, 2(α − sin α)) by their series on the whole admitted range 0 < α < π/2 (the switch point; module docs); the component body m = W/a after the four-part binary64 range premise, refused by operand.
+  - `ElementOperand`, the neutral operand type: straight, arc, component body, axis or rank-one spring, the frame kernel's `ObjectiveConnector` and `TieRod`, with moduli and the rigid-family scale s (s·E and s·G formed exactly). Straights, bends, connectors and tie rods are re-formed through `frame_kernel::structural::element_reformation` from the re-derived A, I and J; springs here.
+  - `ReformedPencil` (element by element on the free numbering), `formation_difference` (one double-double accumulator per stored entry of the formed K_ff and M_ff, ‖DΔKD‖_∞, ‖DΔMD‖_∞, off-pattern positions, ‖K̃̂‖_∞, ‖M̃̂‖_∞ and the section-derivation difference), `residual_estimate` (η, κ_λ, e_λ = η·κ_λ) and `cluster_error_estimates`. `orthogonality::m_orthogonality_reformed` evaluates check 3 on M̂.
 - **`sturm`**: the Sturm counts of §3.2 item 7, §3.3 and §3.4 check 4, on `sparse_direct`'s `factorize_ldlt` and its read-only observation accessor (`lower_factor_entries`, `pivots`):
   - `ShiftPencil` holds K and M over their union pattern, with D = diag(k_ii^-½) and the reverse Cuthill–McKee order of the pattern.
   - Formation: a = fl(k_ij − fl(σ·m_ij)), then fl(fl(d_i·a)·d_j). An operation with nonzero operands whose result is zero, subnormal or infinite puts the shift out of range.
@@ -33,14 +38,14 @@ The crate is single-threaded and runs every loop in a fixed order. It uses only 
 
 ## What it does not do yet
 
-- No double-double re-formation of K or M, no formation difference, and no residual or error estimate on the re-formed pencil (§3.4, checks 1 and 2).
+- No product mapping into `ElementOperand` (I2), no Timoshenko straight (M4) and no directional flexibility factors beyond the two the bend seam takes.
 - No sparse path (§3.3, M2), no mass assembly, no weight-basis check (§2), and no product entry or result rows (§3.5, §5).
 - No production values for the algorithm parameters: δ_c, τ_t, the infinite-μ threshold, the QL iteration limit, the mass-pivot threshold of the finite-mode count and the Sturm parameters are caller inputs. The values in the tests are test-local; the production values are recorded under DEC-026 (design §9, O-6).
-- No check-2 error estimate e_λ: `sturm`'s callers supply it for each neighbouring eigenvalue. The tests use a stand-in on the formed pencil.
+- No residual threshold τ_r and no orthogonality tolerance: the tests' bounds are test-local (DEC-026). `sturm`'s own tests still use a stand-in e_λ on the formed pencil.
 
 ## Tests
 
-`cargo test` runs the unit tests in each module, `tests/dense_reference.rs` and `tests/sturm_counts.rs`:
+`cargo test` runs the unit tests in each module, `tests/dense_reference.rs`, `tests/sturm_counts.rs` and `tests/reformation.rs`:
 
 - The dd tests check against exact integer and power-of-two expectations.
 - The dense pencils have closed forms: K = I with diagonal M (exact), 2-DOF pencils, the second-difference matrix with M = I, 4I and a non-uniform diagonal, exactly repeated pairs (compared as subspaces), a singular lumped M, and a stiffness scale series from 1e3 to 1e6.
@@ -66,3 +71,14 @@ Test-local parameters: κ_c = 10³, κ_s = 10², g_max = 10¹⁵, s_max = 7, gap
 | 352 well-separated shifts and placements, every count right | 1.8·10⁻¹⁵ to 2.13·10⁻⁴ | 5.65·10³ to 5.6·10¹⁴ | up to 3.98·10¹³ |
 
 The conditioning and separation premises each separate the two populations by orders of magnitude. The growth factor does not: correct counts on well-separated rigid-scale gaps (E-RIGID-SCALE-1e6) reach g ≈ 4·10¹³, above every miscount's g, so g_max is set above them and the growth effect is carried by e_b's factor term.
+
+### Re-formation
+
+`tests/reformation.rs` compares the re-formation with the frozen class (a) references. Its operands and expectations are in `tests/fixtures/reformation_cases.txt`, which `tests/fixtures/reformation_cases.py` writes from `mass_references.json` and `eigen_references.json`, read-only, and checks byte for byte (`python3 -I -B core/solver/modal_eigen/tests/fixtures/reformation_cases.py`). Expectations are double-double pairs within 2⁻¹⁰⁶ of the exact or 80-digit values; the eigen cases' K_ff and M_ff come from the references' generator, and their hi words are the formed binary64 pencil.
+
+- Every comparison is normwise, |x̂ − x| ≤ 10⁻²⁹·max|x| (the file header derives it: about 60 double-double operations per entry at a few units of 2⁻¹⁰⁶). Measured largest differences: section quantities 1.3·10⁻³² relative (638 values, both bases); straight masses 3.0·10⁻³², arc lumps 4.9·10⁻³², M-ARC-SMALL 5.2·10⁻³³ normwise and 9.6·10⁻³² entrywise, component bodies 1.3·10⁻³³, assembled full M 4.9·10⁻³², K̂ and M̂ of eleven eigen cases at most 7.6·10⁻³³ and 2.4·10⁻³².
+- The formed pencils' formation differences are rounding, ‖DΔKD‖ ≤ 3.1·10⁻¹⁶. Over every dense mode of the eleven eigen cases η ≤ 1.44·10⁻¹³, asserted below 10⁻¹² (under every τ_r the design allows); the published eigenvalues' actual error is at most 0.85·e_λ.
+- Mutations on E-CANT-4: K or M at the tip's u_y diagonal times 1 + 10⁻⁸ gives a relative formation difference 3.1·10⁻⁹ (K) or 6.3·10⁻⁹ (M) and η 2.0·10⁻⁹ or 1.1·10⁻⁹, against 3.3·10⁻¹⁴ unperturbed. Review round 4: a formed K with doubled A gives η 1.0·10⁻², ‖DΔKD‖ 1.1 and a section-derivation difference of 1 in A.
+- The range-premise witnesses are refused by operand; repeated runs are bit-identical.
+
+The frame kernel's seam has its own tests (`frame_kernel/src/structural/element_reformation_tests.rs`): with the binary64 leaves as operands, a straight (Euler–Bernoulli and Timoshenko), a bend, a connector and a tie rod match K-D5's p128 re-formation bit for bit.

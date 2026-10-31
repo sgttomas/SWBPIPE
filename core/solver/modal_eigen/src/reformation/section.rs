@@ -85,10 +85,14 @@ pub struct SectionQuantities {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SectionError {
-    NonFinite { field: &'static str },
+    NonFinite {
+        field: &'static str,
+    },
     /// OD, the metal wall and the material density must be positive; the
     /// other inputs nonnegative; a wall may not exceed the radius.
-    OutOfDomain { field: &'static str },
+    OutOfDomain {
+        field: &'static str,
+    },
     CorrosionAllowanceRequired,
 }
 
@@ -299,7 +303,10 @@ mod tests {
         assert_eq!(q.torsion_constant, pi.mul_f64(15.0 / 131072.0));
         assert_eq!(q.second_moment, pi.mul_f64(15.0 / 262144.0));
         assert_eq!(q.mass_per_length, pi.mul_f64(3.0 / 32.0));
-        assert_eq!(q.polar_rotary_inertia_per_length, pi.mul_f64(15.0 / 16384.0));
+        assert_eq!(
+            q.polar_rotary_inertia_per_length,
+            pi.mul_f64(15.0 / 16384.0)
+        );
     }
 
     #[test]

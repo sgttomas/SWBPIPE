@@ -6,8 +6,10 @@
 //! definition of §3.4 check 5 with the reported-set rule of §1.4, the two
 //! shape normalizations and the participation quantities of §1.5, the
 //! M-orthogonality measure of §3.4 check 3, the finite-mode count of §3.2
-//! item 5, and the Sturm counts of §3.2 item 7 and §3.4 check 4 over
-//! `sparse_direct`'s LDLᵀ.
+//! item 5, the Sturm counts of §3.2 item 7 and §3.4 check 4 over
+//! `sparse_direct`'s LDLᵀ, and the double-double re-formation of K and M
+//! with the formation difference and residual estimate of §3.4 checks 1
+//! and 2 (K's elements through `frame_kernel`'s p128 seam).
 //!
 //! Determinism posture: single-threaded, fixed operation order, no randomized
 //! tie-breaking, Rust standard library and in-repo path crates only. Only

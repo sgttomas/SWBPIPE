@@ -20,7 +20,15 @@ fn skew_section() -> FrameSection {
     let pi = std::f64::consts::PI;
     let (od, id) = (0.2191_f64, 0.2027_f64);
     let i4 = pi * ((od * od) * (od * od) - (id * id) * (id * id)) / 64.0;
-    FrameSection::new(200e9, 80e9, pi * (od * od - id * id) / 4.0, i4, i4, 2.0 * i4).unwrap()
+    FrameSection::new(
+        200e9,
+        80e9,
+        pi * (od * od - id * id) / 4.0,
+        i4,
+        i4,
+        2.0 * i4,
+    )
+    .unwrap()
 }
 
 fn straight_operands(e: &FrameElement) -> StraightOperands {

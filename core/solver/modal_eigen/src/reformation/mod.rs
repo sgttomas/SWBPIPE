@@ -46,8 +46,8 @@ use std::fmt;
 
 use open_pipe_stress_frame_kernel::connector::ObjectiveConnector;
 use open_pipe_stress_frame_kernel::structural::element_reformation::{
-    reform_bend, reform_connector, reform_straight, reform_tie_rod, BendOperands,
-    ReformedElement, StraightOperands, WideOperand,
+    reform_bend, reform_connector, reform_straight, reform_tie_rod, BendOperands, ReformedElement,
+    StraightOperands, WideOperand,
 };
 use open_pipe_stress_frame_kernel::structural::retained_api::WideError;
 use open_pipe_stress_frame_kernel::tie_rod::TieRod;
@@ -55,8 +55,7 @@ use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
 
 use crate::dd::Dd;
 use mass::{
-    arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand,
-    GeometryError,
+    arc_lumps, component_mass, straight_mass, ComponentBody, ComponentRangeOperand, GeometryError,
 };
 use section::{
     derive_section, section_derivation_difference, FormedSection, MassBasis, PipeSection,
@@ -143,9 +142,14 @@ pub enum ReformationFailure {
     /// not positive, or a direction is zero.
     InvalidOperand(&'static str),
     /// A DOF beyond the DOF map.
-    DofOutOfRange { dof: usize },
+    DofOutOfRange {
+        dof: usize,
+    },
     /// A DOF map entry beyond the dimension.
-    FreeIndexOutOfRange { dof: usize, index: usize },
+    FreeIndexOutOfRange {
+        dof: usize,
+        index: usize,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -157,7 +161,11 @@ pub struct ReformationError {
 
 impl fmt::Display for ReformationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "element {} cannot be re-formed: {:?}", self.element, self.failure)
+        write!(
+            f,
+            "element {} cannot be re-formed: {:?}",
+            self.element, self.failure
+        )
     }
 }
 
@@ -192,14 +200,20 @@ impl ElementMatrix {
 }
 
 fn node_dofs(node_i: usize, node_j: usize) -> Vec<usize> {
-    (0..6).map(|k| 6 * node_i + k).chain((0..6).map(|k| 6 * node_j + k)).collect()
+    (0..6)
+        .map(|k| 6 * node_i + k)
+        .chain((0..6).map(|k| 6 * node_j + k))
+        .collect()
 }
 
 fn wide(x: Dd) -> WideOperand {
     WideOperand { hi: x.hi, lo: x.lo }
 }
 
-fn from_reformed(dofs: Vec<usize>, k: &ReformedElement) -> Result<ElementMatrix, ReformationFailure> {
+fn from_reformed(
+    dofs: Vec<usize>,
+    k: &ReformedElement,
+) -> Result<ElementMatrix, ReformationFailure> {
     if k.truncated_below_min_subnormal() {
         return Err(ReformationFailure::StiffnessUnderflow);
     }
@@ -219,7 +233,10 @@ fn moduli(m: &Moduli) -> Result<(Dd, Dd), ReformationFailure> {
         return Err(ReformationFailure::InvalidOperand("modulus"));
     }
     match m.stiffness_scale {
-        None => Ok((Dd::from_f64(m.elastic_modulus), Dd::from_f64(m.shear_modulus))),
+        None => Ok((
+            Dd::from_f64(m.elastic_modulus),
+            Dd::from_f64(m.shear_modulus),
+        )),
         Some(s) if positive(s) => Ok((
             Dd::product(s, m.elastic_modulus),
             Dd::product(s, m.shear_modulus),
@@ -285,7 +302,10 @@ pub fn reform_element_stiffness(
             if !(stiffness.is_finite() && *stiffness > 0.0) {
                 return Err(ReformationFailure::InvalidOperand("spring stiffness"));
             }
-            Ok(Some(ElementMatrix::from_square(vec![*dof], &[[Dd::from_f64(*stiffness)]])))
+            Ok(Some(ElementMatrix::from_square(
+                vec![*dof],
+                &[[Dd::from_f64(*stiffness)]],
+            )))
         }
         ElementOperand::Spring(SpringOperand::RankOne {
             node,
@@ -309,7 +329,10 @@ pub fn reform_element_stiffness(
                 }
             }
             let base = 6 * node + if *rotational { 3 } else { 0 };
-            Ok(Some(ElementMatrix::from_square((base..base + 3).collect(), &m)))
+            Ok(Some(ElementMatrix::from_square(
+                (base..base + 3).collect(),
+                &m,
+            )))
         }
         ElementOperand::ComponentBody(_) => Ok(None),
     }
@@ -333,7 +356,10 @@ pub fn reform_element_mass(
                 q.polar_rotary_inertia_per_length,
             )
             .map_err(ReformationFailure::Geometry)?;
-            Ok(vec![ElementMatrix::from_square(node_dofs(s.node_i, s.node_j), &m)])
+            Ok(vec![ElementMatrix::from_square(
+                node_dofs(s.node_i, s.node_j),
+                &m,
+            )])
         }
         ElementOperand::Arc(a) if a.carries_mass => {
             let q = derive_section(&a.section, basis).map_err(ReformationFailure::Section)?;
@@ -468,13 +494,21 @@ impl ReformedPencil {
 
     /// K̂x in double-double, element by element in operand order.
     pub fn stiffness_product(&self, x: &[f64]) -> Vec<Dd> {
-        assert_eq!(x.len(), self.dimension, "vector length differs from the pencil");
+        assert_eq!(
+            x.len(),
+            self.dimension,
+            "vector length differs from the pencil"
+        );
         Self::product(&self.stiffness, self.dimension, x)
     }
 
     /// M̂x in double-double, element by element in operand order.
     pub fn mass_product(&self, x: &[f64]) -> Vec<Dd> {
-        assert_eq!(x.len(), self.dimension, "vector length differs from the pencil");
+        assert_eq!(
+            x.len(),
+            self.dimension,
+            "vector length differs from the pencil"
+        );
         Self::product(&self.mass, self.dimension, x)
     }
 
@@ -507,11 +541,22 @@ impl ReformedPencil {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum FormationError {
-    EntryOutOfBounds { row: usize, col: usize },
-    NonFiniteEntry { row: usize, col: usize },
-    DuplicateEntry { row: usize, col: usize },
+    EntryOutOfBounds {
+        row: usize,
+        col: usize,
+    },
+    NonFiniteEntry {
+        row: usize,
+        col: usize,
+    },
+    DuplicateEntry {
+        row: usize,
+        col: usize,
+    },
     /// A formed stiffness diagonal that is zero or absent.
-    ZeroStiffnessDiagonal { index: usize },
+    ZeroStiffnessDiagonal {
+        index: usize,
+    },
 }
 
 impl fmt::Display for FormationError {
@@ -560,18 +605,31 @@ fn formed_lower(
     let mut out = Vec::with_capacity(entries.len());
     for e in entries {
         if e.row >= n || e.col >= n {
-            return Err(FormationError::EntryOutOfBounds { row: e.row, col: e.col });
+            return Err(FormationError::EntryOutOfBounds {
+                row: e.row,
+                col: e.col,
+            });
         }
         if !e.value.is_finite() {
-            return Err(FormationError::NonFiniteEntry { row: e.row, col: e.col });
+            return Err(FormationError::NonFiniteEntry {
+                row: e.row,
+                col: e.col,
+            });
         }
-        let key = if e.row >= e.col { (e.row, e.col) } else { (e.col, e.row) };
+        let key = if e.row >= e.col {
+            (e.row, e.col)
+        } else {
+            (e.col, e.row)
+        };
         out.push((key, e.value));
     }
     out.sort_by_key(|x| x.0);
     for w in out.windows(2) {
         if w[0].0 == w[1].0 {
-            return Err(FormationError::DuplicateEntry { row: w[0].0 .0, col: w[0].0 .1 });
+            return Err(FormationError::DuplicateEntry {
+                row: w[0].0 .0,
+                col: w[0].0 .1,
+            });
         }
     }
     Ok(out)
@@ -579,7 +637,11 @@ fn formed_lower(
 
 /// The scaled row sums Σ_j |d_i x_ij d_j| over the full symmetric matrix of
 /// a lower-triangle list, and the row of the largest.
-fn scaled_norm(n: usize, d: &[Dd], entries: impl Iterator<Item = ((usize, usize), Dd)>) -> (f64, usize) {
+fn scaled_norm(
+    n: usize,
+    d: &[Dd],
+    entries: impl Iterator<Item = ((usize, usize), Dd)>,
+) -> (f64, usize) {
     let mut rows = vec![Dd::ZERO; n];
     for ((r, c), v) in entries {
         let s = d[r].mul(v).mul(d[c]).abs();
@@ -654,8 +716,12 @@ pub fn formation_difference(
             .ok_or(FormationError::ZeroStiffnessDiagonal { index })?;
         *d = Dd::from_f64(1.0).div(Dd::from_f64(diagonal.abs()).sqrt());
     }
-    let (stiffness, reformed_stiffness_norm) =
-        difference(n, &scaling, &k, &ReformedPencil::assembled(&pencil.stiffness));
+    let (stiffness, reformed_stiffness_norm) = difference(
+        n,
+        &scaling,
+        &k,
+        &ReformedPencil::assembled(&pencil.stiffness),
+    );
     let (mass, reformed_mass_norm) =
         difference(n, &scaling, &m, &ReformedPencil::assembled(&pencil.mass));
     Ok(FormationDifference {
@@ -672,8 +738,13 @@ pub fn formation_difference(
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResidualError {
-    DimensionMismatch { expected: usize, actual: usize },
-    NonFinite { index: usize },
+    DimensionMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    NonFinite {
+        index: usize,
+    },
     /// λ is not finite and positive.
     InvalidEigenvalue,
     /// φᵀM̂φ is not positive.
@@ -760,7 +831,11 @@ pub fn residual_estimate(
 /// members (`estimates[i]` belongs to `cluster_ids[i]`, ids from
 /// `clusters::cluster_ids`).
 pub fn cluster_error_estimates(estimates: &[f64], cluster_ids: &[usize]) -> Vec<f64> {
-    assert_eq!(estimates.len(), cluster_ids.len(), "one cluster id per estimate");
+    assert_eq!(
+        estimates.len(),
+        cluster_ids.len(),
+        "one cluster id per estimate"
+    );
     let count = cluster_ids.iter().max().map_or(0, |m| m + 1);
     let mut out = vec![0.0f64; count];
     for (&e, &id) in estimates.iter().zip(cluster_ids) {

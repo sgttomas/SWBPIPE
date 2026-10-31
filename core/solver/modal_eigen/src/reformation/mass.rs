@@ -286,7 +286,11 @@ fn alpha_minus_sin(alpha: Dd) -> Dd {
     for k in 1..=SERIES_MAX_TERMS {
         let k = f64::from(k);
         power = power.mul(a2).div(Dd::from_f64((2.0 * k) * (2.0 * k + 1.0)));
-        let term = if k as u32 % 2 == 1 { power } else { power.neg() };
+        let term = if k as u32 % 2 == 1 {
+            power
+        } else {
+            power.neg()
+        };
         sum = sum.add(term);
         if power.hi.abs() < SERIES_STOP * sum.hi.abs() {
             return sum;
@@ -302,7 +306,9 @@ fn jc22_series(alpha: Dd) -> Dd {
     let mut sum = Dd::ZERO;
     for k in 1..=SERIES_MAX_TERMS {
         let kf = f64::from(k);
-        power = power.mul(a2).div(Dd::from_f64((2.0 * kf) * (2.0 * kf + 1.0)));
+        power = power
+            .mul(a2)
+            .div(Dd::from_f64((2.0 * kf) * (2.0 * kf + 1.0)));
         if k == 1 {
             continue; // coefficient 2¹ − 2 = 0
         }
@@ -562,7 +568,10 @@ mod tests {
             acceleration: a,
             center_of_gravity: r,
         };
-        assert_eq!(component_range(&body(2560.0, 9.8125, [0.25, 0.0, 0.0])), Ok(()));
+        assert_eq!(
+            component_range(&body(2560.0, 9.8125, [0.25, 0.0, 0.0])),
+            Ok(())
+        );
         assert_eq!(
             component_range(&body(0.0, 9.8125, [0.0; 3])),
             Err(ComponentRangeOperand::Weight)
