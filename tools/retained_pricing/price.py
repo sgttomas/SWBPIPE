@@ -391,7 +391,7 @@ def cmd_compare(a):
 
 
 def cmd_eval(a):
-    r = subprocess.run([sys.executable, os.path.join(LIB, "tree_eval.py"), a.atoms, a.tree] + ([a.other] if a.other else []))
+    r = subprocess.run([sys.executable, os.path.join(LIB, "tree_eval.py"), a.atoms, a.tree] + ([a.other] if a.other else []), env=chain_env())
     sys.exit(r.returncode)
 
 

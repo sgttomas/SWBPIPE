@@ -131,6 +131,8 @@ CHANNELS = {
     "GIT_CONFIG_GLOBAL file": {"home": {"global.gitconfig": ADVERSE_CONFIG}, "env": {"GIT_CONFIG_GLOBAL": "{home}/global.gitconfig"}},
     "~/.gitconfig": {"home": {".gitconfig": ADVERSE_CONFIG}},
     "global attributes": {"home": {".config/git/attributes": "*.rs -diff\n"}},
+    "local refs/replace": {"replace": "refs/replace/"},
+    "GIT_REPLACE_REF_BASE": {"replace": "refs/review-replace/", "env": {"GIT_REPLACE_REF_BASE": "refs/review-replace/"}},
 }
 NEUTRAL = {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
 
@@ -143,6 +145,9 @@ def adverse(tmp_path, repo, name):
     if "attributes" in c:
         (repo / ".git" / "info").mkdir(exist_ok=True)
         (repo / ".git" / "info" / "attributes").write_text(c["attributes"])
+    if "replace" in c:                                     # HEAD's root tree replaced by the empty tree
+        git(repo, "update-ref", c["replace"] + git(repo, "rev-parse", "HEAD^{tree}"),
+            git(repo, "hash-object", "-t", "tree", "-w", os.devnull))
     env, home = {}, tmp_path / "home"
     if "home" in c:
         for rel, text in c["home"].items():
@@ -212,6 +217,15 @@ def test_the_driver_reads_text_as_utf8_whatever_the_locale(tmp_path):
     assert r.returncode == 0 and json.loads(r.stdout)["identical"], r.stderr
 
 
+def test_chain_steps_read_text_as_utf8_whatever_the_locale(tmp_path, monkeypatch):
+    for k, v in ASCII_LOCALE.items():
+        monkeypatch.delenv(k, raising=False) if v is None else monkeypatch.setenv(k, v)
+    (tmp_path / "source.rs").write_bytes("// σ ≤ 1\n".encode("utf-8"))
+    (tmp_path / "step.py").write_text("import sys\nprint(open(sys.argv[1]).read(), end='')\n")
+    r = driver().py([str(tmp_path / "step.py"), str(tmp_path / "source.rs")])    # the driver's chain-step launcher
+    assert (r.returncode, r.stdout) == (0, "// σ ≤ 1\n"), r.stderr
+
+
 def driver():
     import importlib.util
     sys.path.insert(0, str(TOOL))
@@ -221,7 +235,8 @@ def driver():
     return module
 
 
-def test_the_snapshot_is_the_committed_bytes_whatever_the_attributes_or_environment(tmp_path, repo, monkeypatch):
+@pytest.mark.parametrize("replace", [None, "local refs/replace", "GIT_REPLACE_REF_BASE"])
+def test_the_snapshot_is_the_committed_bytes_whatever_the_attributes_or_environment(tmp_path, repo, monkeypatch, replace):
     files = {P + "core/x/src/lib.rs": "fn a() {}\r\n// $Format:%H$ σ\n", P + "core/x/notes.txt": "$Format:%H$\n",
              P + "execution/x.md": "not priced\n", P + ".gitattributes": "*.txt export-subst\n"}
     for path, text in files.items():
@@ -240,6 +255,9 @@ def test_the_snapshot_is_the_committed_bytes_whatever_the_attributes_or_environm
         monkeypatch.setenv(k, v)
     for k in ("XDG_CONFIG_HOME", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_NOSYSTEM"):
         monkeypatch.delenv(k, raising=False)
+    if replace:
+        for k, v in adverse(tmp_path, repo, replace).items():
+            monkeypatch.setenv(k, v)
     root = Path(driver().snapshot(str(repo), rev, str(tmp_path / "snap")))
     written = sorted(str(p.relative_to(root)) for p in root.rglob("*") if p.is_file())
     assert written == [".gitattributes", "core/x/notes.txt", "core/x/src/lib.rs"]
