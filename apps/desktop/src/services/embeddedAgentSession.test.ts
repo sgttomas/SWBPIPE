@@ -74,7 +74,40 @@ describe('workspace-owned live embedded agent adapter',()=>{
   vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:hash,solverMode:'sparse_interactive',health:'ok'});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   const message=JSON.parse(session.actual('invented-session:1')!.outcome).message;
-  expect(message).toContain('component:b1');expect(message).toContain('straight chords');expect(message).toContain('k does not');expect(message).not.toContain('component:t1');
+  expect(message).toContain('component:b1');expect(message).toContain('straight chords');expect(message).toContain('k does not affect chord stiffness');expect(message).not.toContain('component:t1');
+  expect(message).toContain('None has a supplied scalar SIF, so no intensified measure is published');expect(message).not.toContain('applies to');
+  await session.close();
+ });
+ it('says a scalar SIF applies only to chords that have one',async()=>{
+  vi.useFakeTimers();const {session,owner,call,model}=setup();
+  (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend',modifiers:{sif_user_value:{value:1.5,unit:'none'}}},{id:'component:b2',kind:'bend',modifiers:{sif_user_value:{value:0,unit:'none'}}}];
+  vi.mocked(owner.solve).mockResolvedValue({jobId:'job-1',runId:'run-1',modelHash:hash,solverMode:'sparse_interactive',health:'ok'});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  let message:string=JSON.parse(session.actual('invented-session:1')!.outcome).message;
+  expect(message).toContain('A supplied scalar SIF applies to the other chords; no scalar SIF was supplied for 1 of them (component:b2)');
+  await session.close();
+  (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend',modifiers:{sif_user_value:{value:1.5,unit:'none'}}}];
+  call('swbpipe_solve',{},'invented-session:2');await session.start('revision');await session.poll();await drain();
+  message=JSON.parse(session.actual('invented-session:2')!.outcome).message;
+  expect(message).toContain('Each has a supplied scalar SIF, which applies to its chord.');await session.close();
+ });
+ it('keeps summary and both solve messages inside the catalog bounds for long identifiers',async()=>{
+  vi.useFakeTimers();const {session,owner,call,model}=setup();
+  const long=(i:number)=>`component:${String(i).padStart(3,'0')}${'x'.repeat(147)}`;
+  (model as unknown as Record<string,unknown>).components=[{id:`component:${'y'.repeat(200)}`,kind:'tee'},...Array.from({length:40},(_,i)=>({id:long(i),kind:'bend'}))];
+  await session.start('revision');await session.poll();await drain();
+  const summary=JSON.parse(session.actual('invented-session:1')!.outcome).data.componentsAwaitingUserModifiers;
+  expect(summary.count).toBe(41);expect(summary.ids).toHaveLength(32);expect(summary.ids.every((id:string)=>id.length<=160)).toBe(true);
+  await session.close();
+  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:hash,solverMode:'sparse_interactive',health:'ok'});
+  call('swbpipe_solve',{},'invented-session:2');await session.start('revision');await session.poll();await drain();
+  const chord=JSON.parse(session.actual('invented-session:2')!.outcome);
+  expect(chord.status).toBe('completed');expect(chord.message.length).toBeLessThanOrEqual(1000);expect(chord.message).toContain(long(0));expect(chord.message).toContain('…');
+  await session.close();
+  (model as unknown as Record<string,unknown>).pressure_contract={version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'};
+  call('swbpipe_solve',{},'invented-session:3');await session.start('revision');await session.poll();await drain();
+  const exact=JSON.parse(session.actual('invented-session:3')!.outcome);
+  expect(exact.status).toBe('unavailable');expect(exact.message.length).toBeLessThanOrEqual(1000);expect(exact.message).toContain('…');
   await session.close();
  });
  it('refuses to solve on the exact route while a bend is unrealized, naming it',async()=>{
@@ -146,7 +179,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:1}});await session.start('revision');await session.poll();await drain();
   const first=JSON.parse(session.actual('invented-session:1')!.outcome).data;
   expect(first.records).toHaveLength(1);expect(first.records[0].id).toBe('support:a');
-  expect(first.records[0].before.delete).toBe(' Anchor A ');
+  expect(first.records[0].before.delete).toBe('Anchor A');
   expect(first.records[0].before.configuration).toBe('{"family":"anchor","provenance":"p","restraints":["UX"]}');
   expect(first.nextCursor).toEqual(expect.any(String));
   call('swbpipe_read_records',{family:'supports',page:{cursor:first.nextCursor,limit:1}},'invented-session:2');await session.poll();await drain();
@@ -154,7 +187,25 @@ describe('workspace-owned live embedded agent adapter',()=>{
   call('swbpipe_read_records',{family:'nodes',page:{cursor:first.nextCursor,limit:1}},'invented-session:3');await session.poll();await drain();
   expect(JSON.parse(session.actual('invented-session:3')!.outcome).status).toBe('execution_error');
   call('swbpipe_read_records',{family:'nodes',page:{cursor:null,limit:5}},'invented-session:4');await session.poll();await drain();
-  const nodes=JSON.parse(session.actual('invented-session:4')!.outcome).data;expect(Object.keys(nodes.records[0].before)).toEqual(['delete']);expect(nodes.records[0].before.delete).toMatch(/^N1; x=/);
+  const nodes=JSON.parse(session.actual('invented-session:4')!.outcome).data;expect(Object.keys(nodes.records[0].before)).toEqual(['delete']);expect(nodes.records[0].before.delete).toBe('N1; x=0; y=1; z=2');
+  await session.close();
+ });
+ it('bounds record pages in UTF-8 bytes and never cuts an oversized first entry',async()=>{
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const records=model as unknown as Record<string,unknown>;
+  // 6000 three-byte characters: under 16384 UTF-16 units, over 16384 bytes.
+  records.supports=[{id:'support:wide',label:'€'.repeat(6000),node:'node-1',restraints:['UX'],provenance:'p'}];
+  call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}});await session.start('revision');await session.poll();await drain();
+  let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:wide');
+  // Two records of about 30 KB each: the page holds one and resumes at the next.
+  records.supports=[0,1].map(i=>({id:`support:${i}`,label:'€'.repeat(5000),node:'node-1',restraints:['UX'],provenance:'p'}));
+  call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.data.records.map((r:{id:string})=>r.id)).toEqual(['support:0']);expect(outcome.data.nextCursor).toEqual(expect.any(String));
+  expect(outcome.data.records[0].before.delete).toBe('€'.repeat(5000));
+  // Each text fits 16 KiB, but escaping makes the single entry larger than a page.
+  records.supports=[{id:'support:quoted',label:'"'.repeat(3900),node:'node-1',restraints:['UX'],provenance:'"'.repeat(3900)}];
+  call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
+  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:quoted');
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{

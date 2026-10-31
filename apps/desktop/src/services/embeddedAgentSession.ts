@@ -9,7 +9,6 @@ import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
 import { canonicalJsonString } from './hashService';
-import { buildDeleteNodeIntent, buildDeletePipeIntent, buildDeleteSupportIntent } from '../features/model-tree/removalIntents';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -34,7 +33,15 @@ export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/posi
 export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes'] as const;
 export type RecordFamily=typeof RECORD_FAMILIES[number];
 const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
-const RECORD_PAGE_BYTES=48*1024;
+const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=16384,ID_CHARS=160;
+const utf8=new TextEncoder();
+const byteLength=(text:string)=>utf8.encode(text).byteLength;
+/** The leading identifiers that fit `budget` characters, then an ellipsis for any not
+ * shown, so a tool message stays inside the catalog's 1000-character bound. */
+function namedIds(ids:readonly string[],budget:number):string{
+ const shown:string[]=[];let used=0;for(const id of ids){if(used+id.length+2>budget)break;shown.push(id);used+=id.length+2;}
+ return `${shown.join(', ')}${shown.length<ids.length?`${shown.length?', ':''}…`:''}`;
+}
 const blankText=(value:unknown)=>typeof value!=='string'||!value.trim();
 /** The bends and tees the solver reports as lacking user-entered modifiers
  * (product_physics validation BEND_/BRANCH_USER_MODIFIER_INPUT_MISSING): the
@@ -52,14 +59,42 @@ export function componentsAwaitingUserModifiers(model:PreviewModel):string[]{
  }
  return awaiting;
 }
+/** The applier's `display_number`: an integral value below 1e15 as an integer,
+ * any other in Rust's shortest round-trip decimal, which never uses an exponent. */
+export function engineDisplayNumber(value:number):string{
+ if(Number.isInteger(value)&&Math.abs(value)<1e15)return String(value);
+ const text=String(value),match=/^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(text);if(!match)return text;
+ const [,sign,lead,fraction='',exponent]=match,digits=lead+fraction,point=1+Number(exponent);
+ if(point<=0)return `${sign}0.${'0'.repeat(-point)}${digits}`;
+ return point>=digits.length?sign+digits+'0'.repeat(point-digits.length):`${sign}${digits.slice(0,point)}.${digits.slice(point)}`;
+}
+const trimmed=(value:unknown)=>typeof value==='string'?value.trim():'';
+/** The deletion summaries the applier compares (node_delete_display, pipe_delete_display,
+ * the support's trimmed label); empty when the applier would refuse the record's deletion. */
+function deleteText(family:Exclude<RecordFamily,'components'>,record:Record<string,unknown>):string{
+ const label=trimmed(record.label);if(!label)return '';
+ if(family==='supports')return label;
+ if(family==='pipe_segments'){const [from,to,material]=[record.from,record.to,record.material].map(trimmed);return from&&to&&material?`${label}; ${from}->${to}; material=${material}`:'';}
+ const position=plain(record.position)?record.position:{},axes=(['x','y','z'] as const).map(axis=>position[axis]);
+ return axes.every(value=>typeof value==='number'&&Number.isFinite(value))?`${label}; x=${engineDisplayNumber(axes[0] as number)}; y=${engineDisplayNumber(axes[1] as number)}; z=${engineDisplayNumber(axes[2] as number)}`:'';
+}
 /** Bend markers the person has not realized (no curved macro-element yet). */
 export function unrealizedBends(model:PreviewModel):string[]{
  return (model.components??[]).filter(component=>{const record=component as unknown as Record<string,unknown>;const iface=plain(record.mechanics_interface)?record.mechanics_interface:{};
   return ['bend','elbow'].includes(String(record.kind))&&iface.solver_consumption!=='curved_bend_macro_element';}).map(component=>String((component as unknown as Record<string,unknown>).id));
 }
-/** Exact before texts for the admitted edits of one record, from the same
- * canonicalization and removal builders the desktop's own editors use. */
-export async function recordBefore(family:RecordFamily,record:Record<string,unknown>,model:PreviewModel,recordText:string):Promise<Record<string,string>>{
+/** How the scalar SIF stands on the given unrealized bends, for the pressure-free solve message. */
+export function chordSifText(model:PreviewModel,chords:readonly string[]):string{
+ const without=chords.filter(id=>{const record=(model.components??[]).find(component=>component.id===id) as unknown as Record<string,unknown>|undefined;
+  const sif=plain(record?.modifiers)&&plain(record.modifiers.sif_user_value)?record.modifiers.sif_user_value.value:undefined;return !(typeof sif==='number'&&Number.isFinite(sif)&&sif>0);});
+ if(!without.length)return 'Each has a supplied scalar SIF, which applies to its chord.';
+ const named=`no scalar SIF was supplied for ${without.length} of them (${namedIds(without,200)}), so no intensified measure is published for those`;
+ return without.length===chords.length?`None has a supplied scalar SIF, so no intensified measure is published for them.`:`A supplied scalar SIF applies to the other chords; ${named}.`;
+}
+/** Exact before texts for the admitted edits of one record, as the applier compares
+ * them: the engine's canonical JSON for components and support configuration, the
+ * applier's deletion summary otherwise. A deletion the applier would refuse has no text. */
+export async function recordBefore(family:RecordFamily,record:Record<string,unknown>,recordText:string):Promise<Record<string,string>>{
  if(family==='components'){
   const before:Record<string,string>={delete:recordText};const connector=record.objective_connector;
   if(plain(connector))for(const key of ['hardware','pressure_model'])if(connector[key]!==undefined)before[`objective_connector.${key}`]=await canonicalJsonString(connector[key]);
@@ -67,10 +102,9 @@ export async function recordBefore(family:RecordFamily,record:Record<string,unkn
  }
  if(family==='supports'){
   const configuration=Object.fromEntries(SUPPORT_CONFIGURATION.filter(key=>record[key]!==undefined).map(key=>[key,record[key]]));
-  return {delete:buildDeleteSupportIntent(record as unknown as PreviewModel['supports'][number],model).change.before,configuration:await canonicalJsonString(configuration)};
+  const text=deleteText(family,record);return {...(text?{delete:text}:{}),configuration:await canonicalJsonString(configuration)};
  }
- if(family==='pipe_segments')return {delete:buildDeletePipeIntent(record as unknown as PreviewModel['pipe_segments'][number],model).change.before};
- return {delete:buildDeleteNodeIntent(record as unknown as PreviewModel['nodes'][number],model).change.before};
+ const text=deleteText(family,record);return text?{delete:text}:{};
 }
 const AUDIT_BOUNDARY=Object.freeze({mutation_route:'structured_operations_only',direct_model_mutation_allowed:false,requires_user_acceptance:true,mutates_accepted_model_state:false} as const);
 const PROFESSIONAL_BOUNDARY=Object.freeze({
@@ -228,7 +262,7 @@ export class EmbeddedAgentSession {
    if(contract!==undefined&&(!plain(contract)||Object.values(contract).some(value=>typeof value!=='string')))return this.failure(call,'The pressure contract is not representable in this catalog summary.');
    const awaiting=componentsAwaitingUserModifiers(model);
    const profile:Record<string,unknown>={};if(model.schema_version!==undefined)profile.schema_version=model.schema_version;if(contract!==undefined)profile.pressure_contract=contract;
-   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],componentsAwaitingUserModifiers:{count:awaiting.length,ids:awaiting.slice(0,32)},limits:LIMITS},{kind:'read'});
+   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],componentsAwaitingUserModifiers:{count:awaiting.length,ids:awaiting.filter(id=>id&&id.length<=ID_CHARS).slice(0,32)},limits:LIMITS},{kind:'read'});
   }
   if(call.tool==='swbpipe_read_nodes'){
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const end=Math.min(model.nodes.length,offset+page.limit);
@@ -240,11 +274,13 @@ export class EmbeddedAgentSession {
    const rows=((model as unknown as Record<string,unknown>)[family] as Record<string,unknown>[]|undefined)??[];
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const records=[];let bytes=0,end=offset;
    for(;end<rows.length&&records.length<page.limit;end++){
-    const record=rows[end];if(typeof record?.id!=='string'||!record.id||record.id.length>160)return this.failure(call,'Record identifier exceeds this catalog page.');
-    const recordText=await canonicalJsonString(record);const before=await recordBefore(family,record,model,recordText);
-    if(recordText.length>16384||Object.values(before).some(text=>!text||text.length>16384))return this.failure(call,`Record ${record.id} exceeds this catalog page.`);
-    const entry={id:record.id,recordText,before};const size=new TextEncoder().encode(JSON.stringify(entry)).byteLength;
-    if(records.length&&bytes+size>RECORD_PAGE_BYTES)break;bytes+=size;records.push(entry);
+    const record=rows[end];if(typeof record?.id!=='string'||!record.id||record.id.length>ID_CHARS)return this.failure(call,'Record identifier exceeds this catalog page.');
+    const recordText=await canonicalJsonString(record);const before=await recordBefore(family,record,recordText);
+    // Bounds are UTF-8 bytes; a record whose escaped entry alone exceeds a page is unavailable, never cut.
+    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES))return this.failure(call,`Record ${record.id} exceeds this catalog page.`);
+    const entry={id:record.id,recordText,before};const size=byteLength(JSON.stringify(entry));
+    if(size>RECORD_PAGE_BYTES)return this.failure(call,`Record ${record.id} exceeds this catalog page.`);
+    if(bytes+size>RECORD_PAGE_BYTES)break;bytes+=size;records.push(entry);
    }
    if(!this.current(call))return this.failure(call,'Workspace changed while reading records.','stale_basis');
    return this.result(call,'ok','Bounded record page at the captured basis; before texts are exact for that basis only.',{family,records,nextCursor:this.cursor(call,end,end<rows.length)},{kind:'read'});
@@ -266,12 +302,13 @@ export class EmbeddedAgentSession {
    if(this.#runs.size>=64)return this.failure(call,'Run retention is full.');
    // An unrealized bend marker: the exact route refuses it before solving
    // (EXACT_PRESSURE_FAMILY_NOT_ADMITTED); the pressure-free route solves it as a
-   // straight chord, applying its scalar SIF but never k.
-   const chords=unrealizedBends(model),listed=`${chords.slice(0,3).join(', ')}${chords.length>3?', …':''}`;
-   if(chords.length&&(model as unknown as Record<string,unknown>).pressure_contract!==undefined)return this.failure(call,`Not solved: the exact route refuses unrealized bends (${listed}). Ask the person to realize each with Insert bend at corner and enter k, the SIFs and their source, then solve.`);
+   // straight chord whose stiffness k never affects. A supplied positive scalar SIF
+   // applies to the chord; without one no intensified measure is published.
+   const chords=unrealizedBends(model);
+   if(chords.length&&(model as unknown as Record<string,unknown>).pressure_contract!==undefined)return this.failure(call,`Not solved: the exact route refuses unrealized bends (${namedIds(chords,300)}). Ask the person to realize each with Insert bend at corner and enter k, the SIFs and their source, then solve.`);
    const receipt=await this.owner.solve();if(!receipt||!same(receipt.modelHash,call.basis.modelHash))return this.failure(call,'No matching completed native solve is available.');
    const handle=opaque();this.#runs.set(handle,{basis:structuredClone(call.basis),receipt});
-   const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${listed}) were solved as straight chords: a scalar SIF applies, k does not. Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
+   const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${namedIds(chords,300)}) were solved as straight chords; k does not affect chord stiffness. ${chordSifText(model,chords)} Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
    return this.result(call,'completed',solved,{runHandle:handle,runId:receipt.runId,evaluatedModelHash:receipt.modelHash,health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
   }
   return this.failure(call,'Tool is unavailable.');

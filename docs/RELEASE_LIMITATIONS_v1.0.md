@@ -43,8 +43,9 @@ the entry, and the entry names the PR.
 - **Why:** the owner ruled that users enter their own k and SIF. The agent
   proposes a bend as a geometry marker and a tee without modifiers. Until the
   person realizes a bend, the exact route refuses to solve, and the
-  pressure-free route solves it as a straight chord (its scalar SIF applies, k
-  does not) and the agent says so.
+  pressure-free route solves it as a straight chord, and the agent says so: k
+  does not affect the chord's stiffness, a supplied positive scalar SIF applies
+  to the chord, and without one no intensified measure is published.
 - **What the user does instead:** after applying the agent's components, realize
   each bend with Insert bend at corner and enter k, the SIFs and their source in
   the component inspector, then let the agent continue.

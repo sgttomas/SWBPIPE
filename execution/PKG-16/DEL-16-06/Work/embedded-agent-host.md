@@ -178,7 +178,7 @@ none may repeat, or the catalog does not load. Per-kind unit, dimension and
 |---|---|---|---|
 | v3 | 23,806 | 6,000 | 9 |
 | v4 as first drafted (16 pinned variants, long guidance) | 40,650 | 10,200 | 16 |
-| v4 | 17,322 | 4,300 | 16 |
+| v4 | 17,530 | 4,400 | 16 |
 
 Adding a kind now costs one table row of guidance (about 100 to 400 bytes) and
 enumeration values, not a repeated envelope. The exact route's objective-connector
@@ -186,15 +186,18 @@ shape is not spelled out in the declarations; the agent asks the person for its
 stiffness, axes and offsets. An on-demand guide tool is the route if that proves
 insufficient.
 
-`create_support`'s guidance covers every support family: guides, line stops,
-springs, variable spring and constant-effort hangers, and gap, lift-off, one-way
-and friction behaviour. Creation needs at least one linear restraint, and a
+`create_support`'s guidance names guides, line stops, springs, variable spring
+and constant-effort hangers, and gap, lift-off, one-way and friction behaviour.
+The milestone 2 journey creates anchors, a guide, a vertical support, a
+variable spring hanger, a constant-effort support and nonlinear friction and
+gap supports; line stops, plain springs and spring hangers are covered by
+guidance only. Creation needs at least one linear restraint, and a
 nonlinear behaviour acts on a DOF the support does not restrain linearly.
 
 **k and SIF stay the person's (owner ruling, O5).** No `modifiers` field,
 `bend_realization`, `insert_bend_at_corner` or `apply_library_record` is
-admitted; the applier drops `modifiers` sent with a bend or tee and refuses an
-agent-written k. The agent proposes a bend as a geometry marker and a tee
+admitted, and the applier refuses an agent-authored bend or tee insertion that
+carries modifiers, as it refuses any agent-written k. The agent proposes a bend as a geometry marker and a tee
 without modifiers. The person then realizes each bend through Insert bend at
 corner (converting the agent's marker, keeping its id) and enters k, the SIFs
 and their source in the app. Insert bend at corner moves the corner and
@@ -209,9 +212,14 @@ before solving. An unrealized bend marker behaves differently on the two
 routes. The exact route refuses it before solving
 (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`), so `swbpipe_solve` refuses up front and
 names the bends the person must realize. The pressure-free route solves it as a
-straight chord, applying its scalar SIF but never k; the solve result's message
-names those bends and says so, so a result is never reported as if they were
-realized.
+straight chord: k does not affect the chord's stiffness, a supplied positive
+scalar SIF applies to the chord, and without one no intensified measure is
+published. The solve result's message names those bends and says which have a
+scalar SIF, so a result is never reported as if they were realized. Identifiers
+in tool messages and in `componentsAwaitingUserModifiers` are bounded to the
+catalog's limits: a message names the leading bends that fit and ends with an
+ellipsis, and the summary lists up to 32 identifiers of at most 160 characters
+while `count` stays complete.
 
 **Applier refusal (M2-D1).** The applier refuses an agent-authored write of k
 or any other component modifier, whatever route the operation takes; see
@@ -221,8 +229,14 @@ stamp `agent` and the accepted residuals.
 `swbpipe_read_records` reads a bounded page of components, supports, pipes or
 nodes at the current live basis, like node reads. Each record carries its
 canonical JSON text and the exact `before` texts its admitted edits and
-deletions require, computed by the desktop's own canonicalization and removal
-builders. A page stops before 48 KiB, and its cursor is bound to its family.
+deletions require, as the applier compares them: the engine's canonical JSON
+for a component and a support configuration, and for a deletion the applier's
+own summary (trimmed label; a node's coordinates in the applier's number form,
+which never uses an exponent). A record whose deletion the applier would refuse
+for a missing label or coordinate carries no `delete` text. Bounds are UTF-8
+bytes: each text at most 16 KiB, and a page stops before 48 KiB of serialized
+entries. A record whose own entry exceeds a page is reported unavailable, never
+cut. The cursor is bound to its family.
 It is a read through the existing `embedded_agent_host` command; no Tauri or
 ingress command is added. Load-case and primitive-load deletions are not yet
 admitted, because their `before` texts are private to the load-case panel.
@@ -240,7 +254,8 @@ Milestone 2 evidence, on the candidate named in its PR:
   blank document, including an edit and two deletions whose `before` texts it
   derives as the applier compares them. The invented pressure-free model has
   one of each component family (the expansion joint is annotation-only on this
-  route) and the support families. Built by the agent alone, it solves in both
+  route) and six support families (anchor, guide, vertical support, nonlinear
+  friction and gap, variable spring hanger, constant effort). Built by the agent alone, it solves in both
   solver modes with the two modifier warnings, and an agent-written k is
   refused. In the journey order, with the person's bend realization, k, SIFs
   and source entered after the components proposal, it solves with neither
@@ -249,8 +264,11 @@ Milestone 2 evidence, on the candidate named in its PR:
 - `embeddedAgentM2.test.ts` applies the same proposals through the desktop
   batch service on the wasm engine, with the corrections' `before` texts taken
   from the session's record producer, and checks the awaiting-modifiers report.
-  `embeddedAgentSession.test.ts` covers record pages, exact texts and the
-  family-bound cursor. The catalog tests admit the new variants and refuse every
+  It also deletes a support, a pipe and two nodes with padded labels and
+  coordinates such as 1e-7 and 2.5e21 using the producer's texts, and confirms
+  the applier refuses the ECMAScript form. `embeddedAgentSession.test.ts` covers
+  record pages, exact texts, UTF-8 byte bounds, the family-bound cursor,
+  long-identifier bounds and the scalar-SIF wording of both solve paths. The catalog tests admit the new variants and refuse every
   modifiers path, bend realization, bend insertion, library record and other
   component or support field.
 
