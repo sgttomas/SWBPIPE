@@ -1071,11 +1071,15 @@ fn round3_rendered_rule_pack_checksum_must_name_the_pack_type() {
 /// slice c) re-pinned all four, and both tests' stored-data members, by the
 /// version token of the regenerated witness input, desktop model and input
 /// manifest (with the committed 0.7.0 inputs the runner's former pins hold).
+/// Model document 0.9.0 (S1) re-pinned all four, and both tests' stored-data
+/// members, by the version token of the desktop model and the digests it moves
+/// in the regenerated witness input (were ca579348…/118d765a… and
+/// 98b57128…/58fb5e7b…); the report crates are unchanged.
 #[test]
 fn current_requests_assemble_the_same_bytes_as_before_the_exact_sections() {
     for (request, container, identity) in [
-        (runner(), "ca57934802e690e602085f4a856195a55fc690a4cff5f6e5e3c39a3f1ceb5c43", "118d765acc91d5cc5e774fb285e8284bc0969041286135e4b9b9866de15ade38"),
-        (desktop(), "98b571282a3059c814608fdb4753478650c659b3874189f8e6449300e96dd0a6", "58fb5e7becaf6d51d5a66ed92f52c6211fc6f51bb8f539ab676e5bb3c5af5e4d"),
+        (runner(), "bb43c23b2e605eab4e5406853be5b37e54b7e27889c9a3c07f996a8a8ad2fff9", "2d0d86a7896d38b5df4d9a0b1ac069b15d6c83cff0d936cf7cb2c941af184c72"),
+        (desktop(), "0ded9cd94ffc4089a331f11d49cbba37309fe61850b2cc0986752d6da4d14d7c", "ba61ef7641c9d32442102ccab20b825dcc98f11bbd0a83d5570ef643e005e1e1"),
     ] {
         let outcome = unblocked(&request);
         assert_eq!(outcome.container_sha256_hex, container);
@@ -1121,14 +1125,14 @@ fn a_positional_report_struct_refuses_the_shared_producer() {
 #[test]
 fn the_stored_data_members_keep_their_bytes() {
     const RUNNER: [(&str, &str); 3] = [
-        ("audit_manifest", "c21153c1ce949c6394d2779c6544384e6387ac28fba38c4e45a9899010a79562"),
-        ("result_export", "df2bfdcd3727abcf017f48c94b3aa98e49a024b61dfd604a84b50bf981b954fb"),
-        ("state_comparison_handoff_sections", "38b14409facd9375627c9061aba496591728274f5472ee2fc687b5034bf17fe1"),
+        ("audit_manifest", "5be8000e0f965c08719834434024020ccfa35acec45d2b8f842a0344a9bae234"),
+        ("result_export", "5e28641effb7d6c55026c737a18b33a226a4d460da40de6f22ad85f4ddd6778d"),
+        ("state_comparison_handoff_sections", "21f81c6505004f0fd03d5119f41f9876830976c1a7824771fc5bfba5dd807c0b"),
     ];
     const DESKTOP: [(&str, &str); 3] = [
-        ("audit_manifest", "b4b8684a28ff6763d988b3108b3dc09b599900b13242a6d9cc33cb7108c2991b"),
-        ("result_export", "f6c6a7f682cab408a41a2c344222549c336de176ba43a4bdd9027dc597784abc"),
-        ("state_comparison_handoff_sections", "563bf17e5802e9ce6aff50ea0a3be4eadeba2d2b0a454f63ebdc53bf475b1f50"),
+        ("audit_manifest", "910dd63242e265f1c3f6fadecb287930083902c0af6c9d1454c72fa4abe9e028"),
+        ("result_export", "c27e27f15c5c69e20292b58b955553702ae21d25f9f9f153f4a7cecbc265cba6"),
+        ("state_comparison_handoff_sections", "fc7cff0adc1d7c9cfdaafa4ab5d09e7411324e0e6225af873e1fa3fbd06270df"),
     ];
     const BEFORE_HTML: [&str; 2] = [
         "630f6439d35832d1dc54922d5334e0f411b9635e8fb42aa1ae42d486863ed19e",
