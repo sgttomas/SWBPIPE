@@ -45,6 +45,7 @@ mod report_render_pf_timoshenko_tests;
 #[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
+mod result_text_digest;
 mod solve_attestation;
 #[allow(unsafe_code)]
 mod solve_jobs;

@@ -7,9 +7,13 @@
 //! - `d_M`: the SHA-256 of `checked_v1_domain_canonical(`[`SOLVED_MODEL_DOMAIN`]`,
 //!   model)` over the model value it materialized, before the solve;
 //! - `d_S`: the same over [`SOLVED_RESULT_DOMAIN`] and the result value, the
-//!   producer's exact bytes parsed back into a value after the unchanged solve
-//!   (the solver entry returns a typed envelope, not a value), before the
-//!   result frame is sent.
+//!   value the producer's exact bytes parse back into after the unchanged
+//!   solve (the solver entry returns a typed envelope, not a value), before
+//!   the result frame is sent. Since RT-U4 it is computed from the bytes by
+//!   [`crate::result_text_digest::text_digest`] without materializing the
+//!   whole value; its meaning is unchanged: for every text it equals
+//!   [`streamed_digest`] over `serde_json::from_str` of the text, and is
+//!   `None` exactly when that parse fails or the profile refuses.
 //!
 //! Each digest streams the canonical text through `ByteSink` into a hasher, so
 //! no canonical text is held ([`streamed_digest`]). A value the checked profile
@@ -359,10 +363,10 @@ mod tests {
         }
     }
 
-    /// §2.4 and §6, in the worker: the `d_S` pass parses the producer's bytes
-    /// into a value and digests it, so its peak is within the text's
-    /// materialization bound (the ingress prescan's, over the same requested
-    /// sizes) plus the streamed digest's account; the `d_M` pass over the
+    /// §2.4 and §6, in the worker: the `d_S` pass digests the value the
+    /// producer's bytes hold (one bounded piece at a time since RT-U4), so its
+    /// peak is within the text's materialization bound (the ingress prescan's,
+    /// over the same requested sizes) plus the streamed digest's account; the `d_M` pass over the
     /// already materialized model is within the account alone. Checked on each
     /// invented value of the account checks and on the solved demo in both modes.
     #[test]
@@ -392,5 +396,50 @@ mod tests {
         assert!(digest.is_some());
         eprintln!("ATTESTATION worker d_M pass, demo model: peak {} of account {}", measured.peak_priced, account(&model));
         assert!(measured.peak_priced <= account(&model), "{measured:?}");
+    }
+
+    /// §2.4 and §6, on raw text (RT-U4 review): the `d_S` pass over texts as
+    /// written, not reserialized (raw whitespace, escaped keys, duplicates,
+    /// split levels), peaks within the text's materialization bound plus the
+    /// streamed digest's account plus the open split containers' parser frames
+    /// ([`crate::result_text_digest::OPEN_SPLIT_SCRATCH_BYTES`]).
+    #[test]
+    fn the_d_s_pass_on_raw_text_stays_within_its_bound() {
+        use crate::result_text_digest::{OPEN_SPLIT_SCRATCH_BYTES, SPLIT_THRESHOLD_BYTES};
+        let threshold = SPLIT_THRESHOLD_BYTES;
+        let spaces = |n: usize| " ".repeat(n);
+        let nest = |depth: usize, leaf: &str| format!("{}{leaf}{}", "[".repeat(depth), "]".repeat(depth));
+        let escaped_key = "\\u0001".repeat(100_000);
+        let mut escaped_keys = "0".to_string();
+        for level in 0..6 {
+            escaped_keys = format!("{{\"{escaped_key}{level}\": {escaped_keys}, \"pad\": [{}1]}}", spaces(threshold));
+        }
+        let mut duplicates = String::from("{");
+        for index in 0..20_000 {
+            duplicates.push_str(&format!("\"k{}\" : [ {index} ,  {{\"x\" : -0.0 }} ] ,\n", index % 7));
+        }
+        duplicates.push_str(&format!("\"pad\":[{}]}}", spaces(threshold)));
+        let model = crate::load_preview_model().unwrap();
+        let demo = crate::solve_preview_mechanics_with_mode(model, PreviewSolverMode::SparseInteractive).unwrap();
+        let demo_pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&demo).unwrap()).unwrap();
+        let mut cases: Vec<(String, String)> = Vec::new();
+        for len in [threshold - 1, threshold, threshold + 1] {
+            cases.push((format!("review input, inner leaf {len} bytes"), format!("[[{}]]", spaces(len - 2))));
+        }
+        cases.push(("125 split levels of raw whitespace".into(), nest(125, &format!("[{}0]", spaces(threshold)))));
+        cases.push(("escaped keys on six split levels".into(), escaped_keys));
+        cases.push(("20,000 members of 7 duplicated keys".into(), duplicates));
+        cases.push(("solved demo, producer bytes".into(), demo));
+        cases.push(("solved demo, pretty-printed".into(), demo_pretty));
+        for (case, text) in &cases {
+            let value: Value = serde_json::from_str(text).unwrap();
+            let materialization = crate::ingress::prescan(text.as_bytes()).unwrap().materialization_bytes;
+            let (digest, measured) = measure(|| crate::solve_worker::result_digest(text));
+            assert_eq!(digest, streamed_digest(SOLVED_RESULT_DOMAIN, &value), "{case}");
+            assert!(digest.is_some(), "{case}");
+            let bound = materialization + account(&value) + OPEN_SPLIT_SCRATCH_BYTES;
+            eprintln!("ATTESTATION worker d_S pass on raw text, {case}: peak {} of {bound} (materialization {materialization}, text {} bytes)", measured.peak_priced, text.len());
+            assert!(measured.peak_priced <= bound, "{case}: {measured:?} > {bound}");
+        }
     }
 }
