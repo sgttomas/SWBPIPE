@@ -295,9 +295,10 @@ def judge(report, reference, operations, captured=None):
     for r in reference["rows"]:
         if r["quantity"] != "nodal_motion" or r["entity"] != "node:c":
             continue
-        q, axis = ("displacement", r["component"][1]) if r["component"].startswith("u") else ("rotation", r["component"][1])
-        kind = f"global_nodal_{q}_{axis}"
-        found = [row for row in rows if kind in row["id"] and "node:c" in row["id"]]
+        q = "displacement" if r["component"].startswith("u") else "rotation"
+        # The Results section's row id for a nodal motion component, as the product forms it.
+        row_id = f"result:disp:{r['entity'].replace(':', '-')}:{r['component']}"
+        found = [row for row in rows if row["id"] == row_id]
         parsed = entered_value(found[0]["text"]) if len(found) == 1 else None
         if parsed is None:
             failures.append(f"node:c {r['component']}: {len(found)} rows shown")
@@ -320,7 +321,8 @@ def judge(report, reference, operations, captured=None):
         else:
             if observe["data"]["outcomeModelHash"] != solve["data"]["evaluatedModelHash"]:
                 failures.append("solve was not on the applied model's hash")
-            if (report.get("results") or {}).get("model_sha256") not in (None, (solve["data"]["evaluatedModelHash"] or {}).get("value")):
+            shown_hash = ((report.get("results") or {}).get("model_sha256") or "").removeprefix("sha256:")
+            if shown_hash != (solve["data"]["evaluatedModelHash"] or {}).get("value"):
                 failures.append("the window's solve proof names another model hash")
             for value in results["data"]["values"]:
                 if value["id"] in shown and value["value"] != shown[value["id"]]:

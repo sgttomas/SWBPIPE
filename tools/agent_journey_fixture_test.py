@@ -107,9 +107,8 @@ def observed_report(reference, operations, nudge=0.0):
     for r in reference["rows"]:
         if r["quantity"] == "nodal_motion" and r["entity"] == "node:c":
             displacement = r["component"].startswith("u")
-            kind = f"global_nodal_{'displacement' if displacement else 'rotation'}_{r['component'][1]}"
             value = r["value"] * 1000.0 if displacement else r["value"]
-            rows.append({"id": f"result:case:{kind}:node:c:", "text": f"Entered: {value + nudge!r} {'mm' if displacement else 'rad'}"})
+            rows.append({"id": f"result:disp:node-c:{r['component']}", "text": f"Entered: {value + nudge!r} {'mm' if displacement else 'rad'}"})
     return {"steps": fixture.STEPS, "batch": {"batch_id": "agent-x", "batches_shown": 1,
             "summary": f"{len(operations)} proposed changes. Bound to the model used to prepare this batch.",
             "apply_message": "Applied"}, "tree": {"node:node:a": True}, "results": {"rows": rows, "model_sha256": None}}
