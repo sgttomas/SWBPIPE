@@ -61,8 +61,9 @@
 //! member, sorted in place; an escaped key's decoded string), the canonical
 //! writer's transients, and, per split container on the open path, its
 //! parser's frame stack (`ignore_value` keeps one byte per nesting level of
-//! the value it skips, at most 127 after the scan, so at most 128 bytes
-//! priced). For a text the ingress prescan prices, the leaf, the member lists
+//! the value it skips, at most 127 after the scan: 128 bytes of retained
+//! capacity, and up to 192 bytes priced for an instant while it grows from 64
+//! to 128). For a text the ingress prescan prices, the leaf, the member lists
 //! and the decoded keys lie within its materialization bound (each object
 //! member is priced there above 200 bytes; each leaf's value, parse scratch
 //! and array growth are part of what the bound prices for the whole text),

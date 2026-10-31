@@ -752,7 +752,8 @@ user-visible condition is the same; native admission now enforces it.
     or one longer scalar); the member list of each split object on the open
     path (40 bytes per member, and an escaped key's decoded string); and, per
     split container on the open path, its parser's frame stack (at most 128
-    bytes priced, once the scan has refused deeper text). For a text the
+    bytes retained once the scan has refused deeper text, and up to 192
+    bytes priced for an instant while it grows from 64 to 128). For a text the
     prescan prices, the pass's peak is within that materialization bound plus
     the streamed digest's account (below) plus 16,256 bytes (127 open split
     containers at 128 bytes). The prescan refuses a RawValue-token key, so a
