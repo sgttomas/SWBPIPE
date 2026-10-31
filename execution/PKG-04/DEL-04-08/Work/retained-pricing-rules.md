@@ -2013,6 +2013,8 @@ The merged tree at native atoms (`4c2a1c05f`), against ⌊0.9M⌋:
 
 **Fit.** All 80 native evaluations (eight phases, both modes, the merged tree and four points) fit at `4c2a1c05f`, at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the upward-rounded 5 % TEXT reserve. The tightest headroom is merged dense W3, **+2,319,909,378 B**, which is **172,554 B below §8.33's +2,320,081,932 B**. Each unmerged point's tightest is also dense W3: L(3,0) +2,940,413,448 B, L(2,1) +3,601,401,615 B, L(1,2) +4,537,283,227 B and E +2,405,860,179 B. Registration does not establish acceptance, issuance or release.
 
+**Main merge (`e2a0547aa`).** The branch merges main `1464ff11b`, which carries §8.34 (`validate_components`), §8.35 (`reader_verdict.rs`) and #51. None of them touches PP `lib.rs`, `u4b_rows.rs` or the generated block, and their pins merge without conflict. The committed tool prices the merged head with exit 0 on all four points. Against this section's registered tree (`4c2a1c05f`) it is identical apart from the basis line: 1,586 coefficients equal, none higher or lower, the same 37 prunes and seven resolutions. The registered block, phase record, challenge bounds and witnesses therefore stand, and nothing is re-registered.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2036,7 +2038,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.36's source, `4c2a1c05f`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.36's merged head, `e2a0547aa`, which prices coefficient-identically to §8.36's source, `4c2a1c05f`); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
