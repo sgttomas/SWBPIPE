@@ -533,11 +533,9 @@ fn ordinary_findings(source: &Value, requested: &[&Value]) -> Vec<String> {
         .map(|r| &r["id"])
         .chain(diagnostics.iter().map(|d| &d["id"]).filter(|id| truthy(id)))
         .collect();
-    let mut emitted = Vec::new();
+    let mut emitted = IdSet::default();
     for id in &emitted_ids {
-        if !emitted.contains(id) {
-            emitted.push(*id);
-        }
+        emitted.insert(id);
     }
     if !results.iter().all(|r| nonempty(&r["id"]))
         || !diagnostics.iter().all(|d| nonempty(&d["id"]))
@@ -584,8 +582,36 @@ fn ordinary_findings(source: &Value, requested: &[&Value]) -> Vec<String> {
     }
     findings
 }
+/// The distinct emitted ids, by `Value` equality, as a list scan kept them: a string
+/// id equals exactly the string ids of the same text, so those are hashed; any other
+/// id is compared with the other ids as before.
+#[derive(Default)]
+struct IdSet<'a> {
+    strings: std::collections::HashSet<&'a str>,
+    others: Vec<&'a Value>,
+}
+impl<'a> IdSet<'a> {
+    fn insert(&mut self, id: &'a Value) {
+        match id {
+            Value::String(text) => {
+                self.strings.insert(text.as_str());
+            }
+            other if !self.others.contains(&other) => self.others.push(other),
+            _ => {}
+        }
+    }
+    fn contains(&self, id: &Value) -> bool {
+        match id {
+            Value::String(text) => self.strings.contains(text.as_str()),
+            other => self.others.iter().any(|kept| *kept == other),
+        }
+    }
+    fn len(&self) -> usize {
+        self.strings.len() + self.others.len()
+    }
+}
 /// One `numerical_quality` case's ordinary eligibility (TS `ordinaryCaseEligible`).
-fn ordinary_case_eligible(case: &Value, emitted: &[&Value]) -> bool {
+fn ordinary_case_eligible(case: &Value, emitted: &IdSet<'_>) -> bool {
     case.is_object()
         && case["structural_status"] == "passive_model_basis"
         && case["solve_quality"] == "checks_passed"
@@ -593,7 +619,7 @@ fn ordinary_case_eligible(case: &Value, emitted: &[&Value]) -> bool {
         && matches!(case["accuracy_evidence"].as_str(), Some("not_claimed" | "reference_verified"))
         && case["evidence_refs"]
             .as_array()
-            .is_some_and(|refs| !refs.is_empty() && refs.iter().all(|r| emitted.contains(&r)))
+            .is_some_and(|refs| !refs.is_empty() && refs.iter().all(|r| emitted.contains(r)))
 }
 
 /// The dispatch entry: the route, its table binding, the header refusal (or
@@ -620,5 +646,33 @@ pub fn row_semantics(row: &Value, source: Option<&Value>) -> Value {
             "complete_metadata": sc::complete_metadata(row),
             "canonical_metadata": sc::canonical_metadata_in(table, row)}),
         Err(e) => verdict_refusal(&e),
+    }
+}
+
+#[cfg(test)]
+mod id_set_tests {
+    use super::IdSet;
+    use serde_json::{json, Value};
+
+    /// The set keeps the ids, and answers membership, as the list scan it replaced:
+    /// strings by text, every other id by `Value` equality (1 is not 1.0).
+    #[test]
+    fn id_set_is_the_distinct_list() {
+        let ids = [json!("a"), json!("b"), json!("a"), json!(1), json!(1.0), json!(1), json!(null), json!(null),
+            json!(["a"]), json!(["a"]), json!({"a": 1}), json!(""), json!("")];
+        let mut list: Vec<&Value> = Vec::new();
+        let mut set = IdSet::default();
+        for id in &ids {
+            if !list.contains(&id) {
+                list.push(id);
+            }
+            set.insert(id);
+        }
+        assert_eq!(set.len(), list.len());
+        let probes = [json!("a"), json!("c"), json!(1), json!(1.0), json!(2), json!(null), json!(["a"]), json!({"a": 1}),
+            json!({"a": 2}), json!(""), json!(false)];
+        for probe in &probes {
+            assert_eq!(set.contains(probe), list.contains(&probe), "{probe}");
+        }
     }
 }
