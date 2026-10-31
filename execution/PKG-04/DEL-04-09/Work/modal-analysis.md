@@ -436,6 +436,7 @@ The generator re-derives every formula and root below; they are stated from memo
   - **Criterion.** Before FR-SOL-016 is reported complete, at least one published piping benchmark with recorded redistribution evidence is compared with the product, and the comparison is recorded as **comparison evidence, not exact verification**.
   - **Prerequisite and timing.** The per-report evidence above is the prerequisite. The comparison comes after M1b (the dense path).
   - **Until then**, FR-SOL-016 stays partial (`docs/COMPLETENESS_MAP.md`). M1–M3 rely on classes a and b. The first class-c target is one NUREG/CR-1677 Vol. 1 problem, whose modal part needs only frequencies and participation, if its report's evidence supports redistribution. Otherwise it is another published piping benchmark whose evidence does.
+  - **Status of the first candidate (2026-10-31).** NUREG/CR-1677 Vol. 1 (BNL-NUREG-51267, August 1980; OSTI 6403318), Problem 1, is recorded with `source_license = TBD` and `redistribution_status = unknown` and held for the owner's review (O-3). Its notices mark distribution as unlimited and carry no copyright or contractor-rights notice, but they grant no licence, and the report is mostly contractor-authored. Its Problem 2 is adapted from the literature and is excluded regardless. Vol. 2, NUREG/CR-6414 and Code_Aster SDLX02 are held or unsuitable on their own evidence. Nothing is transcribed until the owner rules. A search for a problem in a report authored by US government employees runs in parallel.
 
 ---
 
