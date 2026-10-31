@@ -9,3 +9,4 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
+open_pipe_stress_sparse_direct = { path = "../sparse_direct" }

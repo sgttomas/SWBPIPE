@@ -22,8 +22,9 @@ use crate::matrix::SymmetricMatrix;
 /// caller's K and M, the Cholesky factor R, and one work buffer that holds in
 /// turn M R⁻ᵀ, C, the accumulated Householder transformations, the QL
 /// eigenvectors and finally the returned mode shapes. O(n) work vectors are
-/// not counted. The Sturm counts of §3.2 item 7 (not in this crate yet) add
-/// their own profiles when they land.
+/// not counted. The Sturm counts of §3.2 item 7 run after the solve, when
+/// R and the work buffer are released, and add their own storage (`sturm`
+/// module docs, "Memory").
 pub const DENSE_PATH_PEAK_N2_BUFFERS: u64 = 4;
 
 /// Bytes per n² entry at the peak phase, for design §3.2's
@@ -126,6 +127,17 @@ pub struct DenseEigenSolution {
     /// min over j of R_jj² / K_jj, a Cholesky pivot-ratio observation (not a
     /// condition number).
     pub min_cholesky_pivot_ratio: f64,
+    /// Free DOFs whose rows and columns of M are exactly zero (design §3.2
+    /// item 5).
+    pub structurally_massless_count: usize,
+    /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
+    /// when a request needs the whole finite spectrum): the μ at or below the
+    /// infinite threshold, μ ≤ 0 included, are not matched one for one by
+    /// structurally massless DOFs, or a μ is negative beyond the threshold's
+    /// magnitude (C is positive semidefinite, so that is not rounding of a
+    /// structural zero). See [`established_finite_mode_count`] for the
+    /// independent half of the count.
+    pub finite_count_unresolved: bool,
 }
 
 impl DenseEigenSolution {
@@ -191,6 +203,10 @@ pub fn solve_dense_pencil(
         }
     }
     let kept = n - nonpositive_mu_count - below_threshold_mu_count;
+    let structurally_massless_count = structurally_massless_dofs(mass).len();
+    let finite_count_unresolved = nonpositive_mu_count + below_threshold_mu_count
+        != structurally_massless_count
+        || d.iter().any(|&mu| mu < -cut);
     d.reverse();
     for i in 0..n / 2 {
         swap_rows(&mut work, n, i, n - 1 - i);
@@ -212,7 +228,60 @@ pub fn solve_dense_pencil(
         below_threshold_mu_count,
         ql_iterations,
         min_cholesky_pivot_ratio,
+        structurally_massless_count,
+        finite_count_unresolved,
     })
+}
+
+/// The structurally massless DOFs of M, ascending: those whose row (and so
+/// column) is exactly zero.
+pub fn structurally_massless_dofs(mass: &SymmetricMatrix) -> Vec<usize> {
+    let n = mass.dimension();
+    (0..n)
+        .filter(|&i| (0..n).all(|j| mass.get(i, j) == 0.0))
+        .collect()
+}
+
+/// The finite-mode count established independently of the eigenvalues
+/// (design §3.2 item 5): n minus the structurally massless DOFs, when the
+/// remaining block of M factors by Cholesky with every pivot p_j (before
+/// its square root) above `relative_pivot_threshold`·m_jj. `None` when the
+/// count is not established: a pivot at or below that, or a threshold that
+/// is not finite in [0, 1).
+///
+/// The pivot ratio p_j/m_jj is invariant to a diagonal scaling of M, so the
+/// threshold does not depend on units.
+pub fn established_finite_mode_count(
+    mass: &SymmetricMatrix,
+    relative_pivot_threshold: f64,
+) -> Option<usize> {
+    if !(relative_pivot_threshold.is_finite() && (0.0..1.0).contains(&relative_pivot_threshold)) {
+        return None;
+    }
+    let massless = structurally_massless_dofs(mass);
+    let kept: Vec<usize> = (0..mass.dimension())
+        .filter(|i| massless.binary_search(i).is_err())
+        .collect();
+    let m = kept.len();
+    let mut r = vec![0.0; m * m];
+    for a in 0..m {
+        for b in 0..=a {
+            let mut s = mass.get(kept[a], kept[b]);
+            for p in 0..b {
+                s -= r[a * m + p] * r[b * m + p];
+            }
+            if a == b {
+                let diagonal = mass.get(kept[a], kept[a]);
+                if !(s > relative_pivot_threshold * diagonal && s > 0.0) {
+                    return None;
+                }
+                r[a * m + a] = s.sqrt();
+            } else {
+                r[a * m + b] = s / r[b * m + b];
+            }
+        }
+    }
+    Some(m)
 }
 
 /// K = R Rᵀ with R lower triangular, row by row (Cholesky–Banachiewicz).
