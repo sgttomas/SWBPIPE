@@ -139,10 +139,15 @@ class Classification(unittest.TestCase):
     def test_timed_out(self):
         self.assertEqual(rr.classify(launched('timed_out', -9), None, BUDGET)[0], 'timed_out')
 
-    def test_watchdog_kill_at_the_base_budget_exceeds_it(self):
+    def test_a_watchdog_kill_exceeds_the_budget_only_on_a_footprint_reading(self):
+        # RSS above the cap does not prove the phys_footprint budget exceeded.
         cls, detail = rr.classify(launched('killed_by_rss_watchdog', -9), None, BUDGET)
-        self.assertEqual(cls, 'exceeds_base_machine_budget')
-        self.assertIn(str(BUDGET), detail)
+        self.assertEqual(cls, 'killed_by_rss_cap')
+        self.assertIn('footprint_unproven', detail)
+        over = launched('killed_by_rss_watchdog', -9, rss={'time_peak_footprint_bytes': BUDGET + 1})
+        self.assertEqual(rr.classify(over, None, BUDGET)[0], 'exceeds_base_machine_budget')
+        under = launched('killed_by_rss_watchdog', -9, rss={'time_peak_footprint_bytes': BUDGET - 1})
+        self.assertEqual(rr.classify(under, None, BUDGET)[0], 'killed_by_rss_cap')
         self.assertEqual(rr.classify(launched('killed_by_rss_watchdog', -9), None, 128 * k6.MIB)[0],
                          'killed_by_rss_cap')
 
@@ -252,6 +257,30 @@ class Window(unittest.TestCase):
                     clock=lambda: self.now[0], log=lambda *a: None, md={})
         self.assertEqual(waits, [60, 0, 0, 0])
         self.assertEqual(len(self.calls), 4, 'a busy host is recorded, not a reason to skip')
+
+    def test_the_host_check_cannot_overrun_the_window(self):
+        waits = []
+
+        def slow_quiet(log, wait):
+            waits.append(wait)
+            self.now[0] += wait + 25  # the check itself takes time beyond its allowance
+            return {'quiet': False, 'reason': 'busy'}
+        records = rr.run_plan(rr.select(self.plan, 'nonlinear-pf')[:1], self.models, self.out, '/bin/release_timing',
+                              budget_s=30, quiet_wait_s=60, launch=self.fake_launch, quiet=slow_quiet,
+                              clock=lambda: self.now[0], log=lambda *a: None, md={})
+        self.assertEqual(self.calls, [], 'a run whose estimate no longer fits after the host check is not launched')
+        self.assertEqual(records[0]['classification'], 'skipped_window_budget')
+
+    def test_quiet_waits_in_whole_steps_within_the_allowance(self):
+        seen = []
+        original = rr.k6.wait_for_quiet_host
+        rr.k6.wait_for_quiet_host = lambda log, max_wait_s: seen.append(max_wait_s) or {'waited_s': 0}
+        try:
+            for allowance in (19, 30, 59, 60, 61):
+                rr.quiet_host(lambda *a: None, allowance)
+        finally:
+            rr.k6.wait_for_quiet_host = original
+        self.assertEqual(seen, [0, 30, 30, 60, 60])
 
     def test_missing_and_mismatched_models_are_not_run(self):
         os.unlink(os.path.join(self.models, rr.model_name('linear-ex', 100)))

@@ -259,11 +259,11 @@ def test_the_recorded_hashes_are_the_generators():
 # redaction decisions and findings) grows with every result row; the nonlinear profiles carry one case.
 SOLVE_SIZES = {"linear-ex": 46, "nonlinear-ex": 128, "nonlinear-pf": 128}
 EXPECTED_WARNINGS = {
-    # BEND_USER_MODIFIER_INPUT_MISSING: the realized bends carry the directional SIF pair, not the single
-    # sif_user_value the legacy bend-modifier check reads.
-    "linear-ex": {"BEND_USER_MODIFIER_INPUT_MISSING", "HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
-    "nonlinear-ex": {"BEND_USER_MODIFIER_INPUT_MISSING", "HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
-    "nonlinear-pf": {"BEND_USER_MODIFIER_INPUT_MISSING", "HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING",
+    # The realized bends carry the complete directional SIF pair, so the product raises no
+    # BEND_USER_MODIFIER_INPUT_MISSING for them.
+    "linear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
+    "nonlinear-ex": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING"},
+    "nonlinear-pf": {"HIGH_DISPLACEMENT_REVIEW", "RULE_CHECK_INPUTS_MISSING",
                      "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"},
 }
 PAYLOAD_END = '  "decisions": [\n'

@@ -235,9 +235,13 @@ def classify(launch_record, driver, rss_cap_bytes, budget_bytes=BASE_MACHINE_BUD
     """(classification, detail) of one launched run."""
     k6_class = launch_record.get('classification')
     if k6_class in ('killed_by_rss_watchdog', 'rlimit_abort', 'heap_cap_abort'):
-        if rss_cap_bytes >= budget_bytes:
-            return 'exceeds_base_machine_budget', 'killed_above_rss_cap_%d' % rss_cap_bytes
-        return 'killed_by_rss_cap', 'killed_above_rss_cap_%d' % rss_cap_bytes
+        # The watchdog reads RSS; the product's budget is on phys_footprint, and RSS can pass the
+        # cap while the footprint stays under it. Only a footprint reading above the budget makes the
+        # kill `exceeds_base_machine_budget`.
+        footprint = peak_footprint(driver, launch_record)
+        if footprint is not None and footprint > budget_bytes:
+            return 'exceeds_base_machine_budget', 'killed_above_rss_cap_%d_footprint_%d' % (rss_cap_bytes, footprint)
+        return 'killed_by_rss_cap', 'killed_above_rss_cap_%d_footprint_unproven' % rss_cap_bytes
     if k6_class == 'timed_out':
         return 'timed_out', 'after_%s_s' % launch_record.get('timeout_s')
     if driver is None:
@@ -315,8 +319,9 @@ def metadata(binary, source_commit, source_tree, source_dirty, run=k6.run_quiet,
 def quiet_host(log, max_wait_s):
     """K6's quiet-host check (no cargo job or sweep, memorystatus_level >= 80, 1-minute load <= 8),
     waiting at most `max_wait_s` (in 30 s steps); a host still busy is recorded, and the run goes ahead."""
+    # K6 waits in 30 s steps; round the allowance down so no step can overrun it.
     try:
-        return dict(k6.wait_for_quiet_host(log, max_wait_s=max_wait_s), quiet=True)
+        return dict(k6.wait_for_quiet_host(log, max_wait_s=(int(max_wait_s) // 30) * 30), quiet=True)
     except RuntimeError as error:
         return {'quiet': False, 'reason': str(error)}
 
@@ -372,7 +377,16 @@ def run_plan(plan, models_dir, out_dir, binary, *, budget_s=WINDOW_BUDGET_S, wri
                 record['host'] = quiet(log, max(0, min(wait, remaining - run['estimate_s'])))
                 launched_any = True
                 remaining = budget_s - (clock() - start)
-                timeout = max(1, min(run['timeout_s'], int(remaining)))
+                if run['estimate_s'] > remaining or remaining < 1:
+                    record.update(classification='skipped_window_budget',
+                                  classification_detail='estimate %d s exceeds the %d s remaining after the host '
+                                                        'check' % (run['estimate_s'], remaining))
+                    record['window_elapsed_after_s'] = round(clock() - start, 3)
+                    k6.append_record(out_dir, record)
+                    records.append(record)
+                    log('%s: skipped_window_budget after the host check' % run['run_id'])
+                    continue
+                timeout = min(run['timeout_s'], int(remaining))
                 record.update(timeout_applied_s=timeout, timeout_capped_by_window=timeout < run['timeout_s'])
                 launched = launch(driver_argv(binary, path, run, results_dir), rss_cap_bytes=run['rss_cap_bytes'],
                                   timeout_s=timeout, record_dir=out_dir, run_id=run['run_id'], wrapper=wrapper,
