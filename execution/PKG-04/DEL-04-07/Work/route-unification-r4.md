@@ -985,10 +985,59 @@ These were measured in one `t3_exclusive.sh` window, 01:39:14–01:50:21Z.
 The 2,000-node PF run was refused by `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`, with a leading-buffer estimate of 14.79 GB against 11.60 GB. M-2 scales one-way supports as N/10 and explicit-normal friction as N/40, and took 1–4 active-set iterations per case.
 
 **Readings.**
-- **EX linear time** grows about as n^2.3 between 1,000 and 2,000 nodes, while rows grow linearly. A dry-run stack sample places the dominant cost in `u4b_rows::published`, a linear scan of every published row per member, station and basis lookup, shared by both routes. RT-A3 increment 1b repairs it, with byte-identical output, and M-1a is re-measured after it.
+- **EX linear time in the first window** grows about as n^2.3 between 1,000 and 2,000 nodes, while rows grow linearly. A dry-run stack sample places the dominant cost in `u4b_rows::published`, a linear scan of every published row per member, station and basis lookup, shared by both routes. RT-A3 increment 1b replaces that lookup with a member index; its re-measurement is below.
 - **PF nonlinear at 2,000 nodes with the guard lifted** is an extrapolation, not a measurement: about 230–300 s (time exponent 1.8–2.1) and about 16–20 GB peak RSS (RSS exponent 1.4–2). The dense loop therefore does not fit the 16 GiB base machine, and stage P is needed on both routes (Agent 0, 2026-10-31).
 - **Result volume** is about 244k rows per linear case at 2,000 nodes, or 2.05 M rows and 1.5 GB of JSON for 8 cases. The desktop path (IPC, reader, parse, render) and the result-volume design belong to DEL-04-05's performance lane, not to RT-A3 (Agent 0, 2026-10-31).
 - **Finding for the performance lane: warning volume.** The generated racks raise one `LOAD_CATEGORY_PREVIEW_MAPPED` warning per authored line load: 9,995 on the 2,000-node EX rack and 4,995 at 1,000 nodes. In results and reports this is unusable noise. Aggregating it is a usability fix for that lane to design (Agent 0, 2026-10-31).
+
+### 5.4b Increment 1b re-measurement (recovered 2026-10-31)
+
+The saved `t3_exclusive.sh` window completed at **18:54:59–19:04:44Z** on
+`8517ee24ecfb401be1bda46ed3b7f3dc4bfd5fd9`. These are the original observations;
+recovery did not rerun them. The source identity, binary/model digests and raw
+runner records were retained locally for review. This remains development-host
+evidence, not a measurement on the 16 GiB base machine.
+
+The same invented M-1a racks, driver, sparse mode and eight cases as §5.4a gave:
+
+| Run | Nodes | Solve + publication | Serialization | Peak RSS | Rows | JSON |
+|---|---|---|---|---|---|---|
+| M-1a, EX linear, 1b | 1,000 | 39.264 s | 0.376 s | 2.597 GB | 1,022,753 | 754 MB |
+| M-1a, EX linear, 1b | 2,000 | 138.384 s | 0.785 s | 5.161 GB | 2,046,521 | 1.51 GB |
+
+Both runs returned `MECHANICS_SOLVED` with no blocking diagnostics. RSS is the
+whole-process `/usr/bin/time -l` maximum, including serialization; the driver
+reports entry/publication and serialization times separately. The row and byte
+counts are unchanged. The 2,000-node result still takes over two minutes; this
+lookup repair does not establish exit criterion 9.
+
+The maintained release runner's **window2 linear EX, 1,000-node** rack also
+completed, with its own prebuilt timing binary on the same source head:
+
+| Run | Runner wall time | Peak RSS | Peak sampled physical footprint |
+|---|---|---|---|
+| Timing | 141.672 s | 15.053 GB | 10.944 GB |
+| Attribution | 142.408 s | 10.875 GB | 11.034 GB |
+
+Both runner records classify the run `ok`. They use a different model and
+measurement path from M-1a and must not be substituted for it. RSS and physical
+footprint are different observations; the latter is sampled, while RSS is the
+runner's recorded maximum. Neither row is a true nonlinear EX rack. The earlier
+PF nonlinear results and dense-memory refusal in §5.4a remain applicable limits;
+S5/S6/S7 admission and P's scale repair remain unfinished.
+
+**Implementation and reconciliation.** `PublishedScope` identifies a member's
+first possible row, and `MemberRows` indexes its station/basis quantities. An
+entity-id collision falls back to the original first-match scan. The saved
+comparison corpus covers 469 documents in both modes (938 serialized results
+or refusals), including the collision case, byte for byte against main
+`ae729fc96`; this is regression evidence, not a proof for every input. The two
+lookup unit tests cover index/scan agreement and collision fallback. Independent
+scrutiny must also examine the allocation bounds in DEL-04-08 §8.36 before
+integration. DEL-04-07's ScopeOfWork and dependency conditions do not change:
+this repair changes lookup/storage strategy within its existing publication
+contract and admits no new family. Retained storage is governed by §8.36;
+no acceptance or release standing follows from these observations.
 
 ### 5.5 Verdict
 
