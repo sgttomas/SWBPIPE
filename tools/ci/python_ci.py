@@ -101,7 +101,7 @@ UNROUTED = {
         "runs tools/validation/validate_claims_language.py on the live tree, as Repository checks' claims-language step "
         'does on every PR',
     'core/solver/performance_harness/runner/test_k6_runner.py':
-        'collected through tests/test_performance_harness_runner.py, which imports its test classes',
+        'collected through tests/test_performance_harness_runner.py, which imports every test class it defines',
 }
 
 
@@ -121,16 +121,16 @@ def named_tests(project):
 
 @functools.lru_cache(maxsize=None)
 def derived_tests(project):
-    """{test: roots} for the maintained tests no rule above names: each is selected by the paths it reads
-    (`python_test_reads`), so a test that guards a source runs when that source changes."""
-    named = named_tests(project)
-    return {test: roots for test, roots in python_test_reads.test_reads(project).items()
-            if test not in named and test not in UNROUTED}
+    """{test: roots} for every maintained test outside UNROUTED: each is selected by the paths it reads
+    (`python_test_reads`), in addition to any rule above that names it, so a test that guards a source
+    runs when that source changes."""
+    return {test: roots for test, roots in python_test_reads.test_reads(project).items() if test not in UNROUTED}
 
 
 def broad(project):
-    """The broad cohort, with every derived test."""
-    return BROAD + sorted(derived_tests(project))
+    """The broad cohort, with every derived test no rule above names."""
+    named = named_tests(project)
+    return BROAD + sorted(test for test in derived_tests(project) if test not in named)
 
 
 def helper_consumers(project, helper):
@@ -222,7 +222,7 @@ def select(project, plan, repository_checks_run=False):
             local = path[len(PREFIX):]
             patterns.extend(helper_consumers(project, local))
             patterns.extend(test for test, roots in derived.items()
-                            if local == test or any(local == root or local.startswith(root + '/') for root in roots))
+                            if local == test or any(python_test_reads.root_matches(local, root) for root in roots))
             if local in AGENT_SUPPLIER_INPUTS:
                 patterns.append(AGENT_SUPPLIER_TEST)
             if local in AGENT_SUPPLIER_BUNDLE_INPUTS:
@@ -277,7 +277,7 @@ def reaching_paths(project, paths):
     base_roots = {root for test in reads for root in reads[test]
                   if any(test == local or test.startswith(local + '/') for local in base)}
     return [path for path in paths
-            if any(path == root or path.startswith(root + '/') for root in base_roots)
+            if any(python_test_reads.root_matches(path, root) for root in base_roots)
             or set(select(project, {'event': 'pull_request', 'paths': [path]})) - base]
 
 

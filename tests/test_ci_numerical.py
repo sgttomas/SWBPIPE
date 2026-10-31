@@ -660,11 +660,14 @@ class ReachabilitySafetyTests(unittest.TestCase):
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
-        # Desktop source starts the Python job only for the Python tests that read it (tools/ci/python_test_reads.py).
-        for path, python in [('tests/test_persistence_schema.py', 'full'), ('apps/desktop/src/App.tsx', 'full'),
-                             ('package.json', 'not-applicable')]:
+        # A path starts the Python job when a Python test reads it (tools/ci/python_test_reads.py); every
+        # piping path is read by one (the repository's file-name and JSON scans), so a docs-only path shows the
+        # job left off. None of them selects Cargo.
+        for path, piping, python in [('tests/test_persistence_schema.py', 'full', 'full'),
+                                     ('apps/desktop/src/App.tsx', 'full', 'full'),
+                                     ('docs/PRD.md', 'not-applicable', 'not-applicable')]:
             result = hosted_ci.select_paths([ci.PROJECT + path], profile)
-            self.assertEqual(result['modes']['piping'], 'full')
+            self.assertEqual(result['modes']['piping'], piping)
             self.assertEqual(result['modes']['piping-python'], python)
             self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
             self.assertEqual(result['piping_numerical_selection']['manifests'], [])

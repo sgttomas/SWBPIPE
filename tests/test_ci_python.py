@@ -24,7 +24,7 @@ def test_sensitive_families_follow_their_inputs():
 def readers(path):
     """The derived tests whose own reads include `path`."""
     return {test for test, roots in ci.derived_tests(PROJECT).items()
-            if any(path == root or path.startswith(root + '/') for root in roots)}
+            if any(ci.python_test_reads.root_matches(path, root) for root in roots)}
 
 
 def test_unrelated_security_change_does_not_expand_to_full_suite():
@@ -41,10 +41,11 @@ def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
 
 def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
     base = set(ci.BASE)
-    assert set(selected('core/model_transform/physical_to_analytical/_solver_boundary_adapter.py')) == base | {
+    adapter = 'core/model_transform/physical_to_analytical/_solver_boundary_adapter.py'
+    assert set(selected(adapter)) == base | {
         'tests/test_analytical_solver_boundary_adapter.py',
         'tests/test_physical_to_analytical_transform.py',
-    }
+    } | readers(adapter)
     assert set(selected('core/model_operations/validation_preview/engine.py')) == base | {
         'tests/test_operation_validation_preview.py',
     } | readers('core/model_operations/validation_preview/engine.py')
@@ -158,7 +159,12 @@ def test_unrelated_changes_select_no_verifier_importers():
     # A product module sharing a verifier's name is not a verifier: it selects only the tests that read it.
     for path in ('core/analysis_runs/compatibility.py', 'core/units/schema_vocabulary.py'):
         assert set(selected(path)) == set(ci.BASE) | readers(path)
-    assert not verifier & set(selected('tests/qualification_fixture_support.py'))
+    # A support edit selects its family and the tests that import or read it, not the verifiers' importers as such.
+    support = 'tests/qualification_fixture_support.py'
+    family = {path.relative_to(PROJECT).as_posix() for pattern in ci.FAMILIES['qualification'] for path in PROJECT.glob(pattern)}
+    expected = set(ci.BASE) | family | set(ci.test_tree_importers(PROJECT, [support])) | readers(support)
+    assert set(selected(support)) == expected
+    assert verifier - expected
 
 
 def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes():
@@ -210,23 +216,92 @@ def test_model_version_literal_guard_follows_every_root_it_scans():
     assert test not in selected('core/gui/pkg02_boundary.py')
 
 
+def probe(roots):
+    """A tracked file a change to which reaches one of `roots`."""
+    reads = ci.python_test_reads
+    return min(path for path in reads.tracked(PROJECT) for root in roots
+               if reads.root_matches(path, root) and (PROJECT / path).is_file())
+
+
 def test_every_maintained_test_runs_when_a_path_it_reads_changes():
-    """No maintained Python test runs only when its own file is edited: a rule names it, or it is derived
-    from the paths it reads, or it is left unrouted with a reason."""
-    tracked = ci.python_test_reads.tracked(PROJECT)
+    """No maintained Python test runs only when its own file is edited: every test outside UNROUTED is selected
+    by the paths it reads, as well as by any rule that names it."""
     named, derived = ci.named_tests(PROJECT), ci.derived_tests(PROJECT)
     assert set(ci.UNROUTED) <= set(ci.python_test_reads.maintained_tests(PROJECT))
     dispatch = set(ci.select(PROJECT, {'event': 'workflow_dispatch'}))
     for test in ci.python_test_reads.maintained_tests(PROJECT):
-        if test in ci.UNROUTED or test in named:
+        if test in ci.UNROUTED:
             continue
         assert derived[test], test
-        assert test in dispatch, test
-        root = derived[test][0]
-        probe = root if root not in tracked or (PROJECT / root).is_file() else min(
-            path for path in tracked if path.startswith(root + '/') and (PROJECT / path).is_file())
-        assert test in selected(probe), (test, probe)
+        assert test in named or test in dispatch, test
+        path = probe(derived[test])
+        assert test in selected(path), (test, path)
         assert test in selected(test), test
+
+
+def test_named_tests_also_follow_the_paths_they_read():
+    """A rule naming a test does not replace its derived roots (review of #28, finding 1)."""
+    test = 'tests/test_headless_runner_contract.py'
+    assert test in ci.named_tests(PROJECT)
+    for path in ('schemas/headless_runner.schema.yaml', 'core/runner/headless/src/bin/openpipestress-runner.rs'):
+        assert test in selected(path), path
+
+
+def test_finite_parameters_resolve_to_the_scripts_they_run_and_their_reads():
+    """`VECTORS / writer` over a parametrized writer names each writer, which is followed with its own reads
+    (review of #28, finding 2)."""
+    test = 'tests/test_member_load_reference_vectors.py'
+    reads = ci.python_test_reads.test_reads(PROJECT)[test]
+    for writer in ('gen_k4_vectors.py', 'gen_member_recovery_vectors.py', 'gen_member_maximum_vectors.py'):
+        assert 'core/solver/frame_kernel/tests/retained_k4/' + writer in reads
+    for path in ('validation/references/t3_r1/REFERENCES/references.py', 'validation/references/t3_r1/floor_kinds.json',
+                 'core/solver/frame_kernel/tests/retained_k4/gen_member_recovery_vectors.py'):
+        assert test in selected(path), path
+
+
+def test_repository_wide_scans_keep_their_scope():
+    """A scan over the project root matches every file it can reach, including one added later
+    (review of #28, finding 3)."""
+    test = 'tests/test_verifier_independence.py'
+    for path in ('tools/agent_host_witness.py', 'core/a_module_added_later/added.py'):
+        assert test in selected(path), path
+    assert test not in selected('docs/user_guide/index.md')
+    reads = ci.python_test_reads
+    assert reads.root_matches('tools/agent_host_witness.py', '**/*.py')
+    assert reads.root_matches('fixtures/a/b.json', 'fixtures/**') and not reads.root_matches('fixtures', 'fixtures/**/*.json')
+    assert reads.root_matches('core/x.py', 'core/*.py') and not reads.root_matches('core/a/x.py', 'core/*.py')
+
+
+def test_declared_reads_stay_current():
+    """A test's `CI_READS` stands in for scans the selector cannot read; each entry must stay usable and
+    cover every scan the test makes."""
+    reads = ci.python_test_reads
+    assert reads.declaration_problems(PROJECT) == []
+    assert reads.declared_reads(PROJECT)['tests/test_model_document_schema.py'] == ('**/*.json', '**/*.jsonl')
+    assert 'tests/test_model_document_schema.py' in selected('package.json')
+    assert 'tests/test_model_document_schema.py' not in selected('docs/user_guide/index.md')
+
+
+def test_the_k6_wrapper_collects_every_runner_test_class():
+    """tests/test_performance_harness_runner.py carries every unittest class of the runner's own suite, which
+    is unrouted because of it (review of #28, finding 4)."""
+    import ast
+    import sys
+    source = PROJECT / 'core/solver/performance_harness/runner/test_k6_runner.py'
+    classes = {node.name for node in ast.parse(source.read_text()).body if isinstance(node, ast.ClassDef)
+               and any(isinstance(base, ast.Attribute) and base.attr == 'TestCase' for base in node.bases)}
+    assert {'W1ContextBinding', 'ModelEligibilityBeforeLaunch'} <= classes
+    spec = importlib.util.spec_from_file_location('k6_wrapper', PROJECT / 'tests/test_performance_harness_runner.py')
+    wrapper = importlib.util.module_from_spec(spec)
+    path = list(sys.path)
+    try:
+        spec.loader.exec_module(wrapper)
+    finally:
+        sys.path[:] = path
+    import unittest
+    assert {name for name, value in vars(wrapper).items()
+            if isinstance(value, type) and issubclass(value, unittest.TestCase)} == classes
+    assert 'tests/test_performance_harness_runner.py' in selected('core/solver/performance_harness/runner/test_k6_runner.py')
 
 
 def test_formerly_never_run_guards_follow_their_roots():
@@ -282,12 +357,13 @@ def test_derived_roots_route_a_local_check_that_runs_the_test():
 
     def runs(check, test):
         return any(test == arg or test.startswith(arg.rstrip('/') + '/') for arg in registry['checks'][check]['command'])
-    tracked = ci.python_test_reads.tracked(PROJECT)
+    reads = ci.python_test_reads
+    files = sorted(path for path in reads.tracked(PROJECT) if (PROJECT / path).is_file())
     for test, roots in ci.derived_tests(PROJECT).items():
         for root in roots:
-            probe = root if root not in tracked or (PROJECT / root).is_file() else root + '/x'
-            checks = {check for rule in registry['path_rules'] if matches(probe, rule['paths']) for check in rule['checks']}
-            assert any(runs(check, test) for check in checks), (test, root)
+            for path in [path for path in files if reads.root_matches(path, root)][:1]:
+                checks = {check for rule in registry['path_rules'] if matches(path, rule['paths']) for check in rule['checks']}
+                assert any(runs(check, test) for check in checks), (test, root, path)
 
 
 def test_a_path_only_a_python_test_reads_starts_the_python_job():
