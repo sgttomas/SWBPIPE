@@ -718,6 +718,28 @@ warning, `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` (PP `validation.rs`), per
 support and field. The Diagnostics panel, the results standing line and the
 report carry it. RT-S3 and RT-A11 (hanger sizing) lift this limitation.
 
+**Decided: a variable spring carries its cold load** (Agent 0, 2026-10-31,
+D-3, under the engineering-judgment and scope delegations of
+`loop/LOOP_INIT.md`).
+- **The decision.** A variable spring hanger is modelled as its stiffness plus
+  its `cold_load`. The cold load is applied as a constant force along the
+  stiffness DOF in every load case, so the spring carries F_cold − k·u.
+- **The reason.** That is the normative model of a set spring. Without it, a
+  hanger sized and applied under DEL-04-11 cannot reproduce its own table in
+  the model's cases.
+- **How it is built.**
+  - The force enters through the constant-effort seam and its combination gate.
+  - The spring's published support force includes the preload: F_cold − k·(u − g)
+    for a moved base.
+  - A spring held by a hydrotest's held supports is rigid, with no stiffness and
+    no preload.
+  - `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` is retired, and a warning is
+    added where `installed_load` and `cold_load` differ.
+- **Effect.** Documents that carry `cold_load` solve differently afterwards.
+- **Until then.** The limitation above stands until DEL-04-11's increment 6
+  builds this (DEL-04-11 `Work/hanger-sizing.md` §11, ScopeOfWork REQ-014).
+  This deliverable's commitment text changes with that increment.
+
 **The ledger term.** One formed term is added per moved spring, at d, with
 value fl(k·g):
 - Formation `RoundedProduct{k: 1, a: k, b: g}`;
