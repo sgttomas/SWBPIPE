@@ -2199,7 +2199,11 @@ following hold:
   records in W differs in at least one printed field the importer reads. For example, ΔT
   values of 0.1 and 0.100000001 at T_ref = 20 give two LOADS records that both print
   T1 = 20.1. The import cannot tell their roles apart, and re-export merges them, so that
-  model is outside the subset.
+  model is outside the subset. One exception: on a bound format-4 import, PIPE records
+  that print equal values are distinct when their `section_map` entries differ (§15,
+  format 4). The restored section identity keeps them apart, and re-export writes them
+  as distinct records again. Two such records with equal entries, or two whose
+  differing values collide only in print, are still outside the subset.
 
 **The byte-reproducible subset** is the part of the reversible subset for which, in
 addition:
