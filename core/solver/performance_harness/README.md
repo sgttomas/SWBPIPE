@@ -124,3 +124,50 @@ K6b adds a fifth mode, `w1a`, to `k6_observe`: K4's W1a kernel method (`FK/struc
 - **The counts** gain W1's keys: K4's structural profile (RCM on the structural free–free pattern), the published rows, limbs per entry by precision, K4's storage bytes, and the W1 estimate (`estimate_adm_bytes_w1a`, with its terms), derived from the struct definitions (`src/k6/w1/counts.rs`). It bounds every modelled phase, each `Vec` growth under the allocator's move model: the builds, each solve with its fallback, each verification build and pass (with the shift), each decision and the end. A test recomputes every line of `observations/k6b/counts.jsonl` from the code.
 - **The analysis** (`runner/k6b_analysis.py`, standard library): `--project` projects W1-T3 and W1-T4 from the 100-member runs, and `--packet --records <dir>` writes K6b's packet (K6's packet plus, per `w1a` process, the W1 figures, the attempts' work by stage and precision, the ratios to W1's estimate and the W1/binary64 time multiple). `observations/k6b/k6b_packet.json` is the packet of K6b's recorded runs (Mac only; W1-T4 at 10,000 members pre-KF3), and `observations/k6b/SHA256SUMS` lists the folder's hashes.
 - **The tests** (`tests/k6b_*.rs`) check determinism, equality with K4's own `solve_case` and `solve_cases`, R1's unchanged predicate at 10 and 100 members (from `K4T/r1_large.txt`, its sha256 asserted), the counts, the work closure, the prefixes and the estimate. No test asserts a time or memory bound.
+
+## Criterion 9: release timing of the product entry (RT-U4)
+
+This part times the product's linear entry, as the desktop solve worker runs it, on invented
+reference racks. The measured quantity and the base-machine method are in DEL-04-05
+`Work/criterion-9-measurement.md`. It is observation only: no test or record asserts a time or
+memory bound.
+
+- **The racks** (`rack/rack_model.py`, standard library only) are deterministic invented pipe
+  racks of an exact node count, built from 41-node bays. The profiles are:
+  - `linear-ex`: the exact route, with the static case set and its subtractions;
+  - `nonlinear-ex`: OPE with lift-off, friction and gap supports;
+  - `nonlinear-pf`: its pressure-free twin.
+
+  Only forms that main admits are emitted. `LEDGER` (`--ledger`) lists each target form that
+  is pending, with its interim form and what it waits for. `observations/rack/models_sha256.txt`
+  holds the scaling series' hashes; `--hashes` regenerates them. The model version is read from
+  `model_format.rs`.
+- **The driver** (`core/solver/release_timing/`, bin `release_timing`, its own crate and lock) mirrors the
+  worker's ordinary solve: read, parse, request wrapper, entry, serialize, then the result
+  digest's parse-back. It uses serde_json features equal to the desktop's.
+  - It prints one `release-timing-v1` JSON line with seconds, `ru_maxrss` and phys_footprint
+    per stage, rows and bytes per kind, case and row class, and diagnostic counts. After each
+    stage it also writes a `release-timing-stage {json}` progress line to stderr, so a killed
+    run's record shows the last stage it finished and that stage's memory readings.
+  - Its `limits` list says what it does not reproduce: the attestation digests, the worker's
+    allocator, IPC and the webview.
+  - Its tests pin the written bytes to the product entry's own serialization.
+- **The runner** (`runner/release_runner.py`, standard library; it reuses `k6_runner`'s
+  launch, watchdog and metadata) does four things:
+  - `--plan` prints the schedule;
+  - `--generate` writes the models and a manifest;
+  - `--run` runs one process at a time under `/usr/bin/time -l` and a timeout. Every 100 ms a
+    footprint watchdog reads the driver's phys_footprint and lifetime-maximum phys_footprint
+    (macOS `proc_pid_rusage`). It kills the run above the 12 GiB base-machine budget, which is
+    how the product enforces the budget (`worker_footprint_exceeded`), and the run is classified
+    `exceeds_base_machine_budget`. The `ps` RSS watchdog stays as an emergency cap at 16 GiB,
+    because RSS runs well above the footprint. `--attribute` (and the `-attr` runs) take a
+    `sample` stack snapshot every 2 s, and whenever the footprint has grown by 512 MiB. Each
+    snapshot records the top call paths, reduced to product frames. Its timings are not
+    measurements;
+  - `--packet` writes the compact packet.
+
+  `runner/release_window.sh` is the single exclusive-window entry, run under the host's
+  exclusive wrapper; its default `window` subset fits 15 minutes, as does `window2` (linear-ex
+  1000 timed, then its attribution twin). Result bytes are kept only
+  with `--write-results`.
