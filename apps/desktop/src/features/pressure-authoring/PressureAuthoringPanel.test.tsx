@@ -198,3 +198,58 @@ it("preserves explicitly authored temperature-point nu", async () => {
   fireEvent.click(screen.getByRole("button", { name: "Queue temperature points" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   expect(JSON.parse(queue.mock.calls[0][0].change.after)[0].poisson_ratio).toEqual({ value: -0.2, unit: "1" });
 });
+/** G5 (DEL-07-03): the E/nu create form's optional material-level thermal expansion coefficient. */
+function enterExactMaterial() {
+  change("Exact material ID", "material:new"); change("Exact material label", "New");
+  change("Constitutive basis", "homogeneous_isotropic_E_nu_v1");
+  change("Elastic modulus E value", "200"); change("Elastic modulus E unit", "GPa");
+  change("Poisson ratio nu value", "0.3"); change("Poisson ratio nu unit", "1");
+  change("Constitutive provenance", "synthetic");
+}
+it("creates an E/nu material with an entered thermal expansion coefficient", async () => {
+  const queue = vi.fn(); render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
+  enterExactMaterial();
+  change("Thermal expansion coefficient value", "1.2e-5"); change("Thermal expansion coefficient unit", "1/K");
+  fireEvent.click(screen.getByRole("button", { name: "Queue exact material" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  const intent = queue.mock.calls[0][0] as EditorOperationIntent;
+  expect(intent.change.change_kind).toBe("create_material");
+  expect(JSON.parse(intent.change.after).thermal_expansion_coefficient).toEqual({ value: 1.2e-5, unit: "1/K" });
+});
+it("leaves the coefficient absent when blank and refuses a half-entered one", async () => {
+  const queue = vi.fn(); render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
+  enterExactMaterial();
+  change("Thermal expansion coefficient value", "1.2e-5"); change("Thermal expansion coefficient value", "");
+  fireEvent.click(screen.getByRole("button", { name: "Queue exact material" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  expect(Object.hasOwn(JSON.parse(queue.mock.calls[0][0].change.after), "thermal_expansion_coefficient")).toBe(false);
+  change("Exact material ID", "material:second"); change("Thermal expansion coefficient value", "1.2e-5");
+  fireEvent.click(screen.getByRole("button", { name: "Queue exact material" }));
+  expect(await screen.findByText(/thermal expansion coefficient unit is required/i)).toBeTruthy();
+  expect(queue).toHaveBeenCalledOnce();
+});
+/** G5b (DEL-07-03): an existing E/nu material's coefficient is added, changed or removed with its constitutive inputs. */
+it("adds, changes and removes an existing material's thermal expansion coefficient", async () => {
+  const id = model.materials![0].id;
+  expect(Object.hasOwn(model.materials![0], "thermal_expansion_coefficient")).toBe(false);
+  const queue = vi.fn(); render(<MaterialConstitutiveForm model={model} selection={{ type: "material", id }} onQueueIntent={queue} />);
+  change("Thermal expansion coefficient value", "1.2e-5"); change("Thermal expansion coefficient unit", "1/K");
+  fireEvent.click(screen.getByRole("button", { name: "Queue constitutive properties" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  const added = queue.mock.calls[0][0] as EditorOperationIntent;
+  expect(added.change.field_path).toBe("constitutive_properties");
+  expect(Object.hasOwn(JSON.parse(added.change.before), "thermal_expansion_coefficient")).toBe(false);
+  expect(JSON.parse(added.change.after).thermal_expansion_coefficient).toEqual({ value: 1.2e-5, unit: "1/K" });
+  cleanup();
+  const withAlpha = structuredClone(model); withAlpha.materials![0].thermal_expansion_coefficient = { value: 1.2e-5, unit: "1/K" };
+  const second = vi.fn(); render(<MaterialConstitutiveForm model={withAlpha} selection={{ type: "material", id }} onQueueIntent={second} />);
+  expect((screen.getByLabelText("Thermal expansion coefficient value") as HTMLInputElement).value).toBe("0.000012");
+  change("Thermal expansion coefficient value", "6.5e-6"); change("Thermal expansion coefficient unit", "1/degF");
+  fireEvent.click(screen.getByRole("button", { name: "Queue constitutive properties" })); await waitFor(() => expect(second).toHaveBeenCalledOnce());
+  const replaced = second.mock.calls[0][0] as EditorOperationIntent;
+  expect(JSON.parse(replaced.change.before).thermal_expansion_coefficient).toEqual({ value: 1.2e-5, unit: "1/K" });
+  expect(JSON.parse(replaced.change.after).thermal_expansion_coefficient).toEqual({ value: 6.5e-6, unit: "1/degF" });
+  second.mockClear();
+  fireEvent.click(screen.getByRole("button", { name: "Clear thermal expansion coefficient" }));
+  fireEvent.click(screen.getByRole("button", { name: "Queue constitutive properties" })); await waitFor(() => expect(second).toHaveBeenCalledOnce());
+  const removed = second.mock.calls[0][0] as EditorOperationIntent;
+  expect(JSON.parse(removed.change.before).thermal_expansion_coefficient).toEqual({ value: 1.2e-5, unit: "1/K" });
+  expect(Object.hasOwn(JSON.parse(removed.change.after), "thermal_expansion_coefficient")).toBe(false);
+});

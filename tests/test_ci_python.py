@@ -124,6 +124,11 @@ def test_reference_system_inputs_select_its_fixture_check():
         assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
         assert (PROJECT / path).is_file(), path
     assert ci.REFERENCE_SYSTEM_TEST not in by_rules('fixtures/results/pressure_source_reader_corpus.json')
+    # Its frozen references (EQ-1, EQ-2) and their generator.
+    for path in ['validation/references/reference_system/references.json',
+                 'validation/references/reference_system/generators/rs_reference.py']:
+        assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
+    assert ci.REFERENCE_SYSTEM_TEST not in by_rules('validation/references/w16_imposed_motion/references.json')
     # The runner's solver kernels and units reach the EX solve.
     for path in ['core/solver/curved_bend/src/lib.rs', 'core/solver/sparse_direct/src/lib.rs', 'core/units/src/lib.rs']:
         assert ci.REFERENCE_SYSTEM_TEST in selected(path), path
@@ -190,6 +195,17 @@ def test_unrelated_changes_select_no_verifier_importers():
     family = {path.relative_to(PROJECT).as_posix() for pattern in ci.FAMILIES['qualification'] for path in PROJECT.glob(pattern)}
     expected = set(ci.BASE) | family | set(ci.test_tree_importers(PROJECT, [support])) | readers(support)
     assert set(selected(support)) == expected
+
+
+def test_any_python_module_outside_tests_selects_the_verifier_independence_check():
+    # It reads every such module, including one added later (its derived `**/*.py` scan); a path naming the
+    # verifiers in tools/ci once merged unchecked. No named rule selects it: its derived roots do.
+    test = 'tests/test_verifier_independence.py'
+    for path in ('tools/ci/python_ci.py', 'core/units/adapter.py', 'tools/agent_journey_fixture.py',
+                 'core/a_module_added_later/added.py'):
+        assert test in selected(path), path
+    assert test in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert test not in by_rules('docs/PRD.md')
 
 
 def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes():

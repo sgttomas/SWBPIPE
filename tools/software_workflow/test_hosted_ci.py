@@ -306,9 +306,10 @@ class HostedCITests(unittest.TestCase):
         selection = select_paths(['fixtures/new-unreviewed.json'], profile)
         numerical = selection['piping_numerical_selection']
         self.assertEqual(numerical['classification'], 'full-fallback')
-        # 42 discovered crates since the MBF engine (core/handoff/caepipe_mbf_engine) joined the 41 of the
+        # 43 discovered crates since DEL-04-05's release timing driver (core/solver/release_timing)
+        # joined the 42 of the MBF engine (core/handoff/caepipe_mbf_engine), which joined the 41 of the
         # pressure-source join, which added core/numerics/correct_norm.
-        self.assertEqual(len(numerical['manifests']), 42)
+        self.assertEqual(len(numerical['manifests']), 43)
         self.assertIn('Stale desktop resource declaration', numerical['fallback_reasons'][0])
 
 

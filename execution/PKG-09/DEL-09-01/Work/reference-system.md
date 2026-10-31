@@ -335,9 +335,12 @@ case's `condition_use.contents_density` (0.9.0 §1.6). No temperature applies.
 ### 8.4 Modal
 
 Modal analysis is a request beside the model, not a model member. The request names
-RS-OPE as its linearization state (the dynamics lane's M5: nonlinear supports
-linearized in the status of a named solved case). Modes up to 60 Hz are extracted, with
-at least the first ten reported.
+RS-OPE as its required state case. Modal admits load/reference-state documents through
+that case (Agent 0's decision, made binding by the dynamics lane's I0, #22): the modal
+model's stiffness, member moduli, support states and contents mass come from RS-OPE's
+resolved state, nonlinear supports are linearized in its status (M5), and
+`boundary_motion` degrees of freedom stay restrained. Modes up to 60 Hz are extracted,
+with at least the first ten reported.
 
 ### 8.5 Response spectrum
 
@@ -368,10 +371,13 @@ RS-SAM and RS-WIN/RS-EQx together until #1678 lands (§10).
 ### 8.8 Hanger sizing
 
 Hanger sizing is a request beside the model. It sizes RS-VS1 and RS-CE1 from an invented
-private catalogue (`fixtures/reference_system/`, invented records only, OC-4) and
-produces a hanger table. The procedure, its load cases and its record selection rule
-belong to RT-A11's owner, not yet assigned. The geometry slots and the key results of
-§9.1 are fixed here.
+private catalogue (invented records only, OC-4; forthcoming as
+`fixtures/reference_system/invented_hanger_catalogue.json` with DEL-04-11's engine
+increment) and produces a hanger table. The procedure, its load cases and its record
+selection rule belong to DEL-04-11 (Agent 0's D-1; design
+`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md`). Sizing
+never overwrites RS-VS1's or RS-CE1's entered inputs. The geometry slots and the key
+results of §9.1 are fixed here.
 
 ## 9. Key results
 
@@ -394,8 +400,8 @@ belong to RT-A11's owner, not yet assigned. The geometry slots and the key resul
 
 | Id | Check | Basis |
 |---|---|---|
-| EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-HYD (with the test contents) | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
-| EQ-2 | In RS-SUS, RS-OPE and RS-HYD the horizontal reaction resultant is zero, and the reaction moment resultant equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
+| EQ-1 | The sum of vertical reactions over all supports, the spring and the constant-effort support included, equals the total weight, in RS-SUS, RS-OPE and RS-SAM, and in RS-HYD (with the test contents) when it lands | closed form: the total weight recomputed independently from the inputs (§4, §5) on EX's stated mass bases |
+| EQ-2 | In RS-SUS, RS-OPE and RS-SAM, and in RS-HYD when it lands, the horizontal reaction resultant is zero, and the reaction moment resultant about the origin equals minus the moment of the weight. Every closure transfers to the wall, so each region, the tee junction and the pressurized joint are self-equilibrated under pressure, and temperature adds no load | closed form from the inputs |
 | EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded | exact identity |
 | EQ-4 | On the same signed component rows, RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\| over the operand rows, so SRSS ≤ ABS on each. Magnitude rows follow the combination's own recomputation rule, as for EQ-3; withheld rows are excluded | exact identity |
 | EQ-5 | The RS-dSAM reactions are self-equilibrated (resultant force and moment zero) | exact identity: no load differs between RS-SAM and RS-SUS |
@@ -403,7 +409,11 @@ belong to RT-A11's owner, not yet assigned. The geometry slots and the key resul
 | EQ-7 | Spectrum directional combination recomputed from the published per-direction results | exact identity |
 
 Each closed-form reference is computed by an independent generator in
-`validation/references/reference_system/`, not by the solver under test.
+`validation/references/reference_system/`, not by the solver under test. EQ-1 and EQ-2 are
+frozen there for the tranche-1 cases (the total weight and its moment about the origin,
+recomputed from §3–§5 without the captured self-weight); EQ-3 and EQ-5 are identities
+recorded in its README. `tests/test_reference_system_fixture.py` checks all four in both
+solver modes. RS-HYD's weight with the test contents is referenced when RS-HYD lands.
 
 ## 10. Pending-family ledger
 
@@ -437,7 +447,7 @@ or absence a solve of the full model shows today.
 | Operating condition set | pending | RT-G5 / load-cases lane (0.9.0) | authored per case at 0.8.0 |
 | Modal (RS-OPE linearization) | pending | RT-A7 / dynamics lane (DEL-04-09, M5 in scope) | no modal analysis |
 | Response spectrum, RS-SP1 | pending | RT-A8 / dynamics lane (DEL-04-10, proposed) | no spectrum analysis; `spectra[]` not authorable at 0.8.0 |
-| Hanger sizing and table | pending | RT-A11 / owner to be assigned by Agent 0 | no sizing procedure |
+| Hanger sizing and table | pending | RT-A11 / DEL-04-11 | no sizing procedure |
 | Snubber RS-SN1 (RS-110, UX, rigid) | pending | RT-A8 / dynamics lane (DEL-04-10 slice: static solves ignore a snubber) | `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` on every static solve; not authorable at 0.8.0 |
 
 The generator keeps a pending flag per row of this table, and the fixture test checks
@@ -475,10 +485,15 @@ else, with small counts. That reading is Agent 0's working reading for now (2026
 the criterion text is the owner's, and Agent 0 takes the question to the owner with the
 RT-U2 walkthrough results.
 
-Counts: about 30 run-sheet rows (three chains: from A, from the tee, and the branch),
-and follow-up form entries for the components (eight), the non-rigid supports (seven),
-the pressure contract and regions (one contract, five regions per pressurized case),
-the load cases (eight), the combinations (ten) and the three analysis requests.
+Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
+chains: from A, from the tee, and the branch) and about 640 follow-up form entries, 168
+of them the per-member load/reference states and pressure regions of the three cases
+since the fills and case copies of #38. The run sheet's estimate is about 75 minutes
+(about 130 before #38), against the provisional 30; it is not a measurement. On
+`main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
+and the three bends are entered by forms (run sheet §2, §6). The full model adds the
+tee, the reducer, the other non-rigid supports, five more cases with their regions, the
+other eight combinations and the three analysis requests.
 
 **What a fuller run sheet would absorb** (an RT-G2 candidate, Agent 0, 2026-10-31):
 - a component column per row: flange, valve, reducer and tee, with weight and stiffness

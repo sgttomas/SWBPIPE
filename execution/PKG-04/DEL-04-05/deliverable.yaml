@@ -108,6 +108,34 @@ needs:
     that public surface and its work accounting; it asserts no time or memory bound.
   gating: true
   evidence: core/solver/performance_harness/src/k6/w1/adapter.rs
+- from: DEL-04-07
+  when: criterion 9 release timing
+  condition: >-
+    The release timing driver calls the product's public linear entry,
+    `run_linear_static_preview_value_with_mode`, with the request the desktop worker sends,
+    and records its time, memory and published rows. DEL-04-05 needs that entry to stay the
+    one the worker calls; it observes it and changes nothing.
+  gating: true
+  evidence: core/solver/release_timing/src/main.rs
+- from: DEL-07-07
+  when: criterion 9 release timing
+  condition: >-
+    The driver mirrors the desktop solve worker's ordinary solve (`solve_worker.rs`:
+    parse, request wrapper, entry, serialization, the result digest's parse-back) and its
+    footprint measure (`ri_lifetime_max_phys_footprint`), and the runner classifies runs
+    against the desktop's 12 GiB per-invocation budget (`memory_pool.rs`). A change to
+    those stages or that budget needs the driver and runner re-aligned.
+  gating: false
+  evidence: core/solver/performance_harness/runner/release_runner.py
+- from: DEL-02-01
+  when: criterion 9 reference racks
+  condition: >-
+    The rack generator writes model documents at the current model document version, read
+    from `model_format.rs` `MODEL_SCHEMA_VERSION`, in the shapes that version admits. A
+    version change needs the generator's shapes re-checked and its hashes regenerated; its
+    test fails until then.
+  gating: false
+  evidence: core/solver/performance_harness/rack/rack_model.py
 code_paths:
 - core/solver/performance_harness/**
 - validation/benchmarks/sparse_*.json
@@ -117,3 +145,7 @@ checks:
 - tests/test_performance_harness_runner.py
 - tests/test_sparse_suitability_observation.py
 - tests/test_sparse_default_promotion_observation.py
+- core/solver/release_timing/tests/release_timing.rs
+- core/solver/performance_harness/runner/test_release_runner.py
+- tests/test_release_timing_runner.py
+- tests/test_performance_rack_model.py
