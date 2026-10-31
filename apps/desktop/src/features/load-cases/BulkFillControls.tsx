@@ -10,7 +10,7 @@ const SCOPES = ["missing", "range", "chosen"] as const;
 /** G7: fills a per-member list from one of its own rows. The person picks the
  * template row and the targets; the draft gains one copy per target and is
  * reviewed and queued as before. */
-export function TemplateFill({ name, noun, list, keyName, targets, onChange }: {
+export function TemplateFill({ name, noun, list, keyName, targets, onChange, omit = [], refuseTemplate }: {
   /** The row name, as in the list's legends ("Element state"). */
   name: string;
   /** The target kind, singular ("pipe"). */
@@ -19,8 +19,16 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange }: {
   keyName: string;
   targets: readonly Option[];
   onChange: (rows: DraftRecord[]) => void;
+  /** Members the editor keeps as authored but does not show; never copied. */
+  omit?: readonly string[];
+  /** Why a row cannot be a template, if it cannot. */
+  refuseTemplate?: (row: DraftRecord) => string | undefined;
 }) {
-  const [template, setTemplate] = useState("");
+  // The template is the chosen row itself: if that row is edited, removed or the
+  // list is reset, the choice lapses and must be made again (review N3).
+  const [chosenTemplate, setChosenTemplate] = useState<{ index: number; row: DraftRecord } | null>(null);
+  const templateValid = chosenTemplate !== null && list[chosenTemplate.index] === chosenTemplate.row;
+  const template = templateValid ? String(chosenTemplate.index) : "";
   const [scope, setScope] = useState<(typeof SCOPES)[number] | "">("");
   const [from, setFrom] = useState(""); const [to, setTo] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
@@ -33,26 +41,29 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange }: {
   };
   const templateChoices = list.map((row, i) => ({ value: String(i), label: `${name} ${i + 1}${typeof row[keyName] === "string" ? ` (${row[keyName]})` : ""}` }));
   const ids = targets.map(t => t.value);
+  const templateRefusal = templateValid ? refuseTemplate?.(chosenTemplate.row) : undefined;
   const reason = list.length === 0 ? `Add and fill one ${lower} first; it is the template.`
-    : template === "" ? "Choose the template row."
+    : template === "" ? (chosenTemplate ? "The rows changed; choose the template row again." : "Choose the template row.")
+    : templateRefusal ? `${name} ${Number(template) + 1} cannot be a template: ${templateRefusal}.`
     : scope === "" ? `Choose which ${noun}s to fill.`
     : scope === "range" && (!from || !to) ? `Choose the first and last ${noun}.`
     : scope === "chosen" && chosen.length === 0 ? `Choose at least one ${noun}.` : undefined;
   function fill() {
-    const row = list[Number(template)];
-    if (!row) return;
+    if (!templateValid || templateRefusal) return;
+    const row = chosenTemplate.row;
     const fillScope: FillScope = scope === "range" ? { kind: "range", from, to } : scope === "chosen" ? { kind: "chosen", ids: chosen } : { kind: "missing" };
     const selected = fillTargets(ids, fillScope);
-    const result = fillFromTemplate(list, row, keyName, selected);
+    const result = fillFromTemplate(list, row, keyName, selected, omit);
     onChange(result.rows);
     setStatus(selected.length === 0 ? `No ${noun} is in that range.`
       : `Added ${result.added.length} ${lower}${result.added.length === 1 ? "" : "s"} from ${name} ${Number(template) + 1}.`
         + (result.skipped.length ? ` ${result.skipped.length} ${noun}${result.skipped.length === 1 ? " already has" : "s already have"} one and ${result.skipped.length === 1 ? "was" : "were"} left unchanged.` : "")
+        + (result.omitted.length && result.added.length ? ` Not copied (kept only on their own row): ${result.omitted.join(", ")}.` : "")
         + " Review the draft before queueing.");
   }
   return <fieldset><legend>Fill {lower}s from a template</legend>
     <label>{`${name} template`}
-      <select aria-label={`${name} template`} value={template} onChange={e => setTemplate(e.target.value)}>
+      <select aria-label={`${name} template`} value={template} onChange={e => setChosenTemplate(e.target.value === "" ? null : { index: Number(e.target.value), row: list[Number(e.target.value)] })}>
         <option value="">Choose a row</option>
         {templateChoices.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
       </select>
@@ -94,11 +105,18 @@ export function EverySourceFill({ list, primitives, onChange }: { list: DraftRec
   </fieldset>;
 }
 
-/** G7/G8: replaces a case's draft with a copy from another case, through `copy`. */
+/** G7/G8: replaces a case's draft with a copy from another case, through `onCopy`,
+ * which returns the outcome or throws, leaving the draft unchanged. Only a case
+ * still offered can be the source (review N2). */
 export function CopyFromCase({ what, cases, onCopy }: { what: string; cases: readonly Option[]; onCopy: (caseId: string) => string }) {
-  const [source, setSource] = useState("");
+  const [chosen, setSource] = useState("");
   const [status, setStatus] = useState("");
+  const source = cases.some(c => c.value === chosen) ? chosen : "";
   const reason = cases.length === 0 ? `No other case has ${what}.` : source === "" ? "Choose the case to copy from." : undefined;
+  function copy() {
+    if (!source) return;
+    try { setStatus(onCopy(source)); } catch (e) { setStatus(e instanceof Error ? e.message : String(e)); }
+  }
   return <fieldset><legend>Copy {what} from another case</legend>
     <label>{`Copy ${what} from case`}
       <select aria-label={`Copy ${what} from case`} value={source} onChange={e => setSource(e.target.value)}>
@@ -106,7 +124,7 @@ export function CopyFromCase({ what, cases, onCopy }: { what: string; cases: rea
         {cases.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
       </select>
     </label>
-    <button type="button" disabled={reason !== undefined} title={reason} onClick={() => setStatus(onCopy(source))}>{`Replace this draft's ${what} with the copy`}</button>
+    <button type="button" disabled={reason !== undefined} title={reason} onClick={copy}>{`Replace this draft's ${what} with the copy`}</button>
     {reason && <small>{reason}</small>}
     <p role="status">{status}</p>
   </fieldset>;

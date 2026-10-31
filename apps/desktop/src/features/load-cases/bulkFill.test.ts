@@ -1,6 +1,6 @@
 // G7/G8 draft helpers (DEL-07-03 `Work/authoring-speed.md` §3). Invented ids.
 import { describe, expect, it } from "vitest";
-import { addEverySource, copyAnalysisState, copyPressureRegions, fillFromTemplate, fillTargets, rederiveRegionId } from "./bulkFill";
+import { addEverySource, copyAnalysisState, copyPressureRegions, ELEMENT_STATE_UNEDITED, fillFromTemplate, fillTargets, rederiveRegionId, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
 
 const PIPES = ["pipe:A", "pipe:B", "pipe:C", "pipe:D"];
 
@@ -61,5 +61,31 @@ describe("copy from another case", () => {
     expect(rederiveRegionId("region:main", "load:RS-SUS", "load:RS-OPE")).toBe("region:main");
     const copied = copyPressureRegions([{ id: "region:RS-SUS-RG-1", member_pipe_ids: ["pipe:A"] }], "load:RS-SUS", "load:RS-SAM");
     expect(copied).toEqual([{ id: "region:RS-SAM-RG-1", member_pipe_ids: ["pipe:A"] }]);
+  });
+});
+
+describe("review findings (PR #38)", () => {
+  it("N1: never copies a row's own unshown override or reference, and reports it", () => {
+    const template = { pipe_ref: "pipe:A", analysis_basis_override: { reason: "only pipe:A" }, mass_state_ref: "mass:A", material_selection: { kind: "exact_point" } };
+    const { rows, omitted } = fillFromTemplate([template], template, "pipe_ref", ["pipe:B"], ELEMENT_STATE_UNEDITED);
+    expect(rows[1]).toEqual({ pipe_ref: "pipe:B", material_selection: { kind: "exact_point" } });
+    expect(omitted).toEqual(["analysis_basis_override", "mass_state_ref"]);
+    const copied = copyAnalysisState({
+      element_states: [template],
+      support_states: [
+        { support_ref: "support:S", participation: { kind: "active_model_device" }, base_motion: { x: 1 }, device_reference: "d" },
+        { support_ref: "support:L", participation: { kind: "locked_equivalent_support", components: ["UX"] } }
+      ]
+    }, []);
+    expect(copied.draft.element_states).toEqual([{ pipe_ref: "pipe:A", material_selection: { kind: "exact_point" } }]);
+    expect(copied.draft.support_states).toEqual([{ support_ref: "support:S", participation: { kind: "active_model_device" } }]);
+    expect(copied.omitted.sort()).toEqual([...ELEMENT_STATE_UNEDITED, ...SUPPORT_STATE_UNEDITED].sort());
+    expect(copied.supportsLeftOut).toEqual(["support:L"]);
+    expect(supportStateCopyRefusal({ participation: { kind: "locked_equivalent_support" } })).toMatch(/components/);
+  });
+  it("N2/N4: refuses a source without regions and ids that would collide, so the draft is never replaced", () => {
+    expect(() => copyPressureRegions([], "load:A", "load:B")).toThrow(/no pressure regions/);
+    expect(() => copyPressureRegions(undefined, "load:A", "load:B")).toThrow(/no pressure regions/);
+    expect(() => copyPressureRegions([{ id: "region:A-RG-1" }, { id: "region:B-RG-1" }], "load:A", "load:B")).toThrow(/region:B-RG-1/);
   });
 });

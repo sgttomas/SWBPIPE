@@ -57,9 +57,9 @@ function enterCommon() {
 
 it("enters the reference system's load/reference state with fills and copies", async () => {
   // The run sheet's model at §3.8: geometry, supports, self-weight cases and RG regions of
-  // RS-SUS only (entered once, §3.10); no reference members past the first, no states.
+  // RS-SUS only (entered once, §3.10); the reference configuration without members; no states.
   let model = structuredClone(fixture);
-  model.reference_configurations![0].member_references = model.reference_configurations![0].member_references.slice(0, 1);
+  model.reference_configurations![0].member_references = [];
   for (const loadCase of model.load_cases) {
     delete (loadCase as { analysis_state?: unknown }).analysis_state;
     if (loadCase.id !== "load:RS-SUS") delete loadCase.pressure_regions;
@@ -67,6 +67,13 @@ it("enters the reference system's load/reference state with fills and copies", a
 
   // §3.8: one member typed, the other 25 filled.
   let queue = renderState(model, "load:RS-SUS");
+  click("Add member to reference configuration 1");
+  const m1 = "Reference configuration 1 member 1";
+  change(`${m1} pipe`, "pipe:RS-P010");
+  change(`${m1} basis`, "temperature_reference");
+  change(`${m1} installation temperature value`, "20"); change(`${m1} installation temperature unit`, "degC");
+  change(`${m1} fit`, "none");
+  change(`${m1} provenance`, P);
   fill("Reference configuration 1 member");
   click("Queue reference configurations");
   model = await queuedAndApplied(model, queue);

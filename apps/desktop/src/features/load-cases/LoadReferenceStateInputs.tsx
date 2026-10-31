@@ -6,7 +6,7 @@ import {
   Quantity, replaceAt, rows, switchVariant, Text, toPayload, useLoadStateQueue, type LoadStateTarget
 } from "./loadStateAuthoring";
 import { CopyFromCase, EverySourceFill, TemplateFill } from "./BulkFillControls";
-import { copyAnalysisState } from "./bulkFill";
+import { copyAnalysisState, ELEMENT_STATE_UNEDITED, SUPPORT_STATE_UNEDITED, supportStateCopyRefusal } from "./bulkFill";
 
 type LoadCase = PreviewModel["load_cases"][number];
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
@@ -105,9 +105,15 @@ function AnalysisStateEditor(props: RichFormProps & { loadCase: LoadCase }) {
     <p>{current === undefined ? "analysis_state is absent for this case." : current === null ? "analysis_state is an explicit null for this case." : "analysis_state is applied for this case."}</p>
     <fieldset disabled={state.busy}>
       <CopyFromCase what="analysis state" cases={model.load_cases.filter(c => c.id !== loadCase.id && c.analysis_state && typeof c.analysis_state === "object").map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
-        const { draft: copied, dropped } = copyAnalysisState(model.load_cases.find(c => c.id === id)?.analysis_state, primitives);
+        const source = model.load_cases.find(c => c.id === id)?.analysis_state;
+        if (!source || typeof source !== "object") throw new Error(`${id} has no analysis state to copy. The draft is unchanged.`);
+        const { draft: copied, dropped, omitted, supportsLeftOut } = copyAnalysisState(source, primitives);
         setDraft(copied);
-        return `Copied the analysis state of ${id}.${dropped.length ? ` ${dropped.length} load source${dropped.length === 1 ? " names a primitive" : "s name primitives"} this case does not hold and ${dropped.length === 1 ? "was" : "were"} left out; add this case's own with "Add every primitive of this case".` : ""} Review the draft before queueing.`;
+        return `Copied the analysis state of ${id}.`
+          + (dropped.length ? ` ${dropped.length} load source${dropped.length === 1 ? " names a primitive" : "s name primitives"} this case does not hold and ${dropped.length === 1 ? "was" : "were"} left out; add this case's own with "Add every primitive of this case".` : "")
+          + (omitted.length ? ` Not copied (kept only in ${id}): ${omitted.join(", ")}.` : "")
+          + (supportsLeftOut.length ? ` Support states left out, because a locked equivalent support carries components this editor does not show: ${supportsLeftOut.join(", ")}.` : "")
+          + " Review the draft before queueing.";
       }} />
       <Text label="Analysis state contract" value={draft.contract} choices={[LOAD_STATE_CONTRACT]} onChange={v => set("contract", v)} />
       <Text label="Reference configuration" value={draft.reference_configuration_ref} choices={references} onChange={v => set("reference_configuration_ref", v)} />
@@ -138,7 +144,7 @@ function ElementStates({ model, value, onChange }: ListProps & { model: PreviewM
   const materials = model.materials ?? [];
   return <fieldset><legend>Element states</legend>
     <ListStatus name="element_states" value={value} onChange={onChange} add="Add element state" />
-    <TemplateFill name="Element state" noun="pipe" list={list} keyName="pipe_ref" targets={pipeOptions(model)} onChange={onChange} />
+    <TemplateFill name="Element state" noun="pipe" list={list} keyName="pipe_ref" targets={pipeOptions(model)} onChange={onChange} omit={ELEMENT_STATE_UNEDITED} />
     {list.map((row, e) => {
       const k = `Element state ${e + 1}`;
       const set = (key: string, next: unknown) => onChange(replaceAt(list, e, member(row, key, next)));
@@ -184,7 +190,7 @@ function SupportStates({ model, value, onChange }: ListProps & { model: PreviewM
   const supports = model.supports.map(s => s.id);
   return <fieldset><legend>Support states</legend>
     <ListStatus name="support_states" value={value} onChange={onChange} add="Add support state" />
-    <TemplateFill name="Support state" noun="support" list={list} keyName="support_ref" targets={model.supports.map(s => ({ value: s.id, label: s.label || s.id }))} onChange={onChange} />
+    <TemplateFill name="Support state" noun="support" list={list} keyName="support_ref" targets={model.supports.map(s => ({ value: s.id, label: s.label || s.id }))} onChange={onChange} omit={SUPPORT_STATE_UNEDITED} refuseTemplate={supportStateCopyRefusal} />
     {list.map((row, s) => {
       const k = `Support state ${s + 1}`;
       const set = (key: string, next: unknown) => onChange(replaceAt(list, s, member(row, key, next)));
