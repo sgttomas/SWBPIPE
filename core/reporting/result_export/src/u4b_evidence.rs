@@ -162,6 +162,9 @@ type Slot<'a> = (&'a str, &'a str, &'a str, &'a str, &'a str, &'a str);
 /// basis); the basis is "" for a row without a section basis.
 pub(crate) struct Index<'a> {
     rows: HashMap<Slot<'a>, &'a Value>,
+    /// `any`'s lookup, built on first use: per slot without its component, the
+    /// first row of `rows` in its iteration order, the row `any`'s scan found.
+    first: std::cell::OnceCell<HashMap<(&'a str, &'a str, &'a str, &'a str, &'a str), &'a Value>>,
 }
 fn case_of(row: &Value) -> Option<&str> {
     (row["basis_ref"]["ref_type"] == "load_case").then(|| row["basis_ref"]["ref_id"].as_str()).flatten()
@@ -191,13 +194,20 @@ impl<'a> Index<'a> {
                 return Err(route.fail("ROW_SLOT_DUPLICATE"));
             }
         }
-        Ok(Self { rows: map })
+        Ok(Self { rows: map, first: std::cell::OnceCell::new() })
     }
     fn value(&self, case: &str, entity: &str, kind: &str, component: &str, location: &str, basis: &str) -> Option<f64> {
         self.rows.get(&(case, entity, kind, component, location, basis)).and_then(|r| r["value"].as_f64())
     }
     fn any(&self, case: &str, entity: &str, kind: &str, location: &str, basis: &str) -> Option<f64> {
-        self.rows.iter().find(|(s, _)| s.0 == case && s.1 == entity && s.2 == kind && s.4 == location && s.5 == basis).and_then(|(_, r)| r["value"].as_f64())
+        let first = self.first.get_or_init(|| {
+            let mut first = HashMap::new();
+            for (s, row) in &self.rows {
+                first.entry((s.0, s.1, s.2, s.4, s.5)).or_insert(*row);
+            }
+            first
+        });
+        first.get(&(case, entity, kind, location, basis)).and_then(|r| r["value"].as_f64())
     }
 }
 
