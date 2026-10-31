@@ -12,6 +12,10 @@ def selected(path):
     return ci.select(PROJECT, {'event': 'pull_request', 'paths': [ci.PREFIX + path]})
 
 
+# What any Python module outside tests/ selects at least.
+PYTHON_MODULE_BASE = sorted(ci.BASE + [ci.VERIFIER_INDEPENDENCE_TEST])
+
+
 def test_sensitive_families_follow_their_inputs():
     assert 'tests/test_qualification_gate.py' in selected('tools/validation/qualification_gate.py')
     assert 'tests/test_qualification_physics.py' in selected('validation/qualification/fixtures/model.json')
@@ -22,7 +26,7 @@ def test_sensitive_families_follow_their_inputs():
 
 
 def test_unrelated_security_change_does_not_expand_to_full_suite():
-    assert selected('core/security/redaction/controls.py') == sorted(ci.BASE)
+    assert selected('core/security/redaction/controls.py') == PYTHON_MODULE_BASE
 
 
 def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
@@ -31,7 +35,7 @@ def test_dispatch_and_shared_runner_edits_keep_broad_coverage():
 
 
 def test_numerical_transform_and_invalid_operation_checks_follow_their_inputs():
-    base = set(ci.BASE)
+    base = set(PYTHON_MODULE_BASE)
     assert set(selected('core/model_transform/physical_to_analytical/_solver_boundary_adapter.py')) == base | {
         'tests/test_analytical_solver_boundary_adapter.py',
         'tests/test_physical_to_analytical_transform.py',
@@ -163,9 +167,17 @@ def test_test_tree_imports_are_followed_without_unrelated_tests():
 def test_unrelated_changes_select_no_verifier_importers():
     verifier = set(selected('tests/verifiers/retained_precision.py')) - set(ci.BASE)
     # A product module sharing a verifier's name is not a verifier.
-    assert selected('core/analysis_runs/compatibility.py') == sorted(ci.BASE)
-    assert selected('core/units/schema_vocabulary.py') == sorted(ci.BASE)
+    assert selected('core/analysis_runs/compatibility.py') == PYTHON_MODULE_BASE
+    assert selected('core/units/schema_vocabulary.py') == PYTHON_MODULE_BASE
     assert not verifier & set(selected('tests/qualification_fixture_support.py'))
+
+
+def test_any_python_module_outside_tests_selects_the_verifier_independence_check():
+    # It reads every such module; a path naming the verifiers in tools/ci once merged unchecked.
+    for path in ('tools/ci/python_ci.py', 'core/units/adapter.py', 'tools/agent_journey_fixture.py'):
+        assert ci.VERIFIER_INDEPENDENCE_TEST in selected(path), path
+    assert ci.VERIFIER_INDEPENDENCE_TEST in ci.select(PROJECT, {'event': 'workflow_dispatch'})
+    assert ci.VERIFIER_INDEPENDENCE_TEST not in selected('docs/PRD.md')
 
 
 def test_supplier_acquisition_inputs_select_offline_boundaries_and_notice_hashes():
