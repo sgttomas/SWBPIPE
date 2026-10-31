@@ -331,3 +331,33 @@ fn the_source_route_refuses_connector_evidence() {
         assert_eq!(ps::validate_transport_metadata(&source).unwrap_err(), code, "{family}");
     }
 }
+
+/// DEL-04-07 Work `pressure-contract.md`, "Direction magnitudes of arc
+/// tangents": an authored connector axis may carry a component just above 1
+/// (FK's orthonormality guard admits it); a joint-area group's magnitude binds
+/// exactly to that component and is not refused for exceeding 1, and a
+/// magnitude off the axis is still refused.
+#[test]
+fn a_joint_axis_component_just_above_one_binds_exactly() {
+    let mut envelope=u5a_participating_control();
+    let groups=envelope["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"].as_array().unwrap().clone();
+    let group=groups.iter().find(|g|g.get("effective_area_bits").is_some()).unwrap();
+    let component=group["component"].as_str().unwrap().to_string();
+    let connector=group["terms"][0]["connector_id"].as_str().unwrap().to_string();
+    let axis=match component.as_str() { "Fx"=>0, "Fy"=>1, _=>2 };
+    let above=1.0+f64::EPSILON;
+    let records=envelope["contract_evidence"]["connector"].as_array_mut().unwrap();
+    let record=records.iter_mut().find(|r|r["component_id"]==connector.as_str()).unwrap();
+    assert_eq!(record["connector_axes_global"][axis][0].as_f64().unwrap().abs(),1.0);
+    let sign=record["connector_axes_global"][axis][0].as_f64().unwrap().signum();
+    record["connector_axes_global"][axis][0]=json!(sign*above);
+    for g in envelope["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"].as_array_mut().unwrap() {
+        if g.get("effective_area_bits").is_some() && g["component"]==component.as_str() && g["terms"][0]["connector_id"]==connector.as_str() {
+            g["direction_component_magnitude"]=json!(above);
+        }
+    }
+    s::validate_pressure_evidence(&envelope).unwrap();
+    let group=envelope["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"].as_array_mut().unwrap().iter_mut().find(|g|g.get("effective_area_bits").is_some()).unwrap();
+    group["direction_component_magnitude"]=json!(1.0+2.0*f64::EPSILON);
+    assert!(s::validate_pressure_evidence(&envelope).is_err());
+}

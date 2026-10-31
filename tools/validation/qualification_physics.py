@@ -54,8 +54,11 @@ DEPENDENCIES = {
     # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
     # reads the document without its combination rows and records, then the combination pass re-derives them
     # (was ef200d25...); then RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): the
-    # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...).
-    MODULE: 'f27242f055f91b09b649e5a2ddc4e6b76cf9ddd7325bd9df3d7839bc5d609b83',
+    # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...);
+    # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
+    # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
+    # connector axis (was f27242f0...).
+    MODULE: 'b3cb5f6dd91b8ef45c93effdbdea3523044375d9bae7044e7d66c9d5a72a4e6b',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
