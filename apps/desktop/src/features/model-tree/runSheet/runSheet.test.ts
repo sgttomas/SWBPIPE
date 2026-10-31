@@ -944,3 +944,32 @@ describe("run sheet ids: bend ids and geometry source (G2)", () => {
     expect(refusals((rows) => { rows[1].ids!.bendEnd = "node:N40"; })[3]).toContainEqual({ rule: "ids", column: "Ids", message: MESSAGES.idUsed("node:N40") });
   });
 });
+
+describe("run sheet ids: a start-node pipe id is fixed once shown (PR #41 finding 1)", () => {
+  const BY_START = { ...DEFAULT_NUMBERING, pipeNumber: "start" } as const;
+  const P: RunSheetRowInput = { key: "r1", kind: "P", dx: "30", dy: "30" };
+  const resolveWith = (rows: RunSheetRowInput[], pipes: RunSheetIdState["pipes"]) => {
+    const input = sheet(rows, { numbering: BY_START });
+    const model = basis();
+    return resolveRunSheet(input, { model, idState: { ...idStateFor(input, model), pipes } });
+  };
+  it("a fixed id is kept when the row's start changes, and the start node's number then goes elsewhere", () => {
+    // r2 was shown as pipe:P10 (start node:N10); a run r3 is now inserted before it.
+    const resolved = resolveWith([P, { key: "r3", dy: "1", ...ELEMENT }, { key: "r2", dx: "1", ...ELEMENT }], { r2: { id: "pipe:P10", rule: "the sheet's numbering, by its start node node:N10 (row 1)" } });
+    const [, inserted, kept] = resolved.rows;
+    expect(kept.ids.pipe).toBe("pipe:P10");
+    expect(kept.pipeIdRule).toBe("the sheet's numbering, by its start node node:N10 (row 1), fixed when first shown");
+    expect(inserted.ids.pipe).toBe("pipe:P20");
+    expect(resolved.queueable).toBe(true);
+  });
+  it("a deleted row's fixed id stays taken; an entered id still wins over a fixed one", () => {
+    const deleted = resolveWith([P, { key: "r3", dx: "1", ...ELEMENT }], { gone: { id: "pipe:P10", rule: "r" } });
+    expect(deleted.rows[1].ids.pipe).toBe("pipe:P20");
+    const entered = resolveWith([P, { key: "r2", dx: "1", ...ELEMENT, ids: { pipe: "pipe:X" } }], { r2: { id: "pipe:P10", rule: "r" } });
+    expect(entered.rows[1].ids.pipe).toBe("pipe:X");
+  });
+  it("assigning a number keeps the fixed pipe ids", () => {
+    const state = assignRowNumber({ ...initialIdState(BY_START), pipes: { r2: { id: "pipe:P10", rule: "r" } } }, BY_START, "r3", new Set());
+    expect(state.pipes).toEqual({ r2: { id: "pipe:P10", rule: "r" } });
+  });
+});

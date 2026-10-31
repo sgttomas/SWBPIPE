@@ -19,7 +19,7 @@ import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperatio
 import type { RunSheetStore } from "./runSheetStore";
 import {
   CODE_LISTS, COLUMN_GROUP_LABELS, FAST_PATH, ID_COLUMNS, SHEET_COLUMNS, assignIds, buildDraftBatch, cellName, cellView, deleteDraftRow, discardEdit, effectiveText, insertRow,
-  lengthUnitLock, markSubmitted, releaseUnregistered, rowHeaderText, sentenceFragment, setCell, sheetView,
+  lengthUnitLock, markSubmitted, recordShownPipeIds, releaseUnregistered, retryNumbering, rowHeaderText, sentenceFragment, setCell, sheetView,
   type SheetColumn, type SheetColumnGroup, type SheetColumnKey, type SheetView, type ViewRow,
 } from "./runSheetView";
 
@@ -122,6 +122,26 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     }, RUN_SHEET_TIMING.engineCheckDelayMs);
     return () => { active = false; clearTimeout(timer); };
   }, [baseView, model, version, queueing]);
+
+  // §3.2 A pipe id numbered by its start node is fixed the first time it is shown.
+  useLayoutEffect(() => {
+    if (store.current() !== state) return;
+    const next = recordShownPipeIds(state, baseView);
+    if (next !== state) store.update(() => next);
+  }, [baseView, state, store]);
+
+  /** Show or hide a column group. Collapsing the group that holds the focused cell moves the
+   * sheet's tab stop to the nearest shown cell before it in the same row (§5.1). */
+  function toggleGroup(group: SheetColumnGroup) {
+    const hiding = shownGroups[group];
+    setShownGroups((current) => ({ ...current, [group]: !current[group] }));
+    if (!hiding || !focus) return;
+    const at = SHEET_COLUMNS.findIndex((column) => column.key === focus.column);
+    if (SHEET_COLUMNS[at]?.group !== group) return;
+    const visible = (column: SheetColumn) => !column.group || (column.group !== group && shownGroups[column.group]);
+    const target = [...SHEET_COLUMNS.slice(0, at)].reverse().find(visible) ?? SHEET_COLUMNS.slice(at + 1).find(visible);
+    if (target) setFocus({ rowKey: focus.rowKey, column: target.key });
+  }
 
   // ---- Focus.
   const shownKeys = view.rows.map((row) => row.sheetRow.key);
@@ -491,7 +511,12 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   const unitLock = lengthUnitLock(view);
   const numberingLocked = Object.keys(state.idState.assigned).length > 0;
   const lengthUnit = state.header.lengthUnit || projectUnit("length");
-  const setNumbering = (patch: Partial<RunSheetNumbering>) => update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, ...patch } } }));
+  /** A numbering change; a new start moves the counter, and every refused row is numbered again (§3.2). */
+  const setNumbering = (patch: Partial<RunSheetNumbering>) => update((current) => retryNumbering({
+    ...current,
+    idState: patch.start !== undefined ? { ...current.idState, next: patch.start } : current.idState,
+    header: { ...current.header, numbering: { ...current.header.numbering, ...patch } },
+  }, model, reservedIds));
 
   function unitControl(label: string, dimension: string, value: string, onChange: (unit: string) => void, disabledReason: string | null = null) {
     const options = unitOptions(dimension, value);
@@ -519,10 +544,10 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
         {unitLock ? <span data-testid="run-sheet-unit-lock" className="run-sheet-note">{unitLock}</span> : null}
         <fieldset disabled={numberingLocked} title={numberingLocked ? "Ids are assigned; the numbering is fixed for this sheet." : undefined}>
           <legend>Numbering</legend>
-          <label>Node prefix<input aria-label="Node id prefix" value={state.header.numbering.nodePrefix} onChange={(event) => { const nodePrefix = event.target.value; update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, nodePrefix } } })); }} /></label>
-          <label>Pipe prefix<input aria-label="Pipe id prefix" value={state.header.numbering.pipePrefix} onChange={(event) => { const pipePrefix = event.target.value; update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, pipePrefix } } })); }} /></label>
-          <label>Start<input aria-label="Numbering start" inputMode="numeric" value={String(state.header.numbering.start)} onChange={(event) => { const start = Number(event.target.value); update((current) => ({ ...current, idState: { ...current.idState, next: start }, header: { ...current.header, numbering: { ...current.header.numbering, start } } })); }} /></label>
-          <label>Step<input aria-label="Numbering step" inputMode="numeric" value={String(state.header.numbering.step)} onChange={(event) => { const step = Number(event.target.value); update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, step } } })); }} /></label>
+          <label>Node prefix<input aria-label="Node id prefix" value={state.header.numbering.nodePrefix} onChange={(event) => setNumbering({ nodePrefix: event.target.value })} /></label>
+          <label>Pipe prefix<input aria-label="Pipe id prefix" value={state.header.numbering.pipePrefix} onChange={(event) => setNumbering({ pipePrefix: event.target.value })} /></label>
+          <label>Start<input aria-label="Numbering start" inputMode="numeric" value={String(state.header.numbering.start)} onChange={(event) => setNumbering({ start: Number(event.target.value) })} /></label>
+          <label>Step<input aria-label="Numbering step" inputMode="numeric" value={String(state.header.numbering.step)} onChange={(event) => setNumbering({ step: Number(event.target.value) })} /></label>
           <label>Pad numbers to N digits<input aria-label="Pad numbers to N digits" inputMode="numeric" placeholder="No padding"
             value={state.header.numbering.pad === undefined ? "" : String(state.header.numbering.pad)}
             onChange={(event) => { const text = event.target.value.trim(); setNumbering({ pad: text === "" ? undefined : Number(text) }); }} /></label>
@@ -533,7 +558,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
           </select></label>
         </fieldset>
         {(Object.keys(COLUMN_GROUP_LABELS) as SheetColumnGroup[]).map((group) => (
-          <button key={group} type="button" aria-expanded={shownGroups[group]} onClick={() => setShownGroups((current) => ({ ...current, [group]: !current[group] }))}>{COLUMN_GROUP_LABELS[group]}</button>
+          <button key={group} type="button" aria-expanded={shownGroups[group]} onClick={() => toggleGroup(group)}>{COLUMN_GROUP_LABELS[group]}</button>
         ))}
       </div>
       <div className="run-sheet-scroll" role="region" aria-label="Run sheet rows">

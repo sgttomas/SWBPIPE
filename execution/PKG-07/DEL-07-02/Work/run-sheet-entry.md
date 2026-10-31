@@ -227,6 +227,15 @@ Ids are entity identity, not order (FR-MOD-003).
     its id is entered. The row's own number alone would collide in the
     commonest case: a chain from a model node names its first pipe and its
     second pipe alike.
+  - **Fixed when first shown.** A pipe id numbered by either rule is recorded
+    in the sheet's id state, like the row's number, the first time the row
+    shows it with a start node. From then on it is the row's pipe id and is
+    reserved: inserts, appends, queueing and applying never change it, and no
+    other row takes it, even after the row is deleted. If the row's start
+    later changes so that the id no longer fits, the id is kept and its origin
+    says it was fixed when first shown; the person may overwrite it. Nothing
+    is recorded while a unit conversion is pending, since positions decide
+    starts. In the end-node option the row's own number already fixes the id.
   - A support takes `support:⟨token⟩`, where `token` is the node id without
     its `type:` prefix, unless a Support id is entered.
   - A bend takes `node:⟨token⟩-T1`, `node:⟨token⟩-T2`, `pipe:⟨token⟩-bend` and
@@ -252,7 +261,8 @@ Ids are entity identity, not order (FR-MOD-003).
     again, so a later row cannot rename it.
   - The Numbering fields, padding and Pipe number from included, are fixed
     once any row has a number: a change would otherwise rename the ids
-    already assigned.
+    already assigned. Until then, any change to them numbers again every row
+    whose number was refused, in sheet order.
 - **Labels.** A blank Label is the node id's token (derived). Pipe labels are
   the pipe id's token. A blank Support label is the support id's token. Bend
   records use the form's labels "Bend start", "Bend end", "Bend arc" and
@@ -412,6 +422,9 @@ end, including after an outside move that Adopt current values accepts.
   resolved.
 - The bend's T1, T2, arc and component stay resolvable as stored records, so
   an `F` row may name either tangent node.
+- An applied bend row's Bend geometry source shows what its stored component
+  holds, never the sheet's current Source; it is blank once the component no
+  longer exists. An applied row's pipe id is the id its batch created.
 - Each tangent point is read on its own. If one was deleted outside the
   sheet, the row is `detached`, and what that tangent gave is shown as missing
   ("The bend's outgoing point ⟨id⟩ no longer exists"), never replaced by the
@@ -929,6 +942,9 @@ Ctrl/⌘+D and Ctrl/⌘+Enter are unused in the shell. The shell owns ⌘1–3, 
 keys only while focus is inside it, and stops their propagation.
 
 **Focus recovery.** Tested in S2:
+- after a column group (Section extras, Ids and sources) collapses while it
+  holds the sheet's tab stop, the tab stop moves to the nearest shown cell
+  before it in the same row, so Tab still enters the sheet;
 - after Queue, focus stays on the same cell, now read-only;
 - after Delete row, focus goes to the same column of the next shown row, else
   the previous row, else the sheet footer;

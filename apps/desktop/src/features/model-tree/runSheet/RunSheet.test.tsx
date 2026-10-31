@@ -539,3 +539,81 @@ describe("run sheet ids and sources, padding and pipe numbering (G1–G3; §1.2,
     expect(screen.getByTestId("run-sheet-queue-reason")).toHaveTextContent("Pad numbers to a whole number of digits from 1 to 16, or leave it blank.");
   });
 });
+
+describe("run sheet review regressions (PR #41)", () => {
+  const tabStops = () => [...document.querySelectorAll<HTMLElement>("[data-cell]")].filter((element) => element.tabIndex === 0).map((element) => element.dataset.cell);
+
+  it("finding 1: a pipe id numbered by its start node is fixed once shown; inserting a run before it does not rename it", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pipe number from"), { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    code("r1", "kind", "p");
+    type("r1", "dx", "30");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1");
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P10");
+    // Insert a run between rows 1 and 2: row 2 now starts at the new row's node, and keeps pipe:P10.
+    act(() => cell("r2", "dx").focus());
+    fireEvent.keyDown(cell("r2", "dx"), { key: "F10", shiftKey: true });
+    fireEvent.click(within(screen.getByRole("menu")).getByText("Insert row above").closest("[role='menuitem']")!);
+    type("r3", "dy", "1");
+    expect(screen.getByTestId("run-sheet-row-header-r3")).toHaveAccessibleName(/^Row 2, run/);
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 3 Pipe id: pipe:P10");
+    expect(cell("r2", "pipeId")).toHaveAccessibleDescription(/^derived: the sheet's numbering, by its start node node:N10 \(row 1\), fixed when first shown/);
+    expect(cell("r3", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P30");
+    expect(cell("r3", "pipeId")).toHaveAccessibleDescription(/pipe:P10 is already taken by another pipe/);
+    expect(harness.store!.current().idState.pipes).toEqual({
+      r2: { id: "pipe:P10", rule: "the sheet's numbering, by its start node node:N10 (row 1)" },
+      r3: { id: "pipe:P30", rule: "the sheet's numbering, by its end node; pipe:P10 is already taken by another pipe" },
+    });
+  });
+
+  it("finding 1: a row shown with no start node fixes no pipe id, so a first row typed dX-first leaves the next run pipe:P10", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Pipe number from"), { target: { value: "start" } });
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    // The fast path: dX, dY, dZ, then Kind. Until Kind is P, row 1 is a run with no current node.
+    type("r1", "dx", "30");
+    type("r1", "dy", "30");
+    expect(harness.store!.current().idState.pipes ?? {}).toEqual({});
+    code("r1", "kind", "p");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1");
+    expect(cell("r2", "pipeId")).toHaveAccessibleName("Row 2 Pipe id: pipe:P10");
+  });
+
+  it("finding 3: collapsing a group that holds the focused cell moves the tab stop to a shown cell of the same row (both groups)", () => {
+    renderSheet();
+    for (const [group, hidden, before] of [["Ids and sources", "supportId", "pipeId"], ["Section extras", "millTolerance", "contentsDensity"]] as const) {
+      fireEvent.click(screen.getByRole("button", { name: group }));
+      act(() => cell("r1", hidden).focus());
+      expect(tabStops()).toEqual([`r1|${hidden}`]);
+      fireEvent.click(screen.getByRole("button", { name: group }));
+      expect(screen.queryByTestId(`run-sheet-cell-r1-${hidden}`)).toBeNull();
+      expect(tabStops()).toEqual([`r1|${before}`]);
+    }
+  });
+
+  it("finding 4: correcting the numbering numbers the rows it refused, for padding and for Start", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    fireEvent.change(screen.getByLabelText("Pad numbers to N digits"), { target: { value: "0" } });
+    code("r1", "kind", "p");
+    type("r1", "dx", "30");
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id:");
+    expect(cell("r1", "nodeId")).toHaveAccessibleDescription(/refused: Pad numbers to a whole number of digits from 1 to 16/);
+    fireEvent.change(screen.getByLabelText("Pad numbers to N digits"), { target: { value: "3" } });
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id: node:N010");
+    expect(cell("r1", "nodeId")).not.toHaveAccessibleDescription(/refused/);
+  });
+
+  it("finding 4: a corrected Start numbers a refused row too", () => {
+    renderSheet();
+    fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: "invented" } });
+    fireEvent.change(screen.getByLabelText("Numbering start"), { target: { value: "x" } });
+    code("r1", "kind", "p");
+    expect(cell("r1", "nodeId")).toHaveAccessibleDescription(/refused: Numbering needs a whole start/);
+    fireEvent.change(screen.getByLabelText("Numbering start"), { target: { value: "100" } });
+    expect(cell("r1", "nodeId")).toHaveAccessibleName("Row 1 Node id: node:N100");
+  });
+});

@@ -98,6 +98,12 @@ export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus,
   const kind = (values.kind ?? "").trim().toUpperCase();
   const ownPipe = kind === "" || kind === "R" || kind === "B" ? entry?.ownedIds.find((ref) => ref.type === "pipe") : undefined;
   if (ownPipe) input.storedPipeId = ownPipe.id;
+  // An applied bend row reads its geometry source from its stored component.
+  const component = kind === "B" ? entry?.ownedIds.find((ref) => ref.type === "component") : undefined;
+  if (component) {
+    const source = (lookup?.(component) as { geometry?: { bend_geometry_source_reference?: unknown } } | undefined)?.geometry?.bend_geometry_source_reference;
+    input.storedBendSource = typeof source === "string" ? source : "";
+  }
   const stored = storedEndOf(entry, values, lookup);
   if (stored) {
     if (stored.end) input.storedEnd = stored.end;
@@ -284,7 +290,34 @@ export function sheetView(input: {
 /** A lookup over the model's own collections, where no index is supplied. */
 function modelLookup(model: PreviewModel): RecordLookup {
   const nodes = new Map(model.nodes.map((node) => [node.id, node]));
-  return (ref) => ref.type === "node" ? nodes.get(ref.id) : undefined;
+  const components = new Map(model.components.map((component) => [component.id, component]));
+  return (ref) => ref.type === "node" ? nodes.get(ref.id) : ref.type === "component" ? components.get(ref.id) : undefined;
+}
+
+/** §3.2 A pipe id numbered by its start node is fixed the first time it is shown: each draft or
+ * queued row that shows one, with a start node and no entered or stored id, records it in the
+ * id state. Nothing is recorded while a conversion is pending, since positions decide starts. */
+export function recordShownPipeIds(state: RunSheetState, view: SheetView): RunSheetState {
+  if (view.resolved.missingConversions.length) return state;
+  let pipes: Record<string, { id: string; rule: string }> | null = null;
+  for (const row of view.rows) {
+    const resolved = row.resolved;
+    if ((row.status !== "draft" && row.status !== "queued") || !resolved.start || !resolved.ids.pipe || !resolved.pipeIdRule) continue;
+    if (state.idState.pipes?.[row.sheetRow.key] || row.values.ids?.pipe?.trim()) continue;
+    pipes ??= { ...(state.idState.pipes ?? {}) };
+    pipes[row.sheetRow.key] = { id: resolved.ids.pipe, rule: resolved.pipeIdRule };
+  }
+  return pipes ? { ...state, idState: { ...state.idState, pipes } } : state;
+}
+
+/** A numbering change retries every row whose number was refused (§3.2), in sheet order. */
+export function retryNumbering(state: RunSheetState, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
+  const held = [...reserved];
+  return state.rows.reduce((next, row) => {
+    if (next.idState.refused?.[row.key] === undefined) return next;
+    const { [row.key]: _retried, ...refused } = next.idState.refused;
+    return assignIds({ ...next, idState: { ...next.idState, refused } }, row.key, model, held);
+  }, state);
 }
 /** Stored increments in the sheet unit through the engine's conversions (display only), else in the stored unit. */
 function displayIncrements(stored: Vec3, storedUnit: string, sheetUnit: string, conversions: RunSheetConversions, requests: DisplayQuantityRequest[]): { value: Vec3; unit: string } {
@@ -331,7 +364,8 @@ export function queuedValues(state: RunSheetState, row: SheetRow): RowValues {
 /** Queue (§3.6 Transitions): each acting row gets a pending marker, not in the
  * ledger; its values stay in the buffer. The batch's rows, operations, owned ids
  * and queued values are kept for its checkpoint. The batch sequence moves on. */
-export function markSubmitted(state: RunSheetState, view: SheetView, build: RunSheetBuild): RunSheetState {
+export function markSubmitted(shown: RunSheetState, view: SheetView, build: RunSheetBuild): RunSheetState {
+  const state = recordShownPipeIds(shown, view);
   const batchId = build.batch.batch_id;
   const acting = new Map(view.draftRows.map((row) => [row.sheetRow.key, row]));
   const submitted: SubmittedBatch = {

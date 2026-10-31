@@ -71,6 +71,9 @@ export type RunSheetRowInput = {
   /** An applied row's own pipe, by the id its batch created (§3.4): its pipe id is never
    * derived again, so a later row cannot rename it. */
   storedPipeId?: string;
+  /** An applied bend row's stored geometry source, read from its component; `""` when the
+   * component no longer exists. Shown in place of the sheet's current Source (§3.4). */
+  storedBendSource?: string;
   /** An applied row's stored end position (§3.4, §6.2): the resolver uses it in
    * place of `x_{k−1} + c(Δ)`, so later rows continue from stored geometry. For
    * an applied bend row it is the stored outgoing tangent point, named by
@@ -114,8 +117,14 @@ export type RunSheetInput = {
 };
 
 /** §3.2 The counter: numbers only move forward and are never reused. `refused`
- * holds, per row, why no number could be assigned. */
-export type RunSheetIdState = { next: number; assigned: Readonly<Record<string, number>>; refused?: Readonly<Record<string, string>> };
+ * holds, per row, why no number could be assigned. `pipes` holds, per row, a pipe id
+ * numbered by its start node, fixed the first time it was shown, with the rule it followed. */
+export type RunSheetIdState = {
+  next: number;
+  assigned: Readonly<Record<string, number>>;
+  refused?: Readonly<Record<string, string>>;
+  pipes?: Readonly<Record<string, Readonly<{ id: string; rule: string }>>>;
+};
 /** The most numbers one assignment examines before it refuses (§3.2 reservation search). */
 export const MAX_NUMBER_SEARCH = 10_000;
 
@@ -316,7 +325,7 @@ export function assignRowNumber(state: RunSheetIdState, numbering: RunSheetNumbe
     if (!Number.isSafeInteger(after) || after <= n) return refuse(MESSAGES.numberingExhausted);
     if (!yields(n).some((id) => reserved.has(id))) {
       const { [rowKey]: _cleared, ...refused } = state.refused ?? {};
-      return { next: after, assigned: { ...state.assigned, [rowKey]: n }, refused };
+      return { ...state, next: after, assigned: { ...state.assigned, [rowKey]: n }, refused };
     }
     if (examined >= MAX_NUMBER_SEARCH) return refuse(MESSAGES.numberingSearchLimit);
     n = after;
@@ -487,11 +496,16 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   /** Nodes drafted by earlier rows: id -> the drafting row. */
   const drafted = new Map<string, ResolvedRunSheetRow>();
   // §3.2 Pipes numbered by their start node: the nodes whose id is their row's number, the
-  // pipe ids already taken (applied rows' own pipes, then each numbered node's first pipe in
-  // sheet order), and the rows that fall back to their own number once every claim is known.
+  // pipe ids already taken (applied rows' own pipes and every pipe id fixed when it was first
+  // shown, deleted rows' included, then each numbered node's first pipe in sheet order), and
+  // the rows that fall back to their own number once every claim is known.
   const byStartNode = numbering.pipeNumber === "start";
+  const fixedPipes = context.idState.pipes ?? {};
   const numberedNodes = new Map<string, { number: number; row: number }>();
-  const claimedPipes = new Set<string>(input.rows.map((row) => text(row.storedPipeId)).filter(Boolean));
+  const claimedPipes = new Set<string>([
+    ...input.rows.map((row) => text(row.storedPipeId)).filter(Boolean),
+    ...Object.values(fixedPipes).map((fixed) => fixed.id),
+  ]);
   const fallbackPipes: Array<{ row: ResolvedRunSheetRow; own: string; rule: string }> = [];
 
   input.rows.forEach((raw, index) => {
@@ -716,7 +730,12 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     let fallbackPipe: { own: string; rule: string } | null = null;
     if (kind === "run" || kind === "bend") {
       ids.pipe = text(raw.storedPipeId) || text(overrides.pipe);
-      if (!ids.pipe && byStartNode && derivedIds) {
+      const fixed = fixedPipes[raw.key];
+      if (!ids.pipe && fixed) {
+        // Fixed when first shown: kept through inserts, appends, queueing and a changed start.
+        ids.pipe = fixed.id;
+        pipeIdRule = `${fixed.rule}, fixed when first shown`;
+      } else if (!ids.pipe && byStartNode && derivedIds) {
         // The number of the row whose end node is this pipe's start, unless that pipe id is taken.
         const from = start ? numberedNodes.get(start) : undefined;
         const candidate = from ? idsForNumber(numbering, from.number).pipe : undefined;
@@ -808,7 +827,12 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     let bendSource: ResolvedRunSheetRow["bendSource"] = null;
     if (kind === "bend") {
       const typed = entered("bendSource");
-      bendSource = typed ? { value: typed, origin: { kind: "entered" } } : { value: source, origin: { kind: "derived", rule: "the sheet's Source" } };
+      if (raw.storedBendSource !== undefined) {
+        // An applied bend shows what its component holds, never the sheet's current Source.
+        bendSource = { value: raw.storedBendSource, origin: typed ? { kind: "entered" } : { kind: "derived", rule: raw.storedBendSource ? "the applied bend's stored geometry source" : "the applied bend's component no longer exists" } };
+      } else {
+        bendSource = typed ? { value: typed, origin: { kind: "entered" } } : { value: source, origin: { kind: "derived", rule: "the sheet's Source" } };
+      }
     } else if (kind !== null) {
       // The bend's id and source cells apply to B rows only (§1.2).
       for (const cell of BEND_ID_CELLS) {
