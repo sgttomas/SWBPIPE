@@ -48,7 +48,7 @@ pub use writer::{regenerate_caepipe_sidecar, render_si, SiWriter, WriterResult, 
 
 /// The one `schema_version` the model-document schema admits (`schemas/model.schema.yaml`); a test holds it to the
 /// schema file, as si_writer `current_model_schema_version` reads it.
-pub const MODEL_SCHEMA_VERSION: &str = "0.8.0";
+pub const MODEL_SCHEMA_VERSION: &str = "0.9.0";
 pub const IMPORT_PROFILE_ID: &str = importer::IMPORT_PROFILE_ID;
 pub const REPORT_KIND: &str = importer::REPORT_KIND;
 pub const MBF_VERSION: &str = importer::MBF_VERSION;

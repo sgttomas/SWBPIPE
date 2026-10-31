@@ -23,7 +23,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub const MBF_SI_PROFILE_ID: &str = "caepipe-mbf-si-pilot-1";
 pub(crate) const STANDARD_GRAVITY: f64 = 9.80665;
 const MBF_VERSION: &str = "15.10";
-const RETIRED_MODEL_VERSIONS: [&str; 7] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"];
+const RETIRED_MODEL_VERSIONS: [&str; 8] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"];
 const SUSTAINED: &str = "Sustained (W+P)";
 const EXPANSION: &str = "Expansion (T1)";
 pub(crate) const DOFS: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];

@@ -37,7 +37,7 @@ STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPI
 MBF_VERSION = "15.10"
 # The retired model document versions, refused by name (DEL-02-01 Design model-document-0.8.0.md §3.1); the
 # current one is the schema's (`current_model_schema_version`).
-RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0")
 # The target tool's labels for the load cases the writer requests.
 LOAD_CASE_LABELS = {"sustained": "Sustained (W+P)", "expansion": "Expansion (T1)"}
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
