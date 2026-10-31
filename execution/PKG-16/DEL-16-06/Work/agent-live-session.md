@@ -68,7 +68,8 @@ review witness remain open.
 Live owns the admitted dual-family loopback relay, private runtime and original
 supplier Child. It starts fixed initialize/thread/start protocol steps and holds
 partial startup custody through cleanup and worker joins. Provider selection
-loads the exact saved revision from the reviewed Store; the secret goes only
+loads the exact saved revision from the reviewed Store, including the person's
+context window, which Start refuses when absent; the secret goes only
 to the host relay. The child receives only a fresh relay capability. No profile,
 credential, persistence format or TLS-trust permission is widened here.
 

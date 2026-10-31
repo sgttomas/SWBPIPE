@@ -11,8 +11,8 @@ blocking execution; this core must not run on a UI/protocol polling thread.
 ## Configuration and secret boundary
 
 `provider_store.rs` stores one selected provider: canonical API-base URL, explicit
-model identifier, a fresh revision and either explicit no-key mode or an opaque
-credential reference. It applies the relay's existing URL policy (HTTP only for
+model identifier, the person-entered model context window, a fresh revision and
+either explicit no-key mode or an opaque credential reference. It applies the relay's existing URL policy (HTTP only for
 literal loopback; otherwise HTTPS; no URL credentials/query/fragment/escape) and
 bounded control-free model input. There is no developer provider/model default,
 provider-specific Keychain service, inherited home/config/authentication file or
@@ -119,7 +119,36 @@ The trusted caller supplies a canonical private directory. The dedicated
 unknown schemas/versions and oversized data refuse, with no default overwrite.
 Schema admission requires the exact two table definitions and their one implicit
 primary-key index, application/version identifiers, and no additional persistent
-or temporary objects. Reopen and every operation/phase validate this before
+or temporary objects.
+
+### Context window (schema version 2, RT-E1 D4 prerequisite)
+
+The supplier's `model_context_window` was a fixed 8,192 tokens, too small for the
+catalog's tool declarations plus a build proposal, and no single value fits every
+provider: set above what a server serves, requests fail at the server; set below,
+the supplier truncates or compacts. The person now enters it with the provider.
+`provider_save` requires `contextWindow`, an integer from 8,192 to 131,072 tokens,
+validated before any transaction; it is stored with and changes the provider
+revision, returned in the snapshot and shown in the panel beside the model, and
+written to the supplier's read-only `config.toml` at Start. There is no default.
+The upper bound keeps a full conversation within the relay's 2 MiB request cap
+(`relay_policy::REQUEST_BYTES`); a larger bound would also need that cap and its
+admission reviewed.
+
+Version 2 adds one nullable column through
+`ALTER TABLE provider ADD COLUMN context_window INTEGER CHECK(context_window IS NULL
+OR context_window BETWEEN 8192 AND 131072)`. A new store applies the version 1
+definition and then this statement, so fresh and migrated stores hold SQLite's
+identical rewritten definition, which schema admission compares byte for byte.
+Opening a version 1 store first admits it against the exact version 1 schema, then
+migrates in one immediate transaction; every existing value is kept and the window
+is NULL. Start refuses a NULL window as `context_window_required` before any
+Keychain read, and the panel asks the person to enter it; nothing is assumed. Any
+other version still refuses. A stored window outside the bounds is `corrupt`. No
+command, ingress shape beyond the typed field on the existing `provider_save`
+action, Keychain item or permission is added. Qualified native runs so far used
+8,192 tokens only; larger windows, including the supplier's compaction behaviour,
+are not yet observed. Reopen and every operation/phase validate this before
 native effects; matching version fields alone do not admit triggers, views,
 indices or changed constraints.
 SQLite uses synchronous FULL, DELETE journaling, foreign keys, bounded pages and
