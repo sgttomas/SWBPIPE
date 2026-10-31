@@ -36,7 +36,7 @@ approved by SWBPIPE Agent 0 on 2026-10-31 on three conditions:
 
 Each slice lists its files, its checks and the existing tests it moves.
 
-### Slice 1: native verdict (this turn)
+### Slice 1: native verdict (done; review fixes and rulings in §8)
 
 **Files:**
 - `src-tauri/src/solve_jobs.rs`: the retained result becomes `Arc<HeldResult>`, so the bytes
@@ -48,13 +48,18 @@ Each slice lists its files, its checks and the existing tests it moves.
   lease).
 
 **The command:**
-1. The lease grows by each argument text's priced parse (`text_parse_bytes`).
-2. The held bytes are prescanned, and their `Value` materialization M is admitted as an
-   adaptive, resampled pool lease. A refusal is `RESOURCE_UNAVAILABLE`, typed.
-3. It calls `operation_applier::reader_dispatch_json`, the same function the wasm export
-   `reader_dispatch_json` wraps, on the held text and the argument texts.
-4. It returns the outcome text unchanged. A text that isn't JSON returns the same
-   `WASM-ENGINE-INPUT-JSON-INVALID` message the wasm export throws.
+1. Its arguments are admitted on the async runtime. Then the arguments, their lease and a
+   registry handle move into a blocking task (`spawn_blocking`), so no read occupies a
+   runtime worker.
+2. The held text, the model text and the invocation text are prescanned, without
+   allocating, in the reader's order. A text the prescan refuses is refused with the
+   reader's own message (§4).
+3. The args lease grows by each argument text's priced parse (`text_parse_bytes`). The
+   held text's `Value` materialization M, from the prescan, is admitted as a pool lease
+   before the parse allocates anything (§8). A refusal is `RESOURCE_UNAVAILABLE`, typed.
+4. It calls `operation_applier::reader_dispatch_json`, the same function the wasm export
+   `reader_dispatch_json` wraps, on the held text and the argument texts, and returns the
+   outcome text unchanged.
 
 **Tests:**
 - Rust (`native_verdict_tests.rs`):
@@ -63,9 +68,16 @@ Each slice lists its files, its checks and the existing tests it moves.
   - refusal by name when M doesn't fit;
   - the take busy while a reader holds the result, and the bytes and lease released
     together after a dispose during a read;
+  - reads held inside the reader, more than the runtime has workers, while another async
+    command completes (it fails on a read run on the executor);
+  - a refused parse lease allocates nothing near the parse and never reaches the reader;
+  - the 12 GiB cap;
+  - each parse refusal, and the `RawValue` exception, byte for byte (§4);
   - the differential (§4).
 - vitest (`baseReaderWasmEquivalence.test.ts`): the wasm dispatch text equals the native
-  outcome's serde text, byte for byte (§4).
+  outcome's serde text, byte for byte. The wasm engine's parse refusals are the same
+  literals as the Rust test's, and it reads the `RawValue` texts the native command
+  refuses (§4).
 - The webview is not switched in this slice.
 
 ### Slice 2: S projection (native, one pass)
@@ -137,24 +149,44 @@ oracle until the switch.
 - `workspaceSession.ts` and `WorkspaceSessionContext.tsx` hold the handle in place of
   `MechanicsResult`.
 - `resultReader.ts`: the verdict, the route and the binding come from the slice 1 command.
-  Its result is cached per job, and the wasm path stays for saved and historical values
-  until slice 6.
+  - **Cache key.** A verdict is cached by the job together with the exact model text and
+    invocation text it was read with: the key is (job id, model text's SHA-256 or none,
+    invocation text's SHA-256 or none), the texts `readerSourceText` gives.
+  - **Invalidation.** An edited model is another model text, so it misses the cache and
+    reads again. Disposing the job drops all of its entries.
+  - The wasm path stays for saved and historical values until slice 6.
 - Panels and overlays read S. The results table pages (§3).
+- **Every C1 surface reads S or a native page, never the full rows** (design §2(3)). That
+  includes the row lookups by id or kind (interpretation, Knowledge, Toolkit, the workspace's
+  `findResult`) and the embedded agent's current `swbpipe_read_results` pages, through
+  native paged adapters over the slice 3 query.
 
-**Consumers that move only in C2:** reports, comparisons, rule checks, stress-neutral
-export, handoff panels, the JSON derivative export, the embedded agent's
-`swbpipe_read_results`, and the result-row lookups of Knowledge and Toolkit.
-- In C1 they get rows through `read_preview_mechanics_job_rows_all`. It is allowed only at
-  or under the interim webview limit (PR #51's 64 MiB) and is refused above it by name
-  (`RESULT-DETAIL-WEBVIEW-LIMIT`, stating size and limit).
-- Each such panel loads lazily, so a large result's summary, tables, viewport and paged
-  detail work, and only those panels say why they're unavailable. **This is a question for
-  the manager (§7).**
+**Consumers that move only in C2,** by Agent 0's ruling of 2026-10-31, an interim exception
+to design §2(3):
+- **Who:** reports, comparisons, rule checks, stress-neutral and JSON derivative exports,
+  and the handoff panels (handoff, local FEA, native package, headless runner).
+- **Up to 64 MiB:** they keep full rows, as today, through
+  `read_preview_mechanics_job_rows_all`. It is allowed only at or under PR #51's 64 MiB
+  limit, and each such panel loads lazily.
+- **Above 64 MiB:** each is refused by name (`RESULT-DETAIL-WEBVIEW-LIMIT`, stating size and
+  limit) until C2. The refusal names what the person can still do: view the results (the
+  summary, tables, viewport and paged detail work), plus #51's advice:
+
+  > remove the load cases and combinations this review does not need (Load Cases
+  > section); or solve the cases in smaller groups, each in its own copy of the model
+  > document (File > Save Model Document…), with the combinations in a copy holding only
+  > the cases they use; or split a large model into parts.
+- **If C2 doesn't land for v1.0,** this refusal becomes a LIM entry in the release
+  limitations list, as #51's refusal would.
 
 **Tests:**
 - `nativeMechanicsReplay.ts` emulates the new commands from the same fixtures.
 - The App, session and panel tests switch to the handle.
 - A test pins that no code path calls `take_preview_mechanics_job_result` any longer.
+- A test pins that no C1 surface calls `read_preview_mechanics_job_rows_all`; only the
+  listed C2 consumers do.
+- The refusal's text, with its sizes and both kinds of advice, at 64 MiB and one byte
+  above.
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
@@ -220,22 +252,45 @@ byte-identical records. The TS builder stays as the oracle in tests until C2.
 | Solve panel, solve proof, job audit (`SolvePanel.tsx`, `solveProof.ts`, `solveJobAudit.ts`) | `results.length`, units | S's row count and units |
 | Workspace preview and binding (`workspaceSession.ts`) | `buildAnalysisRunPreview(output)`, `model_ref`, `run_id`, row count, row lookup | native record preview (slice 5); S's header fields; by-id page |
 | Design workspace, export review, export unit disclosure, run audit, report lint (counts and units) | `results.length`, units | S |
-| Reports (`reportResultRows.ts`, `ReportPanel.tsx`, `renderableReportInput.ts`) | every row | C2; in C1 through the gated full fetch |
-| Comparisons (`runComparison.ts`, `withinRunComparison.ts`, `ComparisonPanel.tsx`) | every row | C2; gated full fetch |
-| Rule checks (`ruleCheckService.ts`, `RuleCheckRunPanel.tsx`, `DeclarationsEditor.tsx`) | every row | C2; gated full fetch |
-| Stress-neutral export, handoff, local FEA, native package, headless runner panels | every row | C2; gated full fetch |
+| Reports (`reportResultRows.ts`, `ReportPanel.tsx`, `renderableReportInput.ts`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
+| Comparisons (`runComparison.ts`, `withinRunComparison.ts`, `ComparisonPanel.tsx`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
+| Rule checks (`ruleCheckService.ts`, `RuleCheckRunPanel.tsx`, `DeclarationsEditor.tsx`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
+| Stress-neutral export, handoff, local FEA, native package, headless runner panels | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
 | JSON export (`resultExportAdapter.ts`) and Save Result JSON (`save_local_result_json`) | the envelope | Save Result JSON writes the held bytes natively (slice 5); the derivative is C2 |
 | Embedded agent (`embeddedAgentSession.ts`) | filtered rows | C2 (catalog v5); C1 serves its current pages from the detail query, unchanged output |
-| Knowledge and Toolkit lookups (`KnowledgePanel.tsx`, `ResultQuantity.tsx`) | rows by id or kind | by-id and by-kind page |
+| Knowledge and Toolkit lookups (`KnowledgePanel.tsx`, `ResultQuantity.tsx`) | rows by id or kind | native by-id and by-kind page (slice 3), no full fetch |
 | Analysis-run record (`analysisRunCompatibility.ts`) | every row | native builder (slice 5) |
 
 ## 4. Verdicts stay identical
 
 - **The same code.** The wasm export `reader_dispatch_json` is
   `operation_applier::reader_dispatch_json`, wrapped. The native command calls that same
-  function on the held text, and the slice 2 summary reuses its parse. The serde_json
-  feature set is the same on both targets (`float_roundtrip`; neither `preserve_order` nor
-  `arbitrary_precision`), so a `Value` and its text are the same on both.
+  function on the held text, and the slice 2 summary reuses its parse.
+- **The serde_json feature sets differ in one feature.**
+  - Both targets have `float_roundtrip` and neither has `preserve_order` or
+    `arbitrary_precision`, so an ordinary JSON text parses to the same `Value`, and writes
+    back to the same text, on both.
+  - The desktop crate also enables `raw_value`. Under it, an object key equal to
+    serde_json's private `RawValue` token is read as an embedded raw value; the wasm engine
+    reads it as an ordinary key.
+  - The native command therefore refuses any text holding that key through the prescan:
+    the held result, and the caller's model and invocation texts alike. It returns
+    `WASM-ENGINE-INPUT-JSON-INVALID: <label> is not valid JSON: reserved RawValue token key
+    at byte <n>`, where the wasm engine would read the text. This is the one permitted
+    difference.
+  - The engine never publishes the key, and a solve's model body holding it is refused at
+    the solve's own ingress. Tests: `a_raw_value_token_key_is_the_one_refused_exception`
+    (Rust) and the wasm leg reading the same three texts.
+- **Texts that aren't JSON get the reader's text, byte for byte.**
+  - The prescan refuses them without allocating. The refusal is then serde_json's own
+    error, from a parse into a discarding type through `Value`'s parser path (no tree is
+    built), formatted as `operation_applier`'s `parse_reader_input` formats it.
+  - The order is the reader's: source, model, invocation. A text the prescan admits but
+    serde_json refuses (a number beyond binary64) before a refused later text is reported
+    first, as the reader would.
+  - Tests: nine cases with full-byte literals in Rust (`NOT_JSON_CASES`, also checked
+    against `reader_dispatch_json`'s own error) and the same literals through the wasm
+    engine.
 - **The proof on the reader corpus**, three legs, all in the ordinary checks:
   1. `result_export/tests/base_reader_outcomes.rs` pins the native `reader_verdict` outcome
      of all 561 corpus inputs (`fixtures/results/base_reader_outcomes.json`).
@@ -250,10 +305,11 @@ byte-identical records. The TS builder stays as the oracle in tests until C2.
      committed outcome's serde text, byte for byte. An `#[ignore]` leg reads all 561 inputs
      from `BASE_READER_INPUTS_OUT` (`inputs.jsonl`, written by leg 1) and checks the same.
 - **Refusals and diagnostics:**
-  - A header refusal, the standing findings and a parse refusal are the outcome text itself,
-    so they're covered by the byte equality.
-  - The command adds only ingress and resource refusals, which are typed
-    `RESOURCE_UNAVAILABLE` and `INVALID_REQUEST`, as for every native command.
+  - A header refusal and the standing findings are the outcome text itself, so they're
+    covered by the byte equality. Parse refusals are covered above.
+  - The command adds only the `RawValue` exception and ingress and resource refusals,
+    which are typed `RESOURCE_UNAVAILABLE` and `INVALID_REQUEST`, as for every native
+    command.
   - Diagnostics move to S in slice 2, copied from the parsed envelope and checked equal to
     `result.diagnostics`.
 
@@ -276,7 +332,7 @@ The guard `csvTableCoverage.test.ts` counts 9 marked tables:
   native query in chunks. Each chunk is formatted by today's TS formatter and appended
   through a native file writer (the `native_result_download` pattern), so the webview never
   holds the whole group.
-- **Comparisons:** C2; gated full fetch in C1.
+- **Comparisons:** C2; in C1 full rows up to 64 MiB, refused by name above (slice 4).
 
 **Tests:**
 - The guard stays at 9.
@@ -309,10 +365,9 @@ They're updated in the slice that changes the flow, never deleted without a repl
 
 ## 7. Open questions and risks for the manager
 
-1. **Interim limit for C2-pending consumers (slice 4).** Above 64 MiB, reports, comparisons,
-   rule checks, exports and handoffs would be refused by name until C2, while the summary,
-   tables, viewport and paged detail work. Is that the agreed interim, or must C2's
-   consumers move inside C1?
+1. **Interim limit for C2-pending consumers (slice 4): agreed by Agent 0 (2026-10-31).**
+   They keep full rows up to 64 MiB and are refused by name above it until C2, with the
+   refusal text and LIM condition in slice 4.
 2. **The run record is O(rows) too.** The v0.3 record holds one `ResultRef`, with its
    checksum, per row: about 1 kB per row, larger than the row. At about 1,000 nodes it would
    exceed SQLite's 1e9 length well before the result does, so Record Run is refused there
@@ -323,9 +378,13 @@ They're updated in the slice that changes the flow, never deleted without a repl
    unpriced, as `command_ingress`'s residual already states for command working memory.
    Slice 7 measures them; if they're material, the lease adds a working-memory factor, as
    the report package's does.
-4. **Admission class.** The verdict and S parse are admitted as adaptive, resampled leases
-   (pressure-gated, pool and headroom), like the result and custody leases. They aren't
-   bounded by the per-invocation budget. Confirm, or bound them by the budget.
+4. **Admission class: confirmed by Agent 0 (2026-10-31),** pressure-gated through the
+   shared pool, on two conditions now implemented in slice 1 (§8):
+   - the lease is sized before any parse allocation;
+   - each lease is capped at the 12 GiB default.
+
+   A lease needing more than 12 GiB, or memory outside the pool, is a policy change and
+   goes to Agent 0.
 5. **Concurrency with the reader bundle.** Slice 1 calls `reader_dispatch_json` and
    `reader_verdict` and edits neither. The reader bundle's verdict-identical changes are
    covered by the same differential.
@@ -333,7 +392,34 @@ They're updated in the slice that changes the flow, never deleted without a repl
    - DEL-04-05 (this plan, and the measurement in slice 7);
    - DEL-07-07 (desktop result custody: the declared source list gains
      `native_verdict.rs` and the slice 2–3 files);
-   - DEL-08-04 (CSV and exports: slice 4's paged CSV and the gated full fetch);
-   - DEL-04-07 (the memory-budget decision text: the held result's shared lease and the
-     verdict lease);
+   - DEL-08-04 (CSV and exports: slice 4's paged CSV, and the interim 64 MiB limit for
+     exports);
+   - DEL-04-07: its memory-budget decision is not edited (Agent 0). §8 states how the C1
+     leases fit it, and a proposed factual note goes to the owner in the PR body;
    - DEL-14-0x (the run record, slice 5).
+
+## 8. C1's leases under the adopted pool policy
+
+These are the shared-pool policy of DEL-04-07 `memory-budget-decision.md` (owner-adopted
+2026-10-11) as C1 uses it. C1 adds no budget and changes no pool rule.
+
+- **The held result's lease.** It is the existing result lease R, admitted when the job
+  publishes, unchanged in size and admission.
+  - C1 only changes who holds it. The record and each native reader in flight share the
+    bytes and their lease (`HeldResult`), so they're released together by the last
+    holder, and the pool never counts held bytes as released.
+  - R stays within the worker's capped grant, which is bounded by the per-invocation
+    budget.
+- **The verdict's parse lease.** One pool lease of the `Value` materialization M that the
+  allocation-free ingress prescan computes from the held bytes. It is admitted after the
+  prescan and before the parse allocates anything, so a refusal commits no memory.
+  - **Admission:** the adaptive class: the pool, a fresh headroom verdict and normal
+    pressure, re-sampled within the existing window, as result and custody leases are.
+  - **Cap:** refused `ingress_exceeds_budget` above the configured per-invocation budget,
+    and never above the owner-adopted 12 GiB default, whatever budget is configured. It
+    is checked under the pool lock before each attempt (`MemoryPool::acquire_result_parse`).
+- **The arguments' lease.** The existing interactive ingress lease (`command_ingress`),
+  grown by each argument text's priced parse and bounded by the per-invocation budget.
+- **No new per-invocation budget.** No lease above 12 GiB, and no memory outside the pool.
+  A model that would need either is refused by name.
+- **Not priced:** the readers' working memory (§7, item 3).
