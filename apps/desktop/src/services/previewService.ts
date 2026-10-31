@@ -25,7 +25,7 @@ import {
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
-import { nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError } from "./memoryPool";
+import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError } from "./memoryPool";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
@@ -84,6 +84,7 @@ export async function runPreviewMechanics(
 
 /** The error a non-completed terminal job state stands for. */
 export function terminalJobError(status: BackendSolveJobStatus): Error {
+  if (status.state === "refused" && status.result_too_large) return new ResultTooLargeError(status.result_too_large);
   if (status.state === "refused") {
     return status.resource_refusal
       ? new ResourceUnavailableError(status.resource_refusal, null)
@@ -239,6 +240,45 @@ export type SolveJobStartReceipt =
 
 export type BackendSolveJobState = "queued" | "running" | "completed" | "cancelled" | "failed" | "refused";
 
+/** The native code of a job refused because its result is larger than the
+ * desktop can display (`MAX_DISPLAYABLE_RESULT_BYTES` in `solve_jobs.rs`). */
+export const RESULT_TOO_LARGE_CODE = "PREVIEW-SOLVE-RESULT-TOO-LARGE";
+
+/** A `refused` job's result-size refusal as the native host reports it: the
+ * result's announced size and the displayable limit it exceeds. The native host
+ * discarded the result unread; nothing of it reaches the app. */
+export type ResultTooLarge = { code: typeof RESULT_TOO_LARGE_CODE; result_bytes: number; limit_bytes: number };
+
+/** The result-size refusal as reported, with only its declared fields; null for any other shape. */
+export function parseResultTooLarge(value: unknown): ResultTooLarge | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const { code, result_bytes, limit_bytes } = value as Record<string, unknown>;
+  const count = (n: unknown): n is number => typeof n === "number" && Number.isSafeInteger(n) && n >= 0;
+  if (code !== RESULT_TOO_LARGE_CODE || !count(result_bytes) || !count(limit_bytes) || result_bytes <= limit_bytes) return null;
+  return { code, result_bytes, limit_bytes };
+}
+
+/** Plain-language reading of a result-size refusal: the sizes, the cause, what
+ * the person can do now and what is planned. */
+export function describeResultTooLarge(refusal: ResultTooLarge): string {
+  return `The solve finished, but its result is ${formatBytes(refusal.result_bytes)}, above the desktop's display limit of ${formatBytes(refusal.limit_bytes)}. The per-station result detail of this model and its load cases is too large for the desktop to display. No result is shown or kept. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.`;
+}
+
+/** The refusal's code and exact figures, for example
+ * `PREVIEW-SOLVE-RESULT-TOO-LARGE (result_bytes=147000000, limit_bytes=67108864)`. */
+export function resultTooLargeCode(refusal: ResultTooLarge): string {
+  return `${refusal.code} (result_bytes=${refusal.result_bytes}, limit_bytes=${refusal.limit_bytes})`;
+}
+
+/** A job refused natively because its result is too large to display. */
+export class ResultTooLargeError extends Error {
+  readonly code = RESULT_TOO_LARGE_CODE;
+  constructor(readonly refusal: ResultTooLarge) {
+    super(`${RESULT_TOO_LARGE_CODE}: ${describeResultTooLarge(refusal)}`);
+    this.name = "ResultTooLargeError";
+  }
+}
+
 /** A job's status. The poll never carries the result: a completed job's bytes
  * are taken separately (`takePreviewMechanicsJobResult`). */
 export type BackendSolveJobStatus = {
@@ -254,6 +294,8 @@ export type BackendSolveJobStatus = {
   error_message: string | null;
   /** The typed refusal of a `refused` job. */
   resource_refusal: ResourceRefusal | null;
+  /** A `refused` job's result-size refusal; absent or null for any other job. */
+  result_too_large?: ResultTooLarge | null;
   resource: SolveResourceGrant | null;
 };
 
@@ -334,6 +376,7 @@ export async function pollPreviewMechanicsJob(
     result_bytes: typeof native.result_bytes === "number" ? native.result_bytes : null,
     error_message: typeof native.error_message === "string" ? native.error_message : null,
     resource_refusal: parseResourceRefusal(native.resource_refusal),
+    result_too_large: parseResultTooLarge(native.result_too_large),
     resource: parseSolveResourceGrant(native.resource),
   };
   // A job that ends without a result retires its capture; a completed job's
@@ -370,7 +413,14 @@ function decodeResultBytes(raw: unknown): string {
   else if (ArrayBuffer.isView(raw)) bytes = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
   else throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
   try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
-  catch { throw new Error("PREVIEW-SOLVE-RESULT-UTF8-INVALID: the native result bytes are not UTF-8"); }
+  catch (error) {
+    // A fatal decoder signals invalid bytes with a TypeError (WHATWG Encoding);
+    // anything else (a RangeError for a string the engine cannot hold, an
+    // allocation failure) says nothing about the bytes and is not called invalid UTF-8.
+    if (error instanceof TypeError) throw new Error("PREVIEW-SOLVE-RESULT-UTF8-INVALID: the native result bytes are not UTF-8");
+    const reason = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    throw new Error(`PREVIEW-SOLVE-RESULT-DECODE-FAILED: the webview could not decode the native result of ${bytes.byteLength} bytes into text (${reason}); its UTF-8 validity was not determined`);
+  }
 }
 
 /** Takes a completed job's result: the producer's exact bytes, read once and

@@ -24,6 +24,10 @@ function formatAge(ms: number): string {
 
 const PRESSURE_LEVELS: readonly MemoryPressureLevel[] = ["normal", "warning", "critical", "unknown"];
 
+/** Appended to a solve worker's memory refusals: the likely cause, what the
+ * person can do now and what is planned. The refusal's figures come first. */
+export const SOLVE_WORKER_MEMORY_ADVICE = "The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.";
+
 /** Plain-language reason for a native resource refusal. It states what the
  * native host reported; it never promises that a retry or another setting will succeed. */
 export function describeResourceRefusal(refusal: ResourceRefusal): string {
@@ -59,11 +63,11 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
     case "custody_full":
       return `The app already holds the maximum number of delivered results (${refusal.delivered} of ${refusal.limit}); a held result must be released first.`;
     case "worker_cap_exceeded":
-      return `The solve needed more memory than the per-invocation budget of ${formatBytes(refusal.cap_bytes)} allows (requested ${formatBytes(refusal.requested_bytes)}).`;
+      return `The solve needed more memory than the per-invocation budget of ${formatBytes(refusal.cap_bytes)} allows (requested ${formatBytes(refusal.requested_bytes)}). ${SOLVE_WORKER_MEMORY_ADVICE}`;
     case "worker_growth_refused":
-      return `The solve needed more memory (${formatBytes(refusal.requested_bytes)}) than could be reserved while it ran: ${describeResourceRefusal(refusal.cause)}`;
+      return `The solve needed more memory (${formatBytes(refusal.requested_bytes)}) than could be reserved while it ran: ${describeResourceRefusal(refusal.cause)} ${SOLVE_WORKER_MEMORY_ADVICE}`;
     case "worker_footprint_exceeded":
-      return `The solve's measured memory footprint (${formatBytes(refusal.footprint_bytes)}) does not fit the per-invocation budget, so the solve was ended (its reservation was ${formatBytes(refusal.grant_bytes)}).`;
+      return `The solve's measured memory footprint (${formatBytes(refusal.footprint_bytes)}) does not fit the per-invocation budget, so the solve was ended (its reservation was ${formatBytes(refusal.grant_bytes)}). ${SOLVE_WORKER_MEMORY_ADVICE}`;
     case "worker_limit_reached":
       return `${refusal.running} solve ${refusal.running === 1 ? "worker is" : "workers are"} already running (limit ${refusal.limit}); this solve waits until one finishes.`;
   }

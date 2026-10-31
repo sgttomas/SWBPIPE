@@ -75,7 +75,7 @@ describe("the memory pool panel", () => {
     expect(line("memory-pool-ordinary")).toBe("2 of at most 8 running, holding 6 GiB; each is capped at the per-invocation budget");
     expect(line("memory-pool-queue")).toBe("1 queued; 2 running; 0 results awaiting collection; 1 held by the app");
     expect(line("memory-pool-headroom")).toBe("20 GiB available; pressure normal; read 120 ms ago");
-    expect(line("memory-pool-last-refusal")).toBe("The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 14 GiB).");
+    expect(line("memory-pool-last-refusal")).toBe("The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 14 GiB). The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned.");
     // The interim unpriced, one-at-a-time wording is gone.
     expect(screen.getByTestId("memory-pool-panel").textContent).not.toMatch(/unpriced|one at a time/i);
     expect(screen.getByTestId("memory-pool-boundary").textContent).toMatch(/not an assurance/);
@@ -249,9 +249,9 @@ describe("the memory pool panel", () => {
     [{ kind: "pressure_elevated", level: "warning" }, "macOS reports memory pressure (warning), so no new solve is admitted until it returns to normal."],
     [{ kind: "pressure_elevated", level: "critical" }, "macOS reports memory pressure (critical), so no new solve is admitted until it returns to normal."],
     [{ kind: "worker_growth_refused", granted_bytes: 4 * GiB, requested_bytes: 6 * GiB, cause: { kind: "pool_exhausted", requested_bytes: 2 * GiB, reserved_bytes: 47 * GiB, pool_bytes: 48 * GiB } },
-      "The solve needed more memory (6 GiB) than could be reserved while it ran: The memory pool is fully reserved: this request needs 2 GiB, and 47 GiB of the 48 GiB pool is already reserved."],
+      "The solve needed more memory (6 GiB) than could be reserved while it ran: The memory pool is fully reserved: this request needs 2 GiB, and 47 GiB of the 48 GiB pool is already reserved. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned."],
     [{ kind: "worker_footprint_exceeded", grant_bytes: 4 * GiB, footprint_bytes: 4.5 * GiB },
-      "The solve's measured memory footprint (4.5 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 4 GiB)."],
+      "The solve's measured memory footprint (4.5 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 4 GiB). The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. You can solve fewer load cases or combinations at once, or a smaller model. A summary-first results view is planned."],
     [{ kind: "worker_limit_reached", running: 8, limit: 8 }, "8 solve workers are already running (limit 8); this solve waits until one finishes."]
   ])("shows the last %s refusal in plain language", async (refusal, text) => {
     nativeRuntime();

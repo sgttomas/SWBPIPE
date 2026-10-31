@@ -191,6 +191,7 @@ import {
   refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
+  resultTooLargeSolveJob,
   recordBackendCancellationFailure,
   recordBackendCancellationReceipt,
   requestSolveCancellation,
@@ -1075,6 +1076,16 @@ export function useWorkspaceSession() {
           setSolveJob((current) =>
             current.job_id === startedJob?.job_id
               ? refusedSolveJob(current, refusal)
+              : current
+          );
+          return;
+        }
+        // Refused natively for its size: the result was discarded unread and is never taken.
+        if (terminal.state === "refused" && terminal.result_too_large) {
+          const refusal = terminal.result_too_large;
+          setSolveJob((current) =>
+            current.job_id === startedJob?.job_id
+              ? resultTooLargeSolveJob(current, refusal)
               : current
           );
           return;
