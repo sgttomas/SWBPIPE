@@ -7,6 +7,8 @@
 
 mod factor_sum;
 pub use factor_sum::{factor_sum_within_unit_tolerance, FactorSumError, UNIT_FACTOR_SUM_BOUND};
+mod unsigned;
+pub use unsigned::{evaluate_absolute_sum, evaluate_srss, UNSIGNED_COMBINATION_MAX_TERMS};
 
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_primitive_loads::{
@@ -33,6 +35,8 @@ pub enum AlgebraOperation {
     LinearCombination,
     ResultStateSubtraction,
     RangeEnvelope,
+    AbsoluteSum,
+    Srss,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -157,6 +161,12 @@ pub enum AlgebraExpression {
         operand_ids: Vec<String>,
         mode: RangeMode,
     },
+    AbsoluteSum {
+        terms: Vec<CombinationTerm>,
+    },
+    Srss {
+        terms: Vec<CombinationTerm>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -169,6 +179,10 @@ pub enum FindingCode {
     UnsupportedExpressionShape,
     MissingResultState,
     StatusBoundaryViolation,
+    /// The result (or, for an SRSS, a scaled term `RN(f·x)`) is outside the
+    /// binary64 range, or an operand value is not finite: withheld, never an
+    /// infinity.
+    NonRepresentable,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -284,6 +298,8 @@ pub fn evaluate_expression(
         AlgebraExpression::RangeEnvelope { operand_ids, mode } => {
             evaluate_range_envelope(&operand_by_id, operand_ids, *mode)
         }
+        AlgebraExpression::AbsoluteSum { terms } => evaluate_absolute_sum(&operand_by_id, terms),
+        AlgebraExpression::Srss { terms } => evaluate_srss(&operand_by_id, terms),
     };
     if !input_findings.is_empty() {
         result.quantity = None;
@@ -661,6 +677,9 @@ fn validate_boundary_text(field: &'static str, value: &str) -> Result<(), Bounda
 
 #[cfg(test)]
 mod s11k_tests;
+
+#[cfg(test)]
+mod unsigned_tests;
 
 #[cfg(test)]
 mod tests {

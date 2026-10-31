@@ -1,7 +1,7 @@
 //! Explicit-start macOS supplier custody. No initializer, worker reuse or threads.
 //! Selected ARM pin/profile has bounded native EOF/app-death qualification.
 //! Unknown scope standing retains the marker and refuses restart.
-use super::{http_relay::Endpoint, loopback::Loopback, process_scope, sandbox, supplier};
+use super::{http_relay::Endpoint, loopback::Loopback, process_scope, provider_store, sandbox, supplier};
 use crate::memory_pool::{Lease, LeasePurpose};
 use std::fs::{self, DirBuilder, File, OpenOptions};
 use std::io::{Read, Write};
@@ -15,7 +15,6 @@ use std::time::{Duration, Instant};
 pub(crate) const STARTUP_BYTES: u64 = supplier::STARTUP_BYTES;
 const CAPABILITY_ENV: &str = "SWBPIPE_AGENT_RELAY_CAPABILITY";
 const CONFIG_BODY: &str = r#"model_provider = "swbpipe_relay"
-model_context_window = 8192
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"
 approval_policy = "never"
@@ -49,14 +48,19 @@ skill_search = false
 
 /// JSON string escaping is a subset of TOML basic-string escaping for the
 /// accepted, control-free model identifier. No raw model text is interpolated.
-fn supplier_config(model: &str, relay: &Loopback) -> Result<String, Error> {
-    if model.is_empty() || model.len() > 1024 || model.chars().any(char::is_control) {
+fn supplier_config(model: &str, context_window: u32, relay: &Loopback) -> Result<String, Error> {
+    if model.is_empty()
+        || model.len() > 1024
+        || model.chars().any(char::is_control)
+        || !(provider_store::CONTEXT_WINDOW_MIN..=provider_store::CONTEXT_WINDOW_MAX)
+            .contains(&context_window)
+    {
         return Err(Error::InvalidConfiguration);
     }
     let model = serde_json::to_string(model).map_err(|_| Error::InvalidConfiguration)?;
     let base_url = format!("base_url = \"http://127.0.0.1:{}/v1\"\n", relay.port());
     Ok(format!(
-        "model = {model}\n{}",
+        "model = {model}\nmodel_context_window = {context_window}\n{}",
         CONFIG_BODY.replace(
             "name = \"SWBPIPE provider\"\n",
             &format!("name = \"SWBPIPE provider\"\n{base_url}")
@@ -81,6 +85,8 @@ pub(crate) struct LaunchConfig {
     pub resource_dir: PathBuf,
     pub state_dir: PathBuf,
     pub model: String,
+    /// The person's entered window from the loaded provider revision.
+    pub context_window: u32,
     pub relay: Endpoint,
 }
 
@@ -189,7 +195,7 @@ pub(crate) fn prepare(config: LaunchConfig, lease: Lease) -> Result<Prepared, Er
     if !config.relay.is_ready() {
         return Err(Error::InvalidConfiguration);
     }
-    let supplier_config = supplier_config(&config.model, config.relay.scope())?;
+    let supplier_config = supplier_config(&config.model, config.context_window, config.relay.scope())?;
     let lease = Arc::new(lease);
     let source = supplier::BundledSupplier::open(&config.resource_dir, lease.clone())
         .map_err(Error::Supplier)?;
@@ -515,8 +521,9 @@ mod tests {
     fn portable_configuration_excludes_provider_secrets_and_escapes_model() {
         let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
         let relay = Loopback::bind(&registry).unwrap();
-        let text = supplier_config("invented \"model\" \\ variant", &relay).unwrap();
-        assert!(text.starts_with("model = \"invented \\\"model\\\" \\\\ variant\"\n"));
+        let text = supplier_config("invented \"model\" \\ variant", 32768, &relay).unwrap();
+        assert!(text.starts_with("model = \"invented \\\"model\\\" \\\\ variant\"\nmodel_context_window = 32768\n"));
+        assert_eq!(text.matches("model_context_window").count(), 1);
         assert!(text.contains(&format!(
             "base_url = \"http://127.0.0.1:{}/v1\"",
             relay.port()
@@ -528,7 +535,13 @@ mod tests {
         assert!(!text.contains("OMLX"));
         for bad in ["", "x\ny", "x\0y", &"x".repeat(1025)] {
             assert_eq!(
-                supplier_config(bad, &relay),
+                supplier_config(bad, 32768, &relay),
+                Err(Error::InvalidConfiguration)
+            );
+        }
+        for bad in [0, 8191, 131_073, u32::MAX] {
+            assert_eq!(
+                supplier_config("invented-model", bad, &relay),
                 Err(Error::InvalidConfiguration)
             );
         }
@@ -544,6 +557,7 @@ mod tests {
                 resource_dir: state.join("never-opened"),
                 state_dir: state.clone(),
                 model: "bad\nmodel".into(),
+                context_window: 32768,
                 relay: relay.endpoint().unwrap(),
             },
             lease,
@@ -566,6 +580,7 @@ mod tests {
                 resource_dir: state.join("never-opened"),
                 state_dir: state.clone(),
                 model: "invented-model".into(),
+                context_window: 32768,
                 relay: endpoint,
             },
             lease,
@@ -593,6 +608,7 @@ mod tests {
                 resource_dir: state.join("missing-resources"),
                 state_dir: state.clone(),
                 model: "invented-model".into(),
+                context_window: 32768,
                 relay: relay.endpoint().unwrap(),
             },
             lease,
@@ -628,6 +644,7 @@ mod tests {
                 resource_dir: resources.into(),
                 state_dir: state.clone(),
                 model: "invented-native-probe-model".into(),
+                context_window: 32768,
                 relay: relay.endpoint().unwrap(),
             },
             lease,

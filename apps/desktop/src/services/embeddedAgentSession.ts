@@ -27,6 +27,29 @@ type Run={basis:AgentBasis;receipt:AgentRunReceipt};
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
+/** The native kinds swbpipe-catalog/3 admits; the catalog schema is their gate and the applier their authority. */
+export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile']);
+const AUDIT_BOUNDARY=Object.freeze({mutation_route:'structured_operations_only',direct_model_mutation_allowed:false,requires_user_acceptance:true,mutates_accepted_model_state:false} as const);
+const PROFESSIONAL_BOUNDARY=Object.freeze({
+ human_review_required:true,
+ software_makes_compliance_claim:false,
+ software_makes_certification_claim:false,
+ software_makes_sealing_claim:false,
+ software_makes_approval_claim:false,
+ software_makes_authentication_claim:false
+} as const);
+/** The agent supplies operation_id, operation_kind, target, change and rationale; the host
+ * stamps status, attribution, queue/source and the constant validation and boundary records.
+ * A host field in the arguments never survives (the catalog already refuses one). */
+export function stampAgentOperations(operations:readonly Record<string,unknown>[],proposalHandle:string,requestRef:string):EditorOperationIntent[]{
+ return operations.map(operation=>({...structuredClone(operation),author_type:'agent' as const,operation_status:'proposed' as const,queue_id:proposalHandle,source:{source_ref:requestRef,source_channel:'embedded_agent',source_role:'agent'},validation:{schema_validation:'not_run',constraint_validation:'not_run',unit_validation:'not_run',diff_preview_status:'not_run',application_status:'not_applied'},audit_boundary:{...AUDIT_BOUNDARY},professional_boundary:{...PROFESSIONAL_BOUNDARY}}) as unknown as EditorOperationIntent);
+}
+/** RFC 8785 text of a string-only object tree: the `before` the applier compares for pressure_profile. */
+function stringTreeText(value:unknown):string{
+ if(typeof value==='string')return JSON.stringify(value);
+ if(!plain(value))throw new Error('AGENT-PROFILE-UNREPRESENTABLE');
+ return `{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${stringTreeText(value[key])}`).join(',')}}`;
+}
 function same(a:unknown,b:unknown):boolean {
  if(Object.is(a,b))return true;
  if(Array.isArray(a)&&Array.isArray(b))return a.length===b.length&&a.every((value,i)=>same(value,b[i]));
@@ -41,7 +64,7 @@ function small(value:unknown):string {const raw=jsonTextKeepingNegativeZero(valu
 export class EmbeddedAgentSession {
  #authority:Authority|null=null;#scope:AgentScope|null=null;#generation=-1;#bridge:EmbeddedAgentBridge|null=null;
  #actual=new Map<string,AgentActual>();#proposals=new Map<string,Proposal>();#runs=new Map<string,Run>();
- #cursors=new Map<string,{tool:string;basis:AgentBasis;offset:number;run?:string}>();
+ #cursors=new Map<string,{tool:string;basis:AgentBasis;offset:number;run?:string;filter?:unknown}>();
  #interrupted=new Set<string>();
  #listeners=new Set<(view:AgentSessionView)=>void>();
  #messages=new Map<string,string>();#roles=new Map<string,'user'|'agent'>();#messageChars=0;#truncated=false;
@@ -140,10 +163,10 @@ export class EmbeddedAgentSession {
  private result(call:AgentCall,status:string,message:string,data:unknown,proof:Proof):AgentActual{return {outcome:small({status,basis:call.basis,message,data}),record:proof};}
  private offset(call:AgentCall,run?:string):number {
   const page=call.arguments.page as {cursor:string|null;limit:number};if(page.cursor===null)return 0;
-  const saved=this.#cursors.get(page.cursor);if(!saved||saved.tool!==call.tool||!same(saved.basis,call.basis)||saved.run!==run)throw new Error('AGENT-CURSOR-REFUSED');return saved.offset;
+  const saved=this.#cursors.get(page.cursor);if(!saved||saved.tool!==call.tool||!same(saved.basis,call.basis)||saved.run!==run||!same(saved.filter,call.arguments.filter))throw new Error('AGENT-CURSOR-REFUSED');return saved.offset;
  }
  private cursor(call:AgentCall,offset:number,more:boolean,run?:string):string|null {
-  if(!more)return null;if(this.#cursors.size>=64)throw new Error('AGENT-CURSOR-LIMIT');const ref=opaque();this.#cursors.set(ref,{tool:call.tool,basis:call.basis,offset,run});return ref;
+  if(!more)return null;if(this.#cursors.size>=64)throw new Error('AGENT-CURSOR-LIMIT');const ref=opaque();this.#cursors.set(ref,{tool:call.tool,basis:call.basis,offset,run,filter:structuredClone(call.arguments.filter)});return ref;
  }
  private async execute(call:AgentCall):Promise<AgentActual>{
   if(call.tool==='swbpipe_observe_proposal'){
@@ -158,7 +181,10 @@ export class EmbeddedAgentSession {
    const counts:Record<string,number>={};for(const key of ['nodes','pipe_segments','supports','materials','sections','load_cases','primitive_loads','combinations','components']){
     const value=(model as unknown as Record<string,unknown>)[key];if(Array.isArray(value))counts[key]=value.length;
    }
-   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:['modify/Node/set_field/position'],limits:LIMITS},{kind:'read'});
+   const contract=(model as unknown as Record<string,unknown>).pressure_contract;
+   if(contract!==undefined&&(!plain(contract)||Object.values(contract).some(value=>typeof value!=='string')))return this.failure(call,'The pressure contract is not representable in this catalog summary.');
+   const profile:Record<string,unknown>={};if(model.schema_version!==undefined)profile.schema_version=model.schema_version;if(contract!==undefined)profile.pressure_contract=contract;
+   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],limits:LIMITS},{kind:'read'});
   }
   if(call.tool==='swbpipe_read_nodes'){
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const end=Math.min(model.nodes.length,offset+page.limit);
@@ -168,7 +194,7 @@ export class EmbeddedAgentSession {
   if(call.tool==='swbpipe_propose_operations'){
    if(this.#proposals.size>=64)return this.failure(call,'Proposal retention is full.');
    const handle=opaque();const context:AgentContext=Object.freeze({requestRef:call.requestRef,threadId:call.threadId,turnId:call.turnId,callId:call.callId,basis:structuredClone(call.basis),assumptions:structuredClone(call.arguments.assumptions as AgentAssumption[])});
-   const operations=(call.arguments.operations as EditorOperationIntent[]).map(operation=>({...structuredClone(operation),author_type:'agent' as const,operation_status:'proposed' as const,queue_id:handle,source:{source_ref:call.requestRef,source_channel:'embedded_agent',source_role:'agent'},validation:{schema_validation:'not_run',constraint_validation:'not_run',unit_validation:'not_run',diff_preview_status:'not_run',application_status:'not_applied'}}));
+   const operations=stampAgentOperations(call.arguments.operations as Record<string,unknown>[],handle,call.requestRef);
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};
    const validation=await validateOperationBatch(model,batch,snap.hash);if(!this.current(call))return this.failure(call,'Workspace changed during proposal preparation.','stale_basis');
    if(validation.validation.batch_validation_status!=='passed')return this.failure(call,'The operation engine refused the proposal; nothing was queued.');
@@ -189,12 +215,14 @@ export class EmbeddedAgentSession {
  private readResults(call:AgentCall):AgentActual{
   const handle=String(call.arguments.runHandle),run=this.#runs.get(handle);if(!run||!same(run.basis,call.basis))return this.failure(call,'Run is unavailable.');
   const snap=this.owner.snapshot(),result=snap.result;if(!result||result.run_id!==run.receipt.runId)return this.failure(call,'The retained run is no longer held by the result owner.');
-  const offset=this.offset(call,handle),page=call.arguments.page as {limit:number},end=Math.min(result.results.length,offset+page.limit);const values=[];
+  const filter=call.arguments.filter as {kinds:string[];entityRefs:string[]}|undefined;
+  const rows=filter?result.results.filter(row=>(!filter.kinds.length||filter.kinds.includes(row.kind))&&(!filter.entityRefs.length||filter.entityRefs.includes(row.entity_ref))):result.results;
+  const offset=this.offset(call,handle),page=call.arguments.page as {limit:number},end=Math.min(rows.length,offset+page.limit);const values=[];
   for(let i=offset;i<end;i++){
-   const row=result.results[i];if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
+   const row=rows[i];if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
    const permitted=overlayMayShowRow(snap.standing,row)&&!result.retained_precision&&Number.isFinite(row.value);
    values.push({id:row.id,kind:row.kind,entityRef:row.entity_ref,value:permitted?row.value:null,exactDecimal:null,unit:row.unit,availability:permitted?'available':'withheld',reason:permitted?null:'The existing numerical view does not permit this binary64 value.'});
   }
-  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<result.results.length,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId});
+  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<rows.length,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId});
  }
 }
