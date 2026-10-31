@@ -571,7 +571,7 @@ cost §5 shows. None is worked around outside the operation route.
 | G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections at creation; no later end-size edits (§3.6) |
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
-| G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 38 apply cycles (§5) |
+| G9 | Each queued single intent is applied on its own | `OperationApplyPanel.tsx:105-114` | no deliverable lists the file | 32 apply cycles before G9 batching (§5) |
 | G10 | Closed in DEL-09-01: tee creation requires a run size, header size, connection type and reinforcement reference; spec §5 now gives invented values, which EX does not read | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) | §3.6 |
 | G11 | No modifier-source entry for a tee: the inspector offers header and branch SIFs but not `modifiers.source_reference`, which it offers only on rigid components | `PropertyInspector.tsx:1920-2009, 2097-2105`; applier field rule `lib.rs:679-682` | DEL-03-05 | Leaves the SIF source unentered (§3.6) |
 

@@ -490,11 +490,11 @@ the criterion text is the owner's, and Agent 0 takes the question to the owner w
 RT-U2 walkthrough results.
 
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows in two chains
-(from A, and the branch from the tee), entered with 135 sheet entries, and about 550
+(from A, and the branch from the tee), entered with 135 sheet entries, and 534
 follow-up form entries, 168 of them the per-member load/reference states and pressure
 regions of the three cases since the fills and case copies of #38, and 21 the tee RS-T1
-with the person's SIFs. The run sheet's estimate is about 64 minutes (about 77 before #41
-and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
+with the person's SIFs. The run sheet's estimate is about 61 minutes after G6 (about 64 before G6,
+about 77 before #41 and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
 the sheet carries the fixture's support and bend ids: ten of the eleven supports and the
 three bends are rows, with 9 typed node and pipe ids (run sheet §2, §3.4). The variable
 spring RS-VS1, whose hanger data no support code carries, and the bends' SIFs are entered
