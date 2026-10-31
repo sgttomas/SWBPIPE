@@ -91,7 +91,7 @@ describe("the latest solve's timeline (RT-U4)", () => {
     expect(readSolveTimeline()!.failure).toMatchObject({ code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", error_name: "Error" });
   });
 
-  it("keeps a detail string only when it is a code: no path, identifier or message text", () => {
+  it("keeps a detail string only when it is a code, under a measurement field only: no path, identifier or message text", () => {
     beginSolveTimeline({ solver_mode: "sparse_interactive" });
     markSolveStage("reader_verdict_end", { registered: false, reason_code: "SOURCE_PHYSICS_RHS_DIRECTION" });
     markSolveStage("job_done", { state: "completed", result_bytes: 5, path: "/Users/someone/rack.json" });
@@ -100,12 +100,27 @@ describe("the latest solve's timeline (RT-U4)", () => {
     expect(details).toEqual([
       { solver_mode: "sparse_interactive" },
       { registered: false, reason_code: "SOURCE_PHYSICS_RHS_DIRECTION" },
-      { state: "completed", result_bytes: 5, path: null },
-      { job: null, project: null, note: null }
+      { state: "completed", result_bytes: 5 },
+      {}
     ]);
     expect(codeOrNull("PREVIEW-SOLVE-RESULT-UTF8-INVALID")).toBe("PREVIEW-SOLVE-RESULT-UTF8-INVALID");
     expect(errorCode(new Error("PREVIEW-SOLVE-RESULT-UTF8-INVALID: the bytes"))).toBe("PREVIEW-SOLVE-RESULT-UTF8-INVALID");
     expect(errorCode(new Error("unknown solve job: backend-solve-job-1"))).toBeNull();
+  });
+
+  it("drops a detail key that is not a measurement field and an error class it does not know", () => {
+    const run = beginSolveTimeline({ EXAMPLE_CUSTOMER: 7, solver_mode: "dense_scrutiny" });
+    markSolveStage("take_end", { bytes: 3, SOURCE_CUSTOMER_ACME: true, "/Users/someone/rack.json": 1 });
+    class ExampleCustomerError extends Error { override name = "ExampleCustomerError"; }
+    run.end("failed", new ExampleCustomerError("SOLVE-JOB-IDENTITY-MISMATCH: later"));
+    const timeline = readSolveTimeline()!;
+    expect(timeline.marks.map((mark) => mark.detail)).toEqual([{ solver_mode: "dense_scrutiny" }, { bytes: 3 }]);
+    expect(timeline.failure).toMatchObject({ code: "SOLVE-JOB-IDENTITY-MISMATCH", error_name: null });
+    const known = beginSolveTimeline();
+    const refused = new Error("RESOURCE_UNAVAILABLE: the pool is full");
+    refused.name = "ResourceUnavailableError";
+    known.end("failed", refused);
+    expect(readSolveTimeline()!.failure).toMatchObject({ error_name: "ResourceUnavailableError" });
   });
 
   it("ignores a superseded run's marks and end", () => {

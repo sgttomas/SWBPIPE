@@ -16,7 +16,8 @@
  *
  * Timings, counts and codes only: no model data, path, identifier (job, run, model or
  * project) or message text is kept for reading. A detail string that is not a code is
- * dropped (`codeOrNull`). Kept small: a bounded mark list, one aggregate per (kind,
+ * dropped (`codeOrNull`), as is a detail under a key other than a measurement field
+ * (`DETAIL_KEYS`) and an error class outside `ERROR_NAMES`. Kept small: a bounded mark list, one aggregate per (kind,
  * stage), and a WeakRef to the received result (never a copy of it).
  *
  * `readSolveTimeline` returns a fresh copy. The read-only global
@@ -76,14 +77,31 @@ export function errorCode(error: unknown): string | null {
   const message = String((error as { message?: unknown })?.message ?? error ?? "");
   return codeOrNull(message.match(/^([A-Z][A-Z0-9_-]*)(?=[:\s]|$)/)?.[1] ?? null);
 }
+// The error classes a solve can raise, exactly: JavaScript's own, the DOM's that a take or a
+// decode can raise, and the app's. Any other name (`ExampleCustomerError`) is dropped.
+export const ERROR_NAMES: readonly string[] = [
+  "Error", "TypeError", "RangeError", "SyntaxError", "ReferenceError", "EvalError", "URIError", "AggregateError",
+  "AbortError", "DataCloneError", "QuotaExceededError",
+  "ResultReaderError", "RetainedPrecisionError", "IngressRequestRetiredError", "ResourceUnavailableError"
+];
+const KEPT_ERROR_NAMES: ReadonlySet<string> = new Set(ERROR_NAMES);
 function errorName(error: unknown): string | null {
   const name = (error as { name?: unknown })?.name;
-  return typeof name === "string" && /^(?:[A-Z][A-Za-z]{0,40})?Error$/.test(name) ? name : null;
+  return typeof name === "string" && KEPT_ERROR_NAMES.has(name) ? name : null;
 }
-// Numbers and booleans as given; a string only if it is a code.
+// The measurement fields the recording sites write, exactly. A detail under any other key is
+// dropped with its key, so a key cannot carry an identifier (`EXAMPLE_CUSTOMER`) either.
+export const DETAIL_KEYS: readonly string[] = [
+  "solver_mode", "state", "result_bytes", "worker_peak_footprint_bytes", "worker_peak_grant_bytes",
+  "bytes", "chars", "rows", "registered", "reason_code"
+];
+const KEPT_DETAIL_KEYS: ReadonlySet<string> = new Set(DETAIL_KEYS);
+// Kept keys only; numbers and booleans as given, a string only if it is a code.
 function cleanDetail(detail: Detail | null): Detail | null {
   if (!detail) return null;
-  return Object.fromEntries(Object.entries(detail).map(([key, value]) => [key, typeof value === "string" ? codeOrNull(value) : value]));
+  return Object.fromEntries(Object.entries(detail)
+    .filter(([key]) => KEPT_DETAIL_KEYS.has(key))
+    .map(([key, value]) => [key, typeof value === "string" ? codeOrNull(value) : value]));
 }
 
 export type SolveTimelineMark = Readonly<{ stage: SolveStage; at_ms: number; since_start_ms: number; detail: Detail | null }>;

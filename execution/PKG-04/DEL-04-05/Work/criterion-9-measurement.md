@@ -292,7 +292,15 @@ are in `apps/desktop`:
     recorded out of model. Native-smoke builds are never distributed.
   - *Timeline.* A string it keeps must be on its exact code table (`solveTimelineCodes.ts`).
     The table is generated from the sources whose codes it records, and a test fails when
-    the two differ.
+    the two differ. A detail is kept only under a measurement field (`DETAIL_KEYS`), and an
+    error class only from `ERROR_NAMES`; both lists are exact.
+- **Open matter: the code table follows spelling, not meaning.** The generator admits every
+  code-shaped literal in the listed sources, so it admits a non-diagnostic one such as an
+  environment-variable name, and would admit an identifier-shaped literal written into those
+  sources. It also skips a code whose final segment is a number (`…-VERSION-2`), so such a code
+  at a recording site would be dropped from the timeline without failing the equality test.
+  Deriving the table from explicit code declarations or emitting sites would close both. (PR
+  #53 round-3 review, non-blocking.)
 - **Open matter: the product-binary check is not on hosted CI.** Hosted CI builds no product
   release binary:
   - the desktop Rust job runs `cargo test --locked --manifest-path
