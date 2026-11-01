@@ -78,9 +78,17 @@ export type NativeBinding = Readonly<{
   standing: Readonly<{ eligible: boolean; findings: readonly string[] }> | null;
 }>;
 
-/** Native custody of one fresh result. */
+/** Where a native handle's bytes came from (C1 slice 6). Only `fresh_job` is a native solve:
+ * registration, capture, intake and fresh persistence are for it alone. A restored handle holds a
+ * saved project's run or a recorded run reopened into native custody; it has historical standing
+ * under its stored evidence and never becomes Current because it reads like a fresh handle. */
+export type NativeOrigin = "fresh_job" | "restored_saved_run" | "restored_recorded_run";
+
+/** Native custody of one result: a fresh solve's, or a restored stored run's. */
 export type NativeCustody = Readonly<{
+  /** The native handle: a solve job's id, or a restored result's (`restored-stored-result-N`). */
   jobId: string;
+  origin: NativeOrigin;
   /** The held result's exact length in bytes (the job's status). */
   resultBytes: number;
   summary: ResultSummary;
@@ -112,6 +120,10 @@ export function nativeCustody(result: NativeResult): NativeCustody {
 /** The custody when `value` is a native handle, else null. */
 export function nativeCustodyOf(value: unknown): NativeCustody | null {
   return isNativeResult(value) ? value[NATIVE] : null;
+}
+/** Whether a value is a fresh solve's native handle (never a restored one). */
+export function isFreshNativeResult(value: unknown): value is NativeResult {
+  return isNativeResult(value) && value[NATIVE].origin === "fresh_job";
 }
 
 /** Builds a handle from S and the readings. The envelope members come from S's header only. */

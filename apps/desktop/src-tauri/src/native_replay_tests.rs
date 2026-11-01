@@ -59,7 +59,7 @@ fn substitute(value: &Value, job_id: &str) -> Value {
 }
 
 /// The reply the webview receives for one request.
-fn reply(registry: &SolveJobRegistry, command: &str, args: &Value) -> Value {
+pub(crate) fn reply(registry: &SolveJobRegistry, command: &str, args: &Value) -> Value {
     let body = InvokeBody::Raw(serde_json::to_vec(args).unwrap());
     let headers = headers(Some(INGRESS_ARGS_JSON_V1));
     let bytes = |outcome: Result<Vec<u8>, CommandError<String>>| match outcome {

@@ -750,6 +750,9 @@ pub(crate) struct HistoricalFindings {
     /// The stored result's `status.mechanics` when it is evidence.
     pub(crate) mechanics: Option<String>,
     /// The standing S's tables are read with (`null` when not renderable).
+    /// The dispatch standing behind the standing findings (`numericalResultStanding`'s): kept for the
+    /// findings only, never sent: a reopened run has no current standing.
+    #[serde(skip)]
     pub(crate) standing: Value,
     pub(crate) envelope_payload_hash: Option<String>,
     pub(crate) model_hash: Option<Value>,

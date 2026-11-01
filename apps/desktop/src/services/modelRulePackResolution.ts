@@ -106,11 +106,13 @@ export function recordRulePackExclusions(run: SessionAnalysisRun | null | undefi
 /** What a run shows of its rule-pack references: the packs its input manifest records,
  * then the diagnostic message of each excluded reference, read from the run record's
  * diagnostics. Null when the solved model referenced no pack. */
-export function runRulePackLines(manifest: CurrentSessionInputManifest | null | undefined, run: SessionAnalysisRun | null | undefined): { recorded: string[]; diagnostics: string[] } | null {
+/** C1 slice 6: a restored record's rule-pack reference diagnostics (its header's), read as a record's. */
+export type RestoredRecordDiagnostics = Readonly<{ analysis_run: Readonly<{ diagnostics: readonly unknown[] }> }>;
+export function runRulePackLines(manifest: CurrentSessionInputManifest | null | undefined, run: SessionAnalysisRun | RestoredRecordDiagnostics | null | undefined): { recorded: string[]; diagnostics: string[] } | null {
   if (!manifest || !(manifest.model_basis?.model_payload?.rule_pack_refs?.length)) return null;
   const recorded = (manifest.active_rule_packs ?? []).map((pack) =>
     `${pack.rule_pack_id} v${pack.version} (sha256 ${pack.checksum_sha256.slice(0, 12)}…)`);
-  const listed = isNativeAnalysisRun(run) ? nativeRunPreview(run).rule_pack_ref_diagnostics : run?.analysis_run?.diagnostics;
+  const listed = isNativeAnalysisRun(run) ? nativeRunPreview(run).rule_pack_ref_diagnostics : (run as { analysis_run?: { diagnostics?: unknown } } | null | undefined)?.analysis_run?.diagnostics;
   const diagnostics = (Array.isArray(listed) ? listed : [])
     .map((item) => item?.source_annotation as { code?: unknown; message?: unknown; source?: unknown } | undefined)
     .flatMap((annotation) => annotation?.source === RULE_PACK_REF_DIAGNOSTIC_SOURCE && typeof annotation.code === "string" && typeof annotation.message === "string"

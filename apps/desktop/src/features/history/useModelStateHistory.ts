@@ -41,7 +41,9 @@ import {
   type CurrentRunSlot,
   type RunLabels
 } from "../../services/analysisRunService";
-import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
+import { buildNativeRecordedRunContext, buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
+import { disposeRestoredRun, readAnalysisRunNative } from "../../services/nativeReopen";
+import { isTauriRuntime } from "../../services/nativeMenu";
 import { COMPARISON_STATE_NOT_EXACT, compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
 import { computeModelHash } from "../../services/hashService";
 import { projectUnitsShapeRefusal } from "../model-file/modelDocumentShape";
@@ -681,10 +683,21 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     if (!owner) return false;
     const generation = depsRef.current.projectSessionGenerationRef.current;
     try {
-      const read = await readAnalysisRun(run.project_id, recordingId);
-      const context = await buildRecordedRunContext(read);
+      // C1 slice 6: on the desktop the run is reopened into native custody and its findings computed
+      // there (no result or ResultRef crosses); the check holds no rows, so the handle is released at once.
+      let context: HistoricalRunContext, manifestText: string;
+      if (isTauriRuntime()) {
+        const read = await readAnalysisRunNative(run.project_id, recordingId);
+        void disposeRestoredRun(read.restored);
+        context = buildNativeRecordedRunContext(read);
+        manifestText = read.input_manifest_canonical;
+      } else {
+        const read = await readAnalysisRun(run.project_id, recordingId);
+        context = await buildRecordedRunContext(read);
+        manifestText = read.input_manifest_canonical;
+      }
       if (generation !== depsRef.current.projectSessionGenerationRef.current) return false;
-      setRunCheck({ recordingId, context, failure: null, manifest: parsedManifest(read.input_manifest_canonical) });
+      setRunCheck({ recordingId, context, failure: null, manifest: parsedManifest(manifestText) });
       setHistoryOperation("check_run");
       return true;
     } catch (error) {

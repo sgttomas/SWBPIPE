@@ -72,6 +72,9 @@ export const NATIVE_INGRESS_COMMANDS = [
   "read_preview_mechanics_job_analysis_run_preview",
   // C1 slice 5's persistence: Record Run and Save/Create Project from the job handle.
   "record_preview_mechanics_job_analysis_run",
+  // C1 slice 6: saved and recorded runs reopened into native custody.
+  "open_local_project_in_native_custody",
+  "read_analysis_run_in_native_custody",
   "save_preview_mechanics_job_local_project"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];

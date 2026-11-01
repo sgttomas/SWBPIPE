@@ -1216,4 +1216,4 @@ fn finish_save(
 
 #[cfg(test)]
 #[path = "native_persistence_tests.rs"]
-mod tests;
+pub(crate) mod tests;

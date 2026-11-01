@@ -4,6 +4,7 @@
 // diagnostic, read from the run record's diagnostics. Shown with the solve, the
 // Record Run form and a recorded run's check. Identity only: the solve neither
 // reads nor applies a pack, and a reference never makes a check pass (F-PIP-2).
+import type { RestoredRecordDiagnostics } from "../../services/modelRulePackResolution";
 import type { SessionAnalysisRun } from "../../services/nativeResult";
 import type { AnalysisRunEnvelope } from "../../types";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -15,7 +16,7 @@ export const RULE_PACK_RUN_REFERENCES_NOTE =
 /** Nothing when the solved model referenced no rule pack. */
 export function RulePackRunReferences({ manifest, record, testId }: {
   manifest: CurrentSessionInputManifest | null | undefined;
-  record: SessionAnalysisRun | null | undefined;
+  record: SessionAnalysisRun | RestoredRecordDiagnostics | null | undefined;
   testId: string;
 }) {
   const lines = runRulePackLines(manifest, record);

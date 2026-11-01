@@ -661,6 +661,7 @@ export async function readNativeFreshResult(
     : null;
   const result = createNativeResult({
     jobId,
+    origin: "fresh_job",
     resultBytes,
     summary,
     verdict: await readNativeVerdict(jobId, standingInputs),

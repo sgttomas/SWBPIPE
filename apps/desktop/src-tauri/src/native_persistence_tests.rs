@@ -49,10 +49,10 @@ fn frozen_token() -> Result<String, String> {
 fn frozen_seconds() -> Result<i64, String> {
     Ok(NOW_SECONDS)
 }
-const FROZEN: RunWriteHooks<'static> = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &|_, _| Ok(()) };
+pub(crate) const FROZEN: RunWriteHooks<'static> = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &|_, _| Ok(()) };
 
 /// A fresh directory for this test's stores.
-fn scratch(name: &str) -> PathBuf {
+pub(crate) fn scratch(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("swbpipe-native-persistence-{name}-{}-{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
     std::fs::create_dir_all(&dir).unwrap();
     dir
@@ -60,7 +60,7 @@ fn scratch(name: &str) -> PathBuf {
 
 /// A native-custody job started on the model text `intake` (the body the
 /// session's start sends), solved in `mode`, holding `text`.
-fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str, intake: &str, mode: &str, custody: ResultCustody) -> String {
+pub(crate) fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str, intake: &str, mode: &str, custody: ResultCustody) -> String {
     let started = gate.started_count();
     let receipt = registry.start_with_custody(intake.as_bytes(), Some(mode), custody).unwrap();
     gate.wait_started(started + 1);
@@ -70,38 +70,38 @@ fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str, intake: &str, mode
     receipt.job_id
 }
 
-fn claimed(record: &Value, scope: &str) -> String {
+pub(crate) fn claimed(record: &Value, scope: &str) -> String {
     record["analysis_run"]["hashes"].as_array().unwrap().iter().find(|h| h["payload_scope"] == scope).unwrap()["value"].as_str().unwrap().to_string()
 }
 
 /// One preview case and what the tests read of it.
-struct Case {
-    id: String,
-    text: String,
+pub(crate) struct Case {
+    pub(crate) id: String,
+    pub(crate) text: String,
     /// The model text the session's solve sent (`intake_text`, `checkedJsonText` of the manifest's model).
-    intake: String,
-    record: Value,
-    manifest_text: String,
-    manifest: Value,
-    mode: String,
-    form: Value,
-    case: Value,
+    pub(crate) intake: String,
+    pub(crate) record: Value,
+    pub(crate) manifest_text: String,
+    pub(crate) manifest: Value,
+    pub(crate) mode: String,
+    pub(crate) form: Value,
+    pub(crate) case: Value,
 }
 
 impl Case {
-    fn model(&self) -> &Value {
+    pub(crate) fn model(&self) -> &Value {
         &self.manifest["model_basis"]["model_payload"]
     }
-    fn project_id(&self) -> &str {
+    pub(crate) fn project_id(&self) -> &str {
         self.manifest["model_basis"]["model_ref"].as_str().unwrap()
     }
-    fn project_name(&self) -> String {
+    pub(crate) fn project_name(&self) -> String {
         self.model()["project"]["name"].as_str().map_or_else(|| crate::project_name_from_model(self.model()), str::to_string)
     }
-    fn expected(&self) -> Value {
+    pub(crate) fn expected(&self) -> Value {
         json!({"run_id": self.record["analysis_run"]["run_id"], "record_sha256": claimed(&self.record, "analysis_run_record"), "received_sha256": claimed(&self.record, "received_result")})
     }
-    fn inputs(&self, job: &str) -> serde_json::Map<String, Value> {
+    pub(crate) fn inputs(&self, job: &str) -> serde_json::Map<String, Value> {
         let mut args = serde_json::Map::new();
         args.insert("jobId".into(), json!(job));
         args.insert("inputManifest".into(), self.case["input_manifest"].clone());
@@ -111,12 +111,12 @@ impl Case {
         args.insert("intakeText".into(), json!(self.intake));
         args
     }
-    fn record_args(&self, job: &str, request: Value) -> Value {
+    pub(crate) fn record_args(&self, job: &str, request: Value) -> Value {
         let mut args = self.inputs(job);
         args.insert("request".into(), request);
         Value::Object(args)
     }
-    fn save_args(&self, job: &str, mode: &str, expected_base: Value, confirmed: Value) -> Value {
+    pub(crate) fn save_args(&self, job: &str, mode: &str, expected_base: Value, confirmed: Value) -> Value {
         let save = &self.form["save"];
         let mut args = self.inputs(job);
         for (key, value) in [
@@ -143,7 +143,7 @@ impl Case {
     }
 }
 
-fn cases() -> Vec<Case> {
+pub(crate) fn cases() -> Vec<Case> {
     let corpus = preview_cases();
     forms()["cases"]
         .as_array()
@@ -174,45 +174,45 @@ fn digest(text: &str) -> Value {
     json!({"sha256": sha, "length": text.len()})
 }
 
-fn text_of(error: CommandError<String>) -> String {
+pub(crate) fn text_of(error: CommandError<String>) -> String {
     match error {
         CommandError::Command(text) | CommandError::Response(text) => text,
         CommandError::Ingress(error) => format!("INGRESS: {error:?}"),
     }
 }
 
-fn body(args: &Value) -> InvokeBody {
+pub(crate) fn body(args: &Value) -> InvokeBody {
     InvokeBody::Raw(serde_json::to_vec(args).unwrap())
 }
 
 /// The native Record Run's two steps in this thread, its reply as the webview reads it (a JSON body).
-fn native_record(registry: &SolveJobRegistry, path: &Path, args: &Value, limit: Option<i32>) -> Result<Value, String> {
+pub(crate) fn native_record(registry: &SolveJobRegistry, path: &Path, args: &Value, limit: Option<i32>) -> Result<Value, String> {
     let (raw, lease) = reserve(registry, &body(args), &headers(Some(INGRESS_ARGS_JSON_V1)), RECORD_COMMAND).map_err(text_of)?;
     let path = path.to_path_buf();
     run_record(registry, move || Ok(path), raw, lease, &FROZEN, limit).map(|reply| serde_json::from_str(reply.text()).unwrap()).map_err(text_of)
 }
 
 /// The native save's two steps in this thread.
-fn native_save(registry: &SolveJobRegistry, path: &Path, args: &Value, limits: &SaveLimits) -> Result<Value, String> {
+pub(crate) fn native_save(registry: &SolveJobRegistry, path: &Path, args: &Value, limits: &SaveLimits) -> Result<Value, String> {
     let (raw, lease) = reserve(registry, &body(args), &headers(Some(INGRESS_ARGS_JSON_V1)), SAVE_COMMAND).map_err(text_of)?;
     let path = path.to_path_buf();
     run_save(registry, move || Ok(path), raw, lease, limits, &frozen_seconds).map(|reply| serde_json::from_str(reply.text()).unwrap()).map_err(text_of)
 }
 
-fn unlimited() -> SaveLimits {
+pub(crate) fn unlimited() -> SaveLimits {
     SaveLimits { sqlite_length: None, withheld_bytes: crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES }
 }
 
 /// A stored project with base `base`, as a session that saved it leaves it.
-fn stored_project(path: &Path, project_id: &str, model: &Value) {
+pub(crate) fn stored_project(path: &Path, project_id: &str, model: &Value) {
     let (mut connection, _) = crate::open_project_store(path).unwrap();
     crate::upsert_project(&mut connection, project_id, "Invented project", model, &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!({"value": "base"})).unwrap();
 }
 
-type Rows = Vec<Vec<(String, rusqlite::types::Value)>>;
+pub(crate) type Rows = Vec<Vec<(String, rusqlite::types::Value)>>;
 
 /// Every row of `table`, every column but `skip`, in rowid order.
-fn dump(path: &Path, table: &str, skip: &[&str]) -> Rows {
+pub(crate) fn dump(path: &Path, table: &str, skip: &[&str]) -> Rows {
     let connection = Connection::open(path).unwrap();
     let mut statement = connection.prepare(&format!("SELECT * FROM {table} ORDER BY rowid")).unwrap();
     let names: Vec<String> = statement.column_names().iter().map(|name| name.to_string()).collect();
@@ -249,10 +249,10 @@ fn same_rows(a: &Path, b: &Path, table: &str, skip: &[&str], id: &str) {
 
 const RUN_TABLES: [&str; 4] = ["analysis_runs", "analysis_run_labels", "model_states", "model_state_labels"];
 
-fn run_labels() -> Value {
+pub(crate) fn run_labels() -> Value {
     json!({"run_name": "Invented run – rev A", "tags": ["tie-in"], "notes": ["Invented note."], "assumptions": []})
 }
-fn state_labels() -> Value {
+pub(crate) fn state_labels() -> Value {
     json!({"state_name": "After solve", "tags": [], "notes": [], "assumptions": []})
 }
 
@@ -270,7 +270,7 @@ fn submitted_request(case: &Case, state_id: Option<&str>) -> RecordRunRequest {
     }
 }
 
-fn native_request(state_id: Option<&str>) -> Value {
+pub(crate) fn native_request(state_id: Option<&str>) -> Value {
     match state_id {
         Some(state_id) => json!({"expected_base": "base", "state_id": state_id, "new_state": null, "run_labels": run_labels()}),
         None => json!({"expected_base": "base", "state_id": null, "new_state": {"labels": state_labels(), "parent_state_id": null}, "run_labels": run_labels()}),
@@ -918,13 +918,13 @@ const REPLAY_MODEL: &str = "fixtures/model_operations/exact_pressure_authoring_m
 
 /// `JSON.stringify(JSON.parse(text))`: JavaScript's member order and numbers, `-0` written `0`
 /// (`checkedJsonText` of a parsed model writes the same).
-fn stringify_text(text: &str) -> String {
+pub(crate) fn stringify_text(text: &str) -> String {
     let mut out = Vec::new();
     result_js_text::write(text, NegativeZero::AsZero, &mut out).unwrap();
     String::from_utf8(out).unwrap()
 }
 
-fn repo_text(path: &str) -> String {
+pub(crate) fn repo_text(path: &str) -> String {
     std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)).unwrap_or_else(|e| panic!("{path}: {e}"))
 }
 
@@ -944,7 +944,7 @@ fn webview_reply(outcome: Result<Serialized, CommandError<String>>) -> Value {
     }
 }
 
-fn with_job(args: &Value, job: &str) -> Value {
+pub(crate) fn with_job(args: &Value, job: &str) -> Value {
     match args {
         Value::String(text) if text == "$JOB" => json!(job),
         Value::Array(items) => Value::Array(items.iter().map(|item| with_job(item, job)).collect()),

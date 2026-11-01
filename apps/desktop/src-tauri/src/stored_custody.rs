@@ -84,6 +84,8 @@ pub(crate) const MAX_ARGS_BYTES: usize = 64 * 1024;
 pub(crate) const RECORD_HEADER_LIMIT_BYTES: u64 = 4 << 20;
 /// The record members a header leaves out: its rows, its diagnostics (the
 /// producer's grow with the result) and the copied evidence.
+/// The source the record's rule-pack reference diagnostics name (`analysis_runs::rule_pack_ref_diagnostic`).
+const RULE_PACK_REF_DIAGNOSTIC_SOURCE: &str = "desktop/solve-rule-pack-resolution";
 const ROW_SCALE_MEMBERS: [&str; 5] = ["result_refs", "diagnostics", "contract_evidence", "source_block_recovery", "retained_precision"];
 
 fn hex(bytes: &[u8]) -> String {
@@ -153,7 +155,7 @@ pub(crate) fn record_header(record: &Value) -> Result<Value, u64> {
         if bytes > RECORD_HEADER_LIMIT_BYTES {
             return Err(bytes);
         }
-        return Ok(serde_json::json!({"record": record, "result_ref_count": null, "diagnostic_count": null, "carried_members": []}));
+        return Ok(serde_json::json!({"record": record, "rule_pack_ref_diagnostics": [], "result_ref_count": null, "diagnostic_count": null, "carried_members": []}));
     };
     let mut bytes = 0u64;
     for (key, value) in map {
@@ -191,8 +193,16 @@ pub(crate) fn record_header(record: &Value) -> Result<Value, u64> {
     let run = map.get("analysis_run").and_then(Value::as_object);
     let count = |member: &str| run.and_then(|run| run.get(member)).and_then(Value::as_array).map(Vec::len);
     let carried: Vec<&str> = ["contract_evidence", "source_block_recovery", "retained_precision"].into_iter().filter(|member| run.is_some_and(|run| run.contains_key(*member))).collect();
+    // The record's rule-pack reference diagnostics (model-scale: one per excluded reference), as the
+    // fresh preview header carries them, for the run's rule-pack references.
+    let rule_pack_diagnostics: Vec<Value> = run
+        .and_then(|run| run.get("diagnostics"))
+        .and_then(Value::as_array)
+        .map(|items| items.iter().filter(|item| item.pointer("/source_annotation/source").and_then(Value::as_str) == Some(RULE_PACK_REF_DIAGNOSTIC_SOURCE)).cloned().collect())
+        .unwrap_or_default();
     let mut wrapper = serde_json::Map::new();
     wrapper.insert("record".into(), Value::Object(header));
+    wrapper.insert("rule_pack_ref_diagnostics".into(), Value::Array(rule_pack_diagnostics));
     wrapper.insert("result_ref_count".into(), count("result_refs").map_or(Value::Null, Value::from));
     wrapper.insert("diagnostic_count".into(), count("diagnostics").map_or(Value::Null, Value::from));
     wrapper.insert("carried_members".into(), Value::from(carried));

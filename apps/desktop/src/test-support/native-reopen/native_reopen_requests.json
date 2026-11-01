@@ -1,0 +1,115 @@
+{
+ "document_kind": "swbpipe.desktop.native_reopen_requests",
+ "note": "Written by nativeReopen.session.test.tsx (NATIVE_REOPEN_RECORD=1): the requests the session and historical panel send on the restored handle; stored_custody_tests.rs answers each with its actual command.",
+ "requests": [
+  {
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$HANDLE",
+    "modelJson": "null",
+    "standing": null
+   }
+  },
+  {
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$HANDLE"
+   }
+  },
+  {
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$HANDLE",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   }
+  },
+  {
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$HANDLE",
+    "kinds": [
+     "preview_intensified_bending_stress"
+    ],
+    "match": "first"
+   }
+  },
+  {
+   "command": "query_preview_mechanics_job_navigator",
+   "args": {
+    "jobId": "$HANDLE",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "probe": null
+   }
+  },
+  {
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$HANDLE",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   }
+  }
+ ]
+}
