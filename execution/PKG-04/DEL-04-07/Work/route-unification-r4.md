@@ -1158,7 +1158,8 @@ subsequent documentation/proof comments preserve its product source bytes.
 
 DEL-04-07's ScopeOfWork and dependency conditions do not change: this repair
 changes lookup/storage strategy within its existing publication contract and
-admits no new family. Retained storage still needs the combined-source registration;
+admits no new family. Retained storage uses the owner-approved combined-source §8.37 profile;
+final native/stack/hosted evidence remains governed by that registration.
 no acceptance or release standing follows from these observations.
 
 ### 5.5 Verdict

@@ -2025,7 +2025,7 @@ The census correction alone (`compare` of the candidate against the same run wit
 ### 8.37 Published-row lookup index after S1 (RT-A3 increment 1b; owner-approved adoption)
 
 **Status: owner-approved profile adopted; final verification in progress.** The
-owner decided verbatim **"1A, 2A"** (2026-11-01), with item 1A approving
+owner decided verbatim **"1A, 2A."** (2026-11-01), with item 1A approving
 RT-A3/#68's reviewed +172,554 B increase and exact proposed file
 `efad75d4001600d47d23ea7bbd23942c95aaef097a15590528fe16f31048aa3b`
 (1,712 generated lines). This approves that adoption, not a redesign, another
@@ -2141,6 +2141,17 @@ These evaluations supply the adopted law values. Native law/challenge runs
 and the six combined-source stack witnesses still need final-candidate
 execution; the owner decision reserves no host window.
 
+**Adoption verification.** The maintained generator produces exactly the
+owner-approved full-file SHA-256 above; no bytes outside that selected file
+are substituted. At committed adoption source `6ece563f0`, all 71 registered
+native law tests pass with no identity skip; the default retained-memory
+challenge passes (one test, 43 explicitly ignored measurement cases). The post-adoption source-price run at `6ece563f0` completes on all four
+points with both O-10 checks clear and all 1,602 coefficients equal to the
+reviewed proposal. Its 80 evaluations using the adopted build's native atom
+log fit the same limits, and `generate --check` reproduces the approved file.
+The six combined-source stack witnesses require their separately cleared,
+exclusive interval; the owner decision by itself supplies no such interval.
+
 **Verification and reconciliation.** The targeted owner/pin/mutation tests
 pass: the focused reviewer reran 375 tests on exact head `0f2698846`,
 including E13 and the other changed pin cohorts, after the retired-key
@@ -2153,9 +2164,8 @@ incremental rescan before original source was restored. DEL-04-07 Work
 and their limits. Combined-source identity comparison gives 956 identical outputs (662 solved,
 294 refused, no panics) for 478 common-byte documents; §5.4b records the single
 size exclusion and seven schema-token-only scratch adaptations. Changed-proof
-scrutiny is clear and owner adoption is recorded above. Final native
-law/challenge runs, stack witnesses and exact head hosted checks remain
-before integration. This changes publication lookup
+scrutiny is clear and owner adoption is recorded above. Native law/challenge checks are recorded above; stack witnesses and final
+exact-head hosted checks remain before integration. This changes publication lookup
 storage, not admitted families or ScopeOfWork/dependency conditions. No
 acceptance, release or base-machine performance qualification follows.
 
