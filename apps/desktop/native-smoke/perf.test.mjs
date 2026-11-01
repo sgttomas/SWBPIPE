@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { c1PhysicalPhases, classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -704,4 +704,39 @@ test("--keep keeps each run's directory; only the app copy is removed", async (t
   const removed = make("removed");
   await finishScratch({ ...removed, keep: false });
   assert.ok(!existsSync(removed.scratch));
+});
+
+test("C1 reader probe sends only the bound handle and keeps phase metrics separate", async t => {
+  const proof="identity=match; rows=1001; job=solve-123; model_sha256=sha256:model";
+  let sent;
+  const phase={allocation:{peak_requested:32,peak_priced:64,live_requested:16,live_priced:32,allocations:2},elapsed_us:1};
+  const metrics={schema:"swbpipe.c1-reader-allocations/v1",job_id:"solve-123",rows:1001,source_parse:phase,dispatch_working:phase,registration_working:phase,semantics_working_max:phase,summary_working_and_response:phase,semantics_batches:2,semantics_batch_limit:1000};
+  for(const key of ["model_parse","invocation_parse","health_parse_and_working","health_response_parse","health_view_working","summary_source_parse"]) metrics[key]=phase;
+  Object.assign(metrics,{started_ms:1,finished_ms:2,route:"pressure",reader:"pressure",source_bytes:10,publication_sha256:`sha256:${"a".repeat(64)}`,intake_sha256:`sha256:${"b".repeat(64)}`,source_parse_bound_bytes:32,model_parse_bound_bytes:32,invocation_parse_bound_bytes:32,health_working_upper_bound_requested:32,health_working_upper_bound_priced:64,summary_response_bytes:10,coverage:"fixture metrics only"});
+  const ui=await driverDom(t,`<div data-testid="status-pill-solve-proof"><code>${proof}</code></div>`,async(command,args,options)=>{
+    if(command==="native_smoke_profile_readers") { sent={args:JSON.parse(new TextDecoder().decode(args)),options};return metrics; }
+    return null;
+  });
+  const report={};
+  await ui.hooks.profileReaders({model_jcs_sha256:"sha256:model",timeouts:{profile_ms:1000}},report);
+  assert.deepEqual(sent.args,{jobId:"solve-123"});
+  assert.equal(sent.options.headers["x-swbpipe-ingress"],"args-json-v1");
+  assert.equal(report.reader_allocations.source_parse.allocation.peak_requested,32);
+  metrics.result={get rows(){throw new Error("a result payload must not be retained");}};
+  await assert.rejects(ui.hooks.profileReaders({model_jcs_sha256:"sha256:model",timeouts:{profile_ms:1000}},{}),/not bound/);
+  delete metrics.result;
+  metrics.job_id="wrong";
+  await assert.rejects(ui.hooks.profileReaders({model_jcs_sha256:"sha256:model",timeouts:{profile_ms:1000}},{}),/not bound/);
+});
+
+
+test("C1 phase physical peaks align readings and mark missing-worker inference", () => {
+  const sample=(t,app,worker,web=20)=>({t,p:[[1,"app",app,app,app],[2,"webcontent",web,web,web],...(worker===undefined?[]:[[3,"worker",worker,worker,worker]])]});
+  const out=c1PhysicalPhases([sample(1,10,80),sample(2,100,undefined),sample(3,200,undefined),sample(4,999,undefined,null)],{driver_started_ms:2,driver_finished_ms:2},3);
+  assert.equal(out.all.aligned_sampled_peak.bytes,220);
+  assert.equal(out.all.unknown_samples,2);
+  assert.equal(out.before_reader_probe.aligned_sampled_peak.bytes,110);
+  assert.equal(out.reader_probe.aligned_sampled_peak,null);
+  assert.equal(out.after_reader_probe.aligned_sampled_peak.worker_zero_inferred,true);
+  assert.equal(out.all.completed_worker_zero_samples,1);
 });

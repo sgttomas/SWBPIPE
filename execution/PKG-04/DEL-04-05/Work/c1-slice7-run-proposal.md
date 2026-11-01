@@ -5,8 +5,9 @@ proposal, not a window grant, measurement, acceptance or memory-fit result.
 
 **Execution status:** the release App, two model documents and baseline P2 plan
 are prepared. P1's runner safeguards cleared the final independent recheck at
-`dee93a72`. P2's interaction probes are implemented and tested offline; P3 remains
-an executable prerequisite below. Do not acquire an
+`dee93a72`. P2's interaction probes and P3's feature-gated scalar reader probe are
+implemented offline. Connected scrutiny, a newly bound smoke binary and
+exact-head CI remain prerequisites below. Do not acquire an
 exclusive interval or launch the App until those are
 ready and the narrow run authority has been granted. Preparation has launched no
 App, solve worker, model solve, memory sampler, screenshot or LLM session.
@@ -67,43 +68,46 @@ downstream mechanics, nonlinear EX, or criterion 9 is delivered.
 | `linear-ex-n1000.json` | 1,000 / 999 | 3,649,735 | `fc33acd8f38c2275e5432d4a8b5f1e5aaeb4407532ae83a1c7f484ceb01bb892` | `299aedb4b44b81e9916c4b85650d53d9e96c4c1c728bde8789ed3dddb6f2f312` |
 
 Offline reproduction, from this checkout. Generation, build and plan validation
-were executed; the App build was bound at clean a37d before these preparation edits:
+were executed; the original App build was bound at clean a37d. The `app-p3` build recipe
+selects the later instrumentation candidate and preserves that original copy:
 
 ```sh
 cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
 RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
 RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
-mkdir -p "$RT_C1_KIT/models" "$RT_C1_KIT/app"
+RT_C1_APP="$RT_C1_KIT/app-p3"
+mkdir -p "$RT_C1_KIT/models" "$RT_C1_APP"
 /Users/ryan/dev/chirality-t3/tools/t3_slot.sh python3 core/solver/performance_harness/rack/rack_model.py --profile linear-ex --nodes 500 --output "$RT_C1_KIT/models/linear-ex-n0500.json"
 /Users/ryan/dev/chirality-t3/tools/t3_slot.sh python3 core/solver/performance_harness/rack/rack_model.py --profile linear-ex --nodes 1000 --output "$RT_C1_KIT/models/linear-ex-n1000.json"
-env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app" --target-dir "$RT_C1_TARGET"
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_APP" --target-dir "$RT_C1_TARGET"
 node apps/desktop/native-smoke/perf.mjs --plan --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500
 node apps/desktop/native-smoke/perf.mjs --plan --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-1000
 ```
 
-Rebuilding at a later head changes the binding's source identity; keep the
-prepared a37d copy or explicitly replace its binding. The two `--plan` commands
+The P3 command requires the later `app-p3` binding; the preserved a37d
+App cannot execute it. Its exact submitting revision and artifact digest must
+be recorded separately. The two `--plan` commands
 have passed. The new plan's default selects only 500; it has no 2,000-node run.
 Do not use the old `perf-plan.json` default window, which includes 2,000.
 
 **Conditional execution recipes, not executed:** after prerequisites P1–P3 and
-the narrow grant, each command takes its own interval. Set the two variables
+the narrow grant, each command takes its own interval. Set the three variables
 above in the calling shell. Do not nest `t3_slot.sh` inside the exclusive wrapper.
 
 ```sh
-/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500"
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_APP" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500"
 ```
 
 Only after the 500-node gate passes, release/reacquire through the same queue:
 
 ```sh
-/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-1000 --budget-s 840 --out "$RT_C1_KIT/evidence/n1000"
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_APP" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-1000 --budget-s 840 --out "$RT_C1_KIT/evidence/n1000"
 ```
 
 These commands select the P2 interaction driver through the independently
 cleared P1 supervisor; P2 connected scrutiny remains owed.
-They become the complete gate only after the existing runner/driver and the
-reader-attribution carrier meet P1–P3. Rebind changed external scripts and any
+They become the complete gate only after the P2/P3 connected review,
+artifact binding and exact-head checks below. Rebind changed external scripts and any
 changed App before using them. No assumed flags or nonexistent profiling command
 is presented as executable here.
 
@@ -159,7 +163,11 @@ Keep the timeline/progress/store report produced by `perf.mjs`. Record actual
 host CPU/RAM/OS from that report; the development host is not the base machine.
 
 - Per-PID readings and kernel lifetime maxima are direct observations. A short
-  process or unreadable PID can be missed; absence is unknown, not zero. Match
+  process or unreadable PID can be missed; absence is unknown, not zero. `c1_physical` reports the aligned sampled peak for the
+  complete interval, before/during/after P3, with unknown-sample counts. An
+  absent worker contributes zero only after the product `job_done` mark, and
+  that zero is explicitly labelled inferred. Per-PID lifetime maxima in a
+  phase are still lifetime observations, not phase-only maxima. Match
   worker PID/argv and its product-reported lifetime maximum with the sampler.
 - New WebContent is attributed by executable path and launch baseline, not proven
   parentage: WebKit launches from launchd. More than one candidate, replacement
@@ -187,9 +195,44 @@ host CPU/RAM/OS from that report; the development host is not the base machine.
   APIs behind `operation_applier`; no core/pricing edit or generic profiling layer.
   The existing counter is per-thread and covers Rust allocator requests; identify
   any off-thread or native-library allocation it does not count.
-  Identify its exact test binary/source and matched producer inputs. An isolated
-  probe establishes component allocations, not the App's concurrent physical
-  peak; it must not replace the live P2 run. If the large input or probe is absent,
+  The P3 command in `src-tauri/src/native_smoke.rs` is
+  `native_smoke_profile_readers`: raw args `{jobId}`, with the existing ingress
+  header. The driver invokes it once after fresh table/CSV probes and before
+  persistence, within the same 810 s child budget and a 90 s profile wait.
+  It has no standalone model/result arguments or export. It reads only this
+  launch's plan model path, checks JSON.stringify bytes against the job's intake
+  digest and checks held bytes against its publication digest. Model/invocation
+  wrapper and solver mode match the production registration. Source, model and
+  invocation parse allocations are counted separately. Dispatch and the route's
+  actual registration reader run on held parsed Values; all rows pass through
+  borrowed semantics batches of at most 1,000, reporting maxima rather than the
+  sum of batch peaks. Summary includes its response/admission work, with the
+  health-view map measured separately.
+
+  Numerical health's Value API is private. Its text entry reports a directly
+  counted combined parse/work peak and an **inferred upper bound** for working
+  requested/envelope bytes: combined peak minus the separately measured live
+  source tree. It does not subtract prescan M or physical memory, and it is not
+  labelled an isolated health working measurement. It includes findings parsing
+  and serialization, and can overstate health work because parser transients
+  also contribute. No core API is changed to make the bound smaller.
+
+  The command returns only bounded scalar metrics, phase epochs, lengths and
+  digests (64 KiB cap); no standing, result, model, record, rows or capture.
+  It rechecks custody after all phases and never registers or upgrades a handle.
+  Pool leases for raw args, file/texts, each parse, normalization scratch and
+  summary response precede their allocations under the existing capped pool.
+  Reader working/health text allocations remain the existing unpriced residuals
+  being observed, not newly claimed bounded allocations. All work is off the
+  executor. Allocation accounting disarms on unwind and rejects nesting.
+
+  The later App/worker includes inactive per-thread counter checks in allocation
+  calls even outside the P3 phase. Record that instrumentation overhead; it is
+  not byte-identical to the reviewed a37d runtime. Driver/native epoch markers
+  separate P3 from ordinary pre-probe App/worker/WebContent samples. Later
+  persistence/reopen samples can retain allocator caches created by P3; they
+  cannot be described as the uninstrumented product's physical footprint.
+  These component allocations do not replace the live P2 observations. If the large input or probe is absent,
   this part of the gate is incomplete rather than inferred from small fixtures.
 
 Keep held result bytes, parse M/reservations, counted working heap, response
@@ -377,12 +420,25 @@ gate. The P1 control block is byte-identical to its reviewed `dee93a72` source;
 P2 changes input validation, observation, UI probes and read-only file inspection.
 No new product command or scope is needed for P2.
 
-P3 — **Reader/parse attribution is not executable yet.** The phase-separated
-large-input probe described above is absent; no reader working-peak value exists
-on this candidate. Prepare and bind that narrow probe using the maintained
-allocator facility, and give its exact command/input recipe before requesting
-execution. Its allocation/timing run also belongs inside an authorized exclusive
-interval, never disguised as an ordinary concurrent test. If it cannot fit with
+P3 — **Implemented offline; binding and connected review required.**
+The existing native-smoke feature now supplies the read-only scalar command
+above and the C1 plan enables it. The existing allocator facility is also
+compiled under that feature, remaining inactive except on the probe thread.
+Default product builds do not compile these hooks or the new command. A standard
+TLS macro is now visible to the user-release scan: its one qualified invocation
+is admitted only in ingress, its body must be parsed statics and every initializer
+is scanned with the existing rules. No opaque macro exemption or handler-macro
+re-pin is added; the ordinary product handler definition is unchanged.
+
+Thirty-six Node tests pass with synthetic phase metrics; the Rust smoke library
+compiles, and an unknown-handle test refuses before file access/measurement with
+all leases returned. The counter's unwind-disarm unit check passes. No successful
+probe, allocation profile or native App invocation has run. The connected P2/P3
+review must cover actual API shapes/binding, measurement interpretation,
+permissions/feature exclusion and the narrow TLS scan delta, without reopening
+P1's closed three rounds for unchanged controls or wording. Exact-head hosted CI
+and the new release binding are still required. The live allocation/timing run
+belongs inside the authorized interval, never an ordinary concurrent test. If it cannot fit with
 the App sequence inside A/B, return a bounded additional-interval proposal;
 do not silently add one or extend either interval. These prerequisites are
 offline implementation/verification work, not a request for broader permissions.

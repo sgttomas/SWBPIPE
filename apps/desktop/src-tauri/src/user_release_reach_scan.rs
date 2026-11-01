@@ -1553,6 +1553,20 @@ impl FileScan<'_> {
         let path = path_text(&mac.path);
         let line = line_of(mac.bang_token.span);
         self.check_invocation_path(&path, &mac.tokens, line);
+        // C1 P3 uses the standard TLS macro for the existing allocation
+        // counter. Only this path/file is admitted; parse every initializer
+        // as ordinary code instead of leaving its item body opaque.
+        if path == "std::thread_local" && self.file == "src-tauri/src/ingress.rs" {
+            match syn::parse2::<syn::File>(mac.tokens.clone()) {
+                Ok(body) if body.attrs.is_empty() && body.items.iter().all(|item| matches!(item, syn::Item::Static(_))) => {
+                    self.with_owner(Owner::Macro, |scan| {
+                        for item in &body.items { scan.visit_item(item); }
+                    });
+                }
+                _ => self.finding(line, "the ingress std::thread_local! body must contain only parsed statics"),
+            }
+            return;
+        }
         let subtree = in_defining_module(&self.file);
         let listed = SUBTREE_MACROS.contains(&path.as_str());
         if subtree && !listed {
@@ -1606,7 +1620,8 @@ impl FileScan<'_> {
     /// list.
     fn check_invocation_path(&mut self, path: &str, tokens: &TokenStream, line: usize) {
         let runner_listed = self.is_runner() && RUNNER_MACRO_INVOCATIONS.iter().any(|(listed, _)| *listed == path);
-        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed {
+        let ingress_tls = path == "std::thread_local" && self.file == "src-tauri/src/ingress.rs";
+        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed && !ingress_tls {
             self.production_finding(line, format!("the macro {path}! is not on the invocation list"));
         }
         let last = path.rsplit("::").next().unwrap_or(path);

@@ -458,10 +458,33 @@
     }
   }
 
+  async function profileReaders(plan, report) {
+    const proof = solveShown().proof;
+    const job = proof?.match(/(?:^|; )job=([^;]+)/)?.[1];
+    if (!job || !proof.includes("identity=match") || !proof.includes(`model_sha256=${plan.model_jcs_sha256}`)) throw new Error("C1 reader probe has no bound fresh solve proof");
+    const started = Date.now();
+    await progress("c1_profile_readers", { stage: "started", epoch_ms: started });
+    let timer;
+    try {
+      const metrics = await Promise.race([
+        ipc.invoke("native_smoke_profile_readers", new TextEncoder().encode(JSON.stringify({ jobId: job })), { headers: { "x-swbpipe-ingress": "args-json-v1" } }),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("C1 reader probe timed out; native work is not assumed cancelled")), plan.timeouts.profile_ms); })
+      ]);
+      const phases = ["model_parse", "invocation_parse", "source_parse", "dispatch_working", "registration_working", "semantics_working_max", "health_parse_and_working", "health_response_parse", "health_view_working", "summary_source_parse", "summary_working_and_response"];
+      const scalar = ["schema", "started_ms", "finished_ms", "job_id", "route", "reader", "source_bytes", "rows", "publication_sha256", "intake_sha256", "source_parse_bound_bytes", "model_parse_bound_bytes", "invocation_parse_bound_bytes", "semantics_batches", "semantics_batch_limit", "health_working_upper_bound_requested", "health_working_upper_bound_priced", "summary_response_bytes", "coverage"];
+      const allowed = new Set([...phases, ...scalar]);
+      const validPhase = value => value && Object.keys(value).length === 2 && Number.isFinite(value.elapsed_us) && value.elapsed_us >= 0 && value.allocation && Object.keys(value.allocation).length === 5 && ["peak_requested", "peak_priced", "allocations", "live_requested", "live_priced"].every(key => Number.isFinite(value.allocation[key]) && value.allocation[key] >= 0);
+      if (!metrics || Object.keys(metrics).some(key => !allowed.has(key)) || scalar.some(key => !["string", "number"].includes(typeof metrics[key])) || phases.some(key => !validPhase(metrics[key])) || metrics.schema !== "swbpipe.c1-reader-allocations/v1" || metrics.job_id !== job || metrics.rows <= 0 || metrics.rows !== Number(proof.match(/(?:^|; )rows=([^;]+)/)?.[1]) || metrics.semantics_batches !== Math.ceil(metrics.rows / 1000) || metrics.semantics_batch_limit !== 1000 || metrics.coverage.length > 1024 || !/^sha256:[a-f0-9]{64}$/.test(metrics.intake_sha256) || !/^sha256:[a-f0-9]{64}$/.test(metrics.publication_sha256)) throw new Error("C1 reader metrics are incomplete or not bound to this solve");
+      if (solveShown().proof !== proof) throw new Error("C1 solve proof changed during reader measurement");
+      report.reader_allocations = { ...metrics, driver_started_ms: started, driver_finished_ms: Date.now() };
+      await progress("c1_profile_readers", { stage: "completed", epoch_ms: Date.now() });
+    } finally { clearTimeout(timer); }
+  }
+
   // Under the driver's node test only: hand over the helpers instead of running.
   const testHooks = globalThis.__SWBPIPE_PERF_DRIVER_TEST__;
   if (testHooks) {
-    Object.assign(testHooks, { waitFor, solve, recordRun, saveProject, beginC1Trace, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor });
+    Object.assign(testHooks, { waitFor, solve, recordRun, saveProject, beginC1Trace, preflight, probeResults, probePersistence, cancelIfRunning, startPoolMonitor, profileReaders });
     return;
   }
 
@@ -489,6 +512,7 @@
         if (!report.solve.shown.proof?.includes("identity=match") || !report.solve.shown.proof.includes(`model_sha256=${plan.model_jcs_sha256}`)) throw new Error("C1 solve proof is not bound to the opened model");
         report.c1.fresh = {};
         await probeResults(plan, report.c1.fresh, trace, { csv: true });
+        if (plan.c1_profile_readers) await profileReaders(plan, report.c1);
         await probePersistence(plan, report, trace);
         if (trace.data.errors.length || trace.data.violations.length || trace.data.counts.start_preview_mechanics_job !== 1 || !trace.data.counts.lookup_preview_mechanics_job_rows || !trace.data.counts.read_preview_mechanics_job_row_semantics) throw new Error("C1 command observation is incomplete or violated its bounded-read path");
         report.c1.completed = true;

@@ -398,6 +398,8 @@ export function validatePlan(plan) {
   if (!Array.isArray(plan.runs) || !plan.subsets || typeof plan.subsets !== "object") throw new Error("perf plan: runs and subsets are required");
   if (plan.c1_probes !== undefined && typeof plan.c1_probes !== "boolean") throw new Error("perf plan: c1_probes must be a boolean");
   if (plan.c1_probes && ["interaction_ms", "csv_ms"].some(key => !Number.isFinite(plan.timeouts?.[key]) || plan.timeouts[key] <= 0)) throw new Error("perf plan: C1 interaction and CSV timeouts are required");
+  if (plan.c1_profile_readers !== undefined && typeof plan.c1_profile_readers !== "boolean") throw new Error("perf plan: c1_profile_readers must be boolean");
+  if (plan.c1_profile_readers && (!plan.c1_probes || !Number.isFinite(plan.timeouts?.profile_ms) || plan.timeouts.profile_ms <= 0)) throw new Error("perf plan: reader profiling needs C1 probes and a bounded timeout");
   const ids = new Set();
   for (const run of plan.runs) {
     planName(run.id, "run id");
@@ -535,6 +537,31 @@ export function summarizeSamples(samples, { since = null } = {}) {
   return { kinds, pids, timeline_columns: ["epoch_ms", "app_footprint", "app_rss", "webcontent_footprint", "webcontent_rss", "worker_footprint"], timeline };
 }
 
+/** Sequential PID reads from one sample, never a sum of independent maxima.
+ * Missing workers count as zero only after the product's job_done mark; that
+ * zero is inferred from completion, not observed by a missing sampler row. */
+export function c1PhysicalPhases(samples, profile, workerEndedMs) {
+  const peak = rows => {
+    let value = null, unknown = 0, inferredWorkerZero = 0;
+    for (const row of rows) {
+      const app = row.p.filter(([,kind]) => kind === "app");
+      const web = row.p.filter(([,kind]) => kind === "webcontent");
+      const workers = row.p.filter(([,kind]) => kind === "worker");
+      const pids = [...app, ...web, ...workers];
+      if (app.length !== 1 || web.length !== 1 || pids.some(([, , ,footprint]) => !Number.isFinite(footprint) || footprint < 0) || (!workers.length && (!Number.isFinite(workerEndedMs) || row.t < workerEndedMs))) { unknown++; continue; }
+      if (!workers.length) inferredWorkerZero++;
+      const sum = pids.reduce((total,[,,,footprint]) => total + footprint, 0);
+      if (value === null || sum > value.bytes) value = { epoch_ms: row.t, bytes: sum, pids: pids.map(([pid]) => pid), worker_zero_inferred: !workers.length };
+    }
+    return { aligned_sampled_peak: value, unknown_samples: unknown, completed_worker_zero_samples: inferredWorkerZero, samples: rows.length };
+  };
+  const start = profile?.driver_started_ms, end = profile?.driver_finished_ms;
+  return { all: peak(samples), before_reader_probe: Number.isFinite(start) ? peak(samples.filter(row => row.t < start)) : null,
+    reader_probe: Number.isFinite(start) && Number.isFinite(end) ? peak(samples.filter(row => row.t >= start && row.t <= end)) : null,
+    after_reader_probe: Number.isFinite(end) ? peak(samples.filter(row => row.t > end)) : null,
+    interpretation: "Sequential reads aligned to one sample, not an atomic concurrent maximum; missing readings stay unknown. Worker absence is zero only by the product completion mark. Later phases can retain profiling allocator caches; lifetime per-PID maxima are not phase-local." };
+}
+
 function inspectStore(home) {
   const dir = path.join(home, "Library", "Application Support", TAURI_CONF.identifier);
   const file = path.join(dir, "openpipestress-projects.sqlite3");
@@ -639,6 +666,7 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     if (save?.timed_out) add("hang", { step: "save_project", detail: `last message: ${save.last_message}` });
     else if (save && save.message && !/^(Saved|Created)|SQLite project snapshot/.test(save.message)) add("refused_with_message", { step: "save_project", message: save.message, needs_review: true });
     if (report.error && solve) add("refused_with_message", { step: "driver", message: report.error.split("\n")[0], needs_review: true });
+    if (run.c1_profile_readers && !report.c1?.reader_allocations) add("refused_with_message", { step: "reader_allocations", message: "Reader allocation evidence is incomplete.", needs_review: true });
     const omitted = [report.c1?.trace?.save?.result, report.c1?.trace?.restoredSave?.result].find(result => result?.outcome === "not_saved");
     if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });
     if (run.c1_probes && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
@@ -676,7 +704,7 @@ async function runOne(run, ctx) {
   const modelPath = containedPath(root, run.model);
   copyFileSync(modelSource, modelPath, constants.COPYFILE_EXCL);
   const document = JSON.parse(readFileSync(modelPath, "utf8"));
-  run = { ...run, project_id: document.project.id, c1_probes: ctx.plan.c1_probes === true };
+  run = { ...run, project_id: document.project.id, c1_probes: ctx.plan.c1_probes === true, c1_profile_readers: ctx.plan.c1_profile_readers === true };
   record.project_id = run.project_id;
   record.model_bytes = statSync(modelPath).size;
   record.model_sha256 = sha256File(modelPath);
@@ -688,7 +716,7 @@ async function runOne(run, ctx) {
   const timeoutMs = Math.min(run.timeout_s * 1000, ctx.remainingMs());
   const plan = {
     run_id: run.id, model_path: modelPath, project_id: run.project_id, record_run: true, save_project: true,
-    c1_probes: ctx.plan.c1_probes === true, model_jcs_sha256: record.model_jcs_sha256,
+    c1_probes: ctx.plan.c1_probes === true, c1_profile_readers: ctx.plan.c1_profile_readers === true, model_jcs_sha256: record.model_jcs_sha256,
     timeouts: { ...ctx.plan.timeouts, paint_ms: Math.min(run.paint_ms, timeoutMs) }
   };
   const env = { ...process.env, HOME: home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
@@ -807,6 +835,7 @@ async function runOne(run, ctx) {
   };
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
   Object.assign(record, classify({ report, exit, timedOut, progress, memory, store, run, resultBytes }));
+  if (run.c1_probes) record.c1_physical = c1PhysicalPhases(samples, report?.c1?.reader_allocations, jobDone);
   Object.assign(record, { report, progress, memory, store, stderr_tail: stderrTail.slice(-40) });
   record.kept = root; // Supervisor removes only after all owned processes exit.
   console.log(`${run.id}: ${record.class} in ${record.elapsed_s.toFixed(1)} s${record.findings.filter((f) => f.class !== "ok").map((f) => `; ${f.class}: ${f.message ?? f.detail ?? ""}`).join("")}`);

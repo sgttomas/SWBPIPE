@@ -3,7 +3,8 @@
   "budget_s": 840,
   "sample_interval_ms": 200,
   "c1_probes": true,
-  "timeouts": { "start_ms": 30000, "open_ms": 60000, "record_ms": 150000, "save_ms": 150000, "interaction_ms": 15000, "csv_ms": 120000 },
+  "c1_profile_readers": true,
+  "timeouts": { "start_ms": 30000, "open_ms": 60000, "record_ms": 150000, "save_ms": 150000, "interaction_ms": 15000, "csv_ms": 120000, "profile_ms": 90000 },
   "runs": [
     {"id": "native-linear-ex-n0500", "mode": "native", "model": "linear-ex-n0500.json", "nodes": 500, "model_sha256": "42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb", "estimate_s": 720, "timeout_s": 720, "paint_ms": 300000},
     {"id": "native-linear-ex-n1000", "mode": "native", "model": "linear-ex-n1000.json", "nodes": 1000, "model_sha256": "fc33acd8f38c2275e5432d4a8b5f1e5aaeb4407532ae83a1c7f484ceb01bb892", "estimate_s": 780, "timeout_s": 780, "paint_ms": 360000}

@@ -2645,3 +2645,23 @@ fn the_symbol_level_ffi_repros_in_scratch_copies() {
         }
     }
 }
+
+
+/// The feature-gated C1 allocation counter uses standard TLS; its statics'
+/// initializers remain visible to every existing call and source rule.
+#[test]
+fn ingress_tls_initializers_are_scanned_as_code() {
+    let source = |text: &str| with_file_text("src-tauri/src/ingress.rs", text, appended(TAURI, "#[allow(unsafe_code)] mod ingress;"));
+    let passing = source("std::thread_local! { static COUNT: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; }");
+    assert!(scan(&passing).is_empty(), "{:#?}", scan(&passing));
+    for text in [
+        "std::thread_local! { static COUNT: usize = { open_pipe_stress_report_renderer::render_calculation_report(i); 0 }; }",
+        "std::thread_local! { static COUNT: usize = { include!(\"hidden.rs\"); 0 }; }",
+        "std::thread_local! { fn hidden() {} }",
+        "thread_local! { static COUNT: usize = 0; }",
+    ] {
+        assert!(!scan(&source(text)).is_empty(), "{text}");
+    }
+    let other_file = with_file_text("src-tauri/src/not_ingress.rs", "std::thread_local! { static COUNT: usize = 0; }", appended(TAURI, "mod not_ingress;"));
+    assert!(!scan(&other_file).is_empty());
+}

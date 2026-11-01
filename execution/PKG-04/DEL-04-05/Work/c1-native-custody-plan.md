@@ -945,8 +945,9 @@ The concrete offline preparation is `c1-slice7-run-proposal.md`, with the mainta
 `apps/desktop/native-smoke/perf-plan-c1.json` input. It binds the clean a37d release
 App to the reviewed 55fd runtime, names the two generated racks and conditional
 intervals, and tracks P1's independently clear safeguards at `dee93a72`, P2's
-offline connected interaction probes (34 source-mode tests), and the missing P3
-separate reader/parse attribution. No App
+offline connected interaction probes (36 source-mode tests), and P3's
+feature-gated scalar reader/parse attribution. P2/P3 connected scrutiny and a
+newly bound instrumented App remain required; the a37d binary cannot run P3. No App
 or measurement window has been launched or authorized by that preparation.
 
 - The P2 kit samples the app process, its worker and WebContent at 500 and 1,000 nodes
