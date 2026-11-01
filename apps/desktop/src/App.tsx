@@ -278,6 +278,7 @@ function AppSession() {
     handleApplyDraftReview,
     handleValidateIntent,
     handleApplyIntent,
+    handleReviewQueuedIntentsAsBatch,
     handleUndoSessionModelEdit,
     handleRedoSessionModelEdit,
     invalidateDirectDraftContext
@@ -677,6 +678,7 @@ function AppSession() {
                 engineStatus={operationEngineStatus}
                 onValidate={handleValidateIntent}
                 onApply={handleApplyIntent}
+                onReviewAllAsBatch={() => void handleReviewQueuedIntentsAsBatch()}
                 onUndo={handleUndoSessionModelEdit}
                 onRedo={handleRedoSessionModelEdit}
               />

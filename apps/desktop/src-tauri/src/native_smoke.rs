@@ -8,7 +8,14 @@
 //!   the page has loaded (`apps/desktop/native-smoke/driver.js`); `-` reads it
 //!   from bounded anonymous stdin, so fixture credentials need no script file;
 //! - `SWBPIPE_NATIVE_SMOKE_PLAN`: JSON handed to the driver;
-//! - `SWBPIPE_NATIVE_SMOKE_REPORT`: where `native_smoke_finish` writes the report.
+//! - `SWBPIPE_NATIVE_SMOKE_REPORT`: where `native_smoke_finish` writes the report;
+//! - `SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin` (macOS, with the driver on stdin):
+//!   stdin's first line is an agent provider key and the rest is the driver.
+//!   The key is held only in this process's memory until the embedded agent's
+//!   next Start with a provider saved with no key takes it, once
+//!   ([`take_provider_secret`]); it is never written, logged, given to the
+//!   webview or read from or saved to the Keychain (RT-E1 D4, DEL-16-06
+//!   `Work/agent-journey-scenario.md`).
 //!
 //! The harness substitutes exactly two things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
@@ -101,6 +108,45 @@ pub fn native_smoke_finish(app: AppHandle, report: Value) -> Result<(), String> 
     Ok(())
 }
 
+/// Whether stdin carries a provider key: only when the variable is absent is it not, and
+/// only the exact value `stdin` with the driver on stdin selects it. Any other value,
+/// including one that is not Unicode, is refused (no driver runs), so a key line can
+/// never fall through to the driver reader. The value is never echoed.
+#[cfg(target_os = "macos")]
+fn provider_key_on_stdin(value: Option<std::ffi::OsString>, driver: &str) -> Result<bool, ()> {
+    match value {
+        None => Ok(false),
+        Some(value) if value == "stdin" && driver == "-" => Ok(true),
+        Some(_) => Err(()),
+    }
+}
+
+#[cfg(target_os = "macos")]
+static PROVIDER_SECRET: Mutex<Option<crate::embedded_agent::relay_policy::Secret>> = Mutex::new(None);
+
+/// The provider key the controller passed on stdin, taken at most once.
+#[cfg(target_os = "macos")]
+pub fn take_provider_secret() -> Option<crate::embedded_agent::relay_policy::Secret> {
+    PROVIDER_SECRET.lock().ok()?.take()
+}
+
+/// Splits `key\n` from the driver that follows it. The key line is bounded by
+/// the relay's secret limit and must satisfy `Secret::new`; nothing about a
+/// refused key is echoed.
+#[cfg(target_os = "macos")]
+fn read_stdin_key_and_driver(mut reader: impl io::BufRead) -> io::Result<(crate::embedded_agent::relay_policy::Secret, String)> {
+    use crate::embedded_agent::relay_policy::{Secret, SECRET_BYTES};
+    use std::io::BufRead;
+    let mut line = Vec::new();
+    (&mut reader).take(SECRET_BYTES as u64 + 2).read_until(b'\n', &mut line)?;
+    let refused = || io::Error::new(io::ErrorKind::InvalidData, "native smoke provider key refused");
+    if line.pop() != Some(b'\n') {
+        return Err(refused());
+    }
+    let secret = String::from_utf8(line).ok().and_then(|text| Secret::new(text).ok()).ok_or_else(refused)?;
+    Ok((secret, read_stdin_driver(reader)?))
+}
+
 fn read_stdin_driver(reader: impl Read) -> io::Result<String> {
     let mut script = String::new();
     reader.take(256 * 1024 + 1).read_to_string(&mut script)?;
@@ -115,6 +161,45 @@ mod input_tests {
     fn anonymous_driver_input_is_bounded_without_a_file_or_environment_payload() {
         assert_eq!(super::read_stdin_driver(&b"void 0;"[..]).unwrap(), "void 0;");
         assert!(super::read_stdin_driver(&vec![b'x'; 256 * 1024 + 1][..]).is_err());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn the_provider_key_line_precedes_the_driver_and_is_checked() {
+        use crate::embedded_agent::relay_policy::SECRET_BYTES;
+        let (secret, driver) = super::read_stdin_key_and_driver(&b"invented-fixture-key\nvoid 0;"[..]).unwrap();
+        assert_eq!(format!("{secret:?}"), "Secret([REDACTED])");
+        assert_eq!(driver, "void 0;");
+        let long = [vec![b'k'; SECRET_BYTES + 1], b"\nvoid 0;".to_vec()].concat();
+        for input in [&b"no newline"[..], b"\nvoid 0;", b"two words\nvoid 0;", b"tab\tkey\nvoid 0;", &long] {
+            let error = super::read_stdin_key_and_driver(input).unwrap_err();
+            assert_eq!(error.to_string(), "native smoke provider key refused");
+        }
+        let oversized = [b"k\n".to_vec(), vec![b'x'; 256 * 1024 + 1]].concat();
+        assert!(super::read_stdin_key_and_driver(&oversized[..]).is_err());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn only_an_absent_variable_or_the_exact_value_stdin_is_accepted() {
+        use std::{ffi::OsString, os::unix::ffi::OsStringExt};
+        assert_eq!(super::provider_key_on_stdin(None, "-"), Ok(false));
+        assert_eq!(super::provider_key_on_stdin(None, "driver.js"), Ok(false));
+        assert_eq!(super::provider_key_on_stdin(Some("stdin".into()), "-"), Ok(true));
+        // A key line must never reach the driver reader: every other present value refuses.
+        for value in [OsString::from("stdin"), OsString::from("STDIN"), OsString::from(""), OsString::from("stdin "), OsString::from_vec(vec![0xff, b's'])] {
+            let file = value == "stdin";
+            assert_eq!(super::provider_key_on_stdin(Some(value), if file { "driver.js" } else { "-" }), Err(()));
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn the_provider_key_is_taken_once() {
+        use crate::embedded_agent::relay_policy::Secret;
+        *super::PROVIDER_SECRET.lock().unwrap() = Some(Secret::new("invented-fixture-key".into()).unwrap());
+        assert!(super::take_provider_secret().is_some());
+        assert!(super::take_provider_secret().is_none());
     }
 }
 
@@ -133,6 +218,27 @@ pub fn install<R: Runtime>(builder: Builder<R>) -> Builder<R> {
             eprintln!("[native-smoke] SWBPIPE_NATIVE_SMOKE_DRIVER unset; no driver started");
             return;
         };
+        #[cfg(target_os = "macos")]
+        let Ok(with_key) = provider_key_on_stdin(std::env::var_os("SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY"), &driver) else {
+            eprintln!("[native-smoke] SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY needs the value stdin and the driver on stdin; no driver started");
+            return;
+        };
+        #[cfg(target_os = "macos")]
+        if with_key {
+            match read_stdin_key_and_driver(io::stdin().lock()) {
+                Ok((secret, script)) => {
+                    let Ok(mut held) = PROVIDER_SECRET.lock() else { return };
+                    *held = Some(secret);
+                    drop(held);
+                    *started = true;
+                    if let Err(error) = webview.eval(&script) {
+                        eprintln!("[native-smoke] driver eval failed: {error}");
+                    }
+                }
+                Err(error) => eprintln!("[native-smoke] stdin: {error}; no driver started"),
+            }
+            return;
+        }
         match if driver == "-" { read_stdin_driver(io::stdin().lock()) } else { fs::read_to_string(&driver) } {
             Ok(script) => {
                 *started = true;

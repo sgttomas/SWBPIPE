@@ -101,7 +101,7 @@ export function initialRunSheetState(projectId: string | null, sheetKey = "sheet
   };
 }
 
-const sameValues = (a: unknown, b: unknown) => (a ?? "") === (b ?? "");
+const sameValues = (a: unknown, b: unknown) => sameJsonValue(a ?? "", b ?? "");
 /** JSON value equality: deep, independent of key order, numbers by value (so +0 and −0 agree). */
 export function sameJsonValue(a: unknown, b: unknown): boolean {
   if (a === b) return true;
@@ -142,7 +142,9 @@ export function shownValues(state: RunSheetState, row: SheetRow): RowValues {
 export function editedNotApplied(state: RunSheetState, row: SheetRow): string[] {
   const entry = currentEntry(state.ledger, row.key);
   if (!entry) return [];
-  return Object.keys(row.edits).filter((key) => !sameValues((row.edits as Record<string, unknown>)[key], (entry.valuesAfter as Record<string, unknown>)[key]));
+  return Object.keys(row.edits).flatMap((key) => key === "component"
+    ? Object.entries(row.edits.component ?? {}).filter(([field, value]) => !sameValues(value, (entry.valuesAfter.component as Record<string, string> | undefined)?.[field])).map(([field]) => `component.${field}`)
+    : !sameValues((row.edits as Record<string, unknown>)[key], (entry.valuesAfter as Record<string, unknown>)[key]) ? [key] : []);
 }
 
 function updateRows(state: RunSheetState, update: (row: SheetRow) => SheetRow): RunSheetState {
@@ -223,11 +225,25 @@ function releasePending(state: RunSheetState, batchId: string, requeueNeeded: bo
   });
 }
 
+/** Only successful queue registration (or an applied checkpoint) makes pipe
+ * reservations permanent. A built/refused/unregistered draft does not. */
+function retainSubmittedPipes(state: RunSheetState, batchId: string): RunSheetState {
+  const submitted = state.submitted[batchId];
+  if (!submitted) return state;
+  let retained: Record<string, string> | null = null;
+  for (const [rowKey, refs] of Object.entries(submitted.ownedRefs)) for (const ref of refs) {
+    if (ref.type !== "pipe" || state.idState.retainedPipes?.[ref.id] === rowKey) continue;
+    retained ??= Object.assign(Object.create(null) as Record<string, string>, state.idState.retainedPipes);
+    retained[ref.id] = rowKey;
+  }
+  return retained ? { ...state, idState: { ...state.idState, retainedPipes: retained } } : state;
+}
+
 /** The pure ledger transition for one session event (§3.6 Transitions). It writes nothing. */
 export function applySessionEvent(state: RunSheetState, event: SessionEvent): RunSheetState {
   switch (event.type) {
     case "queued":
-      return updateRows(state, (row) => row.pending?.batchId === event.batchId && row.pending.registrationKey !== event.key
+      return updateRows(retainSubmittedPipes(state, event.batchId), (row) => row.pending?.batchId === event.batchId && row.pending.registrationKey !== event.key
         ? { ...row, pending: { ...row.pending, registrationKey: event.key } } : row);
     case "validated":
       return state;
@@ -254,6 +270,7 @@ export function applySessionEvent(state: RunSheetState, event: SessionEvent): Ru
       if (!pending || !event.appliedModel) {
         return { ...state, ledger: appendRecord(state.ledger, { operationId: event.operationId, foreign: true, rowEntries: {} }) };
       }
+      state = retainSubmittedPipes(state, event.operationId);
       const record = sheetCheckpoint(state, submitted, event.appliedModel, event.operationOutcomes ?? []);
       const next = { ...state, ledger: appendRecord(state.ledger, record) };
       return updateRows(next, (row) => row.pending?.batchId !== event.operationId ? row

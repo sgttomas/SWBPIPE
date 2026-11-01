@@ -9,6 +9,7 @@
 // `before` texts of `assign_section` and `insert_bend_at_corner`; a wrong
 // projection cannot change the model, since the engine compares each `before`
 // with its own state and refuses a mismatch.
+import { buildCreateComponentIntent } from "../../component-creation/componentIntent";
 import { canonicalJsonString } from "../../../services/hashService";
 import type { OperationBatch, OperationBatchOutcome } from "../../../services/operationBatchService";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../../types";
@@ -203,10 +204,12 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
     rows.push(built);
     switch (row.kind) {
       case "run":
+      case "valve":
+      case "flange":
       case "bend": {
         if (!row.end!.existing) {
           createNode(row);
-          if (row.kind === "run") built.ownedIds.push(row.ids.node!);
+          if (row.kind !== "bend") built.ownedIds.push(row.ids.node!);
         }
         await connect(row);
         built.ownedIds.push(row.ids.pipe!);
@@ -246,6 +249,15 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       const ids = pendingBend.ids.bend!;
       rows.find((item) => item.key === pendingBend!.key)!.ownedIds.push(ids.start, ids.end, ids.arc, ids.component);
       pendingBend = null;
+    }
+    // A component on the outgoing straight is inserted after bend realization,
+    // so it does not become an attachment that prevents that realization.
+    if (row.component) {
+      const created = buildCreateComponentIntent({ draft: row.component, model: projection, sourceRef: RUN_SHEET_SOURCE.source_ref, sourceRole: RUN_SHEET_SOURCE.source_role, unitValidation: "not_run" });
+      const after = JSON.parse(created.change.after);
+      push(row, { operationKind: created.operation_kind, objectType: "Component", ref: row.ids.component!, changeKind: "insert_component_symbol", fieldLabel: created.change.field_label, fieldPath: "components", before: "not_present", after, unit: "none", dimension: "dimensionless" });
+      projection.components.push(clone(after));
+      built.ownedIds.push(row.ids.component!);
     }
     if (row.kind === "bend") pendingBend = row;
   }
