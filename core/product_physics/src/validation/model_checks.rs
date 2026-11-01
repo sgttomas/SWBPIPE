@@ -57,6 +57,8 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     };
     let mut diagnostics = Vec::new();
 
+    // Model document 0.9.0: the solve's lowering, first, as in the solve.
+    crate::operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
     if imposed_motion::validate(&model, &mut diagnostics) {
@@ -85,6 +87,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     if has_blocking(&diagnostics) {
         return diagnostics;
     }
+    crate::document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
 
     self_weight::validate_applied_self_weight(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {

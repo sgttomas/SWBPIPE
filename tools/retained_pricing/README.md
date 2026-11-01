@@ -395,6 +395,18 @@ on that source. See the governing rules' §8.31 and §10.
 
 `base/template_inventory.py` reads Rust's `\u{HEX}` escape as its one character. The registration and its basis are §8.33's (`7e7fef2d4`); main `d290563ea` reproduces §8.32's block and is its comparison basis. See the governing rules' §8.33 and `tests/test_833_rt_a3.py`.
 
+### §8.36: model document 0.9.0 (S1), the interim retained boundary and the typed-string census (candidate)
+
+D1.3 declines non-empty condition sets and spectra and any pipe's `condition_set_ref`, so the 0.9.0 lowering and
+withholding judge empty members on D1. `base/s1_owners_model.py` prices their remaining owners (S1-VW: the lowering's
+views, findings and operand resolution; S1-WH: the withholding pass), bound to the three new modules' bytes and the two
+calls. `base/typed_strings_model.py` replaces T03's basis count of a pipe's strings (12) by the census of the actual
+records (13), and adds route E's three contract strings and the node-proximity tolerance's unit (S1-TS), in
+`ordinary_caps.py` and `t25_g4.py`. `rules/o10_rules.py` adds S1-PIN, S1-BN (exact call targets for by-name false edges),
+S1-NR (SD-NR's guards), S1-L1, S1-ZR, S1-ZS, S1-ID and S1-MS; `rules/sq2_decisions_common.py` re-keys the factor
+diagnostic's two audits by name (S1-RK); `base/sd_owners_model.py` prices SD-HS's `(bool, &str)` set (S1-HS). The tree is
+a candidate: its generated block is not adopted. See the governing rules' §8.36.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

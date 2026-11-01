@@ -1102,7 +1102,7 @@ mod tests {
             PreviewSolverMode::DenseScrutiny,
         ] {
             // B4/D1 (b): source blocks remain only on the exact route's composites
-            // (B7b: the current pressure-source-1 request, 0.8.0/v3).
+            // (B7b: the current pressure-source-1 request, 0.9.0/v3).
             let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
             let payload: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();

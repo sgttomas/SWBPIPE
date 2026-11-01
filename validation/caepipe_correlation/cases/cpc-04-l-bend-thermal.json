@@ -9,7 +9,7 @@
   },
   "purpose": "Bend: curved bend written at its tangent intersection with radius and user flexibility factor; thermal reactions of an indeterminate L.",
   "model": {
-    "schema_version": "0.8.0",
+    "schema_version": "0.9.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:cpc-04",

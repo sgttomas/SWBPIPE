@@ -206,7 +206,7 @@ def _perpendicular(direction) -> dict[str, float]:
 
 
 class Builder:
-    """One invented SWBPIPE preview model (model document 0.8.0), built node by node in metres."""
+    """One invented SWBPIPE preview model (model document 0.9.0), built node by node in metres."""
 
     def __init__(self, model_id: str, material: int) -> None:
         self.model_id = model_id
@@ -324,7 +324,7 @@ class Builder:
             if loads:
                 cases.append({"id": case_id, "primitive_loads": loads, "provenance": PROVENANCE})
         return {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {"id": f"project:{self.model_id}", "name": f"project:{self.model_id}",
                         "units": {"length": "m", "force": "N", "temperature": "degC", "angle": "rad",

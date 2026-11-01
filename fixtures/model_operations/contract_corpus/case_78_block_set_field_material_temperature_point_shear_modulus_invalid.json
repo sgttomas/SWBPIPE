@@ -34,7 +34,7 @@
         ]
       }
     ],
-    "schema_version": "0.8.0"
+    "schema_version": "0.9.0"
   },
   "case_id": "block-set-field-material-temperature-point-shear-modulus-invalid",
   "claimed_model_hash": null,
@@ -78,7 +78,7 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:2ab3522eb0052e0377ef2cf95bb8f875f174372c5e2fd54e87e7444773e6a5e2",
+        "backend_model_hash": "sha256:b6aa139281cf17998d687ab05adfec9ebae28ed27acdc4e5c7bad7a952da63ed",
         "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
         "claimed_hash_canonicalization": "not_provided",
         "claimed_model_hash": "not_provided"

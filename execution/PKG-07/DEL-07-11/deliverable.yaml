@@ -125,6 +125,7 @@ code_paths:
 - apps/desktop/src/types.ts
 - apps/desktop/src/features/workspace/**
 - apps/desktop/src/features/model-file/**
+- apps/desktop/src/features/load-cases/combinationOperands.ts
 - apps/desktop/src/features/project-storage/ReplaceProjectPrompt.tsx
 - apps/desktop/src/features/project-storage/storedProjectConflict.ts
 - apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx
@@ -153,6 +154,7 @@ checks:
 - apps/desktop/src/App.projectHandlers.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentSave.test.tsx
+- apps/desktop/src/features/load-cases/combinationOperands.test.tsx
 - apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx
 - apps/desktop/src/features/project-storage/unsavedChangesPrompt.test.tsx
 - apps/desktop/src/features/project-storage/modalHolds.test.ts

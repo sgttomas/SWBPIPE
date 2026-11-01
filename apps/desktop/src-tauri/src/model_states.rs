@@ -3144,7 +3144,7 @@ mod tests {
         include_str!("../../../../fixtures/persistence/model_state_record_witness.json");
     const WITNESS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_MODEL_STATE_WITNESS";
 
-    /// An invented 0.8.0 document: one node, a model assumption naming a
+    /// An invented 0.9.0 document: one node, a model assumption naming a
     /// support it does not have (a validator warning) and a resolved open issue.
     fn model(name: &str) -> Value {
         json!({

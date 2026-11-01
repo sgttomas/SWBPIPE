@@ -355,6 +355,9 @@ mod solver_spring_rule_tests {
             named("spring_hanger", false, Hanger),
             named("constant_effort_support", false, ConstantEffort),
             named("nonlinear", false, Other),
+            // Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4): every static
+            // solve refuses a snubber; its family reads as no hanger and no ground spring.
+            named("snubber", false, Other),
             ("no family".into(), None, false, Other),
             ("null family".into(), Some(Value::Null), false, Other),
             named("", false, Other),

@@ -44,24 +44,28 @@ const DENSE: &str = include_str!(
 );
 /// PP's pins of the two successors (retained_facade_tests.rs `PINNED`):
 /// mode, file text, file sha256, receipt sha256.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
-        "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374",
+        "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
+        "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
-        "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49",
+        "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa",
+        "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "1a1124c51ce1cee7021874be18ae2f374ce40cbe9c7c8f4f079408957bce7151"),
-    ("dense_scrutiny", "0920a5428060c1d0feec6eb665dce4926b0ab812213bd77e36839c8f10d17669"),
+    ("sparse_interactive", "032b00398ea8c659bd6b9315596c582b0aee70ec3d980da2c095243fc8b60806"),
+    ("dense_scrutiny", "61bf3dd4c11b0942a6db57f54a59aff955d173042cb20f10fce659f0f15cb3b2"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15
@@ -77,27 +81,31 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation and the hashes binding it.
 /// W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation and the hashes binding it.
 /// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "843c0c5283d13a174dcdb880aeb93d95192ae1e31ffd4bf75658e99e0919f767",
-        "51d1f663a3d53d2a8749af611bc88210e75a263df7cdcc0117edf48fc2f8e991",
+        "e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3",
+        "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "f4ea7c0e9c51609a2384d76de432ac6ff9038c51da5834e75a6b9b95e9059d84",
-        "7c0a2c4679fe6d0a3e9a0af1e28e86b4413b66ca1d127c60205ee9cf6fa4a4f0",
+        "6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579",
+        "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3",
     ),
 ];
 /// The committed exact goldens' file sha256.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
     // W-16 slice b (DEL-05-02): and again (was 9c4756e9.../579878c8...).
     // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only) (was e15c27cd.../e0c14d0e...).
-    ("sparse_interactive", "dd22a31bf0686afa3ad9837f4c57790ba83197d3d07ef6a992b0a71fb0ea9c05"),
-    ("dense_scrutiny", "0d146b95764bd4afa6cac1a593c60ec5ee9dd55dfe75b4edc37ec9e03dcdd629"),
+    ("sparse_interactive", "ecdfe590ae1af8442b2a0d58c7ef8cf314d0020c762f7583dc9c3223dd5b324f"),
+    ("dense_scrutiny", "8f8714bc91671800cc44d7682c7c7798bf69c2a8ce6c3027b7a8d4187ac338fb"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

@@ -1,6 +1,6 @@
-//! Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1): the
-//! applier operates only on a current document. A retired one (0.7.0 and
-//! older) is refused by name with MODEL_SCHEMA_VERSION_RETIRED before any
+//! Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1) and
+//! 0.9.0 (`model-document-0.9.0.md` §3.2): the applier operates only on a
+//! current document. A retired one (0.8.0 and older) is refused by name with MODEL_SCHEMA_VERSION_RETIRED before any
 //! change is checked or written, on validate, apply and batch alike; nothing
 //! is migrated. The model is the committed 0.7.0 handoff control's.
 use open_pipe_stress_operation_applier::{apply_operation, apply_operation_batch, validate_operation};
@@ -35,8 +35,8 @@ fn offset_intent() -> Value {
 
 #[test]
 fn a_retired_document_is_refused_by_name_on_validate_and_apply() {
-    for version in ["0.7.0", "0.6.0", "0.1.0"] {
-        let message = format!("model document {version} is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated.");
+    for version in ["0.8.0", "0.7.0", "0.6.0", "0.1.0"] {
+        let message = format!("model document {version} is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated.");
         for outcome in [validate_operation(&model(version), &offset_intent(), None), apply_operation(&model(version), &offset_intent(), None)] {
             assert!(outcome.applied_model.is_none(), "{version}: nothing is written");
             assert_ne!(outcome.validation.application_status, "applied_to_session_model", "{version}");
@@ -46,7 +46,7 @@ fn a_retired_document_is_refused_by_name_on_validate_and_apply() {
         }
     }
     // The current document takes the same edit.
-    let current = apply_operation(&model("0.8.0"), &offset_intent(), None);
+    let current = apply_operation(&model("0.9.0"), &offset_intent(), None);
     assert!(current.diagnostics.is_empty(), "{:?}", current.diagnostics);
     assert_eq!(current.applied_model.unwrap()["components"][0]["geometry"]["eccentric_offset"], json!({"x": 0.0, "y": -50.0, "z": 0.0, "unit": "mm"}));
 }
@@ -59,10 +59,10 @@ fn claim(model: &Value) -> Value {
 #[test]
 fn a_retired_document_is_refused_in_a_batch_and_no_model_is_returned() {
     let batch = json!({"batch_id": "batch:retired", "operations": [offset_intent()]});
-    let current = model("0.8.0");
+    let current = model("0.9.0");
     let applied = apply_operation_batch(&current, &batch, Some(&claim(&current)));
     assert_eq!(applied["validation"]["application_status"], json!("applied_to_session_model"), "{applied}");
-    let retired = model("0.7.0");
+    let retired = model("0.8.0");
     let outcome = apply_operation_batch(&retired, &batch, Some(&claim(&retired)));
     assert!(outcome["applied_model"].is_null(), "{outcome}");
     assert!(outcome.to_string().contains("MODEL_SCHEMA_VERSION_RETIRED"), "{outcome}");
@@ -86,7 +86,7 @@ fn every_non_current_version_is_refused_by_state_on_every_entry() {
     let mut refused = 0;
     for case in table["cases"].as_array().unwrap() {
         let label = case["label"].as_str().unwrap();
-        let mut document = model("0.8.0");
+        let mut document = model("0.9.0");
         match case.get("schema_version") {
             Some(version) => document["schema_version"] = version.clone(),
             None => {
@@ -118,5 +118,5 @@ fn every_non_current_version_is_refused_by_state_on_every_entry() {
             refused += 1;
         }
     }
-    assert_eq!(refused, 2 * 29, "twenty-nine non-current states, two edits each");
+    assert_eq!(refused, 2 * 30, "thirty non-current states, two edits each");
 }

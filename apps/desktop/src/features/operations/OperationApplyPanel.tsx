@@ -1,4 +1,4 @@
-import { CheckCheck, PlayCircle, Redo2, SearchCheck, Undo2 } from "lucide-react";
+import { CheckCheck, Layers, PlayCircle, Redo2, SearchCheck, Undo2 } from "lucide-react";
 import type { OperationEngineStatus } from "../../services/operationService";
 import type { AppliedOperationReceipt, EditorOperationIntent, OperationOutcome } from "../../types";
 
@@ -13,6 +13,7 @@ export function OperationApplyPanel({
   engineStatus,
   onValidate,
   onApply,
+  onReviewAllAsBatch,
   onUndo,
   onRedo
 }: {
@@ -26,6 +27,8 @@ export function OperationApplyPanel({
   engineStatus: OperationEngineStatus;
   onValidate: (intent: EditorOperationIntent) => void;
   onApply: (intent: EditorOperationIntent) => void;
+  /** G9: moves the person's queued changes into batch review as one batch. */
+  onReviewAllAsBatch?: () => void;
   onUndo: () => void;
   onRedo: () => void;
 }) {
@@ -80,6 +83,26 @@ export function OperationApplyPanel({
           Queue a review intent from the property inspector or viewport to validate and apply it here.
         </p>
       ) : (
+        <>
+        {onReviewAllAsBatch && batchableCount(queuedIntents) >= 2 ? (
+          <div className="operation-batch-all" data-testid="operation-review-all-as-batch">
+            <button
+              aria-describedby="operation-review-all-as-batch-help"
+              data-testid="review-all-as-batch"
+              disabled={busy}
+              onClick={onReviewAllAsBatch}
+              type="button"
+            >
+              <Layers size={14} aria-hidden="true" />
+              Review all {batchableCount(queuedIntents)} queued changes as one batch
+            </button>
+            <small className="muted" id="operation-review-all-as-batch-help">
+              The changes move to batch review in the order they were queued. Apply entire batch validates and
+              applies them all or none, as one undo step; Validate batch checks them first without applying. A
+              change whose before-value depends on another queued change is refused by name, never adjusted.
+            </small>
+          </div>
+        ) : null}
         <div className="operation-record-list" data-testid="operation-apply-queue">
           {queuedIntents.map((intent) => {
             const key = intentKey(intent);
@@ -118,6 +141,7 @@ export function OperationApplyPanel({
             );
           })}
         </div>
+        </>
       )}
       {appliedOperations.length > 0 ? (
         <div className="operation-record-list" data-testid="operation-applied-ledger">
@@ -194,4 +218,9 @@ export function intentKey(intent: EditorOperationIntent): string {
 
 function shortHash(value: string): string {
   return value.length > 24 ? `${value.slice(0, 24)}…` : value;
+}
+
+/** The queued changes the person authored; another author's stay single (G9). */
+function batchableCount(intents: EditorOperationIntent[]): number {
+  return intents.filter((intent) => intent.author_type === "user").length;
 }

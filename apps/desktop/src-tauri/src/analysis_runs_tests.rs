@@ -33,7 +33,7 @@ const WITNESS_RULE_PACKS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WIT
 /// rule-pack resolution (written by `recordedRunParity.test.ts`).
 const S2_UNRESOLVED_RUN: &str = include_str!("../../../../fixtures/persistence/s2_unresolved_rule_pack_run.json");
 
-/// An invented 0.8.0 document of `PROJECT` (`name` makes distinct models).
+/// An invented 0.9.0 document of `PROJECT` (`name` makes distinct models).
 fn model(name: &str) -> Value {
     json!({
         "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION,
@@ -932,28 +932,35 @@ fn compare_or_write_witness(text: &str, committed: &str, env: &str) {
 }
 
 /// Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2" (DEL-02-01 Design `model-document-0.8.0.md`
-/// §3.2, §3.3): a store a 0.7.0 build wrote holds a 0.7.0 project, a 0.7.0 state and an
+/// §3.2, §3.3; `model-document-0.9.0.md` §3.2): a store a 0.8.0 (or 0.7.0) build wrote holds
+/// a project, a state of that version and an
 /// ordinary recorded run of that state with intact hashes and bindings. The project and
 /// the state are refused by name, with the recorded-runs note; the runs are listed for the
 /// project id and the run reads exactly as before (no model-document-version gate). Once
-/// the project is re-authored to 0.8.0 under the same id it opens, still lists the run,
+/// the project is re-authored to 0.9.0 under the same id it opens, still lists the run,
 /// and the run still reads; a tampered stored result is refused as before.
 #[test]
 fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_before() {
-    let path = scratch_store("a2-retired");
+    for version in ["0.8.0", "0.7.0"] {
+        a_retired_project_and_state_at(version);
+    }
+}
+
+fn a_retired_project_and_state_at(version: &str) {
+    let path = scratch_store(&format!("a2-retired-{version}"));
     let mut old = model("Invented project");
-    old["schema_version"] = json!("0.7.0");
+    old["schema_version"] = json!(version);
     {
         let (mut connection, _) = crate::open_project_store(&path).unwrap();
         write_project(&mut connection, PROJECT, &old, BASE);
     }
-    // The current save path refuses a 0.7.0 snapshot by name; the state below is the one
-    // a 0.7.0 build saved, written through the same insert after its own checks.
+    // The current save path refuses a retired snapshot by name; the state below is the one
+    // a build of that version saved, written through the same insert after its own checks.
     let old_canonical = canonical_json(&old);
     let refused = model_states::checked_new_state(PROJECT, "design_snapshot", old_canonical.clone(), &model_hash(&old), &UnmeteredReadMemory)
         .map(drop)
         .unwrap_err();
-    assert!(refused.contains("status=retired_schema") && refused.contains("source_schema_version=0.7.0"), "{refused}");
+    assert!(refused.contains("status=retired_schema") && refused.contains(&format!("source_schema_version={version}")), "{refused}");
     assert!(refused.ends_with(crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE), "{refused}");
     let hex = sha256_hex(&old_canonical);
     let snapshot = model_states::CheckedSnapshot { model: old.clone(), model_canonical: old_canonical, model_hash: format!("sha256:{hex}"), model_hash_hex: hex };
@@ -963,7 +970,7 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
         let allocate = || Ok(("000000000000000000000000000000a2".to_string(), 1_000));
         let between_rows = |_: &Transaction<'_>| Ok(());
         let state = insert_new_state(
-            &transaction, PROJECT, "design_snapshot", None, &snapshot, &labels_from_value(json!({ "state_name": "Basis 0.7.0" })).unwrap(),
+            &transaction, PROJECT, "design_snapshot", None, &snapshot, &labels_from_value(json!({ "state_name": format!("Basis {version}") })).unwrap(),
             &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }, &UnmeteredReadMemory,
         )
         .unwrap()
@@ -973,7 +980,7 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
         state
     };
     // The run is recorded against that state: the record path binds hashes, not versions.
-    let submitted = request(&old, "Run at 0.7.0");
+    let submitted = request(&old, &format!("Run at {version}"));
     let result_bytes = submitted.result_json.clone();
     let mut submitted = submitted;
     submitted.state_id = Some(state.state_id.clone());
@@ -984,11 +991,11 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
     // The project and the state are refused by name, with the note; nothing is rewritten.
     let note = crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE;
     let error = crate::open_project_in_store(path.clone(), Some(PROJECT)).map(drop).unwrap_err();
-    assert!(error.starts_with("Model document refused for editing: status=retired_schema; source_schema_version=0.7.0; target_schema_version=0.8.0; MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired; re-author it as model document 0.8.0"), "{error}");
+    assert!(error.starts_with(&format!("Model document refused for editing: status=retired_schema; source_schema_version={version}; target_schema_version=0.9.0; MODEL_SCHEMA_VERSION_RETIRED: model document {version} is retired; re-author it as model document 0.9.0")), "{error}");
     assert!(error.ends_with(&format!(" {note}")), "{error}");
     for purpose in [model_states::StateReadPurpose::Open, model_states::StateReadPurpose::Compare] {
         let error = model_states::read_state_for_in_store_with(&path, PROJECT, &state.state_id, purpose, &UnmeteredReadMemory).map(drop).unwrap_err();
-        assert!(error.starts_with("Model document refused for editing: status=retired_schema; source_schema_version=0.7.0;"), "{purpose:?}: {error}");
+        assert!(error.starts_with(&format!("Model document refused for editing: status=retired_schema; source_schema_version={version};")), "{purpose:?}: {error}");
         assert!(error.ends_with(&format!(" {note}")), "{purpose:?}: {error}");
     }
     let (connection, _) = crate::open_project_store(&path).unwrap();
@@ -1015,7 +1022,7 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
     drop(connection);
     let read_again = read_run_in_store(&path, PROJECT, &recording_id).unwrap();
     assert_eq!((read_again.result_json, read_again.record), (read.result_json, read.record));
-    // The state stays refused: it holds the 0.7.0 snapshot.
+    // The state stays refused: it holds the retired snapshot.
     assert!(model_states::read_state_for_in_store_with(&path, PROJECT, &state.state_id, model_states::StateReadPurpose::Compare, &UnmeteredReadMemory).is_err());
     // A tampered stored result is refused as before.
     tamper(&path, &format!("UPDATE analysis_runs SET result_json = '{}';", quoted(&result_text(9.0))));

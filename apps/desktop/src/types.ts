@@ -180,7 +180,7 @@ export type EquivalentStaticGenerationInput = {
 export type PressureRegionInput = {
   id: string;
   member_pipe_ids: string[];
-  /** Defined only in model 0.8.0; old documents never author this member. */
+  /** Defined only in model 0.9.0; old documents never author this member. */
   member_connector_ids?: string[];
   pressure_basis: string;
   pressure: QuantityValue;
@@ -524,13 +524,21 @@ export type PreviewModel = {
     id: string;
     label: string;
     /** Closed basis set mirroring core/loads/load_case_algebra vocabulary:
-     * "mechanics" | "result_state_subtraction" | "range_envelope". */
+     * "mechanics" | "result_state_subtraction" | "range_envelope", and (model
+     * document 0.9.0) "absolute_sum" | "srss". */
     basis: string;
-    terms: Array<{ load_case: string; factor: number }>;
+    /** Model document 0.9.0 (§2.4): optional; a term names exactly one operand,
+     * a load case or a combination. A subtraction or range envelope may omit
+     * `terms`, and the desktop keeps it absent. */
+    terms?: Array<{ load_case: string; combination?: never; factor: number } | { combination: string; load_case?: never; factor: number }>;
+    /** A load case or (model document 0.9.0) a combination. */
     minuend_id?: string;
     subtrahend_id?: string;
     operand_ids?: string[];
     mode?: string;
+    /** Model document 0.9.0 (§2.2), carried as stored. */
+    difference_basis?: string;
+    subtrahend_support_state?: string;
     provenance: string;
   }>;
   diagnostics: Diagnostic[];

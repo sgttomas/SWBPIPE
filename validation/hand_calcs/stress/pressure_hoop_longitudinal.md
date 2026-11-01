@@ -5,7 +5,7 @@
 Invented stress recovery benchmark for pressure behavior (DEL-09-02 RQ-001,
 pressure fixture slot). One straight elastic annulus carries internal
 pressure. The product's exact-pressure preview entry
-(`run_linear_static_preview_value_with_mode`, model 0.8.0 under
+(`run_linear_static_preview_value_with_mode`, model 0.9.0 under
 `3.0.0/exact_pressure_v3`) must publish:
 
 - the Lamé hoop and radial stresses at the inner and outer surfaces;

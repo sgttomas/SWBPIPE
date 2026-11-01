@@ -26,6 +26,12 @@ operating, EX) and `nonlinear-pf` (the nonlinear twin on the pressure-free route
 emitted; each target family or case form that it refuses is recorded in LEDGER with its interim form, the refusal
 observed and what it waits for.
 
+The document carries the desktop's model-file shape as well (`apps/desktop/src/features/model-file/
+modelDocumentShape.ts`, the check File > Open Model Document runs), so the desktop opens it: a `data_boundary`, an
+empty `diagnostics` list, a label on every node, pipe, support and component (its invented `RK-` tag), load-case
+`kind` and `status`, and empty `terms` on each subtraction combination, as the desktop itself writes them. None of
+these reaches the solve: the published rows and bytes are those of the document without them.
+
 The model document version is read at run time from core/product_physics/src/model_format.rs; it is never written
 here. When the version moves, tests/test_performance_rack_model.py fails and names the re-check.
 
@@ -65,6 +71,23 @@ MODEL_VERSION = read_model_version()
 PROVENANCE = "invented_rt_u4_perf_rack_not_library_or_project_data"
 SOURCE = "invented user value for the RT-U4 performance rack (DEL-04-05); not library, supplier, standard or project data"
 EX_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+# The desktop model-file shape's members (see the module docstring), with the values the desktop and its bundled
+# invented demo write.
+DATA_BOUNDARY = {
+    "public_examples_policy": "invented_or_cleared_data_only",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review",
+}
+LOAD_CASE_KIND = "primitive_user_load"
+LOAD_CASE_STATUS = "preview_only"
+
+
+def label_of(entity_id: str) -> str:
+    """An entity's label: its invented tag ("node:RK-H0012" -> "RK-H0012")."""
+    return entity_id.split(":", 1)[1]
+
+
 LEDGER_BASIS = ("observed on main at 7e061cf2e (model document schema of that revision) through the headless runner's "
                 "solve, sparse_interactive")
 
@@ -398,7 +421,7 @@ def components(rack: Rack) -> list[dict]:
     rows = []
     for bend in rack.bends:
         rows.append({
-            "id": bend["id"], "kind": "bend", "node": bend["node"],
+            "id": bend["id"], "label": label_of(bend["id"]), "kind": "bend", "node": bend["node"],
             "geometry": {"bend_pipe_ref": bend["pipe"], "bend_radius": q(BEND_RADIUS * 1000.0, "mm"),
                          "bend_geometry_source_reference": SOURCE},
             "modifiers": {"flexibility_factor_user_value": q(BEND_K, "none"),
@@ -411,7 +434,7 @@ def components(rack: Rack) -> list[dict]:
         pipe = pipes[rigid["pipe"]]
         od = SECTIONS[pipe["section"]][0]
         rows.append({
-            "id": rigid["id"], "kind": rigid["kind"], "node": rigid["node"],
+            "id": rigid["id"], "label": label_of(rigid["id"]), "kind": rigid["kind"], "node": rigid["node"],
             "geometry": {"rigid_pipe_ref": rigid["pipe"], "rigid_body_length": q(r6(rigid["length"]), "m"),
                          "end_a_size": q(od, "mm"), "end_b_size": q(od, "mm"),
                          "connection_end_a_reference": f"{pipe['from']} (body end on {rigid['pipe']})",
@@ -429,7 +452,8 @@ def components(rack: Rack) -> list[dict]:
 
 
 def support(sid, node, family, restraints, nonlinear=None):
-    row = {"id": sid, "node": node, "family": family, "restraints": restraints, "provenance": PROVENANCE}
+    row = {"id": sid, "label": label_of(sid), "node": node, "family": family, "restraints": restraints,
+           "provenance": PROVENANCE}
     if nonlinear is not None:
         row["nonlinear"] = nonlinear
     return row
@@ -532,7 +556,8 @@ def load_cases(rack: Rack, profile: str) -> tuple[list[dict], list[dict]]:
         loads = weight_loads(rack, f"RK-{tag}", exact, contents)
         if thermal:
             loads += thermal_loads(rack, f"RK-{tag}")
-        record = {"id": cid, "label": label, "primitive_loads": loads, "provenance": PROVENANCE}
+        record = {"id": cid, "label": label, "kind": LOAD_CASE_KIND, "status": LOAD_CASE_STATUS,
+                  "primitive_loads": loads, "provenance": PROVENANCE}
         if exact:
             record["pressure_regions"] = regions(rack, f"RK-{tag}", kpa)
         if thermal and exact:
@@ -558,7 +583,7 @@ def load_cases(rack: Rack, profile: str) -> tuple[list[dict], list[dict]]:
             "gravity_acceleration": q(GRAVITY, "m/s^2"), factor: q(value, "1")}}))
     combinations = [{"id": f"combination:RK-{tag}", "label": f"{tag}: {minuend} - SUS",
                      "basis": "result_state_subtraction", "minuend_id": f"load:RK-{minuend}",
-                     "subtrahend_id": "load:RK-SUS", "provenance": PROVENANCE}
+                     "subtrahend_id": "load:RK-SUS", "terms": [], "provenance": PROVENANCE}
                     for tag, minuend in (("EXP", "OPE"), ("dWIN", "WIN"), ("dEQX", "EQX"), ("dEQY", "EQY"),
                                          ("dEQZ", "EQZ"))]
     return cases, combinations
@@ -577,12 +602,13 @@ def build(profile: str, nodes: int) -> tuple[dict, dict]:
     # On EX the nonlinear supports wait for RT-A3 increment 4: their linear interim forms are emitted.
     nonlinear = spec["nonlinear"] and not exact
     cases, combinations = load_cases(rack, profile)
-    pipes = [{"id": p["id"], "from": p["from"], "to": p["to"], "material": "material:RK-M1",
+    pipes = [{"id": p["id"], "label": label_of(p["id"]), "from": p["from"], "to": p["to"], "material": "material:RK-M1",
               "section_ref": f"section:RK-{p['section']}", "section": section_record(p["section"], exact),
               "y_reference": dict(zip("xyz", p["y_ref"])), "provenance": PROVENANCE} for p in rack.pipes]
     document = {
         "schema_version": MODEL_VERSION,
         "document_kind": "openpipestress.product_preview.model",
+        "data_boundary": dict(DATA_BOUNDARY),
         "project": {"id": f"project:RK-{profile}-{nodes}", "name": f"RT-U4 reference rack {profile} {nodes} (invented)",
                     "description": "Invented pipe rack for the DEL-04-05 performance harness (release target "
                                    "criterion 9); a test object, not a design",
@@ -594,12 +620,13 @@ def build(profile: str, nodes: int) -> tuple[dict, dict]:
         "sections": [{"id": f"section:RK-{tag}", "name": f"RK-{tag}", "section_type": "pipe",
                       "properties": {"outside_diameter": q(od, "mm"), "wall_thickness": q(wall, "mm")},
                       "provenance": PROVENANCE} for tag, (od, wall, *_rest) in SECTIONS.items()],
-        "nodes": [{**node, "provenance": PROVENANCE} for node in rack.nodes],
+        "nodes": [{**node, "label": label_of(node["id"]), "provenance": PROVENANCE} for node in rack.nodes],
         "pipe_segments": pipes,
         "supports": supports(rack, nonlinear),
         "components": components(rack),
         "load_cases": cases,
         "combinations": combinations,
+        "diagnostics": [],
     }
     if exact:
         document["pressure_contract"] = dict(EX_CONTRACT)

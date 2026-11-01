@@ -1,5 +1,5 @@
 // W-12 S3a (DEL-14-01 Design `desktop-states-runs-comparison.md` §4.1, §6):
-// the state comparison's flattening (complete and fail-closed against the 0.8.0
+// the state comparison's flattening (complete and fail-closed against the 0.9.0
 // schema), the equal-hash invariant (including a reorder-only pair),
 // classification by stable id, the duplicate-id refusal and the desktop's own
 // field diff (nested paths, `unit_changed`). Parity with the reference engine is
@@ -32,7 +32,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 // Vitest runs with the desktop package as its working directory.
 const SCHEMA_PATH = path.join(process.cwd(), "..", "..", "schemas", "model.schema.yaml");
 
-/** The every-slot fixture, with the two 0.8.0 slots it lacks (pressure_contract,
+/** The every-slot fixture, with the two 0.9.0 slots it lacks (pressure_contract,
  * reference_configurations) added so every family is exercised. */
 function everySlot(): Json {
   const model = structuredClone(everySlotModel) as Json;
@@ -56,7 +56,23 @@ function differences(comparison: StateComparison) {
 }
 
 describe("flattening (complete and fail-closed)", () => {
-  it("assigns every top-level member of the 0.8.0 schema, and nothing else", () => {
+  it("preserves 0.9.0 condition sets and spectra as authored model fields and reports their changes", () => {
+    const left = everySlot();
+    const before = JSON.stringify(left);
+    const flat = flattenModelDocument(left).find((entity) => entity.family === "model")!;
+    expect(flat.fields.condition_sets).toEqual(left.condition_sets);
+    expect(flat.fields.spectra).toEqual(left.spectra);
+    const right = structuredClone(left);
+    right.condition_sets[0].conditions[0].temperature.value += 1;
+    right.spectra[0].points[0][1] += 0.1;
+    const changed = differences(compareModelDocuments(left, right));
+    expect(changed).toHaveLength(1);
+    expect(changed[0].family).toBe("model");
+    expect(new Set(changed[0].changes.map((change) => change.path[0]))).toEqual(new Set(["condition_sets", "spectra"]));
+    expect(JSON.stringify(left)).toBe(before);
+  });
+
+  it("assigns every top-level member of the 0.9.0 schema, and nothing else", () => {
     const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf8")) as { properties: Record<string, unknown>; additionalProperties: boolean };
     // The document is closed, so the schema's properties are every member it can hold.
     expect(schema.additionalProperties).toBe(false);
@@ -102,7 +118,11 @@ describe("flattening (complete and fail-closed)", () => {
       expect(model, member).toHaveProperty([member]);
     }
     expect(model.collection_order.nodes).toEqual(["node:N-1", "node:N-2", "node:N-3"]);
-    expect(model.primitive_load_order).toEqual([{ load_case: "load:L-1", loads: ["load:L-1-Z"] }]);
+    expect(model.primitive_load_order).toEqual([
+      { load_case: "load:L-1", loads: ["load:L-1-Z"] },
+      { load_case: "load:L-2", loads: [] },
+      { load_case: "load:L-3", loads: [] }
+    ]);
     const loadCase = entities.find((entity) => entity.family === "load_case")!;
     expect(loadCase.fields).not.toHaveProperty("primitive_loads");
     expect(loadCase.fields).not.toHaveProperty("id");
@@ -228,9 +248,9 @@ describe("classification by stable id within each family", () => {
     expect(() => compareModelDocuments(shared, shared)).not.toThrow();
     // A primitive load id may repeat across load cases: the key is the pair.
     const loads = everySlot();
-    loads.load_cases.push({ id: "load:L-2", primitive_loads: [structuredClone(loads.load_cases[0].primitive_loads[0])] });
+    loads.load_cases.push({ id: "load:comparison-added", primitive_loads: [structuredClone(loads.load_cases[0].primitive_loads[0])] });
     const rows = compareModelDocuments(everySlot(), loads).rows.filter((row) => row.family === "primitive_load");
-    expect(rows.map((row) => [row.id, row.classification])).toEqual([["load:L-1/load:L-1-Z", "unchanged"], ["load:L-2/load:L-1-Z", "added"]]);
+    expect(rows.map((row) => [row.id, row.classification])).toEqual([["load:L-1/load:L-1-Z", "unchanged"], ["load:comparison-added/load:L-1-Z", "added"]]);
   });
 });
 

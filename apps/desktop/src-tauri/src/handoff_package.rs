@@ -2464,10 +2464,15 @@ mod tests {
         let ids = entity_ids(&model, "project:slots", "state:x").unwrap();
         assert_eq!(ids["node_ids"], json!(["node:N-1", "node:N-2", "node:N-3"]));
         assert_eq!(ids["element_ids"], json!(["pipe:P-1", "pipe:P-2"]));
-        assert_eq!(ids["load_case_ids"], json!(["combination:C-OP", "load:L-1"]));
+        // Load cases and combinations, sorted; 0.9.0's reviewed every-slot additions are L-2, L-3,
+        // C-EXP, C-ABS and C-SRSS.
+        assert_eq!(
+            ids["load_case_ids"],
+            json!(["combination:C-ABS", "combination:C-EXP", "combination:C-OP", "combination:C-SRSS", "load:L-1", "load:L-2", "load:L-3"])
+        );
         assert_eq!(ids["component_ids"], json!(["component:C-1"]));
         let mapped: Vec<&str> = ids["mapping_id_refs"].as_array().unwrap().iter().map(|item| item["ref"].as_str().unwrap()).collect();
-        for entity in ["support:S-1", "material:steel", "section:std", "line:L-100", "constraint:K-001", "equipment-interface:E-001"] {
+        for entity in ["support:S-1", "support:SN-1", "material:steel", "section:std", "line:L-100", "constraint:K-001", "equipment-interface:E-001"] {
             assert!(mapped.contains(&format!("project:slots#{entity}").as_str()), "{entity}");
         }
         let mut renamed = model.clone();
@@ -2682,6 +2687,29 @@ mod tests {
         };
         assert_eq!(diagnostics[0].code, "MODEL-FILE-SCHEMA-REFUSED");
         assert!(diagnostics[0].message.contains("(retired_schema): MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired"), "{}", diagnostics[0].message);
+        for mode in [open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive, open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny] {
+            let envelope = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap();
+            assert_ne!(envelope.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
+            assert!(envelope.results.is_empty(), "{mode:?}: nothing is solved");
+            assert!(envelope.diagnostics.iter().any(|d| d.code == "MODEL_SCHEMA_VERSION_RETIRED" && d.severity == "blocking"), "{mode:?}");
+        }
+    }
+
+    /// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.2, §3.6): the
+    /// witness package as the 0.8.0 producer wrote it
+    /// (`fixtures/handoff/retired_0_8_0_witness.swbhandoff/`, main `5bb2f9ff0`'s bytes). Its
+    /// bytes still verify, and File › Open and the solve refuse its model by name.
+    #[test]
+    fn a_package_written_at_model_0_8_0_holds_a_model_the_open_and_solve_paths_refuse() {
+        const RETIRED_MODEL: &str = include_str!("../../../../fixtures/handoff/retired_0_8_0_witness.swbhandoff/model/model.json");
+        let model: Value = serde_json::from_str(RETIRED_MODEL).unwrap();
+        assert_eq!(model["schema_version"], "0.8.0");
+        let outcome = crate::model_document_file::read_model_document_bytes("model.json".into(), RETIRED_MODEL.as_bytes());
+        let crate::model_document_file::ModelDocumentOpenOutcome::Refused { diagnostics, .. } = outcome else {
+            panic!("a 0.8.0 model opened: {outcome:?}");
+        };
+        assert_eq!(diagnostics[0].code, "MODEL-FILE-SCHEMA-REFUSED");
+        assert!(diagnostics[0].message.contains("(retired_schema): MODEL_SCHEMA_VERSION_RETIRED: model document 0.8.0 is retired; re-author it as model document 0.9.0"), "{}", diagnostics[0].message);
         for mode in [open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive, open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny] {
             let envelope = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap();
             assert_ne!(envelope.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");

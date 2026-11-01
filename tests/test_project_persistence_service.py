@@ -686,9 +686,9 @@ def test_persistence_schema_rejects_payload_outside_the_model_document_format():
 # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): a project whose model payload is a
 # retired model document is refused by name on validate, create, save and open, with the desktop's code and text
 # (src-tauri refuse_model_document: the retired message, then the recorded-runs note). The model is the committed
-# 0.7.0 handoff control's.
-_RETIRED_MODEL = ROOT / "fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json"
-_RETIRED_TEXT = ("MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired; re-author it as model document 0.8.0 "
+# 0.8.0 handoff control's, the version model document 0.9.0 retires (model-document-0.9.0.md §3.2).
+_RETIRED_MODEL = ROOT / "fixtures/handoff/retired_0_8_0_witness.swbhandoff/model/model.json"
+_RETIRED_TEXT = ("MODEL_SCHEMA_VERSION_RETIRED: model document 0.8.0 is retired; re-author it as model document 0.9.0 "
                  "(a pressure-free model omits pressure_contract). Nothing is migrated. Recorded runs keep their own format "
                  "and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. "
                  "Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is "
@@ -696,7 +696,7 @@ _RETIRED_TEXT = ("MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired;
                  "same project id, and run comparison keeps its eligibility rules.")
 
 
-def _retired_envelope(version="0.7.0"):
+def _retired_envelope(version="0.8.0"):
     model = json.loads(_RETIRED_MODEL.read_text())
     model["schema_version"] = version
     return build_project_persistence_envelope(
@@ -713,7 +713,7 @@ def _refusals(diagnostics):
 
 def test_a_retired_model_payload_is_refused_by_name_on_validate():
     assert _refusals(validate_project_persistence_envelope(_retired_envelope())) == [("MODEL_SCHEMA_VERSION_RETIRED", "blocking", _RETIRED_TEXT)]
-    assert _refusals(validate_project_persistence_envelope(_retired_envelope("0.8.0"))) == []
+    assert _refusals(validate_project_persistence_envelope(_retired_envelope("0.9.0"))) == []
 
 
 def test_a_retired_model_payload_is_refused_on_create_and_save_and_nothing_is_written(tmp_path):
@@ -830,7 +830,7 @@ def test_the_store_version_check_is_total():
 def test_an_authored_euler_bernoulli_member_is_kept_byte_for_byte(tmp_path):
     # R7-1: a document that carries model_settings.shear_model = euler_bernoulli (authored outside the applier) is a
     # current document; persistence keeps the member as authored, and reopening gives the same bytes.
-    case = {"label": "current", "schema_version": "0.8.0"}
+    case = {"label": "current", "schema_version": "0.9.0"}
     envelope = _envelope_for(case)
     model = envelope["project"]["model_payload"]
     model.setdefault("model_settings", {})["shear_model"] = "euler_bernoulli"

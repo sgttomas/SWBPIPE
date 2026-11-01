@@ -37,7 +37,7 @@ fn anchor(id: &str, node: &str) -> Value {
 /// and an anchored cantilever c-d along +z whose end c lies `gap_m` from b,
 /// so b and c are distinct nodes no element joins.
 fn cantilevers(gap_m: f64) -> Value {
-    json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+    json!({"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":PROJECT,"units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":[node("node:a",0.0,0.0,0.0),node("node:b",1.0,0.0,0.0),node("node:c",1.0,gap_m,0.0),node("node:d",1.0,gap_m,1.0)],
@@ -290,7 +290,7 @@ fn the_wire_is_checked() {
     let mut old = model.clone();
     old["schema_version"] = json!("0.6.0");
     refused(&old, &set(&old, "2", "mm"), "MODEL_SCHEMA_VERSION_RETIRED");
-    old["schema_version"] = json!("0.9.0");
+    old["schema_version"] = json!("0.10.0");
     refused(&old, &set(&old, "2", "mm"), "MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED");
 }
 

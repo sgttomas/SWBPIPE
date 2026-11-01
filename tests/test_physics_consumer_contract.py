@@ -67,7 +67,7 @@ def test_a_stored_physics_one_result_is_refused_by_name():
     source = actual()
     source["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/physics-1"
     source["formulation_basis"]["profile_id"] = "exact_straight_pressure_v2"
-    with pytest.raises(ValueError, match="^SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0"):
+    with pytest.raises(ValueError, match="^SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.9.0"):
         build(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
 

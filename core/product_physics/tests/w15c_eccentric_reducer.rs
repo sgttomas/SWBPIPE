@@ -51,7 +51,7 @@ fn request(m: &Model, route: Route) -> Value {
     let load = json!({"id": "load:fx", "category": "concentrated_force", "target": {"type": "node", "node": m.load_node}, "direction": "global_x",
         "magnitude": qv(10000.0, "N"), "dimension": "force", "provenance": PROV});
     let mut case = json!({"id": "case:w15c", "primitive_loads": [load], "provenance": PROV});
-    let mut model = json!({"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
+    let mut model = json!({"schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w15c", "units": units}, "analysis_status": status, "nodes": nodes, "pipe_segments": pipes,
         "supports": [{"id": "support:n0", "node": m.nodes[0].0, "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": PROV}],
         "components": m.components, "combinations": []});

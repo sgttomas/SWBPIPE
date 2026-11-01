@@ -20,12 +20,12 @@
   },
   "bound_to": {
     "model_ref": "project:precision-connected-fixture",
-    "model_document_sha256": "d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5",
+    "model_document_sha256": "4a1babd4a449831aeeea1835dfff057ebae6c91c14675443fde9da061f07ff3c",
     "analysis_run_ref": "run:preview-linear-static-001",
-    "input_manifest_ref": "input-manifest:project-precision-connected-fixture:cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83",
-    "input_manifest_sha256": "cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83",
+    "input_manifest_ref": "input-manifest:project-precision-connected-fixture:ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e",
+    "input_manifest_sha256": "ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e",
     "result_envelope_id": "result-envelope:run:preview-linear-static-001",
-    "result_document_derivative_sha256": "8e6773338cb0f347873a7b6830e92a9939817432bf62e05f449328c18a53e1e0"
+    "result_document_derivative_sha256": "28a95a14ec3cc13b18b212f43c389fd7ae0bdd552917f5ece8e547877170dda3"
   },
   "user_released_at": "2026-10-27T00:00:00Z"
 }
