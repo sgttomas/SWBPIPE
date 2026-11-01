@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { isNativeResult, lookupNativeRows, type SessionResult } from "../../services/nativeResult";
+import { nativeFailureText } from "../../services/nativeIngress";
 import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
@@ -16,20 +17,21 @@ const AXIAL_ROW_KIND = "element_local_axial_force";
 function axialRowOf(result: MechanicsResult): Row | null {
   return result.results.find((item) => item.id === AXIAL_ROW_ID) ?? result.results.find((item) => item.kind === AXIAL_ROW_KIND) ?? null;
 }
-export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row | null; reading: boolean } {
-  const [found, setFound] = useState<{ of: SessionResult; row: Row | null } | null>(null);
+export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row | null; reading: boolean; refused: string | null } {
+  const [found, setFound] = useState<{ of: SessionResult; row: Row | null; refused: string | null } | null>(null);
   useEffect(() => {
     if (!result || !isNativeResult(result)) return;
     let live = true;
     lookupNativeRows(result, { ids: [AXIAL_ROW_ID], kinds: [AXIAL_ROW_KIND], match: "first" }).then(
-      (lookup) => { if (live) setFound({ of: result, row: (lookup.ids[0] ?? lookup.kinds[0])?.row ?? null }); },
-      () => { if (live) setFound({ of: result, row: null }); }
+      (lookup) => { if (live) setFound({ of: result, row: (lookup.ids[0] ?? lookup.kinds[0])?.row ?? null, refused: null }); },
+      // A refused lookup is said as such, never shown as a result without the row.
+      (error) => { if (live) setFound({ of: result, row: null, refused: nativeFailureText(error) }); }
     );
     return () => { live = false; };
   }, [result]);
-  if (!result) return { row: null, reading: false };
-  if (!isNativeResult(result)) return { row: axialRowOf(result), reading: false };
-  return found && found.of === result ? { row: found.row, reading: false } : { row: null, reading: true };
+  if (!result) return { row: null, reading: false, refused: null };
+  if (!isNativeResult(result)) return { row: axialRowOf(result), reading: false, refused: null };
+  return found && found.of === result ? { row: found.row, reading: false, refused: found.refused } : { row: null, reading: true, refused: null };
 }
 
 export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
@@ -43,6 +45,9 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
         <BookOpen size={16} />
         Design Knowledge
       </div>
+      {axial.refused ? (
+        <p role="status" data-testid="knowledge-axial-force-refused">{`The computed axial-force record could not be read from the result: ${axial.refused}`}</p>
+      ) : null}
       {unitContext ? (
         <div className="report-line" data-testid="knowledge-unit-context">
           <span>Source computed unit context</span>

@@ -991,6 +991,9 @@ export function declaredSourceResultDimension(
 export const DEFAULT_COMPARISON_LEFT_BASIS_REF = "load:L-100";
 export const DEFAULT_COMPARISON_RIGHT_BASIS_REF = "combination:C-OPER-ALT";
 
+/** The run identity a comparison names: a full record's, or a native record header's (C1). */
+export type ComparedRun = Readonly<{ analysis_run: Readonly<Pick<AnalysisRunEnvelope["analysis_run"], "run_id" | "model_state_ref">> }>;
+
 export function buildPreviewComparison({
   result,
   analysisRun,
@@ -998,7 +1001,7 @@ export function buildPreviewComparison({
   rightBasisRef = DEFAULT_COMPARISON_RIGHT_BASIS_REF,
 }: {
   result: MechanicsResult;
-  analysisRun: AnalysisRunEnvelope;
+  analysisRun: ComparedRun;
   leftBasisRef?: string;
   rightBasisRef?: string;
 }): PreviewComparison {

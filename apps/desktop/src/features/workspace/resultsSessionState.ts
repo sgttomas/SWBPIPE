@@ -192,7 +192,7 @@ export function useResultsSessionState() {
     ? (fullResultCopy?.of === currentSolvedResult ? fullResultCopy.copy : null)
     : currentSolvedResult as MechanicsResult | null;
   const comparedRun = comparedResult ? analysisRun : null;
-  const fixedPair = useMemo(() => fixedPairComparison(comparedResult, comparedRun as AnalysisRunEnvelope | null), [comparedRun, comparedResult]);
+  const fixedPair = useMemo(() => fixedPairComparison(comparedResult, comparedRun), [comparedRun, comparedResult]);
   // "Within this run" (W-12 S3c): the user's load case and combination. The choice
   // stays across solves, edits and replacements and is revalidated against each
   // Current run; when that run does not offer one of its bases, it is dropped here,
@@ -212,7 +212,7 @@ export function useResultsSessionState() {
   }
   const heldForRun = dropped.length > 0 ? null : heldWithinRunSelection;
   const resolvedWithinRun = useMemo(
-    () => resolveWithinRun({ result: comparedResult, analysisRun: comparedRun as AnalysisRunEnvelope | null, options: withinRunOptions, held: heldForRun, fixedPair }),
+    () => resolveWithinRun({ result: comparedResult, analysisRun: comparedRun, options: withinRunOptions, held: heldForRun, fixedPair }),
     [comparedRun, comparedResult, fixedPair, heldForRun, withinRunOptions]
   );
   const withinRun = resolvedWithinRun.view;

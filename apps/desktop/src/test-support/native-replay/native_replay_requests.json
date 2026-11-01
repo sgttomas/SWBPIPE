@@ -210,6 +210,22 @@
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
+   "key": "229e6bccc645b6c47938f27f594d1142b67ff37e3af183261dd981ae0607db14",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
+  },
+  {
    "key": "2592cc7bb8664229aafc4e30eb55a4b5403ae62a92371da842faa16c6a184eef",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -406,6 +422,22 @@
    },
    "source_sha256": "c3c03c86e25ad6752c51a9c6c03490f0d55f0d9abb08dadc243ecd5be467cacc",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+  },
+  {
+   "key": "405e7ebe6e1969bc2558cbfcdbca72148cb60a6792a13867768ed133673184a4",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "3ef9c24af2602d055f68a473f27726f556ce4153f5595819e5da5dace509807c",
+   "source_path": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json"
   },
   {
    "key": "40db288a3801acb7d68c271fa92d513acf3d6854db432e84885a177661839c75",
@@ -968,6 +1000,22 @@
    "source_path": "fixtures/results/preview_physics_range_envelope_sparse.json"
   },
   {
+   "key": "925427c8a5b8050801d873aece8d92375e9286a77e2228bd1f82e56a9a2f695f",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "2f9dea9f3006169c7cbf6c4c5ac93e5bc740fd156a8871ea4ab20f021e446921",
+   "source_path": "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json"
+  },
+  {
    "key": "952ee47893bfb7784aaf643bb51816cbce134aa609199922f1c9f1226a2c3945",
    "command": "read_preview_mechanics_job_summary",
    "args": {
@@ -1137,6 +1185,22 @@
    },
    "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "b510a10cab007d85744e490a5a34a8d394fbf55e84efe3c8052fbfa7084c8646",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "8f0146a982c706a600868e6b2f8c4fee204f18913458654a5760db57a35c13c8",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_dense.json"
   },
   {
    "key": "b57c181e0f44e2f10fb98adb84e6c8f6e85cb328f8043ac1265d7ae1c316fd2d",
@@ -1709,6 +1773,22 @@
    "source_path": "fixtures/results/pressure_connected_ui_mechanics_dense.json"
   },
   {
+   "key": "eb8ddddb3ff52d9de68cf3573efde89d339f6a45c7a86f7aa53f286b65b7aaef",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
+  },
+  {
    "key": "ebc2242a69cff55944d386ec2933e4c903a1e58d5cbf07445570c1e3f9936365",
    "command": "read_preview_mechanics_job_summary",
    "args": {
@@ -1778,6 +1858,22 @@
    },
    "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
    "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
+  },
+  {
+   "key": "f9344b87490d4e341a9512c856e012bd19e28608fd7a6dae8c3204887df3a0fa",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "2fdb92b30bf94f485c477ee3a51be08922a1b1549790ecc057df96007302cbed",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
   },
   {
    "key": "fa982d15ec6f63674d77e805e21f6a29ca804c8866b5a037844b06cd92b4b9dc",
