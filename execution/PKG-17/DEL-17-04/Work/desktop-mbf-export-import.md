@@ -374,7 +374,9 @@ are always the native writer's output for the hash-checked text.
   shapes. Review found that bound unsound: the writer's peak grows with the square of its
   input, so no factor of the model's bytes bounds it. It has two quadratic terms:
   - long ids multiplied by the copies of an id each record makes (Agent 0's ruling,
-    2026-11-01);
+    2026-11-01). Each primitive load holds about 40 copies of its load case's id: with a
+    20,000-byte case id and 480 thermal loads, a 271 KB model peaked at 644 MB, where k·M
+    reserved about 175 MB (counting-allocator measurement in PR #70's review fix round);
   - long ids multiplied by unknown fields. The counting allocator measures the export fixture
     with one node renamed to a long id carrying unknown members. A 4 KiB id with 256 unknown
     fields (20.0 KB of model text) peaked at 7.7 MB priced, 385 bytes per model byte. A
