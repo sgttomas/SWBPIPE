@@ -143,7 +143,10 @@ rows = {}
 # ---------------------------------------------------------------- per-case exact finalization
 # (1) check_input -> check_input_with_physical (source_receipt.rs:270-366)
 RAW = (s("Value") * (2 * RAWV) + X({"Node(String,Value)": RAWV + RAWV // 5}) + B(2 * RAWS + 2 * RAWK + 128))
-strings_typed = 8 * (7 + 16 * 7) + 6 + 2 * n + 12 * m + 6 * g + r + 2 * CC + 7 * LL
+# S1-TS (retained-pricing-rules.md §8.36): requested()'s typed request holds the same admitted strings as T_resident.
+import typed_strings_model as _ts_model
+_ts = _ts_model.inspect(os.environ.get("RP_SNAPSHOT")) or {"pipe": 12, "model": 0}
+strings_typed = 8 * (7 + 16 * 7) + 6 + _ts["model"] + 2 * n + _ts["pipe"] * m + 6 * g + r + 2 * CC + 7 * LL
 TYPED = (Xc("MaterialInput", 8) + Xc("TemperaturePoint", 128) + Xc("PreviewNode", n) + Xc("PreviewPipe", m)
          + Xc("PreviewSupport", g) + Xc("String", r) + Xc("PreviewLoadCase", CC) + Xc("PrimitiveLoadInput", LL)
          + Xc("Authored<Vec<ExpansionLawInput>>", 4) + B(strings_typed * ID) + RAW)

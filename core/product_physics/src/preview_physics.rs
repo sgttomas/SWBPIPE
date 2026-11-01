@@ -162,7 +162,7 @@ impl Rendered {
     }
 }
 
-fn identity(parts: &[&str]) -> String {
+pub(crate) fn identity(parts: &[&str]) -> String {
     exact_source_identity(parts)
 }
 
@@ -290,20 +290,21 @@ fn extrema_evidence(pipe_id: &str, result_id: &str, m: &CertifiedStressMaximum, 
         "enclosure_scope":"supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"})
 }
 
-/// One intensified-measure association of a component with a pipe end.
-struct Association<'a> {
-    component: &'a PreviewComponent,
-    role: &'static str,
-    side_label: &'static str,
-    sif: f64,
-    source_reference: &'a str,
+/// One intensified-measure association of a component with a pipe end
+/// (RT-A3: also the exact route's branch rows, `u4b_rows::append_branch_intensified`).
+pub(crate) struct Association<'a> {
+    pub(crate) component: &'a PreviewComponent,
+    pub(crate) role: &'static str,
+    pub(crate) side_label: &'static str,
+    pub(crate) sif: f64,
+    pub(crate) source_reference: &'a str,
 }
 
-fn user_sif(value: Option<&Quantity>) -> Option<f64> {
+pub(crate) fn user_sif(value: Option<&Quantity>) -> Option<f64> {
     value.map(|q| q.value).filter(|v| positive_finite(*v))
 }
 
-fn solver_consumption(component: &PreviewComponent) -> &str {
+pub(crate) fn solver_consumption(component: &PreviewComponent) -> &str {
     component
         .mechanics_interface
         .as_ref()
@@ -321,7 +322,7 @@ fn source_reference(component: &PreviewComponent) -> &str {
 }
 
 /// The associations of a straight pipe end at `node`, per S1 §4.
-fn associations<'a>(model: &'a PreviewModel, node: &str, pipe_id: &str) -> Vec<Association<'a>> {
+pub(crate) fn associations<'a>(model: &'a PreviewModel, node: &str, pipe_id: &str) -> Vec<Association<'a>> {
     let mut found = Vec::new();
     for component in model.components.iter().filter(|c| c.node == node) {
         if is_curved_bend_macro_component(component)
@@ -1323,7 +1324,7 @@ mod tests {
     #[test]
     fn constant_effort_gate_withholds_a_factor_sum_it_cannot_evaluate() {
         let model: PreviewModel = serde_json::from_value(serde_json::json!({
-            "schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+            "schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
             "project":{"id":"project:t","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
             "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
             "nodes":[],"pipe_segments":[],"supports":[],"components":[],"materials":[],

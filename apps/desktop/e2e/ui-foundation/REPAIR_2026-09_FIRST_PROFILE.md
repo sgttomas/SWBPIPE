@@ -31,8 +31,9 @@ to a pass on today's product, **by design**: a current source root stops at "win
 source drift". It is not rebound. A later product is bound by a later profile, which this work does not build.
 The owner re-pinned the repository's fixture manifest on 2026-10-22, regenerating the four models as model
 document 0.6.0 (DEL-04-08 `Work/b7-plan.md`, "Owner decision: the frozen UI benchmark"), and again at model
-document 0.7.0 (W-13 S1b, DEL-02-01 `Work/model-document-0.7.0.md` §2) and at model document 0.8.0 (W-15 slice c,
-DEL-02-01 `Work/model-document-0.8.0.md` §5); the first profile keeps its binding to the earlier manifest.
+document 0.7.0 (W-13 S1b, DEL-02-01 `Work/model-document-0.7.0.md` §2), at model document 0.8.0 (W-15 slice c,
+DEL-02-01 `Work/model-document-0.8.0.md` §5) and at model document 0.9.0 (DEL-02-01 `Work/model-document-0.9.0.md`
+§3.6); the first profile keeps its binding to the earlier manifest.
 
 ## Defect 1: the geometry-source value (a statement was missing; no behaviour changed)
 

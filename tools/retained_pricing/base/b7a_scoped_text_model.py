@@ -1,4 +1,7 @@
 """Closed current-source spellings; no global message/error class changes."""
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 from copy import deepcopy
 import hashlib
 from pathlib import Path
@@ -7,7 +10,11 @@ import runpy
 MARKER = 'b7a_scoped_text'
 WHY = 'B7a scoped TEXT: exact current producer and admitted source/type closure'
 UNITS = 'core/units/src/lib.rs'
-UNITS_SHA = '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c'
+# Model document 0.9.0 D3 (§8.36): the units catalog adds five dynamics dimensions and their units (Hz, rad/s, rad/m,
+# m/rad, kg*m^2/rad^2 and display units), conversions and tests. UnitError's Display is unchanged; the longest dimension
+# name stays thermal_expansion_coefficient (29 B, 29 -> 34 names) and an unknown symbol is the authored one (IN128), so
+# the unit-conversion message keeps its 600 B class. Catalog lookups iterate a static table and allocate nothing.
+UNITS_SHA = '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596'
 PP = 'core/product_physics/src/'
 RE = 'core/reporting/result_export/src/'
 # B7b: the snapshot lines of the bound sites (B7a 3e89c23ea1 values in comments).
@@ -47,11 +54,17 @@ LN = {
     # §8.30 D3: +23 (unit_message) and +2 (the three helpers), unchanged text.
     # W-16 stage 2 D3 (§8.29): +55 (unit_message) and +106 (the three helpers), unchanged text.
     # OP1A (§8.31): all four lib.rs sites +12, unchanged text.
-    'unit_message': 10366, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15340,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15289,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15339,   # lib.rs fn stable_suffix (13613) [13618]
-    'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
+    # RT-A3 increment 1 D3 (§8.33): +12 each (10366/15340/15289/15339 at §8.32), unchanged text.
+    # Model document 0.9.0 D3 (§8.36): all four lib.rs sites +83, unchanged text (the 0.9.0 modules, members, closed
+    # term wire, lowering and withholding calls and the snubber token precede them).
+    'unit_message': 10465, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15439,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15388,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15438,   # lib.rs fn stable_suffix (13613) [13618]
+    # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
+    # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
+    # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.
+    'require': 148,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']
@@ -100,7 +113,8 @@ LEX_CURRENT = {
     'retained_product.rs:3546': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185; T4-S5 3363]
     # W-15 D3 (§8.21): preview_physics.rs 632 -> 635 and 598 -> 601 (render_members' `bodies` parameter and render's
     # body set), unchanged text.
-    'preview_physics.rs:635': {'class': 47, 'why': WHY + '; arc basis literal'},
+    # RT-A3 increment 1 D3 (§8.33): 635 -> 636 (Association's doc line), unchanged text.
+    'preview_physics.rs:636': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},
 }
@@ -123,8 +137,10 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # compensated terminal, inside its loops over the case's regions; 0 on D1: D1.5's empty E regions, L never reaches
     # validate_profile's region branch); the later parents move +49 with unchanged text.
     '187:exact_member_recovery', '211:validate_profile', '519:refuse_compensated_shared_terminals',
-    '556:check_suffixes', '570:normalize_region_units', '643:assemble_pressure_case', '1122:add_joint_terms',
-    '1372:finish_source_groups', '1520:traverse_region', '1760:collinear_run')]
+    # RT-A3 increment 1 D3 (§8.33): junction_closure_warnings, its per-case helper and their own `warn` helper (no call
+    # of `problem`) precede check_suffixes; the later parents move +88 with unchanged text.
+    '644:check_suffixes', '658:normalize_region_units', '731:assemble_pressure_case', '1210:add_joint_terms',
+    '1460:finish_source_groups', '1608:traverse_region', '1848:collinear_run')]
 # U5B-JV (T4-U5b): joint.rs `hardware`'s match binding `Err(Some(problem)) => problems.push(problem)` gives the
 # by-name value scan one more graph parent of `problem`, which hardware never calls; o10_rules.py zeroes that edge, and
 # the owner's message/ref bounds are unchanged (hardware passes neither).

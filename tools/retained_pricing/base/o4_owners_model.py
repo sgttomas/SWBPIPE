@@ -8,6 +8,9 @@ taken: every owner is charged at its push-grown capacity, with the previous back
 every phase where it can be live, at the cap with every member Timoshenko and every member's bases distinct. Inline
 growth of the kernel's MemberOperators, BoundedCoefficients and ProductCertificateSpent (the D/D-bar entries, the
 reduced capacities) is already priced by their in-build strides (g5_profile.py binds the kernel exports)."""
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 import json
 import os
@@ -83,7 +86,9 @@ BODY_PINS = {
     # moved nonlinear grounds and their relative-displacement rows (W16S-L1, none on D1), the spring's -k·(u - g)
     # action and the ground vector passed to certified_publication::support. The second composite maximum and its
     # payload keys are unchanged.
-    (LIB, "solve_prepared_load_case"): "4061553a4b7f0476245f96ee9582741099c065b8c06de04272aa0646b7f7b185",
+    # RT-A3 increment 1 D3 (§8.33): a straight exact member's branch rows (u4b_rows::append_branch_intensified, under
+    # `exact && macro_bend.is_none()`; none on D1, D1.4); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "1e9343f49b5b53d51db544c5148f38e5fb1839954c5c94f377f9a0716bf45327",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",

@@ -23,7 +23,7 @@ production bundle from `apps/desktop`:
 ```text
 UI_FOUNDATION_PHASE=baseline \
 UI_FOUNDATION_EVIDENCE_DIR=<absolute .../instances/VERIFY/... path> \
-UI_FOUNDATION_MANIFEST_SHA256=21119e485aae7cdf6dcbbe402144940a7a6b22a2d4cc38ce0375e009870495b5 \
+UI_FOUNDATION_MANIFEST_SHA256=c497ef45e7277780d0cad77998d66d09fac274f98ddae7a056d9a14b893ceafb \
 PLAYWRIGHT_WORKERS=1 \
 <playwright> test --config e2e/ui-foundation/playwright.performance.config.ts
 ```
@@ -58,7 +58,7 @@ feasibility mode before its five full N=1,000 sessions:
 ```text
 UI_FOUNDATION_PHASE=baseline \
 UI_FOUNDATION_EVIDENCE_DIR=<absolute feasibility evidence path> \
-UI_FOUNDATION_MANIFEST_SHA256=21119e485aae7cdf6dcbbe402144940a7a6b22a2d4cc38ce0375e009870495b5 \
+UI_FOUNDATION_MANIFEST_SHA256=c497ef45e7277780d0cad77998d66d09fac274f98ddae7a056d9a14b893ceafb \
 UI_FOUNDATION_RUNS=1 \
 UI_FOUNDATION_FEASIBILITY_SAMPLE_COUNT=3 \
 <playwright> test --config e2e/ui-foundation/playwright.baseline-points.config.ts
@@ -130,7 +130,7 @@ preflight with a real standard preset and Fit:
 
 ```text
 UI_FOUNDATION_EVIDENCE_DIR=<absolute .../instances/VERIFY/... path> \
-UI_FOUNDATION_MANIFEST_SHA256=21119e485aae7cdf6dcbbe402144940a7a6b22a2d4cc38ce0375e009870495b5 \
+UI_FOUNDATION_MANIFEST_SHA256=c497ef45e7277780d0cad77998d66d09fac274f98ddae7a056d9a14b893ceafb \
 UI_FOUNDATION_CAMERA_RECIPE=isometric_then_fit_model \
 <playwright> test --config e2e/ui-foundation/playwright.candidate-preflight.config.ts
 

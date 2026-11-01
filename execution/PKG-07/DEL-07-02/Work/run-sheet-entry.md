@@ -37,6 +37,8 @@ The Kind cell holds one code. A blank Kind is a run.
 | `S` | **Support only**: a support at the current node; no element, no increments | support |
 | `F` | **Start from node**: the next rows continue from the existing or earlier-drafted node named in the Node cell (a branch) | nothing; a support if a support code is set |
 | `P` | **Start at point**: a new node at the absolute X, Y, Z typed in the increment cells | node; a support if a support code is set |
+| `V` | **Valve run**: a run with the component inputs in §9 | as Run, plus a valve mapped to that row's pipe at its end node |
+| `L` | **Flange run**: a run with the component inputs in §9 | as Run, plus a flange mapped to that row's pipe at its end node |
 
 "Current node" is the end node of the previous row in sheet order, or the node
 an `F` or `P` row names or creates. The first row of a sheet must be `F` or `P`;
@@ -65,7 +67,9 @@ Every column maps to a member the model already has (`src/types.ts:376-548`;
 | Section extras (collapsible group) | Material density, mill tolerance, corrosion allowance | `section.material_density`, `section.mill_tolerance`, `section.corrosion_allowance` |
 | Bend R, k, k source | Bend rows only: radius, flexibility factor and its source | the bend component (§3.3) |
 | Label | The end node's label | `nodes[].label` |
-| Ids | End node id and pipe id (editable before queueing); support and bend ids in the row's detail | entity ids |
+| Node id, Pipe id | End node id and pipe id (editable before queueing) | entity ids |
+| Ids and sources (collapsible group) | Support id and Support label, on rows with a support code; Bend start id, Bend end id, Bend arc id, Bend component id and Bend geometry source, on `B` rows only. Each is editable before queueing; blank shows the derived value (§3.2) or, for the geometry source, the sheet's Source | `supports[].id`, `supports[].label`; the bend's `new_nodes[].id`, `new_pipe.id`, `component.id` and `component.geometry_source_reference` (§3.3) |
+| Component details (collapsible group) | The valve/flange creation form's explicit inputs, with independent units and the COG convention (§9); no component value inherits | existing component geometry, modifiers, consumption, identity and provenance members |
 | Position, Length | Read-only readouts of the resulting end point and pipe length | none |
 
 **Operating condition.** The model has no per-element operating condition:
@@ -91,8 +95,10 @@ value when it differs from the column unit.
 **Sheet header.** Three sheet-level fields, always visible:
 - **Length unit** of the increments (§6.2), default `project.units.length`.
 - **Source**: required non-blank text, used as the `provenance` of every
-  entity the sheet creates and as the bend's `geometry_source_reference`.
-- **Numbering**: id prefixes and step (§3.2).
+  entity the sheet creates and as a bend's `geometry_source_reference` where
+  its row's Bend geometry source is blank.
+- **Numbering**: id prefixes, start and step, **Pad numbers to N digits** and
+  **Pipe number from** (§3.2).
 
 The sheet is transient view state, like the grid's cell drafts
 (`src/features/model-tree/ModelTree.tsx:87-90`). It is not saved. It is held
@@ -108,7 +114,7 @@ such as Open State of one of its saved states, folds the ledger instead
 
 | Inherits | Never inherits |
 |---|---|
-| Section, OD, Wall, Material, Orientation, Ins. thk, Ins. dens., Contents dens., the section extras, Bend R | dX, dY, dZ, Kind, Support, Restraints, Node, k, k source, Label, Ids |
+| Section, OD, Wall, Material, Orientation, Ins. thk, Ins. dens., Contents dens., the section extras, Bend R | dX, dY, dZ, Kind, Support, Restraints, Node, k, k source, Label, Node id, Pipe id, the Ids and sources cells |
 
 - A blank increment means zero on that axis. It is shown as a muted `0`. It
   is not inheritance.
@@ -199,31 +205,80 @@ Common fields:
 ### 3.2 Ids
 
 Ids are entity identity, not order (FR-MOD-003).
-- **Assignment.** A row's ids are assigned once, when the row first gets a
-  value. The end node is `⟨nodePrefix⟩⟨n⟩` and the pipe `⟨pipePrefix⟩⟨n⟩`,
-  with `n` the next number of the sheet's counter. Defaults: `node:N`,
+- **Assignment.** A new P/R/B/V/L row's number is assigned once, when it first
+  gets a value, from the sheet's counter. New `F` and `S` rows take no number
+  and do not advance the counter. An existing assignment is kept, including
+  a numbered row later changed to `F` or `S`; neither its number nor another
+  row's displayed id is changed automatically. The # column remains the row
+  position. Stored model ids are never renumbered on reopen. The end node is
+  `⟨nodePrefix⟩⟨n⟩` and the pipe `⟨pipePrefix⟩⟨n⟩`. Defaults: `node:N`,
   `pipe:P`, start 10, step 10, following the model's `node:`/`pipe:` style.
+  - **Padding.** `⟨n⟩` is the number's digits, zero-padded to **Pad numbers to
+    N digits** (1 to 16) when it is set, with the sign kept. Blank is no
+    padding. A wider number keeps its digits: with prefix `node:RS-` and pad
+    3, 10 gives `node:RS-010` and 100 `node:RS-100`.
+  - **Pipe number from** "its end node" (the default, as before): the pipe
+    takes its row's own number.
+  - **Pipe number from** "its start node": the pipe takes the number of the row
+    whose end node is its start, when that start node is sheet-numbered (its
+    id is its row's derived id) and the pipe id is not already taken, by an
+    applied row's pipe or by an earlier pipe from the same node in sheet
+    order. The origin reads "by its start node ⟨id⟩ (row ⟨n⟩)".
+  - **Fallback.** A start node that is not sheet-numbered (a model node, an
+    entered id, a row with no number), or a second pipe from one node: the
+    pipe takes its row's own number, with the origin "by its end node" and the
+    reason. The pipe that starts at that row's own end node has first claim
+    to that id under the start-node rule. When it claims it, the falling-back
+    pipe gets no id and is refused "Enter the pipe id." with the reason, and
+    its id is entered. The row's own number alone would collide in the
+    commonest case: a chain from a model node names its first pipe and its
+    second pipe alike.
+  - **Fixed when first shown.** A pipe id numbered by either rule is recorded
+    in the sheet's id state, like the row's number, the first time the row
+    shows it with a start node. From then on it is the row's pipe id and is
+    reserved: inserts, appends, queueing and applying never change it, and no
+    other row takes it, derived or entered. Before queue registration, an
+    explicit overwrite or draft-row deletion releases that displayed pipe
+    reservation. Once queued or applied, the pipe id stays reserved to its
+    original row through withdrawal, Undo, overwrite and deletion. Preparing
+    an unregistered or refused batch does not make the reservation permanent.
+    If the row's start
+    later changes so that the id no longer fits, the id is kept and its origin
+    says it was fixed when first shown; the person may overwrite it. Nothing
+    is recorded while a unit conversion is pending, since positions decide
+    starts. In the end-node option the row's own number already fixes the id.
   - A support takes `support:⟨token⟩`, where `token` is the node id without
-    its `type:` prefix.
+    its `type:` prefix, unless a Support id is entered.
   - A bend takes `node:⟨token⟩-T1`, `node:⟨token⟩-T2`, `pipe:⟨token⟩-bend` and
-    `component:⟨token⟩-bend`, as `InsertBendAtCornerForm` does
-    (`BendAuthoringForms.tsx:100-101`).
-- **Reservation.** A number is skipped when any id it yields is reserved:
+    `component:⟨token⟩-bend` from its corner's token, as
+    `InsertBendAtCornerForm` does (`BendAuthoringForms.tsx:100-101`), unless
+    its Bend start, end, arc or component id is entered. Its geometry source
+    is the sheet's Source unless a Bend geometry source is entered.
+- **Reservation.** A number is skipped when any id it yields is reserved. A
+  number yields the same ids, padded as set, under either pipe option, so
+  reservation covers whichever pipe takes the pipe id. Reserved are:
   - ids in the model;
   - create, connect and insert targets in pending editor intents and queued
     batches (the rule of `routeDraft.ts:539-575`, widened to queued batches);
-  - ids held by other rows of this sheet.
+  - ids held by other rows of this sheet, and pipe ids retained by successful
+    queue registration or an applied checkpoint.
 - **Stability.**
   - The counter only moves forward, so ids are never renumbered.
   - Inserting a row takes the next number. A deleted draft row's numbers are
     not reused in the session.
-  - The user may overwrite a draft row's id cell; the entered id is checked
-    against the same reservations.
-  - The Numbering fields are fixed once any row has a number: a prefix
-    change would otherwise rename the ids already assigned.
+  - The user may overwrite a draft row's id cells: Node id, Pipe id, Support
+    id and the four bend ids. An entered id is checked against the same
+    reservations and against every other id the sheet creates.
+  - An applied row keeps the pipe id its batch created; it is not derived
+    again, so a later row cannot rename it.
+  - The Numbering fields, padding and Pipe number from included, are fixed
+    once any row has a number: a change would otherwise rename the ids
+    already assigned. Until then, any change to them numbers again every row
+    whose number was refused, in sheet order.
 - **Labels.** A blank Label is the node id's token (derived). Pipe labels are
-  the pipe id's token. Bend records use the form's labels "Bend start", "Bend
-  end", "Bend arc" and "Bend".
+  the pipe id's token. A blank Support label is the support id's token. Bend
+  records use the form's labels "Bend start", "Bend end", "Bend arc" and
+  "Bend".
 
 ### 3.3 Operations per row
 
@@ -265,7 +320,9 @@ Payloads:
   - `after` is `{radius: {value, unit}, flexibility_factor: {value: k, unit:
     "none"}, flexibility_source_reference, new_nodes: [T1, T2], new_pipe: arc,
     component: {id, label, provenance, geometry_source_reference}}`
-    (`bend_authoring.rs:486-754`).
+    (`bend_authoring.rs:486-754`). The T1, T2, arc and component ids and the
+    geometry source are the row's, entered or derived (§3.2); the projection
+    retargets the straights to those T1 and T2 ids.
 
 **Corner context inside a batch.** Each step of an atomic batch runs on the
 state the earlier steps left (`atomic_batch.rs:108-162`). A bend's `before` is
@@ -280,8 +337,8 @@ coordinate the engine computes (`bend_authoring.rs:475-479`). It is:
 - the bend markers at the corner.
 
 An earlier bend changes a later corner's context only through ids. It
-retargets the shared straight's `from` or `to` to T1 or T2, ids the sheet
-itself chose (`retarget`, `bend_authoring.rs:649-657`). It writes the tangent
+retargets the shared straight's `from` or `to` to T1 or T2, ids the sheet's
+own row names (`retarget`, `bend_authoring.rs:649-657`). It writes the tangent
 positions only into the new node records (`bend_authoring.rs:644-647`), and
 those records are never in a later corner's context:
 - a corner's pipes are the two straights;
@@ -377,6 +434,9 @@ end, including after an outside move that Adopt current values accepts.
   resolved.
 - The bend's T1, T2, arc and component stay resolvable as stored records, so
   an `F` row may name either tangent node.
+- An applied bend row's Bend geometry source shows what its stored component
+  holds, never the sheet's current Source; it is blank once the component no
+  longer exists. An applied row's pipe id is the id its batch created.
 - Each tangent point is read on its own. If one was deleted outside the
   sheet, the row is `detached`, and what that tangent gave is shown as missing
   ("The bend's outgoing point ⟨id⟩ no longer exists"), never replaced by the
@@ -446,7 +506,8 @@ are never deleted by the sheet.
 
   - The chain boundaries are explicit. A deletion never makes a row continue
     from a different node than the stored one, and never re-parents a branch.
-  - A deleted row's ids leave the row but are not reused (§3.2).
+  - Consumed numbers and queued/applied pipe identities are not reused by
+    other rows. A never-queued draft pipe reservation releases as §3.2 states.
 - **Refused in v1.** Any edit, insert or delete touching a realized bend's
   corner, tangent points or adjacent straights. Moving a straight's far node
   would break the bend's tangency, which the generic node edit does not check
@@ -460,8 +521,9 @@ are never deleted by the sheet.
   `handleQueueOperationBatch` (`src/features/workspace/workspaceSession.ts:1277-1306`).
   - Queue reads no render: the batch and the values the ledger records are
     built from one snapshot of the sheet's committed state, so an edit
-    committed by Ctrl/⌘+Enter is the one queued. If the sheet changes while
-    the batch is built, nothing is queued.
+    committed by Ctrl/⌘+Enter is the one queued. Queue first fixes any pipe id
+    that edit shows for the first time (§3.2), then takes the snapshot. If the
+    sheet changes while the batch is built, nothing is queued.
   - While the batch is checked, the acting rows are queued and read-only. An
     engine refusal returns them to draft by the `refused` transition (§3.6),
     with the refusal on the failing row, and the batch is not handed over.
@@ -849,8 +911,10 @@ so later rows show "not checked: an earlier row is refused".
 | Quantity without unit | a quantity column with no chosen unit | "Choose the ⟨column⟩ unit." |
 | Support | code set with no restraints, or invalid or duplicate tokens | "Enter the restraints of this support." |
 | Bend | §3.3 requirements | specific text, e.g. "A bend needs the next run." |
-| Ids | reserved, duplicate or blank | "Id ⟨id⟩ is already used." |
+| Ids | reserved, duplicate or blank | "Id ⟨id⟩ is already used." for a node or pipe id; "⟨cell⟩ ⟨id⟩ is already used." in the Support id and bend id cells; "Enter the ⟨node/pipe⟩ id." for a blank id, including a start-node pipe whose fallback number is taken (§3.2), with the reason |
+| Not applicable | Support id or Support label on a row with no support code; a bend id or Bend geometry source on a row that is not `B` | "⟨cell⟩ applies only to a row with a support code; clear it." or "⟨cell⟩ applies only to B rows; clear it." |
 | Source | header Source blank | Queue disabled: "Enter the sheet's Source." |
+| Numbering | start or step not whole, step below 1, or padding not a whole number from 1 to 16 | Queue disabled: "Numbering needs a whole start and a whole step of at least 1, within the exact-integer range." or "Pad numbers to a whole number of digits from 1 to 16, or leave it blank." |
 
 **Mixed units.** There is one increment unit per sheet, so increments in mixed
 units cannot be entered. The Length unit selector is disabled while any draft
@@ -892,6 +956,9 @@ Ctrl/⌘+D and Ctrl/⌘+Enter are unused in the shell. The shell owns ⌘1–3, 
 keys only while focus is inside it, and stops their propagation.
 
 **Focus recovery.** Tested in S2:
+- after a column group (Section extras, Ids and sources) collapses while it
+  holds the sheet's tab stop, the tab stop moves to the nearest shown cell
+  before it in the same row, so Tab still enters the sheet;
 - after Queue, focus stays on the same cell, now read-only;
 - after Delete row, focus goes to the same column of the next shown row, else
   the previous row, else the sheet footer;
@@ -905,7 +972,7 @@ Native assistive-technology verification (VoiceOver on macOS) remains open.
 
 ### 5.2 Single-key codes
 
-Kind codes `R B S F P` (§1.1). Support codes:
+Kind codes `R B S F P V L` (§1.1). Support codes:
 
 | Code | `family` (`rich_authoring.rs:329-339`) |
 |---|---|
@@ -1269,6 +1336,32 @@ scrutiny).
 
 S1 lands first. S2 depends on S1, S3 on S2, and S4 on S2.
 
+**Ids and sources, padding and pipe numbering** (RT-G2, exit criterion 7;
+gaps G1–G3 of DEL-09-01 `Work/reference-system-run-sheet.md` §6). After S2.
+- **Code.** The "Ids and sources" column group (§1.2), shown and hidden like
+  Section extras; the header's Pad numbers to N digits and Pipe number from
+  (§3.2); the rows' entered support and bend ids, support label and bend
+  geometry source in the resolver, the builder and the record projection;
+  the not-applicable and id refusals of §4.2. No operation kind, engine change
+  or model-document member.
+- **Tests.**
+  - `runSheet.test.ts`: padding and its reservation and refusal; start-node
+    pipe numbering, its fallback and the fallback's refusal; an applied row
+    keeping its pipe id; entered support id and label; two supports at one
+    node, applied by the wasm engine; entered bend ids and geometry source in
+    consecutive bends, with projected corner contexts equal to the engine's
+    and the batch applied by the wasm engine; not-applicable cells refused by
+    name; entered support and bend ids refused when reserved, stored or
+    duplicated.
+  - `RunSheet.test.tsx`: the group's toggle, labelled cells, derived and
+    entered origins, refusals that name the cell, Tab into the group; the
+    header fields, their lock once a row has a number, and an invalid padding
+    disabling Queue.
+  - `runSheet.session.test.tsx`: through the workspace session and the wasm
+    engine, a sheet with two supports at one node and two consecutive bends
+    with entered ids, labels and geometry source, padded start-node numbering,
+    validated and applied with ids exactly as entered.
+
 ## 8. Decisions (Agent 0)
 
 Each choice below was decided by Agent 0 under the owner's 2026-10-27
@@ -1288,3 +1381,104 @@ delegation and adopted as recommended. The reasons are kept.
 | O10 | Consecutive bends (§3.3) | Decided by Agent 0 (owner's 2026-10-27 delegation): adopted as recommended. Allow them, with the id-only record projection. | The builder mirrors three structural effects (append, `section_ref`, corner replacement) and computes no number. A drift is refused by the engine and pinned by S1. The alternatives are refusing consecutive bends, which loses common geometry, or an engine-backed projection, which needs an acceptance-shaped scratch apply or a change to DEL-16-06's validate contract. |
 
 Codex review r1 agreed with O1–O9 and r2 with O10; r5 passed the design.
+
+## 9. Valve and flange runs (authoring follow-up)
+
+Agent 0 authorized component rows on 2026-10-31, after G6's independent
+quantity units. `V` is a valve run and `L` a flange run. `F` retains Start from
+node; the flange code deliberately uses another letter. Support-column codes
+are unchanged. Both new kinds create the same end node and straight pipe as
+`R`, then an `insert_component_symbol` for that pipe, at its end node. These
+references are the row's displayed connectivity, not guessed roles from
+incident pipes. A support may still be entered at the end node.
+
+**Component details** carries Component id and label, Body length and unit,
+End A size and unit, End B size and unit, Weight and unit, COG X/Y/Z and unit,
+End A/B references, Stiffness behavior reference, the optional Stiffness scale
+and its source, optional Solver consumption, Component geometry source and
+Component provenance. Id, label, sources and provenance are entered explicitly.
+No numerical value, reference, scale or consumption is supplied or inherited.
+Unit cells alone use the project's length/force keys when blank, shown with
+`derived: the project unit`, as the creation forms do. An absent key leaves
+its unit blank and refuses Queue until one is entered. Unit dimensions are
+checked through the existing conversion facade without changing the entered
+quantities; the operation engine remains authoritative.
+
+The COG vector retains the owner's R10 origin and axes: global X/Y/Z from the
+component's node, in its entered length unit. A scale is finite positive and
+paired with its source; consumption is blank, `mechanics_geometry_only` or
+`not_solver_consumed`. The forms and rows share `rigidGeometryIssues` in
+`component-creation/componentIntent.ts`, and the batch reuses its
+`buildCreateComponentIntent` payload. All persisted members and engine checks
+are existing ones. An incomplete or invalid field is named; component inputs
+left on another row kind are refused rather than discarded. Component ids
+join the existing collision checks against the whole model, other rows and
+queued operations. They do not change node/pipe numbering or its guarantees.
+
+Every row's component is included in the batch's owned references and expected
+records. Queue applies nothing. Explicit Apply uses the existing atomic batch
+route and preview gate, and one Undo reverses the whole checkpoint. After
+Apply, component fields are read-only, like other applied cells. The view reads
+actual component quantities, units and provenance; a change elsewhere detaches
+the row. Missing components and changed mappings are identified. Undo/Redo
+restore the typed component buffer without phantom edits from object identity.
+Applied-row editing and insertion follow the existing slice boundaries.
+
+The group uses the existing cell keyboard routes, accessible labels, named
+refusals and group-collapse tab-stop recovery. Fill down copies the shown
+component value as an explicit entry; it introduces no inheritance. No new
+model-document member, operation kind or ingress command is added. S1's
+combination read/render/type repair and generated fixtures are outside this
+slice; the second integration merges the first and checks both paths.
+
+Evidence: `componentRows.test.tsx` reproduces the three maintained reference
+components through one sheet batch and browser save/reopen, drives the real
+grid through Queue/Apply/Undo/Redo, checks ownership and foreign edits, and
+covers missing values/units, invalid scales and consumption, inappropriate
+fields and id collisions. Existing run-sheet and component-form tests remain
+maintained evidence. Native verification and the timed walkthrough remain open.
+
+At the component-row increment, the reference run sheet counted 61 extra sheet entries (57 component fields,
+three Kind codes and the group toggle), replacing 66 form entries. At the
+existing sheet rate, 196 × 8/98 = 16 minutes for §3.4; removing §3.6's six-minute
+valve/flange step gives 664 entries, 29 per-intent cycles and 59.5 minutes,
+before optional G9 batching. The improvement over G6 alone is about one minute
+under that model. These are historical estimates, not measurements or acceptance;
+§10 gives the current numbering policy and totals.
+
+
+## 10. F/S numbering and draft pipe reservations
+
+Owner/Agent 0 authorization of 2026-10-31: new F/S rows consume no number,
+with existing displayed identities and document records preserved. The rule
+applies only when a row has no assignment. Kind changes and already-numbered
+legacy rows retain their assignments; historical fixture batches are retained
+without changing their ids or bytes. New blank-sheet and reopen paths have
+separate regressions.
+
+Clearing Kind to blank selects a run and assigns a number if needed, including
+when Fill down copies blank Kind into an unnumbered F/S row. Existing assignments
+still return unchanged; another nonblank edit is not required to unblock Queue.
+
+An explicit pipe-id overwrite or draft deletion releases a recorded pipe id
+only when it has never been queued/applied and the row is not pending or in
+effect. `retainedPipes` is transient sheet bookkeeping populated by the existing
+queue-registration event and applied checkpoint; it retains all owned pipe
+identities to their row. These reservations survive withdrawal, Undo, editing
+and row removal. A failed/refused/unregistered preparation leaves them
+releasable. The counter still advances monotonically and consumes each entity
+number once; releasing a pipe identity does not recycle its number. No model
+member, operation, permission or numerical rule changes.
+
+Evidence: `numberingReservations.test.tsx` checks new F/S assignment, insertion
+and kind-change stability, legacy save/reopen and preservation of old records
+when new rows apply, explicit overwrite/delete release, failed registration,
+and actual workspace registration/withdrawal/Apply/Undo retention. Its reference
+entry-order witness commits cells one at a time, with S in place and geometry
+before id overrides, and matches the reference straight-pipe and final node
+identities. The new count is **10** typed node/pipe ids. The previous optimized
+9 and strict-order 35 remain historical: removing the branch F-row number
+makes B3's temporary corner collide with the final RS-230 unless the corner is
+explicitly named `node:RS-B3-CORNER`. No extra derivation rule is added to chase
+the earlier count. The step model therefore has 665 entries, 29 per-intent
+cycles and the same rounded 59.5 minutes; it is not a timing measurement.

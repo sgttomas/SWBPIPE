@@ -23,7 +23,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub const MBF_SI_PROFILE_ID: &str = "caepipe-mbf-si-pilot-1";
 pub(crate) const STANDARD_GRAVITY: f64 = 9.80665;
 const MBF_VERSION: &str = "15.10";
-const RETIRED_MODEL_VERSIONS: [&str; 7] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"];
+const RETIRED_MODEL_VERSIONS: [&str; 8] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"];
 const SUSTAINED: &str = "Sustained (W+P)";
 const EXPANSION: &str = "Expansion (T1)";
 pub(crate) const DOFS: [&str; 6] = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
@@ -48,10 +48,10 @@ const PROJECT_UNITS: [(&str, &[&str]); 3] =
     [("length", &["m", "mm", "in"]), ("force", &["N", "lbf"]), ("temperature", &["degC", "degF"])];
 const INVENTED_CERTIFICATION: &str = "invented non-engineering example";
 const USER_SUPPLIED_CERTIFICATION: &str = "user-supplied own source";
-const HANDLED_MEMBERS: [&str; 14] = [
-    "schema_version", "document_kind", "pressure_contract", "project", "materials", "nodes", "pipe_segments",
-    "supports", "components", "load_cases", "combinations", "reference_configurations", "model_settings",
-    "shear_model",
+const HANDLED_MEMBERS: [&str; 16] = [
+    "schema_version", "document_kind", "pressure_contract", "project", "materials", "sections", "nodes",
+    "pipe_segments", "supports", "components", "load_cases", "combinations", "reference_configurations",
+    "model_settings", "shear_model", "spectra",
 ];
 const NOT_CARRIED: &str = "the MBF has no field for it and the sidecar does not carry it";
 const IMPORTED_PROJECT_UNITS: [(&str, &str); 7] = [
@@ -69,13 +69,14 @@ fn handled_fields(path: &str) -> &'static [&'static str] {
             "id", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient",
             "temperature_points", "expansion_laws",
         ],
+        "sections" => &["id", "section_type", "properties"],
         "nodes" => &["id", "position"],
-        "pipe_segments" => &["id", "from", "to", "section", "material", "y_reference"],
+        "pipe_segments" => &["id", "from", "to", "section", "section_ref", "material", "y_reference"],
         "pipe_segments.section" => &[
             "outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance", "insulation_thickness",
             "material_density", "contents_density", "insulation_density",
         ],
-        "supports" => &["id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear"],
+        "supports" => &["id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear", "direction"],
         "components" => &["id", "kind", "node", "geometry", "modifiers", "mechanics_interface"],
         "components.geometry" => &["bend_pipe_ref", "bend_radius", "bend_angle"],
         "components.modifiers" => {
@@ -84,7 +85,7 @@ fn handled_fields(path: &str) -> &'static [&'static str] {
         "components.mechanics_interface" => &["solver_consumption"],
         "load_cases" => &[
             "id", "primitive_loads", "pressure_regions", "equivalent_static", "modulus_basis_ref",
-            "modulus_basis_temperature", "analysis_state",
+            "modulus_basis_temperature", "analysis_state", "condition_use", "test_condition",
         ],
         "load_cases.primitive_loads" => &["id", "category", "target", "direction", "magnitude", "dimension"],
         "load_cases.pressure_regions" => {
@@ -100,11 +101,11 @@ fn omitted_reason(path: &str) -> &'static str {
     match path {
         "data_boundary" => "the import writes its own data boundary for the local document",
         "analysis_status" => "the analysis state is not in the MBF; the import starts it afresh",
-        "sections" => "each pipe segment's own section is written as a PIPE record; the section library is not",
         "diagnostics" => "stored diagnostics are not in the MBF; the import's validation forms its own",
         "materials.constitutive_basis" => "the MBF carries E and the Poisson ratio; the import forms its own basis",
         "materials.provenance_record" => "only its origin classification is carried, in the sidecar's material_map",
-        "pipe_segments.section_ref" => "the pipe segment's own section is written; the section library is not",
+        "sections.name" => "the PIPE record has no name field; the import names the section by its PIPE record",
+        "sections.provenance" => "the import names the MBF line as the section's provenance",
         "supports.properties" => "display properties the solve ignores",
         "components.completeness" => "a derived finding; the import's validation forms its own",
         "components.modifiers.sif_user_value" => {
@@ -584,6 +585,7 @@ impl WriterResult {
                 ("support_map", subset(&self.support_map, &["node", "restrained", "family", "family_authored"])?),
                 ("load_case_map", Value::Dict(self.load_case_map.clone())),
                 ("material_map", subset(&self.material_map, &["swbpipe_material", "origin"])?),
+                ("section_map", subset(&self.section_map, &["swbpipe_section"])?),
                 ("load_map", subset(&self.load_map, &["load_case", "category", "target", "direction"])?),
                 ("pressure_map", pressure_map),
                 ("mbf_sha256", Value::str(mbf_sha256)),
@@ -653,7 +655,7 @@ pub fn regenerate_caepipe_sidecar(
     Ok((Some(result.sidecar_py(mbf_sha256).map_err(py)?), Vec::new()))
 }
 
-/// The crate's own SI writer as the importer's regenerator: what a bound format 2 or 3 import uses when
+/// The crate's own SI writer as the importer's regenerator: what a bound format 2, 3 or 4 import uses when
 /// [`crate::ImportOptions::regenerator`] is None.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct SiWriter;
@@ -689,6 +691,8 @@ pub(crate) struct Pipe {
     pub to: String,
     pub material: String,
     pub y_reference: Value,
+    /// The library section the pipe binds (Design §15, Format 4), or None.
+    pub section_ref: Option<String>,
     pub od: f64,
     pub thk: f64,
 }
@@ -730,6 +734,8 @@ pub(crate) struct Writer<'m> {
     pub t_ref_f: Value,
     pub nodes: OMap<String, V3>,
     pub materials: OMap<String, Material>,
+    /// The section library: each entry of `model.sections` with a string id, in order.
+    pub library: Vec<&'m Value>,
     pub pipes: OMap<String, Pipe>,
     pub node_restraints: BTreeMap<String, BTreeSet<&'static str>>,
     pub node_supports: BTreeMap<String, Vec<String>>,
@@ -776,6 +782,7 @@ impl<'m> Writer<'m> {
             t_ref_f: Value::Null,
             nodes: OMap::new(),
             materials: OMap::new(),
+            library: Vec::new(),
             pipes: OMap::new(),
             node_restraints: BTreeMap::new(),
             node_supports: BTreeMap::new(),
@@ -988,6 +995,7 @@ impl<'m> Writer<'m> {
         }
         self.read_nodes()?;
         self.read_materials()?;
+        self.read_sections();
         self.read_pipes()?;
         self.read_components()?;
         self.read_supports()?;

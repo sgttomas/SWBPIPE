@@ -28,7 +28,12 @@ NONLINEAR_INTEGRATION = ROOT / "core" / "solver" / "nonlinear_integration" / "sr
 SIZES = (250, 500, 1000, 1500, 2000)
 # The model document version whose shapes rack_model.py was written against. When the current version moves, the
 # test below fails on purpose: the generator needs a re-check, not only a new version token.
-RACK_SHAPES_VERSION = "0.8.0"
+# S1 re-check: the explicit per-case primitives/pressure regions and the labelled
+# interim HYD/subtraction forms remain admitted at 0.9.0. Condition resolution,
+# test_condition, unsigned/nested combinations and difference_basis still await
+# their owning slices; the ledger retains those limits. All three small racks
+# solve with the integrated 0.9.0 runner; the hashes were regenerated from it.
+RACK_SHAPES_VERSION = "0.9.0"
 
 
 def load_generator():
@@ -193,6 +198,36 @@ def test_every_provenance_and_source_says_invented(profile):
     sources = [item for _, key, item in walk(document) if key.endswith("source_reference")]
     assert sources and all("invented" in value for value in sources)
     assert "reference system" not in rm.canonical(document).decode().lower()
+
+
+# -- the desktop's model-file shape ---------------------------------------------------------------------------------
+# The members File > Open Model Document's shape check (apps/desktop/src/features/model-file/modelDocumentShape.ts)
+# requires beyond what the solve reads. The open path itself is exercised on generated documents by
+# apps/desktop/src/features/model-file/rackModelOpen.test.ts; this keeps the generator honest without the desktop.
+DESKTOP_ENTITY_STRINGS = {
+    "nodes": ("id", "label", "provenance"),
+    "pipe_segments": ("id", "label", "from", "to", "material", "provenance"),
+    "supports": ("id", "label", "node", "provenance"),
+    "components": ("id", "label", "kind", "node", "provenance"),
+    "load_cases": ("id", "label", "kind", "status", "provenance"),
+    "combinations": ("id", "label", "basis", "provenance"),
+}
+
+
+@pytest.mark.parametrize("profile", sorted(rm.PROFILES))
+def test_the_document_carries_the_desktop_model_file_shape(profile):
+    document, _ = rm.build(profile, rm.PROFILES[profile]["min_nodes"])
+    assert isinstance(document["data_boundary"], dict) and document["data_boundary"]
+    assert all(isinstance(value, str) for value in document["data_boundary"].values())
+    assert document["diagnostics"] == []
+    for member, keys in DESKTOP_ENTITY_STRINGS.items():
+        for entry in document.get(member, []):
+            missing = [key for key in keys if not isinstance(entry.get(key), str)]
+            assert not missing, (member, entry["id"], missing)
+    for combination in document.get("combinations", []):
+        assert combination["terms"] == [], combination["id"]
+    labels = [entry["label"] for member in ("nodes", "pipe_segments", "supports", "components") for entry in document[member]]
+    assert all(label.startswith("RK-") for label in labels), [label for label in labels if not label.startswith("RK-")][:5]
 
 
 def test_realized_bends_carry_a_user_flexibility_factor_and_its_source():

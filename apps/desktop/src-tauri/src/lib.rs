@@ -34,6 +34,10 @@ mod stored_read;
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
 mod native_smoke;
+#[cfg(feature = "native-smoke")]
+mod native_smoke_inject;
+#[cfg(test)]
+mod native_smoke_reach_scan_tests;
 mod native_result_download;
 mod report_package_bridge;
 mod report_package_save;
@@ -45,6 +49,7 @@ mod report_render_pf_timoshenko_tests;
 #[cfg(test)]
 mod object_form_tests;
 mod rule_solver_selection;
+mod result_text_digest;
 mod solve_attestation;
 #[allow(unsafe_code)]
 mod solve_jobs;
@@ -422,6 +427,46 @@ struct LocalProjectEnvelope {
     /// The document's version status (DEL-02-05 CLM-003): always `current` for an
     /// envelope the store returns, since every other version is refused.
     model_document_version: Value,
+    /// Set at open when the stored run was withheld for its size
+    /// (`mechanics_result` and `analysis_run` are then null); absent otherwise.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stored_result_withheld: Option<StoredResultWithheld>,
+}
+
+/// A project's stored run (its result and analysis-run record) withheld at open
+/// because a stored column exceeds [`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`]
+/// (RT-U4). Judged by the stored byte lengths before either column is loaded;
+/// the stored row is never changed.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+struct StoredResultWithheld {
+    code: &'static str,
+    result_bytes: u64,
+    analysis_run_bytes: u64,
+    limit_bytes: u64,
+}
+
+impl StoredResultWithheld {
+    /// The stored lengths, if either exceeds `limit`.
+    fn over(result_bytes: u64, analysis_run_bytes: u64, limit: u64) -> Option<Self> {
+        (result_bytes > limit || analysis_run_bytes > limit).then_some(Self {
+            code: solve_jobs::STORED_RESULT_TOO_LARGE_CODE,
+            result_bytes,
+            analysis_run_bytes,
+            limit_bytes: limit,
+        })
+    }
+
+    /// The refusal of a save in place that would replace the withheld run with no result.
+    fn save_refusal(&self, project_id: &str) -> String {
+        format!(
+            "{}: Not saved. Project `{}` holds a stored result of {} (its analysis-run record {}), above the desktop's display limit of {}, so it was not opened, and saving the project in place would replace it with no result. The stored result is kept unchanged. Model edits can be kept with File > Save Model Document…; a new solve within the limit replaces the stored result when the project is saved.",
+            self.code,
+            stored_read::shown(project_id),
+            solve_jobs::display_size(self.result_bytes),
+            solve_jobs::display_size(self.analysis_run_bytes),
+            solve_jobs::display_size(self.limit_bytes)
+        )
+    }
 }
 
 /// The `save_local_project` request. Decoded by
@@ -980,8 +1025,40 @@ fn guarded_write_project_rows(
     project_envelope_hash: &Value,
 ) -> Result<(), String> {
     refuse_unconfirmed_replacement(transaction, project_id, confirmed_revision, expected_base)?;
+    refuse_dropping_withheld_run(transaction, project_id, confirmed_revision, mechanics_result, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)?;
     write_project_rows(transaction, project_id, project_name, model, editor_intents, proposal, selected_review_target,
         mechanics_result, analysis_run, model_hash, project_envelope_hash)
+}
+
+/// A session that opened a project whose stored run was withheld for its size
+/// holds no result for it, so an ordinary save in place would write none over
+/// the stored run. Such a save is refused, keeping the stored run unchanged
+/// (RT-U4); a save carrying a result (a new solve) replaces it as any save
+/// does, and a Replace the user confirmed in the prompt is theirs to make.
+/// Reads only the stored lengths.
+fn refuse_dropping_withheld_run(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    confirmed_revision: Option<&str>,
+    mechanics_result: &Value,
+    limit: u64,
+) -> Result<(), String> {
+    if confirmed_revision.is_some() || !mechanics_result.is_null() {
+        return Ok(());
+    }
+    let lengths: Option<(i64, i64)> = transaction
+        .query_row(
+            "SELECT octet_length(mechanics_result_json), octet_length(analysis_run_json) FROM local_projects WHERE project_id = ?1",
+            params![project_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()
+        .map_err(|error| error.to_string())?;
+    let length = |value: i64| u64::try_from(value).unwrap_or(0);
+    match lengths.and_then(|(result, run)| StoredResultWithheld::over(length(result), length(run), limit)) {
+        Some(withheld) => Err(withheld.save_refusal(project_id)),
+        None => Ok(()),
+    }
 }
 
 fn immediate_transaction(connection: &mut Connection) -> Result<rusqlite::Transaction<'_>, String> {
@@ -1081,12 +1158,28 @@ struct StoredProjectRecord {
     analysis_run: Value,
     model_hash: Value,
     project_envelope_hash: Value,
+    /// Set when the stored run was withheld for its size: `mechanics_result`
+    /// and `analysis_run` are then null and were never loaded.
+    withheld: Option<StoredResultWithheld>,
 }
 
 fn load_project(
     connection: &Connection,
     project_id: Option<&str>,
 ) -> Result<Option<StoredProjectRecord>, String> {
+    load_project_within(connection, project_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)
+}
+
+/// [`load_project`] with the displayable-result limit given (tests lower it).
+/// The stored run's columns are compared by their stored byte lengths
+/// (`octet_length`) in the query itself; above `limit` the query returns
+/// `null` in their place, so their bytes are never loaded.
+fn load_project_within(
+    connection: &Connection,
+    project_id: Option<&str>,
+    limit: u64,
+) -> Result<Option<StoredProjectRecord>, String> {
+    let limit_sql = i64::try_from(limit).unwrap_or(i64::MAX);
     type StoredRow = (
         String,
         String,
@@ -1098,6 +1191,8 @@ fn load_project(
         String,
         String,
         String,
+        i64,
+        i64,
     );
     fn stored_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredRow> {
         Ok((
@@ -1111,30 +1206,28 @@ fn load_project(
             row.get::<_, String>(7)?,
             row.get::<_, String>(8)?,
             row.get::<_, String>(9)?,
+            row.get::<_, i64>(10)?,
+            row.get::<_, i64>(11)?,
         ))
     }
     let row = match project_id {
         Some(id) => connection
             .query_row(
-                "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
-                FROM local_projects
-                WHERE project_id = ?1
-                ",
-                params![id],
+                &format!(
+                    "SELECT {STORED_PROJECT_COLUMNS} FROM local_projects WHERE project_id = ?1"
+                ),
+                params![id, limit_sql],
                 stored_row,
             )
             .optional()
             .map_err(|error| error.to_string())?,
         None => connection
             .query_row(
-                "
-                SELECT project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json
-                FROM local_projects
-                ORDER BY updated_at_unix DESC, project_id ASC
-                LIMIT 1
-                ",
-                [],
+                &format!(
+                    "SELECT {STORED_PROJECT_COLUMNS} FROM local_projects ORDER BY updated_at_unix DESC, project_id ASC LIMIT 1"
+                )
+                .replace("?2", "?1"),
+                params![limit_sql],
                 stored_row,
             )
             .optional()
@@ -1152,7 +1245,11 @@ fn load_project(
             analysis_run_json,
             model_hash_json,
             project_envelope_hash_json,
+            result_length,
+            run_length,
         )| {
+            let length = |value: i64| u64::try_from(value).unwrap_or(0);
+            let withheld = StoredResultWithheld::over(length(result_length), length(run_length), limit);
             let model =
                 serde_json::from_str::<Value>(&model_json).map_err(|error| error.to_string())?;
             let editor_intents = serde_json::from_str::<Value>(&editor_intents_json)
@@ -1181,11 +1278,20 @@ fn load_project(
                 analysis_run,
                 model_hash,
                 project_envelope_hash,
+                withheld,
             })
         },
     )
     .transpose()
 }
+
+/// The stored project columns `load_project_within` reads, with `?2` the
+/// displayable-result limit: the stored run's two columns read `null` when
+/// either one's stored length exceeds it, and their lengths follow.
+const STORED_PROJECT_COLUMNS: &str = "project_id, project_name, model_json, editor_intents_json, proposal_json, selected_review_target_json, \
+    CASE WHEN octet_length(mechanics_result_json) > ?2 OR octet_length(analysis_run_json) > ?2 THEN 'null' ELSE mechanics_result_json END, \
+    CASE WHEN octet_length(mechanics_result_json) > ?2 OR octet_length(analysis_run_json) > ?2 THEN 'null' ELSE analysis_run_json END, \
+    model_hash_json, project_envelope_hash_json, octet_length(mechanics_result_json), octet_length(analysis_run_json)";
 
 fn list_projects(connection: &Connection) -> Result<Vec<LocalProjectIndexEntry>, String> {
     let mut statement = connection
@@ -2658,6 +2764,7 @@ fn create_project_in_store(
         project_envelope_hash,
         model_document_version: serde_json::to_value(document_version)
             .map_err(|error| error.to_string())?,
+        stored_result_withheld: None,
     })
 }
 
@@ -2714,6 +2821,7 @@ fn open_project_in_store(
                 project_envelope_hash: record.project_envelope_hash,
                 model_document_version: serde_json::to_value(status)
                     .map_err(|error| error.to_string())?,
+                stored_result_withheld: record.withheld,
             })
         })
         .transpose()
@@ -2803,6 +2911,7 @@ fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Res
         project_envelope_hash,
         model_document_version: serde_json::to_value(document_version)
             .map_err(|error| error.to_string())?,
+        stored_result_withheld: None,
     })
 }
 
@@ -5053,7 +5162,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:a83c8d8db50c7793a02fe7159a234ac66652f784ddff34e3b918efb77284c346" {
+    if baseline_hash != "sha256:220687ff6cf7576a7ec43ed8ddcd354b4364cb22bae61509503369b4ff0f1857" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
@@ -5073,7 +5182,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:2ffc037a3668ba11935adb01db99d24d2549ff7dc17f06e5d233f1224f4ae535" {
+    if edited_hash != "sha256:0cc8e1640b2f955b219f42936845db39a6f6215623e6bce58c8bc68744742845" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
@@ -5316,7 +5425,26 @@ async fn embedded_agent_host(
             resources: app.path().resource_dir().map_err(|_| CommandError::Command("AGENT-RESOURCE-UNAVAILABLE".into()))?,
         };
         let host = app.state::<embedded_agent::live_host::Host>();
+        #[cfg(feature = "native-smoke")]
+        let kind = {
+            use embedded_agent::live_host::Action;
+            match &action {
+                Action::Register { .. } => "register",
+                Action::Basis { .. } => "basis",
+                Action::ProviderSave { .. } => "provider_save",
+                Action::Start { .. } => "start",
+                Action::Text { .. } => "text",
+                Action::Close { .. } => "close",
+                _ => "other",
+            }
+        };
         let reply = host.request(webview.label(), action, paths, lease).await.map_err(|_| CommandError::Command("AGENT-HOST-UNAVAILABLE".into()))?;
+        // Native smoke only: the host's refusal code (a payload-free enum, never the request),
+        // which the Agent panel's status line generalizes.
+        #[cfg(feature = "native-smoke")]
+        if let Err(error) = &reply.value {
+            eprintln!("[native-smoke-agent-host] {kind} refused AGENT-{error:?}");
+        }
         let response = respond(reply.value.map_err(|error| CommandError::Command(format!("AGENT-{error:?}"))));
         drop(reply._backing);
         response
@@ -5789,7 +5917,7 @@ mod tests {
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
         // B4/D1 (b): source blocks remain only on the exact route's composites, so this
         // control reads pressure-source-1's committed request (B7b: an exact-contract
-        // 0.8.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
+        // 0.9.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
         let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
@@ -6808,8 +6936,8 @@ mod tests {
         let project_id = model["project"]["id"].as_str().unwrap();
         let version = check_model_document_for_persist(&model).unwrap();
         assert_eq!(version.status, "current");
-        // B7b: the exact form is a contract-present 0.8.0 document (3.0.0/exact_pressure_v3).
-        assert_eq!(version.target_schema_version, "0.8.0");
+        // B7b: the exact form is a contract-present 0.9.0 document (3.0.0/exact_pressure_v3).
+        assert_eq!(version.target_schema_version, "0.9.0");
         let prepared = model.clone();
         upsert_project(
             &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
@@ -6820,7 +6948,7 @@ mod tests {
         assert_eq!(loaded.model, model);
         let reopened = evaluate_model_document(&loaded.model);
         assert_eq!(reopened.status, "current");
-        assert_eq!(reopened.target_schema_version, "0.8.0");
+        assert_eq!(reopened.target_schema_version, "0.9.0");
         let (status, _, signature) = unit_round_trip_summary(&loaded.model);
         assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
         assert!(signature.contains("poisson_ratio=1"));
@@ -6848,7 +6976,7 @@ mod tests {
             .unwrap()
     }
 
-    /// T1 WP2, on the current format (B7b): a 0.8.0 exact-contract model with the
+    /// T1 WP2, on the current format (B7b): a 0.9.0 exact-contract model with the
     /// load/reference-state group is saved and reopened exactly as any current
     /// document is, and its saved pressure-2 result keeps its raw hash and its
     /// resolved evidence bytes. The model and result are committed producer
@@ -6859,7 +6987,7 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let model = request["model"].clone();
-        assert_eq!(model["schema_version"], "0.8.0");
+        assert_eq!(model["schema_version"], "0.9.0");
         let result: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
@@ -6889,8 +7017,8 @@ mod tests {
             apply_store_migrations(&connection).unwrap();
             let status = check_model_document_for_persist(&current).unwrap();
             assert_eq!(status.status, "current");
-            assert_eq!(status.source_schema_version, "0.8.0");
-            assert_eq!(status.target_schema_version, "0.8.0");
+            assert_eq!(status.source_schema_version, "0.9.0");
+            assert_eq!(status.target_schema_version, "0.9.0");
             let (persisted, saved_mh, saved_eh) = (current.clone(), mh.clone(), eh.clone());
             assert_eq!(persisted, model);
             upsert_project(
@@ -6905,7 +7033,7 @@ mod tests {
             let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
             let status = evaluate_model_document(&loaded.model);
             assert_eq!(status.status, "current");
-            assert_eq!(status.target_schema_version, "0.8.0");
+            assert_eq!(status.target_schema_version, "0.9.0");
             let opened = loaded.model;
             assert_eq!(opened, model);
             assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
@@ -6938,8 +7066,8 @@ mod tests {
     }
 
     /// T1 WP2 (D3), on the current format (B7b): exact-contract and pressure-free
-    /// 0.8.0 documents persist unchanged with no load/reference-state key added; a
-    /// pressure-free 0.8.0 document that carries the load/reference-state group
+    /// 0.9.0 documents persist unchanged with no load/reference-state key added; a
+    /// pressure-free 0.9.0 document that carries the load/reference-state group
     /// (which requires the exact contract) is kept as authored (not stripped, not
     /// re-stamped) and the product blocks on solve.
     #[test]
@@ -7006,11 +7134,11 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let carried = pressure_free(&request["model"]);
-        assert_eq!(carried["schema_version"], "0.8.0");
+        assert_eq!(carried["schema_version"], "0.9.0");
         assert!(carries_load_reference_keys(&carried));
         let (loaded, status) = round_trip(&carried);
         assert_eq!(loaded, carried);
-        assert_eq!(status.target_schema_version, "0.8.0");
+        assert_eq!(status.target_schema_version, "0.9.0");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let solved = run_linear_static_preview_with_mode(
                 serde_json::from_value(json!({"model": loaded.clone(), "materials": []})).unwrap(),
@@ -7033,7 +7161,7 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
@@ -7718,7 +7846,7 @@ mod tests {
         );
     }
 
-    /// U3 (D-2 A1), on the current format (B7b): a 0.8.0 document declaring the
+    /// U3 (D-2 A1), on the current format (B7b): a 0.9.0 document declaring the
     /// retired 1.0.0/legacy_pressure_v1 or 2.0.0/exact_straight_pressure_v2 contract
     /// opens unchanged (no migration rewrites it), and its solve is refused with
     /// PRESSURE_MODEL_REAUTHOR_REQUIRED; nothing is published.
@@ -7739,7 +7867,7 @@ mod tests {
             let before = labelled.clone();
             let opened = evaluate_model_document(&labelled);
             assert_eq!(opened.status, "current", "{contract}");
-            assert_eq!(opened.target_schema_version, "0.8.0", "{contract}");
+            assert_eq!(opened.target_schema_version, "0.9.0", "{contract}");
             assert_eq!(labelled, before);
 
             let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
@@ -7756,7 +7884,7 @@ mod tests {
     #[test]
     fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
         let blank = json!({
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "data_boundary": {
                 "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -8120,7 +8248,7 @@ mod tests {
             "value": "raw-received-model-claim"
         });
         let received_envelope_claim = json!(["raw", "received", "envelope", "claim"]);
-        // The derived fixture is a current (0.8.0) document: it persists exactly
+        // The derived fixture is a current (0.9.0) document: it persists exactly
         // as edited, with the received hash claims kept raw; nothing is migrated
         // and no evidence is minted.
         let document_status = check_model_document_for_persist(&edited_model)
@@ -8180,7 +8308,7 @@ mod tests {
 
     #[test]
     fn persist_preparation_refuses_retired_newer_and_unsupported_model_documents() {
-        for version in ["0.1.0", "0.2.0", "0.5.0", "0.6.0", "0.7.0"] {
+        for version in ["0.1.0", "0.2.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
             let retired = json!({ "schema_version": version, "project": { "id": "project:retired", "name": "Retired" } });
             let error = check_model_document_for_persist(&retired)
                 .expect_err("retired documents must be refused by name");
@@ -8189,7 +8317,7 @@ mod tests {
             // A retired project states what it means for its recorded runs (MD8 §3.3).
             assert!(error.ends_with(&format!(" {}", crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE)), "{error}");
         }
-        let newer = json!({ "schema_version": "0.8.1", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.9.1", "project": { "id": "project:newer", "name": "Newer" } });
         let error = check_model_document_for_persist(&newer)
             .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
@@ -8206,8 +8334,8 @@ mod tests {
         let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
         let status = check_model_document_for_persist(&model).expect("current documents persist");
         assert_eq!(status.status, "current");
-        assert_eq!(status.source_schema_version, "0.8.0");
-        assert_eq!(status.target_schema_version, "0.8.0");
+        assert_eq!(status.source_schema_version, "0.9.0");
+        assert_eq!(status.target_schema_version, "0.9.0");
     }
 
     /// B7a: a project stored as a retired version (here a 0.1.0 row a previous
@@ -10951,5 +11079,192 @@ mod independent_round3_review {
             }
         }}}
         eprintln!("R3 report admission refusals={cases}");
+    }
+}
+
+/// RT-U4: a project's stored run above the displayable-result limit is
+/// withheld at open by its stored length, never loaded and never changed, and
+/// an ordinary save in place that would write no result over it is refused.
+#[cfg(test)]
+mod stored_result_limit_tests {
+    use super::*;
+
+    const ID: &str = "project:invented-stored-result-limit";
+    const BASE: &str = "sha256:invented-base";
+
+    fn scratch_store(label: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "swbpipe-{label}-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        fs::create_dir_all(&root).unwrap();
+        let store = root.join(PROJECT_STORE_FILE);
+        drop(open_project_store(&store).unwrap());
+        store
+    }
+
+    fn invented_model() -> Value {
+        let mut model = load_preview_model().unwrap();
+        model["project"]["id"] = json!(ID);
+        model["project"]["name"] = json!("Invented");
+        model
+    }
+
+    /// A stored value whose JSON text is exactly `bytes` long (a string).
+    fn text_of(bytes: u64) -> Value {
+        json!("x".repeat(bytes as usize - 2))
+    }
+
+    fn seed(store: &Path, result: &Value, run: &Value) {
+        let (mut connection, _) = open_project_store(store).unwrap();
+        upsert_project(&mut connection, ID, "Invented", &invented_model(), &json!([]), &Value::Null, &Value::Null, result, run,
+            &json!({"value": "sha256:invented-run-model"}), &json!({"value": BASE})).unwrap();
+    }
+
+    /// The stored run's column lengths and the row's bytes, as SQLite holds them.
+    fn stored(store: &Path) -> (i64, i64, String) {
+        let (connection, _) = open_project_store(store).unwrap();
+        connection.query_row(
+            "SELECT octet_length(mechanics_result_json), octet_length(analysis_run_json),
+                    mechanics_result_json || char(31) || analysis_run_json || char(31) || model_hash_json || char(31) ||
+                    project_envelope_hash_json || char(31) || model_json || char(31) || updated_at_unix
+             FROM local_projects WHERE project_id = ?1",
+            params![ID],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        ).unwrap()
+    }
+
+    /// An ordinary save in place of the session's model with no result, as a
+    /// session that opened a withheld run sends it.
+    fn save_in_place(store: &Path, result: Value, confirmed: Option<String>) -> Result<LocalProjectEnvelope, String> {
+        let model = invented_model();
+        save_project_in_store(store.to_path_buf(), SaveLocalProjectRequest::from_value(json!({
+            "project_id": ID, "project_name": "Invented", "model": model, "mechanics_result": result,
+            "model_hash": computed_model_hash(&model, ID), "expected_base": BASE, "confirmed_revision": confirmed
+        })).unwrap())
+    }
+
+    #[test]
+    fn open_withholds_a_stored_run_above_the_limit_by_its_stored_length() {
+        let store = scratch_store("stored-limit-open");
+        const RESULT: u64 = 40;
+        let run = json!({"r": 1});
+        let run_bytes = serde_json::to_string(&run).unwrap().len() as u64;
+        assert!(run_bytes < RESULT - 1);
+        seed(&store, &text_of(RESULT), &run);
+        let before = stored(&store);
+        let (connection, _) = open_project_store(&store).unwrap();
+        // One byte under, and at, the limit: returned as stored.
+        for limit in [RESULT + 1, RESULT] {
+            let record = load_project_within(&connection, Some(ID), limit).unwrap().unwrap();
+            assert_eq!((record.mechanics_result, record.analysis_run.clone(), record.withheld), (text_of(RESULT), run.clone(), None), "limit {limit}");
+        }
+        // One byte over: withheld, the model and the rest returned as stored.
+        let record = load_project_within(&connection, Some(ID), RESULT - 1).unwrap().unwrap();
+        assert_eq!((record.mechanics_result, record.analysis_run), (Value::Null, Value::Null));
+        assert_eq!(record.withheld, Some(StoredResultWithheld { code: "STORED-RESULT-TOO-LARGE", result_bytes: RESULT, analysis_run_bytes: run_bytes, limit_bytes: RESULT - 1 }));
+        assert_eq!(record.model, invented_model());
+        assert_eq!(record.model_hash, json!({"value": "sha256:invented-run-model"}));
+        assert_eq!(record.project_envelope_hash, json!({"value": BASE}));
+        // The most recent project is read the same way.
+        assert!(load_project_within(&connection, None, RESULT - 1).unwrap().unwrap().withheld.is_some());
+        drop(connection);
+        assert_eq!(stored(&store), before, "the stored row is unchanged");
+        // A run record above the limit withholds the run, its result included.
+        seed(&store, &text_of(5), &text_of(RESULT));
+        let (connection, _) = open_project_store(&store).unwrap();
+        let record = load_project_within(&connection, Some(ID), RESULT - 1).unwrap().unwrap();
+        assert_eq!((record.mechanics_result, record.analysis_run), (Value::Null, Value::Null));
+        assert_eq!(record.withheld.map(|w| (w.result_bytes, w.analysis_run_bytes)), Some((5, RESULT)));
+    }
+
+    #[test]
+    fn the_save_guard_refuses_writing_no_result_over_a_withheld_run() {
+        let store = scratch_store("stored-limit-guard");
+        const RESULT: u64 = 40;
+        seed(&store, &text_of(RESULT), &Value::Null);
+        let (mut connection, _) = open_project_store(&store).unwrap();
+        let transaction = immediate_transaction(&mut connection).unwrap();
+        let guard = |limit, result: &Value, confirmed| refuse_dropping_withheld_run(&transaction, ID, confirmed, result, limit);
+        // At and one byte under the limit the stored run was opened: nothing to refuse.
+        assert_eq!(guard(RESULT, &Value::Null, None), Ok(()));
+        assert_eq!(guard(RESULT + 1, &Value::Null, None), Ok(()));
+        // One byte over: a save carrying no result is refused, naming the sizes.
+        let error = guard(RESULT - 1, &Value::Null, None).unwrap_err();
+        assert!(error.starts_with(&format!(
+            "STORED-RESULT-TOO-LARGE: Not saved. Project `{ID}` holds a stored result of 40 bytes (0 MiB) (its analysis-run record 4 bytes (0 MiB)), above the desktop's display limit of 39 bytes (0 MiB)"
+        )), "{error}");
+        // A save carrying a result (a new solve) and a confirmed Replace proceed.
+        assert_eq!(guard(RESULT - 1, &json!({"run_id": "run:new"}), None), Ok(()));
+        assert_eq!(guard(RESULT - 1, &Value::Null, Some("revision")), Ok(()));
+        // An unstored project has no withheld run.
+        assert_eq!(refuse_dropping_withheld_run(&transaction, "project:absent", None, &Value::Null, 0), Ok(()));
+    }
+
+    /// The project's run record (`analysis_run_json`, a v0.3 record with one
+    /// result reference and checksum per published row, so it grows with the
+    /// result) is held to the same limit by its own stored length, at open and
+    /// in the save guard, with a result well within it.
+    #[test]
+    fn a_stored_run_record_above_the_limit_is_withheld_and_kept() {
+        let store = scratch_store("stored-limit-record");
+        const RECORD: u64 = 40;
+        seed(&store, &text_of(5), &text_of(RECORD));
+        let before = stored(&store);
+        let (mut connection, _) = open_project_store(&store).unwrap();
+        for limit in [RECORD + 1, RECORD] {
+            let record = load_project_within(&connection, Some(ID), limit).unwrap().unwrap();
+            assert_eq!((record.mechanics_result, record.analysis_run, record.withheld), (text_of(5), text_of(RECORD), None), "limit {limit}");
+        }
+        let record = load_project_within(&connection, Some(ID), RECORD - 1).unwrap().unwrap();
+        assert_eq!((record.mechanics_result, record.analysis_run), (Value::Null, Value::Null));
+        assert_eq!(record.withheld, Some(StoredResultWithheld { code: "STORED-RESULT-TOO-LARGE", result_bytes: 5, analysis_run_bytes: RECORD, limit_bytes: RECORD - 1 }));
+        let transaction = immediate_transaction(&mut connection).unwrap();
+        assert_eq!(refuse_dropping_withheld_run(&transaction, ID, None, &Value::Null, RECORD + 1), Ok(()));
+        assert_eq!(refuse_dropping_withheld_run(&transaction, ID, None, &Value::Null, RECORD), Ok(()));
+        let error = refuse_dropping_withheld_run(&transaction, ID, None, &Value::Null, RECORD - 1).unwrap_err();
+        assert!(error.contains("(its analysis-run record 40 bytes (0 MiB)), above the desktop's display limit of 39 bytes (0 MiB)"), "{error}");
+        drop(transaction);
+        drop(connection);
+        assert_eq!(stored(&store), before, "the stored row is unchanged");
+    }
+
+    /// At the product limit, through the commands' store functions: a stored
+    /// result of 64 MiB + 1 bytes is withheld at open and kept by a refused
+    /// save; one of exactly 64 MiB opens and saves as before.
+    #[test]
+    fn the_product_limit_withholds_at_open_and_keeps_the_stored_run_on_save() {
+        let limit = solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES;
+        let store = scratch_store("stored-limit-product");
+        seed(&store, &text_of(limit + 1), &Value::Null);
+        let before = stored(&store);
+        let opened = open_project_in_store(store.clone(), Some(ID)).unwrap().unwrap();
+        assert_eq!((&opened.mechanics_result, &opened.analysis_run), (&Value::Null, &Value::Null));
+        assert_eq!(opened.model, invented_model(), "the model opens");
+        let withheld = opened.stored_result_withheld.unwrap();
+        assert_eq!((withheld.result_bytes, withheld.analysis_run_bytes, withheld.limit_bytes), (67_108_865, 4, 67_108_864));
+        let sent = serde_json::to_value(&opened).unwrap();
+        assert_eq!(sent["stored_result_withheld"], json!({"code": "STORED-RESULT-TOO-LARGE", "result_bytes": 67_108_865u64, "analysis_run_bytes": 4, "limit_bytes": 67_108_864u64}));
+        assert!(serde_json::to_string(&opened).unwrap().len() < 1 << 20, "the stored result never crosses IPC");
+        // The save in place that would write no result is refused; the stored row is untouched.
+        let error = save_in_place(&store, Value::Null, None).map(|_| ()).unwrap_err();
+        assert!(error.starts_with("STORED-RESULT-TOO-LARGE: Not saved."), "{error}");
+        assert!(error.contains("67108865 bytes (64 MiB)") && error.contains("67108864 bytes (64 MiB)"), "{error}");
+        assert_eq!(stored(&store), before);
+        // A new solve's result replaces it, as any save does.
+        let saved = save_in_place(&store, json!({"run_id": "run:new"}), None).unwrap();
+        assert_eq!(saved.mechanics_result, json!({"run_id": "run:new"}));
+        assert!(saved.stored_result_withheld.is_none());
+
+        // Exactly the limit: opened and saved as before.
+        let store = scratch_store("stored-limit-product-exact");
+        seed(&store, &text_of(limit), &Value::Null);
+        let opened = open_project_in_store(store.clone(), Some(ID)).unwrap().unwrap();
+        assert!(opened.stored_result_withheld.is_none());
+        assert_eq!(serde_json::to_string(&opened.mechanics_result).unwrap().len() as u64, limit);
+        assert!(serde_json::to_value(&opened).unwrap().get("stored_result_withheld").is_none());
+        drop(opened);
+        save_in_place(&store, Value::Null, None).expect("a run the session opened is its to replace");
     }
 }

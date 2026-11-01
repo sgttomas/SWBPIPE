@@ -20,6 +20,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -39,6 +81,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -126,6 +241,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -213,6 +363,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -235,6 +386,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -288,7 +440,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -317,6 +469,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -339,6 +525,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -388,6 +600,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -407,6 +661,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -495,6 +822,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -582,6 +944,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -604,6 +967,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -657,7 +1021,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -686,6 +1050,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -708,6 +1106,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -757,6 +1181,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -776,6 +1242,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -855,6 +1394,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -942,6 +1516,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -964,6 +1539,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -1017,7 +1593,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -1046,6 +1622,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -1068,6 +1678,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -1117,6 +1753,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -1136,6 +1814,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -1215,6 +1966,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -1302,6 +2088,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -1324,6 +2111,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -1377,7 +2165,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -1406,6 +2194,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -1428,6 +2250,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -1486,6 +2334,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -1505,6 +2395,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -1584,6 +2547,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -1671,6 +2669,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -1693,6 +2692,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -1746,7 +2746,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -1775,6 +2775,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -1797,6 +2831,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -1856,6 +2916,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -1875,6 +2977,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -1954,6 +3129,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -2041,6 +3251,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -2063,6 +3274,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -2116,7 +3328,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -2145,6 +3357,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -2167,6 +3413,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -2216,6 +3488,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -2235,6 +3549,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -2323,6 +3710,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -2410,6 +3832,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -2432,6 +3855,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -2485,7 +3909,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -2514,6 +3938,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -2536,6 +3994,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -2585,6 +4069,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -2604,6 +4130,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -2693,6 +4292,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -2780,6 +4414,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -2802,6 +4437,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -2855,7 +4491,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -2884,6 +4520,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -2906,6 +4576,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -2955,6 +4651,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -2974,6 +4712,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -3053,6 +4864,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -3140,6 +4986,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -3162,6 +5009,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -3215,7 +5063,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -3244,6 +5092,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -3266,6 +5148,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -3315,6 +5223,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -3334,6 +5284,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -3419,6 +5442,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -3506,6 +5564,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -3528,6 +5587,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -3581,7 +5641,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -3610,6 +5670,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -3632,6 +5726,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -3681,6 +5801,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -3700,6 +5862,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -3786,6 +6021,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -3873,6 +6143,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -3895,6 +6166,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -3948,7 +6220,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -3977,6 +6249,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -3999,6 +6305,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -4048,6 +6380,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -4067,6 +6441,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -4146,6 +6593,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -4233,6 +6715,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -4255,6 +6738,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -4308,7 +6792,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -4337,6 +6821,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -4359,6 +6877,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -4408,6 +6952,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -4427,6 +7013,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -4506,6 +7165,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -4593,6 +7287,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -4615,6 +7310,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -4683,7 +7379,7 @@
             "rule_pack_version": "0.1.0"
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -4712,6 +7408,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -4734,6 +7464,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -4783,6 +7539,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -4802,6 +7600,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -4881,6 +7752,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -4968,6 +7874,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -4990,6 +7897,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -5043,7 +7951,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -5072,6 +7980,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -5094,6 +8036,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -5143,6 +8111,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -5162,6 +8172,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -5241,6 +8324,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -5328,6 +8446,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -5350,6 +8469,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -5406,7 +8526,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -5435,6 +8555,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -5457,6 +8611,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -5506,6 +8686,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -5525,6 +8747,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -5604,6 +8899,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -5691,6 +9021,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -5713,6 +9044,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -5766,7 +9098,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -5795,6 +9127,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -5817,6 +9183,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -5866,6 +9258,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -5885,6 +9319,79 @@
               "source_location": "invented://catalogue",
               "source_name": "Invented SIF note"
             }
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -5964,6 +9471,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -6051,6 +9593,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -6073,6 +9616,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -6126,7 +9670,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -6155,6 +9699,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -6177,6 +9755,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],
@@ -6226,6 +9830,48 @@
               "op"
             ],
             "terms": []
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "combination:C-EXP",
+            "label": "Expansion",
+            "minuend_id": "load:L-2",
+            "notes": "Invented combination.",
+            "provenance": "invented_example",
+            "subtrahend_id": "load:L-1",
+            "subtrahend_support_state": "minuend_final",
+            "tags": [
+              "exp"
+            ]
+          },
+          {
+            "basis": "absolute_sum",
+            "id": "combination:C-ABS",
+            "label": "Absolute sum",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "load:L-1"
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1.0
+              }
+            ]
+          },
+          {
+            "basis": "srss",
+            "id": "combination:C-SRSS",
+            "label": "SRSS",
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1.0
+              }
+            ]
           }
         ],
         "components": [
@@ -6265,6 +9911,79 @@
             "label": "Invented reducer",
             "node": "node:N-2",
             "provenance": "invented_example"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "contents_density": {
+                  "unit": "kg/m^3",
+                  "value": 998.0
+                },
+                "key": "OPE1",
+                "label": "Operating",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              },
+              {
+                "key": "HYDRO",
+                "label": "Hydrotest",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              }
+            ],
+            "design": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.0
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 180.0
+              }
+            },
+            "exposure": {
+              "snow_ice": false,
+              "wave": false,
+              "wind": true
+            },
+            "id": "condition_set:CS-1",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Run conditions",
+            "notes": "Invented condition set.",
+            "peak": {
+              "pressure": {
+                "unit": "MPa",
+                "value": 2.5
+              },
+              "temperature": {
+                "unit": "degC",
+                "value": 200.0
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "run"
+            ]
           }
         ],
         "constraints": [
@@ -6344,6 +10063,41 @@
             "tags": [
               "sustained"
             ]
+          },
+          {
+            "condition_use": {
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1",
+              "wind_exposure": true
+            },
+            "id": "load:L-2",
+            "kind": "operating",
+            "label": "Operating",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "operating"
+            ]
+          },
+          {
+            "id": "load:L-3",
+            "kind": "hydrotest",
+            "label": "Hydrotest",
+            "notes": "Invented case.",
+            "primitive_loads": [],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "tags": [
+              "hydrotest"
+            ],
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            }
           }
         ],
         "materials": [
@@ -6431,6 +10185,7 @@
         ],
         "pipe_segments": [
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-1",
             "id": "pipe:P-1",
             "label": "Run",
@@ -6453,6 +10208,7 @@
             "to": "node:N-2"
           },
           {
+            "condition_set_ref": "condition_set:CS-1",
             "from": "node:N-2",
             "id": "pipe:P-2",
             "label": "Riser",
@@ -6506,7 +10262,7 @@
             "source_notice": "Invented demonstration data only."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:std",
@@ -6535,6 +10291,40 @@
             ]
           }
         ],
+        "spectra": [
+          {
+            "abscissa": "frequency",
+            "damping_ratio": 0.05,
+            "g_value": {
+              "unit": "m/s^2",
+              "value": 9.80665
+            },
+            "id": "spectrum:SP-1",
+            "interpolation": {
+              "abscissa": "log",
+              "ordinate": "log"
+            },
+            "label": "Invented g spectrum",
+            "notes": "Invented spectrum.",
+            "ordinate": "g_multiple",
+            "points": [
+              [
+                1.0,
+                0.2
+              ],
+              [
+                10.0,
+                0.5
+              ]
+            ],
+            "tags": [
+              "dynamics"
+            ],
+            "units": {
+              "abscissa": "Hz"
+            }
+          }
+        ],
         "supports": [
           {
             "id": "support:S-1",
@@ -6557,6 +10347,32 @@
             ],
             "tags": [
               "anchor"
+            ]
+          },
+          {
+            "direction": {
+              "x": 0.0,
+              "y": 3.0,
+              "z": 4.0
+            },
+            "family": "snubber",
+            "id": "support:SN-1",
+            "label": "Snubber",
+            "node": "node:N-3",
+            "notes": "Invented snubber.",
+            "provenance": "invented_example",
+            "restraints": [
+              "UY"
+            ],
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            },
+            "tags": [
+              "snubber"
             ]
           }
         ],

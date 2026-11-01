@@ -4,8 +4,8 @@ needs:
 - from: DEL-02-01
   condition: >-
     DEL-04-07 decodes the model document that DEL-02-01's canonical schema (`schemas/model.schema.yaml`)
-    defines: model 0.8.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
-    with the retired versions, 0.5.0, 0.6.0 and 0.7.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
+    defines: model 0.9.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
+    with the retired versions, 0.5.0, 0.6.0, 0.7.0 and 0.8.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
     including the exact-contract fields (section `corrosion_allowance`, `pressure_contract.shear_model`).
     Primitive mathematics remains with its owners.
   gating: true
@@ -303,6 +303,7 @@ code_paths:
 - validation/references/t4_i8/**
 - validation/references/t4_u4a/**
 - validation/references/t4_u4b/**
+- validation/references/rt_a3_tee/**
 - validation/references/t4_u5a/**
 - validation/references/t4_u5b/**
 - validation/qualification/fixtures/exact_pressure/**
@@ -320,6 +321,8 @@ code_paths:
 - apps/desktop/src-tauri/src/exact_source_binding.rs
 # W-18b slice (r2a): the solve worker's attestation, its ATST frame and the registry's attestation table.
 - apps/desktop/src-tauri/src/solve_attestation.rs
+# RT-U4: d_S computed from the result text without the parse-back (same digest).
+- apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/worker_alloc.rs
 # The temperature identity's canonical-decimal corpus writer (pressure-contract.md).
@@ -329,6 +332,9 @@ code_paths:
 - validation/platform/windows_worker_fixture/**
 checks:
 - core/product_physics/tests/exact_admission_seam.rs
+- core/product_physics/tests/arc_tangent_direction_magnitude.rs
+- core/product_physics/tests/rt_a3_tee_references.rs
+- core/product_physics/tests/shared_terminal_junction.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs
 - core/product_physics/tests/pressure_section_geometry.rs
@@ -349,6 +355,7 @@ checks:
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
 - apps/desktop/src-tauri/src/solve_attestation.rs
+- apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 # The exact temperature identity: tie regressions, domain refusal and the repr corpus.
 - core/product_physics/src/case_state/temperature.rs

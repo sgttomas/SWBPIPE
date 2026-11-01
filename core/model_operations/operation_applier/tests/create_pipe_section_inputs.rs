@@ -10,7 +10,7 @@ use open_pipe_stress_product_physics::{
 use serde_json::{json, Value};
 
 fn model() -> Value {
-    json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+    json!({"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:invented","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"K"}},
         "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_reviewed"},
         "nodes":[

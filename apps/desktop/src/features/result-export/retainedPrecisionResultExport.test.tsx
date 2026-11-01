@@ -50,9 +50,11 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
  * member's 12 global end rows (113 -> 125) move the received carrier checksum in the origin; W-16 slice a's
  * shorter preview LIMITATIONS[1] moves it again; model document 0.8.0's version token moves the goldens and the
  * origin (its model and source hashes) again. */
+// Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+// registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "1a1124c51ce1cee7021874be18ae2f374ce40cbe9c7c8f4f079408957bce7151", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "f34f63100591c20d2578ab4293726bfcd23bffeacb8bfb0f90b5ac3aaa392aad", rows: 125, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "0920a5428060c1d0feec6eb665dce4926b0ab812213bd77e36839c8f10d17669", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "77fcc85d61bf4cb3c9287b46114b600424b20ce0fa7dfe9335873cfb40ceeb4f", rows: 125, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "032b00398ea8c659bd6b9315596c582b0aee70ec3d980da2c095243fc8b60806", base: "989d81cc1067e6ebe73eb15e0bd83cc851d2d66784a28af5296d47afc6d582ec", origin: "9455b6fc36afda87a3f48b24591b4f5e3b757172b389bbb74e9e9db10c66622d", rows: 125, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "61bf3dd4c11b0942a6db57f54a59aff955d173042cb20f10fce659f0f15cb3b2", base: "2e95fac829e079a7415d6dec0b9d57d890103f8cfe2a79bd1bc2a7721a28344b", origin: "21318ee77888e8d38dba59c419d8f4fb11d0549ebb020b988d2e5187e25e13ff", rows: 125, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";
@@ -357,6 +359,8 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
  * (`retained_precision_derivative_golden.rs`, `B3B_EXACT`), derived from lane P's pinned m3x
  * successors (PP `EXACT_PINNED`) with the same fixed desktop-shaped base and origin. The
  * Current builder is not exercised: physics-retained-1 is outside the static fresh set. */
+// Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+// registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; receiptSha256: string; path: string; sha256: string; rows: number }> = {
   // B7b D4 (a): the successors regenerated on the registered pressure-1 base (16478cadf4; Rust
   // `EXACT_PINNED` (file and receipt sha256) and `EXACT_GOLDEN_SHA256` in retained_precision_derivative_golden.rs).
@@ -366,8 +370,9 @@ const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha2
   // O4 limitation text (§3.3): re-pinned for the base's restated limitation [7] and the hashes binding it.
   // W-15 (DEL-03-05) on W-7: re-pinned for the restated pressure-2 identity limitation and the hashes binding it.
   // W-16 slice b (DEL-05-02): re-pinned again for the restated identity limitation (was 53df81b7.../1a3f9eed...).
-  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "df425e31871b43cc704ac44a33612936643a638987128ec655118b46972c51fb", receiptSha256: "85e38b97c9cea2579f7851e4c570923ba2ba1494c7226480847f46ca76802ab8", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "e15c27cdcb41d8e07a3da2ede3c901a6c0eb791c7a1706d5ab676f9e65a87a76", rows: 98 + 15 + 21 + 15 + 12 },
-  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "3bb19d83cb9e2c9f3cbbaff82b68053c02a4ede07f11904127c91cacfc4f74c0", receiptSha256: "aeb67070108feb991b68d0292cafc341442e789b36cf3a64a38ae24b3ad33e8d", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "e0c14d0ee0b8084e75f4c0546a35b5b083cfa2f92ad48a41a36a48c8c9755914", rows: 98 + 15 + 21 + 15 + 12 },
+  // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only) (was df425e31.../3bb19d83...).
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3", receiptSha256: "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "ecdfe590ae1af8442b2a0d58c7ef8cf314d0020c762f7583dc9c3223dd5b324f", rows: 98 + 15 + 21 + 15 + 12 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579", receiptSha256: "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "8f8714bc91671800cc44d7682c7c7798bf69c2a8ce6c3027b7a8d4187ac338fb", rows: 98 + 15 + 21 + 15 + 12 },
 };
 describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
   it("derives the golden's exact canonical bytes; it validates and carries the receipt and pressure-2's evidence", async () => {

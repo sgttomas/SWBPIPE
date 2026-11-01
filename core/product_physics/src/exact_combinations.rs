@@ -135,47 +135,40 @@ pub(crate) struct Facts<'a> {
     pub connector: &'a Value,
 }
 
-/// The typed structural pairing key (§3).
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct Key {
-    kind: String,
-    unit: String,
-    entity: String,
-    location: String,
-    component: String,
-    frame: String,
-    section: String,
+/// The typed structural pairing key (§3). Its fields borrow from the keyed row
+/// (the section from its metadata basis) or are constants; they compare by value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct Key<'r> {
+    kind: &'r str,
+    unit: &'r str,
+    entity: &'r str,
+    location: &'r str,
+    component: &'r str,
+    frame: &'r str,
+    section: &'r str,
 }
 
-impl Key {
+impl<'r> Key<'r> {
     /// `None` for a row whose family needs a field it lacks (a row without
     /// metadata other than a displacement magnitude, keyed by its node).
-    fn of(row: &ResultItem) -> Option<Self> {
+    fn of(row: &'r ResultItem) -> Option<Self> {
         let (location, component, frame, section) = match &row.metadata {
-            Some(m) => (m.location.clone(), m.component.clone(), m.coordinate_system.clone(), section_of(&m.basis).to_string()),
+            Some(m) => (m.location.as_str(), m.component.as_str(), m.coordinate_system.as_str(), section_of(&m.basis)),
             None if row.kind == "displacement_magnitude" => Default::default(),
             None => return None,
         };
-        Some(Key { kind: row.kind.clone(), unit: row.unit.clone(), entity: row.entity_ref.clone(), location, component, frame, section })
+        Some(Key { kind: &row.kind, unit: &row.unit, entity: &row.entity_ref, location, component, frame, section })
     }
 
-    fn with(&self, kind: &str, component: &str, location: &str, frame: &str, unit: &str, section: &str) -> Key {
-        Key {
-            kind: kind.into(),
-            unit: unit.into(),
-            entity: self.entity.clone(),
-            location: location.into(),
-            component: component.into(),
-            frame: frame.into(),
-            section: section.into(),
-        }
+    fn with(&self, kind: &'r str, component: &'r str, location: &'r str, frame: &'r str, unit: &'r str, section: &'r str) -> Key<'r> {
+        Key { kind, unit, entity: self.entity, location, component, frame, section }
     }
 
     /// The combined row's id: the combination and the key, each part length-prefixed.
     fn combined_id(&self, combination: &str) -> String {
         format!(
             "result:combination:{}",
-            exact_source_identity(&[combination, &self.kind, &self.unit, &self.entity, &self.location, &self.component, &self.frame, &self.section])
+            exact_source_identity(&[combination, self.kind, self.unit, self.entity, self.location, self.component, self.frame, self.section])
         )
     }
 }
@@ -197,12 +190,12 @@ fn support_kind(kind: &str) -> bool {
 
 /// One operand value of a combined row.
 #[derive(Debug, Clone)]
-enum Source {
-    Row { case: String, id: String },
-    Recovered { case: String, index: usize },
+enum Source<'a> {
+    Row { case: &'a str, id: &'a str },
+    Recovered { case: &'a str, index: usize },
 }
 
-impl Source {
+impl Source<'_> {
     fn evidence(&self) -> Value {
         match self {
             Source::Row { case, id } => json!({"load_case_id": case, "result_id": id}),
@@ -212,8 +205,8 @@ impl Source {
 }
 
 /// The outcome of one key.
-enum Outcome {
-    Row { value: f64, sources: Vec<Source> },
+enum Outcome<'a> {
+    Row { value: f64, sources: Vec<Source<'a>> },
     Missing(Vec<String>),
     Withheld,
 }
@@ -373,17 +366,43 @@ fn algebra_value(expression: &CombinationExpression<'_>, values: &[(&str, f64)],
 
 /// The rows of one operand case, by key, in publication order.
 struct CaseRows<'r> {
-    by_key: HashMap<Key, Vec<&'r ResultItem>>,
+    by_key: HashMap<Key<'r>, KeyRows<'r>>,
     order: Vec<&'r ResultItem>,
 }
 
+/// The rows of one case under one key, in publication order: almost always one.
+enum KeyRows<'r> {
+    One(&'r ResultItem),
+    Several(Vec<&'r ResultItem>),
+}
+
+impl<'r> CaseRows<'r> {
+    fn keyed(&self, key: &Key<'r>) -> Option<&[&'r ResultItem]> {
+        self.by_key.get(key).map(|rows| match rows {
+            KeyRows::One(row) => std::slice::from_ref(row),
+            KeyRows::Several(rows) => rows.as_slice(),
+        })
+    }
+}
+
 fn case_rows<'r>(results: &'r [ResultItem], case: &str) -> CaseRows<'r> {
-    let mut by_key: HashMap<Key, Vec<&ResultItem>> = HashMap::new();
+    let mut by_key: HashMap<Key<'r>, KeyRows<'r>> = HashMap::new();
     let mut order = Vec::new();
     for row in results.iter().filter(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case)) {
         order.push(row);
         if let Some(key) = Key::of(row) {
-            by_key.entry(key).or_default().push(row);
+            match by_key.entry(key) {
+                std::collections::hash_map::Entry::Vacant(slot) => {
+                    slot.insert(KeyRows::One(row));
+                }
+                std::collections::hash_map::Entry::Occupied(mut slot) => match slot.get_mut() {
+                    KeyRows::One(first) => {
+                        let first = *first;
+                        slot.insert(KeyRows::Several(vec![first, row]));
+                    }
+                    KeyRows::Several(rows) => rows.push(row),
+                },
+            }
         }
     }
     CaseRows { by_key, order }
@@ -392,8 +411,8 @@ fn case_rows<'r>(results: &'r [ResultItem], case: &str) -> CaseRows<'r> {
 /// §3: the operand value of a pressure-family key that the operand case lacks,
 /// recovered at p = 0, with its witness; `None` when the member does not
 /// qualify or a source row is missing (a missing source).
-fn recover(key: &Key, case: &str, rows: &CaseRows<'_>, facts: &CaseFacts<'_>) -> Option<(f64, Value)> {
-    let pipe = key.entity.as_str();
+fn recover<'r>(key: &Key<'r>, case: &str, rows: &CaseRows<'r>, facts: &CaseFacts<'_>) -> Option<(f64, Value)> {
+    let pipe = key.entity;
     if !facts.sections.contains_key(pipe) || facts.region_members.contains(pipe) {
         return None;
     }
@@ -407,25 +426,26 @@ fn recover(key: &Key, case: &str, rows: &CaseRows<'_>, facts: &CaseFacts<'_>) ->
             "value": value,
         })
     };
-    if ZERO_AT_NO_PRESSURE.contains(&key.kind.as_str()) {
+    if ZERO_AT_NO_PRESSURE.contains(&key.kind) {
         return Some((0.0, witness(None, "none", None, 0.0)));
     }
-    let axial = |location: &str| -> Option<&ResultItem> {
-        let found = rows.by_key.get(&key.with(AXIAL_FORCE, "axial_force", location, "element_local", "N", ""))?;
+    // The axial force row at the key's own station.
+    let axial = || -> Option<&ResultItem> {
+        let found = rows.keyed(&key.with(AXIAL_FORCE, "axial_force", key.location, "element_local", "N", ""))?;
         (found.len() == 1).then(|| found[0])
     };
-    match key.kind.as_str() {
+    match key.kind {
         END_ACTION => {
-            let source = axial(&key.location)?;
+            let source = axial()?;
             Some((source.value, witness(Some(source), "unchanged", None, source.value)))
         }
         WALL_FORCE | EFFECTIVE_FORCE | MEMBRANE => {
-            let source = axial(&key.location)?;
+            let source = axial()?;
             // A negated zero is +0.0 (0 - N), so a witness never holds a -0.0
             // that a value-preserving re-serialization would rewrite.
             let (n, sign) = if key.location == "end_i" { (0.0 - source.value, "negated") } else { (source.value, "unchanged") };
             if key.kind == MEMBRANE {
-                let area = facts.sections.get(pipe)?.get(key.section.as_str())?["As_m2"].as_f64()?;
+                let area = facts.sections.get(pipe)?.get(key.section)?["As_m2"].as_f64()?;
                 let value = n / area;
                 Some((value, witness(Some(source), sign, Some(area), value)))
             } else {
@@ -445,7 +465,7 @@ struct Built {
     withheld_evidence: Vec<Value>,
 }
 
-fn combined_row(combination: &PreviewCombination, expression: &CombinationExpression<'_>, template: &ResultItem, key: &Key, value: f64, refs: Vec<String>) -> ResultItem {
+fn combined_row(combination: &PreviewCombination, expression: &CombinationExpression<'_>, template: &ResultItem, key: &Key<'_>, value: f64, refs: Vec<String>) -> ResultItem {
     let mut row = template.clone();
     row.id = key.combined_id(&combination.id);
     row.value = value;
@@ -473,7 +493,7 @@ fn source_refs(sources: &[Source], recoveries: &[Value]) -> Vec<String> {
     sources
         .iter()
         .filter_map(|source| match source {
-            Source::Row { id, .. } => Some(id.clone()),
+            Source::Row { id, .. } => Some(id.to_string()),
             Source::Recovered { index, .. } => recoveries[*index]["source_result_id"].as_str().map(str::to_string),
         })
         .collect()
@@ -492,9 +512,10 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
     };
 
     // The keys in first-seen order (operand order, then publication order),
-    // with the first operand row of each as the template.
-    let mut order: Vec<(Key, &ResultItem)> = Vec::new();
-    let mut seen: HashSet<Key> = HashSet::new();
+    // with the first operand row of each as the template. `seen` gives each
+    // key's place in `order`; the outcomes are kept by that place.
+    let mut order: Vec<(Key<'_>, &ResultItem)> = Vec::new();
+    let mut seen: HashMap<Key<'_>, usize> = HashMap::new();
     for case_rows in &rows {
         for row in &case_rows.order {
             let kind = row.kind.as_str();
@@ -505,45 +526,46 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
                 withhold(&mut built, row.id.clone(), MISSING_KEY_FIELDS);
                 continue;
             };
-            if seen.insert(key.clone()) {
+            if let std::collections::hash_map::Entry::Vacant(slot) = seen.entry(key) {
+                slot.insert(order.len());
                 order.push((key, row));
             }
         }
     }
 
     // Phase 1: every key that is not recomputed from combined components.
-    let mut outcomes: HashMap<Key, Outcome> = HashMap::new();
-    for (key, template) in &order {
-        if recomputed(&key.kind) && !range {
+    let mut outcomes: Vec<Option<Outcome<'_>>> = std::iter::repeat_with(|| None).take(order.len()).collect();
+    for (place, (key, template)) in order.iter().enumerate() {
+        if recomputed(key.kind) && !range {
             continue;
         }
         // A key carried by several rows of one operand cannot pair: tie rods
         // by name, any other as missing a key field. The first operand that
         // carries several names them.
-        if let Some(several) = rows.iter().find_map(|r| r.by_key.get(key).filter(|found| found.len() > 1)) {
+        if let Some(several) = rows.iter().find_map(|r| r.keyed(key).filter(|found| found.len() > 1)) {
             let reason = if key.kind == TIE_ROD_KIND { TIE_ROD_ROW } else { MISSING_KEY_FIELDS };
             for row in several {
                 withhold(&mut built, row.id.clone(), reason);
             }
-            outcomes.insert(key.clone(), Outcome::Withheld);
+            outcomes[place] = Some(Outcome::Withheld);
             continue;
         }
         if key.kind == TIE_ROD_KIND {
             withhold(&mut built, template.id.clone(), TIE_ROD_ROW);
-            outcomes.insert(key.clone(), Outcome::Withheld);
+            outcomes[place] = Some(Outcome::Withheld);
             continue;
         }
         let mut sources = Vec::new();
         let mut values = Vec::new();
         let mut missing = Vec::new();
         for (index, case) in operands.iter().enumerate() {
-            if let Some(found) = rows[index].by_key.get(key) {
+            if let Some(found) = rows[index].keyed(key) {
                 values.push((*case, found[0].value));
-                sources.push(Source::Row { case: case.to_string(), id: found[0].id.clone() });
+                sources.push(Source::Row { case, id: &found[0].id });
             } else if let Some((value, witness)) = recover(key, case, &rows[index], &case_facts[index]) {
                 built.recoveries.push(witness);
                 values.push((*case, value));
-                sources.push(Source::Recovered { case: case.to_string(), index: built.recoveries.len() - 1 });
+                sources.push(Source::Recovered { case, index: built.recoveries.len() - 1 });
             } else {
                 missing.push(case.to_string());
             }
@@ -552,42 +574,47 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             // Recovered witnesses of a row that is not published are not kept.
             let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
             built.recoveries.truncate(built.recoveries.len() - kept);
-            outcomes.insert(key.clone(), Outcome::Missing(missing));
+            outcomes[place] = Some(Outcome::Missing(missing));
             continue;
         }
         let Some(dimension) = algebra_dimension(template) else {
             let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
             built.recoveries.truncate(built.recoveries.len() - kept);
             withhold(&mut built, template.id.clone(), DIMENSIONLESS);
-            outcomes.insert(key.clone(), Outcome::Withheld);
+            outcomes[place] = Some(Outcome::Withheld);
             continue;
         };
         match algebra_value(expression, &values, dimension) {
             Some(value) => {
-                outcomes.insert(key.clone(), Outcome::Row { value, sources });
+                outcomes[place] = Some(Outcome::Row { value, sources });
             }
             None => {
                 let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
                 built.recoveries.truncate(built.recoveries.len() - kept);
                 withhold(&mut built, template.id.clone(), ALGEBRA_REFUSED);
-                outcomes.insert(key.clone(), Outcome::Withheld);
+                outcomes[place] = Some(Outcome::Withheld);
             }
         }
     }
 
     // Phase 2: publish in key order; a magnitude is the norm of its combined
     // components (outside range envelopes, which select it in phase 1).
-    for (key, template) in &order {
-        if recomputed(&key.kind) && !range {
-            let components: Vec<Key> = DISPLACEMENT_COMPONENTS
+    // Invariant: each magnitude precedes its components in `order`, so it reads
+    // their outcomes before their own places `take()` them. It holds because a
+    // load case publishes every node's `displacement_magnitude` before any
+    // displacement component (`solve_prepared_load_case`), and `order` follows
+    // operand publication order. A component taken first would read as missing.
+    for (place, (key, template)) in order.iter().enumerate() {
+        if recomputed(key.kind) && !range {
+            let components: Vec<Key<'_>> = DISPLACEMENT_COMPONENTS
                 .iter()
-                .map(|(kind, component)| key.with(kind, component, "node", "global", &key.unit, ""))
+                .map(|&(kind, component)| key.with(kind, component, "node", "global", key.unit, ""))
                 .collect();
             let mut vector = [0.0; 3];
             let mut missing: Vec<String> = Vec::new();
             let mut refused = false;
             for (slot, component) in components.iter().enumerate() {
-                match outcomes.get(component) {
+                match seen.get(component).and_then(|&at| outcomes[at].as_ref()) {
                     Some(Outcome::Row { value, .. }) => vector[slot] = *value,
                     Some(Outcome::Withheld) => refused = true,
                     other => {
@@ -618,7 +645,7 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             built.rows.push(row);
             continue;
         }
-        match outcomes.remove(key) {
+        match outcomes[place].take() {
             Some(Outcome::Row { value, sources }) => {
                 let refs = source_refs(&sources, &built.recoveries);
                 let row = combined_row(combination, expression, template, key, value, refs);
@@ -729,9 +756,11 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
     let has_maximum = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
         && matches!(r.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | u4b_rows::EXTREME_KIND | u4b_rows::SHEAR_MAX_KIND));
     let has_intensified = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
-        && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND));
+        && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND | u4b_rows::BRANCH_KIND));
     let mut records = Vec::new();
-    let mut appended = Vec::new();
+    // The load cases' rows: each combination's rows are appended after them, and
+    // a combination reads only its operands' case rows, so it reads this prefix.
+    let case_rows_end = results.len();
     for combination in &model.combinations {
         // Validation refuses every unresolvable shape before the solve.
         let Some(expression) = CombinationExpression::resolve(combination) else { continue };
@@ -758,7 +787,7 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
             records.push(record);
             continue;
         }
-        let built = build(combination, &expression, &operands, results, &facts);
+        let built = build(combination, &expression, &operands, &results[..case_rows_end], &facts);
         for missing in &built.missing {
             let source = missing["source_result_id"].as_str().unwrap_or_default();
             let cases = missing["missing_load_case_ids"].as_array().map(|c| c.iter().filter_map(Value::as_str).collect::<Vec<_>>().join(", ")).unwrap_or_default();
@@ -809,14 +838,20 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
                 vec![combination.id.clone()],
             ));
         }
-        record["rows"] = json!(built.row_evidence);
-        record["recoveries"] = json!(built.recoveries);
-        record["missing_sources"] = json!(built.missing);
-        record["withheld"] = json!(built.withheld_evidence);
+        // The evidence moves into the record, held at its length as a copy would be;
+        // the rows go straight to the envelope, after every earlier combination's (a
+        // later combination reads its operands' load-case rows only).
+        let array = |mut items: Vec<Value>| {
+            items.shrink_to_fit();
+            Value::Array(items)
+        };
+        record["rows"] = array(built.row_evidence);
+        record["recoveries"] = array(built.recoveries);
+        record["missing_sources"] = array(built.missing);
+        record["withheld"] = array(built.withheld_evidence);
         records.push(record);
-        appended.extend(built.rows);
+        results.extend(built.rows);
     }
-    results.extend(appended);
     if !model.combinations.is_empty() {
         diagnostics.push(diag(
             "diagnostic:exact-combination:source-recovery-excluded",
@@ -886,9 +921,8 @@ mod tests {
 
     #[test]
     fn combined_ids_are_length_prefixed_and_distinct_for_delimiter_rich_ids() {
-        let key = |entity: &str, location: &str| Key {
-            kind: "k".into(), unit: "N".into(), entity: entity.into(), location: location.into(),
-            component: "c".into(), frame: "f".into(), section: String::new(),
+        let key = |entity: &'static str, location: &'static str| Key {
+            kind: "k", unit: "N", entity, location, component: "c", frame: "f", section: "",
         };
         assert_ne!(key("a:b", "c").combined_id("x"), key("a", "b:c").combined_id("x"));
         assert_eq!(key("p", "end_i").combined_id("comb:1"), "result:combination:6:comb:11:k1:N1:p5:end_i1:c1:f0:");
@@ -924,9 +958,8 @@ mod tests {
             region_members: if region { HashSet::from(["pipe:p"]) } else { HashSet::new() },
             states: HashMap::new(),
         };
-        let key = |kind: &str, component: &str, location: &str, frame: &str, section: &str| Key {
-            kind: kind.into(), unit: if section.is_empty() { "N".into() } else { "Pa".into() }, entity: "pipe:p".into(),
-            location: location.into(), component: component.into(), frame: frame.into(), section: section.into() };
+        let key = |kind: &'static str, component: &'static str, location: &'static str, frame: &'static str, section: &'static str| Key {
+            kind, unit: if section.is_empty() { "N" } else { "Pa" }, entity: "pipe:p", location, component, frame, section };
         let wall = key(WALL_FORCE, "wall_axial_force", "end_i", "element_local", "");
         let (value, witness) = recover(&wall, "case:b", &rows, &facts(true, false)).unwrap();
         assert_eq!((value, witness["sign"].as_str()), (8.0, Some("negated")));

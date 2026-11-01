@@ -152,7 +152,12 @@ def add(name, ph, req, mv=None):
     fam[name] = req; phase[name] = ph; mov[name] = mv or X()
 
 # ---------------- T_resident: T03 typed request at the typed capacity caps --------------
-strings = (mats * (7 + pts * 7) + 6 + 2 * n + 12 * m + 6 * g + r + 2 * CC + 7 * LL) if which == "caps" else 0
+# S1-TS (retained-pricing-rules.md §8.36): the census of the admitted typed strings read at the snapshot (a pipe's 13, not
+# the basis' 12; route E's three contract strings and the node-proximity tolerance's unit beyond the basis' six model
+# strings); a snapshot outside that reading keeps the basis count.
+import typed_strings_model as _ts_model
+_ts = _ts_model.inspect(_snapshot) or {"pipe": 12, "model": 0}   # before model document 0.7.0: the basis count
+strings = (mats * (7 + pts * 7) + 6 + _ts["model"] + 2 * n + _ts["pipe"] * m + 6 * g + r + 2 * CC + 7 * LL) if which == "caps" else 0
 add("T_resident (T03 typed request, typed capacity caps)", "T_resident",
     (Xc("MaterialInput", mats) + Xc("TemperaturePoint", mats * pts) + Xc("PreviewNode", n)
      + Xc("PreviewPipe", m) + Xc("PreviewSupport", g) + Xc("String", r) + Xc("PreviewLoadCase", CC)
@@ -470,6 +475,15 @@ if _u45["published_displacements"]:
 if _u45["station_quantities"]:
     # U4B-ST: one member's station-quantity transients (append_station_quantities and its caller), one member live.
     add("Station quantities of one member (U4B-ST)", "OrdinaryRecovery", _u45_model.ordinary_station_quantities())
+if _u45.get("published_index"):
+    # RT-A3 increment 1b (retained-pricing-rules.md §8.37): the case solve's published-row index. RTA3B-PS: the case's
+    # PublishedScope entity set (<= the case's rows, P; live to the end of the case solve, as U5B-PD). RTA3B-MR: one
+    # member's MemberRows slots (<= its rows per member, the route's P_final coefficient of m; in U4B-ST's block).
+    _rpm, _rem = divmod(P - (7 * n + 8 * g + 3), m)
+    if _rem:
+        raise SystemExit(f"RTA3B-MR: P_final is not 7n + r*m + 8g + 3 ({P}); re-review the rows per member")
+    add("Published-row scope of one case (RTA3B-PS)", "OrdinaryRecovery", _u45_model.published_scope_entities(P))
+    add("Member row index of one member (RTA3B-MR)", "OrdinaryRecovery", _u45_model.member_row_slots(_rpm))
 if _o4:
     # O4-SR: a selected case whose member's stress sections differ holds the reduced basis's composite maximum (its
     # value and evidence Value: one pipe_stress_extrema entry of the census) beside the nominal one, one member at a time.
@@ -548,6 +562,14 @@ if _snapshot and _sd_model.inspect(_snapshot):
         add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
     add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
     add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
+# Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the lowering's views, findings and operand resolution
+# (S1-VW) and the withholding pass (S1-WH), once per ordinary run, priced positively where the reviewed modules exist
+# (s1_owners_model binds their bytes and the two calls).
+import s1_owners_model as _s1_model
+if _snapshot and _s1_model.inspect(_snapshot):
+    _s1_z = _mc.get("z", 0) if which == "caps" else 0
+    add("Model document 0.9.0 lowering views and findings (S1-VW)", "Normalization", _s1_model.views_and_findings(m, CC, g, r, _s1_z))
+    add("Model document 0.9.0 interim withholding (S1-WH)", "Normalization", _s1_model.withholding(CC, _s1_z))
 # W-16 slice a D3 (retained-pricing-rules.md §8.23): case_prescribed's node index, once per case solved without a load
 # state, one case at a time (W16-NI), and validate's findings vector, <= one per primitive load (W16-VF), each priced
 # positively where its reviewed source exists (w16_owners_model binds imposed_motion.rs and the statements).
@@ -603,7 +625,8 @@ PER_CASE_FAMILIES = ['Primitive loads and application', 'AssembledForce, nodal f
 if "Prepared pressure case carriers and staging (B5O1)" in fam:
     PER_CASE_FAMILIES.append("Prepared pressure case carriers and staging (B5O1)")
 for _f in ("Published corrected nodal displacements (U5B-PD)", "Station quantities of one member (U4B-ST)",
-           "Selected reduced maximum beside the nominal one (O4-SR)"):
+           "Selected reduced maximum beside the nominal one (O4-SR)", "Published-row scope of one case (RTA3B-PS)",
+           "Member row index of one member (RTA3B-MR)"):
     if _f in fam:
         PER_CASE_FAMILIES.append(_f)
 if _wide:

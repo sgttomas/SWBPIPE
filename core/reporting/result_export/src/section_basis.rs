@@ -68,7 +68,7 @@ pub const EULER_BERNOULLI: &str = "euler_bernoulli";
 pub const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
 /// §2.1: the kinds whose pressure-2 table family is `stress` and which the
 /// exact route publishes, once per section basis.
-pub const STRESS_KINDS: [&str; 14] = [
+pub const STRESS_KINDS: [&str; 15] = [
     // T4-U4b (§2.2): the new per-basis kinds.
     "element_local_normal_stress_extreme",
     "element_local_transverse_shear_stress_maximum",
@@ -76,6 +76,8 @@ pub const STRESS_KINDS: [&str; 14] = [
     "pipe_toroidal_radial_surface_stress_v1",
     "curved_bend_directional_intensified_bending_stress_v1",
     "curved_bend_directional_intensified_bending_maximum_v1",
+    // RT-A3 increment 1: a branch connection's intensified rows.
+    "branch_intensified_bending_stress_v1",
     "element_local_axial_normal_stress",
     "element_local_bending_normal_stress_y",
     "element_local_bending_normal_stress_z",

@@ -14,7 +14,7 @@
 use super::pressure_exact::{ExactSectionBases, InternalDifferentialPressure, IsotropicENu, SectionBasis};
 use super::{
     diag, has_blocking, is_temperature_change_dimension,
-    normalize_quantity, stable_suffix, BuiltModel, Diagnostic, LoadTargetInput, MaterialInput,
+    normalize_quantity, scalar_string, stable_suffix, BuiltModel, Diagnostic, LoadTargetInput, MaterialInput,
     PreviewLoadCase, PreviewModel, Quantity, DOF_PER_NODE,
 };
 use open_pipe_stress_correct_norm::norm3;
@@ -505,13 +505,13 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
     }
 }
 
-/// §8.30 correction 1 (RT-A3; R-4 design C-1, temporary until R-4 stage S1's
-/// junction admission). A node where terminals of two or more regions of the
+/// §8.30 correction 1 (RT-A3; R-4 design C-1), kept by RT-A3 increment 1
+/// (D-1: a junction is this shared node). A node where terminals of two or more regions of the
 /// case meet is a pressure junction of their members. Each `transfers_to_wall`
 /// cap there is p*Ai along its member's outward axis -s_k, so when every
 /// terminal at the node transfers, the caps sum to the junction load
 /// -sum(p*Ai*s_k). A `separately_supported_or_compensated` terminal at such a
-/// node can omit its member's term, which no admitted representation restores,
+/// node would omit its member's term, which no admitted representation restores,
 /// so the node is refused, also where that term or the resultant is zero or
 /// cancels (a zero-pressure compensated branch, equal opposed compensated caps). Every terminal transferring, a single region's
 /// closure (beside unpressurized pipes included) and every other node are
@@ -551,6 +551,94 @@ fn refuse_compensated_shared_terminals(
             "pressure regions {} each end at node {node}, so the node is a shared-terminal pressure junction, and separately_supported_or_compensated is declared there by {}; {}",
             ending.join(", "), compensated.join(", "), exact_admission::SHARED_TERMINAL_JUNCTION_TEXT));
     }
+}
+
+/// RT-A3 increment 1 (D-1, Agent 0, 2026-10-30): a pressure junction (a node
+/// where terminals of two or more regions of the case meet) admits unequal
+/// pressures and an incident pipe outside every region of the case. Each is a
+/// closure at the fitting, whose load the caps already give exactly; each is
+/// also a common modelling slip (a wrong region assignment or a forgotten
+/// branch), so each carries its own named warning, naming the node and the
+/// pressures or the pipe, for the person to confirm that the closure is
+/// intended. Pressures compare in canonical Pa (a unit the normalization
+/// cannot read compares as authored); region membership counts member pipes
+/// and connector-replaced spans. Nothing is refused and no load changes.
+///
+/// Emitted once per solve entry (`lib.rs`, beside the entry's
+/// `validate_profile`), not from `validate_profile`, which each case build
+/// repeats.
+pub(crate) fn junction_closure_warnings(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    if exact_contract(model).is_none() {
+        return;
+    }
+    for case in &model.load_cases {
+        if let Some(regions) = &case.pressure_regions {
+            case_junction_closure_warnings(model, &case.id, regions, diagnostics);
+        }
+    }
+}
+
+fn case_junction_closure_warnings(
+    model: &PreviewModel,
+    case_id: &str,
+    regions: &[PressureRegionInput],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let mut at_node: BTreeMap<&str, Vec<&PressureRegionInput>> = BTreeMap::new();
+    let mut members: HashSet<&str> = HashSet::new();
+    for region in regions {
+        members.extend(region.member_pipe_ids.iter().flatten().map(String::as_str));
+        for connector in region.member_connector_ids.iter().flatten() {
+            if let Some(spec) = model.components.iter().find(|c| &c.id == connector).and_then(super::joint::connector_spec) {
+                if let Some(span) = model.pipe_segments.iter().find(|p| p.id == spec.span_id) {
+                    members.insert(span.id.as_str());
+                }
+            }
+        }
+        let Some(terminals) = &region.terminals else { continue };
+        for node in terminals.iter().filter_map(|terminal| present(&terminal.node_ref)) {
+            let ending = at_node.entry(node).or_default();
+            if !ending.iter().any(|other| std::ptr::eq(*other, region)) {
+                ending.push(region);
+            }
+        }
+    }
+    for (node, ending) in at_node.into_iter().filter(|(_, ending)| ending.len() >= 2) {
+        let pressures = ending.iter().map(|region| {
+            let id = present(&region.id).unwrap_or("");
+            let pa = region.pressure.clone().map(|mut quantity| {
+                normalize_quantity(&mut quantity, Dimension::Pressure, "diagnostic:junction-pressure", Vec::new(), &mut Vec::new());
+                (quantity.value.to_bits(), quantity.unit)
+            });
+            let authored = region.pressure.as_ref().map_or("absent".to_string(), |q| format!("{} {}", scalar_string(q.value), q.unit));
+            (id, pa, authored)
+        }).collect::<Vec<_>>();
+        if pressures.iter().any(|(_, pa, _)| *pa != pressures[0].1) {
+            let mut refs = vec![case_id, node];
+            refs.extend(pressures.iter().map(|(id, _, _)| *id));
+            let listed = pressures.iter().map(|(id, _, authored)| format!("{id} {authored}")).collect::<Vec<_>>().join(", ");
+            warn(diagnostics, exact_admission::JUNCTION_PRESSURES_DIFFER, &refs, format!(
+                "pressure regions end at node {node} in load case {case_id} with different pressures ({listed}); {}", exact_admission::JUNCTION_PRESSURES_DIFFER_TEXT));
+        }
+        for pipe in model.pipe_segments.iter().filter(|p| (p.from == node || p.to == node) && !members.contains(p.id.as_str())) {
+            let regions = ending.iter().map(|region| present(&region.id).unwrap_or("")).collect::<Vec<_>>().join(", ");
+            warn(diagnostics, exact_admission::JUNCTION_PIPE_OUTSIDE_REGIONS, &[case_id, node, &pipe.id], format!(
+                "pipe {} meets the pressure junction at node {node} of regions {regions} in load case {case_id} but belongs to no pressure region of the case; {}", pipe.id, exact_admission::JUNCTION_PIPE_OUTSIDE_REGIONS_TEXT));
+        }
+    }
+}
+
+/// A named warning of this module (the `problem` id form, severity warning).
+fn warn(diagnostics: &mut Vec<Diagnostic>, code: &str, refs: &[&str], message: impl Into<String>) {
+    let mut finding = diag(
+        &format!("diagnostic:pressure-runtime:{}:{code}", stable_suffix(&refs.join(":"))),
+        code,
+        "warning",
+        message,
+        refs.iter().map(|value| value.to_string()).collect(),
+    );
+    finding.source = Some("core/product_physics/src/pressure_runtime.rs".to_string());
+    diagnostics.push(finding);
 }
 
 fn check_suffixes<'a>(
@@ -1813,7 +1901,7 @@ mod tests {
 
     fn input() -> Value {
         json!({
-            "schema_version":"0.8.0", "document_kind":"openpipestress.product_preview.model",
+            "schema_version":"0.9.0", "document_kind":"openpipestress.product_preview.model",
             "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
             "project":{"id":"project:region-test","units":{"length":"m"}},
             "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
@@ -2123,7 +2211,7 @@ mod tests {
         assert_eq!(diagnostics[0].code, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
         // B7b A5: the re-author text names the current contract.
         assert!(diagnostics[0].message.contains("3.0.0/exact_pressure_v3"), "{}", diagnostics[0].message);
-        // Without the primitive, the 0.8.0 document is pressure-free and admitted.
+        // Without the primitive, the 0.9.0 document is pressure-free and admitted.
         old["load_cases"][0]["primitive_loads"] = json!([]);
         diagnostics.clear();
         validate_profile(&parse(old.clone()), &mut diagnostics);
@@ -2151,7 +2239,7 @@ mod tests {
 
     /// U3 (D-2 A1): the retired 1.0.0/legacy_pressure_v1 label is refused with
     /// the re-author code; B7b: so is the retired 2.0.0/exact_straight_pressure_v2
-    /// label. Either can only appear on the current 0.8.0 document now.
+    /// label. Either can only appear on the current 0.9.0 document now.
     #[test]
     fn retired_legacy_pressure_label_takes_the_reauthor_code() {
         for label in [

@@ -175,7 +175,7 @@ default k, SIF or stiffness.
 | RS-B1 | realized bend (`curved_bend_macro_element`) | RS-P065 | R 0.400 m, 90°; k 4.2; SIF in-plane 2.1, out-of-plane 1.8 |
 | RS-B2 | realized bend | RS-P085 | R 0.400 m, 90°; k 4.2; SIF 2.1 / 1.8 |
 | RS-B3 | realized bend | RS-P225 | R 0.250 m, 90°; k 3.6; SIF 2.3 / 1.9 |
-| RS-T1 | `tee` at RS-130 | header `RS-P120`, branch `RS-P210` | `branch_header_sif_user_value` 2.4; `branch_branch_sif_user_value` 2.0; connection angle 90° |
+| RS-T1 | `tee` at RS-130 | header `RS-P120`, branch `RS-P210` | `branch_header_sif_user_value` 2.4; `branch_branch_sif_user_value` 2.0; connection angle 90°; run size 170 mm (the branch outlet) and header size 270 mm; connection type `invented unreinforced tee`; reinforcement reference `invented: no reinforcement`. The sizes, type and reference are descriptive geometry that tee creation requires; EX joins the tee rigidly and reads none of them. No flexibility factor: branch flexibility is assembled on neither route |
 | RS-R1 | `reducer`, eccentric | RS-P150, node RS-160 | end sizes 270 / 220 mm; `eccentric_offset` (0, 0, +25) mm (from the centreline at RS-160 to the centreline at RS-150, the body's other end); weight 300 N, CoG at the body midpoint; stiffness scale 2.0 |
 | RS-F1 | `flange` | RS-P020, node RS-030 | weight 350 N; CoG at the body midpoint; stiffness scale 10.0 |
 | RS-V1 | `valve` | RS-P030, node RS-040 | weight 2600 N; CoG offset (0, 0, +0.30) m from the body midpoint (actuator above); stiffness scale 10.0 |
@@ -413,12 +413,16 @@ Each closed-form reference is computed by an independent generator in
 frozen there for the tranche-1 cases (the total weight and its moment about the origin,
 recomputed from §3–§5 without the captured self-weight); EQ-3 and EQ-5 are identities
 recorded in its README. `tests/test_reference_system_fixture.py` checks all four in both
-solver modes. RS-HYD's weight with the test contents is referenced when RS-HYD lands.
+solver modes. RS-HYD's weight with the test contents is referenced when RS-HYD lands. The
+same test checks KR-05's presence, an identity: the tee's rows at the RS-130 ends of
+RS-P120 and RS-P210 on both section bases in RS-SUS and RS-OPE (RS-EXP withholds
+intensified rows); KR-05's values wait for a verified solve.
 
 ## 10. Pending-family ledger
 
 State on `main` at `276e581b3`, as verified by the tranche-1 solve on EX
-(`tests/test_reference_system_fixture.py`, 2026-10-30). Tranche 1 of the fixture contains
+(`tests/test_reference_system_fixture.py`, 2026-10-30); the tee row at `5bb2f9ff0`
+(RT-A3 increment 1, #45), verified the same way on 2026-10-31. Tranche 1 of the fixture contains
 every family marked "in tranche 1", and RS-SUS, RS-OPE and RS-SAM solve on EX with no
 blocking diagnostic. A pending family keeps its geometry slot and ids; when its row lands, the
 generator adds its entities without moving a node. "Expected until then" is the refusal
@@ -433,7 +437,7 @@ or absence a solve of the full model shows today.
 | Pressure (five regions, shared terminals `transfers_to_wall`) | in tranche 1 | — | — |
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
 | Variable spring as a user-stiffness spring | in tranche 1 | — | — |
-| Tee RS-T1 with user SIFs | pending; the junction at RS-130 is in tranche 1 without the component | RT-A3 increment 1 (`claude/rt-a3-tee`) | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
+| Tee RS-T1 with user SIFs | in tranche 1 | — | — |
 | Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | RT-A3 increment 4; with the connector, increment 5 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
@@ -485,15 +489,21 @@ else, with small counts. That reading is Agent 0's working reading for now (2026
 the criterion text is the owner's, and Agent 0 takes the question to the owner with the
 RT-U2 walkthrough results.
 
-Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows (three
-chains: from A, from the tee, and the branch) and about 640 follow-up form entries, 168
-of them the per-member load/reference states and pressure regions of the three cases
-since the fills and case copies of #38. The run sheet's estimate is about 75 minutes
-(about 130 before #38), against the provisional 30; it is not a measurement. On
-`main` the sheet cannot carry the fixture's support or bend ids, so all eleven supports
-and the three bends are entered by forms (run sheet §2, §6). The full model adds the
-tee, the reducer, the other non-rigid supports, five more cases with their regions, the
-other eight combinations and the three analysis requests.
+Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows in two chains
+(from A, and the branch from the tee), entered with 197 sheet entries, and 468
+follow-up form entries, 168 of them the per-member load/reference states and pressure
+regions of the three cases since the fills and case copies of #38, and 21 the tee RS-T1
+with the person's SIFs. The run sheet's estimate is about 60 minutes after component rows (about 61 after G6,
+about 64 before G6, about 77 before #41 and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
+the sheet carries the fixture's support and bend ids: ten of the eleven supports and the
+three bends are rows. After the F/S numbering fix, 10 node and pipe ids are typed in
+natural order (run sheet §2, §3.4); the earlier optimized 9 / strict-order 35 remain historical. The valve and two flanges now
+also enter in those rows through Component details, preserving the fixture records. The variable
+spring RS-VS1, whose hanger data no support code carries, and the bends' SIFs are entered
+by forms (run sheet §3.5, §3.7), and the tee's inspector has no field for its modifier
+source (run sheet G11). The full model adds the reducer, the other
+non-rigid supports, five more cases with their regions, the other eight combinations and
+the three analysis requests.
 
 **What a fuller run sheet would absorb** (an RT-G2 candidate, Agent 0, 2026-10-31):
 - a component column per row: flange, valve, reducer and tee, with weight and stiffness

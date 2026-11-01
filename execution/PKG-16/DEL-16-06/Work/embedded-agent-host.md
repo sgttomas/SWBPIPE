@@ -205,8 +205,10 @@ shortens its two pipes, so it is refused while anything attaches to them: the
 journey asks for it right after the components proposal, before supports or
 loads. Batch review submissions are immutable, so k is entered after Apply as
 the person's own operation, never inside the agent's batch. Until then the
-solver warns (`BEND_USER_MODIFIER_INPUT_MISSING`,
-`BRANCH_USER_MODIFIER_INPUT_MISSING`) rather than refuses; the summary's
+pressure-free solver warns rather than refuses: a geometry-only bend marker
+takes `BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD`, and a realized bend or a tee
+without its modifiers takes `BEND_USER_MODIFIER_INPUT_MISSING` or
+`BRANCH_USER_MODIFIER_INPUT_MISSING`. The summary's
 `componentsAwaitingUserModifiers` reports the same condition so the agent asks
 before solving. An unrealized bend marker behaves differently on the two
 routes. The exact route refuses it before solving
@@ -774,6 +776,30 @@ session bridge and ingress completion command, proposal-only review wiring,
 operation expansion and criterion 17. The minimal explicit-start panel is in
 `Work/agent-live-session.md`; its native journey evidence remains open. Existing
 ScopeOfWork commitments and dependency conditions remain open and unchanged.
+
+### Selected supplier session-helper controls (HC-1)
+
+The production `macos.rs::CONFIG_BODY` explicitly sets `features.goals=false`
+and `tools.experimental_request_user_input.enabled=false`. Dynamic catalog
+tools are additive in the pinned supplier, not an exclusive declaration list.
+At `openai/codex` commit `a956835d020762cb2b570053af06f643a11c0ecc`,
+[`config/mod.rs:2705`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core/src/config/mod.rs#L2705)
+defaults the user-input helper on, and
+[`features/src/lib.rs:1702`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/features/src/lib.rs#L1702)
+defaults goals on. The existing empty environments and shell/edit/web flags do
+not remove these session helpers. These two supported controls remove their
+registration/visibility sources without changing catalog admission, approval,
+relay credentials, sandboxing, supplier identity or any domain operation.
+
+CaptureNative derives the same production body and inherits the controls; it
+does not add a second recipe, filter or allowed-tool exception. Its focused
+offline regression parses both TOML recipes and checks all prior fields and
+the existing capture-only differences. The source trace, historical failed
+captures, limits and proposed next attempt are in
+[`agent-d4-capture-proposal.md`](agent-d4-capture-proposal.md), HC-1. Historical
+executables/config packets retain their old identity: the old D4 native
+executable embeds the former recipe and must be rebuilt and rebound before a
+corrected joined witness. No live declaration observation follows from this fix.
 
 ### Integration sequence
 

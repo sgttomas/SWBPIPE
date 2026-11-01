@@ -53,12 +53,17 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
  * same. A run recorded under the 0.7.0-era table binds that table's exact digest, which is
  * read as the recorded basis of exactly this current table. Only the record validator reads
  * it: the record builder and the export bind the current table, and any other digest, or a
- * record binding the two tables at once, is refused as before. Python's twin is
+ * record binding the two tables at once, is refused as before. Model document 0.9.0 (Design
+ * `model-document-0.9.0.md` §3.2) edits the same sentence's token again (0.8.0 -> 0.9.0), so a
+ * run recorded under the 0.8.0-era table is read the same way. Python's twin is
  * `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
-    current: "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919" },
+    current: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf" },
+  { id: "openpipestress.result_semantics/0.3.0/pressure-2",
+    recorded: "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
+    current: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf" },
 ]);
 /** The binding a record is checked against: the current table's, or the exact recorded basis
  * the record names when it is one of `RECORDED_RUN_TABLE_BASES` for that current table. */

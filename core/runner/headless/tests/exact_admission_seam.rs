@@ -6,7 +6,7 @@
 //! realized bend, solves under `pressure-2`; since T4-U2 phase 2 both produce
 //! a pressure-2 export document that the exporter's own check admits.
 //! The input is PP's committed invented X0 fixture (B7b: already the current
-//! 0.8.0 exact document) with the current contract stated explicitly.
+//! 0.9.0 exact document) with the current contract stated explicitly.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -109,11 +109,12 @@ fn a_v3_document_with_a_realized_bend_solves_and_exports_under_pressure_1() {
 
 #[test]
 fn families_not_yet_admitted_are_blocked_by_name_without_export_in_both_modes() {
-    let mut tee = v3();
-    tee["model"]["components"] = json!([{"id":"component:tee","kind":"tee",
+    // RT-A3 admits the tee, the earlier sample; `other` stays refused.
+    let mut other = v3();
+    other["model"]["components"] = json!([{"id":"component:other","kind":"other",
         "node":"node:fixture-tip","provenance":"invented_u2a_control"}]);
     for (name, payload, id, family) in [
-        ("tee", tee, "component:tee", "branch connection (tee)"),
+        ("other", other, "component:other", "component"),
         ("geometry-only bend", bend("mechanics_geometry_only"), "component:bend", "geometry-only bend"),
     ] {
         for mode in MODES {

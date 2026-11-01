@@ -159,11 +159,20 @@ code_paths:
 - apps/desktop/src-tauri/src/lib.rs
 - fixtures/model_operations/agent_w9a_journey.json
 - fixtures/model_operations/agent_m2_component_journey.json
+- tools/agent_journey_fixture.py
+- tools/agent_journey_memory_monitor.py
+- tools/agent_supplier_capture.py
+- fixtures/model_operations/agent_w9a_capture_outcomes.json
+- apps/desktop/native-smoke/agent-journey.js
+- apps/desktop/src-tauri/src/native_smoke.rs
 checks:
 - apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/services/embeddedAgentSession.test.ts
 - apps/desktop/src/features/workspace/agentWorkspaceSnapshot.session.test.tsx
 - tools/agent_live_session_fixture_test.py
+- tools/agent_journey_fixture_test.py
+- tools/agent_journey_memory_monitor_test.py
+- tools/agent_supplier_capture_test.py
 - tools/agent_supplier_bundle_test.py
 - apps/desktop/src-tauri/src/embedded_agent/supplier.rs
 - tools/agent_keychain_ui_monitor.swift

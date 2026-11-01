@@ -5,11 +5,11 @@
 // against the model without the entities the sheet's applied rows own, so the
 // chain resolves exactly as it did when it was drafted and a draft row after
 // an applied one continues from its stored end. Only draft rows are queued.
-import type { PreviewModel } from "../../../types";
+import type { PreviewComponent, PreviewModel } from "../../../types";
 import { buildRunSheetBatch, type RunSheetBuild } from "./runSheetBatch";
 import {
-  INHERITING_CELLS, MESSAGES, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, modelIds, resolveRunSheet,
-  conversionKey,
+  BEND_ID_CELLS, INHERITING_CELLS, MESSAGES, QUANTITY_COLUMNS, assignRowNumber, idsForNumber, modelIds, resolveRunSheet,
+  conversionKey, isPipeRowKind,
   type CellOrigin, type QuantityColumn, type ResolvedRunSheet, type ResolvedRunSheetRow, type RunSheetConversions, type RunSheetFinding, type RunSheetRowInput, type Vec3,
 } from "./runSheetModel";
 import type { DisplayQuantityRequest } from "../../../services/displayQuantityService";
@@ -18,17 +18,24 @@ import {
   type OwnedRef, type RecordLookup, type RowReconciliation, type RowStatus, type RowValues, type RunSheetState, type SheetRow, type SubmittedBatch,
 } from "./runSheetLedger";
 
-export type SheetColumnKey =
+import { COMPONENT_FIELDS, componentColumn, componentField, componentCellsFromRecord, type ComponentColumnKey } from "./runSheetComponents";
+
+export type SheetColumnKey = ComponentColumnKey
   | "dx" | "dy" | "dz" | "kind" | "support" | "restraints" | "node" | "section" | "od" | "wall" | "material" | "orientation"
   | "insulationThickness" | "insulationDensity" | "contentsDensity" | "materialDensity" | "millTolerance" | "corrosionAllowance"
-  | "bendRadius" | "k" | "kSource" | "label" | "nodeId" | "pipeId" | "position" | "length";
+  | "bendRadius" | "k" | "kSource" | "label" | "nodeId" | "pipeId"
+  | "supportId" | "supportLabel" | "bendStartId" | "bendEndId" | "bendArcId" | "bendComponentId" | "bendSource"
+  | "position" | "length";
+/** The collapsible column groups (§1.2), each shown and hidden by its own header toggle. */
+export type SheetColumnGroup = "sectionExtras" | "idsAndSources" | "componentDetails";
+export const COLUMN_GROUP_LABELS: Readonly<Record<SheetColumnGroup, string>> = { sectionExtras: "Section extras", idsAndSources: "Ids and sources", componentDetails: "Component details" };
 export type SheetColumn = Readonly<{
   key: SheetColumnKey;
   label: string;
   editable: boolean;
   code?: "kind" | "support";
   quantity?: QuantityColumn;
-  extra?: boolean;
+  group?: SheetColumnGroup;
 }>;
 export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "dx", label: "dX", editable: true },
@@ -46,23 +53,39 @@ export const SHEET_COLUMNS: readonly SheetColumn[] = [
   { key: "insulationThickness", label: "Ins. thk", editable: true, quantity: "insulationThickness" },
   { key: "insulationDensity", label: "Ins. dens.", editable: true, quantity: "insulationDensity" },
   { key: "contentsDensity", label: "Contents dens.", editable: true, quantity: "contentsDensity" },
-  { key: "materialDensity", label: "Material density", editable: true, quantity: "materialDensity", extra: true },
-  { key: "millTolerance", label: "Mill tolerance", editable: true, quantity: "millTolerance", extra: true },
-  { key: "corrosionAllowance", label: "Corrosion allowance", editable: true, quantity: "corrosionAllowance", extra: true },
+  { key: "materialDensity", label: "Material density", editable: true, quantity: "materialDensity", group: "sectionExtras" },
+  { key: "millTolerance", label: "Mill tolerance", editable: true, quantity: "millTolerance", group: "sectionExtras" },
+  { key: "corrosionAllowance", label: "Corrosion allowance", editable: true, quantity: "corrosionAllowance", group: "sectionExtras" },
   { key: "bendRadius", label: "Bend R", editable: true, quantity: "bendRadius" },
   { key: "k", label: "k", editable: true },
   { key: "kSource", label: "k source", editable: true },
   { key: "label", label: "Label", editable: true },
   { key: "nodeId", label: "Node id", editable: true },
   { key: "pipeId", label: "Pipe id", editable: true },
+  { key: "supportId", label: "Support id", editable: true, group: "idsAndSources" },
+  { key: "supportLabel", label: "Support label", editable: true, group: "idsAndSources" },
+  { key: "bendStartId", label: "Bend start id", editable: true, group: "idsAndSources" },
+  { key: "bendEndId", label: "Bend end id", editable: true, group: "idsAndSources" },
+  { key: "bendArcId", label: "Bend arc id", editable: true, group: "idsAndSources" },
+  { key: "bendComponentId", label: "Bend component id", editable: true, group: "idsAndSources" },
+  { key: "bendSource", label: "Bend geometry source", editable: true, group: "idsAndSources" },
+  ...COMPONENT_FIELDS.map((field) => ({ key: componentColumn(field.key), label: field.label, editable: true, group: "componentDetails" as const })),
   { key: "position", label: "Position", editable: false },
   { key: "length", label: "Length", editable: false },
 ];
 /** §5.1 The Enter fast path: dX → dY → dZ → Kind → Support → the next row's dX. */
 export const FAST_PATH: readonly SheetColumnKey[] = ["dx", "dy", "dz", "kind", "support"];
-export const KIND_NAMES: Readonly<Record<string, string>> = { run: "run", bend: "bend run", support: "support only", from: "start from node", point: "start at point" };
+export const KIND_NAMES: Readonly<Record<string, string>> = { run: "run", bend: "bend run", support: "support only", from: "start from node", point: "start at point", valve: "valve run", flange: "flange run" };
+/** The id cells and the row input's `ids` member each writes (§3.2). */
+export const ID_COLUMNS: Readonly<Partial<Record<SheetColumnKey, keyof NonNullable<RowValues["ids"]>>>> = {
+  nodeId: "node", pipeId: "pipe", supportId: "support",
+  bendStartId: "bendStart", bendEndId: "bendEnd", bendArcId: "bendArc", bendComponentId: "bendComponent",
+};
+const BEND_COLUMNS: ReadonlyArray<readonly [SheetColumnKey, typeof BEND_ID_CELLS[number]]> = [
+  ["bendStartId", BEND_ID_CELLS[0]], ["bendEndId", BEND_ID_CELLS[1]], ["bendArcId", BEND_ID_CELLS[2]], ["bendComponentId", BEND_ID_CELLS[3]],
+];
 export const CODE_LISTS = {
-  kind: "R run, B bend run, S support only, F start from node, P start at point; blank is a run",
+  kind: "R run, B bend run, S support only, F start from node, P start at point, V valve run, L flange run; blank is a run",
   support: "A anchor, G guide, L line stop, V vertical support; blank is no support",
 } as const;
 
@@ -74,6 +97,28 @@ export function rowInput(state: RunSheetState, row: SheetRow, status: RowStatus,
   const entry = currentEntry(state.ledger, row.key);
   const values = entry?.valuesAfter ?? {};
   const input: RunSheetRowInput = { key: row.key, ...values };
+  // An applied run or bend row keeps the pipe its batch created (its first owned pipe).
+  const kind = (values.kind ?? "").trim().toUpperCase();
+  const ownPipe = (kind === "" || kind === "R" || kind === "B" || kind === "V" || kind === "L") ? entry?.ownedIds.find((ref) => ref.type === "pipe") : undefined;
+  if (ownPipe) input.storedPipeId = ownPipe.id;
+  // An applied bend row reads its geometry source from its stored component.
+  const component = kind === "B" ? entry?.ownedIds.find((ref) => ref.type === "component") : undefined;
+  if (component) {
+    const source = (lookup?.(component) as { geometry?: { bend_geometry_source_reference?: unknown } } | undefined)?.geometry?.bend_geometry_source_reference;
+    input.storedBendSource = typeof source === "string" ? source : "";
+  }
+  if (kind === "V" || kind === "L") {
+    const own = entry?.ownedIds.find((ref) => ref.type === "component");
+    const record = own ? lookup?.(own) as PreviewComponent | undefined : undefined;
+    if (record) {
+      input.component = componentCellsFromRecord(record);
+      const expected = entry?.expected.find((item) => item.ref.type === "component" && item.ref.id === own!.id)?.record as PreviewComponent | undefined;
+      if (record.kind !== (kind === "V" ? "valve" : "flange") || record.node !== expected?.node || record.geometry?.rigid_pipe_ref !== ownPipe?.id) {
+        input.storedComponentMismatch = `Component ${record.id} is now ${record.kind} at ${record.node}, mapped to ${record.geometry?.rigid_pipe_ref ?? "no pipe"}; this row retains its original mapping.`;
+      }
+    }
+    else input.storedComponentMissing = own?.id ?? values.component?.id ?? "(unknown component)";
+  }
   const stored = storedEndOf(entry, values, lookup);
   if (stored) {
     if (stored.end) input.storedEnd = stored.end;
@@ -109,7 +154,7 @@ function storedEndOf(entry: ReturnType<typeof currentEntry>, values: RowValues, 
       ...(pipeEnd ? { pipeEnd } : { pipeEndMissing: incoming.id }),
     };
   }
-  const createsEnd = ((kind === "" || kind === "R") && !(values.node ?? "").trim()) || kind === "P";
+  const createsEnd = ((kind === "" || kind === "R" || kind === "V" || kind === "L") && !(values.node ?? "").trim()) || kind === "P";
   if (!createsEnd) return null;
   const node = entry.ownedIds.find((ref) => ref.type === "node");
   const end = node ? finitePosition(lookup(node)) : null;
@@ -179,9 +224,12 @@ export type SheetView = Readonly<{
 export const LIFECYCLE_MESSAGES = {
   waits: (batch: string) => `Waits for batch ${batch} to be applied.`,
   detachedPredecessor: (row: number) => `Row ${row} changed outside the sheet; start this chain again with F.`,
-  existsNow: (id: string) => `Id ${id} now exists in the model.`,
+  existsNow: (id: string, cell = "Id") => `${cell} ${id} now exists in the model.`,
   engine: (code: string, message: string) => `${code}: ${message}`,
 } as const;
+
+/** "⟨cell⟩ ⟨id⟩ is already used." for each id cell (`MESSAGES.idUsed`). */
+const USED_ID = new RegExp(`^(${["Id", "Support id", ...BEND_ID_CELLS.map((cell) => cell.label)].join("|")}) (.+) is already used\\.$`);
 
 /** The view of the whole sheet (§2, §4.2), resolved synchronously with the conversions known so far. */
 export function sheetView(input: {
@@ -212,11 +260,11 @@ export function sheetView(input: {
     let refusals: RunSheetFinding[] = [];
     if (status === "draft") {
       refusals = row.refusals.map((finding) => {
-        const id = /^Id (.+) is already used\.$/.exec(finding.message)?.[1];
-        return id && inModel.has(id) ? { ...finding, message: LIFECYCLE_MESSAGES.existsNow(id) } : finding;
+        const used = USED_ID.exec(finding.message);
+        return used && inModel.has(used[2]) ? { ...finding, message: LIFECYCLE_MESSAGES.existsNow(used[2], used[1]) } : finding;
       });
       const predecessorIndex = index - 1;
-      const continues = row.kind === "run" || row.kind === "bend" || row.kind === "support";
+      const continues = isPipeRowKind(row.kind) || row.kind === "support";
       const predecessor = continues && predecessorIndex >= 0 ? shown[predecessorIndex] : null;
       if (predecessor) {
         const before = statusOf(predecessor);
@@ -232,12 +280,12 @@ export function sheetView(input: {
     if (status === "applied" || status === "detached") {
       const before = index > 0 ? resolved.rows[index - 1] : null;
       if (inputs[index].storedPipeEndMissing) storedMissing = MESSAGES.bendIncomingMissing(inputs[index].storedPipeEndMissing!);
-      else if ((row.kind === "run" || row.kind === "bend") && before?.endMissing && !row.startPosition) storedMissing = MESSAGES.bendOutgoingMissing(before.endMissing);
+      else if ((isPipeRowKind(row.kind)) && before?.endMissing && !row.startPosition) storedMissing = MESSAGES.bendOutgoingMissing(before.endMissing);
     }
     if ((status === "applied" || status === "detached") && row.end && !row.end.existing && inputs[index].storedEnd) {
       const from = row.kind === "point" ? { x: 0, y: 0, z: 0 } : row.startPosition;
       const to = storedPipeEnd ?? row.end.position;
-      if (from && (row.kind === "run" || row.kind === "bend" || row.kind === "point")) {
+      if (from && (isPipeRowKind(row.kind) || row.kind === "point")) {
         const stored = { x: to.x - from.x, y: to.y - from.y, z: to.z - from.z };
         storedIncrements = displayIncrements(stored, resolved.storedLengthUnit, resolved.sheetLengthUnit, input.conversions, displayConversions);
       }
@@ -257,7 +305,34 @@ export function sheetView(input: {
 /** A lookup over the model's own collections, where no index is supplied. */
 function modelLookup(model: PreviewModel): RecordLookup {
   const nodes = new Map(model.nodes.map((node) => [node.id, node]));
-  return (ref) => ref.type === "node" ? nodes.get(ref.id) : undefined;
+  const components = new Map(model.components.map((component) => [component.id, component]));
+  return (ref) => ref.type === "node" ? nodes.get(ref.id) : ref.type === "component" ? components.get(ref.id) : undefined;
+}
+
+/** §3.2 A pipe id numbered by its start node is fixed the first time it is shown: each draft or
+ * queued row that shows one, with a start node and no entered or stored id, records it in the
+ * id state. Nothing is recorded while a conversion is pending, since positions decide starts. */
+export function recordShownPipeIds(state: RunSheetState, view: SheetView): RunSheetState {
+  if (view.resolved.missingConversions.length) return state;
+  let pipes: Record<string, { id: string; rule: string }> | null = null;
+  for (const row of view.rows) {
+    const resolved = row.resolved;
+    if ((row.status !== "draft" && row.status !== "queued") || !resolved.start || !resolved.ids.pipe || !resolved.pipeIdRule) continue;
+    if (state.idState.pipes?.[row.sheetRow.key] || row.values.ids?.pipe?.trim()) continue;
+    pipes ??= { ...(state.idState.pipes ?? {}) };
+    pipes[row.sheetRow.key] = { id: resolved.ids.pipe, rule: resolved.pipeIdRule };
+  }
+  return pipes ? { ...state, idState: { ...state.idState, pipes } } : state;
+}
+
+/** A numbering change retries every row whose number was refused (§3.2), in sheet order. */
+export function retryNumbering(state: RunSheetState, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
+  const held = [...reserved];
+  return state.rows.reduce((next, row) => {
+    if (next.idState.refused?.[row.key] === undefined) return next;
+    const { [row.key]: _retried, ...refused } = next.idState.refused;
+    return assignIds({ ...next, idState: { ...next.idState, refused } }, row.key, model, held);
+  }, state);
 }
 /** Stored increments in the sheet unit through the engine's conversions (display only), else in the stored unit. */
 function displayIncrements(stored: Vec3, storedUnit: string, sheetUnit: string, conversions: RunSheetConversions, requests: DisplayQuantityRequest[]): { value: Vec3; unit: string } {
@@ -281,6 +356,7 @@ export function ownedRefsOf(row: ResolvedRunSheetRow, ownedIds: readonly string[
   if (row.ids.node) types.set(row.ids.node, "node");
   if (row.ids.pipe) types.set(row.ids.pipe, "pipe");
   if (row.ids.support) types.set(row.ids.support, "support");
+  if (row.ids.component) types.set(row.ids.component, "component");
   if (row.ids.bend) {
     types.set(row.ids.bend.start, "node");
     types.set(row.ids.bend.end, "node");
@@ -304,7 +380,8 @@ export function queuedValues(state: RunSheetState, row: SheetRow): RowValues {
 /** Queue (§3.6 Transitions): each acting row gets a pending marker, not in the
  * ledger; its values stay in the buffer. The batch's rows, operations, owned ids
  * and queued values are kept for its checkpoint. The batch sequence moves on. */
-export function markSubmitted(state: RunSheetState, view: SheetView, build: RunSheetBuild): RunSheetState {
+export function markSubmitted(shown: RunSheetState, view: SheetView, build: RunSheetBuild): RunSheetState {
+  const state = recordShownPipeIds(shown, view);
   const batchId = build.batch.batch_id;
   const acting = new Map(view.draftRows.map((row) => [row.sheetRow.key, row]));
   const submitted: SubmittedBatch = {
@@ -346,6 +423,9 @@ export function originText(origin: CellOrigin | undefined, absent?: boolean): st
 const FINDING_COLUMNS: Readonly<Record<string, readonly SheetColumnKey[]>> = {
   "dX, dY, dZ": ["dx", "dy", "dz"], Kind: ["kind"], Support: ["support"], Restraints: ["restraints"], Node: ["node"], Section: ["section"],
   Material: ["material"], Orientation: ["orientation"], Ids: ["nodeId", "pipeId"], k: ["k", "kSource"],
+  ...Object.fromEntries(COMPONENT_FIELDS.map((field) => [field.label, [componentColumn(field.key)]])),
+  "Support id": ["supportId"], "Support label": ["supportLabel"], "Bend geometry source": ["bendSource"],
+  ...Object.fromEntries(BEND_COLUMNS.map(([key, cell]) => [cell.label, [key]])),
   ...Object.fromEntries(Object.entries(QUANTITY_COLUMNS).map(([key, value]) => [value.label, [key as SheetColumnKey]])),
 };
 export function cellRefusal(row: ViewRow, column: SheetColumn): string | null {
@@ -360,6 +440,16 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
     return typeof typed === "string" ? typed : "";
   };
   const base = { unit: "", muted: false, italic: false, refusal: cellRefusal(row, column) };
+  const field = componentField(column.key);
+  if (field) {
+    if (resolvedRow.componentMissing) return { ...base, text: field === "id" ? resolvedRow.componentMissing : "", origin: `missing: component ${resolvedRow.componentMissing}`, refusal: "This component no longer exists." };
+    const draft = resolvedRow.component;
+    const raw = (row.values.component?.[field] ?? "").trim();
+    const value = draft?.[field] ?? raw;
+    const stored = row.status === "applied" || row.status === "detached";
+    return { ...base, ...(field === "id" && resolvedRow.componentMismatch ? { refusal: resolvedRow.componentMismatch } : {}), text: value, italic: Boolean(draft && !raw && value),
+      origin: stored ? "stored component value" : raw ? "entered" : value ? "derived: the project unit" : "blank" };
+  }
   switch (column.key) {
     case "dx": case "dy": case "dz": {
       if (row.storedMissing) return { ...base, text: "", origin: `missing: ${row.storedMissing}` };
@@ -392,7 +482,28 @@ export function cellView(view: SheetView, row: ViewRow, column: SheetColumn, col
     case "nodeId": case "pipeId": {
       const id = column.key === "nodeId" ? (resolvedRow.end && !resolvedRow.end.existing ? resolvedRow.ids.node : undefined) : resolvedRow.ids.pipe;
       const overridden = Boolean(column.key === "nodeId" ? row.values.ids?.node : row.values.ids?.pipe);
-      return { ...base, text: id ?? "", italic: !overridden && Boolean(id), origin: overridden ? "entered" : id ? "derived: the sheet's numbering" : "blank" };
+      const rule = column.key === "pipeId" && resolvedRow.pipeIdRule ? resolvedRow.pipeIdRule : "the sheet's numbering";
+      return { ...base, text: id ?? "", italic: !overridden && Boolean(id), origin: overridden ? "entered" : id ? `derived: ${rule}` : "blank" };
+    }
+    case "supportId": case "supportLabel": {
+      const typed = column.key === "supportId" ? (row.values.ids?.support ?? "") : entered("supportLabel");
+      // Shown only where the row has a support; an entry elsewhere stays visible with its refusal.
+      const shown = resolvedRow.ids.support ? (column.key === "supportId" ? resolvedRow.ids.support : resolvedRow.labels.support) : undefined;
+      if (!shown) return { ...base, text: typed, origin: typed.trim() ? "entered" : "blank" };
+      const rule = column.key === "supportId" ? "support: and the support node's id token" : "the support id's token";
+      return { ...base, text: shown, italic: !typed.trim(), muted: !typed.trim(), origin: typed.trim() ? "entered" : `derived: ${rule}` };
+    }
+    case "bendStartId": case "bendEndId": case "bendArcId": case "bendComponentId": {
+      const cell = BEND_COLUMNS.find(([key]) => key === column.key)![1];
+      const typed = row.values.ids?.[cell.input] ?? "";
+      const shown = resolvedRow.kind === "bend" ? resolvedRow.ids.bend?.[cell.member] : undefined;
+      if (!shown) return { ...base, text: typed, origin: typed.trim() ? "entered" : "blank" };
+      return { ...base, text: shown, italic: !typed.trim(), muted: !typed.trim(), origin: typed.trim() ? "entered" : "derived: the corner node's id token" };
+    }
+    case "bendSource": {
+      const source = resolvedRow.bendSource;
+      if (!source) return { ...base, text: entered("bendSource"), origin: entered("bendSource").trim() ? "entered" : "blank" };
+      return { ...base, text: source.value, italic: source.origin.kind === "derived", muted: source.origin.kind !== "entered", origin: originText(source.origin) };
     }
     case "position": {
       if (row.storedMissing) return { ...base, text: "", origin: `missing: ${row.storedMissing}` };
@@ -448,12 +559,22 @@ export const sentenceFragment = (message: string) => {
 
 /** Write one cell of a draft row; blank text returns it to inheritance (§2.4). */
 export function setCell(state: RunSheetState, rowKey: string, column: SheetColumnKey, text: string): RunSheetState {
+  const row = state.rows.find((item) => item.key === rowKey);
+  const fixed = state.idState.pipes?.[rowKey];
+  // Replacing a never-queued displayed id is the person's explicit change.
+  // Its old reservation must not prevent another row from using that id.
+  if (column === "pipeId" && text.trim() && fixed && text.trim() !== fixed.id && row && !row.pending && !currentEntry(state.ledger, rowKey) && !state.idState.retainedPipes?.[fixed.id]) {
+    const { [rowKey]: _released, ...pipes } = state.idState.pipes!;
+    state = { ...state, idState: { ...state.idState, pipes } };
+  }
   return {
     ...state,
     rows: state.rows.map((row) => {
       if (row.key !== rowKey) return row;
-      if (column === "nodeId" || column === "pipeId") {
-        const member = column === "nodeId" ? "node" : "pipe";
+      const field = componentField(column);
+      if (field) return { ...row, edits: { ...row.edits, component: { ...row.restored.component, ...row.edits.component, [field]: text } }, engineRefusal: null };
+      const member = ID_COLUMNS[column];
+      if (member) {
         const ids = { ...(row.restored.ids ?? {}), ...(row.edits.ids ?? {}) };
         if (text.trim()) ids[member] = text.trim(); else delete ids[member];
         return { ...row, edits: { ...row.edits, ids }, engineRefusal: null };
@@ -466,10 +587,17 @@ export function setCell(state: RunSheetState, rowKey: string, column: SheetColum
   };
 }
 
-/** §3.2 A row's number is assigned once, when it first gets a value. */
+/** §3.2 New F/S rows need no entity number. Existing assignments are never changed. */
 export function assignIds(state: RunSheetState, rowKey: string, model: PreviewModel, reserved: Iterable<string>): RunSheetState {
   if (state.idState.assigned[rowKey] !== undefined) return state;
-  const held = new Set<string>([...modelIds(model), ...reserved]);
+  const row = state.rows.find((item) => item.key === rowKey);
+  const kind = row ? (shownValues(state, row).kind ?? "").trim().toUpperCase() : "";
+  if (kind === "F" || kind === "S") {
+    if (state.idState.refused?.[rowKey] === undefined) return state;
+    const { [rowKey]: _cleared, ...refused } = state.idState.refused;
+    return { ...state, idState: { ...state.idState, refused } };
+  }
+  const held = new Set<string>([...modelIds(model), ...reserved, ...Object.keys(state.idState.retainedPipes ?? {})]);
   for (const [key, n] of Object.entries(state.idState.assigned)) {
     if (key === rowKey) continue;
     const ids = idsForNumber(state.header.numbering, n);
@@ -484,9 +612,16 @@ export function insertRow(state: RunSheetState, index: number): { state: RunShee
   rows.splice(Math.max(0, Math.min(index, rows.length)), 0, blankRow(key));
   return { state: { ...state, rows, nextRowKey: state.nextRowKey + 1 }, key };
 }
-/** Delete a draft row: its ids leave the sheet, and its numbers are never reused (§3.4). */
+/** Delete a draft row: release a never-queued displayed pipe id; keep consumed numbers and retained pipe identities. */
 export function deleteDraftRow(state: RunSheetState, rowKey: string): RunSheetState {
-  return { ...state, rows: state.rows.filter((row) => row.key !== rowKey) };
+  const row = state.rows.find((item) => item.key === rowKey);
+  const fixed = state.idState.pipes?.[rowKey];
+  let idState = state.idState;
+  if (row && !row.pending && !currentEntry(state.ledger, rowKey) && fixed && !idState.retainedPipes?.[fixed.id]) {
+    const { [rowKey]: _released, ...pipes } = idState.pipes!;
+    idState = { ...idState, pipes };
+  }
+  return { ...state, idState, rows: state.rows.filter((row) => row.key !== rowKey) };
 }
 /** Discard edit (§3.6): the row returns to its current entry's values. */
 export function discardEdit(state: RunSheetState, rowKey: string): RunSheetState {
@@ -495,6 +630,8 @@ export function discardEdit(state: RunSheetState, rowKey: string): RunSheetState
 
 /** Values the inheriting cells take (§2.1), for Fill down's "effective value". */
 export function effectiveText(row: ResolvedRunSheetRow, column: SheetColumnKey, typed: string): string {
+  const field = componentField(column);
+  if (field && row.component) return row.component[field];
   if (!(INHERITING_CELLS as readonly string[]).includes(column)) return typed;
   if (column === "section" || column === "material") return row.cells[column].value ?? "";
   if (column === "orientation") {

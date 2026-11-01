@@ -2594,8 +2594,14 @@ if fnkey("unknown_field_refusal", _SD_MF):
         # (<= 4 each, mats in all) with each material's temperature points (<= pts), and one record's static list of
         # quantity members (the longest list, counted at the snapshot).
         _SD_NR_F = ["model_fields.rs:nested_records"]
-        _sd_lists = [int(n) for n in _re.findall(r"^const [A-Z_]+_QUANTITIES: \[&str; (\d+)\] =", _text_of(_SD_MF), _re.M)]
-        if len(_sd_lists) != 7:
+        _sd_named = _re.findall(r"^const ([A-Z_]+)_QUANTITIES: \[&str; (\d+)\] =", _text_of(_SD_MF), _re.M)
+        _sd_lists = [int(n) for _, n in _sd_named]
+        # S1-NR (model document 0.9.0, §8.36): the walk's five new lists (a condition set's, a condition's, design or
+        # peak values', an added weight's and a spectrum's quantities) are read only inside the condition-set and
+        # spectrum loops, which D1.3 bounds at 0 (below); the key loop keeps the longest list's bound.
+        _S1_NR_LISTS = [("CONDITION_SET", "1"), ("CONDITION", "3"), ("CONDITION_VALUES", "2"), ("ADDED_WEIGHT", "1"), ("SPECTRUM", "1")]
+        _S1_NR = _sd_named[7:] == _S1_NR_LISTS
+        if len(_sd_lists) != (12 if _S1_NR else 7):
             raise SystemExit(f"SD-NR: the quantity member lists changed; re-review their loop bound: {_sd_lists}")
         O10_LOOPS_FIRST += [
             ('for (i, node) in objects(model, " ")', "n", O10 + "SD-NR: the model's nodes (<= n, D1.9), once each", _SD_NR_F),
@@ -2611,12 +2617,26 @@ if fnkey("unknown_field_refusal", _SD_MF):
             ("for key in keys", str(max(_sd_lists)), O10 + f"SD-NR: one record's static quantity member list (<= {max(_sd_lists)}, "
              "the longest)", ["model_fields.rs:nested_quantities"]),
         ]
+        if _S1_NR:
+            # S1-NR (§8.36): D1.3 refuses a non-empty condition_sets or spectra, so on D1 each is absent or [] and the
+            # walk's loops over them, and everything inside them, run zero times. (The set's design/peak loop,
+            # `for key in ["design", "peak"]`, keeps the inherited rule of that header, which case_observables shares;
+            # it is inside the set loop.) A support's direction is refused at D1.6, so its nested_member call finds no
+            # member.
+            O10_LOOPS_FIRST += [
+                ('for (i, set) in objects(model, " ")', "0", O10 + "S1-NR: the condition sets are empty on D1 (D1.3)", _SD_NR_F),
+                ('for (k, condition) in objects(set, " ")', "0", O10 + "S1-NR: a condition set's conditions (no set on D1, D1.3)", _SD_NR_F),
+                ('for (i, spectrum) in objects(model, " ")', "0", O10 + "S1-NR: the spectra are empty on D1 (D1.3)", _SD_NR_F),
+            ]
         # SD-NR (non-object records): the pass visits the model's record collections and the request's materials once
         # each; a collection holds at most n records on D1 (n = m = g = 32 nodes, pipe segments, supports; at most 3
         # cases, 2 combinations, 4 materials of each, no section or component).
         _sd_coll = _re.search(r"^const RECORD_COLLECTIONS: \[&str; (\d+)\] =", _text_of(_SD_MF), _re.M)
-        if not _sd_coll or _re.findall(r'"(\w+)"', _text_of(_SD_MF)[_sd_coll.end():].split(";", 1)[0]) != [
-                "load_cases", "combinations", "nodes", "pipe_segments", "sections", "supports", "components", "materials"]:
+        # S1-NR (§8.36): model document 0.9.0 appends condition_sets and spectra, each empty on D1 (D1.3); the pass's
+        # collection loop takes the list's length, and each collection keeps the n-record bound.
+        if not _sd_coll or _re.findall(r'"(\w+)"', _text_of(_SD_MF)[_sd_coll.end():].split(";", 1)[0]) != (
+                ["load_cases", "combinations", "nodes", "pipe_segments", "sections", "supports", "components", "materials"]
+                + (["condition_sets", "spectra"] if _S1_NR else [])):
             raise SystemExit("SD-NR: the record collections changed; re-review the non-object pass")
         _SD_NO_F = ["model_fields.rs:non_object_records"]
         O10_LOOPS_FIRST += [
@@ -2640,8 +2660,10 @@ if fnkey("unknown_field_refusal", _SD_MF):
         _SD_NR_TEXT = _fn_text("nested_records", _SD_MF)
         _SD_NR_KINDS = (_re.findall(r'At::in_collection\("[a-z_.]+", "([a-z ]+)", ', _SD_NR_TEXT)
                         + _re.findall(r'\(\w+, "[a-z_.]+", "([a-z ]+)"\)', _SD_NR_TEXT) + _re.findall(r'kind: "([a-z ]+)"', _SD_NR_TEXT))
-        if sorted(_SD_NR_KINDS) != ["component", "material", "node", "pipe segment", "request material", "section", "support",
-                                    "temperature point"]:
+        # S1-NR (§8.36): the condition set's, condition's and spectrum's kinds (13, 9 and 8 B) are named only inside
+        # the loops D1.3 bounds at 0; the longest kind stays "temperature point".
+        if sorted(_SD_NR_KINDS) != sorted(["component", "material", "node", "pipe segment", "request material", "section", "support",
+                                           "temperature point"] + (["condition set", "spectrum", "condition"] if _S1_NR else [])):
             raise SystemExit(f"SD-NR: the nested records' kinds changed; re-review the name bounds: {_SD_NR_KINDS}")
         _SD_NR_KIND = max(len(k) for k in _SD_NR_KINDS)                                     # 17
     _SD_INT = 20
@@ -2710,7 +2732,9 @@ if fnkey("unknown_field_refusal", _SD_MF):
         _SD_NR_COLL = max(len(c) for c in _re.findall(r'At::in_collection\("([a-z_.]+)", ', _SD_NR_TEXT)
                           + _re.findall(r'\(\w+, "([a-z_.]+)", "[a-z ]+"\)', _SD_NR_TEXT))
         _sd_entry_keys = _re.findall(r'At::Entry \{ parent: &at, key: "([a-z_]+)"', _SD_NR_TEXT)
-        if _sd_entry_keys != ["temperature_points"] or _SD_NR_COLL > 20:
+        # S1-NR (§8.36): a condition set's `conditions` entry (one entry and one quantity member, as a temperature
+        # point's), only inside the loops D1.3 bounds at 0; "model.condition_sets" is 20 B.
+        if _sd_entry_keys != (["conditions"] if _S1_NR else []) + ["temperature_points"] or _SD_NR_COLL > 20:
             raise SystemExit(f"SD-NR: the nested records' paths changed; re-review the path bounds: {_sd_entry_keys}, {_SD_NR_COLL}")
         _SD_NR_RECORD_NAME = _sd_named("x" * _SD_NR_KIND)                                  # 148
         _SD_NR_MEMBER = len("the  of ") + 128
@@ -2840,8 +2864,10 @@ if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICA
     # range operands once: <= 3 (D1.4), the inherited bound of the former headers, only in its own function.
     # Each loop's complete earlier-occurrence statement is pinned (whitespace and line breaks removed), so a changed
     # slice, iterator chain, predicate or an added allocation (`.to_vec()`, `.cloned()`, `.collect()`) stops the run.
+    # Model document 0.9.0 (§8.36): the terms' count compares borrowed `(bool, &str)` operands (`fn operand`, pinned in
+    # sd_owners_model), no allocation.
     _SD_DL = (("validate_mechanics_combination", "for (index, term) in combination.terms.iter().enumerate()",
-               "let earlier = combination.terms[..index].iter().filter(|other| other.load_case == term.load_case).count();"),
+               "let earlier = combination.terms[..index].iter().filter(|other| operand(other) == operand(term)).count();"),
               ("validate_range_envelope_combination", "for (index, operand_id) in operand_ids.iter().enumerate()",
                "if operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1 {"))
     for _fn, _h, _c in _SD_DL:
@@ -2854,11 +2880,16 @@ if fnkey("validate_mechanics_combination", _SD_V) and '"LOAD_COMBINATION_DUPLICA
         (_SD_DL[0][1], "3", O10 + "SD-DL: one combination's terms (<= 3, D1.4), once each", ["validation.rs:validate_mechanics_combination"]),
         (_SD_DL[1][1], "3", O10 + "SD-DL: one combination's range operands (<= 3, D1.4), once each", ["validation.rs:validate_range_envelope_combination"]),
     ]
+    # Model document 0.9.0 (§8.36, S1-OP): the duplicate names the term's operand, `operand_id`, a load case's or a
+    # combination's raw id (IN128 either way), in place of the case id.
+    _S1_OP = "fn operand(term: &crate::PreviewCombinationTerm) -> (bool, &str) {" in _fn_text("validate_mechanics_combination", _SD_V)
+    _sd_term_suffix = "stable_suffix(operand_id)" if _S1_OP else "stable_suffix(&term.load_case)"
+    _sd_term_refs = "vec![combination.id.clone(), operand_id.to_string()]," if _S1_OP else "vec![combination.id.clone(), term.load_case.clone()],"
     O10_ID_AUDIT += [
         (site("validate_mechanics_combination", _SD_V, '"diagnostic:combination:{}:{}:duplicate",', full=True, row="&format!("),
-         {"stable_suffix(&combination.id)": IN, "stable_suffix(&term.load_case)": IN}),
-        (site_after("validate_mechanics_combination", _SD_V, '"LOAD_COMBINATION_DUPLICATE_TERM",', "vec![combination.id.clone(), term.load_case.clone()],", within=4),
-         {"combination.id": IN}),
+         {"stable_suffix(&combination.id)": IN, _sd_term_suffix: IN}),
+        (site_after("validate_mechanics_combination", _SD_V, '"LOAD_COMBINATION_DUPLICATE_TERM",', _sd_term_refs, within=4),
+         {"combination.id": IN, **({"operand_id": IN} if _S1_OP else {})}),
     ]
 
 
@@ -3637,7 +3668,11 @@ _OP1A_RE = RE_ + "preview_combination_operands.rs"
 if fnkey("append_operand_standing", _OP1A_PP):
     # Raw pins bind the complete early-return/dataflow and all new owning sites.
     # Existing lib.rs and admission pins separately bind the call and D1.6.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a'}
+    # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
+    # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
+    # and the wasm and runner entries, outside the retained roots. validate is unchanged.
+    # Model document 0.9.0 D3 (§8.36): preview_physics.rs changes one test literal's version token only.
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3694,7 +3729,10 @@ if fnkey("append_operand_standing", _OP1A_PP):
 # CD-ID binds the allocation-free canonical-decimal replacement of Rational.
 _TIM = PP_ + "pf_timoshenko.rs"
 if fnkey("selects", _TIM):
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'b43843aa298e56e4fea78f110348d08b4f0827caff3ff090441607caee09e12a', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '152ed6c3470ca3cfedf60db97878e7b6ad7701e3fe36a91a1ccf901f90e38882'}
+    # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
+    # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
+    # and the wasm and runner entries, outside the retained roots. validate is unchanged.
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '152ed6c3470ca3cfedf60db97878e7b6ad7701e3fe36a91a1ccf901f90e38882'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -3751,3 +3789,351 @@ if fnkey("selects", _TIM):
     O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [
         (site("shear_area", _TIM, "let cases = basis.case_ids.join"), 0,
          O10 + "TIM-ID: the joined-case owner stays at multiplicity zero under TIM-PF and TIM-BN")]
+
+# §8.33 (RT-A3 increment 1): the exact route's branch connection (tee) and implicit pressure junctions. D1.4 refuses every
+# model with components, and D1.5 makes every E case's pressure regions explicitly empty (L has none), so each new loop
+# below is reached with nothing to iterate and nothing is pushed. The new texts keep classes in their zero tails.
+_A3_PR = PP_ + "pressure_runtime.rs"
+_A3_U4R = PP_ + "u4b_rows.rs"
+_A3_EV = RE_ + "u4b_evidence.rs"
+_A3_PE = RE_ + "physics_evidence.rs"
+if fnkey("case_junction_closure_warnings", _A3_PR):
+    # RTA3-JW (guard): the entry calls junction_closure_warnings once, beside validate_profile. It returns without an
+    # exact contract (L), and otherwise hands each case's own regions (`if let Some(regions) = &case.pressure_regions`)
+    # to case_junction_closure_warnings, which fills its node map only inside `for region in regions`. With D1.5's
+    # explicitly empty E regions the map is empty, its node loop and the nested `ending` maps run zero times, and neither
+    # warning is formed or pushed.
+    _a3_obs = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    _a3_jw = _fn_text("junction_closure_warnings", _A3_PR)
+    _a3_cw = _fn_text("case_junction_closure_warnings", _A3_PR)
+    _a3_node = "for (node, ending) in at_node.into_iter().filter(|(_, ending)| ending.len() >= 2) {"
+    _a3_jw_ok = (
+        _a3_obs.count("pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);") == 1,
+        _text_of(_LIB).count("junction_closure_warnings(") == 1,
+        _text_of(_A3_PR).count("case_junction_closure_warnings(") == 2,
+        _a3_jw.count("if exact_contract(model).is_none() {") == 1 and _a3_jw.count("if let Some(regions) = &case.pressure_regions {") == 1
+        and _a3_jw.index("if exact_contract(model).is_none() {") < _a3_jw.index("for case in &model.load_cases {")
+        < _a3_jw.index("case_junction_closure_warnings(model, &case.id, regions, diagnostics);"),
+        _a3_cw.count("let mut at_node: BTreeMap<&str, Vec<&PressureRegionInput>> = BTreeMap::new();") == 1
+        and _a3_cw.count("at_node.entry(") == 1 and _a3_cw.count(_a3_node) == 1
+        and _a3_cw.index("for region in regions {") < _a3_cw.index("at_node.entry(") < _a3_cw.index(_a3_node),
+        _a3_cw.count("warn(diagnostics,") == 2 and _a3_cw.index("warn(diagnostics,") > _a3_cw.index(_a3_node),
+        _a3_cw.count("ending.iter().map(") == 2 and _a3_cw.index("ending.iter().map(") > _a3_cw.index(_a3_node),
+    )
+    if not all(_a3_jw_ok):
+        raise SystemExit(f"RTA3-JW: the junction-warning premise changed; re-review its zero: {_a3_jw_ok}")
+    _A3_JW_WHY = (O10 + "RTA3-JW: the node map is filled only from the case's pressure regions, explicitly empty on E (D1.5) and "
+                  "absent on L, where junction_closure_warnings returns without an exact contract")
+    O10_LOOPS_LAST += [(_a3_node[:-2], "0", _A3_JW_WHY, ["pressure_runtime.rs:case_junction_closure_warnings"]),
+                       ("iter:ending.iter().map", "0", _A3_JW_WHY + "; `ending` holds regions of the case ending at one node",
+                        ["pressure_runtime.rs:case_junction_closure_warnings"])]
+    # RTA3-ID: the unreached warnings' arguments keep classes. An authored pressure is "absent" or scalar_string (the
+    # base f64 class, <= 327 B), a space and its unit (IN128): <= 456 B. The two lists are empty on D1 (D1.5) and are
+    # classed at one entry: one "{id} {authored}" (<= 585 B) and one IN128 region id. The tails are the static
+    # constants, their literal lengths read at the snapshot.
+    _a3_auth = {"bytes": 456, "source": O10 + "RTA3-ID: scalar_string(f64) <= 327, a space and an IN128 unit"}
+    O10_ID_AUDIT += [
+        (site("case_junction_closure_warnings", _A3_PR, 'format!("{} {}", scalar_string(q.value), q.unit)', full=True),
+         {"scalar_string(q.value)": {"bytes": 327, "source": O10 + "RTA3-ID: scalar_string(f64)"},
+          "q.unit": {"bytes": 128, "source": O10 + "RTA3-ID: D1 IN128 unit"}}),
+        (site("case_junction_closure_warnings", _A3_PR, 'format!("{id} {authored}")', full=True), {"authored": _a3_auth}),
+        (site("case_junction_closure_warnings", _A3_PR, "with different pressures ({listed})", full=True, row="format!("),
+         {"listed": {"bytes": 585, "source": O10 + "RTA3-ID: one IN128 region id, a space and one authored pressure; empty on D1 (D1.5)"},
+          "exact_admission::JUNCTION_PRESSURES_DIFFER_TEXT": {"bytes": _c30_const_len(_EA, "JUNCTION_PRESSURES_DIFFER_TEXT"),
+                                                              "source": O10 + "RTA3-ID: &'static str const, literal length at the snapshot"}}),
+        (site("case_junction_closure_warnings", _A3_PR, "of regions {regions} in load case", full=True, row="format!("),
+         {"regions": {"bytes": 128, "source": O10 + "RTA3-ID: region ids at one junction node joined by \", \"; empty on D1 (D1.5), one IN128 id"},
+          "exact_admission::JUNCTION_PIPE_OUTSIDE_REGIONS_TEXT": {"bytes": _c30_const_len(_EA, "JUNCTION_PIPE_OUTSIDE_REGIONS_TEXT"),
+                                                                  "source": O10 + "RTA3-ID: &'static str const, literal length at the snapshot"}}),
+    ]
+if fnkey("append_branch_intensified", _A3_U4R):
+    # RTA3-BB (guard): the case solve appends a straight exact member's branch rows under `if exact &&
+    # macro_bend.is_none()`. Every row, record and basis pass sits inside `for association in associations(...)`, which
+    # iterates model.components (0 by D1.4, the base rule); its nested `for b in bases` walks the member's BasisSection
+    # list, at most two (nominal and reduced, U4B-ST).
+    _a3_bi = _fn_text("append_branch_intensified", _A3_U4R)
+    _a3_assoc = "for association in super::preview_physics::associations(model, node, pipe_id) {"
+    _a3_bb_ok = (
+        _fn_text(_CASE_FN, _LIB).count("if exact && macro_bend.is_none() {") == 1
+        and _text_of(_LIB).count("u4b_rows::append_branch_intensified(") == 1,
+        _a3_bi.count(_a3_assoc) == 1 and _a3_bi.count("for b in bases {") == 1
+        and _a3_bi.index(_a3_assoc) < _a3_bi.index("for b in bases {") < _a3_bi.index("results.push(item);"),
+        _a3_bi.count("records.push(") == 1 and _a3_bi.count("results.push(") == 1,
+    )
+    if not all(_a3_bb_ok):
+        raise SystemExit(f"RTA3-BB: the branch-row premise changed; re-review its bound: {_a3_bb_ok}")
+    O10_LOOPS_LAST += [("for b in bases", "2", O10 + "RTA3-BB: the member's section bases (nominal and reduced, <= 2), "
+                        "inside the association loop over model.components (0 by D1.4)", ["u4b_rows.rs:append_branch_intensified"])]
+
+
+# ---- Model document 0.9.0 S1 (DEL-02-01 Design model-document-0.9.0.md; retained-pricing-rules.md §8.36). D1.3 declines
+# a non-empty condition_sets or spectra and any pipe's condition_set_ref; D1.4 a difference basis, a subtrahend support
+# state, an unsigned basis and a term's combination operand; D1.5 a case's condition_use and test_condition; D1.6 a
+# support's direction and the snubber family. On D1 the lowering (operating_conditions::lower) and the withholding
+# (document_members::withhold_interim_combinations) therefore judge empty sets and spectra, pipes without references,
+# cases without uses and supports without directions; what remains is bounded by the existing caps.
+_S1_DM, _S1_OC, _S1_SP = PP_ + "document_members.rs", PP_ + "operating_conditions.rs", PP_ + "spectra.rs"
+if fnkey("withhold_interim_combinations", _S1_DM):
+    import hashlib as _hashlib
+    # S1-PIN: the three modules' complete bytes, read before these rules were written; a change stops the run.
+    _S1_PINS = {_S1_DM: "6ada6a00c3f8300747dfa3420fd920df595e2e3b1f88d5a4cb0bc8c32e463910",
+                _S1_OC: "81460837757326180e30d9cca33bce6b7c3a2357b403dea37409084dc05bf8ef",
+                _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
+    for _f, _h in _S1_PINS.items():
+        if _hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"S1-PIN: {_f} changed; re-review §8.36's rules")
+    _s1 = lambda name, f=_S1_DM, ordinal=1, count=1: _fn_n(name, f, ordinal, count)
+    _S1_FINDING_NEW, _S1_OPERANDS_NEW = _s1("new", _S1_DM, 1, 2), _s1("new", _S1_DM, 2, 2)
+    _S1_IS_EMPTY = _s1("is_empty")
+    # S1-BN (CG_RULES, exact targets): the call graph resolves these calls by name to every same-named crate fn. Each
+    # caller's actual crate targets, read from the pinned bodies: `Finding::new` (and `Operands::new`) are the only
+    # crate `new`s (the others are std `HashSet::new`, `HashMap::new`, `Vec::new` and `MemberFindings::default`);
+    # `.as_str()` is String's, str's or serde_json Value's; `.is_empty()` is a std collection's or str's, except the
+    # lowering's `found.is_empty()` (MemberFindings::is_empty); `MemberFindings::push` and `is_empty` delegate to their
+    # Vec (`self.0`); the decoders' `Value::deserialize` and `deserialize_any` are serde's; `.get` is Value's. The false
+    # in-edges a by-name `.push(`/`.is_empty(` elsewhere adds to the two MemberFindings methods lead nowhere: with these
+    # rules both are leaves without a TEXT site.
+    for _caller, _name, _targets in [
+        (_s1("push"), "push", []), (_S1_IS_EMPTY, "is_empty", []),
+        (_s1("deserialize"), "deserialize", []), (_s1("deserialize_difference_basis"), "deserialize", []),
+        (_s1("deserialize_subtrahend_support_state"), "deserialize", []), (_s1("deserialize_direction"), "deserialize_any", []),
+        (_s1("visit_map"), "as_str", []), (_s1("visit_map"), "other", []),
+        (_s1("of", _S1_DM, 1, 2), "as_str", []), (_s1("of", _S1_DM, 2, 2), "as_str", []),
+        (_s1("supports_findings"), "new", [_S1_FINDING_NEW]), (_s1("snubber_findings"), "new", [_S1_FINDING_NEW]),
+        (_s1("combinations_findings"), "new", [_S1_FINDING_NEW, _S1_OPERANDS_NEW]),
+        (_s1("model_findings"), "as_str", []), (_s1("support_view"), "as_str", []),
+        (_s1("operand_refs"), "is_empty", []), (_s1("interim_reasons"), "operand", []), (_s1("interim_reasons"), "as_str", []),
+        (_s1("withhold_interim_combinations"), "as_str", []), (_s1("withhold_interim_combinations"), "is_empty", []),
+        (_s1("text"), "get", []),
+        (_s1("quantity", _S1_OC), "new", [_S1_FINDING_NEW]),
+        (_s1("findings", _S1_OC), "new", [_S1_FINDING_NEW]), (_s1("findings", _S1_OC), "as_str", []),
+        (_s1("lower", _S1_OC), "is_empty", [_S1_IS_EMPTY]),
+        (_s1("findings", _S1_SP), "new", [_S1_FINDING_NEW]), (_s1("findings", _S1_SP), "as_str", []),
+    ]:
+        CG_RULES += [{"caller": _caller, "name": _name, "targets": _targets, "added": "S1-BN",
+                      "evidence": "model document 0.9.0: the pinned body's actual crate targets of this by-name call (§8.36)"}]
+    # S1-BN (EDGE_ZERO): existing callers that newly reach an S1 helper by name without calling it: a binding of the
+    # same name (`Some(text)`, `Association(text)`), a std associated fn (`Layout::array::<u8>`), a method on another
+    # type (`.dofs(`, `.dimension(`) or a generic `T::deserialize` (the probe decodes the declared records only).
+    _s1_short = lambda key: Resolved(str(key).split("/src/")[-1])
+    for _caller, _target, _why in [
+        (fnkey("identity_match", PP_ + "retained_memory.rs"), _s1("text"), "`Some(text)` binds the identity text"),
+        (fnkey("pending_error_bytes", PP_ + "retained_product.rs"), _s1("text"), "`Association(text)` binds the error text"),
+        (fnkey("observation_copy", PP_ + "retained_product.rs"), _s1("array"), "`std::alloc::Layout::array::<u8>`"),
+        (fnkey("solve", PP_ + "source_recovery.rs"), _s1("dofs"), "a block's own `dofs`"),
+        (fnkey("solve_prepared_load_case", _LIB), _s1("dimension", _S1_OC), "a primitive load's `dimension` field"),
+        (fnkey("declared_fields", PP_ + "model_fields.rs"), _s1("deserialize"), "the probe's `T::deserialize` of a declared record type"),
+    ]:
+        if not _caller:
+            raise SystemExit(f"S1-BN: a caller of {_target} is not unique at the snapshot")
+        O10_EDGE_ZERO += [(_caller, _s1_short(_target), O10 + "S1-BN: by-name false edge into a model document 0.9.0 helper: " + _why)]
+    # S1-L1 (loops, each only in its own function).
+    O10_LOOPS_LAST += [
+        ("for (index, set) in sets.iter().enumerate()", "0", O10 + "S1-L1: the condition sets are empty on D1 (D1.3)",
+         ["operating_conditions.rs:findings"]),
+        ("for (k, condition) in set.conditions.iter().flatten().enumerate()", "0", O10 + "S1-L1: a set's conditions (no set on D1, D1.3)",
+         ["operating_conditions.rs:findings"]),
+        ("for (index, (case, using)) in cases.iter().enumerate()", "cases",
+         O10 + "S1-L1: the authored cases, once each; each continues at once (no condition_use on D1, D1.5)", ["operating_conditions.rs:findings"]),
+        ("for (index, spectrum) in spectra.iter().enumerate()", "0", O10 + "S1-L1: the spectra are empty on D1 (D1.3)", ["spectra.rs:findings"]),
+        ("for (index, view) in views.iter().enumerate()", "z", O10 + "S1-L1: one view per model combination (<= z, D1.9)",
+         ["document_members.rs:combinations_findings"]),
+        ("for (path, id, operand) in operand_refs(view, &at, &operands)", "3",
+         O10 + "S1-L1: one combination's operand references: <= 3 range operands, or the minuend and subtrahend (D1.9's rows; "
+         "a term's combination is refused at D1.4)", ["document_members.rs:combinations_findings"]),
+        ("for first in 0..views.len()", "z", O10 + "S1-L1: the combinations (<= z, D1.9)", ["document_members.rs:combinations_findings"]),
+        ("for (index, combination) in model.combinations.iter().enumerate()", "z", O10 + "S1-L1: the model combinations (<= z, D1.9)",
+         ["document_members.rs:withhold_interim_combinations"]),
+        ("for (code, message) in &reasons", "4", O10 + "S1-L1: one combination's interim reasons, at most one per each of "
+         "interim_reasons' four pushes", ["document_members.rs:withhold_interim_combinations"]),
+    ]
+    # S1-ZR (EDGE_ZERO; the module pins guard every premise): helpers D1 never enters with work. interim_support_refusals
+    # pushes only for a snubber family or an authored direction (D1.6 refuses both); interim_exact_combination_refusals
+    # returns without a contract (route L) and route E has no combination (D1.4's exact clause); lower_axis_aligned_directions
+    # rewrites only a support with a direction (D1.6); snubber_findings runs only for a snubber (D1.6); quantity and values
+    # judge only a condition set's values (D1.3: no set). The by-name `.values(` of combination_call is a map's.
+    _S1_ZR = O10 + "S1-ZR: unreached on D1 (§8.36): "
+    O10_EDGE_ZERO += [
+        (fnkey("lower", _S1_OC), _s1_short(_s1("interim_support_refusals")), _S1_ZR + "every push needs a snubber or a direction (D1.6)"),
+        (fnkey("lower", _S1_OC), _s1_short(_s1("interim_exact_combination_refusals")), _S1_ZR + "L has no contract; E has no combination (D1.4)"),
+        (fnkey("lower", _S1_OC), _s1_short(_s1("lower_axis_aligned_directions")), _S1_ZR + "only a support with a direction is rewritten (D1.6)"),
+        (_s1_short(_s1("supports_findings")), _s1_short(_s1("snubber_findings")), _S1_ZR + "only a snubber family (D1.6)"),
+        (fnkey("findings", _S1_OC), fnkey("quantity", _S1_OC), _S1_ZR + "a condition set's values only (D1.3)"),
+        (fnkey("findings", _S1_OC), fnkey("values", _S1_OC), _S1_ZR + "a condition set's design and peak values only (D1.3)"),
+        (fnkey("values", _S1_OC), fnkey("quantity", _S1_OC), _S1_ZR + "a condition set's design and peak values only (D1.3)"),
+        (fnkey("combination_call", PP_ + "retained_product.rs"), fnkey("values", _S1_OC), O10 + "S1-BN: a map's `.values()`, not operating_conditions::values"),
+    ]
+    # S1-ZS (SITE_ZERO): dead statements of reached functions, each behind a D1-refused member.
+    def _s1_at(fn, f, text, nth=1, ordinal=1, count=1, full=False):
+        lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+        start = int(str(_fn_n(fn, f, ordinal, count)).rsplit(":", 2)[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
+        end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i])
+                    and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+        hits = [i + 1 for i in range(start - 1, end - 1) if text in lines[i]]
+        if len(hits) < nth:
+            raise SystemExit(f"S1-ZS: {text!r} #{nth} in {f}:{fn}: {hits}")
+        return Resolved(f"{f if full else f.split('/src/')[-1]}:{hits[nth - 1]}")
+    _S1_D16 = _S1_ZR + "a support's direction (D1.6)"
+    _S1_D14 = _S1_ZR + "a difference basis or subtrahend support state (D1.4)"
+    _S1_D13 = _S1_ZR + "a pipe's condition_set_ref (D1.3)"
+    _S1_D15 = _S1_ZR + "a case's condition_use or test_condition (D1.5)"
+    _S1_ZS = (
+        [(_s1_at("supports_findings", _S1_DM, t), _S1_D16) for t in ('let path = format!("{at}.direction");', "let refuse = |code: &'static str, reason: &str| Finding::new(")]
+        + [(_s1_at("combinations_findings", _S1_DM, t), _S1_D14) for t in (
+            'let path = format!("{at}.difference_basis");', 'is not `{OPERATING_MINUS_SUSTAINED}`; absence means a plain subtraction.',
+            "is admitted only with basis `result_state_subtraction`.", 'let path = format!("{at}.subtrahend_support_state");',
+            "is not `own` or `minuend_final`; absence means own.", "is admitted only with difference_basis.",
+            "is a combination; a declared operating comparison names load cases only.")]
+        + [(_s1_at("combinations_findings", _S1_DM, "vec![view.id.to_string(), id.to_string()]", 2), _S1_D14 + " (the declared comparison's refs)")]
+        + [(_s1_at("operand_refs", _S1_DM, 'refs.push((format!("{at}.terms[{j}].combination"), id, operands.combination(id)));'), _S1_ZR + "a term's combination operand (D1.4)")]
+        + [(_s1_at("interim_reasons", _S1_DM, t), _S1_ZR + "a difference basis, a minuend_final subtrahend or an unsigned basis (D1.4)") for t in (
+            "declares a difference basis (operating minus sustained)", "solves its subtrahend at the minuend's final support status",
+            "unsigned combinations are not built yet")]
+        + [(_s1_at("findings", _S1_OC, t), _S1_D13) for t in (
+            'let path = format!("pipe_segments[{index}].condition_set_ref");', "of pipe `{pipe}` names no condition set.",
+            "vec![pipe.to_string(), reference.to_string()]")]
+        + [(_s1_at("findings", _S1_OC, t), _S1_D15) for t in (
+            'let path = format!("load_cases[{index}].condition_use");', "let refs = vec![case.to_string()];",
+            "is empty; it names at least one use, and absence means none.", 'let at = format!("{path}.{member}");',
+            "is false; it admits only true, and absence means not used.")]
+        + [(_s1_at("lower", _S1_OC, t), _S1_D15) for t in (
+            "uses operating conditions on a document with a pressure contract;", "uses operating conditions; their resolution",
+            '&format!("diagnostic:load-case:{}:condition-use"', "diagnostics.push(crate::diag(",
+            '&format!("diagnostic:load-case:{}:test-condition"', "is a hydrostatic test condition;", "vec![case.id.clone()],")]
+        + [(_s1_at("lower", _S1_OC, "diagnostics.push(crate::diag(", 2), _S1_D15 + " (the test condition's diagnostic)")]
+        + [(_s1_at("unknown_field_refusal", PP_ + "model_fields.rs", t), _S1_D15 + " (its closed-record check)") for t in (
+            'format!("the condition_use of {case_name}")', 'format!("the test_condition of {case_name}")')]
+    )
+    O10_SITE_ZERO += _S1_ZS
+    # S1-L1 (the lowering's findings): on D1 the findings are the combinations' unknown operands (<= 3 per combination,
+    # S1-L1 above) and one cycle finding per strongly connected set (<= z); the sets, references, uses, directions,
+    # snubbers, difference bases and spectra find nothing (D1.3-D1.6). Route E has no combination (D1.4): none.
+    O10_LOOPS_LAST += [("for finding in found.into_vec()", "4*z", O10 + "S1-L1: the lowering's findings (<= 3z unknown operands "
+                        "and <= z cycles; nothing else finds on D1)", ["operating_conditions.rs:lower"])]
+    # S1-L1 (cont.): operand_refs' term and operand loops, each over one combination's <= 3 (D1.9's rows); the term
+    # loop's body pushes only for a term's combination operand (D1.4: none). The findings loop is placed first: the base
+    # chain's broad `finding` rule would otherwise capture its header.
+    O10_LOOPS_LAST += [
+        ("for (j, term) in view.terms.iter().enumerate()", "3", O10 + "S1-L1: one combination's terms (<= 3, D1.9)", ["document_members.rs:operand_refs"]),
+        ("for (k, id) in view.operand_ids.iter().enumerate()", "3", O10 + "S1-L1: one combination's range operands (<= 3, D1.9)", ["document_members.rs:operand_refs"]),
+    ]
+    O10_LOOPS_FIRST += [_r for _r in O10_LOOPS_LAST if _r[0] == "for finding in found.into_vec()"]
+    O10_LOOPS_LAST = [_r for _r in O10_LOOPS_LAST if _r[0] != "for finding in found.into_vec()"]
+    # S1-ZR (cont.): Finding::new's callers whose every call is behind a D1-refused member or inside a loop D1.3 bounds
+    # at 0: supports_findings' (a direction, D1.6), operating_conditions::findings' (sets, references and uses,
+    # D1.3/D1.5) and spectra::findings' (spectra, D1.3). combinations_findings' calls stay priced.
+    O10_EDGE_ZERO += [
+        (_s1_short(_s1("supports_findings")), _s1_short(_S1_FINDING_NEW), _S1_ZR + "its only Finding::new is the direction refusal (D1.6)"),
+        (fnkey("findings", _S1_OC), _s1_short(_S1_FINDING_NEW), _S1_ZR + "every Finding::new is behind a set, a reference or a use (D1.3, D1.5)"),
+        (fnkey("findings", _S1_SP), _s1_short(_S1_FINDING_NEW), _S1_ZR + "every Finding::new is inside the spectrum loop (D1.3)"),
+    ]
+    # S1-ID (ID_AUDIT, site-specific): every placeholder of the reached S1 format sites, live or behind a zero. A path
+    # is a static member name with usize indices below one record collection: <= 86 B (the longest,
+    # `condition_sets[{i}].conditions[{k}].contents_density`); `at` is a record's or member's path prefix, <= 60 B
+    # (`load_cases[{i}].condition_use.wind_exposure`); an index is a usize (20 B); an id, a key, a restraint token, a
+    # reference or a unit is raw authored text (IN128); a member name or field is a static literal; an f64 is the base
+    # f64 Display class; a reason is a static reason with at most one IN128 unit (<= 200 B); a code is a static code,
+    # lower-cased (<= 56 B, the longest code); the cycle's names are <= z = 2 back-quoted ids joined by ", " (262 B).
+    _s1c = lambda b, why: {"bytes": b, "source": O10 + "S1-ID: " + why}
+    _S1A = {"path": _s1c(86, "a member path"), "at": _s1c(60, "a path prefix"), "index": _s1c(20, "a usize index"), "k": _s1c(20, "a usize index"),
+            "j": _s1c(20, "a usize index"), "first": _s1c(20, "a usize index"), "key": _s1c(13, "a static member name"),
+            "member": _s1c(13, "a static member name"), "field": _s1c(28, "a static field or `points[{k}]`"),
+            "reason": _s1c(200, "a static reason with at most one IN128 unit"), "x": _s1c(327, "f64 Display"), "y": _s1c(327, "f64 Display"),
+            "code.to_ascii_lowercase()": _s1c(56, "a static code, lower-cased"), 'names.join(",")': _s1c(262, "<= z back-quoted ids"),
+            "names": _s1c(262, "<= z back-quoted ids, joined"),
+            **{a: IN for a in ("id", "view.id", "views[member].id", "support.id", "token", "reference", "pipe", "case", "case.id", "set.id",
+                               "condition.key", "spectrum.id", "combination.id", "crate::stable_suffix(&combination.id)",
+                               "crate::stable_suffix(&case.id)", "crate::stable_suffix(id)")}}
+    for _fn, _f, _t, _args in [
+        ("new", _S1_DM, 'Finding { id: format!("diagnostic:model:{path}:{}", code.to_ascii_lowercase())', ("path", "code.to_ascii_lowercase()")),
+        ("supports_findings", _S1_DM, "let refs = vec![support.id.to_string()];", ("support.id",)),
+        ("supports_findings", _S1_DM, 'let path = format!("{at}.direction");', ("at",)),
+        ("supports_findings", _S1_DM, "let refuse = |code: &'static str, reason: &str| Finding::new(", ("path", "support.id", "reason")),
+        ("operand_refs", _S1_DM, 'format!("{at}.terms[{j}].combination")', ("at", "j")),
+        ("operand_refs", _S1_DM, 'format!("{at}.{key}")', ("at", "key")),
+        ("operand_refs", _S1_DM, 'format!("{at}.operand_ids[{k}]")', ("at", "k")),
+        ("combinations_findings", _S1_DM, "let refs = vec![view.id.to_string()];", ("view.id",)),
+        ("combinations_findings", _S1_DM, 'let path = format!("{at}.difference_basis");', ("at",)),
+        ("combinations_findings", _S1_DM, "absence means a plain subtraction.", ("path", "view.id")),
+        ("combinations_findings", _S1_DM, "is admitted only with basis `result_state_subtraction`.", ("path", "view.id")),
+        ("combinations_findings", _S1_DM, 'let path = format!("{at}.subtrahend_support_state");', ("at",)),
+        ("combinations_findings", _S1_DM, "is not `own` or `minuend_final`; absence means own.", ("path", "view.id")),
+        ("combinations_findings", _S1_DM, "is admitted only with difference_basis.", ("path", "view.id")),
+        ("combinations_findings", _S1_DM, "names no load case and no combination.", ("path", "id", "view.id")),
+        ("combinations_findings", _S1_DM, "a declared operating comparison names load cases only.", ("path", "id", "view.id")),
+        ("combinations_findings", _S1_DM, 'format!("`{}`", views[member].id)', ("views[member].id",)),
+        ("combinations_findings", _S1_DM, 'let path = format!("combinations[{first}]");', ("first",)),
+        ("combinations_findings", _S1_DM, "name each other in a cycle;", ('names.join(",")', "names")),
+        ("combinations_findings", _S1_DM, "vec![view.id.to_string(), id.to_string()]", ("view.id", "id")),
+        ("snubber_findings", _S1_DM, 'format!("{at}.restraints[{k}]")', ("at", "k")),
+        ("snubber_findings", _S1_DM, 'format!("`{token}` is rotational;', ("token",)),
+        ("snubber_findings", _S1_DM, 'format!("{at}.stiffness")', ("at",)),
+        ("combinations_findings", _S1_DM, "members.iter().map(|&member| views[member].id.to_string()).collect()", ("views[member].id",)),
+        ("interim_reasons", _S1_DM, "declares a difference basis (operating minus sustained)", ("id",)),
+        ("interim_reasons", _S1_DM, "solves its subtrahend at the minuend's final support status", ("id",)),
+        ("interim_reasons", _S1_DM, "takes a combination as an operand;", ("id",)),
+        ("withhold_interim_combinations", _S1_DM, '&format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), code.to_ascii_lowercase()),',
+         ("crate::stable_suffix(&combination.id)", "code.to_ascii_lowercase()")),
+        ("withhold_interim_combinations", _S1_DM, "vec![combination.id.clone()],", ("combination.id",)),
+        ("findings", _S1_OC, 'found.push(Finding::empty_id(CONDITION_SET_ENTITY, &format!("{at}.id")));', ("at",)),
+        ("findings", _S1_OC, 'found.push(Finding::duplicate_id(CONDITION_SET_ENTITY, &set.id, &format!("{at}.id")));', ("at",)),
+        ("findings", _S1_OC, 'let path = format!("{at}.provenance");', ("at",)),
+        ("findings", _S1_OC, "is blank; a condition set states the source of its values.", ("path",)),
+        ("findings", _S1_OC, 'let path = format!("{at}.conditions[{k}]");', ("at", "k")),
+        ("findings", _S1_OC, 'found.push(Finding::new(OPERATING_CONDITION_KEY_DUPLICATE, &format!("{path}.key"),', ("path",)),
+        ("findings", _S1_OC, "repeats a key of condition set", ("path", "condition.key", "set.id")),
+        ("findings", _S1_OC, 'ValueKind::AbsoluteTemperature, &format!("{path}.temperature"), &refs, found);', ("path",)),
+        ("findings", _S1_OC, 'ValueKind::Pressure, &format!("{path}.pressure"), &refs, found);', ("path",)),
+        ("findings", _S1_OC, 'ValueKind::ContentsDensity, &format!("{path}.contents_density"), &refs, found);', ("path",)),
+        ("findings", _S1_OC, '&format!("{at}.installation_temperature")', ("at",)),
+        ("findings", _S1_OC, 'values(design, &format!("{at}.design"), &refs, found);', ("at",)),
+        ("findings", _S1_OC, 'values(peak, &format!("{at}.peak"), &refs, found);', ("at",)),
+        ("findings", _S1_OC, '&format!("{at}.added_weight.magnitude")', ("at",)),
+        ("findings", _S1_OC, "of pipe `{pipe}` names no condition set.", ("path", "reference", "pipe")),
+        ("findings", _S1_OC, "vec![pipe.to_string(), reference.to_string()]", ("pipe", "reference")),
+        ("findings", _S1_OC, "let refs = vec![case.to_string()];", ("case",)),
+        ("findings", _S1_OC, "is empty; it names at least one use, and absence means none.", ("path", "case")),
+        ("findings", _S1_OC, 'let at = format!("{path}.{member}");', ("path", "member")),
+        ("findings", _S1_OC, "is false; it admits only true, and absence means not used.", ("at", "case")),
+        ("lower", _S1_OC, "uses operating conditions on a document with a pressure contract;", ("case.id",)),
+        ("lower", _S1_OC, "uses operating conditions; their resolution", ("case.id",)),
+        ("lower", _S1_OC, '&format!("diagnostic:load-case:{}:condition-use"', ("crate::stable_suffix(&case.id)", "case.id")),
+        ("lower", _S1_OC, '&format!("diagnostic:load-case:{}:test-condition"', ("crate::stable_suffix(&case.id)",)),
+        ("lower", _S1_OC, "is a hydrostatic test condition;", ("case.id",)),
+        ("lower", _S1_OC, "vec![case.id.clone()],", ("case.id",)),
+        ("findings", _S1_SP, 'let path = format!("{at}.{field}");', ("at", "field")),
+        ("findings", _S1_SP, 'format!("spectrum `{}`: {path} {reason}.", spectrum.id)', ("spectrum.id", "path", "reason")),
+        ("findings", _S1_SP, 'found.push(Finding::empty_id(SPECTRUM_ENTITY, &format!("{at}.id")));', ("at",)),
+        ("findings", _S1_SP, 'let path = format!("{at}.id");', ("at",)),
+        ("findings", _S1_SP, "repeats the id of another spectrum;", ("path", "spectrum.id")),
+        ("findings", _S1_SP, 'format!("abscissa {x} is not positive and finite")', ("k", "x")),
+        ("findings", _S1_SP, 'format!("abscissa {x} does not strictly increase")', ("k", "x")),
+        ("findings", _S1_SP, 'format!("ordinate {y} is not positive and finite")', ("k", "y")),
+    ]:
+        O10_ID_AUDIT += [(_s1_at(_fn, _f, _t, 1, *((1, 2) if _fn == "new" else (1, 1)), full=True), {_a: _S1A[_a] for _a in _args})]
+    # The closed-record scan's two refused-member checks (D1.5), with SD-ID's name and path classes.
+    if _SD_NESTED:
+        for _t in ('format!("the condition_use of {case_name}")', 'format!("the test_condition of {case_name}")'):
+            O10_ID_AUDIT += [(site("unknown_field_refusal", _SD_MF, _t, full=True), {"case_name": _SD_A["case_name"], "case_path": _SD_A["case_path"]})]
+    # S1-MS (ARGS_FIRST, REFS_FIRST): the moved messages and refs of the two diag sites whose message is not a literal,
+    # each regex anchored on the one spelling (checked unique below), and validation's lengthened basis message, which
+    # the template inventory truncates at 200 B: its literal length is read at the snapshot.
+    _S1_BASIS = "load combination basis must be one of the explicit closed set `mechanics`, `result_state_subtraction`, `range_envelope`, `absolute_sum`, `srss`; code/rule and owner-basis combinations remain private/deferred"
+    if _text_of(_SD_V).count('"' + _S1_BASIS + '"') != 1:
+        raise SystemExit("S1-MS: validation's basis message changed; re-read its length")
+    for _f, _spell, _n in ((_S1_DM, "self.message, self.refs)", 1), (_S1_DM, "message.clone(),", 1)):
+        if _text_of(_f).count(_spell) != _n:
+            raise SystemExit(f"S1-MS: {_spell!r} in {_f} changed; re-review the message bound")
+    O10_ARGS_FIRST += [
+        {"re": r"^self\.message$", "max": 1024, "why": O10 + "S1-MS: a Finding's message: one static template (<= 200 B) with at most a "
+         "path (<= 86 B), two IN128 ids and one IN128 unit or f64 Debug, or the cycle's names (<= 262 B)"},
+        {"re": r"^message\.clone\(\)$", "max": 512, "why": O10 + "S1-MS: an interim reason's message: one static template (<= 160 B) "
+         "with the combination's id and at most its basis (IN128 each)"},
+        {"re": "^" + _re.escape('"' + _S1_BASIS[:150]), "max": len(_S1_BASIS.encode()),
+         "why": O10 + "S1-MS: validation's basis message, the literal's own length"},
+    ]
+    O10_REFS_FIRST = list(globals().get("O10_REFS_FIRST", [])) + [
+        {"re": r"^self\.refs$", "bytes": "2*(24+128)", "why": O10 + "S1-MS: a Finding's refs: <= 2 IN128 ids (a cycle names <= z = 2)"}]
+    # S1-MS (LEX_SITE_SIZE): the cycle's names joined by ", " (<= z = 2 back-quoted IN128 ids: 262 B).
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
+        (_s1_at("combinations_findings", _S1_DM, 'names.join(", ")'), {"class": 262, "why": O10 + "S1-MS: <= z back-quoted ids joined by ', '"})]

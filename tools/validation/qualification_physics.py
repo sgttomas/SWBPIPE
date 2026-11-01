@@ -1,7 +1,7 @@
 """Closed ordinary pressure-2 adapter support for the first-static cases; physical consistency is not origin.
 
 B7b retired physics-1 (2.0.0/exact_straight_pressure_v2) and the 0.1.0-0.4.0 model documents. The two
-first-static cases are qualified as pressure-2 (3.0.0/exact_pressure_v3 on model document 0.8.0): the frozen,
+first-static cases are qualified as pressure-2 (3.0.0/exact_pressure_v3 on model document 0.9.0): the frozen,
 SHA-bound runner inputs are never edited; the gate verifies their bytes and submits a re-authored copy
 (``reauthor_runner_input``, the product tests' one re-authoring rule) to the selected runner.
 
@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919'
+TABLE_SHA256 = 'd46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
@@ -53,21 +53,25 @@ DEPENDENCIES = {
     # 420e60e4... on W-15); then W-16 slice c (DEL-05-01 exact-equivalent-static.md §2): the generated-primitive
     # evidence binding (was 0b296b0e...); then W-16 slice b (DEL-05-02 exact-combinations.md §6): the direct pass
     # reads the document without its combination rows and records, then the combination pass re-derives them
-    # (was ef200d25...).
-    MODULE: 'c82a0f11e77162692306e8ff275218596d343e2777a2bad0c4192b790861fbee',
+    # (was ef200d25...); then RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): the
+    # direct pass binds the branch-intensified rows by their records (`u4b_evidence::branch_records`; was c82a0f11...);
+    # then the arc-tangent direction bound (DEL-04-07 pressure-contract.md, "Direction magnitudes of arc tangents"): an
+    # arc term binds its magnitude exactly to its arc's published end tangent, and joint-area groups bind only to their
+    # connector axis (was f27242f0...).
+    MODULE: 'b3cb5f6dd91b8ef45c93effdbdea3523044375d9bae7044e7d66c9d5a72a4e6b',
     TABLE: TABLE_SHA256,
-    UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
+    UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }
 # Version 3: the binding names the pressure-2 reader (version 2 named the retired physics-1 Rust reader,
 # version 1 the former Python reader); both older formats are refused.
 BINDING_FORMAT = 'openpipestress.ordinary_physics_consistency_binding/3'
 ENTRYPOINT = 'validate_pressure_evidence'
 READER = 'pressure'
-# Model document 0.8.0 is the only current version (DEL-04-07 Design u4b-u5b-implementation.md §1.1); its exact
-# contract names the shear model. 0.5.0 and 0.6.0 are retired and re-authored by their version alone (§1.4; DEL-02-01
-# Design model-document-0.7.0.md §2).
-MODEL_VERSION = '0.8.0'
-PREVIOUS_MODEL_VERSIONS = ('0.5.0', '0.6.0', '0.7.0')
+# Model document 0.9.0 is the only current version (DEL-04-07 Design u4b-u5b-implementation.md §1.1); its exact
+# contract names the shear model. 0.5.0, 0.6.0, 0.7.0 and 0.8.0 are retired and re-authored by their version alone
+# (§1.4; DEL-02-01 Design model-document-0.7.0.md §2, model-document-0.9.0.md §3.6).
+MODEL_VERSION = '0.9.0'
+PREVIOUS_MODEL_VERSIONS = ('0.5.0', '0.6.0', '0.7.0', '0.8.0')
 RETIRED_MODEL_VERSIONS = ('0.1.0', '0.2.0', '0.3.0', '0.4.0', *PREVIOUS_MODEL_VERSIONS)
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 REAUTHORED_PRESSURE_CONTRACTS = ({'version': '2.0.0', 'mode': 'exact_straight_pressure_v2'}, {'version': '3.0.0', 'mode': PROFILE})
@@ -248,8 +252,8 @@ def reauthor_selectors(assertions: list, values: list) -> tuple[list, list, dict
 
 def reauthor_model(model: dict) -> dict:
     """The one re-authoring of a copied model document (Rust `tests/common/current_model.rs` `reauthor_model`): a
-    0.5.0, 0.6.0 or 0.7.0 document changes its ``schema_version`` to 0.8.0 and nothing else. An older document (B7b's rule): a retired
-    ``schema_version`` -> 0.8.0; a declared v2 or v3 exact contract -> the current contract; and, on a document
+    0.5.0, 0.6.0, 0.7.0 or 0.8.0 document changes its ``schema_version`` to 0.9.0 and nothing else. An older document (B7b's rule): a retired
+    ``schema_version`` -> 0.9.0; a declared v2 or v3 exact contract -> the current contract; and, on a document
     carrying the current contract, an explicit zero ``corrosion_allowance`` on every pipe section that lacks one (the
     retired contracts had no allowance: the authored wall was the effective wall). Nothing else changes: no physical
     or numerical input and no other contract. The caller's object is not modified."""
@@ -288,7 +292,7 @@ def reauthor_runner_input(data: bytes) -> tuple[bytes, dict]:
     original = request['solve']['preview_model']['model']
     request['solve']['preview_model']['model'] = reauthor_model(original)
     submitted = json.dumps(request, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode()
-    # A 0.5.0, 0.6.0 or 0.7.0 copy moves only its version: its contract and sections are recorded as they stand.
+    # A 0.5.0, 0.6.0, 0.7.0 or 0.8.0 copy moves only its version: its contract and sections are recorded as they stand.
     version_only = original.get('schema_version') in PREVIOUS_MODEL_VERSIONS
     return submitted, {'rule': REAUTHORING, 'frozen_input_sha256': sha256_bytes(data), 'submitted_input_sha256': sha256_bytes(submitted),
                        'model_schema_version': [original.get('schema_version'), MODEL_VERSION],

@@ -1872,3 +1872,129 @@ def test_every_emitted_number_lies_in_the_solves_checked_json_domain(row, path):
     edge = run(mbf("F10,KA,MM1,PP1,CL=L1", "T20,X3000,CK=9007199254740991,DV(0,1,0),FOR(0,-6000,0),FLC=1"))
     assert edge.status == "imported"  # 2^53 - 1 is in the domain
     assert edge.model["supports"][1]["stiffness"]["value"]["value"] == 9007199254740991.0
+
+
+# --- sidecar format 4: section identities (Design §15, Format 4) -----------------------------------------------------
+def sectioned_parts():
+    """The writer's text and format-4 sidecar of the invented sectioned L (test_caepipe_mbf_si_writer): records P1
+    (section:A), P2 (section:B) and P3 (none), one OD and wall."""
+    if str(ROOT / "tests") not in sys.path:
+        sys.path.insert(0, str(ROOT / "tests"))
+    import test_caepipe_mbf_si_writer as writer_tests
+    written = render_caepipe_mbf_si(writer_tests.sectioned_bent_l(), title="SECTIONS")
+    assert written.status == "written", written.diagnostics
+    data = written.text.encode("ascii")
+    return data, written.sidecar(hashlib.sha256(data).hexdigest())
+
+
+def edited(sidecar: dict, change) -> dict:
+    """`sidecar` edited by `change`, its self-digest recomputed as a deliberate editor would."""
+    copy = json.loads(json.dumps(sidecar))
+    change(copy)
+    if "sidecar_sha256" in copy:
+        copy["sidecar_sha256"] = sidecar_self_digest(copy)
+    return copy
+
+
+def errors(result) -> set[tuple[str, str]]:
+    return {(item["code"], item["location"]) for item in result.diagnostics if item["severity"] == "error"}
+
+
+def test_a_bound_format_4_sidecar_restores_the_library_sections_and_section_refs():
+    data, sidecar = sectioned_parts()
+    result = run(data, sidecar=sidecar, material_provenance=INVENTED)
+    assert result.status == "imported" and result.source["binding"] == "bound", result.diagnostics
+    pipe_lines = {int(item["provenance"].rsplit(" ", 1)[1]) for item in result.model["sections"]}
+    assert result.model["sections"] == [
+        {"id": section_id, "name": name, "section_type": "pipe",
+         "properties": {"outside_diameter": {"value": 168.3, "unit": "mm"},
+                        "wall_thickness": {"value": 7.11, "unit": "mm"}},
+         "provenance": f"imported from MBF sha256:{hashlib.sha256(data).hexdigest()}, line {line}"}
+        for (section_id, name), line in zip((("section:A", "P1"), ("section:B", "P2")), sorted(pipe_lines))]
+    assert data.split(b"\r\n")[min(pipe_lines) - 1].startswith(b"P1,")
+    assert {pipe["id"]: pipe.get("section_ref") for pipe in result.model["pipe_segments"]} == {
+        "S1": "section:A", "BEND": "section:A", "S2": "section:B", "S3": None}
+    assert result.id_map["section_map"] == {"P1": "section:A", "P2": "section:B"}
+    assert not any(item["code"] == "MBF-IMPORT-ID-UNRECOVERABLE" and "section" in item["location"]
+                   for item in result.loss_report)
+    unbound = run(data, material_provenance=INVENTED)  # unbound: no library and no section_ref, as before
+    assert "sections" not in unbound.model and "section_map" not in unbound.id_map
+    assert not any("section_ref" in pipe for pipe in unbound.model["pipe_segments"])
+
+
+def test_a_format_3_sidecar_restores_no_section_and_imports_as_before():
+    # Format 3 is format 4 without section_map. For a model without library sections it is the old writer's
+    # sidecar exactly, and imports the same model as format 4; it never restores a library section.
+    data = mbf("F10,KA,MM1,PP1,CL=L1", "T20,KA,X1000")
+    written = render_caepipe_mbf_si(run(data, material_provenance=INVENTED).model, title="X")
+    text = written.text.encode("ascii")
+    sidecar = written.sidecar(hashlib.sha256(text).hexdigest())
+    four = run(text, sidecar=sidecar, material_provenance=INVENTED)
+    three = run(text, sidecar=edited(sidecar, lambda s: (s.pop("section_map"), s.update(sidecar_format=3))),
+                material_provenance=INVENTED)
+    assert three.status == four.status == "imported", three.diagnostics
+    assert three.model_bytes() == four.model_bytes() and "sections" not in three.model
+
+
+@pytest.mark.parametrize("location, change", [
+    ("section_map", lambda s: s.pop("section_map")),
+    ("section_map", lambda s: s.update(section_map=[])),
+    ("section_map[P1]", lambda s: s["section_map"].update(P1="section:A")),
+    ("section_map[P1].zz", lambda s: s["section_map"]["P1"].update(zz=1)),
+    ("section_map[P1].swbpipe_section", lambda s: s["section_map"]["P1"].pop("swbpipe_section")),
+    ("section_map[P1].swbpipe_section", lambda s: s["section_map"]["P1"].update(swbpipe_section=7)),
+    ("section_map[P1].swbpipe_section", lambda s: s["section_map"]["P1"].update(swbpipe_section=" ")),
+    ("section_map[P1].outside_diameter_mm", lambda s: s["section_map"]["P1"].update(outside_diameter_mm=168.3)),
+    ("section_map[ ]", lambda s: s["section_map"].update({" ": {"swbpipe_section": None}})),
+    ("section_map[P2].swbpipe_section", lambda s: s["section_map"]["P2"].update(swbpipe_section="section:A")),
+])
+def test_a_malformed_format_4_section_map_is_refused_by_path(location, change):
+    data, sidecar = sectioned_parts()
+    for options in ({}, {"rebind_by_node_number": True}):
+        result = run(data, sidecar=edited(sidecar, change), material_provenance=INVENTED, **options)
+        assert errors(result) == {("MBF-IMPORT-SIDECAR-INVALID", location)}, (options, result.diagnostics)
+
+
+def test_a_format_2_or_3_sidecar_carrying_section_map_is_refused_by_path():
+    data, sidecar = sectioned_parts()
+    for number in (2, 3):
+        def change(s, number=number):
+            s.update(sidecar_format=number)
+            if number == 2:
+                s.pop("sidecar_sha256")
+        result = run(data, sidecar=edited(sidecar, change), material_provenance=INVENTED)
+        assert errors(result) == {("MBF-IMPORT-SIDECAR-INVALID", "section_map")}, number
+
+
+@pytest.mark.parametrize("code, location, change", [
+    ("MBF-IMPORT-SIDECAR-CONFLICT", "section_map", lambda s: s["section_map"].pop("P3")),
+    ("MBF-IMPORT-SIDECAR-CONFLICT", "section_map", lambda s: s["section_map"].update(P9={"swbpipe_section": None})),
+    ("MBF-IMPORT-SIDECAR-CONFLICT", "MBF section P1", lambda s: s["section_map"]["P1"].update(swbpipe_section="A")),
+    # P2's pipes, bound to no section, have P3's OD and wall: the writer would write them as one record, P2.
+    ("MBF-IMPORT-SIDECAR-NOT-REPRODUCED", "section_map[P3]",
+     lambda s: s["section_map"]["P2"].update(swbpipe_section=None)),
+])
+def test_a_bound_section_map_that_does_not_fit_the_file_is_refused_by_name(code, location, change):
+    data, sidecar = sectioned_parts()
+    result = run(data, sidecar=edited(sidecar, change), material_provenance=INVENTED)
+    assert result.status == "refused" and (code, location) in errors(result), result.diagnostics
+
+
+def test_a_renamed_section_id_is_a_consistent_edit_and_imports_as_stated():
+    data, sidecar = sectioned_parts()
+    result = run(data, sidecar=edited(sidecar, lambda s: s["section_map"]["P2"].update(swbpipe_section="section:C")),
+                 material_provenance=INVENTED)
+    assert result.status == "imported", result.diagnostics
+    assert [item["id"] for item in result.model["sections"]] == ["section:A", "section:C"]
+
+
+def test_rebinding_restores_section_ids_by_record_name_unconfirmed():
+    data, sidecar = sectioned_parts()
+    given = edited(sidecar, lambda s: s["section_map"].update(P9={"swbpipe_section": "section:gone"}))
+    result = run(data, sidecar=given, material_provenance=INVENTED, rebind_by_node_number=True)
+    assert result.status == "imported" and result.source["binding"] == "rebound_unconfirmed", result.diagnostics
+    assert [item["id"] for item in result.model["sections"]] == ["section:A", "section:B"]
+    assert {"section:A", "section:B"} <= set(result.id_map["rebound_unconfirmed"])
+    assert listed(result, "MBF-IMPORT-SIDECAR-ENTRY-ABSENT", "omitted")
+    assert any(item["location"] == "section_map[P9]" for item in result.loss_report
+               if item["code"] == "MBF-IMPORT-SIDECAR-ENTRY-ABSENT")

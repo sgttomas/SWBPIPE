@@ -14,7 +14,7 @@ sys.path.insert(0, str(PRICING / "base"))
 MODEL = runpy.run_path(str(PRICING / "base/u4b_u5b_owners_model.py"))
 FILES = sorted({rel for rel, _ in MODEL["BODY_PINS"]} | {MODEL["FKS"], MODEL["PREV"], MODEL["NI"]})
 OWNERS = ("published_displacements", "station_quantities", "absorption", "not_covered", "readers", "not_qualified",
-          "contribution_groups")
+          "contribution_groups", "published_index")
 
 
 def snapshot(tmp_path, file=None, old=None, new=None, drop=()):

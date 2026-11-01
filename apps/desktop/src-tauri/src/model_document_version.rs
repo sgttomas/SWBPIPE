@@ -2,13 +2,13 @@
 //! `b7-plan.md`, "Current model format").
 //!
 //! The in-document `schema_version` is the sole authority for the model-document
-//! version. Model document 0.8.0 is the one current version; its
+//! version. Model document 0.9.0 is the one current version; its
 //! `pressure_contract` is optional and its absence makes the document
 //! pressure-free. Every other version is refused by name, and nothing is
 //! migrated, upgraded or down-migrated:
 //! - `retired_schema`: an older version (0.1.0, 0.2.0 or any other version
-//!   below 0.8.0 that is not accepted), with a re-author diagnostic;
-//! - `newer_than_supported`: a version above 0.8.0;
+//!   below 0.9.0 that is not accepted), with a re-author diagnostic;
+//! - `newer_than_supported`: a version above 0.9.0;
 //! - `unsupported_schema`: a missing or non-semver version.
 //!
 //! The stored bytes are never rewritten by an open or a save. Contract and
@@ -86,15 +86,15 @@ mod tests {
         let before = doc.clone();
         let evaluated = evaluate_model_document(&doc);
         assert_eq!(evaluated.status, "current");
-        assert_eq!(evaluated.source_schema_version, "0.8.0");
-        assert_eq!(evaluated.target_schema_version, "0.8.0");
+        assert_eq!(evaluated.source_schema_version, "0.9.0");
+        assert_eq!(evaluated.target_schema_version, "0.9.0");
         assert!(!evaluated.is_refused());
         assert_eq!(doc, before);
     }
 
     #[test]
     fn retired_versions_are_refused_by_name_with_a_re_author_diagnostic() {
-        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
+        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
             let mut doc = document(version);
             // A carried contract (here the current one) changes nothing: the version refuses.
             doc["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
@@ -108,7 +108,7 @@ mod tests {
             assert!(!evaluated.detail.contains("migrated in memory"));
         }
         // Any other older version is refused the same way, never migrated.
-        for version in ["0.0.9", "0.3.1", "0.4.9", "0.5.1", "0.6.1", "0.7.1"] {
+        for version in ["0.0.9", "0.3.1", "0.4.9", "0.5.1", "0.6.1", "0.7.1", "0.8.1"] {
             let evaluated = evaluate_model_document(&document(version));
             assert_eq!(evaluated.status, "retired_schema", "{version}");
             assert!(evaluated.detail.contains("re-author"), "{version}");
@@ -128,7 +128,7 @@ mod tests {
 
     #[test]
     fn newer_versions_are_refused_without_down_migration() {
-        for version in ["0.8.1", "0.9.0", "1.0.0"] {
+        for version in ["0.9.1", "0.10.0", "1.0.0"] {
             let evaluated = evaluate_model_document(&document(version));
             assert_eq!(evaluated.status, "newer_than_supported", "{version}");
             assert!(evaluated.is_refused());
@@ -140,7 +140,7 @@ mod tests {
     fn invalid_or_missing_versions_are_unsupported_not_coerced() {
         let mut missing = document("x");
         missing.as_object_mut().unwrap().remove("schema_version");
-        for doc in [document("not-semver"), document("1.2"), document(" 0.8.0"), missing] {
+        for doc in [document("not-semver"), document("1.2"), document(" 0.9.0"), missing] {
             let evaluated = evaluate_model_document(&doc);
             assert_eq!(evaluated.status, "unsupported_schema");
             assert!(evaluated.is_refused());

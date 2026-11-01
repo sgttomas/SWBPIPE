@@ -39,6 +39,8 @@ pub(crate) const RADIAL_KIND: &str = "pipe_toroidal_radial_surface_stress_v1";
 pub(crate) const DIRECTIONAL_KIND: &str = "curved_bend_directional_intensified_bending_stress_v1";
 pub(crate) const DIRECTIONAL_MAX_KIND: &str = "curved_bend_directional_intensified_bending_maximum_v1";
 pub(crate) const MAXIMUM_KIND: &str = "pipe_elastic_normal_stress_maximum_v2";
+/// RT-A3 increment 1: a branch connection's intensified row on the exact route.
+pub(crate) const BRANCH_KIND: &str = "branch_intensified_bending_stress_v1";
 
 pub(crate) const EXTREMES_BASIS: &str = "section_extremes_from_published_stress_rows_v1";
 pub(crate) const SHEAR_STRAIGHT_BASIS: &str = "saint_venant_annulus_flexure_v1";
@@ -46,6 +48,7 @@ pub(crate) const SHEAR_ARC_BASIS: &str = "local_straight_annulus_on_arc";
 pub(crate) const HOOP_BASIS: &str = "bore_load_transferred_toroidal_membrane_v1";
 pub(crate) const DIRECTIONAL_BASIS: &str = "user_directional_sif_times_tangent_frame_bending_stress_v1";
 pub(crate) const MAXIMUM_BASIS: &str = "recovered_from_open_mechanics_stress_components";
+pub(crate) const BRANCH_BASIS: &str = "user_branch_sif_times_basis_bending_stress_rows_v1";
 
 pub(crate) const SIGMA_PLUS_SIGN: &str = "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress";
 pub(crate) const SIGMA_MINUS_SIGN: &str = "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress";
@@ -59,6 +62,7 @@ pub(crate) const RADIAL_SIGN: &str = "tension-positive radial stress of the toru
 pub(crate) const DIRECTIONAL_SIGN: &str = "nonnegative hypot(i_ip*Mz, i_op*My)/Z in the arc tangent frame with the user-entered directional SIFs of its intensified_measures record (i_ip on the in-plane Mz, i_op on the out-of-plane My); not a code stress; no flexibility factor, axial or torsion term; never combined";
 pub(crate) const ARC_MAXIMUM_SIGN: &str = "nonnegative maximum |Nw/As|+hypot(My,Mz)/Z along the arc, bounded over the binary64 arc problem formed from the published end-j force and the uniform intensities; torsional shear remains separate; no code stress or equivalent stress claim";
 pub(crate) const DIRECTIONAL_MAX_SIGN: &str = "nonnegative along-arc maximum of hypot(i_ip*Mz, i_op*My)/Z with the user-entered directional SIFs of its intensified_measures record, bounded over the binary64 arc problem formed from the published end-j force and the uniform intensities; never combined";
+pub(crate) const BRANCH_SIGN: &str = "nonnegative i*hypot(My,Mz)/Z at the member end, formed as 1e6*hypot(i*sigma_z, i*sigma_y) from the same end's and basis's published bending stress rows, with the user-entered tee header or branch SIF i of its intensified_measures record; not a code effective section modulus; not a code stress; no flexibility factor, axial or torsion term; never combined";
 
 /// The arc maximum's closed record tokens (§2.3).
 pub(crate) const ARC_APPROXIMATION: &str = "arc_closed_form_section_statics";
@@ -158,29 +162,120 @@ fn basis_suffix(basis: Option<SectionBasis>) -> &'static str {
     basis.map_or("", |b| b.basis_suffix())
 }
 
-/// The value of the one published row of `pipe` with this kind, location and
-/// basis (component when given), or `None`.
-fn published(results: &[ResultItem], pipe: &str, kind: &str, component: Option<&str>, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
+/// The published row kinds the station quantities read (`published`).
+const READ_KINDS: [&str; 6] = [
+    "element_local_axial_normal_stress",
+    "pipe_axial_membrane_stress_v2",
+    "element_local_bending_normal_stress_y",
+    "element_local_bending_normal_stress_z",
+    "element_local_shear_force_y",
+    "element_local_shear_force_z",
+];
+const AXIAL: usize = 0;
+const MEMBRANE: usize = 1;
+const BENDING_Y: usize = 2;
+const BENDING_Z: usize = 3;
+const SHEAR_Y: usize = 4;
+const SHEAR_Z: usize = 5;
+
+/// RT-A3 increment 1b (DEL-04-07 Work `route-unification-r4.md` §5.4a): which
+/// entities already have rows in this case's `results`, so that a member's
+/// lookups need not scan every earlier row. Within one member's iteration
+/// the case loop only appends rows, edits rows of that member, or removes rows
+/// of that member (`bend_pressure::append_arc_pressure_results` and
+/// `append_exact_pressure_results`), so when no
+/// row of the member precedes its start, its first matching row is its first
+/// matching row from the start on. When one does precede it (a repeated
+/// element id), the lookup scans every row, as before. Entities are held by
+/// a hash of their id; a collision only sends a member to the full scan.
+#[derive(Debug, Default)]
+pub(crate) struct PublishedScope {
+    synced: usize,
+    entities: HashSet<u64>,
+    stale: bool,
+}
+
+fn entity_hash(id: &str) -> u64 {
+    use std::hash::{DefaultHasher, Hash, Hasher};
+    let mut hasher = DefaultHasher::new();
+    id.hash(&mut hasher);
+    hasher.finish()
+}
+
+impl PublishedScope {
+    /// Called at the start of a member's iteration, before it publishes a row:
+    /// the position its rows start from, or `None` when a row of `pipe`
+    /// already precedes it.
+    pub(crate) fn begin(&mut self, results: &[ResultItem], pipe: &str) -> Option<usize> {
+        if self.stale || self.synced > results.len() {
+            self.entities.clear();
+            self.synced = 0;
+            self.stale = false;
+        }
+        self.entities.extend(results[self.synced..].iter().map(|row| entity_hash(&row.entity_ref)));
+        self.synced = results.len();
+        if self.entities.contains(&entity_hash(pipe)) {
+            // The member may remove rows before `synced`; rebuild next time.
+            self.stale = true;
+            None
+        } else {
+            Some(self.synced)
+        }
+    }
+}
+
+/// One member's rows of the read kinds at each station, in `results` order,
+/// from its start; extended over rows appended since the last lookup.
+#[derive(Debug)]
+pub(crate) struct MemberRows<'a> {
+    pipe: &'a str,
+    start: Option<usize>,
+    scanned: usize,
+    slots: [[Vec<usize>; 5]; 6],
+}
+
+impl<'a> MemberRows<'a> {
+    pub(crate) fn new(pipe: &'a str, start: Option<usize>) -> Self {
+        MemberRows { pipe, start, scanned: start.unwrap_or(0), slots: Default::default() }
+    }
+}
+
+/// The value of the one published row of the member with this kind, location
+/// and basis (component when given), or `None`: the first such row of
+/// `results`.
+fn published(results: &[ResultItem], rows: &mut MemberRows<'_>, kind: usize, component: Option<&str>, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
     let suffix = basis_suffix(basis);
-    results
-        .iter()
-        .find(|r| {
-            r.entity_ref == pipe
-                && r.kind == kind
-                && r.metadata.as_ref().is_some_and(|m| {
-                    m.location == location
-                        && component.is_none_or(|c| m.component == c)
-                        && (if suffix.is_empty() { !m.basis.contains("; section_basis=") } else { m.basis.ends_with(suffix) })
-                })
-        })
-        .map(|r| r.value)
+    let matches = |r: &ResultItem| {
+        r.entity_ref == rows.pipe
+            && r.kind == READ_KINDS[kind]
+            && r.metadata.as_ref().is_some_and(|m| {
+                m.location == location
+                    && component.is_none_or(|c| m.component == c)
+                    && (if suffix.is_empty() { !m.basis.contains("; section_basis=") } else { m.basis.ends_with(suffix) })
+            })
+    };
+    let (Some(_), Some(station)) = (rows.start, STATIONS.iter().position(|s| *s == location)) else {
+        return results.iter().find(|r| matches(r)).map(|r| r.value);
+    };
+    for (offset, r) in results[rows.scanned..].iter().enumerate() {
+        let index = rows.scanned + offset;
+        if r.entity_ref != rows.pipe {
+            continue;
+        }
+        let (Some(k), Some(m)) = (READ_KINDS.iter().position(|k| *k == r.kind), r.metadata.as_ref()) else { continue };
+        if let Some(s) = STATIONS.iter().position(|s| *s == m.location) {
+            rows.slots[k][s].push(index);
+        }
+    }
+    rows.scanned = results.len();
+    rows.slots[kind][station].iter().map(|&i| &results[i]).find(|r| matches(r)).map(|r| r.value)
 }
 
 /// §2.3: σ_N of one station and basis (MPa): the axial component row, or on a
 /// pressurized pressure-2 member RN(membrane / 1e6).
-fn sigma_n(results: &[ResultItem], pipe: &str, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
-    published(results, pipe, "element_local_axial_normal_stress", None, location, basis).or_else(|| {
-        published(results, pipe, "pipe_axial_membrane_stress_v2", None, location, basis).map(q::pa_to_mpa)
+fn sigma_n(results: &[ResultItem], rows: &mut MemberRows<'_>, location: &str, basis: Option<SectionBasis>) -> Option<f64> {
+    published(results, rows, AXIAL, None, location, basis).or_else(|| {
+        published(results, rows, MEMBRANE, None, location, basis).map(q::pa_to_mpa)
     })
 }
 
@@ -291,6 +386,7 @@ pub(crate) fn final_row_id(model: &PreviewModel, case_id: &str, id: &str, kind: 
 pub(crate) fn append_station_quantities(
     model: &PreviewModel,
     results: &mut Vec<ResultItem>,
+    rows: &mut MemberRows<'_>,
     diagnostics: &mut Vec<Diagnostic>,
     m: &MemberQuantities<'_>,
 ) -> StationOutputs {
@@ -351,9 +447,9 @@ pub(crate) fn append_station_quantities(
         // σ⁺/σ⁻ then τ, each nominal row followed by its reduced twin.
         let mut extremes = Vec::new();
         for (slot, b) in m.bases.iter().enumerate() {
-            let operands = sigma_n(results, m.pipe_id, location, b.basis).zip(
-                published(results, m.pipe_id, "element_local_bending_normal_stress_y", None, location, b.basis)
-                    .zip(published(results, m.pipe_id, "element_local_bending_normal_stress_z", None, location, b.basis)),
+            let operands = sigma_n(results, rows, location, b.basis).zip(
+                published(results, rows, BENDING_Y, None, location, b.basis)
+                    .zip(published(results, rows, BENDING_Z, None, location, b.basis)),
             );
             let Some((n, (y, z))) = operands else { continue };
             let e = q::normal_stress_extremes(n, y, z);
@@ -376,8 +472,8 @@ pub(crate) fn append_station_quantities(
             }
         }
         // τ_v,max: the section shear rows inside; the end-force rows at the ends.
-        let shears = published(results, m.pipe_id, "element_local_shear_force_y", None, location, None)
-            .zip(published(results, m.pipe_id, "element_local_shear_force_z", None, location, None));
+        let shears = published(results, rows, SHEAR_Y, None, location, None)
+            .zip(published(results, rows, SHEAR_Z, None, location, None));
         if let Some((vy, vz)) = shears {
             for (b, factor) in m.bases.iter().zip(&factors) {
                 let Ok(factor) = factor else { continue };
@@ -621,4 +717,201 @@ pub(crate) fn preview_shear_factor(elastic_modulus: f64, shear_modulus: f64, out
     let (x, _) = open_pipe_stress_frame_kernel::shear::moduli_ratio_terms(elastic_modulus, shear_modulus)
         .map_err(|_| q::SectionQuantityError::InvalidInput { name: "moduli" })?;
     q::saint_venant_shear_factor_of_ratio(x, outer_radius, inner_radius, second_moment)
+}
+
+/// RT-A3 increment 1 (DEL-04-07 Design `pressure-contract.md`, "Tees and
+/// pressure junctions"): the intensified rows of the branch connections
+/// associated with one straight exact-route member's ends, by the
+/// pressure-free route's association rule (`preview_physics::associations`:
+/// the component at the end node names this member as its header or branch
+/// pipe and carries a positive user SIF for that side). Each row is formed
+/// from the same end's and basis's published bending rows, nominal then
+/// reduced, so a reader recomputes it bit for bit; its record names the
+/// component, the side and the factor. Returns the records.
+pub(crate) fn append_branch_intensified(
+    model: &PreviewModel,
+    results: &mut Vec<ResultItem>,
+    rows: &mut MemberRows<'_>,
+    case_id: &str,
+    pipe_id: &str,
+    bases: &[BasisSection],
+) -> Vec<serde_json::Value> {
+    let mut records = Vec::new();
+    let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_id) else { return records };
+    for (location, node) in [("end_i", &pipe.from), ("end_j", &pipe.to)] {
+        for association in super::preview_physics::associations(model, node, pipe_id) {
+            if !association.role.starts_with("branch_") {
+                continue;
+            }
+            for b in bases {
+                let operands = published(results, rows, BENDING_Y, None, location, b.basis)
+                    .zip(published(results, rows, BENDING_Z, None, location, b.basis));
+                let Some((y, z)) = operands else { continue };
+                let value = q::directional_intensified_bending_pa(association.sif, association.sif, y, z);
+                let item = on_basis(
+                    row(
+                        format!("result:intensified-branch:{}:{}:{}", stable_suffix(&association.component.id), stable_suffix(pipe_id), id_location(location)),
+                        BRANCH_KIND, value, "Pa", pipe_id, "intensified_bending", location, BRANCH_BASIS, BRANCH_SIGN,
+                    ),
+                    b.basis,
+                    true,
+                );
+                let mut record = serde_json::json!({"pipe_id": pipe_id, "result_id": final_row_id(model, case_id, &item.id, &item.kind),
+                    "location": location, "component_id": association.component.id, "factor_role": association.role,
+                    "sif": association.sif, "sif_source_reference": association.source_reference});
+                if let Some(basis) = b.basis {
+                    record["section_basis"] = serde_json::json!(basis.token());
+                }
+                records.push(record);
+                results.push(item);
+            }
+        }
+    }
+    records
+}
+
+/// RT-A3 increment 1: the exact route's model-level branch diagnostics, the
+/// pressure-free route's two (`preview_physics`) for branch connections: a
+/// named side without a positive user SIF, and a straight pipe ending at the
+/// branch that is neither its header nor its branch reference.
+pub(crate) fn branch_model_diagnostics(model: &PreviewModel, arc_pipes: &HashSet<&str>, diagnostics: &mut Vec<Diagnostic>) {
+    use super::preview_physics::{identity, solver_consumption, user_sif};
+    for component in model.components.iter().filter(|c| is_branch_component(c) && solver_consumption(c) == "mechanics_geometry_only") {
+        let geometry = component.geometry.as_ref();
+        let modifiers = component.modifiers.as_ref();
+        let header = geometry.and_then(|g| g.branch_header_pipe_ref.as_deref());
+        let branch = geometry.and_then(|g| g.branch_branch_pipe_ref.as_deref());
+        for (role, pipe_ref, value) in [
+            ("branch_header", header, modifiers.and_then(|m| m.branch_header_sif_user_value.as_ref())),
+            ("branch_branch", branch, modifiers.and_then(|m| m.branch_branch_sif_user_value.as_ref())),
+        ] {
+            if pipe_ref.is_some() && user_sif(value).is_none() {
+                diagnostics.push(diag(
+                    &format!("diagnostic:exact-intensification:sif-absent:{}", identity(&[&component.id, role])),
+                    "COMPONENT_INTENSIFICATION_SIF_NOT_SUPPLIED",
+                    "info",
+                    format!("branch {} has no positive user-entered {role} SIF; no intensified measure is published for that side and no default factor is supplied", component.id),
+                    vec![component.id.clone()],
+                ));
+            }
+        }
+        for pipe in model.pipe_segments.iter().filter(|p| {
+            (p.from == component.node || p.to == component.node)
+                && Some(p.id.as_str()) != header
+                && Some(p.id.as_str()) != branch
+                && !arc_pipes.contains(p.id.as_str())
+        }) {
+            diagnostics.push(diag(
+                &format!("diagnostic:exact-intensification:coverage:{}", identity(&[&component.id, &pipe.id])),
+                "COMPONENT_INTENSIFIED_COVERAGE_INCOMPLETE",
+                "warning",
+                format!("pipe {} ends at branch {} but is neither its header nor its branch reference; no intensified measure is published for that end", pipe.id, component.id),
+                vec![component.id.clone(), pipe.id.clone()],
+            ));
+        }
+    }
+}
+
+/// RT-A3 increment 1b: the member index finds the row the full scan finds.
+#[cfg(test)]
+mod lookup_tests {
+    use super::*;
+
+    fn stress(pipe: &str, kind: usize, component: &str, location: &str, basis: Option<SectionBasis>, value: f64) -> ResultItem {
+        on_basis(row(format!("result:{pipe}:{kind}:{location}:{value}"), READ_KINDS[kind], value, "MPa", pipe, component, location, "test", "test"), basis, true)
+    }
+
+    fn every_lookup(results: &[ResultItem], rows: &mut MemberRows<'_>) -> Vec<Option<u64>> {
+        let mut values = Vec::new();
+        for kind in 0..READ_KINDS.len() {
+            for location in STATIONS.iter().chain(["elsewhere"].iter()) {
+                for component in [None, Some("y"), Some("z")] {
+                    for basis in [None, Some(SectionBasis::Nominal), Some(SectionBasis::Reduced)] {
+                        values.push(published(results, rows, kind, component, location, basis).map(f64::to_bits));
+                    }
+                }
+            }
+        }
+        values
+    }
+
+    #[test]
+    fn the_member_index_finds_the_first_row_the_scan_finds() {
+        // Another entity's rows first, then the member's rows with repeats
+        // (the first must win), both bases, rows without metadata and rows of
+        // other pipes interleaved.
+        let mut results = vec![stress("node:A", BENDING_Y, "y", "end_i", None, 1.0)];
+        let start = results.len();
+        let mut value = 2.0;
+        for location in STATIONS {
+            for kind in 0..READ_KINDS.len() {
+                for basis in [None, Some(SectionBasis::Nominal), Some(SectionBasis::Reduced)] {
+                    for component in ["y", "z", "y"] {
+                        results.push(stress("pipe:P", kind, component, location, basis, value));
+                        results.push(stress("pipe:Q", kind, component, location, basis, -value));
+                        value += 1.0;
+                    }
+                }
+            }
+        }
+        let mut bare = stress("pipe:P", AXIAL, "y", "end_j", None, 99.0);
+        bare.metadata = None;
+        results.insert(start, bare);
+        let full = every_lookup(&results, &mut MemberRows::new("pipe:P", None));
+        assert!(full.iter().any(Option::is_some) && full.iter().any(Option::is_none));
+        let mut indexed = MemberRows::new("pipe:P", Some(start));
+        assert_eq!(every_lookup(&results, &mut indexed), full);
+        // Appending another matching row preserves the earlier first match.
+        results.push(stress("pipe:P", SHEAR_Y, "y", "midspan", None, 1e3));
+        results.push(stress("pipe:P", SHEAR_Z, "z", "elsewhere", None, 1e4));
+        assert_eq!(every_lookup(&results, &mut indexed), every_lookup(&results, &mut MemberRows::new("pipe:P", None)));
+    }
+
+    #[test]
+    fn a_member_with_earlier_rows_scans_every_row() {
+        let mut scope = PublishedScope::default();
+        let mut results = vec![stress("node:A", AXIAL, "y", "end_i", None, 1.0)];
+        assert_eq!(scope.begin(&results, "pipe:P"), Some(1));
+        results.push(stress("pipe:P", AXIAL, "y", "end_i", None, 2.0));
+        // An entity named like a later member: that member scans every row.
+        assert_eq!(scope.begin(&results, "node:A"), None);
+        results.retain(|r| r.entity_ref != "node:A");
+        results.push(stress("node:A", AXIAL, "y", "end_i", None, 3.0));
+        // After a fallback the scope is rebuilt from the rows now present.
+        assert_eq!(scope.begin(&results, "pipe:R"), Some(2));
+        assert_eq!(scope.begin(&results, "pipe:P"), None);
+        let mut rows = MemberRows::new("node:A", None);
+        assert_eq!(published(&results, &mut rows, AXIAL, None, "end_i", None), Some(3.0));
+    }
+
+    #[test]
+    fn fallback_rebuilds_after_removal_and_replacement_at_the_same_length() {
+        let mut scope = PublishedScope::default();
+        let mut results = vec![
+            stress("node:A", AXIAL, "y", "end_i", None, 1.0),
+            stress("pipe:P", AXIAL, "y", "end_i", None, 2.0),
+        ];
+        assert_eq!(scope.begin(&results, "node:A"), None);
+        // A fallback member can remove an earlier row and append another
+        // entity below the old sync position without changing the length.
+        results.retain(|r| r.entity_ref != "node:A");
+        results.push(stress("pipe:S", AXIAL, "y", "end_i", None, 3.0));
+        let start = scope.begin(&results, "pipe:S");
+        assert_eq!(start, None);
+        assert_eq!(published(&results, &mut MemberRows::new("pipe:S", start), AXIAL, None, "end_i", None), Some(3.0));
+    }
+
+    #[test]
+    fn the_index_finds_a_previously_absent_row_appended_after_lookup() {
+        let mut results = vec![stress("node:A", AXIAL, "y", "end_i", None, 1.0)];
+        let mut rows = MemberRows::new("pipe:P", Some(results.len()));
+        results.push(stress("pipe:P", AXIAL, "y", "end_i", Some(SectionBasis::Nominal), 2.0));
+        assert_eq!(published(&results, &mut rows, AXIAL, Some("y"), "end_i", Some(SectionBasis::Nominal)), Some(2.0));
+        assert_eq!(published(&results, &mut rows, SHEAR_Y, Some("y"), "midspan", Some(SectionBasis::Reduced)), None);
+        results.push(stress("pipe:P", SHEAR_Y, "y", "midspan", Some(SectionBasis::Reduced), -0.0));
+        let indexed = published(&results, &mut rows, SHEAR_Y, Some("y"), "midspan", Some(SectionBasis::Reduced)).map(f64::to_bits);
+        let scanned = published(&results, &mut MemberRows::new("pipe:P", None), SHEAR_Y, Some("y"), "midspan", Some(SectionBasis::Reduced)).map(f64::to_bits);
+        assert_eq!(indexed, Some((-0.0_f64).to_bits()));
+        assert_eq!(indexed, scanned);
+    }
 }

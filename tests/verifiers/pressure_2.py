@@ -69,10 +69,10 @@ PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_ver
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
-# signatures: 135 over 68.
-TABLE_SHA256 = "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919"
-TABLE_SIGNATURE_COUNT = 135
-TABLE_KIND_COUNT = 68
+# signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
+TABLE_SHA256 = "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"
+TABLE_SIGNATURE_COUNT = 137
+TABLE_KIND_COUNT = 69
 
 # Refusals by name.
 CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
@@ -85,7 +85,7 @@ RETIRED_EXACT_V2_IDS = (
 )
 SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
 # The current model document version this verifier names (b7-plan "Current model format").
-MODEL_VERSION = "0.8.0"
+MODEL_VERSION = "0.9.0"
 V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
                    f"re-author the model as {MODEL_VERSION} with the current exact pressure contract and re-run the analysis")
 # Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the retired pressure-1 identity, refused by name.
@@ -578,7 +578,11 @@ def _physics(source: Mapping[str, Any]) -> None:
         for pid, nominal in extrema_by_basis[sb.NOMINAL].items():
             if pid in extrema_by_basis[sb.REDUCED]:
                 _basis(sb.extrema_twins, nominal, extrema_by_basis[sb.REDUCED][pid], sections[cid, pid])
-        _validate_rhs(case["pressure_rhs_assembly"], cid)
+        _validate_rhs(case["pressure_rhs_assembly"], cid, {
+            (region.get("region_id"), geometry.get("pipe_id")): geometry.get("arc_end_tangents_global")
+            for region in evidence["pressure"] if isinstance(region, Mapping) and region.get("load_case_id") == cid
+            for geometry in (region.get("geometry") if isinstance(region.get("geometry"), list) else [])
+            if isinstance(geometry, Mapping) and geometry.get("member_kind") == ARC_MEMBER_KIND})
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()
@@ -769,7 +773,7 @@ def _physics(source: Mapping[str, Any]) -> None:
 def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any],
          marked: set[str], arc_extrema: list[tuple[str, str, Any, Any]]) -> None:
     """T4-U4b (§5.1) on pressure-2: σ±, τ (bit for bit with the case's ν and basis sections), hoop and radial
-    (bit-equal from the region's p and R); the arc maxima with their station cover; the directional records."""
+    (bit-equal from the region's p and R); the arc maxima with their station cover; the directional and branch records."""
     results = source.get("results", [])
     index = u4b.Rows(results)
     u4b.twin_order(results, marked)
@@ -801,10 +805,12 @@ def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[s
                 covers[cid, pid, basis] = cover
         records = case.get("intensified_measures", [])
         bound = u4b.directional_records(cid, records, rows, index, marked, True)
+        # RT-A3 increment 1: the branch records, by their own key set.
+        bound |= u4b.branch_records(cid, records, rows, index)
         _require(len(bound) == len(records), "intensified record shape")
         for row in results:
-            if row.get("kind") in (u4b.DIRECTIONAL, u4b.DIRECTIONAL_MAX) and row.get("basis_ref", {}).get("ref_id") == cid:
-                _require(row["id"] in bound, "unbound directional row")
+            if row.get("kind") in (u4b.DIRECTIONAL, u4b.DIRECTIONAL_MAX, u4b.BRANCH) and row.get("basis_ref", {}).get("ref_id") == cid:
+                _require(row["id"] in bound, "unbound branch row" if row["kind"] == u4b.BRANCH else "unbound directional row")
     for cid, pid, record, row in arc_extrema:
         _require((row.get("metadata") or {}).get("sign_convention") == u4b.ARC_MAXIMUM_SIGN, "arc maximum sign")
         u4b.maximum_record(record, row, u4b.ARC_TOKENS[0], covers.get((cid, pid, record["section_basis"]), []))
@@ -1034,7 +1040,13 @@ def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
         _require(False, "temperature selection")
 
 
-def _validate_rhs(rhs: Any, cid: str) -> None:
+def _validate_rhs(rhs: Any, cid: str, arc_tangents: Mapping[tuple[Any, Any], Any] | None = None) -> None:
+    """``arc_tangents``: the case's realized-arc members' published end tangents by (region, pipe). A realized arc's
+    end tangent t = c*d + s*n is formed without renormalizing, so a component can round above 1; an arc term binds its
+    group's direction magnitude exactly to one of its arc's end tangent components on the group's axis, and a group
+    with no arc term keeps the bound 1 (a straight member's frame axis is at most 1). DEL-04-07 Work
+    `pressure-contract.md`, "Direction magnitudes of arc tangents"; Rust `physics_evidence::assembly`."""
+    arc_tangents = arc_tangents or {}
     _shape(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
     _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
@@ -1045,7 +1057,8 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
     for group in rhs["groups"]:
         if "effective_area_bits" in group:
             _shape(group, {"node_ref", "component", "pressure_bits", "effective_area_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "joint RHS group")
-            _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "joint RHS group values")
+            # An authored connector axis may carry a component just above 1; the magnitude binds exactly to the axis.
+            _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and 0 < group["direction_component_magnitude"] and isinstance(group["terms"], list) and bool(group["terms"]), "joint RHS group values")
             _require(all(isinstance(group[key], str) and len(group[key]) == 16 and all(character in "0123456789abcdef" for character in group[key]) and math.isfinite(struct.unpack(">d", bytes.fromhex(group[key]))[0]) for key in ("pressure_bits", "effective_area_bits")), "joint RHS source bits")
             key = (group["node_ref"], group["component"], group["pressure_bits"], group["effective_area_bits"], "joint", group["direction_component_magnitude"])
             _require(key not in groups, "duplicate joint RHS group")
@@ -1065,7 +1078,16 @@ def _validate_rhs(rhs: Any, cid: str) -> None:
             continue
         _shape(group, {"node_ref", "component", "pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits", "direction_component_magnitude", "coefficient_sum", "assembled_force_n", "terms"}, "pressure RHS group")
         _require(group["node_ref"] in rhs["node_order"] and group["component"] in ["Fx", "Fy", "Fz"] and all(isinstance(group[k], str) and len(group[k]) == 16 and all(c in "0123456789abcdef" for c in group[k]) for k in ("pressure_bits", "source_inner_radius_hi_bits", "source_inner_radius_lo_bits")), "pressure RHS group source")
-        _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and 0 < group["direction_component_magnitude"] <= 1 and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
+        _require(all(_number(group[k]) for k in ("direction_component_magnitude", "coefficient_sum", "assembled_force_n")) and isinstance(group["terms"], list) and bool(group["terms"]), "pressure RHS group values")
+        magnitude, axis = group["direction_component_magnitude"], ["Fx", "Fy", "Fz"].index(group["component"])
+        on_arc = False
+        for term in group["terms"]:
+            tangents = arc_tangents.get((term.get("region_id"), term.get("pipe_id"))) if isinstance(term, Mapping) else None
+            if tangents is None:
+                continue
+            on_arc = True
+            _require(isinstance(tangents, list) and any(isinstance(t, list) and len(t) == 3 and _number(t[axis]) and abs(float(t[axis])) == float(magnitude) for t in tangents), "pressure RHS arc direction")
+        _require(0 < magnitude and (on_arc or magnitude <= 1), "pressure RHS group values")
         key = (group["node_ref"], group["component"], group["pressure_bits"], group["source_inner_radius_hi_bits"], group["source_inner_radius_lo_bits"], group["direction_component_magnitude"])
         _require(key not in groups, "duplicate pressure RHS group")
         groups.add(key)

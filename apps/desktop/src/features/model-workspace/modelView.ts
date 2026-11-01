@@ -1,4 +1,5 @@
 import type { EntityRef, PreviewComponent, PreviewModel } from "../../types";
+import { combinationTermsText } from "../load-cases/combinationOperands";
 
 export function defaultSelection(model: PreviewModel): EntityRef {
   return { type: "project", id: model.project.id };
@@ -282,12 +283,19 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
   }
   const combination = model.combinations?.find((item) => item.id === selection.id);
   if (combination) {
-    return [
-      ["ID", combination.id],
-      ["Basis", combination.basis],
-      ["Terms", combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")],
-      ["Provenance", combination.provenance]
-    ];
+    // Each operand member as stored (model document 0.9.0 §2.4): an absent
+    // `terms` has no row, never an empty sum.
+    const terms = combinationTermsText(combination);
+    const rows: Array<[string, PropertyValue]> = [["ID", combination.id], ["Basis", combination.basis]];
+    if (terms !== null) rows.push(["Terms", terms]);
+    if (combination.minuend_id !== undefined) rows.push(["Minuend", combination.minuend_id]);
+    if (combination.subtrahend_id !== undefined) rows.push(["Subtrahend", combination.subtrahend_id]);
+    if (combination.operand_ids !== undefined) rows.push(["Operands", combination.operand_ids.join(", ")]);
+    if (combination.mode !== undefined) rows.push(["Mode", combination.mode]);
+    if (combination.difference_basis !== undefined) rows.push(["Difference basis", combination.difference_basis]);
+    if (combination.subtrahend_support_state !== undefined) rows.push(["Subtrahend support state", combination.subtrahend_support_state]);
+    rows.push(["Provenance", combination.provenance]);
+    return rows;
   }
   return [["Selection", selection.id]];
 }

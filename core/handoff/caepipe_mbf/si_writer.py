@@ -37,7 +37,7 @@ STANDARD_GRAVITY = 9.80665  # m/s^2; converts SWBPIPE weight per length to CAEPI
 MBF_VERSION = "15.10"
 # The retired model document versions, refused by name (DEL-02-01 Design model-document-0.8.0.md §3.1); the
 # current one is the schema's (`current_model_schema_version`).
-RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0")
 # The target tool's labels for the load cases the writer requests.
 LOAD_CASE_LABELS = {"sustained": "Sustained (W+P)", "expansion": "Expansion (T1)"}
 DOFS = ("UX", "UY", "UZ", "RX", "RY", "RZ")
@@ -136,23 +136,24 @@ MATERIAL_ORIGINS = ("project_invented", "user_supplied")
 
 # The field sweep (Design §17.1). The fields each member's reader writes (to the MBF or the sidecar), checks against
 # what is written, or refuses by name; every other non-empty field is listed once, as one omitted loss entry per field.
-_HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "nodes",
-                    "pipe_segments", "supports", "components", "load_cases", "combinations",
-                    "reference_configurations", "model_settings", "shear_model"}
+_HANDLED_MEMBERS = {"schema_version", "document_kind", "pressure_contract", "project", "materials", "sections",
+                    "nodes", "pipe_segments", "supports", "components", "load_cases", "combinations",
+                    "reference_configurations", "model_settings", "shear_model", "spectra"}
 _HANDLED_FIELDS = {
     "materials": {"id", "elastic_modulus", "shear_modulus", "poisson_ratio", "thermal_expansion_coefficient",
                   "temperature_points", "expansion_laws"},
     "nodes": {"id", "position"},
-    "pipe_segments": {"id", "from", "to", "section", "material", "y_reference"},
+    "sections": {"id", "section_type", "properties"},
+    "pipe_segments": {"id", "from", "to", "section", "section_ref", "material", "y_reference"},
     "pipe_segments.section": {"outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance",
                               "insulation_thickness", "material_density", "contents_density", "insulation_density"},
-    "supports": {"id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear"},
+    "supports": {"id", "node", "restraints", "family", "stiffness", "hanger", "nonlinear", "direction"},
     "components": {"id", "kind", "node", "geometry", "modifiers", "mechanics_interface"},
     "components.geometry": {"bend_pipe_ref", "bend_radius", "bend_angle"},
     "components.modifiers": {"flexibility_factor_user_value", *BEND_SIF_FIELDS},
     "components.mechanics_interface": {"solver_consumption"},
     "load_cases": {"id", "primitive_loads", "pressure_regions", "equivalent_static", "modulus_basis_ref",
-                   "modulus_basis_temperature", "analysis_state"},
+                   "modulus_basis_temperature", "analysis_state", "condition_use", "test_condition"},
     "load_cases.primitive_loads": {"id", "category", "target", "direction", "magnitude", "dimension"},
     "load_cases.pressure_regions": {"id", "member_pipe_ids", "member_connector_ids", "pressure_basis", "pressure",
                                     "terminals"},
@@ -162,11 +163,11 @@ _NOT_CARRIED = "the MBF has no field for it and the sidecar does not carry it"
 _OMITTED_REASONS = {
     "data_boundary": "the import writes its own data boundary for the local document",
     "analysis_status": "the analysis state is not in the MBF; the import starts it afresh",
-    "sections": "each pipe segment's own section is written as a PIPE record; the section library is not",
     "diagnostics": "stored diagnostics are not in the MBF; the import's validation forms its own",
     "materials.constitutive_basis": "the MBF carries E and the Poisson ratio; the import forms its own basis",
     "materials.provenance_record": "only its origin classification is carried, in the sidecar's material_map",
-    "pipe_segments.section_ref": "the pipe segment's own section is written; the section library is not",
+    "sections.name": "the PIPE record has no name field; the import names the section by its PIPE record",
+    "sections.provenance": "the import names the MBF line as the section's provenance",
     "supports.properties": "display properties the solve ignores",
     "components.completeness": "a derived finding; the import's validation forms its own",
     "components.modifiers.sif_user_value": "BSIF carries the directional pair; the scalar SIF is a different "
@@ -185,9 +186,10 @@ IMPORTED_PROJECT_UNITS = {"length": "mm", "force": "N", "moment": "N*m", "pressu
 _TITLE_MAX = 70
 _DESCRIPTION_MAX = 30
 # The writer sidecar's format (Design §15). Format 2 records the effective value of every field, never null or another
-# sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`. A sidecar without
+# sentinel for a default to fill; format 3 is format 2 with its self-digest `sidecar_sha256`; format 4 is format 3
+# with `section_map`, each PIPE record's library section id or null (Format 4: section identities). A sidecar without
 # `sidecar_format` is a legacy one, from main's tranche-1 writer.
-SIDECAR_FORMAT = 3
+SIDECAR_FORMAT = 4
 SIDECAR_DIGEST_KEY = "sidecar_sha256"
 _MAX_NODES = 9999  # node numbers 10, 20, ... stay below 99999
 
@@ -229,10 +231,11 @@ class MbfSiResult:
         }
 
     def sidecar(self, mbf_sha256: str) -> dict[str, Any]:
-        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 3: what a bound
+        """The writer sidecar of the written text whose SHA-256 is `mbf_sha256` (Design §15), format 4: what a bound
         import restores and the MBF does not carry, each field with its effective value. What the MBF determines
-        (layout order, record names, numbers, bend geometry, sections) is not repeated in it. Its `sidecar_sha256` is
-        the self-digest of the rest (sidecar_self_digest)."""
+        (layout order, record names, numbers, bend geometry, section values) is not repeated in it; `section_map`
+        holds each PIPE record's library section id, or null. Its `sidecar_sha256` is the self-digest of the rest
+        (sidecar_self_digest)."""
         record = self.to_dict()
 
         def element(entry: Mapping[str, Any]) -> dict[str, Any]:
@@ -251,6 +254,8 @@ class MbfSiResult:
             "load_case_map": record["load_case_map"],
             "material_map": {key: {name: entry[name] for name in ("swbpipe_material", "origin")}
                              for key, entry in record["material_map"].items()},
+            "section_map": {key: {"swbpipe_section": entry["swbpipe_section"]}
+                            for key, entry in record["section_map"].items()},
             "load_map": {key: {name: entry[name] for name in ("load_case", "category", "target", "direction")}
                          for key, entry in record["load_map"].items()},
             "pressure_map": {"contract": pressure["contract"], "shear_model": pressure["shear_model"],
@@ -331,6 +336,26 @@ def sidecar_canonical_bytes(sidecar: Mapping[str, Any]) -> bytes:
 def sidecar_self_digest(sidecar: Mapping[str, Any]) -> str:
     """The sidecar's self-digest (Design §15): the lowercase hex SHA-256 of sidecar_canonical_bytes."""
     return hashlib.sha256(sidecar_canonical_bytes(sidecar)).hexdigest()
+
+
+def _combination_member_0_9_0(combination: Mapping[str, Any], case_ids: set[Any],
+                              combination_ids: set[Any]) -> tuple[str, str] | None:
+    """Model document 0.9.0's combination members (§2.2, §2.4, §3.5): the code and what is refused, or None. An
+    operand id names a load case first, and a combination only when no load case has it."""
+    if "difference_basis" in combination:
+        return "MBF-SI-DIFFERENCE-BASIS-UNSUPPORTED", "a difference basis"
+    if "subtrahend_support_state" in combination:
+        return "MBF-SI-SUBTRAHEND-SUPPORT-STATE-UNSUPPORTED", "a subtrahend support state"
+    if combination.get("basis") in ("absolute_sum", "srss"):
+        return "MBF-SI-COMBINATION-BASIS-UNSUPPORTED", f"the {combination['basis']} basis"
+    terms = combination.get("terms") if isinstance(combination.get("terms"), list) else []
+    ids = [combination.get(key) for key in ("minuend_id", "subtrahend_id")]
+    ids += combination.get("operand_ids") if isinstance(combination.get("operand_ids"), list) else []
+    nested = any(isinstance(term, Mapping) and "combination" in term for term in terms) or any(
+        isinstance(item, str) and item not in case_ids and item in combination_ids for item in ids)
+    if nested:
+        return "MBF-SI-COMBINATION-NESTED-UNSUPPORTED", "a combination operand"
+    return None
 
 
 def _canonical_number(value: float) -> str:
@@ -453,6 +478,7 @@ class _Writer:
         self.t_ref_f: Any = None
         self.nodes: dict[str, tuple[float, float, float]] = {}
         self.materials: dict[str, dict[str, Any]] = {}
+        self.library: list[Mapping[str, Any]] = []
         self.pipes: dict[str, dict[str, Any]] = {}
         self.node_restraints: dict[str, set[str]] = {}
         self.node_supports: dict[str, list[str]] = {}
@@ -588,6 +614,7 @@ class _Writer:
             return self.refused()
         self.read_nodes()
         self.read_materials()
+        self.read_sections()
         self.read_pipes()
         self.read_components()
         self.read_supports()
@@ -662,6 +689,10 @@ class _Writer:
         if self.model.get("reference_configurations"):
             self.refuse("MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED", "model.reference_configurations",
                         "reference configurations are not exported by the pilot writer")
+        # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4, §3.5): spectra are refused by name.
+        if _present(self.model.get("spectra")):
+            self.refuse("MBF-SI-SPECTRUM-UNSUPPORTED", "model.spectra",
+                        "response spectra are not exported by the pilot writer")
 
     def check_project_units(self) -> None:
         project = self.model.get("project")
@@ -763,6 +794,48 @@ class _Writer:
             self.materials[material["id"]] = {"E": e_mpa, "nu": nu, "alpha": alpha, "has_alpha": has_alpha,
                                               "origin": material_origin(material)}
 
+    def read_sections(self) -> None:
+        """The section library (Design §15, Format 4): each record a pipe segment's `section_ref` may bind."""
+        for section in _list(self.model.get("sections"), self, "model.sections"):
+            if not isinstance(section, Mapping) or not isinstance(section.get("id"), str):
+                self.invalid("model.sections", "each section needs a string id")
+                continue
+            self.library.append(section)
+
+    def bind_section(self, pipe: Mapping[str, Any], section: Mapping[str, Any], entity: str) -> str | None:
+        """The library section id the pipe binds, or None without `section_ref`. A binding the solve refuses
+        (product_physics resolve_shared_sections) is refused by name, since the import could not restore it."""
+        reference = pipe.get("section_ref")
+        if reference is None:
+            return None
+        if not isinstance(reference, str) or runtime_blank(reference) or \
+                sum(1 for item in self.library if item["id"] == reference) != 1:
+            self.refuse("MBF-SI-REFERENCE-UNRESOLVED", entity,
+                        f"{entity} section_ref {reference!r} must name exactly one section in model.sections")
+            return None
+        shared = next(item for item in self.library if item["id"] == reference)
+        properties = shared.get("properties")
+        def quantity(value: Any) -> bool:
+            return (isinstance(value, Mapping) and set(value) == {"value", "unit"}
+                    and not isinstance(value["value"], bool) and isinstance(value["value"], (int, float))
+                    and isinstance(value["unit"], str))
+
+        if shared.get("section_type") != "pipe" or not isinstance(properties, Mapping) \
+                or set(properties) != {"outside_diameter", "wall_thickness"} \
+                or not all(quantity(properties[name]) for name in properties):
+            self.refuse("MBF-SI-SECTION-BINDING-UNSUPPORTED", entity,
+                        f"{entity} section_ref {reference!r} binds a section that is not of type pipe with exactly "
+                        "outside_diameter and wall_thickness quantities, which the solve refuses")
+            return None
+        stale = [name for name in ("outside_diameter", "wall_thickness")
+                 if any(section[name][key] != properties[name][key] for key in ("value", "unit"))]
+        if stale:
+            self.refuse("MBF-SI-SECTION-REFERENCE-STALE", entity,
+                        f"{entity} section {' and '.join(stale)} differ from section {reference!r} in value or unit "
+                        "(SECTION_REFERENCE_CACHE_STALE); the import would restore the section from the pipe's values")
+            return None
+        return reference
+
     def read_pipes(self) -> None:
         for pipe in _list(self.model.get("pipe_segments"), self, "model.pipe_segments"):
             if not isinstance(pipe, Mapping) or not isinstance(pipe.get("id"), str):
@@ -790,8 +863,9 @@ class _Writer:
             section = self.read_section(pipe.get("section"), entity)
             if section is None:
                 continue
+            section_ref = self.bind_section(pipe, pipe["section"], entity)  # the pipe stays read: no cascade
             self.pipes[pipe["id"]] = {"from": start, "to": end, "material": material_id, "y_reference": y_reference,
-                                      **section}
+                                      "section_ref": section_ref, **section}
 
     def omit_orientation(self) -> None:
         orientation = [pipe_id for pipe_id, pipe in self.pipes.items()
@@ -1035,6 +1109,15 @@ class _Writer:
                 self.diag("MBF-SI-REFERENCE-UNRESOLVED", "error", entity, f"{entity} is at unknown node {node!r}")
                 continue
             family = support.get("family")
+            # Model document 0.9.0 (§2.4, §3.5): a snubber is refused by name.
+            if family == "snubber":
+                self.refuse("MBF-SI-SNUBBER-UNSUPPORTED", entity,
+                            f"{entity} is a snubber, a dynamic-only restraint the pilot writer "
+                            "does not export")
+                continue
+            support = self.axis_aligned(support, entity)
+            if support is None:
+                continue
             if family == "spring" and support.get("hanger") is None and support.get("nonlinear") is None:
                 self.read_spring(support, entity, node)
                 continue
@@ -1082,6 +1165,34 @@ class _Writer:
             self.refuse("MBF-SI-SUPPORT-UNSUPPORTED", f"node:{node}",
                         f"node {node!r} carries springs and rigid restraints; a spring is written as a flexible "
                         "anchor (KA with TRAK), which the importer reads alone at its node")
+
+    def axis_aligned(self, support: Mapping[str, Any], entity: str) -> Mapping[str, Any] | None:
+        """Model document 0.9.0 (§2.1, §3.5): an exactly axis-aligned `direction` (one nonzero component) is the
+        record on that axis, as the solve's lowering reads it: the direction is removed and the record's single DOF
+        token (restraint and stiffness) becomes UX, UY or UZ for it. Any other direction is refused by name."""
+        if "direction" not in support:
+            return support
+        direction = support["direction"]
+        components = [direction.get(axis) for axis in ("x", "y", "z")] if isinstance(direction, Mapping) else []
+        numbers = len(components) == 3 and all(isinstance(c, (int, float)) and not isinstance(c, bool)
+                                                and math.isfinite(c) for c in components)
+        nonzero = [index for index, c in enumerate(components) if numbers and c != 0]
+        restraints = support.get("restraints")
+        stiffness = support.get("stiffness")
+        tokens = {_DOF_TOKENS.get(token) for token in restraints} if isinstance(restraints, list) else {None}
+        if isinstance(stiffness, Mapping):
+            tokens.add(_DOF_TOKENS.get(stiffness.get("dof")))
+        if not (numbers and len(nonzero) == 1 and len(tokens) == 1 and next(iter(tokens)) in DOFS[:3]):
+            self.refuse("MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED", entity,
+                        f"{entity} has a direction that is not exactly along one global axis "
+                        "on a single translational DOF; a skewed restraint is not exported")
+            return None
+        token = DOFS[nonzero[0]]
+        lowered = {key: value for key, value in support.items() if key != "direction"}
+        lowered["restraints"] = [token for _ in restraints]
+        if isinstance(stiffness, Mapping):
+            lowered["stiffness"] = {**stiffness, "dof": token}
+        return lowered
 
     def read_spring(self, support: Mapping[str, Any], entity: str, node: str) -> None:
         """A spring support (Design §12, tranche 3): one translational DOF, named by its stiffness and its restraint
@@ -1138,6 +1249,15 @@ class _Writer:
             for name in ("equivalent_static", "modulus_basis_ref", "modulus_basis_temperature", "analysis_state"):
                 if case.get(name) is not None:
                     self.refuse("MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED", entity, f"{entity} {name} is not exported")
+            # Model document 0.9.0 (§1.2, §2.4, §3.5): a case's condition use and test condition are refused by name.
+            if "condition_use" in case:
+                self.refuse("MBF-SI-CONDITION-USE-UNSUPPORTED", entity,
+                            f"{entity} uses operating conditions (condition_use), which the "
+                            "pilot writer does not export")
+            if "test_condition" in case:
+                self.refuse("MBF-SI-TEST-CONDITION-UNSUPPORTED", entity,
+                            f"{entity} is a hydrostatic test condition (test_condition), which "
+                            "the pilot writer does not export")
             loads = case.get("primitive_loads") or []
             if not isinstance(loads, list):
                 self.invalid(entity, f"{entity} primitive_loads must be a list")
@@ -1186,8 +1306,20 @@ class _Writer:
                     self.read_load(case["id"], label, load)
         self.case_labels = kinds
         self.round_sums()
-        for combination in _list(self.model.get("combinations"), self, "model.combinations"):
+        combinations = _list(self.model.get("combinations"), self, "model.combinations")
+        cases = self.model.get("load_cases")
+        case_ids = {case.get("id") for case in (cases if isinstance(cases, list) else []) if isinstance(case, Mapping)}
+        combination_ids = {item.get("id") for item in combinations if isinstance(item, Mapping)}
+        for combination in combinations:
             identity = combination.get("id") if isinstance(combination, Mapping) else None
+            refusal = _combination_member_0_9_0(combination, case_ids, combination_ids) \
+                if isinstance(combination, Mapping) else None
+            if refusal is not None:
+                code, what = refusal
+                self.refuse(code, f"combination:{identity}",
+                            f"combination {identity!r} carries {what}, which the pilot writer "
+                            "does not export")
+                continue
             self.omit("MBF-SI-COMBINATION-NOT-EXPORTED", f"combination:{identity}",
                       f"combination {identity!r} is not exported; the target program forms its own combinations")
 
@@ -1378,6 +1510,12 @@ class _Writer:
             self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.materials",
                       f"materials {', '.join(unused)} are not exported; the MBF writes only the materials its pipe "
                       "segments use")
+        bound = {pipe["section_ref"] for pipe in self.pipes.values()}
+        unbound = list(dict.fromkeys(section["id"] for section in self.library if section["id"] not in bound))
+        if unbound:
+            self.omit("MBF-SI-FIELD-NOT-EXPORTED", "model.sections",
+                      f"sections {', '.join(unbound)} are not exported; the MBF writes only the sections its pipe "
+                      "segments reference")
         found: dict[str, list[str]] = {}
 
         def sweep(record: Any, path: str, entity: str) -> None:
@@ -1393,8 +1531,8 @@ class _Writer:
             kept = {key: value for key, value in units.items() if IMPORTED_PROJECT_UNITS.get(key) != value}
             if kept:
                 found["project.units"] = [f"{key} {value}" for key, value in kept.items()]
-        prefixes = {"materials": "material", "nodes": "node", "pipe_segments": "pipe", "supports": "support",
-                    "components": "component", "load_cases": "load_case"}
+        prefixes = {"materials": "material", "sections": "section", "nodes": "node", "pipe_segments": "pipe",
+                    "supports": "support", "components": "component", "load_cases": "load_case"}
         for member, prefix in prefixes.items():
             records = self.model.get(member)
             for record in records if isinstance(records, list) else []:
@@ -1433,7 +1571,7 @@ class _Writer:
             incident.setdefault(pipe["to"], []).append((pipe_id, pipe["from"]))
         for node in sorted(set(self.nodes) - set(incident)):
             entity = f"node:{node}"
-            referenced = node in self.node_restraints or any(
+            referenced = node in self.node_restraints or node in self.node_springs or any(
                 record.get("target", {}).get("node") == node for record in self.load_records.values()
             )
             if referenced:
@@ -1535,11 +1673,13 @@ class _Writer:
                 "elements": [],
             }
             material_map[name]["origin"] = material["origin"] or "undeclared"  # the import then needs a declaration
-        section_key = (_num(pipe["od"]), _num(pipe["thk"]))
+        # A record per library section (or none) and OD and wall (Design §15, Format 4), as materials are per id.
+        section_key = (pipe["section_ref"], _num(pipe["od"]), _num(pipe["thk"]))
         if section_key not in sections:
             name = f"P{len(sections) + 1}"
             sections[section_key] = name
-            section_map[name] = {"outside_diameter_mm": pipe["od"], "wall_thickness_mm": pipe["thk"], "elements": []}
+            section_map[name] = {"outside_diameter_mm": pipe["od"], "wall_thickness_mm": pipe["thk"], "elements": [],
+                                 "swbpipe_section": pipe["section_ref"]}
         delta = self.delta_t.get(pipe_id, 0.0)
         pressure = self.pipe_pressure.get(pipe_id, 0.0)
         load_key = (_num(delta), _num(pressure))
@@ -1600,8 +1740,8 @@ class _Writer:
                 if bend_names != names:
                     self.refuse("MBF-SI-BEND-UNSUPPORTED", self.bends[bend_id]["entity"],
                                 f"{self.bends[bend_id]['entity']}: pipe:{bend_id} and its incoming straight pipe:{pipe_id} "
-                                "differ in material, weight, section, temperature or pressure; the target program writes them as "
-                                "one layout row with one set of properties")
+                                "differ in material, weight, section (or its section_ref alone), temperature or "
+                                "pressure; the target program writes them as one layout row with one set of properties")
                 attributes[bend_id] = bend_names
                 members.append((bend_id, row["near"], row["far"]))
             for member_id, member_start, member_end in members:
@@ -1926,6 +2066,16 @@ class _Writer:
             "unresolved_assumptions, constraints, equipment_interfaces, rule_pack_refs) are not exported."
         )
         self.assumptions.extend(notes)
+
+
+def runtime_blank(text: str) -> bool:
+    """Rust `str::trim().is_empty()`: empty or only Unicode White_Space. Python's `str.strip` also removes
+    U+001C..U+001F, which Rust keeps, so the set is spelled out."""
+    return all(character in _RUST_WHITESPACE for character in text)
+
+
+_RUST_WHITESPACE = frozenset("\t\n\x0b\x0c\r \x85\xa0\u1680\u2028\u2029\u202f\u205f\u3000"
+                             + "".join(chr(code) for code in range(0x2000, 0x200B)))
 
 
 def _list(value: Any, writer: _Writer, entity: str) -> list[Any]:

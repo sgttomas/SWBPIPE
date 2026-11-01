@@ -48,7 +48,7 @@ the original basis `2243be380b` to its equivalent extracted commit; a shallow cl
 
 **Revision.** Any revision whose code the rules cover.
 
-**Tools.** Python 3.9 or later, `git` and `tar`. The chain's scripts call `python3`; the driver puts its own interpreter first on `PATH`.
+**Tools.** Python 3.9 or later and `git`. The chain's scripts call `python3`; the driver puts its own interpreter first on `PATH`, and the driver and the chain run in Python's UTF-8 mode.
 
 **Optional environment.**
 - `RP_OUT`: the default for `--out`.
@@ -83,14 +83,17 @@ All outputs go to `--out`.
 ## Pipeline
 
 1. Resolve the revision (use `source:<original-sha>` for an explicit original
-   Chirality identity), then `git archive` its SWBPIPE source tree without
-   `execution/`. Both standalone and original monorepo layouts are supported.
+   Chirality identity), then write its SWBPIPE source tree without `execution/`
+   from the raw committed blobs (`ls-tree -r`, `cat-file --batch`); no attribute
+   or git setting changes a byte. Both standalone and original monorepo layouts are supported.
 2. Carry the base chain's line-keyed rules (`base/*.g4.json`, `base/sens.py`, `base/premise_pins.json`) from the basis to the revision with `lib/linemap_rules.py --prune-deleted`.
    - **Keymap.** `lib/linemap_lib.py` maps each key in order:
      1. **Offset:** by the cumulative offset, checked.
      2. **Function:** by the same ordinal `fn` definition.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
+
+     The hunks come from `git diff -U0` with the histogram algorithm and every other output-affecting setting pinned on the command line. Every git read runs through `lib/pinned_git.py`, with no global or system configuration, no output-changing `GIT_*` variable and strict UTF-8 decoding, so the user's git setup cannot change a carry (retained-pricing-rules.md §1.2).
    - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported. Dictionary rules are discarded by their original key identity before insertion at mapped keys, so a deleted old key cannot overwrite or prune an unrelated live rule remapped to that spelling.
    - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
      - `{"as": "deleted", "why": …}` prunes it;
@@ -143,6 +146,7 @@ All outputs go to `--out`.
 - **Atom values.** Values come from the in-build law test. The tree's ASSUMED strides are only the chain's own check.
 - **Runtime and CI.** A full run takes about one minute of CPU on one core. The full run is not in CI. `tests/test_retained_pricing_tool.py` runs for any change under this directory and covers:
   - the key carry, the prune, and the `fewer_definitions` stop and its resolutions, on two-commit fixture repositories;
+  - the same carry, with and without a rename, under adverse repository-local configuration, attributes and replace refs, `GIT_*` variables and global configuration and attributes; UTF-8 reading in the carry, the driver and a chain step under an ASCII locale; the snapshot's raw bytes under adverse attributes and replace refs;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
   - the generator's basis line.
@@ -382,8 +386,41 @@ replace only its `rules/o10_rules.py` with this turn's, and run main
 `9ef6c4c469` with `--repo` pointing at the repository. OP1A's branch is inactive
 on that source. See the governing rules' §8.31 and §10.
 
+### §8.33: tees and implicit pressure junctions on the exact route (RT-A3 increment 1)
+
+`rules/o10_rules.py` adds the following rules; none adds an owner on D1:
+- RTA3-JW: the junction warnings' node map is filled only from a case's pressure regions, explicitly empty on E (D1.5) and absent on L, so its node loop and `ending` maps are bounded at 0.
+- RTA3-ID: the warnings' argument classes, site-specific.
+- RTA3-BB: the branch rows' basis loop (at most two bases) sits inside the association loop that D1.4's empty components bound at 0.
+
+`base/template_inventory.py` reads Rust's `\u{HEX}` escape as its one character. The registration and its basis are §8.33's (`7e7fef2d4`); main `d290563ea` reproduces §8.32's block and is its comparison basis. See the governing rules' §8.33 and `tests/test_833_rt_a3.py`.
+
+### §8.36: model document 0.9.0 (S1), the interim retained boundary and the typed-string census (candidate)
+
+D1.3 declines non-empty condition sets and spectra and any pipe's `condition_set_ref`, so the 0.9.0 lowering and
+withholding judge empty members on D1. `base/s1_owners_model.py` prices their remaining owners (S1-VW: the lowering's
+views, findings and operand resolution; S1-WH: the withholding pass), bound to the three new modules' bytes and the two
+calls. `base/typed_strings_model.py` replaces T03's basis count of a pipe's strings (12) by the census of the actual
+records (13), and adds route E's three contract strings and the node-proximity tolerance's unit (S1-TS), in
+`ordinary_caps.py` and `t25_g4.py`. `rules/o10_rules.py` adds S1-PIN, S1-BN (exact call targets for by-name false edges),
+S1-NR (SD-NR's guards), S1-L1, S1-ZR, S1-ZS, S1-ID and S1-MS; `rules/sq2_decisions_common.py` re-keys the factor
+diagnostic's two audits by name (S1-RK); `base/sd_owners_model.py` prices SD-HS's `(bool, &str)` set (S1-HS). The tree is
+a candidate: its generated block is not adopted. See the governing rules' §8.36.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
 registration additionally requires native atoms, all 80 budget evaluations,
 reviewed inputs/layouts and independent source/pricing scrutiny.
+
+### §8.37: RT-A3 increment 1b published-row lookup index
+
+`base/u4b_u5b_owners_model.py` binds the case-level `PublishedScope` and the
+member-level `MemberRows`. RTA3B-PS prices the entity hash table against the
+existing guarded P_final row cap, including resize overlap; removals do not
+require a grow-only premise. RTA3B-MR prices the thirty station/kind vectors
+against the guarded per-member row allowance. Both owners are charged per case
+beside U4B-ST in `ordinary_caps.py`. Partial or changed index ownership fails
+closed; `tests/test_837_rt_a3_1b.py` exercises the charges and guards. The
+combined-source registration follows model document 0.9.0's §8.36; the old
+pre-S1 1b draft is not a registration basis.

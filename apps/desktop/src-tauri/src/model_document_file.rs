@@ -223,17 +223,20 @@ mod tests {
             let message = &diagnostics[0].message;
             assert!(message.contains("retired_schema") && message.contains("MODEL_SCHEMA_VERSION_RETIRED") && message.contains("re-author"), "{message}");
         }
-        // W-15 slice c (DEL-02-01 Design `model-document-0.8.0.md` §3.1): 0.7.0 is retired
-        // by 0.8.0 and refused by name with the re-author diagnostic; nothing is migrated.
-        let mut document: Value = serde_json::from_str(DEMO).unwrap();
-        document["schema_version"] = json!("0.7.0");
-        let outcome = read_model_document_bytes("m.json".into(), document.to_string().as_bytes());
-        let ModelDocumentOpenOutcome::Refused { diagnostics, .. } = outcome else {
-            panic!("0.7.0 opened: {outcome:?}");
-        };
-        assert_eq!(diagnostics[0].code, "MODEL-FILE-SCHEMA-REFUSED");
-        assert_eq!(diagnostics[0].path, "schema_version");
-        assert!(diagnostics[0].message.starts_with("schema_version `0.7.0` refused (retired_schema): MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated."), "{}", diagnostics[0].message);
+        // W-15 slice c and the 0.9.0 step (DEL-02-01 Design `model-document-0.8.0.md` §3.1,
+        // `model-document-0.9.0.md` §3.2): 0.8.0 and 0.7.0 are retired by 0.9.0 and refused by
+        // name with the re-author diagnostic; nothing is migrated.
+        for version in ["0.8.0", "0.7.0"] {
+            let mut document: Value = serde_json::from_str(DEMO).unwrap();
+            document["schema_version"] = json!(version);
+            let outcome = read_model_document_bytes("m.json".into(), document.to_string().as_bytes());
+            let ModelDocumentOpenOutcome::Refused { diagnostics, .. } = outcome else {
+                panic!("{version} opened: {outcome:?}");
+            };
+            assert_eq!(diagnostics[0].code, "MODEL-FILE-SCHEMA-REFUSED");
+            assert_eq!(diagnostics[0].path, "schema_version");
+            assert!(diagnostics[0].message.starts_with(&format!("schema_version `{version}` refused (retired_schema): MODEL_SCHEMA_VERSION_RETIRED: model document {version} is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated.")), "{}", diagnostics[0].message);
+        }
         let mut document: Value = serde_json::from_str(DEMO).unwrap();
         document.as_object_mut().unwrap().remove("schema_version");
         assert_eq!(named(document.to_string().as_bytes()), "MODEL-FILE-SCHEMA-REFUSED");

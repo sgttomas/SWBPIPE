@@ -183,7 +183,9 @@ ASSUMED = {
     "s(RetainedFunctionalProjection)": 72, "s(MemberRecovery)": 696,
     "s(SpringAction)": 48, "s(SupportActions)": 128, "s(Option<[f64;3]>)": 32,
     "s((usize,usize,bool))": 24, "s(FrameElement)": 200, "s((usize,f64))": 16,
-    "s((&str,usize))": 24, "s((&str,&T))": 24, "s(&str)": 16, "s(Option<usize>)": 16,
+    "s((&str,usize))": 24, "s((bool,&str))": 24, "s((&str,Option<&str>))": 32, "s((&str,Option<&T>))": 24,
+    "s(SupportView)": 120, "s(CombinationView)": 112, "s(TermView)": 16, "s(Finding)": 112,
+    "s((String,&str,Operand))": 56, "s((&str,String))": 40, "s((&str,&T))": 24, "s(&str)": 16, "s(Option<usize>)": 16,
     "s(Option<f64>)": 16, "s((&str,usize,u64))": 32, "s((String,usize))": 32,
     "s(ForceTerm)": 48, "s(Option<FormationRecord>)": 64, "s(Vec<usize>)": 24,
 }

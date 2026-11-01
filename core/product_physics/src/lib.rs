@@ -20,6 +20,10 @@ pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LO
 mod model_format;
 mod model_fields;
 pub mod model_settings;
+// Model document 0.9.0's members (DEL-02-01 Design `model-document-0.9.0.md`).
+pub mod document_members;
+pub mod operating_conditions;
+pub mod spectra;
 pub use model_settings::{ModelSettingError, ModelSettings, DEFAULT_NODE_PROXIMITY_TOLERANCE_M};
 pub use model_format::{
     carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
@@ -248,6 +252,11 @@ pub struct PreviewModel {
     /// `expansion_laws` key (any value, including null). Request materials
     /// never own expansion laws; the resolver blocks rather than ignores them.
     pub(crate) request_material_expansion_laws: Vec<usize>,
+    /// Model document 0.9.0's `condition_sets` (`operating_conditions`); absent means none.
+    /// The lowering removes them once their rules are judged.
+    pub condition_sets: Vec<operating_conditions::ConditionSetInput>,
+    /// Model document 0.9.0's `spectra` (`spectra`), read by no solve; the lowering removes them.
+    pub spectra: Vec<spectra::SpectrumInput>,
 }
 
 /// One material record as authored: the unchanged `MaterialInput` fields
@@ -325,6 +334,10 @@ struct PreviewModelWire {
     reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
     #[serde(default, deserialize_with = "deserialize_present_object")]
     model_settings: Option<ModelSettings>,
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    condition_sets: Option<Vec<operating_conditions::ConditionSetInput>>,
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    spectra: Option<Vec<spectra::SpectrumInput>>,
     #[serde(default)]
     #[allow(dead_code)]
     data_boundary: serde::de::IgnoredAny,
@@ -381,6 +394,8 @@ impl<'de> Deserialize<'de> for PreviewModel {
             model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
+            condition_sets: wire.condition_sets.unwrap_or_default(),
+            spectra: wire.spectra.unwrap_or_default(),
         })
     }
 }
@@ -476,6 +491,10 @@ pub struct PreviewPipe {
     pub section: PipeSectionInput,
     #[serde(default)]
     pub section_ref: Option<String>,
+    /// Model document 0.9.0 (§1.2, §1.4): the pipe's operating-condition set, stored
+    /// explicitly. An authored `null` is refused; the lowering removes the member.
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    pub condition_set_ref: Option<String>,
     pub material: String,
     #[serde(default, deserialize_with = "model_fields::closed_optional_vec3")]
     pub y_reference: Option<Vec3>,
@@ -728,6 +747,11 @@ pub struct PreviewSupport {
     pub hanger: Option<SpringHangerInput>,
     #[serde(default)]
     pub nonlinear: Option<NonlinearSupportInput>,
+    /// Model document 0.9.0 (§2.1): the line of action of a single-DOF translational
+    /// record. Any present value, `null` included, decodes for its named rules
+    /// (`document_members`); an exactly axis-aligned one is lowered away.
+    #[serde(default, deserialize_with = "document_members::deserialize_direction")]
+    pub direction: Option<document_members::DirectionInput>,
     #[serde(default)]
     pub provenance: Option<String>,
     #[serde(default)]
@@ -848,6 +872,14 @@ pub struct PreviewLoadCase {
     /// 0.4.0). It is the complete resolved-state and ordinary-source request.
     #[serde(default)]
     pub analysis_state: Authored<AnalysisStateInput>,
+    /// Model document 0.9.0 (§1.2): the case's use of its pipes' condition sets.
+    /// Refused at solve in S1 (`operating_conditions::lower`).
+    #[serde(default, deserialize_with = "deserialize_present_object")]
+    pub condition_use: Option<operating_conditions::ConditionUseInput>,
+    /// Model document 0.9.0 (§2.4; RT-A6): the hydrostatic test condition, refused
+    /// at solve until its slice.
+    #[serde(default, deserialize_with = "deserialize_present_object")]
+    pub test_condition: Option<operating_conditions::TestConditionInput>,
     #[serde(default)]
     pub kind: serde::de::IgnoredAny,
     #[serde(default)]
@@ -935,7 +967,8 @@ pub struct PreviewCombination {
     /// Closed basis set: `mechanics` (linear terms),
     /// `result_state_subtraction` (`minuend_id` − `subtrahend_id`), and
     /// `range_envelope` (`mode` over `operand_ids`); vocabulary mirrors
-    /// `open_pipe_stress_load_case_algebra::AlgebraExpression`.
+    /// `open_pipe_stress_load_case_algebra::AlgebraExpression`. Model document
+    /// 0.9.0 adds `absolute_sum` and `srss` (terms), withheld at solve in S1.
     pub basis: String,
     #[serde(default)]
     pub terms: Vec<PreviewCombinationTerm>,
@@ -947,6 +980,12 @@ pub struct PreviewCombination {
     pub operand_ids: Option<Vec<String>>,
     #[serde(default)]
     pub mode: Option<String>,
+    /// Model document 0.9.0 (§2.2): any present value, `null` included, decodes for
+    /// its named rules (`document_members`).
+    #[serde(default, deserialize_with = "document_members::deserialize_difference_basis")]
+    pub difference_basis: Option<document_members::DifferenceBasisSetting>,
+    #[serde(default, deserialize_with = "document_members::deserialize_subtrahend_support_state")]
+    pub subtrahend_support_state: Option<document_members::SubtrahendSupportStateSetting>,
     #[serde(default)]
     pub provenance: Option<String>,
     #[serde(default)]
@@ -955,12 +994,46 @@ pub struct PreviewCombination {
     pub notes: serde::de::IgnoredAny,
 }
 
-/// Closed record (`model_fields`).
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
+/// Closed record (`model_fields`). Model document 0.9.0 (absolute-sum-srss §2): a
+/// term carries exactly one of `load_case` and `combination`; the solve's validation
+/// refuses any other shape by name (`LOAD_COMBINATION_SHAPE_INVALID`). An absent
+/// `load_case` reads as the empty id, with `authored_load_case()` false.
+#[derive(Debug, Clone)]
 pub struct PreviewCombinationTerm {
     pub load_case: String,
     pub factor: f64,
+    pub combination: Option<String>,
+    pub(crate) load_case_absent: bool,
+}
+
+impl PreviewCombinationTerm {
+    /// A term over one load case.
+    pub fn of_load_case(load_case: impl Into<String>, factor: f64) -> Self {
+        PreviewCombinationTerm { load_case: load_case.into(), factor, combination: None, load_case_absent: false }
+    }
+
+    /// Whether the term authors `load_case`.
+    pub fn authored_load_case(&self) -> bool {
+        !self.load_case_absent
+    }
+}
+
+/// Wire form of `PreviewCombinationTerm`: the closed record's fields.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PreviewCombinationTermWire {
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    load_case: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    combination: Option<String>,
+    factor: f64,
+}
+
+impl<'de> Deserialize<'de> for PreviewCombinationTerm {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let PreviewCombinationTermWire { load_case, combination, factor } = PreviewCombinationTermWire::deserialize(deserializer)?;
+        Ok(PreviewCombinationTerm { load_case_absent: load_case.is_none(), load_case: load_case.unwrap_or_default(), factor, combination })
+    }
 }
 
 /// Closed record (`model_fields`), including its target and magnitude.
@@ -2897,7 +2970,14 @@ fn run_linear_static_preview_observed_inner(
     };
     let mut diagnostics = Vec::new();
 
+    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.5): the
+    // lowering judges the 0.9.0 members' document-level rules and S1's interim
+    // refusals, then removes the members no later stage reads. Everything after it
+    // is the existing pipeline applied to the lowered model.
+    operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
+    // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
+    pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
     // W-16 slice a: the named imposed-displacement checks (and the exact
     // route's refusal) run ahead of generic validation.
@@ -2928,6 +3008,8 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // S1's interim withholding (§2.2, §2.4): every combination was judged above.
+    document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
 
     self_weight::validate_applied_self_weight(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
@@ -3283,6 +3365,11 @@ fn run_linear_static_preview_observed_inner(
     let preview = (!pressure_runtime::is_exact(&model)).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
+    if pressure_runtime::is_exact(&model) {
+        // RT-A3 increment 1: the branch connections' model-level diagnostics.
+        let arc_pipes = built.curved_bend_elements.iter().map(|bend| bend.pipe_id.as_str()).collect::<HashSet<_>>();
+        u4b_rows::branch_model_diagnostics(&model, &arc_pipes, &mut diagnostics);
+    }
     if preview.is_none() {
         withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);
     }
@@ -6117,7 +6204,10 @@ fn solve_prepared_load_case(
     // T4-U4b (§2.6): the case's directional intensified records (pressure-2
     // evidence carries the list only when it is non-empty).
     let mut directional_measures: Vec<serde_json::Value> = Vec::new();
+    // RT-A3 increment 1b: each member's station lookups start at its first row.
+    let mut published_scope = u4b_rows::PublishedScope::default();
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
+        let member_start = published_scope.begin(&results, &pipe.element_id);
         // W-15 slice d (DEL-03-05 Design `rigid-component-stiffness-scaling.md`
         // §5): a component body keeps its member maxima, but the case maximum
         // and the headline range over the non-body members only.
@@ -6927,11 +7017,17 @@ fn solve_prepared_load_case(
                 (Some(bend), Some(state)) if state.arc.is_some() => Some((state.pressure.pressure_pa(), bend.bend_radius)),
                 _ => None,
             };
-            let station = u4b_rows::append_station_quantities(model, &mut results, diagnostics, &u4b_rows::MemberQuantities {
+            let mut member_rows = u4b_rows::MemberRows::new(&pipe.element_id, member_start);
+            let station = u4b_rows::append_station_quantities(model, &mut results, &mut member_rows, diagnostics, &u4b_rows::MemberQuantities {
                 case_id: &load_case.id, pipe_id: &pipe.element_id, arc: macro_bend.is_some(), exact,
                 bases: bases.clone(), poisson, directional, toroidal,
             });
             directional_measures.extend(station.directional_records);
+            // RT-A3 increment 1: a tee's intensified rows at this straight
+            // member's ends, on both bases, from the rows just published.
+            if exact && macro_bend.is_none() {
+                directional_measures.extend(u4b_rows::append_branch_intensified(model, &mut results, &mut member_rows, &load_case.id, &pipe.element_id, &bases));
+            }
             if let Some(bend) = macro_bend {
                 let pressure_area_product = pressure_state.filter(|state| state.arc.is_some())
                     .and_then(|state| state.sections.cap_pair(state.pressure).ok()).map(|caps| caps[1]);
@@ -8828,13 +8924,16 @@ fn validate_support_family_tokens(model: &PreviewModel, diagnostics: &mut Vec<Di
                 | "spring_hanger"
                 | "constant_effort_support"
                 | "nonlinear"
+                // Model document 0.9.0 (§2.4): the dynamics lane's snubber, whose own
+                // rules are `document_members`' and which every static solve refuses.
+                | "snubber"
         ) {
             diagnostics.push(diag(
                 &format!("diagnostic:support:{}:family", stable_suffix(&support.id)),
                 "SUPPORT_FAMILY_INVALID",
                 "blocking",
                 format!(
-                    "unsupported explicit support family {family:?}; supported values: anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear"
+                    "unsupported explicit support family {family:?}; supported values: anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear, snubber"
                 ),
                 vec![support.id.clone(), format!("{}.family", support.id)],
             ));
@@ -15632,7 +15731,7 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.8.0.
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.9.0.
         let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -15853,7 +15952,7 @@ mod tests {
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
         // B7b: the load/reference-state group keys on the current exact contract and
-        // the group's presence (0.8.0), never on a version string.
+        // the group's presence (0.9.0), never on a version string.
         let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
         model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
@@ -15917,7 +16016,7 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.8.0.
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.9.0.
             let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
@@ -17236,6 +17335,7 @@ mod tests {
             stiffness: None,
             hanger: None,
             nonlinear: None,
+            direction: None,
             provenance: Some("invented_example_user_input".to_string()),
             label: serde::de::IgnoredAny,
             boundary_association: serde::de::IgnoredAny,
@@ -18232,6 +18332,7 @@ mod tests {
                 stiffness: None,
                 hanger: None,
                 nonlinear: None,
+                direction: None,
                 provenance: Some("invented_example".to_string()),
                 label: serde::de::IgnoredAny,
                 boundary_association: serde::de::IgnoredAny,
@@ -18248,6 +18349,7 @@ mod tests {
                 stiffness: None,
                 hanger: None,
                 nonlinear: Some(nonlinear),
+                direction: None,
                 provenance: Some(
                     "invented_example_user_entered_nonlinear_support_no_catalog".to_string(),
                 ),
@@ -18283,11 +18385,15 @@ mod tests {
             terms: vec![PreviewCombinationTerm {
                 load_case: load_id.to_string(),
                 factor: 1.0,
+                combination: None,
+                load_case_absent: false,
             }],
             minuend_id: None,
             subtrahend_id: None,
             operand_ids: None,
             mode: None,
+            difference_basis: None,
+            subtrahend_support_state: None,
             provenance: Some("invented_example_no_code_combination".to_string()),
             tags: Default::default(),
             notes: Default::default(),
@@ -18348,6 +18454,7 @@ mod tests {
             family: Some("nonlinear".to_string()),
             stiffness: None,
             hanger: None,
+            direction: None,
             nonlinear: Some(NonlinearSupportInput {
                 behavior: "gap".to_string(),
                 dof: "UY".to_string(),
@@ -18378,6 +18485,7 @@ mod tests {
             family: Some("nonlinear".to_string()),
             stiffness: None,
             hanger: None,
+            direction: None,
             nonlinear: Some(NonlinearSupportInput {
                 behavior: "friction".to_string(),
                 dof: "UZ".to_string(),
@@ -18858,6 +18966,7 @@ mod tests {
             stiffness: None,
             hanger: None,
             nonlinear: None,
+            direction: None,
             provenance: Some("invented_example_normal_reaction_source".to_string()),
             label: serde::de::IgnoredAny,
             boundary_association: serde::de::IgnoredAny,
@@ -22362,6 +22471,8 @@ mod tests {
             .push(PreviewCombinationTerm {
                 load_case: "load:missing".to_string(),
                 factor: f64::NAN,
+                combination: None,
+                load_case_absent: false,
             });
         request.model.combinations.push(PreviewCombination {
             id: "".to_string(),
@@ -22372,6 +22483,8 @@ mod tests {
             subtrahend_id: None,
             operand_ids: None,
             mode: None,
+            difference_basis: None,
+            subtrahend_support_state: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
             tags: Default::default(),
             notes: Default::default(),
@@ -22385,6 +22498,8 @@ mod tests {
             subtrahend_id: None,
             operand_ids: None,
             mode: None,
+            difference_basis: None,
+            subtrahend_support_state: None,
             provenance: Some("invented_example_user_defined_combination".to_string()),
             tags: Default::default(),
             notes: Default::default(),
@@ -22416,6 +22531,8 @@ mod tests {
             subtrahend_id: Some(subtrahend.to_string()),
             operand_ids: None,
             mode: None,
+            difference_basis: None,
+            subtrahend_support_state: None,
             provenance: Some(
                 "invented_example_user_defined_subtraction_no_code_default".to_string(),
             ),
@@ -22434,6 +22551,8 @@ mod tests {
             subtrahend_id: None,
             operand_ids: Some(operand_ids.iter().map(|id| id.to_string()).collect()),
             mode: Some(mode.to_string()),
+            difference_basis: None,
+            subtrahend_support_state: None,
             provenance: Some(
                 "invented_example_user_defined_range_envelope_no_code_default".to_string(),
             ),
@@ -22600,6 +22719,8 @@ mod tests {
         subtraction_with_terms.terms = vec![PreviewCombinationTerm {
             load_case: "load:L-100".to_string(),
             factor: 1.0,
+            combination: None,
+            load_case_absent: false,
         }];
         request.model.combinations = vec![
             mechanics_with_mode,
@@ -22629,7 +22750,10 @@ mod tests {
         assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
         assert!(codes.contains("LOAD_COMBINATION_SHAPE_INVALID"));
         assert!(codes.contains("LOAD_COMBINATION_DUPLICATE_TERM"));
-        assert!(codes.contains("LOAD_COMBINATION_LOAD_CASE_UNKNOWN"));
+        // Model document 0.9.0 (DEL-05-02 Design `absolute-sum-srss-combinations.md` §2): a
+        // subtraction operand naming no load case and no combination is the kind-neutral
+        // LOAD_COMBINATION_OPERAND_UNKNOWN; a term's load_case keeps LOAD_CASE_UNKNOWN.
+        assert!(codes.contains("LOAD_COMBINATION_OPERAND_UNKNOWN"));
         assert!(codes.contains("LOAD_COMBINATION_RANGE_MODE_UNKNOWN"));
         assert!(codes.contains("LOAD_COMBINATION_OPERANDS_EMPTY"));
         assert!(result.diagnostics.iter().any(|item| item.code
@@ -23822,10 +23946,7 @@ mod tests {
                 let case = input.model.load_cases[0].id.clone();
                 let mut combination = request().model.combinations[0].clone();
                 combination.id = "combination:p5".into();
-                combination.terms = vec![PreviewCombinationTerm {
-                    load_case: case,
-                    factor,
-                }];
+                combination.terms = vec![PreviewCombinationTerm::of_load_case(case, factor)];
                 input.model.combinations = vec![combination];
                 let output = run_linear_static_preview_with_mode(input.clone(), mode);
                 input.model.combinations.clear();
@@ -23856,10 +23977,14 @@ mod tests {
                 PreviewCombinationTerm {
                     load_case: input.model.load_cases[0].id.clone(),
                     factor: 1.0,
+                    combination: None,
+                    load_case_absent: false,
                 },
                 PreviewCombinationTerm {
                     load_case: opposite.id.clone(),
                     factor: 1.0,
+                    combination: None,
+                    load_case_absent: false,
                 },
             ];
             input.model.load_cases.push(opposite);
@@ -24013,10 +24138,14 @@ mod tests {
                 PreviewCombinationTerm {
                     load_case: separate.model.load_cases[0].id.clone(),
                     factor: 1.0,
+                    combination: None,
+                    load_case_absent: false,
                 },
                 PreviewCombinationTerm {
                     load_case: second.id.clone(),
                     factor: 1.0,
+                    combination: None,
+                    load_case_absent: false,
                 },
             ];
             separate.model.load_cases.push(second);
@@ -24064,6 +24193,8 @@ mod tests {
         model.combinations[0].terms = vec![PreviewCombinationTerm {
             load_case: case.clone(),
             factor: 1.0,
+            combination: None,
+            load_case_absent: false,
         }];
         let combination = &model.combinations[0];
         let expression = CombinationExpression::resolve(combination).expect("a one-term mechanics combination resolves");
@@ -25052,7 +25183,7 @@ mod tests {
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
             assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
-            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0", "0.9.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
                 assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");

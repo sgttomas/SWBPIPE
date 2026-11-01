@@ -3,7 +3,7 @@
 //! export, in both solver modes. W-16 slice b (DEL-05-02 Design
 //! `exact-combinations.md`) admits the combination (A1.6), which now solves and
 //! exports with its combination evidence. The input is PP's
-//! committed invented X0 fixture (the current 0.8.0 `3.0.0/exact_pressure_v3`
+//! committed invented X0 fixture (the current 0.9.0 `3.0.0/exact_pressure_v3`
 //! document).
 //!
 //! B7b: the retired `2.0.0/exact_straight_pressure_v2` route's composition and
@@ -64,9 +64,10 @@ fn request(model: &Value) -> RunnerRequest {
 #[test]
 fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
     let base: Value = serde_json::from_str(X0).unwrap();
-    // A still-refused component family (W-15 admits the valve, the earlier sample).
-    let mut tee = base.clone();
-    tee["model"]["components"] = json!([{"id":"component:tee","kind":"tee",
+    // A still-refused component family (W-15 admits the valve and RT-A3 the
+    // tee, the earlier samples).
+    let mut other = base.clone();
+    other["model"]["components"] = json!([{"id":"component:other","kind":"other",
         "node":"node:fixture-tip","provenance":"invented_u0_control"}]);
     let mut combination = base.clone();
     combination["model"]["combinations"] = json!([{"id":"combination:sum","basis":"mechanics",
@@ -91,9 +92,9 @@ fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
     for (name, payload, code, refs) in [
         (
             "A1.1",
-            tee,
+            other,
             "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
-            json!(["component:tee"]),
+            json!(["component:other"]),
         ),
     ] {
         for mode in MODES {

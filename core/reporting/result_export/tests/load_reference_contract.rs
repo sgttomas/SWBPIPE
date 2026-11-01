@@ -1,7 +1,7 @@
 //! The current pressure-2 reader on documents carrying the optional
 //! load/reference-state group: the four current producer envelopes (B7b's v3
 //! twins of the retired load-reference-1 statements, same physical inputs,
-//! 0.8.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! 0.9.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
 //! Python verifier and the base-reader corpus. Both readers must reproduce every
 //! expectation in the case file. This proves consumer admission and carrier
 //! preservation, not producer authentication.
@@ -282,22 +282,24 @@ fn current_inputs_table_and_schema_are_pinned() {
     // (its generated equivalent-static refusal sentence only).
     // W-16 slice b (DEL-05-02 exact-combinations.md §7): again for the pressure-2 identity
     // limitation (identity bytes only).
+    // RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): again for
+    // the pressure-2 identity limitation (identity bytes only).
     for (name, digest) in [
         (
             "connected-sparse",
-            "ab8fd5d28c967c89aae6a451f6f8f8e6459249e82a38cf0fb696ca36dd9ad9e7",
+            "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
         ),
         (
             "connected-dense",
-            "f421cd4ce3a09bede06bbd5e0efa4b8e3197219940e1d1de4cb75dd0a3516daf",
+            "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
         ),
         (
             "pressure-sparse",
-            "3e70d65fa846411decbb2c534cb6e1a4e9e3a8a31f37bf391873cdeafd5137bb",
+            "3ef9c24af2602d055f68a473f27726f556ce4153f5595819e5da5dace509807c",
         ),
         (
             "pressure-dense",
-            "279c845930411a0d024c083213b692f22a7d9aa61ca66df6d63cd42bd8639c2a",
+            "2f9dea9f3006169c7cbf6c4c5ac93e5bc740fd156a8871ea4ab20f021e446921",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

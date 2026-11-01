@@ -15,12 +15,14 @@ import { ContextMenu, isContextMenuKey, keyboardMenuRequest, type ContextMenuEnt
 import type { ViewportViewCommand } from "../../viewport/viewportSelection";
 import { mapOutcomeToRows } from "./runSheetBatch";
 import { adoptCurrentValues, applySessionEvent, currentEntry, reconcileRunSheet, removeRowFromSheet, type RunSheetState } from "./runSheetLedger";
-import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type QuantityColumn, type RunSheetFinding } from "./runSheetModel";
+import { KIND_CODES, MESSAGES, QUANTITY_COLUMNS, SUPPORT_CODES, reservedOperationIds, type PipeNumberFrom, type QuantityColumn, type RunSheetFinding, type RunSheetNumbering } from "./runSheetModel";
+import { CENTER_OF_GRAVITY_CONVENTION } from "../../component-creation/componentIntent";
+import { componentField } from "./runSheetComponents";
 import type { RunSheetStore } from "./runSheetStore";
 import {
-  CODE_LISTS, FAST_PATH, SHEET_COLUMNS, assignIds, buildDraftBatch, cellName, cellView, deleteDraftRow, discardEdit, effectiveText, insertRow,
-  lengthUnitLock, markSubmitted, releaseUnregistered, rowHeaderText, sentenceFragment, setCell, sheetView,
-  type SheetColumn, type SheetColumnKey, type SheetView, type ViewRow,
+  CODE_LISTS, COLUMN_GROUP_LABELS, FAST_PATH, ID_COLUMNS, SHEET_COLUMNS, assignIds, buildDraftBatch, cellName, cellView, deleteDraftRow, discardEdit, effectiveText, insertRow,
+  lengthUnitLock, markSubmitted, recordShownPipeIds, releaseUnregistered, retryNumbering, rowHeaderText, sentenceFragment, setCell, sheetView,
+  type SheetColumn, type SheetColumnGroup, type SheetColumnKey, type SheetView, type ViewRow,
 } from "./runSheetView";
 
 /** What the shell supplies: the store, the queue's reservations and the queue itself. */
@@ -60,8 +62,8 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   const view = useMemo(() => engine.version === version && engine.refusals.size
     ? sheetView({ state, statuses: store.statuses, model, conversions, reservedIds, engineRefusals: engine.refusals, lookup: store.lookup })
     : baseView, [baseView, engine, version, state, store.statuses, model, conversions, reservedIds, store.lookup]);
-  const [showExtras, setShowExtras] = useState(false);
-  const columns = useMemo(() => SHEET_COLUMNS.filter((column) => !column.extra || showExtras), [showExtras]);
+  const [shownGroups, setShownGroups] = useState<Readonly<Record<SheetColumnGroup, boolean>>>({ sectionExtras: false, idsAndSources: false, componentDetails: false });
+  const columns = useMemo(() => SHEET_COLUMNS.filter((column) => !column.group || shownGroups[column.group]), [shownGroups]);
   const [focus, setFocus] = useState<Address | null>(null);
   const [editing, setEditingState] = useState<Editing | null>(null);
   // The edit being finished is taken once: Enter or Tab finish it, and the
@@ -123,6 +125,26 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     return () => { active = false; clearTimeout(timer); };
   }, [baseView, model, version, queueing]);
 
+  // §3.2 A pipe id numbered by its start node is fixed the first time it is shown.
+  useLayoutEffect(() => {
+    if (store.current() !== state) return;
+    const next = recordShownPipeIds(state, baseView);
+    if (next !== state) store.update(() => next);
+  }, [baseView, state, store]);
+
+  /** Show or hide a column group. Collapsing the group that holds the focused cell moves the
+   * sheet's tab stop to the nearest shown cell before it in the same row (§5.1). */
+  function toggleGroup(group: SheetColumnGroup) {
+    const hiding = shownGroups[group];
+    setShownGroups((current) => ({ ...current, [group]: !current[group] }));
+    if (!hiding || !focus) return;
+    const at = SHEET_COLUMNS.findIndex((column) => column.key === focus.column);
+    if (SHEET_COLUMNS[at]?.group !== group) return;
+    const visible = (column: SheetColumn) => !column.group || (column.group !== group && shownGroups[column.group]);
+    const target = [...SHEET_COLUMNS.slice(0, at)].reverse().find(visible) ?? SHEET_COLUMNS.slice(at + 1).find(visible);
+    if (target) setFocus({ rowKey: focus.rowKey, column: target.key });
+  }
+
   // ---- Focus.
   const shownKeys = view.rows.map((row) => row.sheetRow.key);
   const rowIndex = (key: string) => shownKeys.indexOf(key);
@@ -172,7 +194,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   function commit(rowKey: string, column: SheetColumnKey, text: string) {
     const before = sheetView({ state: store.current(), statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup });
     let next = setCell(store.current(), rowKey, column, text);
-    if (text.trim()) next = assignIds(next, rowKey, model, reservedIds);
+    if (text.trim() || column === "kind") next = assignIds(next, rowKey, model, reservedIds);
     update(() => next);
     const after = sheetView({ state: next, statuses: store.statuses, model, conversions, reservedIds, lookup: store.lookup });
     markChanges(before, after, rowKey);
@@ -230,7 +252,7 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
     if (!targets.length) { announce("Fill down needs following draft rows."); return; }
     update((current) => targets.reduce((next, key) => {
       const written = setCell(next, key, from.column, value);
-      return value.trim() ? assignIds(written, key, model, reservedIds) : written;
+      return value.trim() || from.column === "kind" ? assignIds(written, key, model, reservedIds) : written;
     }, current));
     announce(`Filled ${column.label} into ${targets.length} row${targets.length === 1 ? "" : "s"}.`);
   }
@@ -245,9 +267,15 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   latest.current = { model, reservedIds, conversions };
   async function queue() {
     if (queueingRef.current || operationBusy) return;
-    const snapshot = store.current();
     const { model: basis, reservedIds: reserved, conversions: known } = latest.current;
-    const fresh = sheetView({ state: snapshot, statuses: reconcileRunSheet(snapshot, store.lookup), model: basis, conversions: known, reservedIds: reserved, lookup: store.lookup });
+    const viewOf = (state: RunSheetState) => sheetView({ state, statuses: reconcileRunSheet(state, store.lookup), model: basis, conversions: known, reservedIds: reserved, lookup: store.lookup });
+    // Pipe ids an edit in the same keystroke shows for the first time are fixed before the
+    // snapshot (§3.2), so the display's own recording cannot look like a change to the sheet.
+    const shown = store.current();
+    const recorded = recordShownPipeIds(shown, viewOf(shown));
+    if (recorded !== shown) store.update(() => recorded);
+    const snapshot = store.current();
+    const fresh = viewOf(snapshot);
     if (fresh.queueBlocked) {
       announce(`Queue disabled: ${fresh.queueBlocked}`);
       return;
@@ -491,6 +519,12 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
   const unitLock = lengthUnitLock(view);
   const numberingLocked = Object.keys(state.idState.assigned).length > 0;
   const lengthUnit = state.header.lengthUnit || projectUnit("length");
+  /** A numbering change; a new start moves the counter, and every refused row is numbered again (§3.2). */
+  const setNumbering = (patch: Partial<RunSheetNumbering>) => update((current) => retryNumbering({
+    ...current,
+    idState: patch.start !== undefined ? { ...current.idState, next: patch.start } : current.idState,
+    header: { ...current.header, numbering: { ...current.header.numbering, ...patch } },
+  }, model, reservedIds));
 
   function unitControl(label: string, dimension: string, value: string, onChange: (unit: string) => void, disabledReason: string | null = null) {
     const options = unitOptions(dimension, value);
@@ -518,13 +552,28 @@ export function RunSheet({ host, model, operationBusy = false, viewCommand, onSe
         {unitLock ? <span data-testid="run-sheet-unit-lock" className="run-sheet-note">{unitLock}</span> : null}
         <fieldset disabled={numberingLocked} title={numberingLocked ? "Ids are assigned; the numbering is fixed for this sheet." : undefined}>
           <legend>Numbering</legend>
-          <label>Node prefix<input aria-label="Node id prefix" value={state.header.numbering.nodePrefix} onChange={(event) => { const nodePrefix = event.target.value; update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, nodePrefix } } })); }} /></label>
-          <label>Pipe prefix<input aria-label="Pipe id prefix" value={state.header.numbering.pipePrefix} onChange={(event) => { const pipePrefix = event.target.value; update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, pipePrefix } } })); }} /></label>
-          <label>Start<input aria-label="Numbering start" inputMode="numeric" value={String(state.header.numbering.start)} onChange={(event) => { const start = Number(event.target.value); update((current) => ({ ...current, idState: { ...current.idState, next: start }, header: { ...current.header, numbering: { ...current.header.numbering, start } } })); }} /></label>
-          <label>Step<input aria-label="Numbering step" inputMode="numeric" value={String(state.header.numbering.step)} onChange={(event) => { const step = Number(event.target.value); update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, step } } })); }} /></label>
+          <label>Node prefix<input aria-label="Node id prefix" value={state.header.numbering.nodePrefix} onChange={(event) => setNumbering({ nodePrefix: event.target.value })} /></label>
+          <label>Pipe prefix<input aria-label="Pipe id prefix" value={state.header.numbering.pipePrefix} onChange={(event) => setNumbering({ pipePrefix: event.target.value })} /></label>
+          <label>Start<input aria-label="Numbering start" inputMode="numeric" value={String(state.header.numbering.start)} onChange={(event) => setNumbering({ start: Number(event.target.value) })} /></label>
+          <label>Step<input aria-label="Numbering step" inputMode="numeric" value={String(state.header.numbering.step)} onChange={(event) => setNumbering({ step: Number(event.target.value) })} /></label>
+          <label>Pad numbers to N digits<input aria-label="Pad numbers to N digits" inputMode="numeric" placeholder="No padding"
+            value={state.header.numbering.pad === undefined ? "" : String(state.header.numbering.pad)}
+            onChange={(event) => { const text = event.target.value.trim(); setNumbering({ pad: text === "" ? undefined : Number(text) }); }} /></label>
+          <label>Pipe number from<select aria-label="Pipe number from" value={state.header.numbering.pipeNumber ?? "end"}
+            onChange={(event) => setNumbering({ pipeNumber: event.target.value as PipeNumberFrom })}>
+            <option value="end">its end node</option>
+            <option value="start">its start node</option>
+          </select></label>
         </fieldset>
-        <button type="button" aria-expanded={showExtras} onClick={() => setShowExtras((value) => !value)}>Section extras</button>
+        {(Object.keys(COLUMN_GROUP_LABELS) as SheetColumnGroup[]).map((group) => (
+          <button key={group} type="button" aria-expanded={shownGroups[group]} onClick={() => toggleGroup(group)}>{COLUMN_GROUP_LABELS[group]}</button>
+        ))}
       </div>
+      {shownGroups.componentDetails ? <p className="run-sheet-note" role="note">
+        V creates a valve and L a flange on the row's pipe, at its end node. Component inputs never inherit; blank unit cells use the project unit, shown as derived.
+        {" "}{CENTER_OF_GRAVITY_CONVENTION} Solver consumption is mechanics_geometry_only or not_solver_consumed; blank means undeclared.
+        A stiffness scale is optional and requires its source reference.
+      </p> : null}
       <div className="run-sheet-scroll" role="region" aria-label="Run sheet rows">
         <table ref={tableRef} aria-label="Run sheet" data-testid="run-sheet-table">
           <thead>
@@ -634,8 +683,10 @@ function startBranchReason(row: ViewRow, lookup: RunSheetStore["lookup"]): strin
 
 function typedText(row: ViewRow | undefined, column: SheetColumnKey): string {
   if (!row) return "";
-  if (column === "nodeId") return row.values.ids?.node ?? "";
-  if (column === "pipeId") return row.values.ids?.pipe ?? "";
+  const field = componentField(column);
+  if (field) return row.values.component?.[field] ?? "";
+  const member = ID_COLUMNS[column];
+  if (member) return row.values.ids?.[member] ?? "";
   const value = (row.values as Record<string, unknown>)[column];
   return typeof value === "string" ? value : "";
 }

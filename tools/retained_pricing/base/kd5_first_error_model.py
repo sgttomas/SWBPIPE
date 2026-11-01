@@ -1,4 +1,7 @@
 """KD5C6: source-bound first-return allocation limits; no visit/edge limits."""
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import collections
 import hashlib
 import os
@@ -46,7 +49,10 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # (a borrow), passing it to certify_spring_reaction; no pinned helper, root or C6 site changes. solve_prepared_load_case
 # forms the moved nonlinear grounds (R-b) and the spring bases with their formed loads (R-c, W16S-SG); its consumption
 # of the fallback attempts and every first-return alternative are unchanged.
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '94fbe3706ce20357cf723546b6e0d22d168f570084df16a2745ee9c816cf0e83', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+# RT-A3 increment 1 D3 (§8.33): solve_prepared_load_case appends a straight exact member's branch-connection rows
+# (u4b_rows::append_branch_intensified; none on D1, D1.4); its consumption of the fallback attempts and every
+# first-return alternative are unchanged.
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

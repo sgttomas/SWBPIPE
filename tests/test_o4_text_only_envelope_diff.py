@@ -271,6 +271,21 @@ W16B_IDENTITY_TAIL_NEW = ("Every other component or support family is refused by
 W16B_IDENTITY_FROM = W15_IDENTITY_NEW
 W16B_IDENTITY_NEW = W16B_IDENTITY_FROM.replace(W16B_IDENTITY_TAIL_OLD, W16B_IDENTITY_TAIL_NEW)
 assert W16B_IDENTITY_FROM.count(W16B_IDENTITY_TAIL_OLD) == 1 and W16B_IDENTITY_FROM.endswith(W16B_IDENTITY_TAIL_OLD)
+# RT-A3 increment 1 (DEL-04-07 Design pressure-contract.md, "Tees and pressure junctions"): the pressure-2 identity
+# limitation states the admitted branch connection (tee) and the pressure junction, in place of the full stop after
+# the reducer clause. Every pressure-2 envelope and the carriers holding its formulation basis restate it at that one
+# field, exactly RT_A3_IDENTITY_FROM -> RT_A3_IDENTITY_NEW; everything else they differ by from main at RT_A3_BASE is
+# the hashes binding it (the pressure-2 table pin among them). The checks above read history and are unaffected.
+RT_A3_BASE = "db268dd8ceed5b3fae68b1256545850637ca2c2e"
+RT_A3_CLAUSE = ("; a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch "
+                "flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as "
+                "intensified rows at the ends of its named straight members on each section basis, not a code stress, and "
+                "a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers "
+                "to the wall form a junction, whose caps sum to the fitting's pressure load.")
+RT_A3_IDENTITY_FROM = W16B_IDENTITY_NEW
+RT_A3_IDENTITY_NEW = RT_A3_IDENTITY_FROM.replace("(EXACT_PRESSURE_REDUCER_IN_REGION otherwise). ",
+                                                 "(EXACT_PRESSURE_REDUCER_IN_REGION otherwise)" + RT_A3_CLAUSE + " ")
+assert RT_A3_IDENTITY_FROM.count("(EXACT_PRESSURE_REDUCER_IN_REGION otherwise). ") == 1 and RT_A3_IDENTITY_NEW != RT_A3_IDENTITY_FROM
 # W-16 slice a: main at the merge base of its regeneration (W-7's corpus check and its refusal
 # tests read the corpus there; the W-16 check binds the committed corpus to it), and the preview
 # LIMITATIONS[1] sentence, old and new.
@@ -1635,13 +1650,146 @@ class TestW16bIdentityExceptionIsItsOneField:
         """W-16 slice b's exception admits the restated identity only at a formulation basis's first limitation: the
         new identity planted as another limitation of a moved carrier fails at that file."""
         name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
-        text = (PROJECT / name).read_text()
+        # The bytes the W-7 check reads: RT-A3 has since restated the committed file's identity (its own check below).
+        text = w15c_base_text(name)
         assert json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False) in text and W16B_IDENTITY_TAIL_OLD not in text
         history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
         assert text.count(json.dumps(history)) == 1
         mutant = text.replace(json.dumps(history), json.dumps(W16B_IDENTITY_NEW, ensure_ascii=False))
         with pytest.raises(AssertionError, match=re.escape(name)):
             TestW7MovesOnlyAddedGlobalEndRows.test_o4_text_only_envelope_diff_w7_moves_only_added_global_end_rows(current={name: mutant})
+
+
+
+def _rt_a3_member_path(obj, key, path):
+    """The path a member is read at. A stated edit that sets a formulation basis's limitations (RV120's shapes,
+    `{"op": "set", "path": ["formulation_basis", "limitations"], "value": [...]}`) holds those limitations as its
+    value, so its value is read at that formulation basis's limitations."""
+    if key == "value" and dict(obj).get("op") == "set" and dict(obj).get("path") == ["formulation_basis", "limitations"]:
+        return path + (key, "formulation_basis", "limitations")
+    return path + (key,)
+
+
+def _rt_a3_identity_old(value, restored, path=()):
+    """`value` with every RT-A3 identity field put back to W-16 slice b's text (counted in `restored`). A field is a
+    formulation basis's first limitation holding exactly RT_A3_IDENTITY_NEW; the new text anywhere else is left in
+    place, so it fails the classification that follows."""
+    if isinstance(value, Obj):
+        # S1's current documents are re-authored at 0.9.0 after RT-A3's
+        # historical identity change. Restore only that approved model token
+        # for this older proof; every other field still compares unchanged.
+        model_version_step = (
+            dict(value).get("document_kind") == "openpipestress.product_preview.model"
+            and dict(value).get("schema_version") == "0.9.0"
+        )
+        if model_version_step:
+            value = Obj((key, "0.8.0" if key == "schema_version" else member) for key, member in value)
+        return Obj((k, _rt_a3_identity_old(v, restored, _rt_a3_member_path(value, k, path))) for k, v in value)
+    if isinstance(value, list):
+        return [_rt_a3_identity_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == "0.9.0" and path[-1:] == ("document_schema_version",):
+        # The reader corpus states the same model token outside the model.
+        return "0.8.0"
+    if isinstance(value, str) and path[:1] == ("inputs",):
+        # Its input provenance also spells out that same re-authoring step.
+        return value.replace("model document 0.9.0", "model document 0.8.0").replace("model 0.9.0", "model 0.8.0")
+    if value == RT_A3_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
+        restored.append(path)
+        return RT_A3_IDENTITY_FROM
+    return value
+
+
+def test_rt_a3_version_exception_is_only_the_reauthored_model_token():
+    model = Obj([("document_kind", "openpipestress.product_preview.model"), ("schema_version", "0.9.0"), ("value", 17)])
+    restored = _rt_a3_identity_old(model, [])
+    assert dict(restored) == {"document_kind": "openpipestress.product_preview.model", "schema_version": "0.8.0", "value": 17}
+    for other in [Obj([("schema_version", "0.9.0")]), Obj([("document_kind", "openpipestress.product_preview.model"), ("schema_version", "0.9.1")])]:
+        assert _rt_a3_identity_old(other, []) == other
+    assert _rt_a3_identity_old(Obj([("document_schema_version", "0.9.0"), ("description", "0.9.0")]), []) == Obj([("document_schema_version", "0.8.0"), ("description", "0.9.0")])
+    provenance = "copies re-authored to model document 0.9.0; pressure remains 15 MPa"
+    assert _rt_a3_identity_old(provenance, [], ("inputs", 0)) == provenance.replace("0.9.0", "0.8.0")
+    assert _rt_a3_identity_old(provenance, [], ("description",)) == provenance
+    authored = "authored as model document 0.9.0 requests with explicit_axial_rods_v1 hardware"
+    assert _rt_a3_identity_old(authored, [], ("inputs", 0)) == authored.replace("0.9.0", "0.8.0")
+
+
+def _rt_a3_from_fields(value, path=()) -> int:
+    """How many formulation bases' first limitations hold exactly RT_A3_IDENTITY_FROM."""
+    if isinstance(value, Obj):
+        return sum(_rt_a3_from_fields(v, _rt_a3_member_path(value, k, path)) for k, v in value)
+    if isinstance(value, list):
+        return sum(_rt_a3_from_fields(v, path + (i,)) for i, v in enumerate(value))
+    return int(value == RT_A3_IDENTITY_FROM and path[-3:] == ("formulation_basis", "limitations", 0))
+
+
+def _rt_a3_base_text(name: str) -> str:
+    return subprocess.run(
+        ["git", "show", _source_spec(PROJECT, RT_A3_BASE, name)],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
+# The listed files whose committed bytes RT-A3 may restate: the pressure-2 envelopes and their carriers.
+RT_A3_LISTED = tuple(dict.fromkeys(n for n in ENVELOPES + BINDING_ONLY + W7_ENVELOPES + W7_DERIVED
+                                   if "pressure_source" not in n))
+
+
+class TestRtA3MovesOnlyTheIdentity:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_rt_a3_moves_only_the_identity(current=None):
+        """RT-A3 increment 1: each listed pressure-2 file, committed, against main at `RT_A3_BASE`. With every
+        formulation basis's first limitation holding RT-A3's identity put back to W-16 slice b's, it differs only by
+        binding hashes: no number, row, id, class or other text, and no member or array element added or removed. A
+        file that restates the identity restates it wherever its base stated W-16 slice b's (an AnalysisRun record
+        carries no formulation basis and moves only hashes)."""
+        moved = 0
+        for name in RT_A3_LISTED:
+            before = load(_rt_a3_base_text(name))
+            text = (PROJECT / name).read_text() if current is None or name not in current else current[name]
+            restored = []
+            after = _rt_a3_identity_old(load(text), restored)
+            found = classify(before, after)
+            assert all(kind == "hash" for kind, _ in found), (name, [p for k, p in found if k != "hash"][:8])
+            if restored:
+                # A restated file restates every identity field its base held.
+                assert len(restored) == _rt_a3_from_fields(before), (name, "identity fields")
+                moved += 1
+        assert current is not None or moved, "no listed file restates the RT-A3 identity"
+
+
+class TestRtA3IdentityExceptionRefusesOtherMoves:
+    @staticmethod
+    def test_o4_text_only_envelope_diff_rt_a3_identity_exception_refuses_other_moves():
+        """RT-A3's exception admits the restated identity only at a formulation basis's first limitation: the new
+        identity planted as another limitation, or a changed number, of a moved carrier fails at that file."""
+        name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
+        text = (PROJECT / name).read_text()
+        assert json.dumps(RT_A3_IDENTITY_NEW, ensure_ascii=False) in text
+        history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
+        assert text.count(json.dumps(history)) == 1
+        mutants = [text.replace(json.dumps(history), json.dumps(RT_A3_IDENTITY_NEW, ensure_ascii=False))]
+        value = re.search(r'"(value|magnitude)": ?-?([1-9][0-9.eE+-]*)', text)
+        assert value
+        mutants.append(text[: value.start(2)] + "1" + text[value.start(2):])
+        for mutant in mutants:
+            with pytest.raises(AssertionError, match=re.escape(name)):
+                TestRtA3MovesOnlyTheIdentity.test_o4_text_only_envelope_diff_rt_a3_moves_only_the_identity(current={name: mutant})
+
+    @staticmethod
+    def test_o4_text_only_envelope_diff_rt_a3_identity_exception_refuses_other_edit_limitations():
+        """In RV120's stated edits the exception admits the restated identity only as the first limitation the edit
+        sets: the identity planted as that edit's second limitation fails at that file."""
+        name = "fixtures/results/retained_precision_rv120_b3_inputs.json"
+        assert name in RT_A3_LISTED
+        text = (PROJECT / name).read_text()
+        identity = next(form for form in (json.dumps(RT_A3_IDENTITY_NEW), json.dumps(RT_A3_IDENTITY_NEW, ensure_ascii=False))
+                        if form in text)
+        start = text.index(identity) + len(identity)
+        second = re.compile(r',\s*("(?:[^"\\]|\\.)*")').match(text, start)
+        assert second and second.group(1) != identity
+        mutant = text[: second.start(1)] + identity + text[second.end(1):]
+        with pytest.raises(AssertionError, match=re.escape(name)):
+            TestRtA3MovesOnlyTheIdentity.test_o4_text_only_envelope_diff_rt_a3_moves_only_the_identity(current={name: mutant})
 
 
 class TestW7EnumerationRefusesOtherMoves:

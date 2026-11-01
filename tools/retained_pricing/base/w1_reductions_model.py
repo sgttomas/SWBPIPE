@@ -8,6 +8,9 @@ after the source diff and its allocation/lifetime consequences are reviewed.
 Stage2's member wire/diagnostic additions preserve the L3 get_mut Value moves;
 their separate positive owners are bound by w1_member_load_model.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 from pathlib import Path
 
@@ -76,12 +79,15 @@ RF_PINS = {
 # lib.rs's Timoshenko partial-span formation change no reduction's owner or lifetime; the L5 texts are unchanged.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
+# Model document 0.9.0 D3 (§8.36): lib.rs's new members, closed term wire, lowering and withholding calls, the snubber
+# token, retained_wire.rs's DEF-E hash and preview_physics.rs's test literal change no reduction's owner or lifetime;
+# the L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "7c3be9bab1a0e5dac865c86d2274fa58ca4566aebba7582f6ec9def1353bbec4",
-    "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
+    "core/product_physics/src/lib.rs": "940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73",
+    "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
-    "core/product_physics/src/preview_physics.rs": "bc037bd1c58565d12784948f84decaac8b61d7a4c3782d8ffac4d2e730ee7347",
+    "core/product_physics/src/preview_physics.rs": "8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

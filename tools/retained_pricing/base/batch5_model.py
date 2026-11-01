@@ -4,6 +4,9 @@ The domain is unchanged. In particular, no child backing is credited merely
 because the joint feature is dormant. Existing D1 component/region refusals
 establish the empty children; actual carrier layouts stay positively priced.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 import os
 import re
@@ -34,7 +37,10 @@ PINS = {
         # W-16 stage 2 D3 (§8.29): the moved nonlinear grounds (R-b, empty on D1) and the spring bases with their formed
         # loads (R-c: zero bases and no term on D1, W16S-SG), passed to the loop and the spring rows; `before` moves above
         # the spring-base map. Carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "94fbe3706ce20357cf723546b6e0d22d168f570084df16a2745ee9c816cf0e83",
+        # RT-A3 increment 1 D3 (§8.33): on the exact route a straight member's branch-connection rows
+        # (u4b_rows::append_branch_intensified, records extended into directional_measures); D1.4 admits no component,
+        # so no association, row or record. Carriers, staging and prepared-pressure calls unchanged.
+        "solve_prepared_load_case": "0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -50,9 +56,12 @@ PINS = {
     # it only narrows admission. The component, region and load-state refusals are unchanged.
     # W-16 slice a (§8.23, W16-NS): family_clauses refuses a support-targeted primitive (F::LoadTarget); it only
     # narrows admission. The component, region and load-state refusals are unchanged.
+    # Model document 0.9.0 D3 (§8.36): family_clauses refuses condition_use, test_condition, direction, the
+    # combination members and (D1.3) condition sets, spectra and set references; it only narrows admission. The
+    # component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "72130bdb1b87bde04fd1746fb33f86bbdaf14c6d288ce3d3e273ea86f72711b4",
+        "family_clauses": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -86,7 +95,11 @@ PINS = {
 # region loop; it maps terminals of the case's regions by node (a BTreeMap and two Vecs per node) and refuses a shared
 # terminal node with a compensated terminal (diagnostics only). Every admitted E case has `pressure_regions: []` (D1.5),
 # so the map stays empty (no allocation) and nothing is pushed; L never reaches it. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "4922de7d03256f051775e5f09efd30f932db5652381f9bb25dfe9de0e12bc5bb"
+# RT-A3 increment 1 D3 (§8.33): the prefix adds junction_closure_warnings, its per-case helper and a `warn` helper
+# (scalar_string imported), called once per solve entry beside validate_profile. It returns at once without an exact
+# contract (L); on E every case's `pressure_regions` is `Some([])` (D1.5), so its node map and member set stay empty
+# (no allocation), its loops run zero times and nothing is pushed. No carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "d43a8a1aa904ba15099e35694f97b94b628f5139c1b3e2cf4627728e34125e0a"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

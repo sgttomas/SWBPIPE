@@ -8,7 +8,7 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 `3.0.0/exact_pressure_v3` (policy PRESSURE-SOURCE-1, case domain `pressure_source_case_evidence_v1`). The retired
 `physics-source-1` (`2.0.0/exact_straight_pressure_v2`) is not read here; a stored v2 result is refused by name at
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
-independently captured full invocation, a current model document 0.8.0 with the exact contract.
+independently captured full invocation, a current model document 0.9.0 with the exact contract.
 
 T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5) and O4 (DEL-04-08 Design
 ``o4-source-extension.md`` §3.4): the retained-source route admits both shear models
@@ -44,11 +44,11 @@ PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
 # T4-U4b §4.3: + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
-PRESSURE_TABLE_SHA256 = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
+PRESSURE_TABLE_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the exact contract a captured invocation must author
-# (b7-plan "Current model format"; O4 §3.4): 0.8.0, `pressure_contract` present, either shear model.
-MODEL_VERSION = "0.8.0"
+# (b7-plan "Current model format"; O4 §3.4): 0.9.0, `pressure_contract` present, either shear model.
+MODEL_VERSION = "0.9.0"
 SHEAR_MODELS = (sb.EULER_BERNOULLI, sb.TIMOSHENKO)
 
 
@@ -85,7 +85,7 @@ class SourceContract(Enum):
 
     @classmethod
     def from_invocation(cls, invocation):
-        """The captured model's contract: a current 0.8.0 document with the exact v3 contract and no outer
+        """The captured model's contract: a current 0.9.0 document with the exact v3 contract and no outer
         shear key, as Rust's `from_invocation`; anything else is refused."""
         model = _get(_get(invocation, "request"), "model")
         contract = _get(model, "pressure_contract")
@@ -193,6 +193,28 @@ def _schema_shape(value, rule, schema, resolved=False):
     from . import load_reference_evidence as lr
     return blocks._shape(value, rule, schema, resources={"load_reference_state.schema.json": lr.transport_schema()})
 
+
+
+def model_uses_conditions(model: Any) -> bool:
+    """Whether a case of the model carries model document 0.9.0's condition_use (Rust `model_uses_conditions`)."""
+    cases = model.get("load_cases") if isinstance(model, Mapping) else None
+    return isinstance(cases, list) and any(isinstance(case, Mapping) and "condition_use" in case for case in cases)
+
+
+def model_carries_condition_sets(model: Any) -> bool:
+    """Whether the model carries condition_sets other than absent or [] (Rust `model_carries_condition_sets`)."""
+    return isinstance(model, Mapping) and "condition_sets" in model and model["condition_sets"] != []
+
+
+def model_carries_spectra(model: Any) -> bool:
+    """Whether the model carries spectra other than absent or [] (Rust `model_carries_spectra`)."""
+    return isinstance(model, Mapping) and "spectra" in model and model["spectra"] != []
+
+
+def model_carries_condition_set_ref(model: Any) -> bool:
+    """Whether a pipe of the model carries condition_set_ref, any value (Rust `model_carries_condition_set_ref`)."""
+    pipes = model.get("pipe_segments") if isinstance(model, Mapping) else None
+    return isinstance(pipes, list) and any(isinstance(pipe, Mapping) and "condition_set_ref" in pipe for pipe in pipes)
 
 
 def _require(condition: Any, detail: str) -> None:
@@ -682,6 +704,13 @@ def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mappin
         if actual_invocation is not None:
             model = _get(_get(actual_invocation, "request"), "model")
             _require(_get(model, "schema_version") == MODEL_VERSION, "ACTUAL_MODEL_SCHEMA")
+            # Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.7): a case's condition_use is
+            # declined by name, as the Rust reader does.
+            _require(not model_uses_conditions(model), "ACTUAL_CONDITION_USE")
+            # §3.8: non-empty condition sets or spectra, and any pipe's set reference, likewise.
+            _require(not model_carries_condition_sets(model), "ACTUAL_CONDITION_SETS")
+            _require(not model_carries_spectra(model), "ACTUAL_SPECTRA")
+            _require(not model_carries_condition_set_ref(model), "ACTUAL_CONDITION_SET_REF")
             # The load/reference-state group keys on its authored presence, never on a version.
             _require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")
         if resolved:

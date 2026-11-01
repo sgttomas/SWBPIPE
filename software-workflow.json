@@ -100,6 +100,18 @@
         "tools/agent_live_session_fixture_test.py"
       ]
     },
+    "agent-journey-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/agent_journey_fixture_test.py",
+        "tools/agent_journey_memory_monitor_test.py",
+        "tools/agent_supplier_capture_test.py"
+      ]
+    },
     "model-version-literals": {
       "cwd": ".",
       "command": [
@@ -109,10 +121,58 @@
         "-q",
         "tests/test_model_version_literals.py"
       ]
+    },
+    "retained-pricing-tool-tests": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/retained_pricing/tests",
+        "-n",
+        "auto"
+      ]
+    },
+    "benchmark-reference-tests": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "validation/benchmarks/numerical_integrity/test_reference.py",
+        "validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py"
+      ]
     }
   },
   "always_checks": [],
   "path_rules": [
+    {
+      "paths": [
+        "tools/agent_journey_fixture.py",
+        "tools/agent_journey_fixture_test.py",
+        "tools/agent_journey_memory_monitor.py",
+        "tools/agent_journey_memory_monitor_test.py",
+        "tools/agent_supplier_capture.py",
+        "tools/agent_supplier_capture_test.py",
+        "tools/agent_live_session_fixture.py",
+        "apps/desktop/native-smoke/agent-journey.js",
+        "fixtures/model_operations/agent_w9a_journey.json",
+        "fixtures/model_operations/agent_w9a_capture_outcomes.json",
+        "validation/references/w9_benchmarks/references.json",
+        "software-workflow.json",
+        "execution/PKG-16/DEL-16-06/Work/agent-witness-pin.json",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "apps/desktop/src-tauri/src/embedded_agent/live_runtime.rs",
+        "apps/desktop/src-tauri/src/embedded_agent/macos.rs",
+        "execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json",
+        "tools/agent_host_witness.py"
+      ],
+      "checks": [
+        "agent-journey-offline"
+      ]
+    },
     {
       "paths": [
         "tools/agent_live_session_fixture.py",
@@ -139,6 +199,7 @@
         "tools/agent_supplier_bundle_test.py",
         "tools/release/build_signed_app.py",
         "tests/test_release_signed_build_script.py",
+        "docs/**",
         "software-workflow.json"
       ],
       "checks": [
@@ -173,7 +234,8 @@
     {
       "paths": [
         "tools/agent_host_witness.py",
-        "tools/agent_host_witness_test.py"
+        "tools/agent_host_witness_test.py",
+        "execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json"
       ],
       "checks": [
         "agent-host-witness-offline"
@@ -245,6 +307,54 @@
       ],
       "checks": [
         "model-version-literals"
+      ]
+    },
+    {
+      "paths": [
+        "_harness/**",
+        "api/**",
+        "apps/desktop/**",
+        "docs/**",
+        "examples/**",
+        "execution/**",
+        "fixtures/**",
+        "schemas/**",
+        "tools/**",
+        "AGENTS.md",
+        "loop/**",
+        "requirements-dev.txt",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "piping-pytest"
+      ]
+    },
+    {
+      "paths": [
+        "core/**",
+        "execution/**",
+        "tools/**",
+        "fixtures/product_preview/pressure_source/**",
+        "fixtures/results/**",
+        "schemas/load_reference_state.schema.json",
+        "schemas/physics_source_recovery.schema.json",
+        "schemas/retained_precision_mp_v2.schema.json",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "retained-pricing-tool-tests"
+      ]
+    },
+    {
+      "paths": [
+        "core/**",
+        "validation/benchmarks/numerical_integrity/**",
+        "validation/benchmarks/numerical_robustness/runner/**",
+        "tools/ci/python_test_reads.py",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "benchmark-reference-tests"
       ]
     }
   ]

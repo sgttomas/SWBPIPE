@@ -1520,7 +1520,7 @@
   "formulation_profile_id": "exact_pressure_v3",
   "contract_evidence_policy": "closed_physical_case_evidence_for_exact_pressure_v3_and_load_reference_state_on_0_4_0_cross_bound_to_actual_invocation_and_source_receipt_v1",
   "supported_profile_limitations": [
-    "Current model 0.8.0 with 3.0.0/exact_pressure_v3 source recovery admits the unchanged straight circular members and linear restraints or springs family. An authored load/reference-state group retains its resolved member material, thermal/fit eigenstrain and prescribed-motion evidence; validation does not rederive that state or widen numerical eligibility.",
+    "Current model 0.9.0 with 3.0.0/exact_pressure_v3 source recovery admits the unchanged straight circular members and linear restraints or springs family. An authored load/reference-state group retains its resolved member material, thermal/fit eigenstrain and prescribed-motion evidence; validation does not rederive that state or widen numerical eligibility.",
     "Retained-source recovery applies only to individually admitted cases with explicitly empty pressure-region inventories and the existing bounded source adapter load, transform, block and 256-DOF limits.",
     "Ordinary and retained-source cases keep separate selected methods and complete case/row/evidence coverage; every ordinary case must pass its checks, and one case cannot promote another.",
     "Retained endpoint maxima bound source-action projection and ordered binary64 arithmetic using represented section operands; they are bounded elastic normal stress, not code or equivalent stress, and do not certify primitive geometry or material accuracy.",

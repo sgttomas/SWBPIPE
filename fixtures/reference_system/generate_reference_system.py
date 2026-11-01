@@ -44,7 +44,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-MODEL_DOCUMENT_VERSION = "0.8.0"
+MODEL_DOCUMENT_VERSION = "0.9.0"
 HERE = Path(__file__).resolve().parent
 SPEC = "execution/PKG-09/DEL-09-01/Work/reference-system.md"
 MODEL_FILE = "reference_system.json"
@@ -145,6 +145,16 @@ BENDS = [
     ("RS-B2", ("6", "0", "7"), "0.400", 4.2, 2.1, 1.8, "RS-P080", "RS-P090", ("RS-090", "RS-095"), "RS-P085"),
     ("RS-B3", ("6", "15", "2"), "0.250", 3.6, 2.3, 1.9, "RS-P220", "RS-P230", ("RS-220", "RS-225"), "RS-P225"),
 ]
+# Tee (branch connection record at its node): tag, node, header pipe, branch pipe, header SIF, branch SIF, connection
+# angle (deg). Spec §5 gives the descriptive geometry tee creation requires (TEE_* below; EX reads none of it) and no
+# flexibility factor, which neither route assembles; with no mechanics_interface the record is consumed as
+# mechanics_geometry_only, the solver's default (preview_physics.rs solver_consumption), as the desktop writes it.
+TEE = ("RS-T1", "RS-130", "RS-P120", "RS-P210", 2.4, 2.0, 90)
+# §5: the tee's descriptive geometry, which tee creation requires (geometry only; EX joins the tee rigidly).
+TEE_RUN_SIZE_MM = 170.0  # the branch outlet, RS-S170's outside diameter
+TEE_HEADER_SIZE_MM = 270.0  # the header run, RS-S270's outside diameter
+TEE_CONNECTION_TYPE = "invented unreinforced tee"
+TEE_REINFORCEMENT_REFERENCE = "invented: no reinforcement"
 # Rigid family: tag, kind, member, node, weight (N), CoG offset from the body midpoint (m, global), stiffness scale.
 RIGID = [
     ("RS-F1", "flange", "RS-P020", "RS-030", 350, ("0", "0", "0"), 10.0),
@@ -216,8 +226,7 @@ LEDGER = [
     ("Pressure (five regions, shared terminals `transfers_to_wall`)", "in tranche 1", "—", "—"),
     ("Anchors, guides, line stop, vertical supports", "in tranche 1", "—", "—"),
     ("Variable spring as a user-stiffness spring", "in tranche 1", "—", "—"),
-    ("Tee RS-T1 with user SIFs", "pending; the junction at RS-130 is in tranche 1 without the component",
-     "RT-A3 increment 1 (`claude/rt-a3-tee`)", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
+    ("Tee RS-T1 with user SIFs", "in tranche 1", "—", "—"),
     ("Eccentric reducer RS-R1 in region RG-R",
      "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region", "RT-A3 increment 2",
      "`EXACT_PRESSURE_REDUCER_IN_REGION`"),
@@ -344,6 +353,19 @@ EXPECTED = {
         "identity": "the RS-dSAM reaction resultant force and its moment about the origin are zero",
     },
 }
+# Checks that bind a key result's presence (an identity) while its values await a verified solve; the expected value
+# stays null until then (spec §1, §9.1).
+CHECKS = {
+    "KR-05": {
+        "kind": "presence", "test": "tests/test_reference_system_fixture.py",
+        "check": "in RS-SUS and RS-OPE the solve publishes exactly four branch_intensified_bending_stress_v1 rows, at "
+                 "the RS-130 ends of RS-P120 (header, component:RS-T1 branch_header) and RS-P210 (branch, "
+                 "branch_branch), each on the nominal and the reduced section basis, with their intensified_measures "
+                 "records; RS-EXP publishes none today (the combination withholds intensified rows by name, "
+                 "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE), and the same four if it ever publishes them; presence "
+                 "and basis only, no value",
+    },
+}
 
 
 # -- helpers --------------------------------------------------------------------------------------------------------
@@ -452,6 +474,18 @@ def components():
             "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"},
             "provenance": PROVENANCE,
         })
+    tag, node, header, branch, sif_header, sif_branch, angle = TEE
+    rows.append({
+        "id": f"component:{tag}", "label": f"Tee {tag[3:]}", "kind": "tee", "node": f"node:{node}",
+        "geometry": {"branch_header_pipe_ref": f"pipe:{header}", "branch_branch_pipe_ref": f"pipe:{branch}",
+                     "branch_run_size": q(TEE_RUN_SIZE_MM, "mm"), "branch_header_size": q(TEE_HEADER_SIZE_MM, "mm"),
+                     "branch_connection_angle": q(angle, "deg"), "branch_connection_type": TEE_CONNECTION_TYPE,
+                     "branch_reinforcement_reference": TEE_REINFORCEMENT_REFERENCE,
+                     "branch_geometry_source_reference": SOURCE},
+        "modifiers": {"branch_header_sif_user_value": q(sif_header, "none"),
+                      "branch_branch_sif_user_value": q(sif_branch, "none"), "source_reference": SOURCE},
+        "provenance": PROVENANCE,
+    })
     for tag, kind, pipe, node, weight, offset, scale in RIGID:
         _, start, end, _, _ = member(pipe)
         mid = [(a + b) / 2 for a, b in zip(position(start), position(end))]
@@ -693,6 +727,8 @@ def model_document():
 PERSON_FIELDS = {
     "bend": {"modifiers.flexibility_factor_user_value", "modifiers.sif_in_plane_user_value",
              "modifiers.sif_out_of_plane_user_value", "modifiers.source_reference"},
+    "tee": {"modifiers.branch_header_sif_user_value", "modifiers.branch_branch_sif_user_value",
+            "modifiers.source_reference"},
 }
 LEAF_KEYS = ({"value", "unit"}, {"x", "y", "z"}, {"x", "y", "z", "unit"})
 
@@ -755,13 +791,7 @@ def authoring(model):
                             "their sources (spec §11.3; OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED)",
                   "agent_authorable": "every other authored input"},
         "inputs": inputs,
-        "pending_inputs": [{"id": "component:RS-T1", "ledger_family": "Tee RS-T1 with user SIFs",
-                            "fields": {"modifiers.branch_header_sif_user_value": "person",
-                                       "modifiers.branch_branch_sif_user_value": "person",
-                                       "modifiers.source_reference": "person",
-                                       "geometry.branch_connection_angle": "agent_authorable",
-                                       "geometry.branch_header_pipe_ref": "agent_authorable",
-                                       "geometry.branch_branch_pipe_ref": "agent_authorable"}}],
+        "pending_inputs": [],
         "self_weight": {"cases": [f"load:{case}" for case, *_ in CASES], "pipe_refs": weighted_pipes(),
                         "gravity": dict(GRAVITY), "generator": "self-weight generator (self_weight.rs), captured in "
                                                               f"{CAPTURE_FILE}", "mark": "agent_authorable"},
@@ -779,7 +809,8 @@ def key_results():
                 "identity or a verified solve, frozen in validation/references/reference_system/ with its basis "
                 "recorded (spec §1); each expected value here names that record",
         "results": [{"id": rid, "description": description, "cases": cases, "basis": basis, "spec_basis": spec_basis,
-                     "expected": EXPECTED.get(rid)} for rid, description, cases, basis, spec_basis in KEY_RESULTS],
+                     "expected": EXPECTED.get(rid), **({"check": CHECKS[rid]} if rid in CHECKS else {})}
+                    for rid, description, cases, basis, spec_basis in KEY_RESULTS],
     }
 
 

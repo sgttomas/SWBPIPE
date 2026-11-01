@@ -103,18 +103,20 @@ CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 # T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1"
+EXACT_SHA = "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
 # registry entry is appended after the exact successor's.
 PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_SHA = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"
+PRESSURE_SOURCE_SHA = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 MILESTONES = {
-    "sparse_interactive": "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
-    "dense_scrutiny": "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
+    "sparse_interactive": "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
+    "dense_scrutiny": "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa",
 }
 
 

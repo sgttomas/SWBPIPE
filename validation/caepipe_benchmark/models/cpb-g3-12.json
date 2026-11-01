@@ -829,7 +829,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.8.0",
+    "schema_version": "0.9.0",
     "supports": [
       {
         "family": "anchor",

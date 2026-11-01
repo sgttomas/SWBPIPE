@@ -76,7 +76,7 @@ fn retired_v2_labels_are_refused() {
             relabelled["producer"]["semantic_contract_id"] = json!(id);
             for refusal in [s::for_source(&relabelled).unwrap_err(), s::for_source_metadata(&relabelled).unwrap_err()] {
                 assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{label} {id}: {refusal}");
-                assert!(refusal.contains("re-author the model as 0.8.0"), "{label} {id}: {refusal}");
+                assert!(refusal.contains("re-author the model as 0.9.0"), "{label} {id}: {refusal}");
             }
         }
     }
@@ -219,6 +219,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     const W7_BASES: [&str; 2] = ["rotated_from_published_element_local_end_actions_v1",
         "rotated_from_published_element_local_end_actions_v1;axial_is_pipe_wall_action"];
     extend(&mut vocabulary, "basis", &W7_BASES);
+    // RT-A3 increment 1: the branch intensified rows' token on both section bases.
+    extend(&mut vocabulary, "basis", &["user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=nominal_section",
+        "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section"]);
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_2.v0.3.schema.json"
@@ -268,6 +271,16 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // recovery token and section basis (the source family does not carry them).
     let u4b_split = rest.iter().position(|r| !r["kind"].as_str().unwrap().starts_with("connector_")).unwrap_or(rest.len());
     let (connector, u4b) = rest.split_at(u4b_split);
+    // RT-A3 increment 1: the two branch intensified signatures (nominal, reduced) are
+    // last, pressure-2's own stress signatures, never combined.
+    let (u4b, branch) = u4b.split_at(u4b.len() - 2);
+    for (row, basis) in branch.iter().zip(["nominal_section", "reduced_section"]) {
+        assert_eq!(row["kind"], "branch_intensified_bending_stress_v1", "{row}");
+        assert_eq!(row["source_basis"], format!("user_branch_sif_times_basis_bending_stress_rows_v1; section_basis={basis}"));
+        assert!(row["unit"] == "Pa" && row["component"] == "intensified_bending" && row["combination_algebra"] == "never_combined", "{row}");
+        assert!(open_pipe_stress_result_export::section_basis::is_stress_kind("branch_intensified_bending_stress_v1"));
+        assert!(!source_rows_kinds(&q).contains(&"branch_intensified_bending_stress_v1".to_string()), "{row}: pressure-2's own");
+    }
     // W-7: the six global end-action signatures follow the U4b rows (Fx, Fy, Fz in N; Mx,
     // My, Mz in N*m; signed linear; no declared basis), pressure-2's own.
     let (u4b, w7) = u4b.split_at(u4b.len() - 6);
@@ -336,9 +349,10 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // 072-076 two each); the kinds are unchanged.
     // T4-U5b: + the tie-rod force (097), a new kind; T4-U4b (§2.2): + 22 (six kinds,
     // both section bases, 098-107) -> 129 rows over 66 kinds; W-7: + the six global
-    // end-action signatures (108-113), two new kinds -> 135 over 68.
-    assert_eq!(rows.len(), 135);
-    assert_eq!(p["source_kind_count"], 68);
+    // end-action signatures (108-113), two new kinds -> 135 over 68; RT-A3 increment 1:
+    // + the branch intensified signature on both bases (114), a new kind -> 137 over 69.
+    assert_eq!(rows.len(), 137);
+    assert_eq!(p["source_kind_count"], 69);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).

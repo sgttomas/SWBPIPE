@@ -52,6 +52,8 @@ STRESS_KINDS = (
     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum",
     "pipe_toroidal_membrane_hoop_stress_v1", "pipe_toroidal_radial_surface_stress_v1",
     "curved_bend_directional_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_maximum_v1",
+    # RT-A3 increment 1: a branch connection's intensified rows.
+    "branch_intensified_bending_stress_v1",
     "element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z",
     "element_local_torsional_shear_stress", "pipe_axial_membrane_stress_v2", "pipe_lame_radial_stress_v2",
     "pipe_lame_hoop_stress_v2", "pipe_elastic_normal_stress_maximum_v2",
