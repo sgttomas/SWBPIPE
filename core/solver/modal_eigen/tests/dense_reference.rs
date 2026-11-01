@@ -39,7 +39,7 @@ const U: f64 = f64::EPSILON / 2.0;
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
 /// cases at least 1.6·10⁷ above it, except E-RIGID-SCALE-1e6, whose six
-/// stiff modes lie 5 to 330 times below it (README: an open conflict).
+/// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
 /// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
@@ -63,6 +63,8 @@ fn options() -> DenseOptions {
         resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
         resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         formed_backward_error_multiple: FORMED_BACKWARD_ERROR_MULTIPLE,
+        // Explicit TEST-LOCAL candidate authorized by Agent 0; no production pin.
+        screen_error_estimate_threshold: 1e-6,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }

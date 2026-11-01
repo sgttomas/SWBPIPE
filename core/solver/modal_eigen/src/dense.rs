@@ -56,7 +56,8 @@ pub fn dense_path_peak_bytes(n: u64) -> u128 {
 }
 
 /// Design §3.2's operation estimate 9n³ + s·n³/3 for `s` Sturm
-/// factorizations, rounded up to a whole flop. It applies no budget.
+/// factorizations, rounded up to a whole flop. Band-recovery exact products
+/// are additional (`dense_screen_product_estimate`); this applies no budget.
 pub fn dense_path_flop_estimate(n: u64, sturm_factorizations: u64) -> u128 {
     let cube = n as u128 * n as u128 * n as u128;
     9 * cube + (sturm_factorizations as u128 * cube).div_ceil(3)
@@ -78,13 +79,15 @@ pub struct DenseOptions {
     /// diagonally equilibrated pencil (design §3.2 item 5). Finite and
     /// positive.
     pub resolution_floor_constant: f64,
-    /// κ_μ: a retained μ must exceed κ_μ·δ_μ as well as τ_μ·μ_max. Finite
-    /// and positive.
+    /// κ_μ: μ must exceed κ_μ·δ_q as well as τ_μ·μ_max; κ_μ·δ_μ
+    /// screens the remaining band. Finite and positive.
     pub resolution_floor_multiple: f64,
-    /// c_f: a μ at or below the classification threshold is retained only
-    /// when its pair's backward error on the formed pencil is at most
-    /// τ_f = c_f·n·u (design §3.2 item 5, the screen). Finite and positive.
+    /// c_f: a recovered band pair's equilibrated formed backward error must
+    /// be at most τ_f = c_f·n·u. Finite and positive.
     pub formed_backward_error_multiple: f64,
+    /// Dimensionless maximum e_λ for a recovered band mode. No default or
+    /// production pin; measured under DEC-026.
+    pub screen_error_estimate_threshold: f64,
     /// The most implicit QL iterations allowed for any one eigenvalue.
     pub max_ql_iterations_per_eigenvalue: usize,
 }
@@ -193,18 +196,22 @@ pub struct DenseEigenSolution {
     /// δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞, the resolution floor of the reduction,
     /// invariant to a diagonal rescaling of the basis.
     pub resolution_floor: f64,
-    /// max(τ_μ·μ_max, κ_μ·δ_μ), the screen: a μ above it is retained; one at
-    /// or below it is retained only when its pair passes η_f ≤ τ_f.
+    /// max(hard_classification_threshold, κ_μ·δ_μ). Above it no recovery
+    /// is needed; only the band above the hard threshold permits recovery.
     pub classification_threshold: f64,
+    /// δ_q = c_μ·n·u·μ_max: the QL resolution observation.
+    pub ql_resolution_floor: f64,
+    /// max(τ_μ·μ_max, κ_μ·δ_q): a hard verdict, never rescued.
+    pub hard_classification_threshold: f64,
     /// τ_f = c_f·n·u.
     pub formed_backward_error_threshold: f64,
-    /// Every positive μ at or below the threshold, descending, with its η_f
-    /// and the screen's decision.
+    /// Every positive QL μ at or below the broad threshold, descending,
+    /// with the hard rejection or band recovery and its decision.
     pub screened: Vec<ScreenedMode>,
     /// Condensed μ ≤ 0: classified infinite, not returned.
     pub nonpositive_mu_count: usize,
-    /// Condensed 0 < μ ≤ the classification threshold whose pair failed
-    /// the screen: classified infinite, not returned.
+    /// Positive condensed μ rejected by either hard floor or by band
+    /// recovery: classified infinite, not returned.
     pub below_threshold_mu_count: usize,
     /// Total implicit QL iterations.
     pub ql_iterations: usize,
@@ -219,13 +226,9 @@ pub struct DenseEigenSolution {
     /// block does not pass.
     pub established_finite_mode_count: Option<usize>,
     /// The finite-mode count is unresolved (`MODAL_FINITE_COUNT_UNRESOLVED`
-    /// when a request needs the whole finite spectrum), design §3.2 item 5:
-    /// a μ of the condensed pencil is classified infinite (μ ≤ 0, or at or
-    /// below max(τ_μ·μ_max, κ_μ·δ_μ) with η_f > τ_f), or the count is not
-    /// established. The condensed pencil has exactly n_m finite eigenvalues
-    /// in exact arithmetic, so a μ classified infinite there is a finite
-    /// mode lost to rounding or to the threshold, and the resolution floor
-    /// keeps a rounding artifact from standing in for it.
+    /// when the whole finite spectrum is needed) when a condensed μ is
+    /// rejected or the independent mass census is not established. No
+    /// non-coordinate nullspace is truncated or turned into a resolved count.
     pub finite_count_unresolved: bool,
 }
 
@@ -271,8 +274,18 @@ pub fn solve_dense_pencil(
         });
     }
     for (name, value) in [
-        ("resolution_floor_constant", options.resolution_floor_constant),
-        ("resolution_floor_multiple", options.resolution_floor_multiple),
+        (
+            "screen_error_estimate_threshold",
+            options.screen_error_estimate_threshold,
+        ),
+        (
+            "resolution_floor_constant",
+            options.resolution_floor_constant,
+        ),
+        (
+            "resolution_floor_multiple",
+            options.resolution_floor_multiple,
+        ),
         (
             "formed_backward_error_multiple",
             options.formed_backward_error_multiple,
@@ -281,6 +294,12 @@ pub fn solve_dense_pencil(
         if !(value.is_finite() && value > 0.0) {
             return Err(DenseError::InvalidOption { name });
         }
+    }
+
+    if options.screen_error_estimate_threshold >= 1.0 {
+        return Err(DenseError::InvalidOption {
+            name: "screen_error_estimate_threshold",
+        });
     }
 
     // Set 0 (structurally massless) first, then the massive DOFs, each
@@ -324,7 +343,10 @@ pub fn solve_dense_pencil(
     // equilibrated pencil, D = diag(k_jj)^−½ as in the Sturm counts, a
     // congruence: δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖, with K̃̂ = D_m K̂ D_m, so
     // K̃̂⁻¹x = D_m⁻¹ K̂⁻¹ D_m⁻¹ x from solves with the condensed factor R_mm.
-    let root: Vec<f64> = massive.iter().map(|&j| stiffness.get(j, j).sqrt()).collect();
+    let root: Vec<f64> = massive
+        .iter()
+        .map(|&j| stiffness.get(j, j).sqrt())
+        .collect();
     let (condensed_inverse_norm_estimate, _) = inverse_one_norm_estimate(nm, |x| {
         let mut y: Vec<f64> = x.iter().zip(&root).map(|(v, s)| v * s).collect();
         forward_solve_row(&r, n, n0, &mut y);
@@ -348,12 +370,27 @@ pub fn solve_dense_pencil(
     // d is ascending μ; λ ascending is μ descending. Reverse the rows so the
     // positive μ come first; μ ≤ 0 is classified infinite.
     let mu_max = d.last().copied().unwrap_or(0.0);
-    let cut = max_propagating_nan(
+    let ql_resolution_floor =
+        options.resolution_floor_constant * n as f64 * (f64::EPSILON / 2.0) * mu_max;
+    let hard_cut = max_propagating_nan(
         threshold * mu_max,
+        options.resolution_floor_multiple * ql_resolution_floor,
+    );
+    let cut = max_propagating_nan(
+        hard_cut,
         options.resolution_floor_multiple * resolution_floor,
     );
-    // A NaN threshold screens every μ.
-    let cut = if cut.is_nan() { f64::INFINITY } else { cut };
+    for (quantity, value) in [
+        ("condensed inverse norm", condensed_inverse_norm_estimate),
+        ("condensed mass norm", condensed_mass_norm),
+        ("formation resolution floor", resolution_floor),
+        ("QL resolution floor", ql_resolution_floor),
+        ("classification threshold", cut),
+    ] {
+        if !value.is_finite() || value < 0.0 {
+            return Err(DenseError::ResultOutOfRange { quantity, index: 0 });
+        }
+    }
     let nonpositive_mu_count = d.iter().filter(|&&mu| !(mu > 0.0)).count();
     let positive = nm - nonpositive_mu_count;
     d.reverse();
@@ -381,33 +418,46 @@ pub fn solve_dense_pencil(
     drop(r);
     check_finite("mode shapes", &work)?;
 
-    // The screen (design §3.2 item 5, "screen, not a verdict"): a μ at or
-    // below the threshold is retained only when its recovered pair passes
-    // the a-posteriori backward-error test on the formed, uncondensed
-    // pencil, η_f ≤ τ_f = c_f·n·u.
+    // Only the band above both hard verdicts may be recovered. The broad
+    // formation floor screens it; it never rescues a μ below QL resolution.
     let tau_f = options.formed_backward_error_multiple * n as f64 * (f64::EPSILON / 2.0);
-    let stiffness_norm = infinity_norm(stiffness);
-    let mass_norm = infinity_norm(mass);
+    if !tau_f.is_finite() || !hard_cut.is_finite() || hard_cut < 0.0 {
+        return Err(DenseError::ResultOutOfRange {
+            quantity: "classification thresholds",
+            index: 0,
+        });
+    }
+    let scaling = if d.iter().any(|&mu| mu > hard_cut && mu <= cut) {
+        Some(formed_scaling(stiffness, mass))
+    } else {
+        None
+    };
     let mut screened = Vec::new();
     let mut retained_rows = Vec::with_capacity(positive);
-    for (row, &mu) in d.iter().enumerate() {
-        if mu > cut {
+    for row in 0..d.len() {
+        let mu = d[row];
+        if classify_mu(mu, hard_cut, cut) == MuRegion::Direct {
             retained_rows.push(row);
             continue;
         }
-        let eigenvalue = 1.0 / mu;
         let phi = &work[row * n..(row + 1) * n];
-        let (normwise, componentwise) =
-            formed_backward_errors(stiffness, mass, stiffness_norm, mass_norm, eigenvalue, phi);
-        let retained = normwise.is_some_and(|eta| eta <= tau_f);
+        let recovery = if classify_mu(mu, hard_cut, cut) == MuRegion::HardRejected {
+            None
+        } else {
+            recover_band_mode(stiffness, mass, scaling.as_ref().unwrap(), phi)
+        };
+        let retained = recovery.as_ref().is_some_and(|r| {
+            r.mu > hard_cut && screen_passes(r, tau_f, options.screen_error_estimate_threshold)
+        });
         if retained {
             retained_rows.push(row);
+            d[row] = recovery.as_ref().unwrap().mu;
         }
         screened.push(ScreenedMode {
             mu,
-            eigenvalue,
-            formed_backward_error: normwise,
-            formed_componentwise_backward_error: componentwise,
+            eigenvalue: 1.0 / mu,
+            hard_rejected: mu <= hard_cut,
+            recovery,
             retained,
         });
     }
@@ -422,6 +472,20 @@ pub fn solve_dense_pencil(
     let kept = retained_rows.len();
     d.truncate(kept);
     work.truncate(kept * n);
+    // Recovery changes μ. Sort descending in place, carrying the full rows
+    // (the condensed row width may differ), with no new n² buffer.
+    for i in 0..kept.saturating_sub(1) {
+        let mut next = i;
+        for j in i + 1..kept {
+            if d[j] > d[next] {
+                next = j;
+            }
+        }
+        if next != i {
+            d.swap(i, next);
+            swap_rows(&mut work, n, i, next);
+        }
+    }
     // After R is released, so the mass block's factor does not add to the
     // peak n² buffers.
     let established = established_finite_mode_count(mass, pivot_threshold);
@@ -440,6 +504,8 @@ pub fn solve_dense_pencil(
         condensed_mass_norm,
         resolution_floor,
         classification_threshold: cut,
+        ql_resolution_floor,
+        hard_classification_threshold: hard_cut,
         formed_backward_error_threshold: tau_f,
         screened,
         nonpositive_mu_count,
@@ -452,84 +518,188 @@ pub fn solve_dense_pencil(
     })
 }
 
-/// ‖A‖_∞, the largest absolute row sum (admitted entries: finite).
-fn infinity_norm(a: &SymmetricMatrix) -> f64 {
-    let n = a.dimension();
-    (0..n).fold(0.0, |norm, i| {
-        let row: f64 = (0..n).map(|j| a.get(i, j).abs()).sum();
-        max_propagating_nan(norm, row)
+#[derive(Debug, PartialEq)]
+enum MuRegion {
+    HardRejected,
+    Band,
+    Direct,
+}
+
+fn classify_mu(mu: f64, hard: f64, broad: f64) -> MuRegion {
+    if mu <= hard {
+        MuRegion::HardRejected
+    } else if mu <= broad {
+        MuRegion::Band
+    } else {
+        MuRegion::Direct
+    }
+}
+
+/// Maximum exact-product insertions for p screened pairs: two quadratic
+/// forms and two residual products per dense entry, 4pn². This is additional
+/// work to the binary64 eigensolve's flop estimate, not interchangeable
+/// with binary64 flops. A product has at most three binary64 factors (up to
+/// four exact parts); the consuming guard must price these separately.
+/// No product entry consumes this kernel yet, so this applies no budget.
+pub fn dense_screen_product_estimate(n: u64, screened_pairs: u64) -> u128 {
+    4 * screened_pairs as u128 * n as u128 * n as u128
+}
+
+/// O(n) diagonal scaling and two norms; no scaled n² matrix is formed.
+struct FormedScaling {
+    roots: Vec<f64>,
+    stiffness_norm: WideDd,
+    mass_norm: WideDd,
+}
+
+fn formed_scaling(k: &SymmetricMatrix, m: &SymmetricMatrix) -> FormedScaling {
+    let n = k.dimension();
+    let roots: Vec<f64> = (0..n).map(|i| k.get(i, i).sqrt()).collect();
+    let norm = |a: &SymmetricMatrix| {
+        let mut largest = WideDd::ZERO;
+        for i in 0..n {
+            let mut row = WideDd::ZERO;
+            for j in 0..n {
+                row = row.add(
+                    WideDd::from_f64(a.get(i, j).abs())
+                        .div(WideDd::from_f64(roots[i]))
+                        .div(WideDd::from_f64(roots[j])),
+                );
+            }
+            if !row.is_finite() {
+                return row;
+            }
+            if row.sub(largest).is_positive() {
+                largest = row;
+            }
+        }
+        largest
+    };
+    FormedScaling {
+        stiffness_norm: norm(k),
+        mass_norm: norm(m),
+        roots,
+    }
+}
+
+/// Recovery of one band pair on the formed, uncondensed pencil. Products
+/// entering the Rayleigh quotient and each residual row are summed exactly;
+/// norms and ratios use extended-exponent double-double. The mass and energy
+/// must be positive before division. Every compared output must be normal
+/// (or an exact zero); a failed premise rejects the pair.
+fn recover_band_mode(
+    k: &SymmetricMatrix,
+    m: &SymmetricMatrix,
+    scaling: &FormedScaling,
+    phi: &[f64],
+) -> Option<BandRecovery> {
+    let mut energy = ExactSum::new();
+    let mut mass = ExactSum::new();
+    for i in 0..phi.len() {
+        for j in 0..phi.len() {
+            energy.add_product(&[phi[i], k.get(i, j), phi[j]]);
+            mass.add_product(&[phi[i], m.get(i, j), phi[j]]);
+        }
+    }
+    let energy = energy.to_wide();
+    let mass = mass.to_wide();
+    if !energy.is_finite() || !energy.is_positive() || !mass.is_finite() || !mass.is_positive() {
+        return None;
+    }
+    let mu = mass.div(energy).to_normal_or_zero()?;
+    let eigenvalue = 1.0 / mu;
+    if !(mu > 0.0 && eigenvalue.is_normal() && eigenvalue > 0.0) {
+        return None;
+    }
+    let (backward_error, error_estimate) =
+        formed_pair_errors(k, m, scaling, eigenvalue, phi, mass)?;
+    Some(BandRecovery {
+        mu,
+        eigenvalue,
+        backward_error,
+        error_estimate,
     })
 }
 
-/// The backward errors of a pair on the formed pencil, each residual row
-/// r_i = Σ_j (K_ij − λM_ij)φ_j summed exactly ([`ExactSum`]) and rounded once:
-/// - normwise, η_f = ‖r‖₂ / ((‖K‖_∞ + λ‖M‖_∞)·‖φ‖₂);
-/// - componentwise (Oettli–Prager), ω_f = max_i |r_i| / (|K||φ| + λ|M||φ|)_i,
-///   the smallest ε for which the pair is exact for a pencil whose every
-///   entry is perturbed by at most ε relative to itself. It is invariant to
-///   a diagonal congruence, and it does not let a large entry of M stand in
-///   for a perturbation of a small one, which the normwise measure does.
-///
-/// Each is `None` when not finite, or nonzero below the normal range.
-fn formed_backward_errors(
-    stiffness: &SymmetricMatrix,
-    mass: &SymmetricMatrix,
-    stiffness_norm: f64,
-    mass_norm: f64,
+/// Check-2 form on the formed pencil with D=diag(k_jj)^−½:
+/// η̃=‖Dr‖₂/((‖DKD‖∞+λ‖DMD‖∞)‖D⁻¹φ‖₂),
+/// e_λ=‖Dr‖₂‖D⁻¹φ‖₂/(λ φᵀMφ). Both are dimensionless estimates,
+/// not error bounds. Using a global norm alone cannot detect a lost high
+/// mode in a nearly massless direction.
+fn formed_pair_errors(
+    k: &SymmetricMatrix,
+    m: &SymmetricMatrix,
+    scaling: &FormedScaling,
     eigenvalue: f64,
     phi: &[f64],
-) -> (Option<f64>, Option<f64>) {
-    let n = phi.len();
+    mass: WideDd,
+) -> Option<(f64, f64)> {
+    if !mass.is_finite() || !mass.is_positive() {
+        return None;
+    }
     let mut residual = WideDd::ZERO;
     let mut shape = WideDd::ZERO;
-    let mut componentwise = WideDd::ZERO;
-    for i in 0..n {
+    for i in 0..phi.len() {
         let mut row = ExactSum::new();
-        let mut magnitude = ExactSum::new();
         for (j, &x) in phi.iter().enumerate() {
-            let (k, m) = (stiffness.get(i, j), mass.get(i, j));
-            row.add_product(&[k, x]);
-            row.add_product(&[-eigenvalue, m, x]);
-            magnitude.add_product(&[k.abs(), x.abs()]);
-            magnitude.add_product(&[eigenvalue, m.abs(), x.abs()]);
+            row.add_product(&[k.get(i, j), x]);
+            row.add_product(&[-eigenvalue, m.get(i, j), x]);
         }
-        let r = row.to_wide();
+        let r = row.to_wide().div(WideDd::from_f64(scaling.roots[i]));
         residual = residual.add(r.mul(r));
-        let x = WideDd::from_f64(phi[i]);
+        let x = WideDd::from_f64(phi[i]).mul_f64(scaling.roots[i]);
         shape = shape.add(x.mul(x));
-        let scale = magnitude.to_wide();
-        let ratio = if r.is_zero() {
-            WideDd::ZERO
-        } else if scale.is_zero() {
-            WideDd::from_f64(f64::INFINITY)
-        } else {
-            r.abs().div(scale)
-        };
-        if !ratio.is_finite() || ratio.sub(componentwise).is_positive() {
-            componentwise = ratio;
-        }
     }
-    let scale =
-        WideDd::from_f64(stiffness_norm).add(WideDd::from_f64(eigenvalue).mul_f64(mass_norm));
-    let normwise = residual
-        .sqrt()
-        .div(scale.mul(shape.sqrt()))
-        .to_normal_or_zero();
-    (normwise, componentwise.to_normal_or_zero())
+    if !shape.is_finite() || !shape.is_positive() {
+        return None;
+    }
+    let residual = residual.sqrt();
+    let shape = shape.sqrt();
+    let lambda = WideDd::from_f64(eigenvalue);
+    let norm = scaling.stiffness_norm.add(scaling.mass_norm.mul(lambda));
+    if !norm.is_finite() || !norm.is_positive() {
+        return None;
+    }
+    let eta = residual.div(norm.mul(shape)).to_normal_or_zero()?;
+    let estimate = residual
+        .mul(shape)
+        .div(lambda.mul(mass))
+        .to_normal_or_zero()?;
+    if eta < 0.0 || estimate < 0.0 {
+        return None;
+    }
+    Some((eta, estimate))
 }
 
-/// A μ at or below the classification threshold and its screen (design
-/// §3.2 item 5): retained only when η_f ≤ τ_f.
+fn screen_passes(r: &BandRecovery, tau_f: f64, tau_e: f64) -> bool {
+    r.backward_error.is_finite()
+        && r.error_estimate.is_finite()
+        && r.backward_error >= 0.0
+        && r.error_estimate >= 0.0
+        && r.backward_error <= tau_f
+        && r.error_estimate <= tau_e
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct BandRecovery {
+    /// μ recovered from the exact generalized mass and stiffness energy.
+    pub mu: f64,
+    /// Exactly the binary64 reciprocal of `mu`.
+    pub eigenvalue: f64,
+    pub backward_error: f64,
+    pub error_estimate: f64,
+}
+
+/// A candidate at or below the broad classification threshold. Hard
+/// rejections have no recovery. A failed sign/range premise also gives
+/// `None`; neither is rescued. Only the band has error estimates.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ScreenedMode {
+    /// Original QL value, before any Rayleigh recovery.
     pub mu: f64,
     pub eigenvalue: f64,
-    /// η_f, the normwise backward error of the recovered pair on the formed
-    /// pencil (published; `None` when not representable).
-    pub formed_backward_error: Option<f64>,
-    /// ω_f, the componentwise backward error, which decides: retained when
-    /// ω_f ≤ τ_f (`None`, not retained, when not representable).
-    pub formed_componentwise_backward_error: Option<f64>,
+    pub hard_rejected: bool,
+    pub recovery: Option<BandRecovery>,
     pub retained: bool,
 }
 
@@ -1004,6 +1174,7 @@ mod tests {
             resolution_floor_constant: 1.0,
             resolution_floor_multiple: 1.0,
             formed_backward_error_multiple: 64.0,
+            screen_error_estimate_threshold: 1e-6,
             max_ql_iterations_per_eigenvalue: 30,
         }
     }
@@ -1182,5 +1353,172 @@ mod tests {
         assert_eq!(hypot(-5.0, 12.0), 13.0);
         assert_eq!(hypot(0.0, 0.0), 0.0);
         assert_eq!(hypot(1e300, 1e300), 1e300 * 2.0f64.sqrt());
+    }
+    #[test]
+    fn hard_and_band_boundaries_are_inclusive_and_not_rescued() {
+        let hard = 2f64.powi(-40);
+        let broad = 2f64.powi(-30);
+        assert_eq!(
+            classify_mu(hard.next_down(), hard, broad),
+            MuRegion::HardRejected
+        );
+        assert_eq!(classify_mu(hard, hard, broad), MuRegion::HardRejected);
+        assert_eq!(classify_mu(hard.next_up(), hard, broad), MuRegion::Band);
+        assert_eq!(classify_mu(broad.next_down(), hard, broad), MuRegion::Band);
+        assert_eq!(classify_mu(broad, hard, broad), MuRegion::Band);
+        assert_eq!(classify_mu(broad.next_up(), hard, broad), MuRegion::Direct);
+        // Actual pencil: λ=1/μ is exact. Neither an exact residual nor an
+        // arbitrarily permissive recovery threshold may rescue a hard μ.
+        for value in [
+            2f64.powi(-52).next_down(),
+            2f64.powi(-52),
+            2f64.powi(-52).next_up(),
+        ] {
+            let k = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+            let m = SymmetricMatrix::from_diagonal(&[1.0, value]).unwrap();
+            let o = DenseOptions {
+                infinite_mu_relative_threshold: 0.0,
+                ..options()
+            };
+            let solution = solve_dense_pencil(&k, &m, &o).unwrap();
+            assert_eq!(
+                solution.mode_count(),
+                if value <= 2f64.powi(-52) { 1 } else { 2 }
+            );
+        }
+    }
+
+    #[test]
+    fn screen_thresholds_are_inclusive_and_finite() {
+        let tau_f: f64 = 1e-13;
+        let tau_e: f64 = 1e-6; // explicit TEST-LOCAL candidate, never a default
+        let r = BandRecovery {
+            mu: 1.0,
+            eigenvalue: 1.0,
+            backward_error: tau_f,
+            error_estimate: tau_e,
+        };
+        assert!(screen_passes(&r, tau_f, tau_e));
+        assert!(screen_passes(
+            &BandRecovery {
+                error_estimate: tau_e.next_down(),
+                ..r.clone()
+            },
+            tau_f,
+            tau_e
+        ));
+        assert!(!screen_passes(
+            &BandRecovery {
+                error_estimate: tau_e.next_up(),
+                ..r.clone()
+            },
+            tau_f,
+            tau_e
+        ));
+        assert!(screen_passes(
+            &BandRecovery {
+                backward_error: tau_f.next_down(),
+                ..r.clone()
+            },
+            tau_f,
+            tau_e
+        ));
+        assert!(!screen_passes(
+            &BandRecovery {
+                backward_error: tau_f.next_up(),
+                ..r.clone()
+            },
+            tau_f,
+            tau_e
+        ));
+        for bad in [f64::NAN, f64::INFINITY, -1.0] {
+            assert!(!screen_passes(
+                &BandRecovery {
+                    error_estimate: bad,
+                    ..r.clone()
+                },
+                tau_f,
+                tau_e
+            ));
+            assert!(!screen_passes(
+                &BandRecovery {
+                    backward_error: bad,
+                    ..r.clone()
+                },
+                tau_f,
+                tau_e
+            ));
+        }
+    }
+
+    #[test]
+    fn normwise_blind_pair_is_not_an_accurate_eigenvalue() {
+        // Closed form φ=(0,1), K=[[1,1],[1,3]], M=diag(1,2^-100), λ=2^52:
+        // r=(1,3-2^-48). The unscaled normwise denominator is 4+2^52,
+        // making η_f tiny despite an eigenvalue error of about 1.
+        let k = SymmetricMatrix::from_rows(&[vec![1.0, 1.0], vec![1.0, 3.0]]).unwrap();
+        let m = SymmetricMatrix::from_diagonal(&[1.0, 2f64.powi(-100)]).unwrap();
+        let lambda = 2f64.powi(52);
+        let normwise = (1.0 + (3.0 - 2f64.powi(-48)).powi(2)).sqrt() / (4.0 + lambda);
+        assert!(normwise < 64.0 * 2.0 * (f64::EPSILON / 2.0));
+        let scaling = formed_scaling(&k, &m);
+        for scale in [2f64.powi(-300), 1.0, -2f64.powi(300)] {
+            let mass = WideDd::from_f64(2f64.powi(-100))
+                .mul_f64(scale)
+                .mul_f64(scale);
+            let (_, error) =
+                formed_pair_errors(&k, &m, &scaling, lambda, &[0.0, scale], mass).unwrap();
+            // eλ closed form sqrt(3)*sqrt(4-2^-47+2^-96/3)*2^48.
+            let expected =
+                3f64.sqrt() * (1.0 + (3.0 - 2f64.powi(-48)).powi(2) / 3.0).sqrt() * 2f64.powi(48);
+            assert!((error / expected - 1.0).abs() < 4.0 * f64::EPSILON);
+            for tau_e in [1e-9, 1e-7, 1e-6, 1e-5, 1e-3] {
+                assert!(error > tau_e);
+            }
+        }
+    }
+
+    #[test]
+    fn band_recovery_rejects_nonpositive_energy_or_mass_and_invalid_options() {
+        let k = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        for mass in [-1.0, 0.0] {
+            let m = SymmetricMatrix::from_diagonal(&[1.0, mass]).unwrap();
+            assert!(recover_band_mode(&k, &m, &formed_scaling(&k, &m), &[0.0, 1.0]).is_none());
+        }
+        let m = SymmetricMatrix::from_diagonal(&[1.0, 1.0]).unwrap();
+        assert!(recover_band_mode(&k, &m, &formed_scaling(&k, &m), &[0.0, 0.0]).is_none());
+        for bad in [0.0, -1.0, f64::NAN, f64::INFINITY, 1.0] {
+            let o = DenseOptions {
+                screen_error_estimate_threshold: bad,
+                ..options()
+            };
+            assert_eq!(
+                solve_dense_pencil(&k, &m, &o),
+                Err(DenseError::InvalidOption {
+                    name: "screen_error_estimate_threshold"
+                })
+            );
+        }
+        assert_eq!(dense_screen_product_estimate(10, 3), 1200);
+    }
+
+    #[test]
+    fn recovered_errors_respect_vector_normalization_and_diagonal_congruence() {
+        for basis in [[1.0, 1.0], [2f64.powi(100), 2f64.powi(-100)]] {
+            let k = SymmetricMatrix::from_rows(&[
+                vec![2.0 * basis[0] * basis[0], basis[0] * basis[1]],
+                vec![basis[0] * basis[1], 2.0 * basis[1] * basis[1]],
+            ])
+            .unwrap();
+            let m = SymmetricMatrix::from_diagonal(&[basis[0] * basis[0], basis[1] * basis[1]])
+                .unwrap();
+            for amplitude in [2f64.powi(-300), 1.0, -2f64.powi(300)] {
+                let phi = [amplitude / basis[0], amplitude / basis[1]];
+                let r = recover_band_mode(&k, &m, &formed_scaling(&k, &m), &phi).unwrap();
+                assert_eq!(r.eigenvalue, 3.0);
+                assert_eq!(r.backward_error, 0.0);
+                assert_eq!(r.error_estimate, 0.0);
+            }
+        }
     }
 }

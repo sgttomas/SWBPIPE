@@ -41,8 +41,8 @@ use open_pipe_stress_modal_eigen::reformation::section::{
 };
 use open_pipe_stress_modal_eigen::reformation::{
     cluster_error_estimates, formation_difference, reform_element_mass, residual_estimate,
-    ArcOperand, ElementOperand, Moduli, ReformationFailure, ReformedPencil,
-    SpringOperand, StraightOperand,
+    ArcOperand, ElementOperand, Moduli, ReformationFailure, ReformedPencil, SpringOperand,
+    StraightOperand,
 };
 use open_pipe_stress_modal_eigen::SymmetricMatrix;
 use open_pipe_stress_sparse_direct::SymmetricMatrixEntry;
@@ -73,7 +73,7 @@ const ETA_CORRECT: f64 = 1e-12;
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
 /// cases at least 1.6·10⁷ above it, except E-RIGID-SCALE-1e6, whose six
-/// stiff modes lie 5 to 330 times below it (README: an open conflict).
+/// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
 /// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
@@ -96,6 +96,8 @@ fn dense_options() -> DenseOptions {
         resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
         resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         formed_backward_error_multiple: FORMED_BACKWARD_ERROR_MULTIPLE,
+        // Explicit TEST-LOCAL candidate authorized by Agent 0; no production pin.
+        screen_error_estimate_threshold: 1e-6,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -695,7 +697,12 @@ fn reference_pencils_reform_and_their_dense_modes_have_small_residuals() {
                 .zip(&ids)
                 .filter(|&(_, &i)| i == id)
                 .map(|(&e, _)| e);
-            assert_eq!(value, members.fold(f64::NEG_INFINITY, f64::max), "{}", case.id);
+            assert_eq!(
+                value,
+                members.fold(f64::NEG_INFINITY, f64::max),
+                "{}",
+                case.id
+            );
         }
         let vectors: Vec<&[f64]> = (0..f.solution.mode_count())
             .map(|i| f.solution.vector(i))
@@ -969,16 +976,32 @@ fn residual_estimates_match_their_closed_forms() {
         let (a, b) = (xx.mul_f64(4.0).add_f64(1.0), xx.mul_f64(2.0).add_f64(1.0));
         close(r.scaled_residual, c(x), "‖Dr‖, λ = 1");
         close(r.generalized_mass, b, "φᵀMφ, λ = 1");
-        close(r.backward_error, c(x).div(a.sqrt().mul_f64(2.0)), "η, λ = 1");
+        close(
+            r.backward_error,
+            c(x).div(a.sqrt().mul_f64(2.0)),
+            "η, λ = 1",
+        );
         close(r.condition, a.mul_f64(2.0).div(b), "κ_λ, λ = 1");
         close(r.error_estimate, a.sqrt().mul_f64(x).div(b), "e_λ, λ = 1");
         let r = residual_estimate(&p, &d.scaling, 2.0, &[x, 1.0]).unwrap();
         let (a, b) = (xx.add_f64(4.0), xx.add_f64(2.0));
         close(r.scaled_residual, c(x), "‖Dr‖, λ = 2");
         close(r.generalized_mass, b, "φᵀMφ, λ = 2");
-        close(r.backward_error, c(x).div(a.sqrt().mul_f64(3.0)), "η, λ = 2");
-        close(r.condition, a.mul_f64(3.0).div(b.mul_f64(2.0)), "κ_λ, λ = 2");
-        close(r.error_estimate, a.sqrt().mul_f64(x).div(b.mul_f64(2.0)), "e_λ, λ = 2");
+        close(
+            r.backward_error,
+            c(x).div(a.sqrt().mul_f64(3.0)),
+            "η, λ = 2",
+        );
+        close(
+            r.condition,
+            a.mul_f64(3.0).div(b.mul_f64(2.0)),
+            "κ_λ, λ = 2",
+        );
+        close(
+            r.error_estimate,
+            a.sqrt().mul_f64(x).div(b.mul_f64(2.0)),
+            "e_λ, λ = 2",
+        );
     }
     // η, κ_λ and e_λ do not depend on φ's scale: at 2^±300 (published
     // quantities still in range) they are unchanged, ‖Dr‖ scales by s and
@@ -989,8 +1012,16 @@ fn residual_estimates_match_their_closed_forms() {
         close(r.backward_error, c(base.backward_error), "η, scaled");
         close(r.condition, c(base.condition), "κ_λ, scaled");
         close(r.error_estimate, c(base.error_estimate), "e_λ, scaled");
-        close(r.scaled_residual, c(base.scaled_residual).mul_f64(s), "‖Dr‖, scaled");
-        close(r.generalized_mass, c(base.generalized_mass).mul_f64(s * s), "φᵀMφ, scaled");
+        close(
+            r.scaled_residual,
+            c(base.scaled_residual).mul_f64(s),
+            "‖Dr‖, scaled",
+        );
+        close(
+            r.generalized_mass,
+            c(base.generalized_mass).mul_f64(s * s),
+            "φᵀMφ, scaled",
+        );
     }
     // At 2⁻⁶⁰⁰, φᵀM̂φ = 2⁻¹²⁰⁰·(1 + 2·0.09) is below binary64. It is a
     // published quantity (evidence, not compared; positivity is decided on
@@ -1006,7 +1037,11 @@ fn residual_estimates_match_their_closed_forms() {
     close(r.backward_error, c(base.backward_error), "η, 2⁻⁶⁰⁰");
     close(r.condition, c(base.condition), "κ_λ, 2⁻⁶⁰⁰");
     close(r.error_estimate, c(base.error_estimate), "e_λ, 2⁻⁶⁰⁰");
-    close(r.scaled_residual, c(base.scaled_residual).mul_f64(s), "‖Dr‖, 2⁻⁶⁰⁰");
+    close(
+        r.scaled_residual,
+        c(base.scaled_residual).mul_f64(s),
+        "‖Dr‖, 2⁻⁶⁰⁰",
+    );
     assert!(!base.generalized_mass_below_normal_range);
     // The exact pairs have zero residual.
     let exact = residual_estimate(&p, &d.scaling, 2.0, &[0.0, 1.0]).unwrap();
@@ -1058,10 +1093,7 @@ fn component_rotational_block_is_formed_from_mass_weighted_products() {
     // ulp and overflows: the re-formed entry is refused, not published.
     let b = body(19.92351542432765, 9.604308447003245, 9.30910318889974e153);
     assert_eq!(component_range(&b), Ok(()));
-    assert_eq!(
-        component_mass(&b),
-        Err(ComponentRangeOperand::SpatialBlock)
-    );
+    assert_eq!(component_mass(&b), Err(ComponentRangeOperand::SpatialBlock));
 }
 
 /// A one-member or two-member cantilever of one section, node 0 fixed, its
@@ -1101,7 +1133,10 @@ fn cantilever(lengths: &[f64], section: PipeSection) -> (SymmetricMatrix, Symmet
         }
         SymmetricMatrix::from_row_major(n, data).unwrap()
     };
-    (to_dense(p.assembled_stiffness()), to_dense(p.assembled_mass()))
+    (
+        to_dense(p.assembled_stiffness()),
+        to_dense(p.assembled_mass()),
+    )
 }
 
 /// Finding 3, the design's admission witnesses (§3.2 item 5): the
@@ -1126,19 +1161,16 @@ fn small_bore_and_short_member_models_are_admitted_with_their_full_count() {
         / (0..6).map(|i| m.get(i, i)).fold(0.0, f64::max);
     eprintln!("small-bore cantilever: smallest/largest mass diagonal {raw_ratio:.2e}");
     assert_eq!(established_finite_mode_count(&m, 0.22), Some(6));
-    let models = [
-        ("small-bore cantilever", k, m),
-        {
-            // A 0.3 m member then a 0.02 m member (L/OD ≈ 0.12) of NPS 6.
-            let section = PipeSection {
-                outside_diameter: 0.1683,
-                wall_thickness: 0.0071,
-                ..small_bore
-            };
-            let (k, m) = cantilever(&[0.3, 0.02], section);
-            ("short-member cantilever", k, m)
-        },
-    ];
+    let models = [("small-bore cantilever", k, m), {
+        // A 0.3 m member then a 0.02 m member (L/OD ≈ 0.12) of NPS 6.
+        let section = PipeSection {
+            outside_diameter: 0.1683,
+            wall_thickness: 0.0071,
+            ..small_bore
+        };
+        let (k, m) = cantilever(&[0.3, 0.02], section);
+        ("short-member cantilever", k, m)
+    }];
     for (name, k, m) in &models {
         let n = m.dimension();
         assert_eq!(
@@ -1186,38 +1218,108 @@ fn orthogonality_of_a_close_pencil_is_finite_and_reported() {
     assert_eq!(result.pair, Some((0, 1)));
 }
 
-/// Scratch probe (to be removed): the screen's candidate measures.
+/// Test-local 1e-6 is dimensionless e_lambda (not a frequency tolerance).
+/// Sensitivity spans 100x without changing any reference count. Only the
+/// inverse-reduction band is recovered; the low modes keep their QL values.
 #[test]
-fn zz_rigid_scale_probe() {
+fn recovered_rigid_band_is_accurate_deterministic_and_threshold_insensitive() {
+    let case = eigen_cases()
+        .into_iter()
+        .find(|c| c.id == "E-RIGID-SCALE-1e6")
+        .unwrap();
+    let n = case.free.len();
+    let k = dense(n, &entries(&case.k));
+    let m = dense(n, &entries(&case.m));
+    let baseline = solve_dense_pencil(&k, &m, &dense_options()).unwrap();
+    assert_eq!(
+        baseline,
+        solve_dense_pencil(&k, &m, &dense_options()).unwrap()
+    );
+    assert_eq!(baseline.mode_count(), case.eigenvalues.len());
+    assert!(!baseline.finite_count_unresolved);
+    let mut recovered = 0;
+    for evidence in &baseline.screened {
+        if !evidence.retained {
+            continue;
+        }
+        let r = evidence.recovery.as_ref().unwrap();
+        assert!(!evidence.hard_rejected);
+        assert!(evidence.mu > baseline.hard_classification_threshold);
+        assert!(r.mu > baseline.hard_classification_threshold);
+        let i = baseline
+            .eigenvalues
+            .iter()
+            .position(|&l| l == r.eigenvalue)
+            .unwrap();
+        let reference = case.eigenvalues[i];
+        let error = Dd::from_f64(r.eigenvalue)
+            .sub(reference)
+            .abs()
+            .div(reference)
+            .to_f64();
+        assert!(error < 1e-14, "mode {i}: {error:e}");
+        assert!(r.error_estimate < 1e-7);
+        assert_eq!(r.eigenvalue, 1.0 / r.mu);
+        eprintln!("rigid band mode {i}: original λ {:e}, recovered λ {:e}, reference error {error:e}, η̃ {:e}, eλ {:e}", evidence.eigenvalue, r.eigenvalue, r.backward_error, r.error_estimate);
+        recovered += 1;
+    }
+    assert_eq!(recovered, 6);
+    for threshold in [1e-7, 1e-6, 1e-5] {
+        let options = DenseOptions {
+            screen_error_estimate_threshold: threshold,
+            ..dense_options()
+        };
+        assert_eq!(baseline, solve_dense_pencil(&k, &m, &options).unwrap());
+    }
+}
+
+/// A general offset point lump has a non-coordinate nullspace. The tiny
+/// positive QL artifact has negative EXACT generalized mass in the formed
+/// binary64 pencil. Neither structural condensation nor a small residual
+/// establishes a mass census for it.
+#[test]
+fn general_pointmass_negative_generalized_mass_cannot_resolve_the_census() {
     use open_pipe_stress_modal_eigen::exact::ExactSum;
-    let rq = |k: &SymmetricMatrix, m: &SymmetricMatrix, phi: &[f64]| {
-        let (mut a, mut b) = (ExactSum::new(), ExactSum::new());
-        for i in 0..phi.len() {
-            for j in 0..phi.len() {
-                a.add_product(&[phi[i], k.get(i, j), phi[j]]);
-                b.add_product(&[phi[i], m.get(i, j), phi[j]]);
+    let case = eigen_cases()
+        .into_iter()
+        .find(|c| c.id == "E-POINTMASS-GENERAL")
+        .unwrap();
+    let n = case.free.len();
+    let k = dense(n, &entries(&case.k));
+    let m = dense(n, &entries(&case.m));
+    let observation = DenseOptions {
+        infinite_mu_relative_threshold: 0.0,
+        resolution_floor_multiple: 1e-30,
+        ..dense_options()
+    };
+    let raw = solve_dense_pencil(&k, &m, &observation).unwrap();
+    let mut negative = 0;
+    for i in 0..raw.mode_count() {
+        let phi = raw.vector(i);
+        let mut mass = ExactSum::new();
+        for j in 0..n {
+            for l in 0..n {
+                mass.add_product(&[phi[j], m.get(j, l), phi[l]]);
             }
         }
-        a.to_wide().div(b.to_wide()).to_f64()
-    };
-    let mut cases: Vec<(String, SymmetricMatrix, SymmetricMatrix)> = Vec::new();
-    for case in eigen_cases() {
-        if case.id == "E-RIGID-SCALE-1e6" || case.id.starts_with("E-POINTMASS") {
-            let n = case.free.len();
-            cases.push((case.id.clone(), dense(n, &entries(&case.k)), dense(n, &entries(&case.m))));
+        let mass = mass.to_wide();
+        if !mass.is_positive() && !mass.is_zero() {
+            assert!(raw.mu[i] <= 10.0 * raw.ql_resolution_floor);
+            assert!(raw.mu[i] <= 1e-12 * raw.mu_max);
+            negative += 1;
         }
     }
-    let w = SymmetricMatrix::from_rows(&[vec![1.0, 1.0], vec![1.0, 3.0]]).unwrap();
-    let wm = SymmetricMatrix::from_diagonal(&[1.0, 2f64.powi(-100)]).unwrap();
-    cases.push(("round-3 witness".into(), w, wm));
-    for (id, k, m) in &cases {
-        let options = DenseOptions { infinite_mu_relative_threshold: if id.starts_with("round") { 1e-18 } else { 1e-12 }, ..dense_options() };
-        let s = solve_dense_pencil(k, m, &options).unwrap();
-        eprintln!("{id}: modes {} τ_f {:e}", s.mode_count(), s.formed_backward_error_threshold);
-        for x in &s.screened {
-            let mode = s.eigenvalues.iter().position(|&l| l == x.eigenvalue);
-            let rho = mode.map(|i| (rq(k, m, s.vector(i)) - x.eigenvalue).abs() / x.eigenvalue);
-            eprintln!("  λ {:e}: η_f {:?} ω_f {:?} |ρ−λ|/λ {:?}", x.eigenvalue, x.formed_backward_error, x.formed_componentwise_backward_error, rho);
-        }
+    assert_eq!(negative, 1);
+    for threshold in [1e-7, 1e-6, 1e-5] {
+        let options = DenseOptions {
+            screen_error_estimate_threshold: threshold,
+            ..dense_options()
+        };
+        let s = solve_dense_pencil(&k, &m, &options).unwrap();
+        assert_eq!(s.mode_count(), case.eigenvalues.len());
+        assert_eq!(s.structurally_massless_count, 0);
+        assert_eq!(s.established_finite_mode_count, None);
+        assert!(s.finite_count_unresolved);
+        assert!(s.screened.iter().all(|x| x.hard_rejected && !x.retained));
     }
 }

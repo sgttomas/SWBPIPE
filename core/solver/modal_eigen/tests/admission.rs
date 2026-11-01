@@ -35,7 +35,7 @@ fn p(e: i32) -> f64 {
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
 /// cases at least 1.6·10⁷ above it, except E-RIGID-SCALE-1e6, whose six
-/// stiff modes lie 5 to 330 times below it (README: an open conflict).
+/// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
 /// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
@@ -51,6 +51,8 @@ fn options() -> DenseOptions {
         resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
         resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         formed_backward_error_multiple: FORMED_BACKWARD_ERROR_MULTIPLE,
+        // Explicit TEST-LOCAL candidate authorized by Agent 0; no production pin.
+        screen_error_estimate_threshold: 1e-6,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -107,7 +109,10 @@ fn dense_and_sturm_refuse_pencils_outside_the_range() {
 /// One free Ux at each of two nodes, an axis spring of stiffness k and a
 /// component body of weight w (a = 1, so m = w) on node 0's Ux, and the
 /// second node's Ux spring and body at 1.
-fn pencil(k: f64, w: f64) -> Result<ReformedPencil, open_pipe_stress_modal_eigen::reformation::ReformationError> {
+fn pencil(
+    k: f64,
+    w: f64,
+) -> Result<ReformedPencil, open_pipe_stress_modal_eigen::reformation::ReformationError> {
     let mut map = vec![None; 12];
     map[0] = Some(0);
     map[6] = Some(1);
@@ -120,8 +125,14 @@ fn pencil(k: f64, w: f64) -> Result<ReformedPencil, open_pipe_stress_modal_eigen
         })
     };
     let elements = [
-        ElementOperand::Spring(SpringOperand::Axis { dof: 0, stiffness: k }),
-        ElementOperand::Spring(SpringOperand::Axis { dof: 6, stiffness: 1.0 }),
+        ElementOperand::Spring(SpringOperand::Axis {
+            dof: 0,
+            stiffness: k,
+        }),
+        ElementOperand::Spring(SpringOperand::Axis {
+            dof: 6,
+            stiffness: 1.0,
+        }),
         body(0, w),
         body(1, 1.0),
     ];

@@ -25,8 +25,7 @@
 use open_pipe_stress_modal_eigen::clusters::cluster_ids;
 use open_pipe_stress_modal_eigen::dd::{Dd, DdAccumulator};
 use open_pipe_stress_modal_eigen::dense::{
-    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseError,
-    DenseOptions,
+    established_finite_mode_count, solve_dense_pencil, DenseEigenSolution, DenseError, DenseOptions,
 };
 use open_pipe_stress_modal_eigen::sturm::{
     count_above_spectrum, count_at_shift, count_in_gap, Gap, GapLower, Neighbour, ShiftDecision,
@@ -62,7 +61,7 @@ fn parameters() -> SturmParameters {
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
 /// cases at least 1.6·10⁷ above it, except E-RIGID-SCALE-1e6, whose six
-/// stiff modes lie 5 to 330 times below it (README: an open conflict).
+/// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
 /// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
@@ -85,6 +84,8 @@ fn dense_options() -> DenseOptions {
         resolution_floor_constant: RESOLUTION_FLOOR_CONSTANT,
         resolution_floor_multiple: RESOLUTION_FLOOR_MULTIPLE,
         formed_backward_error_multiple: FORMED_BACKWARD_ERROR_MULTIPLE,
+        // Explicit TEST-LOCAL candidate authorized by Agent 0; no production pin.
+        screen_error_estimate_threshold: 1e-6,
         max_ql_iterations_per_eigenvalue: 30,
     }
 }
@@ -761,7 +762,10 @@ fn finite_count_is_established_with_structural_zeros() {
         Some(8)
     );
     let solution = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options()).unwrap();
-    eprintln!("T17: resolution-floor margin {:.2e}", floor_margin(&solution));
+    eprintln!(
+        "T17: resolution-floor margin {:.2e}",
+        floor_margin(&solution)
+    );
     assert_eq!(solution.structurally_massless_count, 9);
     assert!(!solution.finite_count_unresolved, "mu {:?}", solution.mu);
     // A coupling that is not structural leaves the count unestablished.
@@ -821,7 +825,11 @@ fn a_rescaled_neighbour_vector_keeps_its_separation_constraint() {
         let placed = count_in_gap(&pencil, &gap, &parameters()).unwrap();
         let first = &placed.evidence().candidates[0];
         assert_eq!(first.sigma, 2.0);
-        assert_eq!(first.decision, ShiftDecision::Unseparated, "scale {scale:e}");
+        assert_eq!(
+            first.decision,
+            ShiftDecision::Unseparated,
+            "scale {scale:e}"
+        );
     }
 }
 
@@ -862,8 +870,12 @@ fn a_weighted_square_below_the_binary64_range_still_meets_its_weight() {
     };
     let outcome = count_at_shift(&pencil, 0.5, &[neighbour], &parameters()).unwrap();
     let candidate = &outcome.evidence().candidates[0];
-    let separation = candidate.formation_separation_ratio.unwrap() * candidate.formation_term.unwrap();
-    assert!((separation - 1.0).abs() <= 4.0 * f64::EPSILON, "{separation}");
+    let separation =
+        candidate.formation_separation_ratio.unwrap() * candidate.formation_term.unwrap();
+    assert!(
+        (separation - 1.0).abs() <= 4.0 * f64::EPSILON,
+        "{separation}"
+    );
 }
 
 /// Finding 1, the typed refusals: a neighbour whose mass quotient is not
@@ -890,7 +902,10 @@ fn neighbour_quotients_and_separations_out_of_range_are_refused() {
     // A subnormal mass, which gave a subnormal quotient, is outside the
     // admission range since review round 3 and refused at entry.
     assert!(matches!(
-        ShiftPencil::from_dense(&sym(&identity), &sym(&vec![vec![1e-310, 0.0], vec![0.0, 1e-310]])),
+        ShiftPencil::from_dense(
+            &sym(&identity),
+            &sym(&vec![vec![1e-310, 0.0], vec![0.0, 1e-310]])
+        ),
         Err(SturmError::PencilRangeUnsupported(_))
     ));
     // s = (|λ − σ| − e_λ·λ)·q with e_λ·λ overflowing (−∞), and with the
@@ -1052,7 +1067,10 @@ fn a_reduction_that_overflows_is_refused_not_emptied() {
         .map(|i| (0..n).map(|j| if i == j { 1.0 } else { 0.0 }).collect())
         .collect();
     let result = solve_dense_pencil(&sym(&k), &sym(&m), &dense_options());
-    eprintln!("overflowing reduction: {result:?}", result = result.as_ref().map(|s| s.mode_count()));
+    eprintln!(
+        "overflowing reduction: {result:?}",
+        result = result.as_ref().map(|s| s.mode_count())
+    );
     assert!(matches!(
         result,
         Err(DenseError::ReductionOutOfRange { .. })
@@ -1187,7 +1205,10 @@ fn equilibrated_mass_pivots_meet_the_threshold_inclusively() {
     assert_eq!(established_finite_mode_count(&sym(&m), 0.5000001), None);
     // Scaling a DOF (a change of its unit) leaves the pivots unchanged.
     let scaled = vec![vec![1.0, 0.5e-3], vec![0.5e-3, 0.5e-6]];
-    assert_eq!(established_finite_mode_count(&sym(&scaled), 0.4999), Some(2));
+    assert_eq!(
+        established_finite_mode_count(&sym(&scaled), 0.4999),
+        Some(2)
+    );
     // A remaining diagonal that is not positive establishes nothing.
     let indefinite = vec![vec![1.0, 0.5], vec![0.5, 0.0]];
     assert_eq!(established_finite_mode_count(&sym(&indefinite), 0.0), None);
