@@ -14,13 +14,24 @@
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
+// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6): the frozen 0.8.0 requests keep their
+// bytes; each parsed copy is re-authored to the current version by its token (common/current_model.rs).
+#[path = "common/current_model.rs"]
+mod current_model;
+
+fn current(text: &str) -> Value {
+    let mut request: Value = serde_json::from_str(text).unwrap();
+    current_model::reauthor_model(&mut request["model"]);
+    request
+}
+
 const STRAIGHT: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json");
 const ARC_TIP: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json");
 const TIMOSHENKO_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1";
 
 /// The straight request with a partial-span wind load on its one member.
 fn partial_span() -> Value {
-    let mut request: Value = serde_json::from_str(STRAIGHT).unwrap();
+    let mut request = current(STRAIGHT);
     let pipe = request["model"]["pipe_segments"][0]["id"].clone();
     request["model"]["load_cases"][0]["equivalent_static"] = json!({
         "wind": {"pressure": {"value": 480.0, "unit": "Pa"}, "shape_factor": {"value": 0.7, "unit": "1"},
@@ -33,8 +44,8 @@ fn partial_span() -> Value {
 #[test]
 fn committed_pf_timoshenko_envelopes_are_the_products_output() {
     let cases = [
-        ("straight", serde_json::from_str(STRAIGHT).unwrap(), true),
-        ("arc", serde_json::from_str(ARC_TIP).unwrap(), true),
+        ("straight", current(STRAIGHT), true),
+        ("arc", current(ARC_TIP), true),
         ("partial_span_blocked", partial_span(), false),
     ];
     let write = std::env::var_os("PF_TIMOSHENKO_WRITE_ENVELOPES").is_some();

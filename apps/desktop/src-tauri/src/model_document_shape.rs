@@ -73,6 +73,9 @@ const ENTITY_STRINGS: [(&str, &[&str], bool); 9] = [
     ("diagnostics", &["code", "severity", "message"], false),
 ];
 
+/// The combination bases whose operands are not terms, as the webview's `TERMLESS_BASES`.
+const TERMLESS_BASES: [&str; 2] = ["result_state_subtraction", "range_envelope"];
+
 #[derive(Clone, Copy)]
 enum Member {
     String,
@@ -254,14 +257,46 @@ pub fn model_document_shape_diagnostics(document: &Value) -> Vec<ShapeDiagnostic
                     }
                 }
                 "combinations" => {
-                    if shape.need(record.get("terms"), &format!("{at}.terms"), Kind::Array) {
+                    // A term names exactly one operand, a load case or (model
+                    // document 0.9.0) a combination, as a string. A subtraction or
+                    // range envelope may omit `terms`; every other basis carries it.
+                    let terms_optional = record.get("terms").is_none() && record.get("basis").and_then(Value::as_str).is_some_and(|basis| TERMLESS_BASES.contains(&basis));
+                    if !terms_optional && shape.need(record.get("terms"), &format!("{at}.terms"), Kind::Array) {
                         for (item, term) in record["terms"].as_array().into_iter().flatten().enumerate() {
                             let term_at = format!("{at}.terms[{item}]");
                             if !shape.need(Some(term), &term_at, Kind::Object) {
                                 continue;
                             }
-                            shape.need(term.get("load_case"), &format!("{term_at}.load_case"), Kind::String);
+                            let named: Vec<&str> = ["load_case", "combination"].into_iter().filter(|key| term.get(*key).is_some()).collect();
+                            match named.len() {
+                                0 => shape.0.push(ShapeDiagnostic {
+                                    path: term_at.clone(),
+                                    message: format!("{term_at} names neither load_case nor combination (exactly one string required)."),
+                                }),
+                                2 => shape.0.push(ShapeDiagnostic {
+                                    path: term_at.clone(),
+                                    message: format!("{term_at} names both load_case and combination (exactly one required)."),
+                                }),
+                                _ => {}
+                            }
+                            for key in named {
+                                shape.need(term.get(key), &format!("{term_at}.{key}"), Kind::String);
+                            }
                             shape.need(term.get("factor"), &format!("{term_at}.factor"), Kind::Number);
+                        }
+                    }
+                    // The subtraction and envelope operands: a present
+                    // member is a string, or an array of them.
+                    for key in ["minuend_id", "subtrahend_id", "mode"] {
+                        if let Some(value) = record.get(key) {
+                            shape.need(Some(value), &format!("{at}.{key}"), Kind::String);
+                        }
+                    }
+                    if let Some(operands) = record.get("operand_ids") {
+                        if shape.need(Some(operands), &format!("{at}.operand_ids"), Kind::Array) {
+                            for (item, value) in operands.as_array().into_iter().flatten().enumerate() {
+                                shape.need(Some(value), &format!("{at}.operand_ids[{item}]"), Kind::String);
+                            }
                         }
                     }
                 }

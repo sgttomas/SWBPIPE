@@ -44,7 +44,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-MODEL_DOCUMENT_VERSION = "0.8.0"
+MODEL_DOCUMENT_VERSION = "0.9.0"
 HERE = Path(__file__).resolve().parent
 SPEC = "execution/PKG-09/DEL-09-01/Work/reference-system.md"
 MODEL_FILE = "reference_system.json"

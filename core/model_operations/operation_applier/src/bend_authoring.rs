@@ -524,6 +524,11 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
     if !same("section") || !same("material") || !same("section_ref") {
         return Err(corner_err("OP-BEND-CORNER-SECTION-MISMATCH", format!("Pipes {in_id} and {out_id} differ in section or material; a bend joins one section and material"), vec![in_id.clone(), out_id.clone()]));
     }
+    // Model document 0.9.0 (§1.4): both straights carry the same condition set or none,
+    // and the arc (a copy of the incoming straight) carries it.
+    if !same("condition_set_ref") {
+        return Err(corner_err("OP-BEND-CONDITION-SET-MISMATCH", format!("Pipes {in_id} and {out_id} carry different condition sets; a bend joins straights that carry the same condition set or none"), vec![in_id.clone(), out_id.clone()]));
+    }
     fn far<'a>(p: &'a Value, corner: &str) -> Option<&'a str> {
         ends(p).map(|(a, b)| if a == corner { b } else { a })
     }

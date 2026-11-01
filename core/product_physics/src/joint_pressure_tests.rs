@@ -42,7 +42,7 @@ fn model(anchored: bool) -> PreviewModel {
     if anchored {
         supports.push(json!({"id":"support:D","node":"node:D","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"]}));
     }
-    serde_json::from_value(json!({"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+    serde_json::from_value(json!({"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},"project":{"id":"project:dormant-joint","units":{"length":"m"}},
         "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
         "nodes":[{"id":"node:A","position":{"x":0.,"y":0.,"z":0.}},{"id":"node:B","position":{"x":2.,"y":0.,"z":0.}},{"id":"node:C","position":{"x":2.3,"y":0.,"z":0.}},{"id":"node:D","position":{"x":4.3,"y":0.,"z":0.}}],
@@ -54,7 +54,7 @@ fn model(anchored: bool) -> PreviewModel {
 }
 
 fn activate_internal(model: &mut PreviewModel) {
-    model.schema_version = "0.8.0".into();
+    model.schema_version = "0.9.0".into();
     model.components[0].objective_connector.as_mut().unwrap()["pressure_model"] = json!({"kind":"constant_effective_area_reference_v1","effective_area":{"value":0.004,"unit":"m^2"},"pressure_basis":PRESSURE_BASIS,"source_reference":"invented authored joint area"});
     model.load_cases[0].pressure_regions.as_mut().unwrap()[0].member_connector_ids =
         Some(vec!["component:J".into()]);
@@ -263,12 +263,12 @@ fn u5a_internal_j3_controls_close_and_match_independent_representation_a() {
     }
 }
 /// The classifier's blanket refusal remains on the retired versions. (B7b: the
-/// current decoder accepts `member_connector_ids` on 0.8.0, whose positive and
+/// current decoder accepts `member_connector_ids` on 0.9.0, whose positive and
 /// fail-closed controls are `b7b_admission_tests`; the old decoder's refusal of
 /// the key lapsed with the version.)
 #[test]
 fn u5a_blanket_refusal_remains_on_retired_versions() {
-    for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
+    for version in ["0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
         let mut model = model(true);
         model.schema_version = version.into();
         let mut diagnostics = Vec::new();
@@ -329,8 +329,8 @@ fn reader_control(mode: PreviewSolverMode) -> Value {
 fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
     let mut case = case(anchored);
     // The already classified internal inputs use today's v3 mechanics
-    // context (B7b: the current 0.8.0 document with its exact contract).
-    case.model.schema_version = "0.8.0".into();
+    // context (B7b: the current 0.9.0 document with its exact contract).
+    case.model.schema_version = "0.9.0".into();
     let materials = case
         .model
         .materials

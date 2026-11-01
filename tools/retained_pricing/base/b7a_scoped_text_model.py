@@ -7,7 +7,11 @@ import runpy
 MARKER = 'b7a_scoped_text'
 WHY = 'B7a scoped TEXT: exact current producer and admitted source/type closure'
 UNITS = 'core/units/src/lib.rs'
-UNITS_SHA = '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c'
+# Model document 0.9.0 D3 (§8.36): the units catalog adds five dynamics dimensions and their units (Hz, rad/s, rad/m,
+# m/rad, kg*m^2/rad^2 and display units), conversions and tests. UnitError's Display is unchanged; the longest dimension
+# name stays thermal_expansion_coefficient (29 B, 29 -> 34 names) and an unknown symbol is the authored one (IN128), so
+# the unit-conversion message keeps its 600 B class. Catalog lookups iterate a static table and allocate nothing.
+UNITS_SHA = '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596'
 PP = 'core/product_physics/src/'
 RE = 'core/reporting/result_export/src/'
 # B7b: the snapshot lines of the bound sites (B7a 3e89c23ea1 values in comments).
@@ -48,11 +52,16 @@ LN = {
     # W-16 stage 2 D3 (§8.29): +55 (unit_message) and +106 (the three helpers), unchanged text.
     # OP1A (§8.31): all four lib.rs sites +12, unchanged text.
     # RT-A3 increment 1 D3 (§8.33): +12 each (10366/15340/15289/15339 at §8.32), unchanged text.
-    'unit_message': 10378, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 15352,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 15301,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 15351,   # lib.rs fn stable_suffix (13613) [13618]
-    'require': 125,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
+    # Model document 0.9.0 D3 (§8.36): all four lib.rs sites +83, unchanged text (the 0.9.0 modules, members, closed
+    # term wire, lowering and withholding calls and the snubber token precede them).
+    'unit_message': 10461, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 15435,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 15384,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 15434,   # lib.rs fn stable_suffix (13613) [13618]
+    # Model document 0.9.0 D3 (§8.36): physics_source.rs's require moves +23 with unchanged text (model_uses_conditions
+    # and the three condition-set, spectrum and set-reference predicates precede it); the new details are at most 24 B
+    # (ACTUAL_CONDITION_SET_REF), so the longest stays ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE's 37 B and 40 holds.
+    'require': 148,       # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']

@@ -96,7 +96,7 @@ fn model(fixed: bool, transfer: bool, thermal: f64) -> Value {
             "dimension":"temperature_interval","provenance":"independent_thermal_strain"})]
     };
     json!({"model":{
-        "schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+        "schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
         "project":{"id":"project:pressure-oracle","units":{"length":"m","force":"N",
             "angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
@@ -718,7 +718,7 @@ fn zero_poisson_and_thermal_reversal_preserve_the_selected_equations() {
 /// together (each is refused by name without the contract).
 fn pressure_free(input: &mut Value) {
     let model = &mut input["model"];
-    assert_eq!(model["schema_version"], "0.8.0");
+    assert_eq!(model["schema_version"], "0.9.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
     for case in model["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");
@@ -842,7 +842,7 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
     rejected(legacy.clone(), "PRESSURE_MODEL_REAUTHOR_REQUIRED");
     // B7a/B7b: every retired version (0.1.0-0.7.0) is refused by name (re-author),
     // never solved, with or without the current contract.
-    for retired in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"] {
+    for retired in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"] {
         let mut old = legacy.clone();
         old["model"]["schema_version"] = json!(retired);
         old["model"]["load_cases"][0]["primitive_loads"] = json!([]);
@@ -892,7 +892,7 @@ fn only_refusal(input: &Value, code: &str, refs: &[&str]) {
 /// U3 (D-1 A, D-2 A1): a model declaring the retired 1.0.0/legacy_pressure_v1
 /// label is refused with the re-author code, zero pressure included, with and
 /// without a combination (a feature the exact contract refuses). B7b: the label
-/// can only appear on the current 0.8.0 document now, and the retired
+/// can only appear on the current 0.9.0 document now, and the retired
 /// 2.0.0/exact_straight_pressure_v2 label is refused the same way.
 #[test]
 fn retired_legacy_pressure_label_takes_the_reauthor_code() {
@@ -918,7 +918,7 @@ fn retired_legacy_pressure_label_takes_the_reauthor_code() {
 }
 
 /// U3 (D-1 A, D-2 A1): legacy pressure is retired on the ordinary route. A 0.8.0
-/// model with a zero-valued pressure primitive is refused; the same 0.8.0 model
+/// model with a zero-valued pressure primitive is refused; the same 0.9.0 model
 /// without the primitive is pressure-free and solves.
 #[test]
 fn retired_legacy_pressure_is_refused_and_pressure_free_documents_solve() {

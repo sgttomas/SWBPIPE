@@ -22,7 +22,7 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "913d248b387ecba3dd668493aa2176719965715c20b7d419c63b35c7d7f3657f";
+    "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -594,7 +594,7 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41";
+const EXACT_TABLE_HASH: &str = "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -4863,7 +4863,7 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
 /// §4.7), and an explicit, finite, length-valued allowance ≥ 0 with
 /// c_m + c_a < t on every pipe section (DEF-E G8; the producer's own refusals).
 fn exact_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.8.0")
+    model["schema_version"].as_str() == Some("0.9.0")
         && model.as_object().is_some_and(|object| !object.contains_key("shear_model"))
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
         && section_allowances(model, true)
@@ -4945,13 +4945,13 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
 }
 /// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
 /// L, a pressure-free document, keyed on the contract's absence (b7-plan
-/// "Model format, pressure-free half"): the current model version 0.8.0 with
-/// `pressure_contract` absent. Anything else (a 0.8.0 model with
+/// "Model format, pressure-free half"): the current model version 0.9.0 with
+/// `pressure_contract` absent. Anything else (a 0.9.0 model with
 /// any contract, `{}` or `false` included; the retired 0.1.0 and 0.2.0; any
 /// 0.3.0 or 0.4.0 model) is outside the namespace. B3a's branch L3 is dropped
 /// (the owner retired that contract product-wide); B3D-10's tightenings stay.
 fn preview_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.8.0")
+    model["schema_version"].as_str() == Some("0.9.0")
         && model.as_object().is_some_and(|object|
             !object.contains_key("pressure_contract") && !object.contains_key("shear_model"))
         && section_allowances(model, false)
@@ -5015,6 +5015,15 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         "G8",
         "INVOCATION_MISMATCH",
     )?;
+    // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7): until S2
+    // settles where the condition lowering sits for the retained routes, this reader
+    // declines an invocation whose model carries a case's `condition_use`, by name.
+    need(!crate::physics_source::model_uses_conditions(model), "G8", "CONDITION_USE_UNSUPPORTED")?;
+    // §3.8: the condition sets and spectra unless absent or `[]`, and any pipe's
+    // `condition_set_ref`, as the retained admission declines them (D1.3).
+    need(!crate::physics_source::model_carries_condition_sets(model), "G8", "CONDITION_SETS_UNSUPPORTED")?;
+    need(!crate::physics_source::model_carries_spectra(model), "G8", "SPECTRA_UNSUPPORTED")?;
+    need(!crate::physics_source::model_carries_condition_set_ref(model), "G8", "CONDITION_SET_REF_UNSUPPORTED")?;
     need(
         // B7a: the producer's pressure-free branch is the current version
         // without a contract (`model_format::is_pressure_free`); 0.4.0 stays
@@ -7069,7 +7078,7 @@ mod b3b_table_binding_tests {
 
 /// B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace keys
 /// on the pressure contract's absence on the current model version. Keying it on
-/// the version string alone (a 0.8.0 model with a contract would pass) or on the
+/// the version string alone (a 0.9.0 model with a contract would pass) or on the
 /// retired 0.1.0/0.2.0 fails this test.
 #[cfg(test)]
 mod b7a_preview_namespace_tests {
@@ -7083,22 +7092,22 @@ mod b7a_preview_namespace_tests {
             }
             m
         };
-        assert!(preview_namespace(&model("0.8.0", None)));
-        assert!(!preview_namespace(&model("0.8.0", Some(Value::Null))));
+        assert!(preview_namespace(&model("0.9.0", None)));
+        assert!(!preview_namespace(&model("0.9.0", Some(Value::Null))));
         for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({}), json!(false)] {
-            assert!(!preview_namespace(&model("0.8.0", Some(contract.clone()))), "0.8.0 with {contract}");
+            assert!(!preview_namespace(&model("0.9.0", Some(contract.clone()))), "0.9.0 with {contract}");
         }
         for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.5.1", "0.6.0"] {
             assert!(!preview_namespace(&model(version, None)), "{version}");
         }
         assert!(!preview_namespace(&json!({"project": {"id": "p"}})), "a missing version");
         let exact = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
-        assert!(exact_namespace(&model("0.8.0", Some(exact.clone()))));
+        assert!(exact_namespace(&model("0.9.0", Some(exact.clone()))));
         for value in [Value::Null, json!("euler_bernoulli"), json!(false), json!(1), json!([]), json!({})] {
-            let mut preview = model("0.8.0", None);
+            let mut preview = model("0.9.0", None);
             preview["shear_model"] = value.clone();
             assert!(!preview_namespace(&preview), "top-level shear {value}");
-            let mut pressure = model("0.8.0", Some(exact.clone()));
+            let mut pressure = model("0.9.0", Some(exact.clone()));
             pressure["shear_model"] = value.clone();
             assert!(!exact_namespace(&pressure), "top-level shear {value}");
         }
@@ -7924,6 +7933,46 @@ mod t4_u6_g8_tests {
 }
 
 #[cfg(test)]
+mod model_0_9_0_g8_tests {
+    use super::*;
+
+    /// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.8): G8 declines
+    /// `condition_sets` and `spectra` other than absent or `[]`, and any pipe's
+    /// `condition_set_ref` (an empty string included), by name, after the invocation binding
+    /// and before the namespace, as the retained admission declines them at D1.3. The control
+    /// (absent, or `[]`) passes these checks and stops later, at the namespace its top-level
+    /// `shear_model` leaves.
+    #[test]
+    fn g8_declines_condition_sets_spectra_and_set_references_by_name() {
+        let gate = |change: &dyn Fn(&mut Value)| {
+            // A top-level shear_model puts the control outside both namespaces.
+            let mut model = json!({"schema_version": "0.9.0", "shear_model": "outside", "project": {"id": "p"}, "load_cases": [{"id": "c"}],
+                "nodes": [], "supports": [], "pipe_segments": [{"id": "m0"}, {"id": "m1"}]});
+            change(&mut model);
+            let inv = json!({"request": {"model": model}, "solver_mode": "sparse_interactive"});
+            let value = hash("source_blocks_invocation_v1", &inv, "G8", "INVOCATION_MISMATCH").unwrap();
+            let source = json!({"model_ref": "p", "retained_precision": {"body": {"sources": [], "combinations": [], "invocation": {"value": value}}}});
+            g8(&source, &inv, &PREVIEW).unwrap_err().code
+        };
+        let set = json!({"id": "cs", "provenance": "user"});
+        let spectrum = json!({"id": "sp", "points": [[0.1, 1.0], [1.0, 2.0]]});
+        let control = "RETAINED_PRECISION_INVOCATION_MISMATCH";
+        assert_eq!(gate(&|_| {}), control);
+        assert_eq!(gate(&|m| { m["condition_sets"] = json!([]); m["spectra"] = json!([]); }), control, "[] reads as absence");
+        assert_eq!(gate(&|m| m["condition_sets"] = json!([set])), "RETAINED_PRECISION_CONDITION_SETS_UNSUPPORTED");
+        assert_eq!(gate(&|m| m["condition_sets"] = Value::Null), "RETAINED_PRECISION_CONDITION_SETS_UNSUPPORTED");
+        assert_eq!(gate(&|m| m["spectra"] = json!([spectrum])), "RETAINED_PRECISION_SPECTRA_UNSUPPORTED");
+        for reference in [json!("cs"), json!(""), Value::Null] {
+            assert_eq!(gate(&|m| m["pipe_segments"][1]["condition_set_ref"] = reference.clone()),
+                "RETAINED_PRECISION_CONDITION_SET_REF_UNSUPPORTED", "{reference}");
+        }
+        // A case's condition_use keeps its own name and comes first.
+        assert_eq!(gate(&|m| { m["load_cases"][0]["condition_use"] = json!({"temperature": "OPE"}); m["condition_sets"] = json!([set]); }),
+            "RETAINED_PRECISION_CONDITION_USE_UNSUPPORTED");
+    }
+}
+
+#[cfg(test)]
 mod w1_member_reader_gate_tests {
     use super::*;
     #[test]
@@ -7931,7 +7980,7 @@ mod w1_member_reader_gate_tests {
         let source=json!({"retained_precision":{"body":{"sources":[]}}});
         let mut loads=vec![json!({"target":{"type":"node"}});128];
         loads.push(json!({"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}));
-        let inv=json!({"request":{"model":{"schema_version":"0.8.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
+        let inv=json!({"request":{"model":{"schema_version":"0.9.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
         let refuse=|s:&Value,i:&Value,exact| {
             let e=guard_member_g8(s,i,exact).unwrap_err();
             assert_eq!((e.gate,e.code.as_str()),("G8","RETAINED_PRECISION_PREPARATION_MISMATCH"));

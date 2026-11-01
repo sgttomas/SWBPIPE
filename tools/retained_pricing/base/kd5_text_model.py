@@ -216,7 +216,9 @@ def inspect_directed_helpers(snapshot):
 # §8.30 D3: lib.rs's dense-memory guard and the generator's dropped refusal add no `.min(`/`.max(` call.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '56ea5ca6cee2fbf3163d0d0840f32b13a8e482c805b9eb7b620ac60a4b6b4f13'
+# Model document 0.9.0 D3 (§8.36): lib.rs's new members, term wire, lowering/withholding calls and snubber token add or
+# remove no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '0a4d22f4d81b20d68a8add8aca07140887d922b961504dca6295f0267bedd573'
 
 
 def primitive_lib_minmax_callers(snapshot):

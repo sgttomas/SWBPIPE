@@ -3,7 +3,7 @@
 //! `validation/references/o4_retained_source/` (both stiffness readouts, exact).
 //!
 //! Binding (the reference README's "Binding"): each request-agnostic case document becomes one
-//! model 0.8.0 product request (`judged_request`); each source twin is the in-memory
+//! model 0.9.0 product request (`judged_request`); each source twin is the in-memory
 //! re-authoring of its pinned J2 or RF request's load case. Each request runs through the actual
 //! W1 private driver (`retained_w1` after the single observed ordinary run, as the facade runs it
 //! after G-C), in both solver modes. W1 attempts a case only when its ordinary verdict is not
@@ -107,7 +107,7 @@ fn direction(kind: &str, axis: &str) -> &'static str {
     }
 }
 
-/// A case document (`cases.json` `document`) as one model 0.8.0 product request (README "Binding" 1).
+/// A case document (`cases.json` `document`) as one model 0.9.0 product request (README "Binding" 1).
 fn judged_request(doc: &Value, project_id: &str) -> Value {
     let mat = &doc["material"];
     let loads: Vec<Value> = doc["loads"].as_array().unwrap().iter().map(|l| {
@@ -146,7 +146,7 @@ fn judged_request(doc: &Value, project_id: &str) -> Value {
         "pressure_contract": {"mode": "exact_pressure_v3", "shear_model": doc["shear_model"], "version": "3.0.0"},
         "project": {"description": "Invented O4 M3-O4 judged document; no external project or library data.", "id": project_id, "name": project_id,
             "units": {"angle": "rad", "force": "N", "length": "m", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "supports": supports,
     }})
 }
@@ -158,7 +158,7 @@ fn to_m(unit: &str) -> f64 { match unit { "m" => 1.0, "mm" => 0.001, "cm" => 0.0
 /// The source twin's in-memory re-authoring of its pinned request (README "Binding" 4; the
 /// generator's rule): the shear model, and the class's mill tolerance and allowance in the section's
 /// own unit, each asserted equal to the frozen twin document's value. An RF census request (model
-/// 0.3.0, no shear model, no allowances) is re-authored to model 0.8.0 with both explicit.
+/// 0.3.0, no shear model, no allowances) is re-authored to model 0.9.0 with both explicit.
 fn twin_request(twin: &Value) -> Value {
     let file = twin["source"]["file"].as_str().unwrap();
     let mut raw: Value = if file == RF_INPUTS_PATH {
@@ -172,7 +172,7 @@ fn twin_request(twin: &Value) -> Value {
     let rf = file == RF_INPUTS_PATH;
     let model = &mut raw["model"];
     if rf {
-        model["schema_version"] = json!("0.8.0");
+        model["schema_version"] = json!("0.9.0");
         model["pressure_contract"] = json!({"mode": "exact_pressure_v3", "shear_model": theory_token(theory), "version": "3.0.0"});
     } else if variant == "zero" && theory == "eb" {
         return raw;

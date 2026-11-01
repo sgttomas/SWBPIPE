@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/model.schema.yaml",
   "title": "OpenPipeStress model document",
-  "description": "The model document openpipestress.product_preview.model, version 0.8.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
+  "description": "The model document openpipestress.product_preview.model, version 0.9.0: the document the desktop opens, edits and saves and the solver reads. Coordinates, directions and orientation vectors are in one implicit global right-handed Cartesian frame (axes X, Y, Z; length unit project.units.length); the document declares no other coordinate system. The schema describes structure only: physical validity, unit admission and cross-references are the readers' and the applier's, which report named diagnostics. Every member a reader decodes or a writer emits is described, and every record is closed. The load/reference-state group (reference_configurations, material expansion_laws, load-case analysis_state) is defined in load_reference_state.schema.json. $defs/DesktopDocument is the desktop's open and save profile. The annotation and record slots (tags, notes, lines, unresolved_assumptions, rule_pack_refs, provenance_record, constraints, equipment_interfaces) are optional model data that no solve reads; absence means none, and nothing evaluates lines, constraints or equipment interfaces. Values are user-entered; the software supplies no code value and no acceptance.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,10 +16,10 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document 0.8.0 is the one current version: 0.7.0 plus a reducer's optional geometry.eccentric_offset. Versions 0.1.0 to 0.7.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
+      "description": "Model document 0.9.0 is the one current version: 0.8.0 plus the optional operating-condition sets (condition_sets, a pipe segment's condition_set_ref, a load case's condition_use), a single-DOF support's direction, a combination's difference_basis and subtrahend_support_state, the absolute_sum and srss bases, combination operands, a load case's test_condition, the snubber support family and spectra. Versions 0.1.0 to 0.8.0 are retired and refused by name with a re-author diagnostic; nothing is migrated.",
       "type": "string",
       "enum": [
-        "0.8.0"
+        "0.9.0"
       ]
     },
     "document_kind": {
@@ -136,6 +136,20 @@
     },
     "model_settings": {
       "$ref": "#/$defs/ModelSettings"
+    },
+    "condition_sets": {
+      "description": "Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §1.2): operating-condition sets, each a source of keyed per-line values that a load case's condition_use names. Absent means none; nothing is defaulted.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ConditionSet"
+      }
+    },
+    "spectra": {
+      "description": "Model document 0.9.0 (§2.4): user-entered response spectra, data only; referenced only by a spectrum analysis request, never from load cases. No solve reads them in 0.9.0.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Spectrum"
+      }
     }
   },
   "$defs": {
@@ -197,7 +211,7 @@
       }
     },
     "Combination": {
-      "description": "mechanics combines terms linearly; result_state_subtraction is minuend minus subtrahend; range_envelope applies mode over operand_ids.",
+      "description": "mechanics combines terms linearly; result_state_subtraction is minuend minus subtrahend; range_envelope applies mode over operand_ids; absolute_sum and srss (model document 0.9.0) take terms. An operand id names a load case, or a combination when no load case has that id.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -216,7 +230,9 @@
           "enum": [
             "mechanics",
             "result_state_subtraction",
-            "range_envelope"
+            "range_envelope",
+            "absolute_sum",
+            "srss"
           ]
         },
         "terms": {
@@ -246,6 +262,21 @@
             "max_abs"
           ]
         },
+        "difference_basis": {
+          "description": "Model document 0.9.0 (§2.2): the declared operating comparison of a result-state subtraction. Absent means a plain subtraction.",
+          "type": "string",
+          "enum": [
+            "operating_minus_sustained"
+          ]
+        },
+        "subtrahend_support_state": {
+          "description": "Model document 0.9.0 (§2.2): the subtrahend's support state, with difference_basis only. Absent means own.",
+          "type": "string",
+          "enum": [
+            "own",
+            "minuend_final"
+          ]
+        },
         "provenance": {
           "type": "string"
         },
@@ -261,17 +292,42 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "load_case",
         "factor"
       ],
       "properties": {
         "load_case": {
           "$ref": "#/$defs/Id"
         },
+        "combination": {
+          "$ref": "#/$defs/Id"
+        },
         "factor": {
           "type": "number"
         }
-      }
+      },
+      "description": "One term: exactly one of load_case and combination (model document 0.9.0), with its factor.",
+      "oneOf": [
+        {
+          "required": [
+            "load_case"
+          ],
+          "not": {
+            "required": [
+              "combination"
+            ]
+          }
+        },
+        {
+          "required": [
+            "combination"
+          ],
+          "not": {
+            "required": [
+              "load_case"
+            ]
+          }
+        }
+      ]
     },
     "Component": {
       "type": "object",
@@ -1000,11 +1056,11 @@
             "combinations": {
               "type": "array",
               "items": {
+                "description": "terms is required except on a result_state_subtraction or range_envelope (model document 0.9.0 §2.4), whose operands are their own members; the desktop shows an absent terms as absent.",
                 "required": [
                   "id",
                   "label",
                   "basis",
-                  "terms",
                   "provenance"
                 ],
                 "properties": {
@@ -1017,6 +1073,26 @@
                   "provenance": {
                     "type": "string"
                   }
+                },
+                "if": {
+                  "not": {
+                    "properties": {
+                      "basis": {
+                        "enum": [
+                          "result_state_subtraction",
+                          "range_envelope"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "basis"
+                    ]
+                  }
+                },
+                "then": {
+                  "required": [
+                    "terms"
+                  ]
                 }
               }
             }
@@ -1292,6 +1368,12 @@
         "analysis_state": {
           "$ref": "load_reference_state.schema.json#/$defs/AnalysisState"
         },
+        "condition_use": {
+          "$ref": "#/$defs/ConditionUse"
+        },
+        "test_condition": {
+          "$ref": "#/$defs/TestCondition"
+        },
         "provenance": {
           "type": "string"
         },
@@ -1316,6 +1398,31 @@
           "modulus_basis_temperature": {
             "not": {
               "type": "null"
+            }
+          }
+        }
+      },
+      "if": {
+        "not": {
+          "required": [
+            "condition_use"
+          ],
+          "properties": {
+            "condition_use": {
+              "required": [
+                "pressure"
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "pressure_regions": {
+            "items": {
+              "required": [
+                "pressure"
+              ]
             }
           }
         }
@@ -2070,6 +2177,10 @@
         "section_ref": {
           "$ref": "#/$defs/Id"
         },
+        "condition_set_ref": {
+          "description": "Model document 0.9.0 (§1.2, §1.4): the id of the operating-condition set this pipe carries, stored explicitly; the solve never infers it.",
+          "$ref": "#/$defs/Id"
+        },
         "material": {
           "$ref": "#/$defs/Id"
         },
@@ -2124,14 +2235,13 @@
       }
     },
     "PressureRegion": {
-      "description": "One exact pressure region of a load case under the exact pressure contract.",
+      "description": "One exact pressure region of a load case under the exact pressure contract. pressure is required except where the case's condition_use names pressure (LoadCase if/then, model document 0.9.0 §1.6).",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "id",
         "member_pipe_ids",
         "pressure_basis",
-        "pressure",
         "terminals",
         "provenance"
       ],
@@ -2587,6 +2697,10 @@
             }
           ]
         },
+        "direction": {
+          "description": "Model document 0.9.0 (§2.1): the line of action of a single-DOF translational line stop, spring or snubber, in the global frame; dimensionless, finite and non-zero, stored exactly as authored. Absent means axis-aligned along the record's DOF.",
+          "$ref": "#/$defs/Vector3"
+        },
         "boundary_association": {
           "$ref": "#/$defs/BoundaryAssociation"
         },
@@ -2627,7 +2741,8 @@
         "variable_spring_hanger",
         "spring_hanger",
         "constant_effort_support",
-        "nonlinear"
+        "nonlinear",
+        "snubber"
       ]
     },
     "SupportStiffness": {
@@ -2858,6 +2973,348 @@
           }
         }
       }
+    },
+    "ConditionSet": {
+      "description": "Model document 0.9.0 (§1.2): one operating-condition set. Values are user-entered; design, peak, exposure.snow_ice, exposure.wave and each condition's contents_density are not used by the solve in 0.9.0.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OperatingCondition"
+          }
+        },
+        "installation_temperature": {
+          "description": "Absolute stress-free temperature the pressure-free route subtracts.",
+          "$ref": "#/$defs/Quantity"
+        },
+        "design": {
+          "$ref": "#/$defs/ConditionValues"
+        },
+        "peak": {
+          "$ref": "#/$defs/ConditionValues"
+        },
+        "added_weight": {
+          "$ref": "#/$defs/AddedWeight"
+        },
+        "exposure": {
+          "$ref": "#/$defs/ConditionExposure"
+        },
+        "provenance": {
+          "type": "string"
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        }
+      }
+    },
+    "OperatingCondition": {
+      "description": "One keyed condition of a set: key is unique within its set; temperature is absolute; pressure is internal differential (internal_differential_zero_external_v1).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "temperature": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "pressure": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "contents_density": {
+          "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "ConditionValues": {
+      "description": "Design or peak temperature and pressure; not used by the solve in 0.9.0.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "temperature": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "pressure": {
+          "$ref": "#/$defs/Quantity"
+        }
+      }
+    },
+    "AddedWeight": {
+      "description": "A uniform added weight on every pipe carrying the set: the magnitude and direction a weight primitive takes; the direction is entered, never assumed.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "magnitude",
+        "direction"
+      ],
+      "properties": {
+        "magnitude": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "global_x",
+            "global_y",
+            "global_z"
+          ]
+        }
+      }
+    },
+    "ConditionExposure": {
+      "description": "Exposure marks; absent means not marked. snow_ice and wave are not used by the solve in 0.9.0.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "wind": {
+          "type": "boolean"
+        },
+        "snow_ice": {
+          "type": "boolean"
+        },
+        "wave": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ConditionUse": {
+      "description": "A load case's use of its pipes' condition sets: condition keys, and the set-level uses, which admit only true. At least one member.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "temperature": {
+          "$ref": "#/$defs/Id"
+        },
+        "pressure": {
+          "$ref": "#/$defs/Id"
+        },
+        "contents_density": {
+          "$ref": "#/$defs/Id"
+        },
+        "added_weight": {
+          "type": "boolean",
+          "const": true
+        },
+        "wind_exposure": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "minProperties": 1
+    },
+    "TestCondition": {
+      "description": "Model document 0.9.0 (§2.4; DEL-05-01 Design hydrostatic-test.md §2): the case is a hydrostatic test. Both members are entered; nothing is defaulted.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "held_supports"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "hydrostatic"
+          ]
+        },
+        "held_supports": {
+          "type": "string",
+          "enum": [
+            "springs_and_constant_effort",
+            "none"
+          ]
+        }
+      }
+    },
+    "Spectrum": {
+      "description": "Model document 0.9.0 (§2.4): one user-entered spectrum, data only; not used by the solve in 0.9.0. g_value is present exactly when ordinate is g_multiple, and units.ordinate exactly when ordinate is acceleration.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "abscissa",
+        "ordinate",
+        "units",
+        "damping_ratio",
+        "interpolation",
+        "points"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "label": {
+          "type": "string"
+        },
+        "abscissa": {
+          "type": "string",
+          "enum": [
+            "frequency",
+            "period"
+          ]
+        },
+        "ordinate": {
+          "type": "string",
+          "enum": [
+            "acceleration",
+            "g_multiple"
+          ]
+        },
+        "units": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "abscissa"
+          ],
+          "properties": {
+            "abscissa": {
+              "type": "string",
+              "minLength": 1
+            },
+            "ordinate": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "g_value": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "damping_ratio": {
+          "description": "Dimensionless damping ratio, finite, in [0, 1).",
+          "type": "number"
+        },
+        "interpolation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "abscissa",
+            "ordinate"
+          ],
+          "properties": {
+            "abscissa": {
+              "type": "string",
+              "enum": [
+                "linear",
+                "log"
+              ]
+            },
+            "ordinate": {
+              "type": "string",
+              "enum": [
+                "linear",
+                "log"
+              ]
+            }
+          }
+        },
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+          }
+        },
+        "tags": {
+          "$ref": "#/$defs/Tags"
+        },
+        "notes": {
+          "$ref": "#/$defs/Notes"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ordinate": {
+                "const": "g_multiple"
+              }
+            },
+            "required": [
+              "ordinate"
+            ]
+          },
+          "then": {
+            "required": [
+              "g_value"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "g_value"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ordinate": {
+                "const": "acceleration"
+              }
+            },
+            "required": [
+              "ordinate"
+            ]
+          },
+          "then": {
+            "properties": {
+              "units": {
+                "required": [
+                  "ordinate"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "units": {
+                "not": {
+                  "required": [
+                    "ordinate"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

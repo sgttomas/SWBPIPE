@@ -1,12 +1,12 @@
 //! B7b's one re-authoring of a copied integration-test model or request (the
 //! lib twin is `src/b7b_admission_tests.rs`'s `reauthor_current_model`).
 //!
-//! Model document 0.8.0 is the only current version. A 0.5.0, 0.6.0 or 0.7.0
-//! copy is re-authored by its `schema_version` alone (0.6.0, 0.7.0 and 0.8.0 add
-//! members and change none, DEL-04-07 Design `u4b-u5b-implementation.md` §1.1,
-//! DEL-02-01 Design `model-document-0.7.0.md` §2 and `model-document-0.8.0.md`
-//! §1). An older copy is
-//! re-authored by: `schema_version` -> 0.8.0; a declared v2 or v3 exact contract
+//! Model document 0.9.0 is the only current version. A 0.5.0, 0.6.0, 0.7.0 or
+//! 0.8.0 copy is re-authored by its `schema_version` alone (0.6.0, 0.7.0, 0.8.0
+//! and 0.9.0 add members and change none, DEL-04-07 Design
+//! `u4b-u5b-implementation.md` §1.1, DEL-02-01 Design `model-document-0.7.0.md`
+//! §2, `model-document-0.8.0.md` §1 and `model-document-0.9.0.md` §3.1). An older copy is
+//! re-authored by: `schema_version` -> 0.9.0; a declared v2 or v3 exact contract
 //! -> the current
 //! `{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"}`;
 //! and, on a contract-present document, an explicit zero `corrosion_allowance`
@@ -18,10 +18,10 @@
 #![allow(dead_code)]
 use serde_json::{json, Value};
 
-pub const CURRENT_MODEL_VERSION: &str = "0.8.0";
-pub const RETIRED_MODEL_VERSIONS: [&str; 7] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"];
+pub const CURRENT_MODEL_VERSION: &str = "0.9.0";
+pub const RETIRED_MODEL_VERSIONS: [&str; 8] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"];
 /// The previous current versions, re-authored by their version string alone.
-pub const PREVIOUS_MODEL_VERSIONS: [&str; 3] = ["0.5.0", "0.6.0", "0.7.0"];
+pub const PREVIOUS_MODEL_VERSIONS: [&str; 4] = ["0.5.0", "0.6.0", "0.7.0", "0.8.0"];
 
 /// The current exact contract object.
 pub fn current_contract() -> Value {

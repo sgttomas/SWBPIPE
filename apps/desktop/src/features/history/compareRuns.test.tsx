@@ -166,10 +166,10 @@ describe("the session's Compare… of two runs", () => {
   });
 
   // Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2" (DEL-02-01 Design model-document-0.8.0.md §3.2):
-  // a run recorded on a 0.7.0 model is listed for the project id and compares with a 0.8.0 run
-  // exactly as two 0.8.0 runs do. No model-document-version gate is added for runs; the
+  // a run recorded on a 0.7.0 model is listed for the project id and compares with a 0.9.0 run
+  // exactly as two 0.9.0 runs do. No model-document-version gate is added for runs; the
   // existing eligibility gate decides.
-  it("compares a run recorded on a 0.7.0 model with a 0.8.0 run under the existing gate alone", async () => {
+  it("compares a run recorded on a 0.7.0 model with a 0.9.0 run under the existing gate alone", async () => {
     const retired = { ...MODEL, schema_version: "0.7.0" } as PreviewModel;
     const earlier = await recordedRead({ model: retired, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
     const later = await recordedRead({ model: MODEL, source: DENSE, mode: "dense_scrutiny" }, LATE, "Dense");

@@ -6,7 +6,7 @@
     {
       "path": "blank_project",
       "document": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "data_boundary": {
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -58,7 +58,7 @@
     {
       "path": "blank_load_reference_project",
       "document": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "pressure_contract": {
           "version": "3.0.0",
           "mode": "exact_pressure_v3",
@@ -74,7 +74,7 @@
         },
         "project": {
           "id": "project:blank-local-20260101t000000z",
-          "name": "Blank Local Load/reference Model 0.8.0",
+          "name": "Blank Local Load/reference Model 0.9.0",
           "description": "User-created local blank model document. Add explicit nodes, pipe runs, supports, materials, loads, and combinations through structured editors before solving.",
           "units": {
             "length": "m",
@@ -191,7 +191,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [],
         "supports": []
       }
@@ -292,7 +292,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [],
         "supports": []
       }
@@ -393,7 +393,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -558,7 +558,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -723,7 +723,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -925,7 +925,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -1140,7 +1140,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -1360,7 +1360,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -1587,7 +1587,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -1823,7 +1823,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -2079,7 +2079,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -2335,7 +2335,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -2630,7 +2630,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -2943,7 +2943,7 @@
             "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -3290,7 +3290,7 @@
             "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",
@@ -3680,7 +3680,7 @@
             "source_notice": "Original invented demonstration data only. Not an engineering design basis, not a standards interpretation, and not suitable for professional reliance."
           }
         ],
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "sections": [
           {
             "id": "section:S-1",

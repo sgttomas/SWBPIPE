@@ -7,7 +7,7 @@ import type { PreviewModel, EditorOperationIntent } from "../../types";
 import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
 afterEach(cleanup);
-// B7b: the fixture is the current exact-contract document (0.8.0, 3.0.0/exact_pressure_v3
+// B7b: the fixture is the current exact-contract document (0.9.0, 3.0.0/exact_pressure_v3
 // with an explicit euler_bernoulli selection); a pressure-free document is the same 0.8.0
 // without the contract. T4-U8 (D-6/O3): new authoring writes Timoshenko by default.
 const model = fixture as PreviewModel;
@@ -35,7 +35,7 @@ it("requires explicit profile choice and queues only the profile projection", as
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   const intent = queue.mock.calls[0][0] as EditorOperationIntent;
   expect(intent.target).toEqual({ object_type: "Model", ref: model.project.id });
-  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
+  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
   expect(legacy.load_cases).toEqual(model.load_cases);
 });
 it("shows the retired legacy label and re-authors it to the exact profile (U3)", async () => {
@@ -45,8 +45,8 @@ it("shows the retired legacy label and re-authors it to the exact profile (U3)",
   change("Pressure profile", "exact_pressure_v3"); fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   const intent = queue.mock.calls[0][0] as EditorOperationIntent;
-  expect(JSON.parse(intent.change.before)).toEqual({ schema_version: "0.8.0", pressure_contract: { version: "1.0.0", mode: "legacy_pressure_v1" } });
-  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
+  expect(JSON.parse(intent.change.before)).toEqual({ schema_version: "0.9.0", pressure_contract: { version: "1.0.0", mode: "legacy_pressure_v1" } });
+  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
 });
 it("shows a model without a pressure contract as pressure-free (U3)", () => {
   const free = pressureFree();
@@ -74,8 +74,8 @@ it("offers only exact_pressure_v3 and re-authors a retired v2 contract explicitl
   expect(options).toEqual(["exact_pressure_v3"]);
   change("Pressure profile", "exact_pressure_v3"); fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
-  expect(JSON.parse(queue.mock.calls[0][0].change.before)).toEqual({ schema_version: "0.8.0", pressure_contract: { version: "2.0.0", mode: "exact_straight_pressure_v2" } });
-  expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
+  expect(JSON.parse(queue.mock.calls[0][0].change.before)).toEqual({ schema_version: "0.9.0", pressure_contract: { version: "2.0.0", mode: "exact_straight_pressure_v2" } });
+  expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
 });
 it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the signed-pressure hint and the tangency rule (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;
@@ -104,9 +104,9 @@ it("writes the Timoshenko default and Euler–Bernoulli only as an explicit choi
   expect(screen.getByText("The shear model applies to straight members; realized arcs are Euler–Bernoulli under either model.")).toBeInTheDocument();
   cleanup();
   // The default write, without touching the selector.
-  expect(await queuedProfile(free)).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
+  expect(await queuedProfile(free)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
   // The explicit Euler–Bernoulli write.
-  expect(await queuedProfile(free, "euler_bernoulli")).toEqual({ schema_version: "0.8.0", pressure_contract: V3_EB });
+  expect(await queuedProfile(free, "euler_bernoulli")).toEqual({ schema_version: "0.9.0", pressure_contract: V3_EB });
   // Activation writes only the profile: no allowance is supplied for a section missing one.
   const missing = pressureFree(); delete missing.pipe_segments[0].section.corrosion_allowance;
   render(<PressureAuthoringPanel model={missing} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
@@ -121,20 +121,20 @@ it("preserves a document's shear selection on re-queue unless the user changes i
   expect((screen.getByLabelText("Shear model") as HTMLSelectElement).value).toBe("euler_bernoulli");
   expect(screen.getByText(/straight members use Euler–Bernoulli, and realized arcs are Euler–Bernoulli under either shear model/)).toBeInTheDocument();
   cleanup();
-  expect(await queuedProfile(eb)).toEqual({ schema_version: "0.8.0", pressure_contract: V3_EB });
+  expect(await queuedProfile(eb)).toEqual({ schema_version: "0.9.0", pressure_contract: V3_EB });
   expect(eb.pressure_contract).toEqual(V3_EB);
   // Timoshenko stays Timoshenko.
-  expect(await queuedProfile(withContract(V3))).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
+  expect(await queuedProfile(withContract(V3))).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
   // The user's explicit change is written, in both directions.
-  expect(await queuedProfile(eb, "timoshenko_annulus_energy_v1")).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
-  expect(await queuedProfile(withContract(V3), "euler_bernoulli")).toEqual({ schema_version: "0.8.0", pressure_contract: V3_EB });
+  expect(await queuedProfile(eb, "timoshenko_annulus_energy_v1")).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
+  expect(await queuedProfile(withContract(V3), "euler_bernoulli")).toEqual({ schema_version: "0.9.0", pressure_contract: V3_EB });
   // No admitted selection (absent or unknown) is shown as such; the queued profile then
   // carries the default, which the before/after review shows explicitly.
   for (const contract of [{ version: "3.0.0", mode: "exact_pressure_v3" }, { ...V3, shear_model: "cowper" }]) {
     const current = withContract(contract);
     expect(pressureModeText(current)).toContain("no admitted shear model is selected, so solves are refused until one is");
-    expect(pressureProfileTarget(current)).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
-    expect(await queuedProfile(current)).toEqual({ schema_version: "0.8.0", pressure_contract: V3 });
+    expect(pressureProfileTarget(current)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
+    expect(await queuedProfile(current)).toEqual({ schema_version: "0.9.0", pressure_contract: V3 });
   }
   // The target itself: the explicit choice, else the document's selection, else the default.
   expect(pressureProfileTarget(eb).pressure_contract).toEqual(V3_EB);
@@ -172,8 +172,8 @@ it("queues explicit empty regions for an undeclared case without changing its lo
   expect(queue.mock.calls[0][0].change.before).toBe("not_present"); expect(queue.mock.calls[0][0].change.after).toBe("[]");
   expect(input.load_cases[1].primitive_loads).toEqual(model.load_cases[1].primitive_loads);
 });
-it("preserves explicit connector membership on 0.8.0 and never offers it on old documents", async () => {
-  const current = structuredClone(model); current.schema_version = "0.8.0"; current.pressure_contract = V3;
+it("preserves explicit connector membership on 0.9.0 and never offers it on old documents", async () => {
+  const current = structuredClone(model); current.schema_version = "0.9.0"; current.pressure_contract = V3;
   current.load_cases[0].pressure_regions![0].member_connector_ids = ["component:J"];
   const queue = vi.fn();
   render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: current.load_cases[0].id }} loadCaseId={current.load_cases[0].id} onQueueIntent={queue} />);

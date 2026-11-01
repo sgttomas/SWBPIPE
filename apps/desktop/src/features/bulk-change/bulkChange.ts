@@ -25,7 +25,7 @@ export type Dof = typeof DOFS[number];
 /** Every stored family, for matching. "" matches a support with no family recorded. */
 export const SUPPORT_FAMILIES = [
   "anchor", "guide", "line_stop", "vertical_support", "spring", "variable_spring_hanger",
-  "spring_hanger", "constant_effort_support", "nonlinear"
+  "spring_hanger", "constant_effort_support", "nonlinear", "snubber"
 ] as const;
 /** The kinds a bulk replacement writes: none needs stiffness, hanger or nonlinear data. */
 export const TARGET_SUPPORT_FAMILIES = ["anchor", "guide", "line_stop", "vertical_support"] as const;

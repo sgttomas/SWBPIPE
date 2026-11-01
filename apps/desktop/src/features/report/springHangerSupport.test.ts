@@ -107,6 +107,7 @@ const SOLVER_BY_FAMILY: Record<string, boolean> = {
   "family spring_hanger": true,
   "family constant_effort_support": true,
   "family nonlinear": false,
+  "family snubber": false,
   "no family": false,
   "null family": false,
   'family ""': false,

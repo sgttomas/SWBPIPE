@@ -1118,7 +1118,7 @@ deterministic and use stable ids automatically, with no manual mapping.
   equipment interfaces and rule-pack references.
 - **Primitive loads** are entities keyed `<load case id>/<load id>`.
 - **The `model` entity** holds `project`, `pressure_contract`, `data_boundary`,
-  `analysis_status`, `diagnostics`, `schema_version` and `document_kind`. It
+  `analysis_status`, `diagnostics`, `schema_version`, `document_kind` and `model_settings`. Model document 0.9.0's `condition_sets` and `spectra` are retained verbatim as fields of this same entity: nested values, units, record identities and array order participate in the existing field comparison. No values are synthesized or dropped, and no new comparison family is introduced (S1, #50). It
   also holds **the ordered id list of every collection**, so a reordering is a
   `changed` model entity.
 - **Fail closed.** An unassigned member refuses the comparison with

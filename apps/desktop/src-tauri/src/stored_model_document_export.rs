@@ -1276,7 +1276,7 @@ mod tests {
     /// A document without `project.units`, stored as the store serializes it.
     fn unitless_text() -> String {
         let document = json!({
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.model",
             "project": { "id": PROJECT, "name": "Invented", "description": "" },
             "materials": [{ "id": "material:invented", "provenance_record": { "review_status": "accepted" } }]
@@ -1285,7 +1285,7 @@ mod tests {
     }
 
     /// Key order and spacing that a re-serialization would change.
-    const STATE_TEXT: &str = "{\"schema_version\":\"0.8.0\",\"project\":{\"name\":\"Invented\",\"id\":\"project:invented-no-units\"}, \"x\":1.50}";
+    const STATE_TEXT: &str = "{\"schema_version\":\"0.9.0\",\"project\":{\"name\":\"Invented\",\"id\":\"project:invented-no-units\"}, \"x\":1.50}";
 
     struct Scratch(PathBuf);
 
@@ -1434,7 +1434,7 @@ mod tests {
     #[test]
     fn duplicate_members_are_refused_before_screening() {
         let scratch = Scratch::new("duplicate");
-        let duplicated = "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.model\",\"project\":{\"id\":\"project:invented-no-units\",\"name\":\"Invented\"},\"materials\":[{\"id\":\"material:invented\",\"provenance_record\":{\"review_status\":\"quarantined\"},\"provenance_record\":{\"review_status\":\"accepted\"}}]}";
+        let duplicated = "{\"schema_version\":\"0.9.0\",\"document_kind\":\"openpipestress.model\",\"project\":{\"id\":\"project:invented-no-units\",\"name\":\"Invented\"},\"materials\":[{\"id\":\"material:invented\",\"provenance_record\":{\"review_status\":\"quarantined\"},\"provenance_record\":{\"review_status\":\"accepted\"}}]}";
         let top_level = "{\"project\":{\"id\":\"project:invented-no-units\"},\"x\":1,\"x\":2}";
         let store = current_store(&scratch, duplicated, top_level);
         let pool = registry(ScriptedHost::normal());
@@ -2226,7 +2226,7 @@ mod tests {
     /// A stored document with `material` as its one material.
     fn with_material(material: Value) -> String {
         serde_json::to_string(&json!({
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.model",
             "project": { "id": PROJECT, "name": "Invented", "description": "" },
             "materials": [material]
@@ -2334,7 +2334,7 @@ mod tests {
     #[test]
     fn a_positional_member_outside_the_screened_records_still_recovers() {
         let document = serde_json::to_string(&json!({
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "project": { "id": PROJECT, "units": ["m", "N"] },
             "nodes": [["node:invented", [0, 0, 0]]],
             "materials": [{ "id": "m", "provenance_record": { "source_name": "s", "review_status": "accepted" } }]

@@ -178,7 +178,11 @@ fn with_identity(request: &Value, id: &str) -> Value {
 /// Main's model document 0.8.0 (#1649, `187b67bb6b`) changed the four package
 /// container hashes; they were re-recorded from main itself, with this test's
 /// probe run on `187b67bb6b` without (r2c), and the merged tree gives the same
-/// six values. The two render hashes did not change.
+/// six values. The two render hashes did not change. Model document 0.9.0
+/// (S1, #50) moved the same four container hashes: with the version token
+/// alone reverted in their two inputs (the DEL-10-05 witness input's model
+/// hash and `precision_connected_ui_model.json`), the probe gives the 0.8.0
+/// values; the render hashes did not change.
 #[test]
 fn local_private_package_bytes_unchanged_by_user_release() {
     fn context(export_context: &str) -> ReportContext {
@@ -191,10 +195,10 @@ fn local_private_package_bytes_unchanged_by_user_release() {
         .unwrap()
     }
     let fixture = Fixture::new();
-    assert_eq!(assemble_report_package_container(&fixture.input()).container_sha256_hex, "51e45b2a67ba8d9a3a73face9af66dec6d867ea8271a409d5bf0f45f6ec97585");
+    assert_eq!(assemble_report_package_container(&fixture.input()).container_sha256_hex, "505a210affe08cdf4d783fbf1f46c1ae1147131ca683cd11bd9125a724dfcd8d");
     let mut local = Fixture::new();
     local.report.report_context = Some(context("local_private"));
-    assert_eq!(assemble_report_package_container(&local.input()).container_sha256_hex, "453d76c1fbb0852c071b701e6448d0c6886a3d1ddac6abf36742dd621fc09f7e");
+    assert_eq!(assemble_report_package_container(&local.input()).container_sha256_hex, "9a3bc2a87e75636435e0b6ba604573086f6efb78f28e041b47966e435fc52db5");
     assert_eq!(render_calculation_report(&local.report).sha256_hex, "bd010f800571c1eef33da72a55169d9990dd53d6a0e345f3e33d7463364f98cb");
     let mut public = Fixture::new();
     public.report.report_context = Some(context("public_report"));
@@ -225,8 +229,8 @@ fn local_private_package_bytes_unchanged_by_user_release() {
         solver_build_ref: solver["solver_build_ref"].as_str().unwrap(),
     };
     let assembled = |request: &Value| assemble_wire_request(decode_report_package_request(request.clone()).unwrap(), &linked).unwrap();
-    assert_eq!(assembled(&desktop).container_sha256_hex, "98b571282a3059c814608fdb4753478650c659b3874189f8e6449300e96dd0a6");
-    assert_eq!(assembled(&runner).container_sha256_hex, "ca57934802e690e602085f4a856195a55fc690a4cff5f6e5e3c39a3f1ceb5c43");
+    assert_eq!(assembled(&desktop).container_sha256_hex, "0ded9cd94ffc4089a331f11d49cbba37309fe61850b2cc0986752d6da4d14d7c");
+    assert_eq!(assembled(&runner).container_sha256_hex, "bb43c23b2e605eab4e5406853be5b37e54b7e27889c9a3c07f996a8a8ad2fff9");
     // A local-private manifest has no user_release member and its three notes.
     let manifest: Value = serde_json::from_slice(&assembled(&desktop).members[0].bytes).unwrap();
     assert!(manifest.get("user_release").is_none());

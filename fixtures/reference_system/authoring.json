@@ -1477,7 +1477,7 @@
     "person": "entered by the person, with its source: the bend k, the bend SIFs, the tee SIFs and their sources (spec §11.3; OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED)"
   },
   "model_document": "reference_system.json",
-  "model_document_version": "0.8.0",
+  "model_document_version": "0.9.0",
   "pending": [
     {
       "entities": [],

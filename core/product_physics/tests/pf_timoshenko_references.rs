@@ -151,7 +151,9 @@ fn request(case: &Value) -> Value {
     let path = binding["path"].as_str().unwrap();
     let text = REQUESTS.iter().find(|(p, _)| *p == path).unwrap_or_else(|| panic!("{path} is not included")).1;
     assert_eq!(sha256_hex(text.as_bytes()), binding["sha256"].as_str().unwrap(), "{path}: the request the reference binds");
-    let request: Value = serde_json::from_str(text).unwrap();
+    // Model document 0.9.0 (model-document-0.9.0.md §3.6): the bound 0.8.0 bytes stay; the copy is re-authored.
+    let mut request: Value = serde_json::from_str(text).unwrap();
+    current_model::reauthor_model(&mut request["model"]);
     let model = &request["model"];
     assert!(model.get("pressure_contract").is_none(), "{path}: a pressure-free document");
     let authored = model.pointer("/model_settings/shear_model");

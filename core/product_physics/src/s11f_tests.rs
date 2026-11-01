@@ -777,7 +777,7 @@ fn probe_a(g: f64, order: [f64; 3]) -> Value {
         })
         .collect::<Vec<_>>();
     json!({"model": {
-        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
             "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "project": {"id": "invented:t3-s11f:probe-a", "units": {"length": "m", "force": "N", "angle": "rad",
@@ -1167,7 +1167,7 @@ fn f2_probe_a_simply_supported(g: f64) {
 
 fn preview_model(id: &str) -> Value {
     json!({
-        "schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
             "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "project": {"id": format!("invented:t3-s11f:{id}"), "units": {"length": "m", "force": "N", "angle": "rad",

@@ -1,5 +1,5 @@
 //! The model-document version check (DEL-02-05 CLM-003; DEL-02-01 Design
-//! `model-document-0.8.0.md` §3.1): one current version, every other refused by
+//! `model-document-0.8.0.md` §3.1, `model-document-0.9.0.md` §3.2-§3.4): one current version, every other refused by
 //! name, nothing migrated. The desktop's native check (src-tauri
 //! `model_document_version.rs`) delegates here, the TS evaluator
 //! (`projectService.ts` `evaluateModelDocumentLocal`) and Python persistence
