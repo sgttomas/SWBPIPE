@@ -236,7 +236,7 @@ def primitive_lib_minmax_callers(snapshot):
 # complete decision preimage, never permit an arbitrary replaced key.
 def retire_combination_reaction_audit(snapshot, audits):
     primitive_lib_minmax_callers(snapshot)
-    retired = ("core/product_physics/src/lib.rs:13089",
+    retired = ("core/product_physics/src/lib.rs:13085",
                {"row.id": {"bytes": 1024, "source": "RES"}})
     if audits.count(retired) != 1:
         raise ValueError("B7a E13: exact retired reaction audit preimage changed")
