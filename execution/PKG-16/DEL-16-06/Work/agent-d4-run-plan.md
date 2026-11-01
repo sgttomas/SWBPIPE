@@ -1,6 +1,6 @@
 # D4: one joined local-model W9-A witness
 
-Plan revision D4-3, 2026-10-31. This is the run specification for Agent 0 to
+Plan revision D4-4, 2026-10-31. This is the run specification for Agent 0 to
 present with the single-read credential request. It supersedes the earlier
 thread draft's 64k assumption, three-attempt estimate and anchor/corner result
 scope. No resource window is booked. Preparing or merging this plan authorizes
@@ -16,6 +16,12 @@ controller/tests. The PR records exact-head checks, fourth-review disposition
 and the integration commit; the later plan commit does not select newer engine,
 frontend or catalog inputs from main. Before running, confirm this selection
 is integrated and compare the selected files, not an arbitrary checkout's HEAD.
+The separate monitor follow-up adds the maintained producer and a narrow
+consumer health check; its exact reviewed head is identified in its PR. For a
+live attempt select that follow-up's Python controller and monitor together,
+with the same native/frontend/wasm inputs below. The earlier controller hash
+remains the pre-monitor identity, not the live-controller identity. No native
+rebuild follows from the Python-only addition.
 
 | Input | Selected identity (SHA-256 unless stated otherwise) |
 | --- | --- |
@@ -76,6 +82,17 @@ server connection was refused. Neither declared model capacity nor the
 saved 32,768 setting proves the context actually served. Do not read the full
 settings file into evidence: it contains authentication configuration. App
 reports only the selected nonsecret fields through Agent 0.
+
+App later supplied a nonsecret source-only projection: saved `max_tokens=32768`,
+`mcp.config_path=null`, `mcp.expose_tools=true`, no `base_path`, and absent
+`model_settings.json`/`model_profiles.json`. Conditional on that launch/base,
+ModelSettings defaults add no persisted model/profile template overrides;
+template/forced kwargs and thinking toggles are None,
+`thinking_budget_enabled=false`, `trust_remote_code=false`. These narrow the
+offline reconstruction but do not establish the running engine/custom loader,
+launch options, MCP manager or actual output allowance. In particular, 32,768
+requested output tokens are not 32,768 available completion tokens after a
+nonempty prompt. Keep the planned context/output reserves.
 
 Before booking, remaining ordinary offline prerequisites are selected
 asset/probe hash checks and resolution of the supplier/provider serialization
@@ -143,6 +160,9 @@ Source tracing confirms oMLX's Responses conversion → system preparation →
 tool conversion → engine template → encode path, but does not establish which
 runtime overrides the retained server will use. No settings file was read to
 fill that gap. Provider equivalence is conditional on the stated selection.
+[`agent-d4-capture-proposal.md`](agent-d4-capture-proposal.md) specifies the
+smallest later supplier-only scripted capture to close the missing envelope;
+it needs no desktop App or real provider/model and is not authorized by this plan.
 
 | Token budget | Turn 1 | Turn 2 peak, including retained turn 1 |
 | --- | ---: | ---: |
@@ -206,28 +226,46 @@ The zero release grace is an explicit live selection, rather than the default
 inference during a grace period. Unknown custody still retains the app and
 latches the host; this does not authorize killing it by a remembered PID.
 
-The controller samples free memory only at entry. The joined run therefore
-also needs a separate two-second system-memory/telemetry monitor that writes
-the existing cancel file on <50 GiB or unavailable telemetry. Confirm its
-cancel-file behaviour without inference before admission. Do not claim that
-continuous monitoring is built into the controller. The native handshake blocks
-supplier admission until an observer and owned anchor exist.
+**Maintained monitor:** `tools/agent_journey_memory_monitor.py`, with mock-only
+tests in `tools/agent_journey_memory_monitor_test.py`. Its separate follow-up
+requires safety-tool review and exact-head checks before use. The producer
+samples the same free+inactive+speculative metric via a one-second-bounded
+`vm_stat` command, publishes every two seconds, and writes the existing cancel
+file on low/unavailable/malformed telemetry or a caught producer failure.
+It never takes a PID/process handle and never signals a process.
 
-**Monitor implementation status:** no maintained D4 two-second cancel-file
-monitor or test has been identified. This is still a preparation requirement,
-not an available executable. `tools/agent_host_witness.py`, nested
-`run.watch_memory`, has a two-second monitor for its historical standalone
-witness; `available_bytes` uses `hw.memsize * kern.memorystatus_level / 100`,
-and its failure path calls that witness's owned `Native.stop()` directly. It
-does not write the journey controller's cancel file and is not a drop-in D4
-monitor. `tools/agent_host_witness_test.py::ResourceFailureTest` covers setup
-headroom refusal, latched stop and cleanup/unload errors for that route, not
-D4 cancel-file integration. No native test was run to infer otherwise. The
-existing `--cancel-file` consumer is `tools/agent_journey_fixture.py::run.safety`.
-Before the live request is ready, name and test the small external producer
-against mocked telemetry and this cancellation interface, including telemetry
-failure and monitor failure; preserve the selected memory definition and owned
-custody path. No general controller expansion is needed or authorized here.
+Use a fresh private mode-0700 directory for the producer's `--directory`:
+fixed files are `heartbeat.json`, `cancel` and `done`. The controller takes
+`--memory-heartbeat <directory>/heartbeat.json --cancel-file <directory>/cancel`
+in addition to the arguments above; use this common cancel path rather than a
+different `<private-run>/cancel`. Live mode requires both flags and zero release
+grace. Healthy admission must precede the one key read. The coordinator starts
+the producer only inside the authorized run window and owns its process/exit
+status; creating `done` is allowed only after app/supplier cleanup and App's
+unload evidence. Keep the producer evidence and its exit status with the run.
+
+The consumer checks the five-second monotonic health lease before launch,
+during the existing safety loop, immediately before READY and before success.
+Abrupt producer loss (including kill, crash, hang or failed cancel-file write)
+therefore expires the lease independently of producer exception handling.
+Missing/malformed/future/expired or low health raises the existing `Refusal`
+and enters the existing owned cleanup path even if creating cancel fails.
+The lease is not an OS real-time guarantee: a suspended consumer cannot act
+until scheduled; the maximum observed response must be recorded in the later
+authorized run. The native gate holds before admission; existing anchor/custody
+rules are unchanged. No native or real telemetry test has run for the follow-up.
+Producer and consumer must use the same Python interpreter's system-wide
+monotonic clock. Prevent or record host sleep in the authorized window; Darwin's
+clock pauses during sleep, within the excluded suspension of all observers.
+Confirm the first healthy heartbeat before presenting the one-read credential
+input, rather than spending it on an unready monitor directory.
+
+Safety-tool threat model: accidental telemetry failure/malformed output,
+producer exceptions/abrupt loss/stall, publication/cancel I/O failure, and stale
+or absent health in the selected private directory. A malicious same-uid writer,
+OS compromise and simultaneous suspension of all observers are outside this
+bounded tool's assurance. Neither a heartbeat nor a mocked test proves live
+headroom, live timing, model unload or universal termination.
 
 Stop the one attempt for admission/preflight/auth/context mismatch, wrong or
 multiple batch, refusal/interruption, turn/launch deadline, cancellation,
