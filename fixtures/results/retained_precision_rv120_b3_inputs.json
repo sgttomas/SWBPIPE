@@ -13,7 +13,7 @@
    ],
    "name": "X G5b control: case 0's evidence As_m2 one ulp [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "23c928c9bf6e13a713bac6c71f03c23baed203f551761432026ed88e8c12a2c2",
+   "input_sha256": "50b0a0532a660b30daeb4086894d593dd83871229b16ec2cb39bd594a7aec096",
    "edits": [
     {
      "op": "remove",
@@ -5211,7 +5211,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -5559,7 +5559,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "df7a9cdfc9ad8636b2f302dc5435287afbf255441276cae1f76b7d6efa2c475c"
+     "value": "4de55d88c97230a3dc8a1a132dcaea2b5d8d6ccd23825182e474604f3b2ab04b"
     },
     {
      "op": "set",
@@ -5773,7 +5773,7 @@
    ],
    "name": "X G5b control: case 1's body_scales force one ulp [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "b99c444ed3977bcd4b377fc010e59862b9ba66b94cd0ee4dac48888be305d690",
+   "input_sha256": "28f1fed596856c369f1022db6aa44da9404fefd54436c9c154d7f1b311b9faa0",
    "edits": [
     {
      "op": "remove",
@@ -10971,7 +10971,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -11333,7 +11333,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "df7a9cdfc9ad8636b2f302dc5435287afbf255441276cae1f76b7d6efa2c475c"
+     "value": "4de55d88c97230a3dc8a1a132dcaea2b5d8d6ccd23825182e474604f3b2ab04b"
     },
     {
      "op": "set",
@@ -11547,7 +11547,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's body_scales force [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "c57299b6225c83cff57402a5dd8206d5afa4cd90f9acce156432a58b45263200",
+   "input_sha256": "3bf0a62bb93aa84ff71e80dffee0b03a203f9e1750237b41c2199c73d396f00e",
    "edits": [
     {
      "op": "remove",
@@ -16745,7 +16745,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -17107,7 +17107,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "df7a9cdfc9ad8636b2f302dc5435287afbf255441276cae1f76b7d6efa2c475c"
+     "value": "4de55d88c97230a3dc8a1a132dcaea2b5d8d6ccd23825182e474604f3b2ab04b"
     },
     {
      "op": "set",
@@ -17321,7 +17321,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's section term area [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "7b39af31a0bfe27a6bcb5e8520f55f7ded495d8723483cf09f94a9b8f3e65908",
+   "input_sha256": "0f1b84d0fb7c5661a1801bfcb5dd957a501397207fe42ff1848cf9a986f35b09",
    "edits": [
     {
      "op": "remove",
@@ -22519,7 +22519,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -22881,7 +22881,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "df7a9cdfc9ad8636b2f302dc5435287afbf255441276cae1f76b7d6efa2c475c"
+     "value": "4de55d88c97230a3dc8a1a132dcaea2b5d8d6ccd23825182e474604f3b2ab04b"
     },
     {
      "op": "set",
@@ -23095,7 +23095,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "fd96fbf40d40aa7f55216e1284b21f1768a9a41254e6638c8296d22133cdc502",
+   "input_sha256": "ffdda81371a91daa073964659368e411b8cca202abdcde8a491f1d506ff78257",
    "edits": [
     {
      "op": "remove",
@@ -25776,7 +25776,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "7cbdce8305a4f4393f3fd4865828aa61ce2ec232b3c86807eb22482f136d871c"
+     "value": "cfbb64df2ea266b16dc539ed5b145addda7d3205539cd98b640897fa052048d5"
     },
     {
      "op": "set",
@@ -26102,7 +26102,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "bf44bc91bb6fdef83ee8888ae389016e5c9ffe7135ad32aa8dd34a12daf8dcdf",
+   "input_sha256": "0ec59aa8cba3f00d98a047b4a3586de08b93e90c581ba12d4ba4743226cf841e",
    "edits": [
     {
      "op": "remove",
@@ -28783,7 +28783,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "a00e17bfa878c70f1aed9d1b2b74c099dd18c46310c9086c6129e7232370bd89"
+     "value": "3c501b5cf61f4d0237c54c8e0155f6437639af8c4ffd0651c0bf498b7929574e"
     },
     {
      "op": "set",
@@ -29109,7 +29109,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "0d1e5898c7567a961870f8239752a131348bbdf1a85ae607d36327b3d0bb8e96",
+   "input_sha256": "d5d4addc3b78ab14fde2583c2bf8b614df7ad9eee07987f8d3882c50d4839c44",
    "edits": [
     {
      "op": "set",
@@ -29134,7 +29134,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "e647ec080d899bfee0ddf380dca0b04e127601d251b87b2192b4d7042c83aea2"
+     "value": "9876993a6e2ad609d5b4d6060e25fd116906ef6eed914f4b61f9393f75c2f2f5"
     },
     {
      "op": "set",
@@ -29294,7 +29294,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "5ca5731d3af96ab642dcfa54e6471152e79fcf5621bddf5c2e828777dcb96746",
+   "input_sha256": "4799b9b545f5b02e190ccde7e325084809bafcf68053b68b1ebce6cad696d2c3",
    "edits": [
     {
      "op": "set",
@@ -29331,7 +29331,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "85a3fdc6bfafab3cf0886fde0da29705df0164f4cf7f0b9a4766ee1cd626e633"
+     "value": "09a8ae3f5a09e53d3dc792bc2a52ceec6519c09386a0384284f7fcc2e5f579f8"
     },
     {
      "op": "set",
@@ -29491,7 +29491,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [ordinary_prepared_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "42f6b084c69001cc2798cd8775a2c1a92c48a3759de82abd435f74a78d056c8d",
+   "input_sha256": "99d6b7ceac012f79f143bad6383f7bb234d38020f9f266b96b08e9e238149816",
    "edits": [
     {
      "op": "remove",
@@ -32328,7 +32328,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -32506,7 +32506,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "d6c9b9ce021d1e7f2eb7efa392d4b08b90c64efe0001cb2dba769ce5a6e7c532",
+   "input_sha256": "127c0211b54b4bc5f5adc2f564ac332ef608149eae13bde5205b9ec54e074e8a",
    "edits": [
     {
      "op": "set",
@@ -32867,7 +32867,7 @@
    ],
    "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "0ac9f4773482c2bb2a8060eda7cdd1b2450d4944e34f1e43f2c76c55fe35f485",
+   "input_sha256": "204391f984edd7577ba82743ddc337c48e0abf31891d1f3f5efce818c8890e30",
    "edits": [
     {
      "op": "remove",
@@ -38065,7 +38065,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -38413,7 +38413,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "df7a9cdfc9ad8636b2f302dc5435287afbf255441276cae1f76b7d6efa2c475c"
+     "value": "4de55d88c97230a3dc8a1a132dcaea2b5d8d6ccd23825182e474604f3b2ab04b"
     },
     {
      "op": "set",
@@ -38627,7 +38627,7 @@
    ],
    "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "2e2eb68af4c49571c3ba6a84fafcb0a88ccf90a661f54d645f035c6a83d7dbe5",
+   "input_sha256": "d3b295714d3cf309faac27e95d0961a7036757ebe82053bf38ce9bf86bd9de97",
    "edits": [
     {
      "op": "remove",
@@ -43825,7 +43825,7 @@
       0,
       "source_identity_sha256"
      ],
-     "value": "9a4b6bba7b5760d44e77e6985f46f1874868fc464398e33e4e73e8ca27528970"
+     "value": "609bbd2f9920b519f5db5d9fb243367ded10e6c90eadd5021221baf1e6bd332a"
     },
     {
      "op": "set",
@@ -44173,7 +44173,7 @@
       1,
       "source_identity_sha256"
      ],
-     "value": "df7a9cdfc9ad8636b2f302dc5435287afbf255441276cae1f76b7d6efa2c475c"
+     "value": "4de55d88c97230a3dc8a1a132dcaea2b5d8d6ccd23825182e474604f3b2ab04b"
     },
     {
      "op": "set",

@@ -37,9 +37,11 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92", "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374"),
-    ("dense_scrutiny", "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357", "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49"),
+    ("sparse_interactive", "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f", "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377"),
+    ("dense_scrutiny", "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa", "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -1036,11 +1038,13 @@ fn u8_real_input_fallbacks_append_one_notice() {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "41c173da931cac35fcd16585e9c8409c93fca543d45ff8077db13060a98b1990", "8e2f57ebf68c286b7afa5088037f7a7a2e8becc7298bee297ae87ef2a8c72484",
-        "7621a2236ee2a9b765eb596538ddbf3708b77c5e97a453768d573202f47b63ea"),
-    ("dense_scrutiny", "d13b72efd7e48b92e5ee0b844852ad57adcf0409bf0a141d58c5de688cad2572", "8a2ce256551e7bc164c92235fb83407ec4a5b43276e9b3134e4aa32ec9aed271",
-        "852db671172e114943fe6b9e7f9bcad84849de764743a1b477903b2c9bf0f1e4"),
+    ("sparse_interactive", "13d6e229f156d09190daa2211a587eda3ebc947a40e817acc18031b605827ad3", "dc93343aa592077aa34071ee5b91a0a48a27faa663388bd4553a9f61598c26a1",
+        "1dcd53e814a0e3daeb3481de6b9543080a20c80297a011f02854c1a5df37796f"),
+    ("dense_scrutiny", "de5d0a9bd282db08f46ba38e3b4a3ab6de35dadfb002326e2a48540fbe7ea310", "1b596b40f13b42df703626579d6773f743313a335734d470631460bacb7200c9",
+        "7ab71cdfcb01e767653da6adea4e80013599c708b2ee87e775a7af9112bbfd59"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
 const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
@@ -1945,9 +1949,11 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "28c2f256366619ebe4e4896e52f1ad07cf5acfcd3d2c5865b7328a6f767488ec", "3c34cf9b6333413863f407eed2e27ea84ae7fdb86c4869ff5b421cf8ca0ab6fb", "db91c7ae58aa1dc5a49756c901e21f9b515fbabad270638b14f5edec7a5abd95"),
-    ("dense_scrutiny", "29c361e46c10b61b6574e1206629355458ff51ffe8f68d4218ff43ef02354eb4", "15f0ba01dd2f57f636d93752d7bf2c08270e0170df61e18dce036fa48b2eb60a", "81ce3b4795a62b6f5099ddb6b0c1df4779fa1fdfe3590f310f49c7c2294930de"),
+    ("sparse_interactive", "5516371daa450d255858faf2ceb8f749c7a03134c18b3d2d1029ee892f278036", "59f5507c51fa942786b73f31c2cb2321f3d81c1fe544f698cead922060bad682", "9abff91df12f297134b8ca1ed0515620479cdc9caf968fce9c5953bf629e387a"),
+    ("dense_scrutiny", "e414484c02e1367532fb0a4a9eecd4a0b9f1e755965f899dedcf3c37900213c6", "74c8dbb8480fd49b18530aee1507d456824540966e9416b1a476aa76ed39f30c", "2bce2579396ab42f8a3e15d8681adde1917303f205f384a77ffb5da7636b3d91"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2294,10 +2300,12 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "cad5a0c63b0505980ad7433b0d118362d0fa328eb096ae64611f46784d124092", "ff94e289fb678048bf6b6efd7c8da8ec0a447445505d3ad2fedcf424801d1cb9"),
+    ("sparse_interactive", "52923ab1a6570d5e7b4ef008735868a51dd91a878f7d0e7da1fa5c8280dafd43", "d5484e6f0c5fc931b4c7ce249685827623fe5f17ecec32b63d7c6c1f9092c3ea"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "d5b3b312ceacafb56f138be554f1146a034ecbfbf1b2474068c2b59eaa0930c1", "30fd9bf55860396b5b4059e0502b226ae587da817bb2da8cdb30811bb95908dd"),
+    ("dense_scrutiny", "8886be15c03d1e7d61aff204b3427fdc4f751822d4901109d6718530108cda54", "8b973828cc325b9dc6ec526d2e697ffb80d07b01cbcd6b90da760d7be1b1c5fc"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
@@ -2305,9 +2313,11 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// W-8 topology warning added; no number moved.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "d784691d071031c9c95880bbe58aeadb2438810ef4081f28e9e03637f6c8cde6", "d04acaa13c04f511b07e356314921926da9b366595131ea078e87895a158076e"),
-    ("dense_scrutiny", "ffd42521fc86f429ad1dc5d03ccb30108003414dab90bea71fa1312e3277ed7b", "2f097b9fd1af63dd12482f7e183261f531ffd693cca67b601e273482c064626e"),
+    ("sparse_interactive", "1faa75c853c9fae83c9e0d3c8112c9732ad7ecaadf5d631935e2708bb98c8fd8", "ddfa8590ce5b13b586a4ba126e6105fbfbfa8bbfa3146d01f99a6d9e844c8dd5"),
+    ("dense_scrutiny", "15bb74bfd597d93f9bc35392710e1f0071c392abad94172207b655b9d2a244cd", "b5396711f61f0de00a81dd4af33de69017e90e2ba868f6ef23df38035a1bde55"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2406,9 +2416,11 @@ fn milestone_reversed() -> Value {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "aad35858346737e72cc0676fe7c571da0d3529c1225703013d80171835105a0f", "e02f442c2df98c0e58f3f749bbb799e4496a8b74df4875e1d9e7decd7a5ac569"),
-    ("dense_scrutiny", "2a6d9364bfcb56f4eecefd72ad23d1d4cdbcf518ce546081cace2893e1e9eefd", "a873439cb231d5764d3e9bf5463d758f41478984453e6eff97381d480329b52d"),
+    ("sparse_interactive", "7ae223b5e6b1125ca6b0ac6490c2ad95e3346397ae375bead62ed050d4d8f611", "8b2c8f121d3f33ddc566586f46f758da1a4cb55cacb874afd1089da7bf20fdd8"),
+    ("dense_scrutiny", "0a3f59ec415d49a41c349aca1493a0b73510f5e984fe2fb430c46c27d22868b9", "81b06e66e01ce814dd4d9eaa51a64e549695df2cf486aac7757e03b311decb5d"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -2575,10 +2587,12 @@ fn b3b_witness_inputs_and_routes() {
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "51d1f663a3d53d2a8749af611bc88210e75a263df7cdcc0117edf48fc2f8e991", "551c93310818a72a5723aba18ebbcca2f038cf35a6207f63a9b8f9934c45dfec", "843c0c5283d13a174dcdb880aeb93d95192ae1e31ffd4bf75658e99e0919f767"),
-    ("dense_scrutiny", "7c0a2c4679fe6d0a3e9a0af1e28e86b4413b66ca1d127c60205ee9cf6fa4a4f0", "344c7c1b4a5c4771195074344637d3b1ce95adae2bb7f709f87d60b4a4bb38c2", "f4ea7c0e9c51609a2384d76de432ac6ff9038c51da5834e75a6b9b95e9059d84"),
+    ("sparse_interactive", "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100", "8547e37f7b65c54138fdf308684c810bd8774a750e6f1fad37c87f1d41bb48bf", "e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3"),
+    ("dense_scrutiny", "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3", "9b29ea2a8d88e794579a1ba08729adfb47073efc76cb67a629942d3ef93209cd", "6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2593,7 +2607,9 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "82585e00eeeb5ef391e4fc3c0f5723d1f9f93bfe1af3d5261dc08e90abbe90f0", "1d9757cda123079da5e9d9a5e728696ae8a8aeb109d1d45a5586a413593e3ec5"),("dense_scrutiny", "d8b6c6242a417f1f2fb95a303b4f2d9984ef83982ad9d40bf6049ffabec4242e", "f4995a76c3ceee52b4a13cdfcc928bea96f60fcb84b067ca8f039237b0940e88")];
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "1d3900bed5070ea43b5ed8e42a1c9abad58d3f8897e151f767e767d5f2dfea4b", "52128e9af155581eb8f4dc3147b4eded8bf9e808e5aebc803aefeea3bb173232"),("dense_scrutiny", "c90679670c1a17f7388481e19c634c6813adf623284a801056d899cbaffe5e66", "2d29099bbfab2e333959a224a15eab19921f431f92ac432581c7235f9a53b952")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3627,11 +3643,13 @@ fn two_member_exact(reversed: bool) -> Value {
 // W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "544db7266252f5577f3d4659dcfcfd83595941bec98d2a4d584aa69fbb34236a"),
-    (false, "dense_scrutiny", "01e1f966e1baf017462062217ddf2f35a25c6f28b2e58f99d64ce55dd0cba34f"),
-    (true, "sparse_interactive", "020b4d3b3dce58b3654e12489b0f1a6132055d2274851241b1d66902de9f53f0"),
-    (true, "dense_scrutiny", "77fdb372822c842acfd274bd29c3d246978220d8c9a478866e1b90dea030d3ac")];
+    (false, "sparse_interactive", "b07a6104d8a05d8536386af57e85f7444c90b343cb4b7012deb8abee78d3caa6"),
+    (false, "dense_scrutiny", "067b43958da8f8b3d246b7e589ade6b5c1825bd6c0930f5ad1ba3667a73b3a11"),
+    (true, "sparse_interactive", "c3231ac240edccb4a9fec682d9e754f6ceee9c06dd6c660ff2ac111658e46295"),
+    (true, "dense_scrutiny", "f74e1f113ddc8d1afba90bcb48e49c8beaa67fbc909ca3ab93f9c11eec5b33dc")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3681,8 +3699,10 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation (identity bytes only).
 // W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation (identity bytes only).
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "07dbf4c56767cf64af137135ba11204a569ef86ffc249d8c8eab79f248c21e8b"),
-    ("dense_scrutiny", "187a018bc3e5c0c97b454fd1d95e2014dbdc37313b950f48211c7555077387f5")];
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "0681de75782abb8f1724d57db2830c5af6c62fc771c9df88f86fa80b2781e863"),
+    ("dense_scrutiny", "e012cb05141b1dff8649d1a763d2a6904c340a27f050b794cbf81d2985299ff9")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -4367,47 +4387,49 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// Silent-drop guard re-pin (2026-10-23): W-CB1's and W-CB1z's request carries its depth-16 value
 /// on the declared `diagnostics` member instead of an unknown root member (`sw_stressed`), so
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
+/// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "8f4b02e4c5adc01ff1eea18d8e2ddc2779b3ab3356b5c8dd565fdb1a0468ca79",
-        "40579ac85a335cacc6baf72b0be70b2be86a773b2ff21313ac58520b564fcffa"),
-    ("w_cb1", "dense_scrutiny", "e27384cfc8e9f51a6ae8c165330e9bd52fd4379e6ee3a24eed4c33a5e9af9810",
-        "885b1142ee34d44187897f71b3ac4044e2a354572a0d4204d60dbd69dc884535"),
-    ("w_cb1z", "sparse_interactive", "2991936e3eb330af9eba34764f7166f048fae4d3314e64687e86a73f80840502",
-        "be43c036bdf89b385ae16d736e2caa8646d79c7511a3643ab827d001c7d9d601"),
-    ("w_cb1z", "dense_scrutiny", "4ac030c7e9bf7d1a95a1886bd5ef4b70dd82a84bfad66ed7a89dca8288f5a04a",
-        "3499ce69249ab4db37959867e37cba7fbc7364e79b2ec0bc322b6f767f4dd3a9"),
-    ("w_cb2", "sparse_interactive", "ecd7c6426f20db3da643899d50d74f83f0db576dee17e74098a4f16cddda3e4e",
-        "1cbf653d11523a3bd4d289073966be19c806b36c16878b8ad46a3116062f308b"),
-    ("w_cb2", "dense_scrutiny", "c274423d7e592d80f5aaf43a33c9ce22e651e667121f2834c23acdb38a4b1650",
-        "6dca75b35477ad0e11908c76d53ec2e0b358927d9dad6fe23456b3b74001e726"),
-    ("w_cb3", "sparse_interactive", "244b628d92a6d1b5d6b114a1a20ce9c65e9ab30346844f62a50bfb19174a5cca",
-        "dcd13ae8451504e5f4fc08e2bb6002d41a2001061bc89149d0c591da4f18e611"),
-    ("w_cb3", "dense_scrutiny", "a08b3748fca9ba69396ccde79539aedea6cfbe37abb4d8a44b13d76371315718",
-        "6660d669aa02ada61a1b69f20125d516e6df4fde6222c87172306533419ce408"),
-    ("w_cb4a", "sparse_interactive", "f5de19368ee7b749465de4905d54c6f301b8fccf6eefa3136b0ee0621515ade9",
-        "0a412148e6b527339a98a04808b21175bfb7644cff60f028e666c4b553bf700b"),
-    ("w_cb4a", "dense_scrutiny", "3ac9ec39fb1a75a01abed799912de30ab989f44222cc69a5c733cdd01cd6117f",
-        "435bbfff6b4c861c69571237eaaa6c141eb4fa270c8a21c3951d24b6e95e3494"),
-    ("w_cb4b", "sparse_interactive", "bd2182159d47b0bbf24dee53323a1109c311caca82cb5606f8f874506801f143",
-        "209ba3c0e1ffc7091618b2fa5c7d3b576484ecf9fb4c78126d1603c6930d121e"),
-    ("w_cb4b", "dense_scrutiny", "c9b7599edd8b34e5d07ef804b9c8d1353e7b343d8754c43f4cb48a91306e1a35",
-        "4cecdba25cada956dd285212ddd8aba24ae2c135f2e631326de0b9b7a7e5762b"),
-    ("w_cb5", "sparse_interactive", "9204b9b1593b978e9d31a3b7ac0d4d381a9af1408777d29b6003f1a1f33db9b1",
-        "7cf32bebdfb5151924995a91d75eeb5914874fe0b80d370156440b7106fd1433"),
-    ("w_cb5", "dense_scrutiny", "458e8c47ac5379c056b30705cdcfd52069ee64a4a8202abf536892f1591c0285",
-        "6a8967d0f4c31fad856af09c064f979fd69414193be2066143c63444a9124915"),
-    ("c1_range_mechanics", "sparse_interactive", "1815b4a82b6d43b4ddff9295bb6913f119ec65eb8f0178b827f0d3a9eb180248",
-        "3a71acf00d24307c78d8c17adbc7222ee0ec63757f53fd5c4e7dbefd0736b7f2"),
-    ("c1_range_mechanics", "dense_scrutiny", "b9222ecd5bb04907a908683d95e944979d686bed9bcc23d313109cee9ad11455",
-        "54080b93c1bb9ee77afe269afb7e0b4a35c540801a6a6036fb170e974e1ccb01"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "f454408adeb23b724378bff493a7d9a9662934d0e69e2719150173d4a8e5c23e",
-        "2812d49290854cefb987ee433bfd42ad61086054583ed1c6f442da0e52720726"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "6d05c040d9634b399069db5e3b7dbde78edb74a2c457ca5bfb09b117b30628f3",
-        "416d9ab7c7d3e3ac60bb1274fffe24613e7cda20d465bd27fda19e69589a9797"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "388030ba27eac0d3ea21f4af3b61322622b948f32957640bd6fa61f8fbd14772",
-        "2ec1675b393dbb09c60a9c1096cc51ae98baa1b7dbf33c9c42710f7cccae4496"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "aded8e4de0455ed4f73dc31bb371cce0d2fd56091e5c6407d9c19431ec0b2e40",
-        "1f4d27246eee1b92495357f573f3ceca15327f500e8809da666e05689b15f3de"),
+    ("w_cb1", "sparse_interactive", "b2e77b6b7859c56b60306452b7f8907ecc645a4695cec30fd6c3ca290fbb18c1",
+        "80e2d885c6f8eba5e3ebb6858a2a10def1dae8802ae48df6755b118d47174d12"),
+    ("w_cb1", "dense_scrutiny", "65268a7bd358f112c665bed3c641daa2f68ea88159186f9f0c4e373f6c594c82",
+        "251fbfb50c6940c51387cf6140c886e1febc5b7a18d7382c915efbf80a89d3aa"),
+    ("w_cb1z", "sparse_interactive", "22bfc18068a1c32d402cc9e4e685ef9837128b04c559100c12ea70b5eb7cfba7",
+        "a8ad936c18f5735510f702e43307fd221adef2ccefbbd00e6035110b478277c7"),
+    ("w_cb1z", "dense_scrutiny", "be5a6ab8ab4aaa5658c74cb8b4dab7e0f40183cd54dd19e20f9dbcb08ffae167",
+        "762dd0ddaec56cab082e7c50d8ea60d0a727c55fa98c8f3d98af869ba38b447d"),
+    ("w_cb2", "sparse_interactive", "f5a0e3faedbf048e65a8284a1f580a690e45fa340aac6850082c81f2c9e6b302",
+        "0c5d67835334ef467c86ee61bce546ac3119f12c0767510b5f8180c527b57e04"),
+    ("w_cb2", "dense_scrutiny", "e25c82dfcf7c69eb3cc1b768f559bf69927789c67e007124da1112d76a7c18b0",
+        "8b27a91f3976cd3b854f58a965fb8914c301c4c9f1124590fa86fc00a18eb9c9"),
+    ("w_cb3", "sparse_interactive", "a4b8e0ae9ca28ff631080b80def3aa5a6e6bb36ef1d3a2d179ae18088f173618",
+        "9fa7e9b60dc5b038b040ea2d944849904b0d53c7164d786908f2aab30db2744c"),
+    ("w_cb3", "dense_scrutiny", "ba6cd57e186c733cc7b8e89d1415ec72befa492f9f15a59d5a363cfbeff971f0",
+        "b05a41566523ab608302a862da6f68e1287749ecb19926bb88dcfc3cf062b6d1"),
+    ("w_cb4a", "sparse_interactive", "d15dddd8eb8320c4b7ca5016bbb28e3c60bbe90ce0b53bb3d758f80ba7a65b2a",
+        "ebbdfa34c4533bdbf00400a3b48f48cad70e0398952c63e1f68396315235bcb8"),
+    ("w_cb4a", "dense_scrutiny", "471badc6124d017ebf279e8e640d6166f0712fa55d2b8a2fa256036ef1ed7936",
+        "46608813be17cfca602fb42fc081eb6c2ac86c74bdf53cf4fdce2015e2fa4c61"),
+    ("w_cb4b", "sparse_interactive", "0f216b1d40a22687677ba28cde75f1abf4c8f21a6aa13ddc4e03839d8dc97828",
+        "5c13ea5c69884bd24f1b1771f633c22113e97642b0bdcfe68f4e35766768444e"),
+    ("w_cb4b", "dense_scrutiny", "13422535fdbfaa117db28b321bfae01ac464abab98a5b79fdcdc32c31170366c",
+        "e65ecbd2fb9a87aef4f913c7c706ff360166f96135b24a25c4563ddf758a41e1"),
+    ("w_cb5", "sparse_interactive", "beeec280babf0fe72fceb4b0add228f0324aa87efe604178e9b3bbe9707c7dc8",
+        "83d1842e6955143ca07f8a2daa9771aa8530c9c8823cde4f7a8c347c38de6ee8"),
+    ("w_cb5", "dense_scrutiny", "dc003c6c842f934fcfe576a189b443226862d26ce450935c9189135c1ef6975c",
+        "3582d1ae54cb19bddde59b8a761e53470f9c63e80ca6aaeeba8126af928edeb5"),
+    ("c1_range_mechanics", "sparse_interactive", "e7d8ba300cfc4c0926ae27162a5f9911ad952b2896b296b0f6d690d8f11590ec",
+        "3efc1abd9374b4c66ea111f1c10b759b0e532f70773bff6dd915492e3cc47835"),
+    ("c1_range_mechanics", "dense_scrutiny", "42a3295f9e32a70fddc70596bc5a43798bbcfa2016f74207c5d3a461a8d4c3ab",
+        "cd175682ea2b2376e0dca11211aca7c6f64fcbafdc2fd73c9de5a6cfc6532c45"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "b501db0266c25905e7f0538f3adc66306ee82b92e7052041dbb7a9246c5e08a9",
+        "e7b7e09585dcdba10bf8dd50c264ba13c51339a7a3ae84cfc8e6e88e3c1e2cd3"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "6b52f30576dd3c9eeb4fb726b6c94114a3474fa7cfa09e5a04780eb6cdf502fa",
+        "9752b8271af4ea72f2c53e83eca3c2d41ac900194bd526fbaf3e05a25e252aa3"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "62d19e8c8a4b0abba97448efe4e15aa8e2ed6fba13fe64e6c15a62b9a1869092",
+        "727b174c628e869afc4bdb27acb3eb7817d0866a1b432b23bdf9908f33cc03de"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "3e1f3bddc7177ffafe29f7c2bfebc68b1c237da2d551092bf4eafb94c9d3fd2f",
+        "916d3425a5f7d362d75fbf0c52d373913e337d97356f24d2260b752c99b628ea"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {

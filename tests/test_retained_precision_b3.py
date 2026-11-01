@@ -29,8 +29,10 @@ ROOT = Path(__file__).resolve().parents[1]
 # PP retained_facade_tests.rs `PINNED` pins the same bytes. W1's DEF-O meaning-hash move (DEL-04-08
 # w1-member-load-certification.md §6.4) re-sealed only the DEF-O-bound preparation, source-identity and receipt
 # hashes and replaced e3e0830d.../c24d4a1c....
-PINNED = {"sparse_interactive": "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
-          "dense_scrutiny": "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357"}
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+PINNED = {"sparse_interactive": "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
+          "dense_scrutiny": "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
@@ -665,8 +667,10 @@ B3B_PASSES = {
 # 1a3f9eed.../d9a6e807....
 # RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only); it replaced df425e31.../85e38b97...
 # and 3bb19d83.../aeb67070....
-EXACT_PINNED = {"sparse_interactive": ("843c0c5283d13a174dcdb880aeb93d95192ae1e31ffd4bf75658e99e0919f767", "51d1f663a3d53d2a8749af611bc88210e75a263df7cdcc0117edf48fc2f8e991"),
-                "dense_scrutiny": ("f4ea7c0e9c51609a2384d76de432ac6ff9038c51da5834e75a6b9b95e9059d84", "7c0a2c4679fe6d0a3e9a0af1e28e86b4413b66ca1d127c60205ee9cf6fa4a4f0")}
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+EXACT_PINNED = {"sparse_interactive": ("e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3", "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100"),
+                "dense_scrutiny": ("6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579", "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3")}
 KINDS = ("synthetic", "producer")
 
 
