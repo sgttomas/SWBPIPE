@@ -2030,10 +2030,14 @@ The branch merged main without rebasing. Generated profile/law/challenge bytes
 remain S1's until the reserved coefficient adoption is decided.
 
 **Source and comparison.** The maintained tool prices combined source
-`c0e79eea11` with all four points complete, no unmapped header or unclassified
+`c0e79eea11` and replays the current tool bytes at `cc9b36ee79`, with all four points complete, no unmapped header or unclassified
 argument and both O-10 checks clear. Later proof-carry comments, documentation
 and routing changes preserve all priced Rust bytes and each pricing module's
-Python AST. The source-priced comparison is S1's retained
+Python AST. The final replay has all 1,602 coefficients equal to the first
+combined tree, and `generate --check` reproduces the reviewed proposed-file
+SHA-256 `efad75d4001600d47d23ea7bbd23942c95aaef097a15590528fe16f31048aa3b`
+with its selected basis. Its 80 native evaluations reproduce the same minimum
+headroom. The source-priced comparison is S1's retained
 `/private/tmp/s1-review-fixed-price/tree_merged.json` (source `7e0c752bb1`),
 with its `summary.json`; these files are comparison evidence, while committed
 main remains the authority. The line map carries 880 keys, with 37 prunes and
