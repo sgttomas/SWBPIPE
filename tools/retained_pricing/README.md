@@ -408,3 +408,15 @@ Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
 registration additionally requires native atoms, all 80 budget evaluations,
 reviewed inputs/layouts and independent source/pricing scrutiny.
+
+### §8.37: RT-A3 increment 1b published-row lookup index
+
+`base/u4b_u5b_owners_model.py` binds the case-level `PublishedScope` and the
+member-level `MemberRows`. RTA3B-PS prices the entity hash table against the
+existing guarded P_final row cap, including resize overlap; removals do not
+require a grow-only premise. RTA3B-MR prices the thirty station/kind vectors
+against the guarded per-member row allowance. Both owners are charged per case
+beside U4B-ST in `ordinary_caps.py`. Partial or changed index ownership fails
+closed; `tests/test_837_rt_a3_1b.py` exercises the charges and guards. The
+combined-source registration follows model document 0.9.0's §8.36; the old
+pre-S1 1b draft is not a registration basis.

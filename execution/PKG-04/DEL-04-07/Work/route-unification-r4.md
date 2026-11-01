@@ -1138,11 +1138,13 @@ previously absent row after an earlier lookup; focused regressions now cover
 those cases. It also found §8.36's grow-only premise false: both arc and exact
 pressure publication can retain rows. The current charge is sound because
 removals shrink lengths and every length seen by `begin` is bounded by P_final;
-the guard and premise need repair when shared pricing resumes. The old §8.36
-coefficient increase is unadopted evidence. After S1 integrates first, 1b must
-merge main and derive pricing, laws, fixtures and routing from the combined
-source, with focused scrutiny of changed proof; no generated block or pin is
-transplanted by hand. DEL-04-07's ScopeOfWork and dependency conditions do not change:
+the false grow-only check has been removed and its premise corrected in the
+combined-source tool. Model document 0.9.0 S1 integrated first as `136f3e086`;
+1b merged it without rebasing and derives pricing, laws, fixtures and routing
+from the combined source, with focused scrutiny of changed proof. S1 owns
+DEL-04-08 §8.36; the pre-S1 1b draft bearing that number is unadopted evidence,
+not a basis to transplant. The combined 1b registration belongs to §8.37; no
+generated block or pin is merged by hand. DEL-04-07's ScopeOfWork and dependency conditions do not change:
 this repair changes lookup/storage strategy within its existing publication
 contract and admits no new family. Retained storage still needs the combined-source registration;
 no acceptance or release standing follows from these observations.
