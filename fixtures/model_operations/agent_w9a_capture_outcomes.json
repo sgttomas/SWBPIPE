@@ -1,0 +1,377 @@
+{
+  "format": "swbpipe-d4-scripted-outcomes/1",
+  "standing": "synthetic_replay_not_current_solve",
+  "basis": "Shapes and numerical rows from verified W9-A stub14; opaque identities replaced with invented values. Numerical expectations remain the maintained W9-A references.",
+  "outcomes": [
+    {
+      "basis": {
+        "applicationGeneration": 1,
+        "modelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "modelRevision": 5,
+        "runId": null,
+        "stateId": null,
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "data": {
+        "admittedOperationKinds": [
+          "modify/Node/set_field/position",
+          "create/Material/create_material",
+          "create/Node/create_node",
+          "connect/Element/connect_pipe_run",
+          "create/Support/create_support",
+          "create/Load/create_load_case",
+          "create/Load/create_primitive_load",
+          "modify/Load/update_load/pressure_regions",
+          "modify/Model/set_field/pressure_profile",
+          "insert/Component/insert_component_symbol",
+          "modify/Component/set_field/objective_connector",
+          "modify/Support/update_support/configuration",
+          "delete/Component/delete_component",
+          "delete/Support/delete_support",
+          "delete/Element/delete_pipe_run",
+          "delete/Node/delete_node"
+        ],
+        "componentsAwaitingUserModifiers": {
+          "count": 0,
+          "ids": []
+        },
+        "limits": {
+          "argumentBytes": 16384,
+          "pageRows": 50,
+          "pendingCalls": 16,
+          "proposalOperations": 16,
+          "resultBytes": 65536
+        },
+        "objectCounts": {
+          "combinations": 0,
+          "components": 0,
+          "load_cases": 0,
+          "materials": 0,
+          "nodes": 0,
+          "pipe_segments": 0,
+          "sections": 0,
+          "supports": 0
+        },
+        "pressureContract": null,
+        "pressureProfileBefore": "{\"schema_version\":\"0.8.0\"}",
+        "projectId": "project:blank-local-20261031t141433z",
+        "projectUnits": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "moment": "N*m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        },
+        "schemaVersion": "0.8.0",
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "message": "Current admitted workspace; changes require human review.",
+      "status": "ok"
+    },
+    {
+      "basis": {
+        "applicationGeneration": 1,
+        "modelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "modelRevision": 5,
+        "runId": null,
+        "stateId": null,
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "data": {
+        "author_type": "agent",
+        "proposalHandle": "333333333333333333333333333333333333333333333333"
+      },
+      "message": "Immutable batch registered for explicit human review.",
+      "status": "pending_review"
+    },
+    {
+      "basis": {
+        "applicationGeneration": 1,
+        "modelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "modelRevision": 7,
+        "runId": null,
+        "stateId": null,
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "data": {
+        "admittedOperationKinds": [
+          "modify/Node/set_field/position",
+          "create/Material/create_material",
+          "create/Node/create_node",
+          "connect/Element/connect_pipe_run",
+          "create/Support/create_support",
+          "create/Load/create_load_case",
+          "create/Load/create_primitive_load",
+          "modify/Load/update_load/pressure_regions",
+          "modify/Model/set_field/pressure_profile",
+          "insert/Component/insert_component_symbol",
+          "modify/Component/set_field/objective_connector",
+          "modify/Support/update_support/configuration",
+          "delete/Component/delete_component",
+          "delete/Support/delete_support",
+          "delete/Element/delete_pipe_run",
+          "delete/Node/delete_node"
+        ],
+        "componentsAwaitingUserModifiers": {
+          "count": 0,
+          "ids": []
+        },
+        "limits": {
+          "argumentBytes": 16384,
+          "pageRows": 50,
+          "pendingCalls": 16,
+          "proposalOperations": 16,
+          "resultBytes": 65536
+        },
+        "objectCounts": {
+          "combinations": 0,
+          "components": 0,
+          "load_cases": 1,
+          "materials": 1,
+          "nodes": 3,
+          "pipe_segments": 2,
+          "sections": 0,
+          "supports": 2
+        },
+        "pressureContract": null,
+        "pressureProfileBefore": "{\"schema_version\":\"0.8.0\"}",
+        "projectId": "project:blank-local-20261031t141433z",
+        "projectUnits": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "moment": "N*m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        },
+        "schemaVersion": "0.8.0",
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "message": "Current admitted workspace; changes require human review.",
+      "status": "ok"
+    },
+    {
+      "basis": {
+        "applicationGeneration": 1,
+        "modelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "modelRevision": 5,
+        "runId": null,
+        "stateId": null,
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "data": {
+        "assumptions": [
+          {
+            "affectedOperationIds": [
+              "op:w9a:1",
+              "op:w9a:2",
+              "op:w9a:3",
+              "op:w9a:4",
+              "op:w9a:5",
+              "op:w9a:6",
+              "op:w9a:7",
+              "op:w9a:8",
+              "op:w9a:9",
+              "op:w9a:10",
+              "op:w9a:11"
+            ],
+            "assumptionId": "a1",
+            "statement": "Every input is the person's stated W9-A input."
+          }
+        ],
+        "author_type": "agent",
+        "outcomeModelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "proposalBasis": {
+          "applicationGeneration": 1,
+          "modelHash": {
+            "algorithm": "sha256",
+            "canonicalization": "rfc8785_jcs",
+            "hash_status": "computed_local_preview",
+            "payload_ref": "project:blank-local-20261031t141433z",
+            "payload_scope": "model_payload",
+            "value": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          "modelRevision": 5,
+          "runId": null,
+          "stateId": null,
+          "workspaceHandle": "222222222222222222222222222222222222222222222222"
+        },
+        "proposalHandle": "333333333333333333333333333333333333333333333333"
+      },
+      "message": "Recorded proposal standing.",
+      "status": "applied"
+    },
+    {
+      "basis": {
+        "applicationGeneration": 1,
+        "modelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "modelRevision": 7,
+        "runId": null,
+        "stateId": null,
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "data": {
+        "evaluatedModelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "health": "MECHANICS_SOLVED",
+        "runHandle": "555555555555555555555555555555555555555555555555",
+        "runId": "run:preview-linear-static-001",
+        "solverMode": "sparse_interactive"
+      },
+      "message": "Native solve completed; applicability and professional acceptance remain separate.",
+      "status": "completed"
+    },
+    {
+      "basis": {
+        "applicationGeneration": 1,
+        "modelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "modelRevision": 7,
+        "runId": null,
+        "stateId": null,
+        "workspaceHandle": "222222222222222222222222222222222222222222222222"
+      },
+      "data": {
+        "evaluatedModelHash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:blank-local-20261031t141433z",
+          "payload_scope": "model_payload",
+          "value": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "nextCursor": null,
+        "runHandle": "555555555555555555555555555555555555555555555555",
+        "runId": "run:preview-linear-static-001",
+        "standing": {
+          "checks": [
+            "numerical_view_eligible"
+          ],
+          "health": "MECHANICS_SOLVED",
+          "route": "openpipestress.result_semantics/0.3.0/preview-physics-2"
+        },
+        "values": [
+          {
+            "availability": "available",
+            "entityRef": "node:c",
+            "exactDecimal": null,
+            "id": "result:disp:node-c:ux",
+            "kind": "global_nodal_displacement_x",
+            "reason": null,
+            "unit": "mm",
+            "value": 4.771112073942932
+          },
+          {
+            "availability": "available",
+            "entityRef": "node:c",
+            "exactDecimal": null,
+            "id": "result:disp:node-c:uy",
+            "kind": "global_nodal_displacement_y",
+            "reason": null,
+            "unit": "mm",
+            "value": -3.586865438767269
+          },
+          {
+            "availability": "available",
+            "entityRef": "node:c",
+            "exactDecimal": null,
+            "id": "result:disp:node-c:uz",
+            "kind": "global_nodal_displacement_z",
+            "reason": null,
+            "unit": "mm",
+            "value": 0
+          },
+          {
+            "availability": "available",
+            "entityRef": "node:c",
+            "exactDecimal": null,
+            "id": "result:disp:node-c:rx",
+            "kind": "global_nodal_rotation_x",
+            "reason": null,
+            "unit": "rad",
+            "value": 0
+          },
+          {
+            "availability": "available",
+            "entityRef": "node:c",
+            "exactDecimal": null,
+            "id": "result:disp:node-c:ry",
+            "kind": "global_nodal_rotation_y",
+            "reason": null,
+            "unit": "rad",
+            "value": 0
+          },
+          {
+            "availability": "available",
+            "entityRef": "node:c",
+            "exactDecimal": null,
+            "id": "result:disp:node-c:rz",
+            "kind": "global_nodal_rotation_z",
+            "reason": null,
+            "unit": "rad",
+            "value": 0.0007867143613246695
+          }
+        ]
+      },
+      "message": "Permitted bounded source-unit values; withheld values have no substitute number.",
+      "status": "ok"
+    }
+  ]
+}
