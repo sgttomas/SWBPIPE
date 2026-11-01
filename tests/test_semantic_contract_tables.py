@@ -57,6 +57,25 @@ def test_repin_routes_the_desktop_run_carriers_to_their_writers():
     assert order.index("recordedRunParity") < order.index("analysis_runs_tests")
 
 
+def test_repin_routes_every_self_checksummed_run_record_to_a_writer():
+    """A committed AnalysisRun record checksums its own bytes, so a text edit of a digest inside it leaves the
+    checksum stale; every such file is a carrier (or frozen), never an editable consumer."""
+    import json
+    import subprocess
+    tool = _tool()
+    listed = subprocess.run(["git", "grep", "-l", '"analysis_run_record"', "--", "*.json"], cwd=PROJECT,
+                            capture_output=True, text=True, check=True).stdout.split()
+    records = []
+    for path in listed:
+        document = json.loads((PROJECT / path).read_text(encoding="utf-8"))
+        hashes = document.get("analysis_run", {}).get("hashes", []) if isinstance(document, dict) else []
+        if any(row.get("payload_scope") == "analysis_run_record" for row in hashes):
+            records.append(path)
+    assert records
+    editable, _, _ = tool.classify(records)
+    assert editable == []
+
+
 def test_repin_dry_run_at_head_lists_nothing(capsys):
     assert _tool().repin(["HEAD"], dry_run=True) == 0
     assert "0 file edit(s) listed, none written" in capsys.readouterr().out
