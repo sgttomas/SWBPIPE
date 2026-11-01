@@ -42,7 +42,9 @@ The adapter selects these existing maintained components:
 `CaptureNative.configuration` uses the selected `macos.rs` CONFIG_BODY, the
 package's client version, production client name `swbpipe`, provider id and
 base instructions, with a direct no-auth stub URL and the relay `env_key`
-removed. Its frame limit is 128 KiB. The historical Native recipe keeps its
+removed. Declarations and all outgoing frame maps use recursive lexical key
+order and unescaped UTF-8, matching product serde_json's selected configuration.
+Its frame limit is 128 KiB. The historical Native recipe keeps its
 8,192 context and optional credential carrier. Its process/pump/stop/close
 mechanism is reused. A narrow partial-startup repair initializes ownership
 bookkeeping before spawn and conditionally joins a started reader, so reader
@@ -88,6 +90,11 @@ evidence directory outside Git, both named in the authorization. The tool
 checks the executable pin, refuses an existing output path, accepts no provider,
 model, key or retry argument, and writes the packet described below. It neither
 asks for nor manufactures authorization. Preparing this command is not running it.
+The checkout must have no tracked or untracked changes and output must be
+outside Git; admission refuses otherwise before preparing a listener/supplier.
+The packet binds `agent_w9a_journey.json` as well as the six-outcome fixture,
+catalog and source modules. Checkout revision/cleanliness are checked again
+after cleanup; any change prevents completion.
 
 ## Boundaries, artifacts and cleanup
 
@@ -125,6 +132,14 @@ Overrun, expired guard, unexpected late HTTP input, resident executable or any
 unconfirmed cleanup prevents a complete capture. Cleanup phases are attempted
 independently; uncertain custody retains its runtime for recovery. The guard is
 not an OS real-time scheduling guarantee, so record actual elapsed time.
+Parser errors, incomplete connections, idle timeouts, oversized headers and unsupported HTTP methods latch failure
+through the common error hook. Socket timeouts apply before parsing; capture
+handlers are non-daemon and joined before the final locked failure read.
+Discovery admission and failure latching use the same lock, so simultaneous
+duplicate discovery is not admitted. Harmless protocol notifications without
+a thread id are informational; foreign-thread and built-in execution items
+still refuse. Unsupported server requests get product's `-32601` response but
+also fail this strictly scripted capture; no extra host capability is admitted.
 
 On success retain exactly eight raw request files, `config.toml`, and bounded
 `result.json` containing setup/turn RPC inputs, original dynamic-call identities,

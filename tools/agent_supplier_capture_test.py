@@ -32,7 +32,7 @@ class FakeSupplier:
 
     def send(self, frame):
         self.sent.append(frame)
-        if 'id' in frame:
+        if 'id' in frame and 'result' in frame:
             self.history.append({'type': 'function_call_output', 'call_id': f'call{len(self.capture.calls)}',
                                  'output': frame['result']['contentItems'][0]['text']})
 
@@ -102,7 +102,7 @@ def test_bad_and_oversize_lengths_are_refused_without_reading(tmp_path, length):
         capture(tmp_path).accept('/v1/responses', {'Content-Length': length}, Mock(read=Mock(side_effect=AssertionError())))
 
 
-@pytest.mark.parametrize('raw', [b'not-json', b'[]', b'{}', b'{"api_key":"invented"}'])
+@pytest.mark.parametrize('raw', [b'not-json', b'[]', b'{}', b'{"api_key":"invented"}', b'{"temperature":NaN}'])
 def test_malformed_or_unexpected_bodies_are_not_retained(tmp_path, raw):
     with pytest.raises(adapter.Refusal):
         capture(tmp_path).accept('/v1/responses', {'Content-Length': str(len(raw))}, io.BytesIO(raw))
@@ -203,12 +203,15 @@ class Timer:
     def is_alive(self): return False
 
 
-def runner(tmp_path, monkeypatch, *, broken=False, cleanup_failure=False, timeout=False, resident=False):
+def runner(tmp_path, monkeypatch, *, broken=False, cleanup_failure=False, timeout=False, resident=False,
+           late_handler=False, checkout_changed=False):
     events = []
     binary = tmp_path / 'invented-codex'
     binary.touch()
     real_digest = adapter.witness.digest
     monkeypatch.setattr(adapter.witness, 'digest', lambda p: witness.BINARY_SHA256 if p == binary else real_digest(p))
+    monkeypatch.setattr(adapter, 'checkout_selection', Mock(side_effect=['a' * 40, adapter.Refusal('dirty')])
+                        if checkout_changed else lambda: 'a' * 40)
     def initialize(native, binary, root, endpoint, model, key):
         assert key is None
         (root / 'home').mkdir()
@@ -227,8 +230,12 @@ def runner(tmp_path, monkeypatch, *, broken=False, cleanup_failure=False, timeou
     holder = {}
     def provider_factory(seen):
         holder['capture'] = seen
+        def close():
+            events.append('provider-stop')
+            if late_handler:
+                seen.fail('request_unexpected')  # simulated joined handler's final failure
         return SimpleNamespace(endpoint='http://127.0.0.1:4321/v1', thread=SimpleNamespace(is_alive=lambda: False),
-                               __enter__=lambda: events.append('provider-start'), __exit__=lambda: events.append('provider-stop'))
+                               __enter__=lambda: events.append('provider-start'), __exit__=close)
     def timer_factory(seconds, callback):
         timer = Timer(seconds, callback)
         if timeout:
@@ -245,9 +252,10 @@ def test_run_mock_completion_uses_owned_cleanup_and_retains_only_bounded_fixture
     assert result['captureComplete'] and result['standing'] == 'scripted_envelope_not_live_model_evidence'
     assert len(result['bodies']) == 8 and result['supplierExited']
     assert events == ['provider-start', 'close', 'provider-stop']
+    assert result['inputs'][str(adapter.FIXTURE.relative_to(adapter.PROJECT))] == witness.digest(adapter.FIXTURE)
 
 
-@pytest.mark.parametrize('case', ['broken', 'cleanup_failure', 'timeout', 'resident'])
+@pytest.mark.parametrize('case', ['broken', 'cleanup_failure', 'timeout', 'resident', 'late_handler', 'checkout_changed'])
 def test_run_failures_cleanup_or_retain_custody_and_never_retain_partial_bodies(tmp_path, monkeypatch, case):
     result, events = runner(tmp_path, monkeypatch, **{case: True})
     assert not result['captureComplete'] and not result['bodies']
@@ -371,3 +379,149 @@ def test_capture_handler_failure_latches_without_logging_or_retaining_a_failed_b
     provider.accept_post(handler)
     assert provider.capture.failure and not provider.capture.bodies
     assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize('headers', [{'Proxy-Authorization': 'invented'}, {'Content-Length': '1'}, {'Transfer-Encoding': 'chunked'}])
+def test_discovery_auth_or_unrecorded_body_is_not_admitted(tmp_path, headers):
+    provider = adapter.CaptureProvider.__new__(adapter.CaptureProvider)
+    provider.capture = capture(tmp_path)
+    provider.accept_get(SimpleNamespace(path='/', headers=headers, connection=SimpleNamespace(settimeout=Mock()), reply=Mock()))
+    assert provider.capture.final_failure() == 'unexpected_discovery'
+
+
+@pytest.mark.parametrize('raw_request', [
+    b'HEAD / HTTP/1.1\r\nHost: local\r\n\r\n',
+    b'OPTIONS / HTTP/1.1\r\nHost: local\r\n\r\n',
+    b'PUT / HTTP/1.1\r\nHost: local\r\n\r\n',
+    b'DELETE / HTTP/1.1\r\nHost: local\r\n\r\n',
+    b'garbage request line\r\n',
+    b'GET / HTTP/1.1\r\nX: ' + b'x' * 65537 + b'\r\n\r\n',
+    b'', None,
+])
+def test_http_parser_and_unsupported_methods_latch_through_actual_handler_without_socket(tmp_path, monkeypatch, raw_request):
+    from tools import agent_journey_fixture as journey
+    selected = {}
+    server = SimpleNamespace(serve_forever=Mock(), server_close=Mock(), shutdown=Mock())
+    def no_listener(address, handler):
+        selected['handler'] = handler
+        return server
+    monkeypatch.setattr(journey.http.server, 'ThreadingHTTPServer', no_listener)
+    provider = adapter.CaptureProvider(capture(tmp_path))
+    class MemorySocket:
+        def __init__(self):
+            self.reader = Mock(readline=Mock(side_effect=TimeoutError())) if raw_request is None else io.BytesIO(raw_request)
+            self.output, self.timeouts = bytearray(), []
+        def makefile(self, *a, **kw):
+            return self.reader
+        def sendall(self, data):
+            self.output.extend(data)
+        def settimeout(self, value):
+            self.timeouts.append(value)
+    connection = MemorySocket()
+    selected['handler'](connection, ('127.0.0.1', 1), server)
+    assert provider.capture.final_failure() == ('request_incomplete' if raw_request in (None, b'') else 'request_unexpected')
+    assert connection.timeouts == [1]  # installed BEFORE request/header parsing
+    assert not list(tmp_path.iterdir())
+    assert server.daemon_threads is False and server.block_on_close is True
+    provider.__exit__()  # only mocked server, and an unstarted Thread object
+    server.server_close.assert_called_once()
+
+
+def test_discovery_check_and_failure_latch_are_inside_the_same_lock():
+    class Guard:
+        depth = 0
+        def __enter__(self): self.depth += 1
+        def __exit__(self, *a): self.depth -= 1
+    class GuardedCapture:
+        def __init__(self): self.lock, self._discovery, self.failure = Guard(), False, None
+        def check(self): assert self.lock.depth > 0
+        @property
+        def discovery(self):
+            assert self.lock.depth > 0
+            return self._discovery
+        @discovery.setter
+        def discovery(self, value):
+            assert self.lock.depth > 0
+            self._discovery = value
+        @property
+        def bodies(self):
+            assert self.lock.depth > 0
+            return []
+        def fail(self, reason):
+            with self.lock: self.failure = reason
+    provider = adapter.CaptureProvider.__new__(adapter.CaptureProvider)
+    provider.capture = GuardedCapture()
+    handler = SimpleNamespace(connection=SimpleNamespace(settimeout=Mock()), path='/', headers={}, reply=Mock())
+    provider.accept_get(handler)
+    assert provider.capture.failure is None and provider.capture._discovery is True
+    provider.accept_get(handler)
+    assert provider.capture.failure == 'unexpected_discovery'
+
+
+def test_sorted_product_declarations_and_outbound_thread_bytes():
+    declarations = adapter.declarations()
+    def ordered(value):
+        if isinstance(value, dict):
+            assert list(value) == sorted(value)
+            for child in value.values(): ordered(child)
+        elif isinstance(value, list):
+            for child in value: ordered(child)
+    ordered(declarations)
+    native = adapter.CaptureNative.__new__(adapter.CaptureNative)
+    native.process = SimpleNamespace(stdin=io.BytesIO())
+    native.write_lock = __import__('threading').Lock()
+    frame = {'params': {'z': '\u0394', 'dynamicTools': declarations, 'a': 1}, 'method': 'thread/start', 'id': 2}
+    native.send(frame)
+    raw = native.process.stdin.getvalue()
+    assert raw == adapter.encoded(frame) + b'\n'
+    assert '\u0394'.encode() in raw
+
+
+def test_dirty_or_untracked_checkout_is_refused_before_capture(monkeypatch):
+    commands = []
+    def git(args, **kwargs):
+        commands.append(args)
+        assert kwargs == {'text': True, 'timeout': 2}
+        return 'a' * 40 + '\n' if args[-1] == 'HEAD' else '?? invented-untracked-file\n'
+    monkeypatch.setattr(adapter.subprocess, 'check_output', git)
+    with pytest.raises(adapter.Refusal, match='checkout_not_clean'):
+        adapter.checkout_selection()
+    assert '--untracked-files=all' in commands[-1]
+
+
+def test_dirty_selection_or_output_inside_git_prevents_any_supplier_or_listener_preparation(tmp_path, monkeypatch):
+    initialize, provider = Mock(), Mock()
+    monkeypatch.setattr(adapter, 'checkout_selection', Mock(side_effect=adapter.Refusal('checkout_not_clean')))
+    with pytest.raises(adapter.Refusal, match='checkout_not_clean'):
+        adapter.run(tmp_path / 'unused', tmp_path / 'output', initialize=initialize, provider_factory=provider)
+    monkeypatch.setattr(adapter, 'checkout_selection', lambda: 'a' * 40)
+    with pytest.raises(adapter.Refusal, match='output_in_checkout'):
+        adapter.run(tmp_path / 'unused', adapter.PROJECT / 'not-created-capture-output',
+                    initialize=initialize, provider_factory=provider)
+    initialize.assert_not_called(); provider.assert_not_called()
+    assert not (tmp_path / 'output').exists()
+
+
+def test_global_information_is_ignored_but_foreign_thread_or_unsupported_request_refuses(tmp_path):
+    seen = capture(tmp_path)
+    fake = FakeSupplier(seen)
+    original = fake.receive
+    info = [{'method': 'account/rateLimits/updated', 'params': {}}]
+    fake.receive = lambda deadline: info.pop() if info else original(deadline)
+    assert len(adapter.drive(fake, seen, seen.outcomes, clock=lambda: 0)['calls']) == 6
+    other = tmp_path / 'other'; other.mkdir()
+    seen = capture(other); fake = FakeSupplier(seen)
+    fake.receive = lambda deadline: {'method': 'item/started', 'params': {'threadId': 'foreign'}}
+    with pytest.raises(adapter.Refusal, match='event_binding'):
+        adapter.drive(fake, seen, seen.outcomes, clock=lambda: 0)
+    seen = capture(other); fake = FakeSupplier(seen)
+    fake.receive = lambda deadline: {'id': 'unsupported', 'method': 'server/unsupported', 'params': {}}
+    # Error response is product-compatible, but the capture is intentionally stricter: fail the extra request.
+    fake.send = Mock()
+    with pytest.raises(adapter.Refusal, match='host_call_binding'):
+        adapter.drive(fake, seen, seen.outcomes, clock=lambda: 0)
+    assert fake.send.call_args.args[0]['error']['code'] == -32601
+    seen = capture(other); fake = FakeSupplier(seen)
+    fake.receive = lambda deadline: {'method': 'item/started', 'params': {'item': {'type': 'commandExecution'}}}
+    with pytest.raises(adapter.Refusal, match='builtin_item'):
+        adapter.drive(fake, seen, seen.outcomes, clock=lambda: 0)

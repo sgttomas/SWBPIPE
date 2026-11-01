@@ -106,6 +106,8 @@ def admit_call(frame, thread_id, turn_id, used, validator):
 
 class Native:
     frame_bytes = FRAME_BYTES
+    sort_json_keys = False
+    ensure_ascii = True
 
     def __init__(self, binary, root, provider_url, model, api_key=None):
         try:
@@ -188,7 +190,8 @@ class Native:
                 pass
 
     def send(self, frame):
-        raw = (json.dumps(frame, separators=(",", ":")) + "\n").encode()
+        raw = (json.dumps(frame, separators=(",", ":"), sort_keys=self.sort_json_keys,
+                          ensure_ascii=self.ensure_ascii) + "\n").encode()
         if len(raw) > self.frame_bytes:
             raise WitnessError("Outgoing frame exceeds budget")
         with self.write_lock:

@@ -227,13 +227,30 @@ class StubProvider:
         class Handler(http.server.BaseHTTPRequestHandler):
             protocol_version = "HTTP/1.1"
 
+            def setup(self):
+                super().setup()
+                stub.prepare_connection(self)
+
+            def send_error(self, code, message=None, explain=None):
+                stub.on_http_error(self, code)
+                super().send_error(code, message, explain)
+
+            def handle_one_request(self):
+                self._swbpipe_dispatched = False
+                try:
+                    super().handle_one_request()
+                finally:
+                    stub.after_request(self)
+
             def log_message(self, *args):
                 pass
 
             def do_POST(self):
+                self._swbpipe_dispatched = True
                 stub.accept_post(self)
 
             def do_GET(self):
+                self._swbpipe_dispatched = True
                 stub.accept_get(self)
 
             def reply(self, status, body, kind):
@@ -246,6 +263,15 @@ class StubProvider:
 
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+
+    def prepare_connection(self, handler):
+        pass
+
+    def on_http_error(self, handler, code):
+        pass
+
+    def after_request(self, handler):
+        pass
 
     def accept_post(self, handler):
         length = int(handler.headers.get("Content-Length") or 0)

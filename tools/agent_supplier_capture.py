@@ -10,9 +10,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import threading
@@ -20,7 +22,7 @@ import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools import agent_host_witness as witness  # noqa: E402
-from tools.agent_journey_fixture import Script, StubProvider, TURNS, sse, residents  # noqa: E402
+from tools.agent_journey_fixture import Script, StubProvider, TURNS, sse, residents, FIXTURE  # noqa: E402
 from tools.agent_journey_fixture import tool_output, user_text  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -65,12 +67,26 @@ def identity(value):
     return value
 
 
+def invalid_constant(value):
+    raise Refusal('request_nonfinite')
+
+
 def declarations():
     if witness.digest(CATALOG) != witness.CATALOG_SHA256:
         raise Refusal('catalog_pin')
     catalog = json.loads(CATALOG.read_text())
-    return [{'type': 'function', 'name': t['name'], 'description': t['description'],
-             'inputSchema': witness.expand(t['inputSchema'], catalog['definitions'])} for t in catalog['tools']]
+    values = [{'type': 'function', 'name': t['name'], 'description': t['description'],
+               'inputSchema': witness.expand(t['inputSchema'], catalog['definitions'])} for t in catalog['tools']]
+    return json.loads(encoded(values))  # recursive lexical order, as product serde_json without preserve_order
+
+
+def checkout_selection():
+    revision = subprocess.check_output(['git', '-C', str(PROJECT), 'rev-parse', 'HEAD'], text=True, timeout=2).strip()
+    dirty = subprocess.check_output(['git', '-C', str(PROJECT), 'status', '--porcelain', '--untracked-files=all'],
+                                    text=True, timeout=2)
+    if dirty:
+        raise Refusal('checkout_not_clean')
+    return revision
 
 
 def instructions():
@@ -84,6 +100,8 @@ def client_version():
 class CaptureNative(witness.Native):
     """Only the fixed capture recipe/frame cap differ; inherited custody/pump/shutdown remain owned."""
     frame_bytes = FRAME_BYTES
+    sort_json_keys = True
+    ensure_ascii = False
 
     def configuration(self, model, provider_url, api_key=None):
         if model != MODEL or api_key is not None:
@@ -108,6 +126,8 @@ def no_secrets(value):
             no_secrets(child)
     elif isinstance(value, str) and re.search(r'(?i)\bbearer\s+\S+|\bsk-[a-zA-Z0-9_-]{12,}', value):
         raise Refusal('secret_text')
+    elif isinstance(value, float) and not math.isfinite(value):
+        raise Refusal('request_nonfinite')
 
 
 class Capture:
@@ -117,15 +137,24 @@ class Capture:
         self.script = Script(TURNS)
         self.bodies, self.calls, self.total, self.discovery = [], [], 0, False
         self.failure = None
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.expired = threading.Event()
         self.outcomes = json.loads(OUTCOMES.read_text())['outcomes']
 
     def check(self):
-        if self.failure:
-            raise Refusal(self.failure)
-        if self.expired.is_set() or self.clock() >= self.deadline:
-            raise Refusal('deadline')
+        with self.lock:
+            if self.failure:
+                raise Refusal(self.failure)
+            if self.expired.is_set() or self.clock() >= self.deadline:
+                raise Refusal('deadline')
+
+    def fail(self, reason):
+        with self.lock:
+            self.failure = self.failure or reason
+
+    def final_failure(self):
+        with self.lock:
+            return self.failure
 
     def accept(self, path, headers, stream):
         with self.lock:
@@ -149,7 +178,7 @@ class Capture:
             body = stream.read(size)
             if len(body) != size:
                 raise Refusal('request_truncated')
-            request = json.loads(body, object_pairs_hook=unique_object)
+            request = json.loads(body, object_pairs_hook=unique_object, parse_constant=invalid_constant)
             if not isinstance(request, dict) or request.get('model') != MODEL or request.get('stream') is not True:
                 raise Refusal('request_shape')
             no_secrets(request)
@@ -201,6 +230,9 @@ class CaptureProvider(StubProvider):
         self.capture = capture
         try:
             super().__init__(TURNS)
+            # server_close must join all handlers before the final failure latch is read.
+            self.server.daemon_threads = False
+            self.server.block_on_close = True
         except Exception:
             if getattr(self, 'server', None) is not None:
                 self.server.server_close()
@@ -219,7 +251,7 @@ class CaptureProvider(StubProvider):
             body = self.capture.accept(handler.path, handler.headers, handler.rfile)
             handler.reply(200, body, 'text/event-stream')
         except Exception:
-            self.capture.failure = self.capture.failure or 'request_io'
+            self.capture.fail('request_io')
             try:
                 handler.reply(400, b'{}', 'application/json')
             except Exception:
@@ -227,14 +259,37 @@ class CaptureProvider(StubProvider):
 
     def accept_get(self, handler):
         # Stock supplier's initial discovery in stub14; bounded and no headers/body retained.
-        if (handler.path != '/' or self.capture.discovery or self.capture.bodies
-                or any(key.lower() in {'authorization', 'cookie'} for key in handler.headers)):
-            self.capture.failure = 'unexpected_discovery'
-        self.capture.discovery = True
         try:
+            handler.connection.settimeout(1)
+            with self.capture.lock:
+                self.capture.check()
+                pairs = list(handler.headers.items())
+                headers = {key.lower(): value for key, value in pairs}
+                if (handler.path != '/' or self.capture.discovery or self.capture.bodies
+                        or len(pairs) != len(headers) or headers.get('content-length', '0') != '0'
+                        or any(key in {'authorization', 'proxy-authorization', 'cookie', 'transfer-encoding'} for key in headers)):
+                    raise Refusal('unexpected_discovery')
+                self.capture.discovery = True
             handler.reply(404, b'{}', 'application/json')
+        except Refusal as error:
+            self.capture.fail(str(error))
         except Exception:
-            self.capture.failure = self.capture.failure or 'request_io'
+            self.capture.fail('request_io')
+
+    def prepare_connection(self, handler):
+        try:
+            handler.connection.settimeout(1)  # includes request-line/header parsing, not just the body
+        except Exception:
+            self.capture.fail('request_io')
+            raise
+
+    def on_http_error(self, handler, code):
+        self.capture.fail('request_unexpected')  # 400/431 parse errors and 501 unsupported methods
+
+    def after_request(self, handler):
+        # BaseHTTPRequestHandler silently returns on idle timeout/EOF without send_error.
+        if not handler._swbpipe_dispatched:
+            self.capture.fail('request_incomplete')
 
 
 def drive(native, capture, outcomes, clock=time.monotonic):
@@ -272,7 +327,11 @@ def drive(native, capture, outcomes, clock=time.monotonic):
                 raise Refusal('frame_count')
             params = frame.get('params', {})
             if 'id' in frame and 'method' in frame:
-                rpc, call = frame['id'], identity(params.get('callId'))
+                rpc = frame['id']
+                if frame['method'] != 'item/tool/call':
+                    native.send({'id': rpc, 'error': {'code': -32601, 'message': 'Unsupported request'}})
+                    raise Refusal('host_call_binding')
+                call = identity(params.get('callId'))
                 if (frame['method'] != 'item/tool/call' or type(rpc) not in (int, str) or not isinstance(call, str)
                         or len(call) > 160 or (isinstance(rpc, str) and len(rpc) > 160)
                         or rpc in used_rpc or call in used_call or params.get('threadId') != thread
@@ -290,11 +349,13 @@ def drive(native, capture, outcomes, clock=time.monotonic):
                 records.append({'turn': turn_index + 1, 'tool': params['tool'], 'callId': call, 'rpcId': rpc})
                 calls += 1; count += 1
             else:
-                if params.get('threadId') != thread:
-                    raise Refusal('event_binding')
                 item = params.get('item', {})
                 if item.get('type') in witness.FORBIDDEN_ITEMS:
                     raise Refusal('builtin_item')
+                if params.get('threadId') is None:
+                    continue  # informational global notifications, as in product protocol.rs
+                if params.get('threadId') != thread:
+                    raise Refusal('event_binding')
                 if frame.get('method') == 'item/completed' and item.get('type') == 'agentMessage':
                     if params.get('turnId') != turn:
                         raise Refusal('event_binding')
@@ -317,14 +378,17 @@ def run(binary, output, *, initialize=CaptureNative.__init__, provider_factory=C
         timer_factory=threading.Timer, clock=time.monotonic, absence=residents):
     """Effects occur only in an authorized explicit invocation; tests inject all effects."""
     started = clock()
+    revision = checkout_selection()
+    if any((parent / '.git').exists() for parent in (output.resolve(), *output.resolve().parents)):
+        raise Refusal('output_in_checkout')
     if not binary.is_file() or witness.digest(binary) != witness.BINARY_SHA256 or output.exists():
         raise Refusal('input_pin_or_output')
     output.mkdir(mode=0o700)
     capture = Capture(output, started + WORK_SECONDS, clock)
     result = {'captureComplete': False, 'standing': 'scripted_envelope_not_live_model_evidence',
-              'inputRevision': __import__('subprocess').check_output(['git', '-C', str(PROJECT), 'rev-parse', 'HEAD'], text=True).strip(),
+              'inputRevision': revision, 'inputCheckoutClean': True,
               'supplierSha256': witness.BINARY_SHA256, 'inputs': {str(p.relative_to(PROJECT)): witness.digest(p)
-                  for p in [CATALOG, OUTCOMES, RUNTIME, MACOS, MANIFEST, Path(__file__),
+                  for p in [CATALOG, OUTCOMES, FIXTURE, RUNTIME, MACOS, MANIFEST, Path(__file__),
                             PROJECT / 'tools/agent_host_witness.py', PROJECT / 'tools/agent_journey_fixture.py']}}
     native = CaptureNative.__new__(CaptureNative)
     provider = watchdog = None
@@ -391,9 +455,16 @@ def run(binary, output, *, initialize=CaptureNative.__init__, provider_factory=C
         except Exception:
             failures.append('absence_unconfirmed')
         result.update(bodies=capture.bodies, totalBodyBytes=capture.total, cleanupFailures=failures)
-        if capture.failure:
-            result['failure'] = capture.failure
+        final_failure = capture.final_failure()  # provider.close has joined every handler
+        if final_failure:
+            result['failure'] = final_failure
             result['captureComplete'] = False
+        try:
+            if checkout_selection() != revision:
+                raise Refusal('checkout_changed')
+        except Exception:
+            result['captureComplete'] = False
+            result['failure'] = 'checkout_changed'
         if failures:
             result['captureComplete'] = False
             result['retainedRuntime'] = str(runtime)
