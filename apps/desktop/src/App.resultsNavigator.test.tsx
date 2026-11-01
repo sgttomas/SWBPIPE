@@ -12,7 +12,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 import { App } from "./App";
 import { getLocalStorageCapability } from "./services/projectService";
 import { loadDesignKnowledge } from "./services/previewService";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
 afterEach(() => {
   // Unmount first: the session releases its delivered native result on unmount.

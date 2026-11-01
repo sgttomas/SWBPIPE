@@ -6,7 +6,7 @@ import refusedPreviewModel from "../../../fixtures/product_preview/invented_prev
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
@@ -306,6 +306,11 @@ function comparisonWorkspace() {
 
 function renderedReportButton() {
   return within(openWorkspaceSection("report")).getByTestId("rendered-report-render");
+}
+/** The rendered report's button once the report section has read a native result's C2 full copy
+ * (C1: the report reads full rows, loaded when its section opens). */
+function renderedReportButtonReady() {
+  return within(openWorkspaceSection("report")).findByTestId("rendered-report-render");
 }
 
 function treeRow(type: string, id: string) {
@@ -693,7 +698,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(invokeMock).toHaveBeenCalledWith(
         "start_preview_mechanics_job",
         expect.any(Object),
-        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
       ),
     );
     await act(async () => {
@@ -764,7 +769,7 @@ describe("SWBPIPE desktop preview", () => {
         expect(invokeMock).toHaveBeenCalledWith(
           "start_preview_mechanics_job",
           expect.any(Object),
-          { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+          { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
         ),
       );
       await act(async () => {
@@ -844,7 +849,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(invokeMock).toHaveBeenCalledWith(
         "start_preview_mechanics_job",
         expect.any(Object),
-        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
       ),
     );
     act(() => nativeMenuCommand("analyze.cancel"));
@@ -912,7 +917,7 @@ describe("SWBPIPE desktop preview", () => {
       expect(invokeMock).toHaveBeenCalledWith(
         "start_preview_mechanics_job",
         expect.any(Object),
-        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive", "x-swbpipe-result-custody": "native" } },
       ),
     );
     act(() => nativeMenuCommand("analyze.cancel"));
@@ -10937,8 +10942,9 @@ describe("SWBPIPE desktop preview", () => {
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
     expect(screen.getByTestId("status-pill-solve-proof")).toHaveTextContent("seam=tauri_backend_job");
     expect(screen.getByTestId("status-pill-solve-proof")).toHaveTextContent(`project=${pair.model.project.id}`);
-    expect(renderedReportButton()).toBeEnabled();
-    const exportPanel = resultExportAudit();
+    expect(await renderedReportButtonReady()).toBeEnabled();
+    // The export panel reads the native result's C2 full copy when its section opens.
+    const exportPanel = await within(openWorkspaceSection("exports")).findByLabelText("Result export audit");
     await within(exportPanel).findByTestId("result-export-summary");
     expect(within(exportPanel).getByTestId("result-export-link")).not.toHaveAttribute("href");
     // Native runtime renders a save button. Inspect the real screened request
@@ -14527,7 +14533,9 @@ describe("workflow current and historical result boundaries", () => {
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const solve = openWorkspaceSection("solve");
-    fireEvent.click(within(solve).getByTestId("rule-check-load-demo"));
+    // Rule checks read full rows (C2): their copy loads on request, never at the solve's first paint.
+    fireEvent.click(within(solve).getByTestId("c2-result-load"));
+    fireEvent.click(await within(solve).findByTestId("rule-check-load-demo"));
     await within(solve).findByTestId("rule-check-binding-plan");
     fireEvent.click(within(solve).getByTestId("rule-check-run"));
     await waitFor(() =>
@@ -14543,7 +14551,7 @@ describe("workflow current and historical result boundaries", () => {
     // Stay on the explicit native replay for the fresh replacement solve.
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
-    expect(renderedReportButton()).toBeEnabled();
+    expect(await renderedReportButtonReady()).toBeEnabled();
 
     await act(async () => {
       delayedRuleRun.resolve({
@@ -14602,6 +14610,11 @@ describe("workflow current and historical result boundaries", () => {
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       expectReportPackageRouteOpen();
+      // C1: the report reads the native result's C2 full copy (and builds its full record) when its
+      // section opens; that happens before the delayed hash below, which holds the package build.
+      openWorkspaceSection("solve");
+      const report = openWorkspaceSection("report");
+      await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       const reportPackageModule = await import("./features/report/reportPackageRequest");
       const realBuild = reportPackageModule.buildReportPackageRequest;
       buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) => {
@@ -14621,9 +14634,6 @@ describe("workflow current and historical result boundaries", () => {
         delayedModelHashCalls += 1;
         return buildGate.promise.then(() => canonicalSha256Hex(valueJson)) as unknown as string;
       });
-      openWorkspaceSection("solve");
-      const report = openWorkspaceSection("report");
-      await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
@@ -14644,9 +14654,11 @@ describe("workflow current and historical result boundaries", () => {
       );
       const staleOuterReportBuild = outerReportBuild;
       expect(staleOuterReportBuild).not.toBeNull();
+      // C1: the replacement disposed the native result, which ends its copy's registration, so the
+      // resumed stale build refuses (stricter than a taken result, whose registration outlived it).
       await act(async () => {
         buildGate.resolve();
-        await staleOuterReportBuild;
+        await expect(staleOuterReportBuild).rejects.toThrow("CURRENT_BINDING_CHANGED_DURING_EXPORT");
       });
       await waitFor(() =>
         expect(invokeMock.mock.calls.filter(([command]) => command === "save_report_package")).toHaveLength(0),
@@ -14708,7 +14720,8 @@ describe("workflow current and historical result boundaries", () => {
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
       report = openWorkspaceSection("report");
-      const privateIntent = within(report).getByTestId("report-package-private-intent") as HTMLInputElement;
+      // The new result's report reads its own C2 full copy when the section opens.
+      const privateIntent = await within(report).findByTestId("report-package-private-intent") as HTMLInputElement;
       if (!privateIntent.checked) fireEvent.click(privateIntent);
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-report-package"));
@@ -14785,15 +14798,15 @@ describe("workflow current and historical result boundaries", () => {
     expect(overlay.state).toBe("blocked");
     expect(overlay.summary).toBe(failedSummary);
     expect(overlay.nodePositions.size).toBe(0);
-    invokeMock.mockImplementation((command: string) => {
+    // C1: the job holds the producer's bytes natively; its native reads are the actual Rust
+    // commands' recorded replies.
+    const transport = createSolveJobTransport(() => solveBytes(output), { jobIdPrefix: "workflow-outcome" });
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
       if (command === "load_preview_model") return Promise.resolve(structuredClone(model));
-      if (command === "start_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic", resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
-      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result_available: true, result_bytes: solveBytes(output).length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
-      if (command === "take_preview_mechanics_job_result") return Promise.resolve(resultArrayBuffer(solveBytes(output)));
-      if (command === "dispose_preview_mechanics_result") return Promise.resolve(null);
+      if (transport.handles(command)) return transport.invoke(command, args, options);
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -15010,7 +15023,8 @@ describe("historical lifecycle history transitions", () => {
         if (command === "render_calculation_report") return Promise.resolve({});
         return replay.invoke(command, args, options);
       });
-      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
+      // The report reads the native result's C2 full copy when its section opens.
+      fireEvent.click(await within(reportSection).findByTestId("rendered-report-local-private-intent"));
       fireEvent.click(within(reportSection).getByTestId("rendered-report-render"));
       await waitFor(() => expect(preparations).toBe(1));
 
@@ -15117,7 +15131,8 @@ describe("historical lifecycle history transitions", () => {
       });
 
       const reportSection = openWorkspaceSection("report");
-      fireEvent.click(within(reportSection).getByTestId("rendered-report-local-private-intent"));
+      // The report reads the native result's C2 full copy when its section opens.
+      fireEvent.click(await within(reportSection).findByTestId("rendered-report-local-private-intent"));
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);

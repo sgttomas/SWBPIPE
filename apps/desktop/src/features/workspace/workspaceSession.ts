@@ -453,6 +453,8 @@ export function useWorkspaceSession() {
   const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
   const analysisRunRef = useRef<SessionAnalysisRun | null>(null);
   analysisRunRef.current = analysisRun;
+  // Each native record's full record, built once on the job's one full copy (C2 consumers share it).
+  const nativeFullRecords = useRef(new WeakMap<object, Promise<AnalysisRunEnvelope>>());
   /** C2 only: a native result's full copy (at or under 64 MiB) and, for its current record, the
    * full record built on that copy by the oracle builder and checked against the native preview's
    * checksums (and its stored length against the same limit). A full result passes through. */
@@ -468,11 +470,22 @@ export function useWorkspaceSession() {
         throw new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, preview.record_bytes, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES,
           `${RESULT_DETAIL_WEBVIEW_LIMIT} (result_bytes=${preview.record_bytes}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.`);
       }
-      full = await buildAnalysisRunPreview(copy, { inputManifest: inputs.inputManifest, ruleCheckAggregate: inputs.ruleCheckAggregate, rulePackExclusions: inputs.rulePackExclusions });
-      const claim = (record: AnalysisRunEnvelope | AnalysisRunPreview["record"], scope: string) => record.analysis_run.hashes.find((hash) => hash.payload_scope === scope)?.value;
-      if (claim(full, "analysis_run_record") !== claim(preview.record, "analysis_run_record") || claim(full, "received_result") !== claim(preview.record, "received_result")) {
-        throw new Error("C2-RECORD-MISMATCH: the run record built on the full copy is not the native record (its checksums differ); nothing was handed to the C2 consumer.");
+      let building = nativeFullRecords.current.get(run);
+      if (!building) {
+        building = (async () => {
+          const built = await buildAnalysisRunPreview(copy, { inputManifest: inputs.inputManifest, ruleCheckAggregate: inputs.ruleCheckAggregate, rulePackExclusions: inputs.rulePackExclusions });
+          const claim = (record: AnalysisRunEnvelope | AnalysisRunPreview["record"], scope: string) => record.analysis_run.hashes.find((hash) => hash.payload_scope === scope)?.value;
+          if (claim(built, "analysis_run_record") !== claim(preview.record, "analysis_run_record") || claim(built, "received_result") !== claim(preview.record, "received_result")) {
+            throw new Error("C2-RECORD-MISMATCH: the run record built on the full copy is not the native record (its checksums differ); nothing was handed to the C2 consumer.");
+          }
+          return built;
+        })();
+        const pending = building;
+        nativeFullRecords.current.set(run, pending);
+        // A failed build is not kept: a later request builds afresh.
+        pending.catch(() => { if (nativeFullRecords.current.get(run) === pending) nativeFullRecords.current.delete(run); });
       }
+      full = await building;
     }
     // The copy is the job's one copy (cached until disposal): an unchanged pair publishes nothing, so a
     // repeated load re-renders nothing.

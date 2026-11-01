@@ -8,7 +8,7 @@ import { App } from "./App";
 import * as hashService from "./services/hashService";
 import { loadBundledMechanicsReference, loadPreviewModel } from "./services/previewService";
 import * as previewService from "./services/previewService";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 import { applyModelOperation } from "./services/operationService";
 import { getLocalStorageCapability } from "./services/projectService";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
@@ -428,15 +428,15 @@ describe("project handlers: a failed or empty open leaves the open project as it
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
 
-    const realBuild = previewService.buildAnalysisRunPreview.bind(previewService);
+    // C1: a native result's revised record is the native analysis-run preview with the aggregate;
+    // that command is held here (the actual Rust command answers it once released).
     const revisionGate = deferred<void>();
     let heldRevisions = 0;
-    vi.spyOn(previewService, "buildAnalysisRunPreview").mockImplementation((result, options) => {
-      if (!options?.ruleCheckAggregate) return realBuild(result, options);
-      heldRevisions += 1;
-      return revisionGate.promise.then(() => realBuild(result, options));
-    });
-    invokeMock.mockImplementation((command: string) => {
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
+      if (command === "read_preview_mechanics_job_analysis_run_preview" && (args as { ruleCheckAggregate?: unknown } | undefined)?.ruleCheckAggregate) {
+        heldRevisions += 1;
+        return revisionGate.promise.then(() => replay.invoke(command, args, options));
+      }
       if (command === "get_local_storage_capability") return Promise.resolve(storage);
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
@@ -461,11 +461,15 @@ describe("project handlers: a failed or empty open leaves the open project as it
             "Rule-check results remain engineering decision-support information requiring responsible-engineer review.",
         });
       }
+      // The held result's custody and native reads stay with the replay.
+      if (REPLAY_COMMANDS.includes(command)) return replay.invoke(command, args, options);
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     setTauriRuntime(true);
     const solve = openWorkspaceSection("solve");
-    fireEvent.click(within(solve).getByTestId("rule-check-load-demo"));
+    // Rule checks read full rows (C2): their copy loads on request, never at the solve's first paint.
+    fireEvent.click(within(solve).getByTestId("c2-result-load"));
+    fireEvent.click(await within(solve).findByTestId("rule-check-load-demo"));
     await within(solve).findByTestId("rule-check-binding-plan");
     fireEvent.click(within(solve).getByTestId("rule-check-run"));
     await waitFor(() => expect(heldRevisions).toBe(1));
