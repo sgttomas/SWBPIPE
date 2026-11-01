@@ -109,6 +109,11 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let job_id: String = args.decode("jobId")?;
     let model_json: Option<String> = args.decode("modelJson")?;
     let invocation_json: Option<String> = args.decode("invocationJson")?;
+    // C1 slice 4: with `reader`, one named reader's validation
+    // (`reader_validate_json`, the wasm export `reader_validate_json` wraps)
+    // instead of the dispatch, under the same admission: the fresh solve's
+    // registration reads exactly what `validateCapturedSource` read.
+    let reader: Option<String> = args.decode("reader")?;
     drop(args);
     let held = registry.held_result(&job_id)?;
     // The reader's order: the source, the model, the invocation.
@@ -129,8 +134,13 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let reading = registry.acquire_result_parse(source_bound.materialization_bytes)?;
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
-    let outcome = open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref())
-        .map_err(CommandError::Command);
+    let outcome = match reader.as_deref() {
+        None => open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref()),
+        Some(reader) => {
+            open_pipe_stress_operation_applier::reader_validate_json(reader, held.text(), model_json.as_deref(), invocation_json.as_deref())
+        }
+    }
+    .map_err(CommandError::Command);
     drop((reading, held, lease));
     outcome
 }

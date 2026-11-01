@@ -5,6 +5,7 @@ import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREV
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
+import type { NativeResult } from "../../services/nativeResult";
 import type { MechanicsResult } from "../../types";
 
 /** Static fresh-identity set: a constant, no route predicate.
@@ -83,7 +84,7 @@ export function retainedRowClassLabel(row: { id?: string; unit?: string }, sourc
 }
 
 /** Readable identity, by dispatch, that belongs to the static fresh set. */
-export function isFreshSemanticResult(source: MechanicsResult | null | undefined): boolean {
+export function isFreshSemanticResult(source: MechanicsResult | NativeResult | null | undefined): boolean {
   const binding = currentSemanticContract(source);
   return !!binding && FRESH_SEMANTIC_CONTRACT_IDS.includes(binding.id);
 }

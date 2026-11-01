@@ -5,6 +5,8 @@ import { jsonTextKeepingNegativeZero } from './jsonText';
 import { invokeWithIngress } from './nativeIngress';
 import { EmbeddedAgentBridge, type AgentActual, type AgentBasis, type AgentCall, type AgentDelivery, type AgentScope } from './embeddedAgentBridge';
 import type { PreviewModel, ModelHashEvidence, EditorOperationIntent, MechanicsResult } from '../types';
+import { isNativeResult, nativeCustody, NativeQueryRefused, queryNativeRows, type SessionResult } from './nativeResult';
+import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
@@ -15,7 +17,7 @@ export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affec
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
 export type AgentRunReceipt = Readonly<{jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:string;health:string}>;
 export interface WorkspaceExecution {
- snapshot(): {model:PreviewModel|null;hash:ModelHashEvidence|null;revision:number;generation:number;result:MechanicsResult|null;standing:ResultOverlayStanding|null};
+ snapshot(): {model:PreviewModel|null;hash:ModelHashEvidence|null;revision:number;generation:number;result:SessionResult|null;standing:ResultOverlayStanding|null};
  register(batch:OperationBatch,context:AgentContext):Promise<string|null>;
  proposal(key:string):{status:'pending_review'|'withdrawn'|'applied'|'unknown';outcomeModelHash:ModelHashEvidence|null}|null;
  solve():Promise<AgentRunReceipt|undefined>;
@@ -260,7 +262,7 @@ export class EmbeddedAgentSession {
    const standing=this.owner.proposal(record.key);const status=standing?.status??'unknown';const hash=agentHash(standing?.outcomeModelHash);
    return this.result(call,status,'Recorded proposal standing.',{proposalHandle:handle,proposalBasis:record.basis,outcomeModelHash:hash,author_type:'agent',assumptions:record.context.assumptions},{kind:'proposal',handle,basis:record.basis,status,outcomeModelHash:hash});
   }
-  if(call.tool==='swbpipe_read_results')return this.readResults(call);
+  if(call.tool==='swbpipe_read_results')return await this.readResults(call);
   if(!this.current(call))return this.failure(call,'Workspace basis changed.','stale_basis');
   const snap=this.owner.snapshot();const model=snap.model!;
   if(call.tool==='swbpipe_read_model_summary'){
@@ -322,17 +324,29 @@ export class EmbeddedAgentSession {
   }
   return this.failure(call,'Tool is unavailable.');
  }
- private readResults(call:AgentCall):AgentActual{
+ private async readResults(call:AgentCall):Promise<AgentActual>{
   const handle=String(call.arguments.runHandle),run=this.#runs.get(handle);if(!run||!same(run.basis,call.basis))return this.failure(call,'Run is unavailable.');
   const snap=this.owner.snapshot(),result=snap.result;if(!result||result.run_id!==run.receipt.runId)return this.failure(call,'The retained run is no longer held by the result owner.');
   const filter=call.arguments.filter as {kinds:string[];entityRefs:string[]}|undefined;
-  const rows=filter?result.results.filter(row=>(!filter.kinds.length||filter.kinds.includes(row.kind))&&(!filter.entityRefs.length||filter.entityRefs.includes(row.entity_ref))):result.results;
-  const offset=this.offset(call,handle),page=call.arguments.page as {limit:number},end=Math.min(rows.length,offset+page.limit);const values=[];
-  for(let i=offset;i<end;i++){
+  const offset=this.offset(call,handle),page=call.arguments.page as {limit:number};
+  // C1 (DEL-04-05 slice 4): a native result's page is the native query's (the same filter, in
+  // publication order, at most the page's limit); the output contract is unchanged.
+  let rows:MechanicsResult['results'],total:number,retained:boolean;
+  if(isNativeResult(result)){
+   try{const read=await queryNativeRows(result,agentDetailFilter(filter),offset,page.limit);rows=read.rows.map(entry=>entry.row);total=read.total;}
+   catch(error){return this.failure(call,error instanceof NativeQueryRefused?`The native result query was refused (${error.code}).`:'The native result page is unavailable.');}
+   retained=nativeCustody(result).summary.header.omitted_members.includes('retained_precision');
+   if(this.owner.snapshot().result!==result)return this.failure(call,'The retained run is no longer held by the result owner.');
+  }else{
+   const all=filter?result.results.filter(row=>(!filter.kinds.length||filter.kinds.includes(row.kind))&&(!filter.entityRefs.length||filter.entityRefs.includes(row.entity_ref))):result.results;
+   rows=all.slice(offset,Math.min(all.length,offset+page.limit));total=all.length;retained=!!result.retained_precision;
+  }
+  const end=offset+rows.length;const values=[];
+  for(let i=0;i<rows.length;i++){
    const row=rows[i];if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
-   const permitted=overlayMayShowRow(snap.standing,row)&&!result.retained_precision&&Number.isFinite(row.value);
+   const permitted=overlayMayShowRow(snap.standing,row)&&!retained&&Number.isFinite(row.value);
    values.push({id:row.id,kind:row.kind,entityRef:row.entity_ref,value:permitted?row.value:null,exactDecimal:null,unit:row.unit,availability:permitted?'available':'withheld',reason:permitted?null:'The existing numerical view does not permit this binary64 value.'});
   }
-  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<rows.length,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId});
+  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId});
  }
 }

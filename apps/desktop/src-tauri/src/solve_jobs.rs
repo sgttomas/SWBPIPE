@@ -102,6 +102,46 @@ const CANCEL_REQUESTED_RUNNING: &str = "cancellation_requested_worker_terminatin
 /// A token-holder's cancellation of a queued job (it exits before a worker starts).
 const CANCEL_REQUESTED_QUEUED: &str = "cancellation_requested_awaiting_cooperative_checkpoint";
 pub(crate) const SOLVER_MODE_HEADER: &str = "x-swbpipe-solver-mode";
+/// The start header naming the result's custody ([`ResultCustody`]): absent
+/// or `webview` for the full-envelope take, `native` for C1 native custody.
+pub(crate) const RESULT_CUSTODY_HEADER: &str = "x-swbpipe-result-custody";
+/// A take of a result held in native custody (C1): it never crosses IPC
+/// whole; the native result commands read it.
+pub(crate) const RESULT_NATIVE_CUSTODY_CODE: &str = "PREVIEW-SOLVE-RESULT-NATIVE-CUSTODY";
+/// A C2 consumer's full copy of a held result above
+/// [`MAX_DISPLAYABLE_RESULT_BYTES`] (C1 interim, DEL-04-05
+/// `c1-native-custody-plan.md` slice 4).
+pub(crate) const RESULT_DETAIL_WEBVIEW_LIMIT_CODE: &str = "RESULT-DETAIL-WEBVIEW-LIMIT";
+/// A second full copy of a held result while the first is still held.
+pub(crate) const RESULT_FULL_COPY_HELD_CODE: &str = "RESULT-DETAIL-FULL-COPY-HELD";
+
+/// Who holds a solve job's published result (C1 native custody, DEL-04-05
+/// `c1-native-custody-plan.md`). Chosen at start and fixed for the job.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub(crate) enum ResultCustody {
+    /// The full-envelope take (every caller before C1): the result is
+    /// bounded by [`MAX_DISPLAYABLE_RESULT_BYTES`] at publication and moves to
+    /// the webview whole.
+    #[default]
+    Webview,
+    /// C1: the result stays in this process ([`HeldResult`]) until disposal.
+    /// No webview limit applies at publication: the worker's capped grant and
+    /// the result lease's pool admission bound it, unchanged. It is never
+    /// taken; the native readers, and a C2 consumer's bounded full copy
+    /// ([`SolveJobRegistry::copy_result_within`]), read it.
+    Native,
+}
+
+impl ResultCustody {
+    /// The header's value: absent or `webview`, or `native`.
+    pub(crate) fn from_wire(value: Option<&str>) -> Option<Self> {
+        match value {
+            None | Some("webview") => Some(Self::Webview),
+            Some("native") => Some(Self::Native),
+            Some(_) => None,
+        }
+    }
+}
 const ROUTE_PRICING: &str = "ordinary_worker_capped";
 const CANCELLED_BEFORE_START: &str = "cancelled_before_solver_start";
 const CANCELLED_AT_PUBLICATION: &str = "cancelled_before_result_publication_result_discarded";
@@ -358,6 +398,11 @@ struct SolveJobRecord {
     result: Option<Arc<HeldResult>>,
     /// The 2R custody lease after delivery until disposal.
     result_lease: Option<Lease>,
+    /// Who holds the result (fixed at start).
+    custody: ResultCustody,
+    /// A native-custody result's C2 full copy in the webview: the copy's
+    /// lease, from the copy until its release or the result's disposal.
+    full_copy_lease: Option<Lease>,
     result_bytes: Option<u64>,
     delivered: bool,
     resource: JobResource,
@@ -417,6 +462,9 @@ impl SolveJobTable {
             if record.delivered && record.result_lease.is_some() {
                 counts.custody += 1;
             }
+            if record.full_copy_lease.is_some() {
+                counts.custody += 1;
+            }
         }
         counts
     }
@@ -430,7 +478,7 @@ impl SolveJobTable {
         let mut candidates: Vec<(u64, String)> = self
             .records
             .iter()
-            .filter(|(_, r)| r.state.terminal() && r.result.is_none() && r.result_lease.is_none())
+            .filter(|(_, r)| r.state.terminal() && r.result.is_none() && r.result_lease.is_none() && r.full_copy_lease.is_none())
             .map(|(id, r)| (r.number, id.clone()))
             .collect();
         candidates.sort_unstable();
@@ -626,7 +674,12 @@ impl SupervisorHooks for JobHooks<'_> {
     }
 
     fn result_limit(&self) -> Option<u64> {
-        Some(self.registry.result_limit)
+        // A native-custody job's result never reaches the webview whole: no
+        // displayable limit (the worker's grant and the result lease bound it).
+        match self.registry.table().records.get(self.job_id).map(|record| record.custody) {
+            Some(ResultCustody::Native) => None,
+            _ => Some(self.registry.result_limit),
+        }
     }
 }
 
@@ -751,6 +804,16 @@ impl SolveJobRegistry {
     /// Admits a raw model document and starts its job. `body` is the raw
     /// invoke body (UTF-8 JSON of the model document).
     pub(crate) fn start(&self, body: &[u8], solver_mode: Option<&str>) -> Result<SolveJobStartReceipt, SolveJobError> {
+        self.start_with_custody(body, solver_mode, ResultCustody::Webview)
+    }
+
+    /// [`Self::start`] with the result's custody ([`ResultCustody`]).
+    pub(crate) fn start_with_custody(
+        &self,
+        body: &[u8],
+        solver_mode: Option<&str>,
+        custody: ResultCustody,
+    ) -> Result<SolveJobStartReceipt, SolveJobError> {
         let mode = match solver_mode {
             None => PreviewSolverMode::default(),
             Some(value) => PreviewSolverMode::from_wire(value)
@@ -834,6 +897,8 @@ impl SolveJobRegistry {
                     result_too_large: None,
                     result: None,
                     result_lease: None,
+                    custody,
+                    full_copy_lease: None,
                     result_bytes: None,
                     delivered: false,
                     resource: resource.clone(),
@@ -1170,8 +1235,9 @@ impl SolveJobRegistry {
             return;
         }
         // The worker's announced length is refused before it is read; this
-        // holds the same bound for any result that reaches publication.
-        if result.len() as u64 > self.result_limit {
+        // holds the same bound for any result that reaches publication. A
+        // native-custody result has no displayable limit.
+        if record.custody == ResultCustody::Webview && result.len() as u64 > self.result_limit {
             drop(table);
             let result_bytes = result.len() as u64;
             drop(result);
@@ -1318,12 +1384,98 @@ impl SolveJobRegistry {
         }
     }
 
+    /// The custody a job's result was started under; `None` for an unknown job.
+    pub(crate) fn result_custody(&self, job_id: &str) -> Option<ResultCustody> {
+        self.table().records.get(job_id).map(|record| record.custody)
+    }
+
+    /// C1 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): a
+    /// native-custody result's exact bytes copied whole for a C2 consumer
+    /// (reports, comparisons, rule checks, derivative exports, handoffs), only
+    /// at or under `limit` (PR #51's [`MAX_DISPLAYABLE_RESULT_BYTES`]). Above
+    /// it the copy is refused by name ([`RESULT_DETAIL_WEBVIEW_LIMIT_CODE`],
+    /// with the size and the limit) before anything is reserved or copied.
+    /// The copy's lease, the size of the result lease R (the webview's copy, as
+    /// a take's growth), is admitted before the copy (re-sampling only while
+    /// refused for headroom) and held as custody until
+    /// [`Self::release_full_copy`] or the result's disposal or session reset;
+    /// one copy per job at a time ([`RESULT_FULL_COPY_HELD_CODE`]). The held
+    /// result stays in native custody. Webview-custody jobs are taken, not copied.
+    pub(crate) fn copy_result_within(&self, job_id: &str, limit: u64) -> Result<Vec<u8>, SolveJobError> {
+        let (held, growth) = {
+            let table = self.table();
+            let held = self.copyable_locked(&table, job_id, limit)?;
+            let growth = held.lease.bytes();
+            (held, growth)
+        };
+        let lease = match self.pool.acquire_resampling(growth, LeasePurpose::Ingress, &|| false) {
+            Ok(lease) => lease,
+            Err(ResampleStop::Refused(refusal)) => return Err(self.unavailable(refusal)),
+            Err(ResampleStop::Cancelled) => unreachable!("a full copy is never cancelled"),
+        };
+        // Copied while this share keeps the bytes alive, outside the registry lock.
+        let copy = held.text().as_bytes().to_vec();
+        drop(held);
+        let mut table = self.table();
+        // A record that changed meanwhile (disposed, reset, or another copy) releases the copy.
+        self.copyable_locked(&table, job_id, limit)?;
+        let record = table.records.get_mut(job_id).expect("checked above");
+        let mut lease = lease;
+        lease.set_purpose(LeasePurpose::Custody);
+        record.full_copy_lease = Some(lease);
+        Ok(copy)
+    }
+
+    /// The held result of a native-custody job whose full copy may be made now.
+    fn copyable_locked(&self, table: &SolveJobTable, job_id: &str, limit: u64) -> Result<Arc<HeldResult>, SolveJobError> {
+        let custody = table.counts().custody;
+        let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
+        if record.custody != ResultCustody::Native {
+            return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-NOT-NATIVE: {job_id} is a webview-custody result; take it")));
+        }
+        let Some(held) = &record.result else {
+            return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} is {}", record.state.as_str())));
+        };
+        let bytes = held.text().len() as u64;
+        if bytes > limit {
+            return Err(SolveJobError::invalid(format!(
+                "{RESULT_DETAIL_WEBVIEW_LIMIT_CODE} (result_bytes={bytes}, limit_bytes={limit}): {job_id}'s result is {}, above the {} the webview can hold whole; nothing was copied, and the result stays held natively.",
+                display_size(bytes),
+                display_size(limit)
+            )));
+        }
+        if record.full_copy_lease.is_some() {
+            return Err(SolveJobError::invalid(format!("{RESULT_FULL_COPY_HELD_CODE}: {job_id}'s full copy is already held; release it first.")));
+        }
+        if custody >= MAX_WEBVIEW_CUSTODY_RESULTS {
+            return Err(self.unavailable_locked(table, ResourceRefusal::CustodyFull { delivered: custody, limit: MAX_WEBVIEW_CUSTODY_RESULTS }));
+        }
+        Ok(Arc::clone(held))
+    }
+
+    /// The webview dropped its C2 full copy: releases the copy's lease (the
+    /// held result stays). Whether a copy was held.
+    pub(crate) fn release_full_copy(&self, job_id: &str) -> Result<bool, SolveJobError> {
+        let mut table = self.table();
+        let record = table.records.get_mut(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
+        let copy = record.full_copy_lease.take();
+        let released = copy.is_some();
+        drop(copy);
+        table.prune();
+        Ok(released)
+    }
+
     /// The retained result's lease, if `job_id` can be taken now.
     fn takeable_locked<'t>(&self, table: &'t SolveJobTable, job_id: &str) -> Result<&'t Lease, SolveJobError> {
         let custody = table.counts().custody;
         let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
         if let Some(refusal) = record.result_too_large {
             return Err(SolveJobError::invalid(refusal.message(job_id)));
+        }
+        if record.custody == ResultCustody::Native {
+            return Err(SolveJobError::invalid(format!(
+                "{RESULT_NATIVE_CUSTODY_CODE}: {job_id} is held natively; read it through the native result commands."
+            )));
         }
         if record.result.is_none() {
             let message = if record.delivered {
@@ -1349,19 +1501,22 @@ impl SolveJobRegistry {
         let record = table.records.get_mut(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
         let result = record.result.take();
         let lease = record.result_lease.take();
+        let full_copy = record.full_copy_lease.take();
         // The digests are released with custody.
         record.digests = None;
         // A retained result's bytes and lease are released here, or when the
         // last native reader holding them drops its share.
-        let released_bytes = lease.as_ref().or(result.as_ref().map(|held| &held.lease)).map_or(0, Lease::bytes);
+        let released_bytes = lease.as_ref().or(result.as_ref().map(|held| &held.lease)).map_or(0, Lease::bytes)
+            + full_copy.as_ref().map_or(0, Lease::bytes);
         let receipt = SolveResultDisposal {
             job_id: job_id.to_string(),
-            released: result.is_some() || lease.is_some(),
+            released: result.is_some() || lease.is_some() || full_copy.is_some(),
             released_bytes,
             delivered: record.delivered,
         };
         drop(result);
         drop(lease);
+        drop(full_copy);
         table.prune();
         Ok(receipt)
     }
@@ -1379,6 +1534,7 @@ impl SolveJobRegistry {
     pub(crate) fn dispose_all_results(&self) -> SolveResultsDisposal {
         let mut table = self.table();
         let mut released = Vec::new();
+        let mut released_copies: Vec<Lease> = Vec::new();
         let mut abandoned_jobs = 0;
         for record in table.records.values_mut() {
             if !record.state.terminal() {
@@ -1396,6 +1552,10 @@ impl SolveJobRegistry {
             let result = record.result.take();
             let lease = record.result_lease.take();
             record.digests = None;
+            // A C2 full copy's lease goes with the page that held the copy.
+            if let Some(copy) = record.full_copy_lease.take() {
+                released_copies.push(copy);
+            }
             if result.is_some() || lease.is_some() {
                 released.push((result, lease));
             }
@@ -1408,10 +1568,12 @@ impl SolveJobRegistry {
                 .iter()
                 .filter_map(|(result, lease)| lease.as_ref().or(result.as_ref().map(|held| &held.lease)))
                 .map(Lease::bytes)
-                .sum(),
+                .sum::<u64>()
+                + released_copies.iter().map(Lease::bytes).sum::<u64>(),
             abandoned_jobs,
         };
         drop(released);
+        drop(released_copies);
         table.prune();
         if abandoned_jobs > 0 {
             self.pool.wake_waiters();

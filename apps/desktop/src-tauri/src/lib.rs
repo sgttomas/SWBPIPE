@@ -2173,7 +2173,14 @@ async fn start_preview_mechanics_job(
             message: "unsupported preview solver mode header".into(),
         })?),
     };
-    state.start(body, mode)
+    // C1: `native` keeps the result in native custody (never taken whole).
+    let custody = request
+        .headers()
+        .get(solve_jobs::RESULT_CUSTODY_HEADER)
+        .map(|value| value.to_str().ok())
+        .map_or(Some(solve_jobs::ResultCustody::Webview), |value| value.and_then(|v| solve_jobs::ResultCustody::from_wire(Some(v))))
+        .ok_or_else(|| SolveJobError::InvalidRequest { message: "unsupported result custody header".into() })?;
+    state.start_with_custody(body, mode, custody)
 }
 
 #[tauri::command]
@@ -2292,6 +2299,35 @@ async fn read_preview_mechanics_job_analysis_run_preview(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     analysis_run_v03_build::analysis_run_preview(&registry, invoke.body(), invoke.headers()).await.map(analysis_run_v03_build::response)
+}
+
+/// C1 interim (slice 4): a native-custody result's exact bytes, copied
+/// whole for a C2 consumer (reports, comparisons, rule checks, derivative
+/// exports, handoffs) only at or under 64 MiB
+/// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`); above it refused by name
+/// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy's lease is held as custody
+/// until `release_preview_mechanics_job_full_copy` or disposal. The copy runs
+/// in a blocking task; the response is raw bytes (an ArrayBuffer).
+#[tauri::command]
+async fn read_preview_mechanics_job_rows_all(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<tauri::ipc::Response, SolveJobError> {
+    let registry = (*state).clone();
+    tauri::async_runtime::spawn_blocking(move || registry.copy_result_within(&job_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES))
+        .await
+        .unwrap_or_else(|_| Err(SolveJobError::InvalidRequest { message: "RESULT-DETAIL-FULL-COPY-FAILED: the copy ended without an outcome".into() }))
+        .map(tauri::ipc::Response::new)
+}
+
+/// The webview dropped its C2 full copy of a native-custody result: its
+/// custody lease is released; the held result stays.
+#[tauri::command]
+fn release_preview_mechanics_job_full_copy(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<bool, SolveJobError> {
+    state.release_full_copy(&job_id)
 }
 
 #[tauri::command]
@@ -5583,6 +5619,8 @@ macro_rules! app_invoke_handler {
             read_preview_mechanics_job_row_semantics,
             query_preview_mechanics_job_source_recovery,
             read_preview_mechanics_job_analysis_run_preview,
+            read_preview_mechanics_job_rows_all,
+            release_preview_mechanics_job_full_copy,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,

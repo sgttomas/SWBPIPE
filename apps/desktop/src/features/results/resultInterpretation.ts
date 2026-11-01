@@ -12,6 +12,14 @@ import type {
   ResultInterpretation
 } from "../../types";
 import { physicsRecords } from "../knowledge/KnowledgePanel";
+import { isNativeResult, type SessionResult } from "../../services/nativeResult";
+
+/** The affected refs of a diagnostic that do not name a model entity: for a native result, the
+ * session resolves them as row ids through a bounded native lookup. */
+export function diagnosticResultRefs({ model, result, diagnosticId, knowledge }: { model: PreviewModel; result: SessionResult | null; diagnosticId: string; knowledge: DesignKnowledge | null }): string[] {
+  const diagnostic = allDiagnostics(model, knowledge, result).find((candidate) => (candidate.id ?? candidate.code) === diagnosticId);
+  return (diagnostic?.affected_refs ?? []).filter((ref) => resolveEntitySelection(model, ref) === null).slice(0, 1000);
+}
 
 export function buildResultInterpretation({
   result,
@@ -151,7 +159,8 @@ export function resolveDiagnosticEntitySelection({
   knowledge
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  /** A native result's rows are looked up natively by the caller (`diagnosticResultRefs`). */
+  result: SessionResult | null;
   diagnosticId: string;
   knowledge: DesignKnowledge | null;
 }): EntityRef | null {
@@ -163,7 +172,7 @@ export function resolveDiagnosticEntitySelection({
     const directSelection = resolveEntitySelection(model, ref);
     if (directSelection) return directSelection;
 
-    const resultEntityRef = result?.results.find((item) => item.id === ref)?.entity_ref;
+    const resultEntityRef = result && !isNativeResult(result) ? result.results.find((item) => item.id === ref)?.entity_ref : undefined;
     if (resultEntityRef) {
       const resultSelection = resolveEntitySelection(model, resultEntityRef);
       if (resultSelection) return resultSelection;
@@ -238,7 +247,7 @@ function allKnowledgeRecords(knowledge: DesignKnowledge | null, result: Mechanic
 function allDiagnostics(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
-  result: MechanicsResult | null
+  result: SessionResult | null
 ): Diagnostic[] {
   return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...(result?.diagnostics ?? [])];
 }

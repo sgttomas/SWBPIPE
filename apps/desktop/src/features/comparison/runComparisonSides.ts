@@ -9,6 +9,7 @@
 //   reconstructed from saved hashes);
 // - the current run uses the session's live verdict (the same call
 //   `resultsSessionState.ts` makes).
+import { isNativeAnalysisRun, isNativeResult } from "../../services/nativeResult";
 import type { MechanicsResult } from "../../types";
 import { csvAnalysisRoute, csvRecordedModelHash, csvResultHash } from "../result-export/csvProvenance";
 import type { RunSideCsvProvenance } from "./runComparisonCsv";
@@ -133,7 +134,7 @@ export function currentRunUnavailableReason(slot: CurrentRunSlot, projectId: str
  * JSON text and its input manifest's canonical text, in UTF-8 bytes. */
 export function currentRunBytes(slot: CurrentRunSlot): number {
   const recordable = recordableRun(slot);
-  if (!recordable.run) return 0;
+  if (!recordable.run || isNativeResult(recordable.run.result)) return 0;
   const encoder = new TextEncoder();
   return encoder.encode(jsonTextKeepingNegativeZero(recordable.run.result)).length + encoder.encode(recordable.run.inputManifest.canonical_bytes).length;
 }
@@ -143,7 +144,10 @@ export function currentRunBytes(slot: CurrentRunSlot): number {
 export function currentRunSide(slot: CurrentRunSlot): RunComparisonSide {
   const recordable = recordableRun(slot);
   if (!recordable.run) throw new RunComparisonRefusal(COMPARISON_RUN_RECORD_MISMATCH, `${recordable.reason}`);
-  const { result, analysisRun, inputManifest } = recordable.run;
+  const { inputManifest } = recordable.run;
+  // A native current run arrives here only as its C2 full copy (`useModelStateHistory`).
+  if (isNativeResult(recordable.run.result) || isNativeAnalysisRun(recordable.run.analysisRun)) throw new RunComparisonRefusal(COMPARISON_RUN_RECORD_MISMATCH, "the current run is held natively; its full copy is required for a comparison");
+  const result = recordable.run.result, analysisRun = recordable.run.analysisRun;
   const standing = standingOf(result, inputManifest.manifest.model_basis.model_payload);
   return {
     kind: "current",

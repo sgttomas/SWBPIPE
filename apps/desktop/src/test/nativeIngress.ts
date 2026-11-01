@@ -48,7 +48,14 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "read_project_autosave",
   "discard_project_autosave",
   "get_autosave_settings",
-  "set_autosave_settings"
+  "set_autosave_settings",
+  "read_preview_mechanics_job_verdict",
+  "read_preview_mechanics_job_summary",
+  "query_preview_mechanics_job_rows",
+  "lookup_preview_mechanics_job_rows",
+  "read_preview_mechanics_job_row_semantics",
+  "query_preview_mechanics_job_source_recovery",
+  "read_preview_mechanics_job_analysis_run_preview"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

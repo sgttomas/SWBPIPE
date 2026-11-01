@@ -36,11 +36,31 @@ import {
   discardPreviewMechanicsJobResult,
   disposeDeliveredMechanicsResult,
   startPreviewMechanicsJob,
-  takePreviewMechanicsJobResult,
+  readNativeFreshResult,
+  loadNativeFullResult,
   describeStoredResultWithheld,
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
+import {
+  createNativeAnalysisRun,
+  FullResultRefused,
+  isNativeAnalysisRun,
+  isNativeResult,
+  nativeCustody,
+  nativeRunPreview,
+  readNativeRunPreview,
+  RESULT_DETAIL_WEBVIEW_LIMIT,
+  RESULT_DETAIL_WEBVIEW_LIMIT_BYTES,
+  resultRowCount,
+  type NativeResult,
+  type SessionAnalysisRun,
+  type SessionResult
+} from "../../services/nativeResult";
+import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
+import { lookupNativeRows } from "../../services/nativeResult";
+import type { AnalysisRunPreview } from "../../services/analysisRunPreview";
+import type { C2FullResult } from "../results/C2ResultGate";
 import { beginSolveTimeline, markSolveCommittedAndPaint } from "../../services/solveTimeline";
 import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
@@ -99,6 +119,7 @@ import {
 import type { HandoffSaveChoice, HandoffSaveDialogRequest } from "../handoff/HandoffSaveDialog";
 import { invokeReportPackageSave, prepareReportPackageSave } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
+import type { ExcludedRulePackRef } from "../../services/rulePackRefDiagnostics";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
 import type {
   AnalysisRunEnvelope,
@@ -121,6 +142,7 @@ import { buildBundledReferenceContext, buildHistoricalRunContext } from "../resu
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import {
   resolveDiagnosticEntitySelection,
+  diagnosticResultRefs,
   resolveEntitySelection
 } from "../results/resultInterpretation";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
@@ -387,6 +409,7 @@ export function useWorkspaceSession() {
   } = useSelectionSessionState();
   const {
     result, setResult,
+    fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
     numericallyEligible,
@@ -425,6 +448,35 @@ export function useWorkspaceSession() {
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   } = useResultsSessionState();
+  // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the inputs each native record was
+  // built with, so a C2 consumer's full record is the same record, built on the full copy.
+  const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
+  const analysisRunRef = useRef<SessionAnalysisRun | null>(null);
+  analysisRunRef.current = analysisRun;
+  /** C2 only: a native result's full copy (at or under 64 MiB) and, for its current record, the
+   * full record built on that copy by the oracle builder and checked against the native preview's
+   * checksums (and its stored length against the same limit). A full result passes through. */
+  async function loadC2Full(target: SessionResult): Promise<C2FullResult> {
+    const run = analysisRunRef.current;
+    if (!isNativeResult(target)) return { result: target, analysisRun: isNativeAnalysisRun(run) ? null : run };
+    const copy = await loadNativeFullResult(target);
+    let full: AnalysisRunEnvelope | null = null;
+    const inputs = run && isNativeAnalysisRun(run) && run.analysis_run.run_id === target.run_id ? nativeRunInputs.current.get(run) : undefined;
+    if (run && isNativeAnalysisRun(run) && inputs) {
+      const preview = nativeRunPreview(run);
+      if (preview.record_bytes > RESULT_DETAIL_WEBVIEW_LIMIT_BYTES) {
+        throw new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, preview.record_bytes, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES,
+          `${RESULT_DETAIL_WEBVIEW_LIMIT} (result_bytes=${preview.record_bytes}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.`);
+      }
+      full = await buildAnalysisRunPreview(copy, { inputManifest: inputs.inputManifest, ruleCheckAggregate: inputs.ruleCheckAggregate, rulePackExclusions: inputs.rulePackExclusions });
+      const claim = (record: AnalysisRunEnvelope | AnalysisRunPreview["record"], scope: string) => record.analysis_run.hashes.find((hash) => hash.payload_scope === scope)?.value;
+      if (claim(full, "analysis_run_record") !== claim(preview.record, "analysis_run_record") || claim(full, "received_result") !== claim(preview.record, "received_result")) {
+        throw new Error("C2-RECORD-MISMATCH: the run record built on the full copy is not the native record (its checksums differ); nothing was handed to the C2 consumer.");
+      }
+    }
+    if (currentSolvedResultRef.current === target || heldResultRef.current === target) setFullResultCopy({ of: target, copy });
+    return { result: copy, analysisRun: full };
+  }
   // Reference inspection is a transient view. Keep genuine persistence bytes
   // separate, scoped to the unchanged model/session, without retaining Current.
   const referencePersistence = useRef<{
@@ -718,7 +770,7 @@ export function useWorkspaceSession() {
   // solve, cleared by model edits, undo/redo, project changes or reference
   // inspection) is released to the native custody ledger here, as is the held
   // result when the session ends.
-  const heldResultRef = useRef<MechanicsResult | null>(null);
+  const heldResultRef = useRef<SessionResult | null>(null);
   // A new webview session holds no delivered result, so whatever the native
   // host still retains or counts as held by an earlier page is released once,
   // before any solve can start (a start waits for it). Tauri runtime only; a
@@ -912,6 +964,29 @@ export function useWorkspaceSession() {
       });
   }
 
+  /** The session's result and record as today's store path writes them: a full result as held, a
+   * native result through its C2 full copy and full record (refused by name above 64 MiB). */
+  async function persistableRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }> {
+    if (!result) return { result: null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun };
+    if (!isNativeResult(result)) return { result, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun };
+    const full = await loadC2Full(result);
+    return { result: full.result, analysisRun: full.analysisRun };
+  }
+
+  /** The result and record a reference inspection retains for its restore: copies of a full result,
+   * or a native result's C2 full copy and full record. */
+  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }> {
+    if (!result) return { result: null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : (analysisRun ? structuredClone(analysisRun) : null) };
+    if (!isNativeResult(result)) return { result: structuredClone(result), analysisRun: analysisRun && !isNativeAnalysisRun(analysisRun) ? structuredClone(analysisRun) : null };
+    try {
+      const full = await loadC2Full(result);
+      return { result: structuredClone(full.result), analysisRun: full.analysisRun ? structuredClone(full.analysisRun) : null };
+    } catch (error) {
+      setProjectMessage(`The current solve's result is not retained while the reference is inspected: ${error instanceof FullResultRefused ? error.message : nativeFailureText(error)}`);
+      return { result: null, analysisRun: null };
+    }
+  }
+
   async function handleInspectBundledReference() {
     if (!model) return;
     if (result || analysisRun || historicalRun?.designation === "historical_saved_run"
@@ -919,8 +994,9 @@ export function useWorkspaceSession() {
       referencePersistence.current = {
         model, generation: projectSessionGenerationRef.current, modelContent: checkedJsonText(model),
         history: historicalRun?.designation === "historical_saved_run" ? structuredClone(historicalRun) : null,
-        result: result ? structuredClone(result) : null,
-        analysisRun: analysisRun ? structuredClone(analysisRun) : null,
+        // A native result is kept through its C2 full copy (at or under 64 MiB); above that its
+        // result cannot be retained for this restore and the message says so.
+        ...(await retainedReferenceRun()),
       };
     }
     // Retire any pending backend publication before loading the separate example.
@@ -968,8 +1044,8 @@ export function useWorkspaceSession() {
     // A fresh solve invalidates any prior rule-check run against the old result.
     setRuleCheckAggregate(null);
     let startedJob: SolveJobAuditState | null = null;
-    // A delivered result this run did not publish is released in `finally`.
-    let deliveredOutput: MechanicsResult | null = null;
+    // A native result this run read but did not publish is released in `finally`.
+    let deliveredOutput: NativeResult | null = null;
     // A started native job whose result this run has neither taken nor
     // released; `finally` releases it, so no path leaves it retained natively.
     // `completed` records that the job was seen completed (its result awaits a take).
@@ -1001,7 +1077,8 @@ export function useWorkspaceSession() {
       // Capture the original live caller representation as well as dispatched JSON.
       let startReceipt: Awaited<ReturnType<typeof startPreviewMechanicsJob>>;
       try {
-        startReceipt = await startPreviewMechanicsJob(model, solverMode);
+        // C1: the result stays in native custody; the webview never takes it whole.
+        startReceipt = await startPreviewMechanicsJob(model, solverMode, { custody: "native" });
       } catch (error) {
         // A start the native memory pool refuses is a typed refusal, recorded as such.
         if (error instanceof ResourceUnavailableError) {
@@ -1051,7 +1128,7 @@ export function useWorkspaceSession() {
           return;
         }
       }
-      let output: MechanicsResult;
+      let output: NativeResult;
       if (startReceipt.mode === "backend_job") {
         const visibleJobId = startedJob.job_id;
         const terminal = await awaitBackendSolveJob(startReceipt.job_id, (status) => {
@@ -1107,12 +1184,11 @@ export function useWorkspaceSession() {
           return;
         }
         if (terminal.state !== "completed") throw terminalJobError(terminal);
-        // The poll carries no result: take the producer's bytes. A refused take
-        // (custody_full, or headroom for the handoff copy) is recorded as a typed
-        // refusal at the take; the session does not retry a failed take, so
-        // `finally` releases the retained result.
+        // The poll carries no result, and the result is never taken: it is read natively, held by
+        // its job (C1 native custody). A read the native memory pool refuses is recorded as a typed
+        // refusal; the session does not retry it, so `finally` releases the held result.
         try {
-          output = await takePreviewMechanicsJobResult(startReceipt.job_id);
+          output = (await readNativeFreshResult(startReceipt.job_id, terminal.result_bytes ?? 0, { standingModel: solveModel, summaryModel: solveModel })).result;
         } catch (error) {
           if (!(error instanceof ResourceUnavailableError)) throw error;
           if (solveRunGate.current.isCurrent(runGeneration)) {
@@ -1123,6 +1199,7 @@ export function useWorkspaceSession() {
           timeline.end("refused", error);
           return;
         }
+        // The handle owns the held result from here (released by its disposal).
         deliveredOutput = output;
         unsettledJob = null;
       } else {
@@ -1158,11 +1235,18 @@ export function useWorkspaceSession() {
         external_assets: []
       });
       if (!solveRunGate.current.isCurrent(runGeneration)) return;
-      // References left out of active_rule_packs become the record's diagnostics.
-      const runRecord = await buildAnalysisRunPreview(output, {
+      // The standing was read with the solve's model; the manifest records that same model, so its
+      // text is the standing's bound text (a difference is refused, never re-bound silently).
+      if (jsonTextKeepingNegativeZero(manifest.manifest.model_basis.model_payload) !== nativeCustody(output).binding.standingModelText) {
+        throw new Error("SOLVE-NATIVE-STANDING-MODEL-MISMATCH: the input manifest's model is not the model the native standing was read with.");
+      }
+      // References left out of active_rule_packs become the record's diagnostics. The record is
+      // built natively from the held bytes; the webview holds its header only.
+      const runRecord = createNativeAnalysisRun(await readNativeRunPreview(nativeCustody(output).jobId, {
         inputManifest: manifest,
         rulePackExclusions: rulePacks.excluded
-      });
+      }));
+      nativeRunInputs.current.set(runRecord, { inputManifest: manifest, ruleCheckAggregate: null, rulePackExclusions: rulePacks.excluded });
       timeline.mark("analysis_run_built");
       if (
         modelRevision.current !== solveModelRevision ||
@@ -1182,7 +1266,7 @@ export function useWorkspaceSession() {
       setHistoricalRun(null);
       publishedOutput = true;
       setResult(output);
-      timeline.mark("result_set", { rows: output.results.length });
+      timeline.mark("result_set", { rows: resultRowCount(output) });
       setSelectedReviewTarget(null);
       setProposal(null);
       setInputManifest(manifest);
@@ -1198,7 +1282,7 @@ export function useWorkspaceSession() {
         input_manifest_sha256: manifest.manifest_sha256,
         result_run_id: output.run_id,
         result_model_ref: output.model_ref,
-        result_row_count: output.results.length
+        result_row_count: resultRowCount(output)
       });
       timeline.end("completed");
       return { jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
@@ -1237,7 +1321,7 @@ export function useWorkspaceSession() {
     renderedBasis: Readonly<{
       projectSessionGeneration: number;
       modelRevision: number;
-      result: MechanicsResult | null;
+      result: SessionResult | null;
       inputManifest: CurrentSessionInputManifestEvidence | null;
     }>,
     run: SessionRuleCheckRun | null = null
@@ -1282,12 +1366,20 @@ export function useWorkspaceSession() {
       currentModel.current?.project.id === capturedResult.model_ref &&
       renderedBasisIsCurrent();
     try {
-      const revisedRecord = await buildAnalysisRunPreview(capturedResult, {
+      // A native result's revised record is built natively too (its header in the webview).
+      const revisedRecord: SessionAnalysisRun = isNativeResult(capturedResult)
+        ? createNativeAnalysisRun(await readNativeRunPreview(nativeCustody(capturedResult).jobId, {
           inputManifest: capturedManifest,
           ruleCheckAggregate: aggregate,
           rulePackExclusions: capturedRulePackExclusions
-      });
+        }))
+        : await buildAnalysisRunPreview(capturedResult, {
+          inputManifest: capturedManifest,
+          ruleCheckAggregate: aggregate,
+          rulePackExclusions: capturedRulePackExclusions
+        });
       if (!stillCurrent()) return;
+      if (isNativeAnalysisRun(revisedRecord)) nativeRunInputs.current.set(revisedRecord, { inputManifest: capturedManifest, ruleCheckAggregate: aggregate, rulePackExclusions: capturedRulePackExclusions });
       setAnalysisRun(revisedRecord);
     } catch {
       if (!stillCurrent()) return;
@@ -1330,7 +1422,8 @@ export function useWorkspaceSession() {
   }
 
   async function handleProposal() {
-    setProposal(await loadSampleProposal(result, selectedReviewTarget));
+    // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
+    setProposal(await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result)).result : result, selectedReviewTarget));
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
@@ -2258,8 +2351,12 @@ export function useWorkspaceSession() {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : result);
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : analysisRun);
+      // A native result is persisted through its C2 full copy and full record (C1 interim; at or
+      // under 64 MiB, the bytes today's store path writes). Above that the write is refused by name
+      // before anything is written; the native Save Project lands with slice 5's persistence.
+      const persisted = requestHistoricalRun || retainedRun || dropRun ? null : await persistableRun();
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : persisted!.result);
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model: requestModel,
@@ -3030,8 +3127,12 @@ export function useWorkspaceSession() {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : result);
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : analysisRun);
+      // A native result is persisted through its C2 full copy and full record (C1 interim; at or
+      // under 64 MiB, the bytes today's store path writes). Above that the write is refused by name
+      // before anything is written; the native Save Project lands with slice 5's persistence.
+      const persisted = requestHistoricalRun || retainedRun || dropRun ? null : await persistableRun();
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : persisted!.result);
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model: requestModel,
@@ -3183,12 +3284,21 @@ export function useWorkspaceSession() {
 
   function handleSelectResult(resultId: string) {
     setSelectedReviewTarget({ target_type: "result", id: resultId });
-    const item = result?.results.find((candidate) => candidate.id === resultId);
-    if (!item || !model) return;
-    const entitySelection = resolveEntitySelection(model, item.entity_ref);
-    if (entitySelection) {
-      handleSelectEntity(entitySelection);
+    if (!result || !model) return;
+    const select = (entityRef: string | undefined) => {
+      const entitySelection = entityRef === undefined ? null : resolveEntitySelection(model, entityRef);
+      if (entitySelection) handleSelectEntity(entitySelection);
+    };
+    if (!isNativeResult(result)) {
+      select(result.results.find((candidate) => candidate.id === resultId)?.entity_ref);
+      return;
     }
+    // A native result's row by its id (`results.find`): a bounded native lookup. A reply for a
+    // result that is no longer shown is discarded.
+    const shown = result;
+    void lookupNativeRows(shown, { ids: [resultId], match: "first" }).then((found) => {
+      if (heldResultRef.current === shown && currentModel.current === model) select(found.ids[0]?.row.entity_ref);
+    }, () => { /* The selection stands without moving to the entity. */ });
   }
 
   function handleSelectDiagnostic(diagnosticId: string) {
@@ -3197,6 +3307,19 @@ export function useWorkspaceSession() {
     const entitySelection = resolveDiagnosticEntitySelection({ model, result, knowledge, diagnosticId });
     if (entitySelection) {
       handleSelectEntity(entitySelection);
+      return;
+    }
+    // A native result's rows named by the diagnostic: by bounded native lookup, first match in order.
+    if (result && isNativeResult(result)) {
+      const shown = result, refs = diagnosticResultRefs({ model, result, knowledge, diagnosticId });
+      if (refs.length === 0) return;
+      void lookupNativeRows(shown, { ids: refs, match: "first" }).then((found) => {
+        if (heldResultRef.current !== shown || currentModel.current !== model) return;
+        for (const row of found.ids) {
+          const selection = row ? resolveEntitySelection(model, row.row.entity_ref) : null;
+          if (selection) { handleSelectEntity(selection); return; }
+        }
+      }, () => { /* The diagnostic stays selected without moving to an entity. */ });
     }
   }
 
@@ -3350,10 +3473,13 @@ export function useWorkspaceSession() {
     setReportPackageBusy(true);
     setReportPackageRoute(null);
     try {
+      // The report package reads full rows (C2): a native result's bounded full copy and record.
+      const reportRun = basis.result && isNativeResult(basis.result) ? await loadC2Full(basis.result) : { result: basis.result as MechanicsResult, analysisRun: basis.analysisRun as AnalysisRunEnvelope };
+      if (!isCurrent()) return;
       const request = await buildReportPackageRequest({
         model: basis.model,
-        result: basis.result,
-        analysisRun: basis.analysisRun,
+        result: reportRun.result,
+        analysisRun: reportRun.analysisRun!,
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
         comparison: basis.comparison,
@@ -4057,7 +4183,7 @@ export function useWorkspaceSession() {
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
     saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy,
     requestStoredDocumentExport,
-    runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run" }
+    runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run", loadFull: loadC2Full }
   });
 
   // Pure registration over the actual owner; no native owner/timer/process is

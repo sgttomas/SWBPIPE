@@ -56,7 +56,15 @@ export const NATIVE_INGRESS_COMMANDS = [
   "read_project_autosave",
   "discard_project_autosave",
   "get_autosave_settings",
-  "set_autosave_settings"
+  "set_autosave_settings",
+  // C1 native custody (DEL-04-05 `c1-native-custody-plan.md`): the held result's readers.
+  "read_preview_mechanics_job_verdict",
+  "read_preview_mechanics_job_summary",
+  "query_preview_mechanics_job_rows",
+  "lookup_preview_mechanics_job_rows",
+  "read_preview_mechanics_job_row_semantics",
+  "query_preview_mechanics_job_source_recovery",
+  "read_preview_mechanics_job_analysis_run_preview"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 

@@ -6,6 +6,7 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
+import { isNativeResult } from "../../services/nativeResult";
 import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
@@ -582,6 +583,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const outcome = await recordAnalysisRun({
         expectedBase: depsRef.current.storedBaseRef.current!.value!,
         run,
+        loadFull: depsRef.current.runSlot.loadFull,
         stateId: state?.state_id ?? null,
         newState: state ? null : {
           labels: { state_name: snapshotName, tags: [], notes: [], assumptions: [] },
@@ -808,11 +810,16 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     };
     try {
       const withCurrent = recordingIds.length === 1;
+      // A comparison reads full rows (C2): a native current run is compared through its bounded
+      // full copy and full record (at or under 64 MiB; refused by name above).
+      const comparedSlot = withCurrent && slot.result && isNativeResult(slot.result) && slot.loadFull
+        ? { ...slot, ...(await slot.loadFull(slot.result)) }
+        : slot;
       // The store refuses by name, before either run is read, when the runs' stored
       // results and manifests (with the current run's) exceed the per-invocation budget.
-      await admitAnalysisRunComparison(requestProjectId, recordingIds, withCurrent ? currentRunBytes(slot) : null);
+      await admitAnalysisRunComparison(requestProjectId, recordingIds, withCurrent ? currentRunBytes(comparedSlot) : null);
       const side = async (id: string): Promise<RunComparisonSide> => {
-        if (id === CURRENT_RUN_ID) { requireCurrentRun(); return currentRunSide(slot); }
+        if (id === CURRENT_RUN_ID) { requireCurrentRun(); return currentRunSide(comparedSlot); }
         try {
           return await recordedRunSide(await readAnalysisRun(requestProjectId, id));
         } catch (error) {

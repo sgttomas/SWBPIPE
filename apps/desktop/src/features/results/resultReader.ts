@@ -24,6 +24,7 @@ import { loadedWasmEngine, type WasmOperationEngine } from "../../services/wasmE
 import { timedSolvePass } from "../../services/solveTimeline";
 import type { SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult } from "../../types";
+import { isNativeResult, nativeCustody, NativeResultRowsGuarded, type NativeResult } from "../../services/nativeResult";
 
 /** A reader refusal: its code (the error message's leading token) and its whole text. */
 export class ResultReaderError extends Error {
@@ -94,6 +95,8 @@ export function rememberReceivedText(source: object, text: string): void {
  * received text while the value is unchanged since it was read from it, otherwise the
  * value written as JSON text. Throws for a value that has no JSON text. */
 export function readerSourceText(source: unknown): string {
+  // A native handle has no text in the webview: its readers run natively.
+  if (isNativeResult(source)) throw new NativeResultRowsGuarded("reader text");
   let written: string;
   try { written = writtenText(source); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
   const kept = source && typeof source === "object" ? received.get(source) : undefined;
@@ -147,6 +150,7 @@ function unsupportedDispatch(code: string): ReaderDispatch {
  * and its standing with the model's load cases and, for a source route, the
  * invocation it was captured with. */
 export function readerDispatch(source: unknown, model?: unknown, invocation?: unknown): ReaderDispatch {
+  if (isNativeResult(source)) return nativeDispatch(source, model, invocation);
   let sourceJson: string, modelJson: string | undefined, invocationJson: string | undefined;
   try { sourceJson = readerSourceText(source); modelJson = optionalText(model); invocationJson = optionalText(invocation); }
   catch (error) { if (error instanceof ResultReaderError) return unsupportedDispatch(error.code); throw error; }
@@ -162,6 +166,19 @@ export function readerDispatch(source: unknown, model?: unknown, invocation?: un
       throw error;
     }
   });
+}
+/** C1: the native verdict of a held result. The header dispatch (route, binding, refusal) is the
+ * same whatever the model and invocation; the standing is the one read natively with the handle's
+ * bound texts, so a request with other texts reads as not bound (fail closed), never as another
+ * model's standing. */
+const NATIVE_VERDICT_NOT_BOUND = "NATIVE_VERDICT_NOT_BOUND";
+function nativeDispatch(source: NativeResult, model?: unknown, invocation?: unknown): ReaderDispatch {
+  const { verdict, binding } = nativeCustody(source);
+  if (model === undefined && invocation === undefined) return verdict;
+  let modelText: string | undefined, invocationText: string | undefined;
+  try { modelText = optionalText(model); invocationText = optionalText(invocation); } catch { return unsupportedDispatch(JSON_PARSE_REJECTED); }
+  if (modelText === binding.standingModelText && (invocationText ?? null) === binding.invocationText) return verdict;
+  return freeze({ ...verdict, standing: { ...verdict.standing, token: "needs_recompute", status: "needs_recompute", eligible: false, findings: [NATIVE_VERDICT_NOT_BOUND] } }) as ReaderDispatch;
 }
 /** One reader's validation of this statement (G2: with the current model; the source
  * readers with their captured invocation). Throws the reader's refusal. */
@@ -238,27 +255,27 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
  * -------------------------------------------------------------------------- */
 /** The desktop route of a statement: Rust's header dispatch (G5). A refused header is
  * `unsupported`. A header never authenticates its claimed producer. */
-export function sourceContract(source: MechanicsResult): SourceContract {
+export function sourceContract(source: MechanicsResult | NativeResult): SourceContract {
   return readerDispatch(source).route;
 }
 /** The route's pinned table binding; throws SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED for a
  * statement the dispatch refuses. */
-export function sourceSemanticBinding(source: MechanicsResult): ContractBinding {
+export function sourceSemanticBinding(source: MechanicsResult | NativeResult): ContractBinding {
   const binding = readerDispatch(source).binding;
   if (!binding) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return { id: binding.id, sha256: binding.sha256 };
 }
 /** Exact known (readable) contract binding, or null. This does not authenticate a
  * producer, mint numerical eligibility or admit a historical identity as fresh. */
-export function currentSemanticContract(source: MechanicsResult | null | undefined): ContractBinding | null {
+export function currentSemanticContract(source: MechanicsResult | NativeResult | null | undefined): ContractBinding | null {
   if (!source) return null;
   try { return sourceSemanticBinding(source); } catch { return null; }
 }
-export function hasCurrentSourceContract(source: MechanicsResult | null | undefined): boolean {
+export function hasCurrentSourceContract(source: MechanicsResult | NativeResult | null | undefined): boolean {
   return currentSemanticContract(source) !== null;
 }
 /** The header's downgrade refusal: a `retained_precision` member, or a raw row with the
  * W1 method token, under an identity other than a successor's. */
-export function retainedPrecisionDowngrade(source: MechanicsResult): boolean {
+export function retainedPrecisionDowngrade(source: MechanicsResult | NativeResult): boolean {
   return readerDispatch(source).error?.code === "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
 }

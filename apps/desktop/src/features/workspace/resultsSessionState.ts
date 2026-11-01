@@ -5,6 +5,9 @@ import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { useMemo, useRef, useState } from "react";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
+import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
+import { nativeCustodyOf, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { parseNumericalHealth } from "../results/numericalHealth";
 import type { PreviewSolverMode } from "../../services/previewService";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
@@ -39,8 +42,8 @@ import type { SolveProofEvidence } from "./solveProof";
  * health §3). It admits nothing by itself.
  */
 export function currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest }: {
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   inputManifest: CurrentSessionInputManifestEvidence | null;
 }): boolean {
   const currentSolver = inputManifest?.manifest.solver_basis;
@@ -83,18 +86,34 @@ export function currentRequirementsExceptNumericalEligibility({ result, analysis
  * operation, undo, redo and project handlers.
  */
 export function useResultsSessionState() {
-  const [result, setResult] = useState<MechanicsResult | null>(null);
+  const [result, setResult] = useState<SessionResult | null>(null);
   const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
-  const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
-  const resultBasisRef = useRef<{ value: MechanicsResult | null; sequence: number }>({ value: null, sequence: 0 });
+  const [analysisRun, setAnalysisRun] = useState<SessionAnalysisRun | null>(null);
+  // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): a native result's full copy,
+  // loaded only when a C2 consumer asks for it (at or under 64 MiB). Comparisons read it.
+  const [fullResultCopy, setFullResultCopy] = useState<{ of: SessionResult; copy: MechanicsResult } | null>(null);
+  const resultBasisRef = useRef<{ value: SessionResult | null; sequence: number }>({ value: null, sequence: 0 });
   if (resultBasisRef.current.value !== result) resultBasisRef.current = { value: result, sequence: resultBasisRef.current.sequence + 1 };
-  const analysisBasisRef = useRef<{ value: AnalysisRunEnvelope | null; sequence: number }>({ value: null, sequence: 0 });
+  const analysisBasisRef = useRef<{ value: SessionAnalysisRun | null; sequence: number }>({ value: null, sequence: 0 });
   if (analysisBasisRef.current.value !== analysisRun) analysisBasisRef.current = { value: analysisRun, sequence: analysisBasisRef.current.sequence + 1 };
   const [inputManifest, setInputManifest] =
     useState<CurrentSessionInputManifestEvidence | null>(null);
+  const native = nativeCustodyOf(result);
+  // A native standing is the one read natively with the manifest's model text; any other model
+  // text has no standing here (fail closed) until the session reads it.
+  const manifestModel = inputManifest?.manifest.model_basis.model_payload;
+  const manifestModelText = useMemo(() => {
+    try { return native && manifestModel ? jsonTextKeepingNegativeZero(manifestModel) : null; } catch { return null; }
+  }, [native, manifestModel]);
   let standing: NumericalStanding | null = null;
-  try { standing = result ? numericalResultStanding(result, inputManifest?.manifest.model_basis.model_payload) : null; }
-  catch { /* Malformed retained carriers remain inspectable, never Current. */ }
+  if (native) {
+    standing = native.binding.standing && manifestModelText === native.binding.standingModelText
+      ? { contract: native.verdict.standing.route, status: native.verdict.standing.status, eligible: native.binding.standing.eligible, findings: [...native.binding.standing.findings] }
+      : null;
+  } else {
+    try { standing = result ? numericalResultStanding(result as MechanicsResult, manifestModel) : null; }
+    catch { /* Malformed retained carriers remain inspectable, never Current. */ }
+  }
   const numericallyEligible = !!standing?.eligible;
   const otherCurrentRequirementsHold = currentRequirementsExceptNumericalEligibility({ result, analysisRun, inputManifest });
   // T0R: Current only for the static fresh-identity set with Current standing;
@@ -105,8 +124,13 @@ export function useResultsSessionState() {
   // Current standing or any output gate.
   const standingFindingsKey = standing ? JSON.stringify(standing.findings) : null;
   const numericalHealth = useMemo(
-    () => (result && standingFindingsKey !== null ? readNumericalHealth(result, JSON.parse(standingFindingsKey) as string[]) : null),
-    [result, standingFindingsKey]
+    () => {
+      if (!result || standingFindingsKey === null) return null;
+      // S's numerical health was computed natively with the bound standing's findings.
+      if (native) return native.binding.standing && JSON.stringify(native.binding.standing.findings) === standingFindingsKey ? parseNumericalHealth(native.summary.header.numerical_health) : null;
+      return readNumericalHealth(result as MechanicsResult, JSON.parse(standingFindingsKey) as string[]);
+    },
+    [result, native, standingFindingsKey]
   );
   const verdictHold = numericalHealthHold({ isCurrent: currentSolvedResult !== null, otherCurrentRequirementsHold, health: numericalHealth });
   const numericalHealthPresentation = useMemo(
@@ -148,7 +172,7 @@ export function useResultsSessionState() {
   const reportPackageBusyGenerationRef = useRef<number | null>(null);
   const solveRunGate = useRef(new SolveRunGenerationGate());
   const ruleRevisionGate = useRef(new RuleRevisionGenerationGate());
-  const currentSolvedResultRef = useRef<MechanicsResult | null>(null);
+  const currentSolvedResultRef = useRef<SessionResult | null>(null);
   const currentInputManifestRef = useRef<CurrentSessionInputManifestEvidence | null>(null);
   currentSolvedResultRef.current = currentSolvedResult;
   currentInputManifestRef.current = inputManifest;
@@ -163,7 +187,12 @@ export function useResultsSessionState() {
   }>());
   // The fixed pair's comparison (or its refusal record): what the packages carry
   // without a choice, exactly as before S3c.
-  const fixedPair = useMemo(() => fixedPairComparison(currentSolvedResult, analysisRun), [analysisRun, currentSolvedResult]);
+  // A native result's comparisons read its C2 full copy, once loaded (never at first paint).
+  const comparedResult: MechanicsResult | null = currentSolvedResult && nativeCustodyOf(currentSolvedResult)
+    ? (fullResultCopy?.of === currentSolvedResult ? fullResultCopy.copy : null)
+    : currentSolvedResult as MechanicsResult | null;
+  const comparedRun = comparedResult ? analysisRun : null;
+  const fixedPair = useMemo(() => fixedPairComparison(comparedResult, comparedRun as AnalysisRunEnvelope | null), [comparedRun, comparedResult]);
   // "Within this run" (W-12 S3c): the user's load case and combination. The choice
   // stays across solves, edits and replacements and is revalidated against each
   // Current run; when that run does not offer one of its bases, it is dropped here,
@@ -173,8 +202,8 @@ export function useResultsSessionState() {
   const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
   const solvedModel = inputManifest?.manifest.model_basis.model_payload ?? null;
   const withinRunOptions = useMemo(
-    () => (currentSolvedResult && analysisRun ? withinRunBasisOptions(currentSolvedResult, solvedModel) : null),
-    [analysisRun, currentSolvedResult, solvedModel]
+    () => (comparedResult && comparedRun ? withinRunBasisOptions(comparedResult, solvedModel) : null),
+    [comparedRun, comparedResult, solvedModel]
   );
   const dropped = heldWithinRunSelection && withinRunOptions ? droppedBases(heldWithinRunSelection, withinRunOptions) : [];
   if (dropped.length > 0) {
@@ -183,8 +212,8 @@ export function useResultsSessionState() {
   }
   const heldForRun = dropped.length > 0 ? null : heldWithinRunSelection;
   const resolvedWithinRun = useMemo(
-    () => resolveWithinRun({ result: currentSolvedResult, analysisRun, options: withinRunOptions, held: heldForRun, fixedPair }),
-    [analysisRun, currentSolvedResult, fixedPair, heldForRun, withinRunOptions]
+    () => resolveWithinRun({ result: comparedResult, analysisRun: comparedRun as AnalysisRunEnvelope | null, options: withinRunOptions, held: heldForRun, fixedPair }),
+    [comparedRun, comparedResult, fixedPair, heldForRun, withinRunOptions]
   );
   const withinRun = resolvedWithinRun.view;
   // The report, handoff and export packages: the choice's comparison (or its
@@ -194,6 +223,7 @@ export function useResultsSessionState() {
   const comparisonUnavailable = packagedWithinRun?.unavailable ?? null;
   return {
     result, setResult,
+    fullResultCopy, setFullResultCopy,
     historicalRun, setHistoricalRun,
     currentSolvedResult,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
