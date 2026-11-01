@@ -212,7 +212,7 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "0cd5c707234c527ed97256a9b9a1ac09038d600b24f8ad5faf801e14b0060822",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "dfb8edb90210c3de0ff0c83cd64e5d7194f60998215e1fcffac528db9cd05ce3",
+      "core/product_physics/Cargo.toml": "9d6c103101e6351ade9a2182b7d79dc623ecbc2889382007ca0f3fd91d4c01b0",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -220,7 +220,7 @@
       "core/reporting/report_package/Cargo.toml": "4763094f697b2201e8f5cdc7745e5cd284941be1bc0b70f48388e3df67459a21",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "6a660a72f50d2c8413d5d77db3adac40e376a84dbbbf71104f640c2102d8ef33",
+      "core/reporting/result_export/Cargo.toml": "335997e65d4ec2e7b9ed44f8fc9b57e15d75c007a8cf32954c848be3682bb1bb",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -248,7 +248,7 @@
     },
     "reads": {
       "core/product_physics/src/source_receipt/pressure_source_context_tests.rs": {
-        "sha256": "9cbd9e85918e11c25d10d7841838dfae1c4ba70f67c10060392b1d0b920a90f3",
+        "sha256": "c67cab7739aa8088f16e926bac9baa5c50744d2d74935bc1dcd3dd41a17db2ce",
         "source_trees": [
           "core/loads/self_weight_wasm/Cargo.toml",
           "core/model_operations/operation_applier/Cargo.toml",
