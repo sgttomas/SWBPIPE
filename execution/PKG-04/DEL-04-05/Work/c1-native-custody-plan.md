@@ -373,6 +373,73 @@ to design §2(3):
 - The refusal's text, with its sizes and both kinds of advice, at 64 MiB and one byte
   above.
 
+#### Slice 4 status (connected increment on `claude/rt-perf-c1-custody`, 2026-10-31)
+
+**Connected.** A desktop solve now starts with `x-swbpipe-result-custody: native`
+(`solve_jobs::ResultCustody`; absent or `webview` keeps every earlier caller's take and its 64 MiB
+refusal at publication). A native-custody result has no displayable limit at publication (the
+worker's capped grant and the result lease's pool admission bound it, unchanged), is never taken
+(`PREVIEW-SOLVE-RESULT-NATIVE-CUSTODY`) and stays one `HeldResult` until disposal or reset.
+`previewService.readNativeFreshResult` reads it natively: the header dispatch, the registration
+(`validateCapturedSource`'s readers, run natively through `read_preview_mechanics_job_verdict` with
+its new optional `reader` argument, which calls `operation_applier::reader_validate_json` under the
+same admission), the standing for the solve's model (with the captured invocation for a registered
+pressure-source statement, as `numericalResultStanding` reads it), S for that standing, the
+recorded recovery facts for pressure-source, and the native record preview for the session's
+manifest. The session commits a `NativeResult` and a `NativeAnalysisRun` (`services/nativeResult.ts`)
+and never takes, parses, fingerprints, serializes or stores the envelope or the `ResultRef` array.
+
+- **The handle.** `NativeResult` carries S's envelope members; its type has no `results`,
+  `source_block_recovery` or `retained_precision`, so every full-row consumer had to be routed
+  explicitly (the compiler listed them), and at run time those members, `JSON.stringify`,
+  `structuredClone` and reader text throw `NATIVE-RESULT-ROWS-GUARDED`. `NativeAnalysisRun` is the
+  preview's record header, guarded the same way for its row-scale members.
+- **Delivery kinds.** The verdict arrives parsed (a JSON body); S, rows, lookups, semantics, recovery
+  and the preview arrive as ArrayBuffers. `decodeNativeVerdict` refuses text and bytes.
+- **Binding.** Verdicts are cached by (job, reader or dispatch, exact model text, exact invocation
+  text); S by (job, exact model text, exact standing); previews by (job, manifest, aggregate,
+  exclusions). Exact texts are the keys (stronger than their digests). Disposal marks the job
+  dead and drops its entries; panels discard replies for another result.
+- **C1 surfaces moved:** solve panel, solve proof, job audit, run audit, report lint, design
+  workspace and export review counts and units (S's `row_count`, `units`; the record's
+  `result_ref_count`, one `result_row` checksum per ResultRef); key results; displacement, support
+  and stress tables (S; stress rows keyed internally, their ids resolved by lookup for selection
+  and CSV); the viewport's reactions, colour, deformation and rotation (S's display rows,
+  `summaryDisplayRows`, moved from the parity test into `resultSummary.ts`; the legend's row id
+  resolved by lookup); the results panel (`NativeResultsPanel`: S's counts, frames and cases, one
+  native page per view clamped from the query's total, batched page semantics, typed refusals,
+  by-id detail and endpoint pair); Knowledge, Toolkit and diagnostic by-id and linked-row lookups;
+  the load/reference-state admission; the result and diagnostic selections; the embedded agent's
+  `swbpipe_read_results` (the native query with the agent filter, output unchanged).
+- **C2 interim.** `C2ResultGate` gives reports, the rendered report, comparisons (on request),
+  rule checks and the declarations editor's selector offers (on request), result JSON and
+  stress-neutral exports, local FEA, headless runner, native package and handoff panels a full copy
+  (`read_preview_mechanics_job_rows_all`, at or under 64 MiB, its custody lease held until release or
+  disposal) registered by the existing readers on the exact copied bytes, and the full record built
+  on it by the oracle builder and checked against the native preview's checksums. Above the limit
+  they show `RESULT-DETAIL-WEBVIEW-LIMIT` with the sizes, what still works and #51's advice.
+
+**Interim, not slice 5's persistence.** Save Project, Create Project, Record Run, run comparisons
+with the current run and reference-inspection retention of a native result go through the C2 copy
+and record: they write today's bytes by today's path at or under 64 MiB and are refused by name
+above it. The native Record Run and Save Project below remain to be connected.
+
+**Representation finding for slice 5 ("exact bytes").** Today's stores do not write the producer's
+bytes: Record Run stores `jsonTextKeepingNegativeZero` of the webview's parsed result
+(`analysisRunService.recordAnalysisRun`), and Save Project stores `serde_json::to_string` of the
+value parsed from `JSON.stringify` of it (`write_project_rows`), and the project envelope hash the
+session computes covers that result and record. So "store exactly today's bytes" from the held
+bytes means the native writer must emit those two forms (the `Style::Stored` writer for Save; a
+JavaScript-number writer keeping negative zeros, in the source's key order, for Record Run) and
+compute the envelope hash natively; it cannot write the held bytes verbatim without changing what
+is stored. This is stated for the slice-5 persistence review, not decided here.
+
+**Remaining for this slice** (not done in this increment): kind and element stepping of the results
+navigator for a native result (a visible notice says so; the filters reach every row); the native
+chunked CSV writer for result groups (the interim assembles up to 200,000 rows in the webview and
+refuses above by name); the App and session tests still written against the take path or needing
+their native replies recorded (84 tests in 21 files at `23a26ffdd`).
+
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
 **The record builder** (implemented; independently reviewed, with focused repairs; nothing calls

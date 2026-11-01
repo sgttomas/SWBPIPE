@@ -247,6 +247,17 @@ code_paths:
 - apps/desktop/src/services/analysisRunPreview.ts
 - apps/desktop/src/test-support/analysisRunV03Cases.ts
 - apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json
+# C1 slice 4 (connected increment): a fresh solve's result held natively (custody mode), the guarded
+# native handle and its access layer, the C2 interim gate, the native results panel, and the native
+# replay whose replies come from the actual commands.
+- apps/desktop/src/services/nativeResult.ts
+- apps/desktop/src/features/results/C2ResultGate.tsx
+- apps/desktop/src/features/results/NativeResultsPanel.tsx
+- apps/desktop/src/features/results/useNativeRowKey.ts
+- apps/desktop/src/test/nativeReplayStore.ts
+- apps/desktop/scripts/native-replay-merge.mjs
+- apps/desktop/src/test-support/native-replay/native_replay_requests.json
+- apps/desktop/src/test-support/native-replay/native_replay_outcomes.json
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/services/memoryPool.ts
 - apps/desktop/src/features/workspace/solveJobAudit.ts
@@ -276,6 +287,8 @@ checks:
 - apps/desktop/src/features/results/resultDetailParity.test.ts
 - apps/desktop/src-tauri/src/analysis_run_v03_build_tests.rs
 - apps/desktop/src/services/analysisRunV03Parity.test.ts
+- apps/desktop/src-tauri/src/native_replay_tests.rs
+- apps/desktop/src/services/nativeResult.connect.test.ts
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs
