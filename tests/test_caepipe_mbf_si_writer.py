@@ -37,7 +37,7 @@ def q(value, unit):
 
 def model_shell(length_unit="m"):
     return {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "invented", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "project": {"id": "invented:mbf-si", "units": {"length": length_unit, "force": "N", "temperature": "degC"}},
@@ -994,18 +994,18 @@ def test_bend_with_other_properties_than_its_incoming_straight_is_refused():
 # document. A retired one is refused by name with the solve's code and text, and nothing is written; any other
 # non-current version is refused as MBF-SI-SCHEMA-VERSION.
 def test_a_retired_model_document_is_refused_by_name_and_nothing_is_written():
-    for version in ("0.7.0", "0.1.0"):
+    for version in ("0.8.0", "0.7.0", "0.1.0"):
         model = cantilever()
         model["schema_version"] = version
         result = render_caepipe_mbf_si(model, title="Invented retired cantilever")
         assert (result.status, result.text) == ("refused", None), version
         refusal = [d for d in result.diagnostics if d["code"] == "MODEL_SCHEMA_VERSION_RETIRED"]
         assert refusal == [{"code": "MODEL_SCHEMA_VERSION_RETIRED", "severity": "error", "entity": "model.schema_version",
-                            "message": f"model document {version} is retired; re-author it as model document 0.8.0 (a pressure-free model omits pressure_contract). Nothing is migrated."}]
+                            "message": f"model document {version} is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated."}]
 
 
 def test_a_newer_or_unversioned_model_document_is_refused():
-    for version in ("0.9.0", None):
+    for version in ("0.10.0", None):
         model = cantilever()
         model["schema_version"] = version
         result = render_caepipe_mbf_si(model, title="Invented newer cantilever")
@@ -1333,6 +1333,80 @@ def test_an_exact_pressure_section_without_an_allowance_is_refused_not_written_a
     assert_refused(render_caepipe_mbf_si(contract_only, title="P"), "MBF-SI-CORROSION-ALLOWANCE-MISSING")
     plain = cantilever()  # no contract: no allowance needed
     assert render_caepipe_mbf_si(plain, title="P").status == "written"
+
+
+# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.1, §2.2, §2.4, §3.5): the writer refuses each member
+# it cannot express by name, never dropping it; an exactly axis-aligned direction is the record on that axis.
+def current(model):
+    model["schema_version"] = current_model_schema_version()
+    return model
+
+
+@pytest.mark.parametrize("change, code, fragment", [
+    (lambda m: m["load_cases"][0].update(condition_use={"temperature": "OPE1"}), "MBF-SI-CONDITION-USE-UNSUPPORTED",
+     "condition_use"),
+    (lambda m: m["load_cases"][0].update(test_condition={"kind": "hydrostatic", "held_supports": "none"}),
+     "MBF-SI-TEST-CONDITION-UNSUPPORTED", "test_condition"),
+    (lambda m: m["supports"].append({"id": "skew", "node": "N1", "family": "line_stop", "restraints": ["UY"],
+                                     "direction": {"x": 0.0, "y": 3.0, "z": 4.0}}),
+     "MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED", "support:skew"),
+    (lambda m: m["supports"].append({"id": "snub", "node": "N1", "family": "snubber", "restraints": ["UY"]}),
+     "MBF-SI-SNUBBER-UNSUPPORTED", "support:snub"),
+    (lambda m: m.update(spectra=[{"id": "sp"}]), "MBF-SI-SPECTRUM-UNSUPPORTED", "spectra"),
+    (lambda m: m["combinations"].append({"id": "c", "basis": "result_state_subtraction", "minuend_id": "case:tip",
+                                         "subtrahend_id": "case:tip", "difference_basis": "operating_minus_sustained"}),
+     "MBF-SI-DIFFERENCE-BASIS-UNSUPPORTED", "combination:c"),
+    (lambda m: m["combinations"].append({"id": "c", "basis": "result_state_subtraction", "minuend_id": "case:tip",
+                                         "subtrahend_id": "case:tip", "subtrahend_support_state": "own"}),
+     "MBF-SI-SUBTRAHEND-SUPPORT-STATE-UNSUPPORTED", "combination:c"),
+    (lambda m: m["combinations"].append({"id": "c", "basis": "srss", "terms": [{"load_case": "case:tip", "factor": 1.0}]}),
+     "MBF-SI-COMBINATION-BASIS-UNSUPPORTED", "srss"),
+    (lambda m: m["combinations"].extend([{"id": "c0", "basis": "mechanics", "terms": [{"load_case": "case:tip", "factor": 1.0}]},
+                                         {"id": "c", "basis": "mechanics", "terms": [{"combination": "c0", "factor": 1.0}]}]),
+     "MBF-SI-COMBINATION-NESTED-UNSUPPORTED", "combination:c"),
+    (lambda m: m["combinations"].extend([{"id": "c0", "basis": "mechanics", "terms": [{"load_case": "case:tip", "factor": 1.0}]},
+                                         {"id": "c", "basis": "range_envelope", "operand_ids": ["case:tip", "c0"], "mode": "max"}]),
+     "MBF-SI-COMBINATION-NESTED-UNSUPPORTED", "combination:c"),
+])
+def test_model_document_0_9_0_members_are_refused_by_name(change, code, fragment):
+    model = current(cantilever())
+    assert render_caepipe_mbf_si(model, title="S").status == "written"
+    change(model)
+    assert_refused(render_caepipe_mbf_si(model, title="S"), code, fragment)
+
+
+def test_an_axis_aligned_direction_writes_the_record_on_its_axis_and_unused_sets_are_listed_as_omitted():
+    reference = current(sprung_cantilever())
+    reference["supports"].append({"id": "stop", "node": "N1", "family": "line_stop", "restraints": ["UZ"]})
+    directed = deepcopy(reference)
+    directed["supports"][-1] = {"id": "stop", "node": "N1", "family": "line_stop", "restraints": ["UX"],
+                                "direction": {"x": 0.0, "y": 0.0, "z": -2.0}}
+    directed["supports"][1]["direction"] = {"x": 0.0, "y": 5.0, "z": 0.0}
+    # Springs and a rigid restraint at one node are refused alike; compare the outcomes, which name the same records.
+    written, expected = render_caepipe_mbf_si(directed, title="D"), render_caepipe_mbf_si(reference, title="D")
+    assert (written.status, written.text, written.diagnostics) == (expected.status, expected.text, expected.diagnostics)
+    plain = current(sprung_cantilever())
+    plain["supports"][1]["direction"] = {"x": 0.0, "y": -1.0, "z": 0.0}
+    plain_reference = current(sprung_cantilever())
+    assert render_caepipe_mbf_si(plain, title="D").text == render_caepipe_mbf_si(plain_reference, title="D").text
+    assert render_caepipe_mbf_si(plain, title="D").status == "written"
+    # A UX spring with d = (0, 0, 7) is written as the UZ spring.
+    rewritten, twin = current(cantilever("mm")), current(cantilever("mm"))
+    rewritten["supports"].append({**spring("s", "N1", "UX", 250000.0), "direction": {"x": 0.0, "y": 0.0, "z": 7.0}})
+    twin["supports"].append(spring("s", "N1", "UZ", 250000.0))
+    result = render_caepipe_mbf_si(rewritten, title="D")
+    assert result.status == "written", result.diagnostics
+    assert result.text == render_caepipe_mbf_si(twin, title="D").text
+    assert "CTRAK(0,0,250)" in result.text
+    # Condition sets and assignments that no case uses are not exported and are listed as omitted, never dropped.
+    annotated = current(cantilever())
+    annotated["condition_sets"] = [{"id": "cs", "provenance": "invented"}]
+    annotated["pipe_segments"][0]["condition_set_ref"] = "cs"
+    result = render_caepipe_mbf_si(annotated, title="S")
+    assert result.status == "written"
+    assert result.text == render_caepipe_mbf_si(current(cantilever()), title="S").text
+    omitted = {item["entity"] for item in result.loss_report}
+    assert {"model.condition_sets", "model.pipe_segments.condition_set_ref"} <= omitted, result.loss_report
 
 
 def test_a_spring_at_a_node_no_pipe_reaches_is_refused_by_name():

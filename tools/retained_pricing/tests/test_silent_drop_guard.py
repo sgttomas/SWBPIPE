@@ -83,7 +83,8 @@ def test_the_nested_walk_is_bound_and_its_names_formed_only_for_a_finding(monkey
         # The non-object pass: the two owners, the model's eight record collections, one collection's records.
         'for (owner, prefix, collections) in [(model, " ", &RECORD_COLLECTIONS[..]), (request, " ", request_collections)]':
             ("2", ["model_fields.rs:non_object_records"]),
-        "for collection in collections": ("8", ["model_fields.rs:non_object_records"]),
+        # Model document 0.9.0 (§8.36, S1-NR): the list gains condition_sets and spectra.
+        "for collection in collections": ("10", ["model_fields.rs:non_object_records"]),
         "for (i, record) in owner.get(*collection).and_then(Value::as_array).into_iter().flatten().enumerate()":
             ("n", ["model_fields.rs:non_object_records"]),
     }
@@ -96,16 +97,18 @@ def test_the_nested_walk_is_bound_and_its_names_formed_only_for_a_finding(monkey
     member = audit[f"{FIELDS}:{line_of(FIELDS, 'format!("the {key} of {}", parent.finding_name())')}"]
     assert member["key"]["bytes"] == 128 and member["parent.finding_name()"]["bytes"] == 3 * (8 + 128) + 17 + 3 + 128
     entry = audit[f"{FIELDS}:{line_of(FIELDS, 'format!("{}.{key}[{index}]", parent.finding_path())')}"]
-    assert entry["key"]["bytes"] == len("temperature_points") and entry["parent.finding_path()"]["bytes"] == 19 + 2 + 20 + 3 * 129
+    # Model document 0.9.0 (§8.36, S1-NR): the longest collection path is "model.condition_sets" (20 B, was 19).
+    assert entry["key"]["bytes"] == len("temperature_points") and entry["parent.finding_path()"]["bytes"] == 20 + 2 + 20 + 3 * 129
     record = audit[f"{FIELDS}:{line_of(FIELDS, 'At::Record { kind, id: Some(id), .. } => format!(')}"]
     assert record["kind"]["bytes"] == len("temperature point") and record["id"]["bytes"] == 128
     # The bounded refusals: a non-object finding is a static collection path and a static kind; the list is bounded by
     # eight of the longer finding, and the code and remedy are static.
     non_object = audit[f"{FIELDS}:{line_of(FIELDS, 'findings.keep_finding(|| NonObject {')}"]
-    assert non_object["prefix"]["bytes"] == len("model.") and non_object["collection"]["bytes"] == len("pipe_segments")
+    # Model document 0.9.0 (§8.36, S1-NR): the longest collection name is "condition_sets" (was "pipe_segments").
+    assert non_object["prefix"]["bytes"] == len("model.") and non_object["collection"]["bytes"] == len("condition_sets")
     assert non_object["i"]["bytes"] == 20
     refused = audit[f"{FIELDS}:{line_of(FIELDS, 'listed_refusal(MODEL_RECORD_NOT_OBJECT')}"]
-    assert refused["f.path"]["bytes"] == len("model.pipe_segments[]") + 20 and refused["f.is"]["bytes"] == len("an array (a positional record)")
+    assert refused["f.path"]["bytes"] == len("model.condition_sets[]") + 20 and refused["f.is"]["bytes"] == len("an array (a positional record)")
     listed = audit[f"{FIELDS}:{line_of(FIELDS, 'request: {listed}. {remedy}')}"]
     assert listed["code"]["bytes"] == len("MODEL_RECORD_NOT_OBJECT") and listed["remedy"]["bytes"] == 154
     assert audit[f"{FIELDS}:{line_of(FIELDS, 'more", findings.more));')}"]["findings.more"]["bytes"] == 20
@@ -147,7 +150,7 @@ def test_the_owners_are_present_and_positive():
     (FIELDS, "            self.kept.push(finding());", "            self.kept.push(finding());\n            self.kept.push(finding());", "SD-NF"),
     (FIELDS, "    if !non_objects.kept.is_empty() {", "    if non_objects.kept.len() > 1 {", "SD-NF"),
     (FIELDS, 'format!("{prefix}{collection}[{i}]")', 'format!("{prefix}{collection}.{i}")', "SD-NF"),
-    (FIELDS, '["load_cases", "combinations", "nodes",', '["load_cases", "combinations", "nodes", "groups",', "SD-NR"),
+    (FIELDS, '"load_cases", "combinations", "nodes",', '"load_cases", "combinations", "nodes", "groups",', "SD-NR"),
     (FIELDS, 'let case_path = format!("model.load_cases[{i}]");', 'let case_path = format!("model.load_cases.{i}");', "SD-ID"),
     (FIELDS, "findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() });",
      "findings.keep_finding(|| Finding { field: key.clone(), record: at.finding_name(), path: at.finding_path() }); at.finding_name();", "SD-NF"),
@@ -162,7 +165,7 @@ def test_a_changed_guard_source_stops(monkeypatch, tmp_path, path, old, new, sto
 
 
 def test_a_changed_owner_stops(tmp_path):
-    snap = snapshot_with(tmp_path, VALIDATION, "if !seen.insert(term.load_case.as_str()) {", "if !seen.insert(term.load_case.as_str()) && true {")
+    snap = snapshot_with(tmp_path, VALIDATION, "if !seen.insert(operand(term)) {", "if !seen.insert(operand(term)) && true {")
     with pytest.raises(SystemExit, match="SD owners"):
         sd_owners_model.inspect(str(snap))
 
@@ -181,7 +184,8 @@ def test_the_duplicate_loops_are_bound_by_their_own_functions(monkeypatch, tmp_p
         decisions(monkeypatch, snap)
 
 
-MECHANICS_COUNT = "combination.terms[..index]\n                .iter()\n                .filter(|other| other.load_case == term.load_case)\n                .count();"
+# Model document 0.9.0 (§8.36, S1-HS): the count compares borrowed `(bool, &str)` operands.
+MECHANICS_COUNT = "combination.terms[..index]\n                .iter()\n                .filter(|other| operand(other) == operand(term))\n                .count();"
 RANGE_COUNT = "operand_ids[..index].iter().filter(|other| *other == operand_id).count() != 1"
 
 
@@ -189,7 +193,7 @@ RANGE_COUNT = "operand_ids[..index].iter().filter(|other| *other == operand_id).
     (MECHANICS_COUNT, MECHANICS_COUNT.replace("[..index]", "[..]")),
     (MECHANICS_COUNT, MECHANICS_COUNT.replace("[..index]", "[..index].to_vec()")),
     (MECHANICS_COUNT, MECHANICS_COUNT.replace(".count();", ".cloned().collect::<Vec<_>>().len();")),
-    (MECHANICS_COUNT, MECHANICS_COUNT.replace("other.load_case == term.load_case", "other.load_case != term.load_case")),
+    (MECHANICS_COUNT, MECHANICS_COUNT.replace("operand(other) == operand(term)", "operand(other) != operand(term)")),
     (RANGE_COUNT, RANGE_COUNT.replace("[..index]", "[..]")),
     (RANGE_COUNT, RANGE_COUNT.replace("[..index]", "[..index].to_vec()")),
     (RANGE_COUNT, RANGE_COUNT.replace(".count() != 1", ".cloned().collect::<Vec<_>>().len() != 1")),

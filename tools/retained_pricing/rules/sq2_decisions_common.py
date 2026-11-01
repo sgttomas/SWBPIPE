@@ -387,6 +387,30 @@ if "let source_missing = |diagnostics: &mut Vec<Diagnostic>|" in open(_os.path.j
             "rows.push(combination_row(combination, &expression, sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));"),
     }
     ID_AUDIT = [(_sd_rekeys.get(k, k) if isinstance(k, str) and type(k).__name__ != "Resolved" else k, v) for k, v in ID_AUDIT]
+# Model document 0.9.0 D3 (retained-pricing-rules.md §8.36, S1-RK): validate_mechanics_combination names a term's
+# operand (`operand_id`, a load case's or a combination's raw id: IN128 either way) in place of `term.load_case`, so the
+# factor diagnostic's two basis keys no longer carry with their audits: its id line (basis :2026, whose text carries but
+# whose argument is now `stable_suffix(operand_id)`) and its refs line (basis :2034, replaced by
+# `vec![combination.id.clone(), operand_id.to_string()],`). Both are re-keyed by name at the snapshot to the same sites
+# with the same classes; a source without the local `fn operand` keeps the basis keys.
+def _val_line(fn, text, after, within=8):
+    f = P_ + "validation.rs"
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    start = int(rs(fn, f).split(":")[1])
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"(pub(\([a-z]+\))?\s+)?fn\s", lines[i])), len(lines))
+    anchors = [i + 1 for i in range(start - 1, end - 1) if after in lines[i]]
+    if len(anchors) != 1: raise SystemExit(f"S1-RK: {after!r} in {fn}: {anchors}")
+    hits = [i + 1 for i in range(anchors[0] - 1, min(end, anchors[0] + within) - 1) if text in lines[i]]
+    if len(hits) != 1: raise SystemExit(f"S1-RK: {text!r} after {after!r} in {fn}: {hits}")
+    return Resolved(f"{f}:{hits[0]}")
+if "fn operand(term: &crate::PreviewCombinationTerm) -> (bool, &str) {" in open(_os.path.join(_SNAP, P_ + "validation.rs"), encoding="utf-8").read():
+    _s1_rekeys = {
+        P_ + "validation.rs:2026": (_val_line("validate_mechanics_combination", "&format!(", "if !term.factor.is_finite() {", within=3),
+                                    {"stable_suffix(&combination.id)": IN, "stable_suffix(operand_id)": IN}),
+        P_ + "validation.rs:2034": (_val_line("validate_mechanics_combination", "vec![combination.id.clone(), operand_id.to_string()],",
+                                              '"LOAD_COMBINATION_FACTOR_INVALID",', within=4), {"combination.id": IN, "operand_id": IN}),
+    }
+    ID_AUDIT = [_s1_rekeys.get(k, (k, v)) if isinstance(k, str) and type(k).__name__ != "Resolved" else (k, v) for k, v in ID_AUDIT]
 ARGS_FIRST = ARGS_FIRST + [
     {"re": r'^text\(&x\[" "\]\)$', "max": "static",
      "why": RSR + "g5_native: `text(&x[\"slot\"]).to_owned()`: a Group import's slot name, one of the producer's seven slot tokens (SLOTS): a static literal"},

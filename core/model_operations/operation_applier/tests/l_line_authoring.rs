@@ -9,10 +9,10 @@
 //! The bend operations (realize, insert at corner), the region checks and the
 //! agent refusal of k are covered here as well. All data are invented.
 //!
-//! B7b: the corner document is the current 0.8.0 pressure-free document; the
+//! B7b: the corner document is the current 0.9.0 pressure-free document; the
 //! user enters each member's corrosion allowance (an explicit zero) before
 //! activating the complete `3.0.0/exact_pressure_v3` contract (euler_bernoulli).
-//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.8.0
+//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.9.0
 //! by the one shared rule (`core/product_physics/tests/common/current_model.rs`).
 use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
@@ -71,7 +71,7 @@ fn codes(model: &Value, intent: &Value) -> Vec<String> {
 }
 
 /// The L line's corner document before any bend or load: A —S1— X —S2— D,
-/// anchored at A and D, pressure-free (current 0.8.0, no pressure contract and
+/// anchored at A and D, pressure-free (current 0.9.0, no pressure contract and
 /// no corrosion allowance yet), with a legacy E/G material.
 fn corner_document() -> Value {
     let mut model = i7_l_line();
@@ -496,4 +496,26 @@ fn a_connector_cannot_replace_a_realized_arc_span() {
     assert!(codes(&model, &create(&connector("pipe:BEND", "node:B", "node:C"))).contains(&"OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID".into()));
     let outcome = apply_operation(&model, &create(&connector("pipe:S1", "node:A", "node:B")), Some(&hash(&model)));
     assert!(outcome.applied_model.is_some(), "{:?}", outcome.diagnostics);
+}
+
+/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.4): the bend joins
+/// straights that carry the same condition set (or none) and the arc carries it; straights
+/// that differ are refused by name.
+#[test]
+fn insert_bend_at_corner_carries_the_straights_condition_set_or_refuses_by_name() {
+    let mut model = corner_document();
+    model["condition_sets"] = json!([{"id": "cs:L", "provenance": PROVENANCE}, {"id": "cs:M", "provenance": PROVENANCE}]);
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        pipe["condition_set_ref"] = json!("cs:L");
+    }
+    let applied = apply(&model, &insert_bend(&model, &insert_bend_payload()));
+    let pipes = applied["pipe_segments"].as_array().unwrap();
+    assert_eq!(pipes.len(), 3);
+    assert!(pipes.iter().all(|pipe| pipe["condition_set_ref"] == "cs:L"), "{pipes:?}");
+    let mut differing = model.clone();
+    differing["pipe_segments"][1]["condition_set_ref"] = json!("cs:M");
+    assert!(codes(&differing, &insert_bend(&differing, &insert_bend_payload())).contains(&"OP-BEND-CONDITION-SET-MISMATCH".into()));
+    let mut one_absent = model.clone();
+    one_absent["pipe_segments"][1].as_object_mut().unwrap().remove("condition_set_ref");
+    assert!(codes(&one_absent, &insert_bend(&one_absent, &insert_bend_payload())).contains(&"OP-BEND-CONDITION-SET-MISMATCH".into()));
 }

@@ -9,7 +9,7 @@ use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
 use serde_json::{json, Value};
 
 // B4/D1 (b): the composite statement is the source route here; B7b: the current
-// pressure-source-1 (0.8.0/v3) statement, and pressure-2 with the
+// pressure-source-1 (0.9.0/v3) statement, and pressure-2 with the
 // load/reference-state group as the pressure reader's input.
 const SOURCE: &str = include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
 const REQUEST: &str = include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");

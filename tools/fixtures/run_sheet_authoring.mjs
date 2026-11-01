@@ -29,7 +29,7 @@ const SEC = { outside_diameter: m(0.1143), wall_thickness: m(0.00602) };
 const node = (id, x, y, z, label) => ({ id, label, position: { x, y, z }, provenance: BASIS_PROV });
 const pipe = (id, from, to, material) => ({ id, label: id.slice(5), from, to, section: clone(SEC), material, y_reference: { x: 0, y: 0, z: 1 }, provenance: BASIS_PROV });
 const basis = {
-  schema_version: "0.8.0",
+  schema_version: "0.9.0",
   document_kind: "openpipestress.product_preview.model",
   project: {
     id: "project:run-sheet-authoring",

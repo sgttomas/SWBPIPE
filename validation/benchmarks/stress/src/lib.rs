@@ -1942,7 +1942,7 @@ pub fn pressure_stress_request(restrained: bool) -> Value {
     };
     json!({
         "model": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
             "project": {

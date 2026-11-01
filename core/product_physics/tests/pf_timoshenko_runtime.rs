@@ -10,6 +10,11 @@ use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
+// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6): the frozen 0.8.0 requests keep their
+// bytes; each parsed copy is re-authored to the current version by its token (common/current_model.rs).
+#[path = "common/current_model.rs"]
+mod current_model;
+
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const CANTILEVER: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json");
 const ONE_WAY: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-NL-ONEWAY-TIMOSHENKO.request.json");
@@ -23,7 +28,9 @@ const AUTHORED_NU: &str = "PF_TIMOSHENKO_AUTHORED_POISSON_RATIO_NOT_USED";
 const ARCS: &str = "PF_TIMOSHENKO_REALIZED_ARCS_EULER_BERNOULLI";
 
 fn template(text: &str) -> Value {
-    serde_json::from_str(text).unwrap()
+    let mut request: Value = serde_json::from_str(text).unwrap();
+    current_model::reauthor_model(&mut request["model"]);
+    request
 }
 
 /// The one-way template, as committed (its nonlinear support carries its `initial_state`).

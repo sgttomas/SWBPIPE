@@ -202,9 +202,11 @@ def _corpus_entries():
             yield entry["id"], source, invocation, entry.get("expected_eligibility")
 
 
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 MILESTONE_PINS = {
-    "sparse_interactive": ("7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92", [25, 69, 3, 1]),
-    "dense_scrutiny": ("ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357", [25, 69, 3, 1]),
+    "sparse_interactive": ("c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f", [25, 69, 3, 1]),
+    "dense_scrutiny": ("da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa", [25, 69, 3, 1]),
 }
 
 
@@ -754,17 +756,17 @@ def test_integers_by_value_at_every_site_d32():
 
 
 def test_model_schema_versions_d31():
-    """D31, as B7a keys it: G8's preview namespace is the current model version 0.8.0 without a pressure contract; the
+    """D31, as B7a keys it: G8's preview namespace is the current model version 0.9.0 without a pressure contract; the
     retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3D-10, as ruled: 0.3.0 without a contract is
-    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.8.0 with
+    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.9.0 with
     any contract."""
     expected = _cases()[O_BASE]["expected_classifications"]
     version_edit = lambda version: {"path": ["request", "model", "schema_version"], "op": "set", "value": version}
     legacy = {"path": ["request", "model", "pressure_contract"], "op": "set", "value": {"version": "1.0.0", "mode": "legacy_pressure_v1"}}
-    assert _validate_entry(O_BASE, [], [version_edit("0.8.0")])["classifications"] == expected
+    assert _validate_entry(O_BASE, [], [version_edit("0.9.0")])["classifications"] == expected
     for version in ("0.1.0", "0.2.0"):
         _raises(lambda: _validate_entry(O_BASE, [], [version_edit(version)]), "G8", "INVOCATION_MISMATCH")
-    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.8.0"), legacy]), "G8", "INVOCATION_MISMATCH")
+    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.9.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0")]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.4.0")]), "G8", "INVOCATION_MISMATCH")
@@ -786,7 +788,7 @@ def test_b3a_legacy_pressure_namespace_29_controls_match_existing_rust_controls(
     entries=[(base,[version("0.3.0"),contract(legacy)],False) for base in
              (O_BASE,"ordinary_prepared_dense_synthetic","two_case_synthetic","u8_l0_isolated_node_sparse_interactive","u8_l0_isolated_node_dense_scrutiny")]
     entries.extend((O_BASE,edits,admitted) for edits,admitted in (
-        ([contract(None)],False),([version("0.8.0"),absent()],True),
+        ([contract(None)],False),([version("0.9.0"),absent()],True),
         ([version("0.3.0"),contract(changed("mode","exact_straight_pressure_v2"))],False),
         ([version("0.3.0"),contract(changed("version","1.0.1"))],False),
         ([version("0.3.0"),contract({"version":"2.0.0","mode":"exact_straight_pressure_v2"})],False),
@@ -971,11 +973,13 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # ---------------------------------------------------------------------------------------------
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 L0_PINS = {
-    "sparse_interactive": ("41c173da931cac35fcd16585e9c8409c93fca543d45ff8077db13060a98b1990",
-                           "8e2f57ebf68c286b7afa5088037f7a7a2e8becc7298bee297ae87ef2a8c72484", [25, 78, 9, 1]),
-    "dense_scrutiny": ("d13b72efd7e48b92e5ee0b844852ad57adcf0409bf0a141d58c5de688cad2572",
-                       "8a2ce256551e7bc164c92235fb83407ec4a5b43276e9b3134e4aa32ec9aed271", [25, 78, 9, 1]),
+    "sparse_interactive": ("13d6e229f156d09190daa2211a587eda3ebc947a40e817acc18031b605827ad3",
+                           "dc93343aa592077aa34071ee5b91a0a48a27faa663388bd4553a9f61598c26a1", [25, 78, 9, 1]),
+    "dense_scrutiny": ("de5d0a9bd282db08f46ba38e3b4a3ab6de35dadfb002326e2a48540fbe7ea310",
+                       "1b596b40f13b42df703626579d6773f743313a335734d470631460bacb7200c9", [25, 78, 9, 1]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1832,8 +1836,10 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
 # W-8 topology warning added; no number moved.
-N07_W_C2 = {"sparse_interactive": ("28c2f256366619ebe4e4896e52f1ad07cf5acfcd3d2c5865b7328a6f767488ec", "3c34cf9b6333413863f407eed2e27ea84ae7fdb86c4869ff5b421cf8ca0ab6fb"),
-            "dense_scrutiny": ("29c361e46c10b61b6574e1206629355458ff51ffe8f68d4218ff43ef02354eb4", "15f0ba01dd2f57f636d93752d7bf2c08270e0170df61e18dce036fa48b2eb60a")}
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+N07_W_C2 = {"sparse_interactive": ("5516371daa450d255858faf2ceb8f749c7a03134c18b3d2d1029ee892f278036", "59f5507c51fa942786b73f31c2cb2321f3d81c1fe544f698cead922060bad682"),
+            "dense_scrutiny": ("e414484c02e1367532fb0a4a9eecd4a0b9f1e755965f899dedcf3c37900213c6", "74c8dbb8480fd49b18530aee1507d456824540966e9416b1a476aa76ed39f30c")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).

@@ -1901,7 +1901,7 @@ mod tests {
 
     fn input() -> Value {
         json!({
-            "schema_version":"0.8.0", "document_kind":"openpipestress.product_preview.model",
+            "schema_version":"0.9.0", "document_kind":"openpipestress.product_preview.model",
             "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
             "project":{"id":"project:region-test","units":{"length":"m"}},
             "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
@@ -2211,7 +2211,7 @@ mod tests {
         assert_eq!(diagnostics[0].code, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
         // B7b A5: the re-author text names the current contract.
         assert!(diagnostics[0].message.contains("3.0.0/exact_pressure_v3"), "{}", diagnostics[0].message);
-        // Without the primitive, the 0.8.0 document is pressure-free and admitted.
+        // Without the primitive, the 0.9.0 document is pressure-free and admitted.
         old["load_cases"][0]["primitive_loads"] = json!([]);
         diagnostics.clear();
         validate_profile(&parse(old.clone()), &mut diagnostics);
@@ -2239,7 +2239,7 @@ mod tests {
 
     /// U3 (D-2 A1): the retired 1.0.0/legacy_pressure_v1 label is refused with
     /// the re-author code; B7b: so is the retired 2.0.0/exact_straight_pressure_v2
-    /// label. Either can only appear on the current 0.8.0 document now.
+    /// label. Either can only appear on the current 0.9.0 document now.
     #[test]
     fn retired_legacy_pressure_label_takes_the_reauthor_code() {
         for label in [

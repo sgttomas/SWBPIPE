@@ -15,7 +15,7 @@
 //! must carry (DEL-05-03 Design §7).
 //!
 //! B7b: the frozen documents stay 0.3.0/0.4.0 (bytes unchanged); every copy is
-//! re-authored to the current 0.8.0 exact document (`common/current_model.rs`)
+//! re-authored to the current 0.9.0 exact document (`common/current_model.rs`)
 //! before it runs. The v2 originals and SP-1's v2/v3 twin clause were retired
 //! with `exact_straight_pressure_v2`.
 //!
@@ -521,7 +521,7 @@ fn i7_admitted_kinks_are_recorded_and_carried_by_the_remainder() {
 // ------------------------------------------------------------------ T4-I8
 
 /// Each T4-I8 document's v3 twin (the reference's `v3_patch_for_both` on the
-/// frozen document; `captured` re-authors the copy to 0.8.0). Case 1 (MILLTOL),
+/// frozen document; `captured` re-authors the copy to 0.9.0). Case 1 (MILLTOL),
 /// re-authored in 0.5.0 for D-5, has its own documents (`milltol_runs`).
 fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
     let mut found = Vec::new();

@@ -175,6 +175,9 @@ def _family_cases():
         named("vertical_support", False, OTHER), named("spring", True, OTHER),
         named("variable_spring_hanger", False, HANGER), named("spring_hanger", False, HANGER),
         named("constant_effort_support", False, CONSTANT), named("nonlinear", False, OTHER),
+        # This low-level spring/hanger discriminator reads snubber as neither;
+        # S1 separately refuses it before any static solve.
+        named("snubber", False, OTHER),
         ("no family", ABSENT, False, OTHER), ("null family", None, False, OTHER),
         named("", False, OTHER), named("strut", False, OTHER),
     ]

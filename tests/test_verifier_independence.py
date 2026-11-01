@@ -213,7 +213,10 @@ def test_units_match_the_crates_committed_witnesses():
         assert abs(actual - expected) <= tolerance * max(abs(expected), 1.0), (actual, expected)
     rows = re.findall(r'\("([^"]+)", Dimension::(\w+), UnitId::\w+, ([0-9_.]+)\)', _rust_test("practical_units_have_independent_numeric_conversion_witnesses"))
     assert len(rows) == 8
-    for symbol, dimension, expected in rows:
+    # Model document 0.9.0's dynamics units: one definitional witness per display unit.
+    dynamics = re.findall(r'\("([^"]+)", Dimension::(\w+), UnitId::\w+, ([0-9_.]+)\)', _rust_test("dynamics_units_have_definitional_conversion_witnesses"))
+    assert len(dynamics) == 6
+    for symbol, dimension, expected in rows + dynamics:
         close(units.to_canonical(1.0, symbol, _snake(dimension)), float(expected.replace("_", "")))
     refused = re.findall(r'unit_by_symbol\("([^"]+)", Dimension::(\w+)\)\.is_err\(\)', _rust_test("practical_units_have_independent_numeric_conversion_witnesses"))
     assert len(refused) == 4
@@ -309,12 +312,12 @@ def test_units_catalog_is_the_crates_bit_for_bit():
     order = re.findall(r"UnitId::(\w+)", text[text.index("const CATALOG"):text.index("];", text.index("const CATALOG"))])
     crate = [definitions[unit] for unit in order]
     ours = [(unit.symbol, unit.dimension, bits(unit.factor), bits(unit.offset)) for unit in units.CATALOG]
-    assert len(order) == len(definitions) == 63 and ours == crate
+    assert len(order) == len(definitions) == 74 and ours == crate
     canonical = {}
     for dimensions, unit in re.findall(r"((?:Dimension::\w+\s*\|?\s*)+)=> Some\(UnitId::(\w+)\)", _rust_fn(text, "pub fn canonical_unit(")):
         for dimension in re.findall(r"Dimension::(\w+)", dimensions):
             canonical[names[dimension]] = definitions[unit][:2]
-    assert len(canonical) == 29 and canonical == units.CANONICAL
+    assert len(canonical) == 34 and canonical == units.CANONICAL
     assert set(names.values()) == units.DIMENSIONS
 
 

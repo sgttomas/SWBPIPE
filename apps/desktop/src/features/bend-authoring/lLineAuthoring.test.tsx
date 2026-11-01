@@ -99,7 +99,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     change("Pressure profile", "exact_pressure_v3");
     change("Shear model", "euler_bernoulli");
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
-    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.8.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
+    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);
     cleanup();
 

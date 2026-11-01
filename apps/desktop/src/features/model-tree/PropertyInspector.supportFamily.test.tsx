@@ -53,18 +53,19 @@ describe("the New support form's family", () => {
       { value: "variable_spring_hanger", label: `Variable spring hanger (${hanger})`, disabled: true },
       { value: "spring_hanger", label: `Spring hanger (${hanger})`, disabled: true },
       { value: "constant_effort_support", label: `Constant-effort support (${hanger})`, disabled: true },
-      { value: "nonlinear", label: "Nonlinear support (Needs a nonlinear law: use Support configuration)", disabled: true }
+      { value: "nonlinear", label: "Nonlinear support (Needs a nonlinear law: use Support configuration)", disabled: true },
+      { value: "snubber", label: "Snubber (Snubber authoring is pending; the model format can store it)", disabled: true }
     ]);
     expect(compactOptionRecords(family()).slice(1).map((item) => item.value)).toEqual(SUPPORT_FAMILIES.map((item) => item.value));
   });
 
-  it("does not take a disabled family, so none is queued", () => {
+  it.each(["spring_hanger", "snubber"])("does not take disabled %s, so it is not queued", (disabledFamily) => {
     const { queue } = mount();
     toggle("RX", "RY", "RZ");
     const control = family();
     if (control.getAttribute("aria-expanded") !== "true") fireEvent.click(control);
     const list = document.getElementById(control.getAttribute("aria-controls")!)!;
-    const option = Array.from(list.querySelectorAll<HTMLElement>('[role="option"]')).find((item) => item.dataset.value === "spring_hanger")!;
+    const option = Array.from(list.querySelectorAll<HTMLElement>('[role="option"]')).find((item) => item.dataset.value === disabledFamily)!;
     expect(option).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(option);
     expectFormControlValue(family(), "anchor");

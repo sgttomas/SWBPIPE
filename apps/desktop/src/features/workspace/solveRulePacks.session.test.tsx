@@ -156,7 +156,12 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     // Byte-identical to the pinned manifest (written before the change by the session's builder).
     expect(evidence.canonical_bytes).toBe(committed.input_manifest_canonical);
     expect(evidence.manifest_sha256).toBe(committed.run_record.analysis_run.reproducibility.input_manifest_hashes[0].value);
-    expect(evidence.manifest_sha256).toBe("cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83");
+    // S1 changes only the embedded model version in this manifest; retaining
+    // the preceding token reproduces the old pin exactly.
+    const preceding = JSON.parse(evidence.canonical_bytes);
+    preceding.model_basis.model_payload.schema_version = "0.8.0";
+    expect(await canonicalSha256HexCheckedV1(preceding)).toBe("cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83");
+    expect(evidence.manifest_sha256).toBe("ec2b590838e26dbff151fe097131cd7a9ace800cb409041dbdf68a25a3e2c81e");
     expect(evidence.manifest.active_rule_packs).toEqual([]);
     expect(Object.keys(evidence.manifest).sort()).toEqual(["active_rule_packs", "document_kind", "external_assets", "identity_policy", "load_basis", "model_basis", "replay_boundary", "schema_version", "solver_basis", "unit_basis"]);
     // The transient record is the committed one, byte for byte (its own hash included): the

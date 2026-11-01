@@ -152,7 +152,12 @@ def add(name, ph, req, mv=None):
     fam[name] = req; phase[name] = ph; mov[name] = mv or X()
 
 # ---------------- T_resident: T03 typed request at the typed capacity caps --------------
-strings = (mats * (7 + pts * 7) + 6 + 2 * n + 12 * m + 6 * g + r + 2 * CC + 7 * LL) if which == "caps" else 0
+# S1-TS (retained-pricing-rules.md §8.36): the census of the admitted typed strings read at the snapshot (a pipe's 13, not
+# the basis' 12; route E's three contract strings and the node-proximity tolerance's unit beyond the basis' six model
+# strings); a snapshot outside that reading keeps the basis count.
+import typed_strings_model as _ts_model
+_ts = _ts_model.inspect(_snapshot) or {"pipe": 12, "model": 0}   # before model document 0.7.0: the basis count
+strings = (mats * (7 + pts * 7) + 6 + _ts["model"] + 2 * n + _ts["pipe"] * m + 6 * g + r + 2 * CC + 7 * LL) if which == "caps" else 0
 add("T_resident (T03 typed request, typed capacity caps)", "T_resident",
     (Xc("MaterialInput", mats) + Xc("TemperaturePoint", mats * pts) + Xc("PreviewNode", n)
      + Xc("PreviewPipe", m) + Xc("PreviewSupport", g) + Xc("String", r) + Xc("PreviewLoadCase", CC)
@@ -548,6 +553,14 @@ if _snapshot and _sd_model.inspect(_snapshot):
         add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
     add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
     add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
+# Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the lowering's views, findings and operand resolution
+# (S1-VW) and the withholding pass (S1-WH), once per ordinary run, priced positively where the reviewed modules exist
+# (s1_owners_model binds their bytes and the two calls).
+import s1_owners_model as _s1_model
+if _snapshot and _s1_model.inspect(_snapshot):
+    _s1_z = _mc.get("z", 0) if which == "caps" else 0
+    add("Model document 0.9.0 lowering views and findings (S1-VW)", "Normalization", _s1_model.views_and_findings(m, CC, g, r, _s1_z))
+    add("Model document 0.9.0 interim withholding (S1-WH)", "Normalization", _s1_model.withholding(CC, _s1_z))
 # W-16 slice a D3 (retained-pricing-rules.md §8.23): case_prescribed's node index, once per case solved without a load
 # state, one case at a time (W16-NI), and validate's findings vector, <= one per primitive load (W16-VF), each priced
 # positively where its reviewed source exists (w16_owners_model binds imposed_motion.rs and the statements).

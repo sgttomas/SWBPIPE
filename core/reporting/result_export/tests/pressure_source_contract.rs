@@ -1,5 +1,5 @@
 //! Join reader contracts over the current pressure-source-1 producer bytes
-//! (0.8.0/3.0.0/exact_pressure_v3). B7b deleted the v2 contract, its reader and
+//! (0.9.0/3.0.0/exact_pressure_v3). B7b deleted the v2 contract, its reader and
 //! the directional cross-read codes; no relabelled fixture is treated as a valid
 //! pressure-source publication.
 use open_pipe_stress_result_export::{derivative, physics_source as ps, reader_verdict, semantic_contract as sc};

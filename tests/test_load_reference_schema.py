@@ -1,6 +1,6 @@
-"""Load/reference-state schema contract: model 0.8.0's optional load/reference-state group (B7b).
+"""Load/reference-state schema contract: model 0.9.0's optional load/reference-state group (B7b).
 
-Shape only. The authored namespace is checked against the current producer requests (model 0.8.0 with the exact
+Shape only. The authored namespace is checked against the current producer requests (model 0.9.0 with the exact
 pressure contract); raw evidence against the current producer envelopes, which publish pressure-2
 (`3.0.0/exact_pressure_v3`) with `contract_evidence.load_reference_states`: results_pressure_2.v0.3's
 PressureContractEvidence, whose records are load_reference_state.schema.json's LoadReferenceStateRecord. Coverage,
@@ -33,7 +33,7 @@ CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
-PRESSURE_SHA = "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6"
+PRESSURE_SHA = "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
@@ -350,7 +350,7 @@ def test_resolved_material_shapes_differ_only_at_the_documented_keys():
 @pytest.mark.parametrize("stem", ("connected", "pressure"))
 def test_current_request_authored_namespace_validates(stem):
     model = request(stem)
-    assert model["schema_version"] == "0.8.0" and model["pressure_contract"] == EXACT_CONTRACT
+    assert model["schema_version"] == "0.9.0" and model["pressure_contract"] == EXACT_CONTRACT
     assert model["reference_configurations"]
     for index, configuration in enumerate(model["reference_configurations"]):
         validate_instance(definition("ReferenceConfiguration"), configuration, instance_label=f"{stem}:reference[{index}]")

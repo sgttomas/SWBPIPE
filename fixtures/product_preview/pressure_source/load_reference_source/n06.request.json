@@ -195,7 +195,7 @@
         "provenance": "invented_load_reference_source_companion_not_library_data"
       }
     ],
-    "schema_version": "0.8.0",
+    "schema_version": "0.9.0",
     "supports": [
       {
         "family": "anchor",
