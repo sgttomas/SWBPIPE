@@ -7,9 +7,127 @@ import { fileURLToPath } from "node:url";
 import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { classify, containedPath, finishScratch, formatPlan, loadPlan, planName, selectRuns, summarizeSamples, validatePlan } from "./perf.mjs";
+import { spawn } from "node:child_process";
+import { once } from "node:events";
+import { classify, containedPath, finishScratch, formatPlan, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
+
+// Ordinary process-control regressions: only tiny Node fixtures, no App,
+// model solve, sampler, host readings, RSS or timing observation.
+const fixture = () => spawn(process.execPath, ["--input-type=module", "-e", `
+  import {spawn} from 'node:child_process';
+  const worker=spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});process.send('ready');setInterval(()=>{},1000)"],
+    {stdio:['ignore','ignore','ignore','ipc'],detached:true});
+  process.on('SIGTERM',()=>{});
+  process.on('message', m=>{
+    if(m==='block') { for(;;) {} }
+    if(m==='exit') process.exit(7);
+    if(m==='stop') process.send({type:'stop',reason:'fixture_resource_stop'});
+  });
+  worker.once('message',()=>process.send({type:'ready',worker:worker.pid}));
+`], { detached: true, stdio: ["ignore", "ignore", "inherit", "ipc"] });
+
+test("a blocked runner cannot hold its fake worker past the independent deadline", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child, { budgetMs: 100, killGraceMs: 20, finalGraceMs: 1000, listOwned: async () => [{pid:ready.worker,group:ready.worker}] });
+  child.send("block");
+  const stopped = await result;
+  assert.equal(stopped.stop_reason, "window_deadline");
+  assert.equal(stopped.exit.reaped, true);
+  assert.equal(stopped.owned_group_gone, true);
+  assert.equal(stopped.owned_executable_pids_gone, true);
+  assert.deepEqual(stopped.group_errors, []);
+});
+
+test("an early runner exit still ends and checks its surviving fake worker", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child, { budgetMs: 5000, listOwned: async () => [{pid:ready.worker,group:ready.worker}] });
+  child.send("exit");
+  const stopped = await result;
+  assert.equal(stopped.exit.code, 7);
+  assert.equal(stopped.owned_executable_pids_gone, true);
+  assert.equal(stopped.owned_group_gone, true);
+});
+
+test("a sampled resource refusal stops only the owned window group", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child, { budgetMs: 5000, killGraceMs: 20, listOwned: async () => [{pid:ready.worker,group:ready.worker}] });
+  child.send("stop");
+  const stopped = await result;
+  assert.equal(stopped.stop_reason, "fixture_resource_stop");
+  assert.equal(stopped.owned_group_gone, true);
+  assert.equal(stopped.owned_executable_pids_gone, true);
+});
+
+test("repeated interruption during worker lookup does not remove the teardown handlers", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  let entered, release;
+  const started = new Promise((resolve) => { entered = resolve; });
+  const lookup = new Promise((resolve) => { release = resolve; });
+  const before = process.listenerCount("SIGINT");
+  const result = watchWindow(child, { budgetMs: 5000, listOwned: () => { entered(); return lookup; } });
+  child.send("exit");
+  await started;
+  process.emit("SIGINT");
+  process.emit("SIGINT");
+  assert.equal(process.listenerCount("SIGINT"), before + 1);
+  release([{pid:ready.worker,group:ready.worker}]);
+  const stopped = await result;
+  assert.equal(stopped.stop_reason, "runner_SIGINT");
+  assert.equal(stopped.owned_executable_pids_gone, true);
+  assert.equal(process.listenerCount("SIGINT"), before);
+});
+
+test("a failed owned-worker lookup is reported unknown, never clean", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child, { budgetMs: 5000, listOwned: async () => { throw new Error("fixture lookup failed"); } });
+  child.send("exit");
+  const stopped = await result;
+  assert.equal(stopped.owned_group_gone, true);
+  assert.equal(stopped.owned_executable_pids_gone, false);
+  assert.equal(stopped.group_errors[0].signal, "enumerate");
+});
+
+test("a stalled worker lookup cannot make teardown wait indefinitely", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child, { budgetMs: 5000, listOwned: () => new Promise(() => {}) });
+  child.send("exit");
+  const stopped = await result;
+  assert.equal(stopped.owned_group_gone, true);
+  assert.equal(stopped.owned_executable_pids_gone, false);
+  assert.match(stopped.group_errors[0].error, /timed out/);
+});
+
+test("run-only resource stops use aligned samples and refuse unknown readings", () => {
+  const g = 1024 ** 3;
+  const sample = { host: { available_percent: 30 }, p: [[1, "app", g, 4*g, 4*g], [2, "webcontent", g, 4*g, 4*g], [3, "worker", g, 4*g, 4*g]] };
+  assert.equal(sampleStopReason(sample), null);
+  assert.equal(sampleStopReason({ ...sample, host: {} }), "host_headroom_unknown");
+  assert.equal(sampleStopReason({ ...sample, host: { available_percent: 29 } }), "host_headroom_below_30_percent");
+  assert.equal(sampleStopReason({ ...sample, p: [...sample.p, [4,"webcontent",1,1,1]] }), "webcontent_attribution_ambiguous");
+  assert.equal(sampleStopReason({ ...sample, p: [[1,"app",g,12*g+1,12*g+1]] }), "aligned_footprint_above_12_gib");
+  assert.equal(sampleStopReason({ ...sample, p: [[1,"app",16*g+1,g,g]] }), "owned_pid_rss_above_16_gib");
+  assert.equal(sampleStopReason({ ...sample, p: [[1,"app",null,null,null]] }), "process_memory_unknown");
+});
 
 test("the window subset is the brief's runs and fits its budget by estimate", () => {
   const runs = selectRuns(plan, { subset: "window" });
@@ -144,7 +262,7 @@ test("contained paths stay inside their root, also through symbolic links", (t) 
   assert.equal(containedPath(path.join(base, "root-link"), "model.json", { mustExist: true }), path.join(base, "root-link", "model.json"));
 });
 
-test("--keep keeps each run's directory; only the app copy is removed", (t) => {
+test("--keep keeps each run's directory; only the app copy is removed", async (t) => {
   const base = mkdtempSync(path.join(os.tmpdir(), "perf-keep-"));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const make = (name) => {
@@ -155,10 +273,10 @@ test("--keep keeps each run's directory; only the app copy is removed", (t) => {
     return { scratch, binary: path.join(scratch, "openpipestress-desktop") };
   };
   const kept = make("kept");
-  finishScratch({ ...kept, keep: true });
+  await finishScratch({ ...kept, keep: true });
   assert.ok(existsSync(path.join(kept.scratch, "run-a-1", "report.json")));
   assert.ok(!existsSync(kept.binary));
   const removed = make("removed");
-  finishScratch({ ...removed, keep: false });
+  await finishScratch({ ...removed, keep: false });
   assert.ok(!existsSync(removed.scratch));
 });

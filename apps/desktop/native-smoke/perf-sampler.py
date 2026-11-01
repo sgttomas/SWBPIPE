@@ -24,6 +24,7 @@ import ctypes
 import json
 import os
 import signal
+import subprocess
 import sys
 import time
 
@@ -73,19 +74,43 @@ def kind_of(pid, path, app_pid, app_path, baseline):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    parser.add_argument('--app-pid', type=int, required=True)
+    parser.add_argument('--app-pid', type=int)
     parser.add_argument('--app-path', required=True)
+    parser.add_argument('--list-owned', action='store_true', help='control-only PID/group lookup; reads no memory counters')
     parser.add_argument('--baseline', default='')
     parser.add_argument('--interval-ms', type=int, default=200)
     args = parser.parse_args(argv)
     app_path = os.path.realpath(args.app_path)
+    if args.list_owned:
+        owned = []
+        for pid in all_pids():
+            found = pid_path(pid)
+            if found is not None and os.path.realpath(found) == app_path:
+                try:
+                    owned.append({'pid': pid, 'group': os.getpgid(pid)})
+                except ProcessLookupError:
+                    pass
+        print(json.dumps(owned, separators=(',', ':')))
+        return
+    if args.app_pid is None:
+        parser.error('--app-pid is required for sampling')
     baseline = {int(p) for p in args.baseline.split(',') if p}
     stop = []
     signal.signal(signal.SIGTERM, lambda *_: stop.append(True))
     kinds = {}
     gone = 0
+    host_at = 0.0
+    host = {'available_percent': None}
     while not stop:
         started = time.monotonic()
+        if started - host_at >= 1.0:
+            host_at = started
+            try:
+                reading = subprocess.run(['/usr/sbin/sysctl', '-n', 'kern.memorystatus_level'],
+                                         capture_output=True, text=True, timeout=0.5, check=True)
+                host = {'available_percent': int(reading.stdout.strip())}
+            except (OSError, ValueError, subprocess.SubprocessError):
+                host = {'available_percent': None}
         rows = []
         for pid in all_pids():
             if pid not in kinds:
@@ -98,7 +123,7 @@ def main(argv=None):
         # Gone: not listed, or no longer readable (an exited, unreaped process).
         if not any(row[1] == 'app' and row[3] is not None for row in rows):
             gone += 1
-        sys.stdout.write(json.dumps({'t': round(time.time() * 1000), 'p': rows}, separators=(',', ':')) + '\n')
+        sys.stdout.write(json.dumps({'t': round(time.time() * 1000), 'p': rows, 'host': host}, separators=(',', ':')) + '\n')
         sys.stdout.flush()
         if gone >= 2:
             break

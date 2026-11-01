@@ -41,7 +41,8 @@
 // Classes (a run can show several; `class` is the most severe): crash (which process),
 // half_written_save, misleading_message, hang (timeout), refused_with_message (quoted),
 // ok. A message is quoted verbatim; `needs_review` marks one a person should judge.
-import { spawn, spawnSync } from "node:child_process";
+import { execFile, fork, spawn, spawnSync } from "node:child_process";
+import { rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
@@ -61,6 +62,172 @@ const INJECT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_RESULT";
 // The directory the injected file must lie in (the hook refuses anything else).
 const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
 const SEVERITY = ["crash", "half_written_save", "misleading_message", "hang", "refused_with_message", "ok"];
+const GIB = 1024 ** 3;
+
+// The runner/App/helpers share the group created by fork. Product workers
+// create their own groups; listOwned identifies them by the unique private
+// executable path. The App group is frozen before that list, preventing a new
+// worker spawn while cleanup enumerates. No WebKit PID is targeted.
+export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs = 5000, listOwned = async () => [] }) {
+  if (!Number.isSafeInteger(child.pid) || child.pid <= 1) throw new Error("perf window: no owned runner PID");
+  const started = Date.now();
+  const events = [];
+  const groupErrors = [];
+  const signalGroup = (signal) => {
+    try { process.kill(-child.pid, signal); return true; }
+    catch (error) {
+      if (error.code === "ESRCH") return false;
+      groupErrors.push({ signal, error: error.message });
+      return null;
+    }
+  };
+  return new Promise((resolve) => {
+    let reason = null;
+    let killTimer = null;
+    let finalTimer = null;
+    let finished = false;
+    const stop = (why) => {
+      if (finished) { reason ??= why; return; }
+      if (reason) return;
+      reason = why;
+      signalGroup("SIGTERM");
+      killTimer = setTimeout(() => signalGroup("SIGKILL"), killGraceMs);
+      finalTimer = setTimeout(() => finish(null, null, false), killGraceMs + finalGraceMs);
+    };
+    const interrupted = (signal) => stop(`runner_${signal}`);
+    const onInt = () => interrupted("SIGINT");
+    const onTerm = () => interrupted("SIGTERM");
+    const deadline = setTimeout(() => stop("window_deadline"), budgetMs);
+    const finish = async (code, signal, reaped) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(deadline); clearTimeout(killTimer); clearTimeout(finalTimer);
+      signalGroup("SIGSTOP");
+      let owned = [];
+      let workersVerified = true;
+      let discoveryTimer;
+      try {
+        owned = await Promise.race([listOwned(), new Promise((_, reject) => {
+          discoveryTimer = setTimeout(() => reject(new Error("owned executable lookup timed out")), 1500);
+        })]);
+        if (!Array.isArray(owned) || owned.some((row) => !Number.isSafeInteger(row?.pid) || row.pid <= 1 || !Number.isSafeInteger(row.group) || row.group <= 1)) {
+          owned = [];
+          throw new Error("invalid owned executable lookup");
+        }
+      }
+      catch (error) { workersVerified = false; groupErrors.push({ signal: "enumerate", error: error.message }); }
+      finally { clearTimeout(discoveryTimer); }
+      for (const { pid, group } of owned) {
+        if (!Number.isSafeInteger(pid) || pid <= 1 || pid === process.pid) {
+          workersVerified = false;
+          continue;
+        }
+        try { process.kill(group === pid ? -pid : pid, "SIGKILL"); }
+        catch (error) { if (error.code !== "ESRCH") { workersVerified = false; groupErrors.push({ pid, error: error.message }); } }
+      }
+      const groupSignalled = signalGroup("SIGKILL");
+      child.off("message", message);
+      child.off("exit", exited);
+      child.off("error", failed);
+      if (child.connected) child.disconnect();
+      child.unref();
+      let live = signalGroup(0);
+      const until = performance.now() + 2000;
+      const pidLive = (pid) => { try { process.kill(pid, 0); return true; } catch (error) { return error.code !== "ESRCH"; } };
+      while ((live === true || owned.some(({pid}) => pidLive(pid))) && performance.now() < until) {
+        await new Promise((done) => setTimeout(done, 50));
+        live = signalGroup(0);
+      }
+      process.off("SIGINT", onInt); process.off("SIGTERM", onTerm);
+      resolve({ schema: "swbpipe.desktop-perf-window/v1", started_ms: started,
+        ended_ms: Date.now(), runner_pid: child.pid, process_group: child.pid,
+        stop_reason: reason, exit: { code, signal, reaped },
+        remaining_group_signalled: groupSignalled,
+        // A sent signal is not proof of exit, and exit is not proof of commit.
+        owned_group_gone: live === null ? null : !live,
+        owned_executable_pids_gone: workersVerified && owned.every(({pid}) => !pidLive(pid)),
+        owned_pids: owned, group_errors: groupErrors, events });
+    };
+    const message = (event) => {
+      if (event?.type === "stop" && typeof event.reason === "string") stop(event.reason.slice(0, 200));
+      if (["scratch", "app", "stage"].includes(event?.type)) {
+        events.push(event);
+        if (events.length > 64) events.shift();
+      }
+    };
+    const exited = (code, signal) => finish(code, signal, true);
+    const failed = (error) => { reason ??= `runner_error: ${error.message}`; finish(null, null, false); };
+    child.on("message", message); child.once("exit", exited); child.once("error", failed);
+    process.on("SIGINT", onInt); process.on("SIGTERM", onTerm);
+  });
+}
+
+/** Only the sample's aligned sum is tested, never a sum of separate peaks.
+ * This is a protective run stop; it changes no product admission policy. */
+export function sampleStopReason(sample) {
+  if (!Number.isFinite(sample.host?.available_percent) || sample.host.available_percent < 0 || sample.host.available_percent > 100) return "host_headroom_unknown";
+  if (sample.host.available_percent < 30) return "host_headroom_below_30_percent";
+  let total = 0;
+  const webcontent = [];
+  let app = false;
+  for (const [pid, kind, rss, footprint] of sample.p) {
+    if (Number.isFinite(rss) && rss > 16 * GIB) return "owned_pid_rss_above_16_gib";
+    if (!["app", "worker", "webcontent"].includes(kind)) continue;
+    if (!Number.isFinite(rss) || !Number.isFinite(footprint) || rss < 0 || footprint < 0) return "process_memory_unknown";
+    if (kind === "app") app = true;
+    if (kind === "webcontent") webcontent.push(pid);
+    total += footprint;
+  }
+  if (!app) return "app_memory_unknown";
+  if (webcontent.length > 1) return "webcontent_attribution_ambiguous";
+  if (total > 12 * GIB) return "aligned_footprint_above_12_gib";
+  return null;
+}
+
+function audit(event) { if (process.send && process.connected) process.send(event); }
+
+async function supervisedRun(options) {
+  const plan = loadPlan(options.planFile);
+  const budgetS = options.budgetS ?? Math.min(plan.budget_s, 840);
+  if (!Number.isFinite(budgetS) || budgetS <= 0 || budgetS > 840) throw new Error("perf window: work budget must be > 0 and <= 840 s (teardown stays within 15 min)");
+  mkdirSync(options.out, { recursive: true });
+  const scratch = mkdtempSync(path.join(options.out, "perf-"));
+  const binary = path.join(scratch, BIN_NAME);
+  const args = ["--run-child", "--app-dir", options.appDir, "--models", options.models,
+    "--out", options.out, "--plan-file", options.planFile, "--budget-s", String(budgetS), "--window-root", scratch];
+  if (options.results) args.push("--results", options.results);
+  if (options.subset) args.push("--subset", options.subset);
+  if (options.runs) args.push("--runs", options.runs);
+  if (options.keep) args.push("--keep");
+  const child = fork(fileURLToPath(import.meta.url), args, {
+    detached: true, stdio: ["ignore", "inherit", "inherit", "ipc"]
+  });
+  const listOwned = () => new Promise((resolve, reject) => {
+    execFile("python3", [path.join(here, "perf-sampler.py"), "--list-owned", "--app-path", binary],
+      { timeout: 1000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 }, (error, stdout) => {
+        if (error) return reject(error);
+        try { resolve(JSON.parse(stdout)); } catch (invalid) { reject(invalid); }
+      });
+  });
+  const result = await watchWindow(child, { budgetMs: budgetS * 1000, listOwned });
+  const file = path.join(options.out, `perf-window-${result.started_ms}.json`);
+  // The parent does not synchronously inspect SQLite, recursively remove the
+  // store, or serialize the sampler's large report on its deadline event loop.
+  const emergency = setTimeout(() => { console.error("perf window: report write stalled; owned runner already stopped"); process.exit(124); }, 10000);
+  const failed = result.stop_reason || result.exit.code !== 0 || !result.exit.reaped || result.owned_group_gone !== true || !result.owned_executable_pids_gone;
+  try {
+    result.kept = failed ? scratch : null;
+    await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
+    if (!failed) {
+      await finishScratch({ scratch, binary, keep: options.keep });
+      result.cleanup = options.keep ? "private_app_removed_store_kept" : "private_scratch_removed";
+      result.kept = options.keep ? scratch : null;
+      await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
+    }
+  }
+  finally { clearTimeout(emergency); }
+  if (failed) process.exitCode = 1;
+}
 
 const sha256File = (file) => {
   const hash = createHash("sha256");
@@ -353,9 +520,23 @@ async function runOne(run, ctx) {
   }
   const baseline = webkitPids();
   const startedMs = Date.now();
-  const app = spawn(ctx.binary, [], { cwd: root, env, stdio: ["ignore", "ignore", "pipe"], detached: true });
+  // Inherit the supervised runner's group. A detached App could outlive the
+  // supervisor's deadline when its runner is blocked in synchronous SQLite.
+  const app = spawn(ctx.binary, [], { cwd: root, env, stdio: ["ignore", "ignore", "pipe"] });
+  audit({ type: "app", pid: app.pid });
+  let appExited = false;
+  app.once("exit", () => { appExited = true; });
   const caffeinate = spawn("/usr/bin/caffeinate", ["-di", "-w", String(app.pid)], { stdio: "ignore" });
   const sampler = spawn("python3", [path.join(here, "perf-sampler.py"), "--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms)], { stdio: ["ignore", "pipe", "inherit"] });
+  let lastSample = Date.now();
+  const webcontentSeen = new Set();
+  const staleSampler = setInterval(() => {
+    if (!appExited && Date.now() - lastSample > 3000) audit({ type: "stop", reason: "sampler_stale" });
+  }, 1000);
+  sampler.on("error", () => audit({ type: "stop", reason: "sampler_spawn_failed" }));
+  sampler.once("exit", () => {
+    if (!appExited) audit({ type: "stop", reason: "sampler_exited_before_app" });
+  });
   const samples = [];
   let samplerBuffer = "";
   sampler.stdout.on("data", (chunk) => {
@@ -364,7 +545,18 @@ async function runOne(run, ctx) {
     while ((index = samplerBuffer.indexOf("\n")) >= 0) {
       const line = samplerBuffer.slice(0, index);
       samplerBuffer = samplerBuffer.slice(index + 1);
-      try { const value = JSON.parse(line); if (value.p) samples.push(value); } catch { /* not a sample */ }
+      try {
+        const value = JSON.parse(line);
+        if (Array.isArray(value.p)) {
+          lastSample = Date.now();
+          samples.push(value);
+          if (!appExited) {
+            for (const [pid, kind] of value.p) if (kind === "webcontent") webcontentSeen.add(pid);
+            const reason = sampleStopReason(value);
+            if (reason || webcontentSeen.size > 1) audit({ type: "stop", reason: reason ?? "webcontent_replaced" });
+          }
+        }
+      } catch { /* not a sample */ }
     }
   });
   const progress = [];
@@ -377,7 +569,11 @@ async function runOne(run, ctx) {
       const line = stderrBuffer.slice(0, index);
       stderrBuffer = stderrBuffer.slice(index + 1);
       const perf = line.match(/^\[native-smoke\] perf:(.*)$/);
-      if (perf) { try { progress.push(JSON.parse(perf[1])); console.log(`  ${run.id}: ${perf[1]}`); } catch { /* partial */ } continue; }
+      if (perf) { try {
+        const event = JSON.parse(perf[1]); progress.push(event);
+        audit({ type: "stage", step: event.step, stage: event.stage ?? null });
+        console.log(`  ${run.id}: ${perf[1]}`);
+      } catch { /* partial */ } continue; }
       stderrTail.push(line.slice(0, 2000));
       if (stderrTail.length > 200) stderrTail.shift();
     }
@@ -386,13 +582,16 @@ async function runOne(run, ctx) {
   const exit = await new Promise((resolve) => {
     const timer = setTimeout(() => {
       timedOut = true;
-      try { process.kill(-app.pid, "SIGKILL"); } catch { /* gone */ }
+      audit({ type: "stop", reason: "app_timeout" });
+      try { app.kill("SIGKILL"); } catch { /* gone */ }
     }, timeoutMs);
     app.on("exit", (status, signal) => { clearTimeout(timer); resolve({ status, signal, ended_ms: Date.now() }); });
+    app.on("error", (error) => { clearTimeout(timer); audit({ type: "stop", reason: `app_spawn_failed: ${error.message}` }); resolve({ status: null, signal: null, ended_ms: Date.now() }); });
   });
-  try { process.kill(-app.pid, "SIGKILL"); } catch { /* the group is gone */ }
+  clearInterval(staleSampler);
   caffeinate.kill();
   await new Promise((resolve) => {
+    if (sampler.exitCode !== null || sampler.signalCode !== null) { resolve(); return; }
     const fallback = setTimeout(() => sampler.kill("SIGTERM"), 5000);
     sampler.on("exit", () => { clearTimeout(fallback); resolve(); });
   });
@@ -422,20 +621,20 @@ async function runOne(run, ctx) {
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
   Object.assign(record, classify({ report, exit, timedOut, progress, memory, store, run, resultBytes }));
   Object.assign(record, { report, progress, memory, store, stderr_tail: stderrTail.slice(-40) });
-  if (!ctx.keep) rmSync(root, { recursive: true, force: true });
-  else record.kept = root;
+  record.kept = root; // Supervisor removes only after all owned processes exit.
   console.log(`${run.id}: ${record.class} in ${record.elapsed_s.toFixed(1)} s${record.findings.filter((f) => f.class !== "ok").map((f) => `; ${f.class}: ${f.message ?? f.detail ?? ""}`).join("")}`);
   return record;
 }
 
 /** The run's scratch at the end: removed whole, or with --keep only the app copy is
  * removed and every run's directory (`kept` in its record) stays. */
-export function finishScratch({ scratch, binary, keep }) {
-  if (keep) rmSync(binary, { force: true });
-  else rmSync(scratch, { recursive: true, force: true });
+export async function finishScratch({ scratch, binary, keep }) {
+  if (keep) await rm(binary, { force: true });
+  else await rm(scratch, { recursive: true, force: true });
 }
 
 async function runPlan(options) {
+  if (!process.send) throw new Error("perf run: only the supervised --run path can start the App");
   const binding = JSON.parse(readFileSync(path.join(options.appDir, BINDING), "utf8"));
   const bound = binding.binary.path;
   if (sha256File(bound) !== binding.binary.sha256) throw new Error(`perf run: ${bound} is not the bound binary (${binding.binary.sha256}); run --build again`);
@@ -443,7 +642,9 @@ async function runPlan(options) {
   const runs = selectRuns(plan, options);
   const budgetMs = (options.budgetS ?? plan.budget_s) * 1000;
   mkdirSync(options.out, { recursive: true });
-  const scratch = mkdtempSync(path.join(options.out, "perf-"));
+  const scratch = options.windowRoot;
+  if (!scratch || path.dirname(scratch) !== options.out || !path.basename(scratch).startsWith("perf-")) throw new Error("perf run-child: no private window root");
+  audit({ type: "scratch", path: scratch });
   // A private copy, checked against the binding, is what each launch runs.
   const binary = path.join(scratch, BIN_NAME);
   copyFileSync(bound, binary);
@@ -460,6 +661,7 @@ async function runPlan(options) {
       continue;
     }
     records.push(await runOne(run, ctx));
+    if (records.at(-1).class !== "ok") break;
   }
   const report = {
     schema: "swbpipe.desktop-perf-report/v1",
@@ -479,7 +681,7 @@ async function runPlan(options) {
   };
   const file = path.join(options.out, `perf-report-${new Date().toISOString().replace(/[:.]/g, "").slice(0, 15)}Z.json`);
   writeFileSync(file, `${JSON.stringify(report, null, 1)}\n`);
-  finishScratch({ scratch, binary, keep: options.keep });
+  if (records.some((record) => record.class !== "ok")) process.exitCode = 1;
   console.log(`perf run: ${records.length} runs in ${report.elapsed_s.toFixed(0)} s; report ${file}`);
   for (const record of records) console.log(`  ${record.id}: ${record.class}`);
 }
@@ -488,10 +690,10 @@ async function main() {
   if (process.platform !== "darwin") throw new Error("perf: macOS only");
   const { values } = parseArgs({
     options: {
-      build: { type: "boolean" }, plan: { type: "boolean" }, run: { type: "boolean" },
+      build: { type: "boolean" }, plan: { type: "boolean" }, run: { type: "boolean" }, "run-child": { type: "boolean" },
       "app-dir": { type: "string" }, "target-dir": { type: "string" }, "plan-file": { type: "string" },
       subset: { type: "string" }, runs: { type: "string" }, models: { type: "string" }, results: { type: "string" },
-      out: { type: "string" }, "budget-s": { type: "string" }, keep: { type: "boolean" }
+      out: { type: "string" }, "budget-s": { type: "string" }, keep: { type: "boolean" }, "window-root": { type: "string" }
     }
   });
   const planFile = path.resolve(values["plan-file"] ?? path.join(here, "perf-plan.json"));
@@ -501,11 +703,18 @@ async function main() {
     const plan = loadPlan(planFile);
     return process.stdout.write(formatPlan(selectRuns(plan, values), plan.budget_s));
   }
-  if (values.run) {
-    return runPlan({
+  if (values.run || values["run-child"]) {
+    const options = {
       appDir: need("app-dir"), models: need("models"), results: values.results ? path.resolve(values.results) : null, out: need("out"),
-      planFile, subset: values.subset, runs: values.runs, budgetS: values["budget-s"] ? Number(values["budget-s"]) : null, keep: Boolean(values.keep)
-    });
+      planFile, subset: values.subset, runs: values.runs, budgetS: values["budget-s"] ? Number(values["budget-s"]) : null, keep: Boolean(values.keep),
+      windowRoot: values["window-root"] ? path.resolve(values["window-root"]) : null
+    };
+    if (values["run-child"]) {
+      if (!process.send) throw new Error("perf run-child: no parent supervisor");
+      try { return await runPlan(options); }
+      finally { if (process.connected) process.disconnect(); }
+    }
+    return supervisedRun(options);
   }
   throw new Error("perf: give --build, --plan or --run (see the header of perf.mjs)");
 }

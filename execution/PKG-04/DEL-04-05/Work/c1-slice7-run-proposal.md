@@ -4,8 +4,9 @@ Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepare
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
 **Execution status:** the release App, two model documents and baseline P2 plan
-are prepared. The complete gate is blocked on the three executable prerequisites
-below. Do not acquire an exclusive interval or launch the App until those are
+are prepared. P1's runner safeguards are implemented offline and await independent
+scrutiny; P2 and P3 remain executable prerequisites below. Do not acquire an
+exclusive interval or launch the App until those are
 ready and the narrow run authority has been granted. Preparation has launched no
 App, solve worker, model solve, memory sampler, screenshot or LLM session.
 
@@ -45,6 +46,12 @@ Prepared external harness identities (SHA-256, recheck before execution):
 - `perf-driver.js`: `95894a5d6a672ad30f1c5dcff15bcf1149fb7254021837fb32828fe21832807c`.
 - `perf-sampler.py`: `99bc61de966068e1e1acf550219a3dd8df4e35e82bc7723fe0c4d69412f69295`.
 - `rack/rack_model.py`: `9bbc6b9b1f6f78c11233da9906bf1346d4322a16bfe1b5c5e2069c7914456559`.
+
+Those are the original prepared a37d harness identities. The later P1 preparation
+changes `perf.mjs`, `perf-sampler.py` and their tests; it changes neither the bound
+App/worker/frontend nor the driver. Bind its submitting revision and re-hash those
+external scripts before execution. The old identities do not certify the new
+supervision path, and green CI at 867e51b does not cover that later code.
 
 ## Inputs and reproducible commands
 
@@ -92,7 +99,8 @@ Only after the 500-node gate passes, release/reacquire through the same queue:
 /Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-1000 --budget-s 840 --out "$RT_C1_KIT/evidence/n1000"
 ```
 
-These commands currently execute the baseline open/solve/Record/Save driver.
+These commands execute the baseline open/solve/Record/Save driver through the P1
+supervisor (independent review pending).
 They become the complete gate only after the existing runner/driver and the
 reader-attribution carrier meet P1–P3. Rebind changed external scripts and any
 changed App before using them. No assumed flags or nonexistent profiling command
@@ -218,9 +226,12 @@ run-only protective stopping criterion, not a new product budget or a proof of
 
 On stop, try `analyze.cancel` for an active solve; allow at most 5 seconds for
 its cancellation/reap receipt. A completed native reader may not be cancellable;
-do not wait indefinitely. Terminate the runner's tracked private App group
-(including its workers), then SIGKILL/reap it within a further 5 seconds if
-necessary. The deadline must begin teardown by 840 seconds and finish/release
+do not wait indefinitely. Terminate the runner/App/helper group, and identify
+product workers separately: `solve_worker.rs` deliberately gives them their own
+process groups. Freeze the App group before enumerating PIDs whose executable
+path is this window's unique private App copy; stop those worker groups/PIDs
+before removing that copy. Never infer worker termination from App exit alone.
+The deadline must begin teardown by 840 seconds and finish/release
 the exclusive wrapper by 900, even if store inspection hangs. Do not kill a
 global process name or an ambiguously attributed WebKit process. Stop the owned
 sampler/caffeinate, close the App, and check no owned worker remains. Unexpected
@@ -239,16 +250,42 @@ truthfully; do not extend the interval to hide them.
 
 ## Missing executable prerequisites and smallest grant
 
-P1 — **Bounded stop/teardown in the maintained runner.** Current `perf.mjs`
-kills the App on its run timeout, but `inspectStore`, sampler shutdown and
-cleanup are outside that timeout; it has no host-pressure/aggregate-footprint
-watchdog. The exclusive wrapper itself has no deadline. A naive outer group
-timeout would miss the App because `spawn(...detached:true)` creates a new group.
-`node:sqlite` inspection is synchronous, so a timer on that same blocked Node
-event loop is insufficient: isolate/bound that step and retain an independent
-deadline/owned-group teardown path inside the maintained harness.
-Complete the runner's owned-PID, deadline and stop paths above, with targeted
-failure/cleanup checks, before claiming a <=15-minute runnable gate.
+P1 — **Implemented offline; independent review pending.** `perf.mjs --run` now
+forks the runner into its own process group under an independent supervising
+event loop. The App/helpers inherit that group; synchronous SQLite inspection
+can block only the runner. The supervisor begins stopping at the work deadline
+(maximum 840 s), escalates after 5 s, bounds a missing exit receipt by a further
+5 s, bounds worker discovery by 1.5 s, checks disappearance for up to 2 s and
+bounds its asynchronous report/cleanup by 10 s. These limits leave teardown
+margin within 900 s; actual held duration and cleanup are still run evidence.
+
+The product worker's own process-group behavior is preserved. Before final
+cleanup the supervisor freezes the runner/App group and uses the sampler's
+control-only `--list-owned` mode (no memory counters) to find PIDs/groups by the
+unique private executable path. It kills only that closed set plus its own runner
+group, verifies disappearance, and reports failed/unknown lookup as unverified
+cleanup. WebKit candidates are never targeted by name or PID. Private scratch
+is removed asynchronously only after successful outcome and process verification;
+failures retain its named path. `--keep` retains stores and removes the private
+App copy after verification. There is no automatic next run after a failure.
+
+The existing sampler additionally supplies host available-percent readings (at
+most once per second). Unknown/stale samples, low headroom, an aligned sum above
+12 GiB, PID RSS above 16 GiB, and ambiguous/replacement WebContent stop the window.
+These are run controls, not changes to product pool/budget admission. Native pool
+pressure/preflight and UI cancellation probes still belong to P2. A supervisor
+forced stop does not claim a successful UI cancellation or transaction commit.
+
+Eighteen maintained Node tests pass under `t3_slot.sh`, including only tiny fake
+Node processes for blocked inspection, workers in separate groups, early exit,
+resource stop, repeated interruption and failed/stalled lookup. Sampler syntax
+was checked without executing it. No native App, worker solve, sampler mode or
+memory measurement was launched. The own-executable discovery is source-reviewed
+preparation until separately authorized live evidence exists. Scope for the
+required safeguard review is the existing honest-local-mistake threat model:
+finite teardown, closed owned-PID/path and scratch containment, honest failure
+reporting and no unrelated-process kill. Hostile concurrent path/PID substitution
+remains outside the existing kit's threat model; this is not risk acceptance.
 
 P2 — **The maintained driver needs the C1 interaction probes.** Its current
 steps stop at first paint/Record/Save. Prepare/test the bounded DOM/navigation,
