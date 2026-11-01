@@ -357,7 +357,7 @@ export const C2_RESULT_ADVICE = "remove the load cases and combinations this rev
 
 /** A C2 consumer's full copy refused for its size (`RESULT-DETAIL-WEBVIEW-LIMIT`). */
 export class FullResultRefused extends Error {
-  constructor(readonly code: string, readonly resultBytes: number | null, readonly limitBytes: number | null, readonly nativeMessage: string) {
+  constructor(readonly code: string, readonly resultBytes: number | null, readonly limitBytes: number | null, readonly nativeMessage: string, readonly payloadKind: "result" | "record" = "result") {
     super(nativeMessage);
     this.name = "FullResultRefused";
   }
@@ -370,9 +370,10 @@ function size(bytes: number): string {
 }
 /** The refusal a C2 feature shows: the sizes, what still works, and #51's advice. */
 export function describeFullResultRefused(refusal: FullResultRefused, feature: string): string {
+  const subject = refusal.payloadKind === "record" ? "This run record" : "This result";
   const sizes = refusal.resultBytes !== null && refusal.limitBytes !== null
-    ? `This result is ${size(refusal.resultBytes)}, above the ${size(refusal.limitBytes)} the webview can hold whole`
-    : "This result is above the size the webview can hold whole";
+    ? `${subject} is ${size(refusal.resultBytes)}, above the ${size(refusal.limitBytes)} the webview can hold whole`
+    : `${subject} is above the size the webview can hold whole`;
   return `${refusal.code}: ${sizes}, so ${feature} cannot read it until its native path lands. The results themselves are still available: the summary, the tables, the viewport and the paged result detail read the result natively. To use ${feature} now: ${C2_RESULT_ADVICE}`;
 }
 

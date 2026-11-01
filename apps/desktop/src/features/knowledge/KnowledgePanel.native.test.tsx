@@ -12,10 +12,12 @@ import { awaitPreviewMechanicsJob, disposeDeliveredMechanicsResult, readNativeFr
 import { resetNativeResultsForTests, type NativeResult } from "../../services/nativeResult";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "../../test/nativeMechanicsReplay";
 import { KnowledgePanel } from "./KnowledgePanel";
+import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
 import type { MechanicsResult } from "../../types";
 
 let refuseLookup = false;
-beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); refuseLookup = false; });
+let refuseLinked = false;
+beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); refuseLookup = false; refuseLinked = false; });
 afterEach(() => {
   cleanup();
   invokeMock.mockReset();
@@ -26,6 +28,9 @@ async function nativeResult(): Promise<NativeResult> {
   const replay = createNativeMechanicsReplay({ profile: "preview" });
   invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
     if (command === "lookup_preview_mechanics_job_rows" && refuseLookup) {
+      return Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_unknown" }, pool: null });
+    }
+    if (command === "query_preview_mechanics_job_rows" && refuseLinked) {
       return Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_unknown" }, pool: null });
     }
     if (REPLAY_COMMANDS.includes(command)) return replay.invoke(command, args, options);
@@ -56,5 +61,15 @@ it("says a refused lookup is refused, and shows no axial-force record as if the 
   render(<KnowledgePanel knowledge={null} result={result} />);
   expect(await screen.findByTestId("knowledge-axial-force-refused")).toHaveTextContent("The computed axial-force record could not be read from the result:");
   expect(screen.queryByTestId("knowledge-record-knowledge:computed-axial-force")).toBeNull();
+  await disposeDeliveredMechanicsResult(result);
+});
+
+it("says a refused diagnostic-linked row query is refused", async () => {
+  const result = await nativeResult();
+  refuseLinked = true;
+  const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"preview"});
+  const model = {...pair.model,diagnostics:[...pair.model.diagnostics,{id:"diagnostic:linked-native",code:"LINKED_NATIVE",severity:"warning" as const,message:"Invented linked-row diagnostic",affected_refs:["pipe:P-120"]}]};
+  render(<DiagnosticsPanel model={model} knowledge={null} result={result} selectedDiagnosticId="diagnostic:linked-native" onSelectDiagnostic={() => {}}/>);
+  expect(await screen.findByTestId("diagnostic-linked-results-refused")).toHaveTextContent("The linked result query could not be read:");
   await disposeDeliveredMechanicsResult(result);
 });

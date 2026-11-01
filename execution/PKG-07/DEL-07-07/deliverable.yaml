@@ -296,6 +296,7 @@ checks:
 - apps/desktop/src/App.nativeCustody.test.tsx
 - apps/desktop/src/features/knowledge/KnowledgePanel.native.test.tsx
 - apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
+- apps/desktop/src/features/results/C2ResultGate.test.tsx
 - apps/desktop/src-tauri/src/native_csv_stream_tests.rs
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs

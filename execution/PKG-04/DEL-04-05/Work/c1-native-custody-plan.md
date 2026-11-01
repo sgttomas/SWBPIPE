@@ -456,8 +456,9 @@ repaired with a test:
   a taken result (`REPORT-EXACT-CUSTODY-RELEASED`). The copy now names its native job while that
   job is held, and `custody_binding` also answers for a native-custody result while it is held,
   with the digests recorded at publication; disposal ends both. This changes DEL-08-01's §3.6
-  custody rule (amended there) and makes one sentence of DEL-04-07's memory-budget decision stale
-  ("only while the result is delivered"); that decision text is Agent 0's and is not edited here.
+  custody rule (amended there). Agent 0 assigned the corresponding narrow DEL-04-07
+  custody-binding/session-refusal reconciliation; it is included here and quoted old/new in #59,
+  without changing identity checks, admission classes, budgets or caps.
 - Create and Save Project after a reference inspection with no result failed (a TypeError): the
   session's run was skipped whenever a retained reference run existed, then read through. It is
   read again whenever the retained run lacks the result or record, as before C1.
@@ -503,7 +504,9 @@ are committed fixtures by path, and the one re-serialized source is kept once. A
   failure, the job's disposal or the session reset. The text is byte for byte the formatters' CSV
   over all the group's rows (two bounded passes: units and conversions first, then rows), with at
   most one page of rows and one chunk of text in the webview. The endpoint pair keeps its
-  single-save path (two rows). The guard still counts nine tables at eleven render sites.
+  single-save path for the complete matching end-row table. The endpoint read pages every
+  station result and applies the legacy force/moment/stress family gate. The guard still counts
+  nine tables at eleven render sites.
 - **Checks.** `result_detail_tests.rs` (the navigator over every corpus source and filter member,
   probes, refusals, priced growth, leases); `native_csv_stream_tests.rs` (exact bytes, per-chunk
   evidence, order, size, counts, job, webview, abort, disposal, reset, collisions, disk failures);
@@ -543,6 +546,24 @@ lib run has 1,055 passing tests and 13 ignored, with no failures. The final chan
 the test's display-unit preference from `si` to `SI`. Main's subsequent routing/fixture-only
 updates are reconciled from the combined selected tree; affected integration checks and the
 exact-head hosted harness remain required before integration.
+
+**Connected-review repairs (after `2f493e1db`).** C2 session and gate states drop the old full
+copy when the source is replaced or cleared, including dormant/explicit gates; they do not merely
+hide an unleased reference. Endpoint-pair reads page through every matching station row and apply
+the selected row's authoritative force/moment/stress family gate. Registration resource refusals
+propagate as session-step failures; discarded jobs drop cached readings and caller-model captures;
+a refused C2 re-registration releases its copy. Reference inspection checks model/session/result/
+record/run generations after awaiting a copy so a newer action wins. Refused diagnostic queries
+are visible, and record-size messages name the record. The new regressions and the already-required
+independent recheck cover these repairs; native persistence/reopen and measurements remain pending.
+
+**Nonblocking stream edges recorded by the connected review.** Under the existing local
+containment model, a panic between stream checkout and checkin can leak a checked-out stream slot
+and leave a partial file; abort/reset only poison that checked-out slot, so cleanup is not established; a begin racing disposal is retired on the next operation/reset rather
+than immediately; and begin currently accepts an untaken legacy held job. These remain recorded
+limits, not claims of tested recovery or owner risk acceptance. The review did not classify them
+as blockers for this increment. Its full-copy reply and lone-surrogate replay exceptions remain
+stated evidence limits; no actual App or memory result is implied.
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
@@ -767,7 +788,8 @@ The guard `csvTableCoverage.test.ts` counts 9 marked tables:
   Each chunk is formatted by today's TS formatter and appended through the native CSV stream
   (`native_csv_stream.rs`, on `native_result_download`'s code), so the webview never holds the
   whole group (built: slice 4 status).
-- **Endpoint pairs:** two rows, read by bounded query and saved by the single save.
+- **Endpoint pairs:** all legacy-matching end rows, read through bounded query pages and saved
+  by the existing single-save route; the first 1,000 candidates are not treated as a complete set.
 - **Comparisons:** C2; in C1 full rows up to 64 MiB, refused by name above (slice 4).
 
 **Tests:**
@@ -838,8 +860,9 @@ They're updated in the slice that changes the flow, never deleted without a repl
      `native_verdict.rs` and the slice 2–3 files);
    - DEL-08-04 (CSV and exports: slice 4's paged CSV, and the interim 64 MiB limit for
      exports);
-   - DEL-04-07: its memory-budget decision is not edited (Agent 0). §8 states how the C1
-     leases fit it, and a proposed factual note goes to the owner in the PR body;
+   - DEL-04-07: the narrow custody-binding/session-refusal reconciliation assigned by Agent 0
+     is included; all other adopted memory policy is preserved. §8 states how C1 leases fit it,
+     and the separate proposed factual note remains in the PR body for owner adoption;
    - DEL-14-0x (the run record, slice 5).
 
 ## 8. C1's leases under the adopted pool policy

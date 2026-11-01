@@ -20,6 +20,8 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 
 import { awaitPreviewMechanicsJob, disposeDeliveredMechanicsResult, readNativeFreshResult, resetSessionResultCustodyForTests, startPreviewMechanicsJob } from "../../services/previewService";
 import { nativeCustody, queryNativeNavigator, resetNativeResultsForTests, type NativeResult } from "../../services/nativeResult";
+import * as nativeServices from "../../services/nativeResult";
+import { readNativeEndpointPair } from "./NativeResultsPanel";
 import { panelDetailFilter } from "../../services/resultDetail";
 import { createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, solveBytes } from "../../test/nativeMechanicsReplay";
 import { rememberReceivedText } from "./resultReader";
@@ -116,9 +118,49 @@ beforeEach(() => {
   hold = null;
 });
 afterEach(() => {
+  vi.restoreAllMocks();
   cleanup();
   invokeMock.mockReset();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
+
+it("reads matching endpoint rows beyond the first 1,000 and preserves the legacy family gate", async () => {
+  const {result,full} = await nativeResult("fixture");
+  const labels = semanticLabels(full);
+  const selected = full.results.find((row) => row.metadata?.location === "end_i" && ["force", "moment", "stress"].includes(labels.family(row)))!;
+  expect(selected).toBeDefined();
+  const semantics = vi.spyOn(nativeServices,"readNativeRowSemantics").mockResolvedValue([
+    {ok:true,signature:{category:"physical_quantity",family:"force"},complete_metadata:true,canonical_metadata:{}}
+  ]);
+  const stations = new Map(["end_i","end_j"].map((station) => [station, [
+    ...Array.from({length:1001},(_,i) => ({...selected,id:`unrelated:${station}:${i}`,metadata:{...selected.metadata!,location:station,component:"another component"}})),
+    {...selected,id:`matching:${station}`,metadata:{...selected.metadata!,location:station}}
+  ]]));
+  // Exercise the production paging decoder/iterator over bounded response bodies;
+  // the host's byte-page behavior is separately pinned by its Rust corpus.
+  const invoke = vi.fn(async (_command: string,args: Record<string,unknown>) => {
+    const station = (args.filter as {station:string}).station;
+    const rows = stations.get(station)!;
+    const offset = args.offset as number;
+    const page = rows.slice(offset,offset+(args.limit as number));
+    const texts = page.map((row) => new TextEncoder().encode(JSON.stringify(row)));
+    const header = new TextEncoder().encode(JSON.stringify({document_kind:"swbpipe.desktop.result_detail_rows",version:1,job_id:nativeCustody(result).jobId,
+      total:rows.length,offset,returned:page.length,truncated:false,ordinals:page.map((_,i) => offset+i),lengths:texts.map((text) => text.length)}));
+    const bytes = new Uint8Array(16+header.length+texts.reduce((n,text) => n+text.length,0));
+    bytes.set(new TextEncoder().encode("SWBDETv1"));
+    new DataView(bytes.buffer).setBigUint64(8,BigInt(header.length),true);
+    bytes.set(header,16);
+    let at=16+header.length;
+    for (const text of texts) { bytes.set(text,at); at+=text.length; }
+    return bytes.buffer;
+  });
+  vi.spyOn(nativeServices,"nativeQueryInvoke").mockReturnValue(invoke);
+  expect((await readNativeEndpointPair(result,selected,0)).map((row) => row.id)).toEqual(["matching:end_i","matching:end_j"]);
+  expect(invoke.mock.calls.map(([,args]) => args.offset)).toEqual([0,1000,1002,0,1000,1002]);
+  invoke.mockClear();
+  semantics.mockResolvedValue([{ok:true,signature:{category:"physical_quantity",family:"displacement"},complete_metadata:true,canonical_metadata:{}}]);
+  expect(await readNativeEndpointPair(result,selected,0)).toEqual([]);
+  expect(invoke).not.toHaveBeenCalled();
 });
 
 /** The panel with the session's selection held as the app holds it (a step selects through it). */

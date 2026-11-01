@@ -585,6 +585,7 @@ async function validateNativeReaders(jobId: string, route: string, capture: Capt
     if (capture.invalidated || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CHANGED_DURING_VALIDATION";
     return null;
   } catch (error) {
+    if (error instanceof ResourceUnavailableError) throw error;
     return errorCode(error) ?? "UNCODED_REFUSAL";
   }
 }
@@ -693,7 +694,10 @@ export function loadNativeFullResult(result: NativeResult): Promise<MechanicsRes
   return loadFullResult(result, async (text) => {
     const copy = receiveResultBytes(text);
     const capture = nativeJobCaptures.get(jobId) ?? null;
-    if (nativeRegistrations.has(result) && capture) await validateCapturedSource(copy, capture);
+    if (nativeRegistrations.has(result)) {
+      const code = capture ? await validateCapturedSource(copy, capture) : "CAPTURE_UNAVAILABLE";
+      if (code !== null) throw new Error(`C2-RESULT-REGISTRATION-REFUSED: ${code}`);
+    }
     fullCopyJobs.set(copy, jobId);
     return copy;
   });
@@ -769,6 +773,9 @@ export function deliveredIntakeText(result: MechanicsResult | NativeResult | nul
  * and release the retained result natively, without copying it to the app. */
 export async function discardPreviewMechanicsJobResult(jobId: string): Promise<boolean> {
   retireJobCapture(jobId);
+  forgetNativeJob(jobId);
+  const capture = nativeJobCaptures.get(jobId);
+  if (capture) { capture.invalidated = true; nativeJobCaptures.delete(jobId); }
   return disposePreviewMechanicsResult(jobId);
 }
 

@@ -8,7 +8,7 @@
  * withheld silently. A full result in the webview already (historical, browser reference) passes
  * through unchanged. No C1 surface uses this gate. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { describeFullResultRefused, FullResultRefused, isNativeAnalysisRun, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { describeFullResultRefused, FullResultRefused, isNativeAnalysisRun, isNativeJobLive, isNativeResult, nativeCustody, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { useOptionalSessionResults } from "../workspace/WorkspaceSessionContext";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../../types";
@@ -51,12 +51,18 @@ export function C2ResultGate({
   const [state, setState] = useState<GateState>({ status: "idle" });
   // A request is for the result it was made on; a new result needs its own.
   const [requestedFor, setRequestedFor] = useState<SessionResult | null>(null);
-  const requested = requestedFor !== null && requestedFor === result;
+  // Dormant sections may retain old props while the session context advances.
+  // They must release their ready state too, rather than retaining an unleased copy.
+  const retired = native && (!isNativeJobLive(nativeCustody(result).jobId)
+    || (sessionResults !== null && sessionResults.result !== result));
+  if (state.status !== "idle" && (retired || state.of !== result || state.run !== analysisRun)) setState({ status: "idle" });
+  if (requestedFor !== null && (retired || requestedFor !== result)) setRequestedFor(null);
+  const requested = !retired && requestedFor !== null && requestedFor === result;
   // Each state is for the result and record it was reached on (a revised record, such as a rule-check
   // aggregate's, gets its own full record built on the same copy); another's outcome is never shown.
-  const shown = state.status !== "idle" && state.of === result && state.run === analysisRun ? state : null;
+  const shown = !retired && state.status !== "idle" && state.of === result && state.run === analysisRun ? state : null;
   useEffect(() => {
-    if (!native || !result || (explicit && !requested)) return;
+    if (retired || !native || !result || (explicit && !requested)) return;
     const load = loadRef.current;
     if (!load) {
       setState({ status: "failed", text: `${feature} has no route to the full result here.`, of: result, run: analysisRun });
@@ -74,8 +80,9 @@ export function C2ResultGate({
       }
     );
     return () => { live = false; };
-  }, [native, result, analysisRun, explicit, requested, feature]);
+  }, [native, result, analysisRun, explicit, requested, feature, retired]);
 
+  if (retired) return null;
   if (!native) return <>{children({ result: result as MechanicsResult | null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun })}</>;
   if (shown?.status === "ready") return <>{children({ result: shown.full.result, analysisRun: shown.full.analysisRun })}</>;
   if (shown?.status === "refused") return <p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>;

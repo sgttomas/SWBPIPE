@@ -9,8 +9,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
-import { awaitPreviewMechanicsJob, disposeDeliveredMechanicsResult, readNativeFreshResult, resetSessionResultCustodyForTests, startPreviewMechanicsJob } from "./previewService";
-import { decodeNativeVerdict, FullResultRefused, isNativeResult, loadFullResult, nativeCustody, NativeResultRowsGuarded, resetNativeResultsForTests } from "./nativeResult";
+import { awaitPreviewMechanicsJob, discardPreviewMechanicsJobResult, disposeDeliveredMechanicsResult, loadNativeFullResult, readNativeFreshResult, resetSessionResultCustodyForTests, startPreviewMechanicsJob } from "./previewService";
+import * as readerModule from "../features/results/resultReader";
+import { decodeNativeVerdict, describeFullResultRefused, FullResultRefused, isNativeJobLive, isNativeResult, loadFullResult, nativeCustody, NativeResultRowsGuarded, resetNativeResultsForTests } from "./nativeResult";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "../test/nativeMechanicsReplay";
 import { readerDispatch, rememberReceivedText } from "../features/results/resultReader";
 import type { MechanicsResult } from "../types";
@@ -26,11 +27,51 @@ function install(replay: { invoke: Replay["invoke"] }) {
 }
 beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); });
 afterEach(() => {
+  vi.restoreAllMocks();
   invokeMock.mockReset();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
 describe("C1 slice 4: a fresh solve's result is read natively and never taken", () => {
+  it("names the run record when its full-copy size is refused", () => {
+    const refusal = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 65, 64, "record_bytes=65", "record");
+    expect(describeFullResultRefused(refusal,"reports")).toContain("This run record is 65 bytes");
+  });
+  it("releases a copied result when its required re-registration fails", async () => {
+    const replay=createNativeMechanicsReplay({profile:"preview"});
+    install(replay);
+    const pair=nativeMechanicsReplayPair("sparse_interactive",{profile:"preview"});
+    const started=await startPreviewMechanicsJob(pair.model,"sparse_interactive",{custody:"native"});
+    if (started.mode!=="backend_job") throw new Error("not native");
+    const terminal=await awaitPreviewMechanicsJob(started.job_id);
+    const native=(await readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).result;
+    const validation=vi.spyOn(readerModule,"readerValidate").mockImplementation(() => {throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");});
+    await expect(loadNativeFullResult(native)).rejects.toThrow("C2-RESULT-REGISTRATION-REFUSED: SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+    expect(invokeMock.mock.calls.map(([command]) => command)).toContain("release_preview_mechanics_job_full_copy");
+    validation.mockRestore();
+    // A failed copy is not cached, so the next request can be registered.
+    expect((await loadNativeFullResult(native)).run_id).toBe(native.run_id);
+    await disposeDeliveredMechanicsResult(native);
+  });
+  it("propagates a registration resource refusal and forgets the failed job's cached reads", async () => {
+    const replay = createNativeMechanicsReplay({profile:"preview"});
+    install(replay);
+    const forward=invokeMock.getMockImplementation()!;
+    const refusal={code:"RESOURCE_UNAVAILABLE",refusal:{kind:"headroom_unknown"},pool:null};
+    invokeMock.mockImplementation((command: string,args?: unknown,options?: unknown) => {
+      if (command==="read_preview_mechanics_job_verdict" && (args as {reader?:string})?.reader) return Promise.reject(refusal);
+      return forward(command,args,options);
+    });
+    const pair=nativeMechanicsReplayPair("sparse_interactive",{profile:"preview"});
+    const started=await startPreviewMechanicsJob(pair.model,"sparse_interactive",{custody:"native"});
+    if (started.mode!=="backend_job") throw new Error("not native");
+    const terminal=await awaitPreviewMechanicsJob(started.job_id);
+    await expect(readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).rejects.toMatchObject({refusal:{kind:"headroom_unknown"}});
+    await discardPreviewMechanicsJobResult(started.job_id);
+    expect(isNativeJobLive(started.job_id)).toBe(false);
+    expect(replay.nativeHeld()).toEqual([]);
+    await expect(readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).rejects.toThrow("NATIVE-RESULT-DISPOSED");
+  });
   for (const profile of ["preview", "pressure"] as const) {
     it(`${profile}: verdict, registration, standing and S through the actual ingress and the actual commands' replies`, async () => {
       const replay = createNativeMechanicsReplay({ profile });

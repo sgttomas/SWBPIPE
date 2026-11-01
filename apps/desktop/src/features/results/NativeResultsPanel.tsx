@@ -619,24 +619,31 @@ function refusalText(error: unknown): string {
 
 /** The selected row's detail, from the panel's bounded lookup: its members, its source rows' ids,
  * and its endpoint pair (the same entity's end rows of the same component, frame and basis, by query). */
+export async function readNativeEndpointPair(result: NativeResult, row: Row, ordinal: number): Promise<Row[]> {
+  const metadata = row.metadata;
+  if (!metadata || !["end_i", "end_j"].includes(metadata.location)) return [];
+  const [semantics] = await readNativeRowSemantics(result, [ordinal]);
+  const family = semantics?.ok && semantics.signature?.category === "physical_quantity" ? semantics.signature.family : null;
+  if (family !== "force" && family !== "moment" && family !== "stress") return [];
+  const pair: Row[] = [];
+  for (const station of ["end_i", "end_j"]) {
+    for await (const page of resultRowPages(nativeQueryInvoke(result), nativeCustody(result).jobId, { entities: [row.entity_ref], station })) {
+      pair.push(...page.rows.map((entry) => entry.row).filter((candidate) => candidate.metadata?.component === metadata.component
+        && candidate.metadata?.coordinate_system === metadata.coordinate_system && candidate.metadata?.basis === metadata.basis));
+    }
+  }
+  return pair.length >= 2 ? pair : [];
+}
+
 function NativeResultDetail({ result, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
-  const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: Row[] } | null>(null);
+  const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: Row[]; error?: string } | null>(null);
   useEffect(() => {
     if (!selected) return;
     let live = true;
     (async () => {
-      const row = selected.row;
-      let pair: Row[] = [];
-      const metadata = row?.metadata;
-      if (row && metadata && ["end_i", "end_j"].includes(metadata.location)) {
-        for (const station of ["end_i", "end_j"]) {
-          const page = await queryNativeRows(result, { entities: [row.entity_ref], station }, 0, 1000);
-          pair.push(...page.rows.map((entry) => entry.row).filter((candidate) => candidate.metadata?.component === metadata.component && candidate.metadata?.coordinate_system === metadata.coordinate_system && candidate.metadata?.basis === metadata.basis));
-        }
-        if (pair.length < 2) pair = [];
-      }
+      const pair = selected.row && selected.ordinal !== null ? await readNativeEndpointPair(result, selected.row, selected.ordinal) : [];
       if (live) setPairRead({ of: selected, pair });
-    })().catch(() => { if (live) setPairRead({ of: selected, pair: [] }); });
+    })().catch((error) => { if (live) setPairRead({ of: selected, pair: [], error: `The endpoint pair could not be read: ${refusalText(error)}` }); });
     return () => { live = false; };
   }, [result, selected]);
   if (!selectedResultId) return null;
@@ -650,6 +657,7 @@ function NativeResultDetail({ result, selectedResultId, selected, analysisRun, e
       <p data-testid="result-detail-id"><strong>{row.id}</strong> {row.kind} at {row.entity_ref} ({row.metadata?.location ?? "summary"}): {row.value} {row.unit}</p>
       <p data-testid="result-detail-frame">Frame: {row.metadata?.coordinate_system ?? "result_envelope"}; component {row.metadata?.component ?? row.kind}; sign convention {row.metadata?.sign_convention ?? "not specified in result metadata"}; result value checksums in the run record: {hashes}.</p>
       {row.source_result_refs?.length ? <p data-testid="result-detail-sources">Source results: {row.source_result_refs.join(", ")}</p> : null}
+      {read.error ? <p role="status" data-testid="endpoint-pair-refused">{read.error}</p> : null}
       {read.pair.length ? (
         <section className="endpoint-pair" aria-label="Endpoint pair results" data-testid="endpoint-pair-table">
           <CsvExportControl tableLabel="Endpoint pair results" testId="endpoint-pair-export-csv" build={() => exportEndpointPair(read.pair)} />

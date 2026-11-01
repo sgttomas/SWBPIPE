@@ -467,7 +467,7 @@ export function useWorkspaceSession() {
       const preview = nativeRunPreview(run);
       if (preview.record_bytes > RESULT_DETAIL_WEBVIEW_LIMIT_BYTES) {
         throw new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, preview.record_bytes, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES,
-          `${RESULT_DETAIL_WEBVIEW_LIMIT} (result_bytes=${preview.record_bytes}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.`);
+          `${RESULT_DETAIL_WEBVIEW_LIMIT} (record_bytes=${preview.record_bytes}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.`, "record");
       }
       let building = nativeFullRecords.current.get(run);
       if (!building) {
@@ -991,15 +991,14 @@ export function useWorkspaceSession() {
 
   /** The result and record a reference inspection retains for its restore: copies of a full result,
    * or a native result's C2 full copy and full record. */
-  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }> {
+  async function retainedReferenceRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null; message?: string }> {
     if (!result) return { result: null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : (analysisRun ? structuredClone(analysisRun) : null) };
     if (!isNativeResult(result)) return { result: structuredClone(result), analysisRun: analysisRun && !isNativeAnalysisRun(analysisRun) ? structuredClone(analysisRun) : null };
     try {
       const full = await loadC2Full(result);
       return { result: structuredClone(full.result), analysisRun: full.analysisRun ? structuredClone(full.analysisRun) : null };
     } catch (error) {
-      setProjectMessage(`The current solve's result is not retained while the reference is inspected: ${error instanceof FullResultRefused ? error.message : nativeFailureText(error)}`);
-      return { result: null, analysisRun: null };
+      return { result: null, analysisRun: null, message: `The current solve's result is not retained while the reference is inspected: ${error instanceof FullResultRefused ? error.message : nativeFailureText(error)}` };
     }
   }
 
@@ -1007,12 +1006,22 @@ export function useWorkspaceSession() {
     if (!model) return;
     if (result || analysisRun || historicalRun?.designation === "historical_saved_run"
       || !retainedReferencePersistence(model)) {
+      const basis = {
+        generation: projectSessionGenerationRef.current, revision: modelRevision.current,
+        resultSequence: resultBasisRef.current.sequence, runSequence: analysisBasisRef.current.sequence,
+        solve: solveRunGate.current.current(),
+      };
+      // Retaining native bytes/record can await C2 reads. A new action wins;
+      // this older inspection must not clear or cancel it when the read ends.
+      const retained = await retainedReferenceRun();
+      if (currentModel.current !== model || projectSessionGenerationRef.current !== basis.generation
+        || modelRevision.current !== basis.revision || resultBasisRef.current.sequence !== basis.resultSequence
+        || analysisBasisRef.current.sequence !== basis.runSequence || solveRunGate.current.current() !== basis.solve) return;
+      if (retained.message) setProjectMessage(retained.message);
       referencePersistence.current = {
-        model, generation: projectSessionGenerationRef.current, modelContent: checkedJsonText(model),
+        model, generation: basis.generation, modelContent: checkedJsonText(model),
         history: historicalRun?.designation === "historical_saved_run" ? structuredClone(historicalRun) : null,
-        // A native result is kept through its C2 full copy (at or under 64 MiB); above that its
-        // result cannot be retained for this restore and the message says so.
-        ...(await retainedReferenceRun()),
+        result: retained.result, analysisRun: retained.analysisRun,
       };
     }
     // Retire any pending backend publication before loading the separate example.

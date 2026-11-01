@@ -398,6 +398,36 @@ it("shows a worker growth refusal as before, now with its exact code and retry p
     "Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: worker_growth_refused (granted_bytes=68157440, requested_bytes=72598008); cause headroom_insufficient (required_bytes=67108864, available_bytes=0)");
 });
 
+it("does not let an old reference-inspection copy cancel or clear a newer solve", async () => {
+  let unblock!: () => void;
+  let entered=false;
+  const held=new Promise<void>((resolve) => {unblock=resolve;});
+  const {result,transport,unmount}=await session((command,_args,_options,forward) => {
+    if (command!=="read_preview_mechanics_job_rows_all") return undefined;
+    return (async () => {
+      const copied=await forward();
+      entered=true;
+      await held;
+      return copied;
+    })();
+  });
+  await act(async () => {await result.current.results.handleRun();});
+  const first=result.current.results.result;
+  let inspection!: Promise<void>;
+  act(() => {inspection=result.current.results.handleInspectBundledReference();});
+  await waitFor(() => expect(entered).toBe(true));
+  await act(async () => {await result.current.results.handleRun();});
+  const current=result.current.results.result;
+  expect(current===first).toBe(false);
+  expect(current).not.toBeNull();
+  await act(async () => {unblock(); await inspection;});
+  expect(result.current.results.result===current).toBe(true);
+  expect(result.current.results.historicalRun).toBeNull();
+  expect(transport.nativeHeld()).toHaveLength(1);
+  unmount();
+  await waitFor(() => expect(transport.nativeHeld()).toEqual([]));
+});
+
 it("releases a delivered result when a new solve replaces it, when reference inspection clears it, and when the session ends", async () => {
   const { result, transport, unmount } = await session();
   await act(async () => { await result.current.results.handleRun(); });

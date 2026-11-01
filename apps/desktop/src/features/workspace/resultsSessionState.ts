@@ -92,6 +92,9 @@ export function useResultsSessionState() {
   // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): a native result's full copy,
   // loaded only when a C2 consumer asks for it (at or under 64 MiB). Comparisons read it.
   const [fullResultCopy, setFullResultCopy] = useState<{ of: SessionResult; copy: MechanicsResult } | null>(null);
+  // Drop the actual reference, not only its visibility: disposal releases its
+  // native custody lease when this source result is replaced or edited away.
+  if (fullResultCopy !== null && fullResultCopy.of !== result) setFullResultCopy(null);
   const resultBasisRef = useRef<{ value: SessionResult | null; sequence: number }>({ value: null, sequence: 0 });
   if (resultBasisRef.current.value !== result) resultBasisRef.current = { value: result, sequence: resultBasisRef.current.sequence + 1 };
   const analysisBasisRef = useRef<{ value: SessionAnalysisRun | null; sequence: number }>({ value: null, sequence: 0 });
