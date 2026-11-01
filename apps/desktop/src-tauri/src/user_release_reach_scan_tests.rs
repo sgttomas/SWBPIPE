@@ -534,7 +534,7 @@ fn user_release_reach_scan_finds_each_break() {
         ("a new local macro without a scanned name", appended("pdf_emitter/src/lib.rs", "macro_rules! twice { ($e:expr) => { ($e, $e) }; }\n"), "the macro definition twice is not on the allow-list"),
         ("its invocation", appended("pdf_emitter/src/lib.rs", "macro_rules! twice { ($e:expr) => { ($e, $e) }; }\nfn t() { twice!(1); }\n"), "the macro twice! is not on the invocation list"),
         ("a macro 2.0 item", appended("pdf_emitter/src/lib.rs", "pub macro twice($e:expr) { ($e, $e) }\n"), "Verbatim"),
-        ("app_invoke_handler with a handler added", edited(TAURI, "            save_local_result_json $(, $extra)*", "            save_local_result_json, forward $(, $extra)*"), "differs from its pinned text"),
+        ("app_invoke_handler with a handler added", edited(TAURI, "            abort_local_csv_stream $(, $extra)*", "            abort_local_csv_stream, forward $(, $extra)*"), "differs from its pinned text"),
         ("app_invoke_handler with whitespace changed", edited(TAURI, "            save_report_package,\n", "            save_report_package,  \n"), "differs from its pinned text"),
         ("app_invoke_handler with a comment", edited(TAURI, "            save_report_package,\n", "            save_report_package, // invented\n"), "differs from its pinned text"),
         ("app_invoke_handler moved to another file", {

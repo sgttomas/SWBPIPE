@@ -49,7 +49,7 @@ const routes = {
   "DOTH-CSV-011": { name: CSV_EXPORT_FILE_NAME, receipt: csvReceiptName, ext: ".csv", prefix: CSV_DATA_PREFIX, lossless: false }
 } as const;
 type NativeSaveRoute = keyof typeof routes;
-function routeOf(request: NativeResultSaveRequest): (typeof routes)[NativeSaveRoute] | null {
+function routeOf(request: Pick<NativeResultSaveRequest, "screening">): (typeof routes)[NativeSaveRoute] | null {
   const id = object(request) && object(request.screening) ? request.screening.route_id : undefined;
   return typeof id === "string" && Object.hasOwn(routes, id) ? routes[id as NativeSaveRoute] : null;
 }
@@ -60,7 +60,9 @@ function object(value: unknown): value is Record<string, unknown> {
 function failure(code: string, stage: string, cleanup: NativeResultSaveError["cleanup"]): NativeResultSaveError {
   return { code, stage, cleanup, message: "Local result save did not complete.", partial_file_name: null };
 }
-function normalizeError(error: unknown, request: NativeResultSaveRequest): NativeResultSaveError {
+/** A native save rejection as its typed error (`SaveError`), or `IPC_REJECTED` for anything else;
+ * a partial file name is admitted only within the requested name's family. */
+export function normalizeError(error: unknown, request: Pick<NativeResultSaveRequest, "file_name" | "screening">): NativeResultSaveError {
   // A native memory-pool refusal comes before the command runs: nothing was written.
   if (error instanceof ResourceUnavailableError) {
     return { ...failure("RESOURCE_UNAVAILABLE", "request", "not_needed"), message: `Refused by the native memory pool: ${describeResourceRefusal(error.refusal)}` };
@@ -70,7 +72,7 @@ function normalizeError(error: unknown, request: NativeResultSaveRequest): Nativ
     try { value = JSON.parse(value); } catch { return failure("IPC_REJECTED", "invoke", "unknown"); }
   }
   if (object(value) && typeof value.code === "string" && /^[A-Z_]+$/.test(value.code)
-    && typeof value.stage === "string" && ["request", "decode", "downloads", "containment", "open", "write", "flush", "busy", "worker"].includes(value.stage)
+    && typeof value.stage === "string" && ["request", "decode", "downloads", "containment", "open", "write", "flush", "busy", "worker", "stream"].includes(value.stage)
     && typeof value.cleanup === "string" && cleanups.includes(value.cleanup)
     && (value.partial_file_name === null || (typeof value.partial_file_name === "string"
       && routeOf(request) !== null && routeOf(request)!.receipt.test(value.partial_file_name)
@@ -103,7 +105,8 @@ function sameRequestedFamily(value: string, basename: string, ext: string): bool
   const suffix = value.startsWith(`${stem} (`) && value.endsWith(`)${ext}`) ? value.slice(stem.length + 2, -(ext.length + 1)) : "";
   return /^[1-9][0-9]*$/.test(suffix);
 }
-function receipt(value: unknown, request: NativeResultSaveRequest): value is NativeResultSaveReceipt {
+/** Whether a native reply is the save's receipt for the requested name (its ` (n)` successors). */
+export function receipt(value: unknown, request: Pick<NativeResultSaveRequest, "file_name" | "screening">): value is NativeResultSaveReceipt {
   return object(value) && Object.keys(value).sort().join(",") === "byte_count,durability,file_name,outcome,path_containment,replaced_existing"
     && value.outcome === "saved" && typeof value.file_name === "string" && routeOf(request) !== null
     && routeOf(request)!.receipt.test(value.file_name) && sameRequestedFamily(value.file_name, request.file_name, routeOf(request)!.ext)

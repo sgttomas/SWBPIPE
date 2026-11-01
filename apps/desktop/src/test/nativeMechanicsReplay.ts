@@ -94,6 +94,7 @@ export const NATIVE_RESULT_COMMANDS = Object.freeze([
   "lookup_preview_mechanics_job_rows",
   "read_preview_mechanics_job_row_semantics",
   "query_preview_mechanics_job_source_recovery",
+  "query_preview_mechanics_job_navigator",
   "read_preview_mechanics_job_analysis_run_preview",
 ]);
 export const SOLVE_JOB_COMMANDS = Object.freeze([

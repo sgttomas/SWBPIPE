@@ -6,20 +6,31 @@
  * call; the selected row, its endpoint pair and the intensified-row notice come by bounded native
  * lookup or query. A query the native host refuses for its arguments (a lone surrogate in a search,
  * `INGRESS-ARGS-INVALID`) is shown as that typed refusal, never as no rows. The webview holds one
- * page of rows, never the envelope. */
-import { useEffect, useMemo, useState } from "react";
+ * page of rows, never the envelope.
+ *
+ * The results navigator (DEL-07-05 `results-navigator.md`) steps all three axes as `ResultsPanel`
+ * does: kinds and cases from S; supports and elements from the native navigator query
+ * (`query_preview_mechanics_job_navigator`: the distinct entities of the rows the filters admit,
+ * other than "Selected entity only", in first-publication order, with each one's first row), so a
+ * step lands on the first matching published row, on its native page, without reading every row
+ * here. A step whose list is still being read waits for it; a reply for a step, filter or result
+ * that is no longer current is discarded. A group's CSV is written through the native stream in
+ * pages (`resultGroupCsvStream`), byte for byte the CSV the full rows would give. */
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { QuantityReadout } from "../display-units";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION, csvAnalysisRoute, csvModelHash, csvResultHash } from "../result-export/csvProvenance";
 import { CSV_NOT_RECORDED } from "../result-export/csvTable";
-import type { CsvExport } from "../result-export/CsvExportControl";
-import { displayConversionBasis, ENDPOINT_PAIR_CSV_KIND, endpointPairCsv, resultGroupCsv, resultGroupCsvKind, type ResultRowsCsvRow } from "./resultRowsCsv";
+import type { CsvExport, CsvStreamExport } from "../result-export/CsvExportControl";
+import { displayConversionBasis, ENDPOINT_PAIR_CSV_KIND, endpointPairCsv, resultGroupCsvKind, type ResultRowsCsvRow } from "./resultRowsCsv";
+import { resultGroupCsvStream } from "./resultGroupCsvStream";
+import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
-import { ALL_CASES, type NavigatorCase } from "./resultsNavigator";
+import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
 import type { ResultsViewRequest } from "./ResultsPanel";
 import {
@@ -30,12 +41,17 @@ import {
   groupResults,
   MechanicsGapLedger,
   NumericalHealthBadgeText,
+  NAVIGATOR_AXIS_NOUN,
   NumericalHealthDetail,
+  RESULT_FAMILY_OPTIONS,
   ResultControls,
+  ResultsNavigator,
   resultFrame,
   RowHealthBadge,
   routeHealth,
-  SectionBasisHeadlines
+  SectionBasisHeadlines,
+  type NavigatorStep,
+  type ResultFamilyFilter
 } from "./ResultsPanel";
 import {
   isNativeAnalysisRun,
@@ -43,12 +59,13 @@ import {
   nativeCustody,
   NativeQueryRefused,
   nativeQueryInvoke,
+  queryNativeNavigator,
   queryNativeRows,
   readNativeRowSemantics,
   type NativeResult,
   type SessionAnalysisRun
 } from "../../services/nativeResult";
-import { panelDetailFilter, resultRowPages, type DetailRow, type RowSemanticsOutcome } from "../../services/resultDetail";
+import { panelDetailFilter, resultRowPages, type DetailFilter, type DetailRow, type NavigatorAxisRead, type RowSemanticsOutcome } from "../../services/resultDetail";
 import { nativeFailureText } from "../../services/nativeIngress";
 import type { DesignKnowledge, EntityRef, MechanicsResult, PreviewModel } from "../../types";
 import type { RowLabels } from "./resultSemantics";
@@ -57,9 +74,8 @@ import type { RowSemantics } from "./resultReader";
 type Row = MechanicsResult["results"][number];
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const PREVIEW_INTENSIFIED_KIND = "preview_intensified_bending_stress";
-/** The largest group CSV this interim path assembles in the webview (the existing download route's
- * bound). Above it the export is refused by name; the native chunked writer is a remaining step. */
-const GROUP_CSV_ROW_LIMIT = 200_000;
+/** The navigator lists a panel keeps (one per filter it stepped through recently). */
+const NAVIGATOR_LISTS_KEPT = 4;
 const FAMILY_BY_TITLE: Readonly<Record<string, string>> = { Displacement: "displacement", Rotation: "rotation", Reaction: "reaction", Force: "force", Moment: "moment", Stress: "stress", Ratio: "ratio", Other: "other" };
 
 /** Labels over the rows of a page from their batched native semantics, as `semanticLabels` reads
@@ -199,38 +215,239 @@ export function NativeResultsPanel({
       ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
       : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
-  const exportGroup = async (title: string): Promise<CsvExport> => {
-    // Every row the filters admit in this group, across all pages, by bounded native pages.
-    const rows: ResultRowsCsvRow[] = [];
+  const exportGroup = async (title: string): Promise<CsvStreamExport> => {
+    // Every row the filters admit in this group, across all pages, by bounded native pages, written
+    // through the native stream: one page of rows (and its text) held here at a time.
     const groupFilter = { ...filter, family: FAMILY_BY_TITLE[title] ?? "other" };
-    for await (const chunk of resultRowPages(nativeQueryInvoke(result), custody.jobId, groupFilter)) {
-      if (chunk.total > GROUP_CSV_ROW_LIMIT) throw new Error(`RESULT-GROUP-CSV-NATIVE-STREAM-PENDING: ${chunk.total} rows in ${title}, above the ${GROUP_CSV_ROW_LIMIT} this interim export assembles; narrow the filters (case, frame, entity) to export them in parts. The native chunked writer is a remaining step.`);
-      const outcomes = await readNativeRowSemantics(result, chunk.rows.map((entry) => entry.ordinal));
-      const chunkLabels = labelsOf(chunk.rows, outcomes);
-      for (const { row: item } of chunk.rows) {
-        const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: chunkLabels.dimension(item) ?? "unknown" };
-        const state = rowHealthState(health, item);
-        rows.push({
-          id: item.id, category: chunkLabels.category(item), label: (labelSource && resultRowLabel(item, labelSource as never)) || "",
-          health: state ? NUMERICAL_HEALTH_STATE_TEXT[state] : "", withheld: kindFilter?.withheld[item.id] ?? "",
-          componentBody: item.component_body ? `reference section of component body ${item.component_body.component_ref}` : "",
-          entity: item.entity_ref, location: item.metadata?.location ?? "summary", frame: frameLabel(resultFrame(item)), quantity,
-          display: await displayResolver.resolve(quantity)
-        });
+    const pages = async function* (): AsyncGenerator<readonly ResultRowsCsvRow[]> {
+      for await (const chunk of resultRowPages(nativeQueryInvoke(result), custody.jobId, groupFilter)) {
+        const outcomes = await readNativeRowSemantics(result, chunk.rows.map((entry) => entry.ordinal));
+        const chunkLabels = labelsOf(chunk.rows, outcomes);
+        const rows: ResultRowsCsvRow[] = [];
+        for (const { row: item } of chunk.rows) {
+          const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: chunkLabels.dimension(item) ?? "unknown" };
+          const state = rowHealthState(health, item);
+          rows.push({
+            id: item.id, category: chunkLabels.category(item), label: (labelSource && resultRowLabel(item, labelSource as never)) || "",
+            health: state ? NUMERICAL_HEALTH_STATE_TEXT[state] : "", withheld: kindFilter?.withheld[item.id] ?? "",
+            componentBody: item.component_body ? `reference section of component body ${item.component_body.component_ref}` : "",
+            entity: item.entity_ref, location: item.metadata?.location ?? "summary", frame: frameLabel(resultFrame(item)), quantity,
+            display: await displayResolver.resolve(quantity)
+          });
+        }
+        yield rows;
       }
-    }
+    };
     const filters = [`case: ${activeCase}`, `family: ${familyFilter}`, `frame: ${activeFrame}`, `text: ${filterText.trim() || "none"}`, `kind: ${kindFilter?.kind ?? "any"}`, `selected entity only: ${selectionOnly ? selectionEntityId ?? "none selected" : "off"}`].join("; ");
-    return resultGroupCsv({
-      title, rows,
+    const streamed = resultGroupCsvStream({
+      title, pages,
       provenance: { modelHash: model ? await csvModelHash(model) : CSV_NOT_RECORDED, resultHash: csvResultHash(result, csvRecord), analysisRoutes: [csvAnalysisRoute(result)] },
       softwareVersion: CSV_SOFTWARE_VERSION,
-      unitBasis: await displayConversionBasis({ preference: displayResolver.preference, rows, convertRaw: displayResolver.convertRaw }),
       caseOrFilter: `group: ${title}; ${filters}`,
-      caseQualifier: activeCase !== ALL_CASES ? activeCase : undefined
+      caseQualifier: activeCase !== ALL_CASES ? activeCase : undefined,
+      preference: displayResolver.preference,
+      convertRaw: displayResolver.convertRaw
     });
+    return { fileName: streamed.fileName, jobId: custody.jobId, chunks: streamed.chunks };
   };
+
+  /* ---- A1: the results navigator (DEL-07-05 `results-navigator.md`), on native lists ---- */
+  const panelRef = useRef<HTMLElement>(null);
+  const kindIds = RESULT_FAMILY_OPTIONS
+    .filter((option) => option.id === "all" || (familyCounts as Record<string, number>)[option.id] > 0)
+    .map((option) => option.id);
+  const caseKeys = [ALL_CASES, ...cases.map((item) => item.key)];
+  // The rows every filter but "Selected entity only" admits: the navigator's supports and elements.
+  const navigatorFilterFor = (family: string, caseKey: string): DetailFilter => panelDetailFilter({ filterText, familyFilter: family, frame: activeFrame, caseKey, kind: kindFilter?.kind ?? null });
+  const navigatorFilter = navigatorFilterFor(familyFilter, activeCase);
+  const navigatorKey = `${custody.jobId}\u0000${JSON.stringify(navigatorFilter)}`;
+  const lists = useRef<{ jobId: string; byKey: Map<string, Promise<NavigatorAxisRead>> }>({ jobId: custody.jobId, byKey: new Map() });
+  /** The entity list under `filter`, one native query per filter; the panel keeps the last few. */
+  const readNavigator = (filterAt: DetailFilter): Promise<NavigatorAxisRead> => {
+    if (lists.current.jobId !== custody.jobId) lists.current = { jobId: custody.jobId, byKey: new Map() };
+    const byKey = lists.current.byKey;
+    const key = `${custody.jobId}\u0000${JSON.stringify(filterAt)}`;
+    let pending = byKey.get(key);
+    if (pending) byKey.delete(key);
+    else {
+      pending = queryNativeNavigator(result, filterAt);
+      const kept = pending;
+      // A refusal is not kept: a later step reads afresh.
+      kept.catch(() => { if (byKey.get(key) === kept) byKey.delete(key); });
+    }
+    byKey.set(key, pending);
+    while (byKey.size > NAVIGATOR_LISTS_KEPT) byKey.delete(byKey.keys().next().value!);
+    return pending;
+  };
+  const [navigatorState, setNavigatorState] = useState<{ key: string; read: NavigatorAxisRead } | { key: string; refused: string } | null>(null);
+  useEffect(() => {
+    let live = true;
+    readNavigator(navigatorFilter).then(
+      (read) => { if (live) setNavigatorState({ key: navigatorKey, read }); },
+      (error) => { if (live) setNavigatorState({ key: navigatorKey, refused: refusalText(error) }); }
+    );
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigatorKey]);
+  const navigatorCurrent = navigatorState?.key === navigatorKey ? navigatorState : null;
+  const navigatorRead = navigatorCurrent && "read" in navigatorCurrent ? navigatorCurrent.read : null;
+  const entities = navigatorRead?.entities ?? [];
+  // The selected row, by bounded lookup (`results.find` by id), shared with the detail below.
+  const selected = useNativeSelectedRow(result, selectedResultId);
+  const selectedPending = selectedResultId !== null && selected === null;
+  const selectedRow = selected?.row ?? null;
+  // The navigator's support or element: the one a step chose, else the session's. A newly selected
+  // result row, or a new selection, made anywhere moves it (once its row is read); a new run clears it.
+  const [tracked, setTracked] = useState(() => ({ entity: selectionEntityId, selection: selectionEntityId, resultId: null as string | null, runId }));
+  let navEntity = tracked.entity;
+  if ((tracked.selection !== selectionEntityId || tracked.resultId !== selectedResultId || tracked.runId !== runId) && !(tracked.resultId !== selectedResultId && selectedPending)) {
+    let entity = tracked.runId !== runId ? null : tracked.entity;
+    if (tracked.resultId !== selectedResultId && selectedRow) entity = selectedRow.entity_ref;
+    else if (tracked.selection !== selectionEntityId) entity = selectionEntityId;
+    navEntity = entity;
+    setTracked({ entity, selection: selectionEntityId, resultId: selectedResultId, runId });
+  }
+  const entityAt = navEntity === null || !navigatorRead ? -1 : navigatorRead.entities.indexOf(navEntity);
+  // The current row: the selected row when it is the entity's and the filters admit it, else the
+  // entity's first row (`firstRowOf`). Admission is known without a query when the selected row is
+  // that first row or on the page shown (whose filter adds only the selected entity); otherwise
+  // one probe asks.
+  const selectedOrdinal = selected?.ordinal ?? null;
+  const probeNeeded = selectedRow !== null && selectedOrdinal !== null && entityAt >= 0 && selectedRow.entity_ref === navEntity
+    && navigatorRead!.firstOrdinals[entityAt] !== selectedOrdinal && !(ready?.rows.some((entry) => entry.ordinal === selectedOrdinal) ?? false);
+  const probe = useNavigatorProbe(result, navigatorFilter, navigatorKey, probeNeeded ? selectedOrdinal : null);
+  const selectedIsCurrent = selectedRow !== null && entityAt >= 0 && selectedRow.entity_ref === navEntity
+    && (navigatorRead!.firstOrdinals[entityAt] === selectedOrdinal || (ready?.rows.some((entry) => entry.ordinal === selectedOrdinal) ?? false) || probe === true);
+  const firstRowId = useNativeRowId(result, !selectedIsCurrent && entityAt >= 0 ? navigatorRead!.firstOrdinals[entityAt] : null);
+  const currentRowId = selectedIsCurrent ? selectedRow!.id : firstRowId;
+  const [endNotice, setEndNotice] = useState<string | null>(null);
+  const [reveal, setReveal] = useState<{ rowId: string; focus: boolean } | null>(null);
+  // A step's reply applies only while it is the latest step, on the same result and filters.
+  const latest = useRef({ step: 0, navigatorKey, result, mounted: true });
+  latest.current.navigatorKey = navigatorKey;
+  latest.current.result = result;
+  useEffect(() => {
+    latest.current.mounted = true;
+    return () => { latest.current.mounted = false; };
+  }, []);
+
+  /** The step's target position on each axis; null where the axis cannot move; "reading" while the
+   * entity list is read (the step then waits for it). */
+  function stepTarget(axis: NavigatorAxis, delta: 1 | -1): number | null | "reading" {
+    if (axis === "kind") return stepIndex(kindIds.length, kindIds.indexOf(familyFilter as ResultFamilyFilter), delta);
+    if (axis === "case") return stepIndex(caseKeys.length, caseKeys.indexOf(activeCase), delta);
+    if (!navigatorRead) return "reading";
+    return stepIndex(navigatorRead.entities.length, navEntity === null ? -1 : navigatorRead.entities.indexOf(navEntity), delta);
+  }
+
+  const focusStepButton = (focus: NavigatorStep | null) => {
+    if (focus) panelRef.current?.querySelector<HTMLElement>(`[data-testid="results-navigator-${focus.axis}-${focus.delta > 0 ? "next" : "previous"}"]`)?.focus();
+  };
+
+  /** Shows `entity`'s first row under `filterAt`: its native page, its row in view, and the session's
+   * selection of it (through `onSelectResult`, as a click on the row). Nothing else changes. `focus`
+   * is the key step that came from a result row: focus moves to the new current row, or, when the
+   * destination has none, to that step's own button. */
+  async function follow(entity: string | null, filterAt: DetailFilter, focus: NavigatorStep | null, step: number) {
+    const expected = `${custody.jobId}\u0000${JSON.stringify(filterAt)}`;
+    const current = () => latest.current.mounted && latest.current.step === step && latest.current.result === result && latest.current.navigatorKey === expected;
+    if (entity === null) {
+      setPageIndex(0);
+      focusStepButton(focus);
+      return;
+    }
+    try {
+      const read = await readNavigator(filterAt);
+      if (!current()) return;
+      const at = read.entities.indexOf(entity);
+      if (at < 0) {
+        setPageIndex(0);
+        focusStepButton(focus);
+        return;
+      }
+      // The exact published row (its own id, by ordinal).
+      const found = await lookupNativeRows(result, { ordinals: [read.firstOrdinals[at]], match: "first" });
+      const row = found.ordinals[0]?.row;
+      if (!current() || !row) return;
+      setTracked((now) => ({ ...now, entity }));
+      setPageIndex(selectionOnly ? 0 : Math.floor(read.firstIndices[at] / pageSize));
+      setReveal({ rowId: row.id, focus: focus !== null });
+      onSelectResult(row.id);
+    } catch (error) {
+      if (current()) setEndNotice(`The step could not be completed: ${refusalText(error)}`);
+    }
+  }
+
+  function chooseCase(caseKey: string, focus: NavigatorStep | null = null) {
+    const step = ++latest.current.step;
+    setEndNotice(null);
+    setCaseFilter(caseKey);
+    setPageIndex(0);
+    void follow(navEntity, navigatorFilterFor(familyFilter, caseKey), focus, step);
+  }
+
+  function navigate(axis: NavigatorAxis, delta: 1 | -1, fromRow = false) {
+    const focus = fromRow ? { axis, delta } : null;
+    const target = stepTarget(axis, delta);
+    if (target === "reading") {
+      // Wait for this filter's list, then step from the entity current at that moment.
+      const step = ++latest.current.step;
+      const filterAt = navigatorFilter;
+      void readNavigator(filterAt).then((read) => {
+        if (!latest.current.mounted || latest.current.step !== step || latest.current.navigatorKey !== navigatorKey) return;
+        const index = stepIndex(read.entities.length, navEntity === null ? -1 : read.entities.indexOf(navEntity), delta);
+        if (index === null) setEndNotice(`${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} reached.`);
+        else {
+          setEndNotice(null);
+          setTracked((now) => ({ ...now, entity: read.entities[index] }));
+          void follow(read.entities[index], filterAt, focus, step);
+        }
+      }, (error) => { if (latest.current.step === step && latest.current.mounted) setEndNotice(`The step could not be completed: ${refusalText(error)}`); });
+      return;
+    }
+    if (target === null) {
+      setEndNotice(`${delta > 0 ? "Last" : "First"} ${NAVIGATOR_AXIS_NOUN[axis]} reached.`);
+      return;
+    }
+    setEndNotice(null);
+    if (axis === "kind") {
+      const step = ++latest.current.step;
+      const family = kindIds[target];
+      setFamilyFilter(family);
+      setPageIndex(0);
+      void follow(navEntity, navigatorFilterFor(family, activeCase), focus, step);
+    } else if (axis === "case") {
+      chooseCase(caseKeys[target], focus);
+    } else {
+      const step = ++latest.current.step;
+      const entity = navigatorRead!.entities[target];
+      setTracked((now) => ({ ...now, entity }));
+      void follow(entity, navigatorFilter, focus, step);
+    }
+  }
+
+  function handleNavigatorKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.defaultPrevented || isNavigatorExcludedTarget(event.target)) return;
+    const step = navigatorKeyStep(event);
+    if (!step) return;
+    event.preventDefault();
+    // From a result row, focus moves with the current row so the row being left can unmount.
+    const fromRow = event.target instanceof Element && event.target.closest("tr[data-testid^='result-row-']") !== null;
+    navigate(step.axis, step.delta, fromRow);
+  }
+
+  useEffect(() => {
+    if (!reveal) return;
+    const row = [...(panelRef.current?.querySelectorAll<HTMLElement>("tr[data-testid^='result-row-']") ?? [])]
+      .find((element) => element.dataset.testid === `result-row-${reveal.rowId}`);
+    if (!row) return;
+    if (canSurfaceRevealNow(row)) row.scrollIntoView?.({ block: "nearest" });
+    if (reveal.focus) row.focus();
+    setReveal(null);
+  }, [reveal, pageState]);
+
   return (
-    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" data-result-custody="native">
+    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" data-result-custody="native" ref={panelRef} onKeyDown={handleNavigatorKeyDown}>
       <div className="panel-title">Results</div>
       {health ? (
         <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
@@ -269,17 +486,25 @@ export function NativeResultsPanel({
           <button type="button" data-testid="results-kind-filter-clear" onClick={() => { setKindFilter(null); setPageIndex(0); }}>Show all kinds</button>
         </p>
       ) : null}
-      <section className="result-controls results-navigator" aria-label="Results navigator" data-testid="results-navigator">
-        <label>
-          <span>Load case or combination</span>
-          <select aria-label="Load case or combination" data-testid="results-navigator-case-select" value={activeCase} onChange={(event) => { setCaseFilter(event.target.value); setPageIndex(0); }}>
-            <option value={ALL_CASES}>All cases</option>
-            {cases.map((item) => <option key={item.key} value={item.key}>{item.label ?? item.key}</option>)}
-          </select>
-        </label>
-        <p className="muted" role="status" data-testid="results-navigator-native-note">Kind and element stepping read every filtered row; for a result held natively they are not yet available. Use the family, case, frame and entity filters to reach any row.</p>
-      </section>
-      <NativeResultDetail result={result} selectedResultId={selectedResultId} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
+      <ResultsNavigator
+        kinds={kindIds}
+        kind={familyFilter as ResultFamilyFilter}
+        cases={cases}
+        caseKey={activeCase}
+        entities={entities}
+        entity={navEntity}
+        currentRowId={currentRowId}
+        rowCount={filteredCount}
+        rowsReading={!current && !selectionOnlyWithoutEntity}
+        selectionOnlyWithoutEntity={selectionOnlyWithoutEntity}
+        health={health}
+        endNotice={endNotice}
+        entitiesReading={navigatorCurrent === null ? "reading the supports and elements natively…" : "refused" in navigatorCurrent ? `the supports and elements could not be read: ${navigatorCurrent.refused}` : null}
+        canStep={(axis, delta) => stepTarget(axis, delta) !== null}
+        onStep={(axis, delta) => navigate(axis, delta)}
+        onChooseCase={(caseKey) => chooseCase(caseKey)}
+      />
+      <NativeResultDetail result={result} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
         const rows = await Promise.all(pair.map(async (item) => {
           const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" };
           return { location: item.metadata?.location ?? "summary", resultId: item.id, fallback: `${item.value} ${item.unit}`, quantity, display: await displayResolver.resolve(quantity) };
@@ -298,7 +523,7 @@ export function NativeResultsPanel({
         {groups.length > 0 ? groups.map((group) => (
           <section key={group.title} className="result-group" aria-label={`${group.title} results`} data-testid={`result-group-${group.title.toLowerCase()}`}>
             <h3>{group.title}</h3>
-            <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
+            <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} stream={() => exportGroup(group.title)} />
             <table data-csv-export={resultGroupCsvKind(group.title)}>
               <thead><tr><th>ID</th><th>Entity</th><th>Location</th><th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th><th>Value</th><th>Entered source</th></tr></thead>
               <tbody>
@@ -336,16 +561,71 @@ function useNativeKindPresence(result: NativeResult, kind: string): boolean {
   return found?.of === result ? found.present : false;
 }
 
-/** The selected row's detail, by bounded native lookup: its members, its source rows' ids, and its
- * endpoint pair (the same entity's end rows of the same component, frame and basis, by query). */
-function NativeResultDetail({ result, selectedResultId, analysisRun, exportEndpointPair }: { result: NativeResult; selectedResultId: string | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
-  const [read, setRead] = useState<{ id: string; row: Row | null; pair: Row[] } | null>(null);
+/** A row the panel reads by bounded native lookup, with its ordinal. */
+type ReadRow = Readonly<{ id: string; row: Row | null; ordinal: number | null }>;
+
+/** The selected row (`results.find` by id), by one bounded native lookup per result and id; null
+ * while it is read. A refused lookup reads as no row. */
+function useNativeSelectedRow(result: NativeResult, selectedResultId: string | null): ReadRow | null {
+  const [read, setRead] = useState<{ of: NativeResult } & ReadRow | null>(null);
   useEffect(() => {
     if (!selectedResultId) return;
     let live = true;
+    lookupNativeRows(result, { ids: [selectedResultId], match: "first" }).then((found) => {
+      const hit = found.ids[0];
+      if (live) setRead({ of: result, id: selectedResultId, row: hit?.row ?? null, ordinal: hit?.ordinal ?? null });
+    }, () => { if (live) setRead({ of: result, id: selectedResultId, row: null, ordinal: null }); });
+    return () => { live = false; };
+  }, [result, selectedResultId]);
+  return selectedResultId && read?.of === result && read.id === selectedResultId ? read : null;
+}
+
+/** The id of the row at `ordinal` (its exact published row), by bounded lookup; null without one. */
+function useNativeRowId(result: NativeResult, ordinal: number | null): string | null {
+  const [read, setRead] = useState<{ of: NativeResult; ordinal: number; id: string | null } | null>(null);
+  useEffect(() => {
+    if (ordinal === null) return;
+    let live = true;
+    lookupNativeRows(result, { ordinals: [ordinal], match: "first" }).then(
+      (found) => { if (live) setRead({ of: result, ordinal, id: found.ordinals[0]?.row.id ?? null }); },
+      () => { if (live) setRead({ of: result, ordinal, id: null }); }
+    );
+    return () => { live = false; };
+  }, [result, ordinal]);
+  return ordinal !== null && read?.of === result && read.ordinal === ordinal ? read.id : null;
+}
+
+/** Whether the navigator's filter admits the row at `ordinal` (one probe of the native navigator
+ * query); null while read, refused, or with no ordinal to probe. */
+function useNavigatorProbe(result: NativeResult, filter: DetailFilter, filterKey: string, ordinal: number | null): boolean | null {
+  const [read, setRead] = useState<{ of: NativeResult; key: string; ordinal: number; admitted: boolean } | null>(null);
+  useEffect(() => {
+    if (ordinal === null) return;
+    let live = true;
+    queryNativeNavigator(result, filter, ordinal).then(
+      (answer) => { if (live && answer.probe) setRead({ of: result, key: filterKey, ordinal, admitted: answer.probe.admitted }); },
+      () => undefined
+    );
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, filterKey, ordinal]);
+  return ordinal !== null && read?.of === result && read.key === filterKey && read.ordinal === ordinal ? read.admitted : null;
+}
+
+/** The text of a refused native read. */
+function refusalText(error: unknown): string {
+  return error instanceof NativeQueryRefused ? `the native result query was refused: ${error.message}` : nativeFailureText(error);
+}
+
+/** The selected row's detail, from the panel's bounded lookup: its members, its source rows' ids,
+ * and its endpoint pair (the same entity's end rows of the same component, frame and basis, by query). */
+function NativeResultDetail({ result, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
+  const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: Row[] } | null>(null);
+  useEffect(() => {
+    if (!selected) return;
+    let live = true;
     (async () => {
-      const found = await lookupNativeRows(result, { ids: [selectedResultId], match: "first" });
-      const row = found.ids[0]?.row ?? null;
+      const row = selected.row;
       let pair: Row[] = [];
       const metadata = row?.metadata;
       if (row && metadata && ["end_i", "end_j"].includes(metadata.location)) {
@@ -355,13 +635,14 @@ function NativeResultDetail({ result, selectedResultId, analysisRun, exportEndpo
         }
         if (pair.length < 2) pair = [];
       }
-      if (live) setRead({ id: selectedResultId, row, pair });
-    })().catch(() => { if (live) setRead({ id: selectedResultId, row: null, pair: [] }); });
+      if (live) setPairRead({ of: selected, pair });
+    })().catch(() => { if (live) setPairRead({ of: selected, pair: [] }); });
     return () => { live = false; };
-  }, [result, selectedResultId]);
+  }, [result, selected]);
   if (!selectedResultId) return null;
-  if (!read || read.id !== selectedResultId) return <p role="status" data-testid="result-detail-reading">Reading the selected result natively…</p>;
-  const row = read.row;
+  if (!selected || pairRead?.of !== selected) return <p role="status" data-testid="result-detail-reading">Reading the selected result natively…</p>;
+  const row = selected.row;
+  const read = pairRead;
   if (!row) return <p className="muted" data-testid="result-detail-unavailable">The selected result id is not a row of this result.</p>;
   const hashes = analysisRun ? 1 : 0;
   return (

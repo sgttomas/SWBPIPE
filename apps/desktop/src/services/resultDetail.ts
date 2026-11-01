@@ -18,7 +18,13 @@
  *   the recorded cases (with `raw`, each case's exact recorded text). Recorded labels only: they
  *   grant no eligibility.
  *
- * The row, lookup and recovery responses are one buffer: the magic `SWBDETv1`, the header's length
+ * - `query_preview_mechanics_job_navigator {jobId, filter, probe}` (slice 4's results navigator):
+ *   the entity axis over the rows `filter` admits, as `navigatorEntities` and `firstRowOf` read the
+ *   panel's `navigatorRows`: each distinct `entity_ref` once in first-publication order, with its
+ *   first row's position among the admitted rows and its ordinal; the admitted total; and, for a
+ *   probed ordinal, whether the filter admits it and where. It scales with entities, not rows.
+ *
+ * The row, lookup, recovery and navigator responses are one buffer: the magic `SWBDETv1`, the header's length
  * (u64, little-endian), the JSON header, then the texts it lists by `lengths`, concatenated, with
  * nothing after the last. `decodeDetailResponse` refuses anything else with
  * `RESULT-DETAIL-MALFORMED`. */
@@ -31,11 +37,13 @@ export const RESULT_DETAIL_MALFORMED = "RESULT-DETAIL-MALFORMED";
 export const RESULT_DETAIL_REQUEST_INVALID = "RESULT-DETAIL-REQUEST-INVALID";
 export const RESULT_DETAIL_RESPONSE_LIMIT = "RESULT-DETAIL-RESPONSE-LIMIT";
 export const RESULT_DETAIL_FILTER_TYPE_ERROR = "RESULT-DETAIL-FILTER-TYPE-ERROR";
+export const RESULT_DETAIL_NAVIGATOR_ENTITY_TYPE = "RESULT-DETAIL-NAVIGATOR-ENTITY-TYPE";
 export const RESULT_DETAIL_VERSION = 1;
 export const RESULT_DETAIL_KINDS = Object.freeze({
   rows: "swbpipe.desktop.result_detail_rows",
   lookup: "swbpipe.desktop.result_detail_lookup",
-  recovery: "swbpipe.desktop.result_source_recovery"
+  recovery: "swbpipe.desktop.result_source_recovery",
+  navigator: "swbpipe.desktop.result_detail_navigator"
 } as const);
 /** The most rows (or recorded cases) one page returns; the most keys one lookup, semantics batch
  * or filter list states. */
@@ -45,7 +53,8 @@ export const RESULT_DETAIL_COMMANDS = Object.freeze([
   "query_preview_mechanics_job_rows",
   "lookup_preview_mechanics_job_rows",
   "read_preview_mechanics_job_row_semantics",
-  "query_preview_mechanics_job_source_recovery"
+  "query_preview_mechanics_job_source_recovery",
+  "query_preview_mechanics_job_navigator"
 ] as const);
 export type ResultDetailCommand = (typeof RESULT_DETAIL_COMMANDS)[number];
 const MAGIC = "SWBDETv1";
@@ -263,6 +272,49 @@ export function decodeSourceRecovery(input: ArrayBuffer | Uint8Array): SourceRec
   });
 }
 
+/** The navigator's entity axis over the rows a filter admits. */
+export type NavigatorAxisRead = Readonly<{
+  total: number;
+  entities: readonly string[];
+  /** Each entity's first row: its position among the admitted rows, and its ordinal. */
+  firstIndices: readonly number[];
+  firstOrdinals: readonly number[];
+  probe: Readonly<{ ordinal: number; admitted: boolean; index: number | null }> | null;
+}>;
+
+/** Reads a navigator response: one first position and ordinal per entity, entities distinct,
+ * positions ascending from 0 within the total, ordinals ascending; no texts. */
+export function decodeNavigator(input: ArrayBuffer | Uint8Array, probe: number | null): NavigatorAxisRead {
+  const { header, texts } = decodeDetailResponse(input, RESULT_DETAIL_KINDS.navigator);
+  if (texts.length !== 0) fail("a navigator response carries no texts");
+  const total = count(header.total, "total");
+  const entities = Array.isArray(header.entities) ? header.entities as unknown[] : fail("no entities");
+  const firstIndices = Array.isArray(header.first_indices) ? header.first_indices as unknown[] : fail("no first indices");
+  const firstOrdinals = Array.isArray(header.first_ordinals) ? header.first_ordinals as unknown[] : fail("no first ordinals");
+  if (firstIndices.length !== entities.length || firstOrdinals.length !== entities.length) fail("entities and first rows differ in number");
+  const seen = new Set<string>();
+  entities.forEach((entity, i) => {
+    if (typeof entity !== "string" || seen.has(entity)) fail(`entity ${i} is not a distinct text`);
+    seen.add(entity);
+    const index = count(firstIndices[i], `entity ${i}'s first index`);
+    count(firstOrdinals[i], `entity ${i}'s first ordinal`);
+    if (index >= total || (i === 0 ? index !== 0 : !(index > (firstIndices[i - 1] as number)))) fail(`entity ${i}'s first index is out of order`);
+    if (i > 0 && !((firstOrdinals[i] as number) > (firstOrdinals[i - 1] as number))) fail(`entity ${i}'s first ordinal is out of order`);
+  });
+  if (total > 0 && entities.length === 0) fail("admitted rows without an entity");
+  let read: NavigatorAxisRead["probe"] = null;
+  if (probe === null) {
+    if (header.probe !== null) fail("a probe answer without a probe");
+  } else {
+    const answer = header.probe;
+    if (!answer || answer.ordinal !== probe || typeof answer.admitted !== "boolean") fail("not the probe's answer");
+    const index = answer.index === null ? null : count(answer.index, "the probe's index");
+    if ((index !== null) !== answer.admitted || (index !== null && index >= total)) fail("the probe's index is not its admission");
+    read = Object.freeze({ ordinal: probe, admitted: answer.admitted, index });
+  }
+  return Object.freeze({ total, entities: Object.freeze(entities as string[]), firstIndices: Object.freeze(firstIndices as number[]), firstOrdinals: Object.freeze(firstOrdinals as number[]), probe: read });
+}
+
 /* -------------------------------------------------------------------------- *
  * Adapters (slice 4 binds `invoke` to the raw-body ingress)
  * -------------------------------------------------------------------------- */
@@ -284,6 +336,10 @@ export async function readResultRowSemantics(invoke: ResultDetailInvoke, jobId: 
 }
 export async function queryResultSourceRecovery(invoke: ResultDetailInvoke, jobId: string, offset: number, limit: number, raw = false): Promise<SourceRecovery> {
   return decodeSourceRecovery(binary(await invoke("query_preview_mechanics_job_source_recovery", { jobId, offset, limit, raw })));
+}
+
+export async function queryResultNavigator(invoke: ResultDetailInvoke, jobId: string, filter: DetailFilter, probe: number | null = null): Promise<NavigatorAxisRead> {
+  return decodeNavigator(binary(await invoke("query_preview_mechanics_job_navigator", { jobId, filter, probe })), probe);
 }
 
 /** Every row a filter admits, page by page (each within the response limit). */

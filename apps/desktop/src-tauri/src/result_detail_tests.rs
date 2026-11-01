@@ -800,3 +800,178 @@ fn reserve_does_not_prescan_or_parse_the_body() {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The navigator's entity axis
+// ---------------------------------------------------------------------------
+
+fn navigate(registry: &SolveJobRegistry, args: &Value) -> Result<Decoded, CommandError<String>> {
+    call(registry, NAVIGATOR_COMMAND, run_navigator, args).map(|bytes| decode(&bytes))
+}
+
+/// Every row a filter admits, by the rows query (its own parity with the
+/// TypeScript filters is `detail_queries_are_the_committed_outcomes`'s).
+fn admitted(registry: &SolveJobRegistry, job: &str, filter: &Value) -> Result<(Vec<u64>, Vec<String>), CommandError<String>> {
+    let (mut ordinals, mut texts) = (Vec::new(), Vec::new());
+    loop {
+        let page = rows(registry, &json!({"jobId": job, "filter": filter, "offset": ordinals.len(), "limit": MAX_PAGE_ROWS}))?;
+        if page.header["returned"].as_u64().unwrap() == 0 {
+            return Ok((ordinals, texts));
+        }
+        ordinals.extend(page.header["ordinals"].as_array().unwrap().iter().map(|o| o.as_u64().unwrap()));
+        texts.extend(page.texts);
+    }
+}
+
+/// The navigator equals `navigatorEntities` and `firstRowOf` over the rows
+/// the same filter admits, on every corpus source, under filters of every
+/// member; a probe states each row's admission and position exactly.
+#[test]
+fn the_navigator_lists_each_admitted_entity_once_in_first_publication_order() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let filters = [
+        json!({}),
+        json!({"family": "displacement"}),
+        json!({"family": "reaction", "case": "all", "frame": "all"}),
+        json!({"family": "force"}),
+        json!({"text": "end"}),
+        json!({"text": "  N1 "}),
+        json!({"frame": "global"}),
+        json!({"case": "load_case:W"}),
+        json!({"kinds": ["support_reaction_force"]}),
+    ];
+    let (mut compared, mut refused) = (0, 0);
+    for (name, source) in sources() {
+        let job = retained(&registry, &gate, &source);
+        for filter in &filters {
+            let navigator = navigate(&registry, &json!({"jobId": job, "filter": filter, "probe": null}));
+            let Ok((ordinals, texts)) = admitted(&registry, &job, filter) else {
+                assert!(navigator.is_err(), "{name} {filter}: the navigator refuses where the filter does");
+                refused += 1;
+                continue;
+            };
+            let entities: Vec<Option<String>> = texts.iter().map(|text| serde_json::from_str::<Value>(text).unwrap().get("entity_ref").and_then(Value::as_str).map(str::to_owned)).collect();
+            if entities.iter().any(Option::is_none) {
+                let message = command_text(navigator.unwrap_err());
+                assert!(message.starts_with(NAVIGATOR_ENTITY_TYPE) || message.starts_with(FILTER_TYPE_ERROR), "{name} {filter}: {message}");
+                refused += 1;
+                continue;
+            }
+            let navigator = navigator.unwrap_or_else(|e| panic!("{name} {filter}: {e:?}"));
+            let mut expected = (Vec::<String>::new(), Vec::<u64>::new(), Vec::<u64>::new());
+            for (at, entity) in entities.iter().enumerate() {
+                let entity = entity.clone().unwrap();
+                if !expected.0.contains(&entity) {
+                    expected.0.push(entity);
+                    expected.1.push(at as u64);
+                    expected.2.push(ordinals[at]);
+                }
+            }
+            assert_eq!(navigator.header["total"], json!(ordinals.len()), "{name} {filter}");
+            assert_eq!(navigator.header["entities"], json!(expected.0), "{name} {filter}");
+            assert_eq!(navigator.header["first_indices"], json!(expected.1), "{name} {filter}");
+            assert_eq!(navigator.header["first_ordinals"], json!(expected.2), "{name} {filter}");
+            assert_eq!(navigator.header["probe"], Value::Null);
+            assert!(navigator.texts.is_empty());
+            // Probes: an admitted row at its position, a row the filter leaves out, a past-end ordinal.
+            let rows_total = serde_json::from_str::<Value>(&source).unwrap()["results"].as_array().map_or(0, Vec::len) as u64;
+            for probe in [ordinals.first().copied(), ordinals.last().copied(), (0..rows_total).find(|o| !ordinals.contains(o)), Some(rows_total + 3)].into_iter().flatten() {
+                let probed = navigate(&registry, &json!({"jobId": job, "filter": filter, "probe": probe})).unwrap();
+                let at = ordinals.iter().position(|o| *o == probe);
+                assert_eq!(probed.header["probe"], json!({"ordinal": probe, "admitted": at.is_some(), "index": at}), "{name} {filter} {probe}");
+            }
+            compared += 1;
+        }
+        registry.dispose_result(&job).unwrap();
+    }
+    assert!(compared >= 400, "{compared} compared, {refused} refused");
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Refusals by name: a filtered `entity_ref` that is not a string, a `null`
+/// row (where `row.entity_ref` throws), invalid filter bounds before the
+/// index is built, unknown jobs, a response over its limit; the list's
+/// growth is pool-admitted, typed when refused, and every lease ends with
+/// the query.
+#[test]
+fn the_navigator_refuses_by_name_and_prices_its_list() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    for (text, filter, code) in [
+        (r#"{"results":[{"id":"a","entity_ref":"N1"},{"id":"b","entity_ref":7}]}"#, json!({}), NAVIGATOR_ENTITY_TYPE),
+        (r#"{"results":[{"id":"a","entity_ref":"N1"},{"id":"b"}]}"#, json!({}), NAVIGATOR_ENTITY_TYPE),
+        (r#"{"results":[{"id":"a","entity_ref":"N1"},null]}"#, json!({}), FILTER_TYPE_ERROR),
+        (r#"{"results":[{"id":"a","entity_ref":"N1"},null]}"#, json!({"text": "a"}), FILTER_TYPE_ERROR),
+    ] {
+        let job = retained(&registry, &gate, text);
+        let message = command_text(navigate(&registry, &json!({"jobId": job, "filter": filter, "probe": null})).unwrap_err());
+        assert!(message.starts_with(&format!("{code}: row 1")), "{text}: {message}");
+        registry.dispose_result(&job).unwrap();
+    }
+    // A non-string entity the filter leaves out is not read as an entity.
+    let job = retained(&registry, &gate, r#"{"results":[{"id":"a","entity_ref":"N1"},{"id":"b","entity_ref":7}]}"#);
+    let found = navigate(&registry, &json!({"jobId": job, "filter": {"ids": ["a"]}, "probe": 1})).unwrap();
+    assert_eq!((found.header["entities"].clone(), found.header["probe"].clone()), (json!(["N1"]), json!({"ordinal": 1, "admitted": false, "index": null})));
+    let held = registry.held_result(&job).unwrap();
+    registry.dispose_result(&job).unwrap();
+    drop(held);
+    // Bounds before the index; unknown jobs.
+    let job = retained(&registry, &gate, r#"{"results":[{"id":"a","entity_ref":"N1"}]}"#);
+    let held = registry.held_result(&job).unwrap();
+    let many: Vec<String> = (0..=MAX_KEYS).map(|i| format!("e{i}")).collect();
+    assert!(command_text(navigate(&registry, &json!({"jobId": job, "filter": {"entities": many}, "probe": null})).unwrap_err()).starts_with(REQUEST_INVALID));
+    assert!(held.detail_slot().lock().unwrap().is_none(), "refused before the index is built");
+    drop(held);
+    assert!(invalid_message(navigate(&registry, &json!({"jobId": "job-404", "filter": {}, "probe": null})).unwrap_err()).starts_with("unknown solve job"));
+    // A lone surrogate is refused, typed, at argument admission, as every query's text is.
+    let lone = br#"{"jobId":"x","filter":{"text":"\ud800"},"probe":null}"#.to_vec();
+    let body = InvokeBody::Raw(lone);
+    let (raw, lease) = reserve(&registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)), NAVIGATOR_COMMAND).unwrap();
+    match refusal(run_navigator(registry.clone(), raw, lease).unwrap_err()) {
+        ResourceRefusal::IngressInvalid { reason } => assert!(reason.contains("lone leading surrogate"), "{reason}"),
+        other => panic!("{other:?}"),
+    }
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+
+    // An invented rack: 20,000 rows over 40 entities lists 40, with a lease of the entities, not the rows.
+    let rows_text: Vec<String> = (0..20_000).map(|i| format!(r#"{{"id":"r{i}","kind":"k","entity_ref":"E{}","value":{i}}}"#, (i * 7) % 40)).collect();
+    let text = format!(r#"{{"results":[{}]}}"#, rows_text.join(","));
+    let job = retained(&registry, &gate, &text);
+    let found = navigate(&registry, &json!({"jobId": job, "filter": {}, "probe": 19_999})).unwrap();
+    let entities: Vec<String> = (0..40).map(|i| format!("E{}", (i * 7) % 40)).collect();
+    assert_eq!(found.header["entities"], json!(entities));
+    assert_eq!(found.header["first_indices"], json!((0..40).collect::<Vec<u64>>()));
+    assert_eq!(found.header["probe"], json!({"ordinal": 19_999, "admitted": true, "index": 19_999}));
+    let after_first = registry.pool().reserved_total();
+    // The list's growth is pool-admitted: refused typed when the headroom does not cover it.
+    let held = registry.held_result(&job).unwrap();
+    let index = index(&registry, &held).unwrap();
+    let mut asked = Vec::new();
+    navigator(held.text(), &index, &Filter::default(), None, |bytes| {
+        asked.push(bytes);
+        Ok(())
+    })
+    .unwrap();
+    assert_eq!(asked.len(), 40, "asked once per new entity");
+    assert_eq!(*asked.last().unwrap(), entities.iter().map(|e| 2 * e.len() as u64 + NAVIGATOR_ENTRY_BYTES).sum::<u64>());
+    let refused = navigator(held.text(), &index, &Filter::default(), None, |bytes| {
+        if bytes > 1_000 {
+            Err(CommandError::Command("refused".into()))
+        } else {
+            Ok(())
+        }
+    });
+    assert!(refused.is_err());
+    drop((index, held));
+    host.set(|s| s.pressure = PressureLevel::Warning);
+    assert!(matches!(refusal(navigate(&registry, &json!({"jobId": job, "filter": {}, "probe": null})).unwrap_err()), ResourceRefusal::PressureElevated { .. }));
+    host.set(|s| s.pressure = PressureLevel::Normal);
+    assert_eq!(registry.pool().reserved_total(), after_first, "every query lease ended; the index stays with the result");
+    // The response limit, by name.
+    let message = command_text(call(&registry, NAVIGATOR_COMMAND, |r, raw, lease| run_navigator_within(r, raw, lease, 64), &json!({"jobId": job, "filter": {}, "probe": null})).unwrap_err());
+    assert!(message.starts_with(RESPONSE_LIMIT), "{message}");
+    registry.dispose_result(&job).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}

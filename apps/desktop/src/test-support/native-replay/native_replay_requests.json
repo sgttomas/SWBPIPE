@@ -257,6 +257,22 @@
    "source_path": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json"
   },
   {
+   "key": "1103551eb168f524c046f23bfb74b7683a82f8ecb064baefd69abf7789572a45",
+   "command": "query_preview_mechanics_job_navigator",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "probe": null
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "1176a6984362075302abdc9867d0ae1d9caeec040af5496a7953f3cefe20312e",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -742,6 +758,19 @@
    "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
   },
   {
+   "key": "2fc73e03a288bdff8d8334f3025a1254dc9b1601724df84457b4e3de2e06720d",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     1
+    ],
+    "match": "first"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "30119393a2733ac10dc5675476da75df53d216ffbbb8adf492eba6d08028228c",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -940,6 +969,25 @@
    },
    "source_sha256": "1e1f982d28b18c4acedfb4af1b6742c65fc168584c4d872c3ecf513f24a56284",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/mixed_units-sparse_interactive.raw.json"
+  },
+  {
+   "key": "3c5c53c374d4bb1ac4f3a6d30356dbb413b0b166320bca3d7ba505c87615f137",
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     9,
+     10,
+     11
+    ]
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
    "key": "405e7ebe6e1969bc2558cbfcdbca72148cb60a6792a13867768ed133673184a4",
@@ -1408,6 +1456,19 @@
    "source_path": "fixtures/product_preview/pressure_source/physics_source/mixed_units-dense_scrutiny.raw.json"
   },
   {
+   "key": "61704e6171077cf1305236c97a79f0062ff8ccc0e7889db39daa75d15a0f13ef",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:disp:node-fixture-root"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "6348e1773769faca53830a946d2c4c3115da1b9b3df5bd8fc9ae0da805230dfb",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -1464,6 +1525,22 @@
    },
    "source_sha256": "429d5c8a2cb2d7f64485ec3e44d2e310ab6fb63afba892145e2f792868b584ca",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/mixed_units-dense_scrutiny.raw.json"
+  },
+  {
+   "key": "69a0dbc24cc11f8d3e226e8d4348bdfc6d4f7c5d03b875d8ac3dd603c4bfaa98",
+   "command": "query_preview_mechanics_job_navigator",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "displacement",
+     "frame": "all",
+     "case": "all"
+    },
+    "probe": null
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
    "key": "6c79cd245c8883a34435f3ada6889ef053b4773be021f60b6a1225d5809217cb",
@@ -3151,6 +3228,23 @@
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
+   "key": "dcd1e699b8cebb8b1bc106fde1a7fd6b18ec0f7a06521ca241cdd6ffa05f7364",
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "displacement",
+     "frame": "all",
+     "case": "load_case:case:six-component-load"
+    },
+    "offset": 0,
+    "limit": 50
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "dd0daa3942f72bb4b64f9da7e64505aca0a327b4fa31afb1d544a1690e0b3814",
    "command": "read_preview_mechanics_job_summary",
    "args": {
@@ -3205,6 +3299,19 @@
    },
    "source_sha256": "02f9a39857c81b0f00019883c13c70bd9c40a90161edcd2fb2cb6fd105cf63ed",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05_units-dense_scrutiny.raw.json"
+  },
+  {
+   "key": "e34fb9a82e4f8566bd45f8c4f48276e448a7ece20e6e50c6bf1fbff1655376ea",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:disp:node-fixture-tip"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
    "key": "e3ac3686330d96f32559eaee4e54218cb0b9c517468deb18ca570d36a538c1d1",
@@ -3411,12 +3518,58 @@
    "source_path": "fixtures/product_preview/pressure_source/physics_source/fields-dense_scrutiny.raw.json"
   },
   {
+   "key": "efb5d4e7a7cf3fe3f0ffbcb1ad6212c5af0284578109da852e022b70a67ee0d7",
+   "command": "query_preview_mechanics_job_navigator",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "displacement",
+     "frame": "all",
+     "case": "load_case:case:six-component-load"
+    },
+    "probe": null
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
    "key": "f0397167d698f173bce4e67944b97625272dbfdb9137ee45f06e3dd8cc01fef0",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
     "jobId": "$JOB",
     "reader": "preview-physics",
     "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"project\":{\"id\":\"project:precision-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic ordinary precision consumer control\",\"description\":\"Explicit unpressurized linear beam with entered E and G; synthetic consumer/transport fixture, no material library or code rules.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\",\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"}}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[],\"rule_pack_refs\":[{\"rule_pack_id\":\"invented-pack-alpha\",\"name\":\"Invented pack invented-pack-alpha\",\"rule_pack_version\":\"1.0.0\",\"checksum\":{\"algorithm\":\"sha256\",\"canonicalization\":\"JCS\",\"payload_scope\":\"rule_pack_payload\",\"payload_excludes\":[\"checksums\"],\"value\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"},\"redistribution_status\":\"invented_non_engineering_example\",\"source_notice\":\"Invented notice for invented-pack-alpha; not an engineering basis.\"}]}"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "f093c5b32557bb91547fadd991cc656b3de2e78b967a9f77f7abe3dc3b792a2e",
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "displacement",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "f0d27b7c0f751b13c4b845a7f23ccd082890176053fe0b7422dad84b46b4e9f8",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     2
+    ],
+    "match": "first"
    },
    "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"

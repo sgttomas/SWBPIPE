@@ -555,9 +555,14 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `read_preview_mechanics_job_analysis_run_preview` (reviewed likewise), and
 /// after C1 slice 4 added two ordinary handler entries,
 /// `read_preview_mechanics_job_rows_all` and
-/// `release_preview_mechanics_job_full_copy` (reviewed likewise).
+/// `release_preview_mechanics_job_full_copy` (reviewed likewise), and after
+/// C1 slice 4's navigator and streamed CSV added five ordinary handler
+/// entries, `query_preview_mechanics_job_navigator`,
+/// `begin_local_csv_stream`, `append_local_csv_stream`,
+/// `finish_local_csv_stream` and `abort_local_csv_stream` (reviewed
+/// likewise: no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "0c15dfbe08668d2209769350e82034bedfa5b22f3325aa0d08091664c5feb5b3"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "04cd4d82a87796847ed3f98d164ec5d6aed3738e1a8dd0997aad7d4054aadbeb"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];

@@ -63,7 +63,17 @@
 //!     each case's exact recorded evidence text. These are recorded labels
 //!     only: they grant no eligibility, which the readers decide. S and the
 //!     full envelope never carry this member.
-//! - **The response** of the row, lookup and recovery commands is binary: the
+//!   - `query_preview_mechanics_job_navigator {jobId, filter, probe}` (C1
+//!     slice 4's results navigator): the entity axis over the rows `filter`
+//!     admits, as `navigatorEntities` and `firstRowOf` read the panel's
+//!     `navigatorRows`: each distinct `entity_ref` once, in the order of its
+//!     first published row, with that row's position among the admitted rows
+//!     and its ordinal, the admitted total and, for `probe` (an ordinal or
+//!     null), whether the filter admits that row and its position. The list
+//!     scales with the entities, not the rows, and its bytes are leased as it
+//!     grows. A filtered `entity_ref` that is not a string is refused by name
+//!     ([`NAVIGATOR_ENTITY_TYPE`]); a `null` row as the filter's type error.
+//! - **The response** of the row, lookup, recovery and navigator commands is binary: the
 //!   magic `SWBDETv1`, the header's length as a little-endian u64, the JSON
 //!   header, then the texts it lists, concatenated (each by its length in
 //!   `lengths`, in order), with nothing after the last. The semantics
@@ -134,6 +144,7 @@ pub(crate) const ROWS_COMMAND: &str = "query_preview_mechanics_job_rows";
 pub(crate) const LOOKUP_COMMAND: &str = "lookup_preview_mechanics_job_rows";
 pub(crate) const SEMANTICS_COMMAND: &str = "read_preview_mechanics_job_row_semantics";
 pub(crate) const RECOVERY_COMMAND: &str = "query_preview_mechanics_job_source_recovery";
+pub(crate) const NAVIGATOR_COMMAND: &str = "query_preview_mechanics_job_navigator";
 /// The blocking read ended without an outcome (it panicked).
 pub(crate) const DETAIL_READ_FAILED: &str = "RESULT-DETAIL-READ-FAILED";
 /// A request outside the commands' bounds (a limit, a count or an ordinal).
@@ -142,11 +153,14 @@ pub(crate) const REQUEST_INVALID: &str = "RESULT-DETAIL-REQUEST-INVALID";
 pub(crate) const RESPONSE_LIMIT: &str = "RESULT-DETAIL-RESPONSE-LIMIT";
 /// A filter member the TypeScript filter would throw on.
 pub(crate) const FILTER_TYPE_ERROR: &str = "RESULT-DETAIL-FILTER-TYPE-ERROR";
+/// A row the navigator's filter admits whose `entity_ref` is not a string.
+pub(crate) const NAVIGATOR_ENTITY_TYPE: &str = "RESULT-DETAIL-NAVIGATOR-ENTITY-TYPE";
 pub(crate) const MAGIC: &[u8; 8] = b"SWBDETv1";
 pub(crate) const VERSION: u64 = 1;
 pub(crate) const ROWS_KIND: &str = "swbpipe.desktop.result_detail_rows";
 pub(crate) const LOOKUP_KIND: &str = "swbpipe.desktop.result_detail_lookup";
 pub(crate) const RECOVERY_KIND: &str = "swbpipe.desktop.result_source_recovery";
+pub(crate) const NAVIGATOR_KIND: &str = "swbpipe.desktop.result_detail_navigator";
 
 /// The most rows (or recorded cases) one page returns.
 pub(crate) const MAX_PAGE_ROWS: u64 = 1000;
@@ -949,6 +963,134 @@ pub(crate) fn run_lookup_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: 
         registry.acquire_result_parse(bytes).map_err(CommandError::from)
     })?;
     drop((written, working, index, held, lease));
+    Ok(response)
+}
+
+// ---------------------------------------------------------------------------
+// query_preview_mechanics_job_navigator
+// ---------------------------------------------------------------------------
+
+/// The results navigator's entity axis over the rows a filter admits
+/// (`navigatorEntities` and `firstRowOf` of `resultsNavigator.ts`, on the
+/// panel's `navigatorRows`): the distinct entities, each once, in the order
+/// their first row is published, each with that first row's position among
+/// the admitted rows and its ordinal; the admitted rows' total; and, for a
+/// probed ordinal, whether the filter admits that row and at which position.
+pub(crate) struct Navigator {
+    pub(crate) total: u64,
+    pub(crate) entities: Vec<String>,
+    pub(crate) first_indices: Vec<u64>,
+    pub(crate) first_ordinals: Vec<usize>,
+    pub(crate) probe: Option<(u64, Option<u64>)>,
+}
+
+/// Bytes leased per listed entity beyond its text: its entry in the list,
+/// its first index and ordinal, and its entry in the dedup map.
+const NAVIGATOR_ENTRY_BYTES: u64 = 128;
+
+/// The navigator's entity axis of `index`'s rows of `text` that `filter`
+/// admits. Every row is parsed, one at a time (its entity is read even when
+/// the filter admits every row). `grow` is asked for the list's bytes before
+/// each new entity is copied, so the list stays priced; it scales with the
+/// distinct entities, not the rows. A filtered row whose `entity_ref` is not
+/// a string is refused by name ([`NAVIGATOR_ENTITY_TYPE`]): the axis steps
+/// support and element ids.
+pub(crate) fn navigator(
+    text: &str,
+    index: &DetailIndex,
+    filter: &Filter,
+    probe: Option<u64>,
+    mut grow: impl FnMut(u64) -> Result<(), CommandError<String>>,
+) -> Result<Navigator, CommandError<String>> {
+    let prepared = filter.prepare()?;
+    let every = prepared.admits_every_row();
+    let mut out = Navigator { total: 0, entities: Vec::new(), first_indices: Vec::new(), first_ordinals: Vec::new(), probe: probe.map(|ordinal| (ordinal, None)) };
+    let mut seen: HashMap<String, ()> = HashMap::new();
+    let mut listed_bytes = 0u64;
+    for ordinal in 0..index.len() {
+        let row: Value = serde_json::from_str(index.row(text, ordinal)).map_err(read_failed)?;
+        let admitted = every
+            || prepared
+                .admits(index.table, &row)
+                .map_err(|reason| CommandError::Command(format!("{FILTER_TYPE_ERROR}: row {ordinal}: {reason}")))?;
+        if !admitted {
+            continue;
+        }
+        // `row.entity_ref`: a `null` row throws, as `rows.map(row => row.entity_ref)` does.
+        let entity = member(&row, "entity_ref").map_err(|reason| CommandError::Command(format!("{FILTER_TYPE_ERROR}: row {ordinal}: {reason}")))?;
+        let Some(Value::String(entity)) = entity else {
+            return Err(CommandError::Command(format!("{NAVIGATOR_ENTITY_TYPE}: row {ordinal}'s entity_ref is not a string")));
+        };
+        if let Some((probed, at)) = out.probe.as_mut() {
+            if *probed == ordinal as u64 {
+                *at = Some(out.total);
+            }
+        }
+        if !seen.contains_key(entity.as_str()) {
+            // The entity's text twice (the list and the map) and its entries, leased before the copy.
+            listed_bytes = listed_bytes.saturating_add(2 * entity.len() as u64 + NAVIGATOR_ENTRY_BYTES);
+            grow(listed_bytes)?;
+            seen.insert(entity.clone(), ());
+            out.entities.push(entity.clone());
+            out.first_indices.push(out.total);
+            out.first_ordinals.push(ordinal);
+        }
+        out.total += 1;
+    }
+    Ok(out)
+}
+
+fn navigator_header(job_id: &str, navigator: &Navigator) -> Value {
+    json!({
+        "document_kind": NAVIGATOR_KIND,
+        "version": VERSION,
+        "job_id": job_id,
+        "total": navigator.total,
+        "entities": navigator.entities,
+        "first_indices": navigator.first_indices,
+        "first_ordinals": navigator.first_ordinals,
+        "probe": navigator.probe.map(|(ordinal, at)| json!({"ordinal": ordinal, "admitted": at.is_some(), "index": at})),
+        "lengths": [],
+    })
+}
+
+pub(crate) async fn query_navigator(registry: &SolveJobRegistry, body: &InvokeBody, headers: &HeaderMap) -> Result<Vec<u8>, CommandError<String>> {
+    command(registry, body, headers, NAVIGATOR_COMMAND, run_navigator).await
+}
+
+pub(crate) fn run_navigator(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<Vec<u8>, CommandError<String>> {
+    run_navigator_within(registry, raw, copy, MAX_RESPONSE_BYTES)
+}
+
+pub(crate) fn run_navigator_within(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease, max_bytes: u64) -> Result<Vec<u8>, CommandError<String>> {
+    let (mut args, lease) = admit(&registry, raw, copy, NAVIGATOR_COMMAND)?;
+    let job_id: String = args.decode("jobId")?;
+    let filter: Option<Filter> = args.decode("filter")?;
+    let probe: Option<u64> = args.decode("probe")?;
+    drop(args);
+    let filter = filter.unwrap_or_default();
+    // Invalid filter bounds are refused before the index is built.
+    filter.prepare()?;
+    let held = registry.held_result(&job_id)?;
+    let index = index(&registry, &held)?;
+    let base = WORKING_ALLOWANCE_BYTES.saturating_add(index.row_parse_bytes);
+    let mut working = registry.acquire_result_parse(base)?;
+    let navigator = navigator(held.text(), &index, &filter, probe, |listed| {
+        if base.saturating_add(listed) > working.bytes() {
+            // Grow by half again at least, so the pool is asked a logarithmic number of times.
+            let target = base.saturating_add(listed).max(working.bytes().saturating_add(working.bytes() / 2));
+            working.grow_to(target).map_err(|refusal| CommandError::from(registry.refuse(refusal)))?;
+        }
+        Ok(())
+    })?;
+    let header = navigator_header(&job_id, &navigator);
+    let (response, written) = respond(&header, &[], |bytes| {
+        if bytes > max_bytes {
+            return Err(response_limit(format!("the navigator's {} entities", navigator.entities.len()), bytes, max_bytes));
+        }
+        registry.acquire_result_parse(bytes).map_err(CommandError::from)
+    })?;
+    drop((written, navigator, working, index, held, lease));
     Ok(response)
 }
 

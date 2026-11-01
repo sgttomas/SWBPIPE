@@ -30,12 +30,14 @@ import { jsonTextKeepingNegativeZero } from "./jsonText";
 import { decodeResultSummary, summaryDisplayRows, type ResultSummary } from "./resultSummary";
 import {
   lookupResultRows,
+  queryResultNavigator,
   queryResultRows,
   queryResultSourceRecovery,
   readResultRowSemantics,
   type DetailFilter,
   type Lookup,
   type LookupRequest,
+  type NavigatorAxisRead,
   type ResultDetailCommand,
   type RowSemanticsOutcome,
   type RowsPage,
@@ -323,6 +325,12 @@ export function lookupNativeRows(result: NativeResult, request: LookupRequest): 
 export function readNativeRowSemantics(result: NativeResult, ordinals: readonly number[]): Promise<readonly RowSemanticsOutcome[]> {
   const { jobId } = nativeCustody(result);
   return page(jobId, () => readResultRowSemantics(detailInvoke, jobId, ordinals));
+}
+/** The results navigator's entity axis under `filter` (the panel's filters without its selected
+ * entity), with `probe`'s admission and position when an ordinal is given. */
+export function queryNativeNavigator(result: NativeResult, filter: DetailFilter, probe: number | null = null): Promise<NavigatorAxisRead> {
+  const { jobId } = nativeCustody(result);
+  return page(jobId, () => queryResultNavigator(detailInvoke, jobId, filter, probe));
 }
 export function queryNativeRecovery(jobId: string, offset: number, limit: number, raw = false): Promise<SourceRecovery> {
   return page(jobId, () => queryResultSourceRecovery(detailInvoke, jobId, offset, limit, raw));

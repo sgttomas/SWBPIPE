@@ -42,9 +42,9 @@ import {
 export const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 export const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
 type ResultFamily = "rotation" | "displacement" | "reaction" | "force" | "moment" | "stress" | "ratio" | "other";
-type ResultFamilyFilter = "all" | ResultFamily;
+export type ResultFamilyFilter = "all" | ResultFamily;
 type ResultFamilyCounts = Record<ResultFamily, number> & { total: number };
-const RESULT_FAMILY_OPTIONS: { id: ResultFamilyFilter; label: string }[] = [
+export const RESULT_FAMILY_OPTIONS: { id: ResultFamilyFilter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "displacement", label: "Displacement" },
   { id: "rotation", label: "Rotation" },
@@ -884,8 +884,8 @@ export function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
   );
 }
 
-type NavigatorStep = Readonly<{ axis: NavigatorAxis; delta: 1 | -1 }>;
-const NAVIGATOR_AXIS_NOUN: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
+export type NavigatorStep = Readonly<{ axis: NavigatorAxis; delta: 1 | -1 }>;
+export const NAVIGATOR_AXIS_NOUN: Readonly<Record<NavigatorAxis, string>> = Object.freeze({
   kind: "table kind",
   case: "load case or combination",
   entity: "support or element"
@@ -911,8 +911,8 @@ function navigatorCaseText(item: NavigatorCase | null, health: NumericalHealthVi
 /** A1: the results navigator's three steppers and its live position line (Design
  * `results-navigator.md` §2 to §5). Each Previous and Next button is the visible route of its
  * key chord; at an end the button stays focusable, is marked unavailable and does nothing. */
-function ResultsNavigator({
-  kinds, kind, cases, caseKey, entities, entity, currentRowId, rowCount, selectionOnlyWithoutEntity, health, endNotice, canStep, onStep, onChooseCase
+export function ResultsNavigator({
+  kinds, kind, cases, caseKey, entities, entity, currentRowId, rowCount, selectionOnlyWithoutEntity, health, endNotice, canStep, onStep, onChooseCase, entitiesReading = null, rowsReading = false
 }: {
   kinds: readonly ResultFamilyFilter[];
   kind: ResultFamilyFilter;
@@ -928,6 +928,10 @@ function ResultsNavigator({
   canStep: (axis: NavigatorAxis, delta: 1 | -1) => boolean;
   onStep: (axis: NavigatorAxis, delta: 1 | -1) => void;
   onChooseCase: (caseKey: string) => void;
+  /** A native result's entity list while it is read or refused (null: the list is the one given). */
+  entitiesReading?: string | null;
+  /** A native result's rows are still being read: the position line says so, not "no rows". */
+  rowsReading?: boolean;
 }) {
   const chosenCase = cases.find((item) => item.key === caseKey) ?? null;
   const caseText = navigatorCaseText(chosenCase, health);
@@ -935,14 +939,18 @@ function ResultsNavigator({
   const positions: Readonly<Record<NavigatorAxis, string>> = {
     kind: `${kindLabel(kind)} (${kinds.indexOf(kind) + 1} of ${kinds.length})`,
     case: `${caseText} (${caseKey === ALL_CASES ? 1 : cases.indexOf(chosenCase!) + 2} of ${cases.length + 1})`,
-    entity: entity === null
-      ? `None chosen; ${entities.length} in this table`
-      : entityIndex < 0 ? `${entity}: no rows in this table` : `${entity} (${entityIndex + 1} of ${entities.length})`
+    entity: entitiesReading !== null
+      ? `${entity ?? "None chosen"}; ${entitiesReading}`
+      : entity === null
+        ? `None chosen; ${entities.length} in this table`
+        : entityIndex < 0 ? `${entity}: no rows in this table` : `${entity} (${entityIndex + 1} of ${entities.length})`
   };
   const table = `${kindLabel(kind)}, ${caseText}`;
   const where = selectionOnlyWithoutEntity
     ? "No model entity is selected, so no rows are shown."
-    : rowCount === 0
+    : rowsReading
+      ? `${table}: reading the rows natively…`
+      : rowCount === 0
       ? `No rows of ${kind === "all" ? "any kind" : kindLabel(kind)} are stated for ${caseKey === ALL_CASES ? "any case" : caseText} under the current filters.`
       : entity === null
         ? `${table}: ${rowCount} rows.`

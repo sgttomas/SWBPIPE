@@ -13,10 +13,10 @@ const RESULT_FILE_PREFIX: &str = "openpipestress-preview-results-";
 const STRESS_FILE_PREFIX: &str = "openpipestress-preview-stress-neutral-";
 // RT-R6 (DEL-08-04-R14): the CSV table route. Its bytes are a derived view, so the request
 // states `lossless_required=false`; this route alone accepts that.
-const CSV_ROUTE: &str = "DOTH-CSV-011";
+pub(super) const CSV_ROUTE: &str = "DOTH-CSV-011";
 const CSV_PREFIX: &str = "data:text/csv;charset=utf-8,";
 const CSV_FILE_PREFIX: &str = "swbpipe-";
-const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
+pub(super) const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
 /// DEL-07-01 `export-file-names.md` CSV kinds, as tokens. `results-<group>` is `results`
 /// followed by at least one token; the longer kinds (`support-loads-all`, `weight-cog`)
 /// are a shorter kind followed by qualifier tokens.
@@ -74,7 +74,7 @@ pub(super) struct SaveError {
     pub partial_file_name: Option<String>,
     pub cleanup: &'static str,
 }
-fn failure(code: &'static str, stage: &'static str) -> SaveError {
+pub(super) fn failure(code: &'static str, stage: &'static str) -> SaveError {
     SaveError { code, stage, message: "Local result save did not complete.", partial_file_name: None, cleanup: "not_needed" }
 }
 impl SaveError {
@@ -100,8 +100,8 @@ impl Drop for SavePermit {
 
 /// The per-route save profile: data prefix, file name rule, extension and lossless flag.
 #[derive(Clone, Copy)]
-struct Profile { data_prefix: &'static str, name_prefix: &'static str, ext: &'static str, csv: bool, lossless_required: bool }
-fn profile(route_id: &str) -> Option<Profile> {
+pub(super) struct Profile { data_prefix: &'static str, name_prefix: &'static str, pub(super) ext: &'static str, pub(super) csv: bool, lossless_required: bool }
+pub(super) fn profile(route_id: &str) -> Option<Profile> {
     let json = |name_prefix| Profile { data_prefix: PREFIX, name_prefix, ext: ".json", csv: false, lossless_required: true };
     match route_id {
         "DOTH-JSON-001" => Some(json(RESULT_FILE_PREFIX)),
@@ -118,14 +118,20 @@ fn valid_tokens(name: &str, prefix: &str, ext: &str) -> Option<Vec<String>> {
 }
 fn valid_name(name: &str, prefix: &str) -> bool { valid_tokens(name, prefix, ".json").is_some() }
 /// `swbpipe-<csv kind>[-<qualifier>].csv` under the token rule of `export-file-names.md`.
-fn valid_csv_name(name: &str) -> bool {
+pub(super) fn valid_csv_name(name: &str) -> bool {
     let Some(tokens) = valid_tokens(name, CSV_FILE_PREFIX, ".csv") else { return false; };
     (tokens[0] == "results" && tokens.len() >= 2)
         || CSV_KINDS.iter().any(|kind| tokens.len() >= kind.len() && tokens.iter().zip(kind.iter()).all(|(t, k)| t == k))
 }
 fn validate(request: &SaveRequest) -> Result<Profile, SaveError> {
-    let s = &request.screening;
-    let l = &request.local_first;
+    let route = validate_evidence(&request.screening, &request.local_first)?;
+    let named = if route.csv { valid_csv_name(&request.file_name) } else { valid_name(&request.file_name, route.name_prefix) };
+    if !named { return Err(failure("INVALID_FILE_NAME", "request")); }
+    Ok(route)
+}
+/// The screening and local-first evidence of one save (or of one streamed CSV chunk): the
+/// route's profile when every member states local-private output with explicit intent.
+pub(super) fn validate_evidence(s: &Screening, l: &LocalFirstEvidence) -> Result<Profile, SaveError> {
     let route = profile(&s.route_id);
     if s.export_context != "local_private" || !s.explicit_local_private_intent || s.blocked || s.materialization_withheld
         || route.map_or(true, |p| s.lossless_required != p.lossless_required) || !s.exact_payload_match || s.blocking_count != 0
@@ -135,8 +141,6 @@ fn validate(request: &SaveRequest) -> Result<Profile, SaveError> {
         || !l.metadata_only || !l.explicit_local_private_intent
     { return Err(failure("REQUEST_EVIDENCE_DENIED", "request")); }
     let Some(route) = route else { return Err(failure("REQUEST_EVIDENCE_DENIED", "request")); };
-    let named = if route.csv { valid_csv_name(&request.file_name) } else { valid_name(&request.file_name, route.name_prefix) };
-    if !named { return Err(failure("INVALID_FILE_NAME", "request")); }
     Ok(route)
 }
 #[cfg(test)]
@@ -166,7 +170,7 @@ fn decode_for(href: &str, route: Profile) -> Result<Vec<u8>, SaveError> {
     Ok(decoded)
 }
 
-trait OwnedWrite: Write { fn identity(&self) -> io::Result<(u64, u64)>; }
+pub(super) trait OwnedWrite: Write + Send { fn identity(&self) -> io::Result<(u64, u64)>; }
 #[cfg(unix)]
 fn identity(metadata: fs::Metadata) -> io::Result<(u64, u64)> {
     use std::os::unix::fs::MetadataExt;
@@ -177,20 +181,20 @@ fn identity(_: fs::Metadata) -> io::Result<(u64, u64)> { Err(io::ErrorKind::Unsu
 impl OwnedWrite for File {
     fn identity(&self) -> io::Result<(u64, u64)> { identity(self.metadata()?) }
 }
-trait SaveIo {
+pub(super) trait SaveIo {
     fn directory(&self, path: &Path) -> io::Result<bool> { fs::metadata(path).map(|m| m.is_dir()) }
     fn canonical(&self, path: &Path) -> io::Result<PathBuf> { fs::canonicalize(path) }
     fn open(&self, path: &Path) -> io::Result<Box<dyn OwnedWrite>>;
     fn path_identity(&self, path: &Path) -> io::Result<(u64, u64)> { identity(fs::symlink_metadata(path)?) }
     fn remove(&self, path: &Path) -> io::Result<()> { fs::remove_file(path) }
 }
-struct HostIo;
+pub(super) struct HostIo;
 impl SaveIo for HostIo {
     fn open(&self, path: &Path) -> io::Result<Box<dyn OwnedWrite>> {
         OpenOptions::new().write(true).create_new(true).open(path).map(|f| Box::new(f) as Box<dyn OwnedWrite>)
     }
 }
-fn cleanup(error: &mut SaveError, path: &Path, owned: Option<(u64, u64)>, io: &impl SaveIo) {
+pub(super) fn cleanup(error: &mut SaveError, path: &Path, owned: Option<(u64, u64)>, io: &(impl SaveIo + ?Sized)) {
     error.partial_file_name = path.file_name().and_then(|v| v.to_str()).map(str::to_owned);
     error.cleanup = match owned {
         Some(owned) if io.path_identity(path).ok() == Some(owned) => {
@@ -204,6 +208,20 @@ fn save_bytes(root: &Path, basename: &str, bytes: &[u8], start: usize, io: &impl
     save_bytes_ext(root, basename, ".json", bytes, start, io)
 }
 fn save_bytes_ext(root: &Path, basename: &str, ext: &str, bytes: &[u8], start: usize, io: &impl SaveIo) -> Result<SaveReceipt, SaveError> {
+    let Opened { mut file, destination, file_name, owned } = open_new(root, basename, ext, start, io)?;
+    if file.write_all(bytes).is_err() {
+        let mut error = failure("WRITE_FAILED", "write"); cleanup(&mut error, &destination, owned, io); return Err(error);
+    }
+    if file.flush().is_err() {
+        let mut error = failure("FLUSH_FAILED", "flush"); cleanup(&mut error, &destination, owned, io); return Err(error);
+    }
+    Ok(SaveReceipt { outcome: "saved", file_name, byte_count: bytes.len(), replaced_existing: false,
+        durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" })
+}
+/// A new file created exclusively in the downloads root: the requested name, else its ` (n)`
+/// successor after an existing entry of any kind; never a replaced one.
+pub(super) struct Opened { pub(super) file: Box<dyn OwnedWrite>, pub(super) destination: PathBuf, pub(super) file_name: String, pub(super) owned: Option<(u64, u64)> }
+pub(super) fn open_new(root: &Path, basename: &str, ext: &str, start: usize, io: &(impl SaveIo + ?Sized)) -> Result<Opened, SaveError> {
     if !root.is_absolute() || !matches!(io.directory(root), Ok(true)) {
         return Err(failure("DOWNLOADS_UNAVAILABLE", "downloads"));
     }
@@ -216,7 +234,7 @@ fn save_bytes_ext(root: &Path, basename: &str, ext: &str, bytes: &[u8], start: u
         if destination.parent().and_then(|p| io.canonical(p).ok()).as_ref() != Some(&canonical_root) {
             return Err(failure("PATH_CONTAINMENT_FAILED", "containment"));
         }
-        let mut file = match io.open(&destination) {
+        let file = match io.open(&destination) {
             Ok(file) => file,
             Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
                 counter = counter.checked_add(1).ok_or_else(|| failure("COLLISION_OVERFLOW", "open"))?;
@@ -225,14 +243,7 @@ fn save_bytes_ext(root: &Path, basename: &str, ext: &str, bytes: &[u8], start: u
             Err(_) => return Err(failure("CREATE_NEW_FAILED", "open")),
         };
         let owned = file.identity().ok();
-        if file.write_all(bytes).is_err() {
-            let mut error = failure("WRITE_FAILED", "write"); cleanup(&mut error, &destination, owned, io); return Err(error);
-        }
-        if file.flush().is_err() {
-            let mut error = failure("FLUSH_FAILED", "flush"); cleanup(&mut error, &destination, owned, io); return Err(error);
-        }
-        return Ok(SaveReceipt { outcome: "saved", file_name, byte_count: bytes.len(), replaced_existing: false,
-            durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" });
+        return Ok(Opened { file, destination, file_name, owned });
     }
 }
 

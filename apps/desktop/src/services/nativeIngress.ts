@@ -35,6 +35,10 @@ export const NATIVE_INGRESS_COMMANDS = [
   "save_local_library",
   "save_report_package",
   "save_local_result_json",
+  "begin_local_csv_stream",
+  "append_local_csv_stream",
+  "finish_local_csv_stream",
+  "abort_local_csv_stream",
   "save_model_state",
   "list_model_states",
   "read_model_state",
@@ -64,6 +68,7 @@ export const NATIVE_INGRESS_COMMANDS = [
   "lookup_preview_mechanics_job_rows",
   "read_preview_mechanics_job_row_semantics",
   "query_preview_mechanics_job_source_recovery",
+  "query_preview_mechanics_job_navigator",
   "read_preview_mechanics_job_analysis_run_preview"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];

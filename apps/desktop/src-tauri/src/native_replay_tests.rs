@@ -77,6 +77,7 @@ fn reply(registry: &SolveJobRegistry, command: &str, args: &Value) -> Value {
         analysis_run_v03_build::COMMAND => bytes(analysis_run_v03_build::reserve(registry, &body, &headers).and_then(|(raw, lease)| analysis_run_v03_build::run(r, raw, lease))),
         result_detail::ROWS_COMMAND => bytes(result_detail::reserve(registry, &body, &headers, result_detail::ROWS_COMMAND).and_then(|(raw, lease)| result_detail::run_rows(r, raw, lease))),
         result_detail::LOOKUP_COMMAND => bytes(result_detail::reserve(registry, &body, &headers, result_detail::LOOKUP_COMMAND).and_then(|(raw, lease)| result_detail::run_lookup(r, raw, lease))),
+        result_detail::NAVIGATOR_COMMAND => bytes(result_detail::reserve(registry, &body, &headers, result_detail::NAVIGATOR_COMMAND).and_then(|(raw, lease)| result_detail::run_navigator(r, raw, lease))),
         result_detail::RECOVERY_COMMAND => bytes(result_detail::reserve(registry, &body, &headers, result_detail::RECOVERY_COMMAND).and_then(|(raw, lease)| result_detail::run_recovery(r, raw, lease))),
         // Tauri's raw response body (`semantics_response`): the JSON text's bytes.
         result_detail::SEMANTICS_COMMAND => bytes(result_detail::reserve(registry, &body, &headers, result_detail::SEMANTICS_COMMAND).and_then(|(raw, lease)| result_detail::run_semantics(r, raw, lease)).map(String::into_bytes)),

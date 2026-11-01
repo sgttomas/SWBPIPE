@@ -39,6 +39,7 @@ mod native_smoke;
 mod native_smoke_inject;
 #[cfg(test)]
 mod native_smoke_reach_scan_tests;
+mod native_csv_stream;
 mod native_result_download;
 mod native_verdict;
 mod result_planes;
@@ -2249,6 +2250,19 @@ async fn query_preview_mechanics_job_rows(
     result_detail::query_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
 }
 
+/// C1 native custody (slice 4's results navigator): the entity axis of a
+/// retained result's rows under the panel's filters (`result_detail`). Raw
+/// args body `{jobId, filter, probe}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the scan run in a
+/// blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_navigator(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_navigator(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
 /// C1 native custody (slice 3): rows of a retained result by exact ordinal,
 /// or the first or last row with an id or kind (`result_detail`). Raw args
 /// body `{jobId, ordinals?, ids?, kinds?, match}`; binary response as
@@ -2336,8 +2350,11 @@ fn release_preview_mechanics_job_full_copy(
 #[tauri::command]
 fn dispose_preview_mechanics_result(
     state: tauri::State<'_, SolveJobRegistry>,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
     job_id: String,
 ) -> Result<SolveResultDisposal, SolveJobError> {
+    // A CSV stream begun on this result ends with it (its partial file removed).
+    streams.abort_job(Some(&job_id));
     state.dispose_result(&job_id)
 }
 
@@ -2348,7 +2365,12 @@ fn dispose_preview_mechanics_result(
 /// holds no result copy and no handle on the previous page's jobs. Returns
 /// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
-fn dispose_all_preview_mechanics_results(state: tauri::State<'_, SolveJobRegistry>) -> SolveResultsDisposal {
+fn dispose_all_preview_mechanics_results(
+    state: tauri::State<'_, SolveJobRegistry>,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+) -> SolveResultsDisposal {
+    // The session reset ends every CSV stream (a fresh webview holds none).
+    streams.abort_job(None);
     state.dispose_all_results()
 }
 
@@ -5536,6 +5558,105 @@ fn save_local_result_json_args(args: &mut Args) -> Result<native_result_download
     args.decode("request")
 }
 
+/// C1 native custody (DEL-04-05 `c1-native-custody-plan.md` §5): the CSV table route written
+/// in bounded chunks (`native_csv_stream`). Each command is bound to the calling
+/// webview's label and, through the stream, to the held job it began on; the raw args body is
+/// admitted under the ingress lease up to one JSON-escaped chunk, and the file work runs in a
+/// blocking task. `{jobId, request: {file_name, text, screening, local_first}}`.
+#[tauri::command]
+async fn begin_local_csv_stream(
+    app: AppHandle,
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    use native_csv_stream::MAX_STREAM_BODY_BYTES;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "begin_local_csv_stream", ArgsDecoding::Moved, MAX_STREAM_BODY_BYTES)?;
+    let job_id: String = args.decode("jobId")?;
+    let request: native_csv_stream::BeginRequest = args.decode("request")?;
+    drop(args);
+    let job_held = registry.held_result(&job_id).is_ok();
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.begin(&label, &job_id, job_held, request, || app.path().download_dir())
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId, sequence, chunk: {text, screening, local_first}}` (`begin_local_csv_stream`).
+#[tauri::command]
+async fn append_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    use native_csv_stream::MAX_STREAM_BODY_BYTES;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "append_local_csv_stream", ArgsDecoding::Moved, MAX_STREAM_BODY_BYTES)?;
+    let stream_id: String = args.decode("streamId")?;
+    let sequence: u64 = args.decode("sequence")?;
+    let chunk: native_csv_stream::ChunkRequest = args.decode("chunk")?;
+    drop(args);
+    let job_held = streams.job_of(&stream_id).is_some_and(|job| registry.held_result(&job).is_ok());
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.append(&label, &stream_id, job_held, sequence, chunk)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId, sequence, byteCount}`: the receipt of `save_local_result_json`'s CSV profile.
+#[tauri::command]
+async fn finish_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "finish_local_csv_stream", ArgsDecoding::Moved, 64 << 10)?;
+    let stream_id: String = args.decode("streamId")?;
+    let sequence: u64 = args.decode("sequence")?;
+    let byte_count: u64 = args.decode("byteCount")?;
+    drop(args);
+    let job_held = streams.job_of(&stream_id).is_some_and(|job| registry.held_result(&job).is_ok());
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.finish(&label, &stream_id, job_held, sequence, byte_count)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId}`: ends the webview's stream and removes its partial file.
+#[tauri::command]
+async fn abort_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "abort_local_csv_stream", ArgsDecoding::Moved, 64 << 10)?;
+    let stream_id: String = args.decode("streamId")?;
+    drop(args);
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.abort(&label, &stream_id)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
 /// Raw, bounded native session surface. No caller-supplied path or webview
 /// identity is accepted. The actual Wry window and loaded app origin bind it.
 #[tauri::command]
@@ -5621,6 +5742,7 @@ macro_rules! app_invoke_handler {
             lookup_preview_mechanics_job_rows,
             read_preview_mechanics_job_row_semantics,
             query_preview_mechanics_job_source_recovery,
+            query_preview_mechanics_job_navigator,
             read_preview_mechanics_job_analysis_run_preview,
             read_preview_mechanics_job_rows_all,
             release_preview_mechanics_job_full_copy,
@@ -5682,7 +5804,11 @@ macro_rules! app_invoke_handler {
             delete_local_library,
             render_calculation_report,
             save_report_package,
-            save_local_result_json $(, $extra)*
+            save_local_result_json,
+            begin_local_csv_stream,
+            append_local_csv_stream,
+            finish_local_csv_stream,
+            abort_local_csv_stream $(, $extra)*
         ]
     };
 }
@@ -5693,6 +5819,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
+        .manage(Arc::new(native_csv_stream::CsvStreams::default()))
         .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {

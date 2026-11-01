@@ -64,6 +64,8 @@ describe("the results navigator in the app", () => {
       fireEvent.click(within(results).getByTestId("results-navigator-kind-next"));
     }
     fireEvent.click(within(results).getByTestId("results-navigator-entity-next"));
+    // The result is held natively: the table's supports and elements arrive by one native query.
+    await waitFor(() => expect(within(results).getByTestId("results-navigator-entity-position")).toHaveTextContent(/ \(1 of \d+\)$/));
     const first = within(results).getByTestId("results-navigator-entity-position").textContent!.split(" (")[0];
     expect(pair.model.nodes.map((node) => node.id)).toContain(first);
     await waitFor(() => expect(readout).toHaveTextContent(`Selected node: ${first}; 0 queued`));
@@ -75,11 +77,14 @@ describe("the results navigator in the app", () => {
     const second = within(results).getByTestId("results-navigator-entity-position").textContent!.split(" (")[0];
     expect(second).not.toBe(first);
     await waitFor(() => expect(readout).toHaveTextContent(`Selected node: ${second}; 0 queued`));
-    expect(document.activeElement?.getAttribute("aria-selected")).toBe("true");
+    await waitFor(() => expect(document.activeElement?.getAttribute("aria-selected")).toBe("true"));
 
     // A case step keeps the node; the selection stays on it.
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown", altKey: true });
     expect(within(results).getByTestId("results-navigator-case-position")).not.toHaveTextContent(/^All cases/);
+    expect(readout).toHaveTextContent(`Selected node: ${second}; 0 queued`);
+    // The step lands on the node's first row of that case (a native lookup): still that node.
+    await waitFor(() => expect(within(results).getByTestId("results-navigator-status")).toHaveTextContent(new RegExp(`${second}, row `)));
     expect(readout).toHaveTextContent(`Selected node: ${second}; 0 queued`);
 
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();
