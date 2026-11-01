@@ -2190,6 +2190,69 @@ exact-head hosted checks are recorded in PR #68 and required before integration.
 storage, not admitted families or ScopeOfWork/dependency conditions. No
 acceptance, release or base-machine performance qualification follows.
 
+### §8.38 RT-A3 reducer 2a: bounded concentric pressure-bore steps (proposed)
+
+**Source and status.** The four-point run at `3c3e976075` extends the
+integrated §8.37 source (`2656dcb33`) with reducer 2a's bounded admission.
+All points are complete with zero unmapped or unclassified sites; both O-10
+checks are clear. This is a proposal, not profile adoption. The committed
+profile remains §8.37's owner-approved bytes. Eccentric 2b, CE and nonlinear
+admission are outside this registration.
+
+**Changed proof.** D1.4 excludes components and D1.5 gives route E explicitly
+empty pressure regions. Thus `reducers_in_regions` returns an empty Vec
+without backing allocation on D1 in both validation and assembly. Its
+`step_topology`, lazily built `non_straight_members` set, per-end pipe/node
+searches and geometric arithmetic are unreachable there. Ordinary EX now
+checks those paths before forming loads; the numerical review independently
+checked that all solve entries pass this guard. No retained-domain exclusion,
+row cap, layout or owner coefficient is relaxed. The runtime production-prefix
+and full-file source pins bind this proof. The scoped `problem` parent keys
+follow their original functions, including the new
+`refuse_reducers_outside_step` parent; it is inside the empty classified list,
+not an additional reachable diagnostic owner. The fixed three-component
+dot/cross predicates were covered by the numerical review.
+
+**Carry and comparison.** The line map carries 880 keys, prunes 37 and applies
+seven reviewed resolutions. The original prune keys and resolutions equal
+§8.37's; the only prune-record difference is the surviving caller's line
+carry `build_pressure_case_with_members` 714 → 716, not another dropped bound.
+Tree structure is equal: **1,594 coefficients equal, eight higher, none lower**.
+The pressure-2 table's description grows by 437 bytes, raising `STATICS[1]`
+and its success copy by 437 B. The inherited physics-retained table changes
+only its fixed-length parent digest. The longer ordinary pressure identity
+(2,102 → 2,321 bytes) is read by existing U6-J4's exact-literal rule; six
+charged copies raise `TAV_W[1]`, `TAV_X[1]` and their success copies by
+1,314 B. The remaining two increases are TAV requested/moving metadata;
+these are not additional form atoms. No other coefficient moves. Illustrative
+merged checks rise by 1,751 B to 8,748,965,400 B sparse and 8,808,096,744 B
+dense; illustrative M is not native qualification.
+
+**Native evaluation and exact proposal.** The current in-build collector
+(`profile_in_build_record`, one passing test) supplies all 328 merged atoms.
+The unchanged S1/§8.31 combination-type supplement is reused as in §8.37:
+Node(String,BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
+(String,&str,Operand) 56 and (&str,String) 40 B. Maintained `tree_eval` evaluates
+all 80 point/mode/phase combinations; every separate phase is no higher than
+the corresponding merged phase. The merged W3 E + R is 8,966,251,315 B sparse
+and 9,025,382,659 B dense. M remains 12,884,901,888 B, its 0.9 margin
+11,596,411,699 B and R 67,108,864 B. Upward-rounded W/X TEXT reserves are
+255,342,507 / 276,013,933 B, used conservatively for all separate points.
+The tightest headroom, dense W3 including reserve, is 2,315,686,533 B.
+
+The concrete proposed full file is
+`/private/tmp/rt-a3-2a-proposed-retained_memory.rs`, SHA-256
+`500463db580bc462237843afa9ab7339a3755ade142faf50590be0e4bf70abe0`.
+The generated block is maintained `generate` output with basis
+`RT-A3 reducer 2a at 3c3e976075 (§8.38): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128`.
+Only reviewed-input entries #8 and #11 take the new derived table hashes;
+identity, layouts and threshold stay unchanged. The four-point tree and
+summary are in `/private/tmp/rt-a3-2a-price/`; the complete native evaluations
+are `/private/tmp/rt-a3-2a-native-eval80.json`. These are named proposal/review
+inputs, not permanent test dependencies. Focused registration scrutiny,
+reserved adoption, generated law/challenge pins, native laws/challenge,
+required stack evidence and exact-head hosted checks remain outstanding.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2298,3 +2361,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-U4 reader bundle: `reader_verdict.rs` content re-pin", "§8.35" | §8.35 |
 | "Model document 0.9.0 actual-source D3", "§8.36" (S1-PIN, S1-BN, S1-NR, S1-RK, S1-HS, S1-L1, S1-ZR, S1-ZS, S1-ID, S1-MS, S1-VW, S1-WH, S1-TS) | §8.36 |
 | "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |
+| "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |

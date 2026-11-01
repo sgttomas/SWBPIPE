@@ -424,3 +424,14 @@ beside U4B-ST in `ordinary_caps.py`. Partial or changed index ownership fails
 closed; `tests/test_837_rt_a3_1b.py` exercises the charges and guards. The
 combined-source registration follows model document 0.9.0's §8.36; the old
 pre-S1 1b draft is not a registration basis.
+
+### §8.38: RT-A3 reducer 2a bounded concentric pressure-bore steps (proposal)
+
+The combined source's full-file/prefix pins and scoped `problem` caller keys
+follow the reducer guard. On D1, empty components/regions leave its new
+classification and geometry paths unentered. Existing U6-J4 reads the longer
+identity; resident pressure-table description text raises STATICS. The proposed
+profile raises each native merged phase by 1,751 B; all 80 native evaluations
+fit the unchanged M/margin and upward-rounded TEXT-reserve policy. The protected
+profile is unchanged pending focused scrutiny and reserved adoption. See the
+governing rules' §8.38 for the exact source, proposal and remaining checks.
