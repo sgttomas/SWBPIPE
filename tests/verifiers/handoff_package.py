@@ -34,6 +34,9 @@ from typing import Any
 
 from .canonical_json import canonical_json_unchecked as canonical_json, parse_json
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only package directories its callers name; those paths are their callers' reads.
+CI_READS = ()
+
 MODEL_DIRECTORY = "model"
 MODEL_FILE = "model.json"
 MODEL_MEMBER = "model/model.json"

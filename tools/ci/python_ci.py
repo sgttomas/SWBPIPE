@@ -2,6 +2,7 @@
 """Select Python regression families from the same complete PR diff as Cargo."""
 import argparse
 import ast
+import functools
 from fnmatch import fnmatchcase
 import json
 from pathlib import Path
@@ -9,7 +10,9 @@ import subprocess
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'software_workflow'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hosted_ci
+import python_test_reads
 
 PREFIX = ''
 BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_block_schema_contract.py']
@@ -35,19 +38,7 @@ AGENT_SUPPLIER_BUNDLE_INPUTS = AGENT_SUPPLIER_INPUTS | {
     'tools/release/build_signed_app.py',
     'tests/test_release_signed_build_script.py',
 }
-# The model-version literal guard scans these production roots (its own constants;
-# `tests/test_ci_python.py` keeps the two lists equal). A change under any of them
-# selects it, so a stray version literal fails on the PR that adds it.
-MODEL_VERSION_LITERAL_TEST = 'tests/test_model_version_literals.py'
-# The verifier independence check reads every Python module outside tests/, so any change to
-# one selects it: a path naming the verifiers in a product or tool module fails on that PR.
-VERIFIER_INDEPENDENCE_TEST = 'tests/test_verifier_independence.py'
-MODEL_VERSION_LITERAL_ROOTS = (
-    'apps/desktop/src/', 'apps/desktop/src-tauri/src/', 'core/model_operations/operation_applier/src/',
-    'core/product_physics/src/', 'core/reporting/result_export/src/', 'tests/verifiers/', 'tools/validation/',
-    'tools/fixtures/', 'core/handoff/', 'core/project_persistence/', 'core/product_preview/',
-)
-BROAD = BASE + [AGENT_SUPPLIER_TEST, AGENT_SUPPLIER_BUNDLE_TEST, MODEL_VERSION_LITERAL_TEST, VERIFIER_INDEPENDENCE_TEST, 'tests/product_preview', 'tests/test_operation_validation_preview.py',
+BROAD = BASE + [AGENT_SUPPLIER_TEST, AGENT_SUPPLIER_BUNDLE_TEST, 'tests/product_preview', 'tests/test_operation_validation_preview.py',
                 'tests/test_analytical_solver_boundary_adapter.py',
                 'tests/test_physical_to_analytical_transform.py',
                 'tests/test_reference_system_fixture.py'] + sum(FAMILIES.values(), [])
@@ -109,6 +100,50 @@ REFERENCE_SYSTEM_INPUTS = {
     'schemas/model.schema.yaml',
     'schemas/load_reference_state.schema.json',
 }
+
+# Tests a change under a named source directory selects.
+PREFIX_TESTS = {
+    'core/model_transform/': ['tests/test_analytical_solver_boundary_adapter.py', 'tests/test_physical_to_analytical_transform.py'],
+    'core/model_operations/validation_preview/': ['tests/test_operation_validation_preview.py'],
+    'core/reporting/report_package/': ['tests/test_schema_eval_parity.py'],
+    'tools/retained_pricing/': ['tests/test_retained_pricing_tool.py'],
+}
+
+# Maintained tests deliberately left unrouted, each with its reason.
+UNROUTED = {
+    'core/solver/performance_harness/runner/test_k6_runner.py':
+        'collected through tests/test_performance_harness_runner.py, which imports every test class it defines',
+    'core/solver/performance_harness/runner/test_release_runner.py':
+        'collected through tests/test_release_timing_runner.py, which imports every test class it defines',
+}
+
+
+@functools.lru_cache(maxsize=None)
+def named_tests(project):
+    """The test files the rules above name: the broad cohort, families and named inputs' readers."""
+    patterns = BROAD + [AGENT_SUPPLIER_TEST, AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py', J7_RF_CENSUS_TEST, SYNTHETIC_BASES_TEST, 'tests/test_ci*.py']
+    patterns += sum(PINNED_FIXTURE_READERS.values(), []) + sum(PREFIX_TESTS.values(), [])
+    patterns += [test for helper in HELPER_IMPORTS for test in helper_consumers(project, helper)]
+    named = set()
+    for pattern in patterns:
+        for path in project.glob(pattern):
+            files = sorted(path.rglob('*.py')) if path.is_dir() else [path]
+            named.update(file.relative_to(project).as_posix() for file in files)
+    return named
+
+
+@functools.lru_cache(maxsize=None)
+def derived_tests(project):
+    """{test: roots} for every maintained test outside UNROUTED: each is selected by the paths it reads
+    (`python_test_reads`), in addition to any rule above that names it, so a test that guards a source
+    runs when that source changes."""
+    return {test: roots for test, roots in python_test_reads.test_reads(project).items() if test not in UNROUTED}
+
+
+def broad(project):
+    """The broad cohort, with every derived test no rule above names."""
+    named = named_tests(project)
+    return BROAD + sorted(test for test in derived_tests(project) if test not in named)
 
 
 def helper_consumers(project, helper):
@@ -188,22 +223,21 @@ def test_tree_importers(project, changed):
 
 def select(project, plan, repository_checks_run=False):
     paths = plan.get('paths', [])
+    derived = derived_tests(project)
     if plan.get('event') != 'pull_request' or not paths:
-        patterns = list(BROAD)
+        patterns = broad(project)
     else:
         patterns = list(BASE)
         for path in paths:
             if hosted_ci.shared_input(path) or not path.startswith(PREFIX):
-                patterns.extend(BROAD)
+                patterns.extend(broad(project))
                 continue
             local = path[len(PREFIX):]
             patterns.extend(helper_consumers(project, local))
+            patterns.extend(test for test, roots in derived.items()
+                            if local == test or any(python_test_reads.root_matches(local, root) for root in roots))
             if local in AGENT_SUPPLIER_INPUTS:
                 patterns.append(AGENT_SUPPLIER_TEST)
-            if local.startswith(MODEL_VERSION_LITERAL_ROOTS):
-                patterns.append(MODEL_VERSION_LITERAL_TEST)
-            if local.endswith('.py') and not local.startswith('tests/'):
-                patterns.append(VERIFIER_INDEPENDENCE_TEST)
             if local in AGENT_SUPPLIER_BUNDLE_INPUTS:
                 patterns.extend([AGENT_SUPPLIER_BUNDLE_TEST, 'tests/test_release_signed_build_script.py'])
             if local in J7_RF_CENSUS_INPUTS:
@@ -213,20 +247,14 @@ def select(project, plan, repository_checks_run=False):
             if local in REFERENCE_SYSTEM_INPUTS or local.startswith(REFERENCE_SYSTEM_PREFIXES):
                 patterns.append(REFERENCE_SYSTEM_TEST)
             patterns.extend(PINNED_FIXTURE_READERS.get(local, []))
-            if local.startswith('core/model_transform/'):
-                patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',
-                                 'tests/test_physical_to_analytical_transform.py'])
-            if local.startswith('core/model_operations/validation_preview/'):
-                patterns.append('tests/test_operation_validation_preview.py')
-            if local.startswith('core/reporting/report_package/'):
-                patterns.append('tests/test_schema_eval_parity.py')
-            if local.startswith('tools/retained_pricing/'):
-                patterns.append('tests/test_retained_pricing_tool.py')
+            for prefix, tests in PREFIX_TESTS.items():
+                if local.startswith(prefix):
+                    patterns.extend(tests)
             # Run an edited test itself, in addition to its affected family.
             if local.startswith('tests/') and Path(local).name.startswith('test_') and local.endswith('.py') and (project / local).is_file():
                 patterns.append(local)
             if local.startswith(('tools/ci/', 'requirements', 'tests/conftest', 'tests/schema_validation')):
-                patterns.extend(BROAD)
+                patterns.extend(broad(project))
                 patterns.append('tests/test_ci*.py')
             if local.startswith(('fixtures/', 'schemas/', 'tools/validation/')):
                 patterns.extend(sum(FAMILIES.values(), []))
@@ -243,7 +271,7 @@ def select(project, plan, repository_checks_run=False):
         if support:
             patterns.extend(test_tree_importers(project, support))
     if plan.get('piping_numerical_selection', {}).get('classification') == 'full-fallback':
-        patterns.extend(BROAD)
+        patterns.extend(broad(project))
     # Resolve globs here so shell expansion cannot silently change selection.
     selected = {p.relative_to(project).as_posix() for pattern in patterns for p in project.glob(pattern)}
     if repository_checks_run:
@@ -254,6 +282,18 @@ def select(project, plan, repository_checks_run=False):
     if not selected:
         raise ValueError('Python selection unexpectedly empty')
     return selected
+
+
+def reaching_paths(project, paths):
+    """The changed paths an always-run test reads, or whose own pull-request selection adds a test beyond
+    them: hosted planning starts this job for them even where no path rule routes it."""
+    base = set(select(project, {'event': 'pull_request', 'paths': ['README.md']}))
+    reads = python_test_reads.test_reads(project)
+    base_roots = {root for test in reads for root in reads[test]
+                  if any(test == local or test.startswith(local + '/') for local in base)}
+    return [path for path in paths
+            if any(python_test_reads.root_matches(path, root) for root in base_roots)
+            or set(select(project, {'event': 'pull_request', 'paths': [path]})) - base]
 
 
 def main():

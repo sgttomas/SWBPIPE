@@ -24,6 +24,9 @@ from base.b7a_formation_model import prepare as prepare_b7a_formation
 from base.loopscan import off_build_files
 from lib.source_history import resolve_revision, project_prefix
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It archives the repository at a revision (`git archive`) and reads its snapshot.
+CI_READS = ("**",)
+
 H = os.path.dirname(os.path.abspath(__file__))
 BASE, LIB, RULES, DATA = (os.path.join(H, d) for d in ("base", "lib", "rules", "data"))
 BASIS = "2243be380b"                       # the revision the base chain's rule tables and the decisions are keyed at

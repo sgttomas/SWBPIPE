@@ -39,6 +39,9 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# The committed files `committed_files` scans, for CI selection (tools/ci/python_test_reads.py): its walk
+# fallback filters by suffix, which the selector cannot read from the code.
+CI_READS = ("**/*.json", "**/*.jsonl")
 for extra in (ROOT / "tests", ROOT / "tools" / "validation"):
     if str(extra) not in sys.path:
         sys.path.insert(0, str(extra))

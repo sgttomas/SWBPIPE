@@ -11,6 +11,10 @@ import sys
 
 import pytest
 
+# Recursive scans inspect generated snapshots of the temporary fixture repository,
+# not product inputs. The tool modules read by this test remain derived normally.
+CI_READS = ()
+
 TOOL = Path(__file__).resolve().parents[1] / "tools" / "retained_pricing"
 P = "projects/chirality-piping/"
 F = P + "core/x/src/lib.rs"
