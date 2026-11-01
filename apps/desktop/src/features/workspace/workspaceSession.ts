@@ -212,7 +212,6 @@ import {
   modelChangedSolveJob,
   pendingBackendStartCancellationSolveJob,
   progressSolveJob,
-  refusedAtTakeSolveJob,
   refusedBeforeBackendStartSolveJob,
   refusedSolveJob,
   resultTooLargeSolveJob,
@@ -1210,7 +1209,7 @@ export function useWorkspaceSession() {
           if (!(error instanceof ResourceUnavailableError)) throw error;
           if (solveRunGate.current.isCurrent(runGeneration)) {
             setSolveJob((current) =>
-              current.job_id === startedJob?.job_id ? refusedAtTakeSolveJob(current, error) : current
+              current.job_id === startedJob?.job_id ? refusedSolveJob(current, error.refusal, error.pool, "session_step") : current
             );
           }
           timeline.end("refused", error);

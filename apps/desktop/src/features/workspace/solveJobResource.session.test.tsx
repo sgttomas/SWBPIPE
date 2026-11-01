@@ -307,7 +307,7 @@ it("records a refused start with the pool status the native side reported", asyn
   expect(commands()).not.toContain("poll_preview_mechanics_job");
 });
 
-it("records a refused take (custody_full) as a typed refusal and releases the result the session will not take", async () => {
+it("records a refused native read (custody_full) as a typed refusal and releases the held result", async () => {
   const { result, transport } = await session((command) => command === FIRST_NATIVE_READ
     ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "custody_full", delivered: 4, limit: 4 }, pool: null })
     : undefined);
@@ -327,7 +327,7 @@ const SMOKE_HEADROOM = { kind: "headroom_insufficient", required_bytes: 68165632
 const SMOKE_HEADROOM_CODE = "headroom_insufficient (required_bytes=68165632, available_bytes=52641792)";
 const SMOKE_HEADROOM_SENTENCE = "Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available.";
 
-it("records a take refused for headroom as refused at the take, with its code and exact bytes, no rows and no run record, and releases the retained result", async () => {
+it("records a native read refused for headroom as a session-step refusal, with its code and exact bytes, no rows and no run record, and releases the retained result", async () => {
   const { result, transport } = await session((command) => command === FIRST_NATIVE_READ
     ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: SMOKE_HEADROOM, pool: null })
     : undefined);
@@ -336,7 +336,7 @@ it("records a take refused for headroom as refused at the take, with its code an
   expect(job.state).toBe("refused");
   expect(job.error_message).toBeNull();
   expect(job.resource.refusal).toEqual(SMOKE_HEADROOM);
-  expect(job.events.map((event) => event.event_id)).toEqual(["solve-preview-queued", "solve-preview-resource-refused-at-take"]);
+  expect(job.events.map((event) => event.event_id)).toEqual(["solve-preview-queued", "solve-preview-resource-refused-at-session-step"]);
   expect(job.events.some((event) => event.state === "completed" || event.result_row_count > 0)).toBe(false);
   expect(result.current.results.result).toBeNull();
   expect(result.current.results.analysisRun).toBeNull();
@@ -352,7 +352,7 @@ it("records a take refused for headroom as refused at the take, with its code an
   expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
   expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
   expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
-    `Refused when the finished result was handed to the app; the session does not retry a refused take, so it released the result. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: ${SMOKE_HEADROOM_CODE}`);
+    `Refused at a native read or other native command of this solve's session steps; the session does not retry it and releases any held result. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: ${SMOKE_HEADROOM_CODE}`);
   expect(within(view.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("refusal=headroom_insufficient");
   expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the native memory pool");
   expect(within(view.container).getByTestId("solve-job-binding")).toHaveTextContent("not generated; result rows=0; hashes=0");

@@ -293,7 +293,7 @@ export function describeSolveRefusalRetry(refusal: ResourceRefusal, point: Solve
     result_handoff: `Refused at the result hand-off after the solve finished; the finished result was dropped.${resampled}`,
     publication: "Refused at publication after the solve finished; the finished result was dropped.",
     take: `Refused when the finished result was handed to the app; the session does not retry a refused take, so it released the result.${resampled}`,
-    session_step: "Refused at a native command of this solve's session steps; the session does not retry it."
+    session_step: `Refused at a native read or other native command of this solve's session steps; the session does not retry it and releases any held result.${resampled}`
   }[point];
   return `${where} ${solveRetryPath(refusal)}`;
 }
