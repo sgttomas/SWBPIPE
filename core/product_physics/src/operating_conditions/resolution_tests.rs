@@ -5,7 +5,7 @@
 use super::*;
 use crate::case_state::temperature::canonical_decimal::{canonical_decimal, kelvin_numerator, CanonicalDecimal};
 use crate::case_state::temperature::exact_kelvin;
-use crate::operating_conditions::{findings, lower, OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED};
+use crate::operating_conditions::{findings, lower, preview_operating_conditions, OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED};
 use crate::document_members::MemberFindings;
 use serde_json::{json, Value};
 
@@ -283,4 +283,114 @@ fn e7_the_lowered_multisets_g1_reads() {
     let weight = content(&model.load_cases[1].primitive_loads[0]);
     assert!(weight.starts_with("weight|Element { pipe: \"P2\" }|global_z|force_per_length|"), "{weight}");
     assert_eq!((count(&model, 0, &weight), count(&model, 1, &weight)), (2, 1));
+}
+
+/// The wind input's private presence (§1.3's conflict counts an authored `[]`):
+/// each list absent, empty and non-empty; `null` and malformed values keep the
+/// errors of the plain `Vec` members they replaced; clone and unit
+/// normalization keep the presence; code-built values count a non-empty list.
+#[test]
+fn wind_list_presence_is_tracked_without_changing_the_wire_contract() {
+    use crate::WindGenerationInput;
+    /// The members as they were declared before presence tracking.
+    #[derive(serde::Deserialize, Debug)]
+    #[serde(deny_unknown_fields)]
+    #[allow(dead_code)]
+    struct Before {
+        #[serde(default)]
+        pressure: Option<Quantity>,
+        #[serde(default)]
+        shape_factor: Option<Quantity>,
+        #[serde(default)]
+        direction: Option<String>,
+        #[serde(default)]
+        exposed_pipe_refs: Vec<String>,
+        #[serde(default)]
+        exposed_spans: Vec<crate::WindExposedSpanInput>,
+    }
+    let span = json!({"pipe_ref": "P1", "start_fraction": {"value": 0.0, "unit": "1"}, "end_fraction": {"value": 0.5, "unit": "1"}});
+    for (refs, spans) in [(None, None), (Some(json!([])), None), (None, Some(json!([]))), (Some(json!(["P1"])), Some(json!([span.clone()]))), (Some(json!([])), Some(json!([])))] {
+        let mut value = json!({"pressure": {"value": 1.0, "unit": "Pa"}, "direction": "global_y"});
+        if let Some(refs) = &refs { value["exposed_pipe_refs"] = refs.clone(); }
+        if let Some(spans) = &spans { value["exposed_spans"] = spans.clone(); }
+        let wind: WindGenerationInput = serde_json::from_value(value.clone()).unwrap();
+        let before: Before = serde_json::from_value(value).unwrap();
+        assert_eq!((wind.exposed_pipe_refs_authored, wind.exposed_spans_authored), (refs.is_some(), spans.is_some()));
+        assert_eq!((wind.authors_exposed_pipe_refs(), wind.authors_exposed_spans()), (refs.is_some(), spans.is_some()));
+        assert_eq!(wind.exposed_pipe_refs, before.exposed_pipe_refs);
+        assert_eq!(wind.exposed_spans.len(), before.exposed_spans.len());
+        let copy = wind.clone();
+        assert_eq!((copy.exposed_pipe_refs_authored, copy.exposed_spans_authored), (refs.is_some(), spans.is_some()));
+    }
+    // null, malformed and unknown members: the same errors as before.
+    for bad in [json!({"exposed_pipe_refs": null}), json!({"exposed_spans": null}), json!({"exposed_pipe_refs": "P1"}),
+                json!({"exposed_spans": [{"pipe_ref": "P1", "extra": 1}]}), json!({"exposed_pipe_refs": [1]}), json!({"exposd_pipe_refs": []})] {
+        let now = serde_json::from_value::<WindGenerationInput>(bad.clone()).unwrap_err().to_string();
+        let then = serde_json::from_value::<Before>(bad.clone()).unwrap_err().to_string();
+        assert_eq!(now, then, "{bad}");
+    }
+    // Built in code: a non-empty list counts as authored; an empty one with no flag does not.
+    let built = WindGenerationInput { exposed_pipe_refs: vec!["P1".into()], ..Default::default() };
+    assert!(built.authors_exposed_pipe_refs() && !built.authors_exposed_spans());
+    assert!(!WindGenerationInput::default().authors_exposed_pipe_refs());
+    // Through the model decode and unit normalization.
+    let mut document = twin::document(crate::MODEL_SCHEMA_VERSION);
+    document["load_cases"][2]["equivalent_static"]["wind"]["exposed_spans"] = json!([]);
+    let mut model = decode(&document);
+    let mut materials = model.materials.clone();
+    let mut diagnostics = Vec::new();
+    crate::normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+    let wind = model.load_cases[2].equivalent_static.as_ref().unwrap().wind.as_ref().unwrap();
+    assert!(wind.exposed_spans_authored && !wind.exposed_pipe_refs_authored, "{diagnostics:?}");
+}
+
+/// An authored empty list conflicts with a wind-exposure use; the case is
+/// refused by name and nothing is generated.
+#[test]
+fn an_authored_empty_exposure_list_conflicts_with_a_wind_exposure_use() {
+    for member in ["exposed_pipe_refs", "exposed_spans"] {
+        let mut document = twin::document(crate::MODEL_SCHEMA_VERSION);
+        document["load_cases"][2]["equivalent_static"]["wind"][member] = json!([]);
+        let (_, diagnostics) = lowered(&document);
+        assert!(diagnostics.iter().any(|d| d.code == LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT && d.message.contains(&format!("equivalent_static.wind.{member}"))), "{member}: {diagnostics:?}");
+    }
+}
+
+/// The preview takes the lowering's own judgement: with the plan resolved, its
+/// records are exactly what `lower` appends to each case (after the authored
+/// ones), in order, and its wind ids are the case's exposure; refused, it lists
+/// no record and the lowering's diagnostics. The input value is not changed.
+#[test]
+fn the_preview_reports_exactly_what_the_lowering_applies() {
+    let mut refused = twin::document(crate::MODEL_SCHEMA_VERSION);
+    refused["pipe_segments"][1].as_object_mut().unwrap().remove("condition_set_ref");
+    for (name, document) in variants().into_iter().chain([("refused", refused)]) {
+        let before = document.clone();
+        let preview = preview_operating_conditions(&document);
+        assert_eq!(document, before, "{name}: the input is not changed");
+        let decoded = decode(&document);
+        let (model, diagnostics) = lowered(&document);
+        assert_eq!(preview["diagnostics"], serde_json::to_value(&diagnostics).unwrap(), "{name}");
+        let resolved = !crate::has_blocking(&diagnostics);
+        assert_eq!(preview["resolved"], json!(resolved), "{name}");
+        let cases = preview["cases"].as_array().unwrap();
+        if !resolved {
+            assert!(cases.is_empty(), "{name}");
+            continue;
+        }
+        let using: Vec<usize> = decoded.load_cases.iter().enumerate().filter(|(_, c)| c.condition_use.is_some()).map(|(i, _)| i).collect();
+        assert_eq!(cases.len(), using.len(), "{name}");
+        for (case, &index) in cases.iter().zip(&using) {
+            assert_eq!(case["case_id"], json!(decoded.load_cases[index].id));
+            let authored = decoded.load_cases[index].primitive_loads.len();
+            let appended: Vec<Value> = model.load_cases[index].primitive_loads[authored..].iter().map(|load| json!({
+                "id": load.id, "category": load.category, "target": {"type": "element", "pipe": match &load.target { crate::LoadTargetInput::Element { pipe } => pipe.clone(), _ => unreachable!() }},
+                "direction": load.direction, "magnitude": {"value": load.magnitude.value, "unit": load.magnitude.unit},
+                "dimension": load.dimension, "provenance": load.provenance})).collect();
+            assert_eq!(case["generated_primitive_loads"], json!(appended), "{name}");
+            let wind = decoded.load_cases[index].condition_use.as_ref().unwrap().wind_exposure == Some(true);
+            let exposed = model.load_cases[index].equivalent_static.as_ref().and_then(|e| e.wind.as_ref()).map(|w| w.exposed_pipe_refs.clone());
+            assert_eq!(case["wind_exposed_pipe_refs"], if wind { json!(exposed.unwrap()) } else { Value::Null }, "{name}");
+        }
+    }
 }

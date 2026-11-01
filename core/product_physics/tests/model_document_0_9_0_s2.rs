@@ -457,3 +457,128 @@ fn mechanics_wind_cantilever_from_a_set() {
         close(one(&solved, "support_reaction_component_v2", "SA", Some("Fy")), expected["reaction_y_at_start_n"].as_f64().unwrap(), floors["force_n"].as_f64().unwrap(), "R_y at A");
     }
 }
+
+// ------------------------------------------------------------------ wind presence
+
+/// An authored empty `exposed_pipe_refs` or `exposed_spans` states the case's own
+/// exposure, so a wind-exposure use conflicts with it; without a condition use an
+/// authored empty list solves exactly as an absent one (ordinary wind unchanged).
+#[test]
+fn an_authored_empty_exposure_list_is_a_conflict_and_ordinary_wind_is_unchanged() {
+    for member in ["exposed_pipe_refs", "exposed_spans"] {
+        assert_refused_by(&mutated(|d| d["load_cases"][2]["equivalent_static"]["wind"][member] = json!([])),
+            "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT", &["load case `WIND`", &format!("equivalent_static.wind.{member}")]);
+        let plain = |authored: bool| {
+            let mut d = twin::twin(&document());
+            let wind = &mut d["load_cases"][2]["equivalent_static"]["wind"];
+            wind.as_object_mut().unwrap().remove("exposed_pipe_refs");
+            if authored {
+                wind[member] = json!([]);
+            }
+            d
+        };
+        for mode in MODES {
+            let (absent, empty) = (solve(&plain(false), mode), solve(&plain(true), mode));
+            assert!(diagnostics(&absent).iter().any(|(code, _, m)| code == "EQUIVALENT_STATIC_INPUT_MISSING" && m.contains("exposed_pipe_refs or exposed_spans")));
+            assert_same_bytes(&empty, &absent, &format!("{member} {mode:?}: an authored [] without a condition use"));
+        }
+    }
+}
+
+// ------------------------------------------------------------------ read-only preview
+
+use open_pipe_stress_product_physics::operating_conditions::{preview_operating_conditions, OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND};
+
+/// The preview's generated records and wind ids are the independent twin's, in
+/// order; it is deterministic and leaves its input unchanged.
+#[test]
+fn the_preview_lists_the_twins_generated_records() {
+    let d = document();
+    let before = d.clone();
+    let preview = preview_operating_conditions(&d);
+    assert_eq!(d, before, "the input is not changed");
+    assert_eq!(text(&preview), text(&preview_operating_conditions(&d)), "deterministic");
+    assert_eq!(preview["document_kind"], OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND);
+    assert_eq!(preview["resolved"], true);
+    assert_eq!(preview["diagnostics"], json!([]));
+    let t = twin::twin(&d);
+    let cases = preview["cases"].as_array().unwrap();
+    assert_eq!(cases.iter().map(|c| c["case_id"].as_str().unwrap()).collect::<Vec<_>>(), ["OPE", "SUS", "WIND"]);
+    for case in cases {
+        let id = case["case_id"].as_str().unwrap();
+        let (authored, lowered) = (d["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap(),
+                                   t["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap());
+        let generated = &lowered["primitive_loads"].as_array().unwrap()[authored["primitive_loads"].as_array().unwrap().len()..];
+        assert_eq!(text(&case["generated_primitive_loads"]), text(&json!(generated)), "{id}");
+        let wind = if authored["condition_use"].get("wind_exposure").is_some() { lowered["equivalent_static"]["wind"]["exposed_pipe_refs"].clone() } else { Value::Null };
+        assert_eq!(case["wind_exposed_pipe_refs"], wind, "{id}");
+    }
+}
+
+/// Refused, the preview lists nothing and names exactly the lowering's findings,
+/// which open the solve's own pre-formation findings; a request the solve's parse
+/// refuses gives the same refusal text.
+#[test]
+fn the_preview_refuses_as_the_solve_does() {
+    let mut exact: Value = serde_json::from_str::<Value>(EXACT).unwrap()["model"].take();
+    exact["schema_version"] = json!(MODEL_SCHEMA_VERSION);
+    exact["load_cases"][0]["condition_use"] = json!({"added_weight": true});
+    for d in [
+        mutated(|d| { d["pipe_segments"][1].as_object_mut().unwrap().remove("condition_set_ref"); }),
+        mutated(|d| d["load_cases"][1]["condition_use"]["contents_density"] = json!("OPE1")),
+        mutated(|d| d["load_cases"][2]["equivalent_static"]["wind"]["exposed_spans"] = json!([])),
+        mutated(|d| d["load_cases"][0]["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"})),
+        mutated(|d| set_mut(d, "cs:warm")["installation_temperature"] = json!({"value": -500.0, "unit": "degF"})),
+        exact,
+    ] {
+        let preview = preview_operating_conditions(&d);
+        assert_eq!(preview["resolved"], false, "{preview}");
+        assert_eq!(preview["cases"], json!([]));
+        let listed = preview["diagnostics"].as_array().unwrap();
+        assert!(!listed.is_empty());
+        let checks = pre_formation(&d);
+        assert_eq!(text(&json!(listed)), text(&json!(checks[..listed.len()])), "the lowering's findings open the pre-formation findings");
+    }
+    let unknown = mutated(|d| d["condition_sets"][0]["conditions"][0]["temprature"] = json!(1));
+    let refusal = LinearStaticPreviewRequest::pre_formation_checks_value(json!({"model": unknown, "materials": []})).unwrap_err();
+    let preview = preview_operating_conditions(&unknown);
+    assert_eq!(preview["refusal"], json!(refusal));
+    assert_eq!((preview["resolved"].clone(), preview["cases"].clone()), (json!(false), json!([])));
+}
+
+const PARITY_PATH: &str = "../../fixtures/operating_conditions/preview_parity.json";
+const PARITY: &str = include_str!("../../../fixtures/operating_conditions/preview_parity.json");
+
+fn parity_inputs() -> Vec<(&'static str, Value)> {
+    let mut exact: Value = serde_json::from_str::<Value>(EXACT).unwrap()["model"].take();
+    exact["schema_version"] = json!(MODEL_SCHEMA_VERSION);
+    exact["load_cases"][0]["condition_use"] = json!({"temperature": "OPE1"});
+    vec![
+        ("resolved", document()),
+        ("set_missing", mutated(|d| { d["pipe_segments"][1].as_object_mut().unwrap().remove("condition_set_ref"); })),
+        ("authored_empty_spans", mutated(|d| d["load_cases"][2]["equivalent_static"]["wind"]["exposed_spans"] = json!([]))),
+        ("unknown_field", mutated(|d| d["condition_sets"][0]["conditions"][0]["temprature"] = json!(1))),
+        ("exact_route", exact),
+    ]
+}
+
+/// The native preview of each parity input equals the committed parity fixture,
+/// which the wasm engine's `preview_operating_conditions_json` must reproduce
+/// (`tests/test_operating_condition_preview_wasm.py`). The fixture is written by
+/// this test with `OPENPIPESTRESS_WRITE_PREVIEW_PARITY=1`, never by hand; its
+/// numerical values are checked independently above (the twin, the Python table).
+#[test]
+fn the_native_preview_matches_the_parity_fixture() {
+    let rows: Vec<Value> = parity_inputs().into_iter()
+        .map(|(name, model)| json!({"name": name, "model": model.clone(), "preview": preview_operating_conditions(&model)})).collect();
+    let fixture = json!({
+        "description": "Native operating-condition previews (core/product_physics operating_conditions::preview_operating_conditions) of invented documents, for the wasm engine's parity check. Written by core/product_physics/tests/model_document_0_9_0_s2.rs with OPENPIPESTRESS_WRITE_PREVIEW_PARITY=1; never edited by hand.",
+        "rows": rows,
+    });
+    let bytes = serde_json::to_string_pretty(&fixture).unwrap() + "\n";
+    if std::env::var_os("OPENPIPESTRESS_WRITE_PREVIEW_PARITY").is_some() {
+        std::fs::write(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(PARITY_PATH), &bytes).unwrap();
+        return;
+    }
+    assert_eq!(PARITY, bytes, "the parity fixture is current (rewrite it with OPENPIPESTRESS_WRITE_PREVIEW_PARITY=1, then rerun)");
+}

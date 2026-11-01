@@ -415,7 +415,7 @@ skipped and no value assumed): a pipe without a set
 (`OPERATING_CONDITION_VALUE_MISSING`), a set without an installation temperature
 (`OPERATING_CONDITION_INSTALLATION_TEMPERATURE_MISSING`), a case that also
 carries a thermal primitive (`LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT`) or its
-own exposed pipes or spans (`LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`), and a
+own exposed pipes or spans, an authored empty list included (`LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`), and a
 wind-exposure use without `equivalent_static.wind`
 (`LOAD_CASE_CONDITION_WIND_INPUT_MISSING`). If no pipe is wind-exposed, the
 existing `EQUIVALENT_STATIC_INPUT_MISSING` names the empty exposure. A set and
@@ -434,9 +434,11 @@ ordinary solve publishes. `design`, `peak`, `snow_ice`, `wave` and
 `contents_density` are carried but not used by the solve in 0.9.0.
 
 **Editing.** Condition sets and uses are entered in the model document (JSON)
-today. The desktop's condition-set manager, the pipe field, the load manager's
-Conditions control with its per-pipe preview, and the applier operations are
-later slices; until then, authoring a case's `condition_use` through the
+today. The engine provides a read-only preview of the resolution (the generated
+records, the resolved wind-exposed pipes and the refusals, computed exactly as
+the solve computes them), which the desktop does not show yet. The
+condition-set manager, the pipe field, the load manager's Conditions control
+and the applier operations are later slices; until then, authoring a case's `condition_use` through the
 desktop's operations is refused by name (`LOAD_CASE_CONDITION_USE_UNSUPPORTED`).
 These are mechanics inputs only: no code operating, design or occasional load
 definition is implied, and the results carry no code-compliance claim.

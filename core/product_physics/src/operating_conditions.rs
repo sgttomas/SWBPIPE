@@ -19,7 +19,7 @@
 //! it is today's pipeline applied to the lowered model.
 use crate::case_state::temperature::canonical_decimal::{canonical_decimal, kelvin_numerator, CanonicalError};
 use crate::document_members::{Finding, MemberFindings};
-use crate::{Diagnostic, PreviewModel, Quantity};
+use crate::{Diagnostic, PreviewModel, PreviewPrimitiveLoad, Quantity};
 use open_pipe_stress_units::{convert, unit_by_symbol, Dimension, UnitId};
 use serde::Deserialize;
 use std::collections::HashSet;
@@ -350,23 +350,31 @@ pub(crate) fn findings(
     }
 }
 
-/// §1.5: the lowering. It runs first in the solve, before `validate_profile`:
-/// the document-level rules of every 0.9.0 member, the PF resolution of each
-/// case's `condition_use` (S2, [`resolution`]), the remaining interim refusals,
-/// and then the removal of every member no later stage reads. A document refused
-/// by a document-level rule keeps its members; nothing after the refusal solves
-/// it. The resolution's generated records join the model only when the lowering
-/// refuses nothing, so a refused document never carries part of them.
-pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+/// What the lowering decides about a model, without changing it: the
+/// diagnostics it adds, whether a document-level rule refused the document, and
+/// the PF resolution plan, present only when the lowering refuses nothing (so a
+/// refused document never carries part of the generated records). [`lower`]
+/// (the solve and its pre-formation checks) and [`preview_operating_conditions`]
+/// (the read-only preview) both take this one judgement, so they cannot differ.
+pub(crate) struct Judgement {
+    pub(crate) diagnostics: Vec<Diagnostic>,
+    pub(crate) document_refused: bool,
+    pub(crate) plan: Option<resolution::ResolutionPlan>,
+}
+
+/// §1.3 and §1.5 on a model it reads only: the document-level rules of every
+/// 0.9.0 member, the PF resolution of each case's `condition_use` (S2,
+/// [`resolution`]) and the remaining interim refusals.
+pub(crate) fn judge(model: &PreviewModel) -> Judgement {
     let found = crate::document_members::model_findings(model);
-    let refused = !found.is_empty();
-    for finding in found.into_vec() {
-        diagnostics.push(finding.into_diagnostic("blocking"));
+    if !found.is_empty() {
+        return Judgement {
+            diagnostics: found.into_vec().into_iter().map(|finding| finding.into_diagnostic("blocking")).collect(),
+            document_refused: true,
+            plan: None,
+        };
     }
-    if refused {
-        return;
-    }
-    let first = diagnostics.len();
+    let mut diagnostics = Vec::new();
     let exact = model.pressure_contract.is_some();
     // The PF resolution (§1.5), read-only; the exact route's is S4's.
     let planned = if exact {
@@ -397,12 +405,24 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
             ));
         }
     }
-    crate::document_members::interim_support_refusals(model, diagnostics);
-    crate::document_members::interim_exact_combination_refusals(model, diagnostics);
-    if let Some(planned) = planned {
-        if !crate::has_blocking(&diagnostics[first..]) {
-            planned.apply(model);
-        }
+    crate::document_members::interim_support_refusals(model, &mut diagnostics);
+    crate::document_members::interim_exact_combination_refusals(model, &mut diagnostics);
+    let plan = planned.filter(|_| !crate::has_blocking(&diagnostics));
+    Judgement { diagnostics, document_refused: false, plan }
+}
+
+/// §1.5: the lowering. It runs first in the solve, before `validate_profile`:
+/// it takes [`judge`]'s diagnostics, applies its plan when there is one, and then
+/// removes every member no later stage reads. A document refused by a
+/// document-level rule keeps its members; nothing after the refusal solves it.
+pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    let judged = judge(model);
+    diagnostics.extend(judged.diagnostics);
+    if judged.document_refused {
+        return;
+    }
+    if let Some(planned) = judged.plan {
+        planned.apply(model);
     }
     // The members no later stage reads.
     model.condition_sets.clear();
@@ -414,6 +434,59 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
         case.condition_use = None;
     }
     crate::document_members::lower_axis_aligned_directions(model);
+}
+
+/// The `document_kind` of [`preview_operating_conditions`]'s report.
+pub const OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND: &str = "openpipestress.operating_condition_preview";
+
+fn generated_record(load: &PreviewPrimitiveLoad) -> serde_json::Value {
+    let target = match &load.target {
+        crate::LoadTargetInput::Element { pipe } => serde_json::json!({"type": "element", "pipe": pipe}),
+        // The resolution generates element records only.
+        other => serde_json::json!(format!("{other:?}")),
+    };
+    serde_json::json!({
+        "id": load.id, "category": load.category, "target": target, "direction": load.direction,
+        "magnitude": {"value": load.magnitude.value, "unit": load.magnitude.unit},
+        "dimension": load.dimension, "provenance": load.provenance,
+    })
+}
+
+/// The read-only preview of a model document's operating-condition resolution
+/// (DEL-02-01 Design `model-document-0.9.0.md` §4.2): the document is read
+/// through the solve's own request parse, judged by the lowering's own
+/// [`judge`], and reported without changing it. With `resolved: true` the
+/// cases list exactly the records the solve's lowering appends, in its order
+/// (generated thermal, then added-weight records, and the resolved wind-exposed
+/// pipe ids); with `resolved: false` the lowering refuses and appends nothing,
+/// and `diagnostics` name why. A document the request parse refuses gives its
+/// refusal text in `refusal`. Later solve stages (validation, formation) are not
+/// run; `model_checks` reports those.
+pub fn preview_operating_conditions(model_document: &serde_json::Value) -> serde_json::Value {
+    let request = serde_json::json!({"model": model_document, "materials": []});
+    let refusal = |text: String| serde_json::json!({
+        "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND, "resolved": false, "refusal": text,
+        "cases": [], "diagnostics": [],
+    });
+    if let Some(text) = crate::model_fields::unknown_field_refusal(&request) {
+        return refusal(text);
+    }
+    let parsed = match crate::source_receipt::CapturedInvocation::parse(request, crate::PreviewSolverMode::default()) {
+        Ok((parsed, _)) => parsed,
+        Err(error) => return refusal(error.0),
+    };
+    let judged = judge(&parsed.model);
+    let cases: Vec<serde_json::Value> = judged.plan.iter().flat_map(|plan| plan.cases.iter()).map(|case| serde_json::json!({
+        "case_id": case.case_id,
+        "generated_primitive_loads": case.temperatures.iter().chain(&case.added_weights).map(generated_record).collect::<Vec<_>>(),
+        "wind_exposed_pipe_refs": case.wind_exposed_pipe_refs,
+    })).collect();
+    serde_json::json!({
+        "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND,
+        "resolved": judged.plan.is_some(),
+        "cases": cases,
+        "diagnostics": judged.diagnostics,
+    })
 }
 
 #[cfg(test)]

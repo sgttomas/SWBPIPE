@@ -149,6 +149,8 @@ impl ResolutionPlan {
                     .and_then(|generation| generation.wind.as_mut())
                     .expect("planned only with an authored equivalent_static.wind");
                 wind.exposed_pipe_refs = refs;
+                // The lowered case states its exposure, as its twin authors it (§1.8).
+                wind.exposed_pipe_refs_authored = true;
             }
         }
     }
@@ -211,7 +213,7 @@ fn resolve_case(
                 format!("load case `{id}` takes its wind exposure from conditions but has no equivalent_static.wind input; nothing is defaulted, so nothing is solved"),
                 vec![id.to_string()])),
             Some(wind) => {
-                for (member, authored) in [("exposed_pipe_refs", !wind.exposed_pipe_refs.is_empty()), ("exposed_spans", !wind.exposed_spans.is_empty())] {
+                for (member, authored) in [("exposed_pipe_refs", wind.authors_exposed_pipe_refs()), ("exposed_spans", wind.authors_exposed_spans())] {
                     if authored {
                         refusals.push(case_diag(id, &format!("wind-conflict:{member}"), LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT,
                             format!("load case `{id}` takes its wind exposure from conditions and also authors equivalent_static.wind.{member}; a case takes wind exposure from one source only, so nothing is solved"),

@@ -366,8 +366,12 @@ Self-weight's lineage check (`inspect_applied_self_weight`) neither recognizes
 nor claims these ids or methods.
 
 **Order.** Generated primitives follow the case's authored primitives:
-temperature first, then added weight, each in `pipe_segments` order. Load
-assembly sums in record order, so the order is part of the definition.
+temperature first, then added weight, each in `pipe_segments` order. The order
+is part of the definition: it fixes the lowered records, their identities and
+their places, so the twin is unique (§1.8). It is not a claim that record order
+moves a published value: the pressure-free route sums a span's line-load
+intensities in one exact accumulator rounded once, so it does not (Agent 0,
+2026-11-01, on S2's finding; §10).
 
 ### 1.6 Pressure and contents
 
@@ -507,9 +511,14 @@ owner's to decide.
   Mutants killed: the binary64 affine route; conversion of each temperature
   before subtraction; truncation in place of rounding; the formatter's decimal
   in place of the canonical one; a 128-bit intermediate in the rounding.
-- **E4, order.** A case where authored and generated weight on one pipe sum
-  differently in another order; a mutant that prepends generated primitives, or
-  uses set order, changes E2's bytes.
+- **E4, order.** A case with authored and generated primitives on one pipe: the
+  lowered records follow the authored ones, temperature then added weight, each
+  in `pipe_segments` order, with their generated ids and provenance (E1's
+  structure, against the independent twin). A mutant that prepends generated
+  primitives, or uses set order, differs from the lowered model and is refused
+  there. E4 does not rely on numerical sensitivity of the envelope (the exact
+  intensity sums make record order unobservable in it), and no frozen
+  expectation is changed to make a mutant visible (Agent 0, 2026-11-01).
 - **E5, unused sets.** A document with sets and assignments but no
   `condition_use` solves byte-identically to the same document without them
   (0.7.0's annotated-model precedent). **As built (S1):** byte for byte on the
@@ -965,9 +974,9 @@ document opens, validates and saves throughout.
 **Split between lanes (agreed between the load-cases and authoring lanes,
 2026-10-31; placed by Agent 0, 2026-10-31).** S3a, the applier operations of §4.2
 with their refusals, guards and contract corpus, admitted in atomic
-`apply_operation_batch` batches with per-step refusals, and a wasm export of
-the engine's per-pipe condition resolution for the load manager's preview, is
-the load-cases lane's. S3b, every desktop surface of §4.1 and §4.2 (the
+`apply_operation_batch` batches with per-step refusals, is the load-cases
+lane's; the wasm export of the engine's per-pipe condition resolution for the
+load manager's preview landed with S2 (Agent 0, 2026-11-01; §10).  S3b, every desktop surface of §4.1 and §4.2 (the
 run-sheet column, the condition-set manager, inspector and bulk-change fields,
 support Direction, the load manager's Conditions control and the combination
 editor with its templates), is the authoring lane's (DEL-07-02, DEL-07-03).
@@ -1281,7 +1290,11 @@ version step, R1). D3 and the registration follow as their own slice (§3.7).
 ## 10. As built (S2, pressure-free resolution; candidate, not yet integrated)
 
 S2 builds §1.5's pressure-free resolution on the S1 lowering entry. §1's text
-is unchanged; this section records what was built against it.
+is unchanged except §1.5's order rationale and §1.8's E4, corrected by Agent 0
+on 2026-11-01 on S2's finding (the old text: "Load assembly sums in record
+order, so the order is part of the definition" and "a mutant that prepends
+generated primitives, or uses set order, changes E2's bytes"); this section
+records what was built against it.
 
 - **Where.** `operating_conditions::lower` (unchanged call sites in the solve and
   in `pre_formation_checks`) now plans the resolution through the child module
@@ -1289,10 +1302,30 @@ is unchanged; this section records what was built against it.
   model and never changes it; `ResolutionPlan::apply` appends exactly what the
   plan holds. The lowering applies the plan only when it refuses nothing, so a
   refused document never carries part of the generated records; the S1 member
-  removal follows as before. The plan is the single value a later read-only
-  preview can show (§4.2), so the preview and the solve cannot compute different
-  values. On a document with a pressure contract no plan is formed, and every
-  use keeps `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4).
+  removal follows as before. `operating_conditions::judge` makes the one
+  judgement (document-level rules, the plan, the remaining interim refusals) on
+  a model it only reads; `lower` applies it, and the read-only preview below
+  reports it, so the preview and the solve cannot compute different values. On
+  a document with a pressure contract no plan is formed, and every use keeps
+  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4).
+- **The read-only preview (§4.2; Agent 0, 2026-11-01, placed in S2).**
+  `operating_conditions::preview_operating_conditions(&model_document)` reads the
+  document through the solve's own request parse (its unknown-field and decode
+  refusals give `refusal`), takes `judge`'s judgement and returns
+  `{document_kind: "openpipestress.operating_condition_preview", resolved,
+  cases: [{case_id, generated_primitive_loads, wind_exposed_pipe_refs}],
+  diagnostics}`; with `resolved: false` no record is listed, as the solve then
+  appends none. Each record carries its id, category, target, direction,
+  magnitude and unit, dimension and provenance. The applier's wasm build
+  exports it as `preview_operating_conditions_json(model_json)`, with the
+  existing input-error envelope for text that is not JSON. No input bound is
+  added (as `validate_model_document_json`); no authoring operation, desktop
+  surface or new ingress comes with it, and `create_load_case`'s
+  `condition_use` refusal stays until S3a. Tests: the preview equals what
+  `lower` appends (`resolution_tests.rs`), the independent twin's records, the
+  pre-formation findings it opens, and the committed native parity fixture
+  `fixtures/operating_conditions/preview_parity.json`, which the actually built
+  wasm engine reproduces (`tests/test_operating_condition_preview_wasm.py`).
 - **Temperature, added weight, wind exposure** follow §1.5 steps 1-3, the ids,
   provenance (JCS) and order of §1.5. A pipe without a set refuses each use the
   case states (`OPERATING_CONDITION_SET_MISSING`, once per pipe and quantity,
@@ -1327,9 +1360,12 @@ is unchanged; this section records what was built against it.
   byte for byte, so nothing is excepted (as E5 found at S1).
 - **E4, as built.** The pressure-free route sums a span's line-load intensities
   in one exact accumulator rounded once (S11 §4.4 E7), so the envelope does not
-  depend on record order and §1.8's envelope mutant (generated records first)
-  solves to the same bytes. The order is checked where it is observable: E1
-  refuses the prepended and set-order mutants on the lowered typed model.
+  depend on record order: the mutant twin with generated records first solves
+  to the same bytes (recorded in `e4_generated_records_follow_the_authored_ones`).
+  §1.5's order rationale and §1.8's E4 were corrected accordingly (Agent 0,
+  2026-11-01); the exact accumulators are kept, and the order is proved on the
+  lowered records: E1 refuses the prepended and set-order mutants, and E1 spells
+  out the generated ids in order.
 - **E7, as built.** The solver lane's 1b (G-1/G-2) is not on main at this
   basis (`2656dcb33`): a `difference_basis` combination is still withheld with
   `LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED`. S2 checks E7's precondition,
@@ -1337,14 +1373,21 @@ is unchanged; this section records what was built against it.
   operating case only; a hand-typed and a set-drawn added weight counting two
   against one), and that the withheld combination is unchanged; the G-1 verdicts
   of §1.8 E7 run when 1b lands.
-- **Wind conflict and an empty authored list.** The wire reads an absent and an
-  empty `exposed_pipe_refs` or `exposed_spans` alike, so only a non-empty
-  authored list is a `LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`; telling an
-  authored `[]` apart needs a wire change, not made here.
+- **Wind conflict and an authored empty list (Agent 0, 2026-11-01).**
+  `WindGenerationInput` keeps whether `exposed_pipe_refs` and `exposed_spans`
+  were authored, an empty list included, in two crate-private flags set by its
+  closed wire form (`WindGenerationWire`, `#[serde(from)]`); `null`, malformed
+  and unknown members keep their errors, nothing new is serialized, and no
+  schema or version changes. An authored `[]` with a wind-exposure use is
+  `LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`; without a condition use it solves
+  exactly as an absent list. A value built in code counts a non-empty list as
+  authored. The applied resolution marks the case's resolved list authored, as
+  its twin authors it. Native layout: the type grows by two `bool`s, a D3 input
+  (o10's typed census names it).
 - **Typed ΔT** is untouched (no code on its path changed); OC-5's frozen-corpus
   before/after proof of §5's S2 row is the integrating manager's, against a
   baseline build of this basis.
-- **Left:** the read-only wasm preview seam (S3a's export), the retained routes'
+- **Left:** the retained routes'
   placement (they and the source readers still decline condition sets,
   references and uses, §3.8), D3 pricing of the D1-reachable change, independent
   numerical scrutiny of ΔT, order and the twin, and exact-head hosted checks.
