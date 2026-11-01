@@ -8,7 +8,8 @@ test_condition, and D1.6 a support's direction and the snubber family. What the 
 S1-VW (operating_conditions::lower -> document_members::model_findings, once per ordinary run, transient): the views,
   exact-size collections over the typed model: m `(&str, Option<&str>)` pipes, c `(&str, Option<&ConditionUseInput>)`
   cases, g SupportView with each support's restraint `&str`s (r in all), z CombinationView with each one's <= 3
-  TermView and <= 3 operand `&str`s; all_findings' c case `&str`s; the findings, a push-grown Vec<Finding> of at most
+  TermView and <= 3 operand `&str`s in a four-slot backing (the flattened collect has a zero lower size hint);
+  supports_findings' transient one-entry Vec<String> backing; all_findings' c case `&str`s; the findings, a push-grown Vec<Finding> of at most
   4z (S1-L1) with its previous backing and each finding's two-entry refs Vec (its texts are TEXT); and
   combinations_findings' resolution: the Operands set of c case ids and map of z combination ids, the z edge lists
   (<= 3 targets each, push-grown), the z x z reachability rows with one row's work stack (<= 3 targets, extended by
@@ -17,7 +18,7 @@ S1-VW (operating_conditions::lower -> document_members::model_findings, once per
   one-entry refs Vec. The condition-set and spectrum passes' HashSets stay empty (D1.3) and allocate nothing.
 S1-WH (document_members::withhold_interim_combinations, once per ordinary run, route L with z >= 1, transient): its own
   Operands, the withheld index set (<= z), and per combination (one at a time) its interim reasons (<= 4
-  `(&str, String)`, push-grown), the combination's view (<= 3 TermView, <= 3 operand `&str`s) and its operand
+  `(&str, String)`, push-grown), the combination's view (<= 3 TermView, <= 3 operand `&str`s in four slots) and its operand
   references (<= 3, push-grown). The diagnostics' texts are TEXT.
 
 Bound to the three modules' complete bytes and the two call sites; a snapshot without the modules adds nothing (earlier
@@ -66,13 +67,17 @@ def _operand_refs():
 
 
 def _view_children():
-    return s("TermView") * TERMS + s("&str") * TERMS
+    # combination_view's Option<Vec<_>>::iter().flatten().map(...).collect()
+    # has a zero lower size hint, so a nonempty operand list grows from the
+    # allocator's minimum four slots even when its length is at most three.
+    return s("TermView") * TERMS + s("&str") * pushcap(TERMS)
 
 
 def views_and_findings(m, cases, g, r, z):
     """S1-VW (per ordinary run): model_findings' views, all_findings' findings and combinations_findings' resolution."""
     views = (s("(&str,Option<&str>)") * m + s("(&str,Option<&T>)") * cases + s("SupportView") * g + s("&str") * r
-             + (s("CombinationView") + _view_children()) * z + s("&str") * cases)
+             + (s("CombinationView") + _view_children()) * z + s("&str") * cases
+             + s("String"))  # supports_findings' one-entry refs Vec, one support at a time; text is TEXT.
     # Operands::new runs with or without a combination: its case-id set is collected either way.
     if not z:
         return views + HashReq("&str", cases)

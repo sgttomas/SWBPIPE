@@ -81,3 +81,14 @@ def test_the_s1_owners_bind_the_modules_and_price_positively(tmp_path):
     moved = snapshot_with(tmp_path / "b", DM, "fn reachable(edges", "fn reachable_from(edges")
     with pytest.raises(SystemExit, match="S1 owners"):
         owners.inspect(str(moved))
+
+
+def test_flattened_collect_capacity_and_support_refs_backing_are_priced():
+    import s1_owners_model as owners
+    # The pinned combination_view source collects through flatten(), whose
+    # zero lower size hint allocates four slots for one to three operands.
+    assert owners._view_children()["s(&str)"] == 4
+    assert owners._view_children()["s(TermView)"] == 3
+    # supports_findings allocates this one-entry Vec even without combinations;
+    # its String payload is TEXT, but its String header backing is a heap owner.
+    assert owners.views_and_findings(32, 3, 32, 192, 0)["s(String)"] == 1
