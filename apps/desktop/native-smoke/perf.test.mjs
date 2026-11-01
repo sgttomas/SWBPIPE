@@ -135,6 +135,24 @@ test("normal guard handover neither kills nor keeps its runner alive", {timeout:
   assert.equal(signal,null);
 });
 
+test("an internal runner error is reported before self-group teardown", {timeout:5000}, async (t) => {
+  const moduleUrl = new URL("./perf.mjs",import.meta.url).href;
+  const child = spawn(process.execPath,["--input-type=module","-e",`
+    import {runChild} from ${JSON.stringify(moduleUrl)};
+    await runChild(async()=>{throw new Error('fixture internal runner failure');},process.ppid);
+  `],{detached:true,stdio:["ignore","ignore","pipe","ipc"]});
+  t.after(()=>{try{process.kill(-child.pid,"SIGKILL");}catch{/* gone */}});
+  let stderr = "";
+  child.stderr.on("data",data=>{stderr+=data;});
+  const closed = once(child,"close");
+  const stopped = await watchWindow(child,{budgetMs:4000,killGraceMs:20});
+  await closed;
+  assert.match(stderr,/perf runner: fixture internal runner failure\n/);
+  assert.equal(stopped.exit.reaped,true);
+  assert.equal(stopped.owned_group_gone,true);
+  assert.equal(stopped.evidence_complete,false);
+});
+
 test("repeated interruption during worker lookup does not remove the teardown handlers", async (t) => {
   const child = fixture();
   t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });

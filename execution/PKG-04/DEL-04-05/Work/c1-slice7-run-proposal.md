@@ -251,7 +251,7 @@ truthfully; do not extend the interval to hide them.
 
 ## Missing executable prerequisites and smallest grant
 
-P1 — **Round-1 repairs implemented offline; recheck pending.** The first independent
+P1 — **F7 repair implemented offline; final focused recheck pending.** The first independent
 review at `3faf9ea12` blocked supervisor-death cleanup and forced-stop evidence
 loss (F1/F2); both new in-model kinds were reported to Agent 0. The parent repaired
 them and the smaller failure-handling notes without an implementation delegate.
@@ -275,6 +275,11 @@ bounded stop path. Normal handover removes the disconnect handler and unreferenc
 the guard without keeping the runner alive; it still protects delayed helper/I/O
 exit. Abnormal supervisor loss supplies no normal window receipt: recovery uses
 the durable partial carriers and verifies process closure before another window.
+The round-2 recheck cleared F1–F6 at `f0bf1c5bd` but found that self-stop hid a
+runner error's cause (F7). The child now writes that cause synchronously to stderr
+before self-group termination, with an optional bounded IPC stop reason; the new
+fake-process regression checks the cause survives. This is a failure-reporting
+repair within the existing threat model, with no additional native authority.
 
 The product worker's own process-group behavior is preserved. Before final
 cleanup the supervisor freezes the current App PID, not its guard thread, and uses the sampler's
@@ -309,7 +314,7 @@ inspection-start/completion separately. Failed/unknown inspection is not a commi
 receipt. Transient group-probe EPERM is polled as still live within the existing
 2 s limit; persistent uncertainty fails verification.
 
-Twenty-five maintained tests pass under `t3_slot.sh`, including only tiny fake
+Twenty-six maintained tests pass under `t3_slot.sh`, including only tiny fake
 Node processes for blocked inspection, workers in separate groups, supervisor
 death with a stopped fake App, normal guard handover, SIGHUP, repeated interruption
 and failed/stalled lookup. Added regressions check preserved records/raw samples,

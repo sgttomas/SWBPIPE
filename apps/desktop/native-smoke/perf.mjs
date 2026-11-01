@@ -48,7 +48,7 @@
 import { execFile, fork, spawn, spawnSync } from "node:child_process";
 import { rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -94,6 +94,27 @@ export async function guardSupervisor(parentPid) {
     // a remaining helper or pending I/O delays exit after IPC is closed.
     guard.unref();
   };
+}
+
+/** Preserve the cause before the failure path kills this process group.
+ * Synchronous stderr is necessary: a pipe-backed console write may still be
+ * queued when SIGKILL lands. The same lifecycle is used by --run-child. */
+export async function runChild(body, parentPid) {
+  const stopGuard = await guardSupervisor(parentPid);
+  let completed = false;
+  try { await body(); completed = true; }
+  catch (error) {
+    const message = String(error?.message ?? error).slice(0, 2000);
+    try { writeSync(2, `perf runner: ${message}\n`); }
+    catch { /* A closed stderr must not prevent owned-group teardown. */ }
+    audit({ type: "stop", reason: `runner_error: ${message}`.slice(0, 200) });
+    throw error;
+  }
+  finally {
+    if (!completed) killOwnRunnerGroup();
+    await stopGuard();
+    if (process.connected) process.disconnect();
+  }
 }
 
 // The runner/App/helpers share the group created by fork. Product workers
@@ -846,15 +867,7 @@ async function main() {
     };
     if (values["run-child"]) {
       if (!process.send) throw new Error("perf run-child: no parent supervisor");
-      const stopGuard = await guardSupervisor(Number(values["supervisor-pid"]));
-      let completed = false;
-      try { await runPlan(options); completed = true; }
-      finally {
-        if (!completed) killOwnRunnerGroup();
-        await stopGuard();
-        if (process.connected) process.disconnect();
-      }
-      return;
+      return runChild(() => runPlan(options), Number(values["supervisor-pid"]));
     }
     return supervisedRun(options);
   }
