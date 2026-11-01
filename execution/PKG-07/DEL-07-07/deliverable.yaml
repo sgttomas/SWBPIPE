@@ -267,6 +267,10 @@ code_paths:
 - apps/desktop/src/services/solveTimeline.ts
 - apps/desktop/src/services/solveTimelineCodes.ts
 - apps/desktop/scripts/solveTimelineCodes.mjs
+# C1 slice 4's navigator and streamed group CSV: the navigator's entity axis is a detail command
+# (result_detail.rs, above); the CSV stream commands are bound to the held job they began on and end
+# with its disposal or the session reset.
+- apps/desktop/src-tauri/src/native_csv_stream.rs
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
@@ -291,6 +295,8 @@ checks:
 - apps/desktop/src/services/nativeResult.connect.test.ts
 - apps/desktop/src/App.nativeCustody.test.tsx
 - apps/desktop/src/features/knowledge/KnowledgePanel.native.test.tsx
+- apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
+- apps/desktop/src-tauri/src/native_csv_stream_tests.rs
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs

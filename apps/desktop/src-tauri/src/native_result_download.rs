@@ -1,5 +1,7 @@
 //! Private exact-byte local result saving. Admission evidence is defense in depth,
 //! not caller authentication. Filesystem containment is non-adversarial best effort.
+//! The streamed CSV save (`native_csv_stream`) reuses this module's evidence rules, CSV
+//! file names, exclusive creation, cleanup and receipt; it adds no other file authority.
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{self, File, OpenOptions},

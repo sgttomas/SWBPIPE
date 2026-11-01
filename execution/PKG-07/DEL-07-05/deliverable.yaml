@@ -307,6 +307,7 @@ code_paths:
 - apps/desktop/src/features/results/WeightSummaryPanel.tsx
 - apps/desktop/src/features/report/springHangerSupport.ts
 - apps/desktop/src/features/results/resultsNavigator.ts
+- apps/desktop/src/features/results/NativeResultsPanel.tsx
 - apps/desktop/src/App.resultsNavigator.test.tsx
 - apps/desktop/src/features/results/keyResults.ts
 - apps/desktop/src/features/results/KeyResultsPanel.tsx
@@ -361,6 +362,7 @@ checks:
 - apps/desktop/src/features/results/resultsNavigator.test.ts
 - apps/desktop/src/features/results/ResultsPanel.navigator.test.tsx
 - apps/desktop/src/App.resultsNavigator.test.tsx
+- apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
 - apps/desktop/src/features/results/keyResults.test.ts
 # C1 slice 2 (DEL-04-05): these builders are the oracle of the native summary S; a builder change fails this parity until result_summary_tables.rs follows.
 - apps/desktop/src/features/results/resultSummaryParity.test.ts

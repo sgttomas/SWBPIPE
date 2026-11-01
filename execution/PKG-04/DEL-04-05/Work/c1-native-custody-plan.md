@@ -474,12 +474,67 @@ are committed fixtures by path, and the one re-serialized source is kept once. A
 `tsc -b` clean; the full desktop vitest 7,349 of 7,351 pass, one todo, one failure
 (`App.resultsNavigator`, below); the desktop build passes.
 
-**Remaining for this slice:** kind and element stepping of the results navigator for a native
-result (a visible notice says so; the filters reach every row; `App.resultsNavigator.test.tsx`
-fails on `results-navigator-kind-position` until it lands); the native chunked CSV writer for
-result groups (the interim assembles up to 200,000 rows in the webview and refuses above by name,
-which is not the streaming writer §5 requires); native Record Run, Save Project and Save Result JSON
-(slice 5; the interim writes through the C2 copy). The refusal text for a refused hand-off still
+**Navigator and group CSV (connected, 2026-10-31, same branch).**
+
+- **Navigator.** `NativeResultsPanel` steps the kind, case and support-or-element axes as
+  `ResultsPanel` does (DEL-07-05 `results-navigator.md`). Kinds and cases are S's; the entity list
+  is the new detail command `query_preview_mechanics_job_navigator {jobId, filter, probe}`
+  (`result_detail.rs`): each distinct `entity_ref` of the rows the filters admit, other than
+  "Selected entity only", once in first-publication order, with its first row's position among
+  those rows and its ordinal, the admitted total, and a probed ordinal's admission and position. A
+  step selects the first published row (its own id, by an ordinal lookup) and opens its native
+  page. The webview holds the entity list (it scales with the entities), never the rows; the
+  panel keeps the lists of its last four filters. A step made while its list is read waits for
+  it; a reply for a superseded step, filter or result is discarded. A filtered `entity_ref` that is
+  not a string is refused by name (`RESULT-DETAIL-NAVIGATOR-ENTITY-TYPE`), a stated difference
+  from the full-row list, which would hold that value. A refused query now shows only its typed
+  refusal, never also "no rows match" (a defect of the connected panel, repaired with a test).
+- **Leases.** The navigator takes the args lease as every detail query, the index, a working lease
+  of the fixed allowance and the largest row's priced parse, grown under the pool (by half again
+  at least) before each new entity's text is copied, and the response lease of its exact length.
+  It parses every row, one at a time, as a filtered query does.
+- **Group CSV.** The 200,000-row interim and its in-webview assembly are gone. Each group's CSV is
+  written through the native stream (`native_csv_stream.rs`, DEL-08-04 `csv-export.md` §4):
+  `begin`/`append`/`finish`/`abort_local_csv_stream`, built on `native_result_download.rs`'s
+  evidence rules, names, exclusive creation, collision suffixes, cleanup and receipt; each chunk
+  screened by `controlRouteExport` with explicit intent and its evidence checked natively; bound to
+  the webview and the held job; ordered, non-empty chunks of at most 4 MiB; at most four streams;
+  ended exactly once, with the partial file removed, by finish, abort, any refused request, a disk
+  failure, the job's disposal or the session reset. The text is byte for byte the formatters' CSV
+  over all the group's rows (two bounded passes: units and conversions first, then rows), with at
+  most one page of rows and one chunk of text in the webview. The endpoint pair keeps its
+  single-save path (two rows). The guard still counts nine tables at eleven render sites.
+- **Checks.** `result_detail_tests.rs` (the navigator over every corpus source and filter member,
+  probes, refusals, priced growth, leases); `native_csv_stream_tests.rs` (exact bytes, per-chunk
+  evidence, order, size, counts, job, webview, abort, disposal, reset, collisions, disk failures);
+  `NativeResultsPanel.native.test.tsx` (the list at filter boundaries, paged stepping, stale and
+  disposed replies, lone surrogates, every group's streamed CSV against the browser panel's, all on
+  the actual Rust replies); `resultGroupCsvStream.test.ts` (byte parity at page sizes 1 to 1,000,
+  converted units, a changed page refused, 250,001 rows with one page outstanding);
+  `csvSaveStream.test.ts`; `App.resultsNavigator.test.tsx` passes, waiting for the native list.
+
+**Save Result JSON from the held bytes: not built, a governing conflict for Agent 0.** The
+existing Save Result JSON (`result-export-link`, route `DOTH-JSON-001`, `save_local_result_json`)
+does not write the result envelope. It writes the derivative document `buildCurrentResultExport`
+builds (`resultExportAdapter.ts`: `deriveResultDocument` over the model, the full rows, the run
+record and the manifest), screened by `controlRouteExport` over that whole parsed document with
+lossless materialization and an exact canonical payload. So:
+
+1. writing the held envelope's bytes under `DOTH-JSON-001` would change what that route's file is
+   (another document and schema), which this slice must not do; and building the derivative
+   natively is a port of `resultExportAdapter.ts`, which §3 assigns to C2;
+2. the route's screen reads paths and enclosing labels over the whole document (route projection,
+   value records, reserved names), so a text chunk cannot carry its decision, and the only Rust
+   mirror of the route walk is test-only in `core/runner/headless/src/redaction_binding.rs`
+   (outside this lane's write boundary). A per-row decomposition of the screen would be a new
+   screening implementation needing its own proof.
+
+Until Agent 0 decides (a native port of the derivative and of the route screen under C2, or a
+distinct local-private route for the producer's envelope with its own screening rule), Save
+Result JSON of a native result stays on the C2 copy (at or under 64 MiB, refused by name above).
+
+**Remaining for this slice:** native Record Run and Save Project (slice 5; the interim writes
+through the C2 copy), and the Save Result JSON decision above. The refusal text for a refused hand-off still
 says "a refused take" (`solveJobAudit.ts`, pinned by DEL-04-07's decision text); under C1 the
 refused step is the first native read. The independent review of these connection changes
 (numerical meaning, persistence, permissions: the custody binding) is still owed. Memory fit at
@@ -627,7 +682,7 @@ the test. The TS builder stays the oracle until C2.
 | Comparisons (`runComparison.ts`, `withinRunComparison.ts`, `ComparisonPanel.tsx`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
 | Rule checks (`ruleCheckService.ts`, `RuleCheckRunPanel.tsx`, `DeclarationsEditor.tsx`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
 | Stress-neutral export, handoff, local FEA, native package, headless runner panels | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
-| JSON export (`resultExportAdapter.ts`) and Save Result JSON (`save_local_result_json`) | the envelope | Save Result JSON writes the held bytes natively (slice 5); the derivative is C2 |
+| JSON export (`resultExportAdapter.ts`) and Save Result JSON (`save_local_result_json`) | every row (the derivative document) | C2; in C1 full rows up to 64 MiB, refused by name above (Save Result JSON writes the derivative, not the envelope: slice 4 status) |
 | Embedded agent (`embeddedAgentSession.ts`) | filtered rows | C2 (catalog v5); C1 serves its current pages from the detail query, unchanged output |
 | Knowledge and Toolkit lookups (`KnowledgePanel.tsx`, `ResultQuantity.tsx`) | rows by id or kind | native by-id and by-kind page (slice 3), no full fetch |
 | Analysis-run record (`analysisRunCompatibility.ts`) | every row | native builder (slice 5) |
@@ -704,16 +759,18 @@ The guard `csvTableCoverage.test.ts` counts 9 marked tables:
 - **S-backed tables** (extremes, support loads, stress ratio, weight, centre of gravity):
   their CSV is built from the same table rows as today, because S carries those rows.
   Unchanged.
-- **Results groups and endpoint pairs:** the table pages, and the CSV pages through the
-  native query in chunks. Each chunk is formatted by today's TS formatter and appended
-  through a native file writer (the `native_result_download` pattern), so the webview never
-  holds the whole group.
+- **Results groups:** the table pages, and the CSV pages through the native query in chunks.
+  Each chunk is formatted by today's TS formatter and appended through the native CSV stream
+  (`native_csv_stream.rs`, on `native_result_download`'s code), so the webview never holds the
+  whole group (built: slice 4 status).
+- **Endpoint pairs:** two rows, read by bounded query and saved by the single save.
 - **Comparisons:** C2; in C1 full rows up to 64 MiB, refused by name above (slice 4).
 
 **Tests:**
 - The guard stays at 9.
-- A new test checks that the paged CSV of each results group equals today's in-memory CSV
-  on the fixtures.
+- `NativeResultsPanel.native.test.tsx` checks that the streamed CSV of each results group equals
+  the browser panel's in-memory CSV on the replay fixture; `resultGroupCsvStream.test.ts` checks
+  the parts against the formatters at every page size.
 
 ## 6. Tests that pin the old flow
 

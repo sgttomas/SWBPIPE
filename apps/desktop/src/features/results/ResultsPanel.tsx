@@ -1148,7 +1148,7 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
  * -------------------------------------------------------------------------- */
 /** A reopened run's indicator: read with the reader's findings for the result alone (no
  * model, so the verdict-only flag cannot hold) and no hold. */
-function standaloneNumericalHealth(result: MechanicsResult): NumericalHealthView | null {
+export function standaloneNumericalHealth(result: MechanicsResult): NumericalHealthView | null {
   let findings: readonly string[] | null = null, eligible = false;
   try { const standing = numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
   return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false });

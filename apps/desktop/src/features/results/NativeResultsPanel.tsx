@@ -543,7 +543,7 @@ export function NativeResultsPanel({
               </tbody>
             </table>
           </section>
-        )) : current ? <p className="muted" data-testid="result-filter-empty">No computed preview result rows match this filter.</p> : null}
+        )) : current?.status === "ready" ? <p className="muted" data-testid="result-filter-empty">No computed preview result rows match this filter.</p> : null}
         <MechanicsGapLedger gaps={mechanicsGaps()} />
       </div>
     </section>

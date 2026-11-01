@@ -61,6 +61,19 @@ below the result filters, as three steppers and one live line. The model is
   row selected anywhere moves it to that row's entity, and a new session selection moves it to the
   selected entity. A new run clears it.
 
+**A result held natively (C1, DEL-04-05).** The same navigator steps the same three lists in
+`NativeResultsPanel.tsx`. Kinds and cases come from S (the ports of `countResultFamilies` and
+`navigatorCases`). The support-or-element list comes from the native query
+`query_preview_mechanics_job_navigator` over the rows the same filters admit: each distinct
+`entity_ref` once in first-publication order, with its first row's position among those rows and
+its ordinal, so a step selects the entity's first published row (its own id, by ordinal) and opens
+its native page without the webview holding the rows; a probe answers whether the selected row is
+listed when the page shown does not tell. The list scales with the entities. A step made while the
+list is read waits for it; a reply for a step, filter or result that is no longer current is
+discarded. A filtered `entity_ref` that is not a string is refused by name
+(`RESULT-DETAIL-NAVIGATOR-ENTITY-TYPE`) and the entity stepper says the list could not be read,
+where the full-row list would hold that value; kinds and cases still step.
+
 Kind and case steps keep the entity. When the entity has rows in the new table, its first row
 becomes current and is selected (§4). When it has none, it stays the navigator's entity, the
 selection is not changed, and the stepper reads "⟨entity⟩: no rows in this table". So "one
@@ -174,9 +187,19 @@ compliance or adequacy, compares nothing with a limit, and selects no governing 
   combination's rows stepped with no badge; and an unsupported result stepped under its unchanged
   standing.
 - `apps/desktop/src/App.resultsNavigator.test.tsx` covers the app's wiring on a replayed solve of
-  the invented preview model: a button step and a key step each select the row's node in the
-  session (the selection readout), focus follows the row, a case step keeps the node, and the
-  undo control stays disabled with no model edit.
+  the invented preview model, now held natively: a button step and a key step each select the
+  row's node in the session (the selection readout), focus follows the row, a case step keeps the
+  node on its first row of that case, and the undo control stays disabled with no model edit. It
+  waits for the native entity list after a kind step.
+- `apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx` covers the native path
+  with the actual Rust replies: the entity list, first positions and ordinals equal
+  `navigatorEntities` and `firstRowOf` over the full rows under each family, case, frame, text and
+  kind filter, with probes; every entity of an invented paged source stepped to its first row on
+  its own page across several pages, the end stopping without wrap, the chord from a row moving
+  focus, kind and case chords; a stale step's reply and a reply after disposal discarded; and a
+  lone surrogate in the search shown as the typed refusal on the rows and the entity list.
+  `result_detail_tests.rs` pins the command over every corpus source and filter member, its
+  probes, its refusals and its leases.
 
 ## 9. Remaining items
 
