@@ -51,13 +51,13 @@ function row(i: number, converted: boolean, mixed: boolean): ResultRowsCsvRow {
 }
 
 async function oracle(rows: readonly ResultRowsCsvRow[], converted: boolean, caseQualifier?: string): Promise<{ text: string; fileName: string }> {
-  const unitBasis = await displayConversionBasis({ preference: converted ? "si" : "entered", rows, convertRaw });
+  const unitBasis = await displayConversionBasis({ preference: converted ? "SI" : "entered", rows, convertRaw });
   const built = resultGroupCsv({ title: "Displacement", rows, provenance: PROVENANCE, softwareVersion: "0.1.0", unitBasis, caseOrFilter: "group: Displacement; c", caseQualifier });
   return { text: serializeCsvTable(built.table), fileName: built.fileName };
 }
 
 function input(pages: ResultGroupCsvStreamInput["pages"], converted: boolean, caseQualifier?: string): ResultGroupCsvStreamInput {
-  return { title: "Displacement", provenance: PROVENANCE, softwareVersion: "0.1.0", caseOrFilter: "group: Displacement; c", caseQualifier, preference: converted ? "si" : "entered", convertRaw, pages };
+  return { title: "Displacement", provenance: PROVENANCE, softwareVersion: "0.1.0", caseOrFilter: "group: Displacement; c", caseQualifier, preference: converted ? "SI" : "entered", convertRaw, pages };
 }
 
 function paged(rows: readonly ResultRowsCsvRow[], size: number): ResultGroupCsvStreamInput["pages"] {
