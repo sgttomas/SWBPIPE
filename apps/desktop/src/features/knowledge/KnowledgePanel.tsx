@@ -1,13 +1,42 @@
+import { useEffect, useState } from "react";
+import { isNativeResult, lookupNativeRows, type SessionResult } from "../../services/nativeResult";
 import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
-export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: MechanicsResult | null }) {
-  const computedRecords = physicsRecords(result);
+type Row = MechanicsResult["results"][number];
+const AXIAL_ROW_ID = "result:force:pipe-P-120:axial";
+const AXIAL_ROW_KIND = "element_local_axial_force";
+
+/** The axial-force row the knowledge records review: the row with the fixed id, else the first row
+ * of its kind (`results.find`). A full result's from its rows; a native result's by one bounded
+ * native lookup (`useKnowledgeAxialRow`). */
+function axialRowOf(result: MechanicsResult): Row | null {
+  return result.results.find((item) => item.id === AXIAL_ROW_ID) ?? result.results.find((item) => item.kind === AXIAL_ROW_KIND) ?? null;
+}
+export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row | null; reading: boolean } {
+  const [found, setFound] = useState<{ of: SessionResult; row: Row | null } | null>(null);
+  useEffect(() => {
+    if (!result || !isNativeResult(result)) return;
+    let live = true;
+    lookupNativeRows(result, { ids: [AXIAL_ROW_ID], kinds: [AXIAL_ROW_KIND], match: "first" }).then(
+      (lookup) => { if (live) setFound({ of: result, row: (lookup.ids[0] ?? lookup.kinds[0])?.row ?? null }); },
+      () => { if (live) setFound({ of: result, row: null }); }
+    );
+    return () => { live = false; };
+  }, [result]);
+  if (!result) return { row: null, reading: false };
+  if (!isNativeResult(result)) return { row: axialRowOf(result), reading: false };
+  return found && found.of === result ? { row: found.row, reading: false } : { row: null, reading: true };
+}
+
+export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
+  const axial = useKnowledgeAxialRow(result);
+  const computedRecords = physicsRecords(result, axial.row);
   const records = [...(knowledge?.records ?? []), ...computedRecords];
-  const unitContext = computedKnowledgeUnitContext(result);
+  const unitContext = computedKnowledgeUnitContext(result, axial.row);
   return (
     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
       <div className="panel-title">
@@ -28,7 +57,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
                 <strong>{record.title}</strong>
                 <small>{record.kind} · {record.status}</small>
               </div>
-              <p><KnowledgeSummary record={record} result={result} computed={computedRecords.includes(record)} /></p>
+              <p><KnowledgeSummary record={record} result={result} computed={computedRecords.includes(record)} axialRow={axial.row} /></p>
               <span>{record.provenance}</span>
             </article>
           ))}
@@ -40,7 +69,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
   );
 }
 
-export function physicsRecords(result: MechanicsResult | null): KnowledgeRecord[] {
+export function physicsRecords(result: SessionResult | null, axialRow?: Row | null): KnowledgeRecord[] {
   if (!result) return [];
 
   const records: KnowledgeRecord[] = result.diagnostics
@@ -67,9 +96,7 @@ export function physicsRecords(result: MechanicsResult | null): KnowledgeRecord[
     });
   }
 
-  const axialForce =
-    result.results.find((item) => item.id === "result:force:pipe-P-120:axial") ??
-    result.results.find((item) => item.kind === "element_local_axial_force");
+  const axialForce = axialRow !== undefined ? axialRow : isNativeResult(result) ? null : axialRowOf(result);
   if (axialForce) {
     records.push({
       id: "knowledge:computed-axial-force",
@@ -85,7 +112,7 @@ export function physicsRecords(result: MechanicsResult | null): KnowledgeRecord[
   return records;
 }
 
-function computedKnowledgeUnitContext(result: MechanicsResult | null): string | null {
+function computedKnowledgeUnitContext(result: SessionResult | null, axialRow: Row | null): string | null {
   if (!result) return null;
 
   const quantities = [
@@ -95,7 +122,7 @@ function computedKnowledgeUnitContext(result: MechanicsResult | null): string | 
           unit: result.summary.max_displacement.unit
         }
       : null,
-    computedAxialForce(result)
+    axialRow ? { ref: axialRow.id, unit: axialRow.unit } : null
   ].filter((item): item is { ref: string; unit: string } => Boolean(item));
 
   if (quantities.length === 0) return null;
@@ -110,12 +137,6 @@ function computedKnowledgeUnitContext(result: MechanicsResult | null): string | 
   ].join("; ");
 }
 
-function computedAxialForce(result: MechanicsResult): { ref: string; unit: string } | null {
-  const axialForce =
-    result.results.find((item) => item.id === "result:force:pipe-P-120:axial") ??
-    result.results.find((item) => item.kind === "element_local_axial_force");
-  return axialForce ? { ref: axialForce.id, unit: axialForce.unit } : null;
-}
 
 function compareUnitSymbols(left: string, right: string): number {
   const leftIndex = RESULT_UNIT_DISPLAY_ORDER.indexOf(left);
@@ -126,13 +147,13 @@ function compareUnitSymbols(left: string, right: string): number {
   return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
 }
 
-function KnowledgeSummary({ record, result, computed }: { record: KnowledgeRecord; result: MechanicsResult | null; computed: boolean }) {
+function KnowledgeSummary({ record, result, computed, axialRow }: { record: KnowledgeRecord; result: SessionResult | null; computed: boolean; axialRow: Row | null }) {
   if (!computed) return <>{record.summary}</>;
   const maximum = result?.summary.max_displacement;
   if (record.id === "knowledge:computed-max-displacement" && maximum) {
     return <>{maximum.result_ref} is <QuantityReadout quantity={{ value: maximum.value, unit: maximum.unit, dimension_id: "displacement" }} /> at {maximum.location_ref}.</>;
   }
-  const axial = result?.results.find((item) => item.id === "result:force:pipe-P-120:axial") ?? result?.results.find((item) => item.kind === "element_local_axial_force");
+  const axial = axialRow;
   if (record.id === "knowledge:computed-axial-force" && axial) {
     return <>{axial.id} is <QuantityReadout quantity={{ value: axial.value, unit: axial.unit, dimension_id: axial.dimension ?? (axial.kind === "element_local_axial_force" ? "force" : "unknown") }} /> for {axial.entity_ref}.</>;
   }

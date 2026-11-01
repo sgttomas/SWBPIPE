@@ -7,6 +7,7 @@
  * or incomplete pack is shown as absent or incomplete. A view only: it changes no model, result,
  * export or undo history. */
 
+import { boundSummary, isNativeResult, type SessionResult } from "../../services/nativeResult";
 import { X } from "lucide-react";
 import { Fragment, useId, useMemo, useState, type KeyboardEvent, type RefObject } from "react";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -19,6 +20,7 @@ import {
   KEY_CONTACT_NONE,
   KEY_RESULTS_KEYS,
   buildKeyResults,
+  standingText,
   keyResultsKeyAction,
   type KeyResultsActionId
 } from "./keyResults";
@@ -32,7 +34,9 @@ export type KeyResultsTable = "results" | "stress-ratio" | "displacement-extreme
 
 export type KeyResultsPanelProps = Readonly<{
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
+  /** A native result's C2 full copy, held when its rule-check run was run on it. */
+  fullResult?: MechanicsResult | null;
   /** App's `viewportResultStanding`: the reader's standing and the session's health view. */
   standing: ResultOverlayStanding | null | undefined;
   /** The session's rule-check run, only while `result` is the current solved result it was run on. */
@@ -57,11 +61,20 @@ export type KeyResultsPanelProps = Readonly<{
 type Offer = Readonly<{ label: string; reason: string | null; run: () => string }>;
 
 export function KeyResultsPanel(props: KeyResultsPanelProps) {
-  const { model, result, standing, ruleCheckRun = null, historical = false, canvasHidden = false } = props;
+  const { model, result, standing, ruleCheckRun = null, historical = false, canvasHidden = false, fullResult = null } = props;
+  // C1: a native result's key results are S's (no rule-check run, not historical) with the
+  // standing text the builder adds; with a rule-check run, the run's rows are the C2 full copy's.
+  const nativeSummary = boundSummary(result, model);
   const titleId = useId();
   const data = useMemo(
-    () => buildKeyResults({ model, result, standing, ruleCheckRun, historical }),
-    [historical, model, result, ruleCheckRun, standing]
+    () => {
+      if (!result || !isNativeResult(result) || historical) return buildKeyResults({ model, result: result && isNativeResult(result) ? null : result as MechanicsResult | null, standing, ruleCheckRun, historical });
+      if (ruleCheckRun) return buildKeyResults({ model, result: fullResult, standing, ruleCheckRun, historical });
+      if (!nativeSummary) return buildKeyResults({ model, result: null, standing, ruleCheckRun: null, historical });
+      const table = nativeSummary.header.tables.key_results as ReturnType<typeof buildKeyResults>;
+      return Object.freeze({ ...table, standingText: table.state === "available" || table.state === "not_solved" ? standingText(standing) : table.standingText ?? null });
+    },
+    [historical, model, result, fullResult, nativeSummary, ruleCheckRun, standing]
   );
   const [categoryChoice, setCategoryChoice] = useState<string | null>(null);
   const [caseChoice, setCaseChoice] = useState<string | null>(null);

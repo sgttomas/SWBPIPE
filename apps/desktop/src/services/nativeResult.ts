@@ -555,3 +555,9 @@ export function nativeOrdinalsIn(value: unknown): number[] {
   visit(value);
   return [...found];
 }
+
+/** The detail adapter's transport for a native result (for `resultRowPages`); checks custody first. */
+export function nativeQueryInvoke(result: NativeResult): Parameters<typeof queryResultRows>[0] {
+  live(nativeCustody(result).jobId);
+  return detailInvoke;
+}

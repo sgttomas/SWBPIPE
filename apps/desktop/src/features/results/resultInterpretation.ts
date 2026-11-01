@@ -77,12 +77,18 @@ export function buildDiagnosticInterpretation({
   model,
   knowledge,
   result,
-  diagnosticId
+  diagnosticId,
+  nativeLinkedResults = null,
+  knowledgeAxialRow
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   diagnosticId: string | null;
+  /** A native result's linked rows, read by bounded native query (`useNativeLinkedResults`). */
+  nativeLinkedResults?: DiagnosticInterpretation["linked_results"] | null;
+  /** A native result's knowledge axial-force row (`useKnowledgeAxialRow`). */
+  knowledgeAxialRow?: MechanicsResult["results"][number] | null;
 }): DiagnosticInterpretation | null {
   const diagnostic = allDiagnostics(model, knowledge, result).find(
     (candidate) => (candidate.id ?? candidate.code) === diagnosticId
@@ -90,7 +96,7 @@ export function buildDiagnosticInterpretation({
   if (!diagnostic) return null;
 
   const affectedRefs = diagnostic.affected_refs ?? [];
-  const linkedResults =
+  const linkedResults = result && isNativeResult(result) ? (nativeLinkedResults ?? []) :
     result?.results
       .filter((item) => affectedRefs.includes(item.id) || affectedRefs.includes(item.entity_ref))
       .map((item) => ({
@@ -101,7 +107,7 @@ export function buildDiagnosticInterpretation({
         unit: item.unit,
         unit_source: "result_envelope" as const
       })) ?? [];
-  const linkedKnowledge = allKnowledgeRecords(knowledge, result).filter((record) =>
+  const linkedKnowledge = allKnowledgeRecords(knowledge, result, knowledgeAxialRow).filter((record) =>
     [diagnostic.id, diagnostic.code, ...affectedRefs]
       .filter((value): value is string => Boolean(value))
       .some((ref) => record.affected_refs.includes(ref))
@@ -240,8 +246,8 @@ export function mechanicsGaps(): MechanicsGap[] {
   ];
 }
 
-function allKnowledgeRecords(knowledge: DesignKnowledge | null, result: MechanicsResult | null): KnowledgeRecord[] {
-  return [...(knowledge?.records ?? []), ...physicsRecords(result)];
+function allKnowledgeRecords(knowledge: DesignKnowledge | null, result: SessionResult | null, axialRow?: MechanicsResult["results"][number] | null): KnowledgeRecord[] {
+  return [...(knowledge?.records ?? []), ...physicsRecords(result, axialRow)];
 }
 
 function allDiagnostics(

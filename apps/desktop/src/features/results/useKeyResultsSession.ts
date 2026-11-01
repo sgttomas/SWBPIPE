@@ -5,6 +5,7 @@
  * setter it names: the viewport's view command, the session's selection, the Results section and
  * the results table's filter. It writes no model data and records no undo entry. */
 
+import { isNativeResult, nativeCustody, type SessionResult } from "../../services/nativeResult";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { EntityRef, MechanicsResult } from "../../types";
 import type { ViewportViewCommand } from "../viewport/viewportSelection";
@@ -24,7 +25,7 @@ export const KEY_RESULTS_REVEAL_TARGETS: Readonly<Record<KeyResultsTable | "supp
 });
 
 export function useKeyResultsSession(input: {
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   /** App's `viewportResultStanding`: marks the support-state rows it withholds. */
   standing: ResultOverlayStanding | null | undefined;
   historical: boolean;
@@ -109,7 +110,9 @@ export function useKeyResultsSession(input: {
       onShowContactStatus: () => {
         if (!result) return;
         serial.current += 1;
-        setResultsRequest({ serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld: withheldSupportStateRows(result, input.standing) });
+        // A native result's withheld support-state rows are S's table (built with the same standing).
+        const withheld = isNativeResult(result) ? nativeCustody(result).summary.header.tables.withheld_support_state_rows as ReturnType<typeof withheldSupportStateRows> : withheldSupportStateRows(result, input.standing);
+        setResultsRequest({ serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld });
         revealInResults(KEY_RESULTS_REVEAL_TARGETS.results);
       },
       onOpenTable: (table: KeyResultsTable) => revealInResults(KEY_RESULTS_REVEAL_TARGETS[table]),

@@ -1,4 +1,5 @@
 import { C2ResultGate } from "./features/results/C2ResultGate";
+import type { SessionAnalysisRun, SessionResult } from "./services/nativeResult";
 import { reportPackageUnavailableReason } from "./features/report/reportPackageRequest";
 import { CompactSelectScope } from "./features/workspace/CompactSelect";
 import { HangerSelectionPanel } from "./features/hanger-selection";
@@ -1734,8 +1735,8 @@ function AuditBoundaryDrawer({
   onClose
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   storageCapability: LocalStorageCapability | null;
   onClose: () => void;
 }) {
@@ -1803,7 +1804,7 @@ function IssuesHome({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   operationOutcomes: Record<string, OperationOutcome>;
   selectedDiagnosticId: string | null;
   diagnosticFilterRequest?: DiagnosticFilterRequest | null;
@@ -1869,7 +1870,7 @@ function StatusPill({ label, value, testId, summaryText }: {
 function issueCountFor(
   model: PreviewModel,
   knowledge: DesignKnowledge | null,
-  result: MechanicsResult | null,
+  result: SessionResult | null,
   operationOutcomes: Record<string, OperationOutcome>
 ): number {
   const operationDiagnosticCount = Object.values(operationOutcomes).reduce(
@@ -1910,7 +1911,7 @@ function r3ExitJourneyStatus({
   ruleCheckAggregate,
   projectSummary
 }: {
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   ruleCheckAggregate: RuleCheckStatus | null;
   projectSummary: LocalProjectSummary | null;
 }): string {
