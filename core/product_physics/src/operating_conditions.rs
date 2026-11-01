@@ -4,10 +4,11 @@
 //! document-level admission rules of §1.3, and the lowering entry of §1.5.
 //!
 //! A set is a source of values; a case's use of it resolves into the per-case
-//! records the solve already consumes. In S1 the resolution is not built: a
-//! case that uses conditions is refused by name (`LOAD_CASE_CONDITION_USE_UNSUPPORTED`,
-//! or `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` on a document with a pressure
-//! contract). Every set and reference is judged whether or not a case uses it,
+//! records the solve already consumes. On the pressure-free route S2 resolves
+//! temperature, added weight and wind exposure ([`resolution`]); contents
+//! density and a pressure use stay refused by name there, and on a document with
+//! a pressure contract every use is refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`,
+//! until S4). Every set and reference is judged whether or not a case uses it,
 //! so a document's admissibility does not depend on which cases use what.
 //!
 //! [`lower`] runs first in the solve. It applies the document-level rules of
@@ -23,6 +24,8 @@ use open_pipe_stress_units::{convert, unit_by_symbol, Dimension, UnitId};
 use serde::Deserialize;
 use std::collections::HashSet;
 
+pub mod resolution;
+
 /// Two conditions in one set share a key.
 pub const OPERATING_CONDITION_KEY_DUPLICATE: &str = "OPERATING_CONDITION_KEY_DUPLICATE";
 /// A condition-set value is non-finite, in a unit of the wrong dimension or outside the
@@ -36,7 +39,8 @@ pub const OPERATING_CONDITION_PROVENANCE_MISSING: &str = "OPERATING_CONDITION_PR
 pub const OPERATING_CONDITION_SET_UNRESOLVED: &str = "OPERATING_CONDITION_SET_UNRESOLVED";
 /// An empty `condition_use`, or `false` in a `true`-only member.
 pub const LOAD_CASE_CONDITION_USE_EMPTY: &str = "LOAD_CASE_CONDITION_USE_EMPTY";
-/// Interim (S1 only; S2 removes it): any `condition_use` before the PF resolution lands.
+/// Interim refusal of S1, removed from the solve by S2 (the PF resolution). The
+/// applier still refuses authoring a `condition_use` with it until S3a.
 pub const LOAD_CASE_CONDITION_USE_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_UNSUPPORTED";
 /// Interim until S4: any `condition_use` on a document with `pressure_contract`.
 pub const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED";
@@ -347,9 +351,12 @@ pub(crate) fn findings(
 }
 
 /// §1.5: the lowering. It runs first in the solve, before `validate_profile`:
-/// the document-level rules of every 0.9.0 member, the S1 interim refusals, and
-/// then the removal of every member no later stage reads. A document refused here
-/// keeps its members; nothing after the refusal solves it.
+/// the document-level rules of every 0.9.0 member, the PF resolution of each
+/// case's `condition_use` (S2, [`resolution`]), the remaining interim refusals,
+/// and then the removal of every member no later stage reads. A document refused
+/// by a document-level rule keeps its members; nothing after the refusal solves
+/// it. The resolution's generated records join the model only when the lowering
+/// refuses nothing, so a refused document never carries part of them.
 pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
     let found = crate::document_members::model_findings(model);
     let refused = !found.is_empty();
@@ -359,17 +366,26 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
     if refused {
         return;
     }
+    let first = diagnostics.len();
     let exact = model.pressure_contract.is_some();
+    // The PF resolution (§1.5), read-only; the exact route's is S4's.
+    let planned = if exact {
+        None
+    } else {
+        match resolution::plan(model) {
+            Ok(planned) => Some(planned),
+            Err(refusals) => {
+                diagnostics.extend(refusals);
+                None
+            }
+        }
+    };
     for case in &model.load_cases {
-        if case.condition_use.is_some() {
-            let (code, message) = if exact {
-                (LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
-                 format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id))
-            } else {
-                (LOAD_CASE_CONDITION_USE_UNSUPPORTED,
-                 format!("load case `{}` uses operating conditions; their resolution into the case's records is not built yet, so nothing is solved", case.id))
-            };
-            diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)), code, "blocking", message, vec![case.id.clone()]));
+        if exact && case.condition_use.is_some() {
+            diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)),
+                LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, "blocking",
+                format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id),
+                vec![case.id.clone()]));
         }
         if case.test_condition.is_some() {
             diagnostics.push(crate::diag(
@@ -383,6 +399,11 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
     }
     crate::document_members::interim_support_refusals(model, diagnostics);
     crate::document_members::interim_exact_combination_refusals(model, diagnostics);
+    if let Some(planned) = planned {
+        if !crate::has_blocking(&diagnostics[first..]) {
+            planned.apply(model);
+        }
+    }
     // The members no later stage reads.
     model.condition_sets.clear();
     model.spectra.clear();
