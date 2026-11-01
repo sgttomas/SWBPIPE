@@ -230,8 +230,7 @@ the arc that set; a mismatch is `OP-BEND-CONDITION-SET-MISMATCH`.
 
 **Where.** One function, `operating_conditions::lower(&mut model, &mut
 diagnostics)` in `core/product_physics`, runs first in
-`run_linear_static_preview_observed_inner` after the version and document-kind
-checks, before `pressure_runtime::validate_profile`. Everything after it is
+`run_linear_static_preview_observed_inner` before `pressure_runtime::validate_profile` and the later version/document-kind diagnostics. The solve blocks before formation if any of those checks refuse. The read-only preview gates the current model namespace before planning, so it never reports successful resolution for a retired/unsupported version or a wrong document kind. Everything after it is
 today's pipeline, unchanged, applied to the lowered model.
 
 **What it does, per case with `condition_use`, in this order:**
@@ -1314,8 +1313,7 @@ records what was built against it.
   refusals give `refusal`), takes `judge`'s judgement and returns
   `{document_kind: "openpipestress.operating_condition_preview", resolved,
   cases: [{case_id, generated_primitive_loads, wind_exposed_pipe_refs}],
-  diagnostics}`; with `resolved: false` no record is listed, as the solve then
-  appends none. Each record carries its id, category, target, direction,
+  diagnostics}`. The preview reuses the solve's namespace/profile checks and document-kind/missing-version diagnostics before judgement. A valid document without condition use is a successful no-op (`resolved: true`, no cases) on either route; with `resolved: false` no record is listed and diagnostics (or parse `refusal`) name why. This flag describes condition resolution only, never successful physical validation or a solve. Each record carries its id, category, target, direction,
   magnitude and unit, dimension and provenance. The applier's wasm build
   exports it as `preview_operating_conditions_json(model_json)`, with the
   existing input-error envelope for text that is not JSON. No input bound is
@@ -1384,10 +1382,9 @@ records what was built against it.
   authored. The applied resolution marks the case's resolved list authored, as
   its twin authors it. Native layout: the type grows by two `bool`s, a D3 input
   (o10's typed census names it).
-- **Typed ΔT** is untouched (no code on its path changed); OC-5's frozen-corpus
-  before/after proof of §5's S2 row is the integrating manager's, against a
-  baseline build of this basis.
+- **Typed ΔT and frozen-input invariance.** No code on the typed-interval path changed. The integrating manager compared the maintained `physics_source_connected` example at baseline `2656dcb33328b12c5572a30c10124a40f35adffc` and S2 `45b21e1f04a2a0152ac488a206b9210787f5963a`: 946 unchanged selected JSON files (validation inputs, reader corpora, retained successors and the native-smoke expected-input paths), 438 distinct requests after the identical maintained `common/current_model.rs` in-memory re-authoring, both solver modes. All 876 comparisons had byte-identical stdout/stderr and equal exit status: 860 solved envelopes and 16 matching refusal envelopes, no differences. SHA-bound source bytes and `expected.json` were never edited, and no native App was invoked. This is before/after evidence for the no-condition frozen corpus; new condition behavior is established by the independent references/twins. Subsequent preview-only namespace fixes do not change the ordinary solve path. Integration against later main must reassess source applicability.
+- **Independent numerical/persistence scrutiny.** Round 1 independently recomputed every admitted/refused temperature row, all decimal samples/ties and the mechanics closed forms by a separate rational/rounding method, and cleared the math, order, presence and all-or-none behavior. Its preview finding (M1) is repaired by the solve's existing namespace/profile checks and kind/missing-version diagnostics before preview judgement; valid no-use documents are successful no-ops on either route (L2). The status wording now names E1–E6 and E7's precondition (L3). Native and actual-Wasm namespace counterexamples cover retired/newer/empty versions, wrong kind and retired/unsupported contracts. A focused independent repair re-check remains before integration.
 - **Left:** the retained routes'
   placement (they and the source readers still decline condition sets,
   references and uses, §3.8), D3 pricing of the D1-reachable change, independent
-  numerical scrutiny of ΔT, order and the twin, and exact-head hosted checks.
+  repair re-check and pricing-registration scrutiny, and exact-head hosted checks.

@@ -549,16 +549,68 @@ fn the_preview_refuses_as_the_solve_does() {
 const PARITY_PATH: &str = "../../fixtures/operating_conditions/preview_parity.json";
 const PARITY: &str = include_str!("../../../fixtures/operating_conditions/preview_parity.json");
 
+#[test]
+fn the_preview_checks_the_model_namespace_and_resolves_valid_no_ops() {
+    let mut controls = Vec::new();
+    for (version, code) in [
+        ("0.8.0", "MODEL_SCHEMA_VERSION_RETIRED"),
+        ("0.2.0", "MODEL_SCHEMA_VERSION_RETIRED"),
+        ("9.9.9", "PREVIEW_SCHEMA_VERSION_UNSUPPORTED"),
+        ("", "PREVIEW_SCHEMA_VERSION_MISSING"),
+    ] {
+        controls.push((mutated(|d| d["schema_version"] = json!(version)), code));
+    }
+    controls.push((mutated(|d| d["document_kind"] = json!("not.a.model")), "PREVIEW_DOCUMENT_KIND_INVALID"));
+    controls.push((mutated(|d| d["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})), "PRESSURE_MODEL_REAUTHOR_REQUIRED"));
+    controls.push((mutated(|d| d["pressure_contract"] = json!({"version": "unknown", "mode": "unknown"})), "PRESSURE_CONTRACT_UNSUPPORTED"));
+    for (d, expected) in controls {
+        let before = d.clone();
+        let preview = preview_operating_conditions(&d);
+        assert_eq!(preview["resolved"], false, "{preview}");
+        assert_eq!(preview["cases"], json!([]));
+        assert!(preview["diagnostics"].as_array().unwrap().iter().any(|v| v["code"] == expected), "{expected}: {preview}");
+        for mode in MODES {
+            let actual = solve(&d, mode);
+            assert!(diagnostics(&actual).iter().any(|v| v.0 == expected), "the solve owns {expected}: {actual}");
+        }
+        assert_eq!(d, before);
+    }
+    for mut d in [document(), serde_json::from_str::<Value>(EXACT).unwrap()["model"].take()] {
+        d["schema_version"] = json!(MODEL_SCHEMA_VERSION);
+        for case in d["load_cases"].as_array_mut().unwrap() {
+            case.as_object_mut().unwrap().remove("condition_use");
+        }
+        let before = d.clone();
+        let preview = preview_operating_conditions(&d);
+        assert_eq!(preview["resolved"], true, "a valid no-op on either route: {preview}");
+        assert_eq!(preview["cases"], json!([]));
+        assert_eq!(preview["diagnostics"], json!([]));
+        assert_eq!(d, before);
+    }
+}
+
 fn parity_inputs() -> Vec<(&'static str, Value)> {
     let mut exact: Value = serde_json::from_str::<Value>(EXACT).unwrap()["model"].take();
     exact["schema_version"] = json!(MODEL_SCHEMA_VERSION);
     exact["load_cases"][0]["condition_use"] = json!({"temperature": "OPE1"});
+    let mut exact_no_use = exact.clone();
+    for case in exact_no_use["load_cases"].as_array_mut().unwrap() { case.as_object_mut().unwrap().remove("condition_use"); }
+    let no_use = mutated(|d| { for case in d["load_cases"].as_array_mut().unwrap() { case.as_object_mut().unwrap().remove("condition_use"); } });
     vec![
         ("resolved", document()),
         ("set_missing", mutated(|d| { d["pipe_segments"][1].as_object_mut().unwrap().remove("condition_set_ref"); })),
         ("authored_empty_spans", mutated(|d| d["load_cases"][2]["equivalent_static"]["wind"]["exposed_spans"] = json!([]))),
         ("unknown_field", mutated(|d| d["condition_sets"][0]["conditions"][0]["temprature"] = json!(1))),
         ("exact_route", exact),
+        ("pf_no_use", no_use),
+        ("exact_no_use", exact_no_use),
+        ("retired_080", mutated(|d| d["schema_version"] = json!("0.8.0"))),
+        ("retired_020", mutated(|d| d["schema_version"] = json!("0.2.0"))),
+        ("newer_schema", mutated(|d| d["schema_version"] = json!("9.9.9"))),
+        ("empty_schema", mutated(|d| d["schema_version"] = json!(""))),
+        ("wrong_kind", mutated(|d| d["document_kind"] = json!("not.a.model"))),
+        ("retired_contract", mutated(|d| d["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}))),
+        ("unsupported_contract", mutated(|d| d["pressure_contract"] = json!({"version": "unknown", "mode": "unknown"}))),
     ]
 }
 

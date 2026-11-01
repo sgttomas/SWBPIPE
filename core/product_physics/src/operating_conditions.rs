@@ -458,10 +458,13 @@ fn generated_record(load: &PreviewPrimitiveLoad) -> serde_json::Value {
 /// [`judge`], and reported without changing it. With `resolved: true` the
 /// cases list exactly the records the solve's lowering appends, in its order
 /// (generated thermal, then added-weight records, and the resolved wind-exposed
-/// pipe ids); with `resolved: false` the lowering refuses and appends nothing,
-/// and `diagnostics` name why. A document the request parse refuses gives its
-/// refusal text in `refusal`. Later solve stages (validation, formation) are not
-/// run; `model_checks` reports those.
+/// pipe ids). A valid document with no condition use resolves to a no-op on
+/// either route. The solve's namespace checks run before judgement here, so
+/// retired/unsupported versions, wrong document kinds and invalid pressure
+/// contracts cannot report a successful resolution. A refused preview lists no
+/// generated records and names its diagnostics, or the request parse's text in
+/// `refusal`. Later physical validation and formation do not run; `resolved`
+/// reports condition resolution, never that the model can solve.
 pub fn preview_operating_conditions(model_document: &serde_json::Value) -> serde_json::Value {
     let request = serde_json::json!({"model": model_document, "materials": []});
     let refusal = |text: String| serde_json::json!({
@@ -475,6 +478,30 @@ pub fn preview_operating_conditions(model_document: &serde_json::Value) -> serde
         Ok((parsed, _)) => parsed,
         Err(error) => return refusal(error.0),
     };
+    // Parsing establishes the wire shape, not the current model namespace.
+    // Reuse the solve's version/pressure-contract checks; this does not move
+    // their position in the solve or change any existing mechanics result.
+    let mut namespace = Vec::new();
+    crate::pressure_runtime::validate_profile(&parsed.model, &mut namespace);
+    if parsed.model.document_kind != "openpipestress.product_preview.model" {
+        namespace.push(crate::diag(
+            "diagnostic:physics:document-kind", "PREVIEW_DOCUMENT_KIND_INVALID", "blocking",
+            "physics adapter requires an openpipestress.product_preview.model document",
+            vec!["model".to_string()],
+        ));
+    }
+    if parsed.model.schema_version.is_empty() {
+        namespace.push(crate::diag(
+            "diagnostic:physics:schema-version", "PREVIEW_SCHEMA_VERSION_MISSING", "blocking",
+            "preview model requires an explicit schema version", vec!["model".to_string()],
+        ));
+    }
+    if crate::has_blocking(&namespace) {
+        return serde_json::json!({
+            "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND,
+            "resolved": false, "cases": [], "diagnostics": namespace,
+        });
+    }
     let judged = judge(&parsed.model);
     let cases: Vec<serde_json::Value> = judged.plan.iter().flat_map(|plan| plan.cases.iter()).map(|case| serde_json::json!({
         "case_id": case.case_id,
@@ -483,7 +510,7 @@ pub fn preview_operating_conditions(model_document: &serde_json::Value) -> serde
     })).collect();
     serde_json::json!({
         "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND,
-        "resolved": judged.plan.is_some(),
+        "resolved": !judged.document_refused && !crate::has_blocking(&judged.diagnostics),
         "cases": cases,
         "diagnostics": judged.diagnostics,
     })

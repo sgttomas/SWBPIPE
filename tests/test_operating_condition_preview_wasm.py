@@ -56,7 +56,10 @@ def run_engine():
 def test_the_wasm_preview_equals_the_native_preview_on_every_parity_input():
     run = run_engine()
     rows = json.loads(PARITY.read_text())["rows"]
-    assert [row["name"] for row in rows] == ["resolved", "set_missing", "authored_empty_spans", "unknown_field", "exact_route"]
+    assert [row["name"] for row in rows] == [
+        "resolved", "set_missing", "authored_empty_spans", "unknown_field", "exact_route", "pf_no_use", "exact_no_use",
+        "retired_080", "retired_020", "newer_schema", "empty_schema", "wrong_kind", "retired_contract", "unsupported_contract",
+    ]
     for row, text, again in zip(rows, run["outputs"], run["again"]):
         assert text == again, f"{row['name']}: deterministic"
         assert json.loads(text) == row["preview"], row["name"]
@@ -66,6 +69,19 @@ def test_the_wasm_preview_equals_the_native_preview_on_every_parity_input():
     assert ids[:3] == ["load:condition-temperature:3:OPE:2:P1", "load:condition-temperature:3:OPE:2:P2",
                        "load:condition-temperature:3:OPE:2:P3"]
     assert resolved["cases"][2]["wind_exposed_pipe_refs"] == ["P2", "P3"]
+    by_name = {row["name"]: json.loads(text) for row, text in zip(rows, run["outputs"])}
+    for name in ["pf_no_use", "exact_no_use"]:
+        assert by_name[name]["resolved"] is True and by_name[name]["cases"] == []
+        assert by_name[name]["diagnostics"] == []
+    for name, code in {
+        "retired_080": "MODEL_SCHEMA_VERSION_RETIRED", "retired_020": "MODEL_SCHEMA_VERSION_RETIRED",
+        "newer_schema": "PREVIEW_SCHEMA_VERSION_UNSUPPORTED", "empty_schema": "PREVIEW_SCHEMA_VERSION_MISSING",
+        "wrong_kind": "PREVIEW_DOCUMENT_KIND_INVALID", "retired_contract": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
+        "unsupported_contract": "PRESSURE_CONTRACT_UNSUPPORTED",
+    }.items():
+        assert by_name[name]["resolved"] is False and by_name[name]["cases"] == []
+        assert code in {finding["code"] for finding in by_name[name]["diagnostics"]}, name
+
 
 
 def test_the_wasm_preview_returns_the_input_error_envelope_for_text_that_is_not_json():
