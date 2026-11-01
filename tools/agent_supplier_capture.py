@@ -357,6 +357,7 @@ def run(binary, output, *, initialize=CaptureNative.__init__, provider_factory=C
             try:
                 native.close()
                 result['supplierExited'] = native.process.returncode is not None
+                result['supplierExitStatus'] = native.process.returncode
                 if not result['supplierExited']:
                     failures.append('supplier_exit_unconfirmed')
                 reader = getattr(native, 'thread', None)
@@ -380,7 +381,8 @@ def run(binary, output, *, initialize=CaptureNative.__init__, provider_factory=C
                     failures.append('deadline_guard_unconfirmed')
             except Exception:
                 failures.append('deadline_guard_unconfirmed')
-        if clock() - started >= 300 or expired.is_set():
+        result['elapsedSeconds'] = clock() - started
+        if result['elapsedSeconds'] >= 300 or expired.is_set():
             failures.append('deadline')
         try:
             result['residents'] = absence([str(binary), str(runtime)])
