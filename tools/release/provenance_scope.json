@@ -3,7 +3,7 @@
   "members": [
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_dense.stress_neutral.json",
-      "sha256": "b98878fd546bedef4678b901017ad947115dbacdcbb91e36421dddd72ccc3320",
+      "sha256": "23cf95cba4dae448ec68197a3bd1ee58a75dde8b8cf6d82b993a8b72dc20896b",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -18,7 +18,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_plain_connected_sparse.stress_neutral.json",
-      "sha256": "b9598bf2439ad7a28dcafc02622f1e353be57f3e5227a08a15bbca1bf5e54433",
+      "sha256": "2d8e2f808dc0f89831a8fe98a4cd42225a04130731763da8f97362ca02b0be25",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -33,7 +33,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_source_plain_n05_dense.stress_neutral.json",
-      "sha256": "1633da0e91203fd0d18e43a8313af08386058d633b593e8f82507a79dc4b9739",
+      "sha256": "f8fc19e8798226319373d18e23d5e0be6b31ceb9e63cceb82d372431a67f01a6",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
@@ -48,7 +48,7 @@
     },
     {
       "path": "apps/desktop/src/test-support/desktop-shaped/desktop_shaped_pressure_source_plain_n05_sparse.stress_neutral.json",
-      "sha256": "f4bc951fe1691a2970379066f3316682d2dfe540d4d3f85781fd10fe2c3a5d29",
+      "sha256": "e8c245a45ea977bf3b1a5fd4f63cd7e7dac582f342fd8b360334893341fa425c",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
