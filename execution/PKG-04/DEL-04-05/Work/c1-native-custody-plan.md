@@ -944,9 +944,8 @@ separately authorized measurement. Review and checks establish no memory fit or 
 The concrete offline preparation is `c1-slice7-run-proposal.md`, with the maintained
 `apps/desktop/native-smoke/perf-plan-c1.json` input. It binds the clean a37d release
 App to the reviewed 55fd runtime, names the two generated racks and conditional
-intervals, and tracks P1's offline bounded-teardown implementation and first-round
-supervisor-death/evidence-preservation repairs (independent safeguard recheck pending),
-and the missing P2 connected interaction probes and P3
+intervals, and tracks P1's independently clear safeguards at `dee93a72`, P2's
+offline connected interaction probes (34 source-mode tests), and the missing P3
 separate reader/parse attribution. No App
 or measurement window has been launched or authorized by that preparation.
 

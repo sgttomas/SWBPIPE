@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -302,6 +302,17 @@ test("the window subset is the brief's runs and fits its budget by estimate", ()
   assert.match(formatPlan(runs, plan.budget_s), /total estimate: 840 s \(14.0 min\); budget 880 s/);
 });
 
+test("the C1 plan binds maintained 500/1000 fixtures and forbids injected or larger cases", () => {
+  const c1=loadPlan(fileURLToPath(new URL("./perf-plan-c1.json",import.meta.url)));
+  const ledger=readFileSync(new URL("../../../core/solver/performance_harness/observations/rack/models_sha256.txt",import.meta.url),"utf8");
+  for(const run of c1.runs) assert.match(ledger,new RegExp(`^${run.model_sha256}  linear-ex  ${run.nodes}$`,"m"));
+  assert.deepEqual(selectRuns(c1,{subset:"window"}).map(run=>run.nodes),[500]);
+  c1.runs[0].nodes=2000;
+  assert.throws(()=>validatePlan(c1),/no size escalation/);
+  c1.runs[0].nodes=500;c1.runs[0].mode="injected";
+  assert.throws(()=>validatePlan(c1),/require a native solve/);
+});
+
 test("samples sum per kind, keep per-process peaks and a peak since a stage", () => {
   const samples = [
     { t: 1000, p: [[1, "app", 10, 100, 100], [2, "webcontent", 20, 200, 200]] },
@@ -374,8 +385,262 @@ test("the driver loads in a webview-like context and hands its steps to a test",
   const context = { window: { __TAURI_INTERNALS__: { invoke: async () => null } }, document: { querySelector: () => null }, CSS: { escape: (value) => value }, performance, setTimeout, navigator: { userAgent: "test" }, __SWBPIPE_PERF_DRIVER_TEST__: hooks };
   context.globalThis = context;
   vm.runInNewContext(readFileSync(new URL("./perf-driver.js", import.meta.url), "utf8"), context);
-  assert.deepEqual(Object.keys(hooks).sort(), ["recordRun", "saveProject", "solve", "waitFor"]);
+  for (const name of ["recordRun", "saveProject", "solve", "waitFor"]) assert.equal(typeof hooks[name], "function");
   await assert.rejects(hooks.waitFor("nothing", () => null, 30, 5), /timed out after 30 ms waiting for nothing/);
+});
+
+async function driverDom(t, html, invoke) {
+  const { JSDOM } = await import("jsdom");
+  const vm = await import("node:vm");
+  const dom = new JSDOM(html);
+  t.after(() => dom.window.close());
+  const hooks = {};
+  dom.window.__TAURI_INTERNALS__ = { invoke };
+  const context = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator,
+    // Hex escapes are literal in jsdom as well as WebKit, including encoded IDs.
+    CSS: { escape: value => String(value).replace(/[^a-zA-Z0-9_-]/gu, char => `\\${char.codePointAt(0).toString(16)} `) }, performance,
+    Event: dom.window.Event, HTMLInputElement: dom.window.HTMLInputElement, HTMLTextAreaElement: dom.window.HTMLTextAreaElement,
+    setTimeout, clearTimeout, setInterval, clearInterval, requestAnimationFrame: callback => setTimeout(() => callback(performance.now()), 0),
+    TextEncoder, TextDecoder, ArrayBuffer, Uint8Array, DataView,
+    __SWBPIPE_PERF_DRIVER_TEST__: hooks };
+  vm.runInNewContext(readFileSync(new URL("./perf-driver.js",import.meta.url),"utf8"), context);
+  return { dom, hooks, context, call: (...args) => dom.window.__TAURI_INTERNALS__.invoke(...args) };
+}
+
+function rowPacket(total) {
+  const header = new TextEncoder().encode(JSON.stringify({ document_kind:"swbpipe.desktop.result_detail_rows",version:1,total,offset:0,returned:0,ordinals:[],lengths:[],truncated:false }));
+  const bytes = new Uint8Array(16+header.length);
+  bytes.set(new TextEncoder().encode("SWBDETv1"));
+  new DataView(bytes.buffer).setBigUint64(8,BigInt(header.length),true);
+  bytes.set(header,16);
+  return bytes.buffer;
+}
+
+test("C1 command observation retains only headers/receipts and blocks full-copy routes", async (t) => {
+  let sent = 0;
+  const ui = await driverDom(t,"",async command => {
+    sent++;
+    if(command==="query_preview_mechanics_job_rows") return rowPacket(27);
+    if(command==="finish_local_csv_stream") return {file_name:"swbpipe-results-force.csv",byte_count:123};
+    if(command==="save_preview_mechanics_job_local_project") return {result:{outcome:"not_saved",code:"PROJECT-SAVE-RESULT-TOO-LARGE",get rows(){throw new Error("row payload read");}}};
+    return null;
+  });
+  const trace = ui.hooks.beginC1Trace();
+  trace.data.csv={family:"force",pages:0,expected_rows:null,receipt:null};
+  await ui.call("query_preview_mechanics_job_rows",new TextEncoder().encode(JSON.stringify({filter:{family:"force"}})));
+  await ui.call("finish_local_csv_stream",{});
+  await ui.call("save_preview_mechanics_job_local_project",{});
+  assert.equal(trace.data.csv.expected_rows,27);
+  assert.equal(trace.data.csv.receipt.byte_count,123);
+  assert.equal(trace.data.save.result.outcome,"not_saved");
+  assert.equal("rows" in trace.data.save.result,false);
+  assert.equal(trace.data.errors.length,0);
+  await assert.rejects(ui.call("read_preview_mechanics_job_rows_all",{}),/unexpected whole-value/);
+  assert.equal(sent,3);
+  assert.equal(trace.data.violations[0],"read_preview_mechanics_job_rows_all");
+  trace.restore();
+});
+
+test("C1 preflight refuses changed budgets and pre-existing custody", async (t) => {
+  const pool={headroom:{pressure:"normal",available_bytes:30*1024**3},invocation_budget_bytes:12*1024**3,retained_results:0,running_workers:0,queued_jobs:0,running_jobs:0,webview_custody_results:0,reserved_bytes:0};
+  const ui=await driverDom(t,"",async()=>pool);
+  await ui.hooks.preflight({});
+  pool.retained_results=1;
+  await assert.rejects(ui.hooks.preflight({}),/prior-job state/);
+  pool.retained_results=0;pool.invocation_budget_bytes=13*1024**3;
+  await assert.rejects(ui.hooks.preflight({}),/budget/);
+  pool.invocation_budget_bytes=12*1024**3;pool.headroom.pressure="warning";
+  await assert.rejects(ui.hooks.preflight({}),/pressure\/headroom/);
+});
+
+test("C1 pool monitoring tolerates one unknown and records cancellation on persistent failure", async (t) => {
+  let clock=0,tick;
+  const timeline={outcome:"running"};
+  const pool={headroom:{pressure:"unknown",available_bytes:null}};
+  const ui=await driverDom(t,"",async(command,args)=>{
+    if(command==="get_memory_pool_status") return pool;
+    if(command==="native_smoke_menu" && args.commandId==="analyze.cancel") timeline.outcome="cancelled";
+    return null;
+  });
+  ui.context.performance={now:()=>clock};
+  ui.context.setInterval=callback=>{tick=callback;return 1;};
+  ui.context.clearInterval=()=>{tick=null;};
+  ui.context.__openPipeStressSolveTimelineV1={readCurrent:()=>timeline};
+  const report={};
+  const stop=ui.hooks.startPoolMonitor(report);
+  clock=1000;tick();await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(await ui.hooks.waitFor("one unknown",()=>true,10),true);
+  clock=2000;tick();await new Promise(resolve=>setImmediate(resolve));
+  await assert.rejects(ui.hooks.waitFor("persistent unknown",()=>true,10),/stayed unknown/);
+  await ui.hooks.cancelIfRunning(report);
+  assert.equal(report.cancellation.attempted,true);
+  assert.equal(report.cancellation.receipt,"timeline cancelled");
+  stop();assert.equal(tick,null);
+});
+
+function installC1ResultControls(ui, root) {
+  const state={kind:0,case:0,entity:0,page:0,filter:"",selected:null};
+  const render=()=>{
+    const ids=state.filter?[]:state.page?["row-C","row-D"]:["row-A","row-B"];
+    root.innerHTML=`<div data-testid="result-page-summary">page ${state.page+1} of 2</div>
+      <input data-testid="result-filter-input" value="${state.filter}"><button data-testid="clear-result-filter">Clear</button>
+      <button data-testid="next-result-page" ${state.page?"disabled":""}>Next</button><button data-testid="previous-result-page" ${state.page?"":"disabled"}>Previous</button>
+      ${["kind","case","entity"].map(axis=>`<span data-testid="results-navigator-${axis}-position">${state[axis]}</span><button data-testid="results-navigator-${axis}-next" aria-disabled="${state[axis]===1}">Next</button><button data-testid="results-navigator-${axis}-previous" aria-disabled="${state[axis]===0}">Previous</button>`).join("")}
+      ${state.filter?'<p data-testid="result-filter-empty">No computed preview result rows match this filter.</p>':""}
+      <table><tbody>${ids.map(id=>`<tr data-testid="result-row-${id}" aria-selected="${state.selected===id}"><td>${id}</td></tr>`).join("")}</tbody></table>
+      ${state.selected?`<p data-testid="result-detail-id">${state.selected}</p>`:""}
+      <button data-testid="result-group-displacement-export-csv">Export CSV</button><span data-testid="result-group-displacement-export-csv-status"></span>`;
+    for(const row of root.querySelectorAll("tr")) row.onclick=()=>{state.selected=row.getAttribute("data-testid").slice(11);render();};
+    for(const axis of ["kind","case","entity"]) for(const direction of ["next","previous"]) root.querySelector(`[data-testid="results-navigator-${axis}-${direction}"]`).onclick=()=>{
+      state[axis]=direction==="next"?1:0;
+      // Case/kind steps may legitimately keep the same first published ID.
+      state.selected=state.entity?"row-B":"row-A";render();
+    };
+    for(const direction of ["next","previous"]) root.querySelector(`[data-testid="${direction}-result-page"]`).onclick=()=>{state.page=direction==="next"?1:0;render();};
+    root.querySelector("input").oninput=event=>{state.filter=event.target.value;state.page=0;render();};
+    root.querySelector('[data-testid="clear-result-filter"]').onclick=()=>{state.filter="";render();};
+    root.querySelector('[data-testid="result-group-displacement-export-csv"]').onclick=()=>{void(async()=>{
+      await ui.call("query_preview_mechanics_job_rows",{filter:{family:"displacement"}});
+      await ui.call("query_preview_mechanics_job_rows",{filter:{family:"displacement"}});
+      await ui.call("finish_local_csv_stream",{});
+      root.querySelector('[data-testid="result-group-displacement-export-csv-status"]').textContent="Saved swbpipe-results-displacement.csv (123 bytes).";
+    })();};
+  };
+  render();
+  return state;
+}
+
+test("C1 DOM probe covers all navigator axes, pages, no-match and streamed CSV", async (t) => {
+  let ui;
+  ui=await driverDom(t,'<section data-testid="workspace-section-results"><section data-testid="results-panel" data-result-custody="native"></section></section>',async command=>{
+    if(command==="query_preview_mechanics_job_rows") return rowPacket(2);
+    if(command==="finish_local_csv_stream") return {file_name:"swbpipe-results-displacement.csv",byte_count:123};
+    return null;
+  });
+  const doc=ui.dom.window.document;
+  const section=doc.querySelector('[data-testid="workspace-section-results"]');
+  Object.defineProperty(section,"offsetParent",{get:()=>doc.body});
+  const root=doc.querySelector('[data-testid="results-panel"]');
+  installC1ResultControls(ui,root);
+  const trace=ui.hooks.beginC1Trace();
+  const report={};
+  await ui.hooks.probeResults({timeouts:{open_ms:1000,interaction_ms:1000,csv_ms:1000}},report,trace,{csv:true});
+  assert.equal(report.actions.length,11);
+  assert.equal(report.csv.expected_rows,2);
+  assert.equal(report.csv.family,"displacement");
+  assert.equal(report.csv.receipt.byte_count,123);
+  assert.equal(report.actions.find(action=>action.name==="case next").before.selected,report.actions.find(action=>action.name==="case next").after.selected);
+  trace.restore();
+});
+
+test("C1 persistence probe connects actual Rust reply shapes through record/reopen/re-save/check/release", async (t) => {
+  // These committed Rust replies establish DTO shape, not live App behaviour.
+  const persistence=JSON.parse(readFileSync(new URL("../src/test-support/native-replay/native_persistence_replies.json",import.meta.url),"utf8"));
+  const reopen=JSON.parse(readFileSync(new URL("../src/test-support/native-reopen/native_reopen_replies.json",import.meta.url),"utf8"));
+  const save=persistence.scenarios[0].reply.value;
+  const recorded=structuredClone(persistence.scenarios[1].reply.value);
+  const opened=reopen.open.reply.value;
+  const resave=reopen.requests.find(item=>item.command==="save_restored_result_local_project").reply.value;
+  const read=reopen.read.reply.value;
+  const handle=opened.stored_run.handle;
+  const readHandle="restored-stored-result-record-check";
+  const pool={headroom:{pressure:"normal",available_bytes:30*1024**3},invocation_budget_bytes:12*1024**3,retained_results:0,running_workers:0,queued_jobs:0,running_jobs:0,webview_custody_results:0,reserved_bytes:0};
+  let ui, historical=false;
+  const projectId=opened.model.project.id;
+  const plan={run_id:"c1-fixture",project_id:projectId,model_path:"/invented/c1-fixture.json",timeouts:{open_ms:2000,record_ms:2000,save_ms:2000,interaction_ms:2000,csv_ms:2000}};
+  const html=`<p data-testid="local-project-message">Initial</p><div data-testid="tree-row-project-${encodeURIComponent(projectId)}"></div>
+    <section data-testid="workspace-section-results"><section data-testid="results-panel" data-result-custody="native"></section></section>
+    <section data-testid="workspace-section-project"><div data-testid="model-history-panel"><p data-testid="model-history-message"></p><button data-testid="record-run-open">Record</button><div data-testid="forms"></div><div data-testid="runs"></div></div><p data-testid="project-validation-envelope-hash">integrity=verified_match</p></section>`;
+  ui=await driverDom(t,html,async(command,args)=>{
+    const doc=ui?.dom.window.document;
+    const setMessage=value=>{doc.querySelector('[data-testid="local-project-message"]').textContent=value;};
+    if(command==="get_memory_pool_status") return pool;
+    if(command==="save_preview_mechanics_job_local_project") return save;
+    if(command==="record_preview_mechanics_job_analysis_run") return recorded;
+    if(command==="open_local_project_in_native_custody") return opened;
+    if(command==="save_restored_result_local_project") return resave;
+    if(command==="read_analysis_run_in_native_custody") return {...read,restored:{...read.restored,handle:readHandle}};
+    if(command==="dispose_preview_mechanics_result") return {job_id:args.jobId,released:true};
+    if(command==="native_smoke_menu") {
+      if(args.commandId.startsWith("view.section.")) return null;
+      if(args.commandId==="file.save-local") {
+        await ui.call(historical?"save_restored_result_local_project":"save_preview_mechanics_job_local_project",{});
+        setMessage(historical?"Saved restored SQLite project snapshot.":"Saved current project model snapshot.");
+      }
+      if(args.commandId==="file.open-local") {
+        await ui.call("open_local_project_in_native_custody",{});historical=true;pool.retained_results=1;
+        const container=doc.createElement("div");container.setAttribute("data-testid","historical-run-context");
+        const section=doc.querySelector('[data-testid="workspace-section-results"]');
+        const panel=section.querySelector('[data-testid="results-panel"]');section.appendChild(container);container.appendChild(panel);
+        const unavailable=doc.createElement("p");unavailable.setAttribute("data-testid","record-run-unavailable");unavailable.textContent="Record Run: historical saved run";doc.body.appendChild(unavailable);
+        setMessage("Opened local SQLite project snapshot.");
+      }
+      if(args.commandId==="file.open-model") {
+        await ui.call("dispose_preview_mechanics_result",{jobId:handle});pool.retained_results=0;
+        doc.querySelector('[data-testid="historical-run-context"]').remove();
+        setMessage("Opened model document c1-fixture.json (fixture).");
+      }
+    }
+    return null;
+  });
+  const doc=ui.dom.window.document;
+  for(const section of doc.querySelectorAll('[data-testid^="workspace-section-"]')) Object.defineProperty(section,"offsetParent",{get:()=>doc.body});
+  installC1ResultControls(ui,doc.querySelector('[data-testid="results-panel"]'));
+  doc.querySelector('[data-testid="record-run-open"]').onclick=()=>{
+    const forms=doc.querySelector('[data-testid="forms"]');
+    forms.innerHTML='<div data-testid="record-run-form"><input data-testid="record-run-name"><input data-testid="record-run-snapshot-name"><button type="button" data-testid="record-run-submit">Submit</button></div>';
+    forms.querySelector("button").onclick=()=>{void(async()=>{
+      recorded.run.run_name=forms.querySelector('[data-testid="record-run-name"]').value;
+      await ui.call("save_preview_mechanics_job_local_project",{});
+      await ui.call("record_preview_mechanics_job_analysis_run",{});
+      forms.innerHTML="";
+      doc.querySelector('[data-testid="model-history-message"]').textContent="Recorded run perf c1-fixture.";
+      const id=recorded.run.recording_id;
+      const runs=doc.querySelector('[data-testid="runs"]');
+      runs.innerHTML=`<button data-testid="recorded-run-${id}-check-run">Check</button><div data-testid="recorded-run-${id}-check"></div>`;
+      runs.querySelector("button").onclick=()=>{void(async()=>{
+        await ui.call("read_analysis_run_in_native_custody",{});
+        await ui.call("dispose_preview_mechanics_result",{jobId:readHandle});
+        runs.querySelector("div").textContent="The record, its stored result and input manifest agree.";
+      })();};
+    })();};
+  };
+  const trace=ui.hooks.beginC1Trace();
+  const report={c1:{preflight:{...pool}}};
+  await ui.hooks.probePersistence(plan,report,trace);
+  assert.equal(report.c1.resave.kept,true);
+  assert.equal(report.c1.reopen.origin,"restored_saved_run");
+  assert.equal(report.c1.recorded_check.origin,"restored_recorded_run");
+  assert.equal(report.c1.cleanup.retained_results,0);
+  assert.equal(trace.data.counts.save_restored_result_local_project,1);
+  assert.equal(trace.data.violations.length,0);
+  trace.restore();
+});
+
+test("C1 CSV file inspection counts quoted rows and checks receipt and containment", async (t) => {
+  const home=mkdtempSync(path.join(os.tmpdir(),"perf-csv-"));
+  t.after(()=>rmSync(home,{recursive:true,force:true}));
+  mkdirSync(path.join(home,"Downloads"));
+  const text='\ufeffexport_context,local_private\r\nreleased_report,false\r\n\r\nID,Value\r\n"row\nA",1\r\nrow-B,2\r\n';
+  const file=path.join(home,"Downloads","swbpipe-results-force.csv");
+  writeFileSync(file,text);
+  const exported={expected_rows:2,receipt:{file_name:path.basename(file),byte_count:Buffer.byteLength(text)}};
+  const good=await inspectCsv(home,exported);
+  assert.equal(good.verified,true);assert.equal(good.rows,2);
+  assert.equal((await inspectCsv(home,{...exported,expected_rows:3})).verified,false);
+  assert.match((await inspectCsv(home,{...exported,receipt:{...exported.receipt,byte_count:1}})).error,/byte count/);
+  assert.match((await inspectCsv(home,{...exported,receipt:{...exported.receipt,file_name:"../foreign.csv"}})).error,/bare CSV name/);
+});
+
+test("C1 incomplete probes and deliberate model-only saves cannot pass usability", () => {
+  const input=base();input.run.c1_probes=true;input.report.c1={completed:false,trace:{save:{result:{outcome:"not_saved",code:"PROJECT-SAVE-RESULT-TOO-LARGE"}}}};
+  input.store.projects[0].result_chars=4;
+  const refused=classify(input);
+  assert.equal(refused.class,"refused_with_message");
+  assert.equal(refused.findings.some(f=>f.class==="half_written_save"),false);
+  input.store.projects[0].result_chars=1000;
+  input.report.c1={completed:true,csv_file:{verified:false,error:"inspection timed out"}};
+  assert.equal(classify(input).class,"refused_with_message");
 });
 
 test("plan names are bare: traversal, separators, absolute paths and dot names are refused", () => {

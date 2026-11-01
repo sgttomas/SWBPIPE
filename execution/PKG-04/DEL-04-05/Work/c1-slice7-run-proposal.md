@@ -4,8 +4,9 @@ Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepare
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
 **Execution status:** the release App, two model documents and baseline P2 plan
-are prepared. P1's runner safeguards are implemented offline and await independent
-scrutiny; P2 and P3 remain executable prerequisites below. Do not acquire an
+are prepared. P1's runner safeguards cleared the final independent recheck at
+`dee93a72`. P2's interaction probes are implemented and tested offline; P3 remains
+an executable prerequisite below. Do not acquire an
 exclusive interval or launch the App until those are
 ready and the narrow run authority has been granted. Preparation has launched no
 App, solve worker, model solve, memory sampler, screenshot or LLM session.
@@ -48,8 +49,8 @@ Prepared external harness identities (SHA-256, recheck before execution):
 - `rack/rack_model.py`: `9bbc6b9b1f6f78c11233da9906bf1346d4322a16bfe1b5c5e2069c7914456559`.
 
 Those are the original prepared a37d harness identities. The later P1 preparation
-changes `perf.mjs`, `perf-sampler.py` and their tests; it changes neither the bound
-App/worker/frontend nor the driver. Bind its submitting revision and re-hash those
+changes `perf.mjs`, `perf-sampler.py` and their tests. P2 also changes the
+external driver and plan. Neither changes the bound App/worker/frontend. Bind its submitting revision and re-hash those
 external scripts before execution. The old identities do not certify the new
 supervision path, and green CI at 867e51b does not cover that later code.
 
@@ -99,8 +100,8 @@ Only after the 500-node gate passes, release/reacquire through the same queue:
 /Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-1000 --budget-s 840 --out "$RT_C1_KIT/evidence/n1000"
 ```
 
-These commands execute the baseline open/solve/Record/Save driver through the P1
-supervisor (independent review pending).
+These commands select the P2 interaction driver through the independently
+cleared P1 supervisor; P2 connected scrutiny remains owed.
 They become the complete gate only after the existing runner/driver and the
 reader-attribution carrier meet P1–P3. Rebind changed external scripts and any
 changed App before using them. No assumed flags or nonexistent profiling command
@@ -251,7 +252,7 @@ truthfully; do not extend the interval to hide them.
 
 ## Missing executable prerequisites and smallest grant
 
-P1 — **F7 repair implemented offline; final focused recheck pending.** The first independent
+P1 — **Independent round 3 clear at `dee93a72`.** The first independent
 review at `3faf9ea12` blocked supervisor-death cleanup and forced-stop evidence
 loss (F1/F2); both new in-model kinds were reported to Agent 0. The parent repaired
 them and the smaller failure-handling notes without an implementation delegate.
@@ -280,6 +281,12 @@ runner error's cause (F7). The child now writes that cause synchronously to stde
 before self-group termination, with an optional bounded IPC stop reason; the new
 fake-process regression checks the cause survives. This is a failure-reporting
 repair within the existing threat model, with no additional native authority.
+The final reviewer independently ran all 26 tests and cleared F7. Its mutation
+also showed the small fixture can pass with asynchronous console output, so the
+tests do not establish that synchronous writing is necessary. A full non-blocking
+stderr pipe can still make this diagnostic best-effort; it is not an unconditional
+durable cause in the window JSON. The optional IPC reason and incomplete/failed
+receipt semantics are unchanged. No fourth P1 review is opened for these notes.
 
 The product worker's own process-group behavior is preserved. Before final
 cleanup the supervisor freezes the current App PID, not its guard thread, and uses the sampler's
@@ -328,11 +335,47 @@ finite teardown, closed owned-PID/path and scratch containment, honest failure
 reporting and no unrelated-process kill. Hostile concurrent path/PID substitution
 remains outside the existing kit's threat model; this is not risk acceptance.
 
-P2 — **The maintained driver needs the C1 interaction probes.** Its current
-steps stop at first paint/Record/Save. Prepare/test the bounded DOM/navigation,
-CSV, native reopen/re-save/history and lease-counter probes above. It must report
-the actual outcomes and timely refusal; the old classifier's `ok` alone does not
-establish this larger usability gate. No new product commands are needed.
+P2 — **Implemented offline, connected scrutiny still owed with the final gate.**
+The C1 plan now enables bounded probes for all three navigator axes, next/previous
+pages, row detail, no-match/clear filtering, streamed group CSV, Record Run,
+native project reopen/re-save, recorded-run check/disposal, normal model-open
+retirement and pool counts returning to their starting state. The trace rejects
+whole-value/legacy persistence and budget-changing commands. It retains only
+counts, bounded native headers, small receipts and metadata; no row page, full
+result, record, model or CSV chunk is retained by the observer.
+
+The input plan binds the two existing maintained rack hashes and node counts;
+changed bytes, wrong node count or a size escalation is refused before App launch.
+The solve proof must match the model JCS hash. A separate native-table-ready time
+waits for settled rows and two animation frames after Results activation; the
+older solve `first_paint` mark alone does not show that table. These are DOM/frame
+observations, not pixel verification. Required interactions record latencies and
+published IDs/positions, without a new accepted usability threshold.
+
+Native persistence is observed through its actual DTOs (`run`/`message` for Record
+Run, small result outcome for saves). Reopen and re-save must preserve producer
+identity, handle/origin, envelope evidence and the complete findings list. A
+model-only SQLite save or named refusal fails the round-trip usability probe;
+it is not called a half-written result. CSV inspection streams with Python's
+standard CSV reader outside the webview, checks BOM/preamble/width/receipt bytes
+and compares data-row count with the native group's query total. Inspection
+failure is unverified evidence, not assumed file corruption.
+
+The preflight refuses prior held jobs, changed budget or unknown/insufficient
+headroom. Live monitoring uses native pool status, stops immediately on known
+elevated pressure and after two unknown replies (or stale status), and attempts
+bounded cancellation on failure without inventing a successful receipt. Terminal
+UI outcomes remain verbatim; the separate low-level refusal trace is bounded
+and marks truncation/omission. Transient admission retries remain observable,
+not reclassified as terminal product failures.
+
+Thirty-four Node tests pass under the slot wrapper. Added tests use DOM/IPC
+emulation and the committed Rust response shapes, plus synthetic CSV files and
+pool readings; they are source-mode evidence only. They do not establish actual
+native interaction, cleanup, first table paint, memory fit or the complete P3
+gate. The P1 control block is byte-identical to its reviewed `dee93a72` source;
+P2 changes input validation, observation, UI probes and read-only file inspection.
+No new product command or scope is needed for P2.
 
 P3 — **Reader/parse attribution is not executable yet.** The phase-separated
 large-input probe described above is absent; no reader working-peak value exists

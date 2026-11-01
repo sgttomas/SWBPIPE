@@ -396,12 +396,16 @@ export function containedPath(root, name, { mustExist = false } = {}) {
 /** Refuses a plan whose run ids, modes, file names or subsets are not what it may name. */
 export function validatePlan(plan) {
   if (!Array.isArray(plan.runs) || !plan.subsets || typeof plan.subsets !== "object") throw new Error("perf plan: runs and subsets are required");
+  if (plan.c1_probes !== undefined && typeof plan.c1_probes !== "boolean") throw new Error("perf plan: c1_probes must be a boolean");
+  if (plan.c1_probes && ["interaction_ms", "csv_ms"].some(key => !Number.isFinite(plan.timeouts?.[key]) || plan.timeouts[key] <= 0)) throw new Error("perf plan: C1 interaction and CSV timeouts are required");
   const ids = new Set();
   for (const run of plan.runs) {
     planName(run.id, "run id");
     if (ids.has(run.id)) throw new Error(`perf plan: run id ${run.id} is repeated`);
     ids.add(run.id);
     if (!MODES.has(run.mode)) throw new Error(`perf plan: run ${run.id} has mode ${JSON.stringify(run.mode)}`);
+    if (plan.c1_probes && run.mode !== "native") throw new Error("perf plan: C1 usability probes require a native solve");
+    if (plan.c1_probes && (![500, 1000].includes(run.nodes) || !/^[a-f0-9]{64}$/.test(run.model_sha256))) throw new Error("perf plan: C1 needs a bound 500/1000-node fixture; no size escalation");
     planName(run.model, `run ${run.id}'s model`);
     if (run.mode === "injected") planName(run.result, `run ${run.id}'s result`);
     else if (run.result !== undefined) throw new Error(`perf plan: native run ${run.id} names a result`);
@@ -559,6 +563,54 @@ function inspectStore(home) {
   }, (error) => ({ ...out, error: String(error?.message ?? error) }));
 }
 
+/** Verify the native receipt and complete CSV rows without materializing the
+ * file in the webview or this Node process. Standard-library csv handles quoted
+ * newlines; inspection runs only after the App exits, within the runner deadline. */
+export async function inspectCsv(home, exported) {
+  try {
+    const name = exported?.receipt?.file_name;
+    if (typeof name !== "string" || path.basename(name) !== name || !name.endsWith(".csv")) throw new Error("CSV receipt is not a bare CSV name");
+    const downloads = path.join(home, "Downloads");
+    const file = path.join(downloads, name);
+    if (!lstatSync(file).isFile() || lstatSync(file).isSymbolicLink() || path.dirname(realpathSync(file)) !== realpathSync(downloads)) throw new Error("CSV receipt leaves the private Downloads directory");
+    const bytes = statSync(file).size;
+    if (bytes !== exported.receipt.byte_count) throw new Error("CSV receipt byte count differs from the file");
+    const script = `
+import csv,hashlib,json,sys
+csv.field_size_limit(64<<20)
+digest=hashlib.sha256()
+with open(sys.argv[1],'rb') as raw:
+ if raw.read(3)!=b'\\xef\\xbb\\xbf': raise ValueError('CSV has no UTF-8 BOM')
+ raw.seek(0)
+ while True:
+  chunk=raw.read(1<<20)
+  if not chunk: break
+  digest.update(chunk)
+with open(sys.argv[1],encoding='utf-8-sig',newline='') as source:
+ rows=csv.reader(source,strict=True)
+ preamble={}
+ for row in rows:
+  if not row: break
+  if len(row)!=2: raise ValueError('invalid CSV preamble')
+  preamble[row[0]]=row[1]
+ header=next(rows)
+ if not header: raise ValueError('CSV has no columns')
+ count=0
+ for row in rows:
+  if len(row)!=len(header): raise ValueError('CSV data width differs from its header')
+  count+=1
+ if preamble.get('export_context')!='local_private' or preamble.get('released_report')!='false': raise ValueError('CSV boundary preamble differs')
+ print(json.dumps({'rows':count,'columns':len(header),'sha256':digest.hexdigest()}))
+`;
+    const read = await new Promise((resolve, reject) => {
+      execFile("python3", ["-c", script, file], { timeout: 30000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 }, (error, stdout) => {
+        if (error) reject(error); else { try { resolve(JSON.parse(stdout)); } catch (invalid) { reject(invalid); } }
+      });
+    });
+    return { ...read, bytes, expected_rows: exported.expected_rows, verified: read.rows === exported.expected_rows };
+  } catch (error) { return { verified: false, error: String(error.stderr ?? error.message).slice(-1000) }; }
+}
+
 const markAt = (timeline, stage) => {
   const mark = timeline?.marks?.find((item) => item.stage === stage);
   return mark ? timeline.time_origin_ms + mark.at_ms : null;
@@ -587,6 +639,13 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     if (save?.timed_out) add("hang", { step: "save_project", detail: `last message: ${save.last_message}` });
     else if (save && save.message && !/^(Saved|Created)|SQLite project snapshot/.test(save.message)) add("refused_with_message", { step: "save_project", message: save.message, needs_review: true });
     if (report.error && solve) add("refused_with_message", { step: "driver", message: report.error.split("\n")[0], needs_review: true });
+    const omitted = [report.c1?.trace?.save?.result, report.c1?.trace?.restoredSave?.result].find(result => result?.outcome === "not_saved");
+    if (omitted) add("refused_with_message", { step: "save_result", message: omitted.code ?? "The native save kept only the model.", needs_review: true });
+    if (run.c1_probes && report.c1?.completed !== true) add("refused_with_message", { step: "c1_probes", message: "The connected C1 usability probes did not complete.", needs_review: true });
+    if (run.c1_probes && report.c1?.completed && report.c1.csv_file?.verified !== true) {
+      if (report.c1.csv_file?.error) add("refused_with_message", { step: "csv_inspection", message: report.c1.csv_file.error, needs_review: true });
+      else add("misleading_message", { step: "csv", detail: "CSV rows do not match the native query total." });
+    }
     // What the store holds against what the window said.
     const stored = store?.projects?.find((row) => row.project_id === run.project_id);
     const claimedSaved = Boolean(save?.message && /^(Saved|Created)|SQLite project snapshot/.test(save.message)) || Boolean(record?.attempted && record.message && !/^Not recorded/.test(record.message));
@@ -594,7 +653,7 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
     if ((store?.files ?? []).some((file) => /-journal$|-wal$/.test(file.name) && file.bytes > 0)) add("half_written_save", { detail: `left over: ${store.files.filter((file) => /-journal$|-wal$/.test(file.name)).map((file) => `${file.name} (${file.bytes} bytes)`).join(", ")}` });
     if (claimedSaved && solve?.ended === "first_paint" && (!stored || stored.result_type !== "text")) add("misleading_message", { detail: `the window reported a save or a recorded run, but the store holds ${stored ? `a ${stored.result_type} result` : "no project row"} for ${run.project_id}` });
     // Only a session that held the result (painted) can be judged against its size.
-    if (solve?.ended === "first_paint" && stored && stored.result_type === "text" && resultBytes && stored.result_chars < resultBytes / 2) add("half_written_save", { detail: `the stored result has ${stored.result_chars} characters, the solve's result ${resultBytes} bytes` });
+    if (!omitted && solve?.ended === "first_paint" && stored && stored.result_type === "text" && resultBytes && stored.result_chars < resultBytes / 2) add("half_written_save", { detail: `the stored result has ${stored.result_chars} characters, the solve's result ${resultBytes} bytes` });
   }
   if (findings.length === 0) add("ok", {});
   const worst = SEVERITY.find((kind) => findings.some((finding) => finding.class === kind));
@@ -617,15 +676,19 @@ async function runOne(run, ctx) {
   const modelPath = containedPath(root, run.model);
   copyFileSync(modelSource, modelPath, constants.COPYFILE_EXCL);
   const document = JSON.parse(readFileSync(modelPath, "utf8"));
-  run = { ...run, project_id: document.project.id };
+  run = { ...run, project_id: document.project.id, c1_probes: ctx.plan.c1_probes === true };
   record.project_id = run.project_id;
   record.model_bytes = statSync(modelPath).size;
   record.model_sha256 = sha256File(modelPath);
   record.model_jcs_sha256 = `sha256:${createHash("sha256").update(canonical(document), "utf8").digest("hex")}`;
+  if (run.c1_probes && (record.model_sha256 !== run.model_sha256 || !Array.isArray(document.nodes) || document.nodes.length !== run.nodes)) {
+    return { ...record, class: "refused_with_message", findings: [{ class: "refused_with_message", step: "fixture", message: "C1 fixture bytes/node count differ from the selected 500/1000-node binding; no App was launched.", needs_review: true }], kept: root };
+  }
   if (resultFile) record.injected_result = { file: path.basename(resultFile), bytes: statSync(resultFile).size };
   const timeoutMs = Math.min(run.timeout_s * 1000, ctx.remainingMs());
   const plan = {
     run_id: run.id, model_path: modelPath, project_id: run.project_id, record_run: true, save_project: true,
+    c1_probes: ctx.plan.c1_probes === true, model_jcs_sha256: record.model_jcs_sha256,
     timeouts: { ...ctx.plan.timeouts, paint_ms: Math.min(run.paint_ms, timeoutMs) }
   };
   const env = { ...process.env, HOME: home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
@@ -732,6 +795,7 @@ async function runOne(run, ctx) {
   audit({ type: "stage", step: "inspect_store", stage: "started" });
   const store = await inspectStore(home);
   audit({ type: "stage", step: "inspect_store", stage: "completed" });
+  if (run.c1_probes && report?.c1?.fresh?.csv) report.c1.csv_file = await inspectCsv(home, report.c1.fresh.csv);
   const proof = report?.solve?.shown?.proof ?? null;
   const proofField = (name) => proof?.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1] ?? null;
   record.model_binding = {
@@ -830,7 +894,8 @@ async function runPlan(options) {
       "A release build with the native-smoke feature (product code plus the smoke harness and the result injection); background throttling disabled, as the native smoke.",
       "Injected runs skip the solve worker: no solve runs, worker_peak_footprint_bytes is unset, and d_M, d_S and their parsed values are computed in the app process before publication (so the app's peak before job_done includes them; peak_footprint_since counts from job_done).",
       "WebContent is identified as the WebKit WebContent processes started after the launch; another WebKit client starting one during the run would be counted (memory.webcontent_identification).",
-      "One run per app launch, against a throwaway HOME; the host is the one in `host`, not necessarily the 16 GiB base machine."
+      "One run per app launch, against a throwaway HOME; the host is the one in `host`, not necessarily the 16 GiB base machine.",
+      "C1 probe completion, when selected, covers its DOM/native-command/storage/CSV interactions only; it does not establish reader working-peak attribution, memory fit, base-machine usability or acceptance."
     ],
     elapsed_s: (Date.now() - started) / 1000,
     runs: records
