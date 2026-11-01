@@ -99,6 +99,7 @@ describe("a solve refused because its result is too large to display (RT-U4)", (
     await act(async () => { await state().results.handleRun(); });
     await waitFor(() => expect(state().results.solveJob.state).toBe("completed"));
     expect(state().results.result).not.toBeNull();
+    const [firstJob] = transport.nativeHeld();
     refuse();
     await act(async () => { await state().results.handleRun(); });
     const job = state().results.solveJob;
@@ -107,15 +108,18 @@ describe("a solve refused because its result is too large to display (RT-U4)", (
     expect(job.error_message).toBe(MESSAGE);
     // Not a memory-pool refusal.
     expect(job.resource.refusal).toBeNull();
-    // Nothing was taken for the refused job, and no result or run record is held.
-    expect(calls("take_preview_mechanics_job_result")).toHaveLength(1);
+    // Nothing was taken for the refused job (nor, under C1 native custody, for the earlier one,
+    // held natively), and no result or run record is held.
+    expect(calls("take_preview_mechanics_job_result")).toHaveLength(0);
     expect(state().results.result).toBeNull();
     expect(state().results.currentSolvedResult).toBeNull();
     expect(state().results.analysisRun).toBeNull();
     expect(state().results.inputManifest).toBeNull();
     expect(state().results.running).toBe(false);
-    // The earlier delivered result was released when the new run replaced it.
-    await waitFor(() => expect(transport.custody()).toEqual([]));
+    // The earlier result (held natively) was released when the new run replaced it. (The refused
+    // job's reply is emulated here: a native-custody job has no displayable limit, so the host
+    // refuses only a webview-custody result for its size.)
+    await waitFor(() => expect(transport.disposed()).toEqual([firstJob]));
 
     const { model } = state().model;
     const { result, analysisRun, running, solverMode } = state().results;

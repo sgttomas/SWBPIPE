@@ -25,6 +25,7 @@ import type { ModelStateSummary } from "../../services/modelStateService";
 import { savedStatesSentence } from "../project-storage/storedProjectConflict";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { useWorkspaceSession, type WorkspaceSession } from "../workspace/workspaceSession";
+import type { C2FullResult } from "../results/C2ResultGate";
 import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -190,9 +191,14 @@ describe("Record Run in the session (W-12 S2)", () => {
     expect(request.state_id).toBeNull();
     expect(request.new_state).toEqual({ labels: { state_name: "After solve", tags: [], notes: [], assumptions: [] }, parent_state_id: null });
     expect(request.run_labels).toEqual(LABELS);
-    expect(request.run_record).toEqual(slot.analysisRun);
+    // C1 interim: Record Run writes a native result through its C2 full copy and full record (the
+    // bytes today's store path writes); the record is the session's (its checksums are the header's).
+    let full: C2FullResult | null = null;
+    await act(async () => { full = await state().results.loadC2Full(slot.result!); });
+    expect(request.run_record).toEqual(full!.analysisRun);
+    expect(request.run_record.analysis_run.hashes).toStrictEqual(slot.analysisRun!.analysis_run.hashes);
     expect(request.input_manifest_canonical).toBe(slot.inputManifest!.canonical_bytes);
-    expect(JSON.parse(request.result_json)).toEqual(slot.result);
+    expect(JSON.parse(request.result_json)).toEqual(full!.result);
     // The slot, and with it the project envelope, are untouched by the recording.
     expect(state().results.result).toBe(slot.result);
     expect(state().results.analysisRun).toBe(slot.analysisRun);
@@ -272,7 +278,8 @@ describe("Record Run in the session (W-12 S2)", () => {
     // A re-solve delivers a new result object with the producer's same run id.
     const before = state().results.result;
     await solve(state);
-    expect(state().results.result).not.toBe(before);
+    // Identity only: a deep comparison would read the native handles' guarded members.
+    expect(state().results.result !== before).toBe(true);
     expect(state().results.result!.run_id).toBe(runId);
     await waitFor(() => expect(screen.getByTestId("result-page-summary")).toHaveTextContent(/page 2 of/));
   });
