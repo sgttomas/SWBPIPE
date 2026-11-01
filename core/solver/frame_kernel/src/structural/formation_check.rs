@@ -2669,25 +2669,78 @@ fn small(v: f64) -> Wide2 {
 /// Every consumer (ρ, s, s₂, ε_E, certified recovery, reactions, stress
 /// spans) sees this one intended element.
 pub(super) fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Element, WideError> {
-    let (axes, length) = chord_axes(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference)?;
-    let s = &e.section;
-    let (em, gm) = (lift(s.elastic_modulus)?, lift(s.shear_modulus)?);
+    frame_matrix_with(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference, &e.section)
+}
+
+/// The section leaves `frame_matrix_with` reads, each produced where the
+/// formation first uses it. For a `FrameSection` that is the exact lift of
+/// its binary64 field, so `frame_matrix` forms what it formed before the
+/// leaves were separated; the element re-formation seam
+/// (`element_reformation`) supplies wide values instead.
+pub(super) trait FrameLeaves {
+    fn elastic_modulus(&self) -> Result<Wide2, WideError>;
+    fn shear_modulus(&self) -> Result<Wide2, WideError>;
+    fn area(&self) -> Result<Wide2, WideError>;
+    fn torsion_constant(&self) -> Result<Wide2, WideError>;
+    fn second_moment_y(&self) -> Result<Wide2, WideError>;
+    fn second_moment_z(&self) -> Result<Wide2, WideError>;
+    /// A_s of a Timoshenko leaf; `None` for Euler–Bernoulli.
+    fn shear_area(&self) -> Option<Result<Wide2, WideError>>;
+}
+impl FrameLeaves for crate::FrameSection {
+    fn elastic_modulus(&self) -> Result<Wide2, WideError> {
+        lift(self.elastic_modulus)
+    }
+    fn shear_modulus(&self) -> Result<Wide2, WideError> {
+        lift(self.shear_modulus)
+    }
+    fn area(&self) -> Result<Wide2, WideError> {
+        lift(self.area)
+    }
+    fn torsion_constant(&self) -> Result<Wide2, WideError> {
+        lift(self.torsion_constant)
+    }
+    fn second_moment_y(&self) -> Result<Wide2, WideError> {
+        lift(self.second_moment_y)
+    }
+    fn second_moment_z(&self) -> Result<Wide2, WideError> {
+        lift(self.second_moment_z)
+    }
+    fn shear_area(&self) -> Option<Result<Wide2, WideError>> {
+        match self.beam_theory {
+            BeamTheory::EulerBernoulli => None,
+            BeamTheory::Timoshenko { shear_area } => Some(lift(shear_area)),
+        }
+    }
+}
+
+/// `frame_matrix` from the chord (x_i, x_j), the y reference and the
+/// section leaves.
+pub(super) fn frame_matrix_with<S: FrameLeaves>(
+    a: &mut WideArith,
+    xi: [f64; 3],
+    xj: [f64; 3],
+    y_reference: [f64; 3],
+    s: &S,
+) -> Result<Element, WideError> {
+    let (axes, length) = chord_axes(a, xi, xj, y_reference)?;
+    let (em, gm) = (s.elastic_modulus()?, s.shear_modulus()?);
     let l2 = a.mul(&length, &length)?;
     let l3 = a.mul(&l2, &length)?;
-    let ea = a.mul(&em, &lift(s.area)?)?;
+    let ea = a.mul(&em, &s.area()?)?;
     let axial = a.div(&ea, &length)?;
-    let gj = a.mul(&gm, &lift(s.torsion_constant)?)?;
+    let gj = a.mul(&gm, &s.torsion_constant()?)?;
     let torsion = a.div(&gj, &length)?;
     // (G·A_s)·L², the Timoshenko denominator of φ; None for Euler–Bernoulli.
-    let shear = match s.beam_theory {
-        BeamTheory::EulerBernoulli => None,
-        BeamTheory::Timoshenko { shear_area } => {
-            let gas = a.mul(&gm, &lift(shear_area)?)?;
+    let shear = match s.shear_area() {
+        None => None,
+        Some(shear_area) => {
+            let gas = a.mul(&gm, &shear_area?)?;
             Some(a.mul(&gas, &l2)?)
         }
     };
-    let mut coefficients = |i: f64| -> Result<[Wide2; 4], WideError> {
-        let ei = a.mul(&em, &lift(i)?)?;
+    let mut coefficients = |i: Result<Wide2, WideError>| -> Result<[Wide2; 4], WideError> {
+        let ei = a.mul(&em, &i?)?;
         let t12 = a.mul(&small(12.0), &ei)?;
         let t6 = a.mul(&small(6.0), &ei)?;
         let Some(gasl2) = shear else {
@@ -2716,8 +2769,8 @@ pub(super) fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Elemen
             a.div(&t2, &d1)?,
         ])
     };
-    let [z12, z6, z4, z2] = coefficients(s.second_moment_z)?;
-    let [y12, y6, y4, y2] = coefficients(s.second_moment_y)?;
+    let [z12, z6, z4, z2] = coefficients(s.second_moment_z())?;
+    let [y12, y6, y4, y2] = coefficients(s.second_moment_y())?;
     let mut k = [[Wide2::ZERO; ELEMENT_DOF]; ELEMENT_DOF];
     let pair = |k: &mut Element, i: usize, j: usize, v: Wide2| {
         k[i][i] = v;
@@ -3074,6 +3127,54 @@ fn curved_radius_angle(
 /// A realized curved bend re-formed as the objective element of T4-U1
 /// (T4-I6 U1_REFERENCE B1) from (d = x_j − x_i, R, y_reference), at p.
 pub(super) fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<Element, WideError> {
+    curved_matrix_with(a, e, e)
+}
+
+/// The section leaves and flexibility factors `curved_matrix_with` reads,
+/// each produced where the formation first uses it. For a `CurvedFormation`
+/// that is the exact lift of its binary64 field, so `curved_matrix` forms
+/// what it formed before the leaves were separated; the element
+/// re-formation seam (`element_reformation`) supplies wide values instead.
+pub(super) trait CurvedLeaves {
+    fn elastic_modulus(&self) -> Result<Wide2, WideError>;
+    fn shear_modulus(&self) -> Result<Wide2, WideError>;
+    fn area(&self) -> Result<Wide2, WideError>;
+    fn second_moment(&self) -> Result<Wide2, WideError>;
+    fn torsion_constant(&self) -> Result<Wide2, WideError>;
+    fn in_plane_flexibility_factor(&self) -> Result<Wide2, WideError>;
+    fn out_of_plane_flexibility_factor(&self) -> Result<Wide2, WideError>;
+}
+impl CurvedLeaves for CurvedFormation {
+    fn elastic_modulus(&self) -> Result<Wide2, WideError> {
+        lift(self.elastic_modulus)
+    }
+    fn shear_modulus(&self) -> Result<Wide2, WideError> {
+        lift(self.shear_modulus)
+    }
+    fn area(&self) -> Result<Wide2, WideError> {
+        lift(self.area)
+    }
+    fn second_moment(&self) -> Result<Wide2, WideError> {
+        lift(self.second_moment)
+    }
+    fn torsion_constant(&self) -> Result<Wide2, WideError> {
+        lift(self.torsion_constant)
+    }
+    fn in_plane_flexibility_factor(&self) -> Result<Wide2, WideError> {
+        lift(self.in_plane_flexibility_factor)
+    }
+    fn out_of_plane_flexibility_factor(&self) -> Result<Wide2, WideError> {
+        lift(self.out_of_plane_flexibility_factor)
+    }
+}
+
+/// `curved_matrix` with the geometry (nodes, R, y reference) read from `e`
+/// and the section leaves and flexibility factors from `leaves`.
+pub(super) fn curved_matrix_with<S: CurvedLeaves>(
+    a: &mut WideArith,
+    e: &CurvedFormation,
+    leaves: &S,
+) -> Result<Element, WideError> {
     let IntendedCurvedGeometry {
         d,
         radius,
@@ -3099,12 +3200,12 @@ pub(super) fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<El
         [one_minus_cos, half_ss, a.sub(&half_phi, &quarter_sin2)?],
     ];
     let cases = unit_load_actions(a, &radius, &sin, &cos)?;
-    let em = lift(e.elastic_modulus)?;
-    let bending = a.mul(&em, &lift(e.second_moment)?)?;
-    let torsion = a.mul(&lift(e.shear_modulus)?, &lift(e.torsion_constant)?)?;
-    let axial = a.mul(&em, &lift(e.area)?)?;
-    let fin = lift(e.in_plane_flexibility_factor)?;
-    let fout = lift(e.out_of_plane_flexibility_factor)?;
+    let em = leaves.elastic_modulus()?;
+    let bending = a.mul(&em, &leaves.second_moment()?)?;
+    let torsion = a.mul(&leaves.shear_modulus()?, &leaves.torsion_constant()?)?;
+    let axial = a.mul(&em, &leaves.area()?)?;
+    let fin = leaves.in_plane_flexibility_factor()?;
+    let fout = leaves.out_of_plane_flexibility_factor()?;
     let mut flexibility = [[Wide2::ZERO; 6]; 6];
     for row in 0..6 {
         for col in row..6 {
