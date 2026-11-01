@@ -14,6 +14,7 @@ SCHEMA = 'desktop-wasm-v1'
 ENGINES = {
     'wasm-engine': 'open_pipe_stress_operation_applier',
     'self-weight-engine': 'open_pipe_stress_self_weight_wasm',
+    'mbf-engine': 'open_pipe_stress_caepipe_mbf_wasm',
 }
 RECEIPT = 'apps/desktop/public/wasm-cache.json'
 

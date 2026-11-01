@@ -43,5 +43,10 @@ apps/desktop/public/self-weight-engine/
 apps/desktop/public/self-weight-engine.tmp-*/
 apps/desktop/public/self-weight-engine.old-*/
 
+# Generated MBF writer and importer artifact (DEL-17-04).
+apps/desktop/public/mbf-engine/
+apps/desktop/public/mbf-engine.tmp-*/
+apps/desktop/public/mbf-engine.old-*/
+
 # Exact hosted engine-output cache receipt.
 apps/desktop/public/wasm-cache.json

@@ -1,0 +1,46 @@
+{
+  "cases": {
+    "degc-default": {
+      "mbf_sha256": "c85251bb8e3a6af09279da374f940e858bc3d4d461c7c5687c4d34a3f0331353",
+      "model_sha256": "054b0060ed102490554c4aefde7bc463c3c291483665dddfa60512cab2b5c6ed",
+      "settings": {
+        "maxLayoutRows": null,
+        "referenceTemperature": {
+          "unit": "degC",
+          "value": 20
+        },
+        "title": "Invented MBF export"
+      },
+      "sidecar_sha256": "df662f7a4bd38f9bb9440914b8634cde8950f2fea4bbf798f6ff308803c55132"
+    },
+    "degc-fractional": {
+      "mbf_sha256": "19950cc3094cde2cb473613342269142a825c947404bd7b4aee8384fdbfa8df3",
+      "model_sha256": "054b0060ed102490554c4aefde7bc463c3c291483665dddfa60512cab2b5c6ed",
+      "settings": {
+        "maxLayoutRows": null,
+        "referenceTemperature": {
+          "unit": "degC",
+          "value": 21.5
+        },
+        "title": "Invented MBF export"
+      },
+      "sidecar_sha256": "4c7b808219933c6d0232c810393b72b68878bccaf5675e02059ae0d4608115bd"
+    },
+    "degf-project": {
+      "mbf_sha256": "c85251bb8e3a6af09279da374f940e858bc3d4d461c7c5687c4d34a3f0331353",
+      "model_sha256": "8c17b5fb2c0910bae3e6b24e79f18f7264fc851deb498dba7258f1266930e8a5",
+      "settings": {
+        "maxLayoutRows": null,
+        "referenceTemperature": {
+          "unit": "degF",
+          "value": 68
+        },
+        "title": "Invented MBF export"
+      },
+      "sidecar_sha256": "df662f7a4bd38f9bb9440914b8634cde8950f2fea4bbf798f6ff308803c55132"
+    }
+  },
+  "document_kind": "swbpipe.test.mbf_export_digests",
+  "generated_by": "core/handoff/caepipe_mbf_wasm/tests/export.rs (MBF_EXPORT_DIGESTS_REGENERATE=1)",
+  "model": "fixtures/caepipe_mbf/invented/desktop_export/export_model.json, as its RFC 8785 text; degf-project with project.units.temperature degF"
+}
