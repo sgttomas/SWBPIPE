@@ -8,6 +8,9 @@ Producer loss is detected by the consumer's five-second monotonic health lease.
 """
 from __future__ import annotations
 
+# Directory scans inspect private runtime/output paths, not repository inputs.
+CI_READS = ()
+
 import argparse
 import json
 import math

@@ -151,7 +151,13 @@
         "fixtures/model_operations/agent_w9a_journey.json",
         "fixtures/model_operations/agent_w9a_capture_outcomes.json",
         "validation/references/w9_benchmarks/references.json",
-        "software-workflow.json"
+        "software-workflow.json",
+        "execution/PKG-16/DEL-16-06/Work/agent-witness-pin.json",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "apps/desktop/src-tauri/src/embedded_agent/live_runtime.rs",
+        "apps/desktop/src-tauri/src/embedded_agent/macos.rs",
+        "execution/PKG-16/DEL-16-06/Work/agent-capability-catalog.json",
+        "tools/agent_host_witness.py"
       ],
       "checks": [
         "agent-journey-offline"
