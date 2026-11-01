@@ -2097,7 +2097,11 @@ and 8,807,922,439 to 8,808,094,993 B dense; illustrative M is not qualification.
 **Native proposal evaluation.** The combined source's registered-identity
 `profile_` run (eight tests) supplies native atoms while the committed block
 still reproduces S1's laws. The first native-evaluation file covers the merged points only. Completing
-all 80 budget evaluations (five trees × two modes × eight phases) confirms
+all 80 budget evaluations (five trees × two modes × eight phases), using
+S1 §8.36's accepted same-build supplement for the unchanged combination
+types (CombinationView 120 B, TermView 16 B, Finding 112 B,
+(String,&str,Operand) 56 B, (&str,String) 40 B) and §8.31's native
+Node(String,BTreeMap) 648 B, confirms
 that every separate point stays at or below the merged phase, using the
 merged W/X reserve conservatively for all points. Evaluating the proposed
 merged tree on those atoms gives
