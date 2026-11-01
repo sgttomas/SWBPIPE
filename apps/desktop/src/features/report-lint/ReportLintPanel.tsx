@@ -1,3 +1,4 @@
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { Download, FileWarning } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -10,8 +11,8 @@ export function ReportLintPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildReportLintPacket({ model, result, analysisRun });
 
@@ -93,8 +94,8 @@ function buildReportLintPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const targets = lintTargets({ model, result, analysisRun });
   const findings = lintFindings(targets);
@@ -512,8 +513,8 @@ function lintTargets({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }): LintTargetDraft[] {
   const targets = [
     target(
@@ -847,7 +848,7 @@ function lintTargets({
         `openpipestress-preview-report-${safeFileToken(result.run_id)}.json`,
         "public_report_example",
         "public_metadata",
-        `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${result.results.length} result refs; private rule payloads redacted`
+        `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${resultRowCount(result)} result refs; private rule payloads redacted`
       )
     );
   }

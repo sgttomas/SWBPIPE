@@ -1,3 +1,4 @@
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
@@ -24,11 +25,11 @@ export function SolvePanel({
   onRun,
   onSolverModeChange
 }: {
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   /** The current solve's input manifest: its recorded rule-pack references and their diagnostics. */
   inputManifest?: CurrentSessionInputManifest | null;
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   /** DEL-07-05 numerical health: the diagnostics tile's header badge, for the held result. */
   numericalHealth?: NumericalHealthView | null;
   running: boolean;
@@ -165,7 +166,7 @@ function readinessSummary({
   solveJob
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   diagnostics: Diagnostic[];
   solveJob: SolveJobAuditState;
 }): ReadinessItem[] {
@@ -180,7 +181,7 @@ function readinessSummary({
       id: "mechanics",
       label: "Mechanics readiness",
       value: result
-        ? `${result.results.length} computed result rows; ${solverDisplayWithToken(mechanicsStatus)}`
+        ? `${resultRowCount(result)} computed result rows; ${solverDisplayWithToken(mechanicsStatus)}`
         : solveJob.state === "failed" ? `Solve job state: ${solveJob.state}; ${solverDisplayWithToken(solveJob.state)}`
         : isResultTooLargeSolveJob(solveJob) ? "Solve job state: refused; the result is too large for the desktop to display, so no result was kept"
         : solveJob.state === "refused" ? "Solve job state: refused by the native memory pool; no result was published"
@@ -262,15 +263,15 @@ function buildSolveJobPacket({
   solverMode
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   solveJob: SolveJobAuditState;
   running: boolean;
   solverMode: PreviewSolverMode;
 }) {
   const run = analysisRun?.analysis_run;
-  const resultRowCount = result?.results.length ?? 0;
-  const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
+  const rowCount = result ? resultRowCount(result) : 0;
+  const resultHashCount = runResultHashCount(analysisRun);
   const unitPolicyEvidence = buildSolveJobUnitPolicyEvidence({ model, result, analysisRun });
   return {
     schema_version: "0.1.0",
@@ -285,7 +286,7 @@ function buildSolveJobPacket({
       job_state: solveJob.state,
       solver_mode: solverMode,
       event_count: solveJob.events.length,
-      result_row_count: resultRowCount,
+      result_row_count: rowCount,
       diagnostic_count: diagnosticsFor(model, result).length,
       cancellation_requested: solveJob.cancellation_requested,
       cancellation_status: solveJob.cancellation_status,
@@ -360,8 +361,8 @@ function buildSolveJobUnitPolicyEvidence({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   return {
     evidence_id: "unit-policy-evidence:solve-job-audit",
@@ -369,8 +370,8 @@ function buildSolveJobUnitPolicyEvidence({
     storage_convention: "entered_units_preserved",
     solve_job_unit_policy: "solve_job_audit_records_model_and_result_units_without_conversion",
     model_units: sortedStringRecord(model.project.units),
-    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)),
-    result_row_count: result?.results.length ?? 0,
+    result_units: uniqueSorted((result ? resultUnits(result) : [])),
+    result_row_count: (result ? resultRowCount(result) : 0),
     analysis_run_ref: analysisRun?.analysis_run
       ? reference("AnalysisRun", analysisRun.analysis_run.run_id)
       : reference("AnalysisRun", "not generated"),
@@ -386,7 +387,7 @@ function buildSolveJobUnitPolicyEvidence({
   };
 }
 
-function diagnosticsFor(model: PreviewModel, result: MechanicsResult | null): Diagnostic[] {
+function diagnosticsFor(model: PreviewModel, result: SessionResult | null): Diagnostic[] {
   return [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
 }
 

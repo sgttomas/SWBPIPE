@@ -38,6 +38,7 @@
  * producer-origin claim (D-U7-6). No product caller delivers an eligible successor
  * before B8, so the admitted panels stay dormant until then (RR decision 3).
  */
+import type { SessionResult } from "../../services/nativeResult";
 import type { SourceContract } from "./numericalResultQuality";
 import { sourceContract } from "./resultReader";
 import { numericalResultStanding } from "./resultStanding";
@@ -137,13 +138,13 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
 export function routeOutputPolicy(route: string): RouteOutputPolicy | null {
   return Object.hasOwn(OUTPUT_POLICY, route) ? OUTPUT_POLICY[route as SourceContract] : null;
 }
-function sourceRoute(source: MechanicsResult | null | undefined): string | null {
+function sourceRoute(source: SessionResult | null | undefined): string | null {
   if (!source) return null;
   try { return sourceContract(source); } catch { return null; }
 }
 /** The route's shared refusal, whatever the surface: the reason a gated route
  * carries, or null. This is `loadReferenceOutputRefusal`'s meaning, unchanged. */
-export function routeOutputRefusal(source: MechanicsResult | null | undefined): string | null {
+export function routeOutputRefusal(source: SessionResult | null | undefined): string | null {
   const route = sourceRoute(source);
   if (route === null) return null;
   const policy = routeOutputPolicy(route);
@@ -163,7 +164,7 @@ export function routeSurfaceDecision(route: string, surface: string): { decision
 /** Route level only, for pure projections and validators: the surface's refusal of
  * this source's route, or null when the route is ungated or the surface admits it.
  * Eligibility is not checked here; `surfaceOutputRefusal` adds it. */
-export function surfaceRouteRefusal(source: MechanicsResult | null | undefined, surface: OutputSurface): string | null {
+export function surfaceRouteRefusal(source: SessionResult | null | undefined, surface: OutputSurface): string | null {
   const route = sourceRoute(source);
   if (route === null) return null;
   const decided = routeSurfaceDecision(route, surface);
@@ -172,7 +173,7 @@ export function surfaceRouteRefusal(source: MechanicsResult | null | undefined, 
 /** Current level, for the panels and the Current builders: the route refusal, plus,
  * for a gated route the surface admits, numerically eligible standing with the live
  * native capture (`numericalResultStanding(source, model).eligible`). */
-export function surfaceOutputRefusal(source: MechanicsResult | null | undefined, model: PreviewModel | null | undefined, surface: OutputSurface): string | null {
+export function surfaceOutputRefusal(source: SessionResult | null | undefined, model: PreviewModel | null | undefined, surface: OutputSurface): string | null {
   const route = sourceRoute(source);
   if (route === null) return null;
   const decided = routeSurfaceDecision(route, surface);
@@ -183,12 +184,12 @@ export function surfaceOutputRefusal(source: MechanicsResult | null | undefined,
   return standing.eligible ? null : `${standing.findings[0] ?? "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`;
 }
 /** Throws `surfaceRouteRefusal`. */
-export function refuseSurfaceRoute(source: MechanicsResult | null | undefined, surface: OutputSurface): void {
+export function refuseSurfaceRoute(source: SessionResult | null | undefined, surface: OutputSurface): void {
   const refusal = surfaceRouteRefusal(source, surface);
   if (refusal) throw new Error(refusal);
 }
 /** Throws `surfaceOutputRefusal`. */
-export function refuseSurfaceOutput(source: MechanicsResult | null | undefined, model: PreviewModel | null | undefined, surface: OutputSurface): void {
+export function refuseSurfaceOutput(source: SessionResult | null | undefined, model: PreviewModel | null | undefined, surface: OutputSurface): void {
   const refusal = surfaceOutputRefusal(source, model, surface);
   if (refusal) throw new Error(refusal);
 }

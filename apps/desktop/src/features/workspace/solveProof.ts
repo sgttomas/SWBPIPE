@@ -2,6 +2,7 @@
 // while the model, the model hash, the result and the solve job all match the
 // recorded proof, and null otherwise. No React.
 
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import type {
   MechanicsResult,
   ModelHashEvidence,
@@ -25,7 +26,7 @@ export type SolveProofEvidence = {
 export function solveProofStatus(
   model: PreviewModel,
   modelHash: ModelHashEvidence | null,
-  result: MechanicsResult | null,
+  result: SessionResult | null,
   solveJob: SolveJobAuditState,
   proof: SolveProofEvidence | null
 ): string | null {
@@ -42,7 +43,7 @@ export function solveProofStatus(
     modelHash.value !== proof.model_sha256 ||
     result.run_id !== proof.result_run_id ||
     result.model_ref !== proof.result_model_ref ||
-    result.results.length !== proof.result_row_count ||
+    resultRowCount(result) !== proof.result_row_count ||
     result.model_ref !== model.project.id
   ) {
     return null;
@@ -52,7 +53,7 @@ export function solveProofStatus(
     `project=${model.project.id}`,
     `result_model=${result.model_ref}`,
     "identity=match",
-    `rows=${result.results.length}`,
+    `rows=${resultRowCount(result)}`,
     `generation=${proof.run_generation}`,
     `job=${proof.job_id}`,
     `model_sha256=${proof.model_sha256}`,

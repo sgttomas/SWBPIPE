@@ -1,9 +1,10 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import type { ReactNode } from "react";
 import { OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, routeSurfaceDecision } from "./outputPolicy";
 import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
 
-function gateRefusal(result: MechanicsResult | null | undefined, surface: string): string | null {
+function gateRefusal(result: SessionResult | null | undefined, surface: string): string | null {
   if (!result) return null;
   let route: string;
   try { route = sourceContract(result); } catch { return null; }
@@ -19,7 +20,7 @@ function gateRefusal(result: MechanicsResult | null | undefined, surface: string
  * prefix the policy does not name refuses, and so does any other decision, including
  * `admitted_when_eligible`: this gate reads no standing, so it opens only where the policy
  * adds no refusal at all. Display stays. */
-export function LoadReferenceOutputGate({ result, testIdPrefix, children }: { result: MechanicsResult | null | undefined; testIdPrefix: string; children: ReactNode }) {
+export function LoadReferenceOutputGate({ result, testIdPrefix, children }: { result: SessionResult | null | undefined; testIdPrefix: string; children: ReactNode }) {
   const refusal = gateRefusal(result, testIdPrefix);
   if (refusal) return <p className="muted" role="status" data-testid={`${testIdPrefix}-load-reference-output-unavailable`}>{refusal}</p>;
   return <>{children}</>;

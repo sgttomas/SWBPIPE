@@ -10,6 +10,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { describeFullResultRefused, FullResultRefused, isNativeAnalysisRun, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";
+import { useOptionalSessionResults } from "../workspace/WorkspaceSessionContext";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../../types";
 
 export type C2FullResult = Readonly<{ result: MechanicsResult; analysisRun: AnalysisRunEnvelope | null }>;
@@ -27,7 +28,7 @@ export function C2ResultGate({
   result,
   analysisRun,
   feature,
-  load,
+  load: givenLoad,
   explicit = false,
   children
 }: {
@@ -35,17 +36,24 @@ export function C2ResultGate({
   analysisRun: SessionAnalysisRun | null;
   /** The feature's name in the refusal ("the report", "comparisons", …). */
   feature: string;
-  load: C2FullResultLoader;
+  /** The loader; the session's when omitted. */
+  load?: C2FullResultLoader;
   /** Load only when the person asks (panels shown at first paint). */
   explicit?: boolean;
   children: (full: { result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }) => ReactNode;
 }) {
+  const sessionResults = useOptionalSessionResults();
+  const load = givenLoad ?? sessionResults?.loadC2Full ?? null;
   const native = isNativeResult(result);
   const [state, setState] = useState<GateState>({ status: "idle" });
   const [requested, setRequested] = useState(false);
   const current = state.status === "ready" && state.of === result ? state : null;
   useEffect(() => {
     if (!native || !result || (explicit && !requested)) return;
+    if (!load) {
+      setState({ status: "failed", text: `${feature} has no route to the full result here.` });
+      return;
+    }
     let live = true;
     setState({ status: "loading" });
     load(result).then(

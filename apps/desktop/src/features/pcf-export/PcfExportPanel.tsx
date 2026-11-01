@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileText } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
@@ -80,8 +81,8 @@ export function PcfExportPanel({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const basePacket = buildPcfExportPacket({ model, result, analysisRun });
   const packageHash = usePackageHash(
@@ -202,8 +203,8 @@ export function buildPcfExportPacket({
   analysisRun
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
 }) {
   const run = analysisRun?.analysis_run;
   const sourceModelRef = reference("Model", model.project.id);
@@ -681,7 +682,7 @@ function pcfLossReport({
   analysisRunRef
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   analysisRunRef: ObjectRef;
 }) {
   const targetArtifactRef = reference("PcfExportMember", `pcf-export:${safeFileToken(model.project.id)}:model_pcf`);

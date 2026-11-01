@@ -1,3 +1,4 @@
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, GitCompare } from "lucide-react";
 import type {
   AgentProposal,
@@ -29,7 +30,7 @@ export function DiffPreviewPanel({
   selectedReviewTarget
 }: {
   model: PreviewModel;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;
@@ -130,7 +131,7 @@ export function buildDiffPreviewPacket({
   selectedReviewTarget
 }: {
   model: PreviewModel;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: SessionAnalysisRun | null;
   editorIntents: EditorOperationIntent[];
   proposal: AgentProposal | null;
   selectedReviewTarget: SelectedReviewTarget | null;

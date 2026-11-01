@@ -4284,7 +4284,8 @@ export function useWorkspaceSession() {
       handleProposal,
       handleSelectResult,
       handleSelectDiagnostic,
-      handleSaveReportPackage
+      handleSaveReportPackage,
+      loadC2Full
     },
     operations: {
       editorIntents,

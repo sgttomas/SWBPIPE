@@ -1,3 +1,4 @@
+import { resultUnits, type SessionResult } from "../services/nativeResult";
 import type { MechanicsResult, ObjectRef, PreviewModel } from "../types";
 
 export type ExportUnitSystemDisclosure = {
@@ -35,7 +36,7 @@ export function buildExportUnitSystemDisclosure({
   sourceLocation
 }: {
   model: PreviewModel;
-  result?: MechanicsResult | null;
+  result?: SessionResult | null;
   targetExportUnits?: Record<string, string>;
   conversionPolicy: string;
   conversionPerformed: boolean;
@@ -47,7 +48,7 @@ export function buildExportUnitSystemDisclosure({
     source_model_ref: reference("Model", model.project.id),
     storage_convention: "entered_units_preserved",
     model_units: sortedStringRecord(model.project.units),
-    result_units: Array.from(new Set((result?.results ?? []).map((item) => item.unit).filter(Boolean))).sort(),
+    result_units: Array.from(new Set((result ? resultUnits(result) : []).filter(Boolean))).sort(),
     target_export_units: sortedStringRecord(targetExportUnits),
     conversion_policy: conversionPolicy,
     conversion_performed: conversionPerformed,

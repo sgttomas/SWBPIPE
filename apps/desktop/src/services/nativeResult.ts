@@ -469,3 +469,11 @@ export function resultRowCount(result: SessionResult): number {
 export function resultUnits(result: SessionResult): string[] {
   return isNativeResult(result) ? result[NATIVE].summary.header.units.map((unit) => unit as string) : [...new Set(result.results.map((row) => row.unit))];
 }
+/** The record's result value checksums: a native record's ResultRef count (the v0.3 record writes
+ * exactly one `result_row` checksum per ResultRef, `analysis_run_v03_build::write_result_ref`),
+ * else the full record's hash refs. */
+export function runResultHashCount(run: SessionAnalysisRun | null | undefined): number {
+  if (!run) return 0;
+  if (isNativeAnalysisRun(run)) return run[NATIVE_RUN].result_ref_count;
+  return run.analysis_run.result_refs.reduce((count, item) => count + item.hash_refs.length, 0);
+}
