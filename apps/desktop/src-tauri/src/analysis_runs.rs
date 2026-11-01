@@ -1937,6 +1937,31 @@ pub(crate) fn read_run_in_store_within(
     memory: &dyn ReadMemory,
     limit: u64,
 ) -> Result<Metered<AnalysisRunRead>, String> {
+    read_run_in_store_core(path, project_id, recording_id, memory, limit, None)
+}
+
+/// C1 slice 6's hook into a recorded run's read for native custody
+/// (`stored_custody`): told the stored result's and record's lengths after
+/// they are measured and before anything of the run is loaded (it admits
+/// the held bytes' leases there, or refuses), and handed the stored record's
+/// exact text, loaded in the same read transaction after the record was
+/// verified.
+pub(crate) trait NativeRunLoad {
+    fn admit(&mut self, result_bytes: u64, record_bytes: u64) -> Result<(), String>;
+    fn record_text(&mut self, text: String);
+}
+
+/// [`read_run_in_store_within`], with C1 slice 6's native load when `native`
+/// is given (its `limit` is then the caller's: native custody applies no
+/// webview limit).
+pub(crate) fn read_run_in_store_core(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    limit: u64,
+    mut native: Option<&mut dyn NativeRunLoad>,
+) -> Result<Metered<AnalysisRunRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
@@ -1953,6 +1978,9 @@ pub(crate) fn read_run_in_store_within(
     let length = |value: i64| u64::try_from(value).unwrap_or(0);
     let (result_length, manifest_length, record_length) = (length(lengths.0), length(lengths.1), length(lengths.2));
     refuse_undisplayable_run(recording_id, result_length, record_length, limit)?;
+    if let Some(native) = native.as_deref_mut() {
+        native.admit(result_length, record_length)?;
+    }
     let what = format!("recorded run `{recording_id}`", recording_id = stored_read::shown(&recording_id));
     // Loaded here: the result and the manifest (the summaries reserve their
     // own; the canonical texts are reserved when they are built).
@@ -1966,6 +1994,15 @@ pub(crate) fn read_run_in_store_within(
     )?;
     let mut read = Metered::new(()).holding(load);
     let found = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(not_found)?;
+    if let Some(native) = native.as_deref_mut() {
+        // The verified record's exact stored text, for native custody: SQLite's
+        // copies are reserved here; the text itself is under the hook's lease.
+        let _sqlite_copies = memory.reserve(&format!("{what}'s stored record"), stored_read::exact_text_bytes(record_length).saturating_mul(2))?;
+        let text: String = transaction
+            .query_row("SELECT run_record_json FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2", params![project_id, recording_id], |row| row.get(0))
+            .map_err(|error| stored_read::column_fetch_error(error, |detail| integrity_of(recording_id, detail)))?;
+        native.record_text(text);
+    }
     let (run, record) = found.get();
     let (result_json, manifest_text): (String, String) = transaction
         .query_row(

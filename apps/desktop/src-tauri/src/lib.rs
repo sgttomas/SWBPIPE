@@ -33,6 +33,7 @@ mod native_persistence;
 mod result_js_text;
 #[allow(unsafe_code)]
 mod stored_read;
+mod stored_custody;
 #[allow(unsafe_code)]
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
@@ -387,7 +388,7 @@ struct StorageCapability {
 }
 
 #[derive(Debug, Serialize)]
-struct LocalProjectSummary {
+pub(crate) struct LocalProjectSummary {
     project_id: String,
     project_name: String,
     database_path: String,
@@ -2418,6 +2419,55 @@ async fn save_preview_mechanics_job_local_project(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     native_persistence::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6: open a stored project with its saved run reopened into
+/// native custody (`stored_custody`). Raw args body `{projectId?}`; the reply
+/// (a JSON body) is `open_local_project`'s envelope without the result and
+/// the record, plus the run: a restored handle with its historical findings
+/// and record header, or a named refusal with the model open for editing.
+#[tauri::command]
+async fn open_local_project_in_native_custody(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_custody::open_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6: a recorded run reopened into native custody after the store's
+/// verified read (`stored_custody`). Raw args body `{projectId, recordingId}`;
+/// the reply (a JSON body) is the run and state summaries, the stored
+/// manifest's canonical text and the restored handle with its findings.
+#[tauri::command]
+async fn read_analysis_run_in_native_custody(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_custody::read_run(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 interim for a restored result's C2 consumers (slice 6): its stored
+/// record's exact bytes, copied whole only at or under 64 MiB
+/// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`), above it refused by name
+/// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy runs in a blocking task under a
+/// lease of its size; the response is raw bytes (an ArrayBuffer).
+#[tauri::command]
+async fn read_restored_result_record_all(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<tauri::ipc::Response, SolveJobError> {
+    let registry = (*state).clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        registry.copy_restored_record_within(&job_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES).map(|(copy, lease)| {
+            let response = tauri::ipc::Response::new(copy);
+            drop(lease);
+            response
+        })
+    })
+    .await
+    .unwrap_or_else(|_| Err(SolveJobError::InvalidRequest { message: "RESULT-DETAIL-FULL-COPY-FAILED: the copy ended without an outcome".into() }))
 }
 
 /// C1 interim (slice 4): a native-custody result's exact bytes, copied
@@ -5850,6 +5900,9 @@ macro_rules! app_invoke_handler {
             save_preview_mechanics_job_local_project,
             read_preview_mechanics_job_rows_all,
             release_preview_mechanics_job_full_copy,
+            open_local_project_in_native_custody,
+            read_analysis_run_in_native_custody,
+            read_restored_result_record_all,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,

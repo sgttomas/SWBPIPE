@@ -1535,6 +1535,16 @@ pub(crate) fn admit_for<E>(
     let extra = extra(&mut args)?;
     drop(args);
     let held = registry.held_result(&job_id)?;
+    // C1 slice 6: a restored stored result has its stored record; no fresh
+    // transient record is previewed over it under the session's manifest.
+    if command == COMMAND {
+        if let Some(crate::solve_jobs::ResultOrigin::Restored(_)) = registry.result_origin(&job_id) {
+            return Err(CommandError::Command(format!(
+                "{PREVIEW_READ_FAILED}: `{}` holds a restored stored result; its stored analysis-run record is its record, and no fresh record is previewed over it.",
+                crate::stored_read::shown(&job_id)
+            )));
+        }
+    }
     let manifest = match command_ingress::text_parse_bytes(&evidence.canonical_bytes, ArgsDecoding::Moved) {
         Ok(bytes) => {
             // Capped as the args lease was admitted (`acquire_interactive_capped`).
@@ -1645,3 +1655,8 @@ pub(crate) fn run_record_bytes_within(registry: SolveJobRegistry, raw: Vec<u8>, 
 #[cfg(test)]
 #[path = "analysis_run_v03_build_tests.rs"]
 pub(crate) mod tests;
+
+/// C1 slice 6: a saved or recorded run's historical findings and the record
+/// validator, over the stored texts held natively (`stored_custody`).
+#[path = "analysis_run_v03_validate.rs"]
+pub(crate) mod validate;

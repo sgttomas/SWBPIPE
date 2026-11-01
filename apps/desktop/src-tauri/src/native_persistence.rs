@@ -315,6 +315,14 @@ fn hex(bytes: &[u8]) -> String {
 /// custody digests (for [`bound_intake`]).
 fn bound_custody(registry: &SolveJobRegistry, prepared: &build::Prepared, manifest: &Value) -> Result<CustodyDigests, String> {
     let job = stored_read::shown(&prepared.job_id).into_owned();
+    // A restored stored result (C1 slice 6) is never a native invocation:
+    // whatever fields a request names, it cannot be recorded or saved as one.
+    if let Some(crate::solve_jobs::ResultOrigin::Restored(source)) = registry.result_origin(&prepared.job_id) {
+        return Err(format!(
+            "{CUSTODY}: `{job}` holds a restored {} (stored bytes reopened for inspection), not a native solve; only a fresh solve can be recorded or saved from its handle; nothing was written.",
+            source.kind.replace('_', " ")
+        ));
+    }
     if registry.result_custody(&prepared.job_id) != Some(ResultCustody::Native) {
         return Err(format!("{CUSTODY}: job `{job}` is not a native-custody solve; nothing was written."));
     }

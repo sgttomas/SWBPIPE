@@ -753,6 +753,14 @@ impl<T> Metered<T> {
         Metered { value: f(self.value, other.value), held: self.held }
     }
 
+    /// C1 slice 6 (`stored_custody`): the value moved out for native custody,
+    /// its reservations kept in the returned guard. The caller has leased what
+    /// it keeps beyond the guard (the held bytes, admitted before they were
+    /// loaded) and drops the guard only when the rest of the read is done.
+    pub(crate) fn into_custody(self) -> (T, Metered<()>) {
+        (self.value, Metered { value: (), held: self.held })
+    }
+
     /// The value of an unmetered read ([`UnmeteredReadMemory`]); a value that
     /// holds a lease is refused rather than outliving it.
     pub(crate) fn into_unreserved(self) -> Result<T, String> {

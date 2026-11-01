@@ -412,6 +412,11 @@ struct SolveJobRecord {
     /// The job's digest metadata; released when the job ends without a
     /// result, or with the result and its custody lease.
     digests: Option<JobDigests>,
+    /// A solve, or stored bytes restored into native custody (slice 6).
+    origin: ResultOrigin,
+    /// A restored result's stored analysis-run record text and its lease,
+    /// held with the result and released with it (disposal or reset).
+    restored_record: Option<Arc<HeldResult>>,
 }
 
 /// A retained result (C1 native custody, DEL-04-05 `c1-native-custody-plan.md`
@@ -429,9 +434,25 @@ pub(crate) struct HeldResult {
 }
 
 impl HeldResult {
-    /// The producer's exact bytes.
+    /// Stored bytes restored into native custody (C1 slice 6,
+    /// `stored_custody`): `text` is the stored column's exact text, loaded
+    /// under `lease` (admitted before the load). The lease becomes a
+    /// result lease, as a published result's is, and is released with the
+    /// bytes by the last holder.
+    pub(crate) fn restored(text: String, mut lease: Lease) -> Self {
+        lease.set_purpose(LeasePurpose::Result);
+        Self { text, lease, detail: Mutex::new(None) }
+    }
+
+    /// The bytes (a solve's publication, or a restored stored column).
     pub(crate) fn text(&self) -> &str {
         &self.text
+    }
+
+    /// The bytes the held lease covers (tests).
+    #[cfg(test)]
+    pub(crate) fn lease_bytes(&self) -> u64 {
+        self.lease.bytes()
     }
 
     /// The row index's slot: empty until the first detail query builds it.
@@ -440,12 +461,53 @@ impl HeldResult {
     }
 }
 
+/// Where a held result came from (C1 slice 6, DEL-04-05
+/// `c1-native-custody-plan.md`). Only [`ResultOrigin::Solve`] is a native
+/// invocation: it alone has intake and publication digests, an attestation,
+/// a worker and a cancellation token that can act. A restored result is the
+/// stored bytes of a saved project run or a recorded run, held so the native
+/// readers (S, pages, semantics, navigator, CSV, the bounded C2 copy) can read
+/// it; it has historical standing under its stored evidence only and carries
+/// no digest, attestation, grant or timestamp of a solve. Fresh persistence
+/// and exact-route custody refuse it ([`SolveJobRegistry::custody_binding`]
+/// answers only for a solve).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum ResultOrigin {
+    Solve,
+    Restored(RestoredSource),
+}
+
+/// The stored source of a restored result: which stored row, and the SHA-256
+/// of the exact stored texts held (hashed in place at restoration).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+pub(crate) struct RestoredSource {
+    /// `saved_project_run` (a project's `mechanics_result_json` and
+    /// `analysis_run_json`) or `recorded_run` (`analysis_runs.result_json` and
+    /// `run_record_json`).
+    pub kind: &'static str,
+    pub project_id: String,
+    pub recording_id: Option<String>,
+    pub result_sha256: String,
+    pub record_sha256: Option<String>,
+}
+
+/// The prefix of a restored result's handle (a solve's is `backend-solve-job-`).
+pub(crate) const RESTORED_HANDLE_PREFIX: &str = "restored-stored-result-";
+/// The route pricing a restored result's status reports: no worker ran.
+const RESTORED_ROUTE_PRICING: &str = "restored_stored_result_no_solve";
+/// A restored result's status: never a cancellation token that acts.
+const RESTORED_CANCELLATION: &str = "not_applicable_restored_stored_result";
+
 #[derive(Debug, Default)]
 struct SolveJobTable {
     next_job_number: u64,
     records: HashMap<String, SolveJobRecord>,
     /// The most recent attested solves (§2.4), apart from the records.
     attested: AttestationTable,
+    /// Advanced by every session reset (C1 slice 6): a restoration begun
+    /// before a reset is refused at registration, so a page that is gone
+    /// never leaves a restored result held.
+    reset_epoch: u64,
 }
 
 impl SolveJobTable {
@@ -905,6 +967,8 @@ impl SolveJobRegistry {
                     resource: resource.clone(),
                     worker: None,
                     digests: Some(JobDigests { intake_sha256, solver_mode: mode, result_sha256: None }),
+                    origin: ResultOrigin::Solve,
+                    restored_record: None,
                 },
             );
             (job_id, token)
@@ -1300,6 +1364,9 @@ impl SolveJobRegistry {
     pub(crate) fn custody_binding(&self, job_id: &str) -> Option<CustodyDigests> {
         let table = self.table();
         let record = table.records.get(job_id)?;
+        if record.origin != ResultOrigin::Solve {
+            return None;
+        }
         let delivered = record.delivered && record.result.is_none() && record.result_lease.is_some();
         let held_natively = record.custody == ResultCustody::Native && record.result.is_some();
         if !(delivered || held_natively) {
@@ -1392,6 +1459,126 @@ impl SolveJobRegistry {
     /// The custody a job's result was started under; `None` for an unknown job.
     pub(crate) fn result_custody(&self, job_id: &str) -> Option<ResultCustody> {
         self.table().records.get(job_id).map(|record| record.custody)
+    }
+
+    /// The session's reset epoch, read when a restoration begins
+    /// ([`Self::restore`]).
+    pub(crate) fn reset_epoch(&self) -> u64 {
+        self.table().reset_epoch
+    }
+
+    /// A held result's origin; `None` for an unknown job.
+    pub(crate) fn result_origin(&self, job_id: &str) -> Option<ResultOrigin> {
+        self.table().records.get(job_id).map(|record| record.origin.clone())
+    }
+
+    /// C1 slice 6: registers stored bytes restored into native custody (the
+    /// result, and its stored record when it has one, each with the lease it
+    /// was loaded under) and returns their handle. The record is completed and
+    /// held natively from here until [`Self::dispose_result`] or
+    /// [`Self::dispose_all_results`], which release the bytes and leases
+    /// exactly once (or the last native reader holding them does). It is no
+    /// solve: no digests, attestation, worker or acting cancellation token
+    /// ([`ResultOrigin`]). Refused, with everything dropped, while retention is
+    /// full ([`MAX_RETAINED_RESULTS`], counting solves and restored results
+    /// alike), as a solve's publication is.
+    pub(crate) fn restore(&self, epoch: u64, source: RestoredSource, result: HeldResult, record: Option<HeldResult>) -> Result<String, SolveJobError> {
+        let (pool_bytes, invocation_budget_bytes) = {
+            let status = self.pool_status();
+            (status.pool_bytes, status.invocation_budget_bytes)
+        };
+        let mut table = self.table();
+        if table.reset_epoch != epoch {
+            drop(table);
+            drop((result, record));
+            return Err(SolveJobError::invalid("RESTORED-RESULT-SESSION-RESET: the session was reset while the stored result was read; nothing is held.".to_string()));
+        }
+        let retained = table.counts().retained;
+        if retained >= MAX_RETAINED_RESULTS {
+            let error = self.unavailable_locked(&table, ResourceRefusal::RetentionFull { retained, limit: MAX_RETAINED_RESULTS });
+            drop(table);
+            drop((result, record));
+            return Err(error);
+        }
+        table.next_job_number += 1;
+        let number = table.next_job_number;
+        let job_id = format!("{RESTORED_HANDLE_PREFIX}{number}");
+        let result_bytes = result.text.len() as u64;
+        table.records.insert(
+            job_id.clone(),
+            SolveJobRecord {
+                number,
+                cancellation_token: RESTORED_CANCELLATION.into(),
+                state: JobState::Completed,
+                cancellation_requested: false,
+                abandoned: false,
+                cancellation_status: RESTORED_CANCELLATION.into(),
+                queue_reason: None,
+                error_message: None,
+                resource_refusal: None,
+                result_too_large: None,
+                result: Some(Arc::new(result)),
+                result_lease: None,
+                custody: ResultCustody::Native,
+                full_copy_lease: None,
+                result_bytes: Some(result_bytes),
+                delivered: false,
+                resource: JobResource {
+                    invocation_budget_bytes,
+                    pool_bytes,
+                    route_pricing: RESTORED_ROUTE_PRICING,
+                    ingress_reserved_bytes: 0,
+                    worker_grant_bytes: None,
+                    worker_peak_grant_bytes: None,
+                    worker_peak_footprint_bytes: None,
+                },
+                worker: None,
+                digests: None,
+                origin: ResultOrigin::Restored(source),
+                restored_record: record.map(Arc::new),
+            },
+        );
+        table.prune();
+        Ok(job_id)
+    }
+
+    /// A restored result's stored record, shared (C1 slice 6); refused for a
+    /// solve, a restored result without a record, or after disposal.
+    pub(crate) fn restored_record(&self, job_id: &str) -> Result<Arc<HeldResult>, SolveJobError> {
+        let table = self.table();
+        let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
+        if record.origin == ResultOrigin::Solve {
+            return Err(SolveJobError::invalid(format!("RESTORED-RESULT-NOT-RESTORED: {job_id} is a solve; its record is built, not stored")));
+        }
+        record
+            .restored_record
+            .as_ref()
+            .map(Arc::clone)
+            .ok_or_else(|| SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} holds no stored record")))
+    }
+
+    /// C1 interim for a restored result's C2 consumers (slice 6): its stored
+    /// record's exact bytes copied whole only at or under `limit` (PR #51's
+    /// [`MAX_DISPLAYABLE_RESULT_BYTES`]); above it refused by name
+    /// ([`RESULT_DETAIL_WEBVIEW_LIMIT_CODE`], with the size and the limit)
+    /// before anything is reserved or copied. The copy's lease (adaptive,
+    /// capped at the per-invocation budget and the 12 GiB default) is
+    /// admitted before the copy and returned with it; the caller holds it
+    /// until the response is built. Tauri's delivery copies after return are
+    /// the stated slice-7 residual.
+    pub(crate) fn copy_restored_record_within(&self, job_id: &str, limit: u64) -> Result<(Vec<u8>, Lease), SolveJobError> {
+        let held = self.restored_record(job_id)?;
+        let bytes = held.text().len() as u64;
+        if bytes > limit {
+            return Err(SolveJobError::invalid(format!(
+                "{RESULT_DETAIL_WEBVIEW_LIMIT_CODE} (record_bytes={bytes}, limit_bytes={limit}): {job_id}'s stored analysis-run record is {}, above the {} the webview can hold whole; nothing was copied, and the record stays held natively.",
+                display_size(bytes),
+                display_size(limit)
+            )));
+        }
+        let lease = self.acquire_result_parse(ingress::allocation_envelope(bytes).unwrap_or(u64::MAX))?;
+        let copy = held.text().as_bytes().to_vec();
+        Ok((copy, lease))
     }
 
     /// C1 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): a
@@ -1507,12 +1694,14 @@ impl SolveJobRegistry {
         let result = record.result.take();
         let lease = record.result_lease.take();
         let full_copy = record.full_copy_lease.take();
+        let restored_record = record.restored_record.take();
         // The digests are released with custody.
         record.digests = None;
         // A retained result's bytes and lease are released here, or when the
         // last native reader holding them drops its share.
         let released_bytes = lease.as_ref().or(result.as_ref().map(|held| &held.lease)).map_or(0, Lease::bytes)
-            + full_copy.as_ref().map_or(0, Lease::bytes);
+            + full_copy.as_ref().map_or(0, Lease::bytes)
+            + restored_record.as_ref().map_or(0, |held| held.lease.bytes());
         let receipt = SolveResultDisposal {
             job_id: job_id.to_string(),
             released: result.is_some() || lease.is_some() || full_copy.is_some(),
@@ -1522,6 +1711,7 @@ impl SolveJobRegistry {
         drop(result);
         drop(lease);
         drop(full_copy);
+        drop(restored_record);
         table.prune();
         Ok(receipt)
     }
@@ -1540,6 +1730,7 @@ impl SolveJobRegistry {
         let mut table = self.table();
         let mut released = Vec::new();
         let mut released_copies: Vec<Lease> = Vec::new();
+        let mut released_records: Vec<Arc<HeldResult>> = Vec::new();
         let mut abandoned_jobs = 0;
         for record in table.records.values_mut() {
             if !record.state.terminal() {
@@ -1557,6 +1748,10 @@ impl SolveJobRegistry {
             let result = record.result.take();
             let lease = record.result_lease.take();
             record.digests = None;
+            // A restored result's stored record goes with its result.
+            if let Some(held) = record.restored_record.take() {
+                released_records.push(held);
+            }
             // A C2 full copy's lease goes with the page that held the copy.
             if let Some(copy) = record.full_copy_lease.take() {
                 released_copies.push(copy);
@@ -1567,6 +1762,7 @@ impl SolveJobRegistry {
         }
         // The attestation table goes with the session (§2.4).
         table.attested.clear();
+        table.reset_epoch += 1;
         let receipt = SolveResultsDisposal {
             released_results: released.len(),
             released_bytes: released
@@ -1574,11 +1770,13 @@ impl SolveJobRegistry {
                 .filter_map(|(result, lease)| lease.as_ref().or(result.as_ref().map(|held| &held.lease)))
                 .map(Lease::bytes)
                 .sum::<u64>()
-                + released_copies.iter().map(Lease::bytes).sum::<u64>(),
+                + released_copies.iter().map(Lease::bytes).sum::<u64>()
+                + released_records.iter().map(|held| held.lease.bytes()).sum::<u64>(),
             abandoned_jobs,
         };
         drop(released);
         drop(released_copies);
+        drop(released_records);
         table.prune();
         if abandoned_jobs > 0 {
             self.pool.wake_waiters();
