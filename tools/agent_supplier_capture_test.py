@@ -193,6 +193,39 @@ def test_capture_configuration_selects_production_recipe_except_no_auth_direct_s
         native.configuration(adapter.MODEL, 'unused', 'invented-key')
 
 
+def test_product_and_inherited_capture_parse_helper_controls_without_changing_prior_fields():
+    import re
+    import tomllib
+    product = tomllib.loads(re.search(r'const CONFIG_BODY: &str = r#"(.*?)"#;',
+                                     adapter.MACOS.read_text(), re.S).group(1))
+    # Prior recipe's complete parsed fields: a new helper control must not displace
+    # any environment/shell/edit/web restriction, provider setting or credential custody.
+    prior = {
+        'model_provider': 'swbpipe_relay', 'model_reasoning_effort': 'low',
+        'sandbox_mode': 'read-only', 'approval_policy': 'never',
+        'cli_auth_credentials_store': 'file', 'web_search': 'disabled',
+        'model_providers': {'swbpipe_relay': {'name': 'SWBPIPE provider', 'wire_api': 'responses',
+                            'requires_openai_auth': False, 'env_key': 'SWBPIPE_AGENT_RELAY_CAPABILITY'}},
+        'analytics': {'enabled': False},
+        'features': dict.fromkeys(('shell_tool','shell_snapshot','unified_exec','code_mode','code_mode_host',
+            'daemon_auto_start','apps','plugins','multi_agent','memories','browser_use','browser_use_external',
+            'computer_use','image_generation','view_image','skill_search'), False),
+    }
+    assert product['features'].pop('goals') is False
+    assert product.pop('tools') == {'experimental_request_user_input': {'enabled': False}}
+    assert product == prior
+    product = tomllib.loads(re.search(r'const CONFIG_BODY: &str = r#"(.*?)"#;',
+                                     adapter.MACOS.read_text(), re.S).group(1))
+    capture = tomllib.loads(adapter.CaptureNative.__new__(adapter.CaptureNative).configuration(
+        adapter.MODEL, 'http://127.0.0.1:4321/v1'))
+    assert capture.pop('model') == adapter.MODEL and capture.pop('model_context_window') == 32768
+    provider = capture['model_providers']['swbpipe_relay']
+    assert provider.pop('base_url') == 'http://127.0.0.1:4321/v1'
+    assert 'env_key' not in provider
+    product['model_providers']['swbpipe_relay'].pop('env_key')
+    assert capture == product  # actual capture implementation inherits both correctly nested controls
+
+
 class Timer:
     def __init__(self, seconds, callback):
         assert 0 <= seconds <= 285
