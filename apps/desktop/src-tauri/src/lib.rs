@@ -28,6 +28,7 @@ mod model_document_shape;
 mod model_document_version;
 mod model_states;
 mod analysis_runs;
+mod analysis_run_v03_build;
 #[allow(unsafe_code)]
 mod stored_read;
 #[allow(unsafe_code)]
@@ -2275,6 +2276,22 @@ async fn query_preview_mechanics_job_source_recovery(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     result_detail::query_source_recovery(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 5's builder): the current (0.3.0) analysis-run
+/// record of a retained result, built natively from the held bytes
+/// (`analysis_run_v03_build`), returned as its preview header only. Raw args
+/// body `{jobId, inputManifest: {manifest_ref, manifest_sha256,
+/// canonical_bytes}, ruleCheckAggregate, rulePackExclusions}`; the response
+/// is the header's JSON as raw bytes, so Tauri delivers an ArrayBuffer. Only
+/// the header check, copy reservation and body copy run here; admission, the
+/// parse and the passes run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_analysis_run_preview(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    analysis_run_v03_build::analysis_run_preview(&registry, invoke.body(), invoke.headers()).await.map(analysis_run_v03_build::response)
 }
 
 #[tauri::command]
@@ -5546,6 +5563,7 @@ macro_rules! app_invoke_handler {
             lookup_preview_mechanics_job_rows,
             read_preview_mechanics_job_row_semantics,
             query_preview_mechanics_job_source_recovery,
+            read_preview_mechanics_job_analysis_run_preview,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,

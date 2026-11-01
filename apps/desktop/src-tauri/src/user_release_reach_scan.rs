@@ -550,9 +550,11 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// slice 3 added four ordinary handler entries,
 /// `query_preview_mechanics_job_rows`, `lookup_preview_mechanics_job_rows`,
 /// `read_preview_mechanics_job_row_semantics` and
-/// `query_preview_mechanics_job_source_recovery` (reviewed likewise).
+/// `query_preview_mechanics_job_source_recovery` (reviewed likewise), and
+/// after C1 slice 5's builder added
+/// `read_preview_mechanics_job_analysis_run_preview` (reviewed likewise).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "27686c5695ae1b512855758e77f3af368e40a59a125b258050ea216993e914b4"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "1729646637681dcefabdd7d1dedf538776da64385ef91b2551a4f5c93dc37570"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];

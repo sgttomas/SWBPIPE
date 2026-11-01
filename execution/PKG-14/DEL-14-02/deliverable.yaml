@@ -202,6 +202,8 @@ code_paths:
 - apps/desktop/src/features/results/analysisResultHashScope.ts
 - apps/desktop/src/features/results/analysisResultHashScope.test.ts
 - apps/desktop/src-tauri/src/analysis_runs.rs
+- apps/desktop/src-tauri/src/analysis_run_v03_build.rs
+- apps/desktop/src/services/analysisRunPreview.ts
 - apps/desktop/src-tauri/src/stored_read.rs
 - apps/desktop/src/services/analysisRunService.ts
 - apps/desktop/src/services/inputManifestService.ts
@@ -222,6 +224,8 @@ checks:
 - apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
 - tests/test_recorded_run_record.py
 - apps/desktop/src-tauri/src/analysis_runs_tests.rs
+- apps/desktop/src-tauri/src/analysis_run_v03_build_tests.rs
+- apps/desktop/src/services/analysisRunV03Parity.test.ts
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx

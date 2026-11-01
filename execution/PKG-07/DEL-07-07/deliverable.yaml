@@ -242,6 +242,11 @@ code_paths:
 - apps/desktop/src/services/resultDetail.ts
 - apps/desktop/src/test-support/resultDetailCases.ts
 - apps/desktop/src/test-support/resultDetailEmulation.ts
+# C1 slice 5's builder: the native v0.3 analysis-run record and preview header of a held result, with the bounded bytes route (nothing calls it before slice 4).
+- apps/desktop/src-tauri/src/analysis_run_v03_build.rs
+- apps/desktop/src/services/analysisRunPreview.ts
+- apps/desktop/src/test-support/analysisRunV03Cases.ts
+- apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json
 - apps/desktop/src/services/previewService.ts
 - apps/desktop/src/services/memoryPool.ts
 - apps/desktop/src/features/workspace/solveJobAudit.ts
@@ -269,6 +274,8 @@ checks:
 - apps/desktop/src/features/results/resultSummaryParity.test.ts
 - apps/desktop/src-tauri/src/result_detail_tests.rs
 - apps/desktop/src/features/results/resultDetailParity.test.ts
+- apps/desktop/src-tauri/src/analysis_run_v03_build_tests.rs
+- apps/desktop/src/services/analysisRunV03Parity.test.ts
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs

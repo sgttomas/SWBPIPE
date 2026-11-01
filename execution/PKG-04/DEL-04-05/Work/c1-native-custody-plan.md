@@ -36,6 +36,11 @@ approved by SWBPIPE Agent 0 on 2026-10-31 on three conditions:
 
 Each slice lists its files, its checks and the existing tests it moves.
 
+**Order (2026-10-31).** Slice 5's native builder and preview land before slice 4's switch:
+`workspaceSession.ts` awaits `buildAnalysisRunPreview(output, ...)` before it commits a result and
+paints, so the switch needs the native preview to exist first. Record Run's and Save Project's
+connection to the job handle (the rest of slice 5) follows the switch.
+
 ### Slice 1: native verdict (done; review fixes and rulings in §8)
 
 **Files:**
@@ -370,14 +375,83 @@ to design §2(3):
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
-**The record builder:** `buildAnalysisRunV03` (`analysisRunCompatibility.ts`) is ported to
-Rust in the desktop crate (`analysis_run_v03_build.rs`). It reads the held bytes and the
-small inputs (the manifest, the rule-pack exclusions and the load basis) and returns the
-record text. The webview keeps only the record's header (run id, hashes, statuses and counts).
+**The record builder** (implemented on `claude/rt-perf-c1-custody`; review pending; nothing calls
+it before slice 4): `buildAnalysisRunV03` and its caller `buildAnalysisRunPreview` are ported to
+Rust in the desktop crate (`analysis_run_v03_build.rs`). They read the held bytes and the small
+inputs (the manifest evidence, the GUI rule-check aggregate and the rule-pack exclusions; the load
+basis is the manifest's model's, as today) and build the record without a record tree.
 
-**The proof:** for every fixture `analysis_run.json` in `fixtures/results/`, and for the
-records `analysisRunCompatibility.test.ts` builds, the TS builder and the native builder give
-byte-identical records. The TS builder stays as the oracle in tests until C2.
+- **Command** `read_preview_mechanics_job_analysis_run_preview`, raw args body `{jobId,
+  inputManifest: {manifest_ref, manifest_sha256, canonical_bytes}, ruleCheckAggregate,
+  rulePackExclusions}`. The manifest goes without its parsed copy; its canonical bytes fix it, and
+  `verifyCurrentSessionInputManifest`'s checks run on them. The response is the header's JSON as
+  a raw byte body (an ArrayBuffer through Tauri), read by `src/services/analysisRunPreview.ts`.
+- **The header:** run identity, both checksums, the statuses, the rule-check status, the record's
+  exact stored length, `result_ref_count`, `producer_diagnostic_count`, `carried_members`, the
+  appended rule-pack diagnostics whole, and every record member except `result_refs`, the
+  producer's `diagnostics` and the copied `contract_evidence`, `source_block_recovery` and
+  `retained_precision`. Its size does not grow with the rows.
+- **The bytes route** for the persistence that follows: `run_record_bytes_within(registry, raw,
+  copy, max_bytes)`, the same checks, then the record's stored bytes. The exact length is computed
+  first and checked against the caller's bound; over it, `ANALYSIS-RUN-RECORD-TOO-LARGE` is
+  returned with nothing allocated. At or under it, a buffer of the exact length is leased and
+  written, and its lease is returned with the bytes. It is not a webview command, and no store
+  command changes yet.
+- **Passes** over the one leased parse of the held text (M):
+  1. the readers: `reader_verdict::route`, `binding_of` and the route's `validate`, or the retained
+     reader (`retained_precision::validate`);
+  2. the record contract's row checks, one row at a time;
+  3. the received-result checksum, the canonical text streamed into SHA-256;
+  4. the record checksum: the canonical projection streamed, each row's checksum streamed, each
+     result ref written from the borrowed row;
+  5. the stored length, counted;
+  6. the validator's remaining checks. Duplicate ids are found with 16-byte fingerprints per row,
+     leased at their exact size.
+
+  The bytes route is a seventh pass, writing into the exact buffer.
+- **Byte identity, and what is compared.** The stored form is `serde_json::to_string` of the
+  `Value` the command ingress parses from the webview's `JSON.stringify` of the TypeScript record.
+  That is exactly what `save_local_project` stores in `analysis_run_json`, and Record Run's recorded
+  revision is the same serializer over that `Value`. So each number is JavaScript's binary64 text
+  read back by serde_json (`-0` → `0`, `1.0` → `1`), and keys are in serde_json's (UTF-8) order.
+  Checksums are `openpipestress_jcs_ijson_v1` over the same values.
+- **Refusals in the TypeScript order,** each the TypeScript's message byte for byte. Where the
+  TypeScript throws a `TypeError`, the native refusal is `ANALYSIS-RUN-INPUT-SHAPE-INVALID: <member>`.
+  The row phase follows `Promise.all`: an interpretation refusal in any row comes before a
+  checked-profile refusal in an earlier row.
+- **Stated differences.**
+  - A record nested past serde_json's depth is refused with `CHECKED-JSON-INVALID: recursion
+    limit exceeded`, without the wasm engine's column.
+  - Arguments are typed at ingress (`manifest_sha256` text, `ruleCheckAggregate` text or null,
+    exclusions with text fields), as every native command's are.
+  - A held text serde_json cannot read is `SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED`, as the dispatch
+    reads it. The `RawValue` token key keeps slice 1's refusal.
+  - The retained reader reads the held value rewritten in place to JavaScript's numbers, with
+    negative zeros kept, as `validateRetainedPrecision` hands the wasm engine. The corpus's four
+    integral-float receipt cases read the same either way, so the cases do not show this emulation
+    to be necessary.
+
+**The proof:** `apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json` holds
+122 cases with the unchanged TS builders' outcomes (records as `JSON.stringify` writes them,
+refusals, `TypeError`s). It is generated by `test-support/analysisRunV03Cases.ts` and byte-checked
+by `analysisRunV03Parity.test.ts`. It lives outside `fixtures/` for the reason the desktop-shaped
+records do: the publication corpus requires serde-equal receipts there.
+
+The cases:
+- every fixture `analysis_run.json` carrier's source (18);
+- the records and refusals `analysisRunCompatibility.test.ts` builds;
+- the retained successors;
+- invented rule-pack, manifest, producer, checked-profile and `TypeError` cases;
+- 21 preview cases with session manifests.
+
+In all: 54 records, 62 refusals and 6 `TypeError` points.
+
+`analysis_run_v03_build_tests.rs` requires the native stored bytes to equal `serde_json::to_string`
+of each committed record, and both checksums to equal the record's own. Builder cases run the
+builder; preview cases run the command and the bytes route on a retained job. The TypeScript record
+written through the store's own `upsert_project` reads back as the native bytes, and
+`recorded_revision` of the two is the same text. A one-character change to a committed record fails
+the test. The TS builder stays the oracle until C2.
 
 **Persistence:**
 - `record_analysis_run` and `save_local_project` take the job handle, not the result and
@@ -435,7 +509,7 @@ byte-identical records. The TS builder stays as the oracle in tests until C2.
 | Interpretation (`resultInterpretation.ts`), known limitations (`knownSemanticLimitations.ts`) | lookup by id, kind presence | a by-id page and S's kind set |
 | Viewport (`resultColourOverlay.ts`, `deformationOverlay.ts`, `reactionOverlay.ts`) | all drawable rows | S planes, S reaction table, row ids from the planes |
 | Solve panel, solve proof, job audit (`SolvePanel.tsx`, `solveProof.ts`, `solveJobAudit.ts`) | `results.length`, units | S's row count and units |
-| Workspace preview and binding (`workspaceSession.ts`) | `buildAnalysisRunPreview(output)`, `model_ref`, `run_id`, row count, row lookup | native record preview (slice 5); S's header fields; by-id page |
+| Workspace preview and binding (`workspaceSession.ts`) | `buildAnalysisRunPreview(output)`, `model_ref`, `run_id`, row count, row lookup | native record preview (slice 5's builder, implemented ahead of slice 4); S's header fields; by-id page |
 | Design workspace, export review, export unit disclosure, run audit, report lint (counts and units) | `results.length`, units | S |
 | Reports (`reportResultRows.ts`, `ReportPanel.tsx`, `renderableReportInput.ts`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
 | Comparisons (`runComparison.ts`, `withinRunComparison.ts`, `ComparisonPanel.tsx`) | every row | C2; in C1 full rows up to 64 MiB, refused by name above (slice 4) |
@@ -661,6 +735,20 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
     which the 1,000-row and 1,000-key bounds limit;
   - a response lease of the response's exact length before it is allocated, ending when the
     command returns.
+- **The analysis-run builder's leases** (slice 5), under the same rules. Nothing is cached; each
+  call reads the held bytes with its arguments, so no result crosses a job, manifest, rule status
+  or exclusion change. The leases:
+  - the args lease, grown by the manifest text's priced parse;
+  - the parse lease of M, held while the tree is read;
+  - a working lease: a fixed 4 MiB allowance plus the canonical writer's key-order scratch along
+    the deepest path of the source and manifest;
+  - the fingerprint lease, 16 bytes per row, exact;
+  - the response lease of the header's exact length;
+  - for the bytes route, the record lease at its exact length, held by the caller with the bytes.
+
+  Unpriced: the readers' working memory, the writers' per-number and per-escape scratch, the load
+  basis, statuses and rule-pack diagnostics (bounded by the model and the arguments), and the
+  delivery copies.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
   Tauri makes of the body before the command runs, plus the returned response buffer and
   Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

@@ -343,6 +343,15 @@ Python agree.
 **Two kinds of run record:**
 1. **Transient.** Solve-time records are unchanged: the current-run slot, the
    synthetic `model_state_ref`, the existing validators and the fixtures.
+   C1 (RT-U4; DEL-04-05 `Work/c1-native-custody-plan.md` slice 5) adds a native
+   builder of the same transient record from a retained solve result
+   (`analysis_run_v03_build.rs`): the record's bytes in the stored form and its
+   checksums equal the TypeScript builder's. The webview receives only its
+   header. The bounded bytes route (`run_record_bytes_within`, the exact length
+   checked against the caller's bound before allocation) is what Record Run and
+   Save Project will read when they take the job handle; until then neither
+   changes, and Record Run's request, checks and recorded revision below are as
+   stated.
 2. **Recorded.** **Record Run** creates a new immutable record revision of the
    transient record, as `analysis_run.v0.3` permits
    (`mutation_policy: changes_create_new_immutable_record_revision`,
