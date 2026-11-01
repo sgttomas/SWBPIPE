@@ -908,7 +908,7 @@ pub(crate) fn save_mbf_export_admitted<R>(
     let memory = PoolReadMemory::new(registry, ingress);
     let outcome = MbfExportOutcome::refused_one(
         NOT_CONNECTED,
-        "Export MBF is not connected yet: native export memory governance is not connected yet. Nothing was read or written.",
+        "Export MBF is not connected yet: native export memory governance is unfinished. Nothing was read or written.",
     );
     let (sent, text, buffer) = serialize_outcome(&memory, "Export MBF", "save", outcome, None);
     let response = respond(&sent, text);
@@ -1736,7 +1736,7 @@ mod tests {
         );
         assert_eq!(codes(&outcome), vec![NOT_CONNECTED.to_string()]);
         let MbfExportOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
-        assert!(diagnostics[0].message.contains("native export memory governance is not connected yet"), "{}", diagnostics[0].message);
+        assert!(diagnostics[0].message.contains("native export memory governance is unfinished"), "{}", diagnostics[0].message);
         assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
         assert!(!store_opened.get() && !chooser_opened.get());
         assert!(sandbox.entries().is_empty(), "{:?}", sandbox.entries());

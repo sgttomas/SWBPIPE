@@ -324,7 +324,7 @@ maxLayoutRows: null}`: the text the review ran with. In order:
 3. **Document checks.** Run `check_model_document` and the desktop shape check, so an MBF is
    only ever written from a document the desktop opens.
 4. **Disposition screen.** As in §3.5.
-5. **Writer.** Run the Rust writer in the capped worker process (§3.7). If it refuses,
+5. **Writer.** (The design 4b connects.) Run the Rust writer in the capped worker process (§3.7). If it refuses,
    return its diagnostics without opening the chooser.
 6. **Staleness.** Compute `mbf_sha256` and the sidecar. If either digest differs from
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
@@ -374,9 +374,11 @@ are always the native writer's output for the hash-checked text.
   shapes. Review found that bound unsound: the writer's peak grows with the square of its
   input, so no factor of the model's bytes bounds it. It has two quadratic terms:
   - long ids multiplied by the copies of an id each record makes (Agent 0's ruling,
-    2026-11-01). Each primitive load holds about 40 copies of its load case's id: with a
-    20,000-byte case id and 480 thermal loads, a 271 KB model peaked at 644 MB, where k·M
-    reserved about 175 MB (counting-allocator measurement in PR #70's review fix round);
+    2026-11-01). Each primitive load holds about 40 copies of its load case's id. The test
+    model `long_model(480)` (484 thermal loads) with a 20,000-byte case id, 315,911 bytes of
+    model text, peaked at 644 MB priced, where k·M would have reserved about 204 MB; with the
+    load count fixed, the peak grows linearly in the id's length, and with the id fixed,
+    linearly in the load count (counting-allocator measurements, PR #70's review rounds);
   - long ids multiplied by unknown fields. The counting allocator measures the export fixture
     with one node renamed to a long id carrying unknown members. A 4 KiB id with 256 unknown
     fields (20.0 KB of model text) peaked at 7.7 MB priced, 385 bytes per model byte. A
@@ -395,10 +397,10 @@ are always the native writer's output for the hash-checked text.
   chooser or file access. The in-process pipeline of §3.6 runs only through a test seam
   (`InProcessWriterTestSeam`), whose constructor is compiled only for tests; no command,
   menu or other entry point reaches it.
-- **Admission.** The command follows the DEL-04-07 ingress rules for model-sized interactive
+- **Admission** (the design 4b connects). The command follows the DEL-04-07 ingress rules for model-sized interactive
   commands: `command_ingress::admit(…, ArgsDecoding::Moved)` admits envelope + M + 4 KiB,
   held until the command returns.
-- **Host-side reservations.** `PoolReadMemory` is seeded with the lease. Each of these is
+- **Host-side reservations** (the design 4b connects). `PoolReadMemory` is seeded with the lease. Each of these is
   reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
   - the parse and the canonical copy;
