@@ -10,12 +10,18 @@ scope_item: SOW-033
 
 # SWBPIPE User Guide
 
-This guide describes the SWBPIPE 0.1.0 macOS desktop app and the repository
+SWBPIPE is under development toward the [v1.0 release target](../RELEASE_TARGET_v1.0.md).
+This guide retains versioned implementation descriptions, including the 0.1.0
+desktop basis below; it is not evidence of a published release or completion of
+the target. Consult the [release limitations](../RELEASE_LIMITATIONS_v1.0.md)
+and each section's source basis when assessing a workflow.
+
+This guide describes the macOS desktop app and the repository
 surfaces behind it: schema contracts, core modules, invented examples and
 policy documents. [Current Desktop App](#current-desktop-app-010) lists what
-the app does today and what it refuses. Current guide authority is the
-accepted decomposition surface at `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved dependency
-graph selected by `execution/_DAG/_LATEST.md`.
+the app does at its stated revision and what it refuses. Current commitments
+are in the PRD, its adopted companions and local deliverable ScopeOfWork files;
+`Work/` and `deliverable.yaml` record technical detail and dependency conditions.
 
 SWBPIPE is decision-support software for open, auditable piping
 mechanics. Users supply project data, private libraries, rule packs, owner
