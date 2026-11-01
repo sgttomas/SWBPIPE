@@ -594,7 +594,7 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1";
+const EXACT_TABLE_HASH: &str = "6218734669b76d98f64e22804ca862ba43d543b7c0d22894b196724998c39be8";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
