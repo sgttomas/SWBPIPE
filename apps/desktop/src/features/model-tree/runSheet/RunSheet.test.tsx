@@ -11,6 +11,8 @@ import type { PreviewModel } from "../../../types";
 import { modelIndexFor } from "../../workspace/modelIndex";
 import { createSessionEventChannel, type SessionEventChannel } from "../../workspace/sessionEvents";
 import { useModelledVisibility } from "../../../test-support/modelledVisibility";
+import { assignRowNumber, modelIds } from "./runSheetModel";
+import { initialRunSheetState } from "./runSheetLedger";
 import { RUN_SHEET_TIMING, RunSheet } from "./RunSheet";
 import { useRunSheetStore, type RunSheetStore } from "./runSheetStore";
 
@@ -62,6 +64,38 @@ beforeEach(() => { RUN_SHEET_TIMING.engineCheckDelayMs = 60_000; });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); RUN_SHEET_TIMING.engineCheckDelayMs = 250; });
 
 describe("run sheet keyboard flow (§5.1)", () => {
+  it.each(["F", "S"])("clearing Kind %s back to a run assigns its first number without another edit", async (kind) => {
+    renderSheet();
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    code("r2", "kind", kind);
+    for (const [column, text] of [["dx", "2"], ["od", "0.1143"], ["wall", "0.00602"], ["material", "material:steel"], ["orientation", "0 0 1"]] as const) type("r2", column, text, { key: "Tab" });
+    expect(harness.store!.current().idState.assigned.r2).toBeUndefined();
+    fireEvent.keyDown(cell("r2", "kind"), { key: "Backspace" });
+    expect(harness.store!.current().idState.assigned.r2).toBe(10);
+    expect(cell("r2", "nodeId")).toHaveTextContent("node:N10");
+    expect(cell("r2", "nodeId")).not.toHaveAccessibleDescription(/id is blank/);
+    await waitFor(() => expect(screen.getByTestId("run-sheet-queue")).toBeEnabled());
+    type("r2", "dx", "3");
+    expect(harness.store!.current().idState.next).toBe(20);
+    expect(cell("r2", "nodeId")).toHaveTextContent("node:N10");
+  });
+
+  it("Fill down of blank Kind assigns an unnumbered S row as a run", () => {
+    renderSheet();
+    typeStart();
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    type("r2", "dx", "1");
+    fireEvent.click(screen.getByTestId("run-sheet-add-row"));
+    code("r3", "kind", "S");
+    type("r3", "dx", "2");
+    expect(harness.store!.current().idState.assigned.r3).toBeUndefined();
+    act(() => cell("r2", "kind").focus());
+    fireEvent.keyDown(cell("r2", "kind"), { key: "d", ctrlKey: true });
+    expect(harness.store!.current().idState.assigned.r3).toBe(20);
+    expect(cell("r3", "nodeId")).toHaveTextContent("node:N20");
+  });
+
   it("Enter follows the fast path dX → dY → dZ → Kind → Support → the next row's dX, and appends a row on the last row's Support", () => {
     renderSheet();
     type("r1", "dx", "3");
@@ -151,7 +185,9 @@ describe("run sheet keyboard flow (§5.1)", () => {
     expect(within(cell("r1", "kind")).queryByRole("textbox")).toBeNull();
     code("r1", "kind", "x");
     expect(cell("r1", "kind")).toHaveTextContent("P");
-    expect(live()).toHaveTextContent("x is not a kind code. Codes: R run, B bend run, S support only, F start from node, P start at point; blank is a run.");
+    expect(live()).toHaveTextContent("x is not a kind code");
+    expect(live()).toHaveTextContent("V valve run");
+    expect(live()).toHaveTextContent("L flange run");
     code("r1", "support", "a");
     expect(cell("r1", "support")).toHaveTextContent("A");
     code("r1", "support", "q");
@@ -417,15 +453,22 @@ describe("run sheet unit lock and deletion (§4.2, §3.4)", () => {
 
 describe("run sheet S1 fixture batches queued from the UI (§7 S2)", () => {
   const LABELS: Record<string, string> = { insulationDensity: "Ins. dens.", contentsDensity: "Contents dens.", insulationThickness: "Ins. thk" };
-  it.each(fixture.cases.map((item) => [item.id, item] as const))("%s: the batch typed and queued in the sheet equals the hand-built batch", async (_id, item) => {
+  it.each(fixture.cases.map((item) => [item.id, item] as const))("%s: existing assigned identities queue the original hand-built batch", async (_id, item) => {
     const validate = vi.spyOn(operationBatchService, "validateOperationBatch");
     renderSheet();
     fireEvent.change(screen.getByLabelText("Run sheet source"), { target: { value: item.sheet.source } });
     if (item.sheet.lengthUnit) fireEvent.change(screen.getByLabelText("Length unit"), { target: { value: item.sheet.lengthUnit } });
     for (const [column, unit] of Object.entries(item.sheet.columnUnits ?? {})) fireEvent.change(screen.getByLabelText(`${LABELS[column]} unit`), { target: { value: unit } });
+    // The maintained S1 batches retain their original identities. Replay them
+    // as already-numbered rows; cold new F/S numbering is checked separately.
+    act(() => harness.store!.update((current) => {
+      const blank = initialRunSheetState(current.projectId, current.sheetKey, item.sheet.rows.length);
+      let idState = current.idState;
+      for (const row of blank.rows) idState = assignRowNumber(idState, current.header.numbering, row.key, modelIds(basis()));
+      return { ...current, rows: blank.rows, nextRowKey: blank.nextRowKey, idState };
+    }));
     item.sheet.rows.forEach((row, index) => {
       const key = `r${index + 1}`;
-      if (index > 0) fireEvent.click(screen.getByTestId("run-sheet-add-row"));
       for (const [column, text] of Object.entries(row)) {
         if (column === "key" || text === "") continue;
         if (column === "kind" || column === "support") code(key, column, text);
@@ -461,9 +504,9 @@ describe("run sheet ids and sources, padding and pipe numbering (G1–G3; §1.2,
     type("r2", "material", "material:steel");
     code("r2", "support", "a");
     type("r2", "restraints", "*");
-    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N20");
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N10");
     expect(cell("r2", "supportId")).toHaveAccessibleDescription(/^derived: support: and the support node's id token/);
-    expect(cell("r2", "supportLabel")).toHaveAccessibleName("Row 2 Support label: N20");
+    expect(cell("r2", "supportLabel")).toHaveAccessibleName("Row 2 Support label: N10");
     type("r2", "supportId", "support:RS-A");
     type("r2", "supportLabel", "Anchor A (invented)");
     expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:RS-A");
@@ -472,7 +515,7 @@ describe("run sheet ids and sources, padding and pipe numbering (G1–G3; §1.2,
     // Clearing an entered id returns it to its derived value.
     act(() => cell("r2", "supportId").focus());
     fireEvent.keyDown(cell("r2", "supportId"), { key: "Backspace" });
-    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N20");
+    expect(cell("r2", "supportId")).toHaveAccessibleName("Row 2 Support id: support:N10");
     // Bend cells on a row that is not a bend are refused, and the refusal names the cell.
     expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id:");
     type("r2", "bendStartId", "node:X");
@@ -494,7 +537,7 @@ describe("run sheet ids and sources, padding and pipe numbering (G1–G3; §1.2,
     fireEvent.click(screen.getByTestId("run-sheet-add-row"));
     code("r2", "kind", "b");
     type("r2", "dx", "3");
-    expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id: node:N20-T1");
+    expect(cell("r2", "bendStartId")).toHaveAccessibleName("Row 2 Bend start id: node:N10-T1");
     expect(cell("r2", "bendStartId")).toHaveAccessibleDescription(/^derived: the corner node's id token/);
     expect(cell("r2", "bendSource")).toHaveAccessibleName("Row 2 Bend geometry source: invented sheet source");
     expect(cell("r2", "bendSource")).toHaveAccessibleDescription(/^derived: the sheet's Source/);

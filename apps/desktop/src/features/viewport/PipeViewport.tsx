@@ -3351,14 +3351,17 @@ export function PipeViewport({
             {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
               <>
                 <ViewportComponentTextInput label="Body length" testId="viewport-create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
+                <ViewportComponentUnitSelect label="Body length unit" testId="viewport-create-component-length-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
                 <ViewportComponentTextInput label="End A size" testId="viewport-create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
+                <ViewportComponentUnitSelect label="End A size unit" testId="viewport-create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
                 <ViewportComponentTextInput label="End B size" testId="viewport-create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
-                <ViewportComponentUnitSelect label="Length unit" testId="viewport-create-component-length-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+                <ViewportComponentUnitSelect label="End B size unit" testId="viewport-create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
                 <ViewportComponentTextInput label="Weight" testId="viewport-create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
                 <ViewportComponentUnitSelect label="Weight unit" testId="viewport-create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
                 <ViewportComponentTextInput label="COG X" testId="viewport-create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
                 <ViewportComponentTextInput label="COG Y" testId="viewport-create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
                 <ViewportComponentTextInput label="COG Z" testId="viewport-create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
+                <ViewportComponentUnitSelect label="COG unit" testId="viewport-create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
                 <ViewportComponentTextInput label="End A reference" testId="viewport-create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
                 <ViewportComponentTextInput label="End B reference" testId="viewport-create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
                 <ViewportComponentTextInput label="Stiffness behavior reference" testId="viewport-create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
@@ -3650,7 +3653,7 @@ function componentUnitValidation(draft: ComponentDraft, route: UnitCatalogRoute 
     return `length=${length}; angle=${angle}`;
   }
   const force = unitDimensionValidationStatus(route, draft.forceUnit, "force");
-  return `length=${length}; force=${force}`;
+  return `body_length=${length}; end_a_size=${unitDimensionValidationStatus(route, draft.endASizeUnit, "length")}; end_b_size=${unitDimensionValidationStatus(route, draft.endBSizeUnit, "length")}; center_of_gravity=${unitDimensionValidationStatus(route, draft.centerOfGravityUnit, "length")}; force=${force}`;
 }
 
 function buildDraftNodeFromViewportPoint(

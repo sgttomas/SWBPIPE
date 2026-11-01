@@ -763,6 +763,14 @@ impl Owner {
                     resources: paths.resources,
                     state: private(&paths.data.join("embedded-agent/runtime"))?,
                 };
+                #[allow(unused_mut)]
+                let mut secret = config.secret.take();
+                // Native smoke only (RT-E1 D4): a provider saved with no key
+                // takes the key the external controller passed on stdin, once.
+                #[cfg(feature = "native-smoke")]
+                if secret.is_none() {
+                    secret = crate::native_smoke::take_provider_secret();
+                }
                 let owner = &self.workspaces[i];
                 let result = Live::start(
                     &self.registry,
@@ -770,7 +778,7 @@ impl Owner {
                     config.model.clone(),
                     config.context_window,
                     provider,
-                    config.secret.take(),
+                    secret,
                     &owner.token,
                     &owner.basis,
                     &self.shutdown,

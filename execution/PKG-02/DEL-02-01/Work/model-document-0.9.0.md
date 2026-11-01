@@ -1126,8 +1126,10 @@ wording is applied with the slice that makes it true.
 2. **DEL-07-02:14, 1 occurrence.**
    - **Old:** `operating-condition sets await C1.`
    - **New:** `assigning an operating-condition set (assign_condition_set, model document 0.9.0) joins the bulk changes with C1's authoring slice.`
-3. **New commitment, inserted after the DEL-07-02:14 bullet (anchor `- **DEL-07-02:14** —`, 1 occurrence).**
-   - **New:** `- **DEL-07-02:15** — Operating-condition sets and support direction in the tree, tables and inspector (C1; model document 0.9.0). Create, edit and delete condition sets and their keyed conditions; show and assign a pipe's set; enter an optional direction on single-DOF translational line stops and springs. Values are entered, never suggested or defaulted, and refusals are shown by name. Design: DEL-02-01 Design model-document-0.9.0.md §4. Implementation, tests and native verification remain open.`
+3. **Current proposal key DEL-07-02:18, inserted after the DEL-07-02:17 bullet (anchor `- **DEL-07-02:17** —`, 1 occurrence).**
+   - **New:** `- **DEL-07-02:18** — Operating-condition sets and support direction in the tree, tables and inspector (C1; model document 0.9.0). Create, edit and delete condition sets and their keyed conditions; show and assign a pipe's set; enter an optional direction on single-DOF translational line stops and springs. Values are entered, never suggested or defaulted, and refusals are shown by name. Design: DEL-02-01 Design model-document-0.9.0.md §4. Implementation, tests and native verification remain open.`
+
+**Identifier collision resolved by Agent 0 (2026-10-31).** The frozen draft originally allocated `DEL-07-02:15` to this condition-set/direction commitment. Main adopted `:15` for G9, `:16` for component rows and `:17` for F/S correctness first. S1 therefore uses `:18`; its approved substantive sentence and status are unchanged. The earlier allocation remains in Git and the historical exact-wording filename/hash in §7.6; those bytes are not rewritten.
 
 ### 7.4 DEL-07-03 (`execution/PKG-07/DEL-07-03/ScopeOfWork.md`), which owns load-manager editing (DEL-07-02 CLM-038)
 
