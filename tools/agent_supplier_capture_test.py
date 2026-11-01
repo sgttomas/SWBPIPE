@@ -210,6 +210,11 @@ def runner(tmp_path, monkeypatch, *, broken=False, cleanup_failure=False, timeou
     binary.touch()
     real_digest = adapter.witness.digest
     monkeypatch.setattr(adapter.witness, 'digest', lambda p: witness.BINARY_SHA256 if p == binary else real_digest(p))
+    def private_runtime(**kwargs):
+        runtime = tmp_path / 'mock-runtime'
+        runtime.mkdir(mode=0o700)
+        return str(runtime)
+    monkeypatch.setattr(adapter.tempfile, 'mkdtemp', private_runtime)
     monkeypatch.setattr(adapter, 'checkout_selection', Mock(side_effect=['a' * 40, adapter.Refusal('dirty')])
                         if checkout_changed else lambda: 'a' * 40)
     def initialize(native, binary, root, endpoint, model, key):

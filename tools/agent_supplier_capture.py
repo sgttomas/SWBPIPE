@@ -328,6 +328,10 @@ def drive(native, capture, outcomes, clock=time.monotonic):
             params = frame.get('params', {})
             if 'id' in frame and 'method' in frame:
                 rpc = frame['id']
+                if type(rpc) not in (int, str):
+                    raise Refusal('host_call_binding')
+                if isinstance(rpc, str):
+                    identity(rpc)
                 if frame['method'] != 'item/tool/call':
                     native.send({'id': rpc, 'error': {'code': -32601, 'message': 'Unsupported request'}})
                     raise Refusal('host_call_binding')
@@ -338,8 +342,6 @@ def drive(native, capture, outcomes, clock=time.monotonic):
                         or params.get('turnId') != turn or params.get('namespace') not in (None, '')
                         or calls >= 6 or calls >= len(capture.calls)):
                     raise Refusal('host_call_binding')
-                if isinstance(rpc, str):
-                    identity(rpc)
                 expected = capture.calls[calls]
                 if params.get('tool') != expected['name'] or params.get('arguments') != expected['arguments']:
                     raise Refusal('host_call_content')
