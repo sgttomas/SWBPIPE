@@ -2104,9 +2104,11 @@ pass (162 plus 132), and routing checks pass (77 plus 120 subtests). The two
 repaired lookup regressions rejected deletion of stale rebuilding and of
 incremental rescan before original source was restored. DEL-04-07 Work
 `route-unification-r4.md` §5.4b preserves the original linear measurements
-and their limits. Combined-source identity comparison, changed-proof scrutiny,
-reserved adoption, final native law/challenge runs, stack witnesses and exact
-head hosted checks remain before integration. This changes publication lookup
+and their limits. Combined-source identity comparison gives 956 identical outputs (662 solved,
+294 refused, no panics) for 478 common-byte documents; §5.4b records the single
+size exclusion and seven schema-token-only scratch adaptations. Changed-proof
+scrutiny, reserved adoption, final native law/challenge runs, stack witnesses
+and exact head hosted checks remain before integration. This changes publication lookup
 storage, not admitted families or ScopeOfWork/dependency conditions. No
 acceptance, release or base-machine performance qualification follows.
 
