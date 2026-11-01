@@ -3,15 +3,82 @@
 Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
-**Execution status:** the release App, two model documents and C1 plan
-are prepared. P1's runner safeguards cleared the final independent recheck at
-`dee93a72`. P2's interaction probes and P3's feature-gated scalar reader probe are
-implemented offline. The new smoke binary is bound below. P2/P3 connected review cleared
-`92983690e`; parent follow-ups are recorded below. Exact-head CI and the narrow
-operational grant remain prerequisites. Do not acquire an
-exclusive interval or launch the App until those are
-ready and the narrow run authority has been granted. Preparation has launched no
-App, solve worker, model solve, memory sampler, screenshot or LLM session.
+**Execution status:** the owner-approved A500 attempt at clean
+`1e1453a29475a425770b733a07cae90b829c7b7a` failed and closed. That attempt is
+consumed; no retry is authorized and B1000 is blocked. The latest offline repair
+below is not permission to run it. The historical preparation/binding sections
+retain the identities used by A; statements about unlaunched artifacts in that
+preparation describe the pre-A snapshot.
+
+## A500 execution and closure (not performance evidence)
+
+All approved source/script/plan/model/Wasm/dist/binary identities passed the
+19:34:13 UTC offline preflight, and the output directory was fresh. The normal
+exclusive wrapper recorded acquisition on 2026-11-01 at **19:34:58 UTC** and
+`END-EXCLUSIVE rc=1` at **19:34:59 UTC** (one-second timestamp precision).
+The supervisor's internal window was 19:34:58.740–19:34:59.287 UTC, **547 ms**;
+that is not a subsecond measurement of the full lock-hold duration.
+
+The App process was launched (PID 7456). The supervisor stopped its runner with
+`host_headroom_unknown` after two early samples. Both had null available/pressure
+values and a null host refresh timestamp. No UI-ready, model-open, solve,
+reader-profile or completed-run evidence exists. The receipt is explicitly
+`evidence_complete:false`; these execution facts establish no usable size,
+component memory peak, host memory shortage or memory fit.
+
+The wrapper exited and the supervisor verified the runner group and private
+executable PIDs gone, with no group errors. Control-only lookup, `ps` and lock
+inspection at 19:36:24.968 UTC found no owned processes, no lock holders and no
+`exclusive.pending`. Later shared-slot reuse by other jobs is not an A-held
+resource. There is no held exception. App Agent0 was notified by Agent0, and no B
+was queued. The failed packet/private copy is preserved byte-for-byte for the
+owner and initial-refresh diagnosis/review consumer:
+
+- `scratch/rt-perf-c1-slice7/evidence/n0500/perf-window-1793561698740.json`
+- `scratch/rt-perf-c1-slice7/evidence/n0500/perf-samples-perf-SaUjMu-native-linear-ex-n0500.jsonl`
+- `scratch/rt-perf-c1-slice7/evidence/n0500/perf-SaUjMu/`
+- Adjacent preflight, wrapper and closure records; `a500-closure.json` records
+  the preserved packet hashes and distinguishes A's closure from later lock use.
+
+## Confirmed initial-refresh cause and bounded offline correction
+
+The sampler initialized `host_at=0.0` and queried only when
+`monotonic()-host_at >= 1`. A process-relative monotonic clock near zero therefore
+emitted the untouched initial host object until one second elapsed. A failed
+sysctl attempt would have assigned a timestamp, so the observed null timestamps
+identify the unattempted-refresh path. The deterministic old-source regression
+starts at **0.015 s** and reproduces a first query at **1.015 s**, after the
+stream guard could stop on the initial unknowns. No native clock or sampler was
+re-run to obtain that diagnosis.
+
+The minimal initialization repair uses `None` for "no attempt yet" and reads
+before the first emitted sample, independent of clock origin. One shared bounded
+host-reading function retains actual values or unknowns; failed/stalled reads
+never manufacture normal values. The streaming stop policy is unchanged: two
+genuinely fresh unknown attempts stop; repeated cached sample ticks do not count
+as new attempts. The pure AST tests execute only extracted functions with fake
+process/time/sysctl/signal services; no module import, libproc, real sampler mode
+or host probe runs. They cover the first valid sample near zero, cached ticks,
+two fresh failed readings and bounded stalled readings.
+
+The original entry contract requires fresh known-normal host state before App
+launch. The old runner started the App before sampling and did not enforce that
+ordering. A separate `--host-status` control in the existing sampler now performs
+one fresh attempt (0.5 s sysctl timeout, no PID memory counters). The runner awaits
+it immediately before App launch, with a 1.5 s interpreter timeout/SIGKILL and
+4 KiB output cap, all under the existing independent supervisor. It admits only
+normal pressure, at least 30% available and a timestamp from that request (1 ms
+rounding tolerance); failed, stalled, malformed, unknown or stale telemetry
+refuses before App launch. There is no entry retry. Streaming still tolerates
+one genuine unknown refresh after admission. Native pool preflight, caps,
+reserves and the 840/810 s budgets are unchanged.
+
+That newly enforced startup ordering is a safeguard change, so it requires one
+focused independent review under the existing honest-local-mistake threat model.
+It does not reopen the three closed P1 teardown rounds or change their controls.
+The fake-child timeout test and all **41 Node tests** pass offline; no new App,
+worker, solve, sampler mode or exclusive interval has run. Exact-head CI and
+focused scrutiny remain required before returning this repair candidate.
 
 ## Candidate and prepared identities
 
@@ -81,9 +148,9 @@ and dirty flag, separately from the native App binding):
 
 | File | Digest |
 | --- | --- |
-| `perf.mjs` | `0e0f547b4424eb3ab40c48c166f7cbbf1621d311694582d944aeb899c8627539` |
+| `perf.mjs` | `42ee95e79221cd46f7a24deb314fc8ffa9304c322f27c7dcb4e7e8a46ec41a13` |
 | `perf-driver.js` | `92e06d6b38c25341d86381fd51fcfebccaa0ba832e39a1f5fc71df7e459dfa84` |
-| `perf-sampler.py` | `3b9f6ebb03fad25024f59c7f62aefc95d66ae02b4b463b226a75ad519a483f05` |
+| `perf-sampler.py` | `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` |
 | `perf-plan-c1.json` | `663a0affddcdd40323e11f3f4a89e1a10e961ab34e7e1f301d89825f5fbec2cc` |
 
 The original a37d App remains preserved in `app/`; execution recipes below
@@ -127,26 +194,27 @@ App cannot execute it. Its submitting revision and artifact digest are recorded 
 have passed. The new plan's default selects only 500; it has no 2,000-node run.
 Do not use the old `perf-plan.json` default window, which includes 2,000.
 
-**Conditional execution recipes, not executed:** after prerequisites P1–P3 and
-the narrow grant, each command takes its own interval. Set the three variables
-above in the calling shell. Do not nest `t3_slot.sh` inside the exclusive wrapper.
+## New one-run proposal (not authorized)
+
+After focused review and exact-head CI, request **one 500-node attempt only**
+using this repaired harness and the unchanged bound `app-p3` executable. Use the
+existing variables above; do not build or nest a slot wrapper inside the window.
+Reverify the selected clean source and every current external/binary/model hash.
+The output below must still be absent; the original `n0500` packet is immutable.
 
 ```sh
-/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_APP" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500"
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_APP" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-refresh1"
 ```
 
-Only after the 500-node gate passes, release/reacquire through the same queue:
-
-```sh
-/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_APP" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-1000 --budget-s 840 --out "$RT_C1_KIT/evidence/n1000"
-```
-
-These commands select the P2 interaction driver through the independently
-cleared P1 supervisor. P2/P3 connected review is clear at `92983690e`;
-external-script follow-ups are verified below. The exact-head checks and
-operational grant remain required before execution. Rebind changed external scripts and any
-changed App before using them. No assumed flags or nonexistent profiling command
-is presented as executable here.
+This is a proposed new attempt, not a continuation or retry under the consumed
+approval. It needs fresh owner/resource authorization after CI, normal queue
+admission and announced acquisition/closure. At most 900 s including teardown;
+no build, altered input, cap/reserve, capture, LLM/auth/network or 2,000-node
+scope. A host-admission refusal consumes that new attempt too. It exercises the
+same full A interactions and scalar/memory observations below, with known-fresh
+startup admission first. Stop and preserve partial evidence on failure. Report
+closure and the actual result before any further proposal. **B1000 remains
+blocked and is not part of this proposal**, even if this attempt later passes.
 
 ## Interactions and usable-size gate
 
@@ -281,12 +349,12 @@ share needs its bound/lease decision before leaving draft, per the C1 plan.
 
 ## Resource limits, cancellation and cleanup
 
-Two conditional intervals maximum: A at 500, B at 1,000 only after A passes.
-Each holds all four host slots for at most **900 seconds including teardown**;
+The original A/B approval is consumed/blocked as recorded above. The new
+one-run proposal is 500 only and holds all four host slots for at most **900 seconds including teardown**;
 the runner work budget is 840, with no builds inside either interval. Queue/drain
 time precedes acquisition and is reported separately from UTC acquisition/release
 and actual held duration. Preserve reservation order. No automatic second window
-after failure or timeout, and no 2,000-node attempt even if both pass: that needs
+after failure or timeout, and no 2,000-node attempt: that needs
 a separate decision after the observed evidence and reader-residual disposition.
 
 Entry: memguard running, exclusive locks acquired, host pressure normal and
@@ -523,16 +591,12 @@ The live allocation/timing run belongs inside the authorized interval. If it
 cannot fit with the App sequence inside A/B, return a bounded additional-interval
 proposal; do not silently add one or extend either interval.
 
-Once P1–P3 are verified, exact-head CI is clear and identities are reconciled,
-the smallest owner/resource grant is: launch this named native-smoke App on only
-the two invented racks, automate the specified local UI/save/export/reopen
-interactions in throwaway stores, read the owned process footprint/PID/pool and
-DOM/timeline/SQLite/CSV evidence, and acquire A then conditional B, each <=15 min,
-under `t3_exclusive.sh` with announced acquisition/release. The existing local
-test data/storage boundaries apply. **No screenshot, video or screen recording
-is needed:** the gate is response/DOM/data/memory behavior, not visual-layout
-acceptance. Request no embedded LLM, provider authentication, credential/keychain,
-network model, supplier input, native release/signing or general capture grant.
+The original narrow launch/data grant was given and A consumed it; it supplies
+no retry, B, capture or model-provider authority. After the focused repair review
+and exact-head CI, the smallest new request is the one 500-node interval above
+with the same local UI/data/read-only evidence scope. **No screenshot, video or
+screen recording is needed.** There is no embedded LLM, provider authentication,
+credential/keychain, network model, supplier, signing or release requirement.
 
 Both generated models have measured static container depth **7**. The committed
 v0.3 builder corpus's records have maximum depth **14**, well below the parser's

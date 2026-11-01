@@ -941,6 +941,17 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**A500 execution update (2026-11-01).** The owner-approved attempt at clean
+`1e1453a29` failed/closed at initial host telemetry, with no solve, reader-profile
+or usable-size evidence. The exclusive wrapper recorded 19:34:58–19:34:59 UTC
+(one-second precision); the supervisor window was 547 ms. All owned processes
+and locks closed; partial packet/private custody is preserved. That attempt is
+consumed, there is no retry, and B1000 is blocked. The proposal records the
+confirmed clock-origin initialization defect, offline repair and newly enforced
+fresh host admission before App launch. The latter needs focused scrutiny and
+exact-head CI before a new one-run 500-node proposal can return for approval;
+no new execution authority is inferred. No C1 completion or memory fit follows.
+
 The concrete offline preparation is `c1-slice7-run-proposal.md`, with the maintained
 `apps/desktop/native-smoke/perf-plan-c1.json` input. It binds the clean a37d release
 App to the reviewed 55fd runtime, names the two generated racks and conditional

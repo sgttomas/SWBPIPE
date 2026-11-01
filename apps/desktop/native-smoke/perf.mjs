@@ -688,6 +688,30 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
   return { class: worst, findings };
 }
 
+/** Entry requires a fresh known-normal host before any App launch. The
+ * existing supervisor deadline also covers a stalled interpreter/sysctl here.
+ * `execute` and `now` are injected only by offline tests, never CLI options. */
+export async function readStartupHost(appPath, execute = execFile, now = Date.now) {
+  const sentAt = now();
+  const text = await new Promise((resolve, reject) => {
+    execute("python3", [path.join(here, "perf-sampler.py"), "--host-status", "--app-path", appPath],
+      { timeout: 1500, killSignal: "SIGKILL", maxBuffer: 4096 }, (error, stdout) => {
+        if (error) reject(new Error("HOST-ADMISSION-REFUSED: fresh host telemetry failed or stalled; no App launched"));
+        else resolve(stdout);
+      });
+  });
+  let sample;
+  try { sample = JSON.parse(text); }
+  catch { throw new Error("HOST-ADMISSION-REFUSED: malformed host telemetry; no App launched"); }
+  const receivedAt = now();
+  audit({ type: "stage", step: "host_admission", stage: "read", host: sample, sent_at_ms: sentAt, received_at_ms: receivedAt });
+  if (!sample || !Number.isFinite(sample.available_percent) || sample.available_percent < 0 || sample.available_percent > 100 || ![1, 2, 4].includes(sample.pressure_level) || !Number.isFinite(sample.sampled_at_ms) || sample.sampled_at_ms < sentAt - 1 || sample.sampled_at_ms > receivedAt + 1) {
+    throw new Error("HOST-ADMISSION-REFUSED: host telemetry is unknown or not fresh for this request; no App launched");
+  }
+  if (sample.available_percent < 30 || sample.pressure_level !== 1) throw new Error("HOST-ADMISSION-REFUSED: host headroom/pressure does not admit the App; no App launched");
+  return { ...sample, requested_at_ms: sentAt, received_at_ms: receivedAt };
+}
+
 async function runOne(run, ctx) {
   const record = { id: run.id, mode: run.mode, model: run.model, binding: ctx.binding, harness: ctx.harness, started_at: new Date().toISOString() };
   // Every plan-named source and destination stays inside its root (validatePlan, containedPath).
@@ -727,6 +751,7 @@ async function runOne(run, ctx) {
     env[INJECT_ROOT_ENV] = realpathSync(ctx.results);
   }
   const baseline = webkitPids();
+  record.startup_host = await readStartupHost(ctx.binary);
   const startedMs = Date.now();
   // Inherit the supervised runner's group. A detached App could outlive the
   // supervisor's deadline when its runner is blocked in synchronous SQLite.

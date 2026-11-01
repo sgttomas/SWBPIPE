@@ -2,6 +2,7 @@
 """Memory sampler of one desktop perf run (RT-U4, DEL-04-05; `perf.mjs`), macOS, standard library.
 
     perf-sampler.py --app-pid PID --app-path PATH --baseline PIDS --interval-ms MS
+    perf-sampler.py --host-status --app-path PATH  # one fresh admission reading, no PID counters
 
 Every interval it lists the host's processes (`proc_listallpids`), classifies each new one
 once by its executable path (`proc_pidpath`) and reads each tracked process's resident size,
@@ -82,16 +83,33 @@ def emit_sample(value, evidence, output):
     output.flush()
 
 
+def read_host_status():
+    """One bounded fresh attempt; a failed attempt stays unknown, never normal."""
+    try:
+        reading = subprocess.run(['/usr/sbin/sysctl', '-n', 'kern.memorystatus_level', 'kern.memorystatus_vm_pressure_level'],
+                                 capture_output=True, text=True, timeout=0.5, check=True)
+        available, pressure = (int(value) for value in reading.stdout.splitlines())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        available, pressure = None, None
+    return {'available_percent': available, 'pressure_level': pressure,
+            'sampled_at_ms': round(time.time() * 1000)}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     parser.add_argument('--app-pid', type=int)
     parser.add_argument('--app-path', required=True)
-    parser.add_argument('--list-owned', action='store_true', help='control-only PID/group lookup; reads no memory counters')
+    controls = parser.add_mutually_exclusive_group()
+    controls.add_argument('--list-owned', action='store_true', help='control-only PID/group lookup; reads no memory counters')
+    controls.add_argument('--host-status', action='store_true', help='one bounded fresh host-admission reading; no PID memory counters')
     parser.add_argument('--baseline', default='')
     parser.add_argument('--interval-ms', type=int, default=200)
     parser.add_argument('--out', help='exclusive-create raw JSONL evidence; each line flushed before stdout')
     args = parser.parse_args(argv)
     app_path = os.path.realpath(args.app_path)
+    if args.host_status:
+        print(json.dumps(read_host_status(), separators=(',', ':')))
+        return
     if args.list_owned:
         owned = []
         for pid in all_pids():
@@ -113,19 +131,16 @@ def main(argv=None):
     signal.signal(signal.SIGTERM, lambda *_: stop.append(True))
     kinds = {}
     gone = 0
-    host_at = 0.0
+    # A monotonic clock may be process-relative and near zero. A numeric zero
+    # sentinel would defer the first attempt for a second and emit uninitialized
+    # telemetry. None means no attempt yet, independent of the clock origin.
+    host_at = None
     host = {'available_percent': None, 'pressure_level': None, 'sampled_at_ms': None}
     while not stop:
         started = time.monotonic()
-        if started - host_at >= 1.0:
+        if host_at is None or started - host_at >= 1.0:
             host_at = started
-            try:
-                reading = subprocess.run(['/usr/sbin/sysctl', '-n', 'kern.memorystatus_level', 'kern.memorystatus_vm_pressure_level'],
-                                         capture_output=True, text=True, timeout=0.5, check=True)
-                available, pressure = (int(value) for value in reading.stdout.splitlines())
-                host = {'available_percent': available, 'pressure_level': pressure, 'sampled_at_ms': round(time.time() * 1000)}
-            except (OSError, ValueError, subprocess.SubprocessError):
-                host = {'available_percent': None, 'pressure_level': None, 'sampled_at_ms': round(time.time() * 1000)}
+            host = read_host_status()
         rows = []
         for pid in all_pids():
             if pid not in kinds:

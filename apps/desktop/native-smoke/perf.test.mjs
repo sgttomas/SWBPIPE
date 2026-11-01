@@ -7,9 +7,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { execFileSync, spawn } from "node:child_process";
+import { execFile, execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { c1PhysicalPhases, checkpointRun, classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { c1PhysicalPhases, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -778,4 +778,97 @@ test("post-App inspection checkpoint survives an unfinished inspection and canno
   assert.match(partial.findings[0].message,/not a successful run/);
   await commitRun({...record,class:"ok",store:{quick_check:["ok"]}},ctx);
   assert.equal(existsSync(checkpoint),false);
+});
+
+// Execute only extracted Python functions against deterministic fakes: no
+// sampler import, ctypes/libproc, real sysctl, App, solver or memory reading.
+function simulatedSampler() {
+  return JSON.parse(execFileSync("python3", ["-I", "-c", `
+import argparse,ast,io,json,os,pathlib,subprocess,sys,types
+source=pathlib.Path(sys.argv[1])
+functions=[n for n in ast.parse(source.read_text()).body if isinstance(n,ast.FunctionDef) and n.name in ('main','emit_sample','read_host_status')]
+def scenario(mode,host_only=False):
+ clock=[0.015]
+ queries=[]
+ handlers={}
+ output=io.StringIO()
+ def read(*args,**kwargs):
+  queries.append(clock[0])
+  assert kwargs['timeout']==0.5
+  if mode=='stalled':
+   clock[0]+=0.5
+   raise subprocess.TimeoutExpired('fake sysctl',0.5)
+  if mode=='failed': raise subprocess.CalledProcessError(1,'fake sysctl')
+  return types.SimpleNamespace(stdout='70\\n1\\n')
+ def sleep(dt):
+  clock[0]+=dt
+  if clock[0]>=1.401: handlers[15](15,None)
+ scope={'argparse':argparse,'json':json,'os':os,'sys':types.SimpleNamespace(stdout=output),
+  'time':types.SimpleNamespace(monotonic=lambda:clock[0],time=lambda:1700000000+clock[0],sleep=sleep),
+  'signal':types.SimpleNamespace(SIGTERM=15,signal=lambda signum,callback:handlers.update({signum:callback})),
+  'print':lambda text:output.write(str(text)+'\\n'),
+  'subprocess':types.SimpleNamespace(run=read,SubprocessError=subprocess.SubprocessError),
+  'all_pids':lambda:(_ for _ in ()).throw(AssertionError('host admission read PID counters')) if host_only else [11],'pid_path':lambda pid:'/fixture/not-an-app','kind_of':lambda *args:'app','rusage':lambda pid:(1,2,3)}
+ exec(compile(ast.Module(body=functions,type_ignores=[]),str(source),'exec'),scope)
+ scope['main'](['--host-status','--app-path','/fixture/not-an-app'] if host_only else ['--app-pid','11','--app-path','/fixture/not-an-app','--interval-ms','200'])
+ return {'queries':queries,'samples':[json.loads(line) for line in output.getvalue().splitlines() if '"host"' in line], 'control':json.loads(output.getvalue()) if host_only else None}
+result={mode:scenario(mode) for mode in ['known','failed','stalled']}
+result['admission']=scenario('known',True)
+print(json.dumps(result))
+`, fileURLToPath(new URL("./perf-sampler.py", import.meta.url))], { encoding: "utf8" }));
+}
+
+test("sampler refreshes before its first sample with a process-relative clock near zero", () => {
+  const cases=simulatedSampler();
+  assert.equal(cases.admission.queries.length,1);
+  assert.equal(cases.admission.queries[0],0.015);
+  assert.equal(cases.admission.control.available_percent,70);
+  assert.equal(cases.admission.control.pressure_level,1);
+  assert.equal(cases.known.queries[0],0.015);
+  assert.equal(cases.known.samples[0].host.available_percent,70);
+  assert.equal(cases.known.samples[0].host.pressure_level,1);
+  assert.ok(Number.isFinite(cases.known.samples[0].host.sampled_at_ms));
+  assert.equal(cases.known.queries.length,2);
+  const guard=createSampleGuard();
+  for(const sample of cases.known.samples) assert.equal(guard(sample),null);
+  for(const name of ['failed','stalled']) {
+    const data=cases[name], guarded=createSampleGuard();
+    assert.equal(data.queries[0],0.015);
+    assert.equal(data.queries.length,2);
+    const stamps=new Set();
+    for(const sample of data.samples) {
+      assert.equal(sample.host.available_percent,null);
+      assert.equal(sample.host.pressure_level,null);
+      assert.ok(Number.isFinite(sample.host.sampled_at_ms));
+      stamps.add(sample.host.sampled_at_ms);
+      assert.equal(guarded(sample),stamps.size<2?null:'host_headroom_unknown');
+    }
+    assert.equal(stamps.size,2);
+  }
+});
+
+
+test("startup host admission needs one fresh known-normal reading before an App is allowed", async () => {
+  const known={available_percent:70,pressure_level:1,sampled_at_ms:1001};
+  const request=sample=>{let calls=0;return readStartupHost('/fixture/not-an-app',(command,args,options,callback)=>{
+    assert.equal(command,'python3');assert.ok(args.includes('--host-status'));
+    assert.equal(options.timeout,1500);assert.equal(options.killSignal,'SIGKILL');
+    callback(null,JSON.stringify(sample));
+  },()=>calls++?1002:1000);};
+  assert.equal((await request(known)).available_percent,70);
+  for(const sample of [null,{...known,available_percent:null},{...known,available_percent:29},{...known,pressure_level:2},{...known,pressure_level:4},{...known,pressure_level:0},{...known,sampled_at_ms:900},{...known,sampled_at_ms:1010}]) {
+    await assert.rejects(request(sample),/HOST-ADMISSION-REFUSED.*no App launched/);
+  }
+  await assert.rejects(readStartupHost('/fixture/not-an-app',(_c,_a,_o,callback)=>callback(new Error('fixture failure'))),/failed or stalled/);
+  await assert.rejects(readStartupHost('/fixture/not-an-app',(_c,_a,_o,callback)=>callback(null,'not-json')),/malformed/);
+});
+
+test("a stalled startup telemetry process is killed and refuses admission", async () => {
+  let childPid;
+  const execute=(_command,_args,options,callback)=>{
+    const child=execFile(process.execPath,['-e','setInterval(()=>{},1000)'],options,callback);
+    childPid=child.pid;
+  };
+  await assert.rejects(readStartupHost('/fixture/not-an-app',execute),/failed or stalled/);
+  assert.throws(()=>process.kill(childPid,0),/ESRCH/);
 });
