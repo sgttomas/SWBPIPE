@@ -98,7 +98,8 @@
         "pytest",
         "-q",
         "tools/agent_journey_fixture_test.py",
-        "tools/agent_journey_memory_monitor_test.py"
+        "tools/agent_journey_memory_monitor_test.py",
+        "tools/agent_supplier_capture_test.py"
       ]
     },
     "model-version-literals": {
@@ -120,9 +121,12 @@
         "tools/agent_journey_fixture_test.py",
         "tools/agent_journey_memory_monitor.py",
         "tools/agent_journey_memory_monitor_test.py",
+        "tools/agent_supplier_capture.py",
+        "tools/agent_supplier_capture_test.py",
         "tools/agent_live_session_fixture.py",
         "apps/desktop/native-smoke/agent-journey.js",
         "fixtures/model_operations/agent_w9a_journey.json",
+        "fixtures/model_operations/agent_w9a_capture_outcomes.json",
         "validation/references/w9_benchmarks/references.json",
         "software-workflow.json"
       ],

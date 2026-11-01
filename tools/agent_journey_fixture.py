@@ -227,27 +227,31 @@ class StubProvider:
         class Handler(http.server.BaseHTTPRequestHandler):
             protocol_version = "HTTP/1.1"
 
+            def setup(self):
+                super().setup()
+                stub.prepare_connection(self)
+
+            def send_error(self, code, message=None, explain=None):
+                stub.on_http_error(self, code)
+                super().send_error(code, message, explain)
+
+            def handle_one_request(self):
+                self._swbpipe_dispatched = False
+                try:
+                    super().handle_one_request()
+                finally:
+                    stub.after_request(self)
+
             def log_message(self, *args):
                 pass
 
             def do_POST(self):
-                length = int(self.headers.get("Content-Length") or 0)
-                body = self.rfile.read(min(length, 8 * 1024 * 1024))
-                record = {"path": self.path, "bytes": length, "authorization": "Authorization" in self.headers}
-                stub.requests.append(record)
-                if self.path.rstrip("/") != "/v1/responses" or length > 8 * 1024 * 1024:
-                    return self.reply(404, b"{}", "application/json")
-                try:
-                    request = json.loads(body)
-                except ValueError:
-                    return self.reply(400, b"{}", "application/json")
-                item = stub.script.next_item(request)
-                record["answer"] = item["type"] if item["type"] == "message" else item["name"]
-                self.reply(200, sse(item, len(stub.requests)), "text/event-stream")
+                self._swbpipe_dispatched = True
+                stub.accept_post(self)
 
             def do_GET(self):
-                stub.requests.append({"path": self.path, "method": "GET"})
-                self.reply(404, b"{}", "application/json")
+                self._swbpipe_dispatched = True
+                stub.accept_get(self)
 
             def reply(self, status, body, kind):
                 self.send_response(status)
@@ -259,6 +263,35 @@ class StubProvider:
 
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+
+    def prepare_connection(self, handler):
+        pass
+
+    def on_http_error(self, handler, code):
+        pass
+
+    def after_request(self, handler):
+        pass
+
+    def accept_post(self, handler):
+        length = int(handler.headers.get("Content-Length") or 0)
+        body = handler.rfile.read(min(length, 8 * 1024 * 1024))
+        record = {"path": handler.path, "bytes": length, "authorization": "Authorization" in handler.headers}
+        self.requests.append(record)
+        if handler.path.rstrip("/") != "/v1/responses" or length > 8 * 1024 * 1024:
+            return handler.reply(404, b"{}", "application/json")
+        try:
+            request = json.loads(body)
+        except ValueError:
+            return handler.reply(400, b"{}", "application/json")
+        item = self.script.next_item(request)
+        record["answer"] = item["type"] if item["type"] == "message" else item["name"]
+        handler.reply(200, sse(item, len(self.requests)), "text/event-stream")
+
+
+    def accept_get(self, handler):
+        self.requests.append({"path": handler.path, "method": "GET"})
+        handler.reply(404, b"{}", "application/json")
 
     @property
     def endpoint(self):
