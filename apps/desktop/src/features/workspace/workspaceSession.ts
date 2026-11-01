@@ -474,7 +474,11 @@ export function useWorkspaceSession() {
         throw new Error("C2-RECORD-MISMATCH: the run record built on the full copy is not the native record (its checksums differ); nothing was handed to the C2 consumer.");
       }
     }
-    if (currentSolvedResultRef.current === target || heldResultRef.current === target) setFullResultCopy({ of: target, copy });
+    // The copy is the job's one copy (cached until disposal): an unchanged pair publishes nothing, so a
+    // repeated load re-renders nothing.
+    if (currentSolvedResultRef.current === target || heldResultRef.current === target) {
+      setFullResultCopy((held) => (held?.of === target && held.copy === copy ? held : { of: target, copy }));
+    }
     return { result: copy, analysisRun: full };
   }
   // Reference inspection is a transient view. Keep genuine persistence bytes

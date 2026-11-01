@@ -7,7 +7,7 @@
  * `RESULT-DETAIL-WEBVIEW-LIMIT` with the sizes, what still works and #51's advice; nothing is
  * withheld silently. A full result in the webview already (historical, browser reference) passes
  * through unchanged. No C1 surface uses this gate. */
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { describeFullResultRefused, FullResultRefused, isNativeAnalysisRun, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { useOptionalSessionResults } from "../workspace/WorkspaceSessionContext";
@@ -19,10 +19,10 @@ export type C2FullResultLoader = (result: SessionResult) => Promise<C2FullResult
 
 type GateState =
   | { status: "idle" }
-  | { status: "loading" }
-  | { status: "ready"; full: C2FullResult; of: SessionResult }
-  | { status: "refused"; text: string }
-  | { status: "failed"; text: string };
+  | { status: "loading"; of: SessionResult; run: SessionAnalysisRun | null }
+  | { status: "ready"; full: C2FullResult; of: SessionResult; run: SessionAnalysisRun | null }
+  | { status: "refused"; text: string; of: SessionResult; run: SessionAnalysisRun | null }
+  | { status: "failed"; text: string; of: SessionResult; run: SessionAnalysisRun | null };
 
 export function C2ResultGate({
   result,
@@ -43,41 +43,48 @@ export function C2ResultGate({
   children: (full: { result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }) => ReactNode;
 }) {
   const sessionResults = useOptionalSessionResults();
-  const load = givenLoad ?? sessionResults?.loadC2Full ?? null;
+  // The loader is read when a load starts, never as a dependency: the session's loader is a new
+  // function on each session render, and a load must not restart (and copy again) for that.
+  const loadRef = useRef<C2FullResultLoader | null>(null);
+  loadRef.current = givenLoad ?? sessionResults?.loadC2Full ?? null;
   const native = isNativeResult(result);
   const [state, setState] = useState<GateState>({ status: "idle" });
-  const [requested, setRequested] = useState(false);
-  const current = state.status === "ready" && state.of === result ? state : null;
+  // A request is for the result it was made on; a new result needs its own.
+  const [requestedFor, setRequestedFor] = useState<SessionResult | null>(null);
+  const requested = requestedFor !== null && requestedFor === result;
+  // Each state is for the result and record it was reached on (a revised record, such as a rule-check
+  // aggregate's, gets its own full record built on the same copy); another's outcome is never shown.
+  const shown = state.status !== "idle" && state.of === result && state.run === analysisRun ? state : null;
   useEffect(() => {
     if (!native || !result || (explicit && !requested)) return;
+    const load = loadRef.current;
     if (!load) {
-      setState({ status: "failed", text: `${feature} has no route to the full result here.` });
+      setState({ status: "failed", text: `${feature} has no route to the full result here.`, of: result, run: analysisRun });
       return;
     }
     let live = true;
-    setState({ status: "loading" });
+    setState({ status: "loading", of: result, run: analysisRun });
     load(result).then(
-      (full) => { if (live) setState({ status: "ready", full, of: result }); },
+      (full) => { if (live) setState({ status: "ready", full, of: result, run: analysisRun }); },
       (error) => {
         if (!live) return;
         setState(error instanceof FullResultRefused
-          ? { status: "refused", text: describeFullResultRefused(error, feature) }
-          : { status: "failed", text: `${feature} could not read the full result: ${nativeFailureText(error)}` });
+          ? { status: "refused", text: describeFullResultRefused(error, feature), of: result, run: analysisRun }
+          : { status: "failed", text: `${feature} could not read the full result: ${nativeFailureText(error)}`, of: result, run: analysisRun });
       }
     );
     return () => { live = false; };
-  }, [native, result, explicit, requested, load, feature]);
-  useEffect(() => { setRequested(false); }, [result]);
+  }, [native, result, analysisRun, explicit, requested, feature]);
 
   if (!native) return <>{children({ result: result as MechanicsResult | null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun })}</>;
-  if (current) return <>{children({ result: current.full.result, analysisRun: current.full.analysisRun })}</>;
-  if (state.status === "refused") return <p role="status" data-testid="c2-result-refused" className="result-refusal">{state.text}</p>;
-  if (state.status === "failed") return <p role="alert" data-testid="c2-result-failed">{state.text}</p>;
+  if (shown?.status === "ready") return <>{children({ result: shown.full.result, analysisRun: shown.full.analysisRun })}</>;
+  if (shown?.status === "refused") return <p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>;
+  if (shown?.status === "failed") return <p role="alert" data-testid="c2-result-failed">{shown.text}</p>;
   if (explicit && !requested) {
     return (
       <p data-testid="c2-result-explicit">
         {`The full result rows for ${feature} are read on request (they stay native until then). `}
-        <button type="button" data-testid="c2-result-load" onClick={() => setRequested(true)}>Load for {feature}</button>
+        <button type="button" data-testid="c2-result-load" onClick={() => setRequestedFor(result)}>Load for {feature}</button>
       </p>
     );
   }

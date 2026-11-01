@@ -396,7 +396,7 @@ export function setFullCopyTransportForTests(next: FullCopyInvoke | null): void 
 /** C2 only (reports, comparisons, rule checks, derivative exports, handoffs): the full result,
  * copied once per job at or under 64 MiB and registered by `register` (the legacy reader path on
  * the exact copied bytes). Above the limit, rejects with `FullResultRefused`. The copy's custody
- * lease is released with the job's disposal. */
+ * lease is released with the job's disposal, or at once when the delivered copy is not kept. */
 export function loadFullResult(result: NativeResult, register: (text: string) => Promise<MechanicsResult>): Promise<MechanicsResult> {
   const { jobId } = nativeCustody(result);
   const job = live(jobId);
@@ -409,7 +409,15 @@ export function loadFullResult(result: NativeResult, register: (text: string) =>
       throw parseFullResultRefusal(error) ?? nativeInvokeError(error);
     }
     if (job.disposed) throw new Error(`${NATIVE_RESULT_DISPOSED}: ${jobId}'s native custody ended while its full copy was read.`);
-    return register(copyText(delivered));
+    try {
+      return await register(copyText(delivered));
+    } catch (error) {
+      // The delivered copy is not kept (unreadable, or its registration refused): its custody lease
+      // is released natively, so a later request can copy again rather than meet
+      // `RESULT-DETAIL-FULL-COPY-HELD` for a copy the webview no longer holds.
+      if (!job.disposed) await fullCopyTransport(NATIVE_FULL_COPY_RELEASE_COMMAND, { jobId }).catch(() => undefined);
+      throw error;
+    }
   })();
   job.fullCopy = pending;
   pending.catch(() => {

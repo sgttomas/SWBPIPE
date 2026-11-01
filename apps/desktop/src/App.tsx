@@ -836,14 +836,14 @@ function AppSession() {
                 // self-weight generator's own weights; model data, so no solve is needed.
                 <WeightSummaryPanel model={model} selectedPipeRefs={selectedPipeRefs} />
               )}
-<C2ResultGate result={currentSolvedResult} analysisRun={null} feature="comparisons" explicit>
+              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="comparisons" explicit>
                 {(full) => (
-                                <ComparisonPanel
-                  comparison={withinRun.status === "ready" ? withinRun.comparison : null}
-                  result={full.result}
-                  onSelectResult={handleSelectResult}
-                  withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
-                />
+                  <ComparisonPanel
+                    comparison={withinRun.status === "ready" ? withinRun.comparison : null}
+                    result={full.result}
+                    onSelectResult={handleSelectResult}
+                    withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
+                  />
                 )}
               </C2ResultGate>
               <DesignWorkspacePanel
@@ -895,43 +895,43 @@ function AppSession() {
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the rendered report">
                 {(full) => (
-                                <RenderedReportPanel
-                  model={model}
-                  result={full.result}
-                  numericalHealth={currentSolvedResult ? numericalHealth : null}
-                  analysisRun={full.analysisRun}
-                  projectSummary={projectSummary}
-                  inputManifest={inputManifest}
-                  ruleCheckRun={ruleCheckReportRun}
-                  packagePrivateIntent={reportPackagePrivateIntent}
-                  packageBusy={reportPackageBusy}
-                  packageRedaction={reportPackageRedaction}
-                  packageRoute={reportPackageRoute}
-                  onPackagePrivateIntentChange={setReportPackagePrivateIntent}
-                  onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
-                />
+                  <RenderedReportPanel
+                    model={model}
+                    result={full.result}
+                    numericalHealth={currentSolvedResult ? numericalHealth : null}
+                    analysisRun={full.analysisRun}
+                    projectSummary={projectSummary}
+                    inputManifest={inputManifest}
+                    ruleCheckRun={ruleCheckReportRun}
+                    packagePrivateIntent={reportPackagePrivateIntent}
+                    packageBusy={reportPackageBusy}
+                    packageRedaction={reportPackageRedaction}
+                    packageRoute={reportPackageRoute}
+                    onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                    onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
+                  />
                 )}
               </C2ResultGate>
               {reportPackageUnavailable ? <p role="status" data-testid="report-package-source-unavailable">{reportPackageUnavailable}</p> : null}
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the report">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the report">
                 {(full) => (
-                                <ReportPanel
-                  model={model}
-                  knowledge={knowledge}
-                  result={full.result}
-                  numericalHealth={currentSolvedResult ? numericalHealth : null}
-                  analysisRun={full.analysisRun}
-                  comparison={comparison}
-                  comparisonUnavailable={comparisonUnavailable}
-                  editorIntents={editorIntents}
-                  projectOperation={projectOperation}
-                  projectSummary={projectSummary}
-                  proposal={proposal}
-                  selectedReviewTarget={selectedReviewTarget}
-                  storageCapability={storageCapability}
-                />
+                  <ReportPanel
+                    model={model}
+                    knowledge={knowledge}
+                    result={full.result}
+                    numericalHealth={currentSolvedResult ? numericalHealth : null}
+                    analysisRun={full.analysisRun}
+                    comparison={comparison}
+                    comparisonUnavailable={comparisonUnavailable}
+                    editorIntents={editorIntents}
+                    projectOperation={projectOperation}
+                    projectSummary={projectSummary}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                    storageCapability={storageCapability}
+                  />
                 )}
               </C2ResultGate>
               <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
@@ -1160,25 +1160,25 @@ function AppSession() {
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
-<C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks">
+              {/* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
+                  they load them only when the person asks, never at a solve's first paint. */}
+              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks" explicit>
                 {(full) => (
-                                <RuleCheckPanel model={model} result={full.result} />
-                )}
-              </C2ResultGate>
-<C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks">
-                {(full) => (
-                                <RuleCheckRunPanel
-                  basis={ruleCheckRunBasis}
-                  model={model}
-                  result={full.result}
-                  onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
-                    projectSessionGeneration,
-                    modelRevision: uiModelRevision,
-                    result: currentSolvedResult,
-                    inputManifest
-                  }, run ?? null)}
-                  onR3JourneyEvent={recordR3JourneyEvent}
-                />
+                  <>
+                    <RuleCheckPanel model={model} result={full.result} />
+                    <RuleCheckRunPanel
+                      basis={ruleCheckRunBasis}
+                      model={model}
+                      result={full.result}
+                      onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
+                        projectSessionGeneration,
+                        modelRevision: uiModelRevision,
+                        result: currentSolvedResult,
+                        inputManifest
+                      }, run ?? null)}
+                      onR3JourneyEvent={recordR3JourneyEvent}
+                    />
+                  </>
                 )}
               </C2ResultGate>
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
@@ -1229,14 +1229,14 @@ function AppSession() {
               {activeSection === "exports" || activatedExpensiveSections.has("exports") ? (
               <DormantSection active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`exports:${dormantOutputBasis}`}>
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the result JSON export">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the result JSON export">
                 {(full) => (
-                                <ResultExportPanel model={model} result={full.result} analysisRun={full.analysisRun} inputManifest={inputManifest} />
+                  <ResultExportPanel model={model} result={full.result} analysisRun={full.analysisRun} inputManifest={inputManifest} />
                 )}
               </C2ResultGate>
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the stress-neutral export">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the stress-neutral export">
                 {(full) => (
-                                <StressNeutralExportPanel model={model} result={full.result} analysisRun={full.analysisRun} />
+                  <StressNeutralExportPanel model={model} result={full.result} analysisRun={full.analysisRun} />
                 )}
               </C2ResultGate>
               <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
@@ -1244,47 +1244,47 @@ function AppSession() {
               <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the local FEA handoff">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the local FEA handoff">
                 {(full) => (
-                                <LocalFeaHandoffPanel model={model} result={full.result} analysisRun={full.analysisRun} />
+                  <LocalFeaHandoffPanel model={model} result={full.result} analysisRun={full.analysisRun} />
                 )}
               </C2ResultGate>
               <ExternalProverBoundaryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <ReviewGeometryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the headless runner package">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the headless runner package">
                 {(full) => (
-                                <HeadlessRunnerPanel model={model} result={full.result} analysisRun={full.analysisRun} solveJob={solveJob} />
+                  <HeadlessRunnerPanel model={model} result={full.result} analysisRun={full.analysisRun} solveJob={solveJob} />
                 )}
               </C2ResultGate>
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the native package">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the native package">
                 {(full) => (
-                                <NativePackagePanel
-                  model={model}
-                  modelHash={modelHash}
-                  result={full.result}
-                  analysisRun={full.analysisRun}
-                  editorIntents={editorIntents}
-                  projectSummary={projectSummary}
-                  proposal={proposal}
-                  selectedReviewTarget={selectedReviewTarget}
-                  storageCapability={storageCapability}
-                />
+                  <NativePackagePanel
+                    model={model}
+                    modelHash={modelHash}
+                    result={full.result}
+                    analysisRun={full.analysisRun}
+                    editorIntents={editorIntents}
+                    projectSummary={projectSummary}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                    storageCapability={storageCapability}
+                  />
                 )}
               </C2ResultGate>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
-<C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the handoff package">
+              <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the handoff package">
                 {(full) => (
-                                <HandoffPanel
-                  model={model}
-                  knowledge={knowledge}
-                  result={full.result}
-                  analysisRun={full.analysisRun}
-                  comparison={comparison}
-                  comparisonUnavailable={comparisonUnavailable}
-                  editorIntents={editorIntents}
-                  proposal={proposal}
-                  selectedReviewTarget={selectedReviewTarget}
-                />
+                  <HandoffPanel
+                    model={model}
+                    knowledge={knowledge}
+                    result={full.result}
+                    analysisRun={full.analysisRun}
+                    comparison={comparison}
+                    comparisonUnavailable={comparisonUnavailable}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    selectedReviewTarget={selectedReviewTarget}
+                  />
                 )}
               </C2ResultGate>
               <ExportReviewPanel
