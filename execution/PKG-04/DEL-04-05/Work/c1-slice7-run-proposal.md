@@ -3,11 +3,12 @@
 Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
-**Execution status:** the release App, two model documents and baseline P2 plan
+**Execution status:** the release App, two model documents and C1 plan
 are prepared. P1's runner safeguards cleared the final independent recheck at
 `dee93a72`. P2's interaction probes and P3's feature-gated scalar reader probe are
-implemented offline. The new smoke binary is bound below; connected scrutiny and exact-head CI
-remain prerequisites. Do not acquire an
+implemented offline. The new smoke binary is bound below. P2/P3 connected review cleared
+`92983690e`; parent follow-ups are recorded below. Exact-head CI and the narrow
+operational grant remain prerequisites. Do not acquire an
 exclusive interval or launch the App until those are
 ready and the narrow run authority has been granted. Preparation has launched no
 App, solve worker, model solve, memory sampler, screenshot or LLM session.
@@ -20,7 +21,7 @@ Its only changes from independently cleared
 tests, schemas, core and permissions are identical. This proposal and
 `apps/desktop/native-smoke/perf-plan-c1.json` and the 500/1,000-node extensions of
 `rackModelOpen.test.ts` are later preparation changes, not part of that binary.
-Record their submitting revision separately. Any later
+Their submitting revisions and external hashes are recorded below. Any later
 runtime, frontend, reader, worker, driver, sampler or plan change must be named
 and hashed in the run record; do not silently call it the a37d candidate.
 
@@ -74,19 +75,22 @@ binding reconciliation does not change this runtime/test identity.
   counter checks add instrumentation overhead even outside P3. Neither App
   binary has been launched.
 
-Current external source identities (SHA-256):
+Current external source identities (SHA-256; recorded in each run and
+inspection checkpoint as well as the final report, with current source commit
+and dirty flag, separately from the native App binding):
 
 | File | Digest |
 | --- | --- |
-| `perf.mjs` | `a921d9817b83526c8d815519eec9e9ed1a7168aac6faff1123b92f2ffbe5ade2` |
-| `perf-driver.js` | `c341d8de4a46ce71087094cc6f2e3169e138069a158642ccfd04e7b5dc525545` |
+| `perf.mjs` | `0e0f547b4424eb3ab40c48c166f7cbbf1621d311694582d944aeb899c8627539` |
+| `perf-driver.js` | `92e06d6b38c25341d86381fd51fcfebccaa0ba832e39a1f5fc71df7e459dfa84` |
 | `perf-sampler.py` | `3b9f6ebb03fad25024f59c7f62aefc95d66ae02b4b463b226a75ad519a483f05` |
 | `perf-plan-c1.json` | `663a0affddcdd40323e11f3f4a89e1a10e961ab34e7e1f301d89825f5fbec2cc` |
 
 The original a37d App remains preserved in `app/`; execution recipes below
 select `app-p3/`. P1 was independently clear at dee93a72 and its control block
-is byte-identical. P2/P3's connected measurement/permissions scrutiny remains
-owed, including the TLS scan delta. No successful allocation probe or native
+is byte-identical. P2/P3 connected measurement/permissions scrutiny, including the TLS scan
+delta, cleared `92983690e`; the external-script follow-ups below change no
+App/worker/frontend/Wasm bytes. No successful allocation probe or native
 interaction is claimed by compilation or these hashes.
 
 ## Inputs and reproducible commands
@@ -119,8 +123,7 @@ node apps/desktop/native-smoke/perf.mjs --plan --plan-file apps/desktop/native-s
 ```
 
 The P3 command requires the later `app-p3` binding; the preserved a37d
-App cannot execute it. Its exact submitting revision and artifact digest must
-be recorded separately. The two `--plan` commands
+App cannot execute it. Its submitting revision and artifact digest are recorded above. The two `--plan` commands
 have passed. The new plan's default selects only 500; it has no 2,000-node run.
 Do not use the old `perf-plan.json` default window, which includes 2,000.
 
@@ -139,9 +142,9 @@ Only after the 500-node gate passes, release/reacquire through the same queue:
 ```
 
 These commands select the P2 interaction driver through the independently
-cleared P1 supervisor; P2 connected scrutiny remains owed.
-They become the complete gate only after the P2/P3 connected review,
-artifact binding and exact-head checks below. Rebind changed external scripts and any
+cleared P1 supervisor. P2/P3 connected review is clear at `92983690e`;
+external-script follow-ups are verified below. The exact-head checks and
+operational grant remain required before execution. Rebind changed external scripts and any
 changed App before using them. No assumed flags or nonexistent profiling command
 is presented as executable here.
 
@@ -327,7 +330,7 @@ bound App/lane cache while this proposed window still needs them. No broad host
 cleanup utility or other lane's files. Report cleanup and lock-release failures
 truthfully; do not extend the interval to hide them.
 
-## Missing executable prerequisites and smallest grant
+## Verification status and smallest grant
 
 P1 — **Independent round 3 clear at `dee93a72`.** The first independent
 review at `3faf9ea12` blocked supervisor-death cleanup and forced-stop evidence
@@ -412,7 +415,7 @@ finite teardown, closed owned-PID/path and scratch containment, honest failure
 reporting and no unrelated-process kill. Hostile concurrent path/PID substitution
 remains outside the existing kit's threat model; this is not risk acceptance.
 
-P2 — **Implemented offline, connected scrutiny still owed with the final gate.**
+P2 — **Implemented offline; connected review clear at `92983690e`.**
 The C1 plan now enables bounded probes for all three navigator axes, next/previous
 pages, row detail, no-match/clear filtering, streamed group CSV, Record Run,
 native project reopen/re-save, recorded-run check/disposal, normal model-open
@@ -436,17 +439,21 @@ model-only SQLite save or named refusal fails the round-trip usability probe;
 it is not called a half-written result. CSV inspection streams with Python's
 standard CSV reader outside the webview, checks BOM/preamble/width/receipt bytes
 and compares data-row count with the native group's query total. Inspection
-failure is unverified evidence, not assumed file corruption.
+failure is unverified evidence, classified `refused_with_message` at step
+`csv_inspection` with `needs_review`, not assumed file corruption. Python CSV
+inspection uses isolated mode (`-I`).
 
 The preflight refuses prior held jobs, changed budget or unknown/insufficient
 headroom. Live monitoring uses native pool status, stops immediately on known
-elevated pressure and after two unknown replies (or stale status), and attempts
+elevated pressure, after two unknown replies, or after an outstanding status
+request exceeds 3 s on two consecutive timer ticks. Staleness starts at request
+dispatch; a delayed webview tick before a request is not low-memory evidence. It attempts
 bounded cancellation on failure without inventing a successful receipt. Terminal
 UI outcomes remain verbatim; the separate low-level refusal trace is bounded
 and marks truncation/omission. Transient admission retries remain observable,
 not reclassified as terminal product failures.
 
-Thirty-four Node tests pass under the slot wrapper. Added tests use DOM/IPC
+The current thirty-eight Node tests pass under the slot wrapper. Added tests use DOM/IPC
 emulation and the committed Rust response shapes, plus synthetic CSV files and
 pool readings; they are source-mode evidence only. They do not establish actual
 native interaction, cleanup, first table paint, memory fit or the complete P3
@@ -454,7 +461,7 @@ gate. The P1 control block is byte-identical to its reviewed `dee93a72` source;
 P2 changes input validation, observation, UI probes and read-only file inspection.
 No new product command or scope is needed for P2.
 
-P3 — **Implemented and bound offline; connected review required.**
+P3 — **Implemented and bound offline; connected review clear at `92983690e`.**
 The existing native-smoke feature now supplies the read-only scalar command
 above and the C1 plan enables it. The existing allocator facility is also
 compiled under that feature, remaining inactive except on the probe thread.
@@ -464,26 +471,57 @@ is admitted only in ingress, its body must be parsed statics and every initializ
 is scanned with the existing rules. No opaque macro exemption or handler-macro
 re-pin is added; the ordinary product handler definition is unchanged.
 
-Thirty-six Node tests pass with synthetic phase metrics; the Rust smoke library
-compiles, and an unknown-handle test refuses before file access/measurement with
-all leases returned. The counter's unwind-disarm unit check passes. The 34
-existing reach tests passed after the syntax changes; the new TLS case initially
-failed because its synthetic file was not traversed, then lacked its required
-module attribute. The corrected case passes against the final parser, including
-hidden calls/includes, non-static bodies and wrong-file/spelling refusals. This
-is scoped evidence, not a repeated full desktop Rust/vitest run. The default
-product library check, timeline table comparison, TypeScript/release smoke build,
-model-version tests (8), plan validation and deliverables check (0 errors, the
-existing one cycle) pass. Full-PR-range selection at 195 paths selects desktop
-build/test/Rust and model-version; final hosted checks remain required. No successful
-probe, allocation profile or native App invocation has run. The connected P2/P3
-review must cover actual API shapes/binding, measurement interpretation,
-permissions/feature exclusion and the narrow TLS scan delta, without reopening
-P1's closed three rounds for unchanged controls or wording. The new release binding is recorded above; exact-head hosted CI is still required. The live allocation/timing run
-belongs inside the authorized interval, never an ordinary concurrent test. If it cannot fit with
-the App sequence inside A/B, return a bounded additional-interval proposal;
-do not silently add one or extend either interval. These prerequisites are
-offline implementation/verification work, not a request for broader permissions.
+The independent review at `92983690e65ba3292a3d3ea87183fb383b92272c`
+found no blockers or new in-model failure kind. It independently checked hashes,
+binding/leases, production DTOs, the health upper bound and TLS scan. Its own
+checks: 36 Node tests; 69 targeted Rust tests across ingress, native-smoke and
+reach scans (including the real-source scans); non-test smoke `cargo check`.
+Inherited author checks remain the default product check, TypeScript/release
+build, model-version 8, timeline/plan validation and graph 0 errors/one existing
+cycle. No full local Rust/vitest run is claimed after P2/P3; exact-head hosted
+verification remains required. No successful probe, allocation profile or native
+App invocation has run.
+
+Parent follow-ups to the nonblocking notes change only external scripts/tests
+and Work text. The pool monitor tolerates delayed ticks and requires two stale
+pending-request ticks. Before potentially blocking store/CSV inspection, the
+runner atomically checkpoints the exited App's report, memory timeline, source
+identities and inspection-pending state outside disposable scratch. Its class
+is `refused_with_message` and `evidence_complete` is false; it is never announced
+as a completed run. A committed final record supersedes/removes it. A deadline
+while inspecting still fails the gate; the checkpoint supplies partial evidence,
+not a commit receipt or permission to exceed the window. CSV inspection uses
+isolated Python. All 38 Node tests pass, including delayed-page/pending-request
+and unfinished-inspection regressions. P1's control block remains byte-identical;
+no additional reviewer is requested for these contained note repairs.
+
+Remaining interpretation limits, recorded rather than expanded:
+
+- No successful profiling command has run. The maintained generator writes
+  sorted keys; native Open reads those through serde, and the session adopts
+  the opened document unchanged. Existing open/solve source-mode and JS-text
+  writer tests support that input basis, but JCS equality alone would not
+  establish exact intake key order. The first authorized 500-node run is the
+  connecting-path canary. An intake-order refusal ends that gate without retry.
+- `semantics_working_max` has maximum requested/priced/live byte values across
+  all bounded batches; `elapsed_us` and allocation count are **sums**. Its rows
+  are borrowed, so this is the per-row reader/output work compared with the
+  existing 4 MiB working allowance, not total production command memory.
+- `model_parse_bound_bytes` names the raw model file's admission bound. The
+  measured model parse reads its JSON.stringify-normalized text. The raw bound
+  covers that same model tree; it is not labelled an exact normalized-text size.
+- The inferred health bound depends on the selected engine keeping its parsed
+  source alive through health construction/serialization. That order was
+  independently read at the bound source; no test pins its lifetime. A change
+  there invalidates this inference until rechecked. Parser transients remain
+  separately observed, not inferred from a partly built tree.
+- The smoke-only non-test build warns about unused `counting::live_priced`;
+  this does not affect the probe. The 30 s inspection reserve does not promise
+  that large store/CSV checks finish; incomplete inspection fails the gate.
+
+The live allocation/timing run belongs inside the authorized interval. If it
+cannot fit with the App sequence inside A/B, return a bounded additional-interval
+proposal; do not silently add one or extend either interval.
 
 Once P1–P3 are verified, exact-head CI is clear and identities are reconciled,
 the smallest owner/resource grant is: launch this named native-smoke App on only

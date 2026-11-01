@@ -295,19 +295,23 @@
     return pool;
   }
   function startPoolMonitor(report) {
-    let pending = false, lastReply = now(), unknown = 0;
+    let pending = false, sentAt = 0, staleTicks = 0, unknown = 0;
     resourceFailure = null;
     const timer = setInterval(() => {
-      if (now() - lastReply > 3000) resourceFailure ??= "C1 pool status became stale";
-      if (pending) return;
+      if (pending) {
+        staleTicks = now() - sentAt > 3000 ? staleTicks + 1 : 0;
+        if (staleTicks >= 2) resourceFailure ??= "C1 pool status request stayed stale";
+        return;
+      }
       pending = true;
+      sentAt = now();
+      staleTicks = 0;
       poolStatus().then(pool => {
-        lastReply = now();
         report.last_pool = pool;
         if (["warning", "critical"].includes(pool.pressure)) resourceFailure ??= "C1 pool pressure became elevated";
         unknown = pool.pressure !== "normal" || !Number.isFinite(pool.available_bytes) ? unknown + 1 : 0;
         if (unknown >= 2) resourceFailure ??= "C1 pool pressure/headroom stayed unknown";
-      }, error => { if (++unknown >= 2) resourceFailure ??= `C1 pool status refused: ${String(error?.message ?? error)}`; }).finally(() => { pending = false; });
+      }, error => { if (++unknown >= 2) resourceFailure ??= `C1 pool status refused: ${String(error?.message ?? error)}`; }).finally(() => { pending = false; staleTicks = 0; });
     }, 1000);
     return () => clearInterval(timer);
   }

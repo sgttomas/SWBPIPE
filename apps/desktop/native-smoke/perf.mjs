@@ -630,7 +630,7 @@ with open(sys.argv[1],encoding='utf-8-sig',newline='') as source:
  print(json.dumps({'rows':count,'columns':len(header),'sha256':digest.hexdigest()}))
 `;
     const read = await new Promise((resolve, reject) => {
-      execFile("python3", ["-c", script, file], { timeout: 30000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 }, (error, stdout) => {
+      execFile("python3", ["-I", "-c", script, file], { timeout: 30000, killSignal: "SIGKILL", maxBuffer: 64 * 1024 }, (error, stdout) => {
         if (error) reject(error); else { try { resolve(JSON.parse(stdout)); } catch (invalid) { reject(invalid); } }
       });
     });
@@ -689,7 +689,7 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
 }
 
 async function runOne(run, ctx) {
-  const record = { id: run.id, mode: run.mode, model: run.model, started_at: new Date().toISOString() };
+  const record = { id: run.id, mode: run.mode, model: run.model, binding: ctx.binding, harness: ctx.harness, started_at: new Date().toISOString() };
   // Every plan-named source and destination stays inside its root (validatePlan, containedPath).
   let modelSource, resultFile;
   try {
@@ -820,6 +820,7 @@ async function runOne(run, ctx) {
     ambiguous: webcontent.length > 1
   };
   memory.peak_footprint_since = jobDone === null ? null : "job_done";
+  checkpointRun({ ...record, report, progress, memory, kept: root, store: { inspection: "pending" } }, ctx);
   audit({ type: "stage", step: "inspect_store", stage: "started" });
   const store = await inspectStore(home);
   audit({ type: "stage", step: "inspect_store", stage: "completed" });
@@ -849,6 +850,19 @@ export async function finishScratch({ scratch, binary, keep }) {
   else await rm(scratch, { recursive: true, force: true });
 }
 
+/** Preserve the exited App's evidence before an inspection can block. This
+ * checkpoint cannot pass a gate and is never announced as a completed run. */
+export function checkpointRun(record, { out, scratch }) {
+  const file = path.join(out, `perf-partial-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`);
+  const temporary = `${file}.tmp`;
+  const partial = { ...record, class: "refused_with_message", evidence_complete: false,
+    findings: [{ class: "refused_with_message", step: "inspection", message: "Post-App store/CSV inspection is incomplete; this is a checkpoint, not a successful run.", needs_review: true }] };
+  writeFileSync(temporary, `${JSON.stringify(partial, null, 1)}\n`, { flag: "wx", mode: 0o600 });
+  renameSync(temporary, file);
+  audit({ type: "stage", step: "inspection_checkpoint", stage: "committed", path: file });
+  return file;
+}
+
 /** Commit a finished run before another App can start. Samples live outside
  * scratch; only an ok run's App-written HOME is removed, after that commit. */
 export async function commitRun(record, { out, scratch, keep }) {
@@ -860,6 +874,9 @@ export async function commitRun(record, { out, scratch, keep }) {
     renameSync(temporary, file);
   };
   persist();
+  // The final record is now durable; the deliberately incomplete checkpoint
+  // has no remaining consumer. Its name is derived from this window/run only.
+  await rm(path.join(out, `perf-partial-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`), { force: true });
   audit({ type: "completed_run", path: file });
   if (record.class === "ok" && !keep && record.kept) {
     if (path.dirname(record.kept) !== scratch || !path.basename(record.kept).startsWith("run-")) throw new Error("perf cleanup: not this window's run root");
@@ -896,12 +913,18 @@ async function runPlan(options) {
   chmodSync(binary, 0o700);
   if (sha256File(binary) !== binding.binary.sha256) throw new Error("perf run: the private copy differs from the bound binary");
   const started = Date.now();
-  const ctx = { plan, binary, models: options.models, results: options.results ?? options.models, out: options.out, scratch, keep: options.keep, remainingMs: () => budgetMs - (Date.now() - started) };
+  const harness = {
+    source_commit: git("rev-parse", "HEAD"), source_dirty: git("status", "--porcelain").length > 0,
+    files_sha256: Object.fromEntries(["perf.mjs", "perf-driver.js", "perf-sampler.py"].map(name => [name, sha256File(path.join(here, name))])),
+    plan_sha256: sha256File(options.planFile),
+    rack_generator_sha256: sha256File(path.join(project, "core/solver/performance_harness/rack/rack_model.py"))
+  };
+  const ctx = { plan, binding, harness, binary, models: options.models, results: options.results ?? options.models, out: options.out, scratch, keep: options.keep, remainingMs: () => budgetMs - (Date.now() - started) };
   process.stdout.write(formatPlan(runs, budgetMs / 1000));
   const records = [];
   for (const run of runs) {
     if (run.estimate_s * 1000 > ctx.remainingMs()) {
-      const skipped = { id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
+      const skipped = { binding, harness, id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
       await commitRun(skipped, ctx);
       records.push(skipped);
       console.log(`${run.id}: skipped (window budget)`);
@@ -916,7 +939,7 @@ async function runPlan(options) {
     schema: "swbpipe.desktop-perf-report/v1",
     written_at: new Date().toISOString(),
     host: { platform: process.platform, release: os.release(), cpus: os.cpus().length, cpu_model: os.cpus()[0]?.model ?? null, memory_bytes: os.totalmem() },
-    binding,
+    binding, harness,
     plan: { file: path.relative(project, options.planFile), subset: options.runs ? null : options.subset ?? "window", runs: runs.map((run) => run.id), budget_s: budgetMs / 1000 },
     conditions: [
       "Observation only: no time or memory bound is asserted, and criterion 9's provisional bounds are not evaluated.",

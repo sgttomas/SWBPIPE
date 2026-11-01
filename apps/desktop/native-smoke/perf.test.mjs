@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { c1PhysicalPhases, classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { c1PhysicalPhases, checkpointRun, classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -739,4 +739,43 @@ test("C1 phase physical peaks align readings and mark missing-worker inference",
   assert.equal(out.reader_probe.aligned_sampled_peak,null);
   assert.equal(out.after_reader_probe.aligned_sampled_peak.worker_zero_inferred,true);
   assert.equal(out.all.completed_worker_zero_samples,1);
+});
+
+
+test("C1 pool monitoring starts staleness at dispatch and tolerates a delayed tick", async t => {
+  let clock=0,tick,resolve;
+  const pool={headroom:{pressure:"normal",available_bytes:30*1024**3}};
+  let delayed=false;
+  const ui=await driverDom(t,"",async command => command==="get_memory_pool_status" ? delayed ? new Promise(done=>{resolve=()=>done(pool);}) : pool : null);
+  ui.context.performance={now:()=>clock};
+  ui.context.setInterval=callback=>{tick=callback;return 1;};
+  ui.context.clearInterval=()=>{tick=null;};
+  const stop=ui.hooks.startPoolMonitor({});
+  clock=10000;tick();await new Promise(done=>setImmediate(done));
+  assert.equal(await ui.hooks.waitFor("fresh request after UI stall",()=>true,10),true);
+  delayed=true;clock=11000;tick();
+  clock=15000;tick();
+  assert.equal(await ui.hooks.waitFor("one stale pending tick",()=>true,10),true);
+  clock=16000;tick();
+  await assert.rejects(ui.hooks.waitFor("pending request remained stale",()=>true,10),/request stayed stale/);
+  resolve();await new Promise(done=>setImmediate(done));stop();
+});
+
+test("post-App inspection checkpoint survives an unfinished inspection and cannot pass", async t => {
+  const out=mkdtempSync(path.join(os.tmpdir(),"perf-partial-"));
+  t.after(()=>rmSync(out,{recursive:true,force:true}));
+  const scratch=path.join(out,"perf-window");
+  mkdirSync(scratch);
+  const ctx={out,scratch,keep:true};
+  const report={c1:{completed:true},solve:{ended:"first_paint"}};
+  const record={id:"one",report,memory:{timeline:[[123,10,10]]},store:{inspection:"pending"}};
+  const checkpoint=checkpointRun(record,ctx);
+  const partial=JSON.parse(readFileSync(checkpoint,"utf8"));
+  assert.equal(partial.evidence_complete,false);
+  assert.equal(partial.class,"refused_with_message");
+  assert.deepEqual(partial.memory,record.memory);
+  assert.deepEqual(partial.report,report);
+  assert.match(partial.findings[0].message,/not a successful run/);
+  await commitRun({...record,class:"ok",store:{quick_check:["ok"]}},ctx);
+  assert.equal(existsSync(checkpoint),false);
 });
