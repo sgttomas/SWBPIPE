@@ -512,7 +512,10 @@ row/member order, diagnostics and selection remain unchanged; only the first
 formulation-basis limitation and binding hashes move. The earlier O4/W-15/tee
 checks keep their historical endpoints, with this separate stage checking
 the current files. Frozen numerical references and recorded 0.7/0.8 model
-runs are preserved verbatim.
+runs are preserved verbatim. The new stage excludes model/request/input-manifest
+hashes and input-scoped digest records from its hash allowance and preserves
+the digest encoding. Independent carrier scrutiny also checks source-input
+hashes across the generated outputs.
 
 **Next boundary.** Agent 0's adopted sequence is concentric 2a, bounded
 eccentric 2b, then constant effort. RS-R1 remains eccentric and pending 2b;

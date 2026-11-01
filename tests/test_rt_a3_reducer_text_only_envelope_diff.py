@@ -45,12 +45,27 @@ FILES = tuple(dict.fromkeys((*RT_A3_LISTED,
       for kind in ("connector", "realized_bend")),
 )))
 
+# These bind the authored input, which the regeneration does not change. A
+# report-package `request` can also contain output carriers, so protect its
+# named model/manifest children rather than that whole transport wrapper.
+INPUT_BINDINGS = frozenset({
+    "invocation", "model", "authored_model", "corner_document", "input_manifest",
+    "model_hash", "model_sha256", "model_document_sha256", "document_model_sha256",
+    "request_hash", "request_sha256", "input_hash", "input_sha256",
+    "input_manifest_hash", "input_manifest_hashes", "input_manifest_sha256",
+    "audit_input_manifest_sha256",
+})
+
 
 def compare(before, after, path=()):
     """Return identity-field count; refuse every non-binding or numerical move."""
     assert type(before) is type(after), path
     if isinstance(before, Obj):
         assert [k for k, _ in before] == [k for k, _ in after], path
+        # AnalysisRun digest lists name their subject in the record, not in
+        # the path to `value`. Input-scoped records must stay unchanged too.
+        if dict(before).get("payload_scope") in {"model", "request", "input_manifest"}:
+            assert before == after, path
         return sum(compare(a, b, _rt_a3_member_path(before, key, path))
                    for (key, a), (_, b) in zip(before, after))
     if isinstance(before, list):
@@ -63,6 +78,8 @@ def compare(before, after, path=()):
         return 0
     if type(before) is str:
         if HASH.fullmatch(before) and HASH.fullmatch(after):
+            assert not INPUT_BINDINGS.intersection(path), path
+            assert before.startswith("sha256:") == after.startswith("sha256:"), path
             return 0
         a, b = _embedded(before), _embedded(after)
         if a is not None and b is not None:
@@ -89,3 +106,19 @@ def test_preservation_guard_rejects_other_moves():
     # A syntactically valid identity at a different field is still forbidden.
     with pytest.raises(AssertionError):
         compare(Obj([("description", OLD)]), Obj([("description", NEW)]))
+
+
+def test_preservation_guard_keeps_input_hashes_and_hash_encoding():
+    old, new = "1" * 64, "2" * 64
+    for field in INPUT_BINDINGS:
+        with pytest.raises(AssertionError):
+            compare(Obj([(field, old)]), Obj([(field, new)]))
+    for scope in ("model", "request", "input_manifest"):
+        with pytest.raises(AssertionError):
+            compare(Obj([("payload_scope", scope), ("value", old)]),
+                    Obj([("payload_scope", scope), ("value", new)]))
+    # Rebinding a received output is expected; changing its digest encoding is not.
+    assert compare(Obj([("payload_scope", "received_result"), ("value", old)]),
+                   Obj([("payload_scope", "received_result"), ("value", new)])) == 0
+    with pytest.raises(AssertionError):
+        compare(old, "sha256:" + new, ("checksum", "value"))
