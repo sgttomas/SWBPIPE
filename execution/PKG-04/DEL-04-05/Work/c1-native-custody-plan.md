@@ -535,7 +535,7 @@ derivative or its screen into C1. That port remains C2 work. C1 does not remove 
 size refusal. This resolves conflicting plan wording; it adopts no new output, schema or
 permission. The exact old/new text and rationale are in #59 for the connected review.
 
-**Remaining for this slice:** saved-result native reopening (slice 6), and the C2-copy interim for
+**Remaining for this slice:** the C2-copy interim for
 run comparisons with the current run and reference-inspection retention. Native Record Run and
 Save/Create Project are connected (slice 5's persistence, below). Navigator
 stepping and bounded streamed group CSV are implemented. The native-read refusal is now a
@@ -746,8 +746,8 @@ restored and browser-preview results):
   support in the summary corpus. No S1 source fixture, schema, core or pricing test was edited;
   historical 0.8 controls and the recorded-run table compatibility are S1's, unchanged.
 - **Remaining:** the independent persistence, permissions and numerical review of this increment;
-  saved-result native reopening (slice 6); the C2 interim for comparisons with the current run
-  and reference-inspection retention; slice 7's measurement.
+  the C2 interim for comparisons with the current run and reference-inspection retention of a fresh
+  result; slice 7's measurement. (Saved-result native reopening: slice 6 status.)
 
 ### Slice 6: saved and historical results open into native custody
 
@@ -756,6 +756,100 @@ restored and browser-preview results):
   pages then work as for a solve.
 - `HistoricalRunContext` and the model-state comparison take the handle.
 - After this slice the wasm reader path is used only by tests.
+
+#### Slice 6 status (connected on `claude/rt-perf-c1-custody`, 2026-11-01)
+
+**Connected.** `stored_custody.rs`, `analysis_run_v03_validate.rs` (a child of the slice-5 builder),
+`services/nativeReopen.ts`; `solve_jobs.rs` gains the restored origin.
+
+- **Commands** (raw args bodies under `command_ingress`, JSON body replies, Tauri delivers them
+  parsed; the decoders refuse text, bytes and other shapes, `NATIVE-REOPEN-MALFORMED`):
+  - `open_local_project_in_native_custody {projectId?}`: `open_local_project`'s members (the same
+    store open, model-document refusals and serde messages) without `mechanics_result` and
+    `analysis_run`, plus `stored_run`: `none`; `restored` (handle, origin, stored source with the
+    SHA-256 of the texts held, lengths, findings, record header); or `refused`
+    (`STORED-RESULT-RESTORE-REFUSED`, the lengths, the pool's or retention's reason) with the model
+    open for editing.
+  - `read_analysis_run_in_native_custody {projectId, recordingId}`: `read_analysis_run`'s verified
+    store read (every integrity refusal, one read transaction) without its 64 MiB limit; the reply is
+    the summaries, the manifest's canonical text and `restored`.
+  - `read_restored_result_record_all {jobId}`: the stored record's bytes for a C2 consumer, at or
+    under 64 MiB only (`RESULT-DETAIL-WEBVIEW-LIMIT` above), as `read_preview_mechanics_job_rows_all`
+    copies the result.
+- **Origin** (`solve_jobs::ResultOrigin`). A restored record (`restored-stored-result-N`) holds the
+  stored result and record as two `HeldResult`s with result leases; it has no digests, attestation,
+  worker, timestamp or acting cancellation token. `custody_binding` answers only for a solve (no
+  exact-route custody); the native Record Run and Save Project refuse it whatever the request names
+  (`NATIVE-PERSISTENCE-CUSTODY`), and the fresh record preview refuses it
+  (`ANALYSIS-RUN-PREVIEW-READ-FAILED`). The webview's `NativeCustody.origin` is `fresh_job` or a
+  restored origin; a restored `NativeResult` has no capture or registration, S read with no model
+  and no standing (as the historical `ResultsPanel` read the rows), and a standing binding no model
+  text matches (`NATIVE_VERDICT_NOT_BOUND`). The session never makes it the current result.
+- **Findings.** `buildHistoricalRunContext`/`buildRecordedRunContext` and the record validator they
+  call (`validateAnalysisRunV03`, `verifyAnalysisRunRecord`, `validateRecordedBinding`, S1's recorded
+  pressure-2 table bases for 0.7/0.8-era records) ported over the stored values, reusing the builder's
+  readers, table interpretation, load-basis rules and canonical writer, in the TypeScript's order. The
+  TypeScript stays the oracle: `historical_reopen_cases.json` (181 cases: every record of the builder
+  corpus as a saved run, 30+ variants per route of rows, checksums, versions, references, shapes,
+  unsafe integers, duplicate ids, the 0.8-era basis and an unknown basis; recorded runs and their
+  variants) equals its generator (`historicalReopenParity.test.ts`), and the native findings, run name,
+  envelope payload hash and model hash equal every case (`stored_custody_tests.rs`). The standing
+  behind the standing findings is never sent.
+- **The record header** is the stored record without `result_refs`, `diagnostics`, `contract_evidence`,
+  `source_block_recovery` and `retained_precision`, with their counts, the carried members and the
+  record's rule-pack reference diagnostics; above 4 MiB it is omitted with its length. It is a
+  projection of the stored record, never a rebuilt one.
+- **Webview.** The session opens through the native command on the desktop (`openStoredProject`):
+  the historical panel's `ResultsPanel` routes the restored handle to `NativeResultsPanel` (S, pages,
+  semantics, navigator, streamed CSV). The open adopts the native envelope payload hash for the
+  integrity cell; a refused run is not hashed (`hash_recompute_unavailable`), and a save in place
+  without a new result is refused by name, the stored run kept. A save of a project showing its
+  reopened run re-saves the stored run as stored through the bounded C2 copies (at or under 64 MiB;
+  above, `PROJECT-SAVE-STORED-RUN-UNAVAILABLE`, nothing written). A reference inspection retains the
+  restored run by its handle, never a clone. A restored handle is disposed once nothing shows or
+  retains it, and when the session ends; a superseded, failed or refused open disposes what it
+  received. The History panel's run check reads natively, shows the findings and the header's
+  rule-pack references, and releases the handle at once (it shows no rows). Run comparisons keep the
+  bounded whole-value `read_analysis_run` (C2 interim, #51's refusal above 64 MiB unchanged).
+- **#51 preserved on the legacy reads**: `open_local_project`, `read_analysis_run`, the comparison
+  admission and the save guard keep the stored-length withholding (lowered-seam test); the native
+  reopen does not withhold for length alone.
+- **Evidence.** `stored_custody_tests.rs`: the oracle corpus; every persistence case saved natively
+  (the native Save, then a session reset) reopens with the stored bytes and record held exactly, its
+  findings those of the legacy open's values (no mismatch finding on a fresh save), S's row count and
+  the pages' total reading the restored bytes, the fresh persistence routes and preview refused with
+  nothing written, the take refused, the C2 copies exact, the open writing nothing (the store file's
+  digest), the members as `open_local_project` returns them; the same for every native Record Run; the
+  legacy reads withholding at a lowered limit while the native reopen holds; a pool refusal (open:
+  model editable, run refused, nothing held or written; read: the pool's named refusal); a reset during
+  the read refusing the registration with nothing held; retention full; a corrupt stored result
+  failing the open with the legacy open's exact message; disposal during a reader's share releasing
+  both leases only at the last drop, once. `nativeReopen.session.test.tsx` runs the session on the
+  committed actual replies (`native_reopen_replies.json`: the session's own native Save and Record Run
+  requests on a real store, a reset, the open, every request the historical panel sends on the handle,
+  the recorded run's read, and a refused open), request for request: the restored origin, the
+  findings, no current result, S and the first page shown, no legacy open, full copy or take, one
+  disposal at the end; the recorded run's check. `resultTooLarge.session.test.tsx` shows the refused
+  open and the refused save in place. Tests written before slice 6 that mock the legacy open reach
+  the native path through a unit bridge (`test/nativeReopenEmulation.ts`: findings from the TypeScript
+  oracle, rows from the actual commands' recorded replies); it is no proof of the reopen.
+- **Permissions.** Three ordinary `app_invoke_handler` entries (no `mod`, no `$parameter ::`, no
+  scanned name), re-pinned in `user_release_reach_scan.rs`; no capability or guard change.
+
+**Limits and residuals (for slice 7 and review).**
+- The open still loads the project's small columns (model, intents, proposal, target, hashes) as
+  `open_local_project` does, unmetered; SQLite's page cache, journal and FTS state; the validator's
+  working memory (one row's values, the duplicate-id fingerprints within the fixed allowance); and
+  Tauri's delivery copies of the replies after return are unpriced. The held leases cover the texts'
+  envelopes; SQLite's copies during the load are a separate lease ended after the load.
+- The recorded read parses the result twice (the store's verified read, then the findings) under
+  separate leases, one at a time; the store's read reservations stay held while the findings run
+  (conservative).
+- Run listing (`list_analysis_runs`) still verifies each run's record under its own reservation, and
+  run comparisons and saving a reopened run use the bounded whole-value copies (C2). Above 64 MiB a
+  reopened saved run is inspected natively but cannot be re-saved with its project (refused by name).
+- Recorded-manifest member checks reuse the store's `manifest_members` after the store's own read has
+  checked them; their TypeScript `TypeError` points are therefore unreachable here and not emulated.
 
 ### Slice 7: measurement and the PR
 
@@ -1053,6 +1147,14 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   record (`find_run_with`) is metered by its own reservations. Unpriced, as for the submitted
   paths: SQLite's page cache and journal, FTS5's in-memory index of the search text, and Tauri's
   delivery copies of the small reply.
+- **The reopen's leases** (slice 6), under the same rules: the args lease as every command's; from
+  the measured lengths, before anything of the run is loaded, the held result's and record's leases
+  (each its text's envelope, adaptive, capped) and SQLite's copies of both (ended after the load); each
+  parse's materialization M (result, record, manifest) admitted before the parse; the reply's exact
+  length. The held leases become result leases and live with the bytes in the registry until disposal
+  or reset (or the last reader's share). A restored result counts toward retention
+  (`MAX_RETAINED_RESULTS`), and a restoration begun before a session reset is refused at registration.
+  Unpriced: as listed in slice 6's limits.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
   Tauri makes of the body before the command runs, plus the returned response buffer and
   Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

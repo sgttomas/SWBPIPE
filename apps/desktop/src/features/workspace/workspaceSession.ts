@@ -45,6 +45,7 @@ import { ResourceUnavailableError } from "../../services/memoryPool";
 import {
   createNativeAnalysisRun,
   FullResultRefused,
+  isFreshNativeResult,
   isNativeAnalysisRun,
   isNativeResult,
   nativeCustody,
@@ -1076,7 +1077,8 @@ export function useWorkspaceSession() {
   /** C1 slice 5: the native persistence request of a native result and its native record (the job,
    * the inputs the record was built with, the previewed record), or null for any other pair. */
   function nativePersistenceRequestFor(target: SessionResult | null, run: SessionAnalysisRun | null): NativePersistenceRequest | null {
-    if (!target || !isNativeResult(target) || !run || !isNativeAnalysisRun(run) || run.analysis_run.run_id !== target.run_id) return null;
+    // Only a fresh solve's handle is persisted from its job; a restored run never is (C1 slice 6).
+    if (!target || !isFreshNativeResult(target) || !run || !isNativeAnalysisRun(run) || run.analysis_run.run_id !== target.run_id) return null;
     const inputs = nativeRunInputs.current.get(run);
     return inputs ? nativePersistenceRequest(target, run, inputs) : null;
   }

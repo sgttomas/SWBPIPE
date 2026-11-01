@@ -129,7 +129,7 @@ describe("saved and recorded runs reopen into native custody (C1 slice 6)", () =
     expect(state().results.inputManifest).toBeNull();
     expect(state().project.history.recordRunUnavailableReason).toBe(RUN_RECORD_MANIFEST_UNAVAILABLE);
     // The stored envelope hash agrees with the native recomputation over the stored values.
-    expect(state().project.projectEnvelopeHashIntegrity?.status ?? "verified").not.toBe("mismatch");
+    await waitFor(() => expect(state().project.projectEnvelopeHashIntegrity?.integrity_status).toBe("verified_match"));
     // The historical panel reads S and a native page of the restored bytes.
     const panel = await screen.findByTestId("historical-run-context");
     expect(panel).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");

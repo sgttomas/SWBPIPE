@@ -24,6 +24,7 @@ import { hex, inventedEnvelope, inventedReference } from "../../test/inventedRul
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { canonicalJsonString, canonicalSha256HexCheckedV1, computeModelHash } from "../../services/hashService";
+import { restoredRecordDiagnostics } from "../../services/nativeReopen";
 import { analysisRecordProjection, ANALYSIS_RULE_PACK_REF_DIAGNOSTICS_MISMATCH, recordedAnalysisRunRevision } from "../../services/analysisRunCompatibility";
 import type { AnalysisRunRead, AnalysisRunSummary, RunLabels } from "../../services/analysisRunService";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
@@ -241,7 +242,13 @@ describe("the solve records the model's rule packs in the input manifest (FR-CMP
     expect(check.failure).toBeNull();
     expect(check.context && recordedRunBindingFindings(check.context)).toEqual([]);
     expect(check.manifest?.active_rule_packs.map((pack) => pack.rule_pack_id)).toEqual(["invented-pack-zeta", "invented-pack-alpha"]);
-    expect(check.context?.analysisRun?.analysis_run.diagnostics).toEqual(fullRecord.analysis_run.diagnostics);
+    // C1 slice 6: the check reopens the run natively; the whole record stays native, and the check
+    // carries the stored record's header with its rule-pack reference diagnostics (the excluded references).
+    expect(check.context?.analysisRun).toBeNull();
+    expect(check.context?.restored?.origin).toBe("restored_recorded_run");
+    const ruleDiagnostics = fullRecord.analysis_run.diagnostics!.filter((item) => (item.source_annotation as { source?: string } | undefined)?.source === "desktop/solve-rule-pack-resolution");
+    expect(ruleDiagnostics.length).toBeGreaterThan(0);
+    expect(restoredRecordDiagnostics(check.context!.restored!).analysis_run.diagnostics).toEqual(ruleDiagnostics);
   });
 
   it("a recorded run whose rule-pack diagnostics do not name exactly the references its manifest leaves out is flagged", async () => {

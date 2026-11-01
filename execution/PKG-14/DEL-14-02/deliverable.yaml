@@ -211,6 +211,11 @@ code_paths:
 - apps/desktop/src/services/nativePersistence.ts
 - apps/desktop/src/test-support/persistenceFormsCases.ts
 - apps/desktop/src/test-support/analysis-run-v03/persistence_forms.json
+# C1 slice 6: a saved or recorded v0.3 record reopened natively is read by the record validator's native
+# port (validateAnalysisRunV03, verifyAnalysisRunRecord, validateRecordedBinding), with S1's recorded
+# table bases; the TypeScript validator stays its oracle (historical_reopen_cases.json).
+- apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
+- apps/desktop/src-tauri/src/stored_custody.rs
 - apps/desktop/src-tauri/src/stored_read.rs
 - apps/desktop/src/services/analysisRunService.ts
 - apps/desktop/src/services/inputManifestService.ts
@@ -237,6 +242,8 @@ checks:
 - apps/desktop/src-tauri/src/result_js_text_tests.rs
 - apps/desktop/src/services/persistenceForms.test.ts
 - apps/desktop/src/services/nativePersistence.test.ts
+- apps/desktop/src-tauri/src/stored_custody_tests.rs
+- apps/desktop/src/services/historicalReopenParity.test.ts
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx

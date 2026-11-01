@@ -602,12 +602,26 @@ fn the_webviews_reopen_replies_are_the_commands_replies() {
     let read = native_read(&registry, &path, project_id, &recording_id).unwrap();
     let read_handle = read["restored"]["handle"].as_str().unwrap().to_string();
     assert!(registry.dispose_result(&read_handle).unwrap().released);
+    // The same store opened where the pool does not admit the held run: the model opens, the run is refused by name.
+    let refused = {
+        use crate::memory_pool::PressureLevel;
+        const GIB: u64 = 1 << 30;
+        let small_host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
+        let (small, _gate) = gated(&small_host);
+        let result_bytes = column_text(&path, "SELECT mechanics_result_json FROM local_projects").len() as u64;
+        small.configure_pool(192 * GIB, crate::ingress::allocation_envelope(result_bytes).unwrap() - 1, false).unwrap();
+        let opened = native_open(&small, &path, Some(project_id)).unwrap();
+        assert_eq!(opened["stored_run"]["state"], "refused", "{}", opened["stored_run"]);
+        assert_eq!(small.pool().reserved_total(), 0);
+        webview_value(opened, "\u{0}")
+    };
     let document = json!({
         "document_kind": "swbpipe.desktop.native_reopen_replies",
         "note": "Written by stored_custody_tests.rs from the actual commands on a real store (the session's native Save and Record Run, a session reset, then the reopen; the store's path written $STORE, each restored handle $HANDLE); NATIVE_REOPEN_REPLIES_WRITE=1 rewrites it.",
         "source_path": REPLAY_SOURCE,
         "open": {"command": OPEN_COMMAND, "args": {"projectId": project_id}, "reply": {"ok": true, "body": "json", "value": webview_value(opened, &handle)}},
         "read": {"command": RUN_COMMAND, "args": {"projectId": project_id, "recordingId": recording_id}, "reply": {"ok": true, "body": "json", "value": webview_value(read, &read_handle)}},
+        "open_refused": {"command": OPEN_COMMAND, "args": {"projectId": project_id}, "reply": {"ok": true, "body": "json", "value": refused}},
         "requests": answered,
     });
     let written = format!("{}\n", serde_json::to_string_pretty(&document).unwrap());

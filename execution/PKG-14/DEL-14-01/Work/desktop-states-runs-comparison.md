@@ -494,6 +494,33 @@ the History panel and `useModelStateHistory.ts`.
   desktop's displayable-result limit (64 MiB, RT-U4) with
   `STORED-RESULT-TOO-LARGE`, judged from both stored lengths before either is
   loaded; the run is unchanged (DEL-04-07 `Work/memory-budget-decision.md`).
+  These whole-value reads remain for the comparison sides and the browser
+  preview; the History panel's run check and the project open read natively
+  (below).
+- **Native reopen (C1 slice 6; DEL-04-05 `Work/c1-native-custody-plan.md`).**
+  On the desktop, a recorded run's check reads
+  `read_analysis_run_in_native_custody {projectId, recordingId}`: the same
+  verified store read (every integrity refusal above, in one read transaction),
+  without the 64 MiB webview limit, with the stored result's and record's texts
+  admitted as pool leases (capped at the per-invocation budget and 12 GiB) from
+  their measured lengths before either is loaded, held natively as a restored
+  handle of stored origin (`recorded_run`, the SHA-256 of the texts held). The
+  reply (a JSON body) carries the verified summaries, the stored manifest's
+  canonical text, the record's header without its row-scale members, and
+  `buildRecordedRunContext`'s findings computed natively on the stored texts
+  (`analysis_run_v03_validate.rs`, against the TypeScript oracle
+  `historical_reopen_cases.json`); never the result or a `ResultRef`. The check
+  holds no rows, so the webview releases the handle at once. Opening a project
+  reads `open_local_project_in_native_custody`: `open_local_project`'s members
+  (the same model-document refusals and serde messages) and the saved run held
+  natively (`saved_project_run`) with `buildHistoricalRunContext`'s findings
+  and the natively recomputed envelope payload hash, or, when the pool or
+  retention does not admit it, `STORED-RESULT-RESTORE-REFUSED` with the model
+  open for editing (a save in place is then refused until a new solve). Nothing
+  is written or migrated by either; a restored handle is refused by Record Run,
+  Save Project and the record preview from a job handle
+  (`NATIVE-PERSISTENCE-CUSTODY`, `ANALYSIS-RUN-PREVIEW-READ-FAILED`) and has no
+  exact-route custody.
 - **Request.** It carries the transient record, the result's JSON text (stored
   as given), the manifest's canonical text, the session's base, and optionally
   the state the session expects (`state_id`, checked:

@@ -451,7 +451,7 @@ fn refused(project_id: &str, (result_bytes, analysis_run_bytes): (u64, u64), why
     StoredRun::Refused {
         code: RESTORE_REFUSED,
         message: stored_read::capped(format!(
-            "{RESTORE_REFUSED}: project `{}`'s stored run (result {}, analysis-run record {}) was not opened: {why} The stored run is kept unchanged and the model is open for editing; saving the project in place without a new result needs Replace.",
+            "{RESTORE_REFUSED}: project `{}`'s stored run (result {}, analysis-run record {}) was not opened: {why} The stored run is kept unchanged and the model is open for editing; saving the project in place is refused until a new solve replaces the run (model edits can be kept with File > Save Model Document…).",
             stored_read::shown(project_id),
             crate::solve_jobs::display_size(result_bytes),
             crate::solve_jobs::display_size(analysis_run_bytes),

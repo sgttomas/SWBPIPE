@@ -6,9 +6,11 @@
  * itself is covered by the Rust tests in `solve_jobs.rs`. All data are invented. */
 import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
@@ -45,7 +47,7 @@ async function session() {
   const saved: Json[] = [];
   let refusing = false;
   /** What `open_local_project` returns, and a refusal `save_local_project` answers with, when set. */
-  const native: { opened: Json | null; saveRefusal: string | null } = { opened: null, saveRefusal: null };
+  const native: { opened: Json | null; openedNative: Json | null; saveRefusal: string | null } = { opened: null, openedNative: null, saveRefusal: null };
   invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
     switch (command) {
       case "get_local_storage_capability": return storage;
@@ -58,6 +60,7 @@ async function session() {
       case "list_analysis_runs": return [];
       case "record_analysis_run": throw new Error("record_analysis_run must not be called");
       case "open_local_project": return structuredClone(native.opened);
+      case "open_local_project_in_native_custody": return structuredClone(native.openedNative);
       case "save_local_project": {
         const request = args.request as Json;
         saved.push(request);
@@ -150,29 +153,28 @@ describe("a solve refused because its result is too large to display (RT-U4)", (
     expect(saved[0].analysis_run ?? null).toBeNull();
   });
 
-  it("opens a project whose saved run was withheld for its size: the model opens, the person is told, nothing is hashed or kept as a result, and the refused save is shown", async () => {
+  it("opens a project whose saved run the native host could not hold: the model opens, the person is told, nothing is hashed or kept, and a save in place is refused", async () => {
+    // C1 slice 6: a saved run is reopened into native custody, never withheld for its length alone; when
+    // the memory pool does not admit holding it, the open refuses the run by name (the actual command's
+    // reply on a real store, `native_reopen_replies.json`) and the model opens for editing.
     const { state, saved, native } = await session();
-    await act(async () => { await state().project.handleSaveProject(); });
-    const envelope = { ...structuredClone(saved[0]), summary: { project_id: saved[0].model.project.id, project_name: saved[0].project_name, message: "Opened local SQLite project snapshot." },
-      editor_intents: [], proposal: null, selected_review_target: null, project_envelope_hash: { value: "sha256:stored" }, model_document_version: null };
-    const withheld = { code: "STORED-RESULT-TOO-LARGE", result_bytes: 67_108_865, analysis_run_bytes: 9_000_000, limit_bytes: 67_108_864 };
-    native.opened = { ...envelope, mechanics_result: null, analysis_run: null, stored_result_withheld: withheld };
-    await act(async () => { await state().project.handleOpenProject(envelope.summary.project_id); });
-    expect(state().model.model?.project.id).toBe(envelope.summary.project_id);
+    const document = JSON.parse(readFileSync(resolve(__dirname, "../../test-support/native-reopen/native_reopen_replies.json"), "utf8"));
+    const reply = document.open_refused.reply.value;
+    native.openedNative = reply;
+    await act(async () => { await state().project.handleOpenProject(reply.model.project.id); });
+    expect(state().model.model?.project.id).toBe(reply.model.project.id);
     expect(state().results.result).toBeNull();
     expect(state().results.analysisRun).toBeNull();
     expect(state().results.historicalRun).toBeNull();
-    // The rounded sizes would read the same (64 MiB), so the exact bytes are shown.
-    expect(state().project.projectMessage).toBe(
-      "Opened local SQLite project snapshot. This project's stored result is 67108865 bytes, above the desktop's display limit of 67108864 bytes, so its saved run was not opened: the per-station result detail of that run is too large for the desktop to display. The model is open and can be edited, and the saved run is kept unchanged in the project. Saving the project in place is refused while it holds that run; keep model edits with File > Save Model Document…, or solve again within the limit and save that result to replace it. Code: STORED-RESULT-TOO-LARGE (result_bytes=67108865, analysis_run_bytes=9000000, limit_bytes=67108864).");
-    // The withheld run is not hashed as if the project held no run.
+    expect(reply.stored_run.message).toMatch(/^STORED-RESULT-RESTORE-REFUSED: project `[^`]+`'s stored run \(result \d+ bytes/);
+    expect(state().project.projectMessage).toBe(`${reply.summary.message} ${reply.stored_run.message}`);
+    // The refused run is not hashed as if the project held no run.
     await waitFor(() => expect(state().project.projectEnvelopeHashIntegrity?.integrity_status).toBe("hash_recompute_unavailable"));
-    // A save in place sends no result, and the native refusal is shown as it reads.
-    const refusal = "STORED-RESULT-TOO-LARGE: Not saved. Project `x` holds a stored result of 67108865 bytes (64 MiB) (its analysis-run record 9000000 bytes (8.58 MiB)), above the desktop's display limit of 67108864 bytes (64 MiB), so it was not opened, and saving the project in place would replace it with no result. The stored result is kept unchanged. Model edits can be kept with File > Save Model Document…; a new solve within the limit replaces the stored result when the project is saved.";
-    native.saveRefusal = refusal;
+    // A save in place would replace the stored run with none: refused by the session, nothing sent.
     await act(async () => { await state().project.handleSaveProject(); });
-    expect(saved.at(-1).mechanics_result ?? null).toBeNull();
-    expect(state().project.projectMessage).toBe(`Save failed: ${refusal}`);
+    expect(saved).toHaveLength(0);
+    expect(state().project.projectMessage).toContain("STORED-RESULT-RESTORE-REFUSED: Not saved.");
+    expect(state().project.projectMessage).toContain("The stored run is kept unchanged.");
   });
 
   it("shows the reason in the solve progress panel as the run ends", async () => {

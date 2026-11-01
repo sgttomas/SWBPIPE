@@ -280,6 +280,18 @@ code_paths:
 - apps/desktop/src/test/nativePersistenceFake.ts
 - apps/desktop/src/test/nativePersistenceReplay.ts
 - apps/desktop/src/test-support/native-replay/native_persistence_replies.json
+# C1 slice 6: saved and recorded runs reopen into native custody (open_local_project_in_native_custody,
+# read_analysis_run_in_native_custody, read_restored_result_record_all): a restored handle of stored
+# origin, its historical findings computed natively, the session's and history's native reopen, and
+# the actual commands' replies and the oracle corpus.
+- apps/desktop/src-tauri/src/stored_custody.rs
+- apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
+- apps/desktop/src/services/nativeReopen.ts
+- apps/desktop/src/test/nativeReopenEmulation.ts
+- apps/desktop/src/test-support/historicalReopenCases.ts
+- apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json
+- apps/desktop/src/test-support/native-reopen/native_reopen_requests.json
+- apps/desktop/src/test-support/native-reopen/native_reopen_replies.json
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
@@ -310,6 +322,9 @@ checks:
 - apps/desktop/src-tauri/src/native_persistence_tests.rs
 - apps/desktop/src/services/nativePersistence.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx
+- apps/desktop/src-tauri/src/stored_custody_tests.rs
+- apps/desktop/src/services/historicalReopenParity.test.ts
+- apps/desktop/src/features/workspace/nativeReopen.session.test.tsx
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs
