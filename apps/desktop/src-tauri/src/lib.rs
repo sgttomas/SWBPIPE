@@ -5425,7 +5425,26 @@ async fn embedded_agent_host(
             resources: app.path().resource_dir().map_err(|_| CommandError::Command("AGENT-RESOURCE-UNAVAILABLE".into()))?,
         };
         let host = app.state::<embedded_agent::live_host::Host>();
+        #[cfg(feature = "native-smoke")]
+        let kind = {
+            use embedded_agent::live_host::Action;
+            match &action {
+                Action::Register { .. } => "register",
+                Action::Basis { .. } => "basis",
+                Action::ProviderSave { .. } => "provider_save",
+                Action::Start { .. } => "start",
+                Action::Text { .. } => "text",
+                Action::Close { .. } => "close",
+                _ => "other",
+            }
+        };
         let reply = host.request(webview.label(), action, paths, lease).await.map_err(|_| CommandError::Command("AGENT-HOST-UNAVAILABLE".into()))?;
+        // Native smoke only: the host's refusal code (a payload-free enum, never the request),
+        // which the Agent panel's status line generalizes.
+        #[cfg(feature = "native-smoke")]
+        if let Err(error) = &reply.value {
+            eprintln!("[native-smoke-agent-host] {kind} refused AGENT-{error:?}");
+        }
         let response = respond(reply.value.map_err(|error| CommandError::Command(format!("AGENT-{error:?}"))));
         drop(reply._backing);
         response
