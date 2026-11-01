@@ -505,6 +505,15 @@ scale-2, signed-pressure, orientation and dual-basis cases check the other
 meanings. Product tests additionally rotate the run, check meaningful refusals
 and validate a complete connector model before asserting its reducer refusal.
 
+Current producer fixtures and their carrier copies are regenerated through
+their maintained writers. `tests/test_rt_a3_reducer_text_only_envelope_diff.py`
+binds the regeneration to integrated main `2656dcb33`: exact number tokens,
+row/member order, diagnostics and selection remain unchanged; only the first
+formulation-basis limitation and binding hashes move. The earlier O4/W-15/tee
+checks keep their historical endpoints, with this separate stage checking
+the current files. Frozen numerical references and recorded 0.7/0.8 model
+runs are preserved verbatim.
+
 **Next boundary.** Agent 0's adopted sequence is concentric 2a, bounded
 eccentric 2b, then constant effort. RS-R1 remains eccentric and pending 2b;
 its +25 mm offset, 270/220 mm sizes, scale 2 and RG-R region are preserved.

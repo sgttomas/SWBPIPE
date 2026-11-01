@@ -1734,6 +1734,18 @@ RT_A3_LISTED = tuple(dict.fromkeys(n for n in ENVELOPES + BINDING_ONLY + W7_ENVE
                                    if "pressure_source" not in n))
 
 
+def _rt_a3_epoch1_text(name: str) -> str:
+    """Increment 1's endpoint, before reducer 2a's separately checked regeneration.
+
+    test_rt_a3_reducer_text_only_envelope_diff checks that endpoint to the
+    current fixtures, preserving the historical proof without widening it.
+    """
+    return subprocess.run(
+        ["git", "show", _source_spec(PROJECT, "2656dcb33328b12c5572a30c10124a40f35adffc", name)],
+        cwd=REPOSITORY, check=True, capture_output=True, text=True,
+    ).stdout
+
+
 class TestRtA3MovesOnlyTheIdentity:
     @staticmethod
     def test_o4_text_only_envelope_diff_rt_a3_moves_only_the_identity(current=None):
@@ -1745,7 +1757,7 @@ class TestRtA3MovesOnlyTheIdentity:
         moved = 0
         for name in RT_A3_LISTED:
             before = load(_rt_a3_base_text(name))
-            text = (PROJECT / name).read_text() if current is None or name not in current else current[name]
+            text = _rt_a3_epoch1_text(name) if current is None or name not in current else current[name]
             restored = []
             after = _rt_a3_identity_old(load(text), restored)
             found = classify(before, after)
@@ -1763,7 +1775,7 @@ class TestRtA3IdentityExceptionRefusesOtherMoves:
         """RT-A3's exception admits the restated identity only at a formulation basis's first limitation: the new
         identity planted as another limitation, or a changed number, of a moved carrier fails at that file."""
         name = next(n for n in W7_ENVELOPES if n.endswith(".raw.json"))
-        text = (PROJECT / name).read_text()
+        text = _rt_a3_epoch1_text(name)
         assert json.dumps(RT_A3_IDENTITY_NEW, ensure_ascii=False) in text
         history = "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented."
         assert text.count(json.dumps(history)) == 1
@@ -1781,7 +1793,7 @@ class TestRtA3IdentityExceptionRefusesOtherMoves:
         sets: the identity planted as that edit's second limitation fails at that file."""
         name = "fixtures/results/retained_precision_rv120_b3_inputs.json"
         assert name in RT_A3_LISTED
-        text = (PROJECT / name).read_text()
+        text = _rt_a3_epoch1_text(name)
         identity = next(form for form in (json.dumps(RT_A3_IDENTITY_NEW), json.dumps(RT_A3_IDENTITY_NEW, ensure_ascii=False))
                         if form in text)
         start = text.index(identity) + len(identity)
