@@ -795,7 +795,7 @@ mod tests {
         outcome(
             "ok",
             basis(2),
-            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.8.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
+            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.9.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.9.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
         )
     }
     fn model_hash() -> Value {

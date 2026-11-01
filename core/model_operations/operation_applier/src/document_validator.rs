@@ -100,6 +100,11 @@ pub const CONSTRAINT_STATES: [&str; 5] = [
     "blocked_by_missing_data",
 ];
 
+/// Model document 0.9.0's collections whose records take `tags` and `notes`
+/// (DEL-02-01 Design `model-document-0.9.0.md` §1.2, §2.4); never `provenance_record`,
+/// which their closed records refuse as a shape.
+const ANNOTATED_COLLECTIONS_0_9_0: [&str; 2] = ["condition_sets", "spectra"];
+
 /// Provenance-record dispositions (§3.5), the library import's vocabulary.
 pub const PROVENANCE_REDISTRIBUTION_STATUSES: [&str; 4] =
     ["public_permissive", "private_only", "unknown", "protected_suspected"];
@@ -232,6 +237,13 @@ fn entities(root: &Map<String, Value>) -> Entities {
             }
         }
     }
+    for collection in ANNOTATED_COLLECTIONS_0_9_0 {
+        for record in array(root, collection) {
+            if let Some(id) = entity_id(record, "id") {
+                found.any.insert(id.to_string());
+            }
+        }
+    }
     for (collection, key) in [
         ("lines", "id"),
         ("unresolved_assumptions", "assumption_id"),
@@ -306,6 +318,14 @@ impl Validator {
             }
         }
 
+        for collection in ANNOTATED_COLLECTIONS_0_9_0 {
+            for (index, record) in array(root, collection).iter().enumerate() {
+                let Some(record) = record.as_object() else { continue };
+                let refs = record_ref(record, "id");
+                self.annotations(record, &format!("{collection}[{index}]"), &refs);
+            }
+        }
+
         // §3: never on the load/reference-state group or the pressure contract
         // (closed solve inputs).
         if let Some(group) = root.get("reference_configurations") {
@@ -331,6 +351,21 @@ impl Validator {
         self.equipment_interfaces(root, &known);
         self.rule_pack_refs(root);
         self.model_settings(root);
+        self.members_0_9_0(root);
+    }
+
+    /// Model document 0.9.0's document-level rules (DEL-02-01 Design
+    /// `model-document-0.9.0.md` §1.3, §2.1, §2.2, §2.4): product_physics'
+    /// `document_members`, which the solve applies with the same codes and messages.
+    /// A malformed new member is `MODEL-SLOT-SHAPE`, as the solve refuses it at decode.
+    fn members_0_9_0(&mut self, root: &Map<String, Value>) {
+        use open_pipe_stress_product_physics::document_members::{json_findings, JsonFinding};
+        for finding in json_findings(root) {
+            match finding {
+                JsonFinding::Rule(rule) => self.block(rule.code, &rule.path, rule.message, rule.refs),
+                JsonFinding::Shape { path, message, refs } => self.block(SLOT_SHAPE, &path, message, refs),
+            }
+        }
     }
 
     // ---- shared member checks ------------------------------------------------

@@ -120,7 +120,9 @@ pub(super) fn single_case(request: &serde_json::Value, case: &str) -> serde_json
     wire
 }
 
-/// The request, bound to the oracle and to SHA256SUMS by its bytes.
+/// The request, bound to the oracle and to SHA256SUMS by its bytes. Model document 0.9.0
+/// (DEL-02-01 Design `model-document-0.9.0.md` §3.6): the frozen 0.8.0 bytes stay; only the
+/// parsed copy is re-authored to the current version by its token.
 pub(super) fn bound_request(request: &Request) -> (serde_json::Value, serde_json::Value) {
     let oracle = references()["requests"][request.name].clone();
     let digest = sha256(request.text);
@@ -128,7 +130,9 @@ pub(super) fn bound_request(request: &Request) -> (serde_json::Value, serde_json
     let path = format!("  {}", oracle["request"].as_str().unwrap());
     let line = SUMS.lines().find(|l| l.ends_with(&path)).unwrap_or_else(|| panic!("SHA256SUMS lists {path}"));
     assert_eq!(&line[..64], digest);
-    (serde_json::from_str(request.text).unwrap(), oracle)
+    let mut wire: serde_json::Value = serde_json::from_str(request.text).unwrap();
+    crate::b7b_admission_tests::reauthor_current_model(&mut wire["model"]);
+    (wire, oracle)
 }
 
 #[test]

@@ -1023,7 +1023,7 @@ mod tests {
             51
         ]);
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_err());
-        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.8.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.8.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "componentsAwaitingUserModifiers":{"count":0, "ids":[]}, "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
+        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.9.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.9.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "componentsAwaitingUserModifiers":{"count":0, "ids":[]}, "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
         // Exercise object additionalProperties separately, regardless of other summary fields.
         let d = &catalog.tools[Tool::Summary.name()].output;
         let counts = d

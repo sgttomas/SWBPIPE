@@ -12,7 +12,7 @@ use open_pipe_stress_product_physics::result_export::derivative;
 /// constant (bytes changed at B7b's resident current table, a43583c625, and
 /// at T4-U6's per-basis stress signatures).
 const PRESSURE_SOURCE_TABLE_SHA256: &str =
-    "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c";
+    "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9";
 
 fn encoded_length(request: &Value) -> u64 {
     let text = serde_json::to_string(request).unwrap();
@@ -210,7 +210,7 @@ enum DispatchDisposition<'a> {
     /// refuses: unsupported, under the generic finding.
     HeaderShapeRefused(&'a str),
 }
-const RETIRED_V2_DETAIL: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis";
+const RETIRED_V2_DETAIL: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.9.0 with the current exact pressure contract and re-run the analysis";
 fn checked_dispatch(
     source: &Value,
     model: &Value,

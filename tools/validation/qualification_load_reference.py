@@ -5,7 +5,7 @@ B7b retired load-reference-1 (and the 0.4.0 model document under 2.0.0/exact_str
 pressure-2 publishes the load/reference-state group (its ``load_reference_states`` records keep the
 ``resolved_straight_load_state_v1`` record profile). The frozen, hash-bound package inputs are never
 edited; each run submits their declared re-authored copy (``qualification_physics.reauthor_runner_input``,
-the product tests' one re-authoring rule: model 0.8.0, the current exact contract, an explicit zero
+the product tests' one re-authoring rule: model 0.9.0, the current exact contract, an explicit zero
 corrosion allowance), against which the raw is read. The frozen package's selectors name the retired
 load-reference-1 as their authoring identity; that is admitted for selectors only, never for a raw.
 
@@ -512,7 +512,7 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
 
 
 def current_model(model) -> None:
-    """The submitted document: model 0.8.0 under the current exact contract, carrying the load/reference-state group."""
+    """The submitted document: model 0.9.0 under the current exact contract, carrying the load/reference-state group."""
     require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and model.get('pressure_contract') == PRESSURE_CONTRACT
             and physics.model_carries_load_state(model), f'actual {MODEL_VERSION} load/reference-state model under the current contract required')
 

@@ -15,7 +15,8 @@ export const SUPPORT_FAMILY_ELSEWHERE: Readonly<Record<string, string>> = Object
   variable_spring_hanger: "Needs hanger data: use Support configuration",
   spring_hanger: "Needs hanger data: use Support configuration",
   constant_effort_support: "Needs hanger data: use Support configuration",
-  nonlinear: "Needs a nonlinear law: use Support configuration"
+  nonlinear: "Needs a nonlinear law: use Support configuration",
+  snubber: "Snubber authoring is pending; the model format can store it"
 });
 
 /** The "New support" form's family options: no family, then the model document's

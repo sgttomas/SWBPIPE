@@ -46,17 +46,18 @@ export function unavailableDefaultUnitCellText(notice: string): string {
 
 /** The keys a component creation draft (the property inspector's and the
  * viewport's) leaves unselected because the project key is absent. */
-export function componentDraftMissingUnitKeys(model: PreviewModel, draft: Pick<ComponentDraft, "kind" | "lengthUnit" | "angleUnit" | "forceUnit">): ProjectUnitKey[] {
+export function componentDraftMissingUnitKeys(model: PreviewModel, draft: Pick<ComponentDraft, "kind" | "lengthUnit" | "angleUnit" | "forceUnit" | "endASizeUnit" | "endBSizeUnit" | "centerOfGravityUnit">): ProjectUnitKey[] {
   if (draft.kind === "expansion_joint") return [];
   const unset = (unit: string) => unit.trim() === "" || unit.trim() === "TBD";
   const keys: ProjectUnitKey[] = [];
-  if (unset(draft.lengthUnit)) keys.push("length");
+  const rigid = draft.kind !== "bend" && draft.kind !== "tee";
+  if (unset(draft.lengthUnit) || (rigid && [draft.endASizeUnit, draft.endBSizeUnit, draft.centerOfGravityUnit].some(unset))) keys.push("length");
   if ((draft.kind === "bend" || draft.kind === "tee") && unset(draft.angleUnit)) keys.push("angle");
   if (draft.kind !== "bend" && draft.kind !== "tee" && unset(draft.forceUnit)) keys.push("force");
   return keys.filter((key) => projectUnitMissing(model, key));
 }
 
 /** The component creation form's notices: one per unselected unit whose key is absent. */
-export function componentDraftMissingUnitNotices(model: PreviewModel, draft: Pick<ComponentDraft, "kind" | "lengthUnit" | "angleUnit" | "forceUnit">): Array<{ key: ProjectUnitKey; text: string }> {
+export function componentDraftMissingUnitNotices(model: PreviewModel, draft: Pick<ComponentDraft, "kind" | "lengthUnit" | "angleUnit" | "forceUnit" | "endASizeUnit" | "endBSizeUnit" | "centerOfGravityUnit">): Array<{ key: ProjectUnitKey; text: string }> {
   return componentDraftMissingUnitKeys(model, draft).map((key) => ({ key, text: missingProjectUnitText(model, key, "choose") }));
 }

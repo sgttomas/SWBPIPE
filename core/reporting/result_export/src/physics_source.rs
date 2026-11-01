@@ -21,7 +21,7 @@ impl SourceContract {
     pub const fn pressure(self) -> crate::physics_evidence::PressureContract {
         crate::physics_evidence::PressureContract::PressureV3
     }
-    /// The captured model's contract: a 0.8.0 document whose
+    /// The captured model's contract: a 0.9.0 document whose
     /// `pressure_contract` is exactly `{version "3.0.0", mode
     /// "exact_pressure_v3", shear_model}` with `shear_model` either
     /// `euler_bernoulli` or `timoshenko_annulus_energy_v1` (O4 §3.4), and no
@@ -29,7 +29,7 @@ impl SourceContract {
     pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
         let model = &invocation["request"]["model"];
         let contract = &model["pressure_contract"];
-        if model["schema_version"] == "0.8.0"
+        if model["schema_version"] == "0.9.0"
             && model.get("shear_model").is_none()
             && contract.as_object().is_some_and(|members| members.len() == 3)
             && contract["version"] == "3.0.0"
@@ -118,6 +118,29 @@ pub const EXACT: &str = "retained_source_blocks_exact_v1";
 pub const MAX_BASIS: &str = "retained_source_endpoint_normal_max_v1";
 pub const MAX_SIGN: &str = "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate";
 pub const SUPPORT_SIGN: &str = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate";
+/// Whether a model document's case carries model document 0.9.0's `condition_use`
+/// (DEL-02-01 Design `model-document-0.9.0.md` §3.7): the independent source readers
+/// decline it by name until S2 settles where the condition lowering sits.
+pub(crate) fn model_uses_conditions(model: &Value) -> bool {
+    model["load_cases"].as_array().is_some_and(|cases| cases.iter().any(|case| case.get("condition_use").is_some()))
+}
+/// Whether a model document carries model document 0.9.0's `condition_sets`
+/// other than absent or `[]` (DEL-02-01 Design `model-document-0.9.0.md` §3.7, §3.8):
+/// the retained admission declines a non-empty list (`FamilyFact::ConditionSets`), and a
+/// parsed empty list has no capacity; any other value is refused at decode.
+pub(crate) fn model_carries_condition_sets(model: &Value) -> bool {
+    model.get("condition_sets").is_some_and(|sets| sets.as_array().is_none_or(|sets| !sets.is_empty()))
+}
+/// Whether a model document carries `spectra` other than absent or `[]` (§3.8;
+/// `FamilyFact::Spectra`).
+pub(crate) fn model_carries_spectra(model: &Value) -> bool {
+    model.get("spectra").is_some_and(|spectra| spectra.as_array().is_none_or(|spectra| !spectra.is_empty()))
+}
+/// Whether a pipe of a model document carries `condition_set_ref`, any value, an empty
+/// string or null included (§3.8; `FamilyFact::ConditionSetRef`).
+pub(crate) fn model_carries_condition_set_ref(model: &Value) -> bool {
+    model["pipe_segments"].as_array().is_some_and(|pipes| pipes.iter().any(|pipe| pipe.get("condition_set_ref").is_some()))
+}
 fn require(ok: bool, detail: &str) -> Result<(), String> {
     if ok {
         Ok(())
@@ -843,7 +866,7 @@ pub(crate) fn validate_source_case_in(
     if let Some(invocation) = invocation {
         let model = &invocation["request"]["model"];
         require(
-            model["schema_version"] == "0.8.0"
+            model["schema_version"] == "0.9.0"
                 && SourceContract::from_invocation(invocation).ok() == Some(contract),
             "ACTUAL_EXACT_PROFILE",
         )?;
@@ -1365,7 +1388,13 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     if contract == SourceContract::PressureV3 {
         if let Some(invocation) = actual_invocation {
             let model = &invocation["request"]["model"];
-            require(model["schema_version"] == "0.8.0", "ACTUAL_MODEL_SCHEMA")?;
+            require(model["schema_version"] == "0.9.0", "ACTUAL_MODEL_SCHEMA")?;
+            // Model document 0.9.0 (§3.7): a case's `condition_use` is declined by name.
+            require(!model_uses_conditions(model), "ACTUAL_CONDITION_USE")?;
+            // §3.8: non-empty condition sets or spectra, and any pipe's set reference, likewise.
+            require(!model_carries_condition_sets(model), "ACTUAL_CONDITION_SETS")?;
+            require(!model_carries_spectra(model), "ACTUAL_SPECTRA")?;
+            require(!model_carries_condition_set_ref(model), "ACTUAL_CONDITION_SET_REF")?;
             require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
         }
     }
@@ -1628,6 +1657,83 @@ mod review_repair_tests {
                 outcome.err(),
                 Some(format!("PHYSICS_SOURCE_ACTUAL_DERIVED_SHEAR_RANGE:{stage}"))
             );
+        }
+    }
+
+    /// Model document 0.9.0 (§3.7): an invocation whose model carries a case's
+    /// `condition_use` is declined by name before any source check.
+    #[test]
+    fn a_case_condition_use_is_declined_by_name() {
+        let model = |case: serde_json::Value| serde_json::json!({"load_cases": [{"id": "a"}, case]});
+        assert!(!super::model_uses_conditions(&model(serde_json::json!({"id": "b"}))));
+        assert!(super::model_uses_conditions(&model(serde_json::json!({"id": "b", "condition_use": {"temperature": "OPE"}}))));
+        assert!(super::model_uses_conditions(&model(serde_json::json!({"id": "b", "condition_use": null}))));
+        // Through the reader: the n05 statement with its own invocation, whose case now uses conditions.
+        let source: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+        ))
+        .unwrap();
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let mut invocation = serde_json::json!({"request": request, "solver_mode": "sparse_interactive"});
+        assert!(super::validate(&source, Some(&invocation)).is_ok());
+        invocation["request"]["model"]["load_cases"][0]["condition_use"] = serde_json::json!({"temperature": "OPE"});
+        assert_eq!(super::validate(&source, Some(&invocation)), Err("PHYSICS_SOURCE_ACTUAL_CONDITION_USE".into()));
+    }
+
+    /// Model document 0.9.0 (§3.8): the condition sets and spectra are declined unless absent
+    /// or `[]`, and any pipe's `condition_set_ref` (an empty string or null included), each by
+    /// name, as the retained admission declines them; absence and `[]` read as before.
+    #[test]
+    fn condition_sets_spectra_and_set_references_are_declined_by_name() {
+        use serde_json::json;
+        let set = json!({"id": "cs", "provenance": "user", "conditions": [{"key": "OPE"}]});
+        let spectrum = json!({"id": "sp", "points": [[0.1, 1.0], [1.0, 2.0]]});
+        for (value, carried) in [(None, false), (Some(json!([])), false), (Some(json!([set])), true), (Some(json!(null)), true), (Some(json!({})), true)] {
+            let mut model = json!({"pipe_segments": [{"id": "p"}]});
+            if let Some(value) = &value {
+                model["condition_sets"] = value.clone();
+            }
+            assert_eq!(super::model_carries_condition_sets(&model), carried, "condition_sets {value:?}");
+            let mut model = json!({"pipe_segments": [{"id": "p"}]});
+            if let Some(value) = &value {
+                model["spectra"] = if value == &json!([set]) { json!([spectrum]) } else { value.clone() };
+            }
+            assert_eq!(super::model_carries_spectra(&model), carried, "spectra {value:?}");
+        }
+        for (reference, carried) in [(None, false), (Some(json!("cs")), true), (Some(json!("")), true), (Some(json!(null)), true)] {
+            let mut model = json!({"pipe_segments": [{"id": "p"}, {"id": "q"}]});
+            if let Some(reference) = &reference {
+                model["pipe_segments"][1]["condition_set_ref"] = reference.clone();
+            }
+            assert_eq!(super::model_carries_condition_set_ref(&model), carried, "condition_set_ref {reference:?}");
+        }
+        // Through the reader: the n05 statement with its own invocation.
+        let source: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+        ))
+        .unwrap();
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let base = json!({"request": request, "solver_mode": "sparse_interactive"});
+        let with = |change: &dyn Fn(&mut Value)| {
+            let mut invocation = base.clone();
+            change(&mut invocation["request"]["model"]);
+            super::validate(&source, Some(&invocation))
+        };
+        assert!(with(&|_| {}).is_ok());
+        // `[]` passes the declines and stops later, at the receipt's invocation binding the change breaks.
+        let control = with(&|model| { model["condition_sets"] = json!([]); model["spectra"] = json!([]); }).unwrap_err();
+        assert!(control.ends_with("_INVOCATION_HASH"), "{control}");
+        assert_eq!(with(&|model| model["condition_sets"] = json!([set])), Err("PHYSICS_SOURCE_ACTUAL_CONDITION_SETS".into()));
+        assert_eq!(with(&|model| model["spectra"] = json!([spectrum])), Err("PHYSICS_SOURCE_ACTUAL_SPECTRA".into()));
+        for reference in [json!("cs"), json!("")] {
+            assert_eq!(with(&|model| model["pipe_segments"][0]["condition_set_ref"] = reference.clone()),
+                Err("PHYSICS_SOURCE_ACTUAL_CONDITION_SET_REF".into()), "{reference}");
         }
     }
 }

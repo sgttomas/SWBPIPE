@@ -37,9 +37,6 @@ PINS = {
         # RT-A3 increment 1 D3 (§8.33): on the exact route a straight member's branch-connection rows
         # (u4b_rows::append_branch_intensified, records extended into directional_measures); D1.4 admits no component,
         # so no association, row or record. Carriers, staging and prepared-pressure calls unchanged.
-        # RT-A3 increment 1b D3 (§8.36): the case solve's published-row index (u4b_rows::PublishedScope before the
-        # member loop, its `begin` at each member's start and a MemberRows passed to the station quantities and branch
-        # rows; RTA3B-PS, RTA3B-MR). No `?`, return, record, label, carrier or staging is added. Carriers, staging and prepared-pressure calls unchanged.
         "solve_prepared_load_case": "0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
@@ -56,9 +53,12 @@ PINS = {
     # it only narrows admission. The component, region and load-state refusals are unchanged.
     # W-16 slice a (§8.23, W16-NS): family_clauses refuses a support-targeted primitive (F::LoadTarget); it only
     # narrows admission. The component, region and load-state refusals are unchanged.
+    # Model document 0.9.0 D3 (§8.36): family_clauses refuses condition_use, test_condition, direction, the
+    # combination members and (D1.3) condition sets, spectra and set references; it only narrows admission. The
+    # component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "72130bdb1b87bde04fd1746fb33f86bbdaf14c6d288ce3d3e273ea86f72711b4",
+        "family_clauses": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure

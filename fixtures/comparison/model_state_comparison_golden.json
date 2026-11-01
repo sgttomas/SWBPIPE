@@ -9,6 +9,8 @@
     "analysis_status": "model",
     "diagnostics": "model",
     "model_settings": "model",
+    "condition_sets": "model",
+    "spectra": "model",
     "nodes": "node",
     "pipe_segments": "pipe_segment",
     "sections": "section",
@@ -37,7 +39,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -76,6 +78,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -93,16 +202,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -131,6 +246,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -212,7 +335,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -236,7 +360,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -346,6 +471,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -408,6 +565,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -422,6 +624,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -564,7 +826,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -603,6 +865,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -620,16 +989,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -658,6 +1033,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -739,7 +1122,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -763,7 +1147,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -873,6 +1258,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -935,6 +1352,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -949,6 +1411,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -1088,8 +1610,8 @@
           "added": 0,
           "removed": 0,
           "changed": 0,
-          "unchanged": 21,
-          "total": 21,
+          "unchanged": 27,
+          "total": 27,
           "unit_changed_fields": 0
         },
         "rows": [
@@ -1175,6 +1697,15 @@
             "changes": []
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -1193,6 +1724,24 @@
             "changes": []
           },
           {
+            "family": "load_case",
+            "key": [
+              "load:L-2"
+            ],
+            "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "primitive_load",
             "key": [
               "load:L-1",
@@ -1205,9 +1754,36 @@
           {
             "family": "combination",
             "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -1298,7 +1874,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -1337,6 +1913,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -1354,16 +2037,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -1392,6 +2081,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -1473,7 +2170,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -1497,7 +2195,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -1607,6 +2306,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -1669,6 +2400,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -1683,6 +2459,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -1825,7 +2661,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "notes": "Project-level free text.",
@@ -1864,6 +2700,113 @@
                 "value": 2
               }
             },
+            "condition_sets": [
+              {
+                "notes": "Invented condition set.",
+                "tags": [
+                  "run"
+                ],
+                "exposure": {
+                  "wave": false,
+                  "snow_ice": false,
+                  "wind": true
+                },
+                "added_weight": {
+                  "direction": "global_z",
+                  "magnitude": {
+                    "unit": "N/m",
+                    "value": -50
+                  }
+                },
+                "peak": {
+                  "pressure": {
+                    "unit": "MPa",
+                    "value": 2.5
+                  },
+                  "temperature": {
+                    "unit": "degC",
+                    "value": 200
+                  }
+                },
+                "design": {
+                  "pressure": {
+                    "unit": "MPa",
+                    "value": 2
+                  },
+                  "temperature": {
+                    "unit": "degC",
+                    "value": 180
+                  }
+                },
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 20
+                },
+                "conditions": [
+                  {
+                    "contents_density": {
+                      "unit": "kg/m^3",
+                      "value": 998
+                    },
+                    "pressure": {
+                      "unit": "MPa",
+                      "value": 1.5
+                    },
+                    "temperature": {
+                      "unit": "degC",
+                      "value": 150
+                    },
+                    "label": "Operating",
+                    "key": "OPE1"
+                  },
+                  {
+                    "temperature": {
+                      "unit": "degC",
+                      "value": 20
+                    },
+                    "label": "Hydrotest",
+                    "key": "HYDRO"
+                  }
+                ],
+                "provenance": "invented_example",
+                "label": "Run conditions",
+                "id": "condition_set:CS-1"
+              }
+            ],
+            "spectra": [
+              {
+                "notes": "Invented spectrum.",
+                "tags": [
+                  "dynamics"
+                ],
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "interpolation": {
+                  "ordinate": "log",
+                  "abscissa": "log"
+                },
+                "damping_ratio": 0.05,
+                "g_value": {
+                  "unit": "m/s^2",
+                  "value": 9.80665
+                },
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "ordinate": "g_multiple",
+                "abscissa": "frequency",
+                "label": "Invented g spectrum",
+                "id": "spectrum:SP-1"
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -1881,16 +2824,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -1919,6 +2868,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -1982,6 +2939,7 @@
           ],
           "id": "pipe:P-1",
           "fields": {
+            "condition_set_ref": "condition_set:CS-1",
             "notes": "Run note.",
             "tags": [
               "discharge"
@@ -2010,6 +2968,7 @@
           ],
           "id": "pipe:P-2",
           "fields": {
+            "condition_set_ref": "condition_set:CS-1",
             "provenance": "invented_example",
             "material": "material:steel",
             "section": {
@@ -2134,6 +3093,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "notes": "Invented snubber.",
+            "tags": [
+              "snubber"
+            ],
+            "provenance": "invented_example",
+            "stiffness": {
+              "value": {
+                "unit": "N/m",
+                "value": 10000000
+              },
+              "dof": "UY"
+            },
+            "direction": {
+              "z": 4,
+              "y": 3,
+              "x": 0
+            },
+            "restraints": [
+              "UY"
+            ],
+            "family": "snubber",
+            "node": "node:N-3",
+            "label": "Snubber"
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -2196,6 +3187,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "condition_use": {
+              "wind_exposure": true,
+              "added_weight": true,
+              "contents_density": "OPE1",
+              "pressure": "OPE1",
+              "temperature": "OPE1"
+            },
+            "notes": "Invented case.",
+            "tags": [
+              "operating"
+            ],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "kind": "operating",
+            "label": "Operating"
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "test_condition": {
+              "held_supports": "springs_and_constant_effort",
+              "kind": "hydrostatic"
+            },
+            "notes": "Invented case.",
+            "tags": [
+              "hydrotest"
+            ],
+            "provenance": "invented_example",
+            "status": "preview_only",
+            "kind": "hydrotest",
+            "label": "Hydrotest"
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -2210,6 +3246,66 @@
             "terms": [],
             "basis": "mechanics",
             "label": "Operating"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "notes": "Invented combination.",
+            "tags": [
+              "exp"
+            ],
+            "provenance": "invented_example",
+            "subtrahend_support_state": "minuend_final",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_id": "load:L-1",
+            "minuend_id": "load:L-2",
+            "basis": "result_state_subtraction",
+            "label": "Expansion"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1,
+                "load_case": "load:L-1"
+              },
+              {
+                "factor": 1,
+                "combination": "combination:C-EXP"
+              }
+            ],
+            "basis": "absolute_sum",
+            "label": "Absolute sum"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "provenance": "invented_example",
+            "terms": [
+              {
+                "factor": 1,
+                "combination": "combination:C-ABS"
+              }
+            ],
+            "basis": "srss",
+            "label": "SRSS"
           }
         },
         {
@@ -2349,8 +3445,8 @@
           "added": 0,
           "removed": 0,
           "changed": 0,
-          "unchanged": 21,
-          "total": 21,
+          "unchanged": 27,
+          "total": 27,
           "unit_changed_fields": 0
         },
         "rows": [
@@ -2436,6 +3532,15 @@
             "changes": []
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -2454,6 +3559,24 @@
             "changes": []
           },
           {
+            "family": "load_case",
+            "key": [
+              "load:L-2"
+            ],
+            "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "primitive_load",
             "key": [
               "load:L-1",
@@ -2466,9 +3589,36 @@
           {
             "family": "combination",
             "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -2559,7 +3709,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -2598,6 +3748,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -2615,16 +3872,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -2653,6 +3916,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -2734,7 +4005,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -2758,7 +4030,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -2868,6 +4141,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -2930,6 +4235,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -2944,6 +4294,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -3086,7 +4496,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -3125,6 +4535,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-3",
@@ -3142,16 +4659,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -3180,6 +4703,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -3261,7 +4792,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -3285,7 +4817,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -3395,6 +4928,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -3457,6 +5022,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -3471,6 +5081,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -3610,8 +5280,8 @@
           "added": 0,
           "removed": 0,
           "changed": 1,
-          "unchanged": 20,
-          "total": 21,
+          "unchanged": 26,
+          "total": 27,
           "unit_changed_fields": 0
         },
         "rows": [
@@ -3705,6 +5375,15 @@
             "changes": []
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -3723,6 +5402,24 @@
             "changes": []
           },
           {
+            "family": "load_case",
+            "key": [
+              "load:L-2"
+            ],
+            "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "primitive_load",
             "key": [
               "load:L-1",
@@ -3735,9 +5432,36 @@
           {
             "family": "combination",
             "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -3818,7 +5542,7 @@
     },
     {
       "name": "field_edits",
-      "description": "Edits within entities: a support's label, a primitive load's magnitude (same unit), a section property, a rule-pack reference's version, the project name and a model setting's value.",
+      "description": "Edits within entities: a support's label, a primitive load's magnitude (same unit), a section property, a rule-pack reference's version, the project name, a model setting, a condition temperature and a spectrum ordinate.",
       "hashes_equal": false,
       "left_entities": [
         {
@@ -3828,7 +5552,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -3867,6 +5591,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -3884,16 +5715,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -3922,6 +5759,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -4003,7 +5848,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -4027,7 +5873,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -4137,6 +5984,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -4199,6 +6078,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -4213,6 +6137,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -4355,7 +6339,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -4394,6 +6378,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 151,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.30000000000000004
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -4411,16 +6502,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -4449,6 +6546,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -4530,7 +6635,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -4554,7 +6660,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -4664,6 +6771,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -4726,6 +6865,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -4740,6 +6924,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -4879,8 +7123,8 @@
           "added": 0,
           "removed": 0,
           "changed": 5,
-          "unchanged": 16,
-          "total": 21,
+          "unchanged": 22,
+          "total": 27,
           "unit_changed_fields": 0
         },
         "rows": [
@@ -4894,6 +7138,16 @@
             "changes": [
               {
                 "path": [
+                  "condition_sets",
+                  0,
+                  "conditions",
+                  0,
+                  "temperature"
+                ],
+                "kind": "changed"
+              },
+              {
+                "path": [
                   "model_settings",
                   "node_proximity_tolerance"
                 ],
@@ -4903,6 +7157,15 @@
                 "path": [
                   "project",
                   "name"
+                ],
+                "kind": "changed"
+              },
+              {
+                "path": [
+                  "spectra",
+                  0,
+                  "points",
+                  0
                 ],
                 "kind": "changed"
               }
@@ -4996,6 +7259,15 @@
             ]
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -5010,6 +7282,24 @@
               "load:L-1"
             ],
             "id": "load:L-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-2"
+            ],
+            "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
             "classification": "unchanged",
             "changes": []
           },
@@ -5033,9 +7323,36 @@
           {
             "family": "combination",
             "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -5133,7 +7450,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -5172,6 +7489,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -5189,16 +7613,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -5227,6 +7657,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -5308,7 +7746,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -5332,7 +7771,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -5442,6 +7882,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -5504,6 +7976,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -5518,6 +8035,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -5660,7 +8237,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -5699,6 +8276,113 @@
                 "unit": "m"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -5716,16 +8400,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -5754,6 +8444,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -5835,7 +8533,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -5859,7 +8558,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -5969,6 +8669,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -6031,6 +8763,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -6045,6 +8822,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -6184,8 +9021,8 @@
           "added": 0,
           "removed": 0,
           "changed": 2,
-          "unchanged": 19,
-          "total": 21,
+          "unchanged": 25,
+          "total": 27,
           "unit_changed_fields": 2
         },
         "rows": [
@@ -6286,6 +9123,15 @@
             "changes": []
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -6304,6 +9150,24 @@
             "changes": []
           },
           {
+            "family": "load_case",
+            "key": [
+              "load:L-2"
+            ],
+            "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "primitive_load",
             "key": [
               "load:L-1",
@@ -6316,9 +9180,36 @@
           {
             "family": "combination",
             "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -6409,7 +9300,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -6448,6 +9339,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -6465,16 +9463,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -6503,6 +9507,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -6584,7 +9596,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -6608,7 +9621,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -6718,6 +9732,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -6780,6 +9826,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -6794,6 +9885,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -6936,7 +10087,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -6975,6 +10126,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -6993,17 +10251,23 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
                 "load:L-1",
-                "load:L-2"
+                "load:L-2",
+                "load:L-3",
+                "load:comparison-added"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -7034,6 +10298,14 @@
               },
               {
                 "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
+              },
+              {
+                "load_case": "load:comparison-added",
                 "loads": [
                   "load:L-2-X"
                 ]
@@ -7134,7 +10406,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -7158,7 +10431,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -7268,6 +10542,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -7336,16 +10642,61 @@
           ],
           "id": "load:L-2",
           "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:comparison-added"
+          ],
+          "id": "load:comparison-added",
+          "fields": {
             "label": "Invented case"
           }
         },
         {
           "family": "primitive_load",
           "key": [
-            "load:L-2",
+            "load:comparison-added",
             "load:L-2-X"
           ],
-          "id": "load:L-2/load:L-2-X",
+          "id": "load:comparison-added/load:L-2-X",
           "fields": {
             "category": "occasional",
             "target": {
@@ -7376,6 +10727,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -7512,8 +10923,8 @@
           "added": 4,
           "removed": 2,
           "changed": 1,
-          "unchanged": 18,
-          "total": 25,
+          "unchanged": 24,
+          "total": 31,
           "unit_changed_fields": 0
         },
         "rows": [
@@ -7563,7 +10974,7 @@
               {
                 "path": [
                   "primitive_load_order",
-                  1,
+                  3,
                   "load_case"
                 ],
                 "kind": "added"
@@ -7571,7 +10982,7 @@
               {
                 "path": [
                   "primitive_load_order",
-                  1,
+                  3,
                   "loads"
                 ],
                 "kind": "added"
@@ -7660,6 +11071,15 @@
             "changes": []
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -7683,6 +11103,24 @@
               "load:L-2"
             ],
             "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:comparison-added"
+            ],
+            "id": "load:comparison-added",
             "classification": "added",
             "changes": []
           },
@@ -7699,11 +11137,29 @@
           {
             "family": "primitive_load",
             "key": [
-              "load:L-2",
+              "load:comparison-added",
               "load:L-2-X"
             ],
-            "id": "load:L-2/load:L-2-X",
+            "id": "load:comparison-added/load:L-2-X",
             "classification": "added",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
             "changes": []
           },
           {
@@ -7712,6 +11168,15 @@
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -7811,7 +11276,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -7850,6 +11315,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -7867,16 +11439,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -7905,6 +11483,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -7986,7 +11572,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -8010,7 +11597,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -8120,6 +11708,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -8182,6 +11802,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -8196,6 +11861,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -8338,7 +12063,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -8377,6 +12102,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -8394,16 +12226,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -8432,6 +12270,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -8513,7 +12359,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -8537,7 +12384,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -8643,6 +12491,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -8705,6 +12585,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -8719,6 +12644,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -8858,8 +12843,8 @@
           "added": 0,
           "removed": 0,
           "changed": 1,
-          "unchanged": 20,
-          "total": 21,
+          "unchanged": 26,
+          "total": 27,
           "unit_changed_fields": 0
         },
         "rows": [
@@ -8952,6 +12937,15 @@
             "changes": []
           },
           {
+            "family": "support",
+            "key": [
+              "support:SN-1"
+            ],
+            "id": "support:SN-1",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "component",
             "key": [
               "component:C-1"
@@ -8970,6 +12964,24 @@
             "changes": []
           },
           {
+            "family": "load_case",
+            "key": [
+              "load:L-2"
+            ],
+            "id": "load:L-2",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "load_case",
+            "key": [
+              "load:L-3"
+            ],
+            "id": "load:L-3",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
             "family": "primitive_load",
             "key": [
               "load:L-1",
@@ -8982,9 +12994,36 @@
           {
             "family": "combination",
             "key": [
+              "combination:C-ABS"
+            ],
+            "id": "combination:C-ABS",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-EXP"
+            ],
+            "id": "combination:C-EXP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
               "combination:C-OP"
             ],
             "id": "combination:C-OP",
+            "classification": "unchanged",
+            "changes": []
+          },
+          {
+            "family": "combination",
+            "key": [
+              "combination:C-SRSS"
+            ],
+            "id": "combination:C-SRSS",
             "classification": "unchanged",
             "changes": []
           },
@@ -9075,7 +13114,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -9114,6 +13153,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -9132,16 +13278,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -9170,6 +13322,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -9270,7 +13430,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -9294,7 +13455,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -9404,6 +13566,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -9466,6 +13660,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -9480,6 +13719,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {
@@ -9622,7 +13921,7 @@
           ],
           "id": "model",
           "fields": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": {
               "id": "project:slots",
@@ -9661,6 +13960,113 @@
                 "unit": "mm"
               }
             },
+            "condition_sets": [
+              {
+                "id": "condition_set:CS-1",
+                "label": "Run conditions",
+                "provenance": "invented_example",
+                "conditions": [
+                  {
+                    "key": "OPE1",
+                    "label": "Operating",
+                    "temperature": {
+                      "value": 150,
+                      "unit": "degC"
+                    },
+                    "pressure": {
+                      "value": 1.5,
+                      "unit": "MPa"
+                    },
+                    "contents_density": {
+                      "value": 998,
+                      "unit": "kg/m^3"
+                    }
+                  },
+                  {
+                    "key": "HYDRO",
+                    "label": "Hydrotest",
+                    "temperature": {
+                      "value": 20,
+                      "unit": "degC"
+                    }
+                  }
+                ],
+                "installation_temperature": {
+                  "value": 20,
+                  "unit": "degC"
+                },
+                "design": {
+                  "temperature": {
+                    "value": 180,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2,
+                    "unit": "MPa"
+                  }
+                },
+                "peak": {
+                  "temperature": {
+                    "value": 200,
+                    "unit": "degC"
+                  },
+                  "pressure": {
+                    "value": 2.5,
+                    "unit": "MPa"
+                  }
+                },
+                "added_weight": {
+                  "magnitude": {
+                    "value": -50,
+                    "unit": "N/m"
+                  },
+                  "direction": "global_z"
+                },
+                "exposure": {
+                  "wind": true,
+                  "snow_ice": false,
+                  "wave": false
+                },
+                "tags": [
+                  "run"
+                ],
+                "notes": "Invented condition set."
+              }
+            ],
+            "spectra": [
+              {
+                "id": "spectrum:SP-1",
+                "label": "Invented g spectrum",
+                "abscissa": "frequency",
+                "ordinate": "g_multiple",
+                "units": {
+                  "abscissa": "Hz"
+                },
+                "g_value": {
+                  "value": 9.80665,
+                  "unit": "m/s^2"
+                },
+                "damping_ratio": 0.05,
+                "interpolation": {
+                  "abscissa": "log",
+                  "ordinate": "log"
+                },
+                "points": [
+                  [
+                    1,
+                    0.2
+                  ],
+                  [
+                    10,
+                    0.5
+                  ]
+                ],
+                "tags": [
+                  "dynamics"
+                ],
+                "notes": "Invented spectrum."
+              }
+            ],
             "collection_order": {
               "nodes": [
                 "node:N-1",
@@ -9678,16 +14084,22 @@
                 "material:steel"
               ],
               "supports": [
-                "support:S-1"
+                "support:S-1",
+                "support:SN-1"
               ],
               "components": [
                 "component:C-1"
               ],
               "load_cases": [
-                "load:L-1"
+                "load:L-1",
+                "load:L-2",
+                "load:L-3"
               ],
               "combinations": [
-                "combination:C-OP"
+                "combination:C-OP",
+                "combination:C-EXP",
+                "combination:C-ABS",
+                "combination:C-SRSS"
               ],
               "reference_configurations": [
                 "refcfg:R-1"
@@ -9716,6 +14128,14 @@
                 "loads": [
                   "load:L-1-Z"
                 ]
+              },
+              {
+                "load_case": "load:L-2",
+                "loads": []
+              },
+              {
+                "load_case": "load:L-3",
+                "loads": []
               }
             ]
           }
@@ -9797,7 +14217,8 @@
             "tags": [
               "discharge"
             ],
-            "notes": "Run note."
+            "notes": "Run note.",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -9821,7 +14242,8 @@
               }
             },
             "material": "material:steel",
-            "provenance": "invented_example"
+            "provenance": "invented_example",
+            "condition_set_ref": "condition_set:CS-1"
           }
         },
         {
@@ -9931,6 +14353,38 @@
           }
         },
         {
+          "family": "support",
+          "key": [
+            "support:SN-1"
+          ],
+          "id": "support:SN-1",
+          "fields": {
+            "label": "Snubber",
+            "node": "node:N-3",
+            "family": "snubber",
+            "restraints": [
+              "UY"
+            ],
+            "direction": {
+              "x": 0,
+              "y": 3,
+              "z": 4
+            },
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "value": 10000000,
+                "unit": "N/m"
+              }
+            },
+            "provenance": "invented_example",
+            "tags": [
+              "snubber"
+            ],
+            "notes": "Invented snubber."
+          }
+        },
+        {
           "family": "component",
           "key": [
             "component:C-1"
@@ -9993,6 +14447,51 @@
           }
         },
         {
+          "family": "load_case",
+          "key": [
+            "load:L-2"
+          ],
+          "id": "load:L-2",
+          "fields": {
+            "label": "Operating",
+            "kind": "operating",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "operating"
+            ],
+            "notes": "Invented case.",
+            "condition_use": {
+              "temperature": "OPE1",
+              "pressure": "OPE1",
+              "contents_density": "OPE1",
+              "added_weight": true,
+              "wind_exposure": true
+            }
+          }
+        },
+        {
+          "family": "load_case",
+          "key": [
+            "load:L-3"
+          ],
+          "id": "load:L-3",
+          "fields": {
+            "label": "Hydrotest",
+            "kind": "hydrotest",
+            "status": "preview_only",
+            "provenance": "invented_example",
+            "tags": [
+              "hydrotest"
+            ],
+            "notes": "Invented case.",
+            "test_condition": {
+              "kind": "hydrostatic",
+              "held_supports": "springs_and_constant_effort"
+            }
+          }
+        },
+        {
           "family": "combination",
           "key": [
             "combination:C-OP"
@@ -10007,6 +14506,66 @@
               "op"
             ],
             "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-EXP"
+          ],
+          "id": "combination:C-EXP",
+          "fields": {
+            "label": "Expansion",
+            "basis": "result_state_subtraction",
+            "minuend_id": "load:L-2",
+            "subtrahend_id": "load:L-1",
+            "difference_basis": "operating_minus_sustained",
+            "subtrahend_support_state": "minuend_final",
+            "provenance": "invented_example",
+            "tags": [
+              "exp"
+            ],
+            "notes": "Invented combination."
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-ABS"
+          ],
+          "id": "combination:C-ABS",
+          "fields": {
+            "label": "Absolute sum",
+            "basis": "absolute_sum",
+            "terms": [
+              {
+                "load_case": "load:L-1",
+                "factor": 1
+              },
+              {
+                "combination": "combination:C-EXP",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
+          }
+        },
+        {
+          "family": "combination",
+          "key": [
+            "combination:C-SRSS"
+          ],
+          "id": "combination:C-SRSS",
+          "fields": {
+            "label": "SRSS",
+            "basis": "srss",
+            "terms": [
+              {
+                "combination": "combination:C-ABS",
+                "factor": 1
+              }
+            ],
+            "provenance": "invented_example"
           }
         },
         {

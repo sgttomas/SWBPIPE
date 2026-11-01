@@ -52,8 +52,8 @@ use b1_sq_inputs as inputs;
 // §8.30: +10,392 B in both modes from 6,559,533,008 and 6,618,664,352.
 // §8.32: +334,921 B in both modes from 6,559,543,400 and 6,618,674,744.
 // §8.33: +38,891,800 B in both modes from 6,559,878,321 and 6,619,009,665.
-// §8.36: +172,554 B in both modes from 6,598,770,121 and 6,657,901,465.
-const W1_PHASE_BYTES: [u64; 2] = [6_598_942_675, 6_658_074_019];
+// §8.36 owner-approved proposal: reviewed native W1 values, without reserved stack R.
+const W1_PHASE_BYTES: [u64; 2] = [6_602_790_349, 6_661_921_693];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -72,8 +72,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_598_942_675, 6_658_074_019];
 // §8.30: +10,392 B in both modes from 8,855,710,229 and 8,914,841,573.
 // §8.32: +334,921 B in both modes from 8,855,720,621 and 8,914,851,965.
 // §8.33: +38,891,800 B in both modes from 8,856,055,542 and 8,915,186,886.
-// §8.36: +172,554 B in both modes from 8,894,947,342 and 8,954,078,686.
-const MAX_PHASE_BYTES: [u64; 2] = [8_895_119_896, 8_954_251_240];
+// §8.36 owner-approved proposal: reviewed native W3 maximum, without reserved stack R.
+const MAX_PHASE_BYTES: [u64; 2] = [8_898_968_146, 8_958_099_490];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

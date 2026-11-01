@@ -132,10 +132,22 @@ import runpy
 # FK formation_check.rs and SP lib.rs re-form and bound a Timoshenko partial-span load. Re-pinned after review.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
-# RT-A3 increment 1b D3 (§8.36): lib.rs adds the case solve's published-row index (a PublishedScope before the member
-# loop, its `begin` per member and a MemberRows passed to two u4b_rows calls; RTA3B-PS, RTA3B-MR). No owner this model
-# prices, `.min(`/`.max(` call, reduction owner or lifetime changes; keys after 6126 move +3 and after 6937 +4.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': 'b374e7cb228202c16d83bc4044c34b2bb35428a9f77735745e97cdb4928b64c2', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': 'b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '9f94323ee8d377563fdbde1b5ea31cb400cc924244075ad5a472db201467ae06', 'core/reporting/result_export/src/retained_precision.rs': '17f88ee2b5ae7de5fb0c22471f87387a066cbfd21e102b76f75b9bf54c164f25', 'core/product_physics/src/model_format.rs': '7313c52beb6fcd9cbfd774c6ec6a0280eece1aa46eb5a63056078dc310e8bec6', 'core/product_physics/src/pressure_runtime.rs': '8b4f390187e62d77b9f3316e3826bac0ca680b6d4decb9332e43e8a7126dacba', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '1174fa193e3d4e1d3e388737c7ada2386471177db7e185ded35a39943b161065', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '6417f7d1a889c96f4dcfd6cab21a10a2ca54b2a93e5c5591ce66cb3bf7c2059d', 'core/reporting/result_export/src/physics_source.rs': '1050e77c104a078ebb3b9abd571ac70d183934df9487178f72fe06ecdc41df24'}
+# Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): read 9b0f8f49c..867c63ec8 for each re-bound file. lib.rs
+# declares document_members, operating_conditions and spectra; PreviewModel gains condition_sets and spectra,
+# PreviewPipe condition_set_ref, PreviewSupport direction (Copy), PreviewLoadCase condition_use and test_condition,
+# PreviewCombination difference_basis and subtrahend_support_state (Copy), and PreviewCombinationTerm a combination
+# operand behind a closed wire record (its absent load_case is the empty String: no allocation). D1.3/D1.4/D1.5/D1.6
+# refuse every one of these members that would own heap or work (FamilyFact::ConditionSets, Spectra, ConditionSetRef,
+# ConditionUse, TestCondition, SupportDirection, CombinationMember), so their typed owners are empty, with capacity 0,
+# on D1; their larger inline layouts are native atoms. run_linear_static_preview_observed_inner calls
+# operating_conditions::lower first and document_members::withhold_interim_combinations after the blocking check (their
+# owners and texts: S1-* rules, §8.36), and validate_support_family_tokens admits the snubber token (its text +9 B;
+# D1.6 refuses the family). retained_wire.rs moves DEF-E's hash; model_format.rs, exact_admission.rs,
+# pressure_runtime.rs, preview_physics.rs and semantic_contract.rs change version tokens (same length), table hashes,
+# comments and test literals; physics_source.rs and retained_precision.rs add allocation-free Err-only declines
+# (ACTUAL_CONDITION_USE/SETS/SPECTRA/SET_REF, 20-24 B inside the 40 B detail class; G8's four need sites) and test
+# modules. No owner this model prices changes.
+SOURCE_FILES = {'core/product_physics/src/lib.rs': '940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/retained_precision.rs': '99ab28e628a6e12de35277de5806c018cf59e2cabee6218e37d835342c6c2865', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': 'fa17b298c8a3c3f3eef97ab3507162cc8705ef69afcc35f5c767a924ff92c88a', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': 'fec9edd5e74e58520ee251937b4a4efb89820ea65d98f8f3023e72eb6c40ef75', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '4fa13a5ba8b76bc71ddc508215f841a43d287c21b08a16cbaf3c9ab5d3c82e7a', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -157,9 +169,15 @@ CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # byte-identical.
 # W-16 slice b D3 (§8.27, W16B-CB): family_clauses' D1.4 exact clause states that the ordinary exact route evaluates
 # combinations; it still refuses them on branch E. Comments only; the admission prefix changes only its comments too.
-FAMILY_PIN = "72130bdb1b87bde04fd1746fb33f86bbdaf14c6d288ce3d3e273ea86f72711b4"
+# Model document 0.9.0 D3 (§8.36): family_clauses refuses, by name, a case's condition_use and test_condition (D1.5),
+# a support's direction (D1.6), a combination's difference basis, subtrahend support state, unsigned basis or
+# combination term operand (D1.4), and (D1.3) a non-empty condition_sets or spectra, any pipe's condition_set_ref and an
+# empty condition_sets/spectra owner with spare capacity (ConditionSetsCapacity, SpectraCapacity, cap 0). The prefix
+# gains only those FamilyFact/CapFact variants. Each only narrows admission; the caps module, census and late
+# admission bodies are byte-identical.
+FAMILY_PIN = "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd"
 ADMISSION_MARKER = "// ---- D-6: the build status --------------------------------------------------"
-ADMISSION_PREFIX_PIN = "7368b78e73a6737489507ee9d497d135a14d3a57a5a0b4a6b8a5cc7153935b82"
+ADMISSION_PREFIX_PIN = "ae99b6a04b897fe15104e0b33d12de9ec6ef5827663f6c437a807c49226934a7"
 ADMISSION_LATE_PINS = {"law_order":"b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3","admit":"67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8","admission":"7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"}
 MATERIALS = 4
 OPERAND_WORDS = 26
@@ -398,28 +416,29 @@ def text_decisions(snapshot, resolved):
         # completion and the failed manifest's placeholders; retained_precision.rs +10: the global end kind).
         # RT-A3 increment 1 D3 (§8.33): every lib.rs key below 2900 stands; later keys move +2 (the junction warnings'
         # call), +7 (the branch model diagnostics) and +12 (the case solve's branch rows), unchanged text.
-        # RT-A3 increment 1b D3 (§8.36): lib.rs keys after 6126 move +3 (the published scope and its `begin`) and after
-        # 6937 +4 (the member's MemberRows), unchanged text; earlier keys stand.
-        (pp + "lib.rs:12119", {"load_case_id": inp}),
-        (pp + "lib.rs:12133", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12140", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12145", {"load.load_id": inp}),
-        (pp + "lib.rs:12146", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12147", {"bend.component_id": inp}),
-        (pp + "lib.rs:12148", {"load_case_id": inp}),
-        (pp + "lib.rs:12207", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12214", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12219", {"load.load_id": inp}),
-        (pp + "lib.rs:12220", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12221", {"bend.component_id": inp}),
-        (pp + "lib.rs:12222", {"load_case_id": inp}),
-        (pp + "lib.rs:12261", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12268", {"load.load_id": inp, "load_case_id": inp}),
+        # Model document 0.9.0 D3 (§8.36): every key below moved with unchanged text: lib.rs +73 before the lowering
+        # call, +80 after it, +83 after the snubber token; model_format.rs +2 (its module comment);
+        # retained_precision.rs +9 (G8's condition-member declines).
+        (pp + "lib.rs:12202", {"load_case_id": inp}),
+        (pp + "lib.rs:12216", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12223", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12228", {"load.load_id": inp}),
+        (pp + "lib.rs:12229", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12230", {"bend.component_id": inp}),
+        (pp + "lib.rs:12231", {"load_case_id": inp}),
+        (pp + "lib.rs:12290", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12297", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12302", {"load.load_id": inp}),
+        (pp + "lib.rs:12303", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12304", {"bend.component_id": inp}),
+        (pp + "lib.rs:12305", {"load_case_id": inp}),
+        (pp + "lib.rs:12344", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12351", {"load.load_id": inp, "load_case_id": inp}),
         # W-16 slice c (§8.27): certified_loads' two generated-id prefix formats move into lib.rs'
         # is_generated_equivalent_static_load (the kind arm and the any-kind arm) with the same input id; both are
         # reached only from an admitted equivalent-static case (W16C-ES: none on D1).
-        (pp + "lib.rs:10685", {"load_case.id": inp}),
-        (pp + "lib.rs:10686", {"load_case.id": inp}),
+        (pp + "lib.rs:10768", {"load_case.id": inp}),
+        (pp + "lib.rs:10769", {"load_case.id": inp}),
         (pp + 'retained_product.rs:4773', {"stable_suffix(id)": inp}),
         (pp + 'retained_product.rs:4774', {"id": inp}),
         (pp + 'retained_product.rs:4782', {"id": inp, "id.len()": inp, "component": static}),
@@ -429,20 +448,20 @@ def text_decisions(snapshot, resolved):
         (pp + 'retained_product.rs:4808', {"member.id": inp}),
         (pp + 'retained_product.rs:4850', {"ordinary.document_kind": static}),
         (pp + 'retained_product.rs:4851', {"ordinary.model_ref": inp}),
-        (pp + "lib.rs:1299", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3529", {"context.semantic_id()": static}),
-        (pp + "lib.rs:6098", {"support.id": inp}),
-        (pp + "lib.rs:6847", {"pipe.element_id": inp}),
-        (pp + "model_format.rs:28", {"version": static}),  # model document 0.8.0 (§8.26): +2 (the module comment), same text
+        (pp + "lib.rs:1372", {"semantic_contract_id": static}),
+        (pp + "lib.rs:3609", {"context.semantic_id()": static}),
+        (pp + "lib.rs:6178", {"support.id": inp}),
+        (pp + "lib.rs:6927", {"pipe.element_id": inp}),
+        (pp + "model_format.rs:30", {"version": static}),  # model document 0.8.0 (§8.26): +2 (the module comment), same text
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.
         # T4-S5 (epoch): every key above and below moved with unchanged text (lib.rs +314/+15/+16/+195/+189;
         # retained_product.rs +66/+76; retained_precision.rs +16). T4-S6 (S6-HS: G1's hash_without): retained_precision.rs
         # +1, unchanged text. O4 S5 (§8.9): every key moved with unchanged text (lib.rs +3/+3/+3/+4, 0 after the case
         # solve; retained_product.rs +167; retained_precision.rs +189).
-        (re_ + 'retained_precision.rs:6064', {"mode": static}),
-        (re_ + 'retained_precision.rs:6146', {"text(cid)": inp}),
-        (re_ + 'retained_precision.rs:6170', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:6073', {"mode": static}),
+        (re_ + 'retained_precision.rs:6155', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:6179', {"text(cid)": inp}),
     ]
     lex = [('retained_product.rs:4848', {"class": 64, "why": "source-bound mechanics schema literal"}),
            # T4-S6 (Codex correction, §8.8): the formulation content upper is read from the current literals (3,138 B
@@ -498,7 +517,7 @@ def failed_envelope_copy(cases, ident, snapshot=None):
     return (s("MechanicsEnvelope") + V("String", strings) + B(content)
             + B(2 * (2 * ident + 1024))) * cases
 
-BASE_PREIMAGES = {'loop_bounds_sha256': 'cd0273bc94e521142cc56121171055f9020c167b97caa8efe7fa6ac36c69ba4c', 'loop_rows': {'116': {'re': '^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\["\\ "\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$', 'bound': '1', 'why': "I104 SQ B1 re-checked, kept (1): RS reader (:747 g3, :3616 g8): body.material_bases: the producer emits one material basis (D1.5's one default basis) whose case_indices name every case (retained_wire.rs material_basis). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"}, '218': {'re': '^for term in force_terms$|^for force in force_terms \\.iter\\(\\) \\.filter', 'bound': 'l', 'why': 'G4 (R-1, newly reached on the repaired graph): force terms: one per nodal load primitive <= l (D1.7)'}, '313': {'re': 'span\\.start_fraction|uniform_intensities', 'bound': '0', 'why': 'D1.7: no element (distributed) loads, so no load spans (PP lib.rs:9999-10015 at b1f80234dc). G4 (RV84 S-2): bare `intensity` removed (it matched the 3-accumulator zip)'}}, 'fn_zero': {'fn': 'lib.rs:10631:add_uniform_element_loads', 'why': 'D1.7: iterates load_application.element_uniform_loads (lib.rs:3223-3226), empty for nodal-only loads; every text site is inside that loop'}, 'edge_zero': {'caller': 'formation_guard.rs:297:load_row_finding', 'callee': 'formation_guard.rs:216:decide_row', 'why': 'D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)'}, 'record_audit': {'bytes': 600, 'source': 'COMP'}, 'provenance_join': {'re': '^provenance_records$', 'bytes': '8*(128+200)+8*3', 'why': 'composite_text provenance_join'}, 'copy_lex': {'class': 'result_id', 'why': "adapter copy(): identifiers, units, entity refs, result ids and the basis text (retained_product.rs:247-3452), each <= result_id (G6 repair, RV87 SF-2: re-keyed from b1f80234dc's line 2963 to copy()'s push_str at 1e323058f3, retained_product.rs:3125)"}}
+BASE_PREIMAGES = {'loop_bounds_sha256': 'cd0273bc94e521142cc56121171055f9020c167b97caa8efe7fa6ac36c69ba4c', 'loop_rows': {'116': {'re': '^for\\ \\(mi,\\ mb\\)\\ in\\ list\\(\\&b\\["\\ "\\]\\)\\.iter\\(\\)\\.enumerate\\(\\)$', 'bound': '1', 'why': "I104 SQ B1 re-checked, kept (1): RS reader (:747 g3, :3616 g8): body.material_bases: the producer emits one material basis (D1.5's one default basis) whose case_indices name every case (retained_wire.rs material_basis). Was: G4 (T17 precommit reader at b1f80234dc): a receipt body array other than builds: cases, sources, material_bases, calls, groups, ordinary_attempts, product_attempts and legacy_source_work each hold <= 1 entry in D1 (one case, no combinations, one native call and run; retained_wire.rs one_case/one_run, finish)"}, '218': {'re': '^for term in force_terms$|^for force in force_terms \\.iter\\(\\) \\.filter', 'bound': 'l', 'why': 'G4 (R-1, newly reached on the repaired graph): force terms: one per nodal load primitive <= l (D1.7)'}, '313': {'re': 'span\\.start_fraction|uniform_intensities', 'bound': '0', 'why': 'D1.7: no element (distributed) loads, so no load spans (PP lib.rs:10003-10015 at b1f80234dc). G4 (RV84 S-2): bare `intensity` removed (it matched the 3-accumulator zip)'}}, 'fn_zero': {'fn': 'lib.rs:10635:add_uniform_element_loads', 'why': 'D1.7: iterates load_application.element_uniform_loads (lib.rs:3223-3226), empty for nodal-only loads; every text site is inside that loop'}, 'edge_zero': {'caller': 'formation_guard.rs:297:load_row_finding', 'callee': 'formation_guard.rs:216:decide_row', 'why': 'D1.7 nodal-only loads: every formation slot is None, so load_row_finding returns at its has_formation_records() check (formation_guard.rs:303-305; FK load_ledger.rs:307-309; I54 correction ADDENDUM)'}, 'record_audit': {'bytes': 600, 'source': 'COMP'}, 'provenance_join': {'re': '^provenance_records$', 'bytes': '8*(128+200)+8*3', 'why': 'composite_text provenance_join'}, 'copy_lex': {'class': 'result_id', 'why': "adapter copy(): identifiers, units, entity refs, result ids and the basis text (retained_product.rs:247-3452), each <= result_id (G6 repair, RV87 SF-2: re-keyed from b1f80234dc's line 2963 to copy()'s push_str at 1e323058f3, retained_product.rs:3125)"}}
 
 def prepare(snapshot, base, output, inherited):
     """Replay positive source-premise changes; never edit the historical base."""
@@ -541,7 +560,7 @@ def prepare(snapshot, base, output, inherited):
     alterations.append({"family": "id_audit", "key": clone_key,
                         "after": member["case_clone_audit"](snapshot)[0],
                         "why": "same source clone in the extracted batch body; full audit retained"})
-    key = "core/product_physics/src/lib.rs:10230"
+    key = "core/product_physics/src/lib.rs:10234"
     if text["id_audit"][key]["basis_record"] != BASE_PREIMAGES["record_audit"]:
         raise ValueError("B7a positive-domain record audit preimage changed")
     text["id_audit"][key]["basis_record"] = {"bytes": 2914, "source": "COMP"}

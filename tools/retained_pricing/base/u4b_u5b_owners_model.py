@@ -29,7 +29,7 @@ NI = "core/solver/nonlinear_integration/src/structural_adapter.rs"
 BODY_PINS = {
     (LIB, "published_nodal_displacements"): "83648eba3d0101586f558439d1198591659ecd706db07b5447feed75421dbe02",
     (U4B, "member_bases"): "760afaf0e6145df8f837cb75c6976d87afd98b3d20f873789ab4427fd0c8e372",
-    # RT-A3 increment 1b D3 (§8.36): append_station_quantities takes the member's MemberRows and its five `published`
+    # RT-A3 increment 1b D3 (§8.37): append_station_quantities takes the member's MemberRows and its five `published`
     # lookups and `sigma_n` read through it (RTA3B-MR prices its slots); every allocation priced below is unchanged.
     (U4B, "append_station_quantities"): "1865cd487cbea499a29ee9dd02f722ebf173eb9bac0a11d9f4a2583bd8effb5b",
     (SPARSE, "sparse_contribution_sums"): "3a7bb0911b4646798f6cbc6f104f0b852ba5beaf3ef439d6535004b06c8f4a7a",
@@ -55,7 +55,7 @@ BODY_PINS = {
 ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5f4"
 # U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`.
 INDEX_PIN = "b0d3074db1d4f7adc515b17a054b843e5079cd6fce0bad16fc629a95cef7d85b"
-# RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, retained-pricing-rules.md §8.36): u4b_rows.rs from
+# RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, retained-pricing-rules.md §8.37): u4b_rows.rs from
 # `pub(crate) struct PublishedScope {` to `/// §2.3: σ_N of one station` (the scope, its entity hash, `begin`,
 # MemberRows and `published`).
 PUBLISHED_INDEX_PIN = "1bca396b2bf2d204baf8492eb7649701cb34f68a9c7b13fdf03dcb9db98f68de"
@@ -188,7 +188,7 @@ def inspect(snapshot):
 
 
 def published_index(snapshot):
-    """RTA3B-PS/RTA3B-MR (§8.36): the case solve's published-row index. True when the reviewed index exists, False when
+    """RTA3B-PS/RTA3B-MR (§8.37): the case solve's published-row index. True when the reviewed index exists, False when
     none of it does; a partial or changed index stops the run for review. The premises the two owners rest on are
     checked by name before the span's digest, so a change reports the premise it breaks."""
     u4, lib = _read(snapshot, U4B), _read(snapshot, LIB)
@@ -210,15 +210,12 @@ def published_index(snapshot):
     begin_line = "        let member_start = published_scope.begin(&results, &pipe.element_id);\n"
     bases_line = "            let bases = u4b_rows::member_bases(section, exact_bases);\n"
     rows_line = "            let mut member_rows = u4b_rows::MemberRows::new(&pipe.element_id, member_start);\n"
-    arc_call = "bend_pressure::append_arc_pressure_results("
     extend = "self.entities.extend(results[self.synced..].iter().map(|row| entity_hash(&row.entity_ref)));"
     scan = "    for (offset, r) in results[rows.scanned..].iter().enumerate() {\n"
     early = "    let (Some(_), Some(station)) = (rows.start, STATIONS.iter().position(|s| *s == location)) else {\n"
     skip = "        if r.entity_ref != rows.pipe {\n            continue;\n        }\n"
     push = "            rows.slots[k][s].push(index);\n"
     synced = "    rows.scanned = results.len();\n"
-    removals = ("results.retain(", "results.remove(", "results.swap_remove(", "results.truncate(", "results.drain(",
-                "results.clear(", "results.split_off(")
     checks = {
         # RTA3B-PS: one scope per case solve, at its body level (dropped when the solve returns), after the case's own
         # `results` and before the member loop; one `begin` per member iteration.
@@ -232,10 +229,10 @@ def published_index(snapshot):
         "PS: the entities are row-entity hashes, filled only in begin": span.count("    entities: HashSet<u64>,\n") == 1
         and span.count(extend) == 1 and span.count("self.entities.") == 3 and span.count("self.entities.clear();") == 1
         and span.count("self.entities.contains(") == 1,
-        # A case's rows only grow on D1: the case solve removes rows only through a realized arc's pressure rows
-        # (`macro_bend.is_some()`, absent on D1 by P2), so every `results.len()` a `begin` sees is at most P.
-        "PS: a case's rows only grow on D1 (P2)": not any(r in solve for r in removals) and solve.count(arc_call) == 1
-        and "macro_bend.is_some()," in solve[max(0, at(solve, arc_call) - 300):at(solve, arc_call)],
+        # No grow-only premise: append_exact_pressure_results and append_arc_pressure_results both retain rows.
+        # Removals shrink lengths. At begin, previously finished members' rows are within P_final, whose producer
+        # cohort is pinned by the existing row guards and lib.rs's full-file pin. The charge below uses that P,
+        # including pre-member rows; this guard binds begin to the current case's actual rows, not another owner.
         # RTA3B-MR: one MemberRows per member, inside U4B-ST's station block (dropped with it at the member's end).
         "MR: one MemberRows per member, in U4B-ST's station block": lib.count("MemberRows::new(") == 1
         and solve.count(rows_line) == 1 and solve.count(bases_line) == 1

@@ -53,6 +53,11 @@ pub enum Dimension {
     MassPerLength,
     VolumePerLength,
     Slope,
+    Frequency,
+    AngularFrequency,
+    RotationPerLength,
+    LengthPerRotation,
+    RotationalGeneralizedMass,
     Tbd,
 }
 
@@ -86,6 +91,11 @@ pub const DIMENSIONS: &[Dimension] = &[
     Dimension::MassPerLength,
     Dimension::VolumePerLength,
     Dimension::Slope,
+    Dimension::Frequency,
+    Dimension::AngularFrequency,
+    Dimension::RotationPerLength,
+    Dimension::LengthPerRotation,
+    Dimension::RotationalGeneralizedMass,
     Dimension::Tbd,
 ];
 
@@ -121,6 +131,11 @@ impl Dimension {
             Self::MassPerLength => "mass_per_length",
             Self::VolumePerLength => "volume_per_length",
             Self::Slope => "slope",
+            Self::Frequency => "frequency",
+            Self::AngularFrequency => "angular_frequency",
+            Self::RotationPerLength => "rotation_per_length",
+            Self::LengthPerRotation => "length_per_rotation",
+            Self::RotationalGeneralizedMass => "rotational_generalized_mass",
             Self::Tbd => "TBD",
         }
     }
@@ -156,6 +171,11 @@ impl Dimension {
             "mass_per_length" => Ok(Self::MassPerLength),
             "volume_per_length" => Ok(Self::VolumePerLength),
             "slope" => Ok(Self::Slope),
+            "frequency" => Ok(Self::Frequency),
+            "angular_frequency" => Ok(Self::AngularFrequency),
+            "rotation_per_length" => Ok(Self::RotationPerLength),
+            "length_per_rotation" => Ok(Self::LengthPerRotation),
+            "rotational_generalized_mass" => Ok(Self::RotationalGeneralizedMass),
             "TBD" => Ok(Self::Tbd),
             "temperature_difference" => Err(UnitError::RetiredDimensionAlias {
                 alias: "temperature_difference",
@@ -195,6 +215,13 @@ impl Dimension {
             Self::SectionModulus => DimensionVector::new(3, 0, 0, 0, 0),
             Self::MassPerLength => DimensionVector::new(-1, 1, 0, 0, 0),
             Self::VolumePerLength => DimensionVector::new(2, 0, 0, 0, 0),
+            // Model document 0.9.0's dynamics set (DEL-02-01 Design `model-document-0.9.0.md`
+            // §2.4): separate named dimensions, checked by name, never matched by vector.
+            Self::Frequency => DimensionVector::new(0, 0, -1, 0, 0),
+            Self::AngularFrequency => DimensionVector::new(0, 0, -1, 0, 1),
+            Self::RotationPerLength => DimensionVector::new(-1, 0, 0, 0, 1),
+            Self::LengthPerRotation => DimensionVector::new(1, 0, 0, 0, -1),
+            Self::RotationalGeneralizedMass => DimensionVector::new(2, 1, 0, 0, -2),
             Self::Tbd => DimensionVector::TBD,
         }
     }
@@ -333,6 +360,17 @@ pub enum UnitId {
     KilogramPerMeter,
     PoundMassPerFoot,
     SquareMeterPerMeter,
+    Hertz,
+    RadianPerSecond,
+    RadianPerMeter,
+    RadianPerMillimeter,
+    RadianPerInch,
+    MeterPerRadian,
+    MillimeterPerRadian,
+    InchPerRadian,
+    KilogramSquareMeterPerSquareRadian,
+    PoundMassSquareInchPerSquareRadian,
+    PoundMassSquareFootPerSquareRadian,
 }
 
 impl UnitId {
@@ -401,6 +439,17 @@ impl UnitId {
             Self::KilogramPerMeter => "unit:kilogram_per_meter",
             Self::PoundMassPerFoot => "unit:pound_mass_per_foot",
             Self::SquareMeterPerMeter => "unit:square_meter_per_meter",
+            Self::Hertz => "unit:hertz",
+            Self::RadianPerSecond => "unit:radian_per_second",
+            Self::RadianPerMeter => "unit:radian_per_meter",
+            Self::RadianPerMillimeter => "unit:radian_per_millimeter",
+            Self::RadianPerInch => "unit:radian_per_inch",
+            Self::MeterPerRadian => "unit:meter_per_radian",
+            Self::MillimeterPerRadian => "unit:millimeter_per_radian",
+            Self::InchPerRadian => "unit:inch_per_radian",
+            Self::KilogramSquareMeterPerSquareRadian => "unit:kilogram_square_meter_per_square_radian",
+            Self::PoundMassSquareInchPerSquareRadian => "unit:pound_mass_square_inch_per_square_radian",
+            Self::PoundMassSquareFootPerSquareRadian => "unit:pound_mass_square_foot_per_square_radian",
         }
     }
 
@@ -670,6 +719,42 @@ impl UnitId {
                 Dimension::VolumePerLength,
                 Transform::linear(1.0),
             ),
+            Self::Hertz => def(self, "Hz", Dimension::Frequency, Transform::linear(1.0)),
+            Self::RadianPerSecond => def(self, "rad/s", Dimension::AngularFrequency, Transform::linear(1.0)),
+            Self::RadianPerMeter => def(self, "rad/m", Dimension::RotationPerLength, Transform::linear(1.0)),
+            Self::RadianPerMillimeter => def(self, "rad/mm", Dimension::RotationPerLength, Transform::linear(1_000.0)),
+            Self::RadianPerInch => def(
+                self,
+                "rad/in",
+                Dimension::RotationPerLength,
+                Transform::linear(1.0 / INCH_IN_METERS),
+            ),
+            Self::MeterPerRadian => def(self, "m/rad", Dimension::LengthPerRotation, Transform::linear(1.0)),
+            Self::MillimeterPerRadian => def(self, "mm/rad", Dimension::LengthPerRotation, Transform::linear(0.001)),
+            Self::InchPerRadian => def(
+                self,
+                "in/rad",
+                Dimension::LengthPerRotation,
+                Transform::linear(INCH_IN_METERS),
+            ),
+            Self::KilogramSquareMeterPerSquareRadian => def(
+                self,
+                "kg*m^2/rad^2",
+                Dimension::RotationalGeneralizedMass,
+                Transform::linear(1.0),
+            ),
+            Self::PoundMassSquareInchPerSquareRadian => def(
+                self,
+                "lb*in^2/rad^2",
+                Dimension::RotationalGeneralizedMass,
+                Transform::linear(POUND_MASS_IN_KILOGRAMS * SQUARE_INCH_IN_SQUARE_METERS),
+            ),
+            Self::PoundMassSquareFootPerSquareRadian => def(
+                self,
+                "lb*ft^2/rad^2",
+                Dimension::RotationalGeneralizedMass,
+                Transform::linear(POUND_MASS_IN_KILOGRAMS * (FOOT_IN_METERS * FOOT_IN_METERS)),
+            ),
         }
     }
 }
@@ -863,6 +948,11 @@ pub fn canonical_unit(dimension: Dimension) -> Option<UnitId> {
         Dimension::SectionModulus => Some(UnitId::MeterCubed),
         Dimension::MassPerLength => Some(UnitId::KilogramPerMeter),
         Dimension::VolumePerLength => Some(UnitId::SquareMeterPerMeter),
+        Dimension::Frequency => Some(UnitId::Hertz),
+        Dimension::AngularFrequency => Some(UnitId::RadianPerSecond),
+        Dimension::RotationPerLength => Some(UnitId::RadianPerMeter),
+        Dimension::LengthPerRotation => Some(UnitId::MeterPerRadian),
+        Dimension::RotationalGeneralizedMass => Some(UnitId::KilogramSquareMeterPerSquareRadian),
         Dimension::Tbd => None,
     }
 }
@@ -1190,6 +1280,17 @@ const CATALOG: &[UnitId] = &[
     UnitId::KilogramPerMeter,
     UnitId::PoundMassPerFoot,
     UnitId::SquareMeterPerMeter,
+    UnitId::Hertz,
+    UnitId::RadianPerSecond,
+    UnitId::RadianPerMeter,
+    UnitId::RadianPerMillimeter,
+    UnitId::RadianPerInch,
+    UnitId::MeterPerRadian,
+    UnitId::MillimeterPerRadian,
+    UnitId::InchPerRadian,
+    UnitId::KilogramSquareMeterPerSquareRadian,
+    UnitId::PoundMassSquareInchPerSquareRadian,
+    UnitId::PoundMassSquareFootPerSquareRadian,
 ];
 
 fn def(
@@ -1223,7 +1324,11 @@ fn conversion_provenance(id: UnitId, canonical: bool) -> ConversionProvenance {
         | UnitId::Ksi => ConversionProvenance::ConventionalPublicConstant,
         UnitId::NewtonPerMeterLinear
         | UnitId::NewtonMeterPerRadian
-        | UnitId::SquareMeterPerMeter => ConversionProvenance::ProjectGovernedDecision,
+        | UnitId::SquareMeterPerMeter
+        | UnitId::RadianPerSecond
+        | UnitId::RadianPerMeter
+        | UnitId::MeterPerRadian
+        | UnitId::KilogramSquareMeterPerSquareRadian => ConversionProvenance::ProjectGovernedDecision,
         _ if canonical => ConversionProvenance::SiCanonical,
         _ => ConversionProvenance::ExactPublicDefinition,
     }
@@ -1319,6 +1424,29 @@ fn factor_representation(id: UnitId) -> &'static str {
         UnitId::PoundMassPerFoot => "0.45359237 kg/lb / 0.3048 m/ft, exact public definition",
         UnitId::SquareMeterPerMeter => {
             "1 (m^3/m)/(m^3/m), project-governed canonical volume-per-length binding"
+        }
+        UnitId::Hertz => "1 Hz/Hz, SI canonical identity",
+        UnitId::RadianPerSecond => {
+            "1 (rad/s)/(rad/s), project-governed canonical angular-frequency binding"
+        }
+        UnitId::RadianPerMeter => {
+            "1 (rad/m)/(rad/m), project-governed canonical rotation-per-length binding"
+        }
+        UnitId::RadianPerMillimeter => "1000 (rad/m)/(rad/mm), exact SI prefix definition",
+        UnitId::RadianPerInch => "1 / (0.0254 m/in) (rad/m)/(rad/in), exact by definition",
+        UnitId::MeterPerRadian => {
+            "1 (m/rad)/(m/rad), project-governed canonical length-per-rotation binding"
+        }
+        UnitId::MillimeterPerRadian => "0.001 (m/rad)/(mm/rad), exact SI prefix definition",
+        UnitId::InchPerRadian => "0.0254 (m/rad)/(in/rad), exact by definition",
+        UnitId::KilogramSquareMeterPerSquareRadian => {
+            "1 (kg*m^2/rad^2)/(kg*m^2/rad^2), project-governed canonical rotational-generalized-mass binding"
+        }
+        UnitId::PoundMassSquareInchPerSquareRadian => {
+            "0.45359237 kg/lb * (0.0254 m/in)^2, exact public definition"
+        }
+        UnitId::PoundMassSquareFootPerSquareRadian => {
+            "0.45359237 kg/lb * (0.3048 m/ft)^2, exact public definition"
         }
     }
 }
@@ -1719,6 +1847,47 @@ mod tests {
         assert!(unit_by_symbol("bara", Dimension::Pressure).is_err());
         assert_eq!(convert_pressure_kind(1.0, UnitId::Bar, PressureKind::Gauge,
             UnitId::Pascal, PressureKind::Absolute, None).unwrap_err(), UnitError::MissingPressureReference);
+    }
+
+    /// Model document 0.9.0's dynamics units (DEL-02-01 Design `model-document-0.9.0.md` §2.4):
+    /// each display unit's definitional factor (0.0254 m/in, 0.3048 m/ft, 0.45359237 kg/lb),
+    /// written out independently, converts to the canonical unit and back.
+    #[test]
+    fn dynamics_units_have_definitional_conversion_witnesses() {
+        for (symbol, dimension, canonical, expected) in [
+            ("rad/mm", Dimension::RotationPerLength, UnitId::RadianPerMeter, 1000.0),
+            ("rad/in", Dimension::RotationPerLength, UnitId::RadianPerMeter, 39.370078740157480),
+            ("mm/rad", Dimension::LengthPerRotation, UnitId::MeterPerRadian, 0.001),
+            ("in/rad", Dimension::LengthPerRotation, UnitId::MeterPerRadian, 0.0254),
+            ("lb*in^2/rad^2", Dimension::RotationalGeneralizedMass, UnitId::KilogramSquareMeterPerSquareRadian, 0.0002926396534292),
+            ("lb*ft^2/rad^2", Dimension::RotationalGeneralizedMass, UnitId::KilogramSquareMeterPerSquareRadian, 0.0421401100938048),
+        ] {
+            let unit = unit_by_symbol(symbol, dimension).unwrap();
+            assert!(!unit.definition().canonical, "{symbol}");
+            assert_eq!(unit.definition().provenance, ConversionProvenance::ExactPublicDefinition, "{symbol}");
+            assert_close(convert_for_dimension(1.0, dimension, unit, canonical).unwrap(), expected);
+            assert_close(convert_for_dimension(expected, dimension, canonical, unit).unwrap(), 1.0);
+        }
+        for (dimension, symbol, vector) in [
+            (Dimension::Frequency, "Hz", DimensionVector::new(0, 0, -1, 0, 0)),
+            (Dimension::AngularFrequency, "rad/s", DimensionVector::new(0, 0, -1, 0, 1)),
+            (Dimension::RotationPerLength, "rad/m", DimensionVector::new(-1, 0, 0, 0, 1)),
+            (Dimension::LengthPerRotation, "m/rad", DimensionVector::new(1, 0, 0, 0, -1)),
+            (Dimension::RotationalGeneralizedMass, "kg*m^2/rad^2", DimensionVector::new(2, 1, 0, 0, -2)),
+        ] {
+            let canonical = canonical_unit(dimension).unwrap();
+            assert_eq!(canonical.definition().symbol, symbol);
+            assert!(canonical.definition().canonical);
+            assert_eq!(dimension.vector(), vector);
+            assert_eq!(Dimension::from_schema_value(dimension.as_str()).unwrap(), dimension);
+        }
+        // Named dimensions: angular frequency never converts to Hz, and there is no plain kg*m^2.
+        assert!(convert(1.0, UnitId::RadianPerSecond, UnitId::Hertz).is_err());
+        assert!(unit_by_symbol("rad/s", Dimension::Frequency).is_err());
+        assert!(unit_by_symbol("Hz", Dimension::AngularFrequency).is_err());
+        assert!(unit_by_symbol("kg*m^2", Dimension::RotationalGeneralizedMass).is_err());
+        assert_eq!(catalog_definitions().filter(|unit| unit.dimension == Dimension::Frequency).count(), 1);
+        assert_eq!(catalog_definitions().filter(|unit| unit.dimension == Dimension::AngularFrequency).count(), 1);
     }
 
     #[test]

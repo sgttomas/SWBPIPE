@@ -11,7 +11,7 @@ const basis:AgentBasis={workspaceHandle:'workspace-invented',applicationGenerati
 function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {resolve,promise};}
 function setup(workspaceHash:ModelHashEvidence=engineHash){
  let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
- const model={schema_version:'0.8.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',label:'N1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
+ const model={schema_version:'0.9.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',label:'N1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
  let result:MechanicsResult|null=null;
  const owner:WorkspaceExecution={snapshot:()=>({model,hash:workspaceHash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
@@ -201,13 +201,13 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('reports the admitted kinds, project identity and the exact pressure-profile before-text',async()=>{
   vi.useFakeTimers();const {session,sent,model}=setup();await session.start('revision');await session.poll();await drain();
   let data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
-  expect(data).toMatchObject({projectId:'invented',schemaVersion:'0.8.0',pressureContract:null,pressureProfileBefore:'{"schema_version":"0.8.0"}'});
+  expect(data).toMatchObject({projectId:'invented',schemaVersion:'0.9.0',pressureContract:null,pressureProfileBefore:'{"schema_version":"0.9.0"}'});
   expect(data.admittedOperationKinds).toContain('insert/Component/insert_component_symbol');expect(data.admittedOperationKinds).toHaveLength(16);expect(data.componentsAwaitingUserModifiers).toEqual({count:0,ids:[]});
   await session.close();
   (model as unknown as Record<string,unknown>).pressure_contract={version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'};
   await session.start('revision');await session.poll();await drain();
   data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
-  expect(data.pressureProfileBefore).toBe('{"pressure_contract":{"mode":"exact_pressure_v3","shear_model":"euler_bernoulli","version":"3.0.0"},"schema_version":"0.8.0"}');
+  expect(data.pressureProfileBefore).toBe('{"pressure_contract":{"mode":"exact_pressure_v3","shear_model":"euler_bernoulli","version":"3.0.0"},"schema_version":"0.9.0"}');
   await session.close();
  });
  it('pages records with exact before texts and binds the cursor to its family',async()=>{

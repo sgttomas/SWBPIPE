@@ -135,7 +135,7 @@ def test_prepare_preserves_all_unrelated_positive_rules_and_base_bytes(tmp_path)
     actual_text = json.loads(Path(paths["text_args.g4.json"]).read_text())
     expected_text = deepcopy(old_text)
     expected_text["id_audit"].pop("core/solver/frame_kernel/src/structural/retained/adaptive.rs:5082")
-    expected_text["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
+    expected_text["id_audit"]["core/product_physics/src/lib.rs:10234"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
     old_join = MODEL["BASE_PREIMAGES"]["provenance_join"]
     expected_text["join_rules"][expected_text["join_rules"].index(old_join)] = next(
         x["after"] for x in report["alterations"] if x["family"] == "join_rules")
@@ -162,7 +162,7 @@ def test_exact_positive_rule_preimages_refuse_drift(tmp_path, change):
         target = Path(inherited["text_args.g4.json"])
         data = json.loads(target.read_text())
         if change == "record":
-            data["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"]["bytes"] = 599
+            data["id_audit"]["core/product_physics/src/lib.rs:10234"]["basis_record"]["bytes"] = 599
         elif change == "join":
             rule = next(r for r in data["join_rules"] if r["re"] == "^provenance_records$")
             rule["bytes"] = "2647"
@@ -198,25 +198,25 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     actual = dict(audits)
     pp = "core/product_physics/src/"
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
-    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193; W-16 stage 2: + 55; §8.30: + 2 (+ 23 for the two prefix formats), unchanged text; certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load).
+    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193; W-16 stage 2: + 55; §8.30: + 2 (+ 23 for the two prefix formats); model document 0.9.0 (§8.36): + 83, unchanged text; certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load).
     sites = {
-        "lib.rs:12119": {"load_case_id"},
-        "lib.rs:12133": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12140": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12145": {"load.load_id"},
-        "lib.rs:12146": {"bend.pipe_id"},
-        "lib.rs:12147": {"bend.component_id"},
-        "lib.rs:12148": {"load_case_id"},
-        "lib.rs:12207": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12214": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12219": {"load.load_id"},
-        "lib.rs:12220": {"bend.pipe_id"},
-        "lib.rs:12221": {"bend.component_id"},
-        "lib.rs:12222": {"load_case_id"},
-        "lib.rs:12261": {"stable_suffix(&load.load_id)"},
-        "lib.rs:12268": {"load.load_id", "load_case_id"},
-        "lib.rs:10685": {"load_case.id"},
-        "lib.rs:10686": {"load_case.id"},
+        "lib.rs:12202": {"load_case_id"},
+        "lib.rs:12216": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12223": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12228": {"load.load_id"},
+        "lib.rs:12229": {"bend.pipe_id"},
+        "lib.rs:12230": {"bend.component_id"},
+        "lib.rs:12231": {"load_case_id"},
+        "lib.rs:12290": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12297": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12302": {"load.load_id"},
+        "lib.rs:12303": {"bend.pipe_id"},
+        "lib.rs:12304": {"bend.component_id"},
+        "lib.rs:12305": {"load_case_id"},
+        "lib.rs:12344": {"stable_suffix(&load.load_id)"},
+        "lib.rs:12351": {"load.load_id", "load_case_id"},
+        "lib.rs:10768": {"load_case.id"},
+        "lib.rs:10769": {"load_case.id"},
     }
     assert sum(map(len, sites.values())) == 22
     for key, args in sites.items():

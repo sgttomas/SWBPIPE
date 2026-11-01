@@ -172,6 +172,10 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
+- from: DEL-03-05
+  condition: 'Run-sheet valve and flange rows require the rigid-component geometry, independent quantity-unit choices, COG convention and existing insertion payload contract consumed from DEL-03-05; engineering values remain explicit.'
+  gating: true
+  evidence: execution/PKG-03/DEL-03-05/Work/component-quantity-units.md
 code_paths:
 - apps/desktop/e2e/ui-foundation.spec.ts
 - apps/desktop/package.json
@@ -212,6 +216,8 @@ checks:
 - apps/desktop/src/App.contextMenu.test.tsx
 - apps/desktop/src/features/workspace/table/EngineeringTable.contextMenu.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.test.ts
+- apps/desktop/src/features/model-tree/runSheet/componentRows.test.tsx
+- apps/desktop/src/features/model-tree/runSheet/numberingReservations.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/RunSheet.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheet.session.test.tsx
 - apps/desktop/src/features/model-tree/runSheet/runSheetReconcile.measure.test.tsx

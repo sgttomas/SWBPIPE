@@ -163,12 +163,12 @@ class ReauthoringTests(unittest.TestCase):
     def test_other_contracts_and_present_allowances_are_kept(self):
         model = {'schema_version': '0.4.0', 'pressure_contract': {'version': '1.0.0', 'mode': 'legacy_pressure_v1'},
                  'pipe_segments': [{'section': {}}]}
-        self.assertEqual(physics.reauthor_model(model), dict(model, schema_version='0.8.0'))
+        self.assertEqual(physics.reauthor_model(model), dict(model, schema_version='0.9.0'))
         # A 0.5.0, 0.6.0 or 0.7.0 document is re-authored by its version alone: nothing else moves, even an incomplete one.
         for version in ('0.5.0', '0.6.0', '0.7.0'):
             previous = {'schema_version': version, 'pressure_contract': {'version': '3.0.0', 'mode': 'exact_pressure_v3'},
                         'pipe_segments': [{'section': {}}]}
-            self.assertEqual(physics.reauthor_model(previous), dict(previous, schema_version='0.8.0'))
+            self.assertEqual(physics.reauthor_model(previous), dict(previous, schema_version='0.9.0'))
         model = {'schema_version': '0.4.0', 'pressure_contract': {'version': '3.0.0', 'mode': 'exact_pressure_v3'},
                  'pipe_segments': [{'section': {'corrosion_allowance': {'value': 0.001, 'unit': 'm'}}}, {'section': {}}]}
         reauthored = physics.reauthor_model(model)

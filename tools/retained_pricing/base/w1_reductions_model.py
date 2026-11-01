@@ -76,14 +76,15 @@ RF_PINS = {
 # lib.rs's Timoshenko partial-span formation change no reduction's owner or lifetime; the L5 texts are unchanged.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
-# RT-A3 increment 1b D3 (§8.36): lib.rs's published-row index (RTA3B-PS, RTA3B-MR) changes no reduction's owner or
-# lifetime; the L5 texts are unchanged.
+# Model document 0.9.0 D3 (§8.36): lib.rs's new members, closed term wire, lowering and withholding calls, the snubber
+# token, retained_wire.rs's DEF-E hash and preview_physics.rs's test literal change no reduction's owner or lifetime;
+# the L5 guard, shadow, insert and call texts are unchanged.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "b374e7cb228202c16d83bc4044c34b2bb35428a9f77735745e97cdb4928b64c2",
-    "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
+    "core/product_physics/src/lib.rs": "940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73",
+    "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
-    "core/product_physics/src/preview_physics.rs": "9f94323ee8d377563fdbde1b5ea31cb400cc924244075ad5a472db201467ae06",
+    "core/product_physics/src/preview_physics.rs": "8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",

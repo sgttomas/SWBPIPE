@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildCreateComponentIntent, CENTER_OF_GRAVITY_CONVENTION, defaultComponentDraft, rigidInterfacesValid, tieRodIdsDistinct, type ComponentDraft } from "./componentIntent";
+import { buildCreateComponentIntent, CENTER_OF_GRAVITY_CONVENTION, defaultComponentDraft, isComponentDraftValid, rigidInterfacesValid, tieRodIdsDistinct, type ComponentDraft } from "./componentIntent";
+import { componentDraftMissingUnitKeys } from "../project-units/missingProjectUnit";
 import type { PreviewModel } from "../../types";
 
 describe("tie-rod ids (T4-U5b round 4)", () => {
@@ -15,7 +16,7 @@ describe("tie-rod ids (T4-U5b round 4)", () => {
 
 describe("rigid component scale, consumption and centre of gravity (W-15)", () => {
   const model = {
-    schema_version: "0.8.0", project: { id: "p", units: { length: "m", force: "N" } },
+    schema_version: "0.9.0", project: { id: "p", units: { length: "m", force: "N" } },
     nodes: [{ id: "n1", position: { x: 0, y: 0, z: 0 } }, { id: "n2", position: { x: 1, y: 0, z: 0 } }],
     pipe_segments: [{ id: "p1", from: "n1", to: "n2" }], components: [], supports: [], load_cases: []
   } as unknown as PreviewModel;
@@ -46,5 +47,29 @@ describe("rigid component scale, consumption and centre of gravity (W-15)", () =
   });
   it("states the owner's centre-of-gravity convention", () => {
     expect(CENTER_OF_GRAVITY_CONVENTION).toContain("global X/Y/Z from the component's node");
+  });
+
+  it.each(["valve", "flange", "reducer"] as const)("keeps each %s quantity's entered value and unit independent", (kind) => {
+    const draft = valve({ kind, lengthUnit: "m", endASize: "270", endASizeUnit: "mm", endBSize: "10", endBSizeUnit: "in", centerOfGravityUnit: "cm" });
+    expect(isComponentDraftValid(model, draft)).toBe(true);
+    expect(payload(draft).geometry).toMatchObject({
+      rigid_body_length: { value: 0.3, unit: "m" },
+      end_a_size: { value: 270, unit: "mm" },
+      end_b_size: { value: 10, unit: "in" },
+      center_of_gravity: { x: 0.12, y: 0.02, z: 0, unit: "cm" }
+    });
+    for (const key of ["lengthUnit", "endASizeUnit", "endBSizeUnit", "centerOfGravityUnit"] as const) {
+      expect(isComponentDraftValid(model, { ...draft, [key]: "TBD" })).toBe(false);
+    }
+  });
+
+  it("keeps the missing-length notice until every rigid quantity has a chosen unit", () => {
+    const missing = structuredClone(model);
+    delete (missing.project.units as Record<string, string>).length;
+    const draft = defaultComponentDraft(missing, null, [], "flange");
+    expect([draft.lengthUnit, draft.endASizeUnit, draft.endBSizeUnit, draft.centerOfGravityUnit]).toEqual(["TBD", "TBD", "TBD", "TBD"]);
+    const chosen = { ...draft, lengthUnit: "m", endASizeUnit: "mm", endBSizeUnit: "mm" };
+    expect(componentDraftMissingUnitKeys(missing, chosen)).toContain("length");
+    expect(componentDraftMissingUnitKeys(missing, { ...chosen, centerOfGravityUnit: "m" })).not.toContain("length");
   });
 });

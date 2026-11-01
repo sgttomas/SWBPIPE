@@ -48,12 +48,15 @@ import runpy
 # table hash follows the pressure-2 table. No owner this model prices changes.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
+# Model document 0.9.0 D3 (§8.36): retained_wire.rs moves DEF-E's hash; RE retained_precision.rs's current-version gates
+# read 0.9.0 (same length), its table hash follows physics-retained-1, and G8 adds four allocation-free need sites
+# (condition_use, condition sets, spectra, set references) and a test module. No owner this model prices changes.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c',
-    "core/product_physics/src/retained_wire.rs": "b457aff075c67f6eb93000dff2ca0cf4bab43119fe34db1316c78356bf1864b3",
+    "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "76c2e7c71c30f2d35c8ca11cb3a8044df675c199a112a9e24f41f28c1e89db55",
-    "core/reporting/result_export/src/retained_precision.rs": "17f88ee2b5ae7de5fb0c22471f87387a066cbfd21e102b76f75b9bf54c164f25",
+    "core/reporting/result_export/src/retained_precision.rs": "99ab28e628a6e12de35277de5806c018cf59e2cabee6218e37d835342c6c2865",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

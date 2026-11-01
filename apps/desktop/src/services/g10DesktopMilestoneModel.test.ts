@@ -59,10 +59,10 @@ describe("G10 desktop-shaped milestone model", () => {
     expect(evidence.manifest.load_basis.load_cases.map((item) => item.status)).toEqual(["preview_only"]);
   });
 
-  it("opens as the current 0.8.0 document it is, unchanged", () => {
+  it("opens as the current 0.9.0 document it is, unchanged", () => {
     const model = desktopModel();
     const before = JSON.stringify(model);
-    expect(evaluateModelDocumentLocal(model)).toMatchObject({ status: "current", source_schema_version: "0.8.0", target_schema_version: "0.8.0" });
+    expect(evaluateModelDocumentLocal(model)).toMatchObject({ status: "current", source_schema_version: "0.9.0", target_schema_version: "0.9.0" });
     expect(model.pressure_contract).toBeUndefined();
     expect(JSON.stringify(model)).toBe(before);
   });

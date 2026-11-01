@@ -39,7 +39,9 @@ APPLIER_RS = ROOT / "core" / "model_operations" / "operation_applier" / "src"
 # current version moves while the list still names the old one, so the next ripple
 # re-checks each site and cannot leave one silently at a retired version.
 EXTENDED_RS = (ROOT / "core" / "product_physics" / "src", ROOT / "core" / "reporting" / "result_export" / "src")
-READER_TOKEN_VERSION = "0.8.0"
+# Re-checked at model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.5): each site below edited by
+# token, the counts unchanged.
+READER_TOKEN_VERSION = "0.9.0"
 READER_TOKEN_SITES = {
     # `physics_source.rs` :32, :838, :1360 (ACTUAL_MODEL_SCHEMA): the captured model's current-version gates.
     "core/reporting/result_export/src/physics_source.rs": 3,

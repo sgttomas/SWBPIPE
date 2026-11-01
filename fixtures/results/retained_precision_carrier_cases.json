@@ -5,12 +5,12 @@
   "fixtures": {
     "milestone_sparse_interactive": {
       "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
-      "sha256": "7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
+      "sha256": "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
       "shape": "milestone"
     },
     "milestone_dense_scrutiny": {
       "path": "fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json",
-      "sha256": "ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
+      "sha256": "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa",
       "shape": "milestone"
     },
     "preview_physics_1_invented_sparse": {

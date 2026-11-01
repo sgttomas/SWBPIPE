@@ -74,8 +74,8 @@ def summary(catalog, nonce, count):
         "basis": {"workspaceHandle": nonce, "applicationGeneration": 1,
                   "modelRevision": 1, "modelHash": None, "stateId": None, "runId": None},
         "message": "Invented witness data; no live SWBPIPE workspace is attached.",
-        "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.8.0",
-                 "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.8.0"}',
+        "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.9.0",
+                 "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.9.0"}',
                  "projectUnits": {"length": "m", "force": "N", "temperature": "C"},
                  "objectCounts": {"Node": count}, "admittedOperationKinds": [], "componentsAwaitingUserModifiers": {"count": 0, "ids": []}, "limits": catalog["limits"]},
     }
@@ -105,6 +105,10 @@ def admit_call(frame, thread_id, turn_id, used, validator):
 
 
 class Native:
+    frame_bytes = FRAME_BYTES
+    sort_json_keys = False
+    ensure_ascii = True
+
     def __init__(self, binary, root, provider_url, model, api_key=None):
         try:
             endpoint = urlsplit(provider_url)
@@ -126,6 +130,34 @@ class Native:
                "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp")}
         if api_key is not None:
             env["SWBPIPE_OMLX_API_KEY"] = api_key
+        config = self.configuration(model, provider_url, api_key)
+        (home / "config.toml").write_text(config)
+        # Deny outbound destinations except the selected local provider, deny
+        # reading other user-home data and deny executing arbitrary children.
+        profile = ('(version 1)\n(allow default)\n(deny network*)\n'
+                   f'(allow network-outbound (remote ip "localhost:{port}"))\n'
+                   f'(deny file-write* (require-not (subpath {json.dumps(str(root))})))\n'
+                   f'(deny file-read* (require-all (subpath {json.dumps(str(Path.home()))}) '
+                   f'(require-not (subpath {json.dumps(str(root))})) '
+                   f'(require-not (literal {json.dumps(str(binary))}))))\n'
+                   '(deny process-exec)\n'
+                   f'(allow process-exec (literal {json.dumps(str(binary))}))\n')
+        (root / "network.sb").write_text(profile)
+        self.incoming = queue.Queue(maxsize=128)
+        self.next_id = 0
+        self.notifications = 0
+        self.write_lock = threading.Lock()
+        self.signal_lock = threading.Lock()
+        self.group_owned = False
+        self.thread = None
+        self.process = subprocess.Popen(["/usr/bin/sandbox-exec", "-f", str(root / "network.sb"), str(binary), "app-server"],
+                                        cwd=work, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                        stderr=subprocess.DEVNULL, start_new_session=True)
+        self.group_owned = True
+        self.thread = threading.Thread(target=self._read, daemon=True)
+        self.thread.start()
+
+    def configuration(self, model, provider_url, api_key=None):
         provider_key = 'env_key = "SWBPIPE_OMLX_API_KEY"\n' if api_key is not None else ''
         config = (f'model = {json.dumps(model)}\nmodel_provider = "witness_local"\n'
                   'model_context_window = 8192\ncli_auth_credentials_store = "file"\n'
@@ -139,34 +171,14 @@ class Native:
                   'apps = false\nplugins = false\nmulti_agent = false\nmemories = false\n'
                   'browser_use = false\nbrowser_use_external = false\ncomputer_use = false\n'
                   'image_generation = false\nview_image = false\nskill_search = false\n')
-        (home / "config.toml").write_text(config)
-        # Deny outbound destinations except the selected local provider, deny
-        # reading other user-home data and deny executing arbitrary children.
-        profile = ('(version 1)\n(allow default)\n(deny network*)\n'
-                   f'(allow network-outbound (remote ip "localhost:{port}"))\n'
-                   f'(deny file-write* (require-not (subpath {json.dumps(str(root))})))\n'
-                   f'(deny file-read* (require-all (subpath {json.dumps(str(Path.home()))}) '
-                   f'(require-not (subpath {json.dumps(str(root))})) '
-                   f'(require-not (literal {json.dumps(str(binary))}))))\n'
-                   '(deny process-exec)\n'
-                   f'(allow process-exec (literal {json.dumps(str(binary))}))\n')
-        (root / "network.sb").write_text(profile)
-        self.process = subprocess.Popen(["/usr/bin/sandbox-exec", "-f", str(root / "network.sb"), str(binary), "app-server"],
-                                        cwd=work, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                        stderr=subprocess.DEVNULL, start_new_session=True)
-        self.incoming = queue.Queue(maxsize=128)
-        self.next_id = 0
-        self.notifications = 0
-        self.write_lock = threading.Lock()
-        self.signal_lock = threading.Lock()
-        self.group_owned = True
-        self.thread = threading.Thread(target=self._read, daemon=True)
-        self.thread.start()
+        return config
 
     def _read(self):
         try:
             while True:
-                raw = self.process.stdout.readline(FRAME_BYTES + 1)
+                raw = self.process.stdout.readline(self.frame_bytes + 1)
+                if len(raw) > self.frame_bytes:
+                    raise WitnessError("Supplier frame exceeds budget")
                 if not raw:
                     raise WitnessError("Supplier process ended")
                 self.incoming.put(parse_frame(raw), timeout=1)
@@ -178,8 +190,9 @@ class Native:
                 pass
 
     def send(self, frame):
-        raw = (json.dumps(frame, separators=(",", ":")) + "\n").encode()
-        if len(raw) > FRAME_BYTES:
+        raw = (json.dumps(frame, separators=(",", ":"), sort_keys=self.sort_json_keys,
+                          ensure_ascii=self.ensure_ascii) + "\n").encode()
+        if len(raw) > self.frame_bytes:
             raise WitnessError("Outgoing frame exceeds budget")
         with self.write_lock:
             self.process.stdin.write(raw)
@@ -234,7 +247,8 @@ class Native:
         # This witness created the session/group. Retain the unreaped leader
         # until group shutdown, so its id cannot be reused for another job.
         self.stop()
-        self.thread.join(timeout=1)
+        if self.thread is not None and self.thread.ident is not None:
+            self.thread.join(timeout=1)
         with self.signal_lock:
             self.signal_group(signal.SIGKILL)
             self.group_owned = False
@@ -243,7 +257,8 @@ class Native:
         except subprocess.TimeoutExpired:
             self.process.kill()
             self.process.wait(timeout=5)
-        self.thread.join(timeout=2)
+        if self.thread is not None and self.thread.ident is not None:
+            self.thread.join(timeout=2)
         self.process.stdin.close()
         self.process.stdout.close()
 

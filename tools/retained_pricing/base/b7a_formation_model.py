@@ -27,7 +27,9 @@ SOURCE_FILES = {
     # owner changes.
     # W-16 slice c (§8.27, W16C-ES): exact_generation_mass_per_length, the generator's exact-route mass (reached only
     # from an admitted equivalent-static case, none on D1). The formed-load and finding owners are unchanged.
-    "core/product_physics/src/self_weight.rs": "cdd7c0887f0ea9b50bb3131c68848f2e7708d5a4692fde52aa2f0109ae67a383",
+    # Model document 0.9.0 (§8.36): the two evidence-reader PreviewPipe literals name `condition_set_ref: None` (no
+    # allocation; the larger PreviewPipe is a native atom). No formed-load or finding owner changes.
+    "core/product_physics/src/self_weight.rs": "858a0c512acb65360c94b3692ed5d9cc4542065ec25889fa7ed176696dcf8353",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
@@ -49,7 +51,8 @@ SOURCE_FILES = {
     # Pre-0.4 failure unification D3 (§8.14): read b6cc3a792a; the screen's and decline_withheld's doc comments are
     # route-neutral and RF-14's test is restated. No formed-load or finding owner changes.
     # Model document 0.8.0 (§8.26): source_recovery.rs changes two comments (the current version); no owner changes.
-    "core/product_physics/src/source_recovery.rs": "e277cc8d1383d7e36272cf751aa1f72aee010f7f6f0b4ced2b17520f9ce3951a",
+    # Model document 0.9.0 (§8.36): source_recovery.rs changes two comments (the current version); no owner changes.
+    "core/product_physics/src/source_recovery.rs": "49aa5d3e4343a0d0b13ae4e8e0d5e1e5bf25dca592ab43a34cbec3f3eee1f5ef",
     "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59
@@ -207,8 +210,9 @@ def decisions(snapshot, resolved):
     # 1281 -> 1284 (primitive_payload's support arm above it; same text).
     # Nested-record closure (§8.25): 1284 -> 1292 (DEPENDENCY_SECTION_REF's two lines, the first evidence-reader
     # literal's three members and component_basis's three closed reads above it), same text. W-16 slice c (§8.27):
-    # 1292 -> 1302 (exact_generation_mass_per_length above it), same text.
-    audit.append((resolved("core/product_physics/src/self_weight.rs:1302"), {
+    # 1292 -> 1302 (exact_generation_mass_per_length above it), same text. Model document 0.9.0 (§8.36): 1302 -> 1303
+    # (retained_basis's `condition_set_ref: None` above it), same text.
+    audit.append((resolved("core/product_physics/src/self_weight.rs:1303"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},

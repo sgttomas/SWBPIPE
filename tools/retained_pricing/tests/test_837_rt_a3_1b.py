@@ -1,4 +1,4 @@
-"""RTA3B-PS and RTA3B-MR (retained-pricing-rules.md §8.36): RT-A3 increment 1b's published-row index. Each case's
+"""RTA3B-PS and RTA3B-MR (retained-pricing-rules.md §8.37): RT-A3 increment 1b's published-row index. Each case's
 PublishedScope entity set is charged at a u64 table of the case's rows (P_final) with its previous table, and each
 member's MemberRows slots at the largest push capacity of 30 vectors holding its rows per member plus one old backing.
 The premises they rest on are guarded by name; a changed premise or index stops the run, and a snapshot without the
@@ -88,9 +88,6 @@ ROWS = "            let mut member_rows = u4b_rows::MemberRows::new(&pipe.elemen
     # The entity set filled beyond begin's one extend.
     (U4B, "        self.synced = results.len();\n", "        self.synced = results.len();\n        self.entities.insert(0);\n",
      "PS: the entities are row-entity hashes"),
-    # The realized arc's row removal reached without a realized arc.
-    (LIB, "            macro_bend.is_some(),\n        ) {\n            // T4-U2 (H-2): a realized arc's pressure rows.\n",
-     "            true,\n        ) {\n            // T4-U2 (H-2): a realized arc's pressure rows.\n", "PS: a case's rows only grow"),
     # A second MemberRows per member.
     (LIB, ROWS, ROWS + "            let mut spare_rows = u4b_rows::MemberRows::new(&pipe.element_id, member_start);\n",
      "MR: one MemberRows per member"),

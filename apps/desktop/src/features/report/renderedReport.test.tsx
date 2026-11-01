@@ -42,7 +42,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 
 function inventedModel(): PreviewModel {
   return {
-    schema_version: "0.8.0",
+    schema_version: "0.9.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
     project: {
@@ -1559,10 +1559,11 @@ describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
   it("leaves an input without materials, sections, records or library references byte-identical", async () => {
     // Captured from the builder at 35f537355f (before slice (c)) for the same arguments;
     // the model's components all carry a note, so no changed diagnostic text enters. Model document
-    // 0.8.0 moved both by its version token only (the same input at 0.7.0 gives the former pins).
+    // 0.8.0 moved both by its version token only (the same input at 0.7.0 gives the former pins),
+    // and so did 0.9.0 (the same model at 0.8.0 gives 81733787… and 666230cd…).
     const expected = {
-      public_report: "81733787586ccdf1e4755b02678a935f52dbe488de5d7d17cf93bed3fbaecf7f",
-      local_private: "666230cd6e0f3cff74d684133ec73483aa9db9bc30ff5354ebb86df9e44d4ee8"
+      public_report: "3f5aa2a9d8231942e9642a95a9298d23bec19bb24d448c6dd741939dc428d7f2",
+      local_private: "08024ba2d8348d05b649971597838d7a2552f46b095d4cd32d813c25aa1d9339"
     } as const;
     for (const renderContext of [PUBLIC_CONTEXT, { exportContext: "local_private", generatedAt: null } as const]) {
       const model = inventedModel();

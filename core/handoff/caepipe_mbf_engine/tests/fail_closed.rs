@@ -165,7 +165,7 @@ fn sidecar_json_at_the_nesting_limit_imports_or_refuses_and_beyond_it_returns_no
 
 fn writer_model() -> Value {
     // An invented one-pipe cantilever, enough to reach the load-case reader.
-    let text = br#"{"schema_version": "0.8.0", "project": {"units": {"length": "mm", "force": "N", "temperature": "degC"}},
+    let text = br#"{"schema_version": "0.9.0", "project": {"units": {"length": "mm", "force": "N", "temperature": "degC"}},
         "nodes": [{"id": "a", "position": {"x": 0, "y": 0, "z": 0}}, {"id": "b", "position": {"x": 1000, "y": 0, "z": 0}}],
         "materials": [{"id": "steel", "elastic_modulus": {"value": 200000, "unit": "MPa"}, "poisson_ratio": {"value": 0.3, "unit": "1"}}],
         "pipe_segments": [{"id": "p", "from": "a", "to": "b", "material": "steel", "section": {"outside_diameter":

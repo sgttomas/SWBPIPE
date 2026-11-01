@@ -41,6 +41,7 @@ import {
   terminalJobError
 } from "../../services/previewService";
 import { ResourceUnavailableError } from "../../services/memoryPool";
+import { beginSolveTimeline, markSolveCommittedAndPaint } from "../../services/solveTimeline";
 import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
@@ -728,6 +729,8 @@ export function useWorkspaceSession() {
     heldResultRef.current = result;
     if (previous && previous !== result) void disposeDeliveredMechanicsResult(previous);
   }, [result]);
+  // RT-U4: the latest solve's result committed, then its first paint (solveTimeline.ts).
+  useLayoutEffect(() => { markSolveCommittedAndPaint(result); }, [result]);
   useEffect(() => () => { void disposeDeliveredMechanicsResult(heldResultRef.current); }, []);
 
   // Advanced by every commit of the session's model (applied operations, undo/redo,
@@ -949,6 +952,8 @@ export function useWorkspaceSession() {
   async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
+    // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
+    const timeline = beginSolveTimeline({ solver_mode: solverMode });
     invalidateReportPackageComputedState();
     ruleRevisionGate.current.invalidate();
     solveCancellationTombstones.current.set(runGeneration, {
@@ -1001,6 +1006,7 @@ export function useWorkspaceSession() {
         // A start the native memory pool refuses is a typed refusal, recorded as such.
         if (error instanceof ResourceUnavailableError) {
           if (solveRunGate.current.isCurrent(runGeneration)) setSolveJob(refusedBeforeBackendStartSolveJob(solveModel, error));
+          timeline.end("refused", error);
           return;
         }
         throw error;
@@ -1011,6 +1017,7 @@ export function useWorkspaceSession() {
         throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt cannot publish Current mechanics.");
       }
       unsettledJob = { jobId: startReceipt.job_id, token: startReceipt.backend_cancellation_token, completed: false };
+      timeline.jobStarted(startReceipt.job_id);
       const cancellationTombstone = solveCancellationTombstones.current.get(runGeneration);
       if (
         modelRevision.current !== solveModelRevision ||
@@ -1052,6 +1059,12 @@ export function useWorkspaceSession() {
           if (!solveRunGate.current.isCurrent(runGeneration)) return;
           setSolveJob((current) => current.job_id === visibleJobId ? progressSolveJob(current, status) : current);
         });
+        timeline.mark("job_done", {
+          state: terminal.state,
+          result_bytes: terminal.result_bytes,
+          worker_peak_footprint_bytes: terminal.resource?.worker_peak_footprint_bytes ?? null,
+          worker_peak_grant_bytes: terminal.resource?.worker_peak_grant_bytes ?? null
+        });
         // A completed job's result awaits a take; any other terminal job retains none.
         if (terminal.job_id === startReceipt.job_id) {
           if (terminal.state === "completed") unsettledJob.completed = true;
@@ -1070,6 +1083,7 @@ export function useWorkspaceSession() {
               ? cancelledSolveJob(current, terminal)
               : current
           );
+          timeline.end("cancelled");
           return;
         }
         if (terminal.state === "refused" && terminal.resource_refusal) {
@@ -1079,6 +1093,7 @@ export function useWorkspaceSession() {
               ? refusedSolveJob(current, refusal)
               : current
           );
+          timeline.end("refused");
           return;
         }
         // Refused natively for its size: the result was discarded unread and is never taken.
@@ -1105,6 +1120,7 @@ export function useWorkspaceSession() {
               current.job_id === startedJob?.job_id ? refusedAtTakeSolveJob(current, error) : current
             );
           }
+          timeline.end("refused", error);
           return;
         }
         deliveredOutput = output;
@@ -1147,6 +1163,7 @@ export function useWorkspaceSession() {
         inputManifest: manifest,
         rulePackExclusions: rulePacks.excluded
       });
+      timeline.mark("analysis_run_built");
       if (
         modelRevision.current !== solveModelRevision ||
         !solveRunGate.current.isCurrent(runGeneration)
@@ -1165,6 +1182,7 @@ export function useWorkspaceSession() {
       setHistoricalRun(null);
       publishedOutput = true;
       setResult(output);
+      timeline.mark("result_set", { rows: output.results.length });
       setSelectedReviewTarget(null);
       setProposal(null);
       setInputManifest(manifest);
@@ -1182,9 +1200,11 @@ export function useWorkspaceSession() {
         result_model_ref: output.model_ref,
         result_row_count: output.results.length
       });
+      timeline.end("completed");
       return { jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
         solverMode, health: output.status.mechanics };
     } catch (error) {
+      timeline.end("failed", error);
       if (solveRunGate.current.isCurrent(runGeneration)) {
         setSolveJob((current) =>
           !startedJob || current.job_id === startedJob.job_id
@@ -1193,6 +1213,8 @@ export function useWorkspaceSession() {
         );
       }
     } finally {
+      // Every other return: cancelled before start, or superseded (a no-op once ended).
+      timeline.end(solveCancellationTombstones.current.get(runGeneration)?.requested ? "cancelled" : "superseded");
       if (deliveredOutput && !publishedOutput) void disposeDeliveredMechanicsResult(deliveredOutput);
       if (unsettledJob?.completed) void discardPreviewMechanicsJobResult(unsettledJob.jobId);
       else if (unsettledJob) void abandonPreviewMechanicsJob(unsettledJob.jobId, unsettledJob.token);
@@ -1322,6 +1344,30 @@ export function useWorkspaceSession() {
     ]);
     setActiveSection("operations");
     setOperationTab("review");
+  }
+
+  /** G9 (DEL-07-02 `Work/queued-changes-batch.md`): moves the person's queued single
+   * changes, in the order they were queued, into batch review as one batch. Nothing is
+   * applied here: Apply entire batch validates and applies all of them or none, and a
+   * change whose `before` depends on another queued change is refused by name there,
+   * never rebased. Changes another author queued stay single. Changes that share an
+   * operation id cannot be told apart in one batch, so the move is refused by name and
+   * every change stays queued singly. */
+  async function handleReviewQueuedIntentsAsBatch(): Promise<void> {
+    const moving = [...editorIntents].reverse().filter((intent) => intent.author_type === "user");
+    if (moving.length < 2) return;
+    const shared = [...new Set(moving.map((intent) => intent.operation_id).filter((id, index, ids) => ids.indexOf(id) !== index))];
+    if (shared.length) {
+      setOperationMessage(`The queued changes were not moved to batch review: ${shared.map((id) => `${moving.filter((intent) => intent.operation_id === id).length} changes share the operation id ${id}`).join("; ")}. Apply or remove all but one of them singly first; every change stays queued.`);
+      return;
+    }
+    const key = await registerOperationBatch({ batch_id: `queued-changes-${++batchSequence.current}`, operations: moving.map((intent) => structuredClone(intent)) });
+    if (!key) return;
+    const moved = new Set(moving.map(intentKey));
+    setEditorIntents((current) => current.filter((intent) => !moved.has(intentKey(intent))));
+    setOperationOutcomes((current) => Object.fromEntries(Object.entries(current).filter(([queued]) => !moved.has(queued))));
+    const kept = editorIntents.length - moving.length;
+    setOperationMessage(`${moving.length} queued changes moved to batch review as one batch. Apply entire batch validates and applies them all or none; Validate batch checks them first without applying.${kept ? ` ${kept} change${kept === 1 ? "" : "s"} from another author stay${kept === 1 ? "s" : ""} queued singly.` : ""}`);
   }
 
   function handleClearReviewQueue() {
@@ -4145,6 +4191,7 @@ export function useWorkspaceSession() {
       handleApplyDraftReview,
       handleValidateIntent,
       handleApplyIntent,
+      handleReviewQueuedIntentsAsBatch,
       handleUndoSessionModelEdit,
       handleRedoSessionModelEdit,
       invalidateDirectDraftContext

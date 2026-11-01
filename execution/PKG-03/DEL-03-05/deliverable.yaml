@@ -169,5 +169,6 @@ checks:
 - validation/references/w15_component_weight/generators/w15b_reference.py
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
 - apps/desktop/src/features/component-creation/componentIntent.test.ts
+- apps/desktop/src/features/component-creation/rigidQuantityUnits.test.tsx
 - apps/desktop/src/features/self-weight-authoring/SelfWeightComponent.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.test.tsx

@@ -16,9 +16,6 @@ import hashlib, os, re
 # `load_case.equivalent_static.is_some()` (none on D1); no record constructor, label or route string changes.
 # RT-A3 increment 1 D3 (§8.33): solve_prepared_load_case appends a straight exact member's branch-connection rows
 # (u4b_rows::append_branch_intensified, none on D1 by D1.4); no record constructor, label or route string changes.
-# RT-A3 increment 1b D3 (§8.36): the case solve's published-row index (u4b_rows::PublishedScope before the
-# member loop, its `begin` at each member's start and a MemberRows passed to the station quantities and branch
-# rows; RTA3B-PS, RTA3B-MR). No `?`, return, record, label, carrier or staging is added. No record constructor, label or route string changes.
 PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '42cbb33f9c55a26951f72198fdbdc017670a472ce85fb80caf83acd5b09e477a', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'a79bfa6c33095f97bc672ea78e27a3b768d901399978fac58d5ed9d804f3aac3'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b'}}
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
 # the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
@@ -219,8 +216,9 @@ def inspect_directed_helpers(snapshot):
 # §8.30 D3: lib.rs's dense-memory guard and the generator's dropped refusal add no `.min(`/`.max(` call.
 # Slice 1a D3 (§8.31): reviewed nonlinear operand producer/reader additions; D1.6 empties the producer
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
-# RT-A3 increment 1b D3 (§8.36): lib.rs's published-row index adds no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = 'b374e7cb228202c16d83bc4044c34b2bb35428a9f77735745e97cdb4928b64c2'
+# Model document 0.9.0 D3 (§8.36): lib.rs's new members, term wire, lowering/withholding calls and snubber token add or
+# remove no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = '940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73'
 
 
 def primitive_lib_minmax_callers(snapshot):
@@ -238,7 +236,7 @@ def primitive_lib_minmax_callers(snapshot):
 # complete decision preimage, never permit an arbitrary replaced key.
 def retire_combination_reaction_audit(snapshot, audits):
     primitive_lib_minmax_callers(snapshot)
-    retired = ("core/product_physics/src/lib.rs:13085",
+    retired = ("core/product_physics/src/lib.rs:13089",
                {"row.id": {"bytes": 1024, "source": "RES"}})
     if audits.count(retired) != 1:
         raise ValueError("B7a E13: exact retired reaction audit preimage changed")

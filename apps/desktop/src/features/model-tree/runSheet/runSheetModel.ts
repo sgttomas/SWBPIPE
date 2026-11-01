@@ -11,13 +11,17 @@
 import { convertDisplayQuantities, type DisplayQuantityRequest } from "../../../services/displayQuantityService";
 import { trimLikeRust } from "../../../services/rustTrim";
 import type { PreviewModel } from "../../../types";
+import type { ComponentDraft } from "../../component-creation/componentIntent";
+import { COMPONENT_FIELDS, componentRowDraft, componentRowIssues, type ComponentRowInput } from "./runSheetComponents";
 
 export type Vec3 = { x: number; y: number; z: number };
 export type Quantity = { value: number; unit: string };
 
 /** §1.1 Kind codes; blank is a run. */
-export type RunSheetKind = "run" | "bend" | "support" | "from" | "point";
-export const KIND_CODES: Readonly<Record<string, RunSheetKind>> = { R: "run", B: "bend", S: "support", F: "from", P: "point" };
+export type RunSheetKind = "run" | "bend" | "support" | "from" | "point" | "valve" | "flange";
+export const KIND_CODES: Readonly<Record<string, RunSheetKind>> = { R: "run", B: "bend", S: "support", F: "from", P: "point", V: "valve", L: "flange" };
+export const isPipeRowKind = (kind: RunSheetKind | null): kind is "run" | "bend" | "valve" | "flange" => kind === "run" || kind === "bend" || kind === "valve" || kind === "flange";
+export const isRigidRowKind = (kind: RunSheetKind | null): kind is "valve" | "flange" => kind === "valve" || kind === "flange";
 /** §5.2 Support codes and the `family` each writes. */
 export const SUPPORT_CODES: Readonly<Record<string, string>> = { A: "anchor", G: "guide", L: "line_stop", V: "vertical_support" };
 /** The restraint vocabulary (`operation_applier` `RESTRAINT_TOKENS`); `*` is all six. */
@@ -61,6 +65,10 @@ export type RunSheetRowInput = {
   materialDensity?: string; millTolerance?: string; corrosionAllowance?: string;
   bendRadius?: string; k?: string; kSource?: string;
   label?: string;
+  /** Explicit rigid-component inputs, on V/L rows only; never inherited. */
+  component?: ComponentRowInput;
+  storedComponentMissing?: string;
+  storedComponentMismatch?: string;
   /** Ids the user overwrote (§3.2); otherwise derived from the row's number, the support's
    * node or the bend's corner. */
   ids?: { node?: string; pipe?: string; support?: string; bendStart?: string; bendEnd?: string; bendArc?: string; bendComponent?: string };
@@ -124,6 +132,9 @@ export type RunSheetIdState = {
   assigned: Readonly<Record<string, number>>;
   refused?: Readonly<Record<string, string>>;
   pipes?: Readonly<Record<string, Readonly<{ id: string; rule: string }>>>;
+  /** Pipe identities actually queued or applied, retained to their row even
+   * after withdrawal, Undo, explicit replacement or removal from the sheet. */
+  retainedPipes?: Readonly<Record<string, string>>;
 };
 /** The most numbers one assignment examines before it refuses (§3.2 reservation search). */
 export const MAX_NUMBER_SEARCH = 10_000;
@@ -155,7 +166,7 @@ export type RunSheetRule =
   | "no-current-node" | "zero-length" | "below-resolution" | "both-forms" | "coincident" | "near-coincident"
   | "missing-material" | "missing-section" | "missing-orientation" | "parallel-orientation" | "invalid-code"
   | "increment-not-number" | "quantity-without-unit" | "quantity-not-number" | "support" | "bend" | "ids"
-  | "unknown-node" | "source" | "length-unit" | "numbering" | "incomplete";
+  | "component" | "unknown-node" | "source" | "length-unit" | "numbering" | "incomplete";
 export type RunSheetFinding = { rule: RunSheetRule; message: string; column?: string; detail?: string };
 
 export type BendIds = { start: string; end: string; arc: string; component: string };
@@ -182,12 +193,15 @@ export type ResolvedRunSheetRow = {
   length: number | null;
   cells: ResolvedCells;
   label: { value: string; origin: CellOrigin } | null;
-  ids: { node?: string; pipe?: string; support?: string; bend?: BendIds };
+  ids: { node?: string; pipe?: string; support?: string; component?: string; bend?: BendIds };
   /** The rule a derived pipe id followed, when the pipe is numbered by its start node (§3.2). */
   pipeIdRule?: string;
   labels: { pipe?: string; support?: string };
   support: { family: string; restraints: string[] } | null;
   bend: { radius: Quantity; k: number; kSource: string } | null;
+  component?: ComponentDraft | null;
+  componentMissing?: string;
+  componentMismatch?: string;
   /** A bend row's geometry source: entered, or the sheet's Source (derived). */
   bendSource: { value: string; origin: CellOrigin } | null;
   /** The id of an applied bend's outgoing tangent node that no longer exists. */
@@ -505,6 +519,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   const claimedPipes = new Set<string>([
     ...input.rows.map((row) => text(row.storedPipeId)).filter(Boolean),
     ...Object.values(fixedPipes).map((fixed) => fixed.id),
+    ...Object.keys(context.idState.retainedPipes ?? {}),
   ]);
   const fallbackPipes: Array<{ row: ResolvedRunSheetRow; own: string; rule: string }> = [];
 
@@ -515,7 +530,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     const kindText = text(raw.kind).toUpperCase();
     const kind: RunSheetKind | null = kindText === "" ? "run" : KIND_CODES[kindText] ?? null;
     if (kind === null) refusals.push({ rule: "invalid-code", column: "Kind", message: MESSAGES.invalidCode(text(raw.kind), "kind") });
-    const continues = kind === "run" || kind === "bend" || kind === "support";
+    const continues = isPipeRowKind(kind) || kind === "support";
     const predecessor = continues && index > 0 ? rows[index - 1] : null;
     const nodeName = text(raw.node);
 
@@ -671,7 +686,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         const id = text(overrides.node) || derivedIds?.node || "";
         end = { id, position: { x: normalizeZero(converted.x), y: normalizeZero(converted.y), z: normalizeZero(converted.z) }, existing: false };
       }
-    } else if ((kind === "run" || kind === "bend") && start && startPosition) {
+    } else if ((isPipeRowKind(kind)) && start && startPosition) {
       if (nodeName) {
         if (anyIncrement) refusals.push({ rule: "both-forms", column: "Node", message: MESSAGES.bothForms });
         const position = nodePosition(nodeName);
@@ -712,7 +727,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     }
 
     // ---- Ids, labels and support (§3.2, §5.2).
-    const creates = (kind === "run" || kind === "bend") ? !nodeName : kind === "point";
+    const creates = (isPipeRowKind(kind)) ? !nodeName : kind === "point";
     // A row without an id says why: its number was refused (§3.2), or the id is blank.
     const numberingReason = numberRefusal ?? numberingFinding;
     let missingIdReported = false;
@@ -728,7 +743,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     }
     let pipeIdRule: string | undefined;
     let fallbackPipe: { own: string; rule: string } | null = null;
-    if (kind === "run" || kind === "bend") {
+    if (isPipeRowKind(kind)) {
       ids.pipe = text(raw.storedPipeId) || text(overrides.pipe);
       const fixed = fixedPipes[raw.key];
       if (!ids.pipe && fixed) {
@@ -739,7 +754,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         // The number of the row whose end node is this pipe's start, unless that pipe id is taken.
         const from = start ? numberedNodes.get(start) : undefined;
         const candidate = from ? idsForNumber(numbering, from.number).pipe : undefined;
-        if (from && candidate && !claimedPipes.has(candidate)) {
+        if (from && candidate && (!claimedPipes.has(candidate) || context.idState.retainedPipes?.[candidate] === raw.key)) {
           ids.pipe = candidate;
           claimedPipes.add(candidate);
           pipeIdRule = `the sheet's numbering, by its start node ${start} (row ${from.row})`;
@@ -788,7 +803,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     }
 
     // ---- Element rules (§4.2) for rows that create a pipe.
-    if (kind === "run" || kind === "bend") {
+    if (isPipeRowKind(kind)) {
       const material = cells.material.value;
       if (!material || !(model.materials ?? []).some((item) => item.id === material)) {
         refusals.push({ rule: "missing-material", column: "Material", message: MESSAGES.missingMaterial });
@@ -858,14 +873,35 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       if (radius.value && radius.value.value > 0 && k !== null && k > 0 && kSource) bend = { radius: radius.value, k, kSource };
     }
 
+    // Rigid runs use the creation forms' fields and completeness checks. Only
+    // the row's displayed connectivity supplies the node and mapped pipe.
+    let component: ComponentDraft | null = null;
+    if (isRigidRowKind(kind)) {
+      component = componentRowDraft(model, kind, raw.component ?? {}, end?.id ?? "", ids.pipe ?? "");
+      ids.component = component.id;
+      if (raw.storedComponentMissing) refusals.push({ rule: "component", column: "Component id", message: `Component ${raw.storedComponentMissing} no longer exists.` });
+      for (const issue of componentRowIssues(component)) {
+        const field = COMPONENT_FIELDS.find((item) => item.key === issue.field)!;
+        refusals.push({ rule: "component", column: field.label, message: `${field.label}: ${issue.message}` });
+      }
+      for (const field of COMPONENT_FIELDS) if ("dimension" in field && component[field.key] && component[field.key] !== "TBD") {
+        const unit = component[field.key];
+        const converted = convert.convert(1, unit, field.dimension === "length" ? "m" : "N", field.dimension);
+        if (converted === null) refusals.push({ rule: "component", column: field.label, message: `${field.label}: ${unit} is not a ${field.dimension} unit.` });
+      }
+    } else if (kind !== null && Object.values(raw.component ?? {}).some((value) => text(value))) {
+      refusals.push({ rule: "component", column: "Component id", message: "Component fields apply only to V valve and L flange rows; clear them or choose a component row." });
+    }
     const row: ResolvedRunSheetRow = {
-      key: raw.key, number, kind, start, startPosition, end, increments, length, cells, label, ids, labels, support, bend, bendSource, refusals, warnings,
+      key: raw.key, number, kind, start, startPosition, end, increments, length, cells, label, ids, labels, support, bend, component, bendSource, refusals, warnings,
+      ...(raw.storedComponentMissing ? { componentMissing: raw.storedComponentMissing } : {}),
+      ...(raw.storedComponentMismatch ? { componentMismatch: raw.storedComponentMismatch } : {}),
       ...(pipeIdRule ? { pipeIdRule } : {}),
       ...(raw.storedEndMissing ? { endMissing: raw.storedEndMissing } : {}),
     };
     rows.push(row);
     if (fallbackPipe) fallbackPipes.push({ row, ...fallbackPipe });
-    if (end && !end.existing && (kind === "run" || kind === "bend" || kind === "point") && end.id) {
+    if (end && !end.existing && (isPipeRowKind(kind) || kind === "point") && end.id) {
       drafted.set(end.id, row);
       // A node is sheet-numbered when its id is its row's number; an entered id is not.
       if (assigned !== undefined && end.id === derivedIds?.node) numberedNodes.set(end.id, { number: assigned, row: number });
@@ -888,14 +924,19 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
 
   // ---- Rules that need the whole sheet.
   const reservedOutside = new Set<string>([...modelIds(model), ...(context.reservedIds ?? [])]);
-  // A pipe id fixed when first shown stays reserved to its row (§3.2), deleted or overridden.
-  const fixedOwners = new Map(Object.entries(fixedPipes).map(([rowKey, fixed]) => [fixed.id, rowKey]));
+  // A displayed pipe id stays fixed until an explicit draft overwrite/delete;
+  // queued/applied pipe identities stay reserved to their original row (§3.2).
+  const fixedOwners = new Map([
+    ...Object.entries(fixedPipes).map(([rowKey, fixed]) => [fixed.id, rowKey] as const),
+    ...Object.entries(context.idState.retainedPipes ?? {}),
+  ]);
   const holders = new Map<string, number>();
   /** Each id a row creates, with the cell that shows it: node and pipe in Ids, the others in their own cells. */
   const createdIds = (row: ResolvedRunSheetRow): Array<{ id: string; cell: string; column: string }> => {
     const out: Array<{ id: string; cell: string; column: string }> = [];
     if (row.ids.node) out.push({ id: row.ids.node, cell: "Id", column: "Ids" });
     if (row.ids.pipe) out.push({ id: row.ids.pipe, cell: "Id", column: "Ids" });
+    if (row.ids.component) out.push({ id: row.ids.component, cell: "Component id", column: "Component id" });
     if (row.ids.support && row.support) out.push({ id: row.ids.support, cell: "Support id", column: "Support id" });
     if (row.ids.bend) for (const cell of BEND_ID_CELLS) out.push({ id: row.ids.bend[cell.member], cell: cell.label, column: cell.label });
     return out;
@@ -916,10 +957,10 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   const drafts: Array<{ id: string; position: Vec3; row: number }> = [];
   const joined = new Set<string>();
   for (const row of rows) {
-    if ((row.kind === "run" || row.kind === "bend") && row.start && row.end) joined.add([row.start, row.end.id].sort().join("\u0000"));
+    if ((isPipeRowKind(row.kind)) && row.start && row.end) joined.add([row.start, row.end.id].sort().join("\u0000"));
   }
   for (const row of rows) {
-    if (!row.end || row.end.existing || !(row.kind === "run" || row.kind === "bend" || row.kind === "point")) continue;
+    if (!row.end || row.end.existing || !(isPipeRowKind(row.kind) || row.kind === "point")) continue;
     const here = row.end.position;
     const candidates = [
       ...model.nodes.map((node) => ({ id: node.id, position: node.position })),
@@ -940,7 +981,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   rows.forEach((row, index) => {
     if (row.kind !== "bend") return;
     const next = rows[index + 1];
-    if (!next || !(next.kind === "run" || next.kind === "bend")) {
+    if (!next || !(isPipeRowKind(next.kind))) {
       row.refusals.push({ rule: "bend", message: MESSAGES.bendNeedsNextRun });
       return;
     }
@@ -955,11 +996,11 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     if (differs) row.refusals.push({ rule: "bend", message: MESSAGES.bendMismatch(differs[0], next.number) });
     const referencing = rows.find((other) => other !== row && other !== next && (
       (other.kind === "from" && other.start === corner) ||
-      ((other.kind === "run" || other.kind === "bend") && other.end?.id === corner) ||
+      ((isPipeRowKind(other.kind)) && other.end?.id === corner) ||
       (other.kind === "support" && other.start === corner)));
     if (referencing) row.refusals.push({ rule: "bend", message: MESSAGES.bendCornerReferenced(referencing.number) });
     const storedPipes = model.pipe_segments.filter((pipe) => pipe.from === corner || pipe.to === corner).length;
-    const draftedPipes = rows.filter((other) => (other.kind === "run" || other.kind === "bend") && other.start && other.end && (other.start === corner || other.end.id === corner)).length;
+    const draftedPipes = rows.filter((other) => (isPipeRowKind(other.kind)) && other.start && other.end && (other.start === corner || other.end.id === corner)).length;
     if (!referencing && storedPipes + draftedPipes !== 2) row.refusals.push({ rule: "bend", message: MESSAGES.bendCornerPipes(storedPipes + draftedPipes) });
   });
 
@@ -990,6 +1031,8 @@ export function buildGap(row: ResolvedRunSheetRow): string | null {
   const supportOk = !row.support || Boolean(row.ids.support && row.labels.support);
   switch (row.kind) {
     case "run":
+    case "valve":
+    case "flange":
     case "bend": {
       if (!row.start || !row.end) return "no start or end node";
       if (!row.end.existing && !(row.ids.node && row.label)) return "no end node id or label";
@@ -997,6 +1040,7 @@ export function buildGap(row: ResolvedRunSheetRow): string | null {
       const cells = row.cells;
       if (!cells.od.value || !cells.wall.value || !cells.material.value || !cells.orientation.value) return "no section, material or orientation";
       if (row.kind === "bend" && !(row.bend && row.ids.bend && row.bendSource?.value)) return "no bend radius, k, bend ids or geometry source";
+      if (isRigidRowKind(row.kind) && !row.component) return "no component inputs";
       return supportOk ? null : "no support id";
     }
     case "support":

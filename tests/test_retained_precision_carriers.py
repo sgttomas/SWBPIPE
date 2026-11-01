@@ -20,11 +20,13 @@ from tests.verifiers import compatibility as v
 
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+# registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 PINNED = {
-    "sparse_interactive": ("7fc66eeef48d03b64da78db705fe5b4d34f12e9b2b90ab0578eb5af9699d3c92",
-                           "c238347e1e0f32f1e484e84a0c0e4679be5c86546ab87af59da469cf560d6374", [25, 69, 3, 1, 15 + 12]),
-    "dense_scrutiny": ("ce0f6a6a80a327fbcdf594b166290cc2c86ca8e91e852ce3de84303f54713357",
-                       "51f2d8b75c12305ac184cb4378dc6d543389e958655465032cee3161a89eee49", [25, 69, 3, 1, 15 + 12]),
+    "sparse_interactive": ("c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f",
+                           "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377", [25, 69, 3, 1, 15 + 12]),
+    "dense_scrutiny": ("da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa",
+                       "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301", [25, 69, 3, 1, 15 + 12]),
 }
 MODES = sorted(PINNED)
 NOTICE = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics."

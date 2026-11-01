@@ -68,7 +68,7 @@ fn model(fixed: bool, transfer: bool, thermal: f64) -> Value {
             "dimension":"temperature_interval","provenance":"independent_thermal_strain"})]
     };
     json!({"model":{
-        "schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+        "schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
         "project":{"id":"project:pressure-oracle","units":{"length":"m","force":"N",
             "angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
