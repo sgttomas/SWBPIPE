@@ -2210,7 +2210,10 @@ row cap, layout or owner coefficient is relaxed. The runtime production-prefix
 and full-file source pins bind this proof. The scoped `problem` parent keys
 follow their original functions, including the new
 `refuse_reducers_outside_step` parent; it is inside the empty classified list,
-not an additional reachable diagnostic owner. The fixed three-component
+not an additional reachable diagnostic owner. The reducer refusal is now 1,173 B,
+above §8.4's 453 B `problem` message class; both reducer calls have multiplicity
+zero on D1, so that class does not bound either unreached message (as with
+C30-JR/C30-ID in §8.30). The fixed three-component
 dot/cross predicates were covered by the numerical review.
 
 **Carry and comparison.** The line map carries 880 keys, prunes 37 and applies
@@ -2218,7 +2221,8 @@ seven reviewed resolutions. The original prune keys and resolutions equal
 §8.37's; the only prune-record difference is the surviving caller's line
 carry `build_pressure_case_with_members` 714 → 716, not another dropped bound.
 Tree structure is equal: **1,594 coefficients equal, eight higher, none lower**.
-The pressure-2 table's description grows by 437 bytes, raising `STATICS[1]`
+The pressure-2 table's `supported_profile_limitations` grows by 437 serialized
+bytes (5,742 → 6,179), raising `STATICS[1]`
 and its success copy by 437 B. The inherited physics-retained table changes
 only its fixed-length parent digest. The longer ordinary pressure identity
 (2,102 → 2,321 bytes) is read by existing U6-J4's exact-literal rule; six
@@ -2242,15 +2246,19 @@ The tightest headroom, dense W3 including reserve, is 2,315,686,533 B.
 
 The concrete proposed full file is
 `/private/tmp/rt-a3-2a-proposed-retained_memory.rs`, SHA-256
-`500463db580bc462237843afa9ab7339a3755ade142faf50590be0e4bf70abe0`.
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
 The generated block is maintained `generate` output with basis
-`RT-A3 reducer 2a at 3c3e976075 (§8.38): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128`.
+`, re-run as RT-A3 reducer 2a at 3c3e976075 (§8.38): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`.
 Only reviewed-input entries #8 and #11 take the new derived table hashes;
 identity, layouts and threshold stay unchanged. The four-point tree and
 summary are in `/private/tmp/rt-a3-2a-price/`; the complete native evaluations
 are `/private/tmp/rt-a3-2a-native-eval80.json`. These are named proposal/review
-inputs, not permanent test dependencies. Focused registration scrutiny,
-reserved adoption, generated law/challenge pins, native laws/challenge,
+inputs, not permanent test dependencies. Focused Claude Opus 5.5/high review
+of `648e424c5` found no blockers: it independently reproduced all 80 fits, the
+coefficient comparison, source pins, caller carry and generator output. Its
+two prose findings are corrected above; the final proposal only wraps the
+basis line and clarifies the registration comment relative to its reviewed
+file, with identical generated coefficients and input hashes. Reserved adoption, generated law/challenge pins, native laws/challenge,
 required stack evidence and exact-head hosted checks remain outstanding.
 
 ## 9. Memory-profile gates and registration

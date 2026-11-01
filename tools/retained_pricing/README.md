@@ -430,8 +430,8 @@ pre-S1 1b draft is not a registration basis.
 The combined source's full-file/prefix pins and scoped `problem` caller keys
 follow the reducer guard. On D1, empty components/regions leave its new
 classification and geometry paths unentered. Existing U6-J4 reads the longer
-identity; resident pressure-table description text raises STATICS. The proposed
+identity; resident pressure-table limitation text raises STATICS. The proposed
 profile raises each native merged phase by 1,751 B; all 80 native evaluations
 fit the unchanged M/margin and upward-rounded TEXT-reserve policy. The protected
-profile is unchanged pending focused scrutiny and reserved adoption. See the
+profile is unchanged pending reserved adoption; focused scrutiny is clear. See the
 governing rules' §8.38 for the exact source, proposal and remaining checks.
