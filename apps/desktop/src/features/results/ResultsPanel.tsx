@@ -1,3 +1,5 @@
+import { isNativeAnalysisRun, isNativeResult, resultRowCount, resultUnits as resultUnitsOf, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { NativeResultsPanel } from "./NativeResultsPanel";
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { isRetainedRoute } from "./numericalResultQuality";
 import { sourceContract } from "./resultReader";
@@ -37,8 +39,8 @@ import {
   type NavigatorCase
 } from "./resultsNavigator";
 
-const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
-const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
+export const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
+export const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
 type ResultFamily = "rotation" | "displacement" | "reaction" | "force" | "moment" | "stress" | "ratio" | "other";
 type ResultFamilyFilter = "all" | ResultFamily;
 type ResultFamilyCounts = Record<ResultFamily, number> & { total: number };
@@ -70,7 +72,14 @@ const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
  * run, with the rows the asking surface's standing withholds and its reason for each. */
 export type ResultsViewRequest = Readonly<{ serial: number; runId: string; kind: string; withheld: Readonly<Record<string, string>> }>;
 
-export function ResultsPanel({
+/** The results panel: a native result's (C1, `NativeResultsPanel`: S's counts and bounded native
+ * pages) or a full result's (historical, reference) as before. */
+export function ResultsPanel(props: Parameters<typeof FullResultsPanel>[0] extends infer P ? Omit<P, "result" | "analysisRun" | "exportAnalysisRun"> & { result: SessionResult | null; analysisRun: SessionAnalysisRun | null; exportAnalysisRun?: SessionAnalysisRun | null } : never) {
+  if (props.result && isNativeResult(props.result)) return <NativeResultsPanel {...props} result={props.result} />;
+  return <FullResultsPanel {...props} result={props.result as MechanicsResult | null} analysisRun={isNativeAnalysisRun(props.analysisRun) ? null : props.analysisRun} exportAnalysisRun={isNativeAnalysisRun(props.exportAnalysisRun) ? null : props.exportAnalysisRun ?? null} />;
+}
+
+function FullResultsPanel({
   result,
   knowledge,
   analysisRun,
@@ -493,7 +502,7 @@ export function ResultsPanel({
  * labelled by its basis. Shown only when the result carries the per-basis keys
  * (pressure-free results do not). A view in this panel, not an output surface: it
  * never picks a governing basis; each output surface keeps its own policy decision. */
-function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
+export function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
   const present = SECTION_BASIS_HEADLINES.filter((headline) => Object.hasOwn(result.summary, headline.key));
   if (present.length === 0) return null;
   return (
@@ -521,7 +530,7 @@ function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
   );
 }
 
-function GoverningRatioState({ ratioCount }: { ratioCount: number }) {
+export function GoverningRatioState({ ratioCount }: { ratioCount: number }) {
   const available = ratioCount > 0;
   return (
     <section aria-label="Governing ratio state" className="result-detail-panel" data-testid="governing-ratio-state">
@@ -538,7 +547,7 @@ function GoverningRatioState({ ratioCount }: { ratioCount: number }) {
   );
 }
 
-function ResultControls({
+export function ResultControls({
   familyCounts,
   familyFilter,
   filterText,
@@ -563,7 +572,7 @@ function ResultControls({
   familyFilter: ResultFamilyFilter;
   filterText: string;
   filteredCount: number;
-  result: MechanicsResult;
+  result: SessionResult;
   totalCount: number;
   page: ResultPage;
   pageSize: number;
@@ -722,8 +731,8 @@ function ResultControls({
   );
 }
 
-function buildResultUnitPolicy(result: MechanicsResult) {
-  const resultUnits = [...new Set(result.results.map((item) => item.unit))].sort(compareResultUnits);
+function buildResultUnitPolicy(result: SessionResult) {
+  const resultUnits = [...new Set(resultUnitsOf(result))].sort(compareResultUnits);
 
   return {
     evidence_id: "unit-policy-evidence:result-view-preview",
@@ -731,7 +740,7 @@ function buildResultUnitPolicy(result: MechanicsResult) {
     source_result_ref: result.run_id,
     storage_convention: "entered_units_preserved",
     result_units: resultUnits,
-    result_row_count: result.results.length,
+    result_row_count: resultRowCount(result),
     conversion_policy: "result_view_preserves_result_row_units_without_conversion",
     conversion_performed: false,
     decision_basis_refs: ["DEC-018", "DEL-02-02", "DEL-07-05"],
@@ -858,7 +867,7 @@ function DetailLine({ label, value, testId }: { label: string; value: ReactNode;
   );
 }
 
-function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
+export function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
   return (
     <section className="mechanics-gap-ledger" aria-label="Mechanics gap ledger" data-testid="mechanics-gap-ledger">
       <h3>Mechanics Gap Ledger</h3>
@@ -997,7 +1006,7 @@ export function rowsUnderFilters(
     (filters.caseKey === ALL_CASES || rowCaseKey(item) === filters.caseKey));
 }
 
-function groupResults(resultItems: MechanicsResult["results"], labels: RowLabels) {
+export function groupResults(resultItems: MechanicsResult["results"], labels: RowLabels) {
   const specs: { title: string; family: ResultFamily }[] = [
     { title: "Displacement", family: "displacement" },
     { title: "Rotation", family: "rotation" },
@@ -1050,7 +1059,7 @@ export function countResultFamilies(resultItems: MechanicsResult["results"], lab
   return counts;
 }
 
-const ALL_FRAMES = "all";
+export const ALL_FRAMES = "all";
 const UNSTATED_FRAME = "unstated";
 const FRAME_LABELS: Readonly<Record<string, string>> = {
   element_local: "Element local",
@@ -1064,12 +1073,12 @@ const FRAME_LABELS: Readonly<Record<string, string>> = {
 
 /** The frame a row states its value in (`metadata.coordinate_system`); rows that state none
  * are "unstated". Read from the row, never inferred from its kind. */
-function resultFrame(item: MechanicsResult["results"][number]): string {
+export function resultFrame(item: MechanicsResult["results"][number]): string {
   const frame = item.metadata?.coordinate_system;
   return typeof frame === "string" && frame.trim() ? frame : UNSTATED_FRAME;
 }
 
-function frameLabel(frame: string): string {
+export function frameLabel(frame: string): string {
   return FRAME_LABELS[frame] ?? frame;
 }
 
@@ -1138,24 +1147,24 @@ function standaloneNumericalHealth(result: MechanicsResult): NumericalHealthView
 }
 /** The indicator only where its route agrees with the result's route; otherwise none
  * (today's text). */
-function routeHealth(route: string, health: NumericalHealthView | null | undefined): NumericalHealthView | null {
+export function routeHealth(route: string, health: NumericalHealthView | null | undefined): NumericalHealthView | null {
   if (!health) return null;
   if (health.route === "pressure_source") return route === "pressure_source" ? health : null;
   return route === "preview_physics" || route === "pressure" ? health : null;
 }
 
-function NumericalHealthBadgeText({ badge, text, testId }: { badge: NumericalHealthBadge; text: string; testId?: string }) {
+export function NumericalHealthBadgeText({ badge, text, testId }: { badge: NumericalHealthBadge; text: string; testId?: string }) {
   return <span className={`numerical-health-badge numerical-health-${badge}`} data-badge={badge} data-testid={testId}>{text}</span>;
 }
 
-function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
+export function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
   const state = rowHealthState(health, item);
   if (!state) return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
 
-function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLocation, onShowDiagnostic }: {
+export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLocation, onShowDiagnostic }: {
   health: NumericalHealthView;
   resolveCauseLocation?: (location: NumericalHealthLocation) => EntityRef | null;
   onSelectCauseLocation?: (entity: EntityRef) => void;

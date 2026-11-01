@@ -4285,7 +4285,9 @@ export function useWorkspaceSession() {
       handleSelectResult,
       handleSelectDiagnostic,
       handleSaveReportPackage,
-      loadC2Full
+      loadC2Full,
+      /** A native result's C2 full copy when one is loaded (for rule-check ratios); else null. */
+      fullResult: fullResultCopy && fullResultCopy.of === result ? fullResultCopy.copy : null
     },
     operations: {
       editorIntents,
