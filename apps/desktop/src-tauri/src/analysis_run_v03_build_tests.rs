@@ -441,6 +441,28 @@ fn the_preview_is_bounded_and_the_bytes_route_is_admitted_at_its_exact_length() 
     assert!(headers[1] - headers[0] <= 4, "the header grows with the rows: {headers:?}");
 }
 
+/// The post-reader builder must also refuse a row annotation that becomes
+/// too deep once nested in the record, as the TypeScript checked hash does.
+/// Current producers use scalar kind/unit fields; construct this defensive
+/// state directly rather than relying on the readers to admit malformed rows.
+#[test]
+fn every_row_annotation_is_checked_at_its_record_depth() {
+    let manifest = json!({"manifest_ref": {"object_type": "InputManifest", "ref": "input-manifest:rack"}, "manifest_sha256": "1".repeat(64),
+        "manifest": {"model_basis": {"model_ref": "model:rack"}, "solver_basis": {"solver_name": "invented", "solver_version": "0.0.0", "solver_build_ref": "build:rack"}}});
+    let load_basis = json!([{"object_type": "LoadCase", "ref": "case:a"}]);
+    for member in ["kind", "unit", "metadata"] {
+        let (mut source, route) = rack(1);
+        source["results"][0]["kind"] = json!("unknown");
+        let mut nested = Value::Null;
+        for _ in 0..123 {
+            nested = json!([nested]);
+        }
+        source["results"][0][member] = nested;
+        let error = build(&source, route, &rack_inputs(&manifest, &load_basis), &mut no_lease).err().unwrap();
+        assert_eq!(command_text(error), RECURSION_LIMIT, "{member}");
+    }
+}
+
 /// A refused fingerprint lease refuses the build, typed, after every
 /// record-contract check.
 #[test]

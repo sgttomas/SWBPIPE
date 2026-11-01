@@ -98,7 +98,7 @@ connection to the job handle (the rest of slice 5) follows the switch.
   refuses (§4).
 - The webview is not switched in this slice.
 
-### Slice 2: S projection (implemented on `claude/rt-perf-c1-custody`; review pending)
+### Slice 2: S projection (implemented; independently reviewed, with tested repairs)
 
 **Files:**
 - `src-tauri/src/result_summary.rs` (the command, its admission and S's header),
@@ -203,7 +203,7 @@ pages; slice 4 switches those panels to it, without restoring a full-envelope fe
   outside the semantic tables' vocabulary (the tables have none); `source_result_refs` that is not
   an array; model ids that are not strings.
 
-### Slice 3: paged detail and batched semantics (implemented on `claude/rt-perf-c1-custody`; review pending)
+### Slice 3: paged detail and batched semantics (implemented; independently reviewed, with tested repairs)
 
 **Files:**
 - `src-tauri/src/result_detail.rs` (the index and the four commands) and `result_detail_tests.rs`.
@@ -375,7 +375,7 @@ to design §2(3):
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
-**The record builder** (implemented on `claude/rt-perf-c1-custody`; review pending; nothing calls
+**The record builder** (implemented; independently reviewed, with focused repairs; nothing calls
 it before slice 4): `buildAnalysisRunV03` and its caller `buildAnalysisRunPreview` are ported to
 Rust in the desktop crate (`analysis_run_v03_build.rs`). They read the held bytes and the small
 inputs (the manifest evidence, the GUI rule-check aggregate and the rule-pack exclusions; the load
@@ -405,8 +405,8 @@ basis is the manifest's model's, as today) and build the record without a record
   4. the record checksum: the canonical projection streamed, each row's checksum streamed, each
      result ref written from the borrowed row;
   5. the stored length, counted;
-  6. the validator's remaining checks. Duplicate ids are found with 16-byte fingerprints per row,
-     leased at their exact size.
+  6. the validator's remaining checks. Duplicate ids are found with 16-byte entries per row (8-byte hash plus 8-byte row index),
+     leased at their exact size and checked against the actual ids when hashes agree.
 
   The bytes route is a seventh pass, writing into the exact buffer.
 - **Byte identity, and what is compared.** The stored form is `serde_json::to_string` of the
@@ -742,13 +742,13 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   - the parse lease of M, held while the tree is read;
   - a working lease: a fixed 4 MiB allowance plus the canonical writer's key-order scratch along
     the deepest path of the source and manifest;
-  - the fingerprint lease, 16 bytes per row, exact;
+  - the fingerprint/index lease, 16 bytes per row (8-byte hash plus 8-byte row index), exact;
   - the response lease of the header's exact length;
   - for the bytes route, the record lease at its exact length, held by the caller with the bytes.
 
   Unpriced: the readers' working memory, the writers' per-number and per-escape scratch, the load
-  basis, statuses and rule-pack diagnostics (bounded by the model and the arguments), and the
-  delivery copies.
+  basis, statuses and rule-pack diagnostics (scaling with the model and arguments, not enforced within the fixed 4 MiB allowance), and
+  the delivery copies. Slice 7 must include these model-sized lists when evaluating residuals.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
   Tauri makes of the body before the command runs, plus the returned response buffer and
   Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

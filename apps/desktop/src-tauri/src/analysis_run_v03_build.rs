@@ -57,8 +57,9 @@
 //!   5. the stored length: the stored form written to a byte counter (the
 //!      record checksum's 64 digits counted by length);
 //!   6. the record validator's checks, the duplicate-id check reading one
-//!      16-byte fingerprint per row from an allocation leased at its exact
-//!      size.
+//!      16-byte entry (an 8-byte fingerprint and 8-byte row index) per row
+//!      from an allocation leased at its exact size; equal hashes are
+//!      checked against the actual ids.
 //!
 //!   The record's bytes, when a persistence consumer asks for them
 //!   ([`record_bytes`]), are a seventh pass writing the stored form into a
@@ -89,15 +90,15 @@
 //!     canonical writer's key-order scratch along the deepest path of the
 //!     source and manifest (each object's member references, at most one per
 //!     nesting level at a time);
-//!   - the fingerprint lease, 16 bytes per row, at its exact allocation;
+//!   - the fingerprint/index lease, 16 bytes per row, at its exact allocation;
 //!   - the response lease, the header's exact length, ending when the command
 //!     returns; for [`record_bytes`], the record lease at its exact length,
 //!     which the caller holds with the bytes.
 //! - **Residuals, unpriced** (for slice 7's measurement): the readers' own
 //!   working memory (as slices 1 to 3); serde_json's per-number and per-string
 //!   scratch in the writers (one number or escape at a time); the load basis,
-//!   statuses and rule-pack diagnostics (bounded by the model and the
-//!   arguments, within the working allowance); and the returned buffer and
+//!   statuses and rule-pack diagnostics (scaling with the model and arguments,
+//!   not enforced within the fixed working allowance); and the returned buffer and
 //!   Tauri's delivery copies after return.
 use crate::analysis_runs::{
     input_manifest_ref, manifest_excluded_rule_packs, rule_pack_identity, rule_pack_ref_diagnostic, RULE_PACKS_NOT_RESOLVED,
@@ -127,8 +128,8 @@ pub(crate) const INPUT_SHAPE_INVALID: &str = "ANALYSIS-RUN-INPUT-SHAPE-INVALID";
 pub(crate) const DOCUMENT_KIND: &str = "swbpipe.desktop.analysis_run_preview";
 pub(crate) const VERSION: u64 = 1;
 /// The fixed part of the working lease: the header's small values, the
-/// writers' number and escape scratch, the load basis, statuses and
-/// rule-pack diagnostics, which the model and the arguments bound.
+/// writers' number and escape scratch. The model-sized load basis, statuses
+/// and rule-pack diagnostics are explicit residuals, not bounded by this constant.
 pub(crate) const WORKING_ALLOWANCE_BYTES: u64 = 4 << 20;
 
 const ANALYSIS_RUN_V03: &str = "0.3.0";
@@ -891,7 +892,7 @@ pub(crate) fn build<'a>(
     }
     let deep = |value: &Value, level: usize| level + container_depth(value) > PARSE_DEPTH_LIMIT;
     let too_deep = [(solver_name, 4), (solver_version, 4), (solver_build_ref, 5)].iter().any(|(value, level)| value.is_some_and(|v| deep(v, *level)))
-        || rows.iter().any(|row| row.get("metadata").is_some_and(|metadata| deep(metadata, 6)))
+        || rows.iter().any(|row| ["kind", "unit", "metadata"].iter().any(|key| row.get(key).is_some_and(|value| deep(value, 6))))
         || producer_diagnostics.iter().any(|item| deep(item, 5))
         || statuses.iter().any(|item| deep(item, 4))
         || deep(manifest.manifest_ref, 6)
