@@ -2358,7 +2358,9 @@ export function useWorkspaceSession() {
       // A native result is persisted through its C2 full copy and full record (C1 interim; at or
       // under 64 MiB, the bytes today's store path writes). Above that the write is refused by name
       // before anything is written; the native Save Project lands with slice 5's persistence.
-      const persisted = requestHistoricalRun || retainedRun || dropRun ? null : await persistableRun();
+      // As before C1, each of the result and record falls back to the session's own when the retained
+      // reference run holds none (a reference inspected with no result), so it is read then too.
+      const persisted = requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : await persistableRun();
       const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : persisted!.result);
       const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;
@@ -3134,7 +3136,9 @@ export function useWorkspaceSession() {
       // A native result is persisted through its C2 full copy and full record (C1 interim; at or
       // under 64 MiB, the bytes today's store path writes). Above that the write is refused by name
       // before anything is written; the native Save Project lands with slice 5's persistence.
-      const persisted = requestHistoricalRun || retainedRun || dropRun ? null : await persistableRun();
+      // As before C1, each of the result and record falls back to the session's own when the retained
+      // reference run holds none (a reference inspected with no result), so it is read then too.
+      const persisted = requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : await persistableRun();
       const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : persisted!.result);
       const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;

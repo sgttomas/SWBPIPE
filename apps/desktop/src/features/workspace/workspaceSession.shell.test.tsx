@@ -18,6 +18,8 @@ import {
 } from "./shellLayout";
 import type { ShellStage, ShellView } from "./shellLayout";
 import { useWorkspaceSession } from "./workspaceSession";
+import { isNativeResult } from "../../services/nativeResult";
+import type { C2FullResult } from "../results/C2ResultGate";
 import * as hashService from "../../services/hashService";
 import { createLocalProject, getLocalStorageCapability, openLocalProject } from "../../services/projectService";
 import { loadDesignKnowledge, loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
@@ -280,9 +282,14 @@ describe("a stage or view switch is a presentation change", () => {
     const { result } = await readySession();
     await act(async () => { await result.current.results.handleRun(); });
     await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());
-    const original = JSON.stringify(result.current.results.result);
-    const originalAnalysis = JSON.stringify(result.current.results.analysisRun);
-    act(() => result.current.results.handleSelectResult(result.current.results.result!.results[0].id));
+    // C1: the session holds the result natively; its bytes as today's store path writes them are
+    // its C2 full copy and full record (the interim persistence route), read here the same way.
+    expect(isNativeResult(result.current.results.result)).toBe(true);
+    let full: C2FullResult | null = null;
+    await act(async () => { full = await result.current.results.loadC2Full(result.current.results.result!); });
+    const original = JSON.stringify(full!.result);
+    const originalAnalysis = JSON.stringify(full!.analysisRun);
+    act(() => result.current.results.handleSelectResult(full!.result.results[0].id));
     const selectedReview = result.current.results.selectedReviewTarget;
     delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     await act(async () => { await result.current.results.handleInspectBundledReference(); });
