@@ -189,10 +189,13 @@ export const GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set([
 /** RT-R6 (DEL-08-04-R14): the CSV table save route. */
 export const CSV_TABLE_ROUTE_ID = "DOTH-CSV-011";
 
+/** DEL-17-04 (A-4): File > Export MBF…, the model batch file and its identity file. */
+export const MBF_EXPORT_ROUTE_ID = "DOTH-MBF-012";
+
 /** Governed routes admitted only in the `local_private` context (with explicit intent);
  * every other context is refused (`LOCAL_PRIVATE_ROUTE_REQUIRED`). The Python catalogue
- * (`route_control.py`) carries the same set. */
-export const LOCAL_PRIVATE_ONLY_ROUTE_IDS: ReadonlySet<string> = new Set([CSV_TABLE_ROUTE_ID]);
+ * (`route_control.py`) carries the same set. The native saves remain authoritative. */
+export const LOCAL_PRIVATE_ONLY_ROUTE_IDS: ReadonlySet<string> = new Set([CSV_TABLE_ROUTE_ID, MBF_EXPORT_ROUTE_ID]);
 
 /** The storage context of a context's governed route metadata: a user-released report is
  * written to the user's own local path by the same atomic save, so its route metadata is

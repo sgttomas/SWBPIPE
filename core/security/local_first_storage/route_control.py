@@ -44,12 +44,15 @@ GOVERNED_LOCAL_FIRST_ROUTE_IDS = frozenset(
     }
 )
 
-# RT-R6 (DEL-08-04-R14): the CSV table save route.  It and every route in
-# ``LOCAL_PRIVATE_ONLY_ROUTE_IDS`` are admitted only in the ``local_private`` context
-# with explicit intent; any other context is refused (``LOCAL_PRIVATE_ROUTE_REQUIRED``).
-# The TypeScript catalogue (``redactionExportControls.ts``) carries the same set.
+# RT-R6 (DEL-08-04-R14): the CSV table save route, and DEL-17-04 (A-4): File > Export
+# MBF….  They and every route in ``LOCAL_PRIVATE_ONLY_ROUTE_IDS`` are admitted only in
+# the ``local_private`` context with explicit intent; any other context is refused
+# (``LOCAL_PRIVATE_ROUTE_REQUIRED``).  The TypeScript catalogue
+# (``redactionExportControls.ts``) carries the same set; the native saves remain
+# authoritative.
 CSV_TABLE_ROUTE_ID = "DOTH-CSV-011"
-LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID})
+MBF_EXPORT_ROUTE_ID = "DOTH-MBF-012"
+LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID, MBF_EXPORT_ROUTE_ID})
 
 # W-18b (DEL-08-01 Design `report-user-release.md` §3.3): the user-release route and its
 # context.  A user-released report is written to the user's own local path by the same

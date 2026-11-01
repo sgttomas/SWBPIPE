@@ -1870,7 +1870,8 @@ describe("DOTH-CSV-011 route catalogue", () => {
   it("is governed and admitted only for local_private with explicit intent", () => {
     expect(CSV_TABLE_ROUTE_ID).toBe("DOTH-CSV-011");
     expect(GOVERNED_LOCAL_FIRST_ROUTE_IDS.has(CSV_TABLE_ROUTE_ID)).toBe(true);
-    expect([...LOCAL_PRIVATE_ONLY_ROUTE_IDS]).toEqual([CSV_TABLE_ROUTE_ID]);
+    // The CSV save and, since the MBF export's review round, DOTH-MBF-012 (DEL-17-04).
+    expect([...LOCAL_PRIVATE_ONLY_ROUTE_IDS]).toEqual([CSV_TABLE_ROUTE_ID, "DOTH-MBF-012"]);
     expect(enforceLocalFirstRoute({ routeId: CSV_TABLE_ROUTE_ID, exportContext: "local_private", explicitLocalPrivateIntent: true })).toEqual({
       route_id: "DOTH-CSV-011", export_context: "local_private", storage_context: "local_private", action: "include_metadata_only",
       reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED", blocked: false, metadata_only: true, explicit_local_private_intent: true
@@ -1903,7 +1904,7 @@ describe("DOTH-CSV-011 route catalogue", () => {
     expect(new Set(pyIds.filter((id) => !id.startsWith("REXC-")))).toEqual(new Set(GOVERNED_LOCAL_FIRST_ROUTE_IDS));
     expect(pyIds).toContain("DOTH-CSV-011");
     expect(pythonSource).toContain('CSV_TABLE_ROUTE_ID = "DOTH-CSV-011"');
-    expect(pythonSource).toContain("LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID})");
+    expect(pythonSource).toContain("LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset({CSV_TABLE_ROUTE_ID, MBF_EXPORT_ROUTE_ID})");
     const rustProfiles = rustSource.match(/fn profile\(route_id: &str\) -> Option<Profile> \{([\s\S]*?)\n\}/);
     expect(rustProfiles).not.toBeNull();
     expect(rustSource).toContain('const CSV_ROUTE: &str = "DOTH-CSV-011";');
@@ -1935,6 +1936,13 @@ describe("DOTH-MBF-012 route catalogue", () => {
       blocked: true,
       reason_code: "LOCAL_PRIVATE_INTENT_REQUIRED"
     });
+    // Local-private only: a public context is refused, with or without intent.
+    for (const exportContext of ["public_example", "public_report"] as const) {
+      expect(enforceLocalFirstRoute({ routeId: "DOTH-MBF-012", exportContext, explicitLocalPrivateIntent: true })).toMatchObject({
+        blocked: true,
+        reason_code: "LOCAL_PRIVATE_ROUTE_REQUIRED"
+      });
+    }
     for (const other of ["DOTH-MBF-013", "doth-mbf-012", "DOTH-MBF-012 "]) {
       expect(enforceLocalFirstRoute({ routeId: other, exportContext: "local_private", explicitLocalPrivateIntent: true })).toMatchObject({
         blocked: true,
@@ -1965,7 +1973,13 @@ describe("DOTH-MBF-012 route catalogue", () => {
     expect(pyBlock).not.toBeNull();
     expect(quotedIds(pyBlock![1])).toContain("DOTH-MBF-012");
     expect(GOVERNED_LOCAL_FIRST_ROUTE_IDS.has("DOTH-MBF-012")).toBe(true);
-    expect(LOCAL_PRIVATE_ONLY_ROUTE_IDS.has("DOTH-MBF-012")).toBe(false);
+    expect(LOCAL_PRIVATE_ONLY_ROUTE_IDS.has("DOTH-MBF-012")).toBe(true);
+    // The local-private-only sets of the two catalogues are the same.
+    const pyOnly = pythonSource.match(/LOCAL_PRIVATE_ONLY_ROUTE_IDS = frozenset\(\{([^}]*)\}\)/);
+    expect(pyOnly).not.toBeNull();
+    const pyConstants = Object.fromEntries([...pythonSource.matchAll(/^([A-Z_]+_ROUTE_ID) = "([^"]+)"$/gm)].map((m) => [m[1], m[2]]));
+    const pySet = pyOnly![1].split(",").map((item) => item.trim()).filter(Boolean).map((name) => pyConstants[name] ?? name.replace(/"/g, ""));
+    expect(new Set(pySet)).toEqual(new Set(LOCAL_PRIVATE_ONLY_ROUTE_IDS));
     const rustSource = readFileSync(path.join(projectRoot, "apps/desktop/src-tauri/src/mbf_export.rs"), "utf8");
     expect(rustSource).toContain('pub const MBF_EXPORT_ROUTE_ID: &str = "DOTH-MBF-012";');
     expect(rustSource).toContain("validate_local_private_route_evidence(MBF_EXPORT_ROUTE_ID,");

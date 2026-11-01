@@ -1,17 +1,23 @@
 // DEL-17-04 slice 4a: the export dialog, driven by the real wasm writer (`public/mbf-engine`) and the real hash
 // engine, with the native save injected. The digests the dialog sends are checked against those the Rust wrapper
 // recorded (`fixtures/caepipe_mbf/invented/desktop_export/export_digests.json`), which the native save reproduces.
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import exportModel from "../../../../../fixtures/caepipe_mbf/invented/desktop_export/export_model.json";
 import exportDigests from "../../../../../fixtures/caepipe_mbf/invented/desktop_export/export_digests.json";
-import { computeModelHash } from "../../services/hashService";
-import { loadMbfEngine, type WasmMbfEngine } from "../../services/mbfEngine";
+import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { loadMbfEngine, mbfSettingsJson, type MbfWriterReport, type WasmMbfEngine } from "../../services/mbfEngine";
 import type { PreviewModel } from "../../types";
 import { MbfExportDialog, type MbfExportDialogRequest } from "./MbfExportDialog";
 import {
+  MBF_ASSUMPTIONS_SENTENCE,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE_ID,
+  MBF_LOSS_DESCRIPTIONS,
+  MBF_PROFILE_LABEL,
   fileNameSlug,
   suggestedMbfName,
   type MbfExportArgs,
@@ -70,16 +76,15 @@ describe("MbfExportDialog", () => {
     const omitted = within(dialog).getByTestId("mbf-export-omitted");
     expect(omitted.textContent).toMatch(/You can still save/);
     expect(omitted.querySelectorAll("li").length).toBeGreaterThan(0);
-    expect(within(dialog).getByTestId("mbf-export-profile").textContent).toContain("caepipe-mbf-si-pilot-1");
+    expect(within(dialog).getByTestId("mbf-export-profile").textContent).toContain(MBF_PROFILE_LABEL);
     expect(within(dialog).getByTestId("mbf-export-profile").textContent).toContain("TBD-17-01-003 (open)");
+    expect(within(dialog).getByTestId("mbf-export-assumptions").textContent).toBe(MBF_ASSUMPTIONS_SENTENCE);
     expect(within(dialog).getByTestId("mbf-export-identity").textContent).toMatch(/^Identities travel in the identity file beside the MBF\./);
     expect(within(dialog).getByTestId("mbf-export-boundary").textContent).toMatch(/does not check how another program reads or analyses the file/);
     expect((within(dialog).getByTestId("mbf-export-title") as HTMLInputElement).value).toBe("Invented MBF export");
     expect((within(dialog).getByTestId("mbf-export-reference-temperature") as HTMLInputElement).value).toBe("20");
-    // The dialog's own text names no other program (the review region shows the writer's own profile id and texts).
-    const own = dialog.cloneNode(true) as HTMLElement;
-    own.querySelector('[data-testid="mbf-export-review"]')?.remove();
-    expect(own.textContent).not.toMatch(/CAEPIPE/i);
+    // The dialog, its review included, names no other program.
+    expect(dialog.textContent).not.toMatch(/CAEPIPE/i);
     // Save needs the explicit choice.
     expect(saveButton(dialog).disabled).toBe(true);
     fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
@@ -87,7 +92,8 @@ describe("MbfExportDialog", () => {
     fireEvent.click(saveButton(dialog));
     await waitFor(() => expect(saveMbfExport).toHaveBeenCalledTimes(1));
     const args = saveMbfExport.mock.calls[0][0];
-    expect(args.settings).toEqual({ title: "Invented MBF export", referenceTemperature: { value: 20, unit: "degC" }, maxLayoutRows: null });
+    // The settings text reviewed is the text sent, the one both Rust sides read (the recorded case).
+    expect(args.settingsJson).toBe(exportDigests.cases["degc-default"].settings_json);
     expect(args.suggestedName).toBe("swbpipe-model.mbf");
     expect(args.reviewed).toEqual({
       mbfSha256: exportDigests.cases["degc-default"].mbf_sha256,
@@ -103,7 +109,7 @@ describe("MbfExportDialog", () => {
   it("blocks Save while anything is not written, listing the refusals by family", async () => {
     const { dialog, saveMbfExport } = await open(model((document) => { document.components[0].kind = "tee"; }));
     const blocked = within(dialog).getByTestId("mbf-export-not-written");
-    expect(within(blocked).getByTestId("mbf-export-not-written-component").textContent).toMatch(/component:component:bend-1: MBF-SI-[A-Z-]+/);
+    expect(within(blocked).getByTestId("mbf-export-not-written-component").textContent).toMatch(/MBF-SI-[A-Z-]+ \(component:component:bend-1\): /);
     expect(within(blocked).getByRole("heading", { name: "Components" })).toBeTruthy();
     fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
     expect(saveButton(dialog).disabled).toBe(true);
@@ -119,7 +125,8 @@ describe("MbfExportDialog", () => {
     fireEvent.click(saveButton(dialog));
     await waitFor(() => expect(saveMbfExport).toHaveBeenCalledTimes(1));
     const args = saveMbfExport.mock.calls[0][0];
-    expect(args.settings.referenceTemperature).toEqual({ value: 68, unit: "degF" });
+    expect(JSON.parse(args.settingsJson).referenceTemperature).toEqual({ value: 68, unit: "degF" });
+    expect(args.settingsJson).toBe(exportDigests.cases["degf-project"].settings_json);
     expect(args.reviewed).toEqual({
       mbfSha256: exportDigests.cases["degf-project"].mbf_sha256,
       sidecarSha256: exportDigests.cases["degf-project"].sidecar_sha256
@@ -155,7 +162,7 @@ describe("MbfExportDialog", () => {
     fireEvent.click(saveButton(dialog));
     await waitFor(() => expect(saveMbfExport).toHaveBeenCalledTimes(2));
     expect(saveMbfExport.mock.calls[1][0].reviewed.mbfSha256).not.toBe(exportDigests.cases["degc-fractional"].mbf_sha256);
-    expect(saveMbfExport.mock.calls[1][0].settings.title).toBe("Another title");
+    expect(JSON.parse(saveMbfExport.mock.calls[1][0].settingsJson).title).toBe("Another title");
   }, 60000);
 
   it("refuses a reference temperature that is not a number before any review", async () => {
@@ -212,4 +219,67 @@ describe("MbfExportDialog", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(close).toHaveBeenCalledTimes(1);
   }, 30000);
+  it("writes the settings text both Rust sides read, large integers included", () => {
+    const settings = (value: number, unit: "degC" | "degF") => ({ title: "Invented MBF export", referenceTemperature: { value, unit }, maxLayoutRows: null } as const);
+    // JSON.stringify writes these in full; the engine's reader takes them as the same ints natively and in wasm.
+    expect(mbfSettingsJson(settings(9223372036854776000, "degC"))).toBe(exportDigests.cases["degc-integer-above-2p63"].settings_json);
+    expect(mbfSettingsJson(settings(1e20, "degF"))).toBe(exportDigests.cases["degf-integer-above-2p64"].settings_json);
+    expect(mbfSettingsJson(settings(21.5, "degC"))).toBe(exportDigests.cases["degc-fractional"].settings_json);
+  });
+
+  it("states no fact about another program: no profile id, assumption, program name or engine message", async () => {
+    const real = await loadMbfEngine();
+    const cases: Array<{ name: string; doc: PreviewModel }> = [
+      { name: "written", doc: model() },
+      { name: "degF", doc: model((edit) => { edit.project.units.temperature = "degF"; }) },
+      { name: "refused", doc: model((edit) => { edit.components[0].kind = "tee"; }) }
+    ];
+    for (const { name, doc } of cases) {
+      cleanup();
+      const { dialog } = await open(doc);
+      const text = dialog.textContent ?? "";
+      // The engine's own review of the same text and settings.
+      const settingsJson = mbfSettingsJson({
+        title: "Invented MBF export",
+        referenceTemperature: doc.project?.units?.temperature === "degF" ? { value: 68, unit: "degF" } : { value: 20, unit: "degC" },
+        maxLayoutRows: null
+      });
+      const raw = JSON.parse(real.renderMbfJson(await canonicalJsonString(doc), settingsJson)) as { profile_id: string; report_json: string };
+      const report = JSON.parse(raw.report_json) as MbfWriterReport;
+      expect(text, name).not.toContain(raw.profile_id);
+      expect(text, name).not.toMatch(/CAEPIPE|target program/i);
+      expect(report.assumptions.length + report.loss_report.length, name).toBeGreaterThan(0);
+      for (const sentence of report.assumptions) expect(text, `${name}: ${sentence}`).not.toContain(sentence);
+      for (const entry of report.loss_report) {
+        expect(text, `${name}: ${entry.reason}`).not.toContain(entry.reason);
+        expect(text, name).toContain(entry.code);
+      }
+      for (const item of report.diagnostics) expect(text, `${name}: ${item.message}`).not.toContain(item.message);
+      if (name === "degF") {
+        expect(within(dialog).getByTestId("mbf-export-conversions").textContent).toMatch(/degF absolute: T\(degC\) = \(T\(degF\) - 32\) x 5\/9/);
+      }
+      if (name === "refused") {
+        expect(within(dialog).getByTestId("mbf-export-not-written-component").textContent).toContain(MBF_LOSS_DESCRIPTIONS["MBF-SI-COMPONENT-UNSUPPORTED"]);
+      }
+    }
+  }, 60000);
+
+  it("has a product-side description for every MBF-SI code the engine can emit", () => {
+    const engine = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../../core/handoff/caepipe_mbf_engine/src");
+    const codes = new Set<string>();
+    const walk = (directory: string) => {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        const full = path.join(directory, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.name.endsWith(".rs")) for (const match of readFileSync(full, "utf8").matchAll(/"(MBF-SI-[A-Z0-9-]+)"/g)) codes.add(match[1]);
+      }
+    };
+    walk(engine);
+    expect(codes.size).toBeGreaterThan(50);
+    for (const code of codes) expect(MBF_LOSS_DESCRIPTIONS[code], code).toBeTruthy();
+    for (const [code, description] of Object.entries(MBF_LOSS_DESCRIPTIONS)) {
+      expect(codes.has(code), `${code} is not an engine code`).toBe(true);
+      expect(description, code).not.toMatch(/CAEPIPE|target program|another program/i);
+    }
+  });
 });

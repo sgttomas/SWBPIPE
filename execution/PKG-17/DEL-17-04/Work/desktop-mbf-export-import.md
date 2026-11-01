@@ -209,24 +209,39 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   is a derived name, not a suggested one, so the token rule does not apply. The export slice
   adds the row to #1711's table.
 - **Replacing a file.** When the user confirms replacing an existing `.mbf` in the chooser,
-  the identity file of the same stem is replaced with it. The dialog says so before Save.
+  the identity file of the same stem is replaced with it. The dialog says so before Save. An
+  identity file of the chosen stem whose `.mbf` is absent is not replaced: it may belong to an MBF
+  that was moved, and the save is refused (`MBF-EXPORT-IDENTITY-FILE-EXISTS`, §3.6 step 8).
 
 ### 3.3 Review before writing
 
-- **Profile.** The profile id and the MBF version written. The carried open items
-  TBD-17-01-001 to -003 are shown as open.
-- **Not written (blocks).** Every `unsupported` entry, with its entity, code and reason,
-  grouped by family. While any exists, Save is disabled.
-- **Omitted (warns).** Every `omitted` entry, listed in full. Save remains available.
-- **Assumptions and conversions.** The writer's `assumptions`, including the normalization
-  factors.
-- **Warnings.** For example `MBF-SI-SHEAR-MODULUS-NOT-EXPORTED`.
+- **Profile.** The neutral label "SI model batch file, pilot subset", not the writer's
+  internal profile id. The carried open items TBD-17-01-001 to -003 are shown as open.
+- **Not written (blocks).** Every `unsupported` entry, with its code, its entity and a
+  product-side description, grouped by family. While any exists, Save is disabled.
+- **Omitted (warns).** Every `omitted` entry, listed in full with its code, its entity and a
+  product-side description. Save remains available.
+- **Unit conversions.** Each unit the writer normalized, with its exact definition and, where
+  it has one, its exact factor (the writer's normalization data, not its assumption
+  sentences).
+- **Assumptions.** Not displayed, and the dialog does not point to a report: there is no local
+  report artifact, and the writer report has no RT-R5 release standing. The dialog shows "The
+  writer's assumptions are not displayed here."
+- **Warnings.** Every other warning, for example `MBF-SI-SHEAR-MODULUS-NOT-EXPORTED`, by its
+  code, entity and product-side description.
 - **Materials.** Each material whose sidecar origin is `undeclared` is named: "importing this
   file asks where these values came from".
 - **Identity.** "Identities travel in the identity file beside the MBF. Without it, an import
   forms ids from node numbers and refuses records whose meaning is still open."
 - **Boundary.** "SWBPIPE writes the subset listed here. It does not check how another program
   reads or analyses the file."
+- **Product text** (owner's ruling: "Don't state facts about CAEPIPE in public text"). The
+  dialog does not show the engine's message texts: several state the target program's
+  behaviour. Each code the writer can emit maps to a short description of what SWBPIPE did or
+  did not write, kept in the dialog's module (`MBF_LOSS_DESCRIPTIONS` in `mbfExport.ts`) and
+  keyed by code; a test holds that every `MBF-SI-*` code in the engine has one. A writer refusal
+  the native save returns is shown the same way. The engine's and the Python's texts are
+  unchanged, so the parity bytes are preserved.
 
 | Condition | Effect |
 |---|---|
@@ -262,6 +277,10 @@ criterion-6 test (§5), not in the dialog.
   - `core/security/local_first_storage/route_control.py`;
   - `redactionExportControls.ts`;
   - the Rust admission.
+
+  In the Python and TypeScript catalogues the route is local-private only
+  (`LOCAL_PRIVATE_ONLY_ROUTE_IDS`, with the CSV route): any other context is refused
+  (`LOCAL_PRIVATE_ROUTE_REQUIRED`). The native admission remains authoritative.
 - **No redaction.** Redaction would change the bytes and break the round trip. A screening
   that would alter the payload blocks the save instead (`exact_payload_match`).
 - **Disposition screen.** Native code screens the exact admitted model as Save Model Document
@@ -279,11 +298,16 @@ criterion-6 test (§5), not in the dialog.
 
 ### 3.6 Native command, atomic write and read-back
 
-`save_mbf_export` takes these arguments: `{canonicalText, claimedModelHash, settings: {title,
-referenceTemperature: {value, unit}, maxLayoutRows: null}, suggestedName, reviewed:
-{mbfSha256, sidecarSha256}, screening, localFirst}`. In order:
+`save_mbf_export` takes these arguments: `{canonicalText, claimedModelHash, settingsJson,
+suggestedName, reviewed: {mbfSha256, sidecarSha256}, screening, localFirstEvidence}`.
+`settingsJson` is the settings' JSON text, `{title, referenceTemperature: {value, unit},
+maxLayoutRows: null}`: the text the review ran with. In order:
 
-1. **Route evidence.** Check `DOTH-MBF-012`, bound to the SHA-256 of `canonicalText`.
+1. **Route evidence.** Check `DOTH-MBF-012`, bound to the SHA-256 of `canonicalText`. Then read
+   the settings text by the engine's one mapping (`export_settings_from_json`, which the
+   webview's review also calls on the same text), before any copy of the model text: a text
+   over its bound or a title over 4 KiB of UTF-8 is refused with
+   `MBF-EXPORT-SETTINGS-INVALID`.
 2. **Text.** Apply the 64 MiB cap, canonicalize again and check the hash against the claim,
    as `model_document_save.rs` does.
 3. **Document checks.** Run `check_model_document` and the desktop shape check, so an MBF is
@@ -295,16 +319,36 @@ referenceTemperature: {value, unit}, maxLayoutRows: null}, suggestedName, review
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
 7. **Chooser.** Open the native save chooser (`.mbf`, the documents folder). The suggested
    name is checked against `swbpipe-model[-…].mbf`. The path comes only from the chooser.
-8. **Writes.** Write the identity file first, then the MBF, each through the extension-neutral
-   atomic writer under its own format (`MBF_FORMAT` and `MBF_IDS_FORMAT`).
-   - If the MBF write fails, the command removes the identity file it wrote, after an
-     identity check.
-   - Any pair left behind is self-describing: an identity file whose `mbf_sha256` does not
-     match the MBF beside it makes a later import unbound, and the import says so.
+8. **Writes.** No failure loses a file the user already had.
+   - **Before the first write.** Both destinations pass the atomic writer's own destination
+     checks (extension, an existing non-symlink parent, no symlink or directory destination,
+     and off macOS no replacement), so a destination the writer would refuse is refused before
+     anything is written. An identity file of the chosen stem whose `.mbf` is absent is
+     refused (`MBF-EXPORT-IDENTITY-FILE-EXISTS`): it may belong to an MBF that was moved.
+   - **Backups.** Each existing regular file at either destination is backed up by a hard link
+     to a hidden name in the same folder (`.swbpipe-mbf-<32 hex>.bak`). If a needed link
+     cannot be made (FAT, exFAT, some network volumes), the save is refused before any write
+     (`MBF-EXPORT-REPLACE-BACKUP-UNAVAILABLE`), and a backup already made is removed. There is
+     never an unbacked replacement.
+   - **Writes.** The identity file first, then the MBF, each through the extension-neutral
+     atomic writer under its own format (`MBF_IDS_FORMAT` and `MBF_FORMAT`).
+   - **Rollback.** On any later failure (either write or the read-back) the save is undone at
+     each destination. A file this save wrote is removed, or the backup is renamed back over it
+     in one rename, each only after the identity check: never remove or rename over a file the
+     command did not create or back up. If the original is still in place, its backup is
+     removed.
+   - **Rollback that cannot restore.** If a backup cannot be renamed back, or the identity
+     check refuses to touch the file now at the name, the save is not reported as success and
+     the backup is not deleted. The refusal is `MBF-EXPORT-ROLLBACK-INCOMPLETE`, naming each
+     kept backup and the file it holds, so the user can recover it by hand. The response's
+     reservation covers this refusal, so the names always reach the user.
+   - **Success.** The backups are removed. A backup that cannot be removed is a warning in the
+     receipt (`MBF-EXPORT-BACKUP-CLEANUP-FAILED`), not a failure.
+   - **File identity.** Device and inode on Unix. Elsewhere, the size and both times, each
+     present and equal; a missing time is not identical.
 9. **Read-back.** Read both files back in fixed blocks and compare their SHA-256 values with
    the written digests.
-   - On a mismatch, refuse with `MBF-EXPORT-READBACK-MISMATCH` and remove the files the
-     command wrote, after an identity check.
+   - On a mismatch, refuse with `MBF-EXPORT-READBACK-MISMATCH` and undo the save as in step 8.
 10. **Receipt.** Both file names, byte counts and digests, and the atomic writer's durability
     statement.
 
@@ -319,15 +363,65 @@ The command follows the DEL-04-07 ingress rules for model-sized interactive comm
   held until the command returns.
 - **Work within the lease.** `PoolReadMemory` is seeded with the lease. Each of these is
   reserved before it is made:
+  - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
   - the parse and the canonical copy;
-  - the writer's working set, a fixed multiple k·M;
+  - the writer's working set, k·M plus a fixed 2 MiB;
   - the MBF and sidecar bytes;
   - a 64 KiB read-back block;
-  - the response.
+  - the response, bounded for a receipt and for the largest refusal after a write.
 - **Refusal.** A reservation the pool refuses refuses the save with
-  `MBF-EXPORT-MEMORY-UNAVAILABLE`.
-- **Measurement.** The slice fixes k from a counting-allocator measurement on its largest test
-  model and pins it. The test asserts that the peak stays within what the command held.
+  `MBF-EXPORT-MEMORY-UNAVAILABLE`, including a refusal raised inside the admission's screen.
+- **k from the writer's allocations.** Everything the writer holds at its peak grows by a fixed
+  amount per entity; nothing grows faster than the entity count, and the counting allocator
+  finds the same bytes per added entity at 1000, 2000 and 4000 entities. Per added unit of a
+  node, its pipe and one support (the "minimal supports" shape below), the measured parts are:
+  - the parsed model (`parse_sidecar_json`): about 8.8 KB held, 9.9 KB at its peak;
+  - the writer's per-entity records and its result (node, element, support and load maps, loss
+    report): about 22 KB at the writer's peak without its preflight, 8.9 KB held after it;
+  - the MBF text: 14 to 27 bytes a node, since a straight run takes one short layout row;
+  - the sidecar: about 380 bytes of text, and its value while its self-digest is formed;
+  - the preflight: the bound import of the written text (its model, report and id map) and the
+    regeneration, a second writer run over the imported model with its own sidecar, about
+    50 KB.
+
+  So the peak is a fixed base plus the sum, over the model's entities, of a fixed cost per
+  entity, and the model's bytes are at least the sum of each entity's smallest admissible
+  bytes. The ratio of any model is therefore at most the largest ratio of one unit's cost to
+  its smallest bytes, over the units a written model can repeat.
+  - A node with the pipe that reaches it is the unit every written node needs.
+  - A support is the costliest entity per input byte: about 23 KB held, against 42 bytes at its
+    smallest. A node
+    takes at most three single-direction supports: a rotational one alone is refused, and six
+    make an anchor at every node, which is refused.
+  - Node forces and thermal loads cost less per byte than a support, so adding them lowers the
+    ratio.
+
+  The costliest unit is a node, its pipe and three supports. It holds about 127 KB, and its
+  smallest admissible form, with one-character ids and only required members, is 308 bytes.
+  That bounds every model at about 412 bytes held per model byte. **k = 640**, at least 1.5
+  times that bound.
+- **Measurement.** `the_writer_peak_stays_within_its_working_set` measures the shapes below. It
+  asserts that each peak stays within its working set and that the argument bounds every
+  measured ratio. It also computes the argument's bound from the costliest unit's marginal cost
+  and asserts k ≥ 1.5 times the larger of the bound and the measurements. Priced bytes per
+  model byte:
+
+  | Shape | Ratio |
+  |---|---|
+  | export fixture, 5.5 KB | 176.8 |
+  | fixture run continued by 480 straight pipes (296 KB) | 168.3 |
+  | supports at every node | 167.3 |
+  | node forces at every node | 162.5 |
+  | combined (supports, node forces, thermal loads) | 177.3 |
+  | the same, short ids, no labels or provenance | 247.6 |
+  | smallest members, a support at every node | 327.2 |
+  | smallest members, three supports at every node (worst constructed) | 361.0 |
+
+  The argument's bound (412.5) is larger than the worst measurement, because it assumes
+  one-character ids that a model of this size cannot have, so k follows the argument.
+- **Whole save.** The 296 KB model's save peaked at 49.8 MB priced, within the 191.8 MB it
+  held. The model-size consequence: the per-invocation budget divided by 640 bounds the model
+  text an export admits.
 
 ### 3.8 Reach-scan re-pin
 
@@ -569,27 +663,41 @@ connects nothing; 4b connects it after the desktop performance work (#59) integr
   `import_mbf_json`), built by `build-wasm-engine.mjs` into `public/mbf-engine/` and loaded by
   `src/services/mbfEngine.ts`. The model text is read as the engine reads JSON (`parse_sidecar_json`).
 - **Settings.** `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`: `degC` is passed as
-  `reference_temperature_c`, `degF` as `reference_temperature_f`, with no row limit. The wrapper and the native
-  module map them by the same rules. The recorded digests
-  `fixtures/caepipe_mbf/invented/desktop_export/export_digests.json` are written by the wrapper's test and checked
-  by the native test and the dialog test.
+  `reference_temperature_c`, `degF` as `reference_temperature_f`, with no row limit, and the title is at most 4 KiB of
+  UTF-8. One engine function maps them, `export_settings_from_json` in `core/handoff/caepipe_mbf_engine`
+  (`src/export_settings.rs`), which reads the settings' JSON text with the engine's own reader. The wrapper and the
+  native module both call it on the same text: the dialog sends the text it reviewed with as `settingsJson`. The
+  recorded cases `fixtures/caepipe_mbf/invented/desktop_export/export_digests.json`, with each case's settings text,
+  are written by the wrapper's test and checked by the native test and the dialog test. They include integers between
+  2⁶³ and 2⁶⁴ and between 2⁶⁴ and 10²¹, which both sides read as the same ints. The writer refuses those temperatures
+  alike (`MBF-SI-PREFLIGHT-REFUSED`).
 - **Reviewed digests.** `reviewed.sidecarSha256` is the SHA-256 of the identity file's bytes, not its internal
-  self-digest. The route evidence keeps the sibling saves' member name `localFirstEvidence` (§3.6 writes
-  `localFirst`).
-- **Route.** `DOTH-MBF-012` is in `route_control.py` and `redactionExportControls.ts`, each with parity tests. Like
-  `DOTH-MODEL-DOC-007` and `DOTH-HANDOFF-PACKAGE-008`, it is not in the CSV-only set. The native admission is the
-  shared local-private check called from the new module.
+  self-digest. The route evidence keeps the sibling saves' member name `localFirstEvidence`.
+- **Route.** `DOTH-MBF-012` is in `route_control.py` and `redactionExportControls.ts`, each with parity tests. Unlike
+  `DOTH-MODEL-DOC-007` and `DOTH-HANDOFF-PACKAGE-008`, it is in both catalogues' local-private-only set with the CSV
+  route (Agent 0, 2026-11-01): a public context is refused. The native admission, the shared local-private check
+  called from the new module, remains authoritative.
 - **Native save.** `apps/desktop/src-tauri/src/mbf_export.rs` runs §3.6 steps 1 to 10 as plain functions behind a
   chooser and file-operation seam. Steps 2 to 4 are Save Model Document's admission
-  (`admit_model_document_text_screened`). The formats are `MBF_FORMAT` and `MBF_IDS_FORMAT`. A cleanup removes a
-  written file only while it is still that file (same device and inode).
-- **Memory.** The writer's working set is k·M plus 2 MiB, with k = 256. The counting allocator's priced peak was
-  176.8, 170.5 and 168.3 bytes per model byte for models of 5.5 KB, 34 KB and 296 KB, so k is at least 1.5 times
-  the ratio on the largest model. A whole save of the 296 KB model peaked at 49.8 MB priced, against 78.2 MB held.
-  The model-size consequence: the per-invocation budget divided by 256 bounds the model text an export admits.
+  (`admit_model_document_text_screened`). The formats are `MBF_FORMAT` and `MBF_IDS_FORMAT`. Step 8 checks both
+  destinations with the atomic writer's own checks before any write (`check_destination_as`, a small public helper in
+  `atomic_report_package_save.rs`). It backs up each file to be replaced by a hard link and undoes the save on any
+  later failure; a rollback that cannot restore keeps and names its backups. A cleanup or restore touches a file only
+  while it is still the file the save wrote or backed up: the same device and inode, or off Unix the same size and
+  both times.
+- **Memory.** The writer's working set is k·M plus 2 MiB, with k = 640 (§3.7). The per-entity argument bounds every
+  model at 412.5 priced bytes per model byte, and the worst constructed model (smallest members, three supports at
+  every node) measures 361.0. The review round raised k from 256 after the reviewer measured 197.7 for supports at
+  every node and 195 for a combined model, and the shapes above reached 361. A whole save of the 296 KB model peaked
+  at 49.8 MB priced, against 191.8 MB held. The model-size consequence: the per-invocation budget divided by 640
+  bounds the model text an export admits. The memory refusal raised inside the admission's screen is returned as
+  `MBF-EXPORT-MEMORY-UNAVAILABLE`.
 - **Dialog.** `apps/desktop/src/features/caepipe-mbf/MbfExportDialog.tsx` (with `mbfExport.ts`) shows the §3.3
   review and the settings, re-runs the review on any change and after `MBF-EXPORT-REVIEW-STALE`, and calls an
-  injected `saveMbfExport`. It is not mounted.
+  injected `saveMbfExport`. It is not mounted. The review follows §3.3's product-text rule: a neutral profile label,
+  each loss entry by code, entity and a description from `MBF_LOSS_DESCRIPTIONS`, and unit conversions from the
+  wrapper's `unit_conversions` (the writer's normalization data, carried in `WriterResult::unit_normalizations`,
+  outside `to_dict()`). The writer's assumptions are not shown, and neither is the MBF version number.
 - **Shared pins.** One line in `user_release_reach_scan.rs` `SHELL_DEPENDENCIES` admits the engine dependency
   (Agent 0, 2026-11-01). The engine adds `num-bigint`, `num-integer` and `num-traits` to the shell's normal
   dependency graph. `ryu`, `sha2` and the rest of its tree were already there.

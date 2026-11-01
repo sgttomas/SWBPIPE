@@ -11,13 +11,30 @@
 export const MBF_ENGINE_ABSENT_DIAGNOSTIC = "MBF-ENGINE-ASSET-ABSENT";
 export const MBF_ENGINE_BUILD_COMMAND = "npm run build:wasm --workspace apps/desktop";
 
-/** The export dialog's writer settings, as the native save takes them (§3.1, §3.6). */
+/** The export dialog's writer settings (§3.1, §3.6). */
 export type MbfExportSettings = {
   title: string;
   referenceTemperature: { value: number; unit: "degC" | "degF" };
   /** No row limit in the product (Q-4). */
   maxLayoutRows: null;
 };
+
+/** The most bytes of UTF-8 a title may hold (the engine refuses a longer one, `MBF-EXPORT-SETTINGS-INVALID`). */
+export const MBF_MAX_TITLE_BYTES = 4096;
+
+/** The settings' JSON text: what the review gives the wasm writer and the native save is given, so both read the same
+ * text with the engine's one mapping (`export_settings_from_json`). */
+export function mbfSettingsJson(settings: MbfExportSettings): string {
+  return JSON.stringify({
+    title: settings.title,
+    referenceTemperature: { value: settings.referenceTemperature.value, unit: settings.referenceTemperature.unit },
+    maxLayoutRows: null
+  });
+}
+
+/** A unit the writer normalized by its exact definition, and its exact factor (`numerator/denominator`) where it has
+ * one (an absolute temperature has an offset as well). */
+export type MbfUnitConversion = { unit: string; definition: string; factor: string | null };
 
 export type MbfDiagnostic = { code: string; severity: string; entity?: string; message: string };
 export type MbfLossEntry = { entity: string; category: string; code: string; reason: string };
@@ -49,6 +66,7 @@ export type MbfRenderOutcome =
       sidecarText: string | null;
       sidecarSha256: string | null;
       report: MbfWriterReport;
+      unitConversions: MbfUnitConversion[];
     }
   | { status: "failed"; failure: MbfFailure };
 
@@ -168,17 +186,18 @@ type RawRender = {
   sidecar_text?: string | null;
   sidecar_sha256?: string | null;
   report_json?: string | null;
+  unit_conversions?: MbfUnitConversion[];
   failure?: MbfFailure | null;
 };
 
-/** Runs the writer over the session's canonical model text with the dialog's settings. */
+/** Runs the writer over the session's canonical model text with the dialog's settings text (`mbfSettingsJson`). */
 export async function renderMbfExport(
   canonicalText: string,
-  settings: MbfExportSettings,
+  settingsJson: string,
   engine?: WasmMbfEngine
 ): Promise<MbfRenderOutcome> {
   const loaded = engine ?? (await loadMbfEngine());
-  const raw = JSON.parse(loaded.renderMbfJson(canonicalText, JSON.stringify(settings))) as RawRender;
+  const raw = JSON.parse(loaded.renderMbfJson(canonicalText, settingsJson)) as RawRender;
   if (raw.status !== "written" && raw.status !== "refused") {
     return { status: "failed", failure: raw.failure ?? { code: "MBF-ENGINE-FAILED", message: "The MBF engine returned no review." } };
   }
@@ -190,7 +209,8 @@ export async function renderMbfExport(
     mbfSha256: raw.mbf_sha256 ?? null,
     sidecarText: raw.sidecar_text ?? null,
     sidecarSha256: raw.sidecar_sha256 ?? null,
-    report: JSON.parse(raw.report_json ?? "null") as MbfWriterReport
+    report: JSON.parse(raw.report_json ?? "null") as MbfWriterReport,
+    unitConversions: raw.unit_conversions ?? []
   };
 }
 

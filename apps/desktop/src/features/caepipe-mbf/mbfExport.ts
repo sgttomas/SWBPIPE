@@ -6,8 +6,11 @@
 // whose digests differ from the reviewed ones. Slice 4b connects the command, the menu item and the Exports panel.
 //
 // Product text names only the format ("Model batch file (.mbf)") and states nothing about any other program
-// (§3.5). Nothing here transmits anything (F-PIP-1).
-import type { MbfExportSettings, MbfLossEntry, MbfRenderOutcome, MbfWriterReport } from "../../services/mbfEngine";
+// (§3.3, §3.5): the review shows a neutral profile label, each loss entry by its code, its entity and a product-side
+// description of what SWBPIPE did or did not write (`MBF_LOSS_DESCRIPTIONS`), never the engine's message text, and the
+// unit conversions by their exact factors; the writer's assumptions are not displayed. Nothing here transmits anything
+// (F-PIP-1).
+import type { MbfExportSettings, MbfLossEntry, MbfRenderOutcome, MbfUnitConversion, MbfWriterReport } from "../../services/mbfEngine";
 import type { ModelDocumentSaveArgs, ModelFileDiagnostic } from "../model-file/modelDocumentSave";
 
 /** The governed local-private, lossless route of the save (A-4). */
@@ -21,6 +24,80 @@ export const MBF_EXPORT_REVIEW_STALE = "MBF-EXPORT-REVIEW-STALE";
 export const MBF_IDENTITY_FILE_SUFFIX = ".swbpipe-ids.json";
 /** The open items the writer's profile carries (§3.3). */
 export const MBF_PROFILE_OPEN_ITEMS = ["TBD-17-01-001", "TBD-17-01-002", "TBD-17-01-003"] as const;
+/** The profile as the review names it (§3.3): not the writer's internal profile id. */
+export const MBF_PROFILE_LABEL = "SI model batch file, pilot subset";
+/** In place of the writer's assumptions, which the review does not display (§3.3). */
+export const MBF_ASSUMPTIONS_SENTENCE = "The writer's assumptions are not displayed here.";
+
+/** What SWBPIPE did or did not write, for each code the writer can emit (§3.3). The engine's own messages are not
+ * shown: they are the engine's and its Python twin's, kept byte for byte, and some describe another program. Each
+ * description states only what this export writes. */
+export const MBF_LOSS_DESCRIPTIONS: Readonly<Record<string, string>> = {
+  "MBF-SI-BEND-FLEXIBILITY-MISSING": "This bend has no flexibility factor, so it is not written.",
+  "MBF-SI-BEND-GEOMETRY-INCONSISTENT": "This bend's radius, angle and adjoining pipes do not agree, so it is not written.",
+  "MBF-SI-BEND-SIF-INCOMPLETE": "This bend gives only some of its stress intensification factors, so it is not written.",
+  "MBF-SI-BEND-UNSUPPORTED": "This bend's arrangement is outside the subset SWBPIPE writes.",
+  "MBF-SI-COMBINATION-BASIS-UNSUPPORTED": "This combination's basis is outside the subset SWBPIPE writes.",
+  "MBF-SI-COMBINATION-NESTED-UNSUPPORTED": "This combination uses another combination, which SWBPIPE does not write.",
+  "MBF-SI-COMBINATION-NOT-EXPORTED": "SWBPIPE does not write load combinations to the file.",
+  "MBF-SI-COMPONENT-UNSUPPORTED": "This component's kind is outside the subset SWBPIPE writes.",
+  "MBF-SI-CONDITION-USE-UNSUPPORTED": "This load case's condition use is outside the subset SWBPIPE writes.",
+  "MBF-SI-CORROSION-ALLOWANCE-MISSING": "This pipe has no corrosion allowance, which the written pressure data needs, so it is not written.",
+  "MBF-SI-DIFFERENCE-BASIS-UNSUPPORTED": "This combination's difference basis is outside the subset SWBPIPE writes.",
+  "MBF-SI-FIELD-NOT-EXPORTED": "SWBPIPE does not write these fields to the file.",
+  "MBF-SI-GEOMETRY-UNSUPPORTED": "This geometry is outside the subset SWBPIPE writes.",
+  "MBF-SI-IMPOSED-DISPLACEMENT-UNSUPPORTED": "This imposed displacement is outside the subset SWBPIPE writes.",
+  "MBF-SI-INPUT-INVALID": "This entry is not a valid model value, so SWBPIPE does not write the file.",
+  "MBF-SI-LAYOUT-ROW-LIMIT": "The layout has more rows than the row limit allows.",
+  "MBF-SI-LOAD-CASE-EMPTY": "This load case has no loads, so it is not written.",
+  "MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED": "This load case feature is not written.",
+  "MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED": "SWBPIPE cannot place this load case in the file's load set, so it is not written.",
+  "MBF-SI-LOAD-UNSUPPORTED": "This load is outside the subset SWBPIPE writes.",
+  "MBF-SI-MATERIAL-EXPANSION-MISSING": "This material has no thermal expansion coefficient, which the file needs, so it is not written.",
+  "MBF-SI-MATERIAL-POISSON-MISSING": "This material has neither a Poisson ratio nor a shear modulus, which the file needs, so it is not written.",
+  "MBF-SI-MEMBER-NOT-EXPORTED": "SWBPIPE does not write this part of the model to the file.",
+  "MBF-SI-MODEL-SETTINGS-NOT-EXPORTED": "SWBPIPE does not write the model's input validation settings to the file.",
+  "MBF-SI-NODE-NOT-EXPORTED": "This node is not connected to any pipe segment, so it is not written.",
+  "MBF-SI-NODE-NUMBER-LIMIT": "The model has more nodes than the file's node numbering allows.",
+  "MBF-SI-ORIENTATION-NOT-EXPORTED": "SWBPIPE does not write the pipe segments' local axis references to the file.",
+  "MBF-SI-PIPING-CODE-B31J-LOCKED": "This piping code choice is outside the subset SWBPIPE writes.",
+  "MBF-SI-PIPING-CODE-NOT-WRITTEN": "No piping code was chosen, so the file names none.",
+  "MBF-SI-PIPING-CODE-UNSUPPORTED": "This piping code is outside the subset SWBPIPE writes.",
+  "MBF-SI-PREFLIGHT-REFUSED": "SWBPIPE read the written file back and it did not give the model back as written, so the file is not written.",
+  "MBF-SI-PRESSURE-CASE-UNSUPPORTED": "This pressure load case is outside the subset SWBPIPE writes.",
+  "MBF-SI-PRESSURE-REGION-FORMAT": "This pressure region cannot be written in the file's format.",
+  "MBF-SI-PRESSURE-REGION-ZERO": "This pressure region has zero pressure, so it is not written.",
+  "MBF-SI-PRESSURE-UNSUPPORTED": "This pressure data is outside the subset SWBPIPE writes.",
+  "MBF-SI-PROJECT-UNIT-UNSUPPORTED": "This project unit is not one SWBPIPE converts for the file.",
+  "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED": "SWBPIPE does not write reference configurations to the file.",
+  "MBF-SI-REFERENCE-UNRESOLVED": "This entry refers to something the model does not hold, so it is not written.",
+  "MBF-SI-SCHEMA-VERSION": "The model's schema version is not the current one, so SWBPIPE does not write the file.",
+  "MBF-SI-SECTION-BINDING-UNSUPPORTED": "This pipe's section binding is outside the subset SWBPIPE writes.",
+  "MBF-SI-SECTION-FIELD-NOT-EXPORTED": "SWBPIPE does not write this section field to the file.",
+  "MBF-SI-SECTION-REFERENCE-STALE": "This pipe's section no longer matches the section it refers to, so it is not written.",
+  "MBF-SI-SECTION-UNSUPPORTED": "This section is outside the subset SWBPIPE writes.",
+  "MBF-SI-SHEAR-MODEL-NOT-EXPORTED": "SWBPIPE does not write the pressure data's shear model to the file.",
+  "MBF-SI-SHEAR-MODEL-UNSUPPORTED": "SWBPIPE does not write the model's shear model to the file.",
+  "MBF-SI-SHEAR-MODULUS-NOT-EXPORTED": "SWBPIPE does not write this material's shear modulus to the file.",
+  "MBF-SI-SNUBBER-UNSUPPORTED": "SWBPIPE does not write snubbers to the file.",
+  "MBF-SI-SPECTRUM-UNSUPPORTED": "SWBPIPE does not write response spectra to the file.",
+  "MBF-SI-SUBTRAHEND-SUPPORT-STATE-UNSUPPORTED": "This combination's support state is outside the subset SWBPIPE writes.",
+  "MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED": "This support's direction is outside the subset SWBPIPE writes.",
+  "MBF-SI-SUPPORT-EMPTY": "This support restrains nothing, so it is not written.",
+  "MBF-SI-SUPPORT-UNSUPPORTED": "This support is outside the subset SWBPIPE writes.",
+  "MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED": "SWBPIPE does not write temperature-dependent material properties to the file.",
+  "MBF-SI-TEST-CONDITION-UNSUPPORTED": "This test condition is outside the subset SWBPIPE writes.",
+  "MBF-SI-TOPOLOGY-UNSUPPORTED": "This node carries a support or load but no pipe segment, so the file is not written.",
+  "MBF-SI-UNIT-UNSUPPORTED": "This value's unit is not one SWBPIPE converts for the file.",
+  "MBF-SI-UNITS-NORMALIZED": "SWBPIPE converted these units to SI by their exact definitions.",
+  "MBF-SI-VALUE-OUT-OF-RANGE": "This value cannot be written as a finite number in the file's units, so it is not written."
+};
+
+/** The product-side description of a writer code (§3.3); a code without one is named as such, never by the engine's
+ * message. */
+export function lossDescription(code: string): string {
+  return MBF_LOSS_DESCRIPTIONS[code] ?? "SWBPIPE does not write this entry to the file.";
+}
 
 export const MBF_IDENTITY_SENTENCE =
   "Identities travel in the identity file beside the MBF. Without it, an import forms ids from node numbers and refuses records whose meaning is still open.";
@@ -32,7 +109,8 @@ export const MBF_UNDECLARED_MATERIAL_SENTENCE = "importing this file asks where 
 
 /** The native command's arguments (§3.6); the route evidence keeps the sibling saves' member name. */
 export type MbfExportArgs = ModelDocumentSaveArgs & {
-  settings: MbfExportSettings;
+  /** The settings text the review ran with (`mbfSettingsJson`): the native save reads the same text. */
+  settingsJson: string;
   suggestedName: string;
   /** The digests the review showed: lowercase hex SHA-256 of the MBF text and of the identity file. */
   reviewed: { mbfSha256: string; sidecarSha256: string };
@@ -106,15 +184,16 @@ export function familyLabel(family: string): string {
   return FAMILY_LABELS[family] ?? family;
 }
 
+/** A loss entry or warning as the review shows it: its code, its entity and the product-side description. */
+export type MbfReviewEntry = { code: string; entity: string; description: string };
+
 export type MbfReview = {
   status: "written" | "refused";
-  profileId: string;
-  mbfVersion: string;
   /** `unsupported` entries by family, in first-seen order: each blocks the save. */
-  notWritten: Array<{ family: string; entries: MbfLossEntry[] }>;
-  omitted: MbfLossEntry[];
-  assumptions: string[];
-  warnings: Array<{ code: string; message: string; entity?: string }>;
+  notWritten: Array<{ family: string; entries: MbfReviewEntry[] }>;
+  omitted: MbfReviewEntry[];
+  unitConversions: MbfUnitConversion[];
+  warnings: MbfReviewEntry[];
   undeclaredMaterials: string[];
   mbfSha256: string | null;
   sidecarSha256: string | null;
@@ -122,28 +201,32 @@ export type MbfReview = {
 };
 
 /** The review of §3.3 from the writer's outcome. */
+function reviewEntry(item: { code: string; entity?: string }): MbfReviewEntry {
+  return { code: item.code, entity: item.entity ?? "", description: lossDescription(item.code) };
+}
+
 export function mbfReview(outcome: Extract<MbfRenderOutcome, { status: "written" | "refused" }>): MbfReview {
   const report: MbfWriterReport = outcome.report;
   const notWritten: MbfReview["notWritten"] = [];
-  for (const entry of report.loss_report.filter((item) => item.category === "unsupported")) {
+  for (const entry of report.loss_report.filter((item: MbfLossEntry) => item.category === "unsupported")) {
     const family = lossFamily(entry.entity);
     const group = notWritten.find((item) => item.family === family);
-    if (group) group.entries.push(entry);
-    else notWritten.push({ family, entries: [entry] });
+    if (group) group.entries.push(reviewEntry(entry));
+    else notWritten.push({ family, entries: [reviewEntry(entry)] });
   }
   const undeclaredMaterials = Object.values(report.material_map ?? {})
     .filter((entry) => entry.origin === "undeclared")
     .map((entry) => String(entry.swbpipe_material ?? ""));
   return {
     status: outcome.status,
-    profileId: outcome.profileId,
-    mbfVersion: outcome.mbfVersion,
     notWritten,
-    omitted: report.loss_report.filter((item) => item.category === "omitted"),
-    assumptions: report.assumptions,
+    omitted: report.loss_report.filter((item) => item.category === "omitted").map(reviewEntry),
+    unitConversions: outcome.unitConversions,
+    // Each omitted entry is also a warning diagnostic: the warnings listed are the others.
     warnings: report.diagnostics
       .filter((item) => item.severity === "warning")
-      .map((item) => ({ code: item.code, message: item.message, entity: item.entity })),
+      .filter((item) => !report.loss_report.some((entry) => entry.category === "omitted" && entry.code === item.code && entry.entity === item.entity))
+      .map(reviewEntry),
     undeclaredMaterials,
     mbfSha256: outcome.mbfSha256,
     sidecarSha256: outcome.sidecarSha256,

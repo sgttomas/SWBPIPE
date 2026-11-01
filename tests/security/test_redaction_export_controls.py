@@ -736,6 +736,13 @@ def test_mbf_export_route_is_governed_local_private_lossless_with_explicit_inten
     }
     without_intent = enforce_local_first_route(route_id="DOTH-MBF-012", export_context="local_private")
     assert (without_intent.blocked, without_intent.reason_code) == (True, "LOCAL_PRIVATE_INTENT_REQUIRED")
+    # Local-private only: every other context is refused, with or without intent.
+    for context in ("public_example", "public_report", "user_released_report"):
+        refused = enforce_local_first_route(
+            route_id="DOTH-MBF-012", export_context=context, explicit_local_private_intent=True
+        )
+        assert refused.blocked is True, context
+        assert refused.reason_code in {"LOCAL_PRIVATE_ROUTE_REQUIRED", "USER_RELEASE_ROUTE_REQUIRED"}, (context, refused.reason_code)
     # The downstream preview route and a lookalike are other routes; neither stands in for this one.
     for other in ("DOTH-MBF-013", "doth-mbf-012", "DOTH-MBF-012 "):
         lookalike = enforce_local_first_route(

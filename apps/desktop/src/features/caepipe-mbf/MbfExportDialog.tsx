@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { canonicalJsonString } from "../../services/hashService";
-import { renderMbfExport, type MbfExportSettings, type WasmMbfEngine } from "../../services/mbfEngine";
+import { mbfSettingsJson, renderMbfExport, type MbfExportSettings, type WasmMbfEngine } from "../../services/mbfEngine";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
 import {
   prepareModelDocumentSave,
@@ -9,23 +9,27 @@ import {
   type ModelFileDiagnostic
 } from "../model-file/modelDocumentSave";
 import {
+  MBF_ASSUMPTIONS_SENTENCE,
   MBF_BOUNDARY_SENTENCE,
   MBF_EXPORT_INTENT_LABEL,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE,
   MBF_IDENTITY_FILE_SUFFIX,
   MBF_IDENTITY_SENTENCE,
+  MBF_PROFILE_LABEL,
   MBF_PROFILE_OPEN_ITEMS,
   MBF_REPLACE_SENTENCE,
   MBF_UNDECLARED_MATERIAL_SENTENCE,
   defaultReferenceTemperature,
   familyLabel,
+  lossDescription,
   mbfExportSettings,
   mbfReview,
   reviewAdmitsSave,
   savedStatusLine,
   suggestedMbfName,
   type MbfReview,
+  type MbfReviewEntry,
   type SaveMbfExport
 } from "./mbfExport";
 
@@ -112,11 +116,13 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     const value = temperature.trim() === "" ? Number.NaN : Number(temperature);
     return Number.isFinite(value) ? mbfExportSettings(title, { value, unit: temperatureUnit }) : null;
   }, [title, temperature, temperatureUnit]);
+  // The settings text the review runs with is the text the save sends.
+  const settingsJson = settings ? mbfSettingsJson(settings) : null;
   // The review is current only for this model hash and these settings.
-  const reviewKey = request && settings ? `${request.modelHash?.value ?? "pending"}|${JSON.stringify(settings)}|${nonce}` : null;
+  const reviewKey = request && settingsJson ? `${request.modelHash?.value ?? "pending"}|${settingsJson}|${nonce}` : null;
 
   useEffect(() => {
-    if (!request || !settings || !reviewKey) {
+    if (!request || !settingsJson || !reviewKey) {
       setState(null);
       return;
     }
@@ -125,7 +131,7 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     void (async () => {
       try {
         const text = await canonicalJsonString(request.model);
-        const outcome = await renderMbfExport(text, settings, request.engine);
+        const outcome = await renderMbfExport(text, settingsJson, request.engine);
         if (!current) return;
         if (outcome.status === "failed") setState({ key: reviewKey, phase: "failed", message: `${outcome.failure.code}: ${outcome.failure.message}` });
         else setState({ key: reviewKey, phase: "ready", review: mbfReview(outcome) });
@@ -136,17 +142,17 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     return () => {
       current = false;
     };
-  }, [request, settings, reviewKey]);
+  }, [request, settingsJson, reviewKey]);
 
   if (!request) return null;
   const review = state?.phase === "ready" && state.key === reviewKey ? state.review : null;
   const stale = state !== null && state.key !== reviewKey;
-  const canSave = reviewAdmitsSave(review) && intent && !saving && settings !== null;
+  const canSave = reviewAdmitsSave(review) && intent && !saving && settingsJson !== null;
   const suggestedName = suggestedMbfName(label);
   const identityName = suggestedName.replace(/\.mbf$/, MBF_IDENTITY_FILE_SUFFIX);
 
   const save = async () => {
-    if (!canSave || !review || !settings || !review.mbfSha256 || !review.sidecarSha256) return;
+    if (!canSave || !review || !settingsJson || !review.mbfSha256 || !review.sidecarSha256) return;
     setSaving(true);
     setRefusal([]);
     setStatus("");
@@ -164,7 +170,7 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
       }
       const outcome = await request.saveMbfExport({
         ...prepared.args,
-        settings,
+        settingsJson,
         suggestedName,
         reviewed: { mbfSha256: review.mbfSha256, sidecarSha256: review.sidecarSha256 }
       });
@@ -244,7 +250,8 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
           <ul role="alert" data-testid="mbf-export-refusal">
             {refusal.map((item, index) => (
               <li key={`${item.code}-${index}`}>
-                {item.code}{item.path ? ` (${item.path})` : ""}: {item.message}
+                {/* A writer refusal is named by its code and the product-side description, not the engine's text. */}
+                {item.code}{item.path ? ` (${item.path})` : ""}: {item.code.startsWith("MBF-SI-") ? lossDescription(item.code) : item.message}
               </li>
             ))}
           </ul>
@@ -264,14 +271,23 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
   );
 }
 
-/** The review of §3.3. */
+function EntryItem({ entry }: { entry: MbfReviewEntry }) {
+  return (
+    <li>
+      {entry.code}{entry.entity ? ` (${entry.entity})` : ""}: {entry.description}
+    </li>
+  );
+}
+
+/** The review of §3.3: the profile by its product label, each loss entry by its code, entity and product-side
+ * description, and each unit conversion by its exact factor. The writer's own messages and assumptions are not shown. */
 function ReviewSections({ review }: { review: MbfReview }) {
   return (
     <>
       <section data-testid="mbf-export-profile">
         <h3>Profile</h3>
         <p>
-          Profile {review.profileId}, MBF version {review.mbfVersion}. Open items: {MBF_PROFILE_OPEN_ITEMS.join(", ")} (open).
+          {MBF_PROFILE_LABEL}. Open items: {MBF_PROFILE_OPEN_ITEMS.join(", ")} (open).
         </p>
       </section>
       {review.notWritten.length > 0 ? (
@@ -282,11 +298,7 @@ function ReviewSections({ review }: { review: MbfReview }) {
             <div key={group.family} data-testid={`mbf-export-not-written-${group.family}`}>
               <h4>{familyLabel(group.family)}</h4>
               <ul>
-                {group.entries.map((entry, index) => (
-                  <li key={`${entry.entity}-${entry.code}-${index}`}>
-                    {entry.entity}: {entry.code}. {entry.reason}
-                  </li>
-                ))}
+                {group.entries.map((entry, index) => <EntryItem key={`${entry.entity}-${entry.code}-${index}`} entry={entry} />)}
               </ul>
             </div>
           ))}
@@ -297,29 +309,30 @@ function ReviewSections({ review }: { review: MbfReview }) {
           <h3>Omitted ({review.omitted.length})</h3>
           <p>These are not in the file. You can still save.</p>
           <ul>
-            {review.omitted.map((entry, index) => (
-              <li key={`${entry.entity}-${entry.code}-${index}`}>
-                {entry.entity}: {entry.code}. {entry.reason}
+            {review.omitted.map((entry, index) => <EntryItem key={`${entry.entity}-${entry.code}-${index}`} entry={entry} />)}
+          </ul>
+        </section>
+      ) : null}
+      <section data-testid="mbf-export-conversions">
+        <h3>Unit conversions</h3>
+        {review.unitConversions.length > 0 ? (
+          <ul>
+            {review.unitConversions.map((item) => (
+              <li key={item.unit}>
+                {item.unit}: {item.definition}{item.factor ? ` (exact factor ${item.factor})` : ""}
               </li>
             ))}
           </ul>
-        </section>
-      ) : null}
-      {review.assumptions.length > 0 ? (
-        <section data-testid="mbf-export-assumptions">
-          <h3>Assumptions and conversions</h3>
-          <ul>
-            {review.assumptions.map((item, index) => <li key={index}>{item}</li>)}
-          </ul>
-        </section>
-      ) : null}
+        ) : (
+          <p>None: the model's units are written as they are, or by powers of ten.</p>
+        )}
+        <p data-testid="mbf-export-assumptions">{MBF_ASSUMPTIONS_SENTENCE}</p>
+      </section>
       {review.warnings.length > 0 ? (
         <section data-testid="mbf-export-warnings">
           <h3>Warnings</h3>
           <ul>
-            {review.warnings.map((item, index) => (
-              <li key={`${item.code}-${index}`}>{item.code}: {item.message}</li>
-            ))}
+            {review.warnings.map((entry, index) => <EntryItem key={`${entry.code}-${index}`} entry={entry} />)}
           </ul>
         </section>
       ) : null}

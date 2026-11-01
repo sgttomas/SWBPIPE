@@ -2,8 +2,9 @@
 //! save of a model batch file and its identity file.
 //!
 //! The webview reviews the export with the wasm writer (`core/handoff/caepipe_mbf_wasm`) and sends the session's
-//! canonical model text, its claimed hash, the writer settings, the suggested name, the digests it reviewed and its
-//! route evidence. This module then runs, in order (§3.6):
+//! canonical model text, its claimed hash, the settings text it reviewed with, the suggested name, the digests it
+//! reviewed and its route evidence. The settings are read first, by the engine's one mapping (a title over 4 KiB is
+//! refused before the model text is copied). This module then runs, in order (§3.6):
 //!
 //! 1. the route evidence of the governed route `DOTH-MBF-012` (local-private, explicit intent, lossless, exact
 //!    payload; A-4), bound to the SHA-256 of the canonical text;
@@ -19,20 +20,27 @@
 //! 7. the chooser: the suggested name must be `swbpipe-model[-<slug>].mbf` (DEL-07-01 `export-file-names.md`), the
 //!    path comes only from the chooser and must end `.mbf`; the identity file is `<chosen stem>.swbpipe-ids.json`
 //!    beside it (A-5);
-//! 8. the writes: the identity file first, then the MBF, each by the atomic writer under its own format
-//!    ([`MBF_IDS_FORMAT`], [`MBF_FORMAT`]); a failed MBF write removes the identity file it wrote, after an identity
-//!    check;
-//! 9. the read-back of both in fixed blocks, compared by SHA-256; on a mismatch both written files are removed,
-//!    after an identity check (`MBF-EXPORT-READBACK-MISMATCH`);
+//! 8. the writes. First, before anything is written: both destinations pass the atomic writer's own checks
+//!    (extension, parent, no symlink or directory, and off macOS no replacement); an identity file whose MBF is absent
+//!    is refused (`MBF-EXPORT-IDENTITY-FILE-EXISTS`); and every file to be replaced is backed up by a hard link to a
+//!    hidden name beside it (`.swbpipe-mbf-<hex>.bak`), or the save is refused (`MBF-EXPORT-REPLACE-BACKUP-UNAVAILABLE`).
+//!    Then the identity file, then the MBF, each by the atomic writer under its own format ([`MBF_IDS_FORMAT`],
+//!    [`MBF_FORMAT`]). After any failure the save is undone: what it wrote is removed and each backup renamed back,
+//!    each only after an identity check; a destination that cannot be restored keeps its backup, named in the refusal
+//!    (`MBF-EXPORT-ROLLBACK-INCOMPLETE`). On success the backups are removed (a failure there is a warning);
+//! 9. the read-back of both in fixed blocks, compared by SHA-256; a mismatch undoes the save
+//!    (`MBF-EXPORT-READBACK-MISMATCH`);
 //! 10. the receipt: both names, byte counts and digests, and the atomic writer's durability statement.
 //!
 //! The bytes written are the native writer's output for the hash-checked text; the webview's text is used for the
 //! review only. Nothing is redacted: a screening that would alter the payload blocks the save instead.
 //!
 //! Memory (§3.7): the command runs within its caller's memory ([`PoolReadMemory`], seeded with the ingress lease).
-//! Each of these is reserved before it is made: the admission's parse and canonical copy, the writer's working set
-//! ([`writer_working_set`]), the MBF and identity-file bytes, the response and a 64 KiB read-back block. A
-//! reservation the pool refuses refuses the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`), before any file is chosen.
+//! Each of these is reserved before it is made: the settings' parse, the admission's parse and canonical copy, the
+//! writer's working set ([`writer_working_set`]), the MBF and identity-file bytes, the response (bounded for a receipt
+//! and for a refusal after a write, so a rollback's named backups always reach the user) and a 64 KiB read-back
+//! block. A reservation the pool refuses refuses the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`), before any file is
+//! chosen.
 //!
 //! The command's registration, ingress admission and menu are slice 4b. Nothing is sent anywhere (F-PIP-1).
 //! Standard claim fence applies (claims taxonomy per DEC-081): a written MBF means the listed subset of the model
@@ -54,7 +62,6 @@ use crate::stored_model_document_export::{bounded_diagnostics, serialize_outcome
 use crate::stored_read::{self, PoolReadMemory, ReadMemory, ReadReservation};
 use open_pipe_stress_caepipe_mbf as mbf;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::fs::{self, File};
 use std::io::{self, Read};
@@ -77,8 +84,11 @@ pub const MBF_IDS_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
 };
 /// What native code appends to the chosen MBF's stem to name the identity file beside it (A-5).
 pub const IDS_SUFFIX: &str = ".swbpipe-ids.json";
+/// The hidden backup of a file the save replaces: `.swbpipe-mbf-<32 hex>.bak`, in the same folder.
+pub const BACKUP_PREFIX: &str = ".swbpipe-mbf-";
+pub const BACKUP_SUFFIX: &str = ".bak";
 
-pub const SETTINGS_INVALID: &str = "MBF-EXPORT-SETTINGS-INVALID";
+pub const SETTINGS_INVALID: &str = mbf::EXPORT_SETTINGS_INVALID;
 pub const MODEL_JSON_INVALID: &str = "MBF-EXPORT-MODEL-JSON-INVALID";
 pub const ENGINE_FAILED: &str = "MBF-ENGINE-FAILED";
 pub const REVIEW_STALE: &str = "MBF-EXPORT-REVIEW-STALE";
@@ -88,24 +98,45 @@ pub const DESTINATION_EXTENSION: &str = "MBF-EXPORT-DESTINATION-EXTENSION";
 pub const READBACK_MISMATCH: &str = "MBF-EXPORT-READBACK-MISMATCH";
 pub const READBACK_FAILED: &str = "MBF-EXPORT-READBACK-FAILED";
 pub const MEMORY_UNAVAILABLE: &str = "MBF-EXPORT-MEMORY-UNAVAILABLE";
+/// An identity file of the chosen stem exists while its MBF does not: it may belong to an MBF that was moved, so it
+/// is not replaced.
+pub const IDENTITY_FILE_EXISTS: &str = "MBF-EXPORT-IDENTITY-FILE-EXISTS";
+/// A file to be replaced could not be backed up by a hard link in its folder (FAT, exFAT, some network volumes), so
+/// nothing is written: no replacement is ever made without a backup.
+pub const REPLACE_BACKUP_UNAVAILABLE: &str = "MBF-EXPORT-REPLACE-BACKUP-UNAVAILABLE";
+/// A failed save could not put a replaced file back; its backup is kept and named.
+pub const ROLLBACK_INCOMPLETE: &str = "MBF-EXPORT-ROLLBACK-INCOMPLETE";
+/// A backup that is no longer needed could not be removed (a warning; the save itself completed or was undone).
+pub const BACKUP_CLEANUP_FAILED: &str = "MBF-EXPORT-BACKUP-CLEANUP-FAILED";
 /// A written file was left in place: it is no longer the file this save wrote, or it could not be inspected.
 pub const CLEANUP_SKIPPED: &str = "MBF-EXPORT-CLEANUP-SKIPPED";
 pub const CLEANUP_FAILED: &str = "MBF-EXPORT-CLEANUP-FAILED";
 
 /// The read-back block (§3.7).
 pub const READBACK_BLOCK_BYTES: usize = 64 * 1024;
-/// The writer's working set per byte of model text: `parse_sidecar_json` (four bytes a character, the scanner's
-/// tree and the model's values), the writer's state and its preflight import and regeneration of the written text,
-/// its result (text, maps, loss report) and the sidecar. Fixed from the counting allocator's priced peak
-/// (`the_writer_peak_stays_within_its_working_set`): 176.8, 170.5 and 168.3 bytes per model byte for the export
-/// fixture (5.5 KB), and its last run continued by 48 and by 480 straight pipes (34 KB and 296 KB, the largest test
-/// model); k is at least 1.5 times the largest model's ratio.
-pub const WRITER_WORKING_SET_FACTOR: u64 = 256;
+/// The settings text's parse and mapping, at most [`mbf::MAX_EXPORT_SETTINGS_JSON_BYTES`] of text
+/// (`the_settings_parse_stays_within_its_reservation`).
+pub const SETTINGS_WORKING_BYTES: u64 = 1 << 20;
+/// The writer's working set per byte of model text (Design §3.7). Everything the writer holds grows by a fixed amount
+/// per entity: the parsed model (`parse_sidecar_json`), the writer's records and its result (maps, loss report), the
+/// MBF text, the sidecar, and the preflight's import of the written text with its regeneration (a second writer run
+/// over the imported model). The costliest unit per byte is a node, its pipe and three single-direction supports: the
+/// counting allocator measures about 126 KB held per unit, and the smallest admissible unit is 308 bytes, which
+/// bounds every model at about 410 bytes held per model byte; the worst constructed model measures 361. k is at least
+/// 1.5 times the larger (`the_writer_peak_stays_within_its_working_set`).
+pub const WRITER_WORKING_SET_FACTOR: u64 = 640;
 /// What the writer holds whatever the model's size (tables, small maps, the preflight's fixed state).
 pub const WRITER_WORKING_SET_BASE_BYTES: u64 = 2 << 20;
 /// What a Saved receipt adds to its warnings' JSON: two file names (each at most 255 bytes escaped to at most six),
-/// byte counts, digests, the durability and the writer's limitation statement.
-pub const SAVED_FIELDS_BYTES: u64 = 8192;
+/// byte counts, digests, the durability and the writer's limitation statement, and up to two backup-cleanup warnings
+/// ([`DIAGNOSTIC_JSON_BYTES`] each).
+pub const SAVED_FIELDS_BYTES: u64 = 8192 + 2 * DIAGNOSTIC_JSON_BYTES;
+/// One diagnostic's JSON as a response bounds it: its code, and its path and message cut to
+/// `MAX_DIAGNOSTIC_TEXT_BYTES` each, escaped to at most six bytes per byte.
+const DIAGNOSTIC_JSON_BYTES: u64 = 34 + 64 + 2 * 6 * crate::stored_model_document_export::MAX_DIAGNOSTIC_TEXT_BYTES as u64;
+/// The largest refusal after a write: two read-back problems (or one write failure) and one rollback diagnostic for
+/// each destination. It is reserved with the receipt, so a rollback's named backups always reach the user.
+pub const AFTER_WRITE_REFUSAL_BYTES: u64 = 4 * DIAGNOSTIC_JSON_BYTES + 256;
 /// The most bytes of a suggested name.
 const MAX_SUGGESTED_NAME_BYTES: usize = 200;
 
@@ -122,27 +153,28 @@ pub struct MbfReviewed {
     pub sidecar_sha256: String,
 }
 
-/// `{canonicalText, claimedModelHash, settings, suggestedName, reviewed, screening, localFirstEvidence}` (§3.6; the
-/// route evidence keeps the member name of the sibling saves).
+/// `{canonicalText, claimedModelHash, settingsJson, suggestedName, reviewed, screening, localFirstEvidence}` (§3.6;
+/// the route evidence keeps the member name of the sibling saves).
 #[derive(Debug)]
 pub struct MbfExportRequest {
     pub canonical_text: String,
     pub claimed_model_hash: String,
-    /// `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}` ([`writer_settings`]).
-    pub settings: Value,
+    /// The settings' JSON text, `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`: the text the
+    /// webview reviewed with, read by the engine's one mapping ([`writer_settings`]).
+    pub settings_json: String,
     pub suggested_name: String,
     pub reviewed: MbfReviewed,
     pub screening: ModelDocumentSaveScreening,
     pub local_first: ModelDocumentSaveLocalFirst,
 }
 
-/// Decodes the command's raw-body arguments (strings, a `Value` and structs of strings and scalars, moved), for the
+/// Decodes the command's raw-body arguments (strings and structs of strings and scalars, moved), for the
 /// command slice 4b registers.
 pub(crate) fn save_mbf_export_args(args: &mut Args) -> Result<MbfExportRequest, SolveJobError> {
     Ok(MbfExportRequest {
         canonical_text: args.decode("canonicalText")?,
         claimed_model_hash: args.decode("claimedModelHash")?,
-        settings: args.decode("settings")?,
+        settings_json: args.decode("settingsJson")?,
         suggested_name: args.decode("suggestedName")?,
         reviewed: args.decode("reviewed")?,
         screening: args.decode("screening")?,
@@ -236,48 +268,13 @@ fn is_sha256_hex(text: &str) -> bool {
     text.len() == 64 && text.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f'))
 }
 
-/// The dialog's settings as the writer's arguments, by the webview wrapper's rules
-/// (`caepipe_mbf_wasm::export_settings`): exactly `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`;
-/// the title as given; `degC` as `reference_temperature_c`, `degF` as `reference_temperature_f` (exact); no row limit
-/// (Q-4). The recorded digests (`fixtures/caepipe_mbf/invented/desktop_export/export_digests.json`) hold the two to
-/// the same arguments.
-pub fn writer_settings(settings: &Value) -> Result<mbf::WriterSettings, Diagnostic> {
-    let invalid = |detail: &str| {
-        diagnostic(
-            SETTINGS_INVALID,
-            "settings",
-            format!("The export settings must be {{title, referenceTemperature: {{value, unit}}, maxLayoutRows: null}}: {detail}."),
-        )
-    };
-    let Some(object) = settings.as_object() else { return Err(invalid("not an object")) };
-    if object.len() != 3 || !["title", "referenceTemperature", "maxLayoutRows"].iter().all(|key| object.contains_key(*key)) {
-        return Err(invalid("the members differ"));
-    }
-    let Some(title) = object["title"].as_str() else { return Err(invalid("the title is not a string")) };
-    if !object["maxLayoutRows"].is_null() {
-        return Err(invalid("maxLayoutRows must be null (no row limit)"));
-    }
-    let Some(reference) = object["referenceTemperature"].as_object() else { return Err(invalid("referenceTemperature is not an object")) };
-    if reference.len() != 2 || !reference.contains_key("value") || !reference.contains_key("unit") {
-        return Err(invalid("referenceTemperature must hold exactly value and unit"));
-    }
-    // A JSON integer is Python's int and any other number its float, as the engine's own JSON reader takes them.
-    let value = match &reference["value"] {
-        Value::Number(number) => match (number.as_i64(), number.as_f64()) {
-            (Some(integer), _) if !number.is_f64() => mbf::Value::int(integer),
-            (_, Some(float)) if number.is_f64() && float.is_finite() => mbf::Value::Float(float),
-            _ => return Err(invalid("the reference temperature is not a finite number the writer reads")),
-        },
-        _ => return Err(invalid("the reference temperature is not a finite number")),
-    };
-    let mut writer = mbf::WriterSettings::new(title.to_string());
-    writer.max_layout_rows = None;
-    match reference["unit"].as_str() {
-        Some("degC") => writer.reference_temperature_c = value,
-        Some("degF") => writer.reference_temperature_f = value,
-        _ => return Err(invalid("the reference temperature unit is not degC or degF")),
-    }
-    Ok(writer)
+/// The dialog's settings text as the writer's arguments, by the engine's one mapping (`export_settings_from_json`,
+/// which the webview wrapper calls on the same text): exactly `{title, referenceTemperature: {value, unit},
+/// maxLayoutRows: null}`; a title of at most 4 KiB of UTF-8, as given; `degC` as `reference_temperature_c`, `degF` as
+/// `reference_temperature_f` (exact, as the engine's reader reads the number); no row limit (Q-4). The recorded
+/// digests (`fixtures/caepipe_mbf/invented/desktop_export/export_digests.json`) hold the two to the same result.
+pub fn writer_settings(settings_json: &str) -> Result<mbf::WriterSettings, Diagnostic> {
+    mbf::export_settings_from_json(settings_json.as_bytes()).map_err(|error| diagnostic(SETTINGS_INVALID, "settings", error.message))
 }
 
 /// The writer's file contents for an admitted text.
@@ -376,20 +373,48 @@ pub(crate) trait MbfExportIo {
     fn remove(&mut self, path: &Path) -> io::Result<()> {
         fs::remove_file(path)
     }
+    /// Makes the backup of a file about to be replaced.
+    fn hard_link(&mut self, original: &Path, link: &Path) -> io::Result<()> {
+        fs::hard_link(original, link)
+    }
+    /// Puts a backup back over its original's name.
+    fn rename(&mut self, from: &Path, to: &Path) -> io::Result<()> {
+        fs::rename(from, to)
+    }
 }
 
 pub(crate) struct SystemMbfExportIo;
 
 impl MbfExportIo for SystemMbfExportIo {}
 
-/// Which file a path names: the same file this save wrote (device and inode where the platform has them), so a
-/// cleanup never removes a file someone else put there.
+/// Which file a path names, so a cleanup or a restore never touches a file the save did not write or back up: the
+/// device and inode where the platform has them; elsewhere the size and both times, all of which must be present and
+/// equal (a missing time is not identical).
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct FileIdentity {
     #[cfg(unix)]
     device_inode: (u64, u64),
     #[cfg(not(unix))]
-    created_modified: (Option<std::time::SystemTime>, Option<std::time::SystemTime>),
+    size_created_modified: (u64, Option<std::time::SystemTime>, Option<std::time::SystemTime>),
+}
+
+impl FileIdentity {
+    fn same_file(&self, other: &FileIdentity) -> bool {
+        #[cfg(unix)]
+        {
+            self.device_inode == other.device_inode
+        }
+        #[cfg(not(unix))]
+        {
+            let (size, created, modified) = &self.size_created_modified;
+            let (other_size, other_created, other_modified) = &other.size_created_modified;
+            size == other_size
+                && created.is_some()
+                && modified.is_some()
+                && created == other_created
+                && modified == other_modified
+        }
+    }
 }
 
 fn file_identity(path: &Path) -> io::Result<FileIdentity> {
@@ -404,8 +429,14 @@ fn file_identity(path: &Path) -> io::Result<FileIdentity> {
     }
     #[cfg(not(unix))]
     {
-        Ok(FileIdentity { created_modified: (metadata.created().ok(), metadata.modified().ok()) })
+        Ok(FileIdentity { size_created_modified: (metadata.len(), metadata.created().ok(), metadata.modified().ok()) })
     }
+}
+
+/// Whether `path` names the file `expected` identified, by [`FileIdentity::same_file`]; `Err` when it is absent
+/// (`NotFound`) or cannot be inspected.
+fn names_file(path: &Path, expected: &FileIdentity) -> io::Result<bool> {
+    file_identity(path).map(|found| expected.same_file(&found))
 }
 
 /// A file this save wrote, and its identity just after the write.
@@ -422,12 +453,16 @@ fn basename(path: &Path) -> String {
 /// Removes a file this save wrote if it is still that file; otherwise leaves it and says why.
 fn remove_written(io: &mut impl MbfExportIo, written: &WrittenFile) -> Option<Diagnostic> {
     let name = stored_read::shown(&written.saved.file_name).into_owned();
-    match (&written.identity, file_identity(&written.path)) {
-        (Some(expected), Ok(found)) if *expected == found => match io.remove(&written.path) {
+    let found = match &written.identity {
+        Some(expected) => names_file(&written.path, expected),
+        None => Ok(false),
+    };
+    match found {
+        Ok(true) => match io.remove(&written.path) {
             Ok(()) => None,
             Err(error) => Some(diagnostic(CLEANUP_FAILED, "", format!("`{name}` could not be removed ({error}); delete it before using the folder's files."))),
         },
-        (_, Err(error)) if error.kind() == io::ErrorKind::NotFound => None,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => None,
         _ => Some(diagnostic(
             CLEANUP_SKIPPED,
             "",
@@ -466,33 +501,206 @@ fn read_back(io: &mut impl MbfExportIo, path: &Path, block: &mut [u8]) -> io::Re
     Ok(hasher.finalize().iter().map(|byte| format!("{byte:02x}")).collect())
 }
 
-/// Steps 8 to 10 for the chosen MBF path.
-fn write_pair(io: &mut impl MbfExportIo, chosen: &Path, files: &MbfFiles, block: &mut [u8], warnings: Vec<Diagnostic>) -> MbfExportOutcome {
-    let ids_path = match identity_file_path(chosen) {
-        Ok(path) => path,
-        Err(refusal) => return MbfExportOutcome::refused(vec![refusal]),
-    };
-    let ids = match write_one(io, &MBF_IDS_FORMAT, &ids_path, &files.sidecar, &files.sidecar_sha256) {
-        Ok(written) => written,
-        Err(refusal) => return MbfExportOutcome::refused(vec![refusal]),
-    };
-    let mbf = match write_one(io, &MBF_FORMAT, chosen, &files.mbf, &files.mbf_sha256) {
-        Ok(written) => written,
-        Err(refusal) => {
-            let mut diagnostics = vec![refusal];
-            diagnostics.extend(remove_written(io, &ids));
-            return MbfExportOutcome::refused(diagnostics);
+/// The destinations' checks before any write (step 8): the identity file's path; both destinations by the atomic
+/// writer's own checks (extension, parent, no symlink or directory, and off macOS no replacement); and no identity file
+/// without its MBF. Returns the identity file's path and whether each destination holds a file to be replaced.
+fn check_destinations(chosen: &Path) -> Result<(PathBuf, bool, bool), Diagnostic> {
+    let ids_path = identity_file_path(chosen)?;
+    let replaces_mbf = atomic_report_package_save::check_destination_as(&MBF_FORMAT, chosen).map_err(writer_diagnostic)?;
+    if !replaces_mbf && fs::symlink_metadata(&ids_path).is_ok() {
+        return Err(diagnostic(
+            IDENTITY_FILE_EXISTS,
+            "",
+            format!(
+                "`{}` already exists beside the chosen name, but `{}` does not. It may be the identity file of a model batch file that was moved, so it is not replaced. Choose another name, or move that file first; nothing was written.",
+                stored_read::shown(&basename(&ids_path)),
+                stored_read::shown(&basename(chosen)),
+            ),
+        ));
+    }
+    let replaces_ids = atomic_report_package_save::check_destination_as(&MBF_IDS_FORMAT, &ids_path).map_err(writer_diagnostic)?;
+    Ok((ids_path, replaces_mbf, replaces_ids))
+}
+
+/// The hidden hard link that keeps a replaced file until the save completes or is undone.
+struct Backup {
+    original: PathBuf,
+    path: PathBuf,
+    identity: FileIdentity,
+}
+
+impl Backup {
+    /// The original's name as a message quotes it, and the backup's whole (its own 49 ASCII characters, never cut).
+    fn names(&self) -> (String, String) {
+        (stored_read::shown(&basename(&self.original)).into_owned(), basename(&self.path))
+    }
+}
+
+fn backup_unavailable(original: &Path, detail: impl std::fmt::Display) -> Diagnostic {
+    diagnostic(
+        REPLACE_BACKUP_UNAVAILABLE,
+        "",
+        format!(
+            "`{}` would be replaced, but it could not be backed up in its folder first ({detail}); a file is never replaced without a backup. Choose a new name or another folder; nothing was written.",
+            stored_read::shown(&basename(original))
+        ),
+    )
+}
+
+/// Backs up the regular file at `original` by a hard link to a fresh hidden name beside it, or refuses.
+fn back_up(io: &mut impl MbfExportIo, original: &Path) -> Result<Backup, Diagnostic> {
+    let identity = file_identity(original).map_err(|error| backup_unavailable(original, error))?;
+    let parent = original.parent().ok_or_else(|| backup_unavailable(original, "no folder"))?;
+    for _ in 0..128_u32 {
+        let mut token = [0_u8; 16];
+        getrandom::fill(&mut token).map_err(|error| backup_unavailable(original, error))?;
+        let token: String = token.iter().map(|byte| format!("{byte:02x}")).collect();
+        let path = parent.join(format!("{BACKUP_PREFIX}{token}{BACKUP_SUFFIX}"));
+        match io.hard_link(original, &path) {
+            Ok(()) => {}
+            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
+            Err(error) => return Err(backup_unavailable(original, error)),
         }
+        return match names_file(&path, &identity) {
+            Ok(true) => Ok(Backup { original: original.to_path_buf(), path, identity }),
+            // The original changed between the inspection and the link: the link is this save's, and is removed.
+            _ => {
+                let _ = io.remove(&path);
+                Err(backup_unavailable(original, "the file changed while it was backed up"))
+            }
+        };
+    }
+    Err(backup_unavailable(original, "no free backup name"))
+}
+
+/// Removes a backup no longer needed, if it is still that backup; otherwise says what is left and where.
+fn discard_backup(io: &mut impl MbfExportIo, backup: &Backup) -> Option<Diagnostic> {
+    let (original, kept) = backup.names();
+    let result = match names_file(&backup.path, &backup.identity) {
+        Ok(true) => io.remove(&backup.path).map_err(|error| error.to_string()),
+        Ok(false) => Err("it is no longer the backup this save made".to_string()),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error.to_string()),
     };
+    result.err().map(|reason| {
+        diagnostic(
+            BACKUP_CLEANUP_FAILED,
+            "",
+            format!("Left in the same folder: `{kept}`, the backup of the previous `{original}` ({reason}). It is no longer needed and may be deleted."),
+        )
+    })
+}
+
+/// A rollback that could not put the previous file back: the backup is kept, and named.
+fn rollback_incomplete(backup: &Backup, reason: impl std::fmt::Display) -> Diagnostic {
+    let (original, kept) = backup.names();
+    diagnostic(
+        ROLLBACK_INCOMPLETE,
+        "",
+        format!(
+            "Kept as `{kept}` in the same folder: the previous `{original}`, unchanged, which could not be put back ({reason}). Rename `{kept}` to `{original}` to recover it."
+        ),
+    )
+}
+
+/// One destination of the pair: its path, the backup of the file it replaces, and what this save wrote there.
+struct Destination {
+    path: PathBuf,
+    backup: Option<Backup>,
+    written: Option<WrittenFile>,
+}
+
+/// Undoes the save at one destination after a failure: what this save wrote is removed, and the replaced file is put
+/// back from its backup, each only after the identity check. A destination that cannot be restored keeps its backup
+/// and is named ([`ROLLBACK_INCOMPLETE`]).
+fn roll_back(io: &mut impl MbfExportIo, destination: &Destination) -> Vec<Diagnostic> {
+    let Some(backup) = &destination.backup else {
+        return destination.written.iter().filter_map(|written| remove_written(io, written)).collect();
+    };
+    match &destination.written {
+        // This save's file replaced the original: put the backup back over it in one rename.
+        Some(written) => {
+            let ours = match &written.identity {
+                Some(identity) => names_file(&destination.path, identity),
+                None => Ok(false),
+            };
+            match ours {
+                Ok(true) => {}
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+                _ => return vec![rollback_incomplete(backup, "the file now there is not the one this save wrote, so it was left in place")],
+            }
+            match names_file(&backup.path, &backup.identity) {
+                Ok(true) => {}
+                _ => return vec![rollback_incomplete(backup, "the backup is no longer the file this save kept")],
+            }
+            match io.rename(&backup.path, &destination.path) {
+                Ok(()) => Vec::new(),
+                Err(error) => vec![rollback_incomplete(backup, error)],
+            }
+        }
+        // The write did not replace it: the original should still be there, and its backup is discarded.
+        None => match names_file(&destination.path, &backup.identity) {
+            Ok(true) => discard_backup(io, backup).into_iter().collect(),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => match io.rename(&backup.path, &destination.path) {
+                Ok(()) => Vec::new(),
+                Err(error) => vec![rollback_incomplete(backup, error)],
+            },
+            _ => vec![rollback_incomplete(backup, "another file is now at its name, so it was left in place")],
+        },
+    }
+}
+
+/// Refuses with `diagnostics` after undoing the save at every destination (the MBF first).
+fn undone(io: &mut impl MbfExportIo, mut diagnostics: Vec<Diagnostic>, destinations: &[&Destination]) -> MbfExportOutcome {
+    for destination in destinations {
+        diagnostics.extend(roll_back(io, destination));
+    }
+    MbfExportOutcome::refused(diagnostics)
+}
+
+/// Steps 8 to 10 for the chosen MBF path. Every destination is checked, and every file to be replaced is backed up,
+/// before the first write; after any later failure the save is undone, and on success the backups are removed.
+fn write_pair(io: &mut impl MbfExportIo, chosen: &Path, files: &MbfFiles, block: &mut [u8], mut warnings: Vec<Diagnostic>) -> MbfExportOutcome {
+    let (ids_path, replaces_mbf, replaces_ids) = match check_destinations(chosen) {
+        Ok(checked) => checked,
+        Err(refusal) => return MbfExportOutcome::refused(vec![refusal]),
+    };
+    let mut backups: Vec<Option<Backup>> = Vec::new();
+    for (path, replaces) in [(ids_path.as_path(), replaces_ids), (chosen, replaces_mbf)] {
+        if !replaces {
+            backups.push(None);
+            continue;
+        }
+        match back_up(io, path) {
+            Ok(backup) => backups.push(Some(backup)),
+            Err(refusal) => {
+                let mut diagnostics = vec![refusal];
+                diagnostics.extend(backups.iter().flatten().filter_map(|backup| discard_backup(io, backup)));
+                return MbfExportOutcome::refused(diagnostics);
+            }
+        }
+    }
+    let mbf_backup = backups.pop().flatten();
+    let ids_backup = backups.pop().flatten();
+    let mut ids = Destination { path: ids_path, backup: ids_backup, written: None };
+    let mut mbf = Destination { path: chosen.to_path_buf(), backup: mbf_backup, written: None };
+    match write_one(io, &MBF_IDS_FORMAT, &ids.path, &files.sidecar, &files.sidecar_sha256) {
+        Ok(written) => ids.written = Some(written),
+        Err(refusal) => return undone(io, vec![refusal], &[&mbf, &ids]),
+    }
+    match write_one(io, &MBF_FORMAT, &mbf.path, &files.mbf, &files.mbf_sha256) {
+        Ok(written) => mbf.written = Some(written),
+        Err(refusal) => return undone(io, vec![refusal], &[&mbf, &ids]),
+    }
     let mut problems = Vec::new();
-    for written in [&ids, &mbf] {
+    for written in [&ids, &mbf].into_iter().filter_map(|destination| destination.written.as_ref()) {
         match read_back(io, &written.path, block) {
             Ok(found) if found == written.saved.sha256 => {}
             Ok(found) => problems.push(diagnostic(
                 READBACK_MISMATCH,
                 "",
                 format!(
-                    "`{}` reads back with SHA-256 {found}, not the {} written; the written files are removed.",
+                    "`{}` reads back with SHA-256 {found}, not the {} written; the save is undone.",
                     stored_read::shown(&written.saved.file_name),
                     written.saved.sha256
                 ),
@@ -500,16 +708,17 @@ fn write_pair(io: &mut impl MbfExportIo, chosen: &Path, files: &MbfFiles, block:
             Err(error) => problems.push(diagnostic(
                 READBACK_FAILED,
                 "",
-                format!("`{}` could not be read back ({error}); the written files are removed.", stored_read::shown(&written.saved.file_name)),
+                format!("`{}` could not be read back ({error}); the save is undone.", stored_read::shown(&written.saved.file_name)),
             )),
         }
     }
     if !problems.is_empty() {
-        for written in [&mbf, &ids] {
-            problems.extend(remove_written(io, written));
-        }
-        return MbfExportOutcome::refused(problems);
+        return undone(io, problems, &[&mbf, &ids]);
     }
+    for backup in [&ids, &mbf].into_iter().filter_map(|destination| destination.backup.as_ref()) {
+        warnings.extend(discard_backup(io, backup));
+    }
+    let (Some(ids), Some(mbf)) = (ids.written, mbf.written) else { unreachable!("both files were written") };
     let durable = ids.saved.durability == "durable" && mbf.saved.durability == "durable";
     MbfExportOutcome::Saved {
         identity_file: ids.saved,
@@ -518,6 +727,15 @@ fn write_pair(io: &mut impl MbfExportIo, chosen: &Path, files: &MbfFiles, block:
         path_containment: atomic_report_package_save::PATH_CONTAINMENT.to_string(),
         limitation: atomic_report_package_save::TOCTOU_LIMITATION.to_string(),
         warnings,
+    }
+}
+
+/// The library reads' and the screen's memory refusals under this command's own code.
+fn remap_memory_code(diagnostics: &mut [Diagnostic]) {
+    for item in diagnostics {
+        if item.code == stored_read::STORE_READ_MEMORY_UNAVAILABLE {
+            item.code = MEMORY_UNAVAILABLE.to_string();
+        }
     }
 }
 
@@ -549,11 +767,24 @@ fn save_mbf_export_outcome(
     io: &mut impl MbfExportIo,
     held: &mut Held,
 ) -> MbfExportOutcome {
-    let MbfExportRequest { canonical_text, claimed_model_hash, settings, suggested_name, reviewed, screening, local_first } = request;
+    let MbfExportRequest { canonical_text, claimed_model_hash, settings_json, suggested_name, reviewed, screening, local_first } = request;
     // 1. Route evidence; its binding to this text's SHA-256 is checked with the hash (2).
     if let Err(refusal) = validate_local_private_route_evidence(MBF_EXPORT_ROUTE_ID, &screening, &local_first) {
         return MbfExportOutcome::refused(vec![refusal]);
     }
+    // The settings, by the engine's one mapping, before any copy of the model text: a text or title over its bound is
+    // refused before it is read.
+    let settings = {
+        let _parse = match memory.reserve("the export settings' parse", SETTINGS_WORKING_BYTES) {
+            Ok(reservation) => reservation,
+            Err(error) => return memory_refusal(error),
+        };
+        match writer_settings(&settings_json) {
+            Ok(settings) => settings,
+            Err(refusal) => return MbfExportOutcome::refused(vec![refusal]),
+        }
+    };
+    drop(settings_json);
     // 2-4. The open cap, the canonical text and hash, the open path's checks and the disposition screen.
     let model_bytes = canonical_text.len() as u64;
     let parse = match memory.reserve("the parse and canonical copy of the model text", admission_bytes(&canonical_text)) {
@@ -570,22 +801,18 @@ fn save_mbf_export_outcome(
     );
     drop(parse);
     if let Some(mut refusal) = reads.into_inner().refusal() {
-        for item in &mut refusal {
-            if item.code == stored_read::STORE_READ_MEMORY_UNAVAILABLE {
-                item.code = MEMORY_UNAVAILABLE.to_string();
-            }
-        }
+        remap_memory_code(&mut refusal);
         return MbfExportOutcome::refused(refusal);
     }
     let admitted = match admitted {
         Ok(admitted) => admitted,
-        Err(diagnostics) => return MbfExportOutcome::refused(diagnostics),
+        // The screen's own reservation refused inside the admission comes back here, by the pool's name.
+        Err(mut diagnostics) => {
+            remap_memory_code(&mut diagnostics);
+            return MbfExportOutcome::refused(diagnostics);
+        }
     };
     // 5. The writer, within its working set; its output is reserved before the working set is released.
-    let settings = match writer_settings(&settings) {
-        Ok(settings) => settings,
-        Err(refusal) => return MbfExportOutcome::refused(vec![refusal]),
-    };
     let working = match memory.reserve("the MBF writer's working set", writer_working_set(model_bytes)) {
         Ok(reservation) => reservation,
         Err(error) => return memory_refusal(error),
@@ -607,7 +834,10 @@ fn save_mbf_export_outcome(
     }
     // The receipt's bound and the read-back block, reserved before the chooser: no response is refused after a
     // file was written.
-    let bound = stored_read::serialized_length(&admitted.warnings).unwrap_or(u64::MAX).saturating_add(SAVED_FIELDS_BYTES);
+    let bound = stored_read::serialized_length(&admitted.warnings)
+        .unwrap_or(u64::MAX)
+        .saturating_add(SAVED_FIELDS_BYTES)
+        .max(AFTER_WRITE_REFUSAL_BYTES);
     match memory.reserve("the response to Export MBF", stored_read::exact_text_bytes(bound)) {
         Ok(reservation) => held.response = Some((reservation, bound)),
         Err(error) => return memory_refusal(error),
@@ -678,7 +908,7 @@ mod tests {
     use crate::export_disposition_screen::PROTECTED_CONTENT_BLOCKED;
     use crate::memory_pool::test_host::ScriptedHost;
     use open_pipe_stress_operation_applier::canonical_json;
-    use serde_json::json;
+    use serde_json::{json, Value};
     use std::cell::{Cell, RefCell};
 
     const EXPORT_MODEL: &str = include_str!("../../../../fixtures/caepipe_mbf/invented/desktop_export/export_model.json");
@@ -695,8 +925,13 @@ mod tests {
         canonical_json(&document)
     }
 
-    fn settings() -> Value {
-        json!({"title": "Invented MBF export", "referenceTemperature": {"value": 20, "unit": "degC"}, "maxLayoutRows": null})
+    /// The dialog's settings text (`JSON.stringify` of its settings).
+    fn settings_text(title: &str, value: &str, unit: &str) -> String {
+        format!(r#"{{"title":{},"referenceTemperature":{{"value":{value},"unit":"{unit}"}},"maxLayoutRows":null}}"#, json!(title))
+    }
+
+    fn settings() -> String {
+        settings_text("Invented MBF export", "20", "degC")
     }
 
     fn screening(text: &str) -> ModelDocumentSaveScreening {
@@ -727,7 +962,7 @@ mod tests {
     }
 
     /// The engine's files for `text` with `settings` (the webview's review computes the same digests).
-    fn engine_files(text: &str, settings: &Value) -> MbfFiles {
+    fn engine_files(text: &str, settings: &str) -> MbfFiles {
         render_mbf_files(text, &writer_settings(settings).unwrap()).unwrap()
     }
 
@@ -737,7 +972,7 @@ mod tests {
         MbfExportRequest {
             canonical_text: text.to_string(),
             claimed_model_hash: format!("sha256:{}", sha256_hex(text.as_bytes())),
-            settings: settings(),
+            settings_json: settings(),
             suggested_name: "swbpipe-model.mbf".to_string(),
             reviewed: MbfReviewed { mbf_sha256: files.mbf_sha256, sidecar_sha256: files.sidecar_sha256 },
             screening: screening(text),
@@ -860,10 +1095,20 @@ mod tests {
         };
         assert_eq!(primitive(&back), primitive(&source));
         assert_eq!(back["pipe_segments"][0]["section_ref"], source["pipe_segments"][0]["section_ref"]);
-        // Saving again over the same MBF replaces both files.
+        // Saving again over the same MBF replaces both files and leaves no backup behind (macOS); elsewhere a
+        // replacement is refused before anything is written.
         let opened = Cell::new(false);
-        let MbfExportOutcome::Saved { mbf, identity_file, .. } = save(request(&text), Some(chosen.clone()), &opened) else { panic!("not saved") };
-        assert!(mbf.replaced_existing && identity_file.replaced_existing);
+        let again = save(request(&text), Some(chosen.clone()), &opened);
+        #[cfg(target_os = "macos")]
+        {
+            let MbfExportOutcome::Saved { mbf, identity_file, warnings, .. } = again else { panic!("not saved: {again:?}") };
+            assert!(mbf.replaced_existing && identity_file.replaced_existing);
+            assert!(warnings.is_empty(), "{warnings:?}");
+        }
+        #[cfg(not(target_os = "macos"))]
+        assert_eq!(codes(&again), vec!["MBF-EXPORT-SAVE-REPLACE-UNSUPPORTED-PLATFORM".to_string()]);
+        assert_eq!(sandbox.entries(), vec!["Invented run.mbf".to_string(), "Invented run.swbpipe-ids.json".to_string()]);
+        assert_eq!(fs::read(&chosen).unwrap(), files.mbf);
     }
 
     /// The webview wrapper's recorded digests (`caepipe_mbf_wasm` tests) are the native writer's for the same text
@@ -872,13 +1117,27 @@ mod tests {
     fn the_webview_wrappers_recorded_digests_are_the_native_writers() {
         let recorded: Value = serde_json::from_str(EXPORT_DIGESTS).unwrap();
         let cases = recorded["cases"].as_object().unwrap();
-        assert_eq!(cases.len(), 3);
+        assert_eq!(cases.len(), 5);
         for (name, case) in cases {
             let text = if name == "degf-project" { edited(|document| document["project"]["units"]["temperature"] = json!("degF")) } else { canonical_of(EXPORT_MODEL) };
             assert_eq!(case["model_sha256"], sha256_hex(text.as_bytes()), "{name}");
-            let files = engine_files(&text, &case["settings"]);
-            assert_eq!(case["mbf_sha256"], files.mbf_sha256, "{name}");
-            assert_eq!(case["sidecar_sha256"], files.sidecar_sha256, "{name}");
+            let settings = writer_settings(case["settings_json"].as_str().unwrap()).unwrap();
+            match render_mbf_files(&text, &settings) {
+                Ok(files) => {
+                    assert_eq!(case["status"], "written", "{name}");
+                    assert_eq!(case["mbf_sha256"], files.mbf_sha256, "{name}");
+                    assert_eq!(case["sidecar_sha256"], files.sidecar_sha256, "{name}");
+                }
+                Err(refusal) => {
+                    assert_eq!(case["status"], "refused", "{name}");
+                    let found: Vec<Value> = refusal.iter().map(|item| json!(item.code)).collect();
+                    assert_eq!(case["refusal_codes"], Value::Array(found), "{name}");
+                }
+            }
+        }
+        // The cases between 2^63 and 2^64 and between 2^64 and 10^21 are read as the same ints on both sides.
+        for (name, value) in [("degc-integer-above-2p63", "9223372036854776000"), ("degf-integer-above-2p64", "100000000000000000000")] {
+            assert!(cases[name]["settings_json"].as_str().unwrap().contains(&format!(r#""value":{value},"#)), "{name}");
         }
     }
 
@@ -894,12 +1153,15 @@ mod tests {
             ("MODEL-DOC-SAVE-HASH-MISMATCH", MbfExportRequest { claimed_model_hash: format!("sha256:{}", sha256_hex(b"{}")), ..request(&text) }),
             ("MODEL-DOC-SAVE-HASH-MISMATCH", MbfExportRequest { canonical_text: format!("{text}\n"), claimed_model_hash: format!("sha256:{}", sha256_hex(format!("{text}\n").as_bytes())), ..request(&text) }),
             ("MODEL-DOC-SAVE-EVIDENCE-UNBOUND", MbfExportRequest { screening: screening("{}"), ..request(&text) }),
-            (SETTINGS_INVALID, MbfExportRequest { settings: json!({"title": "T", "referenceTemperature": {"value": 20, "unit": "degC"}, "maxLayoutRows": 20}), ..request(&text) }),
-            (SETTINGS_INVALID, MbfExportRequest { settings: json!({"title": "T", "referenceTemperature": {"value": 20, "unit": "K"}, "maxLayoutRows": null}), ..request(&text) }),
+            (SETTINGS_INVALID, MbfExportRequest { settings_json: r#"{"title":"T","referenceTemperature":{"value":20,"unit":"degC"},"maxLayoutRows":20}"#.into(), ..request(&text) }),
+            (SETTINGS_INVALID, MbfExportRequest { settings_json: settings_text("T", "20", "K"), ..request(&text) }),
+            // The title bound, before the admission reads the model text (here not even JSON).
+            (SETTINGS_INVALID, MbfExportRequest { settings_json: settings_text(&"a".repeat(4097), "20", "degC"), canonical_text: "not json".into(), ..request(&text) }),
+            (SETTINGS_INVALID, MbfExportRequest { settings_json: settings_text(&"é".repeat(2049), "20", "degC"), canonical_text: "not json".into(), ..request(&text) }),
             (REVIEW_STALE, MbfExportRequest { reviewed: MbfReviewed { mbf_sha256: sha256_hex(b"other"), ..request(&text).reviewed }, ..request(&text) }),
             (REVIEW_STALE, MbfExportRequest { reviewed: MbfReviewed { sidecar_sha256: sha256_hex(b"other"), ..request(&text).reviewed }, ..request(&text) }),
             // The settings changed after the review: the same model, another reference temperature.
-            (REVIEW_STALE, MbfExportRequest { settings: json!({"title": "Invented MBF export", "referenceTemperature": {"value": 25, "unit": "degC"}, "maxLayoutRows": null}), ..request(&text) }),
+            (REVIEW_STALE, MbfExportRequest { settings_json: settings_text("Invented MBF export", "25", "degC"), ..request(&text) }),
             (SUGGESTED_NAME_INVALID, MbfExportRequest { suggested_name: "openpipestress-preview-project.mbf".into(), ..request(&text) }),
             (SUGGESTED_NAME_INVALID, MbfExportRequest { suggested_name: "swbpipe-model.json".into(), ..request(&text) }),
         ];
@@ -952,7 +1214,7 @@ mod tests {
         MbfExportRequest {
             canonical_text: text.to_string(),
             claimed_model_hash: format!("sha256:{}", sha256_hex(text.as_bytes())),
-            settings: settings(),
+            settings_json: settings(),
             suggested_name: "swbpipe-model.mbf".to_string(),
             reviewed: MbfReviewed { mbf_sha256: "0".repeat(64), sidecar_sha256: "0".repeat(64) },
             screening: screening(text),
@@ -1002,8 +1264,13 @@ mod tests {
     struct ScriptedIo {
         writes: RefCell<Vec<String>>,
         fail_mbf_write: bool,
+        fail_ids_write: bool,
         tamper_mbf: bool,
         swap_ids_before_cleanup: bool,
+        /// Hard links made before every later one fails (as on a volume without them): None never fails.
+        fail_hard_link_after: Option<usize>,
+        fail_restore: bool,
+        links: Vec<PathBuf>,
     }
 
     /// The atomic writer's own operations with a rename that fails, so the failure is the writer's.
@@ -1033,7 +1300,7 @@ mod tests {
     impl MbfExportIo for ScriptedIo {
         fn write(&mut self, format: &AtomicSaveFormat, destination: &Path, bytes: &[u8]) -> Result<AtomicSaveOutcome, AtomicSaveError> {
             self.writes.borrow_mut().push(basename(destination));
-            if format == &MBF_FORMAT && self.fail_mbf_write {
+            if (format == &MBF_FORMAT && self.fail_mbf_write) || (format == &MBF_IDS_FORMAT && self.fail_ids_write) {
                 return atomic_report_package_save::atomic_save_bytes_as_with_io(format, destination, bytes, &mut FailingRename(SystemAtomicSaveIo));
             }
             let outcome = atomic_report_package_save::atomic_save_bytes_as(format, destination, bytes)?;
@@ -1045,6 +1312,20 @@ mod tests {
         }
         fn remove(&mut self, path: &Path) -> io::Result<()> {
             fs::remove_file(path)
+        }
+        fn hard_link(&mut self, original: &Path, link: &Path) -> io::Result<()> {
+            if self.fail_hard_link_after.is_some_and(|allowed| self.links.len() >= allowed) {
+                // As on a volume without hard links (FAT, exFAT).
+                return Err(io::Error::new(io::ErrorKind::Unsupported, "injected: hard links are not supported here"));
+            }
+            self.links.push(link.to_path_buf());
+            fs::hard_link(original, link)
+        }
+        fn rename(&mut self, from: &Path, to: &Path) -> io::Result<()> {
+            if self.fail_restore {
+                return Err(io::Error::other("injected restore failure"));
+            }
+            fs::rename(from, to)
         }
     }
 
@@ -1108,6 +1389,208 @@ mod tests {
         assert!(sandbox.entries().is_empty(), "{:?}", sandbox.entries());
     }
 
+    const OLD_MBF: &[u8] = b"an earlier model batch file\n";
+    const OLD_IDS: &[u8] = b"{\"an earlier identity file\": true}\n";
+
+    /// An earlier pair at `swbpipe-model.mbf`: the chosen path, the identity file's, and their identities.
+    fn earlier_pair(sandbox: &Sandbox) -> (PathBuf, PathBuf, FileIdentity, FileIdentity) {
+        let chosen = sandbox.0.join("swbpipe-model.mbf");
+        let ids = sandbox.0.join("swbpipe-model.swbpipe-ids.json");
+        fs::write(&chosen, OLD_MBF).unwrap();
+        fs::write(&ids, OLD_IDS).unwrap();
+        let (mbf_identity, ids_identity) = (file_identity(&chosen).unwrap(), file_identity(&ids).unwrap());
+        (chosen, ids, mbf_identity, ids_identity)
+    }
+
+    /// The earlier pair is there, byte-identical and the same files, and nothing else is in the folder.
+    fn assert_earlier_pair(sandbox: &Sandbox, label: &str, (chosen, ids, mbf_identity, ids_identity): &(PathBuf, PathBuf, FileIdentity, FileIdentity)) {
+        assert_eq!(sandbox.entries(), vec!["swbpipe-model.mbf".to_string(), "swbpipe-model.swbpipe-ids.json".to_string()], "{label}");
+        assert_eq!(fs::read(chosen).unwrap(), OLD_MBF, "{label}");
+        assert_eq!(fs::read(ids).unwrap(), OLD_IDS, "{label}");
+        assert!(file_identity(chosen).unwrap().same_file(mbf_identity), "{label}: the earlier MBF itself");
+        assert!(file_identity(ids).unwrap().same_file(ids_identity), "{label}: the earlier identity file itself");
+    }
+
+    /// P1: a replacement that fails at any step after the backups (the identity file's write, the MBF's write, the
+    /// read-back) puts the earlier pair back, byte-identical, and leaves no backup behind.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_failed_replacement_leaves_the_earlier_pair_byte_identical() {
+        let _lock = atomic_save_test_lock();
+        let cases: Vec<(&str, ScriptedIo, &str)> = vec![
+            ("mbf write", ScriptedIo { fail_mbf_write: true, ..ScriptedIo::default() }, "MBF-EXPORT-SAVE-RENAME-FAILED"),
+            ("identity file write", ScriptedIo { fail_ids_write: true, ..ScriptedIo::default() }, "MBF-EXPORT-IDS-SAVE-RENAME-FAILED"),
+            ("read-back", ScriptedIo { tamper_mbf: true, ..ScriptedIo::default() }, READBACK_MISMATCH),
+        ];
+        for (label, mut io, code) in cases {
+            let sandbox = Sandbox::new("replace-fails");
+            let earlier = earlier_pair(&sandbox);
+            let outcome = save_scripted(&mut io, earlier.0.clone());
+            assert_eq!(codes(&outcome), vec![code.to_string()], "{label}");
+            assert_eq!(io.links.len(), 2, "{label}: both files were backed up before the first write");
+            assert_earlier_pair(&sandbox, label, &earlier);
+        }
+    }
+
+    /// P1: a symlink or a directory at the chosen `.mbf` is refused by the atomic writer's own checks before anything
+    /// is backed up or written; the identity file beside it is untouched.
+    #[test]
+    fn a_symlinked_or_directory_mbf_beside_an_identity_file_writes_nothing() {
+        let _lock = atomic_save_test_lock();
+        let mut cases: Vec<(&str, &str)> = vec![("directory", "MBF-EXPORT-SAVE-DESTINATION-DIRECTORY")];
+        #[cfg(unix)]
+        cases.push(("symlink", "MBF-EXPORT-SAVE-DESTINATION-SYMLINK"));
+        for (kind, code) in cases {
+            let sandbox = Sandbox::new("unsafe-destination");
+            let chosen = sandbox.0.join("swbpipe-model.mbf");
+            let ids = sandbox.0.join("swbpipe-model.swbpipe-ids.json");
+            fs::write(&ids, OLD_IDS).unwrap();
+            let ids_identity = file_identity(&ids).unwrap();
+            match kind {
+                "directory" => fs::create_dir(&chosen).unwrap(),
+                #[cfg(unix)]
+                _ => {
+                    fs::write(sandbox.0.join("target.txt"), b"target").unwrap();
+                    std::os::unix::fs::symlink(sandbox.0.join("target.txt"), &chosen).unwrap();
+                }
+                #[cfg(not(unix))]
+                _ => unreachable!(),
+            }
+            let before = sandbox.entries();
+            let mut io = ScriptedIo::default();
+            let outcome = save_scripted(&mut io, chosen.clone());
+            assert_eq!(codes(&outcome), vec![code.to_string()], "{kind}");
+            assert!(io.writes.borrow().is_empty() && io.links.is_empty(), "{kind}: nothing backed up or written");
+            assert_eq!(sandbox.entries(), before, "{kind}");
+            assert_eq!(fs::read(&ids).unwrap(), OLD_IDS, "{kind}");
+            assert!(file_identity(&ids).unwrap().same_file(&ids_identity), "{kind}");
+        }
+    }
+
+    /// P2-1: an identity file whose MBF is absent may belong to an MBF that was moved; it is not replaced.
+    #[test]
+    fn an_identity_file_without_its_mbf_is_refused_before_writing() {
+        let _lock = atomic_save_test_lock();
+        let sandbox = Sandbox::new("lone-identity-file");
+        let ids = sandbox.0.join("swbpipe-model.swbpipe-ids.json");
+        fs::write(&ids, OLD_IDS).unwrap();
+        let mut io = ScriptedIo::default();
+        let outcome = save_scripted(&mut io, sandbox.0.join("swbpipe-model.mbf"));
+        assert_eq!(codes(&outcome), vec![IDENTITY_FILE_EXISTS.to_string()]);
+        let MbfExportOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
+        assert!(diagnostics[0].message.contains("may be the identity file of a model batch file that was moved"), "{}", diagnostics[0].message);
+        assert!(io.writes.borrow().is_empty() && io.links.is_empty());
+        assert_eq!(sandbox.entries(), vec!["swbpipe-model.swbpipe-ids.json".to_string()]);
+        assert_eq!(fs::read(&ids).unwrap(), OLD_IDS);
+    }
+
+    /// P1: a file to be replaced that cannot be backed up by a hard link refuses the save before any write; a backup
+    /// already made for the other file is removed.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_replacement_without_a_backup_is_refused_before_any_write() {
+        let _lock = atomic_save_test_lock();
+        for allowed in [0, 1] {
+            let sandbox = Sandbox::new("backup-unavailable");
+            let earlier = earlier_pair(&sandbox);
+            let mut io = ScriptedIo { fail_hard_link_after: Some(allowed), ..ScriptedIo::default() };
+            let outcome = save_scripted(&mut io, earlier.0.clone());
+            assert_eq!(codes(&outcome), vec![REPLACE_BACKUP_UNAVAILABLE.to_string()], "after {allowed}");
+            assert!(io.writes.borrow().is_empty(), "after {allowed}: nothing written");
+            assert_eq!(io.links.len(), allowed);
+            assert_earlier_pair(&sandbox, "backup unavailable", &earlier);
+        }
+    }
+
+    /// P1: a successful replacement removes its backups.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_successful_replacement_leaves_no_backup() {
+        let _lock = atomic_save_test_lock();
+        let sandbox = Sandbox::new("replace-succeeds");
+        let earlier = earlier_pair(&sandbox);
+        let mut io = ScriptedIo::default();
+        let outcome = save_scripted(&mut io, earlier.0.clone());
+        let MbfExportOutcome::Saved { mbf, identity_file, warnings, .. } = outcome else { panic!("not saved: {outcome:?}") };
+        assert!(mbf.replaced_existing && identity_file.replaced_existing && warnings.is_empty());
+        assert_eq!(io.links.len(), 2);
+        assert!(io.links.iter().all(|link| !link.exists()));
+        assert_eq!(sandbox.entries(), vec!["swbpipe-model.mbf".to_string(), "swbpipe-model.swbpipe-ids.json".to_string()]);
+        let files = engine_files(&canonical_of(EXPORT_MODEL), &settings());
+        assert_eq!((fs::read(&earlier.0).unwrap(), fs::read(&earlier.1).unwrap()), (files.mbf, files.sidecar));
+    }
+
+    /// Decision A: a rollback that cannot put an earlier file back is not reported as success; the backup is kept,
+    /// unchanged, and named with its original, so the user can recover it.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn a_rollback_that_cannot_restore_keeps_and_names_each_backup() {
+        let _lock = atomic_save_test_lock();
+        let cases: Vec<(&str, ScriptedIo, Vec<&str>, usize)> = vec![
+            // The MBF write fails: the earlier MBF is still in place; the identity file cannot be put back.
+            ("mbf write", ScriptedIo { fail_mbf_write: true, fail_restore: true, ..ScriptedIo::default() }, vec!["MBF-EXPORT-SAVE-RENAME-FAILED", ROLLBACK_INCOMPLETE], 1),
+            // Both written, the read-back fails: neither can be put back.
+            ("read-back", ScriptedIo { tamper_mbf: true, fail_restore: true, ..ScriptedIo::default() }, vec![READBACK_MISMATCH, ROLLBACK_INCOMPLETE, ROLLBACK_INCOMPLETE], 2),
+        ];
+        for (label, mut io, expected, kept) in cases {
+            let sandbox = Sandbox::new("rollback-incomplete");
+            let earlier = earlier_pair(&sandbox);
+            let outcome = save_scripted(&mut io, earlier.0.clone());
+            assert_eq!(codes(&outcome), expected, "{label}");
+            let MbfExportOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
+            let backups: Vec<&PathBuf> = io.links.iter().filter(|link| link.exists()).collect();
+            assert_eq!(backups.len(), kept, "{label}: the backups not restored are kept");
+            for backup in backups {
+                let name = basename(backup);
+                assert!(name.starts_with(BACKUP_PREFIX) && name.ends_with(BACKUP_SUFFIX), "{name}");
+                let bytes = fs::read(backup).unwrap();
+                let original = if bytes == OLD_MBF { "swbpipe-model.mbf" } else { assert_eq!(bytes, OLD_IDS); "swbpipe-model.swbpipe-ids.json" };
+                assert!(
+                    diagnostics.iter().any(|item| item.code == ROLLBACK_INCOMPLETE && item.message.starts_with(&format!("Kept as `{name}`")) && item.message.contains(&format!("Rename `{name}` to `{original}`"))),
+                    "{label}: {diagnostics:?}"
+                );
+            }
+            if label == "mbf write" {
+                assert_eq!(fs::read(&earlier.0).unwrap(), OLD_MBF, "the earlier MBF was never replaced");
+            }
+        }
+    }
+
+    /// An identity-file write that fails on a new pair leaves nothing: the MBF is never written.
+    #[test]
+    fn a_failed_identity_file_write_writes_nothing_else() {
+        let _lock = atomic_save_test_lock();
+        let sandbox = Sandbox::new("ids-write");
+        let mut io = ScriptedIo { fail_ids_write: true, ..ScriptedIo::default() };
+        let outcome = save_scripted(&mut io, sandbox.0.join("swbpipe-model.mbf"));
+        assert_eq!(codes(&outcome), vec!["MBF-EXPORT-IDS-SAVE-RENAME-FAILED".to_string()]);
+        assert_eq!(*io.writes.borrow(), vec!["swbpipe-model.swbpipe-ids.json".to_string()]);
+        assert!(sandbox.entries().is_empty(), "{:?}", sandbox.entries());
+    }
+
+    /// P3-4: off Unix a file is the same only when its size and both times are present and equal.
+    #[test]
+    fn file_identity_needs_every_part_it_compares() {
+        let sandbox = Sandbox::new("identity");
+        let path = sandbox.0.join("a.mbf");
+        fs::write(&path, b"a").unwrap();
+        let identity = file_identity(&path).unwrap();
+        assert!(identity.same_file(&file_identity(&path).unwrap()));
+        #[cfg(not(unix))]
+        {
+            let (size, created, modified) = identity.size_created_modified;
+            for other in [(size + 1, created, modified), (size, None, modified), (size, created, None), (size, None, None)] {
+                assert!(!identity.same_file(&FileIdentity { size_created_modified: other }), "{other:?}");
+            }
+            // A missing time is not identical, even to itself.
+            assert!(!FileIdentity { size_created_modified: (size, None, None) }.same_file(&FileIdentity { size_created_modified: (size, None, None) }));
+        }
+        let other = sandbox.0.join("b.mbf");
+        fs::write(&other, b"a").unwrap();
+        #[cfg(unix)]
+        assert!(!identity.same_file(&file_identity(&other).unwrap()));
+    }
+
     #[test]
     fn suggested_names_follow_the_file_name_convention() {
         for name in ["swbpipe-model.mbf", "swbpipe-model-rev-b.mbf", "swbpipe-model-2.mbf"] {
@@ -1127,7 +1610,7 @@ mod tests {
         let body = json!({
             "canonicalText": text,
             "claimedModelHash": request.claimed_model_hash,
-            "settings": settings(),
+            "settingsJson": settings(),
             "suggestedName": "swbpipe-model.mbf",
             "reviewed": {"mbfSha256": request.reviewed.mbf_sha256, "sidecarSha256": request.reviewed.sidecar_sha256},
             "screening": serde_json::to_value(screening(&text)).unwrap(),
@@ -1137,7 +1620,7 @@ mod tests {
         let (mut args, _lease) = admit_json(&pool, COMMAND, ArgsDecoding::Moved, &body).unwrap();
         let decoded = save_mbf_export_args(&mut args).unwrap();
         assert_eq!(decoded.canonical_text, text);
-        assert_eq!(decoded.settings, settings());
+        assert_eq!(decoded.settings_json, settings());
         assert_eq!(decoded.reviewed, request.reviewed);
         assert_eq!(decoded.screening, screening(&text));
         let raw = serde_json::to_vec(&body).unwrap();
@@ -1178,26 +1661,161 @@ mod tests {
         })
     }
 
-    /// §3.7: k fixed from the counting allocator's peak of the writer (parse, render, sidecar) over the test
-    /// models, the largest included; every model's peak stays within its working set.
+    /// The shapes of §3.7's measurement: the fixture's last run continued by `extra` straight pipes, each new node
+    /// optionally with a support, a node force, and with short ids and no labels or provenance ("tiny").
+    #[derive(Clone, Copy, Default)]
+    struct Shape {
+        supports: bool,
+        forces: bool,
+        thermal: bool,
+        tiny: bool,
+        /// Tiny, and each new pipe only its required members (a one-letter material id, an inline section in mm,
+        /// no y_reference or section_ref).
+        minimal: bool,
+        /// Single-direction supports at each new node (UX, UY, … in turn), in place of the one guide.
+        supports_per_node: usize,
+    }
+
+    fn shaped_model(extra: usize, shape: Shape) -> String {
+        let shape = Shape { tiny: shape.tiny || shape.minimal, ..shape };
+        edited(|document| {
+            if shape.minimal {
+                document["materials"][0]["id"] = json!("m");
+                for pipe in document["pipe_segments"].as_array_mut().unwrap() {
+                    pipe["material"] = json!("m");
+                }
+            }
+            let node_id = |index: usize| if shape.tiny { format!("n{index}") } else { format!("node:X{index}") };
+            let pipe_id = |index: usize| if shape.tiny { format!("p{index}") } else { format!("pipe:X{index}") };
+            let nodes = document["nodes"].as_array_mut().unwrap();
+            for index in 0..extra {
+                let mut node = json!({"id": node_id(index), "position": {"x": 4, "y": 0, "z": 7 + index}});
+                if !shape.tiny {
+                    node["label"] = json!(format!("Run node {index}"));
+                    node["provenance"] = json!("invented_example");
+                }
+                nodes.push(node);
+            }
+            let pipes = document["pipe_segments"].as_array_mut().unwrap();
+            let mut template = pipes[3].clone();
+            if shape.minimal {
+                template = json!({"material": "m", "section": {"outside_diameter": {"value": 9, "unit": "mm"}, "wall_thickness": {"value": 1, "unit": "mm"}}});
+            } else if shape.tiny {
+                let object = template.as_object_mut().unwrap();
+                object.remove("label");
+                object.remove("provenance");
+            }
+            for index in 0..extra {
+                let mut pipe = template.clone();
+                pipe["id"] = json!(pipe_id(index));
+                if !shape.tiny {
+                    pipe["label"] = json!(format!("Run {index}"));
+                }
+                pipe["from"] = json!(if index == 0 { "node:C".to_string() } else { node_id(index - 1) });
+                pipe["to"] = json!(node_id(index));
+                pipes.push(pipe);
+            }
+            if shape.supports_per_node > 0 {
+                let supports = document["supports"].as_array_mut().unwrap();
+                for index in 0..extra {
+                    for (dof_index, dof) in ["UX", "UY", "UZ", "RX", "RY", "RZ"].iter().take(shape.supports_per_node).enumerate() {
+                        supports.push(json!({"id": format!("s{index}-{dof_index}"), "node": node_id(index), "restraints": [dof]}));
+                    }
+                }
+            }
+            if shape.supports {
+                let supports = document["supports"].as_array_mut().unwrap();
+                for index in 0..extra {
+                    let mut support = json!({"id": if shape.tiny { format!("s{index}") } else { format!("support:X{index}") }, "node": node_id(index), "restraints": ["UY"]});
+                    if !shape.tiny {
+                        support["label"] = json!(format!("Guide {index}"));
+                        support["provenance"] = json!("invented_example");
+                    }
+                    supports.push(support);
+                }
+            }
+            if shape.forces {
+                let loads = document["load_cases"][0]["primitive_loads"].as_array_mut().unwrap();
+                let mut template = loads[0].clone();
+                if shape.tiny {
+                    template.as_object_mut().unwrap().remove("provenance");
+                }
+                for index in 0..extra {
+                    let mut load = template.clone();
+                    load["id"] = json!(if shape.tiny { format!("f{index}") } else { format!("load:F-X{index}") });
+                    load["target"]["node"] = json!(node_id(index));
+                    loads.push(load);
+                }
+            }
+            if shape.thermal {
+                let loads = document["load_cases"][1]["primitive_loads"].as_array_mut().unwrap();
+                let mut template = loads[0].clone();
+                if shape.tiny {
+                    template.as_object_mut().unwrap().remove("provenance");
+                }
+                for index in 0..extra {
+                    let mut load = template.clone();
+                    load["id"] = json!(if shape.tiny { format!("t{index}") } else { format!("load:t-X{index}") });
+                    load["target"]["pipe"] = json!(pipe_id(index));
+                    loads.push(load);
+                }
+            }
+        })
+    }
+
+    /// The smallest canonical bytes of the costliest unit the writer writes (§3.7): a node, the pipe that reaches it
+    /// and three single-direction supports at it, each with a one-character id and only its required members, and a
+    /// separating comma each.
+    fn minimal_unit_bytes() -> f64 {
+        let node = json!({"id": "a", "position": {"x": 0, "y": 0, "z": 0}});
+        let pipe = json!({"id": "b", "from": "a", "to": "c", "material": "m",
+            "section": {"outside_diameter": {"value": 3, "unit": "m"}, "wall_thickness": {"value": 1, "unit": "m"}}});
+        let support = json!({"id": "d", "node": "a", "restraints": ["UX"]});
+        let bytes = |value: &Value| canonical_json(value).len() as f64 + 1.0;
+        bytes(&node) + bytes(&pipe) + 3.0 * bytes(&support)
+    }
+
+    /// §3.7: k from the per-unit argument and the measured shapes. Every model's writer peak stays within its working
+    /// set; the costliest unit's marginal bytes held per unit, over its smallest admissible bytes, bounds the ratio of
+    /// any model the writer writes, and k is at least 1.5 times that bound and the largest measured ratio.
     #[test]
     fn the_writer_peak_stays_within_its_working_set() {
-        let mut worst = 0.0_f64;
-        for (label, text) in [("fixture", canonical_of(EXPORT_MODEL)), ("long-48", long_model(48)), ("long-480", long_model(480))] {
-            let writer = writer_settings(&settings()).unwrap();
-            let (files, measured) = crate::ingress::counting::measure(|| render_mbf_files(&text, &writer));
-            assert!(files.is_ok(), "{label}: {files:?}");
+        let writer = writer_settings(&settings()).unwrap();
+        let measure = |text: &str| {
+            let (files, measured) = crate::ingress::counting::measure(|| render_mbf_files(text, &writer));
+            assert!(files.is_ok(), "{files:?}");
+            measured.peak_priced
+        };
+        let all = Shape { supports: true, forces: true, thermal: true, ..Shape::default() };
+        let worst = Shape { minimal: true, supports_per_node: 3, ..Shape::default() };
+        let shapes: Vec<(&str, String)> = vec![
+            ("fixture", canonical_of(EXPORT_MODEL)),
+            ("long-480", long_model(480)),
+            ("supports at every node", shaped_model(480, Shape { supports: true, ..Shape::default() })),
+            ("node forces", shaped_model(480, Shape { forces: true, ..Shape::default() })),
+            ("combined", shaped_model(480, all)),
+            ("tiny combined", shaped_model(480, Shape { tiny: true, ..all })),
+            ("minimal supports", shaped_model(480, Shape { minimal: true, supports: true, ..Shape::default() })),
+            ("minimal, three supports a node", shaped_model(480, worst)),
+        ];
+        let mut largest = 0.0_f64;
+        for (label, text) in &shapes {
             let model = text.len() as u64;
-            let ratio = measured.peak_priced as f64 / model as f64;
-            worst = worst.max(ratio);
-            eprintln!("mbf writer peak: {label} M={model} peak_priced={} ratio={ratio:.1} working_set={}", measured.peak_priced, writer_working_set(model));
-            assert!(measured.peak_priced <= writer_working_set(model), "{label}: peak {} above the working set {}", measured.peak_priced, writer_working_set(model));
-            // The margin: k is at least 1.5 times the measured ratio on the largest model.
-            if label == "long-480" {
-                assert!((WRITER_WORKING_SET_FACTOR as f64) >= 1.5 * ratio, "{label}: k={WRITER_WORKING_SET_FACTOR} ratio={ratio:.1}");
-            }
+            let peak = measure(text);
+            let ratio = peak as f64 / model as f64;
+            largest = largest.max(ratio);
+            eprintln!("mbf writer peak: {label} M={model} peak_priced={peak} ratio={ratio:.1} working_set={}", writer_working_set(model));
+            assert!(peak <= writer_working_set(model), "{label}: peak {peak} above the working set {}", writer_working_set(model));
         }
-        assert!(worst > 0.0);
+        // The argument: the bytes held grow by a fixed amount per unit (the parsed model, the writer's records and
+        // result, the MBF text, the sidecar, the preflight import and its regeneration), so the marginal cost of the
+        // costliest unit over its smallest admissible bytes bounds the ratio of every mix of units.
+        let (small, large) = (shaped_model(240, worst), shaped_model(480, worst));
+        let held_per_unit = (measure(&large) as f64 - measure(&small) as f64) / 240.0;
+        let bound = held_per_unit / minimal_unit_bytes();
+        eprintln!("mbf writer argument: {held_per_unit:.0} bytes held per unit / {} bytes = {bound:.1}; largest measured {largest:.1}", minimal_unit_bytes());
+        assert!(bound >= largest, "the argument {bound:.1} bounds the measurements {largest:.1}");
+        assert!(WRITER_WORKING_SET_FACTOR as f64 >= 1.5 * bound.max(largest), "k={WRITER_WORKING_SET_FACTOR} bound={bound:.1} largest={largest:.1}");
     }
 
     /// §3.7: the whole save, through its response, peaks within what it held; every reservation is released.
@@ -1267,5 +1885,38 @@ mod tests {
             assert!(!opened.get(), "budget {budget}");
         }
         assert!(!std::env::temp_dir().join("never-written.mbf").exists());
+    }
+
+    /// P3-1: the memory refusal raised inside the admission's screen (`screen_model`) comes back under this command's
+    /// code, like the library reads' refusals.
+    #[test]
+    fn a_refused_screening_reservation_uses_the_exports_memory_code() {
+        let text = long_model(480);
+        let parse = admission_bytes(&text);
+        assert!(parse > SETTINGS_WORKING_BYTES);
+        // The settings' reservation and the admission's parse fit; the screen's reservation, made with the parse held,
+        // does not.
+        let pool = registry(ScriptedHost::normal());
+        pool.configure_pool(64 << 20, parse, false).unwrap();
+        let opened = Cell::new(false);
+        let outcome = save_with(request(&text), &pool, None, &mut SystemMbfExportIo, &opened);
+        assert_eq!(codes(&outcome), vec![MEMORY_UNAVAILABLE.to_string()]);
+        let MbfExportOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
+        assert!(diagnostics[0].message.contains("the screening of the model document"), "{}", diagnostics[0].message);
+        assert!(!opened.get());
+    }
+
+    /// The settings' parse and mapping peak within their reservation at the largest settings text admitted.
+    #[test]
+    fn the_settings_parse_stays_within_its_reservation() {
+        let escaped = "\\u0001".repeat(mbf::MAX_EXPORT_TITLE_BYTES);
+        let text = format!(r#"{{"title":"{escaped}","referenceTemperature":{{"value":20,"unit":"degC"}},"maxLayoutRows":null}}"#);
+        let longest = format!("{text}{}", " ".repeat(mbf::MAX_EXPORT_SETTINGS_JSON_BYTES - text.len()));
+        for (label, text) in [("escaped title", text), ("longest text", longest)] {
+            let (settings, measured) = crate::ingress::counting::measure(|| writer_settings(&text).map(drop));
+            assert!(settings.is_ok(), "{label}");
+            eprintln!("mbf settings peak: {label} bytes={} peak_priced={}", text.len(), measured.peak_priced);
+            assert!(measured.peak_priced <= SETTINGS_WORKING_BYTES, "{label}: {}", measured.peak_priced);
+        }
     }
 }

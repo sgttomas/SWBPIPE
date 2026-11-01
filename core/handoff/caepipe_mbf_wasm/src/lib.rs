@@ -6,8 +6,8 @@
 //! settings and returns the review: the status, the MBF text and its SHA-256, the writer's `to_dict()` bytes, and
 //! the identity file's bytes (the writer sidecar for that SHA-256) and their SHA-256. The webview shows the review
 //! and discards the text: the bytes written are always the native writer's output for the hash-checked text
-//! (`apps/desktop/src-tauri/src/mbf_export.rs`), which maps the settings by the same rules ([`export_settings`])
-//! and refuses a save whose digests differ from the reviewed ones. [`import_mbf_json`] runs the importer for the
+//! (`apps/desktop/src-tauri/src/mbf_export.rs`), which maps the same settings text by the same engine function
+//! ([`export_settings`]) and refuses a save whose digests differ from the reviewed ones. [`import_mbf_json`] runs the importer for the
 //! later import slice.
 //!
 //! The model text is read as the engine reads JSON (`parse_sidecar_json`: strict UTF-8 and CPython's `json.loads`,
@@ -29,7 +29,7 @@ pub const RENDER_OUTCOME_KIND: &str = "swbpipe.desktop.mbf_render_outcome";
 pub const IMPORT_OUTCOME_KIND: &str = "swbpipe.desktop.mbf_import_outcome";
 
 /// The export settings are not `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`.
-pub const SETTINGS_INVALID: &str = "MBF-EXPORT-SETTINGS-INVALID";
+pub const SETTINGS_INVALID: &str = mbf::EXPORT_SETTINGS_INVALID;
 /// The model text is not JSON the engine reads.
 pub const MODEL_JSON_INVALID: &str = "MBF-EXPORT-MODEL-JSON-INVALID";
 /// The import options are not `{sourceLabel, materialProvenance?}`.
@@ -71,53 +71,31 @@ pub fn parse_json(bytes: &[u8], what: &str, code: &'static str) -> Result<Value,
     })
 }
 
-fn number(value: &Value) -> bool {
-    match value {
-        Value::Int(_) => true,
-        Value::Float(value) => value.is_finite(),
-        _ => false,
-    }
+/// The export dialog's settings text `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}` as the
+/// writer's arguments (Design §3.1), by the engine's one mapping (`export_settings_from_json`): the title as given, at
+/// most 4 KiB of UTF-8 (the writer trims it), the reference temperature as `reference_temperature_c` for `degC` or
+/// `reference_temperature_f` for `degF` (exact), and no row limit (`max_layout_rows=None`, Q-4). The native command
+/// is given the same text and maps it by the same function.
+pub fn export_settings(settings_json: &[u8]) -> Result<WriterSettings, Failure> {
+    mbf::export_settings_from_json(settings_json).map_err(|error| failure(SETTINGS_INVALID, error.message))
 }
 
-/// The export dialog's settings `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}` as the writer's
-/// arguments (Design §3.1): the title as given (the writer trims it), the reference temperature as
-/// `reference_temperature_c` for `degC` or `reference_temperature_f` for `degF` (exact; the Celsius default is then
-/// unused), and no row limit (`max_layout_rows=None`, Q-4). Anything else is refused by name; the native command
-/// applies the same rules to the same JSON.
-pub fn export_settings(settings: &Value) -> Result<WriterSettings, Failure> {
-    let invalid = |detail: &str| {
-        failure(
-            SETTINGS_INVALID,
-            format!(
-                "The export settings must be {{title, referenceTemperature: {{value, unit}}, maxLayoutRows: null}}: {detail}."
-            ),
-        )
-    };
-    let Some(dict) = settings.as_dict() else { return Err(invalid("not an object")) };
-    if dict.len() != 3 || !["title", "referenceTemperature", "maxLayoutRows"].iter().all(|key| dict.contains_key(&key.to_string())) {
-        return Err(invalid("the members differ"));
-    }
-    let Some(title) = settings.get_or_null("title").as_str() else { return Err(invalid("the title is not a string")) };
-    if !settings.get_or_null("maxLayoutRows").is_null() {
-        return Err(invalid("maxLayoutRows must be null (no row limit)"));
-    }
-    let reference = settings.get_or_null("referenceTemperature");
-    let Some(reference_dict) = reference.as_dict() else { return Err(invalid("referenceTemperature is not an object")) };
-    if reference_dict.len() != 2 || !reference.has("value") || !reference.has("unit") {
-        return Err(invalid("referenceTemperature must hold exactly value and unit"));
-    }
-    let value = reference.get_or_null("value");
-    if !number(value) {
-        return Err(invalid("the reference temperature is not a finite number"));
-    }
-    let mut writer = WriterSettings::new(title.to_string());
-    writer.max_layout_rows = None;
-    match reference.get_or_null("unit").as_str() {
-        Some("degC") => writer.reference_temperature_c = value.clone(),
-        Some("degF") => writer.reference_temperature_f = value.clone(),
-        _ => return Err(invalid("the reference temperature unit is not degC or degF")),
-    }
-    Ok(writer)
+/// The unit conversions the writer applied: each normalized unit, its exact definition and, where it has one, its
+/// exact factor as `numerator/denominator` (the engine's normalization table).
+fn unit_conversions(result: &WriterResult) -> Vec<serde_json::Value> {
+    let factors = mbf::ports::writer_unit_factors();
+    result
+        .unit_normalizations
+        .iter()
+        .map(|(unit, definition)| {
+            let factor = factors
+                .iter()
+                .find(|(table, key, _)| *table == "normalization" && key == unit)
+                .and_then(|(_, _, factor)| factor.as_ref())
+                .map(|(numerator, denominator)| format!("{numerator}/{denominator}"));
+            json!({"unit": unit, "definition": definition, "factor": factor})
+        })
+        .collect()
 }
 
 /// The writer's result for the model text, and for a written result the MBF's SHA-256 and the identity file's bytes
@@ -173,12 +151,12 @@ fn failed(kind: &str, failure: Failure) -> String {
 }
 
 /// The export review for the webview: `{document_kind, status, profile_id, mbf_version, mbf_text, mbf_sha256,
-/// sidecar_text, sidecar_sha256, report_json, failure}`. `status` is the writer's (`written` or `refused`), or
+/// sidecar_text, sidecar_sha256, report_json, unit_conversions, failure}`. `status` is the writer's (`written` or `refused`), or
 /// `failed` with `failure` `{code, message}` when the settings or the model text are refused or the engine returns no
 /// result. `report_json` is the writer's `to_dict()` bytes; the digests are lowercase hex SHA-256 of the MBF text
 /// and of the identity file's bytes (`sidecar_text`).
 pub fn render_mbf_outcome(model_json: &str, settings_json: &str) -> String {
-    let settings = match parse_json(settings_json.as_bytes(), "export settings", SETTINGS_INVALID).and_then(|value| export_settings(&value)) {
+    let settings = match export_settings(settings_json.as_bytes()) {
         Ok(settings) => settings,
         Err(error) => return failed(RENDER_OUTCOME_KIND, error),
     };
@@ -201,6 +179,7 @@ pub fn render_mbf_outcome(model_json: &str, settings_json: &str) -> String {
         "sidecar_text": written.map(|item| String::from_utf8_lossy(&item.sidecar).into_owned()),
         "sidecar_sha256": written.map(|item| item.sidecar_sha256.as_str()),
         "report_json": report,
+        "unit_conversions": unit_conversions(&rendered.result),
         "failure": null,
     })
     .to_string()

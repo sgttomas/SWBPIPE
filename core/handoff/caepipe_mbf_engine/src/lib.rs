@@ -29,6 +29,7 @@
 
 mod correctly_rounded;
 mod decimal90;
+mod export_settings;
 mod importer;
 mod pyfmt;
 mod pyjson;
@@ -41,6 +42,9 @@ mod unicode_tables;
 pub mod value;
 mod writer;
 
+pub use export_settings::{
+    export_settings_from_json, ExportSettingsError, EXPORT_SETTINGS_INVALID, MAX_EXPORT_SETTINGS_JSON_BYTES, MAX_EXPORT_TITLE_BYTES,
+};
 pub use pyjson::{SidecarJsonError, MAX_NESTING as MAX_SIDECAR_NESTING};
 pub use pystr::PyError;
 pub use value::{py_eq, Dict, OMap, Value};

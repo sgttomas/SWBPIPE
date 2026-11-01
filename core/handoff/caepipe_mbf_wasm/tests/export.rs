@@ -4,7 +4,7 @@
 //! `MBF_EXPORT_DIGESTS_REGENERATE=1`).
 
 use open_pipe_stress_caepipe_mbf_wasm::{
-    export_settings, import_mbf_json, parse_json, render_export, render_mbf_json, sha256_hex, ENGINE_FAILED,
+    export_settings, import_mbf_json, render_export, render_mbf_json, sha256_hex, ENGINE_FAILED,
     IMPORT_OPTIONS_INVALID, MODEL_JSON_INVALID, SETTINGS_INVALID,
 };
 use serde_json::{json, Value};
@@ -29,7 +29,16 @@ fn export_model() -> String {
 }
 
 fn settings(title: &str, value: Value, unit: &str) -> String {
-    json!({"title": title, "referenceTemperature": {"value": value, "unit": unit}, "maxLayoutRows": null}).to_string()
+    settings_text(title, &value.to_string(), unit)
+}
+
+/// The settings text as the dialog writes it (`JSON.stringify` of `{title, referenceTemperature: {value, unit},
+/// maxLayoutRows: null}`, in that member order), with the number's text as given.
+fn settings_text(title: &str, value: &str, unit: &str) -> String {
+    format!(
+        r#"{{"title":{},"referenceTemperature":{{"value":{value},"unit":"{unit}"}},"maxLayoutRows":null}}"#,
+        Value::String(title.to_string())
+    )
 }
 
 fn render(model: &str, settings: &str) -> Value {
@@ -45,6 +54,10 @@ fn cases() -> Vec<(&'static str, String, String)> {
         ("degc-default", settings("Invented MBF export", json!(20), "degC"), model.clone()),
         ("degc-fractional", settings("Invented MBF export", json!(21.5), "degC"), model.clone()),
         ("degf-project", settings("Invented MBF export", json!(68), "degF"), open_pipe_stress_canonical_json::canonical_json(&degf)),
+        // Integers the dialog's JSON.stringify writes in full: one between 2^63 and 2^64, one between 2^64 and 10^21.
+        // The native save is given the same text and reads it by the same engine function.
+        ("degc-integer-above-2p63", settings_text("Invented MBF export", "9223372036854776000", "degC"), model.clone()),
+        ("degf-integer-above-2p64", settings_text("Invented MBF export", "100000000000000000000", "degF"), model.clone()),
     ]
 }
 
@@ -73,7 +86,7 @@ fn the_fixture_is_written_with_its_identity_file_and_digests() {
     let categories: Vec<&str> = report["loss_report"].as_array().unwrap().iter().map(|item| item["category"].as_str().unwrap()).collect();
     assert!(!categories.is_empty() && categories.iter().all(|category| *category == "omitted"), "{categories:?}");
     // The rlib path the outcome is built from gives the same bytes.
-    let direct = render_export(model.as_bytes(), &export_settings(&parse_json(settings("Invented MBF export", json!(20), "degC").as_bytes(), "s", SETTINGS_INVALID).unwrap()).unwrap()).unwrap();
+    let direct = render_export(model.as_bytes(), &export_settings(settings("Invented MBF export", json!(20), "degC").as_bytes()).unwrap()).unwrap();
     let written = direct.written.unwrap();
     assert_eq!(written.sidecar, sidecar.as_bytes());
     assert_eq!(direct.result.text.as_deref(), Some(text));
@@ -152,6 +165,34 @@ fn settings_other_than_the_dialogs_are_refused_by_name() {
     }
     let outcome = render(&model, "{not json");
     assert_eq!(outcome["failure"]["code"], SETTINGS_INVALID);
+    // The title bound: 4 KiB of UTF-8 is written, one byte more is refused before the model is read.
+    assert_eq!(render(&model, &settings_text(&"é".repeat(2048), "20", "degC"))["status"], "written");
+    for title in ["a".repeat(4097), "é".repeat(2049)] {
+        let outcome = render("{not json", &settings_text(&title, "20", "degC"));
+        assert_eq!(outcome["failure"]["code"], SETTINGS_INVALID);
+        assert!(outcome["failure"]["message"].as_str().unwrap().contains("more than 4096"), "{outcome}");
+    }
+}
+
+/// The unit conversions are the writer's normalization data with exact factors, not its assumption sentences.
+#[test]
+fn the_review_lists_each_unit_conversion_with_its_exact_factor() {
+    let model = export_model();
+    let outcome = render(&model, &settings("T", json!(20), "degC"));
+    assert_eq!(outcome["unit_conversions"], json!([]));
+    let mut us: Value = serde_json::from_str(&model).unwrap();
+    us["project"]["units"]["temperature"] = json!("degF");
+    let outcome = render(&open_pipe_stress_canonical_json::canonical_json(&us), &settings("T", json!(68), "degF"));
+    let conversions = outcome["unit_conversions"].as_array().unwrap();
+    assert!(conversions.iter().any(|item| item["unit"] == "degF absolute" && item["factor"].is_null()), "{conversions:?}");
+    let report: Value = serde_json::from_str(outcome["report_json"].as_str().unwrap()).unwrap();
+    for item in conversions {
+        assert!(item["definition"].as_str().is_some_and(|text| !text.is_empty()));
+        if item["unit"] == "degF" {
+            assert_eq!(item["factor"], "5/9");
+        }
+    }
+    assert!(report["assumptions"].as_array().unwrap().iter().all(|sentence| conversions.iter().all(|item| item["definition"] != *sentence)));
 }
 
 #[test]
@@ -183,13 +224,23 @@ fn the_recorded_export_digests_are_the_wrappers() {
     let mut recorded = serde_json::Map::new();
     for (name, settings_text, model) in cases() {
         let outcome = render(&model, &settings_text);
-        assert_eq!(outcome["status"], "written", "{name}");
-        recorded.insert(name.to_string(), json!({
+        let mut case = json!({
             "model_sha256": sha256_hex(model.as_bytes()),
-            "settings": serde_json::from_str::<Value>(&settings_text).unwrap(),
-            "mbf_sha256": outcome["mbf_sha256"],
-            "sidecar_sha256": outcome["sidecar_sha256"],
-        }));
+            "settings_json": settings_text,
+            "status": outcome["status"],
+        });
+        if outcome["status"] == "written" {
+            case["mbf_sha256"] = outcome["mbf_sha256"].clone();
+            case["sidecar_sha256"] = outcome["sidecar_sha256"].clone();
+        } else {
+            // A refusal: the codes of the writer's error diagnostics, which the native save returns.
+            assert_eq!(outcome["status"], "refused", "{name}: {outcome}");
+            let report: Value = serde_json::from_str(outcome["report_json"].as_str().unwrap()).unwrap();
+            let codes: Vec<Value> = report["diagnostics"].as_array().unwrap().iter().filter(|item| item["severity"] == "error").map(|item| item["code"].clone()).collect();
+            assert!(!codes.is_empty(), "{name}");
+            case["refusal_codes"] = Value::Array(codes);
+        }
+        recorded.insert(name.to_string(), case);
     }
     let document = json!({
         "document_kind": "swbpipe.test.mbf_export_digests",
