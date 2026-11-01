@@ -36,8 +36,9 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       const replay = createNativeMechanicsReplay({ profile });
       install(replay);
       const pair = nativeMechanicsReplayPair("sparse_interactive", { profile });
-      const receipt = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
-      expect(receipt.mode).toBe("backend_job");
+      const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+      if (started.mode !== "backend_job") throw new Error("not a backend job");
+      const receipt = started;
       const terminal = await awaitPreviewMechanicsJob(receipt.job_id);
       expect(terminal.state).toBe("completed");
       const reading = await readNativeFreshResult(receipt.job_id, terminal.result_bytes ?? 0, { standingModel: pair.model, summaryModel: pair.model });
@@ -85,7 +86,9 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       resetNativeResultsForTests();
       const transport = createSolveJobTransport(() => pair.bytes, { fullCopyLimitBytes: limit });
       install({ invoke: transport.invoke });
-      const receipt = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+      const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+      if (started.mode !== "backend_job") throw new Error("not a backend job");
+      const receipt = started;
       await awaitPreviewMechanicsJob(receipt.job_id);
       const native = (await readNativeFreshResult(receipt.job_id, length, { standingModel: pair.model, summaryModel: pair.model })).result;
       const load = loadFullResult(native, async (text) => JSON.parse(text) as MechanicsResult);
