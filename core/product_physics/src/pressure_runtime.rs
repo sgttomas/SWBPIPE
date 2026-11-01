@@ -305,9 +305,11 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                 problem(diagnostics, code, &[&component.id], message);
             }
         }
-        // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
-        // the admitted reducer is refused case by case where its mapped member
-        // belongs to a pressure region.
+        // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7)
+        // with RT-A3 reducer 2a: a reducer whose mapped member belongs to a
+        // pressure region is refused case by case unless its topology is the
+        // concentric pressure-bore step's; `assemble_pressure_case` judges the
+        // remaining ones again with their normalized geometry.
         for refs in exact_admission::reducer_region_refusals(model) {
             problem(diagnostics, exact_admission::REDUCER_IN_REGION, &refs, exact_admission::REDUCER_IN_REGION_TEXT);
         }
@@ -745,6 +747,11 @@ fn assemble_pressure_case(
         );
         return None;
     };
+    // RT-A3 reducer 2a: every reducer listed in a region of this case is
+    // refused unless both its step topology and its built geometry hold.
+    if refuse_reducers_outside_step(model, built, case, diagnostics) {
+        return None;
+    }
     let mut output = ExactPressureCase {
         pipe_states: BTreeMap::new(),
         eigenloads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
@@ -1840,6 +1847,68 @@ fn traverse_region(
         junction.after -= traversal[..junction.after].iter().filter(|step| joint_spans.contains(&step.pipe_index)).count();
     }
     Some((traversal.into_iter().filter(|step| !joint_spans.contains(&step.pipe_index)).collect(), junctions))
+}
+
+/// RT-A3 reducer increment 2a (DEL-04-07 `route-unification-r4.md` §00
+/// C-3/C-4, §3.1): each reducer whose mapped member is listed in a pressure
+/// region of `case` is admitted only as the concentric pressure-bore step,
+/// whose topology `exact_admission::reducers_in_regions` decides and whose
+/// geometry is judged here on the built (normalized) coordinates: at each body
+/// end the unit direction into the body and the unit direction into its one
+/// neighbour are opposite, with a negative dot product and a cross-product
+/// norm at most 64*epsilon. That is the representation guard of a collinear
+/// chain, not W-15c's placement tolerance or the 1e-3 rad tangency tolerance,
+/// so a slanted body (an eccentric reducer with or without its offset slot)
+/// is refused. Every other listed reducer is refused by name with its (case,
+/// region, reducer, member). Returns whether any was refused.
+fn refuse_reducers_outside_step(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    case: &PreviewLoadCase,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> bool {
+    let mut refused = false;
+    for reducer in exact_admission::reducers_in_regions(model, case) {
+        let admitted = reducer.step.is_some_and(|ends| ends.iter().all(|end| step_end_is_collinear(model, built, end)));
+        if !admitted {
+            problem(diagnostics, exact_admission::REDUCER_IN_REGION, &reducer.refs, exact_admission::REDUCER_IN_REGION_TEXT);
+            refused = true;
+        }
+    }
+    refused
+}
+
+/// One step end on the built coordinates: the body and the neighbour leave the
+/// shared node in opposite directions within the representation guard.
+fn step_end_is_collinear(model: &PreviewModel, built: &BuiltModel, end: &exact_admission::ReducerStepEnd) -> bool {
+    let Some(node) = model.nodes.iter().position(|candidate| candidate.id == end.node) else {
+        return false;
+    };
+    // The unit direction from the shared node into a built member.
+    let leaving = |pipe_id: &str| -> Option<[f64; 3]> {
+        let pipe = built.pipes.iter().find(|pipe| pipe.element_id == pipe_id)?;
+        let (at, far) = if pipe.node_i.index == node {
+            (pipe.node_i.coordinates, pipe.node_j.coordinates)
+        } else if pipe.node_j.index == node {
+            (pipe.node_j.coordinates, pipe.node_i.coordinates)
+        } else {
+            return None;
+        };
+        let chord = std::array::from_fn::<_, 3, _>(|axis| far[axis] - at[axis]);
+        let length = norm3(chord[0], chord[1], chord[2]);
+        (length.is_finite() && length > 0.0).then(|| chord.map(|value| value / length))
+    };
+    let (Some(into_body), Some(into_neighbour)) = (leaving(end.body), leaving(end.neighbour)) else {
+        return false;
+    };
+    // Written out: a three-term geometric predicate, not an accumulation.
+    let dot = into_body[0] * into_neighbour[0] + into_body[1] * into_neighbour[1] + into_body[2] * into_neighbour[2];
+    let cross = [
+        into_body[1] * into_neighbour[2] - into_body[2] * into_neighbour[1],
+        into_body[2] * into_neighbour[0] - into_body[0] * into_neighbour[2],
+        into_body[0] * into_neighbour[1] - into_body[1] * into_neighbour[0],
+    ];
+    dot < 0.0 && norm3(cross[0], cross[1], cross[2]) <= REPRESENTATION_GUARD
 }
 
 /// One collinear chain of straight members between two nodes: today's
