@@ -38,6 +38,16 @@ EXPECTED = ['swbpipe_read_model_summary', 'swbpipe_propose_operations', 'message
             'swbpipe_read_model_summary', 'swbpipe_observe_proposal', 'swbpipe_solve',
             'swbpipe_read_results', 'message']
 HOST_TOOLS = [name for name in EXPECTED if name != 'message']
+DECLARED_TOOL_IDS = {
+    'swbpipe_read_model_summary': 'summary', 'swbpipe_read_nodes': 'nodes',
+    'swbpipe_read_records': 'records', 'swbpipe_propose_operations': 'propose',
+    'swbpipe_observe_proposal': 'observe', 'swbpipe_solve': 'solve', 'swbpipe_read_results': 'results',
+}
+TOOLS_REFUSALS = frozenset({'request_tools_vector_type', 'request_tools_count', 'request_tools_member_type',
+                           'request_tools_name_type', 'request_tools_name_duplicate', 'request_tools_name_set'})
+DIAGNOSTIC_MEMBERS = 8
+_MISSING = object()
+CATEGORIES = ('missing', 'null', 'boolean', 'number', 'string', 'array', 'object', 'other')
 
 
 class Refusal(witness.WitnessError):
@@ -130,6 +140,45 @@ def no_secrets(value):
         raise Refusal('request_nonfinite')
 
 
+def category(value):
+    """Fixed JSON categories only; never stringify an untrusted value or type name."""
+    if value is _MISSING: return 'missing'
+    if value is None: return 'null'
+    if isinstance(value, bool): return 'boolean'
+    if isinstance(value, (int, float)): return 'number'
+    if isinstance(value, str): return 'string'
+    if isinstance(value, list): return 'array'
+    if isinstance(value, dict): return 'object'
+    return 'other'
+
+
+def tools_summary(request, condition):
+    """At most eight members; only fixed labels, capped counts and allowlisted identity booleans."""
+    if condition not in TOOLS_REFUSALS:
+        raise ValueError('unknown tools diagnostic condition')
+    vector = request.get('tools', _MISSING) if isinstance(request, dict) else _MISSING
+    sample = vector[:DIAGNOSTIC_MEMBERS] if isinstance(vector, list) else []
+    result = {'version': 1, 'condition': condition, 'request_type': category(request), 'vector_type': category(vector),
+              'member_count': len(sample), 'count_capped': isinstance(vector, list) and len(vector) > DIAGNOSTIC_MEMBERS,
+              'member_types': dict.fromkeys(CATEGORIES, 0),
+              'type_tags': dict.fromkeys(('function', 'namespace', 'other_string', *CATEGORIES), 0),
+              'recognized': dict.fromkeys(DECLARED_TOOL_IDS.values(), False),
+              'unknown_name_count': 0, 'unknown_name_types': dict.fromkeys(CATEGORIES, 0)}
+    for member in sample:
+        result['member_types'][category(member)] += 1
+        tag = member.get('type', _MISSING) if isinstance(member, dict) else _MISSING
+        tag_id = tag if isinstance(tag, str) and tag in ('function', 'namespace') else ('other_string' if isinstance(tag, str) else category(tag))
+        result['type_tags'][tag_id] += 1
+        name = member.get('name', _MISSING) if isinstance(member, dict) else _MISSING
+        matched = [tool_id for tool, tool_id in DECLARED_TOOL_IDS.items() if isinstance(name, str) and name.endswith(tool)]
+        for tool_id in matched:
+            result['recognized'][tool_id] = True
+        if not matched:
+            result['unknown_name_count'] += 1
+            result['unknown_name_types'][category(name)] += 1
+    return result
+
+
 class Capture:
     """Single serialized script, eight bodies maximum. Failed bodies are never retained."""
     def __init__(self, output, deadline, clock=time.monotonic):
@@ -137,6 +186,7 @@ class Capture:
         self.script = Script(TURNS)
         self.bodies, self.calls, self.total, self.discovery = [], [], 0, False
         self.failure = None
+        self.tools_diagnostic = None
         self.lock = threading.RLock()
         self.expired = threading.Event()
         self.outcomes = json.loads(OUTCOMES.read_text())['outcomes']
@@ -155,6 +205,16 @@ class Capture:
     def final_failure(self):
         with self.lock:
             return self.failure
+
+    def tools_failure_summary(self):
+        with self.lock:
+            return self.tools_diagnostic  # assigned once; no untrusted strings or nested input are retained
+
+    def refuse_tools(self, condition, request):
+        with self.lock:
+            if self.tools_diagnostic is None:
+                self.tools_diagnostic = tools_summary(request, condition)
+        raise Refusal(condition)
 
     def accept(self, path, headers, stream):
         with self.lock:
@@ -185,14 +245,20 @@ class Capture:
             if request.get('previous_response_id') is not None or not isinstance(request.get('input'), list):
                 raise Refusal('request_history')
             tools = request.get('tools')
-            if not isinstance(tools, list) or len(tools) != 7:
-                raise Refusal('request_tools')
-            actual = [t.get('name') for t in tools if isinstance(t, dict)]
-            if len(set(actual)) != 7 or any(not isinstance(n, str) for n in actual):
-                raise Refusal('request_tools')
+            if not isinstance(tools, list):
+                self.refuse_tools('request_tools_vector_type', request)
+            if len(tools) != 7:
+                self.refuse_tools('request_tools_count', request)
+            if any(not isinstance(t, dict) for t in tools):
+                self.refuse_tools('request_tools_member_type', request)
+            actual = [t.get('name') for t in tools]
+            if any(not isinstance(n, str) for n in actual):
+                self.refuse_tools('request_tools_name_type', request)
+            if len(set(actual)) != 7:
+                self.refuse_tools('request_tools_name_duplicate', request)
             for t in declarations():
                 if sum(name.endswith(t['name']) for name in actual) != 1:
-                    raise Refusal('request_tools')
+                    self.refuse_tools('request_tools_name_set', request)
             index = len(self.bodies)
             inputs = request['input']
             last = max(i for i, item in enumerate(inputs) if item.get('role') == 'user')
@@ -461,6 +527,9 @@ def run(binary, output, *, initialize=CaptureNative.__init__, provider_factory=C
         if final_failure:
             result['failure'] = final_failure
             result['captureComplete'] = False
+            summary = capture.tools_failure_summary()
+            if summary is not None:
+                result['toolsDiagnostic'] = summary
         try:
             if checkout_selection() != revision:
                 raise Refusal('checkout_changed')

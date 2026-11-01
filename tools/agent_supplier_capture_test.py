@@ -204,7 +204,7 @@ class Timer:
 
 
 def runner(tmp_path, monkeypatch, *, broken=False, cleanup_failure=False, timeout=False, resident=False,
-           late_handler=False, checkout_changed=False):
+           late_handler=False, checkout_changed=False, tools_failure=False):
     events = []
     binary = tmp_path / 'invented-codex'
     binary.touch()
@@ -231,6 +231,15 @@ def runner(tmp_path, monkeypatch, *, broken=False, cleanup_failure=False, timeou
         native.close, native.stop = close, lambda: events.append('stop')
         if broken: raise RuntimeError('invented partial startup failure')
         fake = FakeSupplier(holder['capture'])
+        if tools_failure:
+            original_receive = fake.receive
+            def fail_after_one_body(deadline):
+                if len(fake.capture.bodies) == 1:
+                    value = first_request()
+                    value['tools'][0]['name'] = 'invented-private-tool-label'
+                    return post(fake.capture, value)
+                return original_receive(deadline)
+            fake.receive = fail_after_one_body
         native.request, native.send, native.receive = fake.request, fake.send, fake.receive
     holder = {}
     def provider_factory(seen):
@@ -258,6 +267,7 @@ def test_run_mock_completion_uses_owned_cleanup_and_retains_only_bounded_fixture
     assert len(result['bodies']) == 8 and result['supplierExited']
     assert events == ['provider-start', 'close', 'provider-stop']
     assert result['inputs'][str(adapter.FIXTURE.relative_to(adapter.PROJECT))] == witness.digest(adapter.FIXTURE)
+    assert 'toolsDiagnostic' not in result
 
 
 @pytest.mark.parametrize('case', ['broken', 'cleanup_failure', 'timeout', 'resident', 'late_handler', 'checkout_changed'])
@@ -530,3 +540,116 @@ def test_global_information_is_ignored_but_foreign_thread_or_unsupported_request
     fake.receive = lambda deadline: {'method': 'item/started', 'params': {'item': {'type': 'commandExecution'}}}
     with pytest.raises(adapter.Refusal, match='builtin_item'):
         adapter.drive(fake, seen, seen.outcomes, clock=lambda: 0)
+
+
+@pytest.mark.parametrize('condition,change', [
+    ('request_tools_vector_type', lambda v:v.pop('tools')),
+    ('request_tools_vector_type', lambda v:v.update(tools=None)),
+    ('request_tools_vector_type', lambda v:v.update(tools={})),
+    ('request_tools_count', lambda v:v.update(tools=[])),
+    ('request_tools_count', lambda v:v['tools'].pop()),
+    ('request_tools_count', lambda v:v['tools'].append({'name':'invented-unknown'})),
+    ('request_tools_member_type', lambda v:v['tools'].__setitem__(0, ['invented-member'])),
+    ('request_tools_name_type', lambda v:v['tools'][0].pop('name')),
+    ('request_tools_name_type', lambda v:v['tools'][0].update(name=None)),
+    ('request_tools_name_type', lambda v:v['tools'][0].update(name=['invented-name'])),
+    ('request_tools_name_type', lambda v:v['tools'][0].update(name={'invented':'private-value'})),
+    ('request_tools_name_duplicate', lambda v:v['tools'].__setitem__(1, dict(v['tools'][0]))),
+    ('request_tools_name_set', lambda v:v['tools'][0].update(name='invented-unknown')),
+    ('request_tools_name_set', lambda v:v['tools'][1].update(name='alias_'+v['tools'][0]['name'])),
+])
+def test_each_original_tools_refusal_has_a_fixed_specific_condition(tmp_path, condition, change):
+    seen, value = capture(tmp_path), first_request()
+    change(value)
+    with pytest.raises(adapter.Refusal, match='^'+condition+'$'):
+        post(seen, value)
+    diagnostic = seen.tools_failure_summary()
+    assert diagnostic['condition'] == condition and diagnostic['request_type'] == 'object'
+    assert len(adapter.encoded(diagnostic)) <= 1536
+    assert not list(tmp_path.iterdir()) and not seen.bodies
+
+
+def test_diagnostics_are_fixed_types_capped_counts_and_allowlisted_boolean_ids_only():
+    value = {'tools': [{'name': 'invented-unknown-' + 'x' * (2*1024**2), 'type': 'private-type',
+                        'description': 'private description', 'parameters': {'private': 'schema'},
+                        'arguments': 'private arguments'}] * 1000,
+             'headers': {'Authorization': 'Bearer private'}, 'api_key': 'private-key'}
+    result = adapter.tools_summary(value, 'request_tools_count')
+    assert result['member_count'] == 8 and result['count_capped'] is True
+    assert result['member_types']['object'] == 8 and result['type_tags']['other_string'] == 8
+    assert result['unknown_name_count'] == 8 and result['unknown_name_types']['string'] == 8
+    assert set(result['recognized']) == set(adapter.DECLARED_TOOL_IDS.values())
+    assert all(type(v) is bool and v is False for v in result['recognized'].values())
+    raw = adapter.encoded(result)
+    assert len(raw) <= 1536
+    for forbidden in [b'private', b'Authorization', b'Bearer', b'api_key', b'description', b'parameters', b'arguments', b'invented-unknown']:
+        assert forbidden not in raw
+
+
+@pytest.mark.parametrize('name', ['invented-unknown-'+'x'*100000, '\ud800', 'private@invalid.example', {'private':'value'}, ['private']])
+def test_oversized_malformed_unknown_names_are_never_copied_to_diagnostics(tmp_path, name):
+    seen, value = capture(tmp_path), first_request()
+    value['tools'][0]['name'] = name
+    body = json.dumps(value, ensure_ascii=True).encode()
+    with pytest.raises(adapter.Refusal):
+        seen.accept('/v1/responses', {'Content-Length':str(len(body))}, io.BytesIO(body))
+    result = seen.tools_failure_summary()
+    assert result is not None and result['unknown_name_count'] == 1
+    assert len(adapter.encoded(result)) <= 1536
+    assert b'private' not in adapter.encoded(result) and b'invented-unknown' not in adapter.encoded(result)
+    assert not list(tmp_path.iterdir())
+
+
+@pytest.mark.parametrize('name', ['Bearer invented-sensitive-value', 'sk-'+'a'*100, {'api_key':'invented-sensitive-value'}])
+def test_secret_bearing_unknown_names_still_fail_existing_secret_guard_without_diagnostics(tmp_path, name):
+    seen, value = capture(tmp_path), first_request()
+    value['tools'][0]['name'] = name
+    with pytest.raises(adapter.Refusal, match='secret_'):
+        post(seen, value)
+    assert seen.tools_failure_summary() is None and not list(tmp_path.iterdir())
+    # Even called directly, the structural helper cannot retain the secret-bearing value.
+    structural = adapter.tools_summary(value, 'request_tools_name_set')
+    assert b'invented-sensitive' not in adapter.encoded(structural) and b'Bearer' not in adapter.encoded(structural)
+
+
+def test_recognized_id_booleans_do_not_retain_oversized_prefixes_or_type_labels():
+    names = list(adapter.DECLARED_TOOL_IDS)
+    value = {'tools':[{'name':'private-prefix-'+('x'*100000)+name, 'type':'function'} for name in names]}
+    result = adapter.tools_summary(value, 'request_tools_count')
+    assert result['recognized'] == dict.fromkeys(adapter.DECLARED_TOOL_IDS.values(),True)
+    assert result['unknown_name_count'] == 0 and result['type_tags']['function'] == 7
+    assert b'private-prefix' not in adapter.encoded(result)
+    assert set(names) == {d['name'] for d in adapter.declarations()}
+
+
+@pytest.mark.parametrize('root,kind', [(None,'null'), ([], 'array'), ('private', 'string'), (True,'boolean'), (123,'number')])
+def test_top_level_types_are_categories_not_untrusted_values(root, kind):
+    result=adapter.tools_summary(root,'request_tools_vector_type')
+    assert result['request_type']==kind and result['vector_type']=='missing'
+    assert b'private' not in adapter.encoded(result)
+
+
+def test_tool_diagnostic_survives_failure_but_prior_and_rejected_raw_bodies_are_deleted(tmp_path, monkeypatch):
+    result, events = runner(tmp_path, monkeypatch, tools_failure=True)
+    assert not result['captureComplete'] and result['failure'] == 'request_tools_name_set'
+    assert result['cleanupFailures'] == [] and result['supplierExited']
+    assert result['bodies'] == [] and result['totalBodyBytes'] > 0
+    assert result['toolsDiagnostic']['unknown_name_count'] == 1
+    assert result['toolsDiagnostic']['recognized']['summary'] is False
+    assert not list((tmp_path/'evidence').glob('request-*.json'))
+    raw=(tmp_path/'evidence/result.json').read_bytes()
+    assert b'invented-private-tool-label' not in raw
+    assert events == ['provider-start','close','provider-stop']
+
+
+def test_accepted_vector_keeps_exact_raw_bytes_and_no_structural_diagnostic(tmp_path):
+    seen, value = capture(tmp_path), first_request()
+    body=json.dumps(value,indent=3).encode()
+    seen.accept('/v1/responses',{'Content-Length':str(len(body))},io.BytesIO(body))
+    assert (tmp_path/'request-01.json').read_bytes()==body
+    assert seen.tools_failure_summary() is None
+
+
+def test_diagnostic_condition_is_closed_and_cannot_be_an_untrusted_name():
+    with pytest.raises(ValueError,match='unknown tools diagnostic condition'):
+        adapter.tools_summary({'tools':[]},'private-untrusted-reason')

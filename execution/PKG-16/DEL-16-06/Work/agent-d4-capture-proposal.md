@@ -1,6 +1,6 @@
 # D4 supplier-envelope capture: bounded authorization proposal
 
-Capture specification CAP-1. This specifies the smallest later observation to
+Capture specification CAP-1, diagnostic amendment D1. This specifies the smallest later observation to
 replace the reconstructed supplier envelope in D4-4. The maintained adapter is
 `tools/agent_supplier_capture.py`, with mock-only tests beside it. The exact
 reviewed/integrated revision is identified by its PR; `result.json` records the
@@ -148,6 +148,64 @@ standing. On failure keep fixed reason codes and cleanup facts, without request
 body files. Body retention is limited to this no-credential, invented-data scope:
 the recursive credential-field/text guard is defense in depth, not a universal
 secret scanner or permission to capture another session's traffic.
+
+### Tools-vector refusal diagnostics (D1)
+
+The seven-tool/name/protocol guard is unchanged. A tools-vector refusal now
+uses one fixed subcondition: `request_tools_vector_type`, `request_tools_count`,
+`request_tools_member_type`, `request_tools_name_type`,
+`request_tools_name_duplicate` or `request_tools_name_set`. The existing secret
+guard still runs first and may refuse without a tools diagnostic.
+
+Only that refusal adds `toolsDiagnostic` to `result.json`. It contains fixed
+JSON type categories for the request/vector/members, a member count capped at
+eight with a `count_capped` boolean, and type-tag counts (`function`, `namespace`
+or fixed non-value categories). It summarizes at most the first eight members.
+Recognized tool identities are seven allowlisted IDs with boolean values;
+unknown names are only a capped count and type-category counts. No untrusted
+name string, nested wrapper content, schema, description, argument, header or
+auth value enters the summary. The `namespace` tag is a diagnostic category,
+not a new admitted tool shape. When capped, missing IDs mean only "not seen in
+the sample", not absence from the whole vector.
+
+The summary is assigned once under the existing capture lock and read after
+handler cleanup. Its fixed fields/enumerations and maximum count of eight bound
+the output independently of input-name length. Success stores the same raw
+bytes and no diagnostic; failure still removes every request body, including
+previously admitted bodies. No custody, timeout, body-budget, listener, provider,
+secret-guard or CLI authority is added by this metadata-only repair.
+
+### Consumed attempt and proposed diagnostic retry
+
+The owner authorized one actual attempt at selected `53a708da44fee73a16876286533792ab88334c7f`.
+It refused `request_tools` in 2.804251125 seconds, with supplier exit 0,
+`cleanupFailures=[]`, `residents=[]` and no retained runtime. No request body was
+admitted or retained. The source-bound record remains unchanged at
+`/private/tmp/swbpipe-d4-envelope-53a708da4/result.json`, SHA-256
+`7de3f3889648d412d9fe536d750e9276f5c9b376b027f878abcaa8bc05bbfff4`;
+its no-key config is SHA-256
+`47957540e6d1413437d83d8baf21a7e3450adbfccd700e6d82ebc07c6a97dcb1`.
+That attempt's grant is consumed. D1 was prepared entirely offline and does not
+retrofit a diagnosis into that earlier packet.
+
+What source proves: the old adapter required a JSON array of exactly seven
+object members with distinct string names, each declared catalog suffix present
+once; the combined refusal did not distinguish those checks. The rejected
+request's vector shape, count and names remain unknown. An exact pinned
+supplier serialization checkout was not available in the consulted local
+source locations; a generic implementation path or source URL would not prove
+the rejected shape. No legitimate old/new protocol-shape mismatch has been
+established, so no admission contract was broadened.
+
+For Agent 0/owner decision only, propose one new diagnostic attempt using the
+reviewed D1 revision and the same pinned supplier, with fresh output
+`/private/tmp/swbpipe-d4-envelope-toolsdiag-1`. Keep seven tools, two turns, six
+host calls, eight bodies, the 2 MiB/16 MiB/128 KiB bounds, five-minute interval
+and owned cleanup unchanged. Its command is the concrete invocation above with
+that new output; do not reuse or overwrite the earlier directory. A repeated
+refusal may yield only the bounded structural summary. It does not authorize
+a relaxed guard, a second retry, raw rejected-body retention or a joined/live
+witness. No attempt was launched while implementing or testing D1.
 
 Threat model for scoped review: malformed/truncated/oversized HTTP or stdio,
 duplicate/unexpected calls/requests and false completion, wrong protocol binding,
