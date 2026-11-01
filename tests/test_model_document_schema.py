@@ -5,7 +5,7 @@ Every committed JSON file and every line of every committed JSON Lines file is
 searched for model documents by `document_kind`, including documents embedded in
 requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md §5.1):
 
-- a document at the current version (0.8.0) validates against the schema root;
+- a document at the current version (0.9.0) validates against the schema root;
 - a desktop-profile document also validates against `$defs/DesktopDocument`: the
   bundled demo (named explicitly), the desktop e2e fixtures, and saved projects in
   the persistence fixtures;
@@ -15,8 +15,9 @@ requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md
   that no SHA256SUMS binds is excluded only by its entry in UNBOUND_FROZEN_INPUTS;
 - any other retired-version document (0.1.0-0.6.0) is excluded: it is a refusal
   control. A document at 0.7.0, retired by model document 0.8.0 (DEL-02-01 Design
-  model-document-0.8.0.md §5), is a refusal control only when it is listed in
-  EXPLICIT_RETIRED_CONTROLS; any other 0.7.0 document is unclassified and fails;
+  model-document-0.8.0.md §5), or at 0.8.0, retired by model document 0.9.0
+  (model-document-0.9.0.md §3.5), is a refusal control only when it is listed in
+  EXPLICIT_RETIRED_CONTROLS; any other 0.7.0 or 0.8.0 document is unclassified and fails;
 - a partial applier operation fixture is excluded: the material-only base and
   applied documents of the applier contract corpus, pinned below;
 - any other exclusion is an explicit entry below, with its reason.
@@ -52,8 +53,8 @@ from qualification_physics import reauthor_model  # noqa: E402
 SCHEMA_PATH = ROOT / "schemas" / "model.schema.yaml"
 SCHEMA_ID = "https://openpipestress.org/schemas/model.schema.yaml"
 DOCUMENT_KIND = "openpipestress.product_preview.model"
-CURRENT_VERSION = "0.8.0"
-RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0"}
+CURRENT_VERSION = "0.9.0"
+RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0"}
 # W-15 slice c (DEL-02-01 Design model-document-0.8.0.md §5): a retired version
 # listed here classifies a non-frozen committed document as a refusal control only
 # when the document is listed under it. Any other document at that version is
@@ -68,8 +69,15 @@ RETIRED_VERSIONS = {"0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0
 # refusal control is built in memory.
 RETIRED_0_7_0_CONTROLS = {"fixtures/handoff/retired_0_7_0_witness.swbhandoff/model/model.json",
                           "fixtures/persistence/recorded_model_0_7_0/exact_pressure_connected_request.json"}
+# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.2, §3.5, §3.6): the 0.9.0 ripple's explicit
+# 0.8.0 list, on the same two grounds. The handoff witness package as the 0.8.0 producer wrote it (main 5bb2f9ff0)
+# and the model of a pressure-2 run recorded at 0.8.0 (main's request at 5bb2f9ff0, beside its record and source).
+# Every other 0.8.0 refusal control is built in memory; 0.8.0 documents under validation/** are frozen inputs.
+RETIRED_0_8_0_CONTROLS = {"fixtures/handoff/retired_0_8_0_witness.swbhandoff/model/model.json",
+                          "fixtures/persistence/recorded_model_0_8_0/exact_pressure_connected_request.json"}
 EXPLICIT_RETIRED_CONTROLS: dict[str, set[str]] = {
     "0.7.0": set(RETIRED_0_7_0_CONTROLS),
+    "0.8.0": set(RETIRED_0_8_0_CONTROLS),
 }
 
 
@@ -125,6 +133,9 @@ UNBOUND_FROZEN_INPUTS = {
        "0.1.0 KD5 nonlinear reference request; its reference set carries no SHA256SUMS"
        for name in ("f1_explicit_request", "f1_mu0_request", "f1_request", "f2_request", "u1_request",
                     "u1_rx_request", "u1_spring_request")},
+    "validation/platform/windows_runner_startup_probe/fixtures/solve.json":
+        "0.8.0 Windows startup probe's exact failed diagnostic input (its README; inactive, not compiled); bound by the "
+        "sha256 tools/release/provenance_scope.json records, not a SHA256SUMS",
 }
 
 # (file, JSON pointer of the document) -> reason. Keep this list short.
@@ -332,7 +343,7 @@ def test_unbound_frozen_inputs_are_live_and_unbound():
     rows = [(relative, document["schema_version"]) for bucket, relative, _, document in classify()
             if bucket == "unbound_frozen"]
     assert {relative for relative, _ in rows} == set(UNBOUND_FROZEN_INPUTS)
-    assert len(UNBOUND_FROZEN_INPUTS) == len(rows) == 39
+    assert len(UNBOUND_FROZEN_INPUTS) == len(rows) == 40
     for relative, version in rows:
         assert version in RETIRED_VERSIONS and recorded_sha256(relative) is None, relative
 
@@ -452,7 +463,9 @@ def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     # The 0.1.0 frozen requests (validation/references/kd5_nonlinear) are unbound (UNBOUND_FROZEN_INPUTS). No frozen
     # 0.6.0 or 0.7.0 model document exists under validation/**: the t4_u4b and t4_u5b references are case
     # descriptions that the builders author requests from, the committed 0.6.0 requests elsewhere were re-authored
-    # to 0.7.0, and the committed 0.7.0 ones to 0.8.0 (the tp_runner_015 witness input by its generator).
+    # to 0.7.0, and the committed 0.7.0 ones to 0.8.0 (the tp_runner_015 witness input by its generator). The
+    # 0.8.0 frozen requests (kd5_timoshenko, pf_timoshenko and others authored at 0.8.0) are re-authored in memory
+    # since model document 0.9.0.
     assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0", "0.6.0", "0.7.0"}
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
     # JSON-lines frozen documents are read and validated. The kd5_timoshenko frozen subset, formerly the only
@@ -539,10 +552,13 @@ def test_shape_corpus_does_not_silently_enter_the_current_format_population():
 
 def test_an_explicitly_controlled_retired_version_admits_only_its_listed_controls(monkeypatch):
     """W-15 slice c: once a retired version is listed, an unlisted non-frozen document
-    at it is not a refusal control. 0.7.0 is listed with no committed control, so an
-    unswept 0.7.0 document is unclassified; the earlier versions keep the open rule."""
-    assert set(EXPLICIT_RETIRED_CONTROLS) == {"0.7.0"}
+    at it is not a refusal control. 0.7.0 and 0.8.0 are listed with their committed
+    controls, so an unswept 0.7.0 or 0.8.0 document is unclassified; the earlier versions
+    keep the open rule."""
+    assert set(EXPLICIT_RETIRED_CONTROLS) == {"0.7.0", "0.8.0"}
     assert EXPLICIT_RETIRED_CONTROLS["0.7.0"] == RETIRED_0_7_0_CONTROLS
+    assert EXPLICIT_RETIRED_CONTROLS["0.8.0"] == RETIRED_0_8_0_CONTROLS
+    assert not is_retired_refusal_control("0.8.0", "fixtures/any.json")
     assert not is_retired_refusal_control("0.7.0", "fixtures/any.json")
     assert is_retired_refusal_control("0.6.0", "fixtures/any.json")
     monkeypatch.setitem(EXPLICIT_RETIRED_CONTROLS, "0.7.0", {"fixtures/listed.json"})
@@ -551,11 +567,12 @@ def test_an_explicitly_controlled_retired_version_admits_only_its_listed_control
     assert not is_retired_refusal_control(CURRENT_VERSION, "fixtures/listed.json")
 
 
-def test_an_unlisted_non_frozen_0_7_0_document_fails_classification(monkeypatch):
-    """MD8 §5, §12: a committed, non-frozen model document left at 0.7.0 by the ripple is
-    unclassified, and the classification test fails on it."""
+@pytest.mark.parametrize("version", ["0.7.0", "0.8.0"])
+def test_an_unlisted_non_frozen_0_7_0_document_fails_classification(monkeypatch, version):
+    """MD8 §5, §12 (and model-document-0.9.0.md §3.5 for 0.8.0): a committed, non-frozen model
+    document left at a ripple's retired version is unclassified, and the classification test fails on it."""
     document = json.loads((ROOT / BUNDLED_DEMO).read_text(encoding="utf-8"))
-    document["schema_version"] = "0.7.0"
+    document["schema_version"] = version
     unswept = [("fixtures/product_preview/unswept.json", "", document)]
     monkeypatch.setattr(sys.modules[__name__], "committed_documents", lambda: unswept)
     assert [bucket for bucket, *_ in classify()] == ["unclassified"]

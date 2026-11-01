@@ -438,9 +438,15 @@ impl<'a> Importer<'a> {
                         "regenerated sidecar",
                     ))));
                 }
+                // Compared in the given format: format 3 is 4 without section_map (its import binds no library
+                // section, so the writer keys records by OD and wall as the writer of format 3 did), and format 2
+                // is 3 without the self-digest.
                 let format = sidecar.get_or_null("sidecar_format").clone();
                 if let Some(dict) = value.as_dict_mut() {
                     dict.insert("sidecar_format".into(), format);
+                    if self.sidecar_format != Some(crate::sidecar::SIDECAR_FORMAT) {
+                        dict.remove(&"section_map".to_string());
+                    }
                 }
                 value
             }

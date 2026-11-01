@@ -23,7 +23,8 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from .compatibility import _source_contract
-from .physics_source import _actual_materials, _canonical_inputs
+from .physics_source import (_actual_materials, _canonical_inputs, model_carries_condition_set_ref,
+                             model_carries_condition_sets, model_carries_spectra, model_uses_conditions)
 from . import section_basis as sb
 from . import declared_member_load as dml
 from .canonical_json import canonical_sha256
@@ -43,7 +44,7 @@ SELECTED_MEMBER_LOAD_MESSAGE = 'Retained-precision recovery (contribution_preser
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
 # B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route. Since B7b D4 (a) its base is pressure-2
-# (`3.0.0/exact_pressure_v3`): a current 0.8.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
+# (`3.0.0/exact_pressure_v3`): a current 0.9.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
 # pressure regions. G0 reads its table's bound values (§2.4; decision 31, N-12) and cross-checks them against these
 # constants, so neither drifts alone.
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -51,11 +52,11 @@ EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
-EXACT_DEFINITION_HASH = "913d248b387ecba3dd668493aa2176719965715c20b7d419c63b35c7d7f3657f"
-EXACT_TABLE_HASH = "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41"
+EXACT_DEFINITION_HASH = "b60e69d4995c11274c53800e4d5d1e04b05c8d1aa3029f5017d7f0ea41bf047c"
+EXACT_TABLE_HASH = "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 # The current model document version the namespace gates accept (b7-plan "Current model format").
-MODEL_VERSION = "0.8.0"
+MODEL_VERSION = "0.9.0"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
                     "work": {"case_limit": 20_000_000_000, "invocation_limit": 60_000_000_000}, "work_policy": "W1-LME-20B-60B-v1"}
@@ -2000,7 +2001,7 @@ def _pressure_contract_is(model, expected):
 def _preview_namespace(model):
     """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, a pressure-free
     document keyed on the contract's absence (b7-plan "Model format, pressure-free half"): the current model version
-    0.8.0 with `pressure_contract` absent. Anything else is refused: a 0.8.0 model with any contract
+    0.9.0 with `pressure_contract` absent. Anything else is refused: a 0.9.0 model with any contract
     (`{}` and other falsy values included), the retired 0.1.0 and 0.2.0, and any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
     contract product-wide)."""
@@ -2172,6 +2173,12 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     except (ValueError, RuntimeError): need(False, "INVOCATION_MISMATCH")
     request = invocation["request"]; model = request["model"]
     need(model["project"]["id"] == source["model_ref"], "INVOCATION_MISMATCH")
+    # Model document 0.9.0 (§3.7): a case's condition_use is declined by name, as the Rust reader does.
+    need(not model_uses_conditions(model), "CONDITION_USE_UNSUPPORTED")
+    # §3.8: the condition sets and spectra unless absent or [], and any pipe's condition_set_ref, as Rust's G8.
+    need(not model_carries_condition_sets(model), "CONDITION_SETS_UNSUPPORTED")
+    need(not model_carries_spectra(model), "SPECTRA_UNSUPPORTED")
+    need(not model_carries_condition_set_ref(model), "CONDITION_SET_REF_UNSUPPORTED")
     # The model scope, as PP accepts it (the alignment set, item 2): no reference_configurations member (null
     # included); the route's namespace (branch L; B3b's exact one); combinations and components absent or [] (on the
     # exact route a combination is ruling 4's expected refusal).

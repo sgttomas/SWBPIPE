@@ -22,8 +22,8 @@ from core.serialization.canonical_json.adapter import canonical_sha256_checked_v
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_DIR = ROOT / "fixtures" / "product_preview"
 # The one current model document version (DEL-02-01 Design model-document-0.8.0.md); every older one is retired.
-MODEL_VERSION = "0.8.0"
-RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0")
+MODEL_VERSION = "0.9.0"
+RETIRED_MODEL_VERSIONS = ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.6.0", "0.7.0", "0.8.0")
 
 PROFESSIONAL_BOUNDARY = {
     "human_review_required": True,

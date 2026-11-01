@@ -56,6 +56,7 @@ from .si_writer import (
     SidecarNotCanonical,
     current_model_schema_version,
     regenerate_caepipe_sidecar,
+    runtime_blank,
     sidecar_self_digest,
 )
 
@@ -801,21 +802,15 @@ def runtime_bend_tangents(start_m, end_m, radius_m: float, y_reference) -> tuple
     return axes[1], [c * d[index] - s * n[index] for index in range(3)]
 
 
-def runtime_blank(text: str) -> bool:
-    """Rust `str::trim().is_empty()`: empty or only Unicode White_Space. Python's `str.strip` also removes
-    U+001C..U+001F, which Rust keeps, so the set is spelled out."""
-    return all(character in _RUST_WHITESPACE for character in text)
-
-
-_RUST_WHITESPACE = frozenset("\t\n\x0b\x0c\r \x85\xa0\u1680\u2028\u2029\u202f\u205f\u3000"
-                             + "".join(chr(code) for code in range(0x2000, 0x200B)))
-
 # ---------------------------------------------------------------------------
 # the sidecar (Design §15)
 # ---------------------------------------------------------------------------
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
-# The sidecar formats this importer reads (Design §15): 2, and the current writer's 3, which is 2 with its self-digest.
-SIDECAR_FORMATS = (2, SIDECAR_FORMAT)
+# The sidecar formats this importer reads (Design §15): 2; 3, which is 2 with its self-digest; and the current
+# writer's 4, which is 3 with `section_map` (Format 4: section identities). Formats 3 and 4 carry the self-digest and
+# may record springs.
+SIDECAR_FORMATS = (2, 3, SIDECAR_FORMAT)
+DIGESTED_FORMATS = (3, SIDECAR_FORMAT)
 _LOAD_CATEGORIES = ("concentrated_force", "concentrated_moment", "weight", "thermal", "imposed_displacement")
 _RIGID_FAMILIES = RESTORABLE_SUPPORT_FAMILIES[1:]
 _BAD = object()
@@ -950,16 +945,17 @@ class _SidecarParser:
     """The strict sidecar parser, run before anything reads the sidecar (Design §15). Every key has an exact JSON
     type (a bool is not a number, null is not a default), an allowed vocabulary, a non-empty value where an id or
     name is required, and finite binary64 range for numbers; unknown keys and wrong shapes are refused by JSON path.
-    A sidecar with `sidecar_format` 2 or 3 (the current writer's: 2 with its self-digest `sidecar_sha256`, which
-    _Importer.self_digest verifies before this parser runs) must hold every field, each with its effective value
-    (never null); one without it is legacy, from main's tranche-1 writer, and holds what that writer recorded
-    (some fields absent in its earlier versions) and no pressure_map. `parse` returns the typed copy that the
+    A sidecar with `sidecar_format` 2, 3 (2 with its self-digest `sidecar_sha256`, which _Importer.self_digest
+    verifies before this parser runs) or 4 (the current writer's: 3 with `section_map`) must hold every field, each
+    with its effective value (never null, but a record's null library section); one without it is legacy, from
+    main's tranche-1 writer, and holds what that writer recorded (some fields absent in its earlier versions) and no
+    pressure_map. `parse` returns the typed copy that the
     importer reads, or None with `errors` [(path, reason)]."""
 
     def __init__(self) -> None:
         self.errors: list[tuple[str, str]] = []
         self.current = False
-        self.format_number: int | None = None  # 2 or 3 once parsed; None for a legacy sidecar
+        self.format_number: int | None = None  # 2, 3 or 4 once parsed; None for a legacy sidecar
 
     def fail(self, path: str, reason: str) -> object:
         self.errors.append((path, reason))
@@ -1068,8 +1064,8 @@ class _SidecarParser:
 
     def support(self, value: Any, path: str) -> Any:
         common = {"node": self.text, "restrained": self.items(self.choice(DOFS))}
-        if self.current:  # format 3 also records springs (Design §12, tranche 3); format 2 the rigid families only
-            families = (*_RIGID_FAMILIES, SPRING_FAMILY) if self.format_number == SIDECAR_FORMAT else _RIGID_FAMILIES
+        if self.current:  # formats 3 and 4 also record springs (Design §12, tranche 3); format 2 rigid families only
+            families = (*_RIGID_FAMILIES, SPRING_FAMILY) if self.format_number in DIGESTED_FORMATS else _RIGID_FAMILIES
             entry = self.record(value, path, {**common, "family": self.choice(families),
                                               "family_authored": self.flag})
         else:
@@ -1105,6 +1101,11 @@ class _SidecarParser:
     def section(self, value: Any, path: str) -> Any:
         return self.record(value, path, {"outside_diameter_mm": self.number, "wall_thickness_mm": self.number,
                                          "elements": self.items(self.text)})
+
+    def section_identity(self, value: Any, path: str) -> Any:
+        """Format 4: the library section a PIPE record's pipes reference, or null for none (Design §15)."""
+        return self.record(value, path, {"swbpipe_section": lambda item, where: None if item is None
+                                         else self.text(item, where)})
 
     def target(self, value: Any, path: str) -> Any:
         if type(value) is dict and set(value) in ({"node"}, {"pipe"}):
@@ -1193,11 +1194,14 @@ class _SidecarParser:
         self.current = "sidecar_format" in sidecar
         self.format_number = sidecar["sidecar_format"] if self.current and type(sidecar["sidecar_format"]) is int \
             else None
-        if self.current:  # every map but section_map (the MBF's), the digest and the format; format 3 its self-digest
+        if self.current:  # every map but the legacy section_map, the digest and the format; formats 3 and 4 their
+            # self-digest; format 4 its section_map of library section ids
             current = {name: parse for name, parse in maps.items() if name != "section_map"}
             current.update(mbf_sha256=self.digest, sidecar_format=self.format)
-            if type(sidecar["sidecar_format"]) is int and sidecar["sidecar_format"] == SIDECAR_FORMAT:
+            if self.format_number in DIGESTED_FORMATS:
                 current[SIDECAR_DIGEST_KEY] = self.digest
+            if self.format_number == SIDECAR_FORMAT:
+                current["section_map"] = lambda value, path: self.mapping(value, path, self.section_identity)
             parsed = self.record(sidecar, "", current)
         else:  # main's run_pilot wrote the seven maps; earlier runs kept the digest in mbf_render.json
             legacy = {name: parse for name, parse in maps.items() if name != "pressure_map"}
@@ -1233,6 +1237,15 @@ class _SidecarParser:
                 self.fail(f"node_map[{swb_id}]", f"names CAEPIPE node {name} as {names[name]} does; it must be "
                           "one-to-one")
             names[name] = swb_id
+        if self.format_number == SIDECAR_FORMAT:
+            sections: dict[str, str] = {}
+            for name, entry in out["section_map"].items():
+                swb_id = entry["swbpipe_section"]
+                if swb_id is not None and swb_id in sections:
+                    self.fail(f"section_map[{name}].swbpipe_section", f"names section {swb_id} as PIPE record "
+                              f"{sections[swb_id]} does; it must be one-to-one")
+                elif swb_id is not None:
+                    sections[swb_id] = name
         if not self.current:
             self.legacy_duplicates(out)
         return None if self.errors else out
@@ -1330,6 +1343,7 @@ class _Importer:
         self.closure = closure
         self.shear_model = shear_model
         self.sidecar_current = False
+        self.sidecar_format: int | None = None  # the parsed sidecar's format; None for a legacy sidecar or none
         self.self_digest_state: str | None = None  # "verified" or "absent" once a given sidecar is read
         self.oppres: tuple[int, list[str], bool] | None = None
         self.pressure_notes: list[str] = []
@@ -1649,7 +1663,7 @@ class _Importer:
             for path, reason in parser.errors:
                 self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path, f"the sidecar's {path} {reason}")
             return
-        if parser.format_number != SIDECAR_FORMAT:
+        if parser.format_number not in DIGESTED_FORMATS:
             self.self_digest_state = "absent"
             self.diagnostics.append({
                 "code": "MBF-IMPORT-SIDECAR-NO-SELF-DIGEST", "severity": "info", "line": 0,
@@ -1661,6 +1675,7 @@ class _Importer:
         digest = parsed.pop("mbf_sha256")
         self.maps = parsed
         self.sidecar_current = parser.current
+        self.sidecar_format = parser.format_number
         if self.rebind:  # the explicit request, whatever the digest: identities by CAEPIPE name, unconfirmed
             self.rebound = True
         elif digest == self.sha:
@@ -1680,19 +1695,19 @@ class _Importer:
         self.ambiguous()
 
     def self_digest(self) -> bool:
-        """Design §15: a sidecar claiming format 3 must carry its self-digest `sidecar_sha256`, the SHA-256 of its
-        canonical content without it (si_writer.sidecar_canonical_bytes), and that digest must be the content's, or
+        """Design §15: a sidecar claiming format 3 or 4 must carry its self-digest `sidecar_sha256`, the SHA-256 of
+        its canonical content without it (si_writer.sidecar_canonical_bytes), and that digest must be the content's, or
         the import is refused, before the parser or any route reads it. It catches an accidental or partial edit; a
         deliberate editor can recompute it, so the parser, the agreement rule and the regeneration identity still
         govern meaning. Format 2 and legacy sidecars carry none: the parser reads them, and bind_sidecar reports it."""
         sidecar = self.sidecar
         if not (type(sidecar) is dict and type(sidecar.get("sidecar_format")) is int
-                and sidecar["sidecar_format"] == SIDECAR_FORMAT):
+                and sidecar["sidecar_format"] in DIGESTED_FORMATS):
             return True
         path = SIDECAR_DIGEST_KEY
         if path not in sidecar:
             self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path,
-                        f"the sidecar's {path} is missing: a sidecar of format {SIDECAR_FORMAT} carries its "
+                        f"the sidecar's {path} is missing: a sidecar of format {sidecar['sidecar_format']} carries its "
                         "self-digest, and one without it is not read as an older format")
             return False
         given = sidecar[path]
@@ -2344,7 +2359,7 @@ class _Importer:
 
     def regeneration_identity(self, model: dict[str, Any], id_map: dict[str, Any]) -> None:
         """The exact-digest route's guard of record (Design §14, VER-002 r13): the writer regenerates the sidecar
-        from the imported model (no MBF is written), and the format-2 sidecar given must equal it after
+        from the imported model (no MBF is written), and the format-2, -3 or -4 sidecar given must equal it after
         canonicalisation (sidecar_difference); otherwise MBF-IMPORT-SIDECAR-NOT-REPRODUCED names the first differing
         JSON path. The one input beyond the model is the import's record of which straights' y_reference it derived
         (id_map y_reference_derived). Only the identity of a primitive the MBF sums is not compared: each sidecar
@@ -2355,8 +2370,12 @@ class _Importer:
         regenerated, refusals = regenerate_caepipe_sidecar(model, mbf_sha256=self.sha,
                                                            derived_y_reference=id_map["y_reference_derived"],
                                                            **reference)
-        if regenerated is not None:  # format 2 is format 3 without the self-digest: compared in the given format
+        if regenerated is not None:  # compared in the given format: format 3 is 4 without section_map (its import
+            # binds no library section, so the writer keys records by OD and wall as the writer of format 3 did), and
+            # format 2 is 3 without the self-digest
             regenerated = {**regenerated, "sidecar_format": self.sidecar["sidecar_format"]}
+            if self.sidecar_format != SIDECAR_FORMAT:
+                regenerated.pop("section_map", None)
         if regenerated is None:
             self.refuse("MBF-IMPORT-SIDECAR-NOT-REPRODUCED", 0, "sidecar",
                         "the bound sidecar is not the writer's record of the model it yields: the writer does not "
@@ -3018,8 +3037,9 @@ class _Importer:
         if self.bound:
             self.incomplete("node_map", node_id, self.node_ids, "nodes")
 
-        # materials (§7)
+        # materials (§7) and library sections (§15, Format 4)
         materials, material_ids = self.assemble_materials(id_map, provenance, claim)
+        sections, section_of = self.assemble_sections(id_map, provenance, claim, length_unit)
         # pipes, weights and temperatures
         factor = _METRES_PER_UNIT[length_unit]
         element_lookup: dict[tuple[str, str], tuple[str, dict]] = {}
@@ -3065,6 +3085,8 @@ class _Importer:
                     "section": {"outside_diameter": {"value": section["od"].value, "unit": length_unit},
                                 "wall_thickness": {"value": section["thk"].value, "unit": length_unit}},
                     "provenance": provenance(element.line)}
+                if element.section in section_of:
+                    pipe["section_ref"] = section_of[element.section]
                 restored = entry.get("y_reference") if self.bound else None
                 # The frame kernel forms the orientation on the positions in m, from the pipe's own from-node.
                 ends_m = [[value * factor + 0.0 for value in point_of[name]]
@@ -3258,6 +3280,7 @@ class _Importer:
             "project": project,
             "analysis_status": dict(_ANALYSIS_STATUS),
             "materials": materials,
+            **({"sections": sections} if sections else {}),
             "nodes": nodes,
             "pipe_segments": pipes,
             "supports": supports,
@@ -3429,6 +3452,41 @@ class _Importer:
         if self.has_errors():
             raise _Refused
         return materials, material_ids
+
+    def assemble_sections(self, id_map: dict[str, Any], provenance: Any, claim: Any, length_unit: str):
+        """Design §15, Format 4: a format-4 sidecar's `section_map` restores, for each PIPE record with a library
+        section id, one `sections` entry (type pipe, OD and wall as the record's pipes get them, named by the record,
+        its line as provenance) and the pipes' `section_ref`; bound by digest, or rebound by record name, unconfirmed.
+        Returns the entries and the id by record name. Other formats and unbound imports form none."""
+        used = list(dict.fromkeys(element.section for element in self.elements))
+        entries = self.maps.get("section_map", {}) if self.sidecar_format == SIDECAR_FORMAT else {}
+        if self.bound and self.sidecar_format == SIDECAR_FORMAT:
+            self.incomplete("section_map", used, entries, "sections")
+        sections, section_of = [], {}
+        for name in used:
+            swb_id = entries[name]["swbpipe_section"] if name in entries else None
+            if swb_id is None:
+                continue
+            record = self.pipes[name]
+            if self.rebound:
+                self.unconfirmed.append(swb_id)
+            claim(swb_id, f"MBF section {name}", record["line"])
+            section_of[name] = swb_id
+            id_map.setdefault("section_map", {})[name] = swb_id
+            sections.append({
+                "id": swb_id, "name": name, "section_type": "pipe",
+                "properties": {"outside_diameter": {"value": record["od"].value, "unit": length_unit},
+                               "wall_thickness": {"value": record["thk"].value, "unit": length_unit}},
+                "provenance": provenance(record["line"]),
+            })
+        if self.rebound:
+            for name in entries:
+                if name not in used:
+                    self.listed("omitted", "MBF-IMPORT-SIDECAR-ENTRY-ABSENT", 0, f"section_map[{name}]",
+                                f"sidecar PIPE record {name} has no counterpart in this MBF")
+        if self.has_errors():
+            raise _Refused
+        return sections, section_of
 
     def list_unused(self, material_ids: Mapping[str, str]) -> None:
         used_sections = {element.section for element in self.elements}
@@ -4472,10 +4530,10 @@ def parse_sidecar_json(text: bytes | bytearray | str) -> Any:
 
 def load_sidecar(path: Path) -> bytes | dict[str, Any]:
     """The sidecar file as the import reads it (Design §15): its bytes, unchanged, which the importer parses strictly
-    and a format-3 sidecar's self-digest then verifies as supplied. The one exception is a legacy sidecar (no
-    `sidecar_format`) without `mbf_sha256`, the layout of main's earliest pilot runs, which kept the digest in
-    `mbf_render.json` beside it: that sidecar is parsed strictly here and takes its companion's digest. A format-2
-    or format-3 sidecar never takes it. Raises SidecarJsonInvalid when that companion is not strict JSON."""
+    and a format-3 or format-4 sidecar's self-digest then verifies as supplied. The one exception is a legacy sidecar
+    (no `sidecar_format`) without `mbf_sha256`, the layout of main's earliest pilot runs, which kept the digest in
+    `mbf_render.json` beside it: that sidecar is parsed strictly here and takes its companion's digest. A format-2,
+    format-3 or format-4 sidecar never takes it. Raises SidecarJsonInvalid when that companion is not strict JSON."""
     data = path.read_bytes()
     try:
         sidecar = parse_sidecar_json(data)

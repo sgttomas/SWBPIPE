@@ -34,7 +34,7 @@ fn bar(supports: serde_json::Value, cases: serde_json::Value) -> serde_json::Val
     let e = 4.0 * 1_048_576.0 / area;
     let mut all = vec![serde_json::json!({"id":"support:a","node":"node:a","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"op1a"})];
     all.extend(supports.as_array().unwrap().iter().cloned());
-    serde_json::json!({"model":{"schema_version":"0.8.0","document_kind":"openpipestress.product_preview.model",
+    serde_json::json!({"model":{"schema_version":"0.9.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:op1a","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":[{"id":"node:a","position":{"x":0.0,"y":0.0,"z":0.0},"provenance":"op1a"},{"id":"node:b","position":{"x":4.0,"y":0.0,"z":0.0},"provenance":"op1a"}],

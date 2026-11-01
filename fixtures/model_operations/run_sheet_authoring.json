@@ -9,7 +9,7 @@
   "generator": "tools/fixtures/run_sheet_authoring.mjs",
   "id_assignment": "Each sheet's rows take numbers in row order from a fresh counter (node:N, pipe:P, start 10, step 10), skipping numbers that yield an id of the basis model.",
   "basis_model": {
-    "schema_version": "0.8.0",
+    "schema_version": "0.9.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
       "id": "project:run-sheet-authoring",
@@ -620,7 +620,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -967,7 +967,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:4a057140e57f9c84d6deb4922b7c57d3b1ca9ede26d89065d21de5b4ac8eeadc"
+      "expected_applied_model_sha256": "sha256:3281580b115aa75e4cddfd6a700fa71adef2c7a09efc968bcd495f06df473527"
     },
     {
       "id": "two-bend-chain",
@@ -1398,7 +1398,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -1847,7 +1847,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:a45f3aeecd0606665b5c37e3644b7fa66de5a8947fee512655cdf93df08e20ad"
+      "expected_applied_model_sha256": "sha256:5cfa124b375d010461c16584a379a3d1fc470a1aca78816b7b9a52f6996ae558"
     },
     {
       "id": "three-bend-chain",
@@ -2621,7 +2621,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -3168,7 +3168,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:c933b81a7827504fef9f57dbee355d71d5036305487eaa9ee293d6185b40e406"
+      "expected_applied_model_sha256": "sha256:28658d9730ed80d2142e131f14b517d8a6504d7fbddfdc1f18e4bebd09687896"
     },
     {
       "id": "shared-section-run",
@@ -3490,7 +3490,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -3791,7 +3791,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:5811ebc14b12715b2ba22434647956c8864ba1a6cdf726535d3196d3e5c8a485"
+      "expected_applied_model_sha256": "sha256:6902ea4a13248fecd3122c5cdca08f5fedb0741e395a5527c2f825092aec1ad5"
     },
     {
       "id": "insulation-ended",
@@ -4227,7 +4227,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -4624,7 +4624,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:b086af80c1e5d7ced4dfe11157a3b74e378477f7a620f525f49dd0df3ed1a14d"
+      "expected_applied_model_sha256": "sha256:13749b4a9bc0526af7b152817cd031b2d5a88e94df9397a798f846fca7e2603f"
     },
     {
       "id": "f-branch-agreeing",
@@ -4798,7 +4798,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -5075,7 +5075,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:f8651128ab71d6353b1561e2a660ad65db39ecddd041b67e49d633d0720f0a95"
+      "expected_applied_model_sha256": "sha256:3a72060ce1370c7cf0a479927c1c5c4fe60e9a4a37a15c06666bafce338edb70"
     },
     {
       "id": "f-branch-disagreeing",
@@ -5199,7 +5199,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -5465,7 +5465,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:fe7f9fdd64508a6c55b344f1e3d70d941710faa389d41d5d3a993e5120e1b671"
+      "expected_applied_model_sha256": "sha256:0cb6d04998c6204b0e27cc4cf7150b34e30f570bf78ca6d29c1787eff73a9b65"
     },
     {
       "id": "point-start",
@@ -5693,7 +5693,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -5984,7 +5984,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:25cbdaac8f2e6bc1a12ffdc3c038bc87ce8afe25fc849c6648d428ac83e489f5"
+      "expected_applied_model_sha256": "sha256:3ac5e92160723c1b9c6d24be52ce48213bdb383846fa3be58689f841185a1833"
     },
     {
       "id": "run-to-existing-node",
@@ -6113,7 +6113,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -6379,7 +6379,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:1c124161beeadb58d823ab1ee77e94ff54fc70557d197129c5a673422e14abdb"
+      "expected_applied_model_sha256": "sha256:54e50d13117d9fe34ee56c543b1e3b7d910ce0ca9a94ea5dad7c22358bb09546"
     },
     {
       "id": "inch-increments",
@@ -6607,7 +6607,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -6906,7 +6906,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:cccd1f6102597fe0f98b3cd54f3dbc393160ce3854502cadbd1294f33e9f317b",
+      "expected_applied_model_sha256": "sha256:cbcc3212422c140c78189e4f0bd4e8a8a2398522afd567bd378a0d643a4f1734",
       "arithmetic": {
         "predecessor_m": 0.1,
         "increment_in": 0.3,
@@ -7091,7 +7091,7 @@
         ]
       },
       "expected_applied_model": {
-        "schema_version": "0.8.0",
+        "schema_version": "0.9.0",
         "document_kind": "openpipestress.product_preview.model",
         "project": {
           "id": "project:run-sheet-authoring",
@@ -7367,7 +7367,7 @@
         },
         "diagnostics": []
       },
-      "expected_applied_model_sha256": "sha256:3e4390702e97f498a02bf3fcb60d2cf9550d23b1b66d05d2742e13b229ee1cff"
+      "expected_applied_model_sha256": "sha256:5e9cb1223d442ac484147cbab2f2e4531bf2ecf95023cadcf75c7df4c3a50523"
     },
     {
       "id": "refused-last-step",

@@ -65,11 +65,11 @@ const EIGEN_MOTION_REQUEST: &str = concat!(
     "/../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
 );
 // B7b: the v2 witness (58ce5b95…) was deleted with exact_straight_pressure_v2. Its
-// pressure-source twin is the same witness re-authored to 0.8.0 (schema version,
+// pressure-source twin is the same witness re-authored to 0.9.0 (schema version,
 // exact_pressure_v3 contract with euler_bernoulli, corrosion allowance 0 m); every
 // declared witness input read below is unchanged.
 const EIGEN_MOTION_SHA256: &str =
-    "26ecd51a47ba09a28ef0a3165ad16862d7b6ae212179a780cc222d1a0bd6388f";
+    "e90e8b223ceb79dcc4144f85e30f9d8489dcb79baaf0a07ffbb981fc6dc2d1ca";
 
 // ---------------------------------------------------------------------------
 // Maintained analytical reference access
@@ -360,7 +360,7 @@ impl Model {
 
     fn request(&self) -> Value {
         json!({"model": {
-            "schema_version": "0.8.0",
+            "schema_version": "0.9.0",
             "document_kind": "openpipestress.product_preview.model",
             "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3",
                 "shear_model": "euler_bernoulli"},
@@ -561,7 +561,7 @@ fn common_envelope(out: &MechanicsEnvelope, label: &str) {
 fn solve(request: &Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
     let label = mode.as_str();
     let out = run(request, mode).unwrap_or_else(|error| {
-        panic!("[{label}] valid 0.8.0 request rejected at the typed boundary: {error}")
+        panic!("[{label}] valid 0.9.0 request rejected at the typed boundary: {error}")
     });
     common_envelope(&out, label);
     assert_eq!(

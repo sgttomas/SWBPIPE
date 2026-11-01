@@ -44,7 +44,12 @@ BIND = {
     "s(Vec<f64>)": sz("Vec<f64>"), "s(Vec<usize>)": sz("Vec<usize>"), "s(Vec<Expansion>)": sz(VEC), "s(Vec<Wide>)": sz(VEC),
     "s(Vec<&ForceTerm>)": sz(VEC),
     "s((&str,&T))": sz("(&'static str, &'static u8)"), "s((&str,&Value))": sz("(&'static str, &'static Value)"),
-    "s((&str,usize))": sz("(&'static str, usize)"), "s((&str,usize,u64))": sz("(&'static str, usize, u64)"),
+    "s((&str,usize))": sz("(&'static str, usize)"), "s((bool,&str))": sz("(bool, &'static str)"),   # S1-HS
+    # Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the S1 owners (s1_owners_model.py)
+    "s((&str,Option<&str>))": sz("(&'static str, Option<&'static str>)"), "s((&str,Option<&T>))": sz("(&'static str, Option<&'static u8>)"),
+    "s(SupportView)": sz("crate::document_members::SupportView<'static>"), "s(CombinationView)": sz("crate::document_members::CombinationView<'static>"),
+    "s(TermView)": sz("crate::document_members::TermView<'static>"), "s(Finding)": sz("crate::document_members::Finding"),
+    "s((String,&str,Operand))": sz("(String, &'static str, crate::document_members::Operand)"), "s((&str,String))": sz("(&'static str, String)"), "s((&str,usize,u64))": sz("(&'static str, usize, u64)"),
     "s((String,String))": sz("(String, String)"), "s((String,[f64;3]))": sz("(String, [f64; 3])"),
     "s((String,[f64;6]))": sz("(String, [f64; 6])"), "s((String,[f64;2]))": sz("(String, [f64; 2])"), "s((String,f64,f64))": sz("(String, f64, f64)"),
     "s((String,usize))": sz("(String, usize)"), "s((f64,f64))": sz("(f64, f64)"), "s((usize,(f64,f64)))": sz("(usize, (f64, f64))"),

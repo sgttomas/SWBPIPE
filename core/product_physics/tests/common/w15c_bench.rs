@@ -166,7 +166,7 @@ pub fn request(reference: &Value, route: Route, a: Authoring) -> Value {
     let units = json!({"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"});
     let status = json!({"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"});
     let mut case = json!({"id": CASE, "primitive_loads": a.loads, "provenance": PROV});
-    let mut model = json!({"schema_version": "0.8.0", "document_kind": "openpipestress.product_preview.model",
+    let mut model = json!({"schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:w15c", "units": units}, "analysis_status": status,
         "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [component], "combinations": []});
     let (e_pa, g_pa, nu) = (rational(&material["elastic_modulus_Pa"]), rational(&material["shear_modulus_Pa"]), rational(&material["poisson_ratio"]));

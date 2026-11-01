@@ -1,7 +1,7 @@
 {
   "description": "Invented desktop model-document shape cases (DEL-15-01 W-6a). One schema-valid base document and, per case, edits applied to a copy of it in memory (each edit sets `value` at `path`, or removes the member when `remove` is true; `replace` stands in for the whole document). Read by src-tauri/src/model_document_shape.rs and the webview tests (src/test/shapeCorpus.ts) so the native and webview shape verdicts stay equal. Expected findings are written by hand; findings compare as sets. Not engineering data.",
   "base": {
-    "schema_version": "0.8.0",
+    "schema_version": "0.9.0",
     "document_kind": "openpipestress.product_preview.model",
     "data_boundary": {
       "classification": "invented_public_example"
@@ -498,6 +498,342 @@
           "code": "MODEL-FILE-SHAPE",
           "path": "combinations[0].terms[1]",
           "message": "combinations[0].terms[1] is string; object required."
+        }
+      ]
+    },
+    {
+      "case_id": "combination-operands-admitted",
+      "edits": [
+        {
+          "path": [
+            "load_cases"
+          ],
+          "value": [
+            {
+              "id": "load:L-1",
+              "label": "L-1",
+              "kind": "weight",
+              "status": "draft",
+              "provenance": "invented"
+            },
+            {
+              "id": "load:L-2",
+              "label": "L-2",
+              "kind": "operating",
+              "status": "draft",
+              "provenance": "invented"
+            }
+          ]
+        },
+        {
+          "path": [
+            "combinations"
+          ],
+          "value": [
+            {
+              "id": "combination:C-1",
+              "label": "C-1",
+              "basis": "mechanics",
+              "provenance": "invented",
+              "terms": [
+                {
+                  "load_case": "load:L-1",
+                  "factor": 1
+                }
+              ]
+            },
+            {
+              "id": "combination:C-2",
+              "label": "C-2",
+              "basis": "result_state_subtraction",
+              "provenance": "invented",
+              "minuend_id": "load:L-2",
+              "subtrahend_id": "load:L-1",
+              "difference_basis": "operating_minus_sustained",
+              "subtrahend_support_state": "minuend_final"
+            },
+            {
+              "id": "combination:C-3",
+              "label": "C-3",
+              "basis": "range_envelope",
+              "provenance": "invented",
+              "operand_ids": [
+                "load:L-1",
+                "combination:C-2"
+              ],
+              "mode": "max_abs"
+            },
+            {
+              "id": "combination:C-4",
+              "label": "C-4",
+              "basis": "absolute_sum",
+              "provenance": "invented",
+              "terms": [
+                {
+                  "load_case": "load:L-1",
+                  "factor": 1
+                },
+                {
+                  "combination": "combination:C-2",
+                  "factor": -1.5
+                }
+              ]
+            },
+            {
+              "id": "combination:C-5",
+              "label": "C-5",
+              "basis": "srss",
+              "provenance": "invented",
+              "terms": [
+                {
+                  "combination": "combination:C-4",
+                  "factor": 1
+                }
+              ]
+            },
+            {
+              "id": "combination:C-6",
+              "label": "C-6",
+              "basis": "result_state_subtraction",
+              "provenance": "invented",
+              "minuend_id": "load:L-1",
+              "subtrahend_id": "combination:C-1",
+              "terms": []
+            }
+          ]
+        }
+      ],
+      "expected": []
+    },
+    {
+      "case_id": "combination-operand-terms-malformed",
+      "edits": [
+        {
+          "path": [
+            "combinations"
+          ],
+          "value": [
+            {
+              "id": "combination:C-1",
+              "label": "C-1",
+              "basis": "mechanics",
+              "provenance": "invented",
+              "terms": [
+                {
+                  "load_case": "load:L-1",
+                  "factor": 1
+                }
+              ]
+            },
+            {
+              "id": "combination:C-2",
+              "label": "C-2",
+              "basis": "absolute_sum",
+              "provenance": "invented",
+              "terms": [
+                {
+                  "load_case": "load:L-1",
+                  "combination": "combination:C-1",
+                  "factor": 1
+                },
+                {
+                  "factor": 1
+                },
+                {
+                  "combination": 7,
+                  "factor": 1
+                },
+                {
+                  "combination": null,
+                  "factor": 1
+                },
+                {
+                  "combination": "combination:C-1"
+                }
+              ]
+            },
+            {
+              "id": "combination:C-3",
+              "label": "C-3",
+              "basis": "srss",
+              "provenance": "invented"
+            },
+            {
+              "id": "combination:C-4",
+              "label": "C-4",
+              "basis": "mechanics",
+              "provenance": "invented"
+            },
+            {
+              "id": "combination:C-5",
+              "label": "C-5",
+              "basis": "result_state_subtraction",
+              "provenance": "invented",
+              "minuend_id": "load:L-1",
+              "subtrahend_id": "load:L-1",
+              "terms": {
+                "load_case": "load:L-1"
+              }
+            }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].terms[0]",
+          "message": "combinations[1].terms[0] names both load_case and combination (exactly one required)."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].terms[1]",
+          "message": "combinations[1].terms[1] names neither load_case nor combination (exactly one string required)."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].terms[2].combination",
+          "message": "combinations[1].terms[2].combination is number; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].terms[3].combination",
+          "message": "combinations[1].terms[3].combination is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].terms[4].factor",
+          "message": "combinations[1].terms[4].factor is missing (number required)."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[2].terms",
+          "message": "combinations[2].terms is missing (array required)."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].terms",
+          "message": "combinations[3].terms is missing (array required)."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[4].terms",
+          "message": "combinations[4].terms is object; array required."
+        }
+      ]
+    },
+    {
+      "case_id": "combination-subtraction-envelope-operands-malformed",
+      "edits": [
+        {
+          "path": [
+            "combinations"
+          ],
+          "value": [
+            {
+              "id": "combination:C-1",
+              "label": "C-1",
+              "basis": "mechanics",
+              "provenance": "invented",
+              "terms": [
+                {
+                  "load_case": "load:L-1",
+                  "factor": 1
+                }
+              ]
+            },
+            {
+              "id": "combination:C-2",
+              "label": "C-2",
+              "basis": "result_state_subtraction",
+              "provenance": "invented",
+              "minuend_id": 7,
+              "subtrahend_id": {
+                "id": "load:L-1"
+              }
+            },
+            {
+              "id": "combination:C-3",
+              "label": "C-3",
+              "basis": "range_envelope",
+              "provenance": "invented",
+              "operand_ids": "load:L-1",
+              "mode": 3
+            },
+            {
+              "id": "combination:C-4",
+              "label": "C-4",
+              "basis": "range_envelope",
+              "provenance": "invented",
+              "operand_ids": [
+                "load:L-1",
+                5,
+                null
+              ],
+              "mode": "max",
+              "minuend_id": null,
+              "subtrahend_id": null
+            },
+            {
+              "id": "combination:C-5",
+              "label": "C-5",
+              "basis": "range_envelope",
+              "provenance": "invented",
+              "operand_ids": null,
+              "mode": null
+            }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].minuend_id",
+          "message": "combinations[1].minuend_id is number; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[1].subtrahend_id",
+          "message": "combinations[1].subtrahend_id is object; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[2].operand_ids",
+          "message": "combinations[2].operand_ids is string; array required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[2].mode",
+          "message": "combinations[2].mode is number; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].operand_ids[1]",
+          "message": "combinations[3].operand_ids[1] is number; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].operand_ids[2]",
+          "message": "combinations[3].operand_ids[2] is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].minuend_id",
+          "message": "combinations[3].minuend_id is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[3].subtrahend_id",
+          "message": "combinations[3].subtrahend_id is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[4].mode",
+          "message": "combinations[4].mode is null; string required."
+        },
+        {
+          "code": "MODEL-FILE-SHAPE",
+          "path": "combinations[4].operand_ids",
+          "message": "combinations[4].operand_ids is null; array required."
         }
       ]
     },

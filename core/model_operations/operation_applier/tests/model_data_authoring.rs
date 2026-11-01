@@ -304,7 +304,7 @@ fn record_operations_refuse_malformed_records_by_the_validator_name() {
     retired["schema_version"] = json!("0.6.0");
     let operation = record_op("create_line", "Line", "lines", "line:L-400", None, Some(&line("line:L-400", &["pipe:P-2"])));
     assert_eq!(blocking(&refused(&retired, &operation)), vec!["MODEL_SCHEMA_VERSION_RETIRED"]);
-    retired["schema_version"] = json!("0.9.0");
+    retired["schema_version"] = json!("0.10.0");
     assert_eq!(blocking(&refused(&retired, &operation)), vec!["MODEL_SCHEMA_VERSION_NEWER_THAN_SUPPORTED"]);
 }
 

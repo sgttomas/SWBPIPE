@@ -25,10 +25,9 @@ import {
 import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { VirtualList } from "../workspace/VirtualList";
+import { combinationTermOperand, combinationTermsText, type Combination, type CombinationTerm } from "./combinationOperands";
 
 type LoadCase = PreviewModel["load_cases"][number];
-type Combination = NonNullable<PreviewModel["combinations"]>[number];
-type CombinationTerm = Combination["terms"][number];
 type PrimitiveLoad = Record<string, unknown>;
 
 type PrimitiveLoadView = {
@@ -1778,7 +1777,7 @@ function buildCreateCombinationTermIntent({
   draft: CombinationTermDraft;
 }): EditorOperationIntent {
   const combination = model.combinations?.find((item) => item.id === draft.combinationId);
-  const termIndex = combination?.terms.length ?? 0;
+  const termIndex = combination?.terms?.length ?? 0;
   const factor = parseFiniteNumber(draft.factor) ?? 0;
   const payload = {
     load_case: draft.loadCaseId,
@@ -1961,7 +1960,7 @@ function buildDeleteLoadCaseIntent({
 
 function combinationTermViews(model: PreviewModel): CombinationTermView[] {
   return (model.combinations ?? []).flatMap((combination) =>
-    combination.terms.map((term, index) => ({
+    (combination.terms ?? []).map((term, index) => ({
       index,
       term,
       combination
@@ -2421,8 +2420,10 @@ function combinationTermKey(termView: CombinationTermView): string {
   return `${termView.combination.id}::${termView.index}::${combinationTermLoadCase(termView.term)}`;
 }
 
+// A load-case term shows its id as the engine's displays do; a combination term
+// names itself as a combination (model document 0.9.0).
 function combinationTermLoadCase(term: CombinationTerm): string {
-  return term.load_case;
+  return combinationTermOperand(term);
 }
 
 function combinationTermFactorDisplay(term: CombinationTerm): string {
@@ -2434,9 +2435,12 @@ function combinationTermDisplay(term: CombinationTerm): string {
 }
 
 // Delete-intent before-value display; must stay byte-identical to the
-// engine's combination_delete_display so before-state checks pass.
+// engine's combination_delete_display so before-state checks pass. A record
+// without `terms`, or with a combination term, the engine does not delete; it
+// shows as stored, never as an empty sum.
 function combinationDisplay(combination: Combination): string {
-  const terms = combination.terms.length ? combination.terms.map(combinationTermDisplay).join("; ") : "none";
+  const stored = combination.terms;
+  const terms = stored === undefined ? "absent" : stored.length ? stored.map(combinationTermDisplay).join("; ") : "none";
   return `${combination.id}; ${combination.label}; basis=${combination.basis}; terms=${terms}`;
 }
 
@@ -2477,7 +2481,7 @@ function combinationRowExpression(combination: Combination): string {
       combination.operand_ids?.length ? combination.operand_ids.join(", ") : "TBD"
     }`;
   }
-  return `terms=${combination.terms.map((term) => `${term.load_case} x ${term.factor}`).join("; ")}`;
+  return `terms=${combinationTermsText(combination) ?? "absent"}`;
 }
 
 function primitiveId(load: PrimitiveLoad): string {

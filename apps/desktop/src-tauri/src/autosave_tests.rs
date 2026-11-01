@@ -488,7 +488,7 @@ fn a_text_that_is_not_a_current_canonical_document_of_its_hash_is_refused_before
     let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&text).unwrap()).unwrap();
     let pretty_hash = format!("sha256:{}", sha256_hex(&pretty));
     let (retired, retired_hash) = canonical(DEMO, |document| document["schema_version"] = json!("0.7.0"));
-    let (newer, newer_hash) = canonical(DEMO, |document| document["schema_version"] = json!("0.9.0"));
+    let (newer, newer_hash) = canonical(DEMO, |document| document["schema_version"] = json!("0.10.0"));
     let (kind, kind_hash) = canonical(DEMO, |document| document["document_kind"] = json!("openpipestress.other"));
     for (label, text, claim, code) in [
         ("hash", text.as_str(), other_hash.as_str(), HASH_MISMATCH),

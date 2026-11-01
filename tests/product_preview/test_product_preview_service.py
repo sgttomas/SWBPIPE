@@ -404,8 +404,8 @@ def test_agent_proposal_is_review_only_and_non_mutating():
 # model document; a retired one is refused by name, any other version as unsupported.
 def test_a_retired_or_non_current_preview_model_is_refused():
     from core.product_preview import load_preview_model
-    for version, code in (("0.7.0", "MODEL_SCHEMA_VERSION_RETIRED"), ("0.1.0", "MODEL_SCHEMA_VERSION_RETIRED"),
-                          ("0.9.0", "PREVIEW_SCHEMA_VERSION_UNSUPPORTED")):
+    for version, code in (("0.8.0", "MODEL_SCHEMA_VERSION_RETIRED"), ("0.7.0", "MODEL_SCHEMA_VERSION_RETIRED"), ("0.1.0", "MODEL_SCHEMA_VERSION_RETIRED"),
+                          ("0.10.0", "PREVIEW_SCHEMA_VERSION_UNSUPPORTED")):
         model = load_preview_model()
         model["schema_version"] = version
         validation = validate_preview_model(model)

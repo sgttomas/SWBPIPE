@@ -19,6 +19,7 @@ import type {
   SelectedReviewTarget
 } from "../types";
 import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
+import { timedSolvePass } from "./solveTimeline";
 
 function asJsonText(value: unknown): string {
   // JSON.stringify drops undefined-valued keys, matching the filtering the
@@ -39,6 +40,11 @@ function validUnicodeScalarString(value: string): boolean {
 }
 
 export function checkedJsonText(value: unknown): string {
+  // RT-U4: timed for the latest solve's timeline (solveTimeline.ts); unchanged otherwise.
+  return timedSolvePass("checked_json_text", () => checkedJsonTextOf(value), (text) => text.length);
+}
+
+function checkedJsonTextOf(value: unknown): string {
   const seen = new Set<object>();
   const freeze = (item: unknown): unknown => {
     if (item === null || typeof item === "boolean") return item;

@@ -50,7 +50,10 @@ describe("blank builders take a project unit map", () => {
     expect(buildBlankLocalModelDocument(AT, SI_PROJECT_UNITS)).toEqual(blank);
     const withoutAngle = structuredClone(blank);
     delete withoutAngle.project.units.angle;
-    expect(await canonicalSha256Hex(withoutAngle)).toBe(SIX_KEY_BLANK_SHA256);
+    // S1 changes only the current model token; the frozen 0.8.0 control
+    // still reproduces the preceding pin.
+    expect(await canonicalSha256Hex({ ...withoutAngle, schema_version: "0.8.0" })).toBe(SIX_KEY_BLANK_SHA256);
+    expect(await canonicalSha256Hex(withoutAngle)).toBe("3ec5019c61963fb829ba3812c25cab7dfce11d07a304f2beb8f4920ea36631a9");
   });
 
   it("give exactly the seven keys, each a canonical catalog symbol for its dimension, for each preset", () => {

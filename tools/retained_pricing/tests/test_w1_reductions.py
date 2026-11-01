@@ -156,6 +156,7 @@ def test_missing_or_former_guard_is_driver_exit_4(tmp_path, monkeypatch, capsys,
     target.write_text(target.read_text().replace(MODEL["GUARD"], replacement))
     output = tmp_path / "price"
     monkeypatch.setattr(driver, "git", lambda *args, **kw: "0" * 40 if kw.get("text") else b"")
+    # The driver resolves revisions through source_history (since 67d213a5a); stub it with the git stub's identity.
     monkeypatch.setattr(driver, "resolve_revision", lambda repo, rev: "0" * 40)
     monkeypatch.setattr(driver, "snapshot", lambda *args: str(root))
     monkeypatch.setattr(driver, "prepare_b7a_retired_carry", lambda *args: ({}, None))

@@ -90,6 +90,18 @@
         "tools/agent_live_session_fixture_test.py"
       ]
     },
+    "agent-journey-offline": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/agent_journey_fixture_test.py",
+        "tools/agent_journey_memory_monitor_test.py",
+        "tools/agent_supplier_capture_test.py"
+      ]
+    },
     "model-version-literals": {
       "cwd": ".",
       "command": [
@@ -126,6 +138,25 @@
   },
   "always_checks": [],
   "path_rules": [
+    {
+      "paths": [
+        "tools/agent_journey_fixture.py",
+        "tools/agent_journey_fixture_test.py",
+        "tools/agent_journey_memory_monitor.py",
+        "tools/agent_journey_memory_monitor_test.py",
+        "tools/agent_supplier_capture.py",
+        "tools/agent_supplier_capture_test.py",
+        "tools/agent_live_session_fixture.py",
+        "apps/desktop/native-smoke/agent-journey.js",
+        "fixtures/model_operations/agent_w9a_journey.json",
+        "fixtures/model_operations/agent_w9a_capture_outcomes.json",
+        "validation/references/w9_benchmarks/references.json",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "agent-journey-offline"
+      ]
+    },
     {
       "paths": [
         "tools/agent_live_session_fixture.py",

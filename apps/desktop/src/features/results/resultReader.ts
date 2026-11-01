@@ -21,6 +21,7 @@
  * Verdicts are cached by the exact texts read. */
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import { loadedWasmEngine, type WasmOperationEngine } from "../../services/wasmEngine/loadWasmEngine";
+import { timedSolvePass } from "../../services/solveTimeline";
 import type { SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult } from "../../types";
 
@@ -78,8 +79,11 @@ function assertFinite(value: unknown): void {
 /** JSON text of a value with no received text: `jsonTextKeepingNegativeZero`, when
  * every number is finite (JSON text has no other numbers). */
 function writtenText(value: unknown): string {
-  assertFinite(value);
-  return jsonTextKeepingNegativeZero(value);
+  // RT-U4: timed for the latest solve's timeline (solveTimeline.ts); unchanged otherwise.
+  return timedSolvePass("reader_written_text", () => {
+    assertFinite(value);
+    return jsonTextKeepingNegativeZero(value);
+  }, (text) => text.length);
 }
 /** b7-plan R2 (as R1's "Exact bytes to the desktop"): `text` is the received JSON text
  * `source` was read from. The readers read it while `source` is unchanged. */
@@ -150,7 +154,10 @@ export function readerDispatch(source: unknown, model?: unknown, invocation?: un
   // Nothing is read, and nothing is cached, without the engine.
   if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
   return cached(sourceJson, `dispatch\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`, () => {
-    try { return freeze(JSON.parse(e.readerDispatchJson(sourceJson, modelJson, invocationJson)) as ReaderDispatch); } catch (error) {
+    try {
+      const verdict = timedSolvePass("reader_wasm_dispatch", () => e.readerDispatchJson(sourceJson, modelJson, invocationJson), () => sourceJson.length);
+      return freeze(JSON.parse(verdict) as ReaderDispatch);
+    } catch (error) {
       if (error instanceof Error && error.message.startsWith("WASM-ENGINE-INPUT-JSON-INVALID")) return unsupportedDispatch(JSON_PARSE_REJECTED);
       throw error;
     }
@@ -162,7 +169,7 @@ export function readerValidate(reader: ReaderName, source: unknown, model?: unkn
   const sourceJson = readerSourceText(source), modelJson = optionalText(model), invocationJson = optionalText(invocation);
   unavailable();
   const outcome = cached(sourceJson, `validate\u0000${reader}\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`,
-    () => call<{ eligible?: boolean; findings?: string[] }>(e => e.readerValidateJson(reader, sourceJson, modelJson, invocationJson)));
+    () => call<{ eligible?: boolean; findings?: string[] }>(e => timedSolvePass("reader_wasm_validate", () => e.readerValidateJson(reader, sourceJson, modelJson, invocationJson), () => sourceJson.length)));
   if (!outcome.ok) refuse(outcome);
   const { ok: _, ...validation } = outcome;
   return validation;
@@ -172,7 +179,7 @@ export function readerValidate(reader: ReaderName, source: unknown, model?: unkn
 export function readerTransport(reader: TransportReaderName, source: unknown): void {
   const sourceJson = readerSourceText(source);
   unavailable();
-  const outcome = cached(sourceJson, `transport\u0000${reader}`, () => call<object>(e => e.readerTransportJson(reader, sourceJson)));
+  const outcome = cached(sourceJson, `transport\u0000${reader}`, () => call<object>(e => timedSolvePass("reader_wasm_transport", () => e.readerTransportJson(reader, sourceJson), () => sourceJson.length)));
   if (!outcome.ok) refuse(outcome);
 }
 /** A row's semantics read only its kind, unit and the five metadata members
@@ -185,6 +192,24 @@ function rowText(row: SourceRow): string {
   const picked = metadata && typeof metadata === "object" && !Array.isArray(metadata)
     ? Object.fromEntries(ROW_METADATA.filter(k => Object.hasOwn(metadata, k)).map(k => [k, metadata[k]])) : null;
   return writtenText({ kind: row?.kind, unit: row?.unit, metadata: picked });
+}
+/** The readings of the source's own rows, read in one call with the source read
+ * once (the outcomes a call per row returns), once per source text. Anything that
+ * call does not read (a source that is not JSON, a row outside the source) is
+ * left to the call per row. */
+function readSourceRows(source: MechanicsResult, sourceJson: string): void {
+  cached(sourceJson, "rows\u0000", () => {
+    const texts = new Set<string>();
+    for (const row of Array.isArray(source.results) ? source.results : []) {
+      try { texts.add(rowText(row)); } catch { /* read per row, as before */ }
+    }
+    const rows = [...texts];
+    let outcomes: unknown;
+    try { outcomes = JSON.parse(engine()!.readerRowSemanticsEachJson(`[${rows.join(",")}]`, sourceJson)); } catch { return true; }
+    const read = Array.isArray(outcomes) && outcomes.length === rows.length ? outcomes : null;
+    read?.forEach((outcome, i) => cached(sourceJson, `row\u0000${rows[i]}`, () => freeze(outcome) as Outcome<RowSemantics>));
+    return true;
+  });
 }
 /** The row semantics of this source's table (no source is refused): a
  * function from a row to its signature, complete-metadata flag and canonical metadata.
@@ -200,8 +225,9 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
     let text: string;
     try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
     unavailable();
+    if (source != null && sourceJson !== undefined) readSourceRows(source, sourceJson);
     const outcome = cached(sourceJson ?? "", `row\u0000${text}`,
-      () => call<RowSemantics>(e => e.readerRowSemanticsJson(text, sourceJson)));
+      () => call<RowSemantics>(e => timedSolvePass("reader_wasm_row", () => e.readerRowSemanticsJson(text, sourceJson), () => sourceJson?.length ?? 0)));
     if (!outcome.ok) refuse(outcome);
     return { signature: outcome.signature, complete_metadata: outcome.complete_metadata, canonical_metadata: outcome.canonical_metadata };
   };

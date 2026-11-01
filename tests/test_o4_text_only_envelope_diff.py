@@ -1675,13 +1675,42 @@ def _rt_a3_identity_old(value, restored, path=()):
     formulation basis's first limitation holding exactly RT_A3_IDENTITY_NEW; the new text anywhere else is left in
     place, so it fails the classification that follows."""
     if isinstance(value, Obj):
+        # S1's current documents are re-authored at 0.9.0 after RT-A3's
+        # historical identity change. Restore only that approved model token
+        # for this older proof; every other field still compares unchanged.
+        model_version_step = (
+            dict(value).get("document_kind") == "openpipestress.product_preview.model"
+            and dict(value).get("schema_version") == "0.9.0"
+        )
+        if model_version_step:
+            value = Obj((key, "0.8.0" if key == "schema_version" else member) for key, member in value)
         return Obj((k, _rt_a3_identity_old(v, restored, _rt_a3_member_path(value, k, path))) for k, v in value)
     if isinstance(value, list):
         return [_rt_a3_identity_old(v, restored, path + (i,)) for i, v in enumerate(value)]
+    if value == "0.9.0" and path[-1:] == ("document_schema_version",):
+        # The reader corpus states the same model token outside the model.
+        return "0.8.0"
+    if isinstance(value, str) and path[:1] == ("inputs",):
+        # Its input provenance also spells out that same re-authoring step.
+        return value.replace("model document 0.9.0", "model document 0.8.0").replace("model 0.9.0", "model 0.8.0")
     if value == RT_A3_IDENTITY_NEW and path[-3:] == ("formulation_basis", "limitations", 0):
         restored.append(path)
         return RT_A3_IDENTITY_FROM
     return value
+
+
+def test_rt_a3_version_exception_is_only_the_reauthored_model_token():
+    model = Obj([("document_kind", "openpipestress.product_preview.model"), ("schema_version", "0.9.0"), ("value", 17)])
+    restored = _rt_a3_identity_old(model, [])
+    assert dict(restored) == {"document_kind": "openpipestress.product_preview.model", "schema_version": "0.8.0", "value": 17}
+    for other in [Obj([("schema_version", "0.9.0")]), Obj([("document_kind", "openpipestress.product_preview.model"), ("schema_version", "0.9.1")])]:
+        assert _rt_a3_identity_old(other, []) == other
+    assert _rt_a3_identity_old(Obj([("document_schema_version", "0.9.0"), ("description", "0.9.0")]), []) == Obj([("document_schema_version", "0.8.0"), ("description", "0.9.0")])
+    provenance = "copies re-authored to model document 0.9.0; pressure remains 15 MPa"
+    assert _rt_a3_identity_old(provenance, [], ("inputs", 0)) == provenance.replace("0.9.0", "0.8.0")
+    assert _rt_a3_identity_old(provenance, [], ("description",)) == provenance
+    authored = "authored as model document 0.9.0 requests with explicit_axial_rods_v1 hardware"
+    assert _rt_a3_identity_old(authored, [], ("inputs", 0)) == authored.replace("0.9.0", "0.8.0")
 
 
 def _rt_a3_from_fields(value, path=()) -> int:

@@ -33,7 +33,7 @@ const WITNESS_RULE_PACKS_PATH_ENV: &str = "OPENPIPESTRESS_WRITE_RECORDED_RUN_WIT
 /// rule-pack resolution (written by `recordedRunParity.test.ts`).
 const S2_UNRESOLVED_RUN: &str = include_str!("../../../../fixtures/persistence/s2_unresolved_rule_pack_run.json");
 
-/// An invented 0.8.0 document of `PROJECT` (`name` makes distinct models).
+/// An invented 0.9.0 document of `PROJECT` (`name` makes distinct models).
 fn model(name: &str) -> Value {
     json!({
         "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION,
@@ -932,28 +932,35 @@ fn compare_or_write_witness(text: &str, committed: &str, env: &str) {
 }
 
 /// Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2" (DEL-02-01 Design `model-document-0.8.0.md`
-/// §3.2, §3.3): a store a 0.7.0 build wrote holds a 0.7.0 project, a 0.7.0 state and an
+/// §3.2, §3.3; `model-document-0.9.0.md` §3.2): a store a 0.8.0 (or 0.7.0) build wrote holds
+/// a project, a state of that version and an
 /// ordinary recorded run of that state with intact hashes and bindings. The project and
 /// the state are refused by name, with the recorded-runs note; the runs are listed for the
 /// project id and the run reads exactly as before (no model-document-version gate). Once
-/// the project is re-authored to 0.8.0 under the same id it opens, still lists the run,
+/// the project is re-authored to 0.9.0 under the same id it opens, still lists the run,
 /// and the run still reads; a tampered stored result is refused as before.
 #[test]
 fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_before() {
-    let path = scratch_store("a2-retired");
+    for version in ["0.8.0", "0.7.0"] {
+        a_retired_project_and_state_at(version);
+    }
+}
+
+fn a_retired_project_and_state_at(version: &str) {
+    let path = scratch_store(&format!("a2-retired-{version}"));
     let mut old = model("Invented project");
-    old["schema_version"] = json!("0.7.0");
+    old["schema_version"] = json!(version);
     {
         let (mut connection, _) = crate::open_project_store(&path).unwrap();
         write_project(&mut connection, PROJECT, &old, BASE);
     }
-    // The current save path refuses a 0.7.0 snapshot by name; the state below is the one
-    // a 0.7.0 build saved, written through the same insert after its own checks.
+    // The current save path refuses a retired snapshot by name; the state below is the one
+    // a build of that version saved, written through the same insert after its own checks.
     let old_canonical = canonical_json(&old);
     let refused = model_states::checked_new_state(PROJECT, "design_snapshot", old_canonical.clone(), &model_hash(&old), &UnmeteredReadMemory)
         .map(drop)
         .unwrap_err();
-    assert!(refused.contains("status=retired_schema") && refused.contains("source_schema_version=0.7.0"), "{refused}");
+    assert!(refused.contains("status=retired_schema") && refused.contains(&format!("source_schema_version={version}")), "{refused}");
     assert!(refused.ends_with(crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE), "{refused}");
     let hex = sha256_hex(&old_canonical);
     let snapshot = model_states::CheckedSnapshot { model: old.clone(), model_canonical: old_canonical, model_hash: format!("sha256:{hex}"), model_hash_hex: hex };
@@ -963,7 +970,7 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
         let allocate = || Ok(("000000000000000000000000000000a2".to_string(), 1_000));
         let between_rows = |_: &Transaction<'_>| Ok(());
         let state = insert_new_state(
-            &transaction, PROJECT, "design_snapshot", None, &snapshot, &labels_from_value(json!({ "state_name": "Basis 0.7.0" })).unwrap(),
+            &transaction, PROJECT, "design_snapshot", None, &snapshot, &labels_from_value(json!({ "state_name": format!("Basis {version}") })).unwrap(),
             &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }, &UnmeteredReadMemory,
         )
         .unwrap()
@@ -973,7 +980,7 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
         state
     };
     // The run is recorded against that state: the record path binds hashes, not versions.
-    let submitted = request(&old, "Run at 0.7.0");
+    let submitted = request(&old, &format!("Run at {version}"));
     let result_bytes = submitted.result_json.clone();
     let mut submitted = submitted;
     submitted.state_id = Some(state.state_id.clone());
@@ -984,11 +991,11 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
     // The project and the state are refused by name, with the note; nothing is rewritten.
     let note = crate::model_document_version::RETIRED_PROJECT_RUNS_NOTE;
     let error = crate::open_project_in_store(path.clone(), Some(PROJECT)).map(drop).unwrap_err();
-    assert!(error.starts_with("Model document refused for editing: status=retired_schema; source_schema_version=0.7.0; target_schema_version=0.8.0; MODEL_SCHEMA_VERSION_RETIRED: model document 0.7.0 is retired; re-author it as model document 0.8.0"), "{error}");
+    assert!(error.starts_with(&format!("Model document refused for editing: status=retired_schema; source_schema_version={version}; target_schema_version=0.9.0; MODEL_SCHEMA_VERSION_RETIRED: model document {version} is retired; re-author it as model document 0.9.0")), "{error}");
     assert!(error.ends_with(&format!(" {note}")), "{error}");
     for purpose in [model_states::StateReadPurpose::Open, model_states::StateReadPurpose::Compare] {
         let error = model_states::read_state_for_in_store_with(&path, PROJECT, &state.state_id, purpose, &UnmeteredReadMemory).map(drop).unwrap_err();
-        assert!(error.starts_with("Model document refused for editing: status=retired_schema; source_schema_version=0.7.0;"), "{purpose:?}: {error}");
+        assert!(error.starts_with(&format!("Model document refused for editing: status=retired_schema; source_schema_version={version};")), "{purpose:?}: {error}");
         assert!(error.ends_with(&format!(" {note}")), "{purpose:?}: {error}");
     }
     let (connection, _) = crate::open_project_store(&path).unwrap();
@@ -1015,7 +1022,7 @@ fn a_retired_project_and_state_are_refused_and_their_recorded_run_reads_as_befor
     drop(connection);
     let read_again = read_run_in_store(&path, PROJECT, &recording_id).unwrap();
     assert_eq!((read_again.result_json, read_again.record), (read.result_json, read.record));
-    // The state stays refused: it holds the 0.7.0 snapshot.
+    // The state stays refused: it holds the retired snapshot.
     assert!(model_states::read_state_for_in_store_with(&path, PROJECT, &state.state_id, model_states::StateReadPurpose::Compare, &UnmeteredReadMemory).is_err());
     // A tampered stored result is refused as before.
     tamper(&path, &format!("UPDATE analysis_runs SET result_json = '{}';", quoted(&result_text(9.0))));
@@ -4154,4 +4161,88 @@ fn the_run_comparison_command_answers_lengths_only_and_releases_every_lease() {
         drop(lease);
         assert_eq!(pool.pool_status().reserved_bytes, 0, "{code}");
     }
+}
+
+/// RT-U4: a recorded run of `PROJECT` whose stored result text is padded by
+/// `result_pad` spaces (stored as given; its checked hash is unchanged) and
+/// whose record's run name is longer by `name_pad` characters (resealed), so
+/// each stored column's length varies independently of the other. Returns the
+/// store, the recording id and the stored lengths of the result and the record.
+fn sized_run(label: &str, result_pad: usize, name_pad: usize) -> (PathBuf, String, u64, u64) {
+    let path = store_with_project(label);
+    let solved = model("Invented project");
+    save_state(&path, &solved, "Basis", "000000000000000000000000000000c1", 1_000);
+    let mut submitted = request(&solved, "Run");
+    submitted.result_json = submitted.result_json.replacen("{ ", &format!("{{{}", " ".repeat(result_pad + 1)), 1);
+    let name = format!("{}{}", submitted.run_record["analysis_run"]["run_name"].as_str().unwrap(), "n".repeat(name_pad));
+    submitted.run_record["analysis_run"]["run_name"] = json!(name);
+    reseal(&mut submitted.run_record);
+    let id = record(&path, submitted, T0).unwrap().run.recording_id;
+    let (result, run_record): (i64, i64) = crate::open_project_store(&path).unwrap().0
+        .query_row("SELECT octet_length(result_json), octet_length(run_record_json) FROM analysis_runs WHERE recording_id = ?1", params![id], |row| Ok((row.get(0)?, row.get(1)?)))
+        .unwrap();
+    (path, id, result as u64, run_record as u64)
+}
+
+/// The refusal of a recorded run whose stored `what` is `bytes` long, above `limit`.
+fn undisplayable(id: &str, what: &str, bytes: u64, limit: u64) -> String {
+    let cause = if what == "stored result" {
+        "the per-station result detail of that run is too large for the desktop to display"
+    } else {
+        "its per-row result references, which grow with the result, are too large for the desktop to display"
+    };
+    format!(
+        "STORED-RESULT-TOO-LARGE: recorded run `{id}`'s {what} is {}, above the desktop's display limit of {}, so it was not read: {cause}. The recorded run is kept unchanged. A solve covers every load case and combination in the model, so for a new run under the limit: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.",
+        crate::solve_jobs::display_size(bytes),
+        crate::solve_jobs::display_size(limit)
+    )
+}
+
+/// The recorded-run read (Check record, and each side of a comparison) and the
+/// comparison's admission at limits one byte over, at and one byte under the
+/// length of `column`; returns nothing, asserting the stored run unchanged, its
+/// stored columns byte for byte.
+fn assert_bounded_by(path: &Path, id: &str, what: &str, length: u64) {
+    let read = |limit: u64| read_run_in_store_within(path, PROJECT, id, &UnmeteredReadMemory, limit).and_then(Metered::into_unreserved);
+    let admit = |limit: u64| admit_run_comparison_in_store_within(path, PROJECT, &[id.to_string()], Some(0), u64::MAX, &UnmeteredReadMemory, limit);
+    let stored = read_run_in_store(path, PROJECT, id).unwrap();
+    let raw = || -> (String, String) {
+        crate::open_project_store(path).unwrap().0
+            .query_row("SELECT result_json, run_record_json FROM analysis_runs WHERE recording_id = ?1", params![id], |row| Ok((row.get(0)?, row.get(1)?)))
+            .unwrap()
+    };
+    let raw_before = raw();
+    for limit in [length + 1, length] {
+        let read = read(limit).unwrap_or_else(|error| panic!("limit {limit}: {error}"));
+        assert_eq!((&read.result_json, &read.record), (&stored.result_json, &stored.record), "limit {limit}");
+        assert!(admit(limit).is_ok(), "limit {limit}");
+    }
+    let expected = undisplayable(id, what, length, length - 1);
+    assert_eq!(read(length - 1).map(|_| ()).unwrap_err(), expected);
+    assert_eq!(admit(length - 1).map(|_| ()).unwrap_err(), expected);
+    let after = read_run_in_store(path, PROJECT, id).unwrap();
+    assert_eq!((after.result_json, after.record), (stored.result_json, stored.record), "the stored run is unchanged");
+    assert!(raw() == raw_before, "the stored columns are byte-for-byte unchanged");
+}
+
+/// RT-U4: a recorded run is refused `STORED-RESULT-TOO-LARGE` by whichever
+/// stored column, the result or the run record, exceeds the displayable limit,
+/// from both stored lengths before either is loaded; each column's length is
+/// varied with the other's held, on the read and the comparison's admission.
+#[test]
+fn a_recorded_run_is_refused_by_whichever_stored_column_exceeds_the_limit() {
+    // The result the larger column (padded past the record).
+    let (path, id, result, record_bytes) = sized_run("result-larger", 6_000, 0);
+    assert!(result - 1 > record_bytes, "result {result} record {record_bytes}");
+    assert_bounded_by(&path, &id, "stored result", result);
+    // The record the larger column, at two record lengths over the same result.
+    let (path, id, result, record_bytes) = sized_run("record-larger", 0, 0);
+    let (longer_path, longer_id, same_result, longer_record) = sized_run("record-larger-longer", 0, 3_000);
+    assert_eq!(same_result, result, "the result's length is held");
+    assert!(longer_record > record_bytes && record_bytes - 1 > result, "result {result} records {record_bytes} {longer_record}");
+    assert_bounded_by(&path, &id, "stored run record", record_bytes);
+    assert_bounded_by(&longer_path, &longer_id, "stored run record", longer_record);
+    // Both are far below the product limit and read in full there.
+    assert!(longer_record < crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES);
+    assert!(read_run_in_store(&longer_path, PROJECT, &longer_id).is_ok());
 }

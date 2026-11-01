@@ -22,6 +22,7 @@ import * as sessionModel from "../../workspace/sessionModel";
 import type { SessionEvent } from "../../workspace/sessionEvents";
 import { RETIRED_BATCH_NOTICE, useWorkspaceSession } from "../../workspace/workspaceSession";
 import * as ledger from "./runSheetLedger";
+import { assignRowNumber, modelIds } from "./runSheetModel";
 import { initialRunSheetState, type RunSheetState } from "./runSheetLedger";
 import { useRunSheetStore } from "./runSheetStore";
 import { RunSheet } from "./RunSheet";
@@ -64,6 +65,10 @@ async function queueRows(result: Harness, rows: Array<Partial<Record<SheetColumn
       const key = row.key ?? `r${index + 1}`;
       if (!next.rows.some((candidate) => candidate.key === key)) next = { ...next, rows: [...next.rows, ledger.blankRow(key)], nextRowKey: next.nextRowKey + 1 };
       for (const [column, text] of Object.entries(row)) if (column !== "key") next = setCell(next, key, column as SheetColumnKey, text as string);
+      // These long-lived seam cases retain their legacy assigned identities.
+      // Seed those assignments before the new policy sees them; cold numbering
+      // and reopen behavior are exercised in numberingReservations and shell tests.
+      next = { ...next, idState: assignRowNumber(next.idState, next.header.numbering, key, modelIds(model)) };
       next = assignIds(next, key, model, []);
     });
     return next;
@@ -506,6 +511,19 @@ describe("run sheet S2: a bend whose tangent node was deleted outside the sheet 
     expect(screen.getByTestId(`run-sheet-row-header-${next}`)).toHaveAccessibleName(new RegExp(`^Row 3, run, draft, refused: the bend's outgoing point node:N20-T2 no longer exists`));
   });
 
+  it("review finding 2: an applied bend row shows the geometry source its component holds, not the sheet's current Source", async () => {
+    await appliedBend();
+    act(() => result.current.store.update((current) => ({ ...current, header: { ...current.header, source: "a later sheet source" } })));
+    fireEvent.click(screen.getByRole("button", { name: "Ids and sources" }));
+    expect(cell("r2", "bendSource")).toHaveAccessibleName(`Row 2 Bend geometry source: ${SOURCE}`);
+    expect(cell("r2", "bendSource")).toHaveAccessibleDescription(/^derived: the applied bend's stored geometry source/);
+    const component = result.current.session.model.model!.components.find((item) => item.id === "component:N20-bend")!;
+    expect((component.geometry as { bend_geometry_source_reference?: string }).bend_geometry_source_reference).toBe(SOURCE);
+    // Without the session's index, the view reads the component from the model the same way.
+    const view = sheetView({ state: result.current.store.state, statuses: result.current.store.statuses, model: result.current.session.model.model!, conversions: new Map(), reservedIds: [] });
+    expect(view.rows[1].resolved.bendSource).toEqual({ value: SOURCE, origin: { kind: "derived", rule: "the applied bend's stored geometry source" } });
+  });
+
   it("both tangents deleted: no readout from the corner, Start branch here unavailable, the following row reads no point", async () => {
     await appliedBend();
     await deleteOutside(["pipe:N20-bend", "pipe:P20", "pipe:P30"], ["node:N20-T1", "node:N20-T2"]);
@@ -519,3 +537,94 @@ describe("run sheet S2: a bend whose tangent node was deleted outside the sheet 
   });
 });
 
+
+describe("run sheet ids and sources through the wasm engine (G1–G3)", () => {
+  it("two supports at one node and two consecutive bends, with entered ids, labels and geometry source, validate and apply with ids exactly as entered", async () => {
+    const { result } = await harness();
+    // Header numbering: node:RS- / pipe:RS-P, pad 3, start 10, step 10, pipes numbered by their start node.
+    act(() => result.current.store.update((current) => ({
+      ...current, header: { ...current.header, numbering: { nodePrefix: "node:RS-", pipePrefix: "pipe:RS-P", start: 10, step: 10, pad: 3, pipeNumber: "start" } },
+    })));
+    const element = { od: "0.1143", wall: "0.00602", material: "material:steel", orientation: "0 0 1" };
+    const batchId = await queueRows(result, [
+      { kind: "P", dx: "20", dy: "20" },
+      { dx: "3", ...element, support: "L", restraints: "UX", supportId: "support:RS-LS1", supportLabel: "Line stop LS1 (invented)" },
+      { kind: "S", support: "V", restraints: "UZ", supportId: "support:RS-V020", supportLabel: "Vertical support V020 (invented)" },
+      { kind: "B", dy: "3", bendRadius: "0.5", k: "1.5", kSource: "invented k", nodeId: "node:RS-C1",
+        bendStartId: "node:RS-035", bendEndId: "node:RS-036", bendArcId: "pipe:RS-P035", bendComponentId: "component:RS-B1", bendSource: "invented bend geometry source" },
+      { kind: "B", dx: "3", k: "1.5", kSource: "invented k", nodeId: "node:RS-C2",
+        bendStartId: "node:RS-045", bendEndId: "node:RS-046", bendArcId: "pipe:RS-P045", bendComponentId: "component:RS-B2" },
+      { dz: "3", orientation: "1 0 0" },
+    ]);
+    // A batch with a bend applies only after a clean validation of that exact batch.
+    await act(async () => { await result.current.session.operations.handleRunOperationBatch(entryOf(result, batchId), false); });
+    await apply(result, batchId);
+    expect(statusList(result)).toEqual(["applied", "applied", "applied", "applied", "applied", "applied"]);
+    const model = result.current.session.model.model!;
+    // The applied rows show the ids their batch created.
+    const applied = sheetView({ state: result.current.store.state, statuses: result.current.store.statuses, model, conversions: new Map(), reservedIds: [], lookup: result.current.store.lookup });
+    expect(applied.rows.map((row) => row.resolved.ids.pipe ?? null)).toEqual([null, "pipe:RS-P010", null, "pipe:RS-P020", "pipe:RS-P050", "pipe:RS-P060"]);
+    expect(applied.rows.map((row) => row.resolved.ids.support ?? null)).toEqual([null, "support:RS-LS1", "support:RS-V020", null, null, null]);
+    expect((model.supports ?? []).filter((support) => support.node === "node:RS-020").map((support) => [support.id, support.label, support.family, support.restraints])).toEqual([
+      ["support:RS-LS1", "Line stop LS1 (invented)", "line_stop", ["UX"]],
+      ["support:RS-V020", "Vertical support V020 (invented)", "vertical_support", ["UZ"]],
+    ]);
+    const nodeIds = new Set(model.nodes.map((node) => node.id));
+    for (const id of ["node:RS-010", "node:RS-020", "node:RS-035", "node:RS-036", "node:RS-045", "node:RS-046", "node:RS-060"]) expect(nodeIds.has(id), id).toBe(true);
+    for (const id of ["node:RS-C1", "node:RS-C2"]) expect(nodeIds.has(id), id).toBe(false);
+    const sheetPipes = model.pipe_segments.filter((pipe) => pipe.id.startsWith("pipe:RS-")).map((pipe) => [pipe.id, pipe.from, pipe.to]);
+    expect(sheetPipes).toEqual(expect.arrayContaining([
+      ["pipe:RS-P010", "node:RS-010", "node:RS-020"],
+      ["pipe:RS-P020", "node:RS-020", "node:RS-035"],
+      ["pipe:RS-P035", "node:RS-035", "node:RS-036"],
+      ["pipe:RS-P050", "node:RS-036", "node:RS-045"],
+      ["pipe:RS-P045", "node:RS-045", "node:RS-046"],
+      ["pipe:RS-P060", "node:RS-046", "node:RS-060"],
+    ]));
+    expect(sheetPipes).toHaveLength(6);
+    const bends = model.components.filter((component) => component.kind === "bend").map((component) => {
+      const geometry = component.geometry as { bend_pipe_ref?: string; bend_geometry_source_reference?: string };
+      return [component.id, component.node, geometry.bend_pipe_ref, geometry.bend_geometry_source_reference];
+    });
+    expect(bends).toEqual([
+      ["component:RS-B1", "node:RS-035", "pipe:RS-P035", "invented bend geometry source"],
+      ["component:RS-B2", "node:RS-045", "pipe:RS-P045", SOURCE],
+    ]);
+  });
+});
+
+describe("run sheet review finding 1: pipe ids numbered by their start node never change once shown", () => {
+  useModelledVisibility();
+  const handle: { session: ReturnType<typeof useWorkspaceSession> | null; store: ReturnType<typeof useRunSheetStore> | null } = { session: null, store: null };
+  function Rendered() {
+    const session = useWorkspaceSession();
+    const store = useRunSheetStore(session.operations.sessionEvents, session.model.activeModelIndex, session.model.model?.project.id ?? null);
+    handle.session = session;
+    handle.store = store;
+    return session.model.model ? <RunSheet host={{ store, queuedBatches: session.operations.queuedBatches, editorIntents: session.operations.editorIntents, registerBatch: session.operations.registerOperationBatch }} model={session.model.model} /> : null;
+  }
+  const result = { get current() { return { session: handle.session!, store: handle.store! }; } } as unknown as Harness;
+  const pipeCell = (row: string) => screen.getByTestId(`run-sheet-cell-${row}-pipeId`);
+
+  it("queue F node:E and a run, then append a run: the queued row keeps pipe:P20 and the new row's id holds through apply", async () => {
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(structuredClone(fixture.basis_model));
+    render(<Rendered />);
+    await waitFor(() => expect(handle.session?.model.model).toBeTruthy());
+    act(() => result.current.store.update((current) => ({ ...current, header: { ...current.header, numbering: { ...current.header.numbering, pipeNumber: "start" } } })));
+    const batchId = await queueRows(result, [{ kind: "F", node: "node:E" }, { dx: "3", od: "0.1143", wall: "0.00602", material: "material:steel", orientation: "0 0 1" }]);
+    expect(statusList(result)).toEqual(["queued", "queued"]);
+    expect(pipeCell("r2")).toHaveAccessibleName("Row 2 Pipe id: pipe:P20");
+    // Append a run from the queued row's end node.
+    act(() => result.current.store.update((current) => {
+      const next = { ...current, rows: [...current.rows, ledger.blankRow("r3")], nextRowKey: current.nextRowKey + 1 };
+      return assignIds(setCell(next, "r3", "dy", "2"), "r3", result.current.session.model.model!, []);
+    }));
+    expect(pipeCell("r2")).toHaveAccessibleName("Row 2 Pipe id: pipe:P20");
+    expect(pipeCell("r3")).toHaveAccessibleName("Row 3 Pipe id: pipe:P30");
+    await apply(result, batchId);
+    expect(statusList(result)).toEqual(["applied", "applied", "draft"]);
+    expect(result.current.session.model.model!.pipe_segments.some((pipe) => pipe.id === "pipe:P20")).toBe(true);
+    expect(pipeCell("r2")).toHaveAccessibleName("Row 2 Pipe id: pipe:P20");
+    expect(pipeCell("r3")).toHaveAccessibleName("Row 3 Pipe id: pipe:P30");
+  });
+});

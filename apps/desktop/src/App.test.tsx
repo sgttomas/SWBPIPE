@@ -3847,7 +3847,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-schema")
         .textContent,
-    ).toContain("schema_version=0.8.0");
+    ).toContain("schema_version=0.9.0");
     expect(
       within(projectValidation).getByTestId("project-validation-round-trip")
         .textContent,
@@ -8976,14 +8976,14 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationPacket.store_migration.migration_scope).toBe(
       "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019",
     );
-    // DEL-02-05 CLM-003: the bundled preview model is the current 0.8.0
+    // DEL-02-05 CLM-003: the bundled preview model is the current 0.9.0
     // document; the browser preview stores its bytes unchanged.
     expect(validationPacket.model_document_version.status).toBe("current");
     expect(validationPacket.model_document_version.evidence_source).toBe(
       "persistence_operation_envelope",
     );
     expect(validationPacket.model_document_version.source_schema_version).toBe(
-      "0.8.0",
+      "0.9.0",
     );
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
@@ -10992,11 +10992,13 @@ describe("SWBPIPE desktop preview", () => {
     // C-120 fix: the demo drops the tee component:C-120, so BRANCH_TOPOLOGY_INVALID no longer warns.
     // §8.30 correction 3 (RT-S3): 6 -> 9, the hanger support:SH-140's three
     // SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD warnings (installed, cold, hot load).
+    // DEL-03-03: 9 -> 10, the geometry-only bend component:C-110's BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD.
     expect(source.diagnostics.filter(item => item.code === "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD")).toHaveLength(3);
+    expect(source.diagnostics.filter(item => item.code === "BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD")).toHaveLength(1);
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-warning")
         .textContent,
-    ).toContain("9 Warnings");
+    ).toContain("10 Warnings");
     expect(
       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
     ).toContain(`${expectedDiagnostics.filter(item => item.severity === "info").length} Info`);
@@ -11263,14 +11265,14 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     // DEL-02-05 CLM-003 evidence: the saved (edited) model document is the
-    // current 0.8.0 version, with the in-document version authority; nothing
+    // current 0.9.0 version, with the in-document version authority; nothing
     // is migrated.
     const documentVersionLine = within(
       openWorkspaceSection("project"),
     ).getByTestId("project-validation-model-document-version");
     expect(documentVersionLine.textContent).toContain("status=current");
-    expect(documentVersionLine.textContent).toContain("source=0.8.0");
-    expect(documentVersionLine.textContent).toContain("target=0.8.0");
+    expect(documentVersionLine.textContent).toContain("source=0.9.0");
+    expect(documentVersionLine.textContent).toContain("target=0.9.0");
   });
 
   it("queues and applies explicit material creation through the structured operation seam", async () => {

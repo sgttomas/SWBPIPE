@@ -99,8 +99,8 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// Independent current resident source-family table, with no ordinary alias.
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
-pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c";
-pub const PRESSURE_TABLE_SHA256: &str = "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6";
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9";
+pub const PRESSURE_TABLE_SHA256: &str = "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
 /// plus 22 section stress, toroidal and directional signatures, 129 over 66,
@@ -179,7 +179,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41";
+    "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -567,7 +567,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
                 return Err(format!("{SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis"));
             }
             if RETIRED_EXACT_V2_IDS.iter().any(|id| p["semantic_contract_id"] == *id) {
-                return Err(format!("{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.8.0 with the current exact pressure contract and re-run the analysis"));
+                return Err(format!("{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.9.0 with the current exact pressure contract and re-run the analysis"));
             }
             if !matches!(
                 p["semantic_contract_id"].as_str(),

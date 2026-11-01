@@ -191,7 +191,7 @@ describe("File > Open Model Document…", () => {
     await renderApp();
     act(() => nativeMenuCommand("file.open-model"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent(
-      "Opened model document opened.json (1234 bytes; schema_version 0.8.0, current). Not saved as a local project yet."
+      "Opened model document opened.json (1234 bytes; schema_version 0.9.0, current). Not saved as a local project yet."
     ));
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(document.project.id)}`)).toBeInTheDocument();
     expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(demoModel.project.id)}`)).not.toBeInTheDocument();

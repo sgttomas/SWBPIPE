@@ -13,7 +13,7 @@ use crate::pystr::{
     skip_chars, split_first, PyError,
 };
 use crate::rational::{fraction_is_zero, parse_fraction, Parsed, Q};
-use crate::sidecar::{sidecar_self_digest, SidecarParser, SHEAR_MODELS, SIDECAR_DIGEST_KEY, SIDECAR_FORMAT};
+use crate::sidecar::{sidecar_self_digest, SidecarParser, DIGESTED_FORMATS, SHEAR_MODELS, SIDECAR_DIGEST_KEY};
 use crate::value::{Dict, OMap, Value};
 use crate::{ImportError, ImportOptions, ImportResult, SidecarInput};
 use sha2::{Digest, Sha256};
@@ -207,6 +207,8 @@ pub(crate) struct Importer<'a> {
     pub derived: Option<Vec<((String, String), [f64; 3])>>,
     pub sidecar: Option<Value>,
     pub sidecar_current: bool,
+    /// The parsed sidecar's format; None for a legacy sidecar or none.
+    pub sidecar_format: Option<i64>,
     pub self_digest_state: Option<&'static str>,
     pub oppres: Option<(usize, Vec<String>, bool)>,
     pub pressure_notes: Vec<String>,
@@ -249,6 +251,7 @@ impl<'a> Importer<'a> {
             derived: None,
             sidecar: None,
             sidecar_current: false,
+            sidecar_format: None,
             self_digest_state: None,
             oppres: None,
             pressure_notes: Vec::new(),
@@ -766,7 +769,7 @@ impl<'a> Importer<'a> {
             }
             return Ok(());
         };
-        if parser.format_number != Some(SIDECAR_FORMAT) {
+        if !parser.format_number.is_some_and(|number| DIGESTED_FORMATS.contains(&number)) {
             self.self_digest_state = Some("absent");
             let head = if parser.current {
                 "the sidecar is format 2, written before the self-digest"
@@ -782,6 +785,7 @@ impl<'a> Importer<'a> {
         let digest = parsed.as_dict_mut().and_then(|dict| dict.remove(&"mbf_sha256".to_string())).unwrap_or(Value::Null);
         self.maps = parsed;
         self.sidecar_current = parser.current;
+        self.sidecar_format = parser.format_number;
         if self.options.rebind_by_node_number {
             self.rebound = true;
         } else if digest.as_str() == Some(self.sha.as_str()) {
@@ -817,14 +821,17 @@ impl<'a> Importer<'a> {
     }
 
     fn self_digest(&mut self, sidecar: &Value) -> R<bool> {
-        let format3 = matches!(sidecar.get("sidecar_format"), Some(Value::Int(number)) if crate::value::small_int(&Value::Int(number.clone())) == Some(SIDECAR_FORMAT));
-        if sidecar.as_dict().is_none() || !format3 {
+        let claimed = match sidecar.get("sidecar_format") {
+            Some(Value::Int(number)) => crate::value::small_int(&Value::Int(number.clone())).filter(|number| DIGESTED_FORMATS.contains(number)),
+            _ => None,
+        };
+        let (true, Some(claimed)) = (sidecar.as_dict().is_some(), claimed) else {
             return Ok(true);
-        }
+        };
         let path = SIDECAR_DIGEST_KEY;
         let Some(given) = sidecar.get(path) else {
             let message = format!(
-                "the sidecar's {path} is missing: a sidecar of format {SIDECAR_FORMAT} carries its self-digest, and one \
+                "the sidecar's {path} is missing: a sidecar of format {claimed} carries its self-digest, and one \
                  without it is not read as an older format"
             );
             self.refuse("MBF-IMPORT-SIDECAR-INVALID", 0, path, &message);

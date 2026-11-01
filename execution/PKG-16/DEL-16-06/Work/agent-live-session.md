@@ -124,7 +124,8 @@ relabelled as an EOF pass.
 
 The selected ARM source/native candidate is qualified to the bounded lifecycle
 and isolation extent below; the actual webview command/review journey remains
-unexercised. Targeted checks cover controller EOF/cancellation/latching,
+unexercised here. `agent-journey-scenario.md` exercises it with a scripted
+provider; its first runs exposed the two Start defects recorded below. Targeted checks cover controller EOF/cancellation/latching,
 workspace authority, outcome-before-delivery, stale preparation, source pages,
 late actuals and original native group preservation. The native run used the retained actual bundle resources with verified stock
 0.160 bytes and current candidate native-smoke code in a fresh app copy. ARM evidence cannot qualify Intel; the

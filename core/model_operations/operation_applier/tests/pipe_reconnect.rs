@@ -1259,3 +1259,18 @@ fn runtime_equivalence_witness_native() {
         vec!["pipe:P", "component:tee", "node:B"],
     )]);
 }
+
+/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.4): a reconnected
+/// pipe keeps its condition_set_ref; the applied document still validates.
+#[test]
+fn a_reconnected_pipe_keeps_its_condition_set_ref() {
+    let mut model = base();
+    model["condition_sets"] = json!([{"id": "cs:line", "provenance": PROV}]);
+    model["pipe_segments"][0]["condition_set_ref"] = json!("cs:line");
+    let (applied, warnings, _) = accepted(&model, &reconnect(&model, "pipe:P", "to", "node:C", None));
+    assert!(warnings.is_empty(), "{warnings:?}");
+    let pipe = record(&applied, "pipe_segments", "pipe:P");
+    assert_eq!(pipe["to"], "node:C");
+    assert_eq!(pipe["condition_set_ref"], "cs:line");
+    assert_eq!(applied["condition_sets"], model["condition_sets"]);
+}

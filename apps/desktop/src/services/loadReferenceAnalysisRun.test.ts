@@ -60,7 +60,7 @@ async function mirror(name: string, kind: keyof typeof FAMILY = "joined") {
   const desktop = await buildAnalysisRunV03(raw, manifest, undefined, modelLoadBasisRefs(model));
   return { raw, model, python, desktop };
 }
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf" };
 
 describe("joined (pressure-source-1) AnalysisRun mirror", () => {
   it.each(LRS)("%s equals the Python carrier by canonical hash (route-independent fields normalized)", async name => {
@@ -125,7 +125,7 @@ function pythonValidatorText(): string {
 describe("records bound to other evidence are refused", () => {
   it.each([
     ["ordinary carrying contract_evidence", (r: Json, raw: Json) => { r.analysis_run.contract_evidence = structuredClone(raw.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
-    ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
+    ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["ordinary with another row binding", (r: Json) => { r.analysis_run.result_refs[0].semantic_contract.sha256 = "0".repeat(64); }, "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"],
     ["ordinary carrying a retained-precision receipt", (r: Json) => { r.analysis_run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
   ])("%s (the same code as Python's validator)", async (_name, edit, code) => {
