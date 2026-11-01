@@ -305,6 +305,10 @@ criterion-6 test (§5), not in the dialog.
 
 ### 3.6 Native command, atomic write and read-back
 
+Native writer memory governance and the live export are unfinished until slice 4b's worker
+path is verified (§3.7). Until then the production entry point refuses every request with
+`MBF-EXPORT-NOT-CONNECTED` before step 1, and the steps below run only through a test seam.
+
 `save_mbf_export` takes these arguments: `{canonicalText, claimedModelHash, settingsJson,
 suggestedName, reviewed: {mbfSha256, sidecarSha256}, screening, localFirstEvidence}`.
 `settingsJson` is the settings' JSON text, `{title, referenceTemperature: {value, unit},
@@ -320,8 +324,8 @@ maxLayoutRows: null}`: the text the review ran with. In order:
 3. **Document checks.** Run `check_model_document` and the desktop shape check, so an MBF is
    only ever written from a document the desktop opens.
 4. **Disposition screen.** As in §3.5.
-5. **Writer.** Run the Rust writer. If it refuses, return its diagnostics without opening
-   the chooser.
+5. **Writer.** Run the Rust writer in the capped worker process (§3.7). If it refuses,
+   return its diagnostics without opening the chooser.
 6. **Staleness.** Compute `mbf_sha256` and the sidecar. If either digest differs from
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
 7. **Chooser.** Open the native save chooser (`.mbf`, the documents folder). The suggested
@@ -365,71 +369,43 @@ are always the native writer's output for the hash-checked text.
 
 ### 3.7 Memory
 
-The command follows the DEL-04-07 ingress rules for model-sized interactive commands:
+- **The in-process pricing was unsound.** Slice 4a first priced the in-process writer's
+  working set as k·M plus a fixed 2 MiB, with k = 640 from a per-entity argument and measured
+  shapes. Review found that bound unsound: the writer's peak grows with the square of its
+  input, so no factor of the model's bytes bounds it. It has two quadratic terms:
+  - long ids multiplied by the copies of an id each record makes (Agent 0's ruling,
+    2026-11-01);
+  - long ids multiplied by unknown fields. The counting allocator measures the export fixture
+    with one node renamed to a long id carrying unknown members. A 4 KiB id with 256 unknown
+    fields (20.0 KB of model text) peaked at 7.7 MB priced, 385 bytes per model byte. A
+    16 KiB id with 1024 unknown fields (63.8 KB) peaked at 105.6 MB, 1655 bytes per model
+    byte. On a pipe, a 16 KiB id with 1024 unknown fields (31.0 KB) peaked at 141.9 MB,
+    4570 bytes per model byte, before the writer refused the model.
 
+  The k·M reservation, its constant and its counting-allocator pin are removed.
+- **Governance.** Native writer memory is to be governed by running the writer in the capped
+  worker process (owner decision 2026-10-12, "(c) Capped worker process"; Agent 0's ruling,
+  2026-11-01), in slice 4b. The host keeps its own reservations for the text, the outputs,
+  the read-back and the reply, below. Native writer memory governance and the live export are
+  unfinished until 4b's worker path is verified.
+- **4a is not connected.** 4a's production entry point (`save_mbf_export_admitted`) refuses
+  every request with `MBF-EXPORT-NOT-CONNECTED` before any parse, writer run, store opening,
+  chooser or file access. The in-process pipeline of §3.6 runs only through a test seam
+  (`InProcessWriterTestSeam`), whose constructor is compiled only for tests; no command,
+  menu or other entry point reaches it.
 - **Admission.** `command_ingress::admit(…, ArgsDecoding::Moved)` admits envelope + M + 4 KiB,
   held until the command returns.
-- **Work within the lease.** `PoolReadMemory` is seeded with the lease. Each of these is
+- **Host-side reservations.** `PoolReadMemory` is seeded with the lease. Each of these is
   reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
   - the parse and the canonical copy;
-  - the writer's working set, k·M plus a fixed 2 MiB;
   - the MBF and sidecar bytes;
   - a 64 KiB read-back block;
   - the response, bounded for a receipt and for the largest refusal after a write.
 - **Refusal.** A reservation the pool refuses refuses the save with
   `MBF-EXPORT-MEMORY-UNAVAILABLE`, including a refusal raised inside the admission's screen.
-- **k from the writer's allocations.** Everything the writer holds at its peak grows by a fixed
-  amount per entity; nothing grows faster than the entity count, and the counting allocator
-  finds the same bytes per added entity at 1000, 2000 and 4000 entities. Per added unit of a
-  node, its pipe and one support (the "minimal supports" shape below), the measured parts are:
-  - the parsed model (`parse_sidecar_json`): about 8.8 KB held, 9.9 KB at its peak;
-  - the writer's per-entity records and its result (node, element, support and load maps, loss
-    report): about 22 KB at the writer's peak without its preflight, 8.9 KB held after it;
-  - the MBF text: 14 to 27 bytes a node, since a straight run takes one short layout row;
-  - the sidecar: about 380 bytes of text, and its value while its self-digest is formed;
-  - the preflight: the bound import of the written text (its model, report and id map) and the
-    regeneration, a second writer run over the imported model with its own sidecar, about
-    50 KB.
-
-  So the peak is a fixed base plus the sum, over the model's entities, of a fixed cost per
-  entity, and the model's bytes are at least the sum of each entity's smallest admissible
-  bytes. The ratio of any model is therefore at most the largest ratio of one unit's cost to
-  its smallest bytes, over the units a written model can repeat.
-  - A node with the pipe that reaches it is the unit every written node needs.
-  - A support is the costliest entity per input byte: about 23 KB held, against 42 bytes at its
-    smallest. A node
-    takes at most three single-direction supports: a rotational one alone is refused, and six
-    make an anchor at every node, which is refused.
-  - Node forces and thermal loads cost less per byte than a support, so adding them lowers the
-    ratio.
-
-  The costliest unit is a node, its pipe and three supports. It holds about 127 KB, and its
-  smallest admissible form, with one-character ids and only required members, is 308 bytes.
-  That bounds every model at about 412 bytes held per model byte. **k = 640**, at least 1.5
-  times that bound.
-- **Measurement.** `the_writer_peak_stays_within_its_working_set` measures the shapes below. It
-  asserts that each peak stays within its working set and that the argument bounds every
-  measured ratio. It also computes the argument's bound from the costliest unit's marginal cost
-  and asserts k ≥ 1.5 times the larger of the bound and the measurements. Priced bytes per
-  model byte:
-
-  | Shape | Ratio |
-  |---|---|
-  | export fixture, 5.5 KB | 176.8 |
-  | fixture run continued by 480 straight pipes (296 KB) | 168.3 |
-  | supports at every node | 167.3 |
-  | node forces at every node | 162.5 |
-  | combined (supports, node forces, thermal loads) | 177.3 |
-  | the same, short ids, no labels or provenance | 247.6 |
-  | smallest members, a support at every node | 327.2 |
-  | smallest members, three supports at every node (worst constructed) | 361.0 |
-
-  The argument's bound (412.5) is larger than the worst measurement, because it assumes
-  one-character ids that a model of this size cannot have, so k follows the argument.
-- **Whole save.** The 296 KB model's save peaked at 49.8 MB priced, within the 191.8 MB it
-  held. The model-size consequence: the per-invocation budget divided by 640 bounds the model
-  text an export admits.
+- **Webview preview.** The dialog's review runs the wasm writer in webview memory. Admission
+  for that preview is a separate bounded design, still to come; the dialog is not mounted.
 
 ### 3.8 Reach-scan re-pin
 
@@ -664,8 +640,10 @@ needs slices 4 and 5.
   pipe segment reaches raises `KeyError` instead of a named refusal. This lane fixes it in both
   twins in a later slice, with its vectors regenerated.
 
-**Slice 4a, as implemented (2026-11-01).** Slice 4 is split. 4a builds the independently verified foundation and
-connects nothing; 4b connects it after the desktop performance work (#59) integrates.
+**Slice 4a, as implemented (2026-11-01).** Slice 4 is split. 4a is an explicitly unconnected foundation: its
+production entry point refuses with `MBF-EXPORT-NOT-CONNECTED` (§3.7), and native writer memory governance and the
+live export are unfinished until 4b's worker path is verified. 4b connects it after the desktop performance work (#59)
+integrates.
 
 - **Webview writer.** `core/handoff/caepipe_mbf_wasm` wraps the engine for wasm (`render_mbf_json`,
   `import_mbf_json`), built by `build-wasm-engine.mjs` into `public/mbf-engine/` and loaded by
@@ -686,19 +664,18 @@ connects nothing; 4b connects it after the desktop performance work (#59) integr
   route (Agent 0, 2026-11-01): a public context is refused. The native admission, the shared local-private check
   called from the new module, remains authoritative.
 - **Native save.** `apps/desktop/src-tauri/src/mbf_export.rs` runs §3.6 steps 1 to 10 as plain functions behind a
-  chooser and file-operation seam. Steps 2 to 4 are Save Model Document's admission
+  chooser and file-operation seam, reachable only through the test seam `InProcessWriterTestSeam`; its production
+  entry point `save_mbf_export_admitted` refuses with `MBF-EXPORT-NOT-CONNECTED` before any parse, writer run or file
+  access, and a test holds that it writes nothing. Steps 2 to 4 are Save Model Document's admission
   (`admit_model_document_text_screened`). The formats are `MBF_FORMAT` and `MBF_IDS_FORMAT`. Step 8 checks both
   destinations with the atomic writer's own checks before any write (`check_destination_as`, a small public helper in
   `atomic_report_package_save.rs`). It backs up each file to be replaced by a hard link and undoes the save on any
   later failure; a rollback that cannot restore keeps and names its backups. A cleanup or restore touches a file only
   while it is still the file the save wrote or backed up: the same device and inode, or off Unix the same size and
   both times.
-- **Memory.** The writer's working set is k·M plus 2 MiB, with k = 640 (§3.7). The per-entity argument bounds every
-  model at 412.5 priced bytes per model byte, and the worst constructed model (smallest members, three supports at
-  every node) measures 361.0. The review round raised k from 256 after the reviewer measured 197.7 for supports at
-  every node and 195 for a combined model, and the shapes above reached 361. A whole save of the 296 KB model peaked
-  at 49.8 MB priced, against 191.8 MB held. The model-size consequence: the per-invocation budget divided by 640
-  bounds the model text an export admits. The memory refusal raised inside the admission's screen is returned as
+- **Memory.** The in-process k·M pricing was found unsound and is removed with its constant and its pin (§3.7). The
+  writer's memory is to be governed by the capped worker process in 4b. The host-side reservations (settings, text,
+  outputs, read-back, response) stay, and the memory refusal raised inside the admission's screen is returned as
   `MBF-EXPORT-MEMORY-UNAVAILABLE`.
 - **Dialog.** `apps/desktop/src/features/caepipe-mbf/MbfExportDialog.tsx` (with `mbfExport.ts`) shows the §3.3
   review and the settings, re-runs the review on any change and after `MBF-EXPORT-REVIEW-STALE`, and calls an
@@ -710,8 +687,9 @@ connects nothing; 4b connects it after the desktop performance work (#59) integr
 - **Shared pins.** One line in `user_release_reach_scan.rs` `SHELL_DEPENDENCIES` admits the engine dependency
   (Agent 0, 2026-11-01). The engine adds `num-bigint`, `num-integer` and `num-traits` to the shell's normal
   dependency graph. `ryu`, `sha2` and the rest of its tree were already there.
-- **4b connects:** command registration and ingress admission (`save_mbf_export_args`, `save_mbf_export_admitted`),
-  the `app_invoke_handler` re-pin, the menu item, the Exports panel action, mounting the dialog, and retiring the
+- **4b connects:** the writer in the capped worker process and the verification of that path (§3.7), command
+  registration and ingress admission (`save_mbf_export_args`, `save_mbf_export_admitted`), the `app_invoke_handler`
+  re-pin, the menu item, the Exports panel action, mounting the dialog, and retiring the
   TypeScript builder (A-6).
 
 ## 7. Boundaries

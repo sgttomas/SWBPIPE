@@ -35,18 +35,24 @@
 //! The bytes written are the native writer's output for the hash-checked text; the webview's text is used for the
 //! review only. Nothing is redacted: a screening that would alter the payload blocks the save instead.
 //!
-//! Memory (§3.7): the command runs within its caller's memory ([`PoolReadMemory`], seeded with the ingress lease).
-//! Each of these is reserved before it is made: the settings' parse, the admission's parse and canonical copy, the
-//! writer's working set ([`writer_working_set`]), the MBF and identity-file bytes, the response (bounded for a receipt
-//! and for a refusal after a write, so a rollback's named backups always reach the user) and a 64 KiB read-back
-//! block. A reservation the pool refuses refuses the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`), before any file is
-//! chosen.
+//! Not connected (§3.7). The in-process writer's memory is not governed: its peak grows with the square of the input
+//! (long ids times copies per record, long ids times unknown fields), so no per-byte reservation bounds it. Native
+//! writer memory is to be governed by running the writer in the capped worker process (slice 4b). Until 4b's worker
+//! path is verified, native writer memory governance and the native export are unfinished, and the production entry
+//! point [`save_mbf_export_admitted`] refuses every request with [`NOT_CONNECTED`] before any parse, writer run or
+//! file access. Steps 1 to 10 above run only through [`InProcessWriterTestSeam`], which only test code can construct.
+//!
+//! Host-side memory (§3.7), which 4b keeps: each of these is reserved before it is made, within the caller's memory
+//! ([`PoolReadMemory`], seeded with the ingress lease): the settings' parse, the admission's parse and canonical copy,
+//! the MBF and identity-file bytes, the response (bounded for a receipt and for a refusal after a write, so a
+//! rollback's named backups always reach the user) and a 64 KiB read-back block. A reservation the pool refuses refuses
+//! the save (`MBF-EXPORT-MEMORY-UNAVAILABLE`), before any file is chosen. The writer's own run reserves nothing here.
 //!
 //! The command's registration, ingress admission and menu are slice 4b. Nothing is sent anywhere (F-PIP-1).
 //! Standard claim fence applies (claims taxonomy per DEC-081): a written MBF means the listed subset of the model
 //! was written; it is not evidence that another program reads or analyses it alike.
 
-// Slice 4b registers the command and calls this module; until then only its tests do.
+// Slice 4b registers the command; until then nothing outside this module's tests calls it.
 #![cfg_attr(not(test), allow(dead_code))]
 
 use crate::atomic_report_package_save::{self, AtomicSaveError, AtomicSaveFormat, AtomicSaveOutcome};
@@ -98,6 +104,8 @@ pub const DESTINATION_EXTENSION: &str = "MBF-EXPORT-DESTINATION-EXTENSION";
 pub const READBACK_MISMATCH: &str = "MBF-EXPORT-READBACK-MISMATCH";
 pub const READBACK_FAILED: &str = "MBF-EXPORT-READBACK-FAILED";
 pub const MEMORY_UNAVAILABLE: &str = "MBF-EXPORT-MEMORY-UNAVAILABLE";
+/// The production entry point's refusal until slice 4b's capped worker path is verified (§3.7).
+pub const NOT_CONNECTED: &str = "MBF-EXPORT-NOT-CONNECTED";
 /// An identity file of the chosen stem exists while its MBF does not: it may belong to an MBF that was moved, so it
 /// is not replaced.
 pub const IDENTITY_FILE_EXISTS: &str = "MBF-EXPORT-IDENTITY-FILE-EXISTS";
@@ -117,16 +125,6 @@ pub const READBACK_BLOCK_BYTES: usize = 64 * 1024;
 /// The settings text's parse and mapping, at most [`mbf::MAX_EXPORT_SETTINGS_JSON_BYTES`] of text
 /// (`the_settings_parse_stays_within_its_reservation`).
 pub const SETTINGS_WORKING_BYTES: u64 = 1 << 20;
-/// The writer's working set per byte of model text (Design §3.7). Everything the writer holds grows by a fixed amount
-/// per entity: the parsed model (`parse_sidecar_json`), the writer's records and its result (maps, loss report), the
-/// MBF text, the sidecar, and the preflight's import of the written text with its regeneration (a second writer run
-/// over the imported model). The costliest unit per byte is a node, its pipe and three single-direction supports: the
-/// counting allocator measures about 126 KB held per unit, and the smallest admissible unit is 308 bytes, which
-/// bounds every model at about 410 bytes held per model byte; the worst constructed model measures 361. k is at least
-/// 1.5 times the larger (`the_writer_peak_stays_within_its_working_set`).
-pub const WRITER_WORKING_SET_FACTOR: u64 = 640;
-/// What the writer holds whatever the model's size (tables, small maps, the preflight's fixed state).
-pub const WRITER_WORKING_SET_BASE_BYTES: u64 = 2 << 20;
 /// What a Saved receipt adds to its warnings' JSON: two file names (each at most 255 bytes escaped to at most six),
 /// byte counts, digests, the durability and the writer's limitation statement, and up to two backup-cleanup warnings
 /// ([`DIAGNOSTIC_JSON_BYTES`] each).
@@ -140,9 +138,19 @@ pub const AFTER_WRITE_REFUSAL_BYTES: u64 = 4 * DIAGNOSTIC_JSON_BYTES + 256;
 /// The most bytes of a suggested name.
 const MAX_SUGGESTED_NAME_BYTES: usize = 200;
 
-/// The writer's working set for a model text of `model_bytes` bytes: k·M plus a fixed base.
-pub fn writer_working_set(model_bytes: u64) -> u64 {
-    model_bytes.saturating_mul(WRITER_WORKING_SET_FACTOR).saturating_add(WRITER_WORKING_SET_BASE_BYTES)
+/// The test seam of the in-process writer pipeline (steps 1 to 10). Its only constructor is compiled for tests, so no
+/// production code can run the in-process writer or touch a file through this module: the production entry point is
+/// [`save_mbf_export_admitted`], which refuses. The writer's memory is not governed in process (§3.7); slice 4b runs it
+/// in the capped worker process.
+pub(crate) struct InProcessWriterTestSeam {
+    _private: (),
+}
+
+impl InProcessWriterTestSeam {
+    #[cfg(test)]
+    pub(crate) fn for_tests() -> Self {
+        Self { _private: () }
+    }
 }
 
 /// The digests the webview reviewed (lowercase hex SHA-256 of the MBF text and of the identity file's bytes).
@@ -302,8 +310,8 @@ fn writer_refusal(result: &mbf::WriterResult) -> Vec<Diagnostic> {
 }
 
 /// Step 5: runs the writer over `text` (read as the engine reads JSON, as the webview wrapper does), returning the
-/// written files or the writer's refusal.
-pub fn render_mbf_files(text: &str, settings: &mbf::WriterSettings) -> Result<MbfFiles, Vec<Diagnostic>> {
+/// written files or the writer's refusal. In process, so only through the test seam; nothing reserves its memory.
+fn render_mbf_files(_seam: &InProcessWriterTestSeam, text: &str, settings: &mbf::WriterSettings) -> Result<MbfFiles, Vec<Diagnostic>> {
     let engine_failed = |error: mbf::ImportError| vec![diagnostic(ENGINE_FAILED, "", format!("The MBF engine returned no result ({error})."))];
     let model = mbf::parse_sidecar_json(text.as_bytes())
         .map_err(|error| vec![diagnostic(MODEL_JSON_INVALID, "", format!("The model text is not JSON the MBF engine reads ({error:?})."))])?;
@@ -363,7 +371,7 @@ pub fn identity_file_path(chosen: &Path) -> Result<PathBuf, Diagnostic> {
 }
 
 /// The file operations of steps 8 and 9: the system's, or a test's injected failures.
-pub(crate) trait MbfExportIo {
+trait MbfExportIo {
     fn write(&mut self, format: &AtomicSaveFormat, destination: &Path, bytes: &[u8]) -> Result<AtomicSaveOutcome, AtomicSaveError> {
         atomic_report_package_save::atomic_save_bytes_as(format, destination, bytes)
     }
@@ -383,7 +391,7 @@ pub(crate) trait MbfExportIo {
     }
 }
 
-pub(crate) struct SystemMbfExportIo;
+struct SystemMbfExportIo;
 
 impl MbfExportIo for SystemMbfExportIo {}
 
@@ -762,6 +770,7 @@ struct Held {
 /// Steps 1 to 10 within `memory`, the library store opened by `open_store` only if the document references a
 /// library; `choose` is given the suggested name.
 fn save_mbf_export_outcome(
+    seam: &InProcessWriterTestSeam,
     request: MbfExportRequest,
     memory: &PoolReadMemory<'_>,
     libraries: &mut StoreLibraryReads<'_>,
@@ -788,7 +797,6 @@ fn save_mbf_export_outcome(
     };
     drop(settings_json);
     // 2-4. The open cap, the canonical text and hash, the open path's checks and the disposition screen.
-    let model_bytes = canonical_text.len() as u64;
     let parse = match memory.reserve("the parse and canonical copy of the model text", admission_bytes(&canonical_text)) {
         Ok(reservation) => reservation,
         Err(error) => return memory_refusal(error),
@@ -814,12 +822,9 @@ fn save_mbf_export_outcome(
             return MbfExportOutcome::refused(diagnostics);
         }
     };
-    // 5. The writer, within its working set; its output is reserved before the working set is released.
-    let working = match memory.reserve("the MBF writer's working set", writer_working_set(model_bytes)) {
-        Ok(reservation) => reservation,
-        Err(error) => return memory_refusal(error),
-    };
-    let files = match render_mbf_files(&admitted.text, &settings) {
+    // 5. The writer, in process: its run reserves nothing (§3.7; slice 4b runs it in the capped worker process). Its
+    // output is reserved before the admitted text is released.
+    let files = match render_mbf_files(seam, &admitted.text, &settings) {
         Ok(files) => files,
         Err(refusal) => return MbfExportOutcome::refused(refusal),
     };
@@ -828,7 +833,6 @@ fn save_mbf_export_outcome(
         Ok(reservation) => held.reservations.push(reservation),
         Err(error) => return memory_refusal(error),
     }
-    drop(working);
     drop(admitted.text);
     // 6. Staleness.
     if let Err(refusal) = check_reviewed(&files, &reviewed) {
@@ -865,9 +869,10 @@ fn save_mbf_export_outcome(
     write_pair(io, &chosen, &files, &mut block, admitted.warnings)
 }
 
-/// The save within `memory` (the caller's: seeded with the command's ingress lease), and its response: `respond`
-/// receives the outcome and its text while every reservation is still held.
-pub(crate) fn save_mbf_export_with<R>(
+/// The in-process save within `memory` (the caller's: seeded with the command's ingress lease), and its response:
+/// `respond` receives the outcome and its text while every reservation is still held. Only through the test seam.
+fn save_mbf_export_with<R>(
+    seam: InProcessWriterTestSeam,
     request: MbfExportRequest,
     memory: &PoolReadMemory<'_>,
     open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
@@ -877,7 +882,7 @@ pub(crate) fn save_mbf_export_with<R>(
 ) -> R {
     let mut libraries = StoreLibraryReads::new(memory, open_store);
     let mut held = Held::default();
-    let outcome = save_mbf_export_outcome(request, memory, &mut libraries, choose, io, &mut held);
+    let outcome = save_mbf_export_outcome(&seam, request, memory, &mut libraries, choose, io, &mut held);
     let (sent, text, buffer) = serialize_outcome(memory, "Export MBF", "save", outcome, held.response.take());
     let response = respond(&sent, text);
     drop(sent);
@@ -887,18 +892,29 @@ pub(crate) fn save_mbf_export_with<R>(
     response
 }
 
-/// The save for the command slice 4b registers: within the pool of `registry`, started from the ingress lease
-/// `ingress`, with the system's file operations.
+/// The production entry point, everything after the arguments are decoded (the command slice 4b registers): within
+/// the pool of `registry`, started from the ingress lease `ingress`. Not connected: it refuses every request with
+/// [`NOT_CONNECTED`] before any parse, writer run, store opening, chooser or file access, because the in-process
+/// writer's memory is not governed (§3.7). Slice 4b connects it to the writer in the capped worker process.
 pub(crate) fn save_mbf_export_admitted<R>(
     request: MbfExportRequest,
-    open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
+    _open_store: impl FnMut() -> Result<rusqlite::Connection, String>,
     registry: &SolveJobRegistry,
     ingress: &Lease,
-    choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
+    _choose: impl FnOnce(&str) -> Result<Option<PathBuf>, String>,
     respond: impl FnOnce(&MbfExportOutcome, String) -> R,
 ) -> R {
+    drop(request);
     let memory = PoolReadMemory::new(registry, ingress);
-    save_mbf_export_with(request, &memory, open_store, choose, &mut SystemMbfExportIo, respond)
+    let outcome = MbfExportOutcome::refused_one(
+        NOT_CONNECTED,
+        "Export MBF is not connected yet: native export memory governance is not connected yet. Nothing was read or written.",
+    );
+    let (sent, text, buffer) = serialize_outcome(&memory, "Export MBF", "save", outcome, None);
+    let response = respond(&sent, text);
+    drop(sent);
+    drop(buffer);
+    response
 }
 
 #[cfg(test)]
@@ -965,7 +981,7 @@ mod tests {
 
     /// The engine's files for `text` with `settings` (the webview's review computes the same digests).
     fn engine_files(text: &str, settings: &str) -> MbfFiles {
-        render_mbf_files(text, &writer_settings(settings).unwrap()).unwrap()
+        render_mbf_files(&InProcessWriterTestSeam::for_tests(), text, &writer_settings(settings).unwrap()).unwrap()
     }
 
     /// A request whose evidence and reviewed digests are those of `text`.
@@ -1016,6 +1032,7 @@ mod tests {
     fn save_with(request: MbfExportRequest, pool: &SolveJobRegistry, chosen: Option<PathBuf>, io: &mut impl MbfExportIo, opened: &Cell<bool>) -> MbfExportOutcome {
         let memory = PoolReadMemory::unseeded(pool);
         let outcome = save_mbf_export_with(
+            InProcessWriterTestSeam::for_tests(),
             request,
             &memory,
             no_store,
@@ -1124,7 +1141,7 @@ mod tests {
             let text = if name == "degf-project" { edited(|document| document["project"]["units"]["temperature"] = json!("degF")) } else { canonical_of(EXPORT_MODEL) };
             assert_eq!(case["model_sha256"], sha256_hex(text.as_bytes()), "{name}");
             let settings = writer_settings(case["settings_json"].as_str().unwrap()).unwrap();
-            match render_mbf_files(&text, &settings) {
+            match render_mbf_files(&InProcessWriterTestSeam::for_tests(), &text, &settings) {
                 Ok(files) => {
                     assert_eq!(case["status"], "written", "{name}");
                     assert_eq!(case["mbf_sha256"], files.mbf_sha256, "{name}");
@@ -1689,186 +1706,47 @@ mod tests {
         })
     }
 
-    /// The shapes of §3.7's measurement: the fixture's last run continued by `extra` straight pipes, each new node
-    /// optionally with a support, a node force, and with short ids and no labels or provenance ("tiny").
-    #[derive(Clone, Copy, Default)]
-    struct Shape {
-        supports: bool,
-        forces: bool,
-        thermal: bool,
-        tiny: bool,
-        /// Tiny, and each new pipe only its required members (a one-letter material id, an inline section in mm,
-        /// no y_reference or section_ref).
-        minimal: bool,
-        /// Single-direction supports at each new node (UX, UY, … in turn), in place of the one guide.
-        supports_per_node: usize,
-    }
-
-    fn shaped_model(extra: usize, shape: Shape) -> String {
-        let shape = Shape { tiny: shape.tiny || shape.minimal, ..shape };
-        edited(|document| {
-            if shape.minimal {
-                document["materials"][0]["id"] = json!("m");
-                for pipe in document["pipe_segments"].as_array_mut().unwrap() {
-                    pipe["material"] = json!("m");
-                }
-            }
-            let node_id = |index: usize| if shape.tiny { format!("n{index}") } else { format!("node:X{index}") };
-            let pipe_id = |index: usize| if shape.tiny { format!("p{index}") } else { format!("pipe:X{index}") };
-            let nodes = document["nodes"].as_array_mut().unwrap();
-            for index in 0..extra {
-                let mut node = json!({"id": node_id(index), "position": {"x": 4, "y": 0, "z": 7 + index}});
-                if !shape.tiny {
-                    node["label"] = json!(format!("Run node {index}"));
-                    node["provenance"] = json!("invented_example");
-                }
-                nodes.push(node);
-            }
-            let pipes = document["pipe_segments"].as_array_mut().unwrap();
-            let mut template = pipes[3].clone();
-            if shape.minimal {
-                template = json!({"material": "m", "section": {"outside_diameter": {"value": 9, "unit": "mm"}, "wall_thickness": {"value": 1, "unit": "mm"}}});
-            } else if shape.tiny {
-                let object = template.as_object_mut().unwrap();
-                object.remove("label");
-                object.remove("provenance");
-            }
-            for index in 0..extra {
-                let mut pipe = template.clone();
-                pipe["id"] = json!(pipe_id(index));
-                if !shape.tiny {
-                    pipe["label"] = json!(format!("Run {index}"));
-                }
-                pipe["from"] = json!(if index == 0 { "node:C".to_string() } else { node_id(index - 1) });
-                pipe["to"] = json!(node_id(index));
-                pipes.push(pipe);
-            }
-            if shape.supports_per_node > 0 {
-                let supports = document["supports"].as_array_mut().unwrap();
-                for index in 0..extra {
-                    for (dof_index, dof) in ["UX", "UY", "UZ", "RX", "RY", "RZ"].iter().take(shape.supports_per_node).enumerate() {
-                        supports.push(json!({"id": format!("s{index}-{dof_index}"), "node": node_id(index), "restraints": [dof]}));
-                    }
-                }
-            }
-            if shape.supports {
-                let supports = document["supports"].as_array_mut().unwrap();
-                for index in 0..extra {
-                    let mut support = json!({"id": if shape.tiny { format!("s{index}") } else { format!("support:X{index}") }, "node": node_id(index), "restraints": ["UY"]});
-                    if !shape.tiny {
-                        support["label"] = json!(format!("Guide {index}"));
-                        support["provenance"] = json!("invented_example");
-                    }
-                    supports.push(support);
-                }
-            }
-            if shape.forces {
-                let loads = document["load_cases"][0]["primitive_loads"].as_array_mut().unwrap();
-                let mut template = loads[0].clone();
-                if shape.tiny {
-                    template.as_object_mut().unwrap().remove("provenance");
-                }
-                for index in 0..extra {
-                    let mut load = template.clone();
-                    load["id"] = json!(if shape.tiny { format!("f{index}") } else { format!("load:F-X{index}") });
-                    load["target"]["node"] = json!(node_id(index));
-                    loads.push(load);
-                }
-            }
-            if shape.thermal {
-                let loads = document["load_cases"][1]["primitive_loads"].as_array_mut().unwrap();
-                let mut template = loads[0].clone();
-                if shape.tiny {
-                    template.as_object_mut().unwrap().remove("provenance");
-                }
-                for index in 0..extra {
-                    let mut load = template.clone();
-                    load["id"] = json!(if shape.tiny { format!("t{index}") } else { format!("load:t-X{index}") });
-                    load["target"]["pipe"] = json!(pipe_id(index));
-                    loads.push(load);
-                }
-            }
-        })
-    }
-
-    /// The smallest canonical bytes of the costliest unit the writer writes (§3.7): a node, the pipe that reaches it
-    /// and three single-direction supports at it, each with a one-character id and only its required members, and a
-    /// separating comma each.
-    fn minimal_unit_bytes() -> f64 {
-        let node = json!({"id": "a", "position": {"x": 0, "y": 0, "z": 0}});
-        let pipe = json!({"id": "b", "from": "a", "to": "c", "material": "m",
-            "section": {"outside_diameter": {"value": 3, "unit": "m"}, "wall_thickness": {"value": 1, "unit": "m"}}});
-        let support = json!({"id": "d", "node": "a", "restraints": ["UX"]});
-        let bytes = |value: &Value| canonical_json(value).len() as f64 + 1.0;
-        bytes(&node) + bytes(&pipe) + 3.0 * bytes(&support)
-    }
-
-    /// §3.7: k from the per-unit argument and the measured shapes. Every model's writer peak stays within its working
-    /// set; the costliest unit's marginal bytes held per unit, over its smallest admissible bytes, bounds the ratio of
-    /// any model the writer writes, and k is at least 1.5 times that bound and the largest measured ratio.
+    /// The production entry point refuses before anything else (§3.7): with otherwise valid arguments and a chooser
+    /// that would name a folder, it returns `MBF-EXPORT-NOT-CONNECTED`, opens no store and no chooser, writes nothing,
+    /// and releases what it held.
     #[test]
-    fn the_writer_peak_stays_within_its_working_set() {
-        let writer = writer_settings(&settings()).unwrap();
-        let measure = |text: &str| {
-            let (files, measured) = crate::ingress::counting::measure(|| render_mbf_files(text, &writer));
-            assert!(files.is_ok(), "{files:?}");
-            measured.peak_priced
-        };
-        let all = Shape { supports: true, forces: true, thermal: true, ..Shape::default() };
-        let worst = Shape { minimal: true, supports_per_node: 3, ..Shape::default() };
-        let shapes: Vec<(&str, String)> = vec![
-            ("fixture", canonical_of(EXPORT_MODEL)),
-            ("long-480", long_model(480)),
-            ("supports at every node", shaped_model(480, Shape { supports: true, ..Shape::default() })),
-            ("node forces", shaped_model(480, Shape { forces: true, ..Shape::default() })),
-            ("combined", shaped_model(480, all)),
-            ("tiny combined", shaped_model(480, Shape { tiny: true, ..all })),
-            ("minimal supports", shaped_model(480, Shape { minimal: true, supports: true, ..Shape::default() })),
-            ("minimal, three supports a node", shaped_model(480, worst)),
-        ];
-        let mut largest = 0.0_f64;
-        for (label, text) in &shapes {
-            let model = text.len() as u64;
-            let peak = measure(text);
-            let ratio = peak as f64 / model as f64;
-            largest = largest.max(ratio);
-            eprintln!("mbf writer peak: {label} M={model} peak_priced={peak} ratio={ratio:.1} working_set={}", writer_working_set(model));
-            assert!(peak <= writer_working_set(model), "{label}: peak {peak} above the working set {}", writer_working_set(model));
-        }
-        // The argument: the bytes held grow by a fixed amount per unit (the parsed model, the writer's records and
-        // result, the MBF text, the sidecar, the preflight import and its regeneration), so the marginal cost of the
-        // costliest unit over its smallest admissible bytes bounds the ratio of every mix of units.
-        let (small, large) = (shaped_model(240, worst), shaped_model(480, worst));
-        let held_per_unit = (measure(&large) as f64 - measure(&small) as f64) / 240.0;
-        let bound = held_per_unit / minimal_unit_bytes();
-        eprintln!("mbf writer argument: {held_per_unit:.0} bytes held per unit / {} bytes = {bound:.1}; largest measured {largest:.1}", minimal_unit_bytes());
-        assert!(bound >= largest, "the argument {bound:.1} bounds the measurements {largest:.1}");
-        assert!(WRITER_WORKING_SET_FACTOR as f64 >= 1.5 * bound.max(largest), "k={WRITER_WORKING_SET_FACTOR} bound={bound:.1} largest={largest:.1}");
-    }
-
-    /// §3.7: the whole save, through its response, peaks within what it held; every reservation is released.
-    #[test]
-    fn the_save_peaks_within_what_it_held() {
+    fn the_production_entry_point_refuses_not_connected_and_touches_nothing() {
         let _lock = atomic_save_test_lock();
-        let sandbox = Sandbox::new("peak");
-        let text = long_model(480);
+        let sandbox = Sandbox::new("not-connected");
+        let text = canonical_of(EXPORT_MODEL);
         let request = request(&text);
+        let body = json!({"canonicalText": text});
         let pool = registry(ScriptedHost::normal());
-        let memory = PoolReadMemory::unseeded(&pool);
+        let (_, lease) = admit_json(&pool, COMMAND, ArgsDecoding::Moved, &body).unwrap();
+        let (store_opened, chooser_opened) = (Cell::new(false), Cell::new(false));
         let chosen = sandbox.0.join("swbpipe-model.mbf");
-        let (outcome, measured) = crate::ingress::counting::measure(|| {
-            save_mbf_export_with(request, &memory, no_store, |_| Ok(Some(chosen.clone())), &mut SystemMbfExportIo, |outcome, text| (outcome.clone(), text.len()))
-        });
-        assert!(matches!(outcome.0, MbfExportOutcome::Saved { .. }), "{:?}", outcome.0);
-        eprintln!("mbf save peak: M={} peak_priced={} peak_reserved={}", text.len(), measured.peak_priced, memory.peak_reserved());
-        assert!(measured.peak_priced <= memory.peak_reserved(), "peak {} above the {} held", measured.peak_priced, memory.peak_reserved());
-        assert!(memory.peak_reserved() >= writer_working_set(text.len() as u64));
-        drop(memory);
+        let (outcome, text) = save_mbf_export_admitted(
+            request,
+            || {
+                store_opened.set(true);
+                no_store()
+            },
+            &pool,
+            &lease,
+            |_| {
+                chooser_opened.set(true);
+                Ok(Some(chosen.clone()))
+            },
+            |outcome, text| (outcome.clone(), text),
+        );
+        assert_eq!(codes(&outcome), vec![NOT_CONNECTED.to_string()]);
+        let MbfExportOutcome::Refused { diagnostics } = &outcome else { unreachable!() };
+        assert!(diagnostics[0].message.contains("native export memory governance is not connected yet"), "{}", diagnostics[0].message);
+        assert_eq!(serde_json::to_string(&outcome).unwrap(), text);
+        assert!(!store_opened.get() && !chooser_opened.get());
+        assert!(sandbox.entries().is_empty(), "{:?}", sandbox.entries());
+        assert!(!chosen.exists());
+        drop(lease);
         assert_eq!(pool.pool_status().reserved_bytes, 0);
     }
 
-    /// The command's entry: the ingress lease of its arguments is counted with every reservation, so a budget
-    /// that admits the save without the lease refuses it with the lease, before the chooser.
+    /// Through the test seam, the ingress lease of the arguments is counted with every host-side reservation, so a
+    /// budget that admits the save without the lease refuses it with the lease, before the chooser.
     #[test]
     fn the_ingress_lease_is_counted_with_the_saves_reservations() {
         let _lock = atomic_save_test_lock();
@@ -1877,7 +1755,20 @@ mod tests {
         let body = json!({"canonicalText": text, "pad": "x".repeat(1 << 20)});
         let run = |pool: &SolveJobRegistry, chosen: PathBuf, opened: &Cell<bool>| {
             let (_, lease) = admit_json(pool, COMMAND, ArgsDecoding::Moved, &body).unwrap();
-            let outcome = save_mbf_export_admitted(request(&text), no_store, pool, &lease, |_| { opened.set(true); Ok(Some(chosen)) }, |outcome, _| outcome.clone());
+            let memory = PoolReadMemory::new(pool, &lease);
+            let outcome = save_mbf_export_with(
+                InProcessWriterTestSeam::for_tests(),
+                request(&text),
+                &memory,
+                no_store,
+                |_| {
+                    opened.set(true);
+                    Ok(Some(chosen))
+                },
+                &mut SystemMbfExportIo,
+                |outcome, _| outcome.clone(),
+            );
+            drop(memory);
             (outcome, lease.bytes())
         };
         let pool = registry(ScriptedHost::normal());
@@ -1886,9 +1777,18 @@ mod tests {
         assert!(matches!(outcome, MbfExportOutcome::Saved { .. }), "{outcome:?}");
         assert!(lease > 1 << 20);
         assert_eq!(pool.pool_status().reserved_bytes, 0);
-        // A budget the save fits without the lease (its working set and a margin), but not with it.
-        let budget = writer_working_set(text.len() as u64) + (2 << 20);
-        assert!(budget < lease + writer_working_set(text.len() as u64));
+        // The most the save holds without a lease, through Cancel (every host-side reservation is made before the
+        // chooser).
+        let unseeded = registry(ScriptedHost::normal());
+        let memory = PoolReadMemory::unseeded(&unseeded);
+        let opened = Cell::new(false);
+        let cancelled = save_mbf_export_with(InProcessWriterTestSeam::for_tests(), request(&text), &memory, no_store, |_| { opened.set(true); Ok(None) }, &mut SystemMbfExportIo, |outcome, _| outcome.clone());
+        assert_eq!(cancelled, MbfExportOutcome::Cancelled);
+        let held = memory.peak_reserved();
+        drop(memory);
+        // A budget that admits the arguments and fits the save without the lease, but not with it.
+        let budget = lease + held / 2;
+        assert!(held <= budget && held / 2 < held, "held {held} lease {lease}");
         let tight = registry(ScriptedHost::normal());
         tight.configure_pool(64 << 20, budget, false).unwrap();
         let opened = Cell::new(false);
@@ -1898,13 +1798,20 @@ mod tests {
         assert_eq!(tight.pool_status().reserved_bytes, 0);
     }
 
-    /// A reservation the pool refuses refuses the save by name, before any chooser, and writes nothing.
+    /// A host-side reservation the pool refuses refuses the save by name, before any chooser, and writes nothing.
     #[test]
     fn a_refused_reservation_refuses_the_save_before_the_chooser() {
         let text = long_model(480);
-        let working = writer_working_set(text.len() as u64);
-        // The admission's parse, the writer's working set, then the files' bytes held with it.
-        for budget in [64 * 1024, working / 2, working + 1] {
+        // The most the save holds, through Cancel.
+        let pool = registry(ScriptedHost::normal());
+        let opened = Cell::new(false);
+        let memory = PoolReadMemory::unseeded(&pool);
+        let cancelled = save_mbf_export_with(InProcessWriterTestSeam::for_tests(), request(&text), &memory, no_store, |_| { opened.set(true); Ok(None) }, &mut SystemMbfExportIo, |outcome, _| outcome.clone());
+        assert_eq!(cancelled, MbfExportOutcome::Cancelled);
+        let held = memory.peak_reserved();
+        drop(memory);
+        // The settings' parse, then the reservation that reaches the peak.
+        for budget in [64 * 1024, held - 1] {
             let pool = registry(ScriptedHost::normal());
             pool.configure_pool(budget.max(1 << 20), budget, false).unwrap();
             let opened = Cell::new(false);
