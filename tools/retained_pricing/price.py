@@ -13,6 +13,11 @@ RP_OUT (default --out), RP_JOB_WRAPPER (a command each point runs under, e.g. a 
 like a shell word list). See README.md for inputs, outputs, exit codes and limits.
 """
 import argparse, difflib, json, os, re, shlex, shutil, subprocess, sys, tempfile
+if __name__ == "__main__" and not sys.flags.utf8_mode:
+    # Source text is UTF-8 whatever the locale: the driver and every chain step (chain_env) run in Python's UTF-8 mode,
+    # so every open() and text pipe of the tool decodes strictly as UTF-8.
+    sys.exit(subprocess.run([sys.executable, "-X", "utf8", os.path.abspath(__file__), *sys.argv[1:]]).returncode)
+from lib import pinned_git
 from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
 from base.b7a_domain_model import prepare as prepare_b7a_domain
 from base.b7a_formation_model import prepare as prepare_b7a_formation
@@ -26,7 +31,7 @@ P = "projects/chirality-piping"
 ROOT_FN = "run_linear_static_preview_value_with_retained_direct"
 RULE_FILES = ("callgraph_rules.g4.json", "loop_bounds.g4.json", "text_args.g4.json", "sens.py", "premise_pins.json")
 POINTS = (("L", 3, 0), ("L", 2, 1), ("L", 1, 2), ("E", 3, 0))
-GIT_ENV = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
+GIT_ENV = pinned_git.env()                  # no global or system git configuration, no output-changing GIT_* variable
 MARKER = ".retained_pricing_out"            # written in an output directory this tool created or claimed while empty
 OWNED = ("snap", "prepared_rules", "map", "chain", "rcL", "rcE", "runs", "logs", "tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json")
 RESOLUTIONS = os.path.join(RULES, "linemap_resolutions.json")
@@ -34,18 +39,18 @@ RESOLUTIONS = os.path.join(RULES, "linemap_resolutions.json")
 
 def chain_env(**extra):
     """The chain's scripts call `python3`: this interpreter's directory comes first on PATH."""
-    return dict(GIT_ENV, PATH=os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", ""), **extra)
+    return dict(GIT_ENV, PATH=os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", ""), PYTHONUTF8="1", **extra)
 
 
-def git(repo, *a, **kw):
-    return subprocess.run(["git", "-C", repo, *a], env=GIT_ENV, check=True, capture_output=True, **kw).stdout
+def git(repo, *a, text=False, input=None):
+    return pinned_git.run(repo, *a, text=text, input=input)
 
 
 def py(args, env=None, cwd=None, out=None):
     """Run one chain step; its stdout goes to `out` (a path) or is returned."""
-    r = subprocess.run([sys.executable, *args], env=env or chain_env(), cwd=cwd, capture_output=True, text=True)
+    r = subprocess.run([sys.executable, *args], env=env or chain_env(), cwd=cwd, capture_output=True, encoding="utf-8")
     if out:
-        open(out, "w").write(r.stdout)
+        open(out, "w", encoding="utf-8").write(r.stdout)
     return r
 
 
@@ -60,11 +65,39 @@ def default_repo():
 
 # ---- run ---------------------------------------------------------------------------------------------------------
 def snapshot(repo, rev, dst):
-    """git archive of projects/chirality-piping at rev (execution/ excluded) into dst."""
+    """The committed blobs of projects/chirality-piping at rev (execution/ excluded), written raw into dst. No attribute
+    from any source (export-ignore, export-subst, eol, filters, including .git/info/attributes) drops a file or changes a
+    byte; for the committed attributes this is what `git archive` wrote."""
     os.makedirs(dst)
     prefix = project_prefix(repo, rev)
-    arc = git(repo, "archive", rev, prefix.rstrip("/") or ".", f":(exclude){prefix}execution")
-    subprocess.run(["tar", "-x", "-C", dst], input=arc, check=True)
+    skip = prefix + "execution"
+    entries = []
+    for row in git(repo, "ls-tree", "-r", "-z", "--full-tree", rev, "--", prefix.rstrip("/") or ".").split(b"\0"):
+        if row:
+            meta, path = row.split(b"\t", 1)
+            mode, kind, sha = meta.decode().split()
+            path = path.decode("utf-8", errors="strict")
+            if path != skip and not path.startswith(skip + "/"):
+                entries.append((mode, kind, sha, path))
+    blobs = [e for e in entries if e[1] == "blob"]
+    out, pos = git(repo, "cat-file", "--batch", input="".join(e[2] + "\n" for e in blobs).encode()), 0
+    for mode, _, sha, path in blobs:
+        nl = out.index(b"\n", pos)
+        name, kind, size = out[pos:nl].decode().split()
+        if name != sha or kind != "blob":
+            raise ValueError(f"cat-file returned {name} {kind} for {sha} ({path})")
+        data, pos = out[nl + 1:nl + 1 + int(size)], nl + 2 + int(size)
+        target = os.path.join(dst, path)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        if mode == "120000":
+            os.symlink(data.decode("utf-8", errors="strict"), target)
+        else:
+            with open(target, "wb") as f:
+                f.write(data)
+            os.chmod(target, 0o755 if mode == "100755" else 0o644)
+    for mode, kind, _, path in entries:
+        if kind == "commit":                          # a submodule: an empty directory, as git archive wrote it
+            os.makedirs(os.path.join(dst, path), exist_ok=True)
     return os.path.join(dst, prefix)
 
 
@@ -358,7 +391,7 @@ def cmd_compare(a):
 
 
 def cmd_eval(a):
-    r = subprocess.run([sys.executable, os.path.join(LIB, "tree_eval.py"), a.atoms, a.tree] + ([a.other] if a.other else []))
+    r = subprocess.run([sys.executable, os.path.join(LIB, "tree_eval.py"), a.atoms, a.tree] + ([a.other] if a.other else []), env=chain_env())
     sys.exit(r.returncode)
 
 
