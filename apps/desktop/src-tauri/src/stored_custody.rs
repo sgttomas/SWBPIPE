@@ -601,6 +601,8 @@ fn admit(registry: &SolveJobRegistry, raw: &[u8], copy: Lease, command: &'static
 
 /// `open_local_project_in_native_custody`, after the executor's part.
 pub(crate) fn run_open(registry: &SolveJobRegistry, store: impl FnOnce() -> Result<PathBuf, String>, raw: Vec<u8>, copy: Lease, epoch: u64) -> Result<tauri::ipc::Response, CommandError<String>> {
+    #[cfg(test)]
+    tests::command_gate::pass(tests::command_gate::key(registry, OPEN_COMMAND));
     let (mut args, args_lease) = admit(registry, &raw, copy, OPEN_COMMAND)?;
     drop(raw);
     let project_id: Option<String> = args.decode("projectId")?;
@@ -615,6 +617,8 @@ pub(crate) fn run_open(registry: &SolveJobRegistry, store: impl FnOnce() -> Resu
 
 /// `read_analysis_run_in_native_custody`, after the executor's part.
 pub(crate) fn run_read(registry: &SolveJobRegistry, store: impl FnOnce() -> Result<PathBuf, String>, raw: Vec<u8>, copy: Lease, epoch: u64) -> Result<tauri::ipc::Response, CommandError<String>> {
+    #[cfg(test)]
+    tests::command_gate::pass(tests::command_gate::key(registry, RUN_COMMAND));
     let (mut args, args_lease) = admit(registry, &raw, copy, RUN_COMMAND)?;
     drop(raw);
     let project_id: String = args.decode("projectId")?;

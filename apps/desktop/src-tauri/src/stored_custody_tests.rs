@@ -11,9 +11,51 @@
 use super::*;
 use crate::analysis_run_v03_validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation};
 use serde_json::{json, Value};
+pub(crate) use crate::native_verdict::tests::gate as command_gate;
 
 const REOPEN_CASES: &str = "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json";
 const BUILDER_CASES: &str = "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json";
+
+/// Hold more actual command futures than the async runtime has workers at
+/// the first proportional operation. Another async task must still run.
+#[test]
+fn reopen_admission_and_store_reads_run_off_the_async_executor() {
+    use crate::command_ingress::test_support::headers;
+    use crate::command_ingress::INGRESS_ARGS_JSON_V1;
+    use crate::memory_pool::test_host::ScriptedHost;
+    use std::time::Duration;
+    let host = ScriptedHost::normal();
+    let (registry, _) = crate::native_verdict::tests::gated(&host);
+    let commands = crate::native_verdict::tests::runtime_workers() * 2 + 2;
+    for command in [OPEN_COMMAND, RUN_COMMAND] {
+        let held = command_gate::hold(&registry, command, false);
+        let tasks: Vec<_> = (0..commands).map(|_| {
+            let registry = registry.clone();
+            tauri::async_runtime::spawn(async move {
+                let args = if command == OPEN_COMMAND { json!({"projectId":"invented:project"}) }
+                    else { json!({"projectId":"invented:project","recordingId":"invented:record"}) };
+                let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+                let header = headers(Some(INGRESS_ARGS_JSON_V1));
+                let store = || Err("TEST-REOPEN-STORE-UNAVAILABLE".to_string());
+                if command == OPEN_COMMAND { open_project(&registry, store, &body, &header).await }
+                    else { read_run(&registry, store, &body, &header).await }
+            })
+        }).collect();
+        let all_entered = held.0.wait_entered(commands, Duration::from_secs(30));
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tauri::async_runtime::spawn(async move { let _ = sender.send(()); });
+        let probe = receiver.recv_timeout(Duration::from_secs(5));
+        held.0.open();
+        for task in tasks {
+            let outcome = tauri::async_runtime::block_on(task).unwrap();
+            assert!(matches!(outcome, Err(CommandError::Command(ref text)) if text == "TEST-REOPEN-STORE-UNAVAILABLE"));
+        }
+        assert!(all_entered, "{command}: admission occupied the async executor");
+        assert!(probe.is_ok(), "{command}: no other async task could run");
+        drop(held);
+    }
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
 
 pub(crate) fn root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")

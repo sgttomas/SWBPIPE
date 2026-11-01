@@ -829,7 +829,9 @@ restored and browser-preview results):
   requests on a real store, a reset, the open, every request the historical panel sends on the handle,
   the recorded run's read, and a refused open), request for request: the restored origin, the
   findings, no current result, S and the first page shown, no legacy open, full copy or take, one
-  disposal at the end; the recorded run's check. `resultTooLarge.session.test.tsx` shows the refused
+  disposal at the end; the recorded run's check. The actual open/read commands are held at
+  admission with more futures than runtime workers while another async task completes; all
+  leases end afterward (`reopen_admission_and_store_reads_run_off_the_async_executor`). `resultTooLarge.session.test.tsx` shows the refused
   open and the refused save in place. Tests written before slice 6 that mock the legacy open reach
   the native path through a unit bridge (`test/nativeReopenEmulation.ts`: findings from the TypeScript
   oracle, rows from the actual commands' recorded replies); it is no proof of the reopen.
@@ -846,8 +848,10 @@ restored and browser-preview results):
   separate leases, one at a time; the store's read reservations stay held while the findings run
   (conservative).
 - Run listing (`list_analysis_runs`) still verifies each run's record under its own reservation, and
-  run comparisons and saving a reopened run use the bounded whole-value copies (C2). Above 64 MiB a
-  reopened saved run is inspected natively but cannot be re-saved with its project (refused by name).
+  run comparisons retain the bounded whole-value read under the approved C2 exception. Re-saving
+  a reopened project still uses a <=64 MiB copy and refuses above it; this is unfinished C1 native
+  persistence continuity, not a new C2 exception. A distinct stored-origin native save must
+  preserve the stored representations/revision guards without granting fresh-solve authority.
 - Recorded-manifest member checks reuse the store's `manifest_members` after the store's own read has
   checked them; their TypeScript `TypeError` points are therefore unreachable here and not emulated.
 
