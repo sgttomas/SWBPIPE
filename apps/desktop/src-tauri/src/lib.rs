@@ -29,6 +29,7 @@ mod model_document_version;
 mod model_states;
 mod analysis_runs;
 mod analysis_run_v03_build;
+mod analysis_run_v03_validate;
 mod native_persistence;
 mod result_js_text;
 #[allow(unsafe_code)]

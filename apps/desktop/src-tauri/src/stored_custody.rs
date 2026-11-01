@@ -23,7 +23,7 @@
 //!   custody refuse it (`native_persistence`, `analysis_run_v03_build`,
 //!   `solve_jobs::custody_binding`). Its standing is historical: the findings
 //!   are `buildHistoricalRunContext`'s or `buildRecordedRunContext`'s
-//!   (`analysis_run_v03_build::validate`), and nothing grants it Current.
+//!   (`analysis_run_v03_validate`), and nothing grants it Current.
 //! - **Nothing is written.** Opening reads; the stored bytes, records, model
 //!   versions, hashes and schema are never rewritten, migrated or upgraded.
 //!   The store is opened as `open_local_project` and `read_analysis_run` open
@@ -56,7 +56,7 @@
 //!   validator's working memory (one row's values at a time, the duplicate-id
 //!   fingerprints within the fixed allowance), and Tauri's delivery copies of
 //!   the reply after it returns.
-use crate::analysis_run_v03_build::validate::{self, HistoricalFindings, RecordedRead, SavedProject};
+use crate::analysis_run_v03_validate::{self as validate, HistoricalFindings, RecordedRead, SavedProject};
 use crate::analysis_runs::{self, NativeRunLoad};
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;

@@ -135,13 +135,13 @@ pub(crate) const VERSION: u64 = 1;
 pub(crate) const WORKING_ALLOWANCE_BYTES: u64 = 4 << 20;
 
 const ANALYSIS_RUN_V03: &str = "0.3.0";
-const SOURCE_CONTRACT_UNSUPPORTED: &str = "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED";
-const RULE_STATUSES: [&str; 3] = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
+pub(crate) const SOURCE_CONTRACT_UNSUPPORTED: &str = "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED";
+pub(crate) const RULE_STATUSES: [&str; 3] = ["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"];
 const RULE_CHECK_RUN_STATUSES: [&str; 3] = RULE_STATUSES;
-const OUTSIDE_PROFILE: &str = "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE";
+pub(crate) const OUTSIDE_PROFILE: &str = "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE";
 const UNDEFINED_VALUE: &str = "CHECKED-JSON-UNSUPPORTED-TYPE: undefined";
 const RECURSION_LIMIT: &str = "CHECKED-JSON-INVALID: recursion limit exceeded";
-const RETAINED_RECEIPT_MISMATCH: &str = "RETAINED_PRECISION_RECEIPT_MISMATCH";
+pub(crate) const RETAINED_RECEIPT_MISMATCH: &str = "RETAINED_PRECISION_RECEIPT_MISMATCH";
 const MAX_SAFE_INTEGER: f64 = 9_007_199_254_740_991.0;
 /// serde_json's parse depth: a container nested this deep is refused.
 const PARSE_DEPTH_LIMIT: usize = 128;
@@ -166,15 +166,15 @@ fn get<'v>(base: Option<&'v Value>, key: &str, what: &str) -> Result<Option<&'v 
 }
 
 /// `base?.key`.
-fn get_opt<'v>(base: Option<&'v Value>, key: &str) -> Option<&'v Value> {
+pub(crate) fn get_opt<'v>(base: Option<&'v Value>, key: &str) -> Option<&'v Value> {
     base.and_then(Value::as_object).and_then(|map| map.get(key))
 }
 
-fn nullish(value: Option<&Value>) -> bool {
+pub(crate) fn nullish(value: Option<&Value>) -> bool {
     matches!(value, None | Some(Value::Null))
 }
 
-fn truthy(value: Option<&Value>) -> bool {
+pub(crate) fn truthy(value: Option<&Value>) -> bool {
     match value {
         None | Some(Value::Null) => false,
         Some(Value::Bool(flag)) => *flag,
@@ -186,7 +186,7 @@ fn truthy(value: Option<&Value>) -> bool {
 
 /// `a === b`: scalars by value (numbers as binary64), objects and arrays by
 /// identity.
-fn strict_eq(a: Option<&Value>, b: Option<&Value>) -> bool {
+pub(crate) fn strict_eq(a: Option<&Value>, b: Option<&Value>) -> bool {
     match (a, b) {
         (None, None) => true,
         (Some(Value::Null), Some(Value::Null)) => true,
@@ -198,12 +198,12 @@ fn strict_eq(a: Option<&Value>, b: Option<&Value>) -> bool {
     }
 }
 
-fn strict_eq_str(value: Option<&Value>, text: &str) -> bool {
+pub(crate) fn strict_eq_str(value: Option<&Value>, text: &str) -> bool {
     value.and_then(Value::as_str) == Some(text)
 }
 
 /// `String(value)`, as a template literal writes it.
-fn js_string(value: Option<&Value>) -> String {
+pub(crate) fn js_string(value: Option<&Value>) -> String {
     match value {
         None => "undefined".into(),
         Some(Value::Null) => "null".into(),
@@ -234,7 +234,7 @@ fn outside_profile(number: &Number) -> bool {
 }
 
 /// Whether any number in `value` is outside the checked profile.
-fn has_outside_profile(value: &Value) -> bool {
+pub(crate) fn has_outside_profile(value: &Value) -> bool {
     match value {
         Value::Number(number) => outside_profile(number),
         Value::Array(items) => items.iter().any(has_outside_profile),
@@ -263,7 +263,7 @@ fn js_number(number: &Number) -> Number {
 /// parse of it and read again by serde_json: each number as
 /// [`js_number`], a negative zero kept. In place; nothing is allocated
 /// beyond one number's text at a time.
-fn keep_negative_zero_js_numbers(value: &mut Value) {
+pub(crate) fn keep_negative_zero_js_numbers(value: &mut Value) {
     match value {
         Value::Number(number) => {
             let f = number.as_f64().unwrap_or(f64::NAN);
@@ -381,10 +381,10 @@ impl<'s, S: Sink> Writer<'s, S> {
     pub(crate) fn new(out: &'s mut S, style: Style) -> Self {
         Self { out, style }
     }
-    fn raw(&mut self, text: &str) {
+    pub(crate) fn raw(&mut self, text: &str) {
         self.out.put(text.as_bytes());
     }
-    fn string(&mut self, text: &str) {
+    pub(crate) fn string(&mut self, text: &str) {
         serde_json::to_writer(Adapter(&mut *self.out), text).expect("strings always encode as JSON");
     }
     fn key(&mut self, key: &str) {
@@ -469,13 +469,13 @@ impl<'s, S: Sink> Writer<'s, S> {
 }
 
 /// The canonical text of `value` (`canonical_json`) streamed into SHA-256.
-fn canonical_sha256(value: &Value) -> String {
+pub(crate) fn canonical_sha256(value: &Value) -> String {
     let mut hasher = Sha256::new();
     Writer::new(&mut hasher, Style::Canonical).value(value);
     hex(&hasher.finalize())
 }
 
-fn hex(bytes: &[u8]) -> String {
+pub(crate) fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
 }
 
@@ -518,11 +518,11 @@ pub(crate) struct Route {
     pub(crate) name: &'static str,
     pub(crate) binding_id: String,
     pub(crate) binding_sha256: String,
-    table: Option<&'static Value>,
+    pub(crate) table: Option<&'static Value>,
 }
 
 impl Route {
-    fn retained(&self) -> bool {
+    pub(crate) fn retained(&self) -> bool {
         matches!(self.name, "retained_preview_physics" | "retained_physics")
     }
 }
@@ -621,7 +621,7 @@ fn source_basis_reference(basis: Option<&Value>) -> Result<Option<(&'static str,
 }
 
 /// `source.results` as rows (`.map` throws on anything but an array).
-fn rows_of(source: &Value) -> Result<&[Value], String> {
+pub(crate) fn rows_of(source: &Value) -> Result<&[Value], String> {
     match get(Some(source), "results", "result")? {
         Some(Value::Array(rows)) => Ok(rows),
         _ => Err(shape("result.results is not an array")),
@@ -634,7 +634,7 @@ fn rows_of(source: &Value) -> Result<&[Value], String> {
 /// collected, so nothing here grows with the rows but the distinct bases of
 /// an undefined basis (the builder's own default, which the preview never
 /// takes).
-fn expected_load_basis(source: &Value, expected: Option<&Value>) -> Result<Vec<Value>, String> {
+pub(crate) fn expected_load_basis(source: &Value, expected: Option<&Value>) -> Result<Vec<Value>, String> {
     const REFERENCE_INVALID: &str = "ANALYSIS_SOURCE_REFERENCE_INVALID";
     const BASIS_INVALID: &str = "ANALYSIS_LOAD_BASIS_INVALID";
     let rows = rows_of(source)?;
@@ -708,7 +708,7 @@ fn source_basis_matches(signature: &Value, row: &Value) -> bool {
 
 /// A row's record interpretation (`analysisRowSemanticsIn`): its table
 /// signature, or none, and the findings.
-fn interpret<'t>(table: &'t Value, row: &Value) -> Result<(Option<&'t Value>, &'static [&'static str]), String> {
+pub(crate) fn interpret<'t>(table: &'t Value, row: &Value) -> Result<(Option<&'t Value>, &'static [&'static str]), String> {
     let entries = table["rows"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let kind = row.get("kind");
     let unit = row.get("unit");
@@ -983,7 +983,7 @@ fn validate_built(built: &Built<'_>, source: &Value, inputs: &BuildInputs<'_>, r
 /// fingerprint and ordinal per row, sorted in place, and the ids of rows
 /// whose fingerprints agree compared. The fingerprints' allocation is
 /// admitted at its exact size first.
-fn duplicate_ids(rows: &[Value], reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>) -> Result<bool, CommandError<String>> {
+pub(crate) fn duplicate_ids(rows: &[Value], reserve: &mut dyn FnMut(u64) -> Result<Option<Lease>, CommandError<String>>) -> Result<bool, CommandError<String>> {
     use std::hash::{Hash, Hasher};
     let bytes = (rows.len() as u64).saturating_mul(std::mem::size_of::<(u64, usize)>() as u64);
     let _lease = reserve(ingress::allocation_envelope(bytes).unwrap_or(u64::MAX))?;
@@ -1656,7 +1656,3 @@ pub(crate) fn run_record_bytes_within(registry: SolveJobRegistry, raw: Vec<u8>, 
 #[path = "analysis_run_v03_build_tests.rs"]
 pub(crate) mod tests;
 
-/// C1 slice 6: a saved or recorded run's historical findings and the record
-/// validator, over the stored texts held natively (`stored_custody`).
-#[path = "analysis_run_v03_validate.rs"]
-pub(crate) mod validate;

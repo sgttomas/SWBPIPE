@@ -19,7 +19,7 @@
 //!   TypeScript gives an unnamed throw); `typeof … === "object"` admits
 //!   arrays; numbers are binary64 (`same_js_data`). The record builder's
 //!   readers, table interpretation, load-basis rules and canonical writer
-//!   are reused from the parent module unchanged.
+//!   are reused from `analysis_run_v03_build` unchanged (explicit imports).
 //! - **Standing.** `numericalResultStanding(result, model)` of an unregistered
 //!   (saved or recorded) result is Rust's dispatch standing for the model
 //!   (`reader_verdict::dispatch`, the function the wasm export wraps), or the
@@ -30,9 +30,20 @@
 //!   comparison or report readiness. The retained reader reads a value written
 //!   back with JavaScript's numbers, as the builder's does, in place on the
 //!   parsed copy, never on the stored bytes.
-use super::*;
-use crate::analysis_runs::manifest_members;
+use crate::analysis_run_v03_build::{
+    canonical_sha256, dispatch, duplicate_ids, expected_load_basis, get_opt, has_outside_profile, hex, interpret, js_string, keep_negative_zero_js_numbers,
+    nullish, rows_of, strict_eq, strict_eq_str, truthy, validate_route, Route, Sink, Style, Writer, OUTSIDE_PROFILE, RETAINED_RECEIPT_MISMATCH, RULE_STATUSES,
+    SOURCE_CONTRACT_UNSUPPORTED,
+};
+use crate::analysis_runs::{
+    manifest_excluded_rule_packs, manifest_members, rule_pack_identity, rule_pack_ref_diagnostic, RULE_PACKS_NOT_RESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH,
+    RULE_PACK_REF_UNRESOLVED,
+};
+use open_pipe_stress_canonical_json::CHECKED_PROFILE_V1;
+use open_pipe_stress_result_export::{reader_verdict as rv, retained_precision as rp};
 use serde::Serialize;
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use crate::native_persistence::same_js_data;
 
 /// JavaScript's `TypeError` (a member read on `undefined` or `null`): not a

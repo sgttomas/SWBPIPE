@@ -759,7 +759,7 @@ restored and browser-preview results):
 
 #### Slice 6 status (connected on `claude/rt-perf-c1-custody`, 2026-11-01)
 
-**Connected.** `stored_custody.rs`, `analysis_run_v03_validate.rs` (a child of the slice-5 builder),
+**Connected.** `stored_custody.rs`, `analysis_run_v03_validate.rs` (reusing the slice-5 builder's readers and writers by explicit import),
 `services/nativeReopen.ts`; `solve_jobs.rs` gains the restored origin.
 
 - **Commands** (raw args bodies under `command_ingress`, JSON body replies, Tauri delivers them

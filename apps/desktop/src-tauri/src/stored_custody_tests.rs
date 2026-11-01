@@ -1,5 +1,5 @@
 //! C1 slice 6: saved and recorded runs reopened into native custody
-//! (`stored_custody`, `analysis_run_v03_build::validate`).
+//! (`stored_custody`, `analysis_run_v03_validate`).
 //!
 //! - **The TypeScript contexts' findings.** Every case of
 //!   `apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json`
@@ -9,7 +9,7 @@
 //!   give the same findings, in order, the same run name, and the same
 //!   envelope payload hash or model hash, natively from the stored values.
 use super::*;
-use crate::analysis_run_v03_build::validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation};
+use crate::analysis_run_v03_validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation};
 use serde_json::{json, Value};
 
 const REOPEN_CASES: &str = "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json";
@@ -120,7 +120,7 @@ fn the_native_findings_are_the_typescript_contexts() {
             "saved" => {
                 let (mut result, record) = saved_run(case, &builder);
                 let project = &case["project"];
-                let saved = validate::SavedProject {
+                let saved = SavedProject {
                     model: &project["model"],
                     editor_intents: &project["editor_intents"],
                     proposal: &project["proposal"],
