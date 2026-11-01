@@ -562,6 +562,41 @@ needs slices 4 and 5.
   pipe segment reaches raises `KeyError` instead of a named refusal. This lane fixes it in both
   twins in a later slice, with its vectors regenerated.
 
+**Slice 4a, as implemented (2026-11-01).** Slice 4 is split. 4a builds the independently verified foundation and
+connects nothing; 4b connects it after the desktop performance work (#59) integrates.
+
+- **Webview writer.** `core/handoff/caepipe_mbf_wasm` wraps the engine for wasm (`render_mbf_json`,
+  `import_mbf_json`), built by `build-wasm-engine.mjs` into `public/mbf-engine/` and loaded by
+  `src/services/mbfEngine.ts`. The model text is read as the engine reads JSON (`parse_sidecar_json`).
+- **Settings.** `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`: `degC` is passed as
+  `reference_temperature_c`, `degF` as `reference_temperature_f`, with no row limit. The wrapper and the native
+  module map them by the same rules. The recorded digests
+  `fixtures/caepipe_mbf/invented/desktop_export/export_digests.json` are written by the wrapper's test and checked
+  by the native test and the dialog test.
+- **Reviewed digests.** `reviewed.sidecarSha256` is the SHA-256 of the identity file's bytes, not its internal
+  self-digest. The route evidence keeps the sibling saves' member name `localFirstEvidence` (§3.6 writes
+  `localFirst`).
+- **Route.** `DOTH-MBF-012` is in `route_control.py` and `redactionExportControls.ts`, each with parity tests. Like
+  `DOTH-MODEL-DOC-007` and `DOTH-HANDOFF-PACKAGE-008`, it is not in the CSV-only set. The native admission is the
+  shared local-private check called from the new module.
+- **Native save.** `apps/desktop/src-tauri/src/mbf_export.rs` runs §3.6 steps 1 to 10 as plain functions behind a
+  chooser and file-operation seam. Steps 2 to 4 are Save Model Document's admission
+  (`admit_model_document_text_screened`). The formats are `MBF_FORMAT` and `MBF_IDS_FORMAT`. A cleanup removes a
+  written file only while it is still that file (same device and inode).
+- **Memory.** The writer's working set is k·M plus 2 MiB, with k = 256. The counting allocator's priced peak was
+  176.8, 170.5 and 168.3 bytes per model byte for models of 5.5 KB, 34 KB and 296 KB, so k is at least 1.5 times
+  the ratio on the largest model. A whole save of the 296 KB model peaked at 49.8 MB priced, against 78.2 MB held.
+  The model-size consequence: the per-invocation budget divided by 256 bounds the model text an export admits.
+- **Dialog.** `apps/desktop/src/features/caepipe-mbf/MbfExportDialog.tsx` (with `mbfExport.ts`) shows the §3.3
+  review and the settings, re-runs the review on any change and after `MBF-EXPORT-REVIEW-STALE`, and calls an
+  injected `saveMbfExport`. It is not mounted.
+- **Shared pins.** One line in `user_release_reach_scan.rs` `SHELL_DEPENDENCIES` admits the engine dependency
+  (Agent 0, 2026-11-01). The engine adds `num-bigint`, `num-integer` and `num-traits` to the shell's normal
+  dependency graph. `ryu`, `sha2` and the rest of its tree were already there.
+- **4b connects:** command registration and ingress admission (`save_mbf_export_args`, `save_mbf_export_admitted`),
+  the `app_invoke_handler` re-pin, the menu item, the Exports panel action, mounting the dialog, and retiring the
+  TypeScript builder (A-6).
+
 ## 7. Boundaries
 
 - **No compliance or acceptance claims.** SWBPIPE makes no code-compliance claim. Piping-code,

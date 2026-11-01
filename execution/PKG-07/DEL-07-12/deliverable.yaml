@@ -347,4 +347,5 @@ checks:
 - apps/desktop/src/features/handoff/HandoffPanel.test.tsx
 - apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx
 - apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx
+- apps/desktop/src/features/caepipe-mbf/MbfExportDialog.test.tsx
 - apps/desktop/e2e/result-compatibility.spec.ts

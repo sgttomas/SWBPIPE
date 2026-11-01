@@ -112,6 +112,10 @@ code_paths:
 - core/handoff/caepipe_mbf/correctly_rounded.py
 - schemas/caepipe_mbf_export.schema.json
 - apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx
+- core/handoff/caepipe_mbf_wasm/
+- apps/desktop/src/services/mbfEngine.ts
+- apps/desktop/src-tauri/src/mbf_export.rs
+- fixtures/caepipe_mbf/invented/desktop_export/
 checks:
 - tests/test_caepipe_mbf_export_package.py
 - tests/test_caepipe_mbf_si_writer.py
@@ -130,3 +134,9 @@ checks:
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/exportProjectUnitRefusal.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
+- core/handoff/caepipe_mbf_wasm/tests/export.rs
+- apps/desktop/src/services/mbfEngine.test.ts
+- apps/desktop/src-tauri/src/mbf_export.rs
+- tests/security/test_local_first_storage_policy.py
+- tests/security/test_redaction_export_controls.py
+- apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
