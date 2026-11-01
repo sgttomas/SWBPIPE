@@ -2077,7 +2077,11 @@ An earlier same-id row causes the allocation-free full-scan fallback. Each
 member contributes at most its guarded allowance r = 78 (L) or 114 (E).
 The exact split maximum over thirty vectors is 208 or 276 slots, plus one
 old backing during growth, giving 2,176 or 2,720 B. `ordinary_caps.py` derives
-r from P_final and refuses a changed form; the source guard binds the one
+r from P_final; its remainder check is only an arithmetic consistency check.
+The route L/E decisions patch the exact baseline text
+`P = 7 * n + 51 * m + 8 * g + 3`, so that source-bound patch and the
+producer cohort guard the form, not divisibility at equal n/m/g caps. The
+index source guard binds the one
 instance, empty construction, filtered incremental walk and one push. Inline
 headers remain stack locals and require combined-source stack evidence.
 
@@ -2092,7 +2096,11 @@ and 8,807,922,439 to 8,808,094,993 B dense; illustrative M is not qualification.
 
 **Native proposal evaluation.** The combined source's registered-identity
 `profile_` run (eight tests) supplies native atoms while the committed block
-still reproduces S1's laws. Evaluating the proposed tree on those atoms gives
+still reproduces S1's laws. The first native-evaluation file covers the merged points only. Completing
+all 80 budget evaluations (five trees × two modes × eight phases) confirms
+that every separate point stays at or below the merged phase, using the
+merged W/X reserve conservatively for all points. Evaluating the proposed
+merged tree on those atoms gives
 merged W3 E + R = 8,966,249,564 B sparse and 9,025,380,908 B dense, each
 172,554 B above S1. TEXT atoms/reserve, M and its margin are unchanged; the
 tightest headroom including the existing reserve would be 2,315,688,350 B.
@@ -2100,7 +2108,11 @@ This evaluation proposes new law values; it does not claim those laws or a
 new registration have been adopted or tested in the committed block.
 
 **Verification and reconciliation.** The targeted owner/pin/mutation tests
-pass (162 plus 132), and routing checks pass (77 plus 120 subtests). The two
+pass: the focused reviewer reran 375 tests on exact head `0f2698846`,
+including E13 and the other changed pin cohorts, after the retired-key
+correction. Earlier 162/132-test logs are superseded by that result. Routing
+checks pass (77 plus 120 subtests); product U4b tests pass (25), tee references
+pass (5) and shared-terminal regressions pass (6). The two
 repaired lookup regressions rejected deletion of stale rebuilding and of
 incremental rescan before original source was restored. DEL-04-07 Work
 `route-unification-r4.md` §5.4b preserves the original linear measurements
@@ -2219,5 +2231,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Bend warnings in `validate_components` re-pin", "§8.34" | §8.34 |
 | "RT-U4 reader bundle: `reader_verdict.rs` content re-pin", "§8.35" | §8.35 |
 | "Model document 0.9.0 actual-source D3", "§8.36" (S1-PIN, S1-BN, S1-NR, S1-RK, S1-HS, S1-L1, S1-ZR, S1-ZS, S1-ID, S1-MS, S1-VW, S1-WH, S1-TS) | §8.36 |
-
 | "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |

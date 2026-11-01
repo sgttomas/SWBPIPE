@@ -867,7 +867,7 @@ H-a is recommended: no new format, and it removes an asymmetry (§6).
 
 The H-1, H-1b, H-2 and H-3 labels in **this document, §4.7** name the
 HYDROTEST prerequisites. They are distinct from the historical H-1/H-2 rulings
-cited by `pressure-contract.md`. Reference generators, test names and evidence
+cited by `pressure-contract.md`. Reference generators, test documentation and evidence
 must cite `DEL-04-07 Work/route-unification-r4.md §4.7 (HYDROTEST)` in full.
 The frozen reference set must include the active/held contrast and nominal and
 reduced pressure bases; an unchanged reference label does not permit changing
@@ -1135,7 +1135,7 @@ Independent scrutiny of `8517ee24` confirmed first-row equivalence and the
 RTA3B-PS/MR allocation arithmetic on the actual D1 domain. It found the original
 tests missed same-length removal/replacement after fallback and discovery of a
 previously absent row after an earlier lookup; focused regressions now cover
-those cases. It also found §8.36's grow-only premise false: both arc and exact
+those cases. It also found the pre-S1 draft's §8.36 (now §8.37) grow-only premise false: both arc and exact
 pressure publication can retain rows. The current charge is sound because
 removals shrink lengths and every length seen by `begin` is bounded by P_final;
 the false grow-only check has been removed and its premise corrected in the
