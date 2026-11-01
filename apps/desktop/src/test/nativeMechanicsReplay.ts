@@ -223,7 +223,12 @@ export function createSolveJobTransport(
   const nativeHeld = () => [...jobs].filter(([, job]) => job.native && !job.disposed && !job.cancelled).map(([id]) => id);
   /** Every command the transport answered, in order. */
   const commands = () => [...calls];
-  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount, nativeHeld, commands };
+  /** A native-custody job's held bytes while it is held (the native persistence fake reads them). */
+  const heldBytes = (jobId: string) => {
+    const job = jobs.get(jobId);
+    return job && job.native && !job.disposed && !job.cancelled ? job.bytes : null;
+  };
+  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount, nativeHeld, commands, heldBytes };
 }
 
 /** A bounded invokeMock implementation for the captured model and two modes,
@@ -246,7 +251,7 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
     }
     return transport.invoke(command, args, invokeOptions);
   };
-  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount, nativeHeld: transport.nativeHeld, commands: transport.commands };
+  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount, nativeHeld: transport.nativeHeld, commands: transport.commands, heldBytes: transport.heldBytes };
 }
 
 /** Every command a native mechanics replay answers (the job contract, the C1 native result

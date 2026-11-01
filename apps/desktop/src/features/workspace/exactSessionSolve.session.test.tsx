@@ -13,7 +13,10 @@
  * (a `NativeResult` and its record header). The record compared with Python's, the saved bytes
  * and the C2 surfaces (exports, rule check, native package) read the result's C2 full copy and full
  * record, built on that copy and checked against the native record, through the session's
- * `loadC2Full`, as the app's C2 consumers do.
+ * `loadC2Full`, as the app's C2 consumers do. C1 slice 5: the session creates the project from the
+ * job handle; the unit fake (`nativePersistenceFake.ts`) stores the forms today's submitted path
+ * writes (which the native writer stores byte for byte) in the browser adapter, and the saved run is
+ * reopened from there.
  * Unit transport replay of committed producer bytes through mocked IPC; NOT a native UI
  * qualification witness. The rule backend's answer is a unit simulation, NOT rule-evaluation
  * evidence. All data are invented. */
@@ -25,7 +28,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
-import { getLocalStorageCapability, openLocalProject } from "../../services/projectService";
+import { createLocalProject, getLocalStorageCapability, openLocalProject } from "../../services/projectService";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
 import { hasNativeMechanicsInvocation, loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
@@ -85,7 +89,21 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model, mode })) throw new Error("REPLAY_REQUEST_MISMATCH");
     return bytes;
   }, { jobIdPrefix: `unit-exact-session:${++sequence}` });
+  // The native store's forms, kept by the browser persistence adapter (no native runtime) for the reopen.
+  const fake = createNativePersistenceFake({
+    heldBytes: transport.heldBytes,
+    save: async ({ request }) => {
+      const tauri = (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+      try {
+        return await createLocalProject(request.model, request.editorIntents, request.proposal, request.selectedReviewTarget, request.mechanicsResult, request.analysisRun, request.modelHash, request.projectEnvelopeHash, request.confirmedRevision);
+      } finally {
+        (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = tauri;
+      }
+    }
+  });
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+    if (isNativePersistenceCommand(command)) return fake.invoke(command, args as never);
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
@@ -225,8 +243,10 @@ describe("a saved exact session", () => {
     const full = await c2Full(hook.current);
     const original = JSON.stringify(full.result), originalAnalysis = JSON.stringify(full.analysisRun);
     // The browser persistence adapter (no native runtime) stores the session's run.
-    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    // Create, from the job handle; then the browser adapter holds the stored run for the reopen.
     await act(async () => { await hook.current.project.handleCreateProject(); });
+    expect(hook.current.project.projectOperation, hook.current.project.projectMessage ?? undefined).toBe("create");
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     const saved = await openLocalProject();
     expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
     expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);
@@ -269,8 +289,10 @@ describe("a saved exact session", () => {
     const original = JSON.stringify(copy), originalAnalysis = JSON.stringify(ruledFull.analysisRun);
 
     // Save (the browser persistence adapter, no native runtime).
-    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    // Create, from the job handle; then the browser adapter holds the stored run for the reopen.
     await act(async () => { await hook.current.project.handleCreateProject(); });
+    expect(hook.current.project.projectOperation, hook.current.project.projectMessage ?? undefined).toBe("create");
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     const saved = await openLocalProject();
     expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
     expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);
@@ -348,8 +370,10 @@ describe("a saved exact session: pressure-source-1 (epoch 8, §4.4)", () => {
     const original = JSON.stringify(copy), originalAnalysis = JSON.stringify(ruled);
 
     // Save (the browser persistence adapter, no native runtime): byte for byte.
-    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    // Create, from the job handle; then the browser adapter holds the stored run for the reopen.
     await act(async () => { await hook.current.project.handleCreateProject(); });
+    expect(hook.current.project.projectOperation, hook.current.project.projectMessage ?? undefined).toBe("create");
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
     const saved = await openLocalProject();
     expect(JSON.stringify(saved!.mechanics_result)).toBe(original);
     expect(JSON.stringify(saved!.analysis_run)).toBe(originalAnalysis);

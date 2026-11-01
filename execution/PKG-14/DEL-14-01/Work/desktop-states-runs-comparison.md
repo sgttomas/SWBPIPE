@@ -347,11 +347,10 @@ Python agree.
    builder of the same transient record from a retained solve result
    (`analysis_run_v03_build.rs`): the record's bytes in the stored form and its
    checksums equal the TypeScript builder's. The webview receives only its
-   header. The bounded bytes route (`run_record_bytes_within`, the exact length
-   checked against the caller's bound before allocation) is what Record Run and
-   Save Project will read when they take the job handle; until then neither
-   changes, and Record Run's request, checks and recorded revision below are as
-   stated.
+   header. Record Run and Save/Create Project of such a result take the job
+   handle (`native_persistence.rs`, as built below): the record is rebuilt from
+   the held bytes and stored in today's forms; a taken or restored result is
+   recorded and saved as stated below, unchanged.
 2. **Recorded.** **Record Run** creates a new immutable record revision of the
    transient record, as `analysis_run.v0.3` permits
    (`mutation_policy: changes_create_new_immutable_record_revision`,
@@ -502,6 +501,32 @@ the History panel and `useModelStateHistory.ts`.
   `post_solve_snapshot` (`new_state`); without one the request is refused with
   `ANALYSIS-RUN-STATE-REQUIRED`. The snapshot is the manifest's model payload. Its
   parent is the session's basis state.
+- **Native Record Run (C1 slice 5; DEL-04-05 `Work/c1-native-custody-plan.md`).**
+  For a native-custody solve the webview sends
+  `record_preview_mechanics_job_analysis_run` the job id, the record's inputs as
+  the native preview read them (the manifest evidence without its parsed copy,
+  the rule-check aggregate, the rule-pack exclusions), the previewed record's run
+  id and both checksums, and `request: {expected_base, state_id, new_state,
+  run_labels}`; no record, result text or manifest object. The job must be held
+  natively, its bytes its publication's and its solver mode the manifest's
+  (`NATIVE-PERSISTENCE-CUSTODY`); the record rebuilt from the held bytes must be
+  the previewed one (`NATIVE-PERSISTENCE-RECORD-STALE`). The checks below then
+  apply to the rebuilt record's members that are not row-scale (the manifest's
+  canonical text, hash, ref and project; the transient shape and status; the
+  members the manifest fixes; the received result's checksum, ref, run and
+  project; the exact checksum inventory). The row checksums and diagnostics are
+  the builder's own, computed from the held bytes, so nothing of them is
+  asserted by the webview. The transaction, the state, the recording time and
+  the revision are this section's; `result_json` is
+  `jsonTextKeepingNegativeZero` of the held bytes' parse (written natively in
+  JavaScript's member order) and `run_record_json` the revision's stored form,
+  byte for byte the submitted path's (`native_persistence_tests.rs`). Before
+  anything is allocated or written, the writing connection's
+  `SQLITE_LIMIT_LENGTH` bounds every bound value and the run row's record; above
+  it the run is refused `RUN-RECORD-RESULT-TOO-LARGE (result_bytes, record_bytes,
+  row_bytes, limit_bytes)` with nothing written, and a row SQLite still refuses
+  rolls the transaction back, a new snapshot included. The outcome is
+  `record_analysis_run`'s.
 - **Checks before the store.**
   - `ANALYSIS-RUN-MANIFEST-MISMATCH`: the manifest is not its own canonical text;
     its hash is not `input_manifest_hashes[0]`; that entry's ref is not

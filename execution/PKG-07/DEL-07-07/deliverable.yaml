@@ -242,7 +242,8 @@ code_paths:
 - apps/desktop/src/services/resultDetail.ts
 - apps/desktop/src/test-support/resultDetailCases.ts
 - apps/desktop/src/test-support/resultDetailEmulation.ts
-# C1 slice 5's builder: the native v0.3 analysis-run record and preview header of a held result, with the bounded bytes route (nothing calls it before slice 4).
+# C1 slice 5's builder: the native v0.3 analysis-run record and preview header of a held result; the
+# persistence commands below write its stored forms (its recorded revision included).
 - apps/desktop/src-tauri/src/analysis_run_v03_build.rs
 - apps/desktop/src/services/analysisRunPreview.ts
 - apps/desktop/src/test-support/analysisRunV03Cases.ts
@@ -271,6 +272,14 @@ code_paths:
 # (result_detail.rs, above); the CSV stream commands are bound to the held job they began on and end
 # with its disposal or the session reset.
 - apps/desktop/src-tauri/src/native_csv_stream.rs
+# C1 slice 5's persistence: Record Run and Save/Create Project of a native-custody solve from its job
+# handle (record_preview_mechanics_job_analysis_run, save_preview_mechanics_job_local_project), the
+# writing connection's exact SQLite length limit, and the session tests' actual replies and unit fake.
+- apps/desktop/src-tauri/src/native_persistence.rs
+- apps/desktop/src/services/nativePersistence.ts
+- apps/desktop/src/test/nativePersistenceFake.ts
+- apps/desktop/src/test/nativePersistenceReplay.ts
+- apps/desktop/src/test-support/native-replay/native_persistence_replies.json
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
@@ -298,6 +307,9 @@ checks:
 - apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
 - apps/desktop/src/features/results/C2ResultGate.test.tsx
 - apps/desktop/src-tauri/src/native_csv_stream_tests.rs
+- apps/desktop/src-tauri/src/native_persistence_tests.rs
+- apps/desktop/src/services/nativePersistence.test.ts
+- apps/desktop/src/features/history/recordRun.session.test.tsx
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs

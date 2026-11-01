@@ -8,7 +8,9 @@
  * rule-pack data are invented. C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session
  * holds the result natively and the record's header; the full record, whose bytes these tests
  * compare, is the C2 full record the session builds on the result's full copy (`loadC2Full`),
- * checked against the native record's checksums. */
+ * checked against the native record's checksums. C1 slice 5: Save Project and Record Run of the
+ * native result go from its job handle; the fake store here answers them through the unit fake
+ * (`nativePersistenceFake.ts`), which hands it the request today's submitted path sends. */
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -17,6 +19,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
 import { hex, inventedEnvelope, inventedReference } from "../../test/inventedRulePacks";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
@@ -62,7 +65,40 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
     return pair.bytes;
   }, { jobIdPrefix: `unit-solve-rule-packs:${++sequence}` });
   const store = { base: null as string | null, states: [] as ModelStateSummary[], runs: [] as AnalysisRunSummary[], records: [] as Json[], reads: new Map<string, AnalysisRunRead>() };
+  const saveProject = (request: Json) => {
+    store.base = `sha256:${request.model.project.id}#saved`;
+    return {
+      summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved." },
+      model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
+      analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: store.base }, model_document_version: null
+    } as unknown as LocalProjectEnvelope;
+  };
+  const recordRun = async (request: Json) => {
+    // The native store's derivation of the recorded revision, mirrored by the TypeScript
+    // builder (its parity with Rust is `recordedRunParity.test.ts` against the witness).
+    store.records.push(request);
+    const created = "2026-10-24T10:00:01.000Z";
+    const manifest = JSON.parse(request.input_manifest_canonical) as CurrentSessionInputManifest;
+    const state = {
+      ...request.new_state.labels, project_id: request.project_id, state_id: `state:${"1".padStart(32, "0")}`, state_kind: "post_solve_snapshot",
+      created_at: created, parent_state_id: null, model_hash: (await computeModelHash(manifest.model_basis.model_payload))!.value, record_hash: "r",
+      labels_updated_at: created, child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"]
+    } as ModelStateSummary;
+    store.states.push(state);
+    const recorded = await recordedAnalysisRunRevision(request.run_record, { stateId: state.state_id, createdAt: created, inputManifest: manifest });
+    const run: AnalysisRunSummary = {
+      ...request.run_labels, project_id: request.project_id, recording_id: `runrec:${"1".padStart(32, "0")}`, state_id: state.state_id,
+      producer_run_id: request.run_record.analysis_run.run_id, created_at: created,
+      run_record_hash: recorded.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value,
+      result_hash: "r", labels_updated_at: created, analysis_status: request.run_record.analysis_run.analysis_status
+    };
+    store.runs.push(run);
+    store.reads.set(run.recording_id, { run, state, record: recorded, result_json: request.result_json, input_manifest_canonical: request.input_manifest_canonical });
+    return { run, state, state_outcome: "created", message: `Recorded run "${run.run_name}".` };
+  };
+  const fake = createNativePersistenceFake({ heldBytes: transport.heldBytes, save: ({ request }) => saveProject(request), record: recordRun });
   invokeMock.mockImplementation(async (command: string, args: Json, invokeOptions?: unknown) => {
+    if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
     switch (command) {
       case "get_local_storage_capability": return storage;
       case "load_design_knowledge": return knowledge;
@@ -71,41 +107,10 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
       case "load_preview_model": if (args === undefined) return structuredClone(model); break;
       case "open_local_rule_pack": return structuredClone(packs.find((pack) => pack.project_id === args.projectId && pack.rule_pack_id === args.rulePackId) ?? null);
       case "find_local_project": return store.base ? { project_id: args.projectId, project_name: "Stored", storage_mode: "local_sqlite", created_at_unix: 1, updated_at_unix: 2, revision: `rev:${store.base}`, saved_state_count: store.states.length, recorded_run_count: store.runs.length } : null;
-      case "save_local_project": {
-        const request = args.request as Json;
-        store.base = `sha256:${request.model.project.id}#saved`;
-        return {
-          summary: { project_id: request.model.project.id, project_name: request.model.project.name, message: "Saved." },
-          model: request.model, editor_intents: [], proposal: null, selected_review_target: null, mechanics_result: request.mechanics_result ?? null,
-          analysis_run: request.analysis_run ?? null, model_hash: request.model_hash, project_envelope_hash: { value: store.base }, model_document_version: null
-        } as unknown as LocalProjectEnvelope;
-      }
+      case "save_local_project": return saveProject(args.request as Json);
       case "list_model_states": return store.states.filter((state) => state.project_id === args.projectId);
       case "list_analysis_runs": return store.runs.filter((run) => run.project_id === args.projectId);
-      case "record_analysis_run": {
-        // The native store's derivation of the recorded revision, mirrored by the TypeScript
-        // builder (its parity with Rust is `recordedRunParity.test.ts` against the witness).
-        const request = args.request as Json;
-        store.records.push(request);
-        const created = "2026-10-24T10:00:01.000Z";
-        const manifest = JSON.parse(request.input_manifest_canonical) as CurrentSessionInputManifest;
-        const state = {
-          ...request.new_state.labels, project_id: request.project_id, state_id: `state:${"1".padStart(32, "0")}`, state_kind: "post_solve_snapshot",
-          created_at: created, parent_state_id: null, model_hash: (await computeModelHash(manifest.model_basis.model_payload))!.value, record_hash: "r",
-          labels_updated_at: created, child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"]
-        } as ModelStateSummary;
-        store.states.push(state);
-        const recorded = await recordedAnalysisRunRevision(request.run_record, { stateId: state.state_id, createdAt: created, inputManifest: manifest });
-        const run: AnalysisRunSummary = {
-          ...request.run_labels, project_id: request.project_id, recording_id: `runrec:${"1".padStart(32, "0")}`, state_id: state.state_id,
-          producer_run_id: request.run_record.analysis_run.run_id, created_at: created,
-          run_record_hash: recorded.analysis_run.hashes.find((hash) => hash.payload_scope === "analysis_run_record")!.value,
-          result_hash: "r", labels_updated_at: created, analysis_status: request.run_record.analysis_run.analysis_status
-        };
-        store.runs.push(run);
-        store.reads.set(run.recording_id, { run, state, record: recorded, result_json: request.result_json, input_manifest_canonical: request.input_manifest_canonical });
-        return { run, state, state_outcome: "created", message: `Recorded run "${run.run_name}".` };
-      }
+      case "record_analysis_run": return recordRun(args.request as Json);
       case "read_analysis_run": return structuredClone(store.reads.get(args.recordingId));
     }
     return transport.invoke(command, args, invokeOptions);

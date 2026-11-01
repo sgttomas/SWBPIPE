@@ -21,6 +21,8 @@ import { getLocalStorageCapability } from "../../services/projectService";
 import { buildPreviewComparison, loadDesignKnowledge } from "../../services/previewService";
 import { canonicalJsonString } from "../../services/hashService";
 import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
+import { createLocalProject } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { isNativeResult } from "../../services/nativeResult";
 import { setNodeProximityToleranceIntent } from "../model-settings/modelSettingsIntents";
@@ -46,7 +48,22 @@ async function currentSession(answer: (bytes: string) => string | Promise<string
     if (!isDeepStrictEqual(sent.model, MODEL)) throw new Error("REPLAY_REQUEST_MISMATCH");
     return answer(BYTES);
   });
+  // C1 slice 5: Create Project of the native result goes from its job handle; the unit fake keeps the
+  // forms today's submitted path writes in the browser adapter, for the reopen.
+  const fake = createNativePersistenceFake({
+    heldBytes: transport.heldBytes,
+    save: async ({ request }) => {
+      const tauri = (window as Json).__TAURI_INTERNALS__;
+      delete (window as Json).__TAURI_INTERNALS__;
+      try {
+        return await createLocalProject(request.model, request.editorIntents, request.proposal, request.selectedReviewTarget, request.mechanicsResult, request.analysisRun, request.modelHash, request.projectEnvelopeHash, request.confirmedRevision);
+      } finally {
+        (window as Json).__TAURI_INTERNALS__ = tauri;
+      }
+    }
+  });
   invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
+    if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
@@ -122,8 +139,8 @@ it("a project replacement retires the run; the choice is revalidated against the
   const results = () => hook.result.current.results;
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   expect(pairOf(results())).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });
-  delete (window as Json).__TAURI_INTERNALS__;
   await act(async () => { await hook.result.current.project.handleCreateProject(); });
+  delete (window as Json).__TAURI_INTERNALS__;
   await act(async () => { await hook.result.current.project.handleOpenProject(); });
   expect(results().currentSolvedResult).toBeNull();
   expect(results().withinRun).toEqual({ status: "no_result" });

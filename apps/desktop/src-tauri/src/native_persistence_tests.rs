@@ -756,3 +756,205 @@ fn record_size_follows_sqlites_record_format() {
     // A header past 126 bytes takes a two-byte length.
     assert_eq!(record_size(&vec![Cell::Text(100); 64]), 2 + 64 * 2 + 6400);
 }
+
+const REPLIES: &str = "apps/desktop/src/test-support/native-replay/native_persistence_replies.json";
+const REPLAY_REQUESTS: &str = "apps/desktop/src/test-support/native-replay/native_replay_requests.json";
+/// The session tests' solve (`nativeMechanicsReplayPair("sparse_interactive", {profile: "pressure"})`).
+const REPLAY_SOURCE: &str = "fixtures/results/pressure_connected_ui_mechanics_sparse.json";
+
+fn repo_text(path: &str) -> String {
+    std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)).unwrap_or_else(|e| panic!("{path}: {e}"))
+}
+
+/// A reply as the webview receives it: the JSON body Tauri delivers parsed,
+/// or the serialized rejection; the store's path (a temporary directory) as
+/// `$STORE`, the one value that is not the command's own.
+fn webview_reply(outcome: Result<Serialized, CommandError<String>>) -> Value {
+    match outcome {
+        Ok(reply) => {
+            let mut value: Value = serde_json::from_str(reply.text()).unwrap();
+            if let Some(summary) = value.get_mut("summary").and_then(Value::as_object_mut) {
+                summary.insert("database_path".into(), json!("$STORE"));
+            }
+            json!({"ok": true, "body": "json", "value": value})
+        }
+        Err(error) => json!({"ok": false, "error": serde_json::to_value(&error).unwrap()}),
+    }
+}
+
+fn with_job(args: &Value, job: &str) -> Value {
+    match args {
+        Value::String(text) if text == "$JOB" => json!(job),
+        Value::Array(items) => Value::Array(items.iter().map(|item| with_job(item, job)).collect()),
+        Value::Object(map) => Value::Object(map.iter().map(|(key, item)| (key.clone(), with_job(item, job))).collect()),
+        other => other.clone(),
+    }
+}
+
+/// The webview's native persistence replies (`native_persistence_replies.json`)
+/// are the actual commands' replies to the requests the session sends for the
+/// session tests' solve, in order on one store: Save Project, Record Run with a
+/// new post-solve snapshot, Record Run against it; and, each on a store of its
+/// own, the model-only save at the row's limit and a Record Run above it.
+/// NATIVE_PERSISTENCE_REPLIES_WRITE=1 rewrites the file.
+#[test]
+fn the_webviews_persistence_replies_are_the_commands_replies() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("replies");
+    let requests: Value = serde_json::from_str(&repo_text(REPLAY_REQUESTS)).unwrap();
+    let preview = requests["requests"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|request| request["command"] == crate::analysis_run_v03_build::COMMAND && request["source_path"] == REPLAY_SOURCE && request["args"]["ruleCheckAggregate"].is_null())
+        .expect("the session's preview request of the replayed solve is recorded");
+    let manifest: Value = serde_json::from_str(preview["args"]["inputManifest"]["canonical_bytes"].as_str().unwrap()).unwrap();
+    let model = manifest["model_basis"]["model_payload"].clone();
+    let text = repo_text(REPLAY_SOURCE);
+    let job = held(&registry, &gate, &text, manifest["solver_basis"]["solver_mode"].as_str().unwrap(), ResultCustody::Native);
+    let header: Value = {
+        let args = with_job(&preview["args"], &job);
+        let (raw, lease) = crate::analysis_run_v03_build::reserve(&registry, &body(&args), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+        serde_json::from_slice(&crate::analysis_run_v03_build::run(registry.clone(), raw, lease).unwrap()).unwrap()
+    };
+    let record = &header["record"];
+    let mut inputs = preview["args"].as_object().unwrap().clone();
+    inputs.insert("expectedRecord".into(), json!({"run_id": record["analysis_run"]["run_id"], "record_sha256": claimed(record, "analysis_run_record"), "received_sha256": claimed(record, "received_result")}));
+    let model_hash = {
+        let mut hasher = Sha256::new();
+        canonical(&model, &mut hasher);
+        json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload", "payload_ref": model["project"]["id"], "value": format!("sha256:{}", hex(&hasher.finalize())), "hash_status": "computed_local_preview"})
+    };
+    let save_args = || {
+        let mut args = inputs.clone();
+        for (key, value) in [
+            ("mode", json!("save")),
+            ("projectId", model["project"]["id"].clone()),
+            ("projectName", model["project"]["name"].clone()),
+            ("model", model.clone()),
+            ("editorIntents", json!([])),
+            ("proposal", Value::Null),
+            ("selectedReviewTarget", Value::Null),
+            ("modelHash", model_hash.clone()),
+            ("confirmedRevision", Value::Null),
+            ("expectedBase", Value::Null),
+        ] {
+            args.insert(key.into(), value);
+        }
+        Value::Object(args)
+    };
+    let labels = json!({"run_name": "Run – rev A", "tags": ["tie-in"], "notes": ["Invented note."], "assumptions": [{"assumption_id": "assumption:R-1", "kind": "assumption", "status": "unresolved", "statement": "Vendor stiffness pending.", "affected_refs": []}]});
+    let record_args = |request: Value| {
+        let mut args = inputs.clone();
+        args.insert("request".into(), request);
+        Value::Object(args)
+    };
+    let save = |path: &Path, args: &Value, limits: &SaveLimits| {
+        let (raw, lease) = reserve(&registry, &body(&with_job(args, &job)), &headers(Some(INGRESS_ARGS_JSON_V1)), SAVE_COMMAND).unwrap();
+        let path = path.to_path_buf();
+        webview_reply(run_save(&registry, move || Ok(path), raw, lease, limits, &frozen_seconds))
+    };
+    let record_run = |path: &Path, args: &Value, limit: Option<i32>| {
+        let (raw, lease) = reserve(&registry, &body(&with_job(args, &job)), &headers(Some(INGRESS_ARGS_JSON_V1)), RECORD_COMMAND).unwrap();
+        let path = path.to_path_buf();
+        webview_reply(run_record(&registry, move || Ok(path), raw, lease, &FROZEN, limit))
+    };
+    let mut scenarios = Vec::new();
+    let store = dir.join("store.sqlite");
+    let args = save_args();
+    let saved = save(&store, &args, &unlimited());
+    let base = saved["value"]["project_envelope_hash"]["value"].clone();
+    assert_eq!(saved["value"]["result"]["outcome"], "saved", "{saved}");
+    scenarios.push(json!({"store": "store", "command": SAVE_COMMAND, "args": args, "reply": saved}));
+    let args = record_args(json!({"expected_base": base, "state_id": null, "new_state": {"labels": {"state_name": "After solve", "tags": [], "notes": [], "assumptions": []}, "parent_state_id": null}, "run_labels": labels}));
+    let created = record_run(&store, &args, None);
+    assert_eq!(created["value"]["state_outcome"], "created", "{created}");
+    let state_id = created["value"]["state"]["state_id"].clone();
+    scenarios.push(json!({"store": "store", "command": RECORD_COMMAND, "args": args, "reply": created}));
+    let mut again = labels.clone();
+    again["run_name"] = json!("Again");
+    let args = record_args(json!({"expected_base": base, "state_id": state_id, "new_state": null, "run_labels": again}));
+    let existing = record_run(&store, &args, None);
+    assert_eq!(existing["value"]["state_outcome"], "existing", "{existing}");
+    scenarios.push(json!({"store": "store", "command": RECORD_COMMAND, "args": args, "reply": existing}));
+    // The model-only save, one byte under the project row with the result.
+    let row_with = stored_row_record(&store, "local_projects");
+    let small = dir.join("small.sqlite");
+    let args = save_args();
+    let fallback = save(&small, &args, &SaveLimits { sqlite_length: Some((row_with - 1) as i32), withheld_bytes: crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES });
+    assert_eq!(fallback["value"]["result"]["outcome"], "not_saved", "{fallback}");
+    scenarios.push(json!({"store": "small", "command": SAVE_COMMAND, "args": args, "reply": fallback, "sqlite_length_limit": row_with - 1}));
+    let small_base = fallback["value"]["project_envelope_hash"]["value"].clone();
+    let args = record_args(json!({"expected_base": small_base, "state_id": null, "new_state": {"labels": {"state_name": "After solve", "tags": [], "notes": [], "assumptions": []}, "parent_state_id": null}, "run_labels": labels}));
+    let refused = record_run(&small, &args, Some((row_with - 1) as i32));
+    assert!(refused["error"].as_str().is_some_and(|text| text.starts_with(RUN_RECORD_RESULT_TOO_LARGE)), "{refused}");
+    scenarios.push(json!({"store": "small", "command": RECORD_COMMAND, "args": args, "reply": refused, "sqlite_length_limit": row_with - 1}));
+    let document = json!({
+        "document_kind": "swbpipe.desktop.native_persistence_replies",
+        "note": "Written by native_persistence_tests.rs from the actual commands on a fresh store per `store` (clock and state token frozen; the store's path written $STORE); NATIVE_PERSISTENCE_REPLIES_WRITE=1 rewrites it.",
+        "source_path": REPLAY_SOURCE,
+        "scenarios": scenarios,
+    });
+    let written = format!("{}\n", serde_json::to_string_pretty(&document).unwrap());
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(REPLIES);
+    if std::env::var_os("NATIVE_PERSISTENCE_REPLIES_WRITE").is_some() {
+        std::fs::write(&path, &written).unwrap();
+    }
+    assert!(std::fs::read_to_string(&path).unwrap_or_default() == written, "the committed replies are the commands' replies (NATIVE_PERSISTENCE_REPLIES_WRITE=1 rewrites them)");
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// The commands' executor part checks the header and copies the body only; admission, the parse,
+/// the build and the store run in a blocking task, so a held build leaves the async runtime free.
+/// The reply is a JSON body (Tauri delivers it parsed), as `record_analysis_run`'s is.
+#[test]
+fn the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_body() {
+    use crate::analysis_run_v03_build::tests::gate;
+    use tauri::ipc::{InvokeResponseBody, IpcResponse};
+    let host = ScriptedHost::normal();
+    let (registry, gate_) = gated(&host);
+    let dir = scratch("executor");
+    let case = case_named("preview:connected");
+    let job = held(&registry, &gate_, &case.text, &case.mode, ResultCustody::Native);
+    let path = dir.join("store.sqlite");
+    stored_project(&path, case.project_id(), case.model());
+    let commands = crate::native_verdict::tests::runtime_workers() * 2 + 2;
+    let held_gate = gate::hold(&registry, "read", false);
+    let handles: Vec<_> = (0..commands)
+        .map(|index| {
+            let mut request = native_request(None);
+            request["run_labels"]["run_name"] = json!(format!("Run {index}"));
+            let (registry, body, path) = (registry.clone(), body(&case.record_args(&job, request)), path.clone());
+            tauri::async_runtime::spawn(async move { record_run(&registry, move || Ok(path), &body, &headers(Some(INGRESS_ARGS_JSON_V1))).await })
+        })
+        .collect();
+    assert!(held_gate.0.wait_entered(commands, std::time::Duration::from_secs(60)), "only {} of {commands} commands entered", held_gate.0.entered());
+    let (sender, receiver) = std::sync::mpsc::channel();
+    let (probe_registry, probe_job) = (registry.clone(), job.clone());
+    tauri::async_runtime::spawn(async move {
+        let _ = sender.send(probe_registry.status(&probe_job).map(|status| status.state));
+    });
+    assert_eq!(receiver.recv_timeout(std::time::Duration::from_secs(10)).expect("the runtime ran another task").unwrap(), "completed");
+    held_gate.0.open();
+    for handle in handles {
+        let response = tauri::async_runtime::block_on(handle).unwrap().unwrap();
+        match response.body().unwrap() {
+            InvokeResponseBody::Json(text) => assert!(serde_json::from_str::<Value>(&text).unwrap()["run"]["recording_id"].as_str().unwrap().starts_with("runrec:")),
+            InvokeResponseBody::Raw(_) => panic!("the outcome is a JSON body"),
+        }
+    }
+    drop(held_gate);
+    assert_eq!(dump(&path, "analysis_runs", &[]).len(), commands, "each recorded once");
+    assert_eq!(dump(&path, "model_states", &[]).len(), 1, "one snapshot");
+    // A malformed body is refused only by the blocking part (the executor neither prescans nor parses).
+    let (raw, lease) = reserve(&registry, &InvokeBody::Raw(br#"{"jobId":"#.to_vec()), &headers(Some(INGRESS_ARGS_JSON_V1)), SAVE_COMMAND).unwrap();
+    let refused = run_save(&registry, || Ok(PathBuf::from("/nonexistent")), raw, lease, &unlimited(), &frozen_seconds).unwrap_err();
+    assert!(matches!(refused, CommandError::Ingress(_)), "{refused:?}");
+    assert!(matches!(reserve(&registry, &InvokeBody::Raw(b"{}".to_vec()), &headers(None), RECORD_COMMAND), Err(CommandError::Ingress(_))), "the header is required");
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}

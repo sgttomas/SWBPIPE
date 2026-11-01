@@ -204,6 +204,13 @@ code_paths:
 - apps/desktop/src-tauri/src/analysis_runs.rs
 - apps/desktop/src-tauri/src/analysis_run_v03_build.rs
 - apps/desktop/src/services/analysisRunPreview.ts
+# C1 slice 5's persistence: Record Run and Save Project of a native-custody solve write today's
+# stored forms from the held bytes (the received result's text, the recorded revision, the record).
+- apps/desktop/src-tauri/src/native_persistence.rs
+- apps/desktop/src-tauri/src/result_js_text.rs
+- apps/desktop/src/services/nativePersistence.ts
+- apps/desktop/src/test-support/persistenceFormsCases.ts
+- apps/desktop/src/test-support/analysis-run-v03/persistence_forms.json
 - apps/desktop/src-tauri/src/stored_read.rs
 - apps/desktop/src/services/analysisRunService.ts
 - apps/desktop/src/services/inputManifestService.ts
@@ -226,6 +233,10 @@ checks:
 - apps/desktop/src-tauri/src/analysis_runs_tests.rs
 - apps/desktop/src-tauri/src/analysis_run_v03_build_tests.rs
 - apps/desktop/src/services/analysisRunV03Parity.test.ts
+- apps/desktop/src-tauri/src/native_persistence_tests.rs
+- apps/desktop/src-tauri/src/result_js_text_tests.rs
+- apps/desktop/src/services/persistenceForms.test.ts
+- apps/desktop/src/services/nativePersistence.test.ts
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx

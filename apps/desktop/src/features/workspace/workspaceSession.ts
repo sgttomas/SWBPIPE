@@ -59,6 +59,13 @@ import {
 } from "../../services/nativeResult";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import { lookupNativeRows } from "../../services/nativeResult";
+import {
+  nativePersistenceRequest,
+  saveNativeLocalProject,
+  storedModelHashEvidence,
+  type NativePersistenceRequest,
+  type NativeProjectSave
+} from "../../services/nativePersistence";
 import type { AnalysisRunPreview } from "../../services/analysisRunPreview";
 import type { C2FullResult } from "../results/C2ResultGate";
 import { beginSolveTimeline, markSolveCommittedAndPaint } from "../../services/solveTimeline";
@@ -86,7 +93,8 @@ import {
   keptStoredProjectMessage,
   type ReplaceProjectChoice,
   type ReplaceProjectPromptState,
-  type StoredProjectWrite
+  type StoredProjectWrite,
+  type WrittenProjectEnvelope
 } from "../project-storage/storedProjectConflict";
 import { MODEL_FILE_SHAPE } from "../model-file/modelDocumentShape";
 import {
@@ -261,6 +269,26 @@ async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
 
 // Diagnostics generations must not repeat across real same-page App remounts.
 let nextUiModelPublicationGeneration = 0;
+
+/** C1 slice 5: a native save's small reply as the session adopts a write. The model and editor
+ * intents are the request's own (the store hashed the stored model natively and the reply names it
+ * by that hash, which the session checks); the stored result and record are not sent back, so the
+ * adopted envelope holds none. */
+function adoptNativeSave(reply: NativeProjectSave, model: PreviewModel, editorIntents: EditorOperationIntent[]): WrittenProjectEnvelope {
+  return {
+    summary: reply.summary,
+    model,
+    editor_intents: editorIntents,
+    proposal: reply.proposal,
+    selected_review_target: reply.selected_review_target,
+    mechanics_result: null,
+    analysis_run: null,
+    model_hash: reply.model_hash,
+    project_envelope_hash: reply.project_envelope_hash,
+    model_document_version: reply.model_document_version,
+    native: reply
+  };
+}
 
 function formatPackageSaveError(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -980,13 +1008,20 @@ export function useWorkspaceSession() {
       });
   }
 
-  /** The session's result and record as today's store path writes them: a full result as held, a
-   * native result through its C2 full copy and full record (refused by name above 64 MiB). */
-  async function persistableRun(): Promise<{ result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }> {
-    if (!result) return { result: null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun };
-    if (!isNativeResult(result)) return { result, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun };
-    const full = await loadC2Full(result);
-    return { result: full.result, analysisRun: full.analysisRun };
+  /** The session's full (taken or restored) result and record as today's store path writes them. A
+   * native result is persisted from its job handle (`nativePersistence.ts`), never through a full
+   * copy; one whose record inputs are not held is refused by name. */
+  function persistableRun(): { result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null } {
+    if (result && isNativeResult(result)) throw new Error("PROJECT-SAVE-NATIVE-RECORD-UNAVAILABLE: the native result's record inputs are not held; nothing was saved.");
+    return { result, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun };
+  }
+
+  /** C1 slice 5: the native persistence request of a native result and its native record (the job,
+   * the inputs the record was built with, the previewed record), or null for any other pair. */
+  function nativePersistenceRequestFor(target: SessionResult | null, run: SessionAnalysisRun | null): NativePersistenceRequest | null {
+    if (!target || !isNativeResult(target) || !run || !isNativeAnalysisRun(run) || run.analysis_run.run_id !== target.run_id) return null;
+    const inputs = nativeRunInputs.current.get(run);
+    return inputs ? nativePersistenceRequest(target, run, inputs) : null;
   }
 
   /** The result and record a reference inspection retains for its restore: copies of a full result,
@@ -2272,7 +2307,7 @@ export function useWorkspaceSession() {
   async function writeWithReplaceConfirmation(
     kind: "create" | "save",
     requestModel: PreviewModel,
-    write: (confirmedRevision: string | null) => Promise<LocalProjectEnvelope>
+    write: (confirmedRevision: string | null) => Promise<WrittenProjectEnvelope>
   ): Promise<StoredProjectWrite> {
     const refusalCode = (error: unknown) => /^(?:Error: )?(PROJECT-ID-EXISTS|PROJECT-BASE-MOVED): /.exec(String(error))?.[1];
     let stale = false;
@@ -2376,16 +2411,17 @@ export function useWorkspaceSession() {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      // A native result is persisted through its C2 full copy and full record (C1 interim; at or
-      // under 64 MiB, the bytes today's store path writes). Above that the write is refused by name
-      // before anything is written; the native Save Project lands with slice 5's persistence.
-      // As before C1, each of the result and record falls back to the session's own when the retained
-      // reference run holds none (a reference inspected with no result), so it is read then too.
-      const persisted = requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : await persistableRun();
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : persisted!.result);
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : persisted!.analysisRun);
+      // C1 slice 5: the session's native result and record are persisted from the job handle (the
+      // native host stores today's forms and computes the envelope hash); nothing row-scale is sent
+      // or returned. A full result (taken or restored) is written as before. As before C1, each of
+      // the result and record falls back to the session's own when the retained reference run holds
+      // none (a reference inspected with no result).
+      const native = requestHistoricalRun || dropRun || retainedRun ? null : nativePersistenceRequestFor(result, analysisRun);
+      const persisted = native || requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : persistableRun();
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;
-      const computedEnvelopeHash = await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = native ? null : await computeProjectEnvelopeHash({
         model: requestModel,
         editor_intents: combinedContext,
         proposal,
@@ -2397,7 +2433,12 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const written = await writeWithReplaceConfirmation("create", requestModel, (confirmedRevision) => createLocalProject(
+      const written = await writeWithReplaceConfirmation("create", requestModel, (confirmedRevision) => native
+        ? saveNativeLocalProject(native, {
+          mode: "create", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase: null
+        }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
+        : createLocalProject(
           requestModel,
           combinedContext,
           proposal,
@@ -2425,9 +2466,11 @@ export function useWorkspaceSession() {
       // Retire the old observation while verification of rewritten bytes is pending.
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      const returnedModelHash = await computeModelHash(created.model);
+      // A native save's reply names the stored model by its natively computed hash and carries the
+      // envelope hash computed over what was stored; the webview holds no result to hash.
+      const returnedModelHash = created.native ? storedModelHashEvidence(created.native, requestModel) : await computeModelHash(created.model);
       if (!sameProjectSession()) return;
-      const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
+      const recomputedReturnedEnvelopeHash = created.native ? created.native.project_envelope_hash : await computeProjectEnvelopeHash({
         model: created.model,
         editor_intents: created.editor_intents,
         proposal: created.proposal,
@@ -3154,16 +3197,13 @@ export function useWorkspaceSession() {
       const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      // A native result is persisted through its C2 full copy and full record (C1 interim; at or
-      // under 64 MiB, the bytes today's store path writes). Above that the write is refused by name
-      // before anything is written; the native Save Project lands with slice 5's persistence.
-      // As before C1, each of the result and record falls back to the session's own when the retained
-      // reference run holds none (a reference inspected with no result), so it is read then too.
-      const persisted = requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : await persistableRun();
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun ? null : persisted!.result);
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun ? null : persisted!.analysisRun);
+      // C1 slice 5: as Create (above), a native result and record are persisted from the job handle.
+      const native = requestHistoricalRun || dropRun || retainedRun ? null : nativePersistenceRequestFor(result, analysisRun);
+      const persisted = native || requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : persistableRun();
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;
-      const computedEnvelopeHash = await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = native ? null : await computeProjectEnvelopeHash({
         model: requestModel,
         editor_intents: combinedContext,
         proposal,
@@ -3175,7 +3215,14 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => saveLocalProject(
+      // The session's own stored project: a save in place from the revision it last opened or wrote.
+      const expectedBase = storedBaseRef.current?.projectId === requestModel.project.id ? storedBaseRef.current.value : null;
+      const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => native
+        ? saveNativeLocalProject(native, {
+          mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase
+        }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
+        : saveLocalProject(
           requestModel,
           combinedContext,
           proposal,
@@ -3207,9 +3254,9 @@ export function useWorkspaceSession() {
       // Retire the old observation while verification of rewritten bytes is pending.
       setModelHashIntegrity(null);
       setProjectEnvelopeHashIntegrity(null);
-      const returnedModelHash = await computeModelHash(saved.model);
+      const returnedModelHash = saved.native ? storedModelHashEvidence(saved.native, requestModel) : await computeModelHash(saved.model);
       if (!sameProjectSession()) return;
-      const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
+      const recomputedReturnedEnvelopeHash = saved.native ? saved.native.project_envelope_hash : await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
         proposal: saved.proposal,
@@ -4212,7 +4259,7 @@ export function useWorkspaceSession() {
     confirmReplacingEdits, acquireProjectOperation, releaseProjectOperation,
     saveLocalProject: saveLocalProjectFirst, captureProjectBinding, adoptStateSnapshot, projectSessionBusy,
     requestStoredDocumentExport,
-    runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run", loadFull: loadC2Full }
+    runSlot: { result, analysisRun, inputManifest, restored: historicalRun?.designation === "historical_saved_run", loadFull: loadC2Full, nativeRequest: nativePersistenceRequestFor }
   });
 
   // Pure registration over the actual owner; no native owner/timer/process is

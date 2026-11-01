@@ -7,6 +7,7 @@ import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mec
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { createNativePersistenceFake, isNativePersistenceCommand } from "./test/nativePersistenceFake";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
@@ -239,7 +240,7 @@ async function installPreviewReplay() {
     if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   };
-  const replay = { invoke, notice: mechanics.notice };
+  const replay = { invoke, notice: mechanics.notice, heldBytes: mechanics.heldBytes };
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(replay.invoke);
   return { ...pair, replay };
@@ -15371,15 +15372,21 @@ describe("historical lifecycle history transitions", () => {
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
-    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }, options?: unknown) => {
-      if (command === "save_local_project") {
-        const model = args.request.model as PreviewModel;
-        return Promise.resolve({
+    // C1 slice 5: the native result is saved from its job handle; the unit fake hands this test's
+    // store the request today's submitted path sends.
+    const fake = createNativePersistenceFake({
+      heldBytes: replay.heldBytes,
+      save: ({ request }) => {
+        const model = request.model as PreviewModel;
+        return {
           ...inventedOpenEnvelope(model),
-          ...args.request,
+          ...request,
           summary: { ...inventedOpenEnvelope(model).summary, project_id: model.project.id, project_name: model.project.name, message: "Saved unchanged Current model." },
-        });
-      }
+        } as never;
+      },
+    });
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }, options?: unknown) => {
+      if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
       return replay.invoke(command, args, options);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};

@@ -419,10 +419,11 @@ and never takes, parses, fingerprints, serializes or stores the envelope or the 
   on it by the oracle builder and checked against the native preview's checksums. Above the limit
   they show `RESULT-DETAIL-WEBVIEW-LIMIT` with the sizes, what still works and #51's advice.
 
-**Interim, not slice 5's persistence.** Save Project, Create Project, Record Run, run comparisons
-with the current run and reference-inspection retention of a native result go through the C2 copy
-and record: they write today's bytes by today's path at or under 64 MiB and are refused by name
-above it. The native Record Run and Save Project below remain to be connected.
+**Interim, not slice 5's persistence (now narrowed).** Save Project, Create Project and Record Run
+of a native result went through the C2 copy and record; since slice 5's persistence (below) they go
+from the job handle. Run comparisons with the current run and reference-inspection retention of a
+native result still go through the C2 copy and record: at or under 64 MiB by today's path, refused
+by name above it.
 
 **Representation finding for slice 5 ("exact bytes").** Today's stores do not write the producer's
 bytes: Record Run stores `jsonTextKeepingNegativeZero` of the webview's parsed result
@@ -432,7 +433,9 @@ session computes covers that result and record. So "store exactly today's bytes"
 bytes means the native writer must emit those two forms (the `Style::Stored` writer for Save; a
 JavaScript-number writer keeping negative zeros, in the source's key order, for Record Run) and
 compute the envelope hash natively; it cannot write the held bytes verbatim without changing what
-is stored. This is stated for the slice-5 persistence review, not decided here.
+is stored. This is stated for the slice-5 persistence review, not decided here. *Implemented as
+stated (slice 5's persistence, below): today's two forms are written natively and the envelope
+hash computed natively over what is stored; the held publication bytes are never rewritten.*
 
 **Connection repairs (2026-10-31, same branch).** Defects found in the connected increment, each
 repaired with a test:
@@ -532,8 +535,9 @@ derivative or its screen into C1. That port remains C2 work. C1 does not remove 
 size refusal. This resolves conflicting plan wording; it adopts no new output, schema or
 permission. The exact old/new text and rationale are in #59 for the connected review.
 
-**Remaining for this slice:** native Record Run and Save Project (slice 5; the interim still
-writes through the C2 copy), followed by saved-result native reopening (slice 6). Navigator
+**Remaining for this slice:** saved-result native reopening (slice 6), and the C2-copy interim for
+run comparisons with the current run and reference-inspection retention. Native Record Run and
+Save/Create Project are connected (slice 5's persistence, below). Navigator
 stepping and bounded streamed group CSV are implemented. The native-read refusal is now a
 session-step refusal, distinct from a legacy take refusal, under Agent 0's narrow DEL-04-07
 reconciliation. Independent numerical, persistence and permissions scrutiny of the connected
@@ -587,8 +591,8 @@ basis is the manifest's model's, as today) and build the record without a record
   copy, max_bytes)`, the same checks, then the record's stored bytes. The exact length is computed
   first and checked against the caller's bound; over it, `ANALYSIS-RUN-RECORD-TOO-LARGE` is
   returned with nothing allocated. At or under it, a buffer of the exact length is leased and
-  written, and its lease is returned with the bytes. It is not a webview command, and no store
-  command changes yet.
+  written, and its lease is returned with the bytes. It is not a webview command. The
+  persistence commands use its `record_bytes` under SQLite's measured limit (Persistence, below).
 - **Passes** over the one leased parse of the held text (M):
   1. the readers: `reader_verdict::route`, `binding_of` and the route's `validate`, or the retained
      reader (`retained_precision::validate`);
@@ -645,26 +649,73 @@ written through the store's own `upsert_project` reads back as the native bytes,
 `recorded_revision` of the two is the same text. A one-character change to a committed record fails
 the test. The TS builder stays the oracle until C2.
 
-**Persistence:**
-- `record_analysis_run` and `save_local_project` take the job handle, not the result and
-  record texts, and read the held bytes, so they store exactly today's bytes.
-- **Exact lengths:** before writing, each computes the exact stored length of the result
-  text and of the record that embeds it. It compares each with
-  `sqlite3_limit(SQLITE_LIMIT_LENGTH, -1)` on the connection, through rusqlite's `limits`
-  feature (a feature of a dependency already present, no new crate).
-- **Refusals by name:**
-  - `RUN-RECORD-RESULT-TOO-LARGE {result_bytes, record_bytes, limit_bytes}`: nothing is
-    written;
-  - `PROJECT-SAVE-RESULT-TOO-LARGE`: the model is saved with `mechanics_result_json =
-    'null'` and `analysis_run_json = 'null'`, and the reply states that the result wasn't
-    saved.
-
-**Tests:**
-- At the limit and one byte above, with the limit lowered on a test connection, for both
-  refusals.
-- Below the limit, stored bytes equal the take path's bytes (a regression against today's
-  store).
-- Persistence gets the independent persistence review.
+**Persistence** (connected on `claude/rt-perf-c1-custody`, 2026-11-01; `native_persistence.rs`,
+`result_js_text.rs`, `services/nativePersistence.ts`; the submitted commands are unchanged for taken,
+restored and browser-preview results):
+- **Commands.** Two new async commands take the job handle and small arguments, raw args body:
+  `record_preview_mechanics_job_analysis_run {jobId, inputManifest, ruleCheckAggregate,
+  rulePackExclusions, expectedRecord: {run_id, record_sha256, received_sha256}, request:
+  {expected_base, state_id, new_state, run_labels}}` and `save_preview_mechanics_job_local_project
+  {…same five…, mode: "create"|"save", projectId, projectName, model, editorIntents, proposal,
+  selectedReviewTarget, modelHash, confirmedRevision, expectedBase}`. No result, record, result
+  text, envelope hash or C2 copy is sent. Both replies are JSON bodies (Tauri delivers them
+  parsed): Record Run's is `record_analysis_run`'s outcome; Save's is `{summary, proposal,
+  selected_review_target, model_hash, project_envelope_hash, model_document_version,
+  stored_model_hash, result: {outcome: "saved", run_id, result_bytes, record_bytes} |
+  {outcome: "not_saved", code, message, result_bytes, record_bytes, row_bytes, limit_bytes,
+  refused: {what, bytes}}}`, never the model, result or record. The session adopts the reply
+  with its own model (the stored model's natively computed hash must be the request's) and keeps
+  the native solve whether or not its result was saved.
+- **Binding.** The job must be a native-custody solve still held, its held bytes must hash to its
+  publication digest, and the manifest must name its solver mode (`NATIVE-PERSISTENCE-CUSTODY`);
+  the record rebuilt from the held bytes and the request's inputs must be the previewed one
+  (`NATIVE-PERSISTENCE-RECORD-STALE`). Record Run then applies the store's own checks to the
+  rebuilt record's members that are not row-scale (`analysis_runs::checked_native_record`, the
+  submitted path's validators factored, not copied) and its transaction (`plan_native_run`,
+  `write_native_run`). Save applies the replacement guard, the withheld-run guard and the model
+  document checks unchanged. Not bound: the solve's intake text (only its digest is retained, so
+  the manifest's model cannot be re-derived from it natively); the manifest binds to the result
+  through the builder's model-ref and load-basis checks, as before.
+- **Today's forms.** Record Run's `result_json` is `jsonTextKeepingNegativeZero(JSON.parse(bytes))`,
+  written from the held bytes in JavaScript's member order (array-index keys first, repeated keys
+  at their first position with their last value), its numbers by `Number::toString` with negative
+  zeros kept; `run_record_json` is the recorded revision (`Revision`: `recorded_revision`'s members
+  in the record's stored form, its hash the canonical projection's). Save's `mechanics_result_json`
+  is the builder's stored writer over the held value (serde_json's reading of `JSON.stringify`),
+  `analysis_run_json` the transient record's stored bytes, and the envelope hash
+  `computeProjectEnvelopeHash`'s over the stored values, streamed.
+- **Exact lengths, before allocation and before writes.** Inside the write transaction the writing
+  connection's `SQLITE_LIMIT_LENGTH` is read (rusqlite `limits`, no new package; the lock file is
+  unchanged). Every bound value and every record SQLite builds is measured from the texts' counted
+  lengths: the table row's record (SQLite's record format, `record_size`), each index key's record
+  (bounded with an eight-byte rowid) and, for a project, the search text and its content record.
+  A result and a record that each fit can make a row that does not. Above the limit Record Run
+  refuses `RUN-RECORD-RESULT-TOO-LARGE (result_bytes, record_bytes, row_bytes, limit_bytes)` with
+  nothing written and no output allocated (its plan writes nothing); Save falls back to the
+  approved model-only save (`mechanics_result_json` and `analysis_run_json` `null`, the envelope
+  hash over what was stored, the reply and summary message saying the result was not saved,
+  `PROJECT-SAVE-RESULT-TOO-LARGE`), never over a stored run withheld for its size without the
+  user's confirmed Replace; above the limit without the result it refuses `PROJECT-SAVE-TOO-LARGE`.
+  A row SQLite still refuses (`SQLITE_TOOBIG`) is refused by name and the transaction rolled back,
+  a new snapshot included.
+- **Evidence** (`native_persistence_tests.rs`, `result_js_text_tests.rs`, the TypeScript oracle
+  `persistence_forms.json` from `persistenceFormsCases.ts`): on every preview case with a record
+  (preview-physics, pressure, pressure-source and retained routes; aggregates; rule-pack
+  exclusions) the native run, labels, snapshot, project and search rows equal the submitted
+  path's byte for byte (but the project's two save times), with the same outcome, and the
+  envelope hashes the TypeScript's; the edge texts (array-index and repeated keys, negative
+  zeros, integral floats, number boundaries, escapes, non-ASCII and supplementary-plane keys,
+  infinities) are written as JavaScript writes them; SQLite writes each row at the computed size
+  and refuses it one byte lower; Record Run's boundaries (result, record, row ±1) refuse with
+  exact lengths, no writes and no output reservation or allocation; Save's row boundary gives the
+  model-only save and its oracle envelope hash; the withheld-run guard and confirmed Replace;
+  binding refusals; every lease ends. The session's main case runs on the actual commands'
+  replies request for request (`native_persistence_replies.json`), the others through a unit
+  fake that hands each test's fake store today's submitted request rebuilt with the TypeScript
+  paths (`test/nativePersistenceFake.ts`).
+- **Remaining:** the independent persistence, permissions and numerical review of this increment;
+  saved-result native reopening (slice 6); the C2 interim for comparisons with the current run
+  and reference-inspection retention; slice 7's measurement.
 
 ### Slice 6: saved and historical results open into native custody
 
@@ -945,6 +996,28 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   Unpriced: the readers' working memory, the writers' per-number and per-escape scratch, the load
   basis, statuses and rule-pack diagnostics (scaling with the model and arguments, not enforced within the fixed 4 MiB allowance), and
   the delivery copies. Slice 7 must include these model-sized lists when evaluating residuals.
+- **The persistence commands' leases** (slice 5's persistence), under the same rules; every lease
+  is admitted before what it covers is allocated and capped at the per-invocation budget and the
+  12 GiB default (the store's own reads lease through `NativeLeaseMemory`, one adaptive lease per
+  reservation). Held together:
+  - the raw body's copy and the args lease (the decoded arguments, the model and the manifest's
+    priced parse);
+  - the builder's leases above (M, working, fingerprints), with the canonical manifest and model
+    payload texts the store's checks build, and SQLite's working set for the history tables;
+  - the JS-text writer's scratch (one object's member list per nesting level along the heaviest
+    path, with growth, and the largest decoded string), released once the result text exists;
+  - each output text at its exact length: Record Run's result text and recorded revision; Save's
+    result text and transient record (only when the result is saved), the small slots, the
+    envelope evidence and the search text;
+  - SQLite's statement copies (it copies every bound text) and its records, and for a save the
+    search row it replaces (FTS5 reads it), held while the statements run.
+
+  The parse M, the record built on it and the builder's leases end together before the
+  statements run; the result and record texts stay leased until the commit. The response is
+  leased at its exact length until it is handed to Tauri; Record Run's read-back of the stored
+  record (`find_run_with`) is metered by its own reservations. Unpriced, as for the submitted
+  paths: SQLite's page cache and journal, FTS5's in-memory index of the search text, and Tauri's
+  delivery copies of the small reply.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
   Tauri makes of the body before the command runs, plus the returned response buffer and
   Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

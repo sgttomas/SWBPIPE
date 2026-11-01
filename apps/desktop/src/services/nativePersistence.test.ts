@@ -1,0 +1,81 @@
+/** C1 slice 5's persistence adapter (`nativePersistence.ts`): what the webview sends (the job handle
+ * and small inputs, exactly) and how it reads the native save's reply (the actual commands' replies,
+ * `native_persistence_replies.json`; a reply carrying a model, result or record, or of another
+ * shape, is refused by name). */
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+import {
+  decodeNativeProjectSave,
+  NATIVE_PROJECT_SAVE_MALFORMED,
+  NATIVE_RECORD_RUN_COMMAND,
+  NATIVE_SAVE_PROJECT_COMMAND,
+  recordNativeAnalysisRun,
+  saveNativeLocalProject,
+  storedModelHashEvidence,
+  type NativePersistenceRequest
+} from "./nativePersistence";
+import type { PreviewModel } from "../types";
+
+type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+const replies = JSON.parse(readFileSync(resolve(__dirname, "../test-support/native-replay/native_persistence_replies.json"), "utf8")) as { scenarios: Json[] };
+const saveReplies = replies.scenarios.filter((scenario) => scenario.command === NATIVE_SAVE_PROJECT_COMMAND).map((scenario) => scenario.reply.value);
+
+afterEach(() => invokeMock.mockReset());
+
+const REQUEST: NativePersistenceRequest = {
+  jobId: "job-1",
+  inputManifest: { manifest_ref: { object_type: "InputManifest", ref: "input-manifest:x" }, manifest_sha256: "1".repeat(64), canonical_bytes: "{}" },
+  ruleCheckAggregate: null,
+  rulePackExclusions: [],
+  expectedRecord: { run_id: "run:x", record_sha256: "2".repeat(64), received_sha256: "3".repeat(64) }
+};
+const MODEL = { project: { id: "project:invented", name: "Invented" } } as unknown as PreviewModel;
+
+describe("the native save's reply", () => {
+  it("reads the actual commands' replies, saved and not saved", () => {
+    expect(saveReplies.map((reply) => decodeNativeProjectSave(reply).result.outcome)).toEqual(["saved", "not_saved"]);
+    const [saved, unsaved] = saveReplies.map(decodeNativeProjectSave);
+    expect(storedModelHashEvidence(saved, MODEL)).toEqual({ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: "project:invented", value: saved.stored_model_hash, hash_status: "computed_local_preview" });
+    expect(unsaved.result.outcome === "not_saved" && unsaved.result.code).toBe("PROJECT-SAVE-RESULT-TOO-LARGE");
+    expect(unsaved.summary.persisted_mechanics_result_count).toBe(0);
+    expect(saved.summary.persisted_mechanics_result_count).toBe(1);
+  });
+
+  it("refuses a reply carrying a model, result or record, or of another shape", () => {
+    const reply = saveReplies[0];
+    for (const bad of [
+      null, [], "text",
+      { ...reply, model: {} }, { ...reply, mechanics_result: {} }, { ...reply, analysis_run: {} }, { ...reply, editor_intents: [] },
+      { ...reply, summary: null }, { ...reply, project_envelope_hash: null }, { ...reply, stored_model_hash: "sha256:x" },
+      { ...reply, result: { outcome: "other" } }, { ...reply, result: { ...reply.result, result_bytes: -1 } }
+    ]) {
+      expect(() => decodeNativeProjectSave(bad), JSON.stringify(bad)?.slice(0, 80)).toThrow(NATIVE_PROJECT_SAVE_MALFORMED);
+    }
+  });
+});
+
+describe("what the webview sends", () => {
+  it("a save sends the job handle and the project's small fields only; a create names no project", async () => {
+    invokeMock.mockResolvedValue(saveReplies[0]);
+    (window as Json).__TAURI_INTERNALS__ = {};
+    const fields = { model: MODEL, editorIntents: [], proposal: null, selectedReviewTarget: null, modelHash: null, confirmedRevision: null };
+    await saveNativeLocalProject(REQUEST, { ...fields, mode: "save", expectedBase: "sha256:base" });
+    await saveNativeLocalProject(REQUEST, { ...fields, mode: "create", expectedBase: null });
+    const [[saveCommand, saveArgs], [, createArgs]] = invokeMock.mock.calls;
+    expect(saveCommand).toBe(NATIVE_SAVE_PROJECT_COMMAND);
+    expect(Object.keys(saveArgs).sort()).toEqual(["confirmedRevision", "editorIntents", "expectedBase", "expectedRecord", "inputManifest", "jobId", "mode", "model", "modelHash", "projectId", "projectName", "proposal", "ruleCheckAggregate", "rulePackExclusions", "selectedReviewTarget"]);
+    expect(saveArgs).toMatchObject({ ...REQUEST, mode: "save", projectId: "project:invented", projectName: "Invented", expectedBase: "sha256:base" });
+    expect(createArgs).toMatchObject({ mode: "create", projectId: null, projectName: null, expectedBase: null });
+    delete (window as Json).__TAURI_INTERNALS__;
+  });
+
+  it("Record Run sends the job handle and its own members under `request`", async () => {
+    invokeMock.mockResolvedValue({ message: "Recorded." });
+    const members = { expected_base: "sha256:base", state_id: null, new_state: null, run_labels: { run_name: "Run", tags: [], notes: [], assumptions: [] } };
+    await recordNativeAnalysisRun(REQUEST, members);
+    expect(invokeMock.mock.calls.map(([command, args]) => [command, args])).toEqual([[NATIVE_RECORD_RUN_COMMAND, { ...REQUEST, request: members }]]);
+  });
+});

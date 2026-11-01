@@ -2,8 +2,10 @@
 //! slice 5; design `result-volume-design.md` §4.1): the current (0.3.0)
 //! analysis-run record of a retained solve result, built in this process
 //! from the held bytes, and the record's preview header for the webview.
-//! Nothing reads it yet: the webview switch (slice 4) and Record Run and
-//! Save Project (the rest of slice 5) connect it.
+//! The webview switch (slice 4) reads its preview header for a fresh solve;
+//! the native Record Run and Save Project (`native_persistence`, the rest of
+//! slice 5) write its stored forms, its recorded revision ([`Revision`])
+//! included.
 //!
 //! - **The same record.** This is `buildAnalysisRunV03` and its caller
 //!   `buildAnalysisRunPreview` (`analysisRunCompatibility.ts`,

@@ -583,7 +583,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const outcome = await recordAnalysisRun({
         expectedBase: depsRef.current.storedBaseRef.current!.value!,
         run,
-        loadFull: depsRef.current.runSlot.loadFull,
+        native: depsRef.current.runSlot.nativeRequest?.(run.result, run.analysisRun) ?? null,
         stateId: state?.state_id ?? null,
         newState: state ? null : {
           labels: { state_name: snapshotName, tags: [], notes: [], assumptions: [] },
