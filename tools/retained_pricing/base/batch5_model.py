@@ -53,9 +53,12 @@ PINS = {
     # it only narrows admission. The component, region and load-state refusals are unchanged.
     # W-16 slice a (§8.23, W16-NS): family_clauses refuses a support-targeted primitive (F::LoadTarget); it only
     # narrows admission. The component, region and load-state refusals are unchanged.
+    # Model document 0.9.0 D3 (§8.36): family_clauses refuses condition_use, test_condition, direction, the
+    # combination members and (D1.3) condition sets, spectra and set references; it only narrows admission. The
+    # component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "72130bdb1b87bde04fd1746fb33f86bbdaf14c6d288ce3d3e273ea86f72711b4",
+        "family_clauses": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
