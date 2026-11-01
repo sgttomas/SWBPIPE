@@ -76,6 +76,26 @@ def numerical_module(root: Path):
     return module
 
 
+@functools.lru_cache(maxsize=None)
+def python_module(root: Path):
+    path = root / "tools/ci/python_ci.py"
+    if not path.is_file():
+        raise ValueError("Python selector unavailable")
+    spec = importlib.util.spec_from_file_location("hosted_python_selection", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def python_reach(root: Path, paths: list[str]) -> list[str]:
+    """Changed paths a Python test reads, or that its selector otherwise names, beyond the always-run
+    set. An unreadable selector or test returns every path, so the job runs and reports it."""
+    try:
+        return python_module(root).reaching_paths(root, paths)
+    except (ValueError, OSError, ImportError, SyntaxError, KeyError, subprocess.CalledProcessError):
+        return list(paths)
+
+
 def numerical_plan(root: Path, paths: list[str] | None, profile: dict) -> dict:
     manifests = []
     try:
@@ -489,6 +509,14 @@ def select_paths(paths: list[str], profile: dict, root: Path = ROOT,
             checks.discard("piping-numerical")
         selection["piping_numerical_selection"] = numerical
         selection["checks"] = sorted(checks)
+    if selection["modes"]["piping-python"] != "full":
+        # A path no rule routes to Python may still be what a Python test reads (tools/ci/python_test_reads.py).
+        reached = python_reach(root, paths)
+        if reached:
+            checks.add("piping-python")
+            selection["modes"]["piping-python"] = "full"
+            selection["reasons"].setdefault("piping-python", []).extend(reached)
+            selection["checks"] = sorted(checks)
     desktop = desktop_plan(root, paths, selection, profile, content_edits)
     if desktop["classification"] != "not-applicable":
         # The product job runs the desktop suite, so it is selected too.

@@ -7,6 +7,9 @@ effects; they do not establish actual supplier serialization or cleanup.
 """
 from __future__ import annotations
 
+# Directory scans inspect private runtime/output paths, not repository inputs.
+CI_READS = ()
+
 import argparse
 import hashlib
 import json

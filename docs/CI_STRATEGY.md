@@ -53,8 +53,9 @@ Python- or Rust-only diffs outside those inputs do not select it. Docs that
 desktop tests read select it, and with it the product job. A Markdown file that
 desktop source only names, as a string outside tests, test-support and lines that
 import, require, fetch, read or open it, and under no named directory, is display
-text: an in-place edit of it (a regular file before and after) selects nothing,
-while adding, deleting, renaming or retyping it still selects the suite. The plan lists such edits as `named_document_edits`. An unreadable
+text: an in-place edit of it (a regular file before and after) does not select the
+suite, while adding, deleting, renaming or retyping it still does. (The edit still starts
+the Python job, whose tests read every path.) The plan lists such edits as `named_document_edits`. An unreadable
 source tree, crate or compile read selects the suite. The selection's reasons
 are in the plan artifact. The browser reuse key includes whether the suite ran,
 so a pass without it is never reused for a run that needs it. The product job
@@ -150,6 +151,41 @@ from the tests' own imports so no non-test module names the verifiers;
 and a declared byte-pinned fixture selects the tests that pin it;
 full-fallback plans retain the broad Python cohort and directly edited tests.
 Edited product tests are run directly; shared CI/input changes expand the selection.
+Every maintained Python test, under `tests/` or beside the tool it tests
+(outside the Repository checks suites), is also selected by the paths it reads,
+derived from its own code by `tools/ci/python_test_reads.py`, in addition to any
+rule above that names it. The derivation fails toward over-selection: a false
+negative is the failure it exists to prevent, so wherever the code does not show
+a value it keeps a superset root rather than drop the read. Its roots are:
+- project paths written as literals or f-strings, or built by `/`, `joinpath`,
+  `os.path.join`, `str.format` or `%`. A name resolves through its bindings in its
+  own scope (a parameter or comprehension target shadows outer bindings):
+  assignments, loop and `with` targets, `pytest.mark.parametrize` values,
+  fixtures, defaults and the file's own call arguments. Unknown text may contain
+  `/`, so a path with an unknown part becomes `<known prefix>/**/<known suffix>`,
+  and one with no known part is `**`, every path;
+- a temporary or other outside directory, which mirrors the project when a test
+  copies it there, keeps its known suffix (`**/core/x.rs`); a parameter whose
+  caller lies outside the file contributes no root of its own, since the
+  caller's argument is the read;
+- directory scans (`glob`, `rglob`, `iterdir`, `os.walk`, `os.listdir`) and `git
+  ls-files`, `git grep` and `git ls-tree` pathspecs, as glob patterns that also
+  match files added later;
+- the project modules it imports, transitively, and the non-test files it names,
+  which it may load or run, together with their own reads.
+
+A file whose directory scan or pathspec the code does not show at all declares
+`CI_READS` beside it, which stands in for its scans; `tests/test_ci_python.py`
+fails on such a scan without one, on an entry that stops naming a tracked path,
+and on a shown scan no entry covers. The Python job checks out the whole tree,
+`execution/` records included, so a selected test can read every path its code
+names. Tests that no rule names join the broad cohort. A path any test reads starts the Python job even where no path rule
+routes it. Most tests read, directly or through the modules they import, a path
+their code does not show (data-driven fixture lists, injected globals, subprocess
+output, binary locations), so they reach every path, and every pull request now
+starts the Python job. `python_ci.UNROUTED` names each test
+deliberately left out, with its reason; `tests/test_ci_python.py` fails on any
+other test that only its own edit would select.
 The Python job retains xdist `--dist loadscope`: the current retained-precision
 corpus uses parametrized items across shard classes, and the O4 envelope checks
 use separate classes so these expensive modules can occupy multiple workers.

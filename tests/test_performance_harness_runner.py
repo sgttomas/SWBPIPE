@@ -16,18 +16,12 @@ from pathlib import Path
 RUNNER = Path(__file__).resolve().parents[1] / "core" / "solver" / "performance_harness" / "runner"
 sys.path.insert(0, str(RUNNER))
 
-from test_k6_runner import (  # noqa: E402,F401  (collected by pytest)
-    Aggregation,
-    Classification,
-    CountsClosedForms,
-    LiveLimit,
-    MetadataHasNoHostIdentifiers,
-    ModelHashes,
-    Parsers,
-    PlanAdmission,
-    QuietHost,
-    RlimitOnlyOnLinux,
-    Schema,
-    SectionBits,
-    Watchdog,
-)
+import unittest  # noqa: E402
+
+import test_k6_runner  # noqa: E402
+
+# Every test class the runner's suite defines, so a class added there is collected here without editing a list
+# (`tests/test_ci_python.py` checks the two sets agree).
+globals().update({name: value for name, value in vars(test_k6_runner).items()
+                  if isinstance(value, type) and issubclass(value, unittest.TestCase)
+                  and value.__module__ == test_k6_runner.__name__})

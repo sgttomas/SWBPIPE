@@ -65,33 +65,6 @@ def _verifier_imports(tree):
                 yield module
 
 
-# Hosted CI selection names the directories whose changes select a test; such an entry
-# neither imports nor runs a verifier. Only these exact string elements are set aside before
-# the path check; any other mention in the same file is still a finding.
-ROUTING_PATH_ENTRIES = {
-    # The model-version literal guard scans the verifiers (MD8 §5), so a change under them selects it.
-    "tools/ci/python_ci.py": ("MODEL_VERSION_LITERAL_ROOTS", "tests/verifiers/"),
-}
-PATH_MENTION = r"tests[/\\.]verifiers|verifiers[/\\]retained_precision"
-
-
-def _without_routing_entries(relative, text, tree):
-    """`text` with the listed routing entry's string literals blanked, nothing else."""
-    entry = ROUTING_PATH_ENTRIES.get(relative)
-    if entry is None:
-        return text
-    name, value = entry
-    lines = text.splitlines(keepends=True)
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == name for t in node.targets) \
-                and isinstance(node.value, ast.Tuple):
-            for element in node.value.elts:
-                if isinstance(element, ast.Constant) and element.value == value and element.lineno == element.end_lineno:
-                    line = lines[element.lineno - 1]
-                    lines[element.lineno - 1] = line[:element.col_offset] + " " * (element.end_col_offset - element.col_offset) + line[element.end_col_offset:]
-    return "".join(lines)
-
-
 def test_no_module_outside_tests_imports_a_verifier():
     found, count = [], 0
     for relative, text in _product_modules():
@@ -99,22 +72,9 @@ def test_no_module_outside_tests_imports_a_verifier():
         tree = ast.parse(text, filename=str(relative))
         found += [(str(relative), module) for module in _verifier_imports(tree)]
         # By path: spec_from_file_location, runpy, sys.path or exec over the verifiers directory.
-        if re.search(PATH_MENTION, _without_routing_entries(str(relative), text, tree)):
+        if re.search(r"tests[/\\.]verifiers|verifiers[/\\]retained_precision", text):
             found.append((str(relative), "path"))
     assert count > 100 and found == []
-
-
-def test_a_routing_entry_is_set_aside_exactly():
-    """Only the listed tuple element is blanked: the same path anywhere else is still a finding."""
-    relative = "tools/ci/python_ci.py"
-    entry = "MODEL_VERSION_LITERAL_ROOTS = (\n    'core/handoff/', 'tests/verifiers/', 'tools/validation/',\n)\n"
-    assert not re.search(PATH_MENTION, _without_routing_entries(relative, entry, ast.parse(entry)))
-    for extra in ("runpy.run_path('tests/verifiers/units.py')\n", "OTHER_ROOTS = ('tests/verifiers/',)\n",
-                  "# reads tests/verifiers directly\n"):
-        text = entry + extra
-        assert re.search(PATH_MENTION, _without_routing_entries(relative, text, ast.parse(text))), extra
-    elsewhere = "ROOTS = ('tests/verifiers/',)\nMODEL_VERSION_LITERAL_ROOTS = ('tests/verifiers/',)\n"
-    assert re.search(PATH_MENTION, _without_routing_entries("tools/other.py", elsewhere, ast.parse(elsewhere)))
 
 
 def test_the_former_product_modules_are_gone():

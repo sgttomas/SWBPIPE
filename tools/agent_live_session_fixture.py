@@ -21,6 +21,9 @@ import subprocess
 import threading
 import time
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only the live session's temporary state directory.
+CI_READS = ()
+
 
 class Refusal(RuntimeError):
     pass
