@@ -1654,7 +1654,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // pre-parse refusals (its D_env 25,470 -> 25,726), on W-15's 270,642,448.
     // Model document 0.8.0's shear-model member at 642e9737e4 (§8.26): +10,392 B, validate_model_settings'
     // second blocking refusal (SM-MS: 2,048 + 8,192 + 152 B per validation call, as NP-MS's), on 274,404,624.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 274_415_016, "current text closure at C_eq = 3, maximum over routes");
+    // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 274_415_304, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1979,9 +1980,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.33 (RT-A3 increment 1, 7e7fef2d4): the readers' branch row-kind arm +38,864,448 B and the v3
 // identity text +2,946 B of TAV_W, the identity text +2,946 B of TAV_X, and the two resident tables'
 // branch signatures +24,406 B of STATICS: W phases +38,891,800 B and X phases +27,352 B in both modes.
+// §8.36 S1: owner-approved source-derived profile, including the confirmed typed-string
+// correction and conservative short-key allowance; values are the reviewed native evaluation
+// minus reserved stack R. M, the margin and TEXT reserve policy are unchanged.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_770_121, 6_940_764_682, 8_894_947_342, 8_683_107_769, 7_761_135_996, 8_607_508_677, 7_338_909_339, 7_012_199_215],
-    [6_657_901_465, 6_999_896_026, 8_954_078_686, 8_742_239_113, 7_820_267_340, 8_666_640_021, 7_398_040_683, 7_071_330_559],
+    [6_602_790_349, 6_944_784_910, 8_898_968_146, 8_687_128_573, 7_765_156_512, 8_611_535_281, 7_342_928_991, 7_016_218_867],
+    [6_661_921_693, 7_003_916_254, 8_958_099_490, 8_746_259_917, 7_824_287_856, 8_670_666_625, 7_402_060_335, 7_075_350_211],
 ];
 
 #[test]
