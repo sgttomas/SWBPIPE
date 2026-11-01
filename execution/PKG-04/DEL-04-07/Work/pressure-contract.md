@@ -4,7 +4,7 @@
 
 The owner retired `1.0.0/legacy_pressure_v1` product-wide in #1168. It is not accepted even for zero-pressure documents. The flawed computation, its historical bypass and dependent pressure oracles are removed. A pressure-free model is a document without a pressure contract. On 2026-10-10 the owner decided that each format keeps only its current version ("as you recommended, no-compatibility principle carries"), reversing the 2026-10-08 choice of model formats 0.1.0/0.2.0 as the pressure-free namespace: B7 defines one model format, 0.5.0 (designed in DEL-04-08 Design and accepted by HELP_HUMAN on 2026-10-10), that expresses models with or without pressure, and refuses every older version by name ([DEL-04-08 Design, b7-plan.md](../../DEL-04-08/Work/b7-plan.md)). B7 reached main in #1387: 0.5.0 became the only model version, a document without `pressure_contract` is pressure-free, and 0.1.0 to 0.4.0 are refused by name (`MODEL_SCHEMA_VERSION_RETIRED`, PP `model_format.rs`). Since T4-U4b/U5b, 0.6.0 is the only model version and 0.5.0 is refused by name too ([u4b-u5b-implementation.md](u4b-u5b-implementation.md) §1.1). Any pressure primitive in a non-exact document, including zero, requires re-authoring (`PRESSURE_MODEL_REAUTHOR_REQUIRED`); authoring uses `OP-PRESSURE-PRIMITIVE-RETIRED`.
 
-The current exact route admits straight pipe members (Euler–Bernoulli, or Timoshenko since T4-U8), realized bends carrying the user's k (T4-U2), objective connectors, unpressurized or as constant-effective-area joints (T4-U3, T4-U5a), untied or with explicit elastic tie rods (T4-U5b), and linear restraints or springs. W-16 slice c admits a case's DEC-068 `equivalent_static` generation on documents without the load/reference-state group: seismic loads use the route's D-5 mass basis, and generation is refused by name on load/reference-state documents (`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`) and for wind on connector-replaced spans (`EQUIVALENT_STATIC_WIND_SPAN_REPLACED`), and partial-span wind on Timoshenko members takes the exact Timoshenko fixed-end vector (DEL-05-01 Design `exact-equivalent-static.md`). W-16 slice b admits model-authored load combinations (all three bases) over the primitive cases, formed from their published rows; a mechanics combination is withheld by name across mixed modulus bases or resolved stiffness, or when an installed connector or tie-rod reference meets factors that fail the unit factor-sum rule, and a document with a combination attempts no retained-source recovery (DEL-05-02 Design `exact-combinations.md`). The retained exact route still refuses combinations. RT-A3 increment 1 admits the branch connection (tee) and recognises pressure junctions at nodes where regions end ("Tees and pressure junctions", below). Every other component or support family is refused by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`, PP `exact_admission.rs`). T4 extends that route; it does not revive the legacy computation. Existing PRD/INTENT pressure requirements remain desired scope, not claims of present capability. T4 rebuilds the curved-pressure and membrane validation removed with the flawed computation.
+The current exact route admits straight pipe members (Euler–Bernoulli, or Timoshenko since T4-U8), realized bends carrying the user's k (T4-U2), objective connectors, unpressurized or as constant-effective-area joints (T4-U3, T4-U5a), untied or with explicit elastic tie rods (T4-U5b), and linear restraints or springs. W-16 slice c admits a case's DEC-068 `equivalent_static` generation on documents without the load/reference-state group: seismic loads use the route's D-5 mass basis, and generation is refused by name on load/reference-state documents (`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`) and for wind on connector-replaced spans (`EQUIVALENT_STATIC_WIND_SPAN_REPLACED`), and partial-span wind on Timoshenko members takes the exact Timoshenko fixed-end vector (DEL-05-01 Design `exact-equivalent-static.md`). W-16 slice b admits model-authored load combinations (all three bases) over the primitive cases, formed from their published rows; a mechanics combination is withheld by name across mixed modulus bases or resolved stiffness, or when an installed connector or tie-rod reference meets factors that fail the unit factor-sum rule, and a document with a combination attempts no retained-source recovery (DEL-05-02 Design `exact-combinations.md`). The retained exact route still refuses combinations. RT-A3 increment 1 admits the branch connection (tee) and recognises pressure junctions at nodes where regions end ("Tees and pressure junctions", below). Mapped rigid-family components retain W-15's equivalent-member scaling; reducer increment 2a admits the bounded concentric step described below. Families outside the current admission seam remain refused by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`, PP `exact_admission.rs`). T4 extends that route; it does not revive the legacy computation. Existing PRD/INTENT pressure requirements remain desired scope, not claims of present capability. T4 rebuilds the curved-pressure and membrane validation removed with the flawed computation.
 
 ## Accepted T4 direction
 
@@ -439,3 +439,67 @@ Evidence: the unit tests of both files, including the tie regressions and a
 corpus of 4549 binaries against Python's `repr`
 (`tools/fixtures/temperature_canonical_decimal_corpus.py`), and the solve-level
 refusal in `tests/load_reference_state_runtime_extension.rs`.
+
+## Concentric reducer pressure-bore step (RT-A3 increment 2a)
+
+The exact route admits a mapped reducer in pressure only in this initial
+representation: its body is the single member of its own region, and each
+body end joins exactly one straight member belonging to another region of
+the same case. Every region terminal at either shared node transfers to the
+wall. A tee record, bend/expansion-joint neighbour, connector-replaced span,
+branched end or dry/free body end lies outside this increment. A multi-member
+body region remains `EXACT_PRESSURE_REDUCER_IN_REGION`, including an equal-bore
+region. A reducer outside every pressure region keeps its existing admission.
+
+**Entering the step.** Map the reducer to its existing body pipe, which must
+end at the component's node. Give that body its own region and split the
+adjacent regions at its ends; retain their explicit `transfers_to_wall`
+terminals. Actual pipe sections supply the bores. End-size metadata supplies
+no bore, taper law or mechanical load. W-15 eligibility supplies the user's
+stiffness scale; a marker or incomplete scaling input keeps the existing
+unscaled behavior and warnings. No model version, closure token or authoring
+operation is added.
+
+**Concentricity and remaining domain.** The normalized body and neighbour
+directions into each shared node must be opposite (negative dot product) with
+cross-product norm at most `64*f64::EPSILON`. This reuses the representation
+guard, a numerical agreement rule rather than a geometry fit allowance.
+Authored nonzero eccentric offsets remain refused in pressure in 2a; absence
+of the slot declares nothing and is admitted only when the actual geometry
+passes. Explicit zero retains W-15c's separate offset consistency checks.
+The entry checks topology; case assembly checks normalized geometry before
+forming pressure loads. Passing profile validation alone is not a solve.
+
+D-1's general closure/junction rules remain in force. Unequal pressures at an
+otherwise admitted step produce the existing closure warning and the caps'
+actual resultant. A compensated shared terminal remains refused. The initial
+step guards do not alter junction-angle or dry-branch behavior elsewhere.
+None of these remaining refusals is declared an acceptable release limitation.
+
+**Mechanics and theory.** Each region already places its cap at a shared node
+as `-p*A_i*s`, where `s` points into that member. Their sum is the fitting load;
+for a reducing collinear step it is `p*(A_i,left-A_i,right)` along the run. No
+second thrust term is added. Pressure areas use the reduced bore once. For
+a scaled equivalent member, `s_scale*E*A_nominal*epsilon = N_wall-2*nu*p*A_i`:
+W-15 scales stiffness, while the Poisson pair has no E and is unchanged. Both
+published section bases divide that wall force by their own metal area, and
+each Lamé result uses its own annulus. Body rows retain `component_body`
+reference-section attribution and stay out of the headline; these are not
+taper/body stresses.
+
+The frozen independent references in `validation/references/rt_a3_reducer/`
+use exact axial compatibility and an independently assembled rational
+stiffness equilibrium. With free capped far ends a junction anchor carries
+exactly zero; holding all nodes is a different boundary condition. Far-anchor,
+scale-2, signed-pressure, orientation and dual-basis cases check the other
+meanings. Product tests additionally rotate the run, check meaningful refusals
+and validate a complete connector model before asserting its reducer refusal.
+
+**Next boundary.** Agent 0's adopted sequence is concentric 2a, bounded
+eccentric 2b, then constant effort. RS-R1 remains eccentric and pending 2b;
+its +25 mm offset, 270/220 mm sizes, scale 2 and RG-R region are preserved.
+Tee/arc/joint-adjacent targets remain beyond the plain-run slice. The existing
+caps' total eccentric wrench, its formation and recovered reference-section
+meaning need independent 3-D verification in 2b; an extra `p*A*e` term must
+not be presumed missing or added twice. No nonlinear or reference-system
+readiness follows from 2a.

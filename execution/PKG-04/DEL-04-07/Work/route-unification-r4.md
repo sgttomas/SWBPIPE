@@ -1,6 +1,6 @@
 # R-4: route unification. The exact pressure route admits every family the pressure-free route has
 
-> **Status: adopted plan, carried by RT-A3 in the order tee, reducers in regions, constant-effort, nonlinear supports, then S6 connectors, S3, S7, P and R-3 (Agent 0, 2026-10-30; S7 added the same day, see below). Built: stage 2 (#1671); the §8.30 corrections; S1's tee and junction part (RT-A3 increment 1), with junctions recognised implicitly at shared terminal nodes and no `junction` token (D-1, recorded in [pressure-contract.md](pressure-contract.md) "Tees and pressure junctions"). S1's reducer part and S2–S8/P are unbuilt. Superseded by any later Design text.**
+> **Status: adopted plan, carried by RT-A3 in the order tee, reducers in regions, constant-effort, nonlinear supports, then S6 connectors, S3, S7, P and R-3 (Agent 0, 2026-10-30; S7 added the same day, see below). Built: stage 2 (#1671); the §8.30 corrections; S1's tee and junction part (RT-A3 increment 1), with junctions recognised implicitly at shared terminal nodes and no `junction` token (D-1, recorded in [pressure-contract.md](pressure-contract.md) "Tees and pressure junctions"). Reducer 2a supplies the bounded plain-run concentric step described in pressure-contract.md; eccentric 2b and R-4 S2–S8/P remain unbuilt. Superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`; those name working files that are not retained.
@@ -44,6 +44,31 @@ Agent 0 added S7, a nonlinear support as a friction normal source (§3.8), to RT
 - **Order.** Increments 1–4, then S6, S3, S7, P and R-3. S7 moves ahead of P only if the M-1a/M-2 measurements show that P can wait.
 - **Interim.** Until S7 lands, the reference fixture gives FR1 a linear rest as its normal source (option (a)). That substitution is recorded in DEL-09-01's pending-family ledger against S7.
 - **Verification.** S7 changes numerical meaning on both routes, so it takes its own confirmation references (F-2a, F-2b and F-3 in §3.8 at least) and the independent xhigh review.
+
+## 0b. Reducer sequence and initial domain (Agent 0, 2026-11-01)
+
+Reducer increment 2 is split into 2a (concentric pressure-bore-step correctness)
+and bounded 2b (existing eccentric-offset pressure-wrench transformation,
+formation and recovery), both before constant effort. The serialized shape is
+unchanged. RS-R1 remains eccentric and waits for 2b, not a substituted
+concentric system. The reference-system and rack pending ledgers name those
+remaining conditions.
+
+The current 2a domain is a body alone in its region, between one opposite,
+collinear straight member of another region at each end, with wall transfer at
+every terminal there and no authored nonzero offset. Topology and normalized
+64-epsilon geometry are separately checked. Full entering rules, preserved
+D-1 warnings, reference-section meaning and remaining refusals are in
+[pressure-contract.md](pressure-contract.md), “Concentric reducer pressure-bore
+step”. Its ten intended-admission reference cases and omitted-cap control are
+frozen in `validation/references/rt_a3_reducer/`; product checks cover both
+solver/shear modes, rotation and invalid forms. No new load primitive or
+pressure term is formed.
+
+The historical C-4 note below predates the completed implicit-junction path.
+Whether the existing cap positions already supply the total eccentric wrench
+must be verified in 2b together with formation and recovery; its old “moment
+not formed” wording does not authorize adding a second moment by assumption.
 
 ## 00. Codex round-1 corrections (2026-10-28; these supersede the sections they name)
 

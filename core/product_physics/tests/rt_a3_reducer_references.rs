@@ -331,6 +331,10 @@ fn every_admitted_reference_case_solves_on_the_exact_route_within_its_criterion(
                 let label = format!("{id} {shear} {mode:?}");
                 let envelope = solve(&document, mode);
                 check_numbers(&references, case, &envelope, &label);
+                let verdict = open_pipe_stress_product_physics::result_export::reader_verdict::validate(
+                    "pressure", &envelope, Some(&document["model"]), None,
+                );
+                assert_eq!(verdict["ok"], true, "{label}: {verdict:#?}");
                 check_body_record(&envelope, scale, &label);
                 // D-1: only the unequal-pressure control warns, at junction F.
                 let differ = with_code(&envelope, PRESSURES_DIFFER);
@@ -686,4 +690,63 @@ fn a_valid_pressure_connector_neighbour_stays_outside_the_initial_step() {
     model_array(&mut without_reducer, "components").retain(|c| c["id"] != REDUCER);
     assert_solved_without_refusal(&without_reducer, "valid connector neighbour without reducer");
     assert_reducer_refused(&document, "region:body-and-joint", "valid connector neighbour with reducer");
+}
+
+/// The admitted run is not restricted to a global coordinate axis. Rotate
+/// the independent axial case by the exact 3-4-5 direction and project its
+/// motions/reactions; local wall forces and stresses keep their meanings.
+#[test]
+fn the_step_and_its_reference_response_rotate_with_the_entered_geometry() {
+    let references = references();
+    let case = case(&references, "R2A-HELD-S2");
+    for shear in SHEAR_MODELS {
+        let mut document = document(&references, case, shear);
+        for node in model_array(&mut document, "nodes") {
+            let x = node["position"]["x"].as_f64().unwrap();
+            node["position"] = json!({"x": 0.6 * x, "y": 0.8 * x, "z": 0.0});
+        }
+        for pipe in model_array(&mut document, "pipe_segments") {
+            pipe["y_reference"] = json!({"x": 0.0, "y": 0.0, "z": 1.0});
+        }
+        let scale = scales(&references, case);
+        for mode in MODES {
+            let envelope = solve(&document, mode);
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{shear} {mode:?}: {:#?}", envelope["diagnostics"]);
+            for (name, ux) in case["results"]["axial_displacement_x_m"].as_object().unwrap() {
+                let node = format!("node:{name}");
+                for (kind, projection) in [("global_nodal_displacement_x", 0.6), ("global_nodal_displacement_y", 0.8)] {
+                    close(row(&envelope, kind, &node, None, None, ""), 1000.0 * projection * value(ux), 1000.0 * scale.translation, kind);
+                }
+            }
+            for (name, force) in case["results"]["reaction_x_N"].as_object().unwrap() {
+                for (component, projection) in [("Fx", 0.6), ("Fy", 0.8), ("Fz", 0.0)] {
+                    close(row(&envelope, "support_reaction_component_v2", &support_id(name), None, Some(component), ""), projection * value(force), scale.force, component);
+                }
+            }
+            for member in members(case) {
+                let pipe = member["id"].as_str().unwrap();
+                close(row(&envelope, "pipe_wall_axial_force_v2", pipe, Some("end_i"), None, ""), value(&member["wall_force_N_w_N"]), scale.force, pipe);
+                for basis in BASES {
+                    close(row(&envelope, "pipe_axial_membrane_stress_v2", pipe, Some("end_i"), None, basis), value(&member["axial_membrane_stress_Pa"][basis]["axial_membrane_sigma_m"]), scale.stress, pipe);
+                }
+            }
+            check_body_record(&envelope, 2.0, &format!("rotated {shear} {mode:?}"));
+        }
+    }
+}
+
+#[test]
+fn the_pressure_reader_binds_the_admitted_body_record_to_the_model() {
+    let references = references();
+    let document = document(&references, case(&references, "R2A-HELD-S2"), SHEAR_MODELS[0]);
+    for mode in MODES {
+        let mut envelope = solve(&document, mode);
+        let read = |source: &Value| open_pipe_stress_product_physics::result_export::reader_verdict::validate(
+            "pressure", source, Some(&document["model"]), None,
+        );
+        assert_eq!(read(&envelope)["ok"], true, "{mode:?}");
+        let row = envelope["results"].as_array_mut().unwrap().iter_mut().find(|r| r.get("component_body").is_some()).unwrap();
+        row["component_body"]["component_ref"] = json!("component:forged");
+        assert_eq!(read(&envelope)["ok"], false, "{mode:?}: a forged reference-section owner was accepted");
+    }
 }
