@@ -163,6 +163,12 @@ fill that gap. Provider equivalence is conditional on the stated selection.
 [`agent-d4-capture-proposal.md`](agent-d4-capture-proposal.md) specifies the
 smallest later supplier-only scripted capture to close the missing envelope;
 it needs no desktop App or real provider/model and is not authorized by this plan.
+Its CAP-1 adapter, `tools/agent_supplier_capture.py`, is maintained with mock-only
+tests and source-bound synthetic outcomes; its reviewed revision is recorded in
+the capture PR. This completes offline adapter preparation, not the missing
+observation. Actual request bytes and a provider-equivalent recount are still
+absent. The one-attempt command/limits/cleanup remain subject to Agent 0's later
+presentation to the owner, separately from credential/live-witness authority.
 
 | Token budget | Turn 1 | Turn 2 peak, including retained turn 1 |
 | --- | ---: | ---: |

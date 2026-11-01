@@ -4682,6 +4682,7 @@
               "fixtures/model_document/library_ref_sites.json",
               "fixtures/model_document/version_states.json",
               "fixtures/model_operations/agent_m2_component_journey.json",
+              "fixtures/model_operations/agent_w9a_capture_outcomes.json",
               "fixtures/model_operations/agent_w9a_journey.json",
               "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
               "fixtures/model_operations/contract_corpus/case_02_accept_set_field_element_material_ref.json",
