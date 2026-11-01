@@ -2024,7 +2024,7 @@ The census correction alone (`compare` of the candidate against the same run wit
 
 ### 8.37 Published-row lookup index after S1 (RT-A3 increment 1b; owner-approved adoption)
 
-**Status: owner-approved profile adopted; final verification in progress.** The
+**Status: owner-approved profile adopted; native and stack verification complete.** The
 owner decided verbatim **"1A, 2A."** (2026-11-01), with item 1A approving
 RT-A3/#68's reviewed +172,554 B increase and exact proposed file
 `efad75d4001600d47d23ea7bbd23942c95aaef097a15590528fe16f31048aa3b`
@@ -2114,7 +2114,7 @@ index source guard binds the one
 instance, empty construction, filtered incremental walk and one push. Inline
 headers remain stack locals and require combined-source stack evidence.
 
-**Proposed coefficient comparison.** The trees have equal structure:
+**Adopted coefficient comparison.** The trees have equal structure:
 **1,598 coefficients equal, four higher, none lower**. Only O_base_dense and
 O_base_sparse constants and their success copies rise, by
 3 · (55,342 + 2,176) = **172,554 B** on the merged L maximum. E's charge is
@@ -2152,6 +2152,27 @@ log fit the same limits, and `generate --check` reproduces the approved file.
 The six combined-source stack witnesses require their separately cleared,
 exclusive interval; the owner decision by itself supplies no such interval.
 
+**AC-004 exclusive evidence (2026-11-01).** With App scheduling clearance
+relayed by Agent 0, the six prebuilt witnesses ran under `t3_exclusive.sh`
+with memguard active and no Cargo/build in the interval. Queue and acquisition
+were both **15:39:22 UTC** (zero-second queue wait); end/release was
+**15:39:31 UTC**, rc 0, with script elapsed **8.901 s**, below the cleared
+60-second total. Each test ran in its own process with
+`--exact --ignored --test-threads=1`: W1 1-MiB headroom dense/sparse
+**0.62/0.63 s**, W2 deep dense/sparse **1.30/1.27 s**, and W-C2 dense/sparse
+**2.38/2.40 s**; all six passed. The script used a 55-second internal budget
+including its hash preflight, leaving wrapper overhead within the cleared
+60 seconds. The selected native test binary was
+`core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f0dc814215774b50`,
+SHA-256 `6bbba938f9a9df619e680b5dfd9530c052deb3ad83b0108076f253f3b23e26e4`,
+built from adopted source `6ece563f0`; the clean selected candidate
+`0dc214c11` changed governing text only and preserved its core bytes. The
+approved profile hash was verified before execution. Every test subprocess
+was reaped; the wrapper exited 0 and both lock-holding processes were closed,
+releasing its four locks. Agent 0 received immediate release confirmation
+for App scheduling. This is stack/test evidence, not a new performance
+measurement or acceptance/release act.
+
 **Verification and reconciliation.** The targeted owner/pin/mutation tests
 pass: the focused reviewer reran 375 tests on exact head `0f2698846`,
 including E13 and the other changed pin cohorts, after the retired-key
@@ -2164,8 +2185,8 @@ incremental rescan before original source was restored. DEL-04-07 Work
 and their limits. Combined-source identity comparison gives 956 identical outputs (662 solved,
 294 refused, no panics) for 478 common-byte documents; §5.4b records the single
 size exclusion and seven schema-token-only scratch adaptations. Changed-proof
-scrutiny is clear and owner adoption is recorded above. Native law/challenge checks are recorded above; stack witnesses and final
-exact-head hosted checks remain before integration. This changes publication lookup
+scrutiny is clear and owner adoption is recorded above. Native law/challenge checks and six stack witnesses are recorded above;
+exact-head hosted checks are recorded in PR #68 and required before integration. This changes publication lookup
 storage, not admitted families or ScopeOfWork/dependency conditions. No
 acceptance, release or base-machine performance qualification follows.
 
