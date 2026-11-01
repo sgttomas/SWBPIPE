@@ -3,13 +3,13 @@
 //   node --test apps/desktop/native-smoke/perf.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fileURLToPath } from "node:url";
-import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { classify, containedPath, finishScratch, formatPlan, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { classify, commitRun, containedPath, createSampleGuard, finishScratch, formatPlan, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -23,7 +23,10 @@ const fixture = () => spawn(process.execPath, ["--input-type=module", "-e", `
   process.on('message', m=>{
     if(m==='block') { for(;;) {} }
     if(m==='exit') process.exit(7);
-    if(m==='stop') process.send({type:'stop',reason:'fixture_resource_stop'});
+    if(m==='stop') {
+      process.send({type:'completed_run',path:'fixture-run.json'});
+      process.send({type:'stop',reason:'fixture_resource_stop',sample:{t:123,p:[[11,'app',1,2,2]],host:{available_percent:29,pressure_level:1}}});
+    }
   });
   worker.once('message',()=>process.send({type:'ready',worker:worker.pid}));
 `], { detached: true, stdio: ["ignore", "ignore", "inherit", "ipc"] });
@@ -67,6 +70,69 @@ test("a sampled resource refusal stops only the owned window group", async (t) =
   assert.equal(stopped.stop_reason, "fixture_resource_stop");
   assert.equal(stopped.owned_group_gone, true);
   assert.equal(stopped.owned_executable_pids_gone, true);
+  assert.equal(stopped.trigger_sample.t, 123);
+  assert.equal(stopped.evidence_complete, false);
+  assert.deepEqual(stopped.completed_run_files,["fixture-run.json"]);
+});
+
+test("supervisor death ends a blocked runner and its fake App group", { timeout: 10000 }, async (t) => {
+  const moduleUrl = pathToFileURL(fileURLToPath(new URL("./perf.mjs", import.meta.url))).href;
+  const runnerCode = `
+    import {guardSupervisor} from ${JSON.stringify(moduleUrl)};
+    import {spawn} from 'node:child_process';
+    import {once} from 'node:events';
+    await guardSupervisor(Number(process.argv[1]));
+    const app=spawn(process.execPath,['-e',"process.send('ready');setInterval(()=>{},1000)"],{stdio:['ignore','ignore','inherit','ipc']});
+    await once(app,'message');
+    process.send({runner:process.pid,app:app.pid});
+    for(;;) {}
+  `;
+  const supervisor = spawn(process.execPath, ["--input-type=module", "-e", `
+    import {spawn} from 'node:child_process';
+    const runner=spawn(process.execPath,['--input-type=module','-e',${JSON.stringify(runnerCode)},String(process.pid)],{detached:true,stdio:['ignore','ignore','inherit','ipc']});
+    process.send({started:runner.pid});
+    runner.once('message',value=>process.send(value));
+    setInterval(()=>{},1000);
+  `], { stdio: ["ignore", "ignore", "inherit", "ipc"] });
+  t.after(() => supervisor.kill("SIGKILL"));
+  const [started] = await once(supervisor, "message");
+  t.after(() => { try { process.kill(-started.started, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(supervisor, "message");
+  t.after(() => { try { process.kill(-ready.runner, "SIGKILL"); } catch { /* gone */ } });
+  process.kill(ready.app,"SIGSTOP"); // teardown must not freeze the guard thread
+  supervisor.kill("SIGKILL");
+  await once(supervisor, "exit");
+  const alive = pid => { try { process.kill(pid,0); return true; } catch(error) { return error.code !== "ESRCH"; } };
+  const until = performance.now() + 3000;
+  while ((alive(ready.runner) || alive(ready.app)) && performance.now() < until) await new Promise(resolve=>setTimeout(resolve,20));
+  assert.equal(alive(ready.runner), false);
+  assert.equal(alive(ready.app), false);
+});
+
+test("SIGHUP takes the bounded supervised-stop path", async (t) => {
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid,"SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child,"message");
+  t.after(() => { try { process.kill(-ready.worker,"SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child,{budgetMs:5000,killGraceMs:20,listOwned:async()=>[{pid:ready.worker,group:ready.worker}]});
+  process.emit("SIGHUP");
+  const stopped = await result;
+  assert.equal(stopped.stop_reason,"runner_SIGHUP");
+  assert.equal(stopped.owned_executable_pids_gone,true);
+});
+
+test("normal guard handover neither kills nor keeps its runner alive", {timeout:5000}, async (t) => {
+  const moduleUrl = new URL("./perf.mjs",import.meta.url).href;
+  const child = spawn(process.execPath,["--input-type=module","-e",`
+    import {guardSupervisor} from ${JSON.stringify(moduleUrl)};
+    const finish=await guardSupervisor(process.ppid);
+    await finish();
+    process.disconnect();
+  `],{detached:true,stdio:["ignore","ignore","inherit","ipc"]});
+  t.after(()=>{try{process.kill(-child.pid,"SIGKILL");}catch{/* gone */}});
+  const [code,signal] = await once(child,"exit");
+  assert.equal(code,0);
+  assert.equal(signal,null);
 });
 
 test("repeated interruption during worker lookup does not remove the teardown handlers", async (t) => {
@@ -119,7 +185,7 @@ test("a stalled worker lookup cannot make teardown wait indefinitely", async (t)
 
 test("run-only resource stops use aligned samples and refuse unknown readings", () => {
   const g = 1024 ** 3;
-  const sample = { host: { available_percent: 30 }, p: [[1, "app", g, 4*g, 4*g], [2, "webcontent", g, 4*g, 4*g], [3, "worker", g, 4*g, 4*g]] };
+  const sample = { host: { available_percent: 30, pressure_level: 1 }, p: [[1, "app", g, 4*g, 4*g], [2, "webcontent", g, 4*g, 4*g], [3, "worker", g, 4*g, 4*g]] };
   assert.equal(sampleStopReason(sample), null);
   assert.equal(sampleStopReason({ ...sample, host: {} }), "host_headroom_unknown");
   assert.equal(sampleStopReason({ ...sample, host: { available_percent: 29 } }), "host_headroom_below_30_percent");
@@ -127,6 +193,82 @@ test("run-only resource stops use aligned samples and refuse unknown readings", 
   assert.equal(sampleStopReason({ ...sample, p: [[1,"app",g,12*g+1,12*g+1]] }), "aligned_footprint_above_12_gib");
   assert.equal(sampleStopReason({ ...sample, p: [[1,"app",16*g+1,g,g]] }), "owned_pid_rss_above_16_gib");
   assert.equal(sampleStopReason({ ...sample, p: [[1,"app",null,null,null]] }), "process_memory_unknown");
+  assert.equal(sampleStopReason({ ...sample, host: {available_percent:40,pressure_level:2} }), "host_pressure_elevated");
+});
+
+test("one unknown PID or cached host failure does not stop a healthy run", () => {
+  const sample = {t:1,host:{available_percent:40,pressure_level:1,sampled_at_ms:1},p:[[1,"app",10,10,10]]};
+  const guard = createSampleGuard();
+  assert.equal(guard({...sample,p:[...sample.p,[2,"worker",null,null,null]]}),null);
+  assert.equal(guard(sample),null); // exited worker no longer listed
+  assert.equal(guard({...sample,p:[...sample.p,[2,"worker",null,null,null]]}),null);
+  assert.equal(guard({...sample,p:[...sample.p,[2,"worker",null,null,null]]}),"process_memory_unknown");
+  const hostGuard = createSampleGuard();
+  const unknown = {...sample,host:{available_percent:null,pressure_level:1,sampled_at_ms:2}};
+  assert.equal(hostGuard(unknown),null);
+  assert.equal(hostGuard(unknown),null); // same cached 1Hz reading
+  assert.equal(hostGuard({...unknown,host:{...unknown.host,sampled_at_ms:3}}),"host_headroom_unknown");
+  assert.equal(createSampleGuard()({...unknown,p:[[1,"app",17*1024**3,10,10]]}),"owned_pid_rss_above_16_gib");
+});
+
+test("completed records and raw samples survive private store cleanup", async (t) => {
+  const out = mkdtempSync(path.join(os.tmpdir(), "perf-evidence-"));
+  t.after(() => rmSync(out,{recursive:true,force:true}));
+  const scratch = path.join(out,"perf-window");
+  const run = path.join(scratch,"run-one");
+  mkdirSync(path.join(run,"home"),{recursive:true});
+  writeFileSync(path.join(run,"home","private.sqlite"),"fixture");
+  const samples = path.join(out,"samples.jsonl");
+  writeFileSync(samples,'{"t":123,"p":[]}\n');
+  const record = {id:"one",class:"ok",kept:run,samples_file:samples,memory:{timeline:[[123,10,10]]}};
+  await commitRun(record,{out,scratch,keep:false});
+  const persisted = JSON.parse(readFileSync(record.record_file,"utf8"));
+  assert.deepEqual(persisted.memory,record.memory);
+  assert.equal(persisted.home_cleanup,"removed");
+  assert.equal(existsSync(path.join(run,"home")),false);
+  assert.equal(readFileSync(samples,"utf8"),'{"t":123,"p":[]}\n');
+  await finishScratch({scratch,binary:path.join(scratch,"openpipestress-desktop"),keep:false});
+  assert.equal(existsSync(record.record_file),true);
+  assert.equal(existsSync(samples),true);
+});
+
+test("a bad completed-run root cannot remove another directory's store", async (t) => {
+  const out = mkdtempSync(path.join(os.tmpdir(),"perf-cleanup-boundary-"));
+  t.after(()=>rmSync(out,{recursive:true,force:true}));
+  const scratch = path.join(out,"perf-window");
+  mkdirSync(scratch);
+  const foreign = path.join(out,"run-foreign");
+  mkdirSync(path.join(foreign,"home"),{recursive:true});
+  const marker = path.join(foreign,"home","keep.sqlite");
+  writeFileSync(marker,"fixture outside window");
+  await assert.rejects(commitRun({id:"bad",class:"ok",kept:foreign},{out,scratch,keep:false}),/not this window/);
+  assert.equal(readFileSync(marker,"utf8"),"fixture outside window");
+});
+
+test("the sampler writer flushes raw evidence before a consumer can abort it", (t) => {
+  const out = mkdtempSync(path.join(os.tmpdir(),"perf-writer-"));
+  t.after(() => rmSync(out,{recursive:true,force:true}));
+  const file = path.join(out,"samples.jsonl");
+  // Execute only the production pure writer's AST, not the module, ctypes,
+  // sampler main, sysctl or any host/process/memory probe.
+  execFileSync("python3",["-c",`
+import ast,json,pathlib,sys
+source=pathlib.Path(sys.argv[1])
+function=next(n for n in ast.parse(source.read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='emit_sample')
+scope={'json':json}
+exec(compile(ast.Module(body=[function],type_ignores=[]),str(source),'exec'),scope)
+value={'t':123,'p':[[11,'app',1,2,2]]}
+class Consumer:
+ def write(self,line):
+  assert json.loads(pathlib.Path(sys.argv[2]).read_text())==value
+  raise RuntimeError('fixture consumer stop')
+ def flush(self): raise AssertionError('not reached')
+with open(sys.argv[2],'x',encoding='utf-8') as evidence:
+ try: scope['emit_sample'](value,evidence,Consumer())
+ except RuntimeError as error: assert str(error)=='fixture consumer stop'
+ else: raise AssertionError('consumer did not stop')
+`,fileURLToPath(new URL("./perf-sampler.py",import.meta.url)),file]);
+  assert.equal(JSON.parse(readFileSync(file,"utf8")).t,123);
 });
 
 test("the window subset is the brief's runs and fits its budget by estimate", () => {

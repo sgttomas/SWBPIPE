@@ -228,9 +228,10 @@ On stop, try `analyze.cancel` for an active solve; allow at most 5 seconds for
 its cancellation/reap receipt. A completed native reader may not be cancellable;
 do not wait indefinitely. Terminate the runner/App/helper group, and identify
 product workers separately: `solve_worker.rs` deliberately gives them their own
-process groups. Freeze the App group before enumerating PIDs whose executable
+process groups. Freeze the current App PID before enumerating PIDs whose executable
 path is this window's unique private App copy; stop those worker groups/PIDs
 before removing that copy. Never infer worker termination from App exit alone.
+Leave the runner's parent-death guard runnable during that freeze.
 The deadline must begin teardown by 840 seconds and finish/release
 the exclusive wrapper by 900, even if store inspection hangs. Do not kill a
 global process name or an ambiguously attributed WebKit process. Stop the owned
@@ -250,7 +251,11 @@ truthfully; do not extend the interval to hide them.
 
 ## Missing executable prerequisites and smallest grant
 
-P1 — **Implemented offline; independent review pending.** `perf.mjs --run` now
+P1 — **Round-1 repairs implemented offline; recheck pending.** The first independent
+review at `3faf9ea12` blocked supervisor-death cleanup and forced-stop evidence
+loss (F1/F2); both new in-model kinds were reported to Agent 0. The parent repaired
+them and the smaller failure-handling notes without an implementation delegate.
+This is no risk acceptance or native-window grant. `perf.mjs --run` now
 forks the runner into its own process group under an independent supervising
 event loop. The App/helpers inherit that group; synchronous SQLite inspection
 can block only the runner. The supervisor begins stopping at the work deadline
@@ -258,9 +263,21 @@ can block only the runner. The supervisor begins stopping at the work deadline
 5 s, bounds worker discovery by 1.5 s, checks disappearance for up to 2 s and
 bounds its asynchronous report/cleanup by 10 s. These limits leave teardown
 margin within 900 s; actual held duration and cleanup are still run evidence.
+The child receives a smaller run budget (810 s for the proposed 840 s window),
+reserving 30 s for post-run work before the supervisor's deadline. That reserve
+does not guarantee a multi-GB SQLite check completes; an unfinished check remains
+partial evidence, not a successful save verification.
+
+The child arms IPC-disconnect self-group termination and a same-module guard
+thread before starting the App. The thread checks reparenting every 100 ms even
+when the runner's main thread is blocked in SQLite. SIGHUP uses the supervisor's
+bounded stop path. Normal handover removes the disconnect handler and unreferences
+the guard without keeping the runner alive; it still protects delayed helper/I/O
+exit. Abnormal supervisor loss supplies no normal window receipt: recovery uses
+the durable partial carriers and verifies process closure before another window.
 
 The product worker's own process-group behavior is preserved. Before final
-cleanup the supervisor freezes the runner/App group and uses the sampler's
+cleanup the supervisor freezes the current App PID, not its guard thread, and uses the sampler's
 control-only `--list-owned` mode (no memory counters) to find PIDs/groups by the
 unique private executable path. It kills only that closed set plus its own runner
 group, verifies disappearance, and reports failed/unknown lookup as unverified
@@ -269,17 +286,36 @@ is removed asynchronously only after successful outcome and process verification
 failures retain its named path. `--keep` retains stores and removes the private
 App copy after verification. There is no automatic next run after a failure.
 
-The existing sampler additionally supplies host available-percent readings (at
-most once per second). Unknown/stale samples, low headroom, an aligned sum above
+The existing sampler additionally supplies host available-percent and
+`kern.memorystatus_vm_pressure_level` readings (at most once per second: 1 normal,
+2 warning, 4 critical, other values unknown). Elevated pressure, stale samples,
+low headroom, an aligned sum above
 12 GiB, PID RSS above 16 GiB, and ambiguous/replacement WebContent stop the window.
+One transient unknown PID reading is retained but tolerated; two consecutive
+unknowns for that PID stop the run. A vanished PID is removed from the pending
+set. Unknown host status needs two distinct 1 Hz readings, not two cached 200 ms
+samples; known elevated pressure or a known exceeded cap still stops immediately.
 These are run controls, not changes to product pool/budget admission. Native pool
 pressure/preflight and UI cancellation probes still belong to P2. A supervisor
 forced stop does not claim a successful UI cancellation or transaction commit.
 
-Eighteen maintained Node tests pass under `t3_slot.sh`, including only tiny fake
-Node processes for blocked inspection, workers in separate groups, early exit,
-resource stop, repeated interruption and failed/stalled lookup. Sampler syntax
-was checked without executing it. No native App, worker solve, sampler mode or
+Raw sampler JSONL is exclusively created outside disposable HOME/scratch and
+flushed before the line is sent to its consumer. Each completed run is atomically
+recorded before the next App starts; its ok HOME is then removed unless `--keep`.
+Thus prior stores do not accumulate for a multi-run window. Samples/records survive
+normal scratch removal. The supervisor keeps the latest/triggering compact sample
+and completed-record paths, labels forced-stop evidence incomplete, and records
+inspection-start/completion separately. Failed/unknown inspection is not a commit
+receipt. Transient group-probe EPERM is polled as still live within the existing
+2 s limit; persistent uncertainty fails verification.
+
+Twenty-five maintained tests pass under `t3_slot.sh`, including only tiny fake
+Node processes for blocked inspection, workers in separate groups, supervisor
+death with a stopped fake App, normal guard handover, SIGHUP, repeated interruption
+and failed/stalled lookup. Added regressions check preserved records/raw samples,
+cleanup containment and transient host/PID readings. The production sampler writer
+was exercised only as an isolated pure AST function with synthetic data; its module,
+ctypes, sampler modes and sysctls were not executed. No native App, worker solve, sampler mode or
 memory measurement was launched. The own-executable discovery is source-reviewed
 preparation until separately authorized live evidence exists. Scope for the
 required safeguard review is the existing honest-local-mistake threat model:

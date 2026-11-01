@@ -27,8 +27,12 @@
 //       publishes instead of starting its worker (`src-tauri/src/native_smoke_inject.rs`).
 //   It samples the app, its solve workers and the WebKit processes started for it
 //   (`perf-sampler.py`), waits for the app to finish or the run's timeout, inspects the
-//   SQLite store, classifies the run and writes OUT/perf-report-<UTC>.json. Each run's
-//   throwaway directory (its store can hold gigabytes) is removed unless --keep.
+//   SQLite store and classifies the run. An independent --run supervisor bounds
+//   its internal --run-child, including synchronous inspection. Raw sampler lines
+//   and completed-run records are persisted before advancing; forced-stop receipts
+//   explicitly describe partial evidence. Without --keep, an ok run's private
+//   HOME is removed after its record is committed; failed stores are retained.
+//   The supervisor removes remaining scratch only after process verification.
 //
 // Threat model (accepted for PR #53's permissions review): the plan checks (bare names,
 // containedPath) and the injection root guard against mistakes in plan text and caller input:
@@ -44,11 +48,12 @@
 import { execFile, fork, spawn, spawnSync } from "node:child_process";
 import { rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { isMainThread, parentPort, Worker, workerData } from "node:worker_threads";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const desktop = path.resolve(here, "..");
@@ -64,10 +69,37 @@ const INJECT_ROOT_ENV = "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT";
 const SEVERITY = ["crash", "half_written_save", "misleading_message", "hang", "refused_with_message", "ok"];
 const GIB = 1024 ** 3;
 
+function killOwnRunnerGroup() {
+  try { process.kill(-process.pid, "SIGKILL"); }
+  finally { process.exit(125); }
+}
+
+/** IPC disconnect catches an ordinary parent exit. A same-module worker thread
+ * also checks reparenting while this runner's main thread is blocked in SQLite.
+ * Arm and acknowledge it before any App launch; unexpected guard failure stops
+ * the owned runner group. Product workers retain their own parent-death guard. */
+export async function guardSupervisor(parentPid) {
+  if (!Number.isSafeInteger(parentPid) || parentPid <= 1) throw new Error("perf run-child: invalid supervisor PID");
+  process.on("disconnect", killOwnRunnerGroup);
+  if (process.ppid !== parentPid) killOwnRunnerGroup();
+  const guard = new Worker(fileURLToPath(import.meta.url), { execArgv: [], workerData: { perfParentPid: parentPid } });
+  let closing = false;
+  guard.on("error", killOwnRunnerGroup);
+  guard.on("exit", () => { if (!closing) killOwnRunnerGroup(); });
+  await new Promise((resolve) => guard.once("message", resolve));
+  return async () => {
+    closing = true;
+    process.off("disconnect", killOwnRunnerGroup);
+    // Do not keep a normally finished runner alive, but still protect it if
+    // a remaining helper or pending I/O delays exit after IPC is closed.
+    guard.unref();
+  };
+}
+
 // The runner/App/helpers share the group created by fork. Product workers
 // create their own groups; listOwned identifies them by the unique private
-// executable path. The App group is frozen before that list, preventing a new
-// worker spawn while cleanup enumerates. No WebKit PID is targeted.
+// executable path. Freeze the current App before that list, preventing new
+// worker spawns, but leave the runner's parent-death guard runnable.
 export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs = 5000, listOwned = async () => [] }) {
   if (!Number.isSafeInteger(child.pid) || child.pid <= 1) throw new Error("perf window: no owned runner PID");
   const started = Date.now();
@@ -77,12 +109,17 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
     try { process.kill(-child.pid, signal); return true; }
     catch (error) {
       if (error.code === "ESRCH") return false;
+      if (signal === 0 && error.code === "EPERM") return true;
       groupErrors.push({ signal, error: error.message });
       return null;
     }
   };
   return new Promise((resolve) => {
     let reason = null;
+    let triggerSample = null;
+    let latestSample = null;
+    let activeAppPid = null;
+    const completedRuns = [];
     let killTimer = null;
     let finalTimer = null;
     let finished = false;
@@ -97,12 +134,16 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
     const interrupted = (signal) => stop(`runner_${signal}`);
     const onInt = () => interrupted("SIGINT");
     const onTerm = () => interrupted("SIGTERM");
+    const onHup = () => interrupted("SIGHUP");
     const deadline = setTimeout(() => stop("window_deadline"), budgetMs);
     const finish = async (code, signal, reaped) => {
       if (finished) return;
       finished = true;
       clearTimeout(deadline); clearTimeout(killTimer); clearTimeout(finalTimer);
-      signalGroup("SIGSTOP");
+      if (activeAppPid !== null) {
+        try { process.kill(activeAppPid, "SIGSTOP"); }
+        catch (error) { if (error.code !== "ESRCH") groupErrors.push({ pid: activeAppPid, error: error.message }); }
+      }
       let owned = [];
       let workersVerified = true;
       let discoveryTimer;
@@ -138,7 +179,7 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
         await new Promise((done) => setTimeout(done, 50));
         live = signalGroup(0);
       }
-      process.off("SIGINT", onInt); process.off("SIGTERM", onTerm);
+      process.off("SIGINT", onInt); process.off("SIGTERM", onTerm); process.off("SIGHUP", onHup);
       resolve({ schema: "swbpipe.desktop-perf-window/v1", started_ms: started,
         ended_ms: Date.now(), runner_pid: child.pid, process_group: child.pid,
         stop_reason: reason, exit: { code, signal, reaped },
@@ -146,10 +187,20 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
         // A sent signal is not proof of exit, and exit is not proof of commit.
         owned_group_gone: live === null ? null : !live,
         owned_executable_pids_gone: workersVerified && owned.every(({pid}) => !pidLive(pid)),
-        owned_pids: owned, group_errors: groupErrors, events });
+        owned_pids: owned, group_errors: groupErrors, events,
+        trigger_sample: triggerSample, latest_sample: latestSample,
+        completed_run_files: completedRuns,
+        evidence_complete: reason === null && code === 0 && reaped && live === false && workersVerified && owned.every(({pid}) => !pidLive(pid)) });
     };
     const message = (event) => {
-      if (event?.type === "stop" && typeof event.reason === "string") stop(event.reason.slice(0, 200));
+      if (event?.type === "app" && Number.isSafeInteger(event.pid) && event.pid > 1) activeAppPid = event.pid;
+      if (event?.type === "app_exit" && event.pid === activeAppPid) activeAppPid = null;
+      if (event?.type === "sample") latestSample = event.sample;
+      if (event?.type === "completed_run") completedRuns.push(event.path);
+      if (event?.type === "stop" && typeof event.reason === "string") {
+        triggerSample ??= event.sample ?? latestSample;
+        stop(event.reason.slice(0, 200));
+      }
       if (["scratch", "app", "stage"].includes(event?.type)) {
         events.push(event);
         if (events.length > 64) events.shift();
@@ -158,33 +209,75 @@ export function watchWindow(child, { budgetMs, killGraceMs = 5000, finalGraceMs 
     const exited = (code, signal) => finish(code, signal, true);
     const failed = (error) => { reason ??= `runner_error: ${error.message}`; finish(null, null, false); };
     child.on("message", message); child.once("exit", exited); child.once("error", failed);
-    process.on("SIGINT", onInt); process.on("SIGTERM", onTerm);
+    process.on("SIGINT", onInt); process.on("SIGTERM", onTerm); process.on("SIGHUP", onHup);
   });
 }
 
 /** Only the sample's aligned sum is tested, never a sum of separate peaks.
  * This is a protective run stop; it changes no product admission policy. */
-export function sampleStopReason(sample) {
-  if (!Number.isFinite(sample.host?.available_percent) || sample.host.available_percent < 0 || sample.host.available_percent > 100) return "host_headroom_unknown";
-  if (sample.host.available_percent < 30) return "host_headroom_below_30_percent";
+export function sampleStopReason(sample, { allowUnknownHost = false, allowUnknownPids = new Set(), allowMissingApp = false } = {}) {
+  const knownHeadroom = Number.isFinite(sample.host?.available_percent) && sample.host.available_percent >= 0 && sample.host.available_percent <= 100;
+  if (!knownHeadroom && !allowUnknownHost) return "host_headroom_unknown";
+  if (knownHeadroom && sample.host.available_percent < 30) return "host_headroom_below_30_percent";
+  const knownPressure = [1, 2, 4].includes(sample.host?.pressure_level);
+  if (!knownPressure && !allowUnknownHost) return "host_pressure_unknown";
+  if (knownPressure && sample.host.pressure_level !== 1) return "host_pressure_elevated";
   let total = 0;
   const webcontent = [];
   let app = false;
   for (const [pid, kind, rss, footprint] of sample.p) {
     if (Number.isFinite(rss) && rss > 16 * GIB) return "owned_pid_rss_above_16_gib";
     if (!["app", "worker", "webcontent"].includes(kind)) continue;
-    if (!Number.isFinite(rss) || !Number.isFinite(footprint) || rss < 0 || footprint < 0) return "process_memory_unknown";
     if (kind === "app") app = true;
     if (kind === "webcontent") webcontent.push(pid);
+    if (!Number.isFinite(rss) || !Number.isFinite(footprint) || rss < 0 || footprint < 0) {
+      if (!allowUnknownPids.has(pid)) return "process_memory_unknown";
+      continue;
+    }
     total += footprint;
   }
-  if (!app) return "app_memory_unknown";
+  if (!app && !allowMissingApp) return "app_memory_unknown";
   if (webcontent.length > 1) return "webcontent_attribution_ambiguous";
   if (total > 12 * GIB) return "aligned_footprint_above_12_gib";
   return null;
 }
 
+/** One vanished PID/read failure is retained as unknown evidence, not a stop.
+ * Require a second consecutive unknown for that PID, or a second independent
+ * bad host reading; a cached 1Hz host result is not five separate failures. */
+export function createSampleGuard() {
+  const unknown = new Map();
+  let badHostReadings = 0;
+  let lastHostReading = null;
+  let missingApp = 0;
+  return (sample) => {
+    const host = sample.host;
+    const badHost = !Number.isFinite(host?.available_percent) || host.available_percent < 0 || host.available_percent > 100 || ![1, 2, 4].includes(host?.pressure_level);
+    if (!badHost) badHostReadings = 0;
+    else if (!Number.isFinite(host?.sampled_at_ms) || host.sampled_at_ms !== lastHostReading) badHostReadings++;
+    lastHostReading = host?.sampled_at_ms;
+    const present = new Set(sample.p.map(([pid]) => pid));
+    for (const pid of unknown.keys()) if (!present.has(pid)) unknown.delete(pid);
+    const allowed = new Set();
+    let app = false;
+    for (const [pid, kind, rss, footprint] of sample.p) {
+      if (kind === "app") app = true;
+      if (!["app", "worker", "webcontent"].includes(kind)) continue;
+      if (!Number.isFinite(rss) || !Number.isFinite(footprint) || rss < 0 || footprint < 0) {
+        const count = (unknown.get(pid) ?? 0) + 1;
+        unknown.set(pid, count);
+        if (count < 2) allowed.add(pid);
+      } else unknown.delete(pid);
+    }
+    missingApp = app ? 0 : missingApp + 1;
+    return sampleStopReason(sample, { allowUnknownHost: badHostReadings < 2, allowUnknownPids: allowed, allowMissingApp: missingApp < 2 });
+  };
+}
+
 function audit(event) { if (process.send && process.connected) process.send(event); }
+function compactSample(value) {
+  return { t: value.t, host: value.host, p: value.p.slice(0, 64), truncated: value.p.length > 64 };
+}
 
 async function supervisedRun(options) {
   const plan = loadPlan(options.planFile);
@@ -193,8 +286,10 @@ async function supervisedRun(options) {
   mkdirSync(options.out, { recursive: true });
   const scratch = mkdtempSync(path.join(options.out, "perf-"));
   const binary = path.join(scratch, BIN_NAME);
+  const postRunReserveS = Math.min(30, budgetS / 4);
   const args = ["--run-child", "--app-dir", options.appDir, "--models", options.models,
-    "--out", options.out, "--plan-file", options.planFile, "--budget-s", String(budgetS), "--window-root", scratch];
+    "--out", options.out, "--plan-file", options.planFile, "--budget-s", String(budgetS - postRunReserveS),
+    "--window-root", scratch, "--supervisor-pid", String(process.pid)];
   if (options.results) args.push("--results", options.results);
   if (options.subset) args.push("--subset", options.subset);
   if (options.runs) args.push("--runs", options.runs);
@@ -210,6 +305,7 @@ async function supervisedRun(options) {
       });
   });
   const result = await watchWindow(child, { budgetMs: budgetS * 1000, listOwned });
+  result.post_run_reserve_s = postRunReserveS;
   const file = path.join(options.out, `perf-window-${result.started_ms}.json`);
   // The parent does not synchronously inspect SQLite, recursively remove the
   // store, or serialize the sampler's large report on its deadline event loop.
@@ -525,11 +621,13 @@ async function runOne(run, ctx) {
   const app = spawn(ctx.binary, [], { cwd: root, env, stdio: ["ignore", "ignore", "pipe"] });
   audit({ type: "app", pid: app.pid });
   let appExited = false;
-  app.once("exit", () => { appExited = true; });
+  app.once("exit", () => { appExited = true; audit({ type: "app_exit", pid: app.pid }); });
   const caffeinate = spawn("/usr/bin/caffeinate", ["-di", "-w", String(app.pid)], { stdio: "ignore" });
-  const sampler = spawn("python3", [path.join(here, "perf-sampler.py"), "--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms)], { stdio: ["ignore", "pipe", "inherit"] });
+  record.samples_file = path.join(ctx.out, `perf-samples-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`);
+  const sampler = spawn("python3", [path.join(here, "perf-sampler.py"), "--app-pid", String(app.pid), "--app-path", ctx.binary, "--baseline", baseline.join(","), "--interval-ms", String(ctx.plan.sample_interval_ms), "--out", record.samples_file], { stdio: ["ignore", "pipe", "inherit"] });
   let lastSample = Date.now();
   const webcontentSeen = new Set();
+  const sampleGuard = createSampleGuard();
   const staleSampler = setInterval(() => {
     if (!appExited && Date.now() - lastSample > 3000) audit({ type: "stop", reason: "sampler_stale" });
   }, 1000);
@@ -550,10 +648,12 @@ async function runOne(run, ctx) {
         if (Array.isArray(value.p)) {
           lastSample = Date.now();
           samples.push(value);
+          const compact = compactSample(value);
+          audit({ type: "sample", sample: compact });
           if (!appExited) {
             for (const [pid, kind] of value.p) if (kind === "webcontent") webcontentSeen.add(pid);
-            const reason = sampleStopReason(value);
-            if (reason || webcontentSeen.size > 1) audit({ type: "stop", reason: reason ?? "webcontent_replaced" });
+            const reason = sampleGuard(value);
+            if (reason || webcontentSeen.size > 1) audit({ type: "stop", reason: reason ?? "webcontent_replaced", sample: compact });
           }
         }
       } catch { /* not a sample */ }
@@ -608,7 +708,9 @@ async function runOne(run, ctx) {
     ambiguous: webcontent.length > 1
   };
   memory.peak_footprint_since = jobDone === null ? null : "job_done";
+  audit({ type: "stage", step: "inspect_store", stage: "started" });
   const store = await inspectStore(home);
+  audit({ type: "stage", step: "inspect_store", stage: "completed" });
   const proof = report?.solve?.shown?.proof ?? null;
   const proofField = (name) => proof?.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1] ?? null;
   record.model_binding = {
@@ -633,6 +735,35 @@ export async function finishScratch({ scratch, binary, keep }) {
   else await rm(scratch, { recursive: true, force: true });
 }
 
+/** Commit a finished run before another App can start. Samples live outside
+ * scratch; only an ok run's App-written HOME is removed, after that commit. */
+export async function commitRun(record, { out, scratch, keep }) {
+  const file = path.join(out, `perf-run-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`);
+  record.record_file = file;
+  const persist = () => {
+    const temporary = `${file}.tmp`;
+    writeFileSync(temporary, `${JSON.stringify(record, null, 1)}\n`, { flag: "wx", mode: 0o600 });
+    renameSync(temporary, file);
+  };
+  persist();
+  audit({ type: "completed_run", path: file });
+  if (record.class === "ok" && !keep && record.kept) {
+    if (path.dirname(record.kept) !== scratch || !path.basename(record.kept).startsWith("run-")) throw new Error("perf cleanup: not this window's run root");
+    record.home_cleanup = "pending";
+    persist();
+    try {
+      await rm(path.join(record.kept, "home"), { recursive: true, force: true });
+      record.home_cleanup = "removed";
+    } catch (error) {
+      record.home_cleanup = "failed";
+      record.home_cleanup_error = error.message;
+      record.class = "refused_with_message";
+      (record.findings ??= []).push({ class: "refused_with_message", step: "home_cleanup", message: error.message, needs_review: true });
+    }
+    persist();
+  }
+}
+
 async function runPlan(options) {
   if (!process.send) throw new Error("perf run: only the supervised --run path can start the App");
   const binding = JSON.parse(readFileSync(path.join(options.appDir, BINDING), "utf8"));
@@ -651,16 +782,20 @@ async function runPlan(options) {
   chmodSync(binary, 0o700);
   if (sha256File(binary) !== binding.binary.sha256) throw new Error("perf run: the private copy differs from the bound binary");
   const started = Date.now();
-  const ctx = { plan, binary, models: options.models, results: options.results ?? options.models, scratch, keep: options.keep, remainingMs: () => budgetMs - (Date.now() - started) };
+  const ctx = { plan, binary, models: options.models, results: options.results ?? options.models, out: options.out, scratch, keep: options.keep, remainingMs: () => budgetMs - (Date.now() - started) };
   process.stdout.write(formatPlan(runs, budgetMs / 1000));
   const records = [];
   for (const run of runs) {
     if (run.estimate_s * 1000 > ctx.remainingMs()) {
-      records.push({ id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` });
+      const skipped = { id: run.id, mode: run.mode, model: run.model, class: "skipped", detail: `estimate ${run.estimate_s} s exceeds the remaining budget ${Math.round(ctx.remainingMs() / 1000)} s` };
+      await commitRun(skipped, ctx);
+      records.push(skipped);
       console.log(`${run.id}: skipped (window budget)`);
       continue;
     }
-    records.push(await runOne(run, ctx));
+    const record = await runOne(run, ctx);
+    await commitRun(record, ctx);
+    records.push(record);
     if (records.at(-1).class !== "ok") break;
   }
   const report = {
@@ -693,7 +828,7 @@ async function main() {
       build: { type: "boolean" }, plan: { type: "boolean" }, run: { type: "boolean" }, "run-child": { type: "boolean" },
       "app-dir": { type: "string" }, "target-dir": { type: "string" }, "plan-file": { type: "string" },
       subset: { type: "string" }, runs: { type: "string" }, models: { type: "string" }, results: { type: "string" },
-      out: { type: "string" }, "budget-s": { type: "string" }, keep: { type: "boolean" }, "window-root": { type: "string" }
+      out: { type: "string" }, "budget-s": { type: "string" }, keep: { type: "boolean" }, "window-root": { type: "string" }, "supervisor-pid": { type: "string" }
     }
   });
   const planFile = path.resolve(values["plan-file"] ?? path.join(here, "perf-plan.json"));
@@ -711,14 +846,26 @@ async function main() {
     };
     if (values["run-child"]) {
       if (!process.send) throw new Error("perf run-child: no parent supervisor");
-      try { return await runPlan(options); }
-      finally { if (process.connected) process.disconnect(); }
+      const stopGuard = await guardSupervisor(Number(values["supervisor-pid"]));
+      let completed = false;
+      try { await runPlan(options); completed = true; }
+      finally {
+        if (!completed) killOwnRunnerGroup();
+        await stopGuard();
+        if (process.connected) process.disconnect();
+      }
+      return;
     }
     return supervisedRun(options);
   }
   throw new Error("perf: give --build, --plan or --run (see the header of perf.mjs)");
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (!isMainThread && Number.isSafeInteger(workerData?.perfParentPid)) {
+  const check = () => { if (process.ppid !== workerData.perfParentPid) killOwnRunnerGroup(); };
+  check();
+  parentPort.postMessage("armed");
+  setInterval(check, 100);
+} else if (isMainThread && process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   main().catch((error) => { console.error(error?.message ?? error); process.exit(2); });
 }
