@@ -23,7 +23,11 @@
 //!   never rewritten.
 //! - **Binding.** The job must be a native-custody solve still held
 //!   (`custody_binding`), its held bytes must hash to its publication digest,
-//!   and the session's manifest must name the job's solver mode; the record
+//!   and the session's manifest must name the job's solver mode; the model
+//!   text the job was sent, re-sent with the request, must hash to the intake
+//!   digest the registry recorded at admission, and its parse must be the
+//!   manifest's model ([`bound_intake`]), so the manifest's model cannot be
+//!   swapped under the same project id; the record
 //!   rebuilt from the held result and the session's manifest, rule-check
 //!   aggregate and exclusions must be the record the session previewed (its
 //!   run id and both checksums, `NATIVE-PERSISTENCE-RECORD-STALE`). Record
@@ -54,7 +58,9 @@
 //!     is refused by name (a backstop).
 //! - **Leases** (no new budget or rule; each a pool lease capped at the
 //!   per-invocation budget and the 12 GiB default): the raw body's copy and
-//!   the decoded arguments' lease, the held result's parse M and the builder's
+//!   the decoded arguments' lease (the re-sent intake text included), the
+//!   intake's parse (admitted at its priced parse and ended once compared,
+//!   before the held result is parsed), the held result's parse M and the builder's
 //!   working and fingerprint leases (as the preview's), the JS-text writer's
 //!   member-list scratch, each output text's lease at its exact length
 //!   (result, record, search text, the small slots), and SQLite's statement
@@ -71,11 +77,11 @@ use crate::analysis_run_v03_build::{
     self as build, header_record, record_bytes, write_canonical_record, Built, Count, Revision, Sink, Style, Writer,
 };
 use crate::analysis_runs::{self, NativeRunRequest, NativeRunTexts, RunWriteHooks};
-use crate::command_ingress::{self, CommandError};
+use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;
 use crate::memory_pool::Lease;
 use crate::result_js_text::{self, NegativeZero};
-use crate::solve_jobs::{ResultCustody, SolveJobRegistry};
+use crate::solve_jobs::{sha256_in_place, CustodyDigests, ResultCustody, SolveJobRegistry};
 use crate::stored_read::{self, NativeLeaseMemory, ReadMemory, Serialized};
 use rusqlite::limits::Limit;
 use rusqlite::{params, OptionalExtension, Transaction};
@@ -303,8 +309,9 @@ fn hex(bytes: &[u8]) -> String {
 
 /// The job is a native-custody solve still held, its held bytes are its
 /// publication's (their SHA-256 is the digest recorded at publication), and
-/// the session's manifest names the job's solver mode.
-fn bound_custody(registry: &SolveJobRegistry, prepared: &build::Prepared, manifest: &Value) -> Result<(), String> {
+/// the session's manifest names the job's solver mode. Returns the job's
+/// custody digests (for [`bound_intake`]).
+fn bound_custody(registry: &SolveJobRegistry, prepared: &build::Prepared, manifest: &Value) -> Result<CustodyDigests, String> {
     let job = stored_read::shown(&prepared.job_id).into_owned();
     if registry.result_custody(&prepared.job_id) != Some(ResultCustody::Native) {
         return Err(format!("{CUSTODY}: job `{job}` is not a native-custody solve; nothing was written."));
@@ -323,7 +330,63 @@ fn bound_custody(registry: &SolveJobRegistry, prepared: &build::Prepared, manife
             stored_read::shown(mode.unwrap_or("no solver mode"))
         ));
     }
+    Ok(digests)
+}
+
+/// The solve's intake binds the manifest's model. `intake` is the model text
+/// the session's `startPreviewMechanicsJob` sent for this job
+/// (`deliveredIntakeText`: `checkedJsonText` of the captured model), re-sent
+/// with the request; the registry kept only its digest. In order, each a
+/// [`CUSTODY`] refusal before anything is written:
+/// 1. the text is sent;
+/// 2. its exact bytes hash, in place and without allocating, to the intake
+///    digest the registry recorded when it admitted the job's body;
+/// 3. its parse, priced as an argument's (`text_parse_bytes`) and admitted
+///    first as an interactive lease capped as the arguments' was (a refusal
+///    is the pool's typed refusal), reads it;
+/// 4. the parsed model is the manifest's `model_basis.model_payload` as JSON
+///    data with JavaScript's numbers ([`same_js_data`]), so a manifest whose
+///    model differs under the same project id is refused, while the session's
+///    member order and number texts are not compared.
+///
+/// The parse and its lease end here, before the held result is parsed.
+fn bound_intake(registry: &SolveJobRegistry, job_id: &str, digests: &CustodyDigests, intake: Option<String>, manifest: &Value) -> Result<(), CommandError<String>> {
+    let job = stored_read::shown(job_id).into_owned();
+    let refuse = |what: &str| CommandError::Command(format!("{CUSTODY}: {what}; nothing was written."));
+    let intake = intake.ok_or_else(|| refuse(&format!("the model text job `{job}` was sent is not in the request")))?;
+    if sha256_in_place(intake.as_bytes()) != digests.intake_sha256 {
+        return Err(refuse(&format!("the model text in the request is not the body job `{job}` admitted")));
+    }
+    let priced = command_ingress::text_parse_bytes(&intake, ArgsDecoding::Moved).map_err(|_| refuse(&format!("job `{job}`'s model text is not JSON this app reads")))?;
+    let parsing = registry.acquire_interactive_ingress_capped(priced)?;
+    let model: Value = serde_json::from_str(&intake).map_err(|_| refuse(&format!("job `{job}`'s model text is not JSON this app reads")))?;
+    drop(intake);
+    let payload = manifest.pointer("/model_basis/model_payload").ok_or_else(|| refuse("the input manifest has no model payload"))?;
+    let same = same_js_data(&model, payload);
+    drop(model);
+    drop(parsing);
+    if !same {
+        return Err(refuse(&format!("the input manifest's model is not the model job `{job}` solved")));
+    }
     Ok(())
+}
+
+/// JSON data equality as JavaScript reads both texts: scalars by value with
+/// numbers as binary64 (`-0` equals `0`, `1.0` equals `1`), arrays by
+/// position, objects by their member names, in any order. Exactly the
+/// equality of the two values' RFC 8785 texts (`canonical_json`, which the
+/// manifest's identity uses), computed without writing them. The recursion is
+/// bounded by serde_json's nesting limit.
+pub(crate) fn same_js_data(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Null, Value::Null) => true,
+        (Value::Bool(x), Value::Bool(y)) => x == y,
+        (Value::Number(x), Value::Number(y)) => x.as_f64() == y.as_f64(),
+        (Value::String(x), Value::String(y)) => x == y,
+        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(x, y)| same_js_data(x, y)),
+        (Value::Object(x), Value::Object(y)) => x.len() == y.len() && x.iter().all(|(key, x)| y.get(key).is_some_and(|y| same_js_data(x, y))),
+        _ => false,
+    }
 }
 
 /// The rebuilt record is the record the session previewed.
@@ -398,8 +461,9 @@ pub(crate) async fn record_run(
 /// `request`, as `record_analysis_run`'s without the record, result and
 /// manifest): its base, its state or new snapshot and its labels. The project
 /// is the held result's, set once the record is built.
-fn decode_record(args: &mut command_ingress::Args) -> Result<(ExpectedRecord, NativeRunRequest), CommandError<String>> {
+fn decode_record(args: &mut command_ingress::Args) -> Result<(ExpectedRecord, Option<String>, NativeRunRequest), CommandError<String>> {
     let expected: ExpectedRecord = args.decode("expectedRecord")?;
+    let intake: Option<String> = args.decode("intakeText")?;
     let request = args.decode_with("request", |value| {
         let mut fields = command_ingress::Fields::of(value, "struct NativeRunRequest")?;
         let run_labels = fields.required_value("run_labels")?;
@@ -411,7 +475,7 @@ fn decode_record(args: &mut command_ingress::Args) -> Result<(ExpectedRecord, Na
             run_labels: analysis_runs::run_labels_from_value(run_labels).map_err(serde::de::Error::custom)?,
         })
     })?;
-    Ok((expected, request))
+    Ok((expected, intake, request))
 }
 
 /// Record Run's texts and plan, made while the record and the held result's
@@ -432,8 +496,8 @@ struct StagedRun {
 
 /// The blocking part of Record Run (module docs). `limit` lowers the writing
 /// connection's `SQLITE_LIMIT_LENGTH` (tests); production passes `None`.
-/// Order: the arguments and the manifest, the job's custody, the build and
-/// the record's identity, the store's record checks, then in one write
+/// Order: the arguments and the manifest, the job's custody, the intake's
+/// binding, the build and the record's identity, the store's record checks, then in one write
 /// transaction the plan, the exact lengths against the connection's limit,
 /// the texts (the parse and the record end here), and the writes; the
 /// response is serialized before the commit.
@@ -446,13 +510,14 @@ pub(crate) fn run_record(
     limit: Option<i32>,
 ) -> Result<Serialized, CommandError<String>> {
     let memory = NativeLeaseMemory::new(registry);
-    let (prepared, (expected, mut request)) = build::admit_for(registry, raw, copy, RECORD_COMMAND, decode_record)?;
+    let (prepared, (expected, intake, mut request)) = build::admit_for(registry, raw, copy, RECORD_COMMAND, decode_record)?;
     let mut values = vec![&prepared.evidence.manifest_ref];
     values.extend(prepared.manifest.as_ref());
     let working = build::working_lease(registry, &values)?;
     build::verify_manifest(&prepared.evidence, prepared.manifest.as_ref()).map_err(CommandError::Command)?;
     let manifest = prepared.manifest.as_ref().expect("verified");
-    bound_custody(registry, &prepared, manifest).map_err(refusal)?;
+    let digests = bound_custody(registry, &prepared, manifest).map_err(refusal)?;
+    bound_intake(registry, &prepared.job_id, &digests, intake, manifest)?;
     let manifest_text = prepared.evidence.canonical_bytes.as_str();
     let held_text = prepared.held.text();
     let mut connection: Option<rusqlite::Connection> = None;
@@ -629,6 +694,8 @@ pub(crate) struct SaveRequest {
     pub(crate) confirmed_revision: Option<String>,
     pub(crate) expected_base: Option<String>,
     pub(crate) expected: ExpectedRecord,
+    /// The model text the job was sent ([`bound_intake`]).
+    pub(crate) intake: Option<String>,
 }
 
 fn decode_save(args: &mut command_ingress::Args) -> Result<SaveRequest, CommandError<String>> {
@@ -650,6 +717,7 @@ fn decode_save(args: &mut command_ingress::Args) -> Result<SaveRequest, CommandE
         confirmed_revision: args.decode("confirmedRevision")?,
         expected_base: args.decode("expectedBase")?,
         expected: args.decode("expectedRecord")?,
+        intake: args.decode("intakeText")?,
     })
 }
 
@@ -726,7 +794,8 @@ struct StagedSave {
 
 /// The blocking part of Save or Create Project (module docs); `now` is the
 /// row's time (unix seconds). Order: the arguments and the manifest, the
-/// job's custody, the build and the record's identity, the model document
+/// job's custody, the intake's binding, the build and the record's identity,
+/// the model document
 /// checks, then in one write transaction the replacement guard, the exact
 /// lengths against the connection's limit (the model-only save, or the
 /// refusal), the withheld-run guard, the envelope hash and the result's texts
@@ -747,8 +816,9 @@ pub(crate) fn run_save(
     let working = build::working_lease(registry, &values)?;
     build::verify_manifest(&prepared.evidence, prepared.manifest.as_ref()).map_err(CommandError::Command)?;
     let manifest = prepared.manifest.as_ref().expect("verified");
-    bound_custody(registry, &prepared, manifest).map_err(refusal)?;
-    let SaveRequest { create, project_id, project_name, model, editor_intents, proposal, selected_review_target, model_hash, confirmed_revision, expected_base, expected } = request;
+    let digests = bound_custody(registry, &prepared, manifest).map_err(refusal)?;
+    let SaveRequest { create, project_id, project_name, model, editor_intents, proposal, selected_review_target, model_hash, confirmed_revision, expected_base, expected, intake } = request;
+    bound_intake(registry, &prepared.job_id, &digests, intake, manifest)?;
     let (project_id, project_name, expected_base) = if create {
         (crate::project_id_from_model(&model), crate::project_name_from_model(&model), None)
     } else {

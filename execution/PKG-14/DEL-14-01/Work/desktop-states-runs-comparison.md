@@ -506,9 +506,13 @@ the History panel and `useModelStateHistory.ts`.
   `record_preview_mechanics_job_analysis_run` the job id, the record's inputs as
   the native preview read them (the manifest evidence without its parsed copy,
   the rule-check aggregate, the rule-pack exclusions), the previewed record's run
-  id and both checksums, and `request: {expected_base, state_id, new_state,
+  id and both checksums, the model text the job was sent (`intakeText`,
+  `deliveredIntakeText`) and `request: {expected_base, state_id, new_state,
   run_labels}`; no record, result text or manifest object. The job must be held
-  natively, its bytes its publication's and its solver mode the manifest's
+  natively, its bytes its publication's and its solver mode the manifest's, and
+  the model text must hash to the intake digest recorded when the job was
+  admitted and parse to the manifest's model (JSON data with JavaScript's
+  numbers), so a manifest model swapped under the same project id is refused
   (`NATIVE-PERSISTENCE-CUSTODY`); the record rebuilt from the held bytes must be
   the previewed one (`NATIVE-PERSISTENCE-RECORD-STALE`). The checks below then
   apply to the rebuilt record's members that are not row-scale (the manifest's

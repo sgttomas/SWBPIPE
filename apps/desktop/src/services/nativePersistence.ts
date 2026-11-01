@@ -2,11 +2,15 @@
  * Run and Save/Create Project of a native-custody solve, from the job handle and small arguments.
  *
  * - **What is sent.** The job id, the record's inputs as the native preview read them (the session's
- *   manifest evidence without its parsed copy, the rule-check aggregate, the rule-pack exclusions)
- *   and the record the session previewed (its run id and both checksums), with Record Run's base,
- *   state and labels or the project's small fields. No result, no record, no envelope hash and no
- *   C2 full copy: the native host rebuilds the record from the held bytes, refuses a record that is
- *   not the previewed one (`NATIVE-PERSISTENCE-RECORD-STALE`), and stores today's forms.
+ *   manifest evidence without its parsed copy, the rule-check aggregate, the rule-pack exclusions),
+ *   the record the session previewed (its run id and both checksums) and the model text the job was
+ *   sent (`deliveredIntakeText`: `checkedJsonText` of the captured model, exactly what
+ *   `startPreviewMechanicsJob` sent; null once the result is no longer held or its registration
+ *   does not hold), with Record Run's base, state and labels or the project's small fields. No
+ *   result, no record, no envelope hash and no C2 full copy: the native host checks the model text
+ *   against the digest it recorded when it admitted the job and against the manifest's model
+ *   (`NATIVE-PERSISTENCE-CUSTODY`), rebuilds the record from the held bytes, refuses a record that
+ *   is not the previewed one (`NATIVE-PERSISTENCE-RECORD-STALE`), and stores today's forms.
  * - **What comes back.** Record Run's outcome, as `record_analysis_run`'s. Save Project's small
  *   reply (`NativeProjectSave`): the stored project's summary, proposal, review target, model hash,
  *   the envelope hash computed natively over what was stored, the stored model's hash and what
@@ -16,6 +20,7 @@
 import { invokeWithIngress } from "./nativeIngress";
 import { previewChecksum } from "./analysisRunPreview";
 import { nativeCustody, nativeRunPreview, type NativeAnalysisRun, type NativeResult } from "./nativeResult";
+import { deliveredIntakeText } from "./previewService";
 import type { CurrentSessionInputManifestEvidence } from "./inputManifestService";
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import type { RuleCheckStatus } from "./ruleCheckService";
@@ -51,6 +56,8 @@ export type NativePersistenceRequest = Readonly<{
   ruleCheckAggregate: RuleCheckStatus | null;
   rulePackExclusions: readonly ExcludedRulePackRef[];
   expectedRecord: Readonly<{ run_id: string; record_sha256: string; received_sha256: string }>;
+  /** The model text the job was sent (`deliveredIntakeText`), or null when it is not held. */
+  intakeText: string | null;
 }>;
 
 /** The request members for a native result and its native record, as the preview read them. */
@@ -65,7 +72,8 @@ export function nativePersistenceRequest(result: NativeResult, run: NativeAnalys
       run_id: preview.record.analysis_run.run_id,
       record_sha256: previewChecksum(preview, "analysis_run_record"),
       received_sha256: previewChecksum(preview, "received_result")
-    })
+    }),
+    intakeText: deliveredIntakeText(result)
   });
 }
 

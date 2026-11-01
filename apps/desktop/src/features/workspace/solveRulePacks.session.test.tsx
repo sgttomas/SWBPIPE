@@ -96,7 +96,7 @@ async function session(references: RulePackReference[] | null, packs: LocalRuleP
     store.reads.set(run.recording_id, { run, state, record: recorded, result_json: request.result_json, input_manifest_canonical: request.input_manifest_canonical });
     return { run, state, state_outcome: "created", message: `Recorded run "${run.run_name}".` };
   };
-  const fake = createNativePersistenceFake({ heldBytes: transport.heldBytes, save: ({ request }) => saveProject(request), record: recordRun });
+  const fake = createNativePersistenceFake({ heldBytes: transport.heldBytes, heldIntake: transport.heldIntake, save: ({ request }) => saveProject(request), record: recordRun });
   invokeMock.mockImplementation(async (command: string, args: Json, invokeOptions?: unknown) => {
     if (isNativePersistenceCommand(command)) return fake.invoke(command, args);
     switch (command) {

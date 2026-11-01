@@ -2,7 +2,9 @@
  * tests whose fake stores speak today's submitted commands. For each native Record Run or Save/
  * Create Project request it
  * - checks what the session sent: the job handle and small inputs only (no result, record, result
- *   text or envelope hash), for a job still held natively;
+ *   text or envelope hash), for a job still held natively, with the model text the job's start
+ *   sent (byte-equal to it, the native host's digest check) whose parse is the manifest's model
+ *   (`sameModelData`; the native host compares JavaScript's numbers, refusing as it refuses);
  * - rebuilds the request today's submitted path sends from the test's copy of the held bytes with
  *   the unchanged TypeScript paths: the record (`buildAnalysisRunPreview` with the request's own
  *   inputs, refused as the native host refuses it when it is not the previewed record), the
@@ -15,19 +17,22 @@
 import { buildAnalysisRunPreview } from "../services/previewService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../services/jsonText";
+import { sameModelData } from "../features/results/resultStanding";
 import { NATIVE_RECORD_RUN_COMMAND, NATIVE_SAVE_PROJECT_COMMAND, type NativeProjectSave } from "../services/nativePersistence";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult } from "../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** The members a native request may carry; anything else (a result, a record, a full copy) fails. */
-const SAVE_MEMBERS = ["jobId", "inputManifest", "ruleCheckAggregate", "rulePackExclusions", "expectedRecord", "mode", "projectId", "projectName", "model", "editorIntents", "proposal", "selectedReviewTarget", "modelHash", "confirmedRevision", "expectedBase"];
-const RECORD_MEMBERS = ["jobId", "inputManifest", "ruleCheckAggregate", "rulePackExclusions", "expectedRecord", "request"];
+const SAVE_MEMBERS = ["jobId", "inputManifest", "ruleCheckAggregate", "rulePackExclusions", "expectedRecord", "intakeText", "mode", "projectId", "projectName", "model", "editorIntents", "proposal", "selectedReviewTarget", "modelHash", "confirmedRevision", "expectedBase"];
+const RECORD_MEMBERS = ["jobId", "inputManifest", "ruleCheckAggregate", "rulePackExclusions", "expectedRecord", "intakeText", "request"];
 
 export type SubmittedSave = { mode: "create" | "save"; request: Json };
 export type NativePersistenceFakeOptions = {
   /** The held bytes of a native-custody job while it is held, else null. */
   heldBytes: (jobId: string) => string | null;
+  /** The model text a native-custody job's start sent, while it is held, else null. */
+  heldIntake: (jobId: string) => string | null;
   /** The test's fake of `save_local_project` (`mode: "save"`, its `request`) or `create_local_project` (its flat args). */
   save: (submitted: SubmittedSave) => Promise<LocalProjectEnvelope> | LocalProjectEnvelope;
   /** The test's fake of `record_analysis_run` (its `request`). */
@@ -44,6 +49,10 @@ export function createNativePersistenceFake(options: NativePersistenceFakeOption
     if (bytes === null) throw `NATIVE-PERSISTENCE-CUSTODY: job \`${args.jobId}\`'s result is no longer held; nothing was written.`;
     const result = JSON.parse(bytes) as MechanicsResult;
     const evidence = { ...args.inputManifest, manifest: JSON.parse(args.inputManifest.canonical_bytes) };
+    const intake = options.heldIntake(args.jobId);
+    if (typeof args.intakeText !== "string") throw `NATIVE-PERSISTENCE-CUSTODY: the model text job \`${args.jobId}\` was sent is not in the request; nothing was written.`;
+    if (args.intakeText !== intake) throw `NATIVE-PERSISTENCE-CUSTODY: the model text in the request is not the body job \`${args.jobId}\` admitted; nothing was written.`;
+    if (!sameModelData(JSON.parse(args.intakeText), evidence.manifest.model_basis?.model_payload)) throw `NATIVE-PERSISTENCE-CUSTODY: the input manifest's model is not the model job \`${args.jobId}\` solved; nothing was written.`;
     const record = await buildAnalysisRunPreview(result, { inputManifest: evidence, ruleCheckAggregate: args.ruleCheckAggregate, rulePackExclusions: args.rulePackExclusions }) as AnalysisRunEnvelope;
     const claim = (scope: string) => record.analysis_run.hashes.find((hash) => hash.payload_scope === scope)!.value;
     const expected = args.expectedRecord;

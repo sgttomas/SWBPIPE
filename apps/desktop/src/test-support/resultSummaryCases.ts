@@ -86,7 +86,8 @@ const ENVELOPE_META = { coordinate_system: "global", basis: "explicit_user_range
 const global = (extra: Record<string, unknown> = {}) => ({ coordinate_system: "global", ...extra });
 
 /** A model with every support form the tables read: anchors, a hanger by its explicit type, a
- * nonlinear support, an unknown family, none stated, a boundary association and interfaces. */
+ * nonlinear support, a snubber (model 0.9.0's family), an unknown family, none stated, a boundary
+ * association and interfaces. */
 function supportModel(): PreviewModel {
   const model = overlayModel() as PreviewModel & Record<string, unknown>;
   model.nodes = [...model.nodes, { id: "node:E", label: "", position: { x: 3, y: 1, z: 0 } }, { id: "node:A", label: "Again", position: { x: 9, y: 9, z: 9 } }] as PreviewModel["nodes"];
@@ -97,6 +98,7 @@ function supportModel(): PreviewModel {
     { id: "support:S-D", node: "node:D", family: "vertical_support", hanger: { hanger_type: " spring_hanger " } },
     { id: "support:S-E", node: "node:E", label: "Lift", family: "nonlinear", nonlinear: { behavior: "lift_off", dof: "uy" } },
     { id: "support:S-F", node: "node:E", label: "Custom", family: "custom \"form\"" },
+    { id: "support:S-H", node: "node:C", label: "Snub", family: "snubber" },
     { id: "support:S-G", node: "node:B" }
   ] as unknown as PreviewModel["supports"];
   model.combinations = [{ id: "comb:C1", label: "Combined" }, { id: "comb:R", label: "" }] as unknown as PreviewModel["combinations"];

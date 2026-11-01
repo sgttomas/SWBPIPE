@@ -654,9 +654,9 @@ the test. The TS builder stays the oracle until C2.
 restored and browser-preview results):
 - **Commands.** Two new async commands take the job handle and small arguments, raw args body:
   `record_preview_mechanics_job_analysis_run {jobId, inputManifest, ruleCheckAggregate,
-  rulePackExclusions, expectedRecord: {run_id, record_sha256, received_sha256}, request:
+  rulePackExclusions, expectedRecord: {run_id, record_sha256, received_sha256}, intakeText, request:
   {expected_base, state_id, new_state, run_labels}}` and `save_preview_mechanics_job_local_project
-  {…same five…, mode: "create"|"save", projectId, projectName, model, editorIntents, proposal,
+  {…same six…, mode: "create"|"save", projectId, projectName, model, editorIntents, proposal,
   selectedReviewTarget, modelHash, confirmedRevision, expectedBase}`. No result, record, result
   text, envelope hash or C2 copy is sent. Both replies are JSON bodies (Tauri delivers them
   parsed): Record Run's is `record_analysis_run`'s outcome; Save's is `{summary, proposal,
@@ -673,9 +673,23 @@ restored and browser-preview results):
   rebuilt record's members that are not row-scale (`analysis_runs::checked_native_record`, the
   submitted path's validators factored, not copied) and its transaction (`plan_native_run`,
   `write_native_run`). Save applies the replacement guard, the withheld-run guard and the model
-  document checks unchanged. Not bound: the solve's intake text (only its digest is retained, so
-  the manifest's model cannot be re-derived from it natively); the manifest binds to the result
-  through the builder's model-ref and load-basis checks, as before.
+  document checks unchanged.
+- **Intake binding** (`bound_intake`, after the custody checks and before the build). Both
+  requests carry `intakeText`, the model text the job was sent (`previewService.deliveredIntakeText`:
+  `checkedJsonText` of the captured model, exactly what `startPreviewMechanicsJob` sent; null once
+  the result is not held or its registration does not hold), as the exact-route report re-sends
+  its intake; the registry still keeps only the digest. Refused `NATIVE-PERSISTENCE-CUSTODY`, in
+  order and before anything is written: the text absent or null; its exact bytes' SHA-256 not the
+  intake digest recorded at admission (hashed in place, nothing allocated); its parse, priced as
+  an argument's (`text_parse_bytes`) and admitted first as an interactive lease capped at
+  min(configured budget, 12 GiB) (a refusal is the pool's typed one), not JSON; the parsed model
+  not the manifest's `model_basis.model_payload` as JSON data with JavaScript's numbers
+  (`same_js_data`: binary64 values, `-0` equal to `0`, members in any order; exactly equality of
+  the two RFC 8785 texts). A manifest whose model differs under the same project id, sealed and
+  accepted by the builder, is therefore refused; the session's member order and number texts are
+  not compared. A non-string `intakeText` is the arguments' typed refusal. The parse and its lease
+  end before the held result is parsed. Before this binding the manifest bound to the result only
+  through the builder's model-ref and load-basis checks.
 - **Today's forms.** Record Run's `result_json` is `jsonTextKeepingNegativeZero(JSON.parse(bytes))`,
   written from the held bytes in JavaScript's member order (array-index keys first, repeated keys
   at their first position with their last value), its numbers by `Number::toString` with negative
@@ -709,10 +723,25 @@ restored and browser-preview results):
   and refuses it one byte lower; Record Run's boundaries (result, record, row ±1) refuse with
   exact lengths, no writes and no output reservation or allocation; Save's row boundary gives the
   model-only save and its oracle envelope hash; the withheld-run guard and confirmed Replace;
-  binding refusals; every lease ends. The session's main case runs on the actual commands'
+  binding refusals, and the intake binding (`persistence_binds_the_solves_intake_to_the_manifests_model`:
+  each job started on the session's text, `intake_text` in the builder corpus, for Record Run and Save;
+  absent, null, other bytes of the same model, one byte more, another job, a swapped and a nudged
+  manifest model under the same project id, the intake before the record's identity, the mode before
+  the intake, a typed non-string refusal, a disposed job, each with nothing written; the same model in
+  another layout binds when the job was started on it); every lease ends. The session's main case runs on the actual commands'
   replies request for request (`native_persistence_replies.json`), the others through a unit
   fake that hands each test's fake store today's submitted request rebuilt with the TypeScript
   paths (`test/nativePersistenceFake.ts`).
+- **On main with S1 (model document 0.9.0, merged at `136f3e086`).** The C1 corpora were
+  regenerated from their generators on the combined tree: the builder corpus and persistence forms
+  (manifests of the 0.9.0 models, the pressure-2 table's current digest from the core semantic
+  contract, which the native builder reads directly), the summary and detail outcomes (Rust-written,
+  TypeScript-checked), the native replay requests (rebuilt from every request the 60 replay test
+  files send; the pressure-source requests recorded against the 0.8-era raw sources are gone) with
+  their outcomes, and the persistence replies. The native summary's support families now include
+  S1's `snubber` (`result_summary_tables.rs`, as `displacementExtremes.ts`), pinned by a snubber
+  support in the summary corpus. No S1 source fixture, schema, core or pricing test was edited;
+  historical 0.8 controls and the recorded-run table compatibility are S1's, unchanged.
 - **Remaining:** the independent persistence, permissions and numerical review of this increment;
   saved-result native reopening (slice 6); the C2 interim for comparisons with the current run
   and reference-inspection retention; slice 7's measurement.
@@ -1000,8 +1029,10 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   is admitted before what it covers is allocated and capped at the per-invocation budget and the
   12 GiB default (the store's own reads lease through `NativeLeaseMemory`, one adaptive lease per
   reservation). Held together:
-  - the raw body's copy and the args lease (the decoded arguments, the model and the manifest's
-    priced parse);
+  - the raw body's copy and the args lease (the decoded arguments, the model, the re-sent intake
+    text and the manifest's priced parse);
+  - the intake's parse (the intake binding), admitted at its priced parse before it is parsed and
+    ended once compared, before the held result is parsed;
   - the builder's leases above (M, working, fingerprints), with the canonical manifest and model
     payload texts the store's checks build, and SQLite's working set for the history tables;
   - the JS-text writer's scratch (one object's member list per nesting level along the heaviest

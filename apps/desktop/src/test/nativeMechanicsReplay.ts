@@ -124,7 +124,7 @@ export function createSolveJobTransport(
   const fullCopyLimit = options.fullCopyLimitBytes ?? FULL_COPY_LIMIT_BYTES;
   const prefix = options.jobIdPrefix ?? `unit-solve-job:${++instanceSequence}`;
   const scope = options.cancellationScope ?? "unit_transport_replay_not_native_ui_qualification";
-  const jobs = new Map<string, { bytes: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean; native: boolean; fullCopy: boolean }>();
+  const jobs = new Map<string, { bytes: string; intake: string; ingress: number; cancelled: boolean; taken: boolean; disposed: boolean; native: boolean; fullCopy: boolean }>();
   const calls: string[] = [];
   let sequence = 0, disposeAllCalls = 0;
   // A queued job's worker holds no grant yet; a finished job's worker has exited, leaving its peak.
@@ -142,7 +142,7 @@ export function createSolveJobTransport(
       const bytes = await answer(request);
       const ingress = new TextEncoder().encode(request.text).byteLength, job_id = `${prefix}:${++sequence}`;
       const native = (invokeOptions as { headers?: Record<string, string> } | undefined)?.headers?.["x-swbpipe-result-custody"] === "native";
-      jobs.set(job_id, { bytes, ingress, cancelled: false, taken: false, disposed: false, native, fullCopy: false });
+      jobs.set(job_id, { bytes, intake: request.text, ingress, cancelled: false, taken: false, disposed: false, native, fullCopy: false });
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: grant(ingress, false) };
     }
     if (command === DISPOSE_ALL_COMMAND) {
@@ -228,7 +228,12 @@ export function createSolveJobTransport(
     const job = jobs.get(jobId);
     return job && job.native && !job.disposed && !job.cancelled ? job.bytes : null;
   };
-  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount, nativeHeld, commands, heldBytes };
+  /** The model text a native-custody job's start sent (its admitted body), while the job is held. */
+  const heldIntake = (jobId: string) => {
+    const job = jobs.get(jobId);
+    return job && job.native && !job.disposed && !job.cancelled ? job.intake : null;
+  };
+  return { invoke, handles: (command: string) => handles(command) || command === DISPOSE_ALL_COMMAND, custody, disposed, disposeAllCount, nativeHeld, commands, heldBytes, heldIntake };
 }
 
 /** A bounded invokeMock implementation for the captured model and two modes,
@@ -251,7 +256,7 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
     }
     return transport.invoke(command, args, invokeOptions);
   };
-  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount, nativeHeld: transport.nativeHeld, commands: transport.commands, heldBytes: transport.heldBytes };
+  return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount, nativeHeld: transport.nativeHeld, commands: transport.commands, heldBytes: transport.heldBytes, heldIntake: transport.heldIntake };
 }
 
 /** Every command a native mechanics replay answers (the job contract, the C1 native result

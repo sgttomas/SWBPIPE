@@ -947,7 +947,9 @@ pub(crate) fn support_load_summaries<'a>(model: &'a Value, source: &'a Value, ca
 
 const DISPLACEMENT_COLUMNS: std::ops::Range<usize> = 8..14;
 
-const SUPPORT_FAMILIES: [(&str, &str); 9] = [
+/// `displacementExtremes.ts` `SUPPORT_FAMILIES`, in its order (model document
+/// 0.9.0 added `snubber`).
+const SUPPORT_FAMILIES: [(&str, &str); 10] = [
     ("anchor", "Anchor"),
     ("guide", "Guide"),
     ("line_stop", "Line stop"),
@@ -957,6 +959,7 @@ const SUPPORT_FAMILIES: [(&str, &str); 9] = [
     ("spring_hanger", "Spring hanger"),
     ("constant_effort_support", "Constant-effort support"),
     ("nonlinear", "Nonlinear support"),
+    ("snubber", "Snubber"),
 ];
 
 fn family_label(family: Option<&str>) -> String {

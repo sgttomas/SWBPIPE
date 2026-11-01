@@ -240,7 +240,7 @@ async function installPreviewReplay() {
     if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   };
-  const replay = { invoke, notice: mechanics.notice, heldBytes: mechanics.heldBytes };
+  const replay = { invoke, notice: mechanics.notice, heldBytes: mechanics.heldBytes, heldIntake: mechanics.heldIntake };
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(replay.invoke);
   return { ...pair, replay };
@@ -15376,6 +15376,7 @@ describe("historical lifecycle history transitions", () => {
     // store the request today's submitted path sends.
     const fake = createNativePersistenceFake({
       heldBytes: replay.heldBytes,
+      heldIntake: replay.heldIntake,
       save: ({ request }) => {
         const model = request.model as PreviewModel;
         return {

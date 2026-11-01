@@ -92,6 +92,7 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
   // The native store's forms, kept by the browser persistence adapter (no native runtime) for the reopen.
   const fake = createNativePersistenceFake({
     heldBytes: transport.heldBytes,
+    heldIntake: transport.heldIntake,
     save: async ({ request }) => {
       const tauri = (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
       delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;

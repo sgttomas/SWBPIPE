@@ -116,6 +116,7 @@ async function session(options: { stored?: boolean; foreign?: StoredProjectEntry
   };
   const fake = createNativePersistenceFake({
     heldBytes: transport.heldBytes,
+    heldIntake: transport.heldIntake,
     save: ({ request }) => { refuseForeign(request); return saveProject(request); },
     record: recordRun
   });

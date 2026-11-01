@@ -58,10 +58,11 @@ fn scratch(name: &str) -> PathBuf {
     dir
 }
 
-/// A native-custody job holding `text`, solved in `mode`.
-fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str, mode: &str, custody: ResultCustody) -> String {
+/// A native-custody job started on the model text `intake` (the body the
+/// session's start sends), solved in `mode`, holding `text`.
+fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str, intake: &str, mode: &str, custody: ResultCustody) -> String {
     let started = gate.started_count();
-    let receipt = registry.start_with_custody(br#"{"project":{"id":"p"}}"#, Some(mode), custody).unwrap();
+    let receipt = registry.start_with_custody(intake.as_bytes(), Some(mode), custody).unwrap();
     gate.wait_started(started + 1);
     gate.release(text);
     let status = wait_terminal(registry, &receipt.job_id);
@@ -77,6 +78,8 @@ fn claimed(record: &Value, scope: &str) -> String {
 struct Case {
     id: String,
     text: String,
+    /// The model text the session's solve sent (`intake_text`, `checkedJsonText` of the manifest's model).
+    intake: String,
     record: Value,
     manifest_text: String,
     manifest: Value,
@@ -105,6 +108,7 @@ impl Case {
         args.insert("ruleCheckAggregate".into(), self.case["rule_check_aggregate"].clone());
         args.insert("rulePackExclusions".into(), self.case.get("rule_pack_exclusions").cloned().unwrap_or(json!([])));
         args.insert("expectedRecord".into(), self.expected());
+        args.insert("intakeText".into(), json!(self.intake));
         args
     }
     fn record_args(&self, job: &str, request: Value) -> Value {
@@ -152,6 +156,7 @@ fn cases() -> Vec<Case> {
             let manifest: Value = serde_json::from_str(&manifest_text).unwrap();
             Case {
                 text: source_text(&case["source"]),
+                intake: case["intake_text"].as_str().unwrap_or_else(|| panic!("{id}: the session's intake text")).to_string(),
                 record: case["expected"]["record"].clone(),
                 mode: manifest["solver_basis"]["solver_mode"].as_str().unwrap().to_string(),
                 manifest_text,
@@ -290,7 +295,7 @@ fn record_run_stores_the_submitted_paths_rows_byte_for_byte() {
         let (submitted, native) = (dir.join(format!("{name}-submitted.sqlite")), dir.join(format!("{name}-native.sqlite")));
         stored_project(&submitted, case.project_id(), case.model());
         stored_project(&native, case.project_id(), case.model());
-        let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
         let mut state_id: Option<String> = None;
         for _ in 0..2 {
             let legacy = record_run_in_store(&submitted, submitted_request(case, state_id.as_deref()), &FROZEN).unwrap_or_else(|e| panic!("{}: {e}", case.id));
@@ -325,7 +330,7 @@ fn save_and_create_store_the_submitted_paths_rows_and_the_sessions_envelope_hash
         assert_eq!(digest(&stringified), case.form["stringify_text"], "{}: the sent text is the TypeScript's", case.id);
         let mechanics_result: Value = serde_json::from_str(&stringified).unwrap();
         let name = case.id.replace(|c: char| !c.is_ascii_alphanumeric(), "-");
-        let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
         for mode in ["save", "create"] {
             let (submitted, native) = (dir.join(format!("{name}-{mode}-submitted.sqlite")), dir.join(format!("{name}-{mode}-native.sqlite")));
             let model = case.model().clone();
@@ -430,7 +435,7 @@ fn record_run_refuses_above_the_connection_limit_with_exact_lengths_and_writes_n
     let (registry, gate) = gated(&host);
     let dir = scratch("record-limit");
     let case = case_named("preview:connected");
-    let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let args = case.record_args(&job, native_request(None));
     let reference = dir.join("reference.sqlite");
     stored_project(&reference, case.project_id(), case.model());
@@ -496,7 +501,7 @@ fn save_falls_back_to_the_model_only_save_at_the_rows_limit() {
     let (registry, gate) = gated(&host);
     let dir = scratch("save-limit");
     let case = case_named("preview:connected");
-    let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let args = case.save_args(&job, "save", Value::Null, Value::Null);
     let reference = dir.join("reference.sqlite");
     native_save(&registry, &reference, &args, &unlimited()).unwrap();
@@ -543,7 +548,7 @@ fn the_model_only_save_never_erases_a_withheld_run_without_a_confirmed_replace()
     let (registry, gate) = gated(&host);
     let dir = scratch("withheld");
     let case = case_named("preview:connected");
-    let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let path = dir.join("store.sqlite");
     let first = native_save(&registry, &path, &case.save_args(&job, "save", Value::Null, Value::Null), &unlimited()).unwrap();
     let base = first["project_envelope_hash"]["value"].clone();
@@ -581,7 +586,7 @@ fn record_sizes_are_sqlites_and_a_refused_row_rolls_everything_back() {
     let (registry, gate) = gated(&host);
     let dir = scratch("sqlite-limit");
     let case = case_named("preview:pressure");
-    let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let reference = dir.join("reference.sqlite");
     stored_project(&reference, case.project_id(), case.model());
     native_record(&registry, &reference, &case.record_args(&job, native_request(None)), None).unwrap();
@@ -694,7 +699,7 @@ fn persistence_binds_the_held_job_and_the_previewed_record() {
     let (registry, gate) = gated(&host);
     let dir = scratch("binding");
     let case = case_named("preview:connected");
-    let job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let path = dir.join("store.sqlite");
     stored_project(&path, case.project_id(), case.model());
     let unchanged = || -> Vec<Rows> { RUN_TABLES.iter().chain(["local_projects"].iter()).map(|table| dump(&path, table, &[])).collect() };
@@ -702,9 +707,9 @@ fn persistence_binds_the_held_job_and_the_previewed_record() {
     let mut stale = case.record_args(&job, native_request(None));
     stale["expectedRecord"]["record_sha256"] = json!("0".repeat(64));
     let other_mode = if case.mode == "sparse_interactive" { "dense_scrutiny" } else { "sparse_interactive" };
-    let webview_job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Webview);
-    let mode_job = held(&registry, &gate, &case.text, other_mode, ResultCustody::Native);
-    let disposed_job = held(&registry, &gate, &case.text, &case.mode, ResultCustody::Native);
+    let webview_job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Webview);
+    let mode_job = held(&registry, &gate, &case.text, &case.intake, other_mode, ResultCustody::Native);
+    let disposed_job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     assert!(registry.dispose_result(&disposed_job).unwrap().released);
     let mut moved = case.record_args(&job, native_request(None));
     moved["request"]["expected_base"] = json!("another base");
@@ -743,6 +748,147 @@ fn persistence_binds_the_held_job_and_the_previewed_record() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+/// The case's manifest with its model edited and sealed again (canonical
+/// bytes, digest and ref), the project id kept, and the record the preview
+/// command builds with it: a manifest the builder accepts for the held result.
+fn swapped_manifest(registry: &SolveJobRegistry, case: &Case, job: &str, edit: impl FnOnce(&mut Value)) -> (Value, Value) {
+    let mut manifest = case.manifest.clone();
+    edit(&mut manifest["model_basis"]["model_payload"]);
+    assert_eq!(manifest["model_basis"]["model_payload"]["project"]["id"], case.manifest["model_basis"]["model_payload"]["project"]["id"], "the project id is kept");
+    let mut canonical_bytes = Vec::new();
+    canonical(&manifest, &mut canonical_bytes);
+    let canonical_bytes = String::from_utf8(canonical_bytes).unwrap();
+    let sha = hex(&Sha256::digest(canonical_bytes.as_bytes()));
+    let evidence = json!({"manifest_ref": crate::analysis_runs::input_manifest_ref(case.project_id(), &sha), "manifest_sha256": sha, "canonical_bytes": canonical_bytes});
+    let mut args = case.inputs(job);
+    args.insert("inputManifest".into(), evidence.clone());
+    let (raw, lease) = crate::analysis_run_v03_build::reserve(registry, &body(&Value::Object(args)), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+    let header: Value = serde_json::from_slice(&crate::analysis_run_v03_build::run(registry.clone(), raw, lease).expect("the builder accepts the swapped manifest")).unwrap();
+    let record = &header["record"];
+    let expected = json!({"run_id": record["analysis_run"]["run_id"], "record_sha256": claimed(record, "analysis_run_record"), "received_sha256": claimed(record, "received_result")});
+    (evidence, expected)
+}
+
+/// The first number under `value`'s `nodes`, changed by one ulp-scale step.
+fn nudge_first_node_number(value: &mut Value) -> bool {
+    fn nudge(value: &mut Value) -> bool {
+        match value {
+            Value::Number(number) => {
+                let f = number.as_f64().unwrap();
+                *number = serde_json::Number::from_f64(if f == 0.0 { 1e-9 } else { f * (1.0 + 1e-12) }).unwrap();
+                true
+            }
+            Value::Array(items) => items.iter_mut().any(nudge),
+            Value::Object(map) => map.values_mut().any(nudge),
+            _ => false,
+        }
+    }
+    value.get_mut("nodes").is_some_and(nudge)
+}
+
+/// C1 slice 5's intake binding (`bound_intake`), for Record Run and for Save
+/// Project: each job is started on the model text the session's start sends
+/// (`intake_text`), and the request re-sends it. A request without it, with
+/// other bytes (even the same model's), naming a job started on other bytes,
+/// or with a manifest whose model differs under the same project id (sealed
+/// and accepted by the builder, so nothing else refuses it) is refused
+/// `NATIVE-PERSISTENCE-CUSTODY` before anything is written; the job's
+/// custody refusals come first and the intake's before the record's
+/// identity. The same model's text in another member order or layout binds
+/// when the job was started on it (the connected case's session text is not
+/// the manifest's canonical text; each case also binds a pretty-printed
+/// layout); `-0` and `1.0` read as JavaScript reads them. Every lease ends.
+#[test]
+fn persistence_binds_the_solves_intake_to_the_manifests_model() {
+    assert!(same_js_data(&json!({"a": [0, 1, 1e21], "b": "x"}), &serde_json::from_str(r#"{"b":"x","a":[-0,1.0,1000000000000000000000]}"#).unwrap()));
+    assert!(!same_js_data(&json!({"a": 1}), &json!({"a": 1, "b": null})));
+    assert!(!same_js_data(&json!([1, 2]), &json!([2, 1])));
+    assert!(!same_js_data(&json!({"a": "1"}), &json!({"a": 1})));
+    assert!(!same_js_data(&json!(0.1), &serde_json::from_str("0.10000000000000002").unwrap()));
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("intake");
+    let mut reordered = false;
+    for id in ["preview:connected", "preview:pressure-source"] {
+        let case = case_named(id);
+        let canonical_payload = {
+            let mut out = Vec::new();
+            canonical(case.model(), &mut out);
+            String::from_utf8(out).unwrap()
+        };
+        reordered |= case.intake != canonical_payload;
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        let path = dir.join(format!("{}.sqlite", id.replace(':', "-")));
+        stored_project(&path, case.project_id(), case.model());
+        let unchanged = || -> Vec<Rows> { RUN_TABLES.iter().chain(["local_projects", "local_project_fts"].iter()).map(|table| dump(&path, table, &[])).collect() };
+        let before = unchanged();
+        // Another job holding the same result, started on the same model's text in another layout.
+        let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&case.intake).unwrap()).unwrap();
+        let other_job = held(&registry, &gate, &case.text, &pretty, &case.mode, ResultCustody::Native);
+        let (swapped, swapped_record) = swapped_manifest(&registry, &case, &job, |model| model["project"]["name"] = json!("Swapped model"));
+        let (nudged, nudged_record) = swapped_manifest(&registry, &case, &job, |model| assert!(nudge_first_node_number(model), "{id}: a node number"));
+        let other_mode = if case.mode == "sparse_interactive" { "dense_scrutiny" } else { "sparse_interactive" };
+        let mode_job = held(&registry, &gate, &case.text, &case.intake, other_mode, ResultCustody::Native);
+        type Edit = Box<dyn Fn(&mut serde_json::Map<String, Value>)>;
+        let swap = |evidence: Value, record: Value| -> Edit {
+            Box::new(move |args| {
+                args.insert("inputManifest".into(), evidence.clone());
+                args.insert("expectedRecord".into(), record.clone());
+            })
+        };
+        let (other_, mode_) = (other_job.clone(), mode_job.clone());
+        let intake_ = case.intake.clone();
+        let refusals: Vec<(&str, Edit, &str)> = vec![
+            ("absent", Box::new(|args| { args.remove("intakeText"); }), "is not in the request"),
+            ("null", Box::new(|args| { args.insert("intakeText".into(), Value::Null); }), "is not in the request"),
+            ("other bytes of the same model", { let pretty = pretty.clone(); Box::new(move |args| { args.insert("intakeText".into(), json!(pretty)); }) }, "is not the body"),
+            ("one byte more", { let text = format!("{intake_} "); Box::new(move |args| { args.insert("intakeText".into(), json!(text)); }) }, "is not the body"),
+            ("another job", Box::new(move |args| { args.insert("jobId".into(), json!(other_)); }), "is not the body"),
+            ("a swapped model under the same project id", swap(swapped.clone(), swapped_record.clone()), "the input manifest's model is not the model"),
+            ("a nudged node", swap(nudged.clone(), nudged_record.clone()), "the input manifest's model is not the model"),
+            ("the intake before the record's identity", { let swapped = swapped.clone(); Box::new(move |args| { args.insert("inputManifest".into(), swapped.clone()); }) }, "the input manifest's model is not the model"),
+            ("the mode before the intake", Box::new(move |args| { args.insert("jobId".into(), json!(mode_)); args.insert("intakeText".into(), json!("{}")); }), "mode, but the input manifest names"),
+        ];
+        for (what, edit, text) in &refusals {
+            let mut args = case.record_args(&job, native_request(None));
+            edit(args.as_object_mut().unwrap());
+            let refused = native_record(&registry, &path, &args, None).unwrap_err();
+            assert!(refused.starts_with(CUSTODY) && refused.contains(text), "{id}: Record Run, {what}: {refused}");
+            let mut args = case.save_args(&job, "save", json!("base"), Value::Null);
+            edit(args.as_object_mut().unwrap());
+            let refused = native_save(&registry, &path, &args, &unlimited()).unwrap_err();
+            assert!(refused.starts_with(CUSTODY) && refused.contains(text), "{id}: Save Project, {what}: {refused}");
+            assert_eq!(unchanged(), before, "{id}, {what}: nothing was written");
+        }
+        // A non-string intake is the arguments' typed refusal.
+        let mut args = case.record_args(&job, native_request(None));
+        args["intakeText"] = json!(7);
+        assert!(native_record(&registry, &path, &args, None).unwrap_err().starts_with("INGRESS"), "{id}: a typed refusal");
+        // A disposed job is refused before its intake is read.
+        let disposed = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        assert!(registry.dispose_result(&disposed).unwrap().released);
+        let mut args = case.record_args(&disposed, native_request(None));
+        args["intakeText"] = Value::Null;
+        assert!(native_record(&registry, &path, &args, None).unwrap_err().starts_with("INGRESS"), "{id}: disposed");
+        assert_eq!(unchanged(), before, "{id}: nothing was written");
+        // The job started on the other layout binds with its own bytes: Record Run, then the save.
+        let mut args = case.record_args(&other_job, native_request(None));
+        args["intakeText"] = json!(pretty);
+        let reply = native_record(&registry, &path, &args, None).unwrap_or_else(|e| panic!("{id}: {e}"));
+        assert_eq!(reply["state_outcome"], "created", "{id}: {reply}");
+        let mut args = case.save_args(&other_job, "save", json!("base"), Value::Null);
+        args["intakeText"] = json!(pretty);
+        let saved = native_save(&registry, &path, &args, &unlimited()).unwrap_or_else(|e| panic!("{id}: {e}"));
+        assert_eq!(saved["result"]["outcome"], "saved", "{id}: {saved}");
+        for job in [&job, &other_job, &mode_job] {
+            assert!(registry.dispose_result(job).unwrap().released);
+        }
+    }
+    assert!(reordered, "a session's text that is not the manifest's canonical text binds");
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0, "every lease ended with its command");
+}
+
 /// SQLite's record format: header varints and data, sized as `OP_MakeRecord` sizes them.
 #[test]
 fn record_size_follows_sqlites_record_format() {
@@ -761,6 +907,16 @@ const REPLIES: &str = "apps/desktop/src/test-support/native-replay/native_persis
 const REPLAY_REQUESTS: &str = "apps/desktop/src/test-support/native-replay/native_replay_requests.json";
 /// The session tests' solve (`nativeMechanicsReplayPair("sparse_interactive", {profile: "pressure"})`).
 const REPLAY_SOURCE: &str = "fixtures/results/pressure_connected_ui_mechanics_sparse.json";
+/// Its model: the session sends `checkedJsonText` of this file's parse (`JSON.stringify`'s text).
+const REPLAY_MODEL: &str = "fixtures/model_operations/exact_pressure_authoring_model.json";
+
+/// `JSON.stringify(JSON.parse(text))`: JavaScript's member order and numbers, `-0` written `0`
+/// (`checkedJsonText` of a parsed model writes the same).
+fn stringify_text(text: &str) -> String {
+    let mut out = Vec::new();
+    result_js_text::write(text, NegativeZero::AsZero, &mut out).unwrap();
+    String::from_utf8(out).unwrap()
+}
 
 fn repo_text(path: &str) -> String {
     std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..").join(path)).unwrap_or_else(|e| panic!("{path}: {e}"))
@@ -812,7 +968,11 @@ fn the_webviews_persistence_replies_are_the_commands_replies() {
     let manifest: Value = serde_json::from_str(preview["args"]["inputManifest"]["canonical_bytes"].as_str().unwrap()).unwrap();
     let model = manifest["model_basis"]["model_payload"].clone();
     let text = repo_text(REPLAY_SOURCE);
-    let job = held(&registry, &gate, &text, manifest["solver_basis"]["solver_mode"].as_str().unwrap(), ResultCustody::Native);
+    // The body the session's start sends for the replayed model; the TypeScript replay requires the
+    // session's `intakeText` to be these exact bytes.
+    let intake = stringify_text(&repo_text(REPLAY_MODEL));
+    assert!(same_js_data(&serde_json::from_str(&intake).unwrap(), &model), "the replayed model is the manifest's");
+    let job = held(&registry, &gate, &text, &intake, manifest["solver_basis"]["solver_mode"].as_str().unwrap(), ResultCustody::Native);
     let header: Value = {
         let args = with_job(&preview["args"], &job);
         let (raw, lease) = crate::analysis_run_v03_build::reserve(&registry, &body(&args), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
@@ -821,6 +981,7 @@ fn the_webviews_persistence_replies_are_the_commands_replies() {
     let record = &header["record"];
     let mut inputs = preview["args"].as_object().unwrap().clone();
     inputs.insert("expectedRecord".into(), json!({"run_id": record["analysis_run"]["run_id"], "record_sha256": claimed(record, "analysis_run_record"), "received_sha256": claimed(record, "received_result")}));
+    inputs.insert("intakeText".into(), json!(intake));
     let model_hash = {
         let mut hasher = Sha256::new();
         canonical(&model, &mut hasher);
@@ -918,7 +1079,7 @@ fn the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_bod
     let (registry, gate_) = gated(&host);
     let dir = scratch("executor");
     let case = case_named("preview:connected");
-    let job = held(&registry, &gate_, &case.text, &case.mode, ResultCustody::Native);
+    let job = held(&registry, &gate_, &case.text, &case.intake, &case.mode, ResultCustody::Native);
     let path = dir.join("store.sqlite");
     stored_project(&path, case.project_id(), case.model());
     let commands = crate::native_verdict::tests::runtime_workers() * 2 + 2;

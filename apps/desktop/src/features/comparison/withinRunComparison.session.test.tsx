@@ -52,6 +52,7 @@ async function currentSession(answer: (bytes: string) => string | Promise<string
   // forms today's submitted path writes in the browser adapter, for the reopen.
   const fake = createNativePersistenceFake({
     heldBytes: transport.heldBytes,
+    heldIntake: transport.heldIntake,
     save: async ({ request }) => {
       const tauri = (window as Json).__TAURI_INTERNALS__;
       delete (window as Json).__TAURI_INTERNALS__;

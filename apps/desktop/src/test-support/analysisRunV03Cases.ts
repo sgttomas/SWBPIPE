@@ -16,7 +16,11 @@
  *   the checked profile and the builder's `TypeError` points.
  * - **Preview cases** call `buildAnalysisRunPreview(result, {inputManifest, ruleCheckAggregate,
  *   rulePackExclusions})` with a manifest `buildCurrentSessionInputManifest` builds; the native
- *   command receives its evidence without the parsed copy.
+ *   command receives its evidence without the parsed copy. Each also carries `intake_text`, the
+ *   model text the session's solve sends for the model its manifest was built from
+ *   (`checkedJsonText(model)`, in the model's own member order, as `startPreviewMechanicsJob` and
+ *   `deliveredIntakeText` write it): the native persistence tests start each job on these bytes
+ *   and send them, as the session does (`native_persistence_tests.rs`).
  * - **Where.** Outside `fixtures/`, as the desktop-shaped records are (`exactOutputTwins.test.tsx`):
  *   JavaScript writes a float zero as `0`, so a copied receipt here is value- and hash-equal to its
  *   original but not equal as a serde_json value, which the publication corpus
@@ -31,7 +35,7 @@ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../type
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../services/analysisRunCompatibility";
 import { buildAnalysisRunPreview } from "../services/previewService";
 import { buildCurrentSessionInputManifest, inputManifestRef, type CurrentSessionInputManifestEvidence } from "../services/inputManifestService";
-import { canonicalJsonString, canonicalSha256Hex } from "../services/hashService";
+import { canonicalJsonString, canonicalSha256Hex, checkedJsonText } from "../services/hashService";
 import { jsonTextKeepingNegativeZero } from "../services/jsonText";
 import type { ExcludedRulePackRef } from "../services/rulePackRefDiagnostics";
 import { minimalPreviewStatement, syncPreviewCases } from "./retiredPrecision";
@@ -49,7 +53,7 @@ type Outcome = { record: AnalysisRunEnvelope } | { error: string } | { type_erro
 type Manifest = { manifest_ref: Json; manifest_sha256: Json; manifest: Json };
 type Case =
   | { id: string; kind: "builder"; source: Source; manifest: Manifest; rule_check_status?: Json; load_basis_refs?: Json; rule_pack_exclusions: ExcludedRulePackRef[]; expected: Outcome }
-  | { id: string; kind: "preview"; source: Source; input_manifest: Pick<CurrentSessionInputManifestEvidence, "manifest_ref" | "manifest_sha256" | "canonical_bytes">; rule_check_aggregate: string | null; rule_pack_exclusions: ExcludedRulePackRef[]; expected: Outcome };
+  | { id: string; kind: "preview"; source: Source; input_manifest: Pick<CurrentSessionInputManifestEvidence, "manifest_ref" | "manifest_sha256" | "canonical_bytes">; rule_check_aggregate: string | null; rule_pack_exclusions: ExcludedRulePackRef[]; intake_text: string; expected: Outcome };
 
 /** The exact text of a top-level member of a JSON object text (the last, as `Value` keeps). */
 export function rawTopLevelMember(text: string, key: string): string {
@@ -118,7 +122,9 @@ async function previewCase(id: string, source: Source, inputManifest: CurrentSes
   // The TypeScript reads the manifest the canonical bytes fix, as the native command does.
   const manifest = { ...sent, manifest: JSON.parse(sent.canonical_bytes) } as CurrentSessionInputManifestEvidence;
   const expected = await outcome(() => buildAnalysisRunPreview(result, { inputManifest: manifest, ruleCheckAggregate: aggregate, rulePackExclusions: exclusions }));
-  return { id, kind: "preview", source, input_manifest: sent, rule_check_aggregate: aggregate, rule_pack_exclusions: exclusions, expected };
+  // The model text the session's solve sent for the model this manifest was built from.
+  const intake = checkedJsonText(inputManifest.manifest.model_basis.model_payload);
+  return { id, kind: "preview", source, input_manifest: sent, rule_check_aggregate: aggregate, rule_pack_exclusions: exclusions, intake_text: intake, expected };
 }
 
 const minimalManifest = (result: MechanicsResult, ref: Json = { object_type: "InputManifest", ref: "input-manifest:test" }, build = "build:test"): Manifest => ({

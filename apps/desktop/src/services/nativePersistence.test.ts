@@ -30,7 +30,8 @@ const REQUEST: NativePersistenceRequest = {
   inputManifest: { manifest_ref: { object_type: "InputManifest", ref: "input-manifest:x" }, manifest_sha256: "1".repeat(64), canonical_bytes: "{}" },
   ruleCheckAggregate: null,
   rulePackExclusions: [],
-  expectedRecord: { run_id: "run:x", record_sha256: "2".repeat(64), received_sha256: "3".repeat(64) }
+  expectedRecord: { run_id: "run:x", record_sha256: "2".repeat(64), received_sha256: "3".repeat(64) },
+  intakeText: '{"project":{"id":"project:invented","name":"Invented"}}'
 };
 const MODEL = { project: { id: "project:invented", name: "Invented" } } as unknown as PreviewModel;
 
@@ -66,7 +67,7 @@ describe("what the webview sends", () => {
     await saveNativeLocalProject(REQUEST, { ...fields, mode: "create", expectedBase: null });
     const [[saveCommand, saveArgs], [, createArgs]] = invokeMock.mock.calls;
     expect(saveCommand).toBe(NATIVE_SAVE_PROJECT_COMMAND);
-    expect(Object.keys(saveArgs).sort()).toEqual(["confirmedRevision", "editorIntents", "expectedBase", "expectedRecord", "inputManifest", "jobId", "mode", "model", "modelHash", "projectId", "projectName", "proposal", "ruleCheckAggregate", "rulePackExclusions", "selectedReviewTarget"]);
+    expect(Object.keys(saveArgs).sort()).toEqual(["confirmedRevision", "editorIntents", "expectedBase", "expectedRecord", "inputManifest", "intakeText", "jobId", "mode", "model", "modelHash", "projectId", "projectName", "proposal", "ruleCheckAggregate", "rulePackExclusions", "selectedReviewTarget"]);
     expect(saveArgs).toMatchObject({ ...REQUEST, mode: "save", projectId: "project:invented", projectName: "Invented", expectedBase: "sha256:base" });
     expect(createArgs).toMatchObject({ mode: "create", projectId: null, projectName: null, expectedBase: null });
     delete (window as Json).__TAURI_INTERNALS__;
