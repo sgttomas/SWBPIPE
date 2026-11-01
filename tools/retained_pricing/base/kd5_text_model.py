@@ -5,6 +5,9 @@ by the pinned D1 case loop and pinned recovery finding. Their private group
 helper copies those arguments. A changed producer/consumer stops for review;
 no field is presumed fixed merely because a fixture showed it.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib, os, re
 
 # Pre-0.4 failure unification D3 (retained-pricing-rules.md §8.14): solve_prepared_load_case screens selection by the

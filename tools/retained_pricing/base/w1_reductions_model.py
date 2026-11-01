@@ -8,6 +8,9 @@ after the source diff and its allocation/lifetime consequences are reviewed.
 Stage2's member wire/diagnostic additions preserve the L3 get_mut Value moves;
 their separate positive owners are bound by w1_member_load_model.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 from pathlib import Path
 

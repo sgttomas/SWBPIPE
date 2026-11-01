@@ -4,6 +4,9 @@ The domain is unchanged. In particular, no child backing is credited merely
 because the joint feature is dormant. Existing D1 component/region refusals
 establish the empty children; actual carrier layouts stay positively priced.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 import os
 import re

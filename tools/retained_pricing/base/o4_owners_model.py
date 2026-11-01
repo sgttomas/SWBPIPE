@@ -8,6 +8,9 @@ taken: every owner is charged at its push-grown capacity, with the previous back
 every phase where it can be live, at the cap with every member Timoshenko and every member's bases distinct. Inline
 growth of the kernel's MemberOperators, BoundedCoefficients and ProductCertificateSpent (the D/D-bar entries, the
 reduced capacities) is already priced by their in-build strides (g5_profile.py binds the kernel exports)."""
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 import json
 import os

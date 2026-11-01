@@ -4,6 +4,9 @@ All physical sites retain their visits and independent auxiliary allocations.
 The recipe match creates at most one base String per validator invocation;
 JSON copies, outer qualifications, signs, errors and suffixes are separate.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 from copy import deepcopy
 from pathlib import Path
 import runpy
