@@ -471,8 +471,10 @@ fn record_run_refuses_above_the_connection_limit_with_exact_lengths_and_writes_n
                 assert_eq!((number_after(&text, "result_bytes"), number_after(&text, "record_bytes"), number_after(&text, "row_bytes"), number_after(&text, "limit_bytes")), (result, record, row, limit), "{text}");
                 let after: Vec<Rows> = RUN_TABLES.iter().map(|table| dump(&path, table, &[])).collect();
                 assert_eq!(before, after, "at {limit}: nothing was written");
-                const OUTPUTS: [&str; 4] = ["the received result's text", "the received result's text writer", "the recorded run record", "SQLite's copies of the run's row"];
+                const OUTPUTS: [&str; 3] = ["the received result's text", "the recorded run record", "SQLite's copies of the run's row"];
                 assert!(log.iter().all(|(what, _)| !OUTPUTS.contains(&what.as_str())), "at {limit}: an output was reserved: {log:?}");
+                assert_eq!(log.iter().filter(|(what, _)| what == "the received result's text writer").count(), 1,
+                    "at {limit}: counting scratch is reserved even when the output is refused: {log:?}");
                 assert!(measured.peak_priced + (result + record) / 2 < success.peak_priced, "at {limit}: {measured:?} against {success:?}");
                 if limit == row - 1 {
                     assert!(result <= limit && record <= limit, "the result and the record each fit; their row does not");
@@ -667,7 +669,11 @@ fn record_sizes_are_sqlites_and_a_refused_row_rolls_everything_back() {
             transaction.commit().unwrap();
             same_rows(&project, &path, "local_projects", &[], "at the project row's size");
         } else {
-            assert!(stored_read::sql_error(&outcome.unwrap_err()).starts_with(stored_read::SQLITE_TOO_BIG));
+            let error = outcome.unwrap_err();
+            assert!(stored_read::sql_error(&error).starts_with(stored_read::SQLITE_TOO_BIG));
+            let code = project_write_error(&error);
+            assert!(code.starts_with(PROJECT_SAVE_TOO_LARGE) && code.contains("nothing was saved"), "{code}");
+            assert!(!code.starts_with(PROJECT_SAVE_RESULT_TOO_LARGE), "rollback is not a successful model-only save: {code}");
             drop(transaction);
             assert!(dump(&path, "local_projects", &[]).is_empty() && dump(&path, "local_project_fts", &[]).is_empty());
         }

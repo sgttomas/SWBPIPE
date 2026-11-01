@@ -38,13 +38,15 @@
 //!   document checks, unchanged.
 //! - **SQLite's limit, exactly, before allocation and before writes.** Inside
 //!   the write transaction the writing connection's `SQLITE_LIMIT_LENGTH` is
-//!   read (rusqlite `limits`), and every value bound and every record SQLite
-//!   builds is measured from the texts' exact counted lengths (each stored
+//!   read (rusqlite `limits`), and result/record values and their table,
+//!   explicit index and search records are measured from exact counted lengths (each stored
 //!   form is first written to a counter): the table row's record (SQLite's
-//!   record format: header varints and data), each index key's record
+//!   record format: header varints and data), each measured index key's record
 //!   (bounded with an eight-byte rowid), and for a project the search row's
 //!   value and its content record. A result and a record that each fit can
 //!   still make a row that does not.
+//!   The run hash autoindex is smaller than its measured table row; label and
+//!   snapshot writes retain the existing whole-transaction rollback backstop.
 //!   - Record Run above the limit: [`RUN_RECORD_RESULT_TOO_LARGE`] with the
 //!     exact lengths, nothing written (the plan writes nothing first).
 //!   - Save Project above the limit with the result: the model-only save the
@@ -544,7 +546,9 @@ pub(crate) fn run_record(
         let checked = analysis_runs::checked_native_record(&request.project_id, &header, &built.record_sha256, &built.received_sha256, manifest, manifest_text, &memory)
             .map_err(refusal)?;
         drop(header);
-        // The received result's text: its exact length first (nothing allocated).
+        // Counting uses the same object-member and decoded-string scratch as
+        // writing. Admit it before either pass and retain it through both.
+        let text_scratch = memory.reserve("the received result's text writer", result_js_text::scratch_bytes(built.source)).map_err(refusal)?;
         let result_length = result_js_text::length(held_text, NegativeZero::Keep).map_err(refusal)?;
         let path = store().map_err(refusal)?;
         let opened = connection.insert(stored_read::open_store(&path).map_err(refusal)?);
@@ -554,6 +558,7 @@ pub(crate) fn run_record(
         transaction = stored_read::write_transaction(opened).map_err(refusal)?;
         sqlite = stored_read::admit_sqlite_working_set(&transaction, &memory).map_err(refusal)?;
         let staged = stage_record(&transaction, &built, checked, manifest, manifest_text, held_text, result_length, &request, hooks, &memory).map_err(refusal)?;
+        drop(text_scratch);
         // The record, the held result's parse and the builder's leases end here.
         drop(built);
         drop(source);
@@ -642,10 +647,8 @@ fn stage_record(
         ));
     }
     // The texts, each at its exact length, its lease admitted first.
-    let js_scratch = memory.reserve("the received result's text writer", result_js_text::scratch_bytes(built.source))?;
     let (result_json, result_lease) =
         leased_text(memory, "the received result's text", result_length, |out| result_js_text::write(held_text, NegativeZero::Keep, out))?;
-    drop(js_scratch);
     let (record_json, record_lease) = revision
         .stored_bytes(built, record_length, |bytes| memory.reserve("the recorded run record", bytes).map_err(CommandError::Command))
         .map_err(command_text)?;
@@ -1105,6 +1108,17 @@ fn envelope_evidence(model: &Value, value: &str) -> Value {
 /// transaction left to roll back), and the reply serialized at its exact
 /// length.
 #[allow(clippy::too_many_arguments)]
+/// A failed write saved nothing; keep that distinct from the successful
+/// model-only save's `PROJECT-SAVE-RESULT-TOO-LARGE` result code.
+fn project_write_error(error: &rusqlite::Error) -> String {
+    let text = stored_read::sql_error(error);
+    if text.starts_with(stored_read::SQLITE_TOO_BIG) {
+        format!("{PROJECT_SAVE_TOO_LARGE}: SQLite refused the project's rows as too big ({text}); the transaction was rolled back and nothing was saved.")
+    } else {
+        error.to_string()
+    }
+}
+
 fn finish_save(
     transaction: &Transaction<'_>,
     fields: &ProjectFields<'_>,
@@ -1139,14 +1153,7 @@ fn finish_save(
     let bound = lengths.values.iter().filter(|length| !length.what.ends_with(" row") && !length.what.ends_with(" key")).fold(0u64, |sum, length| sum.saturating_add(length.bytes));
     let records = lengths.values.iter().filter(|length| length.what.ends_with(" row")).fold(0u64, |sum, length| sum.saturating_add(length.bytes));
     let statement = memory.reserve("SQLite's copies of the project's rows", stored_read::total(&[bound, records, replaced_search_bytes(transaction, fields.project_id)?]))?;
-    crate::write_project_texts(transaction, fields.project_id, fields.project_name, &texts, &search_text, now).map_err(|error| {
-        let text = stored_read::sql_error(&error);
-        if text.starts_with(stored_read::SQLITE_TOO_BIG) {
-            format!("{PROJECT_SAVE_RESULT_TOO_LARGE}: SQLite refused the project's rows as too big ({text}); the transaction was rolled back and nothing was saved.")
-        } else {
-            error.to_string()
-        }
-    })?;
+    crate::write_project_texts(transaction, fields.project_id, fields.project_name, &texts, &search_text, now).map_err(|error| project_write_error(&error))?;
     drop((statement, search_text, search_lease));
     let (stub_result, stub_run) = if saved { (json!({ "run_id": run_id }), json!({ "analysis_run": { "run_id": run_id } })) } else { (Value::Null, Value::Null) };
     let saved_message = if create { "Created local SQLite project snapshot without external file copies." } else { "Saved current project model snapshot without external file copies." };

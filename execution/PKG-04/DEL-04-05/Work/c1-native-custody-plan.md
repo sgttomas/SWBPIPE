@@ -700,10 +700,12 @@ restored and browser-preview results):
   `computeProjectEnvelopeHash`'s over the stored values, streamed.
 - **Exact lengths, before allocation and before writes.** Inside the write transaction the writing
   connection's `SQLITE_LIMIT_LENGTH` is read (rusqlite `limits`, no new package; the lock file is
-  unchanged). Every bound value and every record SQLite builds is measured from the texts' counted
-  lengths: the table row's record (SQLite's record format, `record_size`), each index key's record
+  unchanged). Result/record values and their table, explicit index and search records are measured
+  from the texts' counted lengths: the table row's record (SQLite's record format, `record_size`), each measured index key's record
   (bounded with an eight-byte rowid) and, for a project, the search text and its content record.
-  A result and a record that each fit can make a row that does not. Above the limit Record Run
+  The run-hash autoindex is bounded by the measured run row; label/snapshot rows retain the
+  existing whole-transaction rollback backstop. A result and a record that each fit can make a row
+  that does not. Above the limit Record Run
   refuses `RUN-RECORD-RESULT-TOO-LARGE (result_bytes, record_bytes, row_bytes, limit_bytes)` with
   nothing written and no output allocated (its plan writes nothing); Save falls back to the
   approved model-only save (`mechanics_result_json` and `analysis_run_json` `null`, the envelope
@@ -711,7 +713,8 @@ restored and browser-preview results):
   `PROJECT-SAVE-RESULT-TOO-LARGE`), never over a stored run withheld for its size without the
   user's confirmed Replace; above the limit without the result it refuses `PROJECT-SAVE-TOO-LARGE`.
   A row SQLite still refuses (`SQLITE_TOOBIG`) is refused by name and the transaction rolled back,
-  a new snapshot included.
+  a new snapshot included. Save uses `PROJECT-SAVE-TOO-LARGE` for this no-save backstop, distinct
+  from a successful model-only save's `PROJECT-SAVE-RESULT-TOO-LARGE` result code.
 - **Evidence** (`native_persistence_tests.rs`, `result_js_text_tests.rs`, the TypeScript oracle
   `persistence_forms.json` from `persistenceFormsCases.ts`): on every preview case with a record
   (preview-physics, pressure, pressure-source and retained routes; aggregates; rule-pack
@@ -1036,7 +1039,8 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   - the builder's leases above (M, working, fingerprints), with the canonical manifest and model
     payload texts the store's checks build, and SQLite's working set for the history tables;
   - the JS-text writer's scratch (one object's member list per nesting level along the heaviest
-    path, with growth, and the largest decoded string), released once the result text exists;
+    path, with growth, and the largest decoded string), admitted before counting and held through
+    writing; a refused output still admits this counting scratch, but not the output texts;
   - each output text at its exact length: Record Run's result text and recorded revision; Save's
     result text and transient record (only when the result is saved), the small slots, the
     envelope evidence and the search text;
