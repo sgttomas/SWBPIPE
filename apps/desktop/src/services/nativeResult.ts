@@ -26,7 +26,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress, type NativeIngressCommand } from "./nativeIngress";
 import { nativeInvokeError } from "./memoryPool";
-import { decodeResultSummary, type ResultSummary } from "./resultSummary";
+import { jsonTextKeepingNegativeZero } from "./jsonText";
+import { decodeResultSummary, summaryDisplayRows, type ResultSummary } from "./resultSummary";
 import {
   lookupResultRows,
   queryResultRows,
@@ -476,4 +477,81 @@ export function runResultHashCount(run: SessionAnalysisRun | null | undefined): 
   if (!run) return 0;
   if (isNativeAnalysisRun(run)) return run[NATIVE_RUN].result_ref_count;
   return run.analysis_run.result_refs.reduce((count, item) => count + item.hash_refs.length, 0);
+}
+
+/* -------------------------------------------------------------------------- *
+ * Internal row keys and the viewport's rows
+ * -------------------------------------------------------------------------- */
+
+const ROW_KEY_PREFIX = "⁠native-row:";
+/** An internal render key for a native row (its ordinal in `results`). Never a published result
+ * id: a surface that names a row resolves it by bounded lookup (`resolveNativeRowKey`). */
+export function nativeRowKey(ordinal: number): string {
+  return `${ROW_KEY_PREFIX}${ordinal}`;
+}
+/** The ordinal an internal row key names, or null for any other text (a real result id). */
+export function nativeRowOrdinal(key: string | null | undefined): number | null {
+  if (typeof key !== "string" || !key.startsWith(ROW_KEY_PREFIX)) return null;
+  const ordinal = Number(key.slice(ROW_KEY_PREFIX.length));
+  return Number.isSafeInteger(ordinal) && ordinal >= 0 ? ordinal : null;
+}
+/** A row key's published result id: itself unless it is an internal native key, which is looked up. */
+export async function resolveNativeRowKey(result: SessionResult | null, key: string): Promise<string | null> {
+  const ordinal = nativeRowOrdinal(key);
+  if (ordinal === null) return key;
+  if (!result || !isNativeResult(result)) return null;
+  return (await nativeIdsOf(result, [ordinal])).get(ordinal) ?? null;
+}
+
+/** What the viewport's overlay builders read: a full result as it is, or, for a native result,
+ * S's envelope members with S's display rows (internal row keys as their ids) and the full row
+ * count (`stated_row_count`). The overlays over it equal the overlays over the full rows
+ * (`resultSummaryParity.test.ts`); it is the overlay builders' input only, never a session result. */
+export type OverlaySource = MechanicsResult & { readonly stated_row_count?: number };
+const overlaySources = new WeakMap<object, OverlaySource>();
+export function overlaySourceOf(result: SessionResult | null | undefined): OverlaySource | null {
+  if (!result) return null;
+  if (!isNativeResult(result)) return result;
+  const cached = overlaySources.get(result);
+  if (cached) return cached;
+  const { summary } = result[NATIVE];
+  const source = Object.freeze({ ...summary.header.envelope, results: summaryDisplayRows(summary, nativeRowKey), stated_row_count: summary.header.row_count }) as unknown as OverlaySource;
+  overlaySources.set(result, source);
+  return source;
+}
+
+const modelTexts = new WeakMap<object, string>();
+/** S of a native result when it was built with this model's text (the panels' model); null for a
+ * full result, or when the model differs (an edited model clears its result; a summary for
+ * another model text is never shown as this model's). */
+export function boundSummary(result: SessionResult | null | undefined, model: object | null | undefined): ResultSummary | null {
+  if (!result || !isNativeResult(result) || !model) return null;
+  let text = modelTexts.get(model);
+  if (text === undefined) {
+    try { text = jsonTextKeepingNegativeZero(model); } catch { return null; }
+    modelTexts.set(model, text);
+  }
+  return text === result[NATIVE].binding.summaryModelText ? result[NATIVE].summary : null;
+}
+/** A copy of `value` with every internal native row key replaced by its published id (`ids`),
+ * for a surface that writes ids (CSV). Keys without an id become empty. */
+export function withPublishedIds<T>(value: T, ids: ReadonlyMap<number, string>): T {
+  const visit = (item: unknown): unknown => {
+    if (typeof item === "string") { const ordinal = nativeRowOrdinal(item); return ordinal === null ? item : ids.get(ordinal) ?? ""; }
+    if (Array.isArray(item)) return item.map(visit);
+    if (item && typeof item === "object") return Object.fromEntries(Object.entries(item).map(([key, child]) => [key, visit(child)]));
+    return item;
+  };
+  return visit(value) as T;
+}
+/** Every internal native row key inside `value`, as ordinals. */
+export function nativeOrdinalsIn(value: unknown): number[] {
+  const found = new Set<number>();
+  const visit = (item: unknown) => {
+    if (typeof item === "string") { const ordinal = nativeRowOrdinal(item); if (ordinal !== null) found.add(ordinal); }
+    else if (Array.isArray(item)) item.forEach(visit);
+    else if (item && typeof item === "object") Object.values(item).forEach(visit);
+  };
+  visit(value);
+  return [...found];
 }

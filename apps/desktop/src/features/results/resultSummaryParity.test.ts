@@ -16,6 +16,7 @@ import {
   summaryValue,
   type ResultSummary
 } from "../../services/resultSummary";
+import { summaryDisplayRows } from "../../services/resultSummary";
 import { resultSummaryCases, resultSummaryCasesText, type CaseText, type SummaryCase } from "../../test-support/resultSummaryCases";
 import { availableResultColourQuantities, buildResultColourOverlay, resultOverlayCases, RESULT_COLOUR_QUANTITIES } from "../viewport/resultColourOverlay";
 import { buildReactionOverlay } from "../viewport/reactionOverlay";
@@ -91,31 +92,7 @@ function expectedEnvelope(source: Json): { envelope: Json; counts: Json[]; omitt
 
 /** The rows S's display planes give back: each display row's members, its value and its
  * `source_result_refs`, its id from its ordinal. */
-function displayRows(summary: ResultSummary, resolveId: (ordinal: number) => Json): Row[] {
-  const at = (name: string) => summary.planes.get(name)!;
-  const keys = ["kind", "entity_ref", "basis_ref", "unit"] as const;
-  const metadataKeys = ["coordinate_system", "component", "location", "basis", "sign_convention"] as const;
-  const offsets = at(SOURCE_OFFSETS);
-  const refs = at(SOURCE_REFS);
-  return Array.from(at("display.ordinal"), (ordinal, i) => {
-    const row: Json = { id: resolveId(ordinal), value: at("display.value")[i] };
-    keys.forEach((key, k) => {
-      const value = summaryValue(summary, at(DISPLAY_COLUMNS[2 + k])[i]);
-      if (value !== undefined) row[key] = value;
-    });
-    const metadata: Json = {};
-    metadataKeys.forEach((key, k) => {
-      const value = summaryValue(summary, at(DISPLAY_COLUMNS[6 + k])[i]);
-      if (value !== undefined) metadata[key] = value;
-    });
-    if (Object.keys(metadata).length > 0) row.metadata = metadata;
-    const dimension = summaryValue(summary, at("display.dimension")[i]);
-    if (dimension !== undefined) row.dimension = dimension;
-    const sources = Array.from(refs.subarray(offsets[i], offsets[i + 1])).filter((ordinal) => ordinal >= 0).map(resolveId);
-    if (offsets[i + 1] > offsets[i]) row.source_result_refs = sources;
-    return row as Row;
-  });
-}
+const displayRows = summaryDisplayRows;
 
 function standingOf(testCase: SummaryCase, sourceText: string, engine: Json): { health: Json; standing: ResultOverlayStanding | null } {
   if (testCase.standing === null) return { health: null, standing: null };

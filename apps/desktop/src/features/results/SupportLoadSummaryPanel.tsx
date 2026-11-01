@@ -10,6 +10,7 @@
  * result-row ids, follow the report's display rule (`reportQuantityDisplay.ts`: six significant
  * digits, half away from zero, Pa shown as MPa) in the stored units. A view only: it changes no model, result or export. */
 
+import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -44,9 +45,9 @@ export const SUPPORT_LOAD_ALLOWABLES_TEXT = "No allowable loads are shown: the s
 
 export type SupportLoadSummaryPanelProps = Readonly<{
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
-  analysisRun?: AnalysisRunEnvelope | null;
+  analysisRun?: SessionAnalysisRun | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** When this names a support of the model (for example the session's selection), the panel shows it. */
@@ -95,7 +96,11 @@ function exclusionText(summary: SupportLoadSummary): string {
 }
 
 export function SupportLoadSummaryPanel({ model, result, analysisRun = null, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
-  const summaries = useMemo(() => buildSupportLoadSummaries({ model, result, standing }), [model, result, standing]);
+  // C1: a native result's summaries are S's table (the builder's output over the full rows).
+  const nativeSummary = boundSummary(result, model);
+  const summaries = useMemo(() => (result && isNativeResult(result)
+    ? (nativeSummary ? nativeSummary.header.tables.support_load_summaries as ReturnType<typeof buildSupportLoadSummaries> : buildSupportLoadSummaries({ model, result: null, standing }))
+    : buildSupportLoadSummaries({ model, result: result as MechanicsResult | null, standing })), [model, result, nativeSummary, standing]);
   const supports = summaries.supports;
   const [chosenId, setChosenId] = useState<string | null>(null);
   // A focused support (the session's selection) moves the panel to it once each time the focus

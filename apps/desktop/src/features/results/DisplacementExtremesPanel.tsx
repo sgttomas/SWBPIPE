@@ -11,6 +11,8 @@
  * from zero, Pa shown as MPa) in the stored units. A view only: it changes no model, result or
  * export, and it persists and sends nothing. */
 
+import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { displacementExtremesFromSummary } from "../../services/resultSummary";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -41,9 +43,9 @@ export const DISPLACEMENT_EXTREMES_BOUNDARY_TEXT =
 
 export type DisplacementExtremesPanelProps = Readonly<{
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   /** The result's analysis-run record, for the CSV preamble's result hash (RT-R6). */
-  analysisRun?: AnalysisRunEnvelope | null;
+  analysisRun?: SessionAnalysisRun | null;
   /** The reader's numerical standing and the session's numerical health view (the overlays' input). */
   standing: ResultOverlayStanding | null | undefined;
   /** The session's selected node: its row is marked, and its page is shown once when it changes,
@@ -128,7 +130,11 @@ function nextPaging(state: PagingState, input: {
 export function DisplacementExtremesPanel({
   model, result, analysisRun = null, standing, selectedNodeId = null, onSelectNode, testIdPrefix = "displacement-extremes"
 }: DisplacementExtremesPanelProps) {
-  const data = useMemo(() => buildDisplacementExtremes({ model, result, standing }), [model, result, standing]);
+  // C1: a native result's extremes are S's table (the builder's output over the full rows).
+  const summary = boundSummary(result, model);
+  const data = useMemo(() => (result && isNativeResult(result)
+    ? (summary ? displacementExtremesFromSummary(summary) : buildDisplacementExtremes({ model, result: null, standing }))
+    : buildDisplacementExtremes({ model, result: result as MechanicsResult | null, standing })), [model, result, summary, standing]);
   const [unchosen, setUnchosen] = useState<ReadonlySet<string>>(() => new Set());
   const [filter, setFilter] = useState(FILTER_ALL);
   const [sort, setSort] = useState<DisplacementSort>("model");

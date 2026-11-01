@@ -1,3 +1,4 @@
+import { isNativeResult, overlaySourceOf, type SessionResult } from "../../services/nativeResult";
 import { CompactSelect } from "../workspace/CompactSelect";
 import { SelectionPresentationBinding } from "./selectionPresentationBinding";
 import { QuantityReadout, useDisplayQuantity } from "../display-units";
@@ -246,7 +247,10 @@ type Props = {
   onSelect: (selection: EntityRef, modifiers?: { additive?: boolean; toggle?: boolean }) => OrderedSelectionState;
   queuedIntents?: EditorOperationIntent[];
   reservedIntents?: ReadonlyArray<unknown>;
-  result?: MechanicsResult | null;
+  result?: SessionResult | null;
+  /** A native result's C2 full copy when the session holds one (loaded for its rule-check run):
+   * the rule-ratio colour reads the run's rows from it. */
+  fullResult?: MechanicsResult | null;
   /** The reader's numerical standing and the session's numerical health view of `result`. The
    * result overlays (colour, reaction arrows) draw only rows these admit; absent, they draw none. */
   resultStanding?: ResultOverlayStanding | null;
@@ -451,7 +455,8 @@ export function PipeViewport({
   onSelect,
   queuedIntents = [],
   reservedIntents = [],
-  result = null,
+  result: sessionResult = null,
+  fullResult = null,
   resultStanding = null,
   ruleCheckRun = null,
   selection,
@@ -716,6 +721,8 @@ export function PipeViewport({
     selectionPublication
   };
   // Derived when the model, result, standing, case or quantity changes; never per frame.
+  // C1: a native result's overlays read S's display rows (`overlaySourceOf`), never the envelope.
+  const result = useMemo(() => overlaySourceOf(sessionResult), [sessionResult]);
   const overlayCases = useMemo(() => resultOverlayCases(model, result), [model, result]);
   const deflectionCase = overlayCases.find((item) => item.key === deflectionCaseKey) ?? null;
   const modelExtent = useMemo(() => {
@@ -735,8 +742,12 @@ export function PipeViewport({
   const elementAxes = useMemo(() => elementAxesFrame ? buildElementAxesView(model, elementAxesFrame) : null, [elementAxesFrame, model]);
   // The rule ratios come from the stress and ratio table's own reading of the session's run (A3).
   const ratioTable = useMemo(
-    () => resultColourOn && ruleCheckRun ? buildStressRatioTable({ model, result, standing: resultStanding, ruleCheckRun }) : null,
-    [model, result, resultColourOn, resultStanding, ruleCheckRun]
+    () => {
+      // The rule-check run's ratios look its rows up by id: a native result's C2 full copy.
+      const rows = isNativeResult(sessionResult) ? fullResult : result;
+      return resultColourOn && ruleCheckRun && rows ? buildStressRatioTable({ model, result: rows, standing: resultStanding, ruleCheckRun }) : null;
+    },
+    [model, result, sessionResult, fullResult, resultColourOn, resultStanding, ruleCheckRun]
   );
   const overlayQuantities = useMemo(() => availableResultColourQuantities(model, result, ratioTable), [model, ratioTable, result]);
   const overlayCase = overlayCases.find((item) => item.key === overlayCaseKey) ?? overlayCases[0] ?? null;
@@ -2800,6 +2811,7 @@ export function PipeViewport({
         </div>
         {result && (colourOverlay || reactionOverlay) ? (
           <ResultOverlayLegend
+            result={sessionResult}
             cases={overlayCases}
             overlayCase={overlayCase}
             onCaseChange={setOverlayCaseKey}

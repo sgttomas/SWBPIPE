@@ -12,8 +12,10 @@
  * ordinals index the envelope's `results`, the exact row a pick opens (`resolveId`). */
 import type { DisplacementExtremes } from "../features/results/displacementExtremes";
 import type { StressRatioRow, StressRatioTable } from "../features/results/stressRatioTable";
+import type { MechanicsResult } from "../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+type Row = MechanicsResult["results"][number];
 
 export const RESULT_SUMMARY_MALFORMED = "RESULT-SUMMARY-MALFORMED";
 export const RESULT_SUMMARY_DOCUMENT_KIND = "swbpipe.desktop.result_summary";
@@ -216,4 +218,34 @@ export function displacementExtremesFromSummary(summary: ResultSummary): Displac
       values: Object.fromEntries(Object.entries(node.values as Record<string, Json[]>).map(([id, slots]) => [id, slots.map((slot) => slot ?? undefined)]))
     }))
   };
+}
+
+/** The rows the display planes state (every row of a viewport kind and the sources the
+ * intensified-bending rows name), in publication order, each with the members the overlays read;
+ * `resolveId` names a row from its ordinal. The reaction, colour, deformation and rotation overlays
+ * over these rows equal the same overlays over the full rows (`resultSummaryParity.test.ts`). */
+export function summaryDisplayRows(summary: ResultSummary, resolveId: (ordinal: number) => Json): Row[] {
+  const at = (name: string) => summary.planes.get(name)!;
+  const keys = ["kind", "entity_ref", "basis_ref", "unit"] as const;
+  const metadataKeys = ["coordinate_system", "component", "location", "basis", "sign_convention"] as const;
+  const offsets = at(SOURCE_OFFSETS);
+  const refs = at(SOURCE_REFS);
+  return Array.from(at("display.ordinal"), (ordinal, i) => {
+    const row: Json = { id: resolveId(ordinal), value: at("display.value")[i] };
+    keys.forEach((key, k) => {
+      const value = summaryValue(summary, at(DISPLAY_COLUMNS[2 + k])[i]);
+      if (value !== undefined) row[key] = value;
+    });
+    const metadata: Json = {};
+    metadataKeys.forEach((key, k) => {
+      const value = summaryValue(summary, at(DISPLAY_COLUMNS[6 + k])[i]);
+      if (value !== undefined) metadata[key] = value;
+    });
+    if (Object.keys(metadata).length > 0) row.metadata = metadata;
+    const dimension = summaryValue(summary, at("display.dimension")[i]);
+    if (dimension !== undefined) row.dimension = dimension;
+    const sources = Array.from(refs.subarray(offsets[i], offsets[i + 1])).filter((ordinal) => ordinal >= 0).map(resolveId);
+    if (offsets[i + 1] > offsets[i]) row.source_result_refs = sources;
+    return row as Row;
+  });
 }

@@ -78,7 +78,7 @@ export function buildDeformationOverlay(
   if (result.status.mechanics !== "MECHANICS_SOLVED") {
     return emptyDeformation(
       "blocked",
-      `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${result.results.length}`,
+      `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${(result as { stated_row_count?: number }).stated_row_count ?? result.results.length}`,
       basisKey
     );
   }
@@ -383,7 +383,7 @@ export function buildRotationOverlay(
   if (result.status.mechanics !== "MECHANICS_SOLVED") {
     return {
       state: "blocked",
-      summary: `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${result.results.length}`,
+      summary: `blocked; mechanics=${statusDisplayWithToken(result.status.mechanics)}; rows=${(result as { stated_row_count?: number }).stated_row_count ?? result.results.length}`,
       boundary: ROTATION_BOUNDARY_NOT_GENERATED,
       glyphs: new Map()
     };
