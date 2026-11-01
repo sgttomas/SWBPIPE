@@ -8,7 +8,7 @@
  * `scripts/native-replay-merge.mjs` to fold into `native_replay_requests.json`; the Rust test then
  * writes its replies (`NATIVE_REPLAY_OUTCOMES_WRITE=1`). */
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const OUTCOMES = resolve(__dirname, "../test-support/native-replay/native_replay_outcomes.json");
@@ -36,20 +36,21 @@ function withJob(value: unknown, jobId: string): unknown {
 }
 const sha256 = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 
-/** The fixture files a held source may be, by digest (so a request names a path, not a copy). */
-const KNOWN_SOURCES = [
-  "fixtures/results/pressure_connected_ui_mechanics_sparse.json",
-  "fixtures/results/pressure_connected_ui_mechanics_dense.json",
-  "fixtures/results/preview_physics_connected_sparse.json",
-  "fixtures/results/preview_physics_connected_dense.json"
-];
+/** The committed fixture file a held source is, by digest, so a recorded request names a path, not
+ * a copy. Read only when recording (an unrecorded request): the producer and result fixtures. */
+const KNOWN_SOURCE_ROOTS = ["fixtures/results", "fixtures/product_preview"];
 let known: Map<string, string> | null = null;
 function knownPath(sha: string): string | null {
   if (!known) {
     known = new Map();
-    for (const path of KNOWN_SOURCES) {
-      try { known.set(sha256(readFileSync(resolve(FIXTURE_ROOT, path), "utf8")), path); } catch { /* absent */ }
-    }
+    const visit = (relative: string) => {
+      for (const entry of readdirSync(resolve(FIXTURE_ROOT, relative), { withFileTypes: true })) {
+        const path = `${relative}/${entry.name}`;
+        if (entry.isDirectory()) visit(path);
+        else if (entry.name.endsWith(".json")) known!.set(createHash("sha256").update(readFileSync(resolve(FIXTURE_ROOT, path))).digest("hex"), path);
+      }
+    };
+    for (const root of KNOWN_SOURCE_ROOTS) visit(root);
   }
   return known.get(sha) ?? null;
 }

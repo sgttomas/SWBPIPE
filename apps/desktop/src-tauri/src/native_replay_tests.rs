@@ -1,7 +1,8 @@
 //! C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md`): the webview's native replay replies come from
 //! the actual commands. `apps/desktop/src/test-support/native-replay/native_replay_requests.json`
 //! lists the requests the webview's tests send (recorded by `test/nativeReplayStore.ts` from the
-//! actual session and panels, each with the source bytes the job holds). Each request is run here
+//! actual session and panels, each with the source bytes the job holds: a fixture path, or a text
+//! kept once in `sources` by its digest). Each request is run here
 //! through its command's own admission and blocking body, on a native-custody job holding those
 //! bytes in a real registry, and its reply is recorded as the webview receives it: the verdict's
 //! JSON value (Tauri delivers a JSON body parsed), the byte responses as base64 (an ArrayBuffer),
@@ -83,11 +84,13 @@ fn reply(registry: &SolveJobRegistry, command: &str, args: &Value) -> Value {
     }
 }
 
-fn source_text(request: &Value) -> String {
-    match (request["source_path"].as_str(), request["source_text"].as_str()) {
-        (Some(path), None) => std::fs::read_to_string(root().join(path)).unwrap_or_else(|e| panic!("{path}: {e}")),
-        (None, Some(text)) => text.to_string(),
-        _ => panic!("a request names its source by path or text"),
+/// The bytes a request's job holds: a committed fixture file by path, or a text kept once in the
+/// document's `sources` by its digest (a source no fixture file is, such as a re-serialized result).
+fn source_text(request: &Value, sources: &Value) -> String {
+    match (request["source_path"].as_str(), request["source_sha256"].as_str()) {
+        (Some(path), _) => std::fs::read_to_string(root().join(path)).unwrap_or_else(|e| panic!("{path}: {e}")),
+        (None, Some(sha)) => sources[sha].as_str().unwrap_or_else(|| panic!("source {sha} is neither a path nor a kept text")).to_string(),
+        _ => panic!("a request names its source by path or digest"),
     }
 }
 
@@ -96,7 +99,7 @@ fn every_recorded_webview_request_is_answered_by_its_actual_command() {
     let requests: Value = serde_json::from_str(&std::fs::read_to_string(root().join(REQUESTS)).unwrap()).unwrap();
     let mut by_source: std::collections::BTreeMap<String, (String, Vec<&Value>)> = Default::default();
     for request in requests["requests"].as_array().unwrap() {
-        let text = source_text(request);
+        let text = source_text(request, &requests["sources"]);
         let sha: String = Sha256::digest(text.as_bytes()).iter().map(|byte| format!("{byte:02x}")).collect();
         assert_eq!(request["source_sha256"].as_str(), Some(sha.as_str()), "the recorded source digest is the source's");
         by_source.entry(sha).or_insert_with(|| (text, Vec::new())).1.push(request);
