@@ -217,10 +217,14 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 
 - **Profile.** The neutral label "SI model batch file, pilot subset", not the writer's
   internal profile id. The carried open items TBD-17-01-001 to -003 are shown as open.
-- **Not written (blocks).** Every `unsupported` entry, with its code, its entity and a
-  product-side description, grouped by family. While any exists, Save is disabled.
+- **Not written (blocks).** Every `unsupported` entry, and every error diagnostic that has no
+  loss entry of the same code and entity (an invalid or out-of-range value, an unresolved
+  reference, a schema version: the engine raises these without a loss entry), each with its
+  code, its entity and a product-side description, grouped by family. While any exists, Save is
+  disabled. A refusal is never silent: when the writer refuses and reports nothing that
+  explains it, the dialog still states that SWBPIPE refused to write the file.
 - **Omitted (warns).** Every `omitted` entry, listed in full with its code, its entity and a
-  product-side description. Save remains available.
+  product-side description. "You can still save" is shown only when the writer wrote the file.
 - **Unit conversions.** Each unit the writer normalized, with its exact definition and, where
   it has one, its exact factor (the writer's normalization data, not its assumption
   sentences).
@@ -239,13 +243,16 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   dialog does not show the engine's message texts: several state the target program's
   behaviour. Each code the writer can emit maps to a short description of what SWBPIPE did or
   did not write, kept in the dialog's module (`MBF_LOSS_DESCRIPTIONS` in `mbfExport.ts`) and
-  keyed by code; a test holds that every `MBF-SI-*` code in the engine has one. A writer refusal
-  the native save returns is shown the same way. The engine's and the Python's texts are
+  keyed by code; a test holds that every code the engine's writer emits (`MBF-SI-*` and
+  `MODEL_SCHEMA_VERSION_RETIRED`) has one. A blocking code's description (a code the writer
+  raises by `refuse` or as an error, `MBF_BLOCKING_CODES`) ends "so SWBPIPE does not write the
+  file."; the test derives the blocking set from the engine source and holds the descriptions
+  to it. A writer refusal the native save returns is shown the same way. The engine's and the Python's texts are
   unchanged, so the parity bytes are preserved.
 
 | Condition | Effect |
 |---|---|
-| Writer `status: refused` (any `unsupported` entry, an out-of-table unit, a retired model version) | Blocks |
+| Writer `status: refused` (any `unsupported` entry or other error diagnostic, an out-of-table unit, a retired model version) | Blocks |
 | Route screening blocked, or a protected disposition (§3.5) | Blocks |
 | Review stale (model hash or settings changed) | Blocks until the review runs again |
 | `omitted` entries, warnings, undeclared material origin | Warn |
@@ -340,7 +347,8 @@ maxLayoutRows: null}`: the text the review ran with. In order:
    - **Rollback that cannot restore.** If a backup cannot be renamed back, or the identity
      check refuses to touch the file now at the name, the save is not reported as success and
      the backup is not deleted. The refusal is `MBF-EXPORT-ROLLBACK-INCOMPLETE`, naming each
-     kept backup and the file it holds, so the user can recover it by hand. The response's
+     kept backup and the file it holds in full (a file name is at most 255 bytes, within the
+     2048 bytes a diagnostic's text keeps), so the user can recover it by hand. The response's
      reservation covers this refusal, so the names always reach the user.
    - **Success.** The backups are removed. A backup that cannot be removed is a warning in the
      receipt (`MBF-EXPORT-BACKUP-CLEANUP-FAILED`), not a failure.
@@ -695,7 +703,8 @@ connects nothing; 4b connects it after the desktop performance work (#59) integr
 - **Dialog.** `apps/desktop/src/features/caepipe-mbf/MbfExportDialog.tsx` (with `mbfExport.ts`) shows the §3.3
   review and the settings, re-runs the review on any change and after `MBF-EXPORT-REVIEW-STALE`, and calls an
   injected `saveMbfExport`. It is not mounted. The review follows §3.3's product-text rule: a neutral profile label,
-  each loss entry by code, entity and a description from `MBF_LOSS_DESCRIPTIONS`, and unit conversions from the
+  each loss entry, and each error diagnostic without one, by code, entity and a description from
+  `MBF_LOSS_DESCRIPTIONS` (a blocking code's says the file is not written), and unit conversions from the
   wrapper's `unit_conversions` (the writer's normalization data, carried in `WriterResult::unit_normalizations`,
   outside `to_dict()`). The writer's assumptions are not shown, and neither is the MBF version number.
 - **Shared pins.** One line in `user_release_reach_scan.rs` `SHELL_DEPENDENCIES` admits the engine dependency

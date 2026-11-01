@@ -9,16 +9,19 @@ import { describe, expect, it, vi } from "vitest";
 import exportModel from "../../../../../fixtures/caepipe_mbf/invented/desktop_export/export_model.json";
 import exportDigests from "../../../../../fixtures/caepipe_mbf/invented/desktop_export/export_digests.json";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
-import { loadMbfEngine, mbfSettingsJson, type MbfWriterReport, type WasmMbfEngine } from "../../services/mbfEngine";
+import { loadMbfEngine, mbfSettingsJson, renderMbfExport, type MbfWriterReport, type WasmMbfEngine } from "../../services/mbfEngine";
 import type { PreviewModel } from "../../types";
 import { MbfExportDialog, type MbfExportDialogRequest } from "./MbfExportDialog";
 import {
   MBF_ASSUMPTIONS_SENTENCE,
+  MBF_BLOCKING_CODES,
+  MBF_BLOCKING_SENTENCE,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE_ID,
   MBF_LOSS_DESCRIPTIONS,
   MBF_PROFILE_LABEL,
   fileNameSlug,
+  mbfReview,
   suggestedMbfName,
   type MbfExportArgs,
   type MbfExportSaveOutcome
@@ -115,6 +118,41 @@ describe("MbfExportDialog", () => {
     expect(saveButton(dialog).disabled).toBe(true);
     fireEvent.click(saveButton(dialog));
     expect(saveMbfExport).not.toHaveBeenCalled();
+  }, 30000);
+
+  it("lists a refusal that has no loss entry under Not written and never offers to save", async () => {
+    // The fixture's last node moved to z = 1e306 m: no binary64 value in mm, an error with no loss entry of its own.
+    const { dialog, saveMbfExport } = await open(model((document) => { document.nodes[document.nodes.length - 1].position.z = 1e306; }));
+    const blocked = within(dialog).getByTestId("mbf-export-not-written");
+    expect(blocked.textContent).toContain(`MBF-SI-VALUE-OUT-OF-RANGE (model.nodes): ${MBF_LOSS_DESCRIPTIONS["MBF-SI-VALUE-OUT-OF-RANGE"]}`);
+    expect(blocked.textContent).toContain(MBF_BLOCKING_SENTENCE);
+    expect(dialog.textContent).not.toMatch(/You can still save/);
+    const omitted = within(dialog).queryByTestId("mbf-export-omitted");
+    if (omitted) expect(omitted.textContent).toContain("These would not be in the file either.");
+    fireEvent.click(within(dialog).getByTestId("mbf-export-intent"));
+    expect(saveButton(dialog).disabled).toBe(true);
+    fireEvent.click(saveButton(dialog));
+    expect(saveMbfExport).not.toHaveBeenCalled();
+  }, 30000);
+
+  it("states that the writer refused even when nothing it reports explains the refusal", async () => {
+    const document = model((edit) => { edit.nodes[edit.nodes.length - 1].position.z = 1e306; });
+    const outcome = await renderMbfExport(await canonicalJsonString(document), mbfSettingsJson({ title: "t", referenceTemperature: { value: 20, unit: "degC" }, maxLayoutRows: null }), await loadMbfEngine());
+    if (outcome.status === "failed") throw new Error(outcome.failure.message);
+    expect(outcome.status).toBe("refused");
+    expect(mbfReview(outcome).refusedUnexplained).toBe(false);
+    // The same refusal with every explaining entry taken out.
+    const bare = {
+      ...outcome,
+      report: {
+        ...outcome.report,
+        diagnostics: outcome.report.diagnostics.filter((item) => item.severity !== "error"),
+        loss_report: outcome.report.loss_report.filter((item) => item.category !== "unsupported")
+      }
+    };
+    const review = mbfReview(bare);
+    expect(review.notWritten).toEqual([]);
+    expect(review.refusedUnexplained).toBe(true);
   }, 30000);
 
   it("passes a degF project's reference temperature as 68 degF, exactly", async () => {
@@ -264,22 +302,39 @@ describe("MbfExportDialog", () => {
     }
   }, 60000);
 
-  it("has a product-side description for every MBF-SI code the engine can emit", () => {
+  it("has a product-side description for every code the engine's writer can emit, and a blocking one says so", () => {
     const engine = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../../core/handoff/caepipe_mbf_engine/src");
     const codes = new Set<string>();
+    // A code the writer emits only by `omit`, or as a warning or a note, leaves the file writable; every other code is
+    // raised by `refuse` or as an error.
+    const nonBlocking = new Set<string>();
+    const blockingUse = new Set<string>();
     const walk = (directory: string) => {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
         const full = path.join(directory, entry.name);
         if (entry.isDirectory()) walk(full);
-        else if (entry.name.endsWith(".rs")) for (const match of readFileSync(full, "utf8").matchAll(/"(MBF-SI-[A-Z0-9-]+)"/g)) codes.add(match[1]);
+        else if (entry.name.endsWith(".rs")) {
+          const text = readFileSync(full, "utf8");
+          for (const match of text.matchAll(/"(MBF-SI-[A-Z0-9-]+|MODEL_SCHEMA_VERSION_RETIRED)"/g)) codes.add(match[1]);
+          for (const match of text.matchAll(/omit\(\s*"(MBF-SI-[A-Z0-9-]+)"/g)) nonBlocking.add(match[1]);
+          for (const match of text.matchAll(/diag\(\s*"(MBF-SI-[A-Z0-9-]+)",\s*"(warning|info)"/g)) nonBlocking.add(match[1]);
+          for (const match of text.matchAll(/diag\(\s*"(MBF-SI-[A-Z0-9-]+|MODEL_SCHEMA_VERSION_RETIRED)",\s*"error"/g)) blockingUse.add(match[1]);
+          for (const match of text.matchAll(/refuse\(\s*"(MBF-SI-[A-Z0-9-]+)"/g)) blockingUse.add(match[1]);
+        }
       }
     };
     walk(engine);
     expect(codes.size).toBeGreaterThan(50);
-    for (const code of codes) expect(MBF_LOSS_DESCRIPTIONS[code], code).toBeTruthy();
+    for (const code of nonBlocking) expect(blockingUse.has(code), `${code} is both`).toBe(false);
+    for (const code of codes) {
+      expect(MBF_LOSS_DESCRIPTIONS[code], code).toBeTruthy();
+      expect(MBF_BLOCKING_CODES.has(code), code).toBe(!nonBlocking.has(code));
+    }
     for (const [code, description] of Object.entries(MBF_LOSS_DESCRIPTIONS)) {
       expect(codes.has(code), `${code} is not an engine code`).toBe(true);
       expect(description, code).not.toMatch(/CAEPIPE|target program|another program/i);
+      if (MBF_BLOCKING_CODES.has(code)) expect(description.endsWith(MBF_BLOCKING_SENTENCE), code).toBe(true);
+      else expect(description, code).not.toContain("does not write the file");
     }
   });
 });

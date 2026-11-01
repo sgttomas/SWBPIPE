@@ -15,6 +15,7 @@ import {
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE,
   MBF_IDENTITY_FILE_SUFFIX,
+  MBF_LOSS_DESCRIPTIONS,
   MBF_IDENTITY_SENTENCE,
   MBF_PROFILE_LABEL,
   MBF_PROFILE_OPEN_ITEMS,
@@ -250,8 +251,9 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
           <ul role="alert" data-testid="mbf-export-refusal">
             {refusal.map((item, index) => (
               <li key={`${item.code}-${index}`}>
-                {/* A writer refusal is named by its code and the product-side description, not the engine's text. */}
-                {item.code}{item.path ? ` (${item.path})` : ""}: {item.code.startsWith("MBF-SI-") ? lossDescription(item.code) : item.message}
+                {/* A writer refusal is named by its code and the product-side description, not the engine's text; every
+                    diagnostic of the native writer's refusal is an error. */}
+                {item.code}{item.path ? ` (${item.path})` : ""}: {isWriterCode(item.code) ? lossDescription(item.code, true) : item.message}
               </li>
             ))}
           </ul>
@@ -269,6 +271,11 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
     </div>,
     document.body
   );
+}
+
+/** A code the writer emits (named by the product-side description), as opposed to the save's own codes. */
+function isWriterCode(code: string): boolean {
+  return code.startsWith("MBF-SI-") || Object.hasOwn(MBF_LOSS_DESCRIPTIONS, code);
 }
 
 function EntryItem({ entry }: { entry: MbfReviewEntry }) {
@@ -304,10 +311,16 @@ function ReviewSections({ review }: { review: MbfReview }) {
           ))}
         </section>
       ) : null}
+      {review.refusedUnexplained ? (
+        <section data-testid="mbf-export-refused">
+          <h3>Not written (blocks the save)</h3>
+          <p>SWBPIPE refused to write the file without naming an entry. Save is unavailable.</p>
+        </section>
+      ) : null}
       {review.omitted.length > 0 ? (
         <section data-testid="mbf-export-omitted">
           <h3>Omitted ({review.omitted.length})</h3>
-          <p>These are not in the file. You can still save.</p>
+          <p>{review.status === "written" ? "These are not in the file. You can still save." : "These would not be in the file either."}</p>
           <ul>
             {review.omitted.map((entry, index) => <EntryItem key={`${entry.entity}-${entry.code}-${index}`} entry={entry} />)}
           </ul>

@@ -591,9 +591,11 @@ fn discard_backup(io: &mut impl MbfExportIo, backup: &Backup) -> Option<Diagnost
     })
 }
 
-/// A rollback that could not put the previous file back: the backup is kept, and named.
+/// A rollback that could not put the previous file back: the backup is kept, and both names are quoted in full (a file
+/// name is at most 255 bytes, so the message stays within the 2048 bytes a diagnostic's text is cut to), so the user
+/// can always rename it back.
 fn rollback_incomplete(backup: &Backup, reason: impl std::fmt::Display) -> Diagnostic {
-    let (original, kept) = backup.names();
+    let (original, kept) = (basename(&backup.original), basename(&backup.path));
     diagnostic(
         ROLLBACK_INCOMPLETE,
         "",
@@ -1553,6 +1555,32 @@ mod tests {
             if label == "mbf write" {
                 assert_eq!(fs::read(&earlier.0).unwrap(), OLD_MBF, "the earlier MBF was never replaced");
             }
+        }
+    }
+
+    /// P3-2: a kept backup's original is named in full however long its name: here an identity file name of 255 bytes
+    /// (the longest a file name can be) and its MBF's.
+    #[test]
+    fn a_rollback_names_a_long_original_in_full() {
+        let _lock = atomic_save_test_lock();
+        let sandbox = Sandbox::new("rollback-long-name");
+        let stem = format!("swbpipe-model-{}", "l".repeat(255 - IDS_SUFFIX.len() - "swbpipe-model-".len()));
+        let chosen = sandbox.0.join(format!("{stem}.mbf"));
+        let ids = sandbox.0.join(format!("{stem}{IDS_SUFFIX}"));
+        assert_eq!(basename(&ids).len(), 255);
+        fs::write(&chosen, OLD_MBF).unwrap();
+        fs::write(&ids, OLD_IDS).unwrap();
+        let mut io = ScriptedIo { tamper_mbf: true, fail_restore: true, ..ScriptedIo::default() };
+        let outcome = save_scripted(&mut io, chosen.clone());
+        assert_eq!(codes(&outcome), vec![READBACK_MISMATCH, ROLLBACK_INCOMPLETE, ROLLBACK_INCOMPLETE]);
+        // As the response bounds it, each name is still whole.
+        let (MbfExportOutcome::Refused { diagnostics }, _) = outcome.bounded() else { unreachable!() };
+        for original in [basename(&chosen), basename(&ids)] {
+            assert!(original.len() > 120, "longer than a quoted name is cut to");
+            assert!(
+                diagnostics.iter().any(|item| item.code == ROLLBACK_INCOMPLETE && item.message.contains(&format!("the previous `{original}`, unchanged")) && item.message.ends_with(&format!("to `{original}` to recover it."))),
+                "{original}: {diagnostics:?}"
+            );
         }
     }
 
