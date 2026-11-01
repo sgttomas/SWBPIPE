@@ -1912,3 +1912,63 @@ describe("DOTH-CSV-011 route catalogue", () => {
     for (const route of rustRoutes) expect(GOVERNED_LOCAL_FIRST_ROUTE_IDS.has(route), route).toBe(true);
   });
 });
+
+// DEL-17-04 Design `desktop-mbf-export-import.md` A-4: File > Export MBF… (twin of the python
+// `test_mbf_export_route_is_governed_local_private_lossless_with_explicit_intent` and
+// `test_mbf_export_route_agrees_across_python_typescript_and_rust`).
+describe("DOTH-MBF-012 route catalogue", () => {
+  const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
+  const quotedIds = (text: string) => [...text.matchAll(/"([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?:\/[A-Z0-9-]+)?)"/g)].map((m) => m[1]);
+
+  it("governs DOTH-MBF-012 as a local-private, lossless route that needs explicit intent", () => {
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-MBF-012", exportContext: "local_private", explicitLocalPrivateIntent: true })).toEqual({
+      route_id: "DOTH-MBF-012",
+      export_context: "local_private",
+      storage_context: "local_private",
+      action: "include_metadata_only",
+      reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED",
+      blocked: false,
+      metadata_only: true,
+      explicit_local_private_intent: true
+    });
+    expect(enforceLocalFirstRoute({ routeId: "DOTH-MBF-012", exportContext: "local_private" })).toMatchObject({
+      blocked: true,
+      reason_code: "LOCAL_PRIVATE_INTENT_REQUIRED"
+    });
+    for (const other of ["DOTH-MBF-013", "doth-mbf-012", "DOTH-MBF-012 "]) {
+      expect(enforceLocalFirstRoute({ routeId: other, exportContext: "local_private", explicitLocalPrivateIntent: true })).toMatchObject({
+        blocked: true,
+        reason_code: "LOCAL_FIRST_ROUTE_UNKNOWN"
+      });
+    }
+    const model = {
+      field_id: "invented.mbf.private",
+      privacy_classification: "private_project_data",
+      redistribution_status: "private_only",
+      review_status: "accepted",
+      value: "Invented private model value"
+    };
+    const options = { routeId: "DOTH-MBF-012", exportContext: "local_private" as const, explicitLocalPrivateIntent: true, requireLosslessMaterialization: true };
+    const controlled = controlRouteExport(model, options);
+    expect(controlled.blocked).toBe(false);
+    expect(controlled.summary.materialization_withheld).toBe(false);
+    expect(controlled.payload).toEqual(model);
+    expect(controlled.summary.local_first).toMatchObject({ route_id: "DOTH-MBF-012", blocked: false });
+    // No redaction: content the screening would withhold blocks the save instead.
+    const blocked = controlRouteExport({ ...model, redistribution_status: "protected_suspected" }, options);
+    expect(blocked.blocked).toBe(true);
+  });
+
+  it("agrees with the Python catalogue and the native MBF save's admission", () => {
+    const pythonSource = readFileSync(path.join(projectRoot, "core/security/local_first_storage/route_control.py"), "utf8");
+    const pyBlock = pythonSource.match(/GOVERNED_LOCAL_FIRST_ROUTE_IDS = frozenset\(\s*\{([\s\S]*?)\}\s*\)/);
+    expect(pyBlock).not.toBeNull();
+    expect(quotedIds(pyBlock![1])).toContain("DOTH-MBF-012");
+    expect(GOVERNED_LOCAL_FIRST_ROUTE_IDS.has("DOTH-MBF-012")).toBe(true);
+    expect(LOCAL_PRIVATE_ONLY_ROUTE_IDS.has("DOTH-MBF-012")).toBe(false);
+    const rustSource = readFileSync(path.join(projectRoot, "apps/desktop/src-tauri/src/mbf_export.rs"), "utf8");
+    expect(rustSource).toContain('pub const MBF_EXPORT_ROUTE_ID: &str = "DOTH-MBF-012";');
+    expect(rustSource).toContain("validate_local_private_route_evidence(MBF_EXPORT_ROUTE_ID,");
+  });
+});
+

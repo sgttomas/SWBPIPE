@@ -711,6 +711,71 @@ def test_handoff_package_save_route_is_governed_local_private_with_explicit_inte
     assert controlled.summary["local_first"]["blocked"] is False
 
 
+def test_mbf_export_route_is_governed_local_private_lossless_with_explicit_intent():
+    """DEL-17-04 Design `desktop-mbf-export-import.md` A-4: File > Export MBF… is DOTH-MBF-012."""
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        enforce_local_first_route,
+    )
+
+    assert "DOTH-MBF-012" in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    allowed = enforce_local_first_route(
+        route_id="DOTH-MBF-012",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+    ).as_schema_dict()
+    assert allowed == {
+        "route_id": "DOTH-MBF-012",
+        "export_context": "local_private",
+        "storage_context": "local_private",
+        "action": "include_metadata_only",
+        "reason_code": "PRIVATE_LOCAL_METADATA_ALLOWED",
+        "blocked": False,
+        "metadata_only": True,
+        "explicit_local_private_intent": True,
+    }
+    without_intent = enforce_local_first_route(route_id="DOTH-MBF-012", export_context="local_private")
+    assert (without_intent.blocked, without_intent.reason_code) == (True, "LOCAL_PRIVATE_INTENT_REQUIRED")
+    # The downstream preview route and a lookalike are other routes; neither stands in for this one.
+    for other in ("DOTH-MBF-013", "doth-mbf-012", "DOTH-MBF-012 "):
+        lookalike = enforce_local_first_route(
+            route_id=other, export_context="local_private", explicit_local_private_intent=True
+        )
+        assert (lookalike.blocked, lookalike.reason_code) == (True, "LOCAL_FIRST_ROUTE_UNKNOWN")
+
+    # Lossless: the screened model passes unchanged, so the saved text is the reviewed one.
+    model = {
+        "field_id": "invented.mbf.private",
+        "privacy_classification": "private_project_data",
+        "redistribution_status": "private_only",
+        "review_status": "accepted",
+        "value": "Invented private model value",
+    }
+    before = canonical_text(model)
+    controlled = control_route_export(
+        model,
+        route_id="DOTH-MBF-012",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+        require_lossless_materialization=True,
+    )
+    assert controlled.blocked is False
+    assert controlled.summary["materialization_withheld"] is False
+    assert canonical_text(controlled.payload) == before
+    assert controlled.summary["local_first"]["route_id"] == "DOTH-MBF-012"
+    # No redaction: content the screening would withhold blocks the save instead.
+    protected = {**model, "redistribution_status": "protected_suspected"}
+    blocked = control_route_export(
+        protected,
+        route_id="DOTH-MBF-012",
+        export_context="local_private",
+        explicit_local_private_intent=True,
+        require_lossless_materialization=True,
+    )
+    assert blocked.blocked is True
+    assert blocked.payload is None or canonical_text(blocked.payload) != canonical_text(protected)
+
+
 def test_route_control_preserves_public_example_context_compatibility():
     controlled = control_route_export(
         {

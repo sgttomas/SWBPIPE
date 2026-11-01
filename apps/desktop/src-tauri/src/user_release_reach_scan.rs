@@ -614,7 +614,7 @@ pub(crate) const BUILD_SCRIPTS: [(&str, usize, &str); 1] =
 /// dependencies they would let a build that sets `cfg(test)` compile the
 /// scan's test modules, so moving one, like any other change here, is a
 /// finding until reviewed.
-pub(crate) const SHELL_DEPENDENCIES: [&str; 37] = [
+pub(crate) const SHELL_DEPENDENCIES: [&str; 38] = [
     "dev proc-macro2",
     "dev syn",
     "normal bytes (cfg(target_os = \"macos\"))",
@@ -627,6 +627,7 @@ pub(crate) const SHELL_DEPENDENCIES: [&str; 37] = [
     "normal hyper-util (cfg(target_os = \"macos\"))",
     "normal libc (cfg(unix))",
     "normal open_pipe_stress_audit_manifest",
+    "normal open_pipe_stress_caepipe_mbf",
     "normal open_pipe_stress_canonical_json",
     "normal open_pipe_stress_library_import_document",
     "normal open_pipe_stress_operation_applier",

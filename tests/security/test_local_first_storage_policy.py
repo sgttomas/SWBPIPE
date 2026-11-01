@@ -611,3 +611,30 @@ def test_csv_route_catalogues_agree_across_python_typescript_and_rust():
     assert 's.export_context != "local_private"' in rust
     assert "lossless_required: false" in profiles.group(1)
     assert profiles.group(1).count("lossless_required: true") == 1  # the shared JSON profile
+
+
+def test_mbf_export_route_agrees_across_python_typescript_and_rust():
+    """DEL-17-04 A-4: DOTH-MBF-012 in the three catalogues; the native admission is the MBF save module's."""
+    import re
+
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        LOCAL_PRIVATE_ONLY_ROUTE_IDS,
+    )
+
+    route = "DOTH-MBF-012"
+    assert route in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    ts = TS_CATALOGUE.read_text(encoding="utf-8")
+    ts_block = re.search(r"GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set\(\[(.*?)\]\);", ts, re.S)
+    assert ts_block is not None and route in re.findall(ROUTE_ID_PATTERN, ts_block.group(1))
+    # Like the model-document and handoff saves, the route is not in the CSV-only set: the native save itself
+    # admits only local_private evidence with explicit intent, lossless and an exact payload.
+    assert route not in LOCAL_PRIVATE_ONLY_ROUTE_IDS
+    rust = (ROOT / "apps/desktop/src-tauri/src/mbf_export.rs").read_text(encoding="utf-8")
+    assert f'pub const MBF_EXPORT_ROUTE_ID: &str = "{route}";' in rust
+    assert "validate_local_private_route_evidence(MBF_EXPORT_ROUTE_ID," in rust
+    # The shared native check it calls admits only local_private, lossless, exact-payload evidence with intent.
+    shared = (ROOT / "apps/desktop/src-tauri/src/model_document_save.rs").read_text(encoding="utf-8")
+    for clause in ('s.export_context == "local_private"', "s.explicit_local_private_intent", "s.lossless_required",
+                   "s.exact_payload_match", "!s.materialization_withheld", 'l.action == "include_metadata_only"'):
+        assert clause in shared, clause
