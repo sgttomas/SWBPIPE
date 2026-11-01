@@ -1,5 +1,6 @@
 // C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md`): in the app, a fresh solve's first paint
-// copies nothing whole. The result stays held natively: no take and no C2 full copy, with the
+// copies nothing whole. The result stays held natively: no take, no C2 full copy and no full record
+// built by the TypeScript builder, with the
 // Solve section open (its rule checks wait for a request) and with the Results and Report sections
 // opened earlier and now dormant. A C2 consumer copies the result when the person asks or opens its
 // section, once per job; a second solve releases the first job and copies nothing until asked
@@ -13,6 +14,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 
 import { App } from "./App";
 import { getLocalStorageCapability } from "./services/projectService";
+import * as previewService from "./services/previewService";
 import { loadDesignKnowledge } from "./services/previewService";
 import { createNativeMechanicsReplay, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
@@ -57,6 +59,7 @@ describe("a native result's first paint in the app", () => {
   it("takes nothing and copies nothing whole until a C2 consumer is asked for or opened, then copies once per job", async () => {
     const mechanics = await installPreviewReplay();
     const sent = (command: string) => mechanics.commands().filter((name) => name === command).length;
+    const fullRecordBuilds = vi.spyOn(previewService, "buildAnalysisRunPreview");
     render(<App />);
     await screen.findByTestId("workspace-toolbar");
     // Sections opened before any result stay mounted, dormant, when the person moves on.
@@ -67,24 +70,29 @@ describe("a native result's first paint in the app", () => {
     expect(sent("read_preview_mechanics_job_summary")).toBeGreaterThan(0);
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
+    expect(fullRecordBuilds).not.toHaveBeenCalled();
     // The Solve section is open: its rule checks offer to read the full rows, and wait.
     const solveSection = screen.getByTestId("workspace-section-solve");
     expect(within(solveSection).queryByTestId("rule-check-load-demo")).toBeNull();
     fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
     expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
+    expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
 
     // Opening the Report section reads the same copy: none is made again for the job.
     nativeMenuCommand("view.section.report");
     expect(await within(screen.getByTestId("workspace-section-report")).findByTestId("report-panel")).toBeInTheDocument();
     await settle();
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
+    // ... and its full record, built once on that copy, is shared.
+    expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
 
     // A second solve releases the first job; with Report dormant again, nothing is copied.
     await solve();
     await waitFor(() => expect(mechanics.disposed()).toHaveLength(1));
     expect(mechanics.nativeHeld()).toHaveLength(1);
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
+    expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
     expect(within(screen.getByTestId("workspace-section-solve")).getByTestId("c2-result-load")).toBeInTheDocument();
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
   }, 90_000);
