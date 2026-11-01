@@ -60,7 +60,7 @@ DEPENDENCIES = {
     # connector axis (was f27242f0...).
     MODULE: 'b3cb5f6dd91b8ef45c93effdbdea3523044375d9bae7044e7d66c9d5a72a4e6b',
     TABLE: TABLE_SHA256,
-    UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
+    UNITS: '5a412c57ca3bdc1d150ff580354e709355f442d89971a2f7aff8b575c7e39596',
 }
 # Version 3: the binding names the pressure-2 reader (version 2 named the retired physics-1 Rust reader,
 # version 1 the former Python reader); both older formats are refused.

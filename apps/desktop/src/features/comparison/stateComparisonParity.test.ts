@@ -41,7 +41,7 @@ const PAIRS: PairSpec[] = [
   { name: "reorder_only", description: "The nodes in reverse order: only the model entity's collection order changes.", right: (model) => { model.nodes.reverse(); return model; } },
   {
     name: "field_edits",
-    description: "Edits within entities: a support's label, a primitive load's magnitude (same unit), a section property, a rule-pack reference's version, the project name and a model setting's value.",
+    description: "Edits within entities: a support's label, a primitive load's magnitude (same unit), a section property, a rule-pack reference's version, the project name, a model setting, a condition temperature and a spectrum ordinate.",
     right: (model) => {
       model.supports[0].label = "Invented relabelled support";
       model.load_cases[0].primitive_loads[0].magnitude = { value: -250, unit: "N" };
@@ -50,6 +50,8 @@ const PAIRS: PairSpec[] = [
       model.rule_pack_refs[0].rule_pack_version = "9.9.9";
       model.project.name = "Invented renamed project";
       model.model_settings.node_proximity_tolerance = { value: 3, unit: "mm" };
+      model.condition_sets[0].conditions[0].temperature.value += 1;
+      model.spectra[0].points[0][1] += 0.1;
       return model;
     }
   },
@@ -67,7 +69,7 @@ const PAIRS: PairSpec[] = [
     description: "A node, a load case with a primitive load and a constraint added; a line and an assumption removed.",
     right: (model) => {
       model.nodes.push({ id: "node:N-4", label: "Invented added node", position: { x: 9, y: 0, z: 0 }, provenance: "invented_example" });
-      model.load_cases.push({ id: "load:L-2", label: "Invented case", primitive_loads: [{ ...structuredClone(model.load_cases[0].primitive_loads[0]), id: "load:L-2-X" }] });
+      model.load_cases.push({ id: "load:comparison-added", label: "Invented case", primitive_loads: [{ ...structuredClone(model.load_cases[0].primitive_loads[0]), id: "load:L-2-X" }] });
       model.constraints.push({ ...structuredClone(model.constraints[0]), constraint_id: "constraint:K-002", name: "Invented added constraint" });
       model.lines = model.lines.filter((line: Json) => line.id !== "line:L-200");
       model.unresolved_assumptions.pop();

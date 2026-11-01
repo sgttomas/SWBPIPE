@@ -289,7 +289,7 @@ describe("displacement extremes: support-kind filter", () => {
     expect(view(everyData, { filter: FILTER_FAMILY_NOT_STATED }).rows.map((item) => item.nodeId)).toEqual(["node:null"]);
     expect(view(everyData, { filter: familyFilterId("strut") }).rows.map((item) => item.nodeId)).toEqual(["node:odd"]);
     expect(everyData.filters.find((item) => item.id === familyFilterId("strut"))?.label).toBe('"strut" (as stated)');
-    expect(everyData.filters.map((item) => item.id).slice(3, 12)).toEqual(families.map(familyFilterId));
+    expect(everyData.filters.map((item) => item.id).slice(3, 3 + families.length)).toEqual(families.map(familyFilterId));
   });
 });
 

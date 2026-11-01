@@ -89,7 +89,11 @@ export const MODEL_ENTITY_MEMBERS = [
   "data_boundary",
   "analysis_status",
   "diagnostics",
-  "model_settings"
+  "model_settings",
+  // Model document 0.9.0 records remain authored document fields in this
+  // generic comparison; no set/spectrum value or collection order is dropped.
+  "condition_sets",
+  "spectra"
 ] as const;
 
 /** Every top-level member of the 0.9.0 model document (`schemas/model.schema.yaml`
