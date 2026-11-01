@@ -750,3 +750,92 @@ fn the_pressure_reader_binds_the_admitted_body_record_to_the_model() {
         assert_eq!(read(&envelope)["ok"], false, "{mode:?}: a forged reference-section owner was accepted");
     }
 }
+
+#[test]
+fn a_folded_back_neighbour_is_refused_even_with_zero_cross_product() {
+    let references = references();
+    let mut document = document(&references, case(&references, "R2A-HELD"), SHEAR_MODELS[0]);
+    position_mut(&mut document, "node:Q")["x"] = json!(4.25);
+    assert_reducer_refused(&document, "region:body", "folded-back neighbour");
+}
+
+#[test]
+fn reversing_only_the_body_keeps_the_reference_response() {
+    let references = references();
+    let case = case(&references, "R2A-HELD-S2");
+    for shear in SHEAR_MODELS {
+        let mut document = document(&references, case, shear);
+        let body = model_array(&mut document, "pipe_segments").iter_mut().find(|p| p["id"] == BODY).unwrap();
+        body["from"] = json!("node:F");
+        body["to"] = json!("node:N");
+        for mode in MODES {
+            let envelope = solve(&document, mode);
+            check_numbers(&references, case, &envelope, &format!("body reversed {shear} {mode:?}"));
+            let verdict = open_pipe_stress_product_physics::result_export::reader_verdict::validate(
+                "pressure", &envelope, Some(&document["model"]), None,
+            );
+            assert_eq!(verdict["ok"], true, "{verdict:#?}");
+        }
+    }
+}
+
+/// Record the initial absolute guard's fail-safe behavior on a rounded skew
+/// run, without asserting that the rejection establishes physical slant.
+#[test]
+fn a_short_skew_step_far_from_the_origin_can_fail_representation_agreement() {
+    let references = references();
+    let mut document = document(&references, case(&references, "R2A-HELD-S2"), SHEAR_MODELS[0]);
+    for node in model_array(&mut document, "nodes") {
+        let x = 500.0 + node["position"]["x"].as_f64().unwrap();
+        node["position"] = json!({"x": 0.6 * x, "y": 0.8 * x, "z": 0.0});
+    }
+    for pipe in model_array(&mut document, "pipe_segments") {
+        pipe["y_reference"] = json!({"x": 0.0, "y": 0.0, "z": 1.0});
+    }
+    assert_reducer_refused(&document, "region:body", "far-origin rounded skew run");
+}
+
+#[test]
+fn adjacent_body_regions_are_each_checked_as_a_step() {
+    let references = references();
+    let case = case(&references, "R2A-HELD-S2");
+    let mut document = document(&references, case, SHEAR_MODELS[0]);
+    let mut second = reducer_mut(&mut document).clone();
+    second["id"] = json!("component:upstream-reducer");
+    second["node"] = json!("node:P");
+    second["geometry"]["rigid_pipe_ref"] = json!("pipe:up");
+    second["modifiers"]["stiffness_scaling_user_value"] = quantity(1.0, "none");
+    model_array(&mut document, "components").push(second);
+    model_array(&mut document, "nodes").push(json!({
+        "id": "node:left", "position": {"x": -1.0, "y": 0.0, "z": 0.0}, "provenance": PROVENANCE,
+    }));
+    let mut left = document["model"]["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == "pipe:up").unwrap().clone();
+    left["id"] = json!("pipe:left");
+    left["from"] = json!("node:left");
+    left["to"] = json!("node:P");
+    model_array(&mut document, "pipe_segments").push(left);
+    let mut region = regions_mut(&mut document).iter().find(|r| r["id"] == "region:up").unwrap().clone();
+    region["id"] = json!("region:left");
+    region["member_pipe_ids"] = json!(["pipe:left"]);
+    region["terminals"][0]["node_ref"] = json!("node:left");
+    region["terminals"][1]["node_ref"] = json!("node:P");
+    regions_mut(&mut document).push(region);
+    // The added free capped leg has effective force zero; the added scale-1
+    // body preserves the original stiffness, so the original reference rows
+    // and support actions are unchanged.
+    for envelope in assert_solved_without_refusal(&document, "adjacent steps") {
+        check_numbers(&references, case, &envelope, "adjacent steps");
+        let verdict = open_pipe_stress_product_physics::result_export::reader_verdict::validate(
+            "pressure", &envelope, Some(&document["model"]), None,
+        );
+        assert_eq!(verdict["ok"], true, "{verdict:#?}");
+    }
+    let second = model_array(&mut document, "components").iter_mut().find(|c| c["id"] == "component:upstream-reducer").unwrap();
+    second["geometry"]["eccentric_offset"] = json!({"x": 0.0, "y": 0.001, "z": 0.0, "unit": "m"});
+    for mode in MODES {
+        let envelope = solve(&document, mode);
+        let refusals = with_code(&envelope, REDUCER_IN_REGION);
+        assert_eq!(refusals.len(), 1);
+        assert_eq!(refusals[0]["affected_refs"], json!([CASE, "region:up", "component:upstream-reducer", "pipe:up"]));
+    }
+}

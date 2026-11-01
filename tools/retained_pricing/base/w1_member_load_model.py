@@ -5,6 +5,9 @@ ledger, recovery/conditioning, both lanes, loaded maxima and the independent
 reader. Source-only layout observations live in the native profile; constants
 below are source capacity bounds, never measured RSS or allocator usable bytes.
 """
+# RT-A3 reducer 2a D3 (§8.38): admission and normalized geometry guards change only in-region reducers,
+# excluded by D1.4/D1.5. No mapped-component/source-family admission or existing owner lifetime changes.
+# Resource-only reader digest updates bind the described current tables; their actual bytes are priced separately.
 import hashlib
 from pathlib import Path
 import re
@@ -56,7 +59,7 @@ SOURCE_FILES = {
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "76c2e7c71c30f2d35c8ca11cb3a8044df675c199a112a9e24f41f28c1e89db55",
-    "core/reporting/result_export/src/retained_precision.rs": "99ab28e628a6e12de35277de5806c018cf59e2cabee6218e37d835342c6c2865",
+    "core/reporting/result_export/src/retained_precision.rs": "1bd0c1b935d3906f67092726e3453ed4c1489a79f447f46cd1bfb1745b7493f5",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

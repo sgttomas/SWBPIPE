@@ -461,9 +461,19 @@ unscaled behavior and warnings. No model version, closure token or authoring
 operation is added.
 
 **Concentricity and remaining domain.** The normalized body and neighbour
-directions into each shared node must be opposite (negative dot product) with
+directions leaving each shared node must be opposite (negative dot product) with
 cross-product norm at most `64*f64::EPSILON`. This reuses the representation
 guard, a numerical agreement rule rather than a geometry fit allowance.
+The guard is an absolute bound on the normalized chord directions. Binary64
+coordinate rounding can exceed it for an intended collinear skewed run with a
+short body far from the origin: the review found a 0.5 m body around 500 m,
+and a 0.1 m body around 100 m, can be refused. Millimetre input normalization
+can expose the same effect. Axis-aligned coordinates need not exhibit it.
+Such a refusal reports representation disagreement; it does not establish
+physical eccentricity. This initial slice does not widen that bound or claim
+translation-invariant skewed-run admission. A coordinate-aware agreement
+design needs separate review, and no release limitation is accepted here.
+
 Authored nonzero eccentric offsets remain refused in pressure in 2a; absence
 of the slot declares nothing and is admitted only when the actual geometry
 passes. Explicit zero retains W-15c's separate offset consistency checks.

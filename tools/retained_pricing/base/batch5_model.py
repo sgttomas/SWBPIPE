@@ -99,7 +99,9 @@ PINS = {
 # (scalar_string imported), called once per solve entry beside validate_profile. It returns at once without an exact
 # contract (L); on E every case's `pressure_regions` is `Some([])` (D1.5), so its node map and member set stay empty
 # (no allocation), its loops run zero times and nothing is pushed. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "d43a8a1aa904ba15099e35694f97b94b628f5139c1b3e2cf4627728e34125e0a"
+# RT-A3 reducer 2a: the added classifier returns an empty vector on D1.5 empty regions; no new carrier,
+# child or staging. The normalized geometry check precedes pressure assembly and is empty on D1.
+PRESSURE_PREFIX_PIN = "e3ffa42e0bf164793423b7f1de09c73fb3259aadf4172d7fc4afd23b215a7cf3"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 
