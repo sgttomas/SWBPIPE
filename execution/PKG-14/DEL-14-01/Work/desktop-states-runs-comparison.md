@@ -523,6 +523,7 @@ the History panel and `useModelStateHistory.ts`.
   exact-route custody.
   Historical model/envelope hashes use JavaScript's binary64 number readings,
   including wide exact-digit stored integers, without rewriting stored bytes.
+  Recorded-run model and manifest hashes use the same binary64 readings.
   The complete record header, including matching rule-pack diagnostics and
   wrapper keys, is measured before allocation and omitted above 4 MiB. Its
   temporary text and parsed value are leased before allocation, with the

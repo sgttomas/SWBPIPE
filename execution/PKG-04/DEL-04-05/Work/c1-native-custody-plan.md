@@ -923,14 +923,21 @@ restored and browser-preview results):
   therefore preserves the stored evidence, including advisory mismatch findings. The TypeScript
   oracle includes raw wide integers in models and results; the re-save's legacy oracle derives its
   prior payload independently from the stored fields rather than the native findings.
+  Recorded-run model and manifest hashes use the same JavaScript binary64 reading; the raw wide
+  integer oracle cases currently cover saved-project paths, not recorded-run paths.
+- A stored record already at the parser's maximum container depth can exceed that depth when the
+  header wrapper is re-parsed. The project then opens model-editable with its run refused; a recorded
+  read fails. Stored bytes remain unchanged. Current writers do not produce such deeply nested
+  records; this compatibility edge is a source-review observation, not an executed regression.
 - The unused bounded whole-record read (`read_restored_result_record_all`) releases its copy lease
   when the response is built; a future consumer must account for the webview copy's lifetime before
   adopting it. No production reopen or re-save path uses that read.
 - Recorded-manifest member checks reuse the store's `manifest_members` after the store's own read has
   checked them; their TypeScript `TypeError` points are therefore unreachable here and not emulated.
 
-**Remaining (slice 6).** The independent numerical, persistence and permissions review of the whole
-slice 6 increment with its save continuity, the exact-head hosted run, then slice 7's measurement.
+**Remaining (slice 6).** Independent numerical, persistence and permissions recheck cleared both
+blocking findings at `55fd8f4fc`; the exact-head hosted run remains required, then slice 7's
+separately authorized measurement. Review and checks establish no memory fit or acceptance.
 
 ### Slice 7: measurement and the PR
 
