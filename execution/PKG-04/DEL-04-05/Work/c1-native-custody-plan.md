@@ -513,37 +513,41 @@ are committed fixtures by path, and the one re-serialized source is kept once. A
   converted units, a changed page refused, 250,001 rows with one page outstanding);
   `csvSaveStream.test.ts`; `App.resultsNavigator.test.tsx` passes, waiting for the native list.
 
-**Save Result JSON from the held bytes: not built, a governing conflict for Agent 0.** The
-existing Save Result JSON (`result-export-link`, route `DOTH-JSON-001`, `save_local_result_json`)
-does not write the result envelope. It writes the derivative document `buildCurrentResultExport`
-builds (`resultExportAdapter.ts`: `deriveResultDocument` over the model, the full rows, the run
-record and the manifest), screened by `controlRouteExport` over that whole parsed document with
-lossless materialization and an exact canonical payload. So:
+**Save Result JSON remains the existing derivative export (Agent 0, 2026-11-01).**
+The existing `result-export-link` (`DOTH-JSON-001`, `save_local_result_json`) writes
+`buildCurrentResultExport`'s derivative over the model, result rows, run record and manifest,
+with full-document path/label screening, lossless materialization and an exact canonical
+payload. It does not write the producer's result envelope.
 
-1. writing the held envelope's bytes under `DOTH-JSON-001` would change what that route's file is
-   (another document and schema), which this slice must not do; and building the derivative
-   natively is a port of `resultExportAdapter.ts`, which §3 assigns to C2;
-2. the route's screen reads paths and enclosing labels over the whole document (route projection,
-   value records, reserved names), so a text chunk cannot carry its decision, and the only Rust
-   mirror of the route walk is test-only in `core/runner/headless/src/redaction_binding.rs`
-   (outside this lane's write boundary). A per-row decomposition of the screen would be a new
-   screening implementation needing its own proof.
+C1 preserves that document and screening through the already-approved bounded C2 path:
+at or under 64 MiB the existing derivative export remains available; above it the named
+`RESULT-DETAIL-WEBVIEW-LIMIT` refusal remains. The earlier promise that Save Result JSON
+would write the held bytes natively was incorrect and is superseded by this reconciliation
+with `result-volume-design.md` §4/C2's consumer map and DEL-08-04. C1 adds no raw-envelope
+output route, does not reuse `DOTH-JSON-001` for a different schema, and does not port the
+derivative or its screen into C1. That port remains C2 work. C1 does not remove every export
+size refusal. This resolves conflicting plan wording; it adopts no new output, schema or
+permission. The exact old/new text and rationale are in #59 for the connected review.
 
-Until Agent 0 decides (a native port of the derivative and of the route screen under C2, or a
-distinct local-private route for the producer's envelope with its own screening rule), Save
-Result JSON of a native result stays on the C2 copy (at or under 64 MiB, refused by name above).
+**Remaining for this slice:** native Record Run and Save Project (slice 5; the interim still
+writes through the C2 copy), followed by saved-result native reopening (slice 6). Navigator
+stepping and bounded streamed group CSV are implemented. The native-read refusal is now a
+session-step refusal, distinct from a legacy take refusal, under Agent 0's narrow DEL-04-07
+reconciliation. Independent numerical, persistence and permissions scrutiny of the connected
+implementation and governing text remains owed. Current large-model memory fit is unmeasured;
+no App invocation or measurement follows from the source-mode tests.
 
-**Remaining for this slice:** native Record Run and Save Project (slice 5; the interim writes
-through the C2 copy), and the Save Result JSON decision above. The refusal text for a refused hand-off still
-says "a refused take" (`solveJobAudit.ts`, pinned by DEL-04-07's decision text); under C1 the
-refused step is the first native read. The independent review of these connection changes
-(numerical meaning, persistence, permissions: the custody binding) is still owed. Memory fit at
-large sizes is unmeasured (slice 7).
+**Recovered verification basis:** `1e56ccdff` has a passing desktop build and focused corrected
+CSV test. The full desktop run at its parent has 7,368 passing tests and 1 todo; the full Rust
+lib run has 1,055 passing tests and 13 ignored, with no failures. The final change only corrects
+the test's display-unit preference from `si` to `SI`. Main's subsequent routing/fixture-only
+updates are reconciled from the combined selected tree; affected integration checks and the
+exact-head hosted harness remain required before integration.
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
-**The record builder** (implemented; independently reviewed, with focused repairs; nothing calls
-it before slice 4): `buildAnalysisRunV03` and its caller `buildAnalysisRunPreview` are ported to
+**The record builder** (implemented and independently reviewed, with focused repairs; the
+fresh-native connection now uses its preview header): `buildAnalysisRunV03` and its caller `buildAnalysisRunPreview` are ported to
 Rust in the desktop crate (`analysis_run_v03_build.rs`). They read the held bytes and the small
 inputs (the manifest evidence, the GUI rule-check aggregate and the rule-pack exclusions; the load
 basis is the manifest's model's, as today) and build the record without a record tree.
