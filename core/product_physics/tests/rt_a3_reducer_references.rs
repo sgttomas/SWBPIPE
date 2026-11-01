@@ -467,8 +467,8 @@ fn offsets_and_slanted_bodies() {
     }
     // The 64*epsilon representation guard on the unit directions: a 1e-16 m
     // rise over the 0.5 m body (cross norm about 2e-16) is admitted, a 1e-12 m
-    // rise (about 2e-12) is refused. Both coordinates are exact binary64
-    // inputs in metres, so normalization does not move them.
+    // rise (about 2e-12) is refused. These coordinates are entered directly as binary64
+    // metre values, so normalization applies the identity conversion.
     for (rise, admitted) in [(1.0e-16, true), (1.0e-12, false)] {
         let mut document = base.clone();
         for node in ["node:F", "node:Q"] {
@@ -641,4 +641,49 @@ fn unscaled_and_marker_bodies_keep_their_warnings() {
             check_numbers(&references, held, &envelope, label);
         }
     }
+}
+
+/// A pressure connector's faces must be internal to one region. Use that
+/// valid mixed region and prove it solves without the reducer, so neither a
+/// parse error nor an invalid joint-face terminal stands in for the refusal.
+#[test]
+fn a_valid_pressure_connector_neighbour_stays_outside_the_initial_step() {
+    let references = references();
+    let mut document = document(&references, case(&references, "R2A-HELD"), SHEAR_MODELS[0]);
+    let template: Value = serde_json::from_str(include_str!("fixtures/silent_zero/stress_free_connector_empty.request.json")).unwrap();
+    let mut connector = template["model"]["components"][0].clone();
+    connector["id"] = json!("component:neighbour-joint");
+    connector["node"] = json!("node:Q");
+    let law = &mut connector["objective_connector"];
+    law["end_i"]["node_ref"] = json!("node:F");
+    law["end_j"]["node_ref"] = json!("node:Q");
+    law["topology"]["span_ref"] = json!("pipe:dn");
+    law["pressure_model"] = json!({
+        "kind": "constant_effective_area_reference_v1",
+        "effective_area": quantity(0.01, "m^2"),
+        "pressure_basis": "internal_differential_zero_external_v1",
+        "source_reference": PROVENANCE,
+    });
+    model_array(&mut document, "components").push(connector);
+    model_array(&mut document, "nodes").push(json!({
+        "id": "node:R", "position": {"x": 8.5, "y": 0.0, "z": 0.0}, "provenance": PROVENANCE,
+    }));
+    let mut tail = document["model"]["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == "pipe:dn").unwrap().clone();
+    tail["id"] = json!("pipe:tail");
+    tail["from"] = json!("node:Q");
+    tail["to"] = json!("node:R");
+    tail["section"] = document["model"]["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == BODY).unwrap()["section"].clone();
+    model_array(&mut document, "pipe_segments").push(tail);
+    let region = regions_mut(&mut document).iter_mut().find(|r| r["id"] == "region:dn").unwrap();
+    region["id"] = json!("region:body-and-joint");
+    region["member_pipe_ids"] = json!([BODY, "pipe:tail"]);
+    region["member_connector_ids"] = json!(["component:neighbour-joint"]);
+    region["terminals"][0]["node_ref"] = json!("node:N");
+    region["terminals"][1]["node_ref"] = json!("node:R");
+    regions_mut(&mut document).retain(|r| r["id"] != "region:body");
+
+    let mut without_reducer = document.clone();
+    model_array(&mut without_reducer, "components").retain(|c| c["id"] != REDUCER);
+    assert_solved_without_refusal(&without_reducer, "valid connector neighbour without reducer");
+    assert_reducer_refused(&document, "region:body-and-joint", "valid connector neighbour with reducer");
 }
