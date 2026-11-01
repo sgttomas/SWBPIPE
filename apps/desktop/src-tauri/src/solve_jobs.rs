@@ -53,8 +53,9 @@
 //! custody ends (`dispose_result`, `dispose_all_results`), or until the
 //! record is pruned, whichever comes first. No result or model bytes are
 //! retained for it and no lease changes. [`SolveJobRegistry::custody_binding`]
-//! returns them only while the result is delivered and its custody lease is
-//! held. The native render and
+//! returns them only while the result is in this app's custody: delivered
+//! with its custody lease held, or held natively (C1 native custody) until its
+//! disposal. The native render and
 //! save of an exact-route report bind resubmitted texts to them.
 //!
 //! Attestation table (W-18b (r2a), DEL-08-01 Design `report-user-release.md`
@@ -1291,13 +1292,17 @@ impl SolveJobRegistry {
         self.table().attested.record(job_number, solver_mode, attestation);
     }
 
-    /// The job's custody digests (§3.6), a copy, only while its result is
-    /// delivered and its custody lease is held: none for an unknown job, an
-    /// untaken (retained) result, or after disposal or pruning.
+    /// The job's custody digests (§3.6), a copy, only while its result is in
+    /// this app's custody: delivered with its custody lease held, or (C1) held
+    /// natively for a native-custody job until its disposal. None for an
+    /// unknown job, an untaken webview-custody (retained) result, or after
+    /// disposal or pruning.
     pub(crate) fn custody_binding(&self, job_id: &str) -> Option<CustodyDigests> {
         let table = self.table();
         let record = table.records.get(job_id)?;
-        if !(record.delivered && record.result.is_none() && record.result_lease.is_some()) {
+        let delivered = record.delivered && record.result.is_none() && record.result_lease.is_some();
+        let held_natively = record.custody == ResultCustody::Native && record.result.is_some();
+        if !(delivered || held_natively) {
             return None;
         }
         let digests = record.digests?;
@@ -3192,6 +3197,31 @@ mod tests {
         assert_eq!(ResultCustody::from_wire(None), Some(ResultCustody::Webview));
         assert_eq!(ResultCustody::from_wire(Some("native")), Some(ResultCustody::Native));
         assert_eq!(ResultCustody::from_wire(Some("other")), None);
+    }
+
+    /// C1: a native-custody result is in this app's custody while it is held,
+    /// so the exact-route report binding names it with the digests recorded at
+    /// publication (a webview-custody result only once taken); its disposal
+    /// ends the binding.
+    #[test]
+    fn a_native_custody_result_is_bound_while_held_and_released_with_disposal() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let webview = registry.start(MODEL, None).unwrap();
+        gate.wait_started(1);
+        gate.release("{\"r\":1}");
+        wait_terminal(&registry, &webview.job_id);
+        assert_eq!(registry.custody_binding(&webview.job_id), None, "retained, not taken");
+        let native = registry.start_with_custody(MODEL, None, ResultCustody::Native).unwrap();
+        gate.wait_started(2);
+        gate.release("{\"r\":2}");
+        assert_eq!(wait_terminal(&registry, &native.job_id).state, "completed");
+        let bound = registry.custody_binding(&native.job_id).expect("held natively");
+        assert_eq!(bound.result_sha256, <[u8; 32]>::from(Sha256::digest(b"{\"r\":2}")));
+        assert_eq!(bound.intake_sha256, <[u8; 32]>::from(Sha256::digest(MODEL)));
+        assert!(registry.dispose_result(&native.job_id).unwrap().released);
+        assert_eq!(registry.custody_binding(&native.job_id), None, "released with disposal");
+        registry.dispose_result(&webview.job_id).unwrap();
     }
 
     /// Session reset releases a native result's full-copy lease with the result.

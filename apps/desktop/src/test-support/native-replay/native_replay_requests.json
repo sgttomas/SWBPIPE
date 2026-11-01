@@ -295,6 +295,16 @@
    "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
   },
   {
+   "key": "2eded6088149ce5fa603a9d1b4ceb2023f621933331e6121ac1790859f0cb525",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "pressure"
+   },
+   "source_sha256": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
+  },
+  {
    "key": "3254c2286fe212d30edd2f1d18042f0325fd7bb2cb79ff5c13915047fcd0ddc9",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -303,6 +313,25 @@
    },
    "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
    "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
+  },
+  {
+   "key": "3538a0093be1ee2e878a9c47005f26f9c0ae43e076352f04a7f8383563345f7e",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:project-load-reference-connected:278fd085af9f40dd825bc85ab8a3cb3ec35ddd48e3f8c2aa842333bd50444a5a"
+     },
+     "manifest_sha256": "278fd085af9f40dd825bc85ab8a3cb3ec35ddd48e3f8c2aa842333bd50444a5a",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"analysis_state\":{\"contract\":\"openpipestress.load_reference_state/1.0.0\",\"element_states\":[{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:cold\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":20},\"pipe_ref\":\"pipe:first\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}},{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:cold\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":20},\"pipe_ref\":\"pipe:second\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}}],\"history\":{\"kind\":\"independent_equilibrium\"},\"load_sources\":[{\"factor\":1,\"source_ref\":\"load:transverse:case:cold\"}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"reference_configuration_ref\":\"reference:installed\",\"support_states\":[{\"boundary_motion\":[{\"dof\":\"UX\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"mm\",\"value\":0.5}},{\"dof\":\"RZ\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"rad\",\"value\":0.001}}],\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:root\"},{\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:far\"}]},\"id\":\"case:cold\",\"kind\":\"invented_test_case\",\"label\":\"case:cold\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:transverse:case:cold\",\"magnitude\":{\"unit\":\"N\",\"value\":-1000},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:stored-unused:case:cold\",\"magnitude\":{\"unit\":\"N\",\"value\":999},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"status\":\"invented_test_status\"},{\"analysis_state\":{\"contract\":\"openpipestress.load_reference_state/1.0.0\",\"element_states\":[{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:hot\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":150},\"pipe_ref\":\"pipe:first\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}},{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:hot\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":150},\"pipe_ref\":\"pipe:second\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}}],\"history\":{\"kind\":\"independent_equilibrium\"},\"load_sources\":[{\"factor\":1.5,\"source_ref\":\"load:transverse:case:hot\"}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"reference_configuration_ref\":\"reference:installed\",\"support_states\":[{\"boundary_motion\":[{\"dof\":\"UX\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"mm\",\"value\":0.5}},{\"dof\":\"RZ\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"rad\",\"value\":0.001}}],\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:root\"},{\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:far\"}]},\"id\":\"case:hot\",\"kind\":\"invented_test_case\",\"label\":\"case:hot\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:transverse:case:hot\",\"magnitude\":{\"unit\":\"N\",\"value\":-1000},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:stored-unused:case:hot\",\"magnitude\":{\"unit\":\"N\",\"value\":999},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"status\":\"invented_test_status\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"analysis_state\":{\"contract\":\"openpipestress.load_reference_state/1.0.0\",\"element_states\":[{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:cold\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":20},\"pipe_ref\":\"pipe:first\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}},{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:cold\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":20},\"pipe_ref\":\"pipe:second\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}}],\"history\":{\"kind\":\"independent_equilibrium\"},\"load_sources\":[{\"factor\":1,\"source_ref\":\"load:transverse:case:cold\"}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"reference_configuration_ref\":\"reference:installed\",\"support_states\":[{\"boundary_motion\":[{\"dof\":\"UX\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"mm\",\"value\":0.5}},{\"dof\":\"RZ\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"rad\",\"value\":0.001}}],\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:root\"},{\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:far\"}]},\"id\":\"case:cold\",\"kind\":\"invented_test_case\",\"label\":\"case:cold\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:transverse:case:cold\",\"magnitude\":{\"unit\":\"N\",\"value\":-1000},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:stored-unused:case:cold\",\"magnitude\":{\"unit\":\"N\",\"value\":999},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"status\":\"invented_test_status\"},{\"analysis_state\":{\"contract\":\"openpipestress.load_reference_state/1.0.0\",\"element_states\":[{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:hot\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":150},\"pipe_ref\":\"pipe:first\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}},{\"material_selection\":{\"kind\":\"exact_point\",\"material_ref\":\"material:shared\",\"point_ref\":\"point:hot\"},\"operating_temperature\":{\"unit\":\"degC\",\"value\":150},\"pipe_ref\":\"pipe:second\",\"thermal_state\":{\"expansion_law_ref\":\"law:secant\",\"kind\":\"free_length_state\"}}],\"history\":{\"kind\":\"independent_equilibrium\"},\"load_sources\":[{\"factor\":1.5,\"source_ref\":\"load:transverse:case:hot\"}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"reference_configuration_ref\":\"reference:installed\",\"support_states\":[{\"boundary_motion\":[{\"dof\":\"UX\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"mm\",\"value\":0.5}},{\"dof\":\"RZ\",\"meaning\":\"absolute_reference_displacement\",\"value\":{\"unit\":\"rad\",\"value\":0.001}}],\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:root\"},{\"participation\":{\"kind\":\"active_model_device\"},\"support_ref\":\"support:far\"}]},\"id\":\"case:hot\",\"kind\":\"invented_test_case\",\"label\":\"case:hot\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:transverse:case:hot\",\"magnitude\":{\"unit\":\"N\",\"value\":-1000},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:stored-unused:case:hot\",\"magnitude\":{\"unit\":\"N\",\"value\":999},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"target\":{\"node\":\"node:middle\",\"type\":\"node\"}}],\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"status\":\"invented_test_status\"}],\"materials\":[{\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"unit\":\"GPa\",\"value\":200},\"expansion_laws\":[{\"data\":{\"coefficient\":{\"unit\":\"1/K\",\"value\":0.000012},\"kind\":\"constant\"},\"datum_temperature\":{\"unit\":\"degC\",\"value\":20},\"definition\":\"engineering_secant\",\"id\":\"law:secant\",\"provenance\":\"invented_load_reference_fixture_not_library_data\"}],\"id\":\"material:shared\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.3},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"temperature_points\":[{\"elastic_modulus\":{\"unit\":\"GPa\",\"value\":200},\"id\":\"point:cold\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.3},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"temperature\":{\"unit\":\"degC\",\"value\":20}},{\"elastic_modulus\":{\"unit\":\"GPa\",\"value\":150},\"id\":\"point:hot\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.3},\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"temperature\":{\"unit\":\"degC\",\"value\":150}}]}],\"nodes\":[{\"id\":\"node:root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_load_reference_fixture_not_library_data\"},{\"id\":\"node:middle\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented_load_reference_fixture_not_library_data\"},{\"id\":\"node:far\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"invented_load_reference_fixture_not_library_data\"}],\"pipe_segments\":[{\"from\":\"node:root\",\"id\":\"pipe:first\",\"material\":\"material:shared\",\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"outside_diameter\":{\"unit\":\"mm\",\"value\":200},\"wall_thickness\":{\"unit\":\"mm\",\"value\":10}},\"to\":\"node:middle\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}},{\"from\":\"node:middle\",\"id\":\"pipe:second\",\"material\":\"material:shared\",\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"outside_diameter\":{\"unit\":\"mm\",\"value\":200},\"wall_thickness\":{\"unit\":\"mm\",\"value\":10}},\"to\":\"node:far\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"pressure_contract\":{\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\",\"version\":\"3.0.0\"},\"project\":{\"description\":\"Invented test document; no engineering data.\",\"id\":\"project:load-reference-connected\",\"name\":\"Invented load/reference-state session\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"reference_configurations\":[{\"geometry_ref\":{\"kind\":\"authored_model_geometry\"},\"id\":\"reference:installed\",\"label\":\"Invented installed reference\",\"member_references\":[{\"basis\":{\"installation_temperature\":{\"unit\":\"degC\",\"value\":20},\"kind\":\"temperature_reference\"},\"fit\":{\"kind\":\"none\"},\"pipe_ref\":\"pipe:first\",\"provenance\":\"invented_load_reference_fixture_not_library_data\"},{\"basis\":{\"installation_temperature\":{\"unit\":\"degC\",\"value\":20},\"kind\":\"temperature_reference\"},\"fit\":{\"kind\":\"natural_length_change\",\"length_change\":{\"unit\":\"mm\",\"value\":-1}},\"pipe_ref\":\"pipe:second\",\"provenance\":\"invented_load_reference_fixture_not_library_data\"}],\"provenance\":\"invented_load_reference_fixture_not_library_data\"}],\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"support:root\",\"node\":\"node:root\",\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]},{\"family\":\"anchor\",\"id\":\"support:far\",\"node\":\"node:far\",\"provenance\":\"invented_load_reference_fixture_not_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}]},\"model_ref\":\"project:load-reference-connected\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": "USER_RULE_CHECKED",
+    "rulePackExclusions": []
+   },
+   "source_sha256": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
   },
   {
    "key": "366261f979f472374a7f4a421cc7da6accb7312d6674e879c33e18f9b97b07c0",
@@ -442,6 +471,19 @@
    "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
   },
   {
+   "key": "4e32a417db4f7bac02319c975d29eb7ac4ac9197d9c85feb263f8dd1ee32287e",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "kinds": [
+     "preview_intensified_bending_stress"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
+  },
+  {
    "key": "5164819588a7929db9c7ea03598525ee25bcfa78a2e23c0a215db5031846e244",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -466,6 +508,38 @@
     "jobId": "$JOB",
     "modelJson": "{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"Invented case\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"independent-tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"user_entered\"}],\"materials\":[{\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"label\":\"Invented material\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.25},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"independent-root\",\"label\":\"Invented independent-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"independent-tip\",\"label\":\"Invented independent-tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"independent-root\",\"id\":\"independent-member\",\"label\":\"Invented independent-member\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"independent-tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"pressure_contract\":{\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\",\"version\":\"3.0.0\"},\"project\":{\"description\":\"Numerical reference inputs with explicitly invented desktop metadata; no external project or library data.\",\"id\":\"synthetic:physics-source:n05\",\"name\":\"Synthetic exact-profile retained-source n05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"label\":\"Invented anchor\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"independent-spring\",\"label\":\"Invented independent-spring\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}]}",
     "invocationJson": "{\"request\":{\"model\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"Invented case\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"independent-tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"user_entered\"}],\"materials\":[{\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"label\":\"Invented material\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.25},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"independent-root\",\"label\":\"Invented independent-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"independent-tip\",\"label\":\"Invented independent-tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"independent-root\",\"id\":\"independent-member\",\"label\":\"Invented independent-member\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"independent-tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"pressure_contract\":{\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\",\"version\":\"3.0.0\"},\"project\":{\"description\":\"Numerical reference inputs with explicitly invented desktop metadata; no external project or library data.\",\"id\":\"synthetic:physics-source:n05\",\"name\":\"Synthetic exact-profile retained-source n05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"label\":\"Invented anchor\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"independent-spring\",\"label\":\"Invented independent-spring\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}]},\"materials\":[]},\"solver_mode\":\"sparse_interactive\"}"
+   },
+   "source_sha256": "c3c03c86e25ad6752c51a9c6c03490f0d55f0d9abb08dadc243ecd5be467cacc",
+   "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+  },
+  {
+   "key": "574065b31e281f9f64bb9eb22c36fee5e409ec3a755be58e1ee830a6b33ec00c",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "kinds": [
+     "preview_intensified_bending_stress"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
+  },
+  {
+   "key": "578e03fb68eb539427f55071b450fd247b14691f1b76633b856d30631c7af412",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:synthetic-physics-source-n05:e68d58b1b0de7e47fbcf046cb7062d3a035a18b8c8e27a9fa8ad35e6fb5f8946"
+     },
+     "manifest_sha256": "e68d58b1b0de7e47fbcf046cb7062d3a035a18b8c8e27a9fa8ad35e6fb5f8946",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"Invented case\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"independent-tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"user_entered\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"Invented case\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"independent-tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"user_entered\"}],\"materials\":[{\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"label\":\"Invented material\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.25},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"independent-root\",\"label\":\"Invented independent-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"independent-tip\",\"label\":\"Invented independent-tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"independent-root\",\"id\":\"independent-member\",\"label\":\"Invented independent-member\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"independent-tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"pressure_contract\":{\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\",\"version\":\"3.0.0\"},\"project\":{\"description\":\"Numerical reference inputs with explicitly invented desktop metadata; no external project or library data.\",\"id\":\"synthetic:physics-source:n05\",\"name\":\"Synthetic exact-profile retained-source n05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"label\":\"Invented anchor\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"independent-spring\",\"label\":\"Invented independent-spring\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}]},\"model_ref\":\"synthetic:physics-source:n05\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": null,
+    "rulePackExclusions": []
    },
    "source_sha256": "c3c03c86e25ad6752c51a9c6c03490f0d55f0d9abb08dadc243ecd5be467cacc",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
@@ -579,6 +653,25 @@
    "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
   },
   {
+   "key": "75464e89d50e4146718d08f9b53cb51d3f4afbbf08125a748d00148d5a7dca28",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:synthetic-physics-source-n05:e68d58b1b0de7e47fbcf046cb7062d3a035a18b8c8e27a9fa8ad35e6fb5f8946"
+     },
+     "manifest_sha256": "e68d58b1b0de7e47fbcf046cb7062d3a035a18b8c8e27a9fa8ad35e6fb5f8946",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"Invented case\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"independent-tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"user_entered\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"Invented case\",\"pressure_regions\":[],\"primitive_loads\":[{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"RX\",\"id\":\"torque\",\"magnitude\":{\"unit\":\"N*m\",\"value\":1e-8},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"target\":{\"node\":\"independent-tip\",\"type\":\"node\"}}],\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"status\":\"user_entered\"}],\"materials\":[{\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material\",\"label\":\"Invented material\",\"poisson_ratio\":{\"unit\":\"1\",\"value\":0.25},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":80000000000}}],\"nodes\":[{\"id\":\"independent-root\",\"label\":\"Invented independent-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"},{\"id\":\"independent-tip\",\"label\":\"Invented independent-tip\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\"}],\"pipe_segments\":[{\"from\":\"independent-root\",\"id\":\"independent-member\",\"label\":\"Invented independent-member\",\"material\":\"material\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.2},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"independent-tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"pressure_contract\":{\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\",\"version\":\"3.0.0\"},\"project\":{\"description\":\"Numerical reference inputs with explicitly invented desktop metadata; no external project or library data.\",\"id\":\"synthetic:physics-source:n05\",\"name\":\"Synthetic exact-profile retained-source n05\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor\",\"label\":\"Invented anchor\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RY\",\"RZ\"]},{\"family\":\"spring\",\"id\":\"independent-spring\",\"label\":\"Invented independent-spring\",\"node\":\"independent-root\",\"provenance\":\"original_analytical_fixture_numerical_integrity_v1_no_external_project_data\",\"restraints\":[\"RX\"],\"stiffness\":{\"dof\":\"RX\",\"value\":{\"unit\":\"N*m/rad\",\"value\":0.0001}}}]},\"model_ref\":\"synthetic:physics-source:n05\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": "USER_RULE_CHECKED",
+    "rulePackExclusions": []
+   },
+   "source_sha256": "c3c03c86e25ad6752c51a9c6c03490f0d55f0d9abb08dadc243ecd5be467cacc",
+   "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+  },
+  {
    "key": "7927a76e1555a1699d315d6f2d5c76d11aa50dcde9a0a18e5f0ad844f83bdc04",
    "command": "lookup_preview_mechanics_job_rows",
    "args": {
@@ -622,6 +715,19 @@
    "source_path": "fixtures/results/preview_physics_range_envelope_sparse.json"
   },
   {
+   "key": "80652335dfcd13100c4eab74b1ff9b01343419c6625326a79b8f6967ea1b0740",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "kinds": [
+     "preview_intensified_bending_stress"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "8f0146a982c706a600868e6b2f8c4fee204f18913458654a5760db57a35c13c8",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_dense.json"
+  },
+  {
    "key": "833e57d769b19feafecb74569bc2f42f7ebb611f0f07d54e8dc16f650b862298",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -630,6 +736,23 @@
     "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"},\"project\":{\"id\":\"project:invented-loop-01\",\"name\":\"Invented Utility Loop Preview\",\"description\":\"Small invented centerline model for desktop integration review. Derived for T0R: legacy nonzero pressure loads removed (refused on the ordinary route, PRESSURE_MODEL_REAUTHOR_REQUIRED) and expansion joint component:C-150 removed (its user-stiffness element is refused, JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED); nothing else changed.\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"temperature\":\"degC\",\"stress\":\"MPa\"}},\"materials\":[{\"id\":\"material:invented-carbon-steel\",\"label\":\"Invented carbon-steel-like material\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"},\"thermal_expansion_coefficient\":{\"value\":0.000012,\"unit\":\"1/degC\"},\"provenance\":\"invented_example_no_material_standard\"}],\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:N-100\",\"label\":\"Pump nozzle\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_example\"},{\"id\":\"node:N-110\",\"label\":\"Low point elbow\",\"position\":{\"x\":3.2,\"y\":0,\"z\":0},\"provenance\":\"invented_example\"},{\"id\":\"node:N-120\",\"label\":\"Riser elbow\",\"position\":{\"x\":3.2,\"y\":2.4,\"z\":0},\"provenance\":\"invented_example\"},{\"id\":\"node:N-130\",\"label\":\"Rack turn\",\"position\":{\"x\":7.6,\"y\":2.4,\"z\":0},\"provenance\":\"invented_example\"},{\"id\":\"node:N-140\",\"label\":\"Terminal tie-in\",\"position\":{\"x\":7.6,\"y\":2.4,\"z\":2.2},\"provenance\":\"invented_example\"}],\"pipe_segments\":[{\"id\":\"pipe:P-100\",\"label\":\"Pump discharge run\",\"from\":\"node:N-100\",\"to\":\"node:N-110\",\"section\":{\"outside_diameter\":{\"value\":0.168,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.007,\"unit\":\"m\"}},\"material\":\"material:invented-carbon-steel\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1},\"provenance\":\"invented_example_no_standard_catalog\"},{\"id\":\"pipe:P-110\",\"label\":\"Vertical riser\",\"from\":\"node:N-110\",\"to\":\"node:N-120\",\"section\":{\"outside_diameter\":{\"value\":0.168,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.007,\"unit\":\"m\"}},\"material\":\"material:invented-carbon-steel\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1},\"provenance\":\"invented_example_no_standard_catalog\"},{\"id\":\"pipe:P-120\",\"label\":\"Rack span\",\"from\":\"node:N-120\",\"to\":\"node:N-130\",\"section\":{\"outside_diameter\":{\"value\":0.168,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.007,\"unit\":\"m\"}},\"material\":\"material:invented-carbon-steel\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1},\"provenance\":\"invented_example_no_standard_catalog\"},{\"id\":\"pipe:P-130\",\"label\":\"Tie-in rise\",\"from\":\"node:N-130\",\"to\":\"node:N-140\",\"section\":{\"outside_diameter\":{\"value\":0.168,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.007,\"unit\":\"m\"}},\"material\":\"material:invented-carbon-steel\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"invented_example_no_standard_catalog\"}],\"supports\":[{\"id\":\"support:S-100\",\"label\":\"Anchor at pump nozzle\",\"node\":\"node:N-100\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"invented_example\"},{\"id\":\"support:S-120\",\"label\":\"Guide on riser\",\"node\":\"node:N-120\",\"family\":\"guide\",\"restraints\":[\"UX\",\"UZ\"],\"provenance\":\"invented_example\"},{\"id\":\"support:S-130\",\"label\":\"Rack shoe\",\"node\":\"node:N-130\",\"family\":\"guide\",\"restraints\":[\"UY\"],\"provenance\":\"invented_example\"},{\"id\":\"support:NL-140\",\"label\":\"Preview one-way terminal stop\",\"node\":\"node:N-140\",\"family\":\"nonlinear\",\"restraints\":[],\"nonlinear\":{\"behavior\":\"one_way\",\"dof\":\"UY\",\"initial_state\":\"active\",\"active_when\":\"negative_reaction\"},\"provenance\":\"invented_example_user_entered_nonlinear_support_no_catalog\"},{\"id\":\"support:NL-130-FRIC\",\"label\":\"Preview sliding-friction rack shoe\",\"node\":\"node:N-130\",\"family\":\"nonlinear\",\"restraints\":[],\"nonlinear\":{\"behavior\":\"friction\",\"dof\":\"UZ\",\"initial_state\":\"sliding\",\"friction_coefficient\":{\"value\":0.01,\"unit\":\"none\"},\"normal_reaction_source\":{\"support_ref\":\"support:S-130\",\"dof\":\"UY\"}},\"provenance\":\"invented_example_user_entered_friction_support_no_catalog_derived_normal_from_named_support_reaction\"},{\"id\":\"support:SH-140\",\"label\":\"Invented variable spring hanger\",\"node\":\"node:N-140\",\"family\":\"variable_spring_hanger\",\"restraints\":[],\"hanger\":{\"hanger_type\":\"variable_spring_hanger\",\"stiffness\":{\"dof\":\"UZ\",\"value\":{\"value\":42000,\"unit\":\"N/m\"}},\"installed_load\":{\"value\":460,\"unit\":\"N\"},\"cold_load\":{\"value\":430,\"unit\":\"N\"},\"hot_load\":{\"value\":390,\"unit\":\"N\"},\"travel_range\":{\"value\":0.045,\"unit\":\"m\"},\"manufacturer_reference\":\"invented_user_entered_variable_hanger_reference_no_catalog\",\"source_reference\":\"invented_user_entered_spring_hanger_values_no_catalog\",\"load_side_review_reference\":\"invented_review_only_hot_cold_load_metadata\",\"mechanics_consumption\":\"linear_spring_primitive_user_stiffness\"},\"provenance\":\"invented_example_user_entered_variable_spring_hanger_no_catalog\"},{\"id\":\"support:CE-120\",\"label\":\"Invented constant-effort support\",\"node\":\"node:N-120\",\"family\":\"constant_effort_support\",\"restraints\":[],\"hanger\":{\"hanger_type\":\"constant_effort_support\",\"constant_load\":{\"value\":375,\"unit\":\"N\"},\"travel_range\":{\"value\":0.04,\"unit\":\"m\"},\"manufacturer_reference\":\"invented_user_entered_constant_effort_reference_no_catalog\",\"source_reference\":\"invented_user_entered_constant_effort_values_no_catalog\",\"load_side_review_reference\":\"review_only_constant_load_not_combined_as_load_effect\",\"mechanics_consumption\":\"load_side_review_only_no_global_solve_consumption\"},\"provenance\":\"invented_example_user_entered_constant_effort_support_no_catalog\"}],\"components\":[{\"id\":\"component:C-110\",\"label\":\"Invented elbow marker\",\"kind\":\"bend\",\"node\":\"node:N-110\",\"geometry\":{\"bend_radius\":{\"value\":0.45,\"unit\":\"m\"},\"bend_angle\":{\"value\":1.5707963268,\"unit\":\"rad\"},\"bend_plane_orientation\":\"global_xy_preview\",\"bend_geometry_source_reference\":\"invented_user_entered_preview_geometry\"},\"modifiers\":{\"sif_user_value\":{\"value\":1.15,\"unit\":\"none\"},\"flexibility_factor_user_value\":{\"value\":1.08,\"unit\":\"none\"},\"source_reference\":\"invented_user_entered_preview_no_code_table\"},\"mechanics_interface\":{\"solver_consumption\":\"mechanics_geometry_only\",\"rule_check_consumption\":\"user_rule_pack_inputs_only\"},\"completeness\":[{\"finding_id\":\"finding:C-110:bend-geometry\",\"status\":\"complete\",\"diagnostic_code\":\"BEND_GEOMETRY_INCOMPLETE\",\"missing_field_kinds\":[]}],\"provenance\":\"invented_example_user_entered_bend_values_no_code_table\"},{\"id\":\"component:C-120\",\"label\":\"Invented branch connection marker\",\"kind\":\"branch\",\"node\":\"node:N-120\",\"geometry\":{\"branch_header_pipe_ref\":\"pipe:P-120\",\"branch_branch_pipe_ref\":\"pipe:P-110\",\"branch_run_size\":{\"value\":0.168,\"unit\":\"m\"},\"branch_header_size\":{\"value\":0.168,\"unit\":\"m\"},\"branch_connection_angle\":{\"value\":1.5707963268,\"unit\":\"rad\"},\"branch_connection_type\":\"invented_unreinforced_tee_preview\",\"branch_reinforcement_reference\":\"invented_user_entered_no_reinforcement_for_preview\",\"branch_geometry_source_reference\":\"invented_user_entered_branch_preview_geometry\"},\"modifiers\":{\"branch_header_sif_user_value\":{\"value\":1.22,\"unit\":\"none\"},\"branch_branch_sif_user_value\":{\"value\":1.31,\"unit\":\"none\"},\"flexibility_factor_user_value\":{\"value\":1.05,\"unit\":\"none\"},\"source_reference\":\"invented_user_entered_branch_modifiers_no_code_table\"},\"mechanics_interface\":{\"solver_consumption\":\"mechanics_geometry_only\",\"rule_check_consumption\":\"user_rule_pack_inputs_only\"},\"completeness\":[{\"finding_id\":\"finding:C-120:branch-geometry\",\"status\":\"complete\",\"diagnostic_code\":\"BRANCH_RULE_INPUT_MISSING\",\"missing_field_kinds\":[]}],\"provenance\":\"invented_example_user_entered_branch_values_no_code_table\"},{\"id\":\"component:C-130\",\"label\":\"Invented semi-rigid valve marker\",\"kind\":\"valve\",\"node\":\"node:N-130\",\"geometry\":{\"rigid_pipe_ref\":\"pipe:P-130\",\"rigid_body_length\":{\"value\":0.72,\"unit\":\"m\"},\"end_a_size\":{\"value\":0.168,\"unit\":\"m\"},\"end_b_size\":{\"value\":0.168,\"unit\":\"m\"},\"weight\":{\"value\":420,\"unit\":\"N\"},\"center_of_gravity\":{\"x\":0.12,\"y\":0.02,\"z\":0,\"unit\":\"m\"},\"connection_end_a_reference\":\"invented_user_entered_end_a_connection\",\"connection_end_b_reference\":\"invented_user_entered_end_b_connection\",\"stiffness_behavior_reference\":\"invented_user_entered_semi_rigid_behavior_no_catalog\",\"rigid_component_source_reference\":\"invented_user_entered_rigid_component_preview_geometry\"},\"modifiers\":{\"stiffness_scaling_user_value\":{\"value\":15,\"unit\":\"none\"},\"linear_stiffness_user_value\":{\"value\":15000000,\"unit\":\"N/m\"},\"rotational_stiffness_user_value\":{\"value\":850000,\"unit\":\"N*m/rad\"},\"source_reference\":\"invented_user_entered_rigid_stiffness_no_catalog_or_code_table\"},\"mechanics_interface\":{\"solver_consumption\":\"mechanics_geometry_only\",\"rule_check_consumption\":\"user_rule_pack_inputs_only\"},\"completeness\":[{\"finding_id\":\"finding:C-130:rigid-component\",\"status\":\"complete\",\"diagnostic_code\":\"RIGID_COMPONENT_STIFFNESS_DATA_MISSING\",\"missing_field_kinds\":[]}],\"provenance\":\"invented_example_user_entered_rigid_component_values_no_catalog\"},{\"id\":\"component:C-140\",\"label\":\"Invented tie-in marker\",\"kind\":\"terminal\",\"node\":\"node:N-140\",\"provenance\":\"invented_example\"}],\"load_cases\":[{\"id\":\"load:L-100\",\"label\":\"Invented operating gravity and pressure preview\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"primitive_loads\":[{\"id\":\"load:L-100-Z\",\"category\":\"weight\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:P-120\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-190,\"unit\":\"N/m\"},\"dimension\":\"force_per_length\",\"provenance\":\"invented_example_user_input\"},{\"id\":\"load:L-100-Y\",\"category\":\"occasional\",\"target\":{\"type\":\"node\",\"node\":\"node:N-140\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":350,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented_example_user_input\"},{\"id\":\"load:L-100-T\",\"category\":\"thermal\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:P-120\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":12.5,\"unit\":\"degC\"},\"dimension\":\"temperature_interval\",\"provenance\":\"invented_example_user_input\"}],\"provenance\":\"invented_example_no_code_combination\"},{\"id\":\"load:L-200\",\"label\":\"Invented alternate gravity and pressure preview\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"primitive_loads\":[{\"id\":\"load:L-200-Z\",\"category\":\"weight\",\"target\":{\"type\":\"element\",\"pipe\":\"pipe:P-120\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-95,\"unit\":\"N/m\"},\"dimension\":\"force_per_length\",\"provenance\":\"invented_example_user_input\"},{\"id\":\"load:L-200-Y\",\"category\":\"occasional\",\"target\":{\"type\":\"node\",\"node\":\"node:N-140\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":125,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"invented_example_user_input\"}],\"provenance\":\"invented_example_no_code_combination\"}],\"combinations\":[{\"id\":\"combination:C-OPER-ALT\",\"label\":\"Invented explicit operating plus alternate preview\",\"basis\":\"mechanics\",\"terms\":[{\"load_case\":\"load:L-100\",\"factor\":1},{\"load_case\":\"load:L-200\",\"factor\":0.5}],\"provenance\":\"invented_example_user_defined_mechanics_combination_no_code_default\"}],\"diagnostics\":[{\"code\":\"RULE_INPUTS_MISSING\",\"severity\":\"warning\",\"message\":\"Rule-check inputs are intentionally absent from this invented preview.\",\"source\":\"fixtures/product_preview/invented_preview_model.json\"}]}"
    },
    "source_sha256": "e768b103930ac8efd8ad4d33e30cba78b516123c2186d920d6dd9614a760fddd"
+  },
+  {
+   "key": "83df96f1e28eb5ef5b3354d092286a4b09806e0da39de830001d4f64742d70d9",
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   },
+   "source_sha256": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
   },
   {
    "key": "85a79a27d8a4dbb41b38f3e2fa7c6fb3496b8353e19425ec7e2eb19714330477",
@@ -831,6 +954,23 @@
    "source_path": "fixtures/results/preview_physics_connected_sparse.json"
   },
   {
+   "key": "a42f61ea5393fef97274805362c314ec47756feb08c4eb47c8519f8c8ee824ad",
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   },
+   "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
+  },
+  {
    "key": "a76b84ba2ba0ada6c6329c8b3e8219e1721115bb2e10b8f5e75a1725183990ab",
    "command": "read_preview_mechanics_job_analysis_run_preview",
    "args": {
@@ -969,6 +1109,23 @@
    },
    "source_sha256": "c3c03c86e25ad6752c51a9c6c03490f0d55f0d9abb08dadc243ecd5be467cacc",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+  },
+  {
+   "key": "b99095fa93d84e6c99dd187be5dd1ebaa7fa626605198914d3cdd39967e7a67c",
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   },
+   "source_sha256": "8f0146a982c706a600868e6b2f8c4fee204f18913458654a5760db57a35c13c8",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_dense.json"
   },
   {
    "key": "baa113029630d9c171a680555809dada6fde9eb0d3b33f08d9091003b1fc9f7e",
@@ -1168,6 +1325,128 @@
    "source_path": "fixtures/results/pressure_connected_ui_mechanics_dense.json"
   },
   {
+   "key": "cc6ff2db87350fc608d6bdd5881651e2ecd2f4d1cac772a6fd494ab17fb00790",
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   },
+   "source_sha256": "8f0146a982c706a600868e6b2f8c4fee204f18913458654a5760db57a35c13c8",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_dense.json"
+  },
+  {
+   "key": "cdd0840aee2b596cb643c2ac228b6241a376243aa8aec91f4c604d5b6862c614",
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   },
+   "source_sha256": "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
+  },
+  {
    "key": "ce2c2fdc2b62d4087360f922ffb80e4014abf7224a044a3a3fb0b8720ef7cbd2",
    "command": "read_preview_mechanics_job_analysis_run_preview",
    "args": {
@@ -1278,6 +1557,67 @@
    "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
   },
   {
+   "key": "e55d6a013905995fdce263e6c85d896343f2eaa61289a3c385e2b66158e90ea5",
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   },
+   "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
+  },
+  {
    "key": "ea5e856017aca10cd8cb68814267baeaf31ead67db3b63db0f5c671bf6a2bc4c",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -1365,6 +1705,16 @@
    },
    "source_sha256": "2f9dea9f3006169c7cbf6c4c5ac93e5bc740fd156a8871ea4ab20f021e446921",
    "source_path": "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json"
+  },
+  {
+   "key": "f65dca82db4e2c3a8eb2fe4b34ba5cd45278fe38196c543fa81b3230bcea890d",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "pressure"
+   },
+   "source_sha256": "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
+   "source_path": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
   },
   {
    "key": "fa982d15ec6f63674d77e805e21f6a29ca804c8866b5a037844b06cd92b4b9dc",

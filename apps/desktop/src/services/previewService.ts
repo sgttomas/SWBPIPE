@@ -680,15 +680,21 @@ async function disposeNativeResult(result: NativeResult): Promise<boolean> {
   return disposePreviewMechanicsResult(jobId);
 }
 
+/** The native job a C2 full copy was copied from: the copy names that job's custody (the held
+ * result's exact bytes) while the job is live, never owning or releasing it. */
+const fullCopyJobs = new WeakMap<MechanicsResult, string>();
+
 /** C2 only: the native result's full copy (at or under 64 MiB), read from its exact bytes and
  * registered as a taken result was (`validateCapturedSource` with the job's capture), so the C2
- * consumers keep their reader and binding semantics. Cached per job until disposal. */
+ * consumers keep their reader and binding semantics: its delivered job (the exact-route report
+ * binding) is the native job, while that job is held. Cached per job until disposal. */
 export function loadNativeFullResult(result: NativeResult): Promise<MechanicsResult> {
   const { jobId } = nativeCustody(result);
   return loadFullResult(result, async (text) => {
     const copy = receiveResultBytes(text);
     const capture = nativeJobCaptures.get(jobId) ?? null;
     if (nativeRegistrations.has(result) && capture) await validateCapturedSource(copy, capture);
+    fullCopyJobs.set(copy, jobId);
     return copy;
   });
 }
@@ -728,6 +734,8 @@ export function deliveredMechanicsResultJob(result: MechanicsResult | NativeResu
     const { jobId } = nativeCustody(result);
     return isNativeJobLive(jobId) ? jobId : null;
   }
+  const copied = result ? fullCopyJobs.get(result) : undefined;
+  if (copied !== undefined) return isNativeJobLive(copied) ? copied : null;
   const delivered = result ? deliveredResults.get(result) : undefined;
   return delivered && !delivered.disposed ? delivered.jobId : null;
 }
