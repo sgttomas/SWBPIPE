@@ -231,6 +231,54 @@ impl ReadMemory for PoolReadMemory<'_> {
     }
 }
 
+/// The memory of a C1 native persistence command (DEL-04-05
+/// `c1-native-custody-plan.md` slice 5): each reservation is its own adaptive
+/// lease of the pool (`acquire_result_parse`: re-sampled only while refused
+/// for headroom, and refused above the per-invocation budget or the 12 GiB
+/// default, whichever is lower), as every C1 reader's lease is. The command's
+/// other leases (its arguments, the held result's parse and output) are pool
+/// leases too, so the pool's admission counts them all together.
+pub(crate) struct NativeLeaseMemory<'a> {
+    registry: &'a SolveJobRegistry,
+}
+
+impl<'a> NativeLeaseMemory<'a> {
+    pub(crate) fn new(registry: &'a SolveJobRegistry) -> Self {
+        Self { registry }
+    }
+}
+
+impl ReadMemory for NativeLeaseMemory<'_> {
+    fn reserve(&self, what: &str, bytes: u64) -> Result<ReadReservation, String> {
+        #[cfg(test)]
+        native_lease_log::push(what, bytes);
+        match self.registry.acquire_result_parse(bytes) {
+            Ok(lease) => Ok(ReadReservation { _leases: vec![lease], bytes, held: None }),
+            Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(format!(
+                "{STORE_READ_MEMORY_UNAVAILABLE}: {what} needs {bytes} bytes of the memory pool, which refused them ({}); nothing more was read or written.",
+                serde_json::to_string(&refusal).unwrap_or_else(|_| "refused".to_string())
+            )),
+            Err(SolveJobError::InvalidRequest { message }) => Err(format!("{STORE_READ_MEMORY_UNAVAILABLE}: {what}: {message}")),
+        }
+    }
+}
+
+/// What each [`NativeLeaseMemory`] reservation was for, in this thread (tests).
+#[cfg(test)]
+pub(crate) mod native_lease_log {
+    use std::cell::RefCell;
+    thread_local! {
+        static LOG: RefCell<Vec<(String, u64)>> = const { RefCell::new(Vec::new()) };
+    }
+    pub(crate) fn push(what: &str, bytes: u64) {
+        LOG.with(|log| log.borrow_mut().push((what.to_string(), bytes)));
+    }
+    /// The reservations since the last take.
+    pub(crate) fn take() -> Vec<(String, u64)> {
+        LOG.with(|log| std::mem::take(&mut *log.borrow_mut()))
+    }
+}
+
 /// No pool: for a store path whose memory a caller has already priced (a write
 /// admitted with its arguments) and for tests that are not about memory.
 pub(crate) struct UnmeteredReadMemory;
@@ -496,6 +544,10 @@ pub(crate) fn json_error(error: &serde_json::Error) -> String {
         category.to_string()
     }
 }
+
+/// The head of [`sql_error`]'s text for SQLite's `SQLITE_TOOBIG` (a string,
+/// a blob or a row longer than the connection's `SQLITE_LIMIT_LENGTH`).
+pub(crate) const SQLITE_TOO_BIG: &str = "STORE-SQL-ERROR: SQLite TooBig";
 
 /// A SQLite error as a message describes it: SQLite's code and extended
 /// code, and its message only when that is at most [`MAX_SHOWN_CHARS`]

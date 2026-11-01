@@ -29,6 +29,8 @@ mod model_document_version;
 mod model_states;
 mod analysis_runs;
 mod analysis_run_v03_build;
+mod native_persistence;
+mod result_js_text;
 #[allow(unsafe_code)]
 mod stored_read;
 #[allow(unsafe_code)]
@@ -1103,10 +1105,79 @@ fn write_project_rows(
     let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
     let project_envelope_hash_json =
         serde_json::to_string(project_envelope_hash).map_err(|error| error.to_string())?;
-    let search_text = format!(
-        "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
-    );
-    let now = now_unix_seconds()?;
+    let texts = ProjectTexts {
+        model_json: &model_json,
+        editor_intents_json: &editor_intents_json,
+        proposal_json: &proposal_json,
+        selected_review_target_json: &selected_review_target_json,
+        mechanics_result_json: &mechanics_result_json,
+        analysis_run_json: &analysis_run_json,
+        model_hash_json: &model_hash_json,
+        project_envelope_hash_json: &project_envelope_hash_json,
+    };
+    let search_text = texts.search_text();
+    write_project_texts(transaction, project_id, project_name, &texts, &search_text, now_unix_seconds()?).map_err(|error| error.to_string())
+}
+
+/// A project row's stored texts: each slot's `serde_json::to_string`, as
+/// [`write_project_rows`] writes them (the native Save Project,
+/// `native_persistence`, writes the result and record slots from the held
+/// result in the same forms).
+pub(crate) struct ProjectTexts<'t> {
+    pub(crate) model_json: &'t str,
+    pub(crate) editor_intents_json: &'t str,
+    pub(crate) proposal_json: &'t str,
+    pub(crate) selected_review_target_json: &'t str,
+    pub(crate) mechanics_result_json: &'t str,
+    pub(crate) analysis_run_json: &'t str,
+    pub(crate) model_hash_json: &'t str,
+    pub(crate) project_envelope_hash_json: &'t str,
+}
+
+impl ProjectTexts<'_> {
+    /// The search row's text: the model, the editor intents, the proposal, the
+    /// selected review target and the analysis-run record, one per line.
+    pub(crate) fn search_text_length(&self) -> u64 {
+        [self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json]
+            .iter()
+            .fold(4u64, |sum, text| sum.saturating_add(text.len() as u64))
+    }
+
+    /// [`ProjectTexts::search_text_length`]'s text, written into a buffer of
+    /// exactly that length.
+    pub(crate) fn search_text(&self) -> String {
+        let mut text = String::with_capacity(usize::try_from(self.search_text_length()).unwrap_or(usize::MAX));
+        for (at, part) in [self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json].iter().enumerate() {
+            if at > 0 {
+                text.push('\n');
+            }
+            text.push_str(part);
+        }
+        text
+    }
+}
+
+/// The project row and its search row, from their texts, at `now` (unix
+/// seconds): the upsert, then the search row replaced. SQLite's own errors are
+/// returned as they are, so a caller can name a row SQLite refused as too big.
+pub(crate) fn write_project_texts(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    search_text: &str,
+    now: i64,
+) -> Result<(), rusqlite::Error> {
+    let ProjectTexts {
+        model_json,
+        editor_intents_json,
+        proposal_json,
+        selected_review_target_json,
+        mechanics_result_json,
+        analysis_run_json,
+        model_hash_json,
+        project_envelope_hash_json,
+    } = *texts;
     transaction
         .execute(
             "
@@ -1137,23 +1208,18 @@ fn write_project_rows(
                 project_envelope_hash_json,
                 now
             ],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "DELETE FROM local_project_fts WHERE project_id = ?1",
-            params![project_id],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "
+        )?;
+    transaction.execute(
+        "DELETE FROM local_project_fts WHERE project_id = ?1",
+        params![project_id],
+    )?;
+    transaction.execute(
+        "
             INSERT INTO local_project_fts (project_id, project_name, model_text)
             VALUES (?1, ?2, ?3)
             ",
-            params![project_id, project_name, search_text],
-        )
-        .map_err(|error| error.to_string())?;
+        params![project_id, project_name, search_text],
+    )?;
     Ok(())
 }
 
@@ -2316,6 +2382,42 @@ async fn read_preview_mechanics_job_analysis_run_preview(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     analysis_run_v03_build::analysis_run_preview(&registry, invoke.body(), invoke.headers()).await.map(analysis_run_v03_build::response)
+}
+
+/// C1 native custody (slice 5's persistence): Record Run of a native-custody
+/// solve from its job handle (`native_persistence`). Raw args body `{jobId,
+/// inputManifest, ruleCheckAggregate, rulePackExclusions, expectedRecord:
+/// {run_id, record_sha256, received_sha256}, request: {expected_base,
+/// state_id, new_state, run_labels}}`; no result, record or manifest object
+/// is sent. The record is rebuilt from the held bytes and must be the one the
+/// session previewed; the run is stored in today's forms after the store's
+/// checks and the connection's exact length limit. The reply is the store's
+/// outcome (as `record_analysis_run`'s) as a JSON body. Only the header
+/// check, copy reservation and body copy run here.
+#[tauri::command]
+async fn record_preview_mechanics_job_analysis_run(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_persistence::record_run(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 native custody (slice 5's persistence): Save or Create Project with a
+/// native-custody solve from its job handle (`native_persistence`). Raw args
+/// body `{jobId, inputManifest, ruleCheckAggregate, rulePackExclusions,
+/// expectedRecord, mode: "create"|"save", projectId?, projectName?, model,
+/// editorIntents, proposal, selectedReviewTarget, modelHash,
+/// confirmedRevision, expectedBase}`; no result, record or envelope hash is
+/// sent. The reply is the stored project's small fields, hashes and what
+/// happened to the result, as a JSON body; never the model, result or record.
+#[tauri::command]
+async fn save_preview_mechanics_job_local_project(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_persistence::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
 }
 
 /// C1 interim (slice 4): a native-custody result's exact bytes, copied
@@ -5744,6 +5846,8 @@ macro_rules! app_invoke_handler {
             query_preview_mechanics_job_source_recovery,
             query_preview_mechanics_job_navigator,
             read_preview_mechanics_job_analysis_run_preview,
+            record_preview_mechanics_job_analysis_run,
+            save_preview_mechanics_job_local_project,
             read_preview_mechanics_job_rows_all,
             release_preview_mechanics_job_full_copy,
             dispose_preview_mechanics_result,

@@ -752,6 +752,9 @@ fn interpret<'t>(table: &'t Value, row: &Value) -> Result<(Option<&'t Value>, &'
 /// borrowed from the source and the inputs, its checksums and its stored
 /// length.
 pub(crate) struct Built<'a> {
+    /// The parsed held result the record was built from (the persistence
+    /// writers read it; as the retained reader rewrote it, numbers only).
+    pub(crate) source: &'a Value,
     rows: &'a [Value],
     pub(crate) route: Route,
     table: &'static Value,
@@ -902,6 +905,7 @@ pub(crate) fn build<'a>(
         return Err(refuse(RECURSION_LIMIT.into()));
     }
     let mut built = Built {
+        source,
         rows,
         table,
         run_id,
@@ -925,11 +929,11 @@ pub(crate) fn build<'a>(
         route,
     };
     let mut hasher = Sha256::new();
-    write_record(&mut Writer::new(&mut hasher, Style::Canonical), &built, Part::Projection, &mut |row| canonical_sha256(row));
+    write_record(&mut Writer::new(&mut hasher, Style::Canonical), &built, Part::Projection, None, &mut |row| canonical_sha256(row));
     built.record_sha256 = hex(&hasher.finalize());
     let mut count = Count::default();
     let placeholder = "0".repeat(64);
-    write_record(&mut Writer::new(&mut count, Style::Stored), &built, Part::Stored, &mut |_| placeholder.clone());
+    write_record(&mut Writer::new(&mut count, Style::Stored), &built, Part::Stored, None, &mut |_| placeholder.clone());
     built.record_bytes = count.0;
     validate_built(&built, source, inputs, reserve)?;
     Ok(built)
@@ -1070,7 +1074,7 @@ fn write_result_ref<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, index: us
 /// which is the same in both styles (every key the record itself writes is
 /// ASCII); copied values follow the writer's style. `row_sha256` gives each
 /// row's checksum.
-fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, row_sha256: &mut dyn FnMut(&Value) -> String) {
+fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, revision: Option<&Revision<'_>>, row_sha256: &mut dyn FnMut(&Value) -> String) {
     let copy = |w: &mut Writer<'_, S>, key: &str| {
         if part == Part::Header {
             return;
@@ -1090,7 +1094,13 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
     }
     w.raw("]");
     copy(w, "contract_evidence");
-    w.raw(",\"created_at\":null");
+    match revision {
+        Some(revision) => {
+            w.raw(",\"created_at\":");
+            w.string(revision.created_at);
+        }
+        None => w.raw(",\"created_at\":null"),
+    }
     if part != Part::Header {
         w.raw(",\"diagnostics\":[");
         for (at, item) in built.producer_diagnostics.iter().chain(&built.rule_pack_diagnostics).enumerate() {
@@ -1109,12 +1119,15 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
     }
     w.raw(",\"hashes\":[");
     if part != Part::Projection {
-        w.checksum(CHECKED_PROFILE_V1, |w| w.object_ref("AnalysisRun", built.run_id), "analysis_run_record", |w| w.string(&built.record_sha256));
+        let record_sha256 = revision.map_or(built.record_sha256.as_str(), |revision| revision.record_sha256.as_str());
+        w.checksum(CHECKED_PROFILE_V1, |w| w.object_ref("AnalysisRun", built.run_id), "analysis_run_record", |w| w.string(record_sha256));
         w.raw(",");
     }
     let envelope = format!("result-envelope:{}", built.run_id);
     w.checksum(CHECKED_PROFILE_V1, |w| w.object_ref("ResultEnvelope", &envelope), "received_result", |w| w.string(&built.received_sha256));
-    w.raw("],\"immutability_policy\":{\"hash_invalidates_external_acceptance\":true,\"mutation_policy\":\"changes_create_new_immutable_record_revision\",\"new_mechanics_run_required_for_record_revision\":false,\"record_revision_identity\":\"analysis_run_record_sha256\",\"run_record_is_read_only\":true},\"library_refs\":[],\"load_basis_refs\":[");
+    w.raw("],\"immutability_policy\":{\"hash_invalidates_external_acceptance\":true,\"mutation_policy\":\"changes_create_new_immutable_record_revision\",\"new_mechanics_run_required_for_record_revision\":false,\"record_revision_identity\":\"analysis_run_record_sha256\",\"run_record_is_read_only\":true},\"library_refs\":[");
+    write_list(w, revision.map_or(&[][..], |revision| revision.library_refs));
+    w.raw("],\"load_basis_refs\":[");
     for (at, reference) in built.load_basis.iter().enumerate() {
         if at > 0 {
             w.raw(",");
@@ -1122,11 +1135,16 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
         w.value(reference);
     }
     w.raw("],\"model_state_ref\":");
-    w.object_ref("ModelState", &format!("state:{}:preview", built.model_ref));
+    match revision {
+        Some(revision) => w.object_ref("ModelState", revision.state_id),
+        None => w.object_ref("ModelState", &format!("state:{}:preview", built.model_ref)),
+    }
     w.raw(",\"professional_boundary\":{\"human_review_required\":true,\"software_makes_approval_claim\":false,\"software_makes_authentication_claim\":false,\"software_makes_certification_claim\":false,\"software_makes_compliance_claim\":false,\"software_makes_sealing_claim\":false},\"provenance\":");
     w.raw(PROVENANCE);
     w.raw(",\"reproducibility\":{\"determinism_notes\":[");
-    for (at, note) in DETERMINISM_NOTES.iter().enumerate() {
+    // A recorded revision drops the `created_at_unavailable` note (its `created_at` is set).
+    let notes = if revision.is_some() { &DETERMINISM_NOTES[1..] } else { &DETERMINISM_NOTES[..] };
+    for (at, note) in notes.iter().enumerate() {
         if at > 0 {
             w.raw(",");
         }
@@ -1153,7 +1171,9 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
         w.raw("]");
     }
     copy(w, "retained_precision");
-    w.raw(",\"rule_pack_refs\":[],\"run_id\":");
+    w.raw(",\"rule_pack_refs\":[");
+    write_list(w, revision.map_or(&[][..], |revision| revision.rule_pack_refs));
+    w.raw("],\"run_id\":");
     w.string(built.run_id);
     w.raw(",\"run_kind\":\"mechanics_solve\",\"run_name\":");
     w.string(&format!("{} analysis record", built.run_id));
@@ -1174,6 +1194,84 @@ fn write_record<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, part: Part, r
     w.raw("\",\"scope_item\":\"SOW-072\"}");
 }
 
+/// Writes `items` as a JSON list's members (comma-separated).
+fn write_list<S: Sink>(w: &mut Writer<'_, S>, items: &[Value]) {
+    for (at, item) in items.iter().enumerate() {
+        if at > 0 {
+            w.raw(",");
+        }
+        w.value(item);
+    }
+}
+
+/// Record Run's recorded revision of the record
+/// (`analysis_runs::recorded_revision` over the transient record): its
+/// `created_at`, its state, the manifest's rule-pack refs and the solved
+/// model's library refs, the `created_at_unavailable` note dropped, and its
+/// own `analysis_run_record` checksum (the canonical projection of the
+/// revision, [`revision_sha256`]). Every other member is the transient
+/// record's.
+pub(crate) struct Revision<'r> {
+    pub(crate) created_at: &'r str,
+    pub(crate) state_id: &'r str,
+    pub(crate) rule_pack_refs: &'r [Value],
+    pub(crate) library_refs: &'r [Value],
+    /// Filled by [`Revision::sealed`].
+    pub(crate) record_sha256: String,
+}
+
+impl Revision<'_> {
+    /// The revision with its own checksum: the record's canonical projection
+    /// with the revision applied, streamed into SHA-256 (each row's checksum
+    /// streamed again).
+    pub(crate) fn sealed(mut self, built: &Built<'_>) -> Self {
+        let mut hasher = Sha256::new();
+        write_record(&mut Writer::new(&mut hasher, Style::Canonical), built, Part::Projection, Some(&self), &mut |row| canonical_sha256(row));
+        self.record_sha256 = hex(&hasher.finalize());
+        self
+    }
+
+    /// The revision's exact stored length, counted (the rows' checksums by length).
+    pub(crate) fn stored_length(&self, built: &Built<'_>) -> u64 {
+        let mut count = Count::default();
+        let placeholder = "0".repeat(64);
+        write_record(&mut Writer::new(&mut count, Style::Stored), built, Part::Stored, Some(self), &mut |_| placeholder.clone());
+        count.0
+    }
+
+    /// The revision's stored bytes, into a buffer of `length` (its
+    /// [`Revision::stored_length`]) admitted through `reserve` first.
+    pub(crate) fn stored_bytes<R>(&self, built: &Built<'_>, length: u64, reserve: impl FnOnce(u64) -> Result<R, CommandError<String>>) -> Result<(Vec<u8>, R), CommandError<String>> {
+        let guard = reserve(ingress::allocation_envelope(length).unwrap_or(u64::MAX))?;
+        let mut out = Vec::with_capacity(length as usize);
+        write_record(&mut Writer::new(&mut out, Style::Stored), built, Part::Stored, Some(self), &mut |row| canonical_sha256(row));
+        assert!(out.len() as u64 == length, "the recorded revision is its counted length");
+        Ok((out, guard))
+    }
+}
+
+/// The record's members other than its row-scale ones (the header's
+/// `record`: no `result_refs`, producer `diagnostics` or copied members), as a
+/// value, for the binding checks Record Run applies to a record
+/// (`analysis_runs::check_native_header`). Its size does not grow with the rows.
+pub(crate) fn header_record(built: &Built<'_>) -> Value {
+    let mut out = Vec::new();
+    write_record(&mut Writer::new(&mut out, Style::Stored), built, Part::Header, None, &mut |_| unreachable!("the header writes no rows"));
+    serde_json::from_slice(&out).expect("the header record is JSON")
+}
+
+/// The whole transient record's RFC 8785 canonical text (`canonical_json` of
+/// its stored value) streamed into `out`: the project envelope payload's
+/// `analysis_run` (each row's checksum streamed again).
+pub(crate) fn write_canonical_record<S: Sink>(built: &Built<'_>, out: &mut S) {
+    write_record(&mut Writer::new(out, Style::Canonical), built, Part::Stored, None, &mut |row| canonical_sha256(row));
+}
+
+/// The source's `model_ref` (the project of the run).
+pub(crate) fn model_ref<'a>(built: &Built<'a>) -> &'a str {
+    built.model_ref
+}
+
 /// The record's stored bytes: the length checked against `max_bytes` and
 /// admitted through `reserve` before the buffer is allocated (a record over
 /// the bound is refused by name, nothing allocated), then written at that
@@ -1192,7 +1290,7 @@ pub(crate) fn record_bytes<R>(
     }
     let guard = reserve(ingress::allocation_envelope(built.record_bytes).unwrap_or(u64::MAX))?;
     let mut out = Vec::with_capacity(built.record_bytes as usize);
-    write_record(&mut Writer::new(&mut out, Style::Stored), built, Part::Stored, &mut |row| canonical_sha256(row));
+    write_record(&mut Writer::new(&mut out, Style::Stored), built, Part::Stored, None, &mut |row| canonical_sha256(row));
     assert!(out.len() as u64 == built.record_bytes, "the stored record is its counted length");
     Ok((out, guard))
 }
@@ -1224,7 +1322,7 @@ fn write_header<S: Sink>(w: &mut Writer<'_, S>, built: &Built<'_>, job_id: &str)
     w.raw(",\"producer_diagnostic_count\":");
     w.unsigned(built.producer_diagnostics.len() as u64);
     w.raw(",\"record\":");
-    write_record(w, built, Part::Header, &mut |_| unreachable!("the header writes no rows"));
+    write_record(w, built, Part::Header, None, &mut |_| unreachable!("the header writes no rows"));
     w.raw(",\"record_bytes\":");
     w.unsigned(built.record_bytes);
     w.raw(",\"result_ref_count\":");
@@ -1408,8 +1506,21 @@ pub(crate) struct Prepared {
 /// canonical bytes that are not JSON leave no manifest, which the check
 /// refuses).
 pub(crate) fn admit(registry: &SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<Prepared, CommandError<String>> {
+    admit_for(registry, raw, copy, COMMAND, |_| Ok(())).map(|(prepared, ())| prepared)
+}
+
+/// [`admit`] for another command reading the same arguments and its own
+/// (`extra` decodes them before the held result is found), under that
+/// command's name. The persistence commands (`native_persistence`) admit here.
+pub(crate) fn admit_for<E>(
+    registry: &SolveJobRegistry,
+    raw: Vec<u8>,
+    copy: Lease,
+    command: &'static str,
+    extra: impl FnOnce(&mut command_ingress::Args) -> Result<E, CommandError<String>>,
+) -> Result<(Prepared, E), CommandError<String>> {
     let copy_bytes = copy.bytes();
-    let (mut args, mut lease) = command_ingress::admit_raw(registry, &raw, COMMAND, ArgsDecoding::Moved, |bytes| {
+    let (mut args, mut lease) = command_ingress::admit_raw(registry, &raw, command, ArgsDecoding::Moved, |bytes| {
         let mut lease = copy;
         lease.grow_to(copy_bytes.saturating_add(bytes)).map_err(|refusal| registry.refuse(refusal))?;
         Ok(lease)
@@ -1419,6 +1530,7 @@ pub(crate) fn admit(registry: &SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> R
     let evidence: ManifestArg = args.decode("inputManifest")?;
     let aggregate: Option<String> = args.decode("ruleCheckAggregate")?;
     let exclusions: Option<Vec<Exclusion>> = args.decode("rulePackExclusions")?;
+    let extra = extra(&mut args)?;
     drop(args);
     let held = registry.held_result(&job_id)?;
     let manifest = match command_ingress::text_parse_bytes(&evidence.canonical_bytes, ArgsDecoding::Moved) {
@@ -1429,16 +1541,19 @@ pub(crate) fn admit(registry: &SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> R
         }
         Err(_) => None,
     };
-    Ok(Prepared {
-        job_id,
-        manifest_sha256: Value::String(evidence.manifest_sha256.clone()),
-        evidence,
-        manifest,
-        aggregate: aggregate.map(Value::String),
-        exclusions: exclusions.unwrap_or_default(),
-        held,
-        args_lease: lease,
-    })
+    Ok((
+        Prepared {
+            job_id,
+            manifest_sha256: Value::String(evidence.manifest_sha256.clone()),
+            evidence,
+            manifest,
+            aggregate: aggregate.map(Value::String),
+            exclusions: exclusions.unwrap_or_default(),
+            held,
+            args_lease: lease,
+        },
+        extra,
+    ))
 }
 
 /// The held text parsed under the parse lease of its materialization M,

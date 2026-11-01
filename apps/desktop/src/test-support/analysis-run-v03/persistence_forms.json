@@ -1,0 +1,456 @@
+{
+ "document_kind": "swbpipe.desktop.persistence_forms",
+ "version": 1,
+ "note": "Written by persistenceFormsCases.ts from the unchanged TypeScript paths; PERSISTENCE_FORMS_WRITE=1 rewrites it.",
+ "cases": [
+  {
+   "id": "preview:connected",
+   "js_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "stringify_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:solver-mode:linear-solve-basis"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:d94649505a50254ffbe02c787b3c67ac70bd86eea3376c7887e4b4fd892b2632",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:6af89c0fbaf57a0beb620749152e698385a73b5a1ccd0a3a9f57840721b3940c",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  },
+  {
+   "id": "preview:aggregate-failed",
+   "js_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "stringify_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:solver-mode:linear-solve-basis"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:5025416426e3cb3788b3e8f3151a1cffad3437e839796aaf071afde824f3564c",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:6af89c0fbaf57a0beb620749152e698385a73b5a1ccd0a3a9f57840721b3940c",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  },
+  {
+   "id": "preview:aggregate-unrecognized",
+   "js_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "stringify_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:solver-mode:linear-solve-basis"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:d5296f829b97b521f75575469ee40f96be09bbb981989b6bce8e388ef4ffd5c5",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:d94649505a50254ffbe02c787b3c67ac70bd86eea3376c7887e4b4fd892b2632",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:6af89c0fbaf57a0beb620749152e698385a73b5a1ccd0a3a9f57840721b3940c",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  },
+  {
+   "id": "preview:rule-pack-excluded",
+   "js_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "stringify_text": {
+    "sha256": "8612ea83e946b2787369fe975703d9fe12f7ceb65a13f3b5a675e24057278ae0",
+    "length": 70791
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:solver-mode:linear-solve-basis"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:e2bbdf8e46d63772b54b2a960f70e81430c3e415bd5bb6fadedd230521f6d0a1",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:ee857700527c95c5dbe3c84dfb718cd4791e6de55cd75f2246a1d26de906d8f9",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:precision-connected-fixture",
+     "value": "sha256:8f837aaf2470fbeb32f9d1b0c2726f9f8158ef7061951b7e7e345c52d5917248",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  },
+  {
+   "id": "preview:pressure",
+   "js_text": {
+    "sha256": "8349465a635d180164e8a0f762c1a755b4798fa0a3ef93aaf5b383aa9f56fa7c",
+    "length": 252768
+   },
+   "stringify_text": {
+    "sha256": "2524ae1b41e732b9d3a85dacd09c8d4a1e2903e49007f80ca2a9e7fc93c98bcb",
+    "length": 252764
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:solver-mode:linear-solve-basis"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "project:exact-pressure-connected-fixture",
+     "value": "sha256:82130b69e548fda4c0639dd6986e62b7eebbd3fb922b6fb334143d9d6e229102",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:exact-pressure-connected-fixture",
+     "value": "sha256:d76eb9d520f09f0d296ea4bc047d19ab0ade2596a08a03b6a553d1c34a4c18ab",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "project:exact-pressure-connected-fixture",
+     "value": "sha256:0279669534b3a592c1414ee1d98560e27e11edbea27854a1e0ad36d2b69105fb",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  },
+  {
+   "id": "preview:pressure-source",
+   "js_text": {
+    "sha256": "3bf9bbcc103123ffa0da223caadc89214450ed9b606e68284dd42c4d8db1111b",
+    "length": 187487
+   },
+   "stringify_text": {
+    "sha256": "3bf9bbcc103123ffa0da223caadc89214450ed9b606e68284dd42c4d8db1111b",
+    "length": 187487
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:disp:independent-root"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "synthetic:physics-source:n05",
+     "value": "sha256:1a283a0799a0019e32e094ea55b2eb25b389b83320390a1d6a9927c3a37eefb2",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "synthetic:physics-source:n05",
+     "value": "sha256:315aec49c0e6cc050c593c1bcc890cfca691eb37924487c5ab0e5c0f05c09c2e",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "synthetic:physics-source:n05",
+     "value": "sha256:ecbd206cd39af6473ebead2fa8b6e82d4a6536d6fa11d1cc9cb5051540c05897",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  },
+  {
+   "id": "preview:retained",
+   "js_text": {
+    "sha256": "6a5ec17494f939b5cf60866923deb933b9e7da1a7479c5304f4e7503774571fc",
+    "length": 134900
+   },
+   "stringify_text": {
+    "sha256": "6a5ec17494f939b5cf60866923deb933b9e7da1a7479c5304f4e7503774571fc",
+    "length": 134900
+   },
+   "save": {
+    "editor_intents": [
+     {
+      "intent_id": "intent:invented-1",
+      "operation": "set_node_coordinates",
+      "target_ref": "node:invented",
+      "note": "Invented intent."
+     }
+    ],
+    "proposal": {
+     "proposal_id": "proposal:invented",
+     "summary": "Invented proposal.",
+     "operations": []
+    },
+    "selected_review_target": {
+     "target_type": "result",
+     "id": "result:solver-mode:linear-solve-basis"
+    },
+    "model_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "model_payload",
+     "payload_ref": "invented:t3-p1:RF-SKEW-T-CANT-OFF-122-r1e-04",
+     "value": "sha256:ff1400948b8906b6885f18a8330f817bd732493986f156d84786d256e5fa605b",
+     "hash_status": "computed_local_preview"
+    },
+    "envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "invented:t3-p1:RF-SKEW-T-CANT-OFF-122-r1e-04",
+     "value": "sha256:f2c04d67701296bb5ffdb3cc91748f99ae0d1ce3a4ae7a50463af23104ad1ee5",
+     "hash_status": "computed_local_preview"
+    },
+    "model_only_envelope_hash": {
+     "algorithm": "sha256",
+     "canonicalization": "rfc8785_jcs",
+     "payload_scope": "project_envelope_payload",
+     "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+     "payload_ref": "invented:t3-p1:RF-SKEW-T-CANT-OFF-122-r1e-04",
+     "value": "sha256:54fdd945b08739a0d6b49d4a55fe94a999713d93cf5e500e10a798600bf43135",
+     "hash_status": "computed_local_preview"
+    }
+   }
+  }
+ ],
+ "edges": [
+  {
+   "text": "{\"b\":1,\"a\":2,\"10\":3,\"2\":4,\"01\":5,\"-1\":6,\"4294967294\":7,\"4294967295\":8,\"\":9,\"0\":10}",
+   "js_text": "{\"0\":10,\"2\":4,\"10\":3,\"4294967294\":7,\"b\":1,\"a\":2,\"01\":5,\"-1\":6,\"4294967295\":8,\"\":9}",
+   "stringify_text": "{\"0\":10,\"2\":4,\"10\":3,\"4294967294\":7,\"b\":1,\"a\":2,\"01\":5,\"-1\":6,\"4294967295\":8,\"\":9}"
+  },
+  {
+   "text": "{\"a\":1,\"b\":{\"x\":1},\"a\":3,\"b\":[2]}",
+   "js_text": "{\"a\":3,\"b\":[2]}",
+   "stringify_text": "{\"a\":3,\"b\":[2]}"
+  },
+  {
+   "text": "[-0,-0.0,0,-0e5,1.0,1e21,1e-7,1.5e300,123456789012345678901234567890,0.1,5e-324,1.7976931348623157e308,9007199254740993,-9007199254740993,2.5E-3,100]",
+   "js_text": "[-0,-0,0,-0,1,1e+21,1e-7,1.5e+300,1.2345678901234568e+29,0.1,5e-324,1.7976931348623157e+308,9007199254740992,-9007199254740992,0.0025,100]",
+   "stringify_text": "[0,0,0,0,1,1e+21,1e-7,1.5e+300,1.2345678901234568e+29,0.1,5e-324,1.7976931348623157e+308,9007199254740992,-9007199254740992,0.0025,100]"
+  },
+  {
+   "text": "{\"s\":\"\\u0041\\u00e9\\n\\t\\\"\\\\\\/\\u2028\\u001f\\u007fé😀\\ud83d\\ude00\",\"\\u00e9key\":\"x\",\"😀\":1,\"\\uffff\":2,\"zé\":[]}",
+   "js_text": "{\"s\":\"Aé\\n\\t\\\"\\\\/ \\u001fé😀😀\",\"ékey\":\"x\",\"😀\":1,\"￿\":2,\"zé\":[]}",
+   "stringify_text": "{\"s\":\"Aé\\n\\t\\\"\\\\/ \\u001fé😀😀\",\"ékey\":\"x\",\"😀\":1,\"￿\":2,\"zé\":[]}"
+  },
+  {
+   "text": " { \"x\" : [ 1 , { \"y\" : null , \"z\" : true } , false ] ,\n\t\"w\" : { } , \"v\" : [ ] } ",
+   "js_text": "{\"x\":[1,{\"y\":null,\"z\":true},false],\"w\":{},\"v\":[]}",
+   "stringify_text": "{\"x\":[1,{\"y\":null,\"z\":true},false],\"w\":{},\"v\":[]}"
+  },
+  {
+   "text": "\"just a string\"",
+   "js_text": "\"just a string\"",
+   "stringify_text": "\"just a string\""
+  },
+  {
+   "text": "123",
+   "js_text": "123",
+   "stringify_text": "123"
+  },
+  {
+   "text": "null",
+   "js_text": "null",
+   "stringify_text": "null"
+  },
+  {
+   "text": "{\"__proto__\":{\"a\":1},\"constructor\":2,\"toString\":\"x\"}",
+   "js_text": "{\"__proto__\":{\"a\":1},\"constructor\":2,\"toString\":\"x\"}",
+   "stringify_text": "{\"__proto__\":{\"a\":1},\"constructor\":2,\"toString\":\"x\"}"
+  },
+  {
+   "text": "{\"big\":1e400,\"small\":-1e400}",
+   "js_text": "{\"big\":null,\"small\":null}",
+   "stringify_text": "{\"big\":null,\"small\":null}"
+  },
+  {
+   "text": "[[[[[{\"deep\":[{\"deeper\":{\"deepest\":-0.0}}]}]]]]]",
+   "js_text": "[[[[[{\"deep\":[{\"deeper\":{\"deepest\":-0}}]}]]]]]",
+   "stringify_text": "[[[[[{\"deep\":[{\"deeper\":{\"deepest\":0}}]}]]]]]"
+  }
+ ]
+}
