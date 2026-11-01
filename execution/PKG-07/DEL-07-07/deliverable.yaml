@@ -289,6 +289,8 @@ checks:
 - apps/desktop/src/services/analysisRunV03Parity.test.ts
 - apps/desktop/src-tauri/src/native_replay_tests.rs
 - apps/desktop/src/services/nativeResult.connect.test.ts
+- apps/desktop/src/App.nativeCustody.test.tsx
+- apps/desktop/src/features/knowledge/KnowledgePanel.native.test.tsx
 - tests/test_solve_execution_ux.py
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs

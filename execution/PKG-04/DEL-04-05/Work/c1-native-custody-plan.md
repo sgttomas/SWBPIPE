@@ -434,11 +434,56 @@ JavaScript-number writer keeping negative zeros, in the source's key order, for 
 compute the envelope hash natively; it cannot write the held bytes verbatim without changing what
 is stored. This is stated for the slice-5 persistence review, not decided here.
 
-**Remaining for this slice** (not done in this increment): kind and element stepping of the results
-navigator for a native result (a visible notice says so; the filters reach every row); the native
-chunked CSV writer for result groups (the interim assembles up to 200,000 rows in the webview and
-refuses above by name); the App and session tests still written against the take path or needing
-their native replies recorded (84 tests in 21 files at `23a26ffdd`).
+**Connection repairs (2026-10-31, same branch).** Defects found in the connected increment, each
+repaired with a test:
+
+- The C2 gate read the session's loader as an effect dependency; the loader is a new function on
+  every session render and each load published a new copy state, so a mounted gate reloaded
+  without end (the second solve of `App.keyResults` hung inside `act`). The gate now reads the
+  loader when a load starts, and binds each request and outcome to the result and record it was
+  made on; the session publishes the copy only when it changes.
+- The Solve section is open when a solve lands, and its rule checks loaded the full copy at first
+  paint. They now load on request (one gate). `App.nativeCustody.test.tsx` pins first paint: no
+  take, no full copy and no TypeScript full record with Solve open and Results and Report dormant;
+  one copy and one full record per job on request or section opening; none after a second solve
+  until asked.
+- A delivered copy that is not kept (unreadable, or its registration refused) now releases its
+  custody lease (`release_preview_mechanics_job_full_copy`), so a later request can copy again.
+- A native record's full record is built once on the job's copy and shared by the C2 consumers
+  (each gate and save rebuilt it).
+- Exact-route reports (W-11) of a native result were refused: the copy named no delivering job
+  (`REPORT-EXACT-ADMISSION-BINDING-MISMATCH`), and `solve_jobs::custody_binding` answered only for
+  a taken result (`REPORT-EXACT-CUSTODY-RELEASED`). The copy now names its native job while that
+  job is held, and `custody_binding` also answers for a native-custody result while it is held,
+  with the digests recorded at publication; disposal ends both. This changes DEL-08-01's §3.6
+  custody rule (amended there) and makes one sentence of DEL-04-07's memory-budget decision stale
+  ("only while the result is delivered"); that decision text is Agent 0's and is not edited here.
+- Create and Save Project after a reference inspection with no result failed (a TypeError): the
+  session's run was skipped whenever a retained reference run existed, then read through. It is
+  read again whenever the retained run lacks the result or record, as before C1.
+- A refused native lookup in Knowledge showed the panel without its computed record; it now says
+  the lookup was refused. The comparison builders take the record identity they read
+  (`ComparedRun`), so the session passes a native record header without a cast.
+
+The App and session tests were moved to the handle: counts and units through `resultRowCount` and
+`resultUnits`; full rows, full records and saved bytes through the session's `loadC2Full` (as the
+C2 consumers read them); refusals and failures that met the take now meet the first native read;
+identity waits replace deep comparisons of guarded objects. Native replay: 235 requests from the
+session and panel tests, each answered by its actual Rust command (`native_replay_tests`); sources
+are committed fixtures by path, and the one re-serialized source is kept once. At `9950fd495`:
+`tsc -b` clean; the full desktop vitest 7,349 of 7,351 pass, one todo, one failure
+(`App.resultsNavigator`, below); the desktop build passes.
+
+**Remaining for this slice:** kind and element stepping of the results navigator for a native
+result (a visible notice says so; the filters reach every row; `App.resultsNavigator.test.tsx`
+fails on `results-navigator-kind-position` until it lands); the native chunked CSV writer for
+result groups (the interim assembles up to 200,000 rows in the webview and refuses above by name,
+which is not the streaming writer §5 requires); native Record Run, Save Project and Save Result JSON
+(slice 5; the interim writes through the C2 copy). The refusal text for a refused hand-off still
+says "a refused take" (`solveJobAudit.ts`, pinned by DEL-04-07's decision text); under C1 the
+refused step is the first native read. The independent review of these connection changes
+(numerical meaning, persistence, permissions: the custody binding) is still owed. Memory fit at
+large sizes is unmeasured (slice 7).
 
 ### Slice 5: native analysis-run preview, Record Run and Save Project (v0.3, exact bytes)
 
