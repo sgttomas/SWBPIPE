@@ -135,7 +135,7 @@ def test_prepare_preserves_all_unrelated_positive_rules_and_base_bytes(tmp_path)
     actual_text = json.loads(Path(paths["text_args.g4.json"]).read_text())
     expected_text = deepcopy(old_text)
     expected_text["id_audit"].pop("core/solver/frame_kernel/src/structural/retained/adaptive.rs:5082")
-    expected_text["id_audit"]["core/product_physics/src/lib.rs:10234"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
+    expected_text["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
     old_join = MODEL["BASE_PREIMAGES"]["provenance_join"]
     expected_text["join_rules"][expected_text["join_rules"].index(old_join)] = next(
         x["after"] for x in report["alterations"] if x["family"] == "join_rules")
@@ -162,7 +162,7 @@ def test_exact_positive_rule_preimages_refuse_drift(tmp_path, change):
         target = Path(inherited["text_args.g4.json"])
         data = json.loads(target.read_text())
         if change == "record":
-            data["id_audit"]["core/product_physics/src/lib.rs:10234"]["basis_record"]["bytes"] = 599
+            data["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"]["bytes"] = 599
         elif change == "join":
             rule = next(r for r in data["join_rules"] if r["re"] == "^provenance_records$")
             rule["bytes"] = "2647"
