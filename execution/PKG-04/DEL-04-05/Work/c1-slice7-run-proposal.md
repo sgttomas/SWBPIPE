@@ -6,8 +6,8 @@ proposal, not a window grant, measurement, acceptance or memory-fit result.
 **Execution status:** the release App, two model documents and baseline P2 plan
 are prepared. P1's runner safeguards cleared the final independent recheck at
 `dee93a72`. P2's interaction probes and P3's feature-gated scalar reader probe are
-implemented offline. Connected scrutiny, a newly bound smoke binary and
-exact-head CI remain prerequisites below. Do not acquire an
+implemented offline. The new smoke binary is bound below; connected scrutiny and exact-head CI
+remain prerequisites. Do not acquire an
 exclusive interval or launch the App until those are
 ready and the narrow run authority has been granted. Preparation has launched no
 App, solve worker, model solve, memory sampler, screenshot or LLM session.
@@ -54,6 +54,40 @@ changes `perf.mjs`, `perf-sampler.py` and their tests. P2 also changes the
 external driver and plan. Neither changes the bound App/worker/frontend. Bind its submitting revision and re-hash those
 external scripts before execution. The old identities do not certify the new
 supervision path, and green CI at 867e51b does not cover that later code.
+
+## Later instrumented executable (prepared offline)
+
+The P2 probe source is commit `e989364ec`; P3 is
+`284c71f48165fac5ec34cf0cf8ba5eb20b74113f`. The latter was built from a clean tree through the
+same maintained `--build` recipe, with no launch. The source delta from the
+reviewed runtime is explicit: native-smoke reader instrumentation, inactive
+allocator hooks under that feature, external driver/plan/reporting and tests,
+and the narrowly parsed TLS scan form. It changes no core, pricing, schema,
+ordinary product handler or frontend source. The current frontend/dist and
+both Wasm identities equal the original a37d binding above. Later Work-only
+binding reconciliation does not change this runtime/test identity.
+
+- Binding: `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-p3/perf-binding.json`.
+- App/worker: `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-p3/openpipestress-desktop`,
+  50,985,168 bytes, SHA-256 `288811f283e2e979fa17a452d478f378a5d85d717662fb4751d9dfbb94c48dcf`.
+- Worker is the same new executable with `--swbpipe-solve-worker`; inactive
+  counter checks add instrumentation overhead even outside P3. Neither App
+  binary has been launched.
+
+Current external source identities (SHA-256):
+
+| File | Digest |
+| --- | --- |
+| `perf.mjs` | `a921d9817b83526c8d815519eec9e9ed1a7168aac6faff1123b92f2ffbe5ade2` |
+| `perf-driver.js` | `c341d8de4a46ce71087094cc6f2e3169e138069a158642ccfd04e7b5dc525545` |
+| `perf-sampler.py` | `3b9f6ebb03fad25024f59c7f62aefc95d66ae02b4b463b226a75ad519a483f05` |
+| `perf-plan-c1.json` | `663a0affddcdd40323e11f3f4a89e1a10e961ab34e7e1f301d89825f5fbec2cc` |
+
+The original a37d App remains preserved in `app/`; execution recipes below
+select `app-p3/`. P1 was independently clear at dee93a72 and its control block
+is byte-identical. P2/P3's connected measurement/permissions scrutiny remains
+owed, including the TLS scan delta. No successful allocation probe or native
+interaction is claimed by compilation or these hashes.
 
 ## Inputs and reproducible commands
 
@@ -420,7 +454,7 @@ gate. The P1 control block is byte-identical to its reviewed `dee93a72` source;
 P2 changes input validation, observation, UI probes and read-only file inspection.
 No new product command or scope is needed for P2.
 
-P3 — **Implemented offline; binding and connected review required.**
+P3 — **Implemented and bound offline; connected review required.**
 The existing native-smoke feature now supplies the read-only scalar command
 above and the C1 plan enables it. The existing allocator facility is also
 compiled under that feature, remaining inactive except on the probe thread.
@@ -432,12 +466,20 @@ re-pin is added; the ordinary product handler definition is unchanged.
 
 Thirty-six Node tests pass with synthetic phase metrics; the Rust smoke library
 compiles, and an unknown-handle test refuses before file access/measurement with
-all leases returned. The counter's unwind-disarm unit check passes. No successful
+all leases returned. The counter's unwind-disarm unit check passes. The 34
+existing reach tests passed after the syntax changes; the new TLS case initially
+failed because its synthetic file was not traversed, then lacked its required
+module attribute. The corrected case passes against the final parser, including
+hidden calls/includes, non-static bodies and wrong-file/spelling refusals. This
+is scoped evidence, not a repeated full desktop Rust/vitest run. The default
+product library check, timeline table comparison, TypeScript/release smoke build,
+model-version tests (8), plan validation and deliverables check (0 errors, the
+existing one cycle) pass. Full-PR-range selection at 195 paths selects desktop
+build/test/Rust and model-version; final hosted checks remain required. No successful
 probe, allocation profile or native App invocation has run. The connected P2/P3
 review must cover actual API shapes/binding, measurement interpretation,
 permissions/feature exclusion and the narrow TLS scan delta, without reopening
-P1's closed three rounds for unchanged controls or wording. Exact-head hosted CI
-and the new release binding are still required. The live allocation/timing run
+P1's closed three rounds for unchanged controls or wording. The new release binding is recorded above; exact-head hosted CI is still required. The live allocation/timing run
 belongs inside the authorized interval, never an ordinary concurrent test. If it cannot fit with
 the App sequence inside A/B, return a bounded additional-interval proposal;
 do not silently add one or extend either interval. These prerequisites are
