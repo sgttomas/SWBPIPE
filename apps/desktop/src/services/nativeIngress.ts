@@ -75,6 +75,8 @@ export const NATIVE_INGRESS_COMMANDS = [
   // C1 slice 6: saved and recorded runs reopened into native custody.
   "open_local_project_in_native_custody",
   "read_analysis_run_in_native_custody",
+  // C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its handle.
+  "save_restored_result_local_project",
   "save_preview_mechanics_job_local_project"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];

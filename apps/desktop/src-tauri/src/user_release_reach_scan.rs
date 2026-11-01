@@ -570,9 +570,13 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `open_local_project_in_native_custody`, `read_analysis_run_in_native_custody`
 /// and `read_restored_result_record_all` (the previous digest `010b2557…d6d4bf`
 /// reproduced first; the macro's only change is those three lines; reviewed
-/// likewise: no `mod`, no `$parameter ::`, no scanned name).
+/// likewise: no `mod`, no `$parameter ::`, no scanned name), and after C1
+/// slice 6's save continuity added one ordinary handler entry,
+/// `save_restored_result_local_project` (the previous digest `4d4c5707…5c97ca`
+/// reproduced first; the macro's only change is that line; reviewed likewise:
+/// no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "4d4c57079e89c7f706f71902cf936116c6fd3f87d50a7efb3e81343e625c97ca"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "2af3c0143ed4383f0ea012f3a6549f6859442e68ab5bf5487eb1eef3de807279"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];

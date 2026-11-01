@@ -637,7 +637,16 @@ fn the_webviews_reopen_replies_are_the_commands_replies() {
     let mut answered = Vec::new();
     for request in requests["requests"].as_array().unwrap() {
         let command = request["command"].as_str().unwrap();
-        let reply = crate::native_replay_tests::reply(&registry, command, &with_handle(&request["args"], &handle));
+        let args = with_handle(&request["args"], &handle);
+        // C1 slice 6's save continuity: the session's Save Project from the handle, on the same store.
+        let reply = if command == crate::stored_save::COMMAND {
+            match crate::stored_save::tests::native_resave(&registry, &path, &args, &unlimited()) {
+                Ok(reply) => json!({"ok": true, "body": "json", "value": webview_value(reply, &handle)}),
+                Err(error) => json!({"ok": false, "error": serde_json::to_value(CommandError::<String>::Command(error)).unwrap()}),
+            }
+        } else {
+            crate::native_replay_tests::reply(&registry, command, &args)
+        };
         answered.push(json!({"command": command, "args": request["args"], "reply": reply}));
     }
     assert!(registry.dispose_result(&handle).unwrap().released);
@@ -659,7 +668,7 @@ fn the_webviews_reopen_replies_are_the_commands_replies() {
     };
     let document = json!({
         "document_kind": "swbpipe.desktop.native_reopen_replies",
-        "note": "Written by stored_custody_tests.rs from the actual commands on a real store (the session's native Save and Record Run, a session reset, then the reopen; the store's path written $STORE, each restored handle $HANDLE); NATIVE_REOPEN_REPLIES_WRITE=1 rewrites it.",
+        "note": "Written by stored_custody_tests.rs from the actual commands on a real store (the session's native Save and Record Run, a session reset, then the reopen, the historical panel's reads and the session's Save Project from the restored handle; the store's path written $STORE, each restored handle $HANDLE); NATIVE_REOPEN_REPLIES_WRITE=1 rewrites it.",
         "source_path": REPLAY_SOURCE,
         "open": {"command": OPEN_COMMAND, "args": {"projectId": project_id}, "reply": {"ok": true, "body": "json", "value": webview_value(opened, &handle)}},
         "read": {"command": RUN_COMMAND, "args": {"projectId": project_id, "recordingId": recording_id}, "reply": {"ok": true, "body": "json", "value": webview_value(read, &read_handle)}},

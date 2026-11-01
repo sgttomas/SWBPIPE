@@ -21,7 +21,9 @@
 //!   attestation, worker grant, timestamp or job id of a solve; nothing here
 //!   invents one. Fresh persistence, the fresh record preview and exact-route
 //!   custody refuse it (`native_persistence`, `analysis_run_v03_build`,
-//!   `solve_jobs::custody_binding`). Its standing is historical: the findings
+//!   `solve_jobs::custody_binding`). A saved project run's handle also holds
+//!   its stored project's model hash and envelope evidence, the basis a
+//!   project save re-saves it with (`stored_save`). Its standing is historical: the findings
 //!   are `buildHistoricalRunContext`'s or `buildRecordedRunContext`'s
 //!   (`analysis_run_v03_validate`), and nothing grants it Current.
 //! - **Nothing is written.** Opening reads; the stored bytes, records, model
@@ -61,7 +63,7 @@ use crate::analysis_runs::{self, NativeRunLoad};
 use crate::command_ingress::{self, ArgsDecoding, CommandError};
 use crate::ingress;
 use crate::memory_pool::Lease;
-use crate::solve_jobs::{sha256_in_place, HeldResult, RestoredSource, SolveJobError, SolveJobRegistry};
+use crate::solve_jobs::{sha256_in_place, EnvelopeBasis, HeldResult, RestoredBasis, RestoredSource, SolveJobError, SolveJobRegistry};
 use crate::stored_read::{self, NativeLeaseMemory};
 use rusqlite::{params, OptionalExtension};
 use serde::Serialize;
@@ -116,7 +118,7 @@ fn lease(registry: &SolveJobRegistry, what: &str, bytes: u64) -> Result<Lease, S
 /// A stored text parsed under its materialization's lease, admitted first.
 /// `Err(Ok(message))`: the text is not JSON (serde_json's message, as the
 /// stores report it); `Err(Err(refusal))`: the pool refused the parse.
-fn parse_leased(registry: &SolveJobRegistry, what: &str, text: &str) -> Result<(Value, Lease), Result<String, String>> {
+pub(crate) fn parse_leased(registry: &SolveJobRegistry, what: &str, text: &str) -> Result<(Value, Lease), Result<String, String>> {
     let bound = match ingress::prescan(text.as_bytes()) {
         Ok(bound) => bound,
         // The prescan refuses without allocating; serde_json's message comes
@@ -399,7 +401,10 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
                 record_sha256: Some(hex(&sha256_in_place(run.record.as_bytes()))),
             };
             let (result_bytes, record_bytes) = (run.result.len() as u64, run.record.len() as u64);
-            match registry.restore(epoch, source.clone(), HeldResult::restored(run.result, run.result_lease), Some(HeldResult::restored(run.record, run.record_lease))) {
+            // The re-save basis (`stored_save`): the stored model hash evidence and the stored
+            // envelope evidence with the payload hash recomputed over the stored values.
+            let basis = RestoredBasis { model_hash: model_hash.clone(), envelopes: vec![EnvelopeBasis { payload_sha256: found.envelope_payload_hash.clone(), evidence: project_envelope_hash.clone() }] };
+            match registry.restore_with_basis(epoch, source.clone(), HeldResult::restored(run.result, run.result_lease), Some(HeldResult::restored(run.record, run.record_lease)), Some(basis)) {
                 Ok(handle) => {
                     let (record_header, record_header_bytes) = match header {
                         Ok(header) => (header, None),
@@ -664,4 +669,4 @@ pub(crate) async fn read_run(
 
 #[cfg(test)]
 #[path = "stored_custody_tests.rs"]
-mod tests;
+pub(crate) mod tests;

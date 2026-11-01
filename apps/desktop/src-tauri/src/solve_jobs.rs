@@ -417,6 +417,10 @@ struct SolveJobRecord {
     /// A restored result's stored analysis-run record text and its lease,
     /// held with the result and released with it (disposal or reset).
     restored_record: Option<Arc<HeldResult>>,
+    /// A restored saved project run's re-save basis: the stored project's
+    /// model hash evidence and the envelope bases established for it (C1
+    /// slice 6, `stored_save`). Released with the record.
+    restored_basis: Option<RestoredBasis>,
 }
 
 /// A retained result (C1 native custody, DEL-04-05 `c1-native-custody-plan.md`
@@ -490,6 +494,31 @@ pub(crate) struct RestoredSource {
     pub result_sha256: String,
     pub record_sha256: Option<String>,
 }
+
+/// What a restored saved project run's re-save takes from its stored project
+/// rather than from the request (C1 slice 6, `stored_save`): the model hash
+/// evidence the project stored, and each envelope basis established for the
+/// handle (the stored project's at reopen, then each committed re-save's).
+/// The legacy session re-saved an unchanged historical project with its
+/// stored envelope evidence when the recomputed payload hash equalled the
+/// one it held; the session names the basis it holds and the host uses only
+/// one it established. Small, model-scale values.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct RestoredBasis {
+    pub(crate) model_hash: serde_json::Value,
+    pub(crate) envelopes: Vec<EnvelopeBasis>,
+}
+
+/// One envelope basis: a payload hash (`sha256:<hex>`, or none when it could
+/// not be recomputed) and the envelope evidence stored with it.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct EnvelopeBasis {
+    pub(crate) payload_sha256: Option<String>,
+    pub(crate) evidence: serde_json::Value,
+}
+
+/// The most envelope bases a handle keeps (its reopen basis and the latest re-saves').
+pub(crate) const MAX_ENVELOPE_BASES: usize = 32;
 
 /// The prefix of a restored result's handle (a solve's is `backend-solve-job-`).
 pub(crate) const RESTORED_HANDLE_PREFIX: &str = "restored-stored-result-";
@@ -969,6 +998,7 @@ impl SolveJobRegistry {
                     digests: Some(JobDigests { intake_sha256, solver_mode: mode, result_sha256: None }),
                     origin: ResultOrigin::Solve,
                     restored_record: None,
+                    restored_basis: None,
                 },
             );
             (job_id, token)
@@ -1483,6 +1513,12 @@ impl SolveJobRegistry {
     /// full ([`MAX_RETAINED_RESULTS`], counting solves and restored results
     /// alike), as a solve's publication is.
     pub(crate) fn restore(&self, epoch: u64, source: RestoredSource, result: HeldResult, record: Option<HeldResult>) -> Result<String, SolveJobError> {
+        self.restore_with_basis(epoch, source, result, record, None)
+    }
+
+    /// [`Self::restore`] for a project's saved run, with the host-held basis
+    /// its re-save takes from the stored project ([`RestoredBasis`]).
+    pub(crate) fn restore_with_basis(&self, epoch: u64, source: RestoredSource, result: HeldResult, record: Option<HeldResult>, basis: Option<RestoredBasis>) -> Result<String, SolveJobError> {
         let (pool_bytes, invocation_budget_bytes) = {
             let status = self.pool_status();
             (status.pool_bytes, status.invocation_budget_bytes)
@@ -1536,6 +1572,7 @@ impl SolveJobRegistry {
                 digests: None,
                 origin: ResultOrigin::Restored(source),
                 restored_record: record.map(Arc::new),
+                restored_basis: basis,
             },
         );
         table.prune();
@@ -1555,6 +1592,30 @@ impl SolveJobRegistry {
             .as_ref()
             .map(Arc::clone)
             .ok_or_else(|| SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} holds no stored record")))
+    }
+
+    /// A restored saved run's re-save basis ([`RestoredBasis`]); `None` for a
+    /// solve, a restored recorded run, or after disposal.
+    pub(crate) fn restored_basis(&self, job_id: &str) -> Option<RestoredBasis> {
+        self.table().records.get(job_id).and_then(|record| record.restored_basis.clone())
+    }
+
+    /// Records the envelope basis a committed re-save established for a
+    /// restored saved run (nothing for any other or a disposed handle). The
+    /// reopen basis is kept first; the oldest re-save basis goes beyond
+    /// [`MAX_ENVELOPE_BASES`].
+    pub(crate) fn add_restored_envelope_basis(&self, job_id: &str, basis: EnvelopeBasis) {
+        let mut table = self.table();
+        let Some(held) = table.records.get_mut(job_id).and_then(|record| record.restored_basis.as_mut()) else {
+            return;
+        };
+        if held.envelopes.contains(&basis) {
+            return;
+        }
+        if held.envelopes.len() >= MAX_ENVELOPE_BASES {
+            held.envelopes.remove(1);
+        }
+        held.envelopes.push(basis);
     }
 
     /// C1 interim for a restored result's C2 consumers (slice 6): its stored
@@ -1695,6 +1756,7 @@ impl SolveJobRegistry {
         let lease = record.result_lease.take();
         let full_copy = record.full_copy_lease.take();
         let restored_record = record.restored_record.take();
+        record.restored_basis = None;
         // The digests are released with custody.
         record.digests = None;
         // A retained result's bytes and lease are released here, or when the
@@ -1749,6 +1811,7 @@ impl SolveJobRegistry {
             let lease = record.result_lease.take();
             record.digests = None;
             // A restored result's stored record goes with its result.
+            record.restored_basis = None;
             if let Some(held) = record.restored_record.take() {
                 released_records.push(held);
             }

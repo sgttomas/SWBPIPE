@@ -11,10 +11,11 @@
  *   origin, no capture or registration, no binding to a model's standing, and S read with no model
  *   and no standing (as the historical panel's `ResultsPanel` read the rows). Fresh persistence and
  *   reports refuse it natively; the session never makes it the current result.
- * - **C2 consumers.** A saved run re-saved with its project, and any other whole-value consumer, load
- *   the stored result and record whole only at or under 64 MiB (`read_preview_mechanics_job_rows_all`,
- *   `read_restored_result_record_all`); above it they are refused by name
- *   (`RESULT-DETAIL-WEBVIEW-LIMIT`), the run staying held natively. */
+ * - **Saving.** A project save re-saves a reopened saved run from its handle
+ *   (`nativePersistence.saveRestoredLocalProject`, `src-tauri/src/stored_save.rs`); nothing whole crosses.
+ * - **C2 consumers.** An approved whole-value consumer loads the stored result and record whole only at
+ *   or under 64 MiB (`read_preview_mechanics_job_rows_all`, `read_restored_result_record_all`); above it
+ *   they are refused by name (`RESULT-DETAIL-WEBVIEW-LIMIT`), the run staying held natively. */
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
 import { nativeInvokeError } from "./memoryPool";

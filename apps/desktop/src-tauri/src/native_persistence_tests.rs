@@ -46,7 +46,7 @@ fn frozen_now() -> Result<i64, String> {
 fn frozen_token() -> Result<String, String> {
     Ok("0123456789abcdef0123456789abcdef".to_string())
 }
-fn frozen_seconds() -> Result<i64, String> {
+pub(crate) fn frozen_seconds() -> Result<i64, String> {
     Ok(NOW_SECONDS)
 }
 pub(crate) const FROZEN: RunWriteHooks<'static> = RunWriteHooks { now: &frozen_now, state_token: &frozen_token, between_rows: &|_, _| Ok(()) };
@@ -231,7 +231,7 @@ pub(crate) fn dump(path: &Path, table: &str, skip: &[&str]) -> Rows {
 }
 
 /// The two stores' rows are equal; a difference names its table, row and column.
-fn same_rows(a: &Path, b: &Path, table: &str, skip: &[&str], id: &str) {
+pub(crate) fn same_rows(a: &Path, b: &Path, table: &str, skip: &[&str], id: &str) {
     let (left, right) = (dump(a, table, skip), dump(b, table, skip));
     assert_eq!(left.len(), right.len(), "{id}: {table} has {} rows natively, {} by the submitted path", right.len(), left.len());
     for (index, (l, r)) in left.iter().zip(&right).enumerate() {
@@ -398,7 +398,7 @@ fn save_and_create_store_the_submitted_paths_rows_and_the_sessions_envelope_hash
 
 /// The bytes SQLite's record of `table`'s single row takes, from its stored
 /// values' types and lengths (as `row_record` measures a row about to be written).
-fn stored_row_record(path: &Path, table: &str) -> u64 {
+pub(crate) fn stored_row_record(path: &Path, table: &str) -> u64 {
     let connection = Connection::open(path).unwrap();
     let mut statement = connection.prepare(&format!("SELECT * FROM {table}")).unwrap();
     let count = statement.column_count();

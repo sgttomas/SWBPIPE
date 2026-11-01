@@ -275,6 +275,21 @@ pub(crate) fn keep_negative_zero_js_numbers(value: &mut Value) {
     }
 }
 
+/// `value` as serde_json reads JavaScript's `JSON.stringify` of its parse
+/// (the store's reading of what the webview sends, [`Style::Stored`]'s
+/// numbers): each number as [`js_number`], a negative zero written `0`.
+/// In place; nothing is allocated beyond one number's text at a time. A
+/// restored run's re-save (`stored_save`) reads its stored values so, as the
+/// legacy session's `JSON.parse` and `JSON.stringify` of them did.
+pub(crate) fn js_numbers(value: &mut Value) {
+    match value {
+        Value::Number(number) => *number = js_number(number),
+        Value::Array(items) => items.iter_mut().for_each(js_numbers),
+        Value::Object(map) => map.values_mut().for_each(js_numbers),
+        _ => {}
+    }
+}
+
 /// The deepest nesting of containers in `value` (a scalar is 0).
 fn container_depth(value: &Value) -> usize {
     match value {

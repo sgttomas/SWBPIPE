@@ -521,6 +521,20 @@ the History panel and `useModelStateHistory.ts`.
   Save Project and the record preview from a job handle
   (`NATIVE-PERSISTENCE-CUSTODY`, `ANALYSIS-RUN-PREVIEW-READ-FAILED`) and has no
   exact-route custody.
+- **Saving a reopened project (C1 slice 6's save continuity).** Save or Create
+  of a project showing its reopened saved run sends
+  `save_restored_result_local_project` the restored handle, its stored source,
+  the envelope basis the session holds and the project's small fields; no result,
+  record, model hash or envelope hash. The stored run is written as the legacy
+  session wrote it back (serde_json's reading of `JSON.stringify` of its stored
+  values), the stored project's model hash evidence (held with the handle), and
+  the envelope hash over what is stored, or the basis's stored evidence when that
+  payload is unchanged; the record is the stored record, never rebuilt. The
+  replacement guard, SQLite's exact lengths, the model-only save, the
+  withheld-run guard and the no-save rollback are the native save's. Only a
+  restored saved project run binds (`NATIVE-PERSISTENCE-CUSTODY` otherwise,
+  nothing written); the handle stays held and historical, and the reply carries
+  the findings of the project as stored.
 - **Request.** It carries the transient record, the result's JSON text (stored
   as given), the manifest's canonical text, the session's base, and optionally
   the state the session expects (`state_id`, checked:

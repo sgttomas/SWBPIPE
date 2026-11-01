@@ -286,6 +286,9 @@ code_paths:
 # the actual commands' replies and the oracle corpus.
 - apps/desktop/src-tauri/src/stored_custody.rs
 - apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
+# C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its restored handle
+# (save_restored_result_local_project), stored as the legacy session stored it, never a solve's authority.
+- apps/desktop/src-tauri/src/stored_save.rs
 - apps/desktop/src/services/nativeReopen.ts
 - apps/desktop/src/test/nativeReopenEmulation.ts
 - apps/desktop/src/test-support/historicalReopenCases.ts
@@ -323,6 +326,7 @@ checks:
 - apps/desktop/src/services/nativePersistence.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx
 - apps/desktop/src-tauri/src/stored_custody_tests.rs
+- apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/src/services/historicalReopenParity.test.ts
 - apps/desktop/src/features/workspace/nativeReopen.session.test.tsx
 - tests/test_solve_execution_ux.py

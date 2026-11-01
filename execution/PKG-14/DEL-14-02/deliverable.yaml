@@ -216,6 +216,9 @@ code_paths:
 # table bases; the TypeScript validator stays its oracle (historical_reopen_cases.json).
 - apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
 - apps/desktop/src-tauri/src/stored_custody.rs
+# C1 slice 6's save continuity: a reopened project's stored v0.3 record re-saved as stored (the
+# legacy session's serde_json reading of JSON.stringify), never rebuilt; no record or model version moves.
+- apps/desktop/src-tauri/src/stored_save.rs
 - apps/desktop/src-tauri/src/stored_read.rs
 - apps/desktop/src/services/analysisRunService.ts
 - apps/desktop/src/services/inputManifestService.ts
@@ -243,6 +246,7 @@ checks:
 - apps/desktop/src/services/persistenceForms.test.ts
 - apps/desktop/src/services/nativePersistence.test.ts
 - apps/desktop/src-tauri/src/stored_custody_tests.rs
+- apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/src/services/historicalReopenParity.test.ts
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts

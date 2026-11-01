@@ -67,7 +67,9 @@ export const INGRESS_COMMANDS: ReadonlySet<string> = new Set([
   "save_preview_mechanics_job_local_project",
   // C1 slice 6: saved and recorded runs reopened into native custody.
   "open_local_project_in_native_custody",
-  "read_analysis_run_in_native_custody"
+  "read_analysis_run_in_native_custody",
+  // C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its handle.
+  "save_restored_result_local_project"
 ]);
 
 type InvokeOptions = { headers?: Record<string, string> } | undefined;

@@ -417,7 +417,7 @@ fn expect_record(built: &Built<'_>, expected: &ExpectedRecord) -> Result<(), Str
 
 /// The command's refusal as the webview reads it: a typed ingress refusal
 /// stays typed; every other refusal is its text, cut as the store's are.
-fn refusal(error: String) -> CommandError<String> {
+pub(crate) fn refusal(error: String) -> CommandError<String> {
     CommandError::Command(stored_read::capped(error))
 }
 
@@ -755,6 +755,11 @@ pub(crate) struct NativeProjectSave {
     /// `sha256:<hex>` of the stored model's RFC 8785 text (`computeModelHash`'s value).
     pub(crate) stored_model_hash: String,
     pub(crate) result: SavedResult,
+    /// A restored saved run's re-save (`stored_save`): its handle, stored
+    /// source and the findings of the project as stored. Absent from a fresh
+    /// save's reply.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) restored: Option<crate::stored_save::RestoredSave>,
 }
 
 /// The command: [`reserve`] on the caller's executor, then [`run_save`] in a
@@ -786,19 +791,23 @@ impl SaveLimits {
 
 /// What Save Project made while the record and the held result's parse were
 /// alive; everything here is owned.
-struct StagedSave {
-    saved: bool,
+pub(crate) struct StagedSave {
+    pub(crate) saved: bool,
     refused_with: Option<Measured>,
     row_with_result: u64,
     lengths: ProjectLengths,
     limit_bytes: u64,
     now: i64,
-    envelope: Value,
+    pub(crate) envelope: Value,
+    /// `sha256:<hex>`: the payload hash of what is stored.
+    pub(crate) envelope_payload: String,
     stored_model_hash: String,
     result_json: String,
     record_json: String,
     leases: Vec<stored_read::ReadReservation>,
     run_id: String,
+    /// What the project summary reads of the result and the record.
+    summary_stubs: (Value, Value),
     result_length: u64,
     record_length: u64,
 }
@@ -876,14 +885,14 @@ pub(crate) fn run_save(
         transaction = crate::immediate_transaction(opened).map_err(refusal)?;
         sqlite = stored_read::admit_sqlite_working_set(&transaction, &memory).map_err(refusal)?;
         crate::refuse_unconfirmed_replacement(&transaction, &project_id, confirmed_revision.as_deref(), expected_base.as_deref()).map_err(refusal)?;
-        let staged = stage_save(&transaction, &built, &fields, confirmed_revision.as_deref(), limits, now, &memory).map_err(refusal)?;
+        let staged = stage_save(&transaction, &SaveRun::Fresh(&built), &fields, confirmed_revision.as_deref(), limits, now, &memory, None).map_err(refusal)?;
         // The record, the held result's parse and the builder's leases end here.
         drop(built);
         drop(source);
         drop(Building { _working: working, _scratch: scratch, _reading: reading });
         (path, migration, document_version, staged)
     };
-    finish_save(&transaction, &fields, staged, create, path, &migration, document_version, &memory).map_err(refusal).and_then(|serialized| {
+    finish_save(&transaction, &fields, staged, create, path, &migration, document_version, &memory, None).map_err(refusal).and_then(|serialized| {
         transaction.commit().map_err(|error| refusal(error.to_string()))?;
         drop(sqlite);
         Ok(serialized)
@@ -891,15 +900,117 @@ pub(crate) fn run_save(
 }
 
 /// The project's fields a save stores besides the result and the record.
-struct ProjectFields<'f> {
-    project_id: &'f str,
-    project_name: &'f str,
-    model: &'f Value,
-    editor_intents: &'f Value,
-    proposal: &'f Value,
-    selected_review_target: &'f Value,
-    model_hash: &'f Value,
-    small: &'f [(&'static str, u64)],
+pub(crate) struct ProjectFields<'f> {
+    pub(crate) project_id: &'f str,
+    pub(crate) project_name: &'f str,
+    pub(crate) model: &'f Value,
+    pub(crate) editor_intents: &'f Value,
+    pub(crate) proposal: &'f Value,
+    pub(crate) selected_review_target: &'f Value,
+    pub(crate) model_hash: &'f Value,
+    pub(crate) small: &'f [(&'static str, u64)],
+}
+
+/// The run a project save stores: a fresh solve's held result with the
+/// record built over it, or a restored saved run's stored result and record
+/// as parsed (`stored_save`). Either is written in the store's forms: the
+/// result by the builder's stored writer ([`Style::Stored`]: serde_json's
+/// reading of `JSON.stringify` of the value), a fresh record by
+/// [`record_bytes`], a stored record by the same stored writer.
+pub(crate) enum SaveRun<'r, 'b> {
+    Fresh(&'r Built<'b>),
+    Stored { result: &'r Value, record: &'r Value },
+}
+
+impl SaveRun<'_, '_> {
+    fn result(&self) -> &Value {
+        match self {
+            SaveRun::Fresh(built) => built.source,
+            SaveRun::Stored { result, .. } => result,
+        }
+    }
+
+    /// The result's stored text's exact length (nothing allocated).
+    fn result_length(&self) -> u64 {
+        let mut count = Count::default();
+        Writer::new(&mut count, Style::Stored).value(self.result());
+        count.0
+    }
+
+    /// The record's stored text's exact length (nothing allocated).
+    fn record_length(&self) -> u64 {
+        match self {
+            SaveRun::Fresh(built) => built.record_bytes,
+            SaveRun::Stored { record, .. } => {
+                let mut count = Count::default();
+                Writer::new(&mut count, Style::Stored).value(record);
+                count.0
+            }
+        }
+    }
+
+    /// The record's RFC 8785 text streamed into `out`.
+    fn canonical_record<S: Sink>(&self, out: &mut S) {
+        match self {
+            SaveRun::Fresh(built) => write_canonical_record(built, out),
+            SaveRun::Stored { record, .. } => canonical(record, out),
+        }
+    }
+
+    /// The record's stored text at its exact length, its lease admitted first.
+    fn record_text(&self, memory: &dyn ReadMemory, length: u64) -> Result<(String, stored_read::ReadReservation), String> {
+        match self {
+            SaveRun::Fresh(built) => {
+                let (record, lease) =
+                    record_bytes(built, length, |bytes| memory.reserve("the project's analysis-run record", bytes).map_err(CommandError::Command)).map_err(command_text)?;
+                Ok((String::from_utf8(record).map_err(|_| "STORE-READ: the analysis-run record is not UTF-8".to_string())?, lease))
+            }
+            SaveRun::Stored { record, .. } => leased_text(memory, "the project's analysis-run record", length, |out| {
+                Writer::new(out, Style::Stored).value(record);
+                Ok(())
+            }),
+        }
+    }
+
+    /// The run's name in the reply (`persisted_analysis_run_ref`'s).
+    fn run_id(&self) -> String {
+        match self {
+            SaveRun::Fresh(built) => built.run_id.to_string(),
+            SaveRun::Stored { result, record } => crate::persisted_analysis_run_ref(record, result),
+        }
+    }
+
+    /// The members of the result and the record the project summary reads
+    /// (whether each is an object, and the run's name), so the summary is the
+    /// submitted path's without the values.
+    fn summary_stubs(&self) -> (Value, Value) {
+        match self {
+            SaveRun::Fresh(built) => (json!({ "run_id": built.run_id }), json!({ "analysis_run": { "run_id": built.run_id } })),
+            SaveRun::Stored { result, record } => {
+                let result_stub = match result {
+                    Value::Object(map) => {
+                        let mut stub = serde_json::Map::new();
+                        if let Some(Value::String(id)) = map.get("run_id") {
+                            stub.insert("run_id".into(), json!(id));
+                        }
+                        Value::Object(stub)
+                    }
+                    _ => Value::Null,
+                };
+                let record_stub = match record {
+                    Value::Object(map) => {
+                        let mut stub = serde_json::Map::new();
+                        if let Some(id) = map.get("analysis_run").and_then(|run| run.get("run_id")).and_then(Value::as_str) {
+                            stub.insert("analysis_run".into(), json!({ "run_id": id }));
+                        }
+                        Value::Object(stub)
+                    }
+                    _ => Value::Null,
+                };
+                (result_stub, record_stub)
+            }
+        }
+    }
 }
 
 /// RFC 8785 text of `value` streamed into `out`.
@@ -909,18 +1020,18 @@ fn canonical<S: Sink>(value: &Value, out: &mut S) {
 
 /// `computeProjectEnvelopeHash`'s value over the stored values (module docs),
 /// streamed: the payload's members in RFC 8785's order.
-fn envelope_payload_sha256(run: Option<&Built<'_>>, model: &Value, editor_intents: &Value, proposal: &Value, selected_review_target: &Value, model_hash: &Value) -> String {
+fn envelope_payload_sha256(run: Option<&SaveRun<'_, '_>>, model: &Value, editor_intents: &Value, proposal: &Value, selected_review_target: &Value, model_hash: &Value) -> String {
     let mut hasher = Sha256::new();
     hasher.put(b"{\"analysis_run\":");
     match run {
-        Some(built) => write_canonical_record(built, &mut hasher),
+        Some(run) => run.canonical_record(&mut hasher),
         None => hasher.put(b"null"),
     }
     hasher.put(b",\"editor_intents\":");
     canonical(editor_intents, &mut hasher);
     hasher.put(b",\"mechanics_result\":");
     match run {
-        Some(built) => canonical(built.source, &mut hasher),
+        Some(run) => canonical(run.result(), &mut hasher),
         None => hasher.put(b"null"),
     }
     hasher.put(b",\"model\":");
@@ -1014,20 +1125,26 @@ fn replaced_search_bytes(transaction: &Transaction<'_>, project_id: &str) -> Res
 /// without it (the model-only save, or [`PROJECT_SAVE_TOO_LARGE`] with nothing
 /// written); the withheld-run guard for a model-only save; the envelope hash
 /// over what will be stored; the result's and record's texts.
-fn stage_save(
+///
+/// `basis` (a restored saved run's re-save, `stored_save`): the envelope
+/// basis the session holds, established by the host. When the payload hash of
+/// what is stored is the basis's, its stored evidence is written (as the
+/// legacy session re-saved an unchanged historical project); otherwise the
+/// evidence computed here. A fresh save passes none.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn stage_save(
     transaction: &Transaction<'_>,
-    built: &Built<'_>,
+    run: &SaveRun<'_, '_>,
     fields: &ProjectFields<'_>,
     confirmed_revision: Option<&str>,
     limits: &SaveLimits,
     now: &dyn Fn() -> Result<i64, String>,
     memory: &dyn ReadMemory,
+    basis: Option<&crate::solve_jobs::EnvelopeBasis>,
 ) -> Result<StagedSave, String> {
     // Exact lengths, nothing allocated: the result's stored form and the record's.
-    let mut count = Count::default();
-    Writer::new(&mut count, Style::Stored).value(built.source);
-    let result_length = count.0;
-    let record_length = built.record_bytes;
+    let result_length = run.result_length();
+    let record_length = run.record_length();
     let limit_bytes = length_limit(transaction);
     let exists = transaction
         .query_row("SELECT 1 FROM local_projects WHERE project_id = ?1", params![fields.project_id], |_| Ok(()))
@@ -1035,13 +1152,38 @@ fn stage_save(
         .map_err(|error| stored_read::sql_error(&error))?
         .is_some();
     let now = now()?;
-    // The evidence's value has a fixed length, so its text's length is known before the hash.
-    let envelope_length = stored_read::serialized_length(&envelope_evidence(fields.model, &"0".repeat(64)))?;
-    let with = project_lengths(transaction, fields, result_length, record_length, envelope_length, now, exists)?;
+    // The payload hash of what is stored (with the run or without it) and the evidence written for it.
+    let envelope_for = |with_run: bool| -> (String, Value) {
+        let value = envelope_payload_sha256(with_run.then_some(run), fields.model, fields.editor_intents, fields.proposal, fields.selected_review_target, fields.model_hash);
+        let payload = format!("sha256:{value}");
+        let evidence = match basis {
+            Some(basis) if basis.payload_sha256.as_deref() == Some(payload.as_str()) => basis.evidence.clone(),
+            _ => envelope_evidence(fields.model, &value),
+        };
+        (payload, evidence)
+    };
+    // The computed evidence has a fixed length, so its text's length is known before the hash;
+    // a basis's stored evidence may be written instead, so with one the hash comes first.
+    let envelope_length = |with_run: bool| -> Result<(u64, Option<(String, Value)>), String> {
+        match basis {
+            None => Ok((stored_read::serialized_length(&envelope_evidence(fields.model, &"0".repeat(64)))?, None)),
+            Some(_) => {
+                let (payload, evidence) = envelope_for(with_run);
+                Ok((stored_read::serialized_length(&evidence)?, Some((payload, evidence))))
+            }
+        }
+    };
+    let (with_length, with_envelope) = envelope_length(true)?;
+    let with = project_lengths(transaction, fields, result_length, record_length, with_length, now, exists)?;
     let refused_with = first_over(&with.values, limit_bytes).cloned();
     let row_with_result = with.row;
     let saved = refused_with.is_none();
-    let lengths = if saved { with } else { project_lengths(transaction, fields, 4, 4, envelope_length, now, exists)? };
+    let (lengths, known_envelope) = if saved {
+        (with, with_envelope)
+    } else {
+        let (without_length, without_envelope) = envelope_length(false)?;
+        (project_lengths(transaction, fields, 4, 4, without_length, now, exists)?, without_envelope)
+    };
     if let Some(over) = first_over(&lengths.values, limit_bytes) {
         return Err(format!(
             "{PROJECT_SAVE_TOO_LARGE} ({}_bytes={}, limit_bytes={limit_bytes}): project `{}`'s {} is {} bytes, above this store's SQLite length limit of {limit_bytes} bytes even without the result; nothing was saved.",
@@ -1057,27 +1199,26 @@ fn stage_save(
         // without the user's confirmed Replace (as a save with no result).
         crate::refuse_dropping_withheld_run(transaction, fields.project_id, confirmed_revision, &Value::Null, limits.withheld_bytes)?;
     }
-    let run = saved.then_some(built);
-    let envelope = envelope_evidence(
-        fields.model,
-        &envelope_payload_sha256(run, fields.model, fields.editor_intents, fields.proposal, fields.selected_review_target, fields.model_hash),
-    );
+    let (envelope_payload, envelope) = match known_envelope {
+        Some(known) => known,
+        None => envelope_for(saved),
+    };
     let mut model_hasher = Sha256::new();
     canonical(fields.model, &mut model_hasher);
     let stored_model_hash = format!("sha256:{}", hex(&model_hasher.finalize()));
     let mut leases = Vec::new();
     let (result_json, record_json) = if saved {
         let (result_json, result_lease) = leased_text(memory, "the project's result text", result_length, |out| {
-            Writer::new(out, Style::Stored).value(built.source);
+            Writer::new(out, Style::Stored).value(run.result());
             Ok(())
         })?;
-        let (record, record_lease) =
-            record_bytes(built, record_length, |bytes| memory.reserve("the project's analysis-run record", bytes).map_err(CommandError::Command)).map_err(command_text)?;
+        let (record_json, record_lease) = run.record_text(memory, record_length)?;
         leases.extend([result_lease, record_lease]);
-        (result_json, String::from_utf8(record).map_err(|_| "STORE-READ: the analysis-run record is not UTF-8".to_string())?)
+        (result_json, record_json)
     } else {
         ("null".to_string(), "null".to_string())
     };
+    let summary_stubs = if saved { run.summary_stubs() } else { (Value::Null, Value::Null) };
     Ok(StagedSave {
         saved,
         refused_with,
@@ -1086,11 +1227,13 @@ fn stage_save(
         limit_bytes,
         now,
         envelope,
+        envelope_payload,
         stored_model_hash,
         result_json,
         record_json,
         leases,
-        run_id: built.run_id.to_string(),
+        run_id: run.run_id(),
+        summary_stubs,
         result_length,
         record_length,
     })
@@ -1127,7 +1270,8 @@ fn project_write_error(error: &rusqlite::Error) -> String {
     }
 }
 
-fn finish_save(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn finish_save(
     transaction: &Transaction<'_>,
     fields: &ProjectFields<'_>,
     staged: StagedSave,
@@ -1136,8 +1280,9 @@ fn finish_save(
     migration: &crate::StoreMigrationEvidence,
     document_version: crate::ModelDocumentVersionStatus,
     memory: &dyn ReadMemory,
+    restored: Option<crate::stored_save::RestoredSave>,
 ) -> Result<Serialized, String> {
-    let StagedSave { saved, refused_with, row_with_result, lengths, limit_bytes, now, envelope, stored_model_hash, result_json, record_json, leases, run_id, result_length, record_length } = staged;
+    let StagedSave { saved: _, refused_with, row_with_result, lengths, limit_bytes, now, envelope, envelope_payload: _, stored_model_hash, result_json, record_json, leases, run_id, summary_stubs, result_length, record_length } = staged;
     let (model_json, model_lease) = leased_json(memory, "the project's model text", fields.model)?;
     let (editor_json, editor_lease) = leased_json(memory, "the project's editor intents text", fields.editor_intents)?;
     let (proposal_json, proposal_lease) = leased_json(memory, "the project's proposal text", fields.proposal)?;
@@ -1163,7 +1308,7 @@ fn finish_save(
     let statement = memory.reserve("SQLite's copies of the project's rows", stored_read::total(&[bound, records, replaced_search_bytes(transaction, fields.project_id)?]))?;
     crate::write_project_texts(transaction, fields.project_id, fields.project_name, &texts, &search_text, now).map_err(|error| project_write_error(&error))?;
     drop((statement, search_text, search_lease));
-    let (stub_result, stub_run) = if saved { (json!({ "run_id": run_id }), json!({ "analysis_run": { "run_id": run_id } })) } else { (Value::Null, Value::Null) };
+    let (stub_result, stub_run) = summary_stubs;
     let saved_message = if create { "Created local SQLite project snapshot without external file copies." } else { "Saved current project model snapshot without external file copies." };
     let result = match refused_with {
         None => SavedResult::Saved { run_id, result_bytes: result_length, record_bytes: record_length },
@@ -1207,6 +1352,7 @@ fn finish_save(
         model_document_version: serde_json::to_value(document_version).map_err(|error| error.to_string())?,
         stored_model_hash,
         result,
+        restored,
     };
     let serialized = stored_read::serialize_metered(memory, SAVE_COMMAND, stored_read::Metered::new(reply))?;
     drop((model_json, model_lease, editor_json, editor_lease, proposal_json, proposal_lease, selected_json, selected_lease));

@@ -63,9 +63,11 @@ import { lookupNativeRows } from "../../services/nativeResult";
 import {
   nativePersistenceRequest,
   saveNativeLocalProject,
+  saveRestoredLocalProject,
   storedModelHashEvidence,
   type NativePersistenceRequest,
-  type NativeProjectSave
+  type NativeProjectSave,
+  type RestoredEnvelopeBasis
 } from "../../services/nativePersistence";
 import type { AnalysisRunPreview } from "../../services/analysisRunPreview";
 import type { C2FullResult } from "../results/C2ResultGate";
@@ -148,7 +150,7 @@ import { intentKey } from "../operations/OperationApplyPanel";
 import { buildReportPackageRequest, reportPackageExactSubmission } from "../report/reportPackageRequest";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import { buildBundledReferenceContext, buildHistoricalRunContext, buildNativeHistoricalRunContext } from "../results/HistoricalRunContext";
-import { disposeRestoredRun, loadRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
+import { disposeRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import {
   resolveDiagnosticEntitySelection,
@@ -1053,16 +1055,27 @@ export function useWorkspaceSession() {
     return { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "project_envelope_payload", payload_excludes: "storage_summary_and_envelope_hash_carrier_fields", payload_ref: projectModel.project.id, value, hash_status: "computed_local_preview" };
   }
 
-  /** C1 slice 6: a restored saved run's stored result and record for a project save, through the
-   * bounded C2 copy. Above 64 MiB the save is refused by name: the stored run stays held natively
-   * and unchanged, and nothing is written. */
-  async function storedRunForSave(restored: RestoredRun) {
-    try {
-      return await loadRestoredRun(restored);
-    } catch (error) {
-      const refusal = error instanceof FullResultRefused ? error.message : nativeFailureText(error);
-      throw new Error(`PROJECT-SAVE-STORED-RUN-UNAVAILABLE: the reopened saved run could not be re-saved with the project (${refusal}); nothing was saved. The stored run is kept unchanged. Model edits can be kept with File > Save Model Document…; a new solve replaces the stored run when the project is saved.`);
-    }
+  /** C1 slice 6's save continuity: the envelope basis a reopened saved run's history holds (the
+   * payload hash and stored evidence of the project as last opened or re-saved). */
+  function restoredEnvelopeBasis(history: HistoricalRunContext): RestoredEnvelopeBasis {
+    return { payload_sha256: history.envelopePayloadHash, evidence: history.envelopeHash };
+  }
+
+  /** The history after a reopened saved run's native re-save: the same restored handle and stored
+   * source (historical provenance, never Current), with the findings and hashes of the project as
+   * stored, as the legacy session rebuilt them from its save's reply. A model-only save (the run not
+   * stored) leaves the history as it was. */
+  function historyAfterRestoredSave(history: HistoricalRunContext, reply: NativeProjectSave): HistoricalRunContext {
+    const found = reply.restored?.findings;
+    if (!found) return history;
+    return {
+      ...history,
+      findings: [...found.findings],
+      runId: found.run_id,
+      modelHash: reply.model_hash ?? null,
+      envelopeHash: reply.project_envelope_hash ?? null,
+      envelopePayloadHash: found.envelope_payload_hash
+    };
   }
 
   /** C1 slice 6: a project opened with its stored run refused (not admitted into native custody) holds
@@ -2481,13 +2494,14 @@ export function useWorkspaceSession() {
       // none (a reference inspected with no result).
       const native = requestHistoricalRun || dropRun || retainedRun ? null : nativePersistenceRequestFor(result, analysisRun);
       const persisted = native || requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : persistableRun();
-      // C1 slice 6: a saved run reopened into native custody is re-saved as stored through the bounded
-      // C2 copy (each at or under 64 MiB; above it the save is refused by name, nothing written).
-      const restoredRun = requestHistoricalRun?.restored ? await storedRunForSave(requestHistoricalRun.restored) : null;
-      const snapshotResult = requestHistoricalRun ? (restoredRun ? restoredRun.result : requestHistoricalRun.rawMechanicsResult as MechanicsResult | null) : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
-      const snapshotAnalysisRun = requestHistoricalRun ? (restoredRun ? restoredRun.analysisRun : requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null) : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
+      // C1 slice 6's save continuity: a saved run reopened into native custody is re-saved from its
+      // restored handle (the native host writes it as stored and computes both hashes); nothing whole
+      // crosses, at any size.
+      const restored = requestHistoricalRun?.restored ?? null;
+      const snapshotResult = requestHistoricalRun ? (restored ? null : requestHistoricalRun.rawMechanicsResult as MechanicsResult | null) : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
+      const snapshotAnalysisRun = requestHistoricalRun ? (restored ? null : requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null) : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
       if (!stillCurrent()) return;
-      const computedEnvelopeHash = native ? null : await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = native || restored ? null : await computeProjectEnvelopeHash({
         model: requestModel,
         editor_intents: combinedContext,
         proposal,
@@ -2499,7 +2513,12 @@ export function useWorkspaceSession() {
       const envelopeHash = requestHistoricalRun && computedEnvelopeHash?.value === requestHistoricalRun.envelopePayloadHash
         ? requestHistoricalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
-      const written = await writeWithReplaceConfirmation("create", requestModel, (confirmedRevision) => native
+      const written = await writeWithReplaceConfirmation("create", requestModel, (confirmedRevision) => restored
+        ? saveRestoredLocalProject(restored, restoredEnvelopeBasis(requestHistoricalRun!), {
+          mode: "create", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase: null
+        }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
+        : native
         ? saveNativeLocalProject(native, {
           mode: "create", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
           modelHash: snapshotModelHash, confirmedRevision, expectedBase: null
@@ -2536,7 +2555,9 @@ export function useWorkspaceSession() {
       // envelope hash computed over what was stored; the webview holds no result to hash.
       const returnedModelHash = created.native ? storedModelHashEvidence(created.native, requestModel) : await computeModelHash(created.model);
       if (!sameProjectSession()) return;
-      const recomputedReturnedEnvelopeHash = created.native ? created.native.project_envelope_hash : await computeProjectEnvelopeHash({
+      // A reopened saved run's re-save: the stored claim is checked against the evidence computed over
+      // what was stored (as the legacy session recomputed it), which the reply names by its payload hash.
+      const recomputedReturnedEnvelopeHash = created.native ? (created.native.restored ? projectEnvelopeHashEvidence(requestModel, created.native.restored.envelope_payload_hash) : created.native.project_envelope_hash) : await computeProjectEnvelopeHash({
         model: created.model,
         editor_intents: created.editor_intents,
         proposal: created.proposal,
@@ -2578,7 +2599,7 @@ export function useWorkspaceSession() {
       }
       if (!stillCurrent()) return;
       const returnedHistory = requestHistoricalRun
-        ? await buildHistoricalRunContext(created)
+        ? created.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, created.native) : await buildHistoricalRunContext(created)
         : null;
       if (!stillCurrent()) return;
       if (requestHistoricalRun) {
@@ -3280,14 +3301,14 @@ export function useWorkspaceSession() {
       // C1 slice 5: as Create (above), a native result and record are persisted from the job handle.
       const native = requestHistoricalRun || dropRun || retainedRun ? null : nativePersistenceRequestFor(result, analysisRun);
       const persisted = native || requestHistoricalRun || dropRun || (retainedRun?.result != null && retainedRun.analysisRun != null) ? null : persistableRun();
-      // C1 slice 6: a saved run reopened into native custody is re-saved as stored through the bounded
-      // C2 copy (each at or under 64 MiB; above it the save is refused by name, nothing written).
-      const restoredRun = requestHistoricalRun?.restored ? await storedRunForSave(requestHistoricalRun.restored) : null;
-      const snapshotResult = requestHistoricalRun ? (restoredRun ? restoredRun.result : requestHistoricalRun.rawMechanicsResult as MechanicsResult | null) : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
-      const snapshotAnalysisRun = requestHistoricalRun ? (restoredRun ? restoredRun.analysisRun : requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null) : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
-      if (!dropRun) refuseDroppingUnopenedRun(requestModel, snapshotResult, native !== null);
+      // C1 slice 6's save continuity: as Create (above), a reopened saved run is re-saved from its
+      // restored handle; nothing whole crosses, at any size.
+      const restored = requestHistoricalRun?.restored ?? null;
+      const snapshotResult = requestHistoricalRun ? (restored ? null : requestHistoricalRun.rawMechanicsResult as MechanicsResult | null) : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
+      const snapshotAnalysisRun = requestHistoricalRun ? (restored ? null : requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null) : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
+      if (!dropRun) refuseDroppingUnopenedRun(requestModel, snapshotResult, native !== null || restored !== null);
       if (!stillCurrent()) return;
-      const computedEnvelopeHash = native ? null : await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = native || restored ? null : await computeProjectEnvelopeHash({
         model: requestModel,
         editor_intents: combinedContext,
         proposal,
@@ -3301,7 +3322,12 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       // The session's own stored project: a save in place from the revision it last opened or wrote.
       const expectedBase = storedBaseRef.current?.projectId === requestModel.project.id ? storedBaseRef.current.value : null;
-      const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => native
+      const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => restored
+        ? saveRestoredLocalProject(restored, restoredEnvelopeBasis(requestHistoricalRun!), {
+          mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase
+        }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
+        : native
         ? saveNativeLocalProject(native, {
           mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
           modelHash: snapshotModelHash, confirmedRevision, expectedBase
@@ -3340,7 +3366,9 @@ export function useWorkspaceSession() {
       setProjectEnvelopeHashIntegrity(null);
       const returnedModelHash = saved.native ? storedModelHashEvidence(saved.native, requestModel) : await computeModelHash(saved.model);
       if (!sameProjectSession()) return;
-      const recomputedReturnedEnvelopeHash = saved.native ? saved.native.project_envelope_hash : await computeProjectEnvelopeHash({
+      // A reopened saved run's re-save: the stored claim is checked against the evidence computed over
+      // what was stored (as the legacy session recomputed it), which the reply names by its payload hash.
+      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : saved.native.project_envelope_hash) : await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
         proposal: saved.proposal,
@@ -3382,7 +3410,7 @@ export function useWorkspaceSession() {
       }
       if (!stillCurrent()) return;
       const returnedHistory = requestHistoricalRun
-        ? await buildHistoricalRunContext(saved)
+        ? saved.native?.restored ? historyAfterRestoredSave(requestHistoricalRun, saved.native) : await buildHistoricalRunContext(saved)
         : null;
       if (!stillCurrent()) return;
       if (requestHistoricalRun) {

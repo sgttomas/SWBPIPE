@@ -804,8 +804,7 @@ restored and browser-preview results):
   semantics, navigator, streamed CSV). The open adopts the native envelope payload hash for the
   integrity cell; a refused run is not hashed (`hash_recompute_unavailable`), and a save in place
   without a new result is refused by name, the stored run kept. A save of a project showing its
-  reopened run re-saves the stored run as stored through the bounded C2 copies (at or under 64 MiB;
-  above, `PROJECT-SAVE-STORED-RUN-UNAVAILABLE`, nothing written). A reference inspection retains the
+  reopened run is the native save continuity below (no whole copy at any size). A reference inspection retains the
   restored run by its handle, never a clone. A restored handle is disposed once nothing shows or
   retains it, and when the session ends; a superseded, failed or refused open disposes what it
   received. The History panel's run check reads natively, shows the findings and the header's
@@ -835,7 +834,72 @@ restored and browser-preview results):
   open and the refused save in place. Tests written before slice 6 that mock the legacy open reach
   the native path through a unit bridge (`test/nativeReopenEmulation.ts`: findings from the TypeScript
   oracle, rows from the actual commands' recorded replies); it is no proof of the reopen.
-- **Permissions.** Three ordinary `app_invoke_handler` entries (no `mod`, no `$parameter ::`, no
+- **Save continuity** (`stored_save.rs`; already-authorized C1 persistence, not a C2 consumer: the
+  approved C2 exception names reports, comparisons, rules, derivative exports and handoffs, never
+  re-saving an editable reopened project). Save or Create of a project showing its reopened saved run
+  runs `save_restored_result_local_project {jobId, expectedSource, envelopeBasis, mode, projectId,
+  projectName, model, editorIntents, proposal, selectedReviewTarget, confirmedRevision, expectedBase}`
+  (raw args body; JSON body reply). No result, record, model hash or envelope hash is sent.
+  - **Stored as the legacy session stored it.** Before, the session copied the run whole, `JSON.parse`d
+    it and sent it back; `save_local_project` stored serde_json's reading of `JSON.stringify`. The
+    command writes exactly that: the held texts parsed, read with JavaScript's numbers
+    (`analysis_run_v03_build::js_numbers`: binary64 values, a negative zero `0`, the JavaScript
+    number text), written by the builder's stored writer (serde_json's member order). The record is
+    the stored record (its `created_at`, `model_state_ref`, recorded revision and claims as stored),
+    never rebuilt. The held texts, their source rows, schema and model versions are not rewritten.
+  - **Hashes the host holds.** The stored project's model hash evidence and its envelope evidence with
+    the payload hash recomputed at reopen are held with the handle (`solve_jobs::RestoredBasis`), not
+    taken from the request. The envelope hash is computed over what is stored (with JavaScript's
+    numbers, as `computeProjectEnvelopeHash` hashed `JSON.stringify`); when it equals the payload hash of
+    the basis the session names, that basis's stored evidence is written (the legacy unchanged
+    Historical save). The session names its basis (the reopen's, or a committed re-save's from its
+    reply); only a basis the host established for the handle is accepted.
+  - **Binding** (`NATIVE-PERSISTENCE-CUSTODY`, nothing written): a restored saved project run still
+    held (a solve, a restored recorded run, an unknown, disposed or reset handle are refused; no session
+    path saves a recorded run into a project); the stored source the session names (kind, project,
+    recording, both SHA-256) is the handle's; the held texts still hash to it (in place); the envelope
+    basis is established. The fresh Record Run, Save Project, record preview and exact-route custody
+    still refuse a restored handle; nothing grants it intake, publication, worker, attestation or
+    Current facts. The destination is the existing save contract: model document checks, the
+    replacement guard (expected base / confirmed revision), SQLite's exact lengths, the model-only save
+    (`PROJECT-SAVE-RESULT-TOO-LARGE`, successful, no findings) and the withheld-run guard before it, the
+    no-save rollback (`PROJECT-SAVE-TOO-LARGE`); `native_persistence::stage_save`/`finish_save` are
+    shared with the fresh save, whose replies are byte-identical.
+  - **Reply and session.** The fresh save's reply plus `restored`: the handle (still held), its stored
+    source and the findings of the project as stored (those the native reopen of it gives), and the
+    envelope payload hash of what was stored. The session keeps the same history object's handle and
+    source (historical, never current), refreshes its findings, model hash and envelope basis from the
+    reply as the legacy session rebuilt them from its save's reply, checks the stored envelope claim
+    against the evidence computed over what was stored, and keeps the history unchanged after a
+    model-only save or a refusal. The save disposes nothing.
+  - **Evidence.** `stored_save_tests.rs`: the oracle is the unchanged submitted path given what the
+    legacy session sent (`result_js_text`'s `JSON.stringify` writer, matched to the TypeScript's texts;
+    `computed_project_envelope_hash`'s independent RFC 8785 writer). Every persistence case saved
+    natively, reset, reopened and re-saved (unchanged with the stored evidence kept, edited with a
+    computed envelope hash and `HISTORICAL_MODEL_HASH_MISMATCH`, Create with the confirmed revision,
+    again from the reply's basis with identical rows) stores the submitted path's project and search rows
+    byte for byte (but the save times), the same summary, model hash and envelope hash, and the reply's
+    findings are the native reopen's of the stored project; stored texts in JavaScript's form (as Record
+    Run writes a result: member order, negative zeros) and in a raw form (integral floats, `-0.0`,
+    unsorted keys, escapes, non-ASCII, integers beyond binary64) are stored normalized as the legacy
+    session stored them, never copied; the persistence forms' edge texts read the same through the
+    stored writer; every saved case of the TypeScript reopen oracle (0.7/0.8-era and unknown bases,
+    broken checksums and references, retired and unsupported record versions) re-saved unchanged with
+    the TypeScript's findings still; SQLite's row boundary on the actual store (saved at the row's size;
+    one byte lower, the result and record each fitting, the model-only save with its envelope hash and no
+    findings; below the model-only row, nothing written), the withheld-run guard and its confirmed
+    Replace; the old display limit lowered (the C2 copies refused, the re-save exact); each binding
+    refusal with the store file unchanged, a request's own model or envelope hash ignored; the moved base,
+    missing base and stale confirmation; the pool refusing a parse (named, nothing written, the handle
+    held); a disposal and a reset while a bound save is pending (it completes from its share, the leases
+    released once when the share drops); concurrent saves (one write lock; a moved base refused); the
+    actual command off the async executor. The session runs on the actual reply
+    (`native_reopen_replies.json`, `nativeReopen.session.test.tsx`): Save after the reopen and the
+    panel's reads, the request exactly, no legacy open, save, whole copy or take, the history's handle
+    and source kept with the reply's findings, verified integrity, no disposal until the session ends;
+    a refused and a model-only re-save keep the history. Older tests reach the re-save through the unit
+    bridge (`nativeReopenEmulation.ts`, the legacy save calls), no proof of it.
+- **Permissions.** Four ordinary `app_invoke_handler` entries (no `mod`, no `$parameter ::`, no
   scanned name), re-pinned in `user_release_reach_scan.rs`; no capability or guard change.
 
 **Limits and residuals (for slice 7 and review).**
@@ -848,12 +912,20 @@ restored and browser-preview results):
   separate leases, one at a time; the store's read reservations stay held while the findings run
   (conservative).
 - Run listing (`list_analysis_runs`) still verifies each run's record under its own reservation, and
-  run comparisons retain the bounded whole-value read under the approved C2 exception. Re-saving
-  a reopened project still uses a <=64 MiB copy and refuses above it; this is unfinished C1 native
-  persistence continuity, not a new C2 exception. A distinct stored-origin native save must
-  preserve the stored representations/revision guards without granting fresh-solve authority.
+  run comparisons retain the bounded whole-value read under the approved C2 exception (measurement
+  and review inputs, not a new optimization task).
+- The re-save parses each held text once (M each) and holds the stored writer's output texts with
+  the parses until the statements; the validator's working memory for the reply's findings is the
+  stated residual. The reopen's findings hash the stored values as serde_json reads them, so an
+  integer stored outside binary64's exact range (no store writer produces one) makes the reopen's
+  envelope payload hash differ from the TypeScript's, whose `JSON.stringify` reads it as a double; a
+  re-save of such a run then writes computed evidence instead of keeping the stored one (review
+  input; the re-save itself hashes JavaScript's numbers).
 - Recorded-manifest member checks reuse the store's `manifest_members` after the store's own read has
   checked them; their TypeScript `TypeError` points are therefore unreachable here and not emulated.
+
+**Remaining (slice 6).** The independent numerical, persistence and permissions review of the whole
+slice 6 increment with its save continuity, the exact-head hosted run, then slice 7's measurement.
 
 ### Slice 7: measurement and the PR
 
@@ -1159,6 +1231,12 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
   or reset (or the last reader's share). A restored result counts toward retention
   (`MAX_RETAINED_RESULTS`), and a restoration begun before a session reset is refused at registration.
   Unpriced: as listed in slice 6's limits.
+- **The re-save's leases** (slice 6's save continuity), under the same rules: the raw body's copy and
+  the arguments' lease as the fresh save's; each held text's parse M (result, record) admitted before
+  the parse; the working lease (the fixed allowance and the canonical writer's scratch); each output
+  text at its exact length; SQLite's statement copies; the reply's exact length. The held texts are
+  the handle's result leases, shared, credited nothing more; the parses and the working lease end
+  before the statements; a disposal or reset during the save releases the texts when its share drops.
 - **Not priced:** the readers' working memory and S's working set (§7, item 3), and the copies
   Tauri makes of the body before the command runs, plus the returned response buffer and
   Tauri's copies during delivery after return, including concurrent replies (§7, item 3).

@@ -16,11 +16,21 @@
  *   the envelope hash computed natively over what was stored, the stored model's hash and what
  *   happened to the result (saved, or not saved because it did not fit the store:
  *   `PROJECT-SAVE-RESULT-TOO-LARGE`, the model-only save). Both are JSON bodies (Tauri delivers a
- *   parsed value); a reply carrying a model, result or record, or of another shape, is refused. */
+ *   parsed value); a reply carrying a model, result or record, or of another shape, is refused.
+ * - **A reopened saved run** (C1 slice 6's save continuity, `src-tauri/src/stored_save.rs`). A project
+ *   whose saved run was reopened into native custody is saved or created from the restored handle:
+ *   the request names the handle, its stored source (as the reopen returned it) and the envelope
+ *   basis the session holds, with the project's small fields; no result, record, model hash or
+ *   envelope hash. The native host writes the stored run as the legacy session wrote it back (its
+ *   stored values as `JSON.stringify` of their parse, read by serde_json), the stored project's model
+ *   hash evidence, and the envelope hash over what was stored (the basis's stored evidence when the
+ *   payload is unchanged). The reply adds `restored`: the handle (still held), its stored source and
+ *   the findings of the project as stored. */
 import { invokeWithIngress } from "./nativeIngress";
 import { previewChecksum } from "./analysisRunPreview";
 import { nativeCustody, nativeRunPreview, type NativeAnalysisRun, type NativeResult } from "./nativeResult";
 import { deliveredIntakeText } from "./previewService";
+import type { RestoredFindings, RestoredRun } from "./nativeReopen";
 import type { CurrentSessionInputManifestEvidence } from "./inputManifestService";
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import type { RuleCheckStatus } from "./ruleCheckService";
@@ -37,6 +47,7 @@ import type {
 
 export const NATIVE_RECORD_RUN_COMMAND = "record_preview_mechanics_job_analysis_run";
 export const NATIVE_SAVE_PROJECT_COMMAND = "save_preview_mechanics_job_local_project";
+export const NATIVE_SAVE_RESTORED_PROJECT_COMMAND = "save_restored_result_local_project";
 export const NATIVE_PROJECT_SAVE_MALFORMED = "NATIVE-PROJECT-SAVE-MALFORMED";
 export const PROJECT_SAVE_RESULT_TOO_LARGE = "PROJECT-SAVE-RESULT-TOO-LARGE";
 export const PROJECT_SAVE_TOO_LARGE = "PROJECT-SAVE-TOO-LARGE";
@@ -108,17 +119,33 @@ export type NativeSavedResult =
   | { outcome: "saved"; run_id: string; result_bytes: number; record_bytes: number }
   | { outcome: "not_saved"; code: typeof PROJECT_SAVE_RESULT_TOO_LARGE; message: string; result_bytes: number; record_bytes: number; row_bytes: number; limit_bytes: number; refused: { what: string; bytes: number } };
 
+/** What a reopened saved run's re-save says of the run (`RestoredSave`). */
+export type NativeRestoredSave = Readonly<{
+  /** The restored handle, still held: the save neither disposes nor requalifies it. */
+  handle: string;
+  origin: "restored_saved_run";
+  source: RestoredRun["source"];
+  /** The findings of the project as stored (its native reopen's); null after a model-only save. */
+  findings: RestoredFindings | null;
+  /** `sha256:<hex>`: the envelope payload hash of what was stored. */
+  envelope_payload_hash: string;
+  envelope_basis_kept: boolean;
+}>;
+
 /** The native save's reply: no model, result or record. */
 export type NativeProjectSave = Readonly<{
   summary: LocalProjectSummary;
   proposal: AgentProposal | null;
   selected_review_target: SelectedReviewTarget | null;
   model_hash: ModelHashEvidence | null;
-  project_envelope_hash: ProjectEnvelopeHashEvidence;
+  /** Null only when a reopened project's unchanged re-save keeps a stored project that had none. */
+  project_envelope_hash: ProjectEnvelopeHashEvidence | null;
   model_document_version: ModelDocumentVersionStatus | null;
   /** `sha256:<hex>` of the stored model's canonical text (`computeModelHash`'s value). */
   stored_model_hash: string;
   result: NativeSavedResult;
+  /** A reopened saved run's re-save only. */
+  restored?: NativeRestoredSave;
 }>;
 
 const isObject = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
@@ -126,6 +153,15 @@ const count = (value: unknown) => typeof value === "number" && Number.isSafeInte
 
 /** The reply as the session reads it, or `NATIVE-PROJECT-SAVE-MALFORMED`. */
 export function decodeNativeProjectSave(value: unknown): NativeProjectSave {
+  return decodeSave(value, null);
+}
+
+/** A reopened saved run's re-save reply (`restored` carries the restored run's members). */
+export function decodeRestoredProjectSave(value: unknown, restored: RestoredRun): NativeProjectSave {
+  return decodeSave(value, restored);
+}
+
+function decodeSave(value: unknown, restored: RestoredRun | null): NativeProjectSave {
   const fail = (detail: string): never => { throw new Error(`${NATIVE_PROJECT_SAVE_MALFORMED}: ${detail}`); };
   if (!isObject(value)) return fail("the reply is not an object");
   for (const member of ["model", "mechanics_result", "analysis_run", "editor_intents"]) {
@@ -134,7 +170,7 @@ export function decodeNativeProjectSave(value: unknown): NativeProjectSave {
   const summary = value.summary;
   if (!isObject(summary) || typeof summary.project_id !== "string" || typeof summary.message !== "string") fail("the summary is not a project summary");
   const envelope = value.project_envelope_hash;
-  if (!isObject(envelope) || typeof envelope.value !== "string") fail("the envelope hash is not one");
+  if (!(isObject(envelope) && typeof envelope.value === "string") && !(restored && envelope === null)) fail("the envelope hash is not one");
   if (typeof value.stored_model_hash !== "string" || !/^sha256:[0-9a-f]{64}$/.test(value.stored_model_hash)) fail("the stored model hash is not one");
   const result = value.result;
   if (!isObject(result)) return fail("the result outcome is missing");
@@ -146,6 +182,18 @@ export function decodeNativeProjectSave(value: unknown): NativeProjectSave {
     }
   } else {
     fail("the result outcome is neither saved nor not_saved");
+  }
+  if (!restored) {
+    if ("restored" in value) fail("a fresh save's reply carries a restored run");
+  } else {
+    const run = (isObject(value.restored) ? value.restored : fail("the reply has no restored run")) as Record<string, unknown>;
+    if (run.handle !== restored.handle || run.origin !== "restored_saved_run") fail("the restored run is not the handle's");
+    const source = run.source;
+    if (!isObject(source) || (["kind", "project_id", "recording_id", "result_sha256", "record_sha256"] as const).some((key) => source[key] !== restored.source[key])) fail("the restored run's stored source is not the handle's");
+    if (typeof run.envelope_payload_hash !== "string" || typeof run.envelope_basis_kept !== "boolean") fail("the restored run's envelope facts are malformed");
+    const found = run.findings;
+    const findingsRead = isObject(found) && Array.isArray(found.findings) && found.findings.every((item: unknown) => typeof item === "string") && typeof found.run_id === "string";
+    if (result.outcome === "saved" ? !findingsRead : found !== null) fail("the restored run's findings are malformed");
   }
   return Object.freeze(value) as unknown as NativeProjectSave;
 }
@@ -166,6 +214,31 @@ export async function saveNativeLocalProject(request: NativePersistenceRequest, 
     expectedBase: fields.expectedBase
   });
   return decodeNativeProjectSave(reply);
+}
+
+/** The envelope basis the session holds for a reopened saved run: the payload hash and the stored
+ * envelope evidence of the project as it last opened or re-saved it (the host accepts only a basis
+ * it established for the handle). */
+export type RestoredEnvelopeBasis = Readonly<{ payload_sha256: string | null; evidence: ProjectEnvelopeHashEvidence | null }>;
+
+/** Saves or creates the project whose saved run is `restored`, from its handle (module docs). The
+ * model hash written is the stored project's, held natively; `fields.modelHash` is not sent. */
+export async function saveRestoredLocalProject(restored: RestoredRun, basis: RestoredEnvelopeBasis, fields: NativeProjectFields): Promise<NativeProjectSave> {
+  const reply = await invokeWithIngress<unknown>(NATIVE_SAVE_RESTORED_PROJECT_COMMAND, {
+    jobId: restored.handle,
+    expectedSource: restored.source,
+    envelopeBasis: basis,
+    mode: fields.mode,
+    projectId: fields.mode === "save" ? fields.model.project.id : null,
+    projectName: fields.mode === "save" ? fields.model.project.name : null,
+    model: fields.model,
+    editorIntents: fields.editorIntents,
+    proposal: fields.proposal,
+    selectedReviewTarget: fields.selectedReviewTarget,
+    confirmedRevision: fields.confirmedRevision,
+    expectedBase: fields.expectedBase
+  });
+  return decodeRestoredProjectSave(reply, restored);
 }
 
 /** The stored model's hash evidence, as `computeModelHash` writes it for the request's model. */

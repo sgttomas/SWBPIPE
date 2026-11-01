@@ -35,6 +35,7 @@ mod result_js_text;
 #[allow(unsafe_code)]
 mod stored_read;
 mod stored_custody;
+mod stored_save;
 #[allow(unsafe_code)]
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
@@ -2434,6 +2435,23 @@ async fn open_local_project_in_native_custody(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
     stored_custody::open_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6's save continuity: Save or Create Project of a project whose
+/// saved run was reopened into native custody, from the restored handle
+/// (`stored_save`). Raw args body `{jobId, expectedSource, envelopeBasis,
+/// mode: "create"|"save", projectId?, projectName?, model, editorIntents,
+/// proposal, selectedReviewTarget, confirmedRevision, expectedBase}`; no
+/// result, record, model hash or envelope hash is sent. The stored run is
+/// written as the legacy session wrote it back; the reply is the native
+/// save's small reply with the restored run's findings, as a JSON body.
+#[tauri::command]
+async fn save_restored_result_local_project(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_save::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
 }
 
 /// C1 slice 6: a recorded run reopened into native custody after the store's
@@ -5904,6 +5922,7 @@ macro_rules! app_invoke_handler {
             open_local_project_in_native_custody,
             read_analysis_run_in_native_custody,
             read_restored_result_record_all,
+            save_restored_result_local_project,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,

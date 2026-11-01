@@ -27,8 +27,9 @@ export type HistoricalRunContext = {
    * slice 6) the restored run's native handle, read through S and bounded pages. */
   mechanicsResult: MechanicsResult | NativeResult | null;
   /** C1 slice 6: the stored run held natively (desktop). Its raw values never enter the webview;
-   * `rawMechanicsResult`/`rawAnalysisRun` are null and a whole-value consumer loads them through the
-   * bounded C2 copy (`loadRestoredRun`). */
+   * `rawMechanicsResult`/`rawAnalysisRun` are null. A project save re-saves it from the handle
+   * (`saveRestoredLocalProject`); an approved C2 whole-value consumer loads it through the bounded
+   * copy (`loadRestoredRun`). */
   restored?: RestoredRun;
   analysisRun: AnalysisRunEnvelope | null;
   modelHash: ModelHashEvidence | null;

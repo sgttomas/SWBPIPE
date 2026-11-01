@@ -3,8 +3,9 @@
  * `src-tauri/src/stored_custody_tests.rs`): the session's own native Save Project and Record Run
  * requests (`native_persistence_replies.json`) on a real store, a session reset, then the native open,
  * every request the historical panel sends on the restored handle (S, pages, semantics), and the
- * recorded run's native read. Each request must equal a recorded request exactly (its handle written
- * `$HANDLE`); anything else fails. With NATIVE_REOPEN_RECORD=1 the panel's requests are written to
+ * recorded run's native read, then Save Project from the restored handle (C1 slice 6's save
+ * continuity: the actual `save_restored_result_local_project` on the same store). Each request must
+ * equal a recorded request exactly (its handle written `$HANDLE`); anything else fails. With NATIVE_REOPEN_RECORD=1 the panel's requests are written to
  * `native_reopen_requests.json` for the Rust test to answer. All data are invented or committed
  * fixtures. */
 import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
@@ -19,6 +20,7 @@ import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { isNativeResult, nativeCustody } from "../../services/nativeResult";
 import { NATIVE_OPEN_PROJECT_COMMAND, NATIVE_READ_RUN_COMMAND } from "../../services/nativeReopen";
+import { NATIVE_SAVE_RESTORED_PROJECT_COMMAND } from "../../services/nativePersistence";
 import { RUN_RECORD_MANIFEST_UNAVAILABLE } from "../../services/analysisRunService";
 import { HistoricalRunPanel } from "../results/HistoricalRunContext";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
@@ -30,6 +32,8 @@ const RECORD = process.env.NATIVE_REOPEN_RECORD === "1";
 /** The handle the replies' `$HANDLE` reads as here (a restored handle's prefix). */
 const HANDLE = "restored-stored-result-replay-1";
 const READ_HANDLE = "restored-stored-result-replay-2";
+/** A disposed handle never resurrects, so each test that opens holds its own. */
+const SAVE_HANDLE = "restored-stored-result-replay-3";
 
 afterEach(() => {
   cleanup();
@@ -52,13 +56,14 @@ function delivered(reply: Json): unknown {
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 }
 
-async function session() {
+/** `override` answers a request on the handle before the recorded replies (a test's own variant). */
+async function session(handle = HANDLE, override?: (command: string, args: Json) => unknown) {
   const document = JSON.parse(readFileSync(REPLIES, "utf8")) as Json;
   const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const recorded: Json[] = [];
   const disposed: string[] = [];
-  const openReply = substitute(document.open.reply.value, "$HANDLE", HANDLE) as Json;
+  const openReply = substitute(document.open.reply.value, "$HANDLE", handle) as Json;
   const readReply = substitute(document.read.reply.value, "$HANDLE", READ_HANDLE) as Json;
   invokeMock.mockImplementation(async (command: string, args: Json) => {
     switch (command) {
@@ -78,10 +83,12 @@ async function session() {
         expect(args).toEqual(document.read.args);
         return structuredClone(readReply);
     }
-    if (args?.jobId === HANDLE) {
-      const request = substitute(args, HANDLE, "$HANDLE");
+    if (args?.jobId === handle) {
+      const request = substitute(args, handle, "$HANDLE");
+      const replaced = override?.(command, request);
+      if (replaced !== undefined) return replaced;
       const found = (document.requests as Json[]).find((entry) => entry.command === command && isDeepStrictEqual(entry.args, request));
-      if (found) return delivered(found.reply);
+      if (found) return found.reply.body === "json" ? substitute(delivered(found.reply), "$HANDLE", handle) : delivered(found.reply);
       if (RECORD) {
         // Kept at once, merged with the requests recorded before (each run reaches the next one).
         let kept: Json[] = [];
@@ -107,6 +114,7 @@ async function session() {
 }
 
 const called = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command);
+const WHOLE_COPIES = ["open_local_project", "read_preview_mechanics_job_rows_all", "read_restored_result_record_all", "take_preview_mechanics_job_result"];
 
 describe("saved and recorded runs reopen into native custody (C1 slice 6)", () => {
   it("opens the stored project with its saved run held natively and inspects it through S and pages", async () => {
@@ -150,6 +158,80 @@ describe("saved and recorded runs reopen into native custody (C1 slice 6)", () =
     expect(disposed).toEqual([]);
     view.unmount();
     await waitFor(() => expect(disposed).toEqual([HANDLE]));
+  });
+
+  it("saves the reopened project from its restored handle: nothing whole crosses and the run stays historical", async () => {
+    const { state, openReply, disposed, view, document } = await session(SAVE_HANDLE);
+    await act(async () => { await state().project.handleOpenProject(openReply.model.project.id); });
+    await waitFor(() => expect(state().results.historicalRun?.restored?.handle, String(state().project.projectMessage)).toBe(SAVE_HANDLE));
+    await waitFor(() => expect(state().project.projectEnvelopeHashIntegrity?.integrity_status).toBe("verified_match"));
+    const before = state().results.historicalRun!;
+    await act(async () => { await state().project.handleSaveProject(); });
+    if (RECORD) return;
+    await waitFor(() => expect(state().project.projectOperation, String(state().project.projectMessage)).toBe("save"));
+    // The request: the handle, its stored source, the envelope basis and the small fields; no result,
+    // record, model hash or envelope hash.
+    const sent = called(NATIVE_SAVE_RESTORED_PROJECT_COMMAND);
+    expect(sent).toHaveLength(1);
+    const args = sent[0][1] as Json;
+    expect(args.jobId).toBe(SAVE_HANDLE);
+    expect(args.expectedSource).toEqual(openReply.stored_run.source);
+    expect(args.envelopeBasis).toEqual({ payload_sha256: openReply.stored_run.findings.envelope_payload_hash, evidence: openReply.project_envelope_hash });
+    expect(args.expectedBase).toBe(openReply.project_envelope_hash.value);
+    for (const member of ["modelHash", "projectEnvelopeHash", "mechanicsResult", "analysisRun", "intakeText", "inputManifest"]) expect(args, member).not.toHaveProperty(member);
+    // The actual command's reply: saved with the stored run, the stored evidence kept (unchanged project).
+    const reply = (document.requests as Json[]).find((entry) => entry.command === NATIVE_SAVE_RESTORED_PROJECT_COMMAND)!.reply.value;
+    expect(reply.result.outcome).toBe("saved");
+    expect(reply.restored.envelope_basis_kept).toBe(true);
+    expect(state().project.projectMessage).toBe(reply.summary.message);
+    // The history keeps the same handle and stored source (historical provenance), with the findings of the
+    // project as stored; nothing becomes the current result, and the save disposes nothing.
+    const after = state().results.historicalRun!;
+    expect(after.designation).toBe("historical_saved_run");
+    expect(after.restored).toBe(before.restored);
+    expect(after.mechanicsResult).toBe(before.mechanicsResult);
+    expect(after.findings).toEqual(reply.restored.findings.findings);
+    expect(after.envelopeHash).toEqual(reply.project_envelope_hash);
+    expect(after.envelopePayloadHash).toBe(reply.restored.envelope_payload_hash);
+    expect(state().results.result).toBeNull();
+    expect(state().project.modelEdited).toBe(false);
+    await waitFor(() => expect(state().project.projectEnvelopeHashIntegrity?.integrity_status).toBe("verified_match"));
+    for (const command of [...WHOLE_COPIES, "save_local_project", "create_local_project", "save_preview_mechanics_job_local_project"]) expect(called(command), command).toHaveLength(0);
+    expect(disposed).toEqual([]);
+    view.unmount();
+    await waitFor(() => expect(disposed).toEqual([SAVE_HANDLE]));
+  });
+
+  it("keeps the history and the handle when the re-save is refused or saves the model only", async () => {
+    const SAVE = NATIVE_SAVE_RESTORED_PROJECT_COMMAND;
+    const document = JSON.parse(readFileSync(REPLIES, "utf8")) as Json;
+    const actual = (document.requests as Json[]).find((entry) => entry.command === SAVE).reply.value;
+    // Variants of the actual reply: a binding refusal, and a model-only save (the run not stored).
+    const modelOnly = { ...structuredClone(actual), result: { outcome: "not_saved", code: "PROJECT-SAVE-RESULT-TOO-LARGE", message: "PROJECT-SAVE-RESULT-TOO-LARGE (result_bytes=1, record_bytes=1, row_bytes=3, limit_bytes=2): the result was not saved.", result_bytes: 1, record_bytes: 1, row_bytes: 3, limit_bytes: 2, refused: { what: "project row", bytes: 3 } } };
+    modelOnly.restored = { ...modelOnly.restored, findings: null, envelope_basis_kept: false };
+    modelOnly.summary = { ...modelOnly.summary, message: `Saved current project model snapshot without external file copies. ${modelOnly.result.message}` };
+    for (const [variant, handle, answer] of [
+      ["refused", "restored-stored-result-replay-4", () => Promise.reject("NATIVE-PERSISTENCE-CUSTODY: the envelope basis the session names is not one established; nothing was written.")],
+      ["model only", "restored-stored-result-replay-5", () => Promise.resolve(substitute(modelOnly, "$HANDLE", "restored-stored-result-replay-5"))]
+    ] as const) {
+      const { state, openReply, disposed, view } = await session(handle, (command) => command === SAVE ? answer() : undefined);
+      await act(async () => { await state().project.handleOpenProject(openReply.model.project.id); });
+      await waitFor(() => expect(state().results.historicalRun?.restored?.handle).toBe(handle));
+      const before = state().results.historicalRun!;
+      await act(async () => { await state().project.handleSaveProject(); });
+      await waitFor(() => expect(state().project.projectOperation, variant).toBe(variant === "refused" ? "save_failed" : "save"));
+      expect(state().project.projectMessage).toContain(variant === "refused" ? "NATIVE-PERSISTENCE-CUSTODY" : "PROJECT-SAVE-RESULT-TOO-LARGE");
+      // The run stays shown and held as it was; nothing becomes current; nothing whole crosses.
+      expect(state().results.historicalRun, variant).toBe(before);
+      expect(state().results.result).toBeNull();
+      expect(disposed, variant).toEqual([]);
+      for (const command of WHOLE_COPIES) expect(called(command), command).toHaveLength(0);
+      view.unmount();
+      await waitFor(() => expect(disposed).toEqual([handle]));
+      cleanup();
+      invokeMock.mockReset();
+      resetSessionResultCustodyForTests();
+    }
   });
 
   it("checks a recorded run natively and releases its handle at once", async () => {
