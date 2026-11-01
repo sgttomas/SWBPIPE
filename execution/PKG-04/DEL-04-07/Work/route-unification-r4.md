@@ -1144,8 +1144,7 @@ combined-source tool. Model document 0.9.0 S1 integrated first as `136f3e086`;
 from the combined source, with focused scrutiny of changed proof. S1 owns
 DEL-04-08 §8.36; the pre-S1 1b draft bearing that number is unadopted evidence,
 not a basis to transplant. The combined 1b registration belongs to §8.37; no
-generated block or pin is merged by hand. DEL-04-07's ScopeOfWork and dependency conditions do not change:
-The combined-source comparison against main `136f3e086` ran 478 common-byte
+generated block or pin is merged by hand. The combined-source comparison against main `136f3e086` ran 478 common-byte
 inputs in both modes: **956 outputs identical, 662 solved envelopes and 294
 refusals, no panics**. This restores all nine report/reader exclusions from the
 older selection. Only the 10,000-node desktop geometry fixture is excluded:
@@ -1157,8 +1156,9 @@ binaries read the same copied bytes. Input and binary digests are retained
 with the comparison evidence. The candidate's build source is recorded there;
 subsequent documentation/proof comments preserve its product source bytes.
 
-this repair changes lookup/storage strategy within its existing publication
-contract and admits no new family. Retained storage still needs the combined-source registration;
+DEL-04-07's ScopeOfWork and dependency conditions do not change: this repair
+changes lookup/storage strategy within its existing publication contract and
+admits no new family. Retained storage still needs the combined-source registration;
 no acceptance or release standing follows from these observations.
 
 ### 5.5 Verdict
