@@ -96,7 +96,7 @@ A model solves on one of two routes:
   classified private, so these downloads are withheld in practice: the panel
   builds them but offers no download link.
 
-**Projects saved before model document 0.9.0.** Model document 0.9.0 adds optional operating-condition sets (`condition_sets`, a pipe segment's `condition_set_ref` and a load case's `condition_use`), a single-DOF support's `direction`, a result-state subtraction's `difference_basis` and `subtrahend_support_state`, the `absolute_sum` and `srss` combination bases with combinations as operands, a load case's hydrostatic `test_condition`, the `snubber` support family and response `spectra` (DEL-02-01 Design `model-document-0.9.0.md` §1-§2). A document may carry these members and open, edit and save; until the slices that give them meaning land, a solve refuses each one it cannot yet read by name, and nothing is dropped. The desktop opens only the current model-document version, so a project or saved model state stored at 0.8.0 is refused by name when you open it, and nothing is migrated. A 0.8.0 document whose `schema_version` alone is changed to 0.9.0 has the same meaning in 0.9.0; making that change is your re-authoring step, and the stored-document export still writes a refused project's bytes for it. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.9.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+**Projects saved before model document 0.9.0.** Model document 0.9.0 adds optional operating-condition sets (`condition_sets`, a pipe segment's `condition_set_ref` and a load case's `condition_use`), a single-DOF support's `direction`, a result-state subtraction's `difference_basis` and `subtrahend_support_state`, the `absolute_sum` and `srss` combination bases with combinations as operands, a load case's hydrostatic `test_condition`, the `snubber` support family and response `spectra` (DEL-02-01 Design `model-document-0.9.0.md` §1-§2). A document may carry these members and open, edit and save; until the slices that give them meaning land, a solve refuses each one it cannot yet read by name, and nothing is dropped. The pressure-free solve now resolves a case's condition temperature, added weight and wind exposure (§6.1). The desktop opens only the current model-document version, so a project or saved model state stored at 0.8.0 is refused by name when you open it, and nothing is migrated. A 0.8.0 document whose `schema_version` alone is changed to 0.9.0 has the same meaning in 0.9.0; making that change is your re-authoring step, and the stored-document export still writes a refused project's bytes for it. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.9.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
 **Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset and the optional `model_settings.shear_model` beam-theory choice (§1.1 of DEL-02-01 Design `model-document-0.8.0.md`). The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
@@ -360,6 +360,86 @@ In the desktop app the workflow is:
    Data Blocking panel; fix them in the model.
 7. Note unresolved assumptions in your own project records. The app has no
    slot for tags, notes or unresolved assumptions yet.
+
+### 6.1 Operating-condition sets (model document 0.9.0)
+
+An operating-condition set states a line's temperatures (and other values) once
+and lets load cases use them by key. The design is DEL-02-01 Work
+`model-document-0.9.0.md` §1.
+
+**What you enter (in the model document).** Each `condition_sets[]` record has an
+`id`, a non-blank `provenance` and, as needed: `conditions[]` (each with a `key`
+such as `OPE1` or `HYDRO`, and an absolute `temperature`, `pressure` or
+`contents_density`); an `installation_temperature` (the stress-free
+temperature); an `added_weight` (`magnitude` as a force per length and the
+`direction` it acts along, `global_x`, `global_y` or `global_z`); and `exposure`
+marks (`wind`, `snow_ice`, `wave`). Each pipe names its set in
+`condition_set_ref`. A load case's `condition_use` names what it takes from the
+sets: `temperature` (a key), `added_weight: true`, `wind_exposure: true`
+(and `pressure` or `contents_density`, see below). Every value is yours, in a
+catalog unit; the product supplies no temperature, weight, exposure, wind input
+or set.
+
+**What the pressure-free solve does with it.** Before anything else in the
+solve, each case that uses conditions is resolved into ordinary per-case
+records, which then solve exactly as if you had typed them:
+
+- `temperature`: for every pipe, in pipe order, a thermal primitive in kelvin
+  with ΔT = condition temperature − the set's installation temperature;
+- `added_weight`: for every pipe whose set has an added weight, a weight
+  primitive with that magnitude and direction, added to the case's own weights
+  (a set without an added weight adds none);
+- `wind_exposure`: the case's exposed pipes are the pipes whose set is marked
+  `wind: true`; the case's own `equivalent_static.wind` supplies the pressure,
+  shape factor and direction.
+
+Generated records have ids `load:condition-temperature:…` and
+`load:condition-added-weight:…` (length-prefixed case and pipe ids) and a
+provenance naming the set, key and method; an authored id equal to one is the
+usual `DUPLICATE_ID`. The case's elastic basis is unchanged: condition
+temperatures drive thermal strain only.
+
+**The temperature difference.** Each temperature is read as the decimal you
+typed, converted to kelvin exactly and subtracted exactly, then rounded once
+(§1.5.1). 20.3 degC − 20.1 degC gives exactly the binary64 nearest 0.2. A
+temperature change typed directly keeps its existing conversion; for degF and
+degR this can differ in the last bit from the condition route (a typed 7 degF
+gives 3.8888888888888893 K, 77 degF − 70 degF from conditions gives
+3.888888888888889 K). Absolute temperatures must lie within |value| ≤ 10⁶ in
+their own unit with a decimal exponent of at least −24.
+
+**Refusals by name** (the case, pipe, set, key and quantity are named; no pipe is
+skipped and no value assumed): a pipe without a set
+(`OPERATING_CONDITION_SET_MISSING`), a set without the key
+(`OPERATING_CONDITION_KEY_MISSING`), a condition without a temperature
+(`OPERATING_CONDITION_VALUE_MISSING`), a set without an installation temperature
+(`OPERATING_CONDITION_INSTALLATION_TEMPERATURE_MISSING`), a case that also
+carries a thermal primitive (`LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT`) or its
+own exposed pipes or spans (`LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`), and a
+wind-exposure use without `equivalent_static.wind`
+(`LOAD_CASE_CONDITION_WIND_INPUT_MISSING`). If no pipe is wind-exposed, the
+existing `EQUIVALENT_STATIC_INPUT_MISSING` names the empty exposure. A set and
+its values are checked whether or not a case uses them.
+
+**Not yet available.** `contents_density` uses are refused
+(`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`) until their consumer is designed;
+a `pressure` use on a pressure-free document is refused
+(`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`); every use on a
+document with a pressure contract is refused
+(`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`) until the exact route's resolution
+(S4). A hydrostatic `test_condition` and a skewed support `direction` keep their
+own refusals. The retained Direct and headless routes and the independent
+source readers still decline condition sets, references and uses by name; the
+ordinary solve publishes. `design`, `peak`, `snow_ice`, `wave` and
+`contents_density` are carried but not used by the solve in 0.9.0.
+
+**Editing.** Condition sets and uses are entered in the model document (JSON)
+today. The desktop's condition-set manager, the pipe field, the load manager's
+Conditions control with its per-pipe preview, and the applier operations are
+later slices; until then, authoring a case's `condition_use` through the
+desktop's operations is refused by name (`LOAD_CASE_CONDITION_USE_UNSUPPORTED`).
+These are mechanics inputs only: no code operating, design or occasional load
+definition is implied, and the results carry no code-compliance claim.
 
 The current viewport/editor contract represents camera, hover, selection,
 drag, snap, view primitives, diagnostics, and command intents. Durable edits
