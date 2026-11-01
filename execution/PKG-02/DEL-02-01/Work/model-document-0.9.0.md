@@ -920,6 +920,16 @@ D3 is touched; AC-004's text is not.
   settles where the lowering sits for those routes, the retained Direct and
   headless routes and the independent source readers decline a document carrying
   `condition_use` by name, and the ordinary route publishes.
+- **Interim retained boundary (Agent 0, 2026-10-31: option A, not a new pricing
+  method).** The lowering judges every condition set, spectrum and set reference
+  before the solve, and no D1 bound prices those loops. Until the slices of §3.8
+  price them, D1.3 declines a non-empty `condition_sets` or `spectra` and any
+  pipe's `condition_set_ref` (an empty string included), and an empty
+  `condition_sets` or `spectra` with spare typed capacity; an absent member and a
+  parsed `[]` are admitted. The independent source readers decline the same
+  members by name, and the ordinary route publishes. D3 then prices what the
+  lowering and the withholding still do on D1 (DEL-04-08
+  `retained-pricing-rules.md` §8.36).
 - **AC-004.** Its six stack witnesses re-run on each priced build under an
   exclusive lane granted by Agent 0. This is test evidence, not acceptance.
 - **Queue.** The 0.9.0 D3 follows the queued §8.27 (W-16b/c), §8.28 (stage 2)
@@ -945,6 +955,7 @@ document opens, validates and saves throughout.
 | `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED` (`absolute_sum`, `srss`, withheld, warning) | solve; applier | the RT-A4 wiring slice (DEL-05-02 `absolute-sum-srss-combinations.md`) |
 | `LOAD_COMBINATION_NESTED_UNSUPPORTED` (a combination operand, and each combination naming a withheld one, withheld, warning) | solve; applier | the RT-A4 wiring slice |
 | Retained admission declines `direction`, `test_condition` and the combination members (`FamilyFact::SupportDirection`, `TestCondition`, `CombinationMember`) | retained admission | each member's slice above, with its D3 |
+| Retained admission and the independent source readers decline a non-empty `condition_sets` or `spectra` and any pipe's `condition_set_ref`, and an empty `condition_sets` or `spectra` with spare capacity (`FamilyFact::ConditionSets`, `Spectra`, `ConditionSetRef`; `CapFact::ConditionSetsCapacity`, `SpectraCapacity`; `PHYSICS_SOURCE_ACTUAL_CONDITION_SETS`, `_SPECTRA`, `_CONDITION_SET_REF`; retained-precision G8 `CONDITION_SETS_UNSUPPORTED`, `SPECTRA_UNSUPPORTED`, `CONDITION_SET_REF_UNSUPPORTED`) | retained admission, source readers | sets and references: S2, with a D3 that caps the sets, their conditions and the references in D1 and prices the lowering's loops over them; spectra: DEL-04-10 (RT-A8), with a D3 that caps the spectra and their points and prices their checks |
 | `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` (blocking on every static solve) | solve | DEL-04-10's snubber slice, which replaces it with its final meaning (static solves ignore a snubber, disclosed) |
 | Spectra carried as data; no consumer | — | DEL-04-10 (RT-A8 response spectrum) |
 | CAEPIPE SI writer refuses `condition_use`, `test_condition`, a non-axis `direction`, snubbers, spectra, `difference_basis`, `subtrahend_support_state`, the unsigned bases and combination operands by name | `si_writer.py` (and the MBF engine's Rust twin, the MBF lane's) | each member's mapping, when designed (DEL-17-04) |
@@ -1243,9 +1254,16 @@ version step, R1). D3 and the registration follow as their own slice (§3.7).
   take the 0.9.0 token; physics-retained-1 inherits pressure-2's digest and DEF-E's
   H (`b60e69d4…`); `reviewed_inputs` rebinds exactly #7, #8, #9 and #11; DEL-04-08
   TBD-002's token follows DEF-E.
-- **Left for D3:** the pricing and the generated block, which wait on the
-  retained admission of `condition_sets` and `spectra` (D1 does not decline them,
-  and their loops have no D1 bound); the retained successors,
+- **Interim retained boundary (`867c63ec8`):** D1.3's declines and the source
+  readers' (§3.7, §3.8), with law, facade and reader regressions in Rust and
+  Python.
+- **D3 pricing candidate:** DEL-04-08 `retained-pricing-rules.md` §8.36 prices
+  the candidate on all four points with the S1 owners and a correction of the
+  typed-string census, and gives the proposed block's native movement and fit.
+  The block is not adopted.
+- **Left for D3:** Agent 0's decision on §8.36's movement, then adopting the
+  block and the profile pins (`profile_in_build_record`,
+  `challenge_bounds_are_the_profile`); the retained successors,
   `retained_precision_cases.json`, the two `failed_ordinary`, the synthetic bases
-  and the eight `pressure_load_state_*` carriers (by their writers); and the
-  profile pins (`profile_in_build_record`, `challenge_bounds_are_the_profile`).
+  and the eight `pressure_load_state_*` carriers (by their writers, on the
+  registered build); the routing and provenance refresh; AC-004's witnesses.
