@@ -136,11 +136,16 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # §8.30 D3 (correction 1): refuse_compensated_shared_terminals is a new parent (one call per node with a shared
     # compensated terminal, inside its loops over the case's regions; 0 on D1: D1.5's empty E regions, L never reaches
     # validate_profile's region branch); the later parents move +49 with unchanged text.
-    '187:exact_member_recovery', '211:validate_profile', '519:refuse_compensated_shared_terminals',
+    '187:exact_member_recovery', '211:validate_profile', '521:refuse_compensated_shared_terminals',
     # RT-A3 increment 1 D3 (§8.33): junction_closure_warnings, its per-case helper and their own `warn` helper (no call
     # of `problem`) precede check_suffixes; the later parents move +88 with unchanged text.
-    '644:check_suffixes', '658:normalize_region_units', '731:assemble_pressure_case', '1210:add_joint_terms',
-    '1460:finish_source_groups', '1608:traverse_region', '1848:collinear_run')]
+    '646:check_suffixes', '660:normalize_region_units', '733:assemble_pressure_case', '1217:add_joint_terms',
+    '1467:finish_source_groups', '1615:traverse_region', '1864:refuse_reducers_outside_step', '1917:collinear_run')]
+# RT-A3 reducer 2a (§8.38): the new problem parent is inside the loop over reducers_in_regions.
+# D1.4 admits no components and D1.5 has empty E regions, so that classifier returns an empty Vec
+# (no push/table initialization), the loop has no iteration and problem receives no new message/ref owner.
+# The full-file source pins and batch5 production-prefix pin bind those producer premises. Existing
+# callers above retain unchanged text and ownership; only their verified line keys move.
 # U5B-JV (T4-U5b): joint.rs `hardware`'s match binding `Err(Some(problem)) => problems.push(problem)` gives the
 # by-name value scan one more graph parent of `problem`, which hardware never calls; o10_rules.py zeroes that edge, and
 # the owner's message/ref bounds are unchanged (hardware passes neither).

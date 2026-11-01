@@ -6,7 +6,7 @@ reader. Source-only layout observations live in the native profile; constants
 below are source capacity bounds, never measured RSS or allocator usable bytes.
 """
 # RT-A3 reducer 2a D3 (§8.38): admission and normalized geometry guards change only in-region reducers,
-# excluded by D1.4/D1.5. No mapped-component/source-family admission or existing owner lifetime changes.
+# excluded by D1.4/D1.5. Retained/source mapped-component gates and existing owner lifetimes are unchanged.
 # Resource-only reader digest updates bind the described current tables; their actual bytes are priced separately.
 import hashlib
 from pathlib import Path

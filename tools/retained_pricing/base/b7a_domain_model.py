@@ -4,7 +4,7 @@ The guarded source admits no states/components/partial extents. Existing
 positive families remain; these terms widen their storage/multiplicity basis.
 """
 # RT-A3 reducer 2a D3 (§8.38): admission and normalized geometry guards change only in-region reducers,
-# excluded by D1.4/D1.5. No mapped-component/source-family admission or existing owner lifetime changes.
+# excluded by D1.4/D1.5. Retained/source mapped-component gates and existing owner lifetimes are unchanged.
 # Resource-only reader digest updates bind the described current tables; their actual bytes are priced separately.
 # RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
 # label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
