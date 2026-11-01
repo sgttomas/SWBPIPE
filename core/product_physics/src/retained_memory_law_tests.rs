@@ -1983,9 +1983,11 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.36 S1: owner-approved source-derived profile, including the confirmed typed-string
 // correction and conservative short-key allowance; values are the reviewed native evaluation
 // minus reserved stack R. M, the margin and TEXT reserve policy are unchanged.
+// §8.37: owner decision "1A, 2A" approves the reviewed +172,554 B profile.
+// Values derive from maintained tree_eval native evaluations, excluding R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_790_349, 6_944_784_910, 8_898_968_146, 8_687_128_573, 7_765_156_512, 8_611_535_281, 7_342_928_991, 7_016_218_867],
-    [6_661_921_693, 7_003_916_254, 8_958_099_490, 8_746_259_917, 7_824_287_856, 8_670_666_625, 7_402_060_335, 7_075_350_211],
+    [6_602_962_903, 6_944_957_464, 8_899_140_700, 8_687_301_127, 7_765_329_066, 8_611_707_835, 7_343_101_545, 7_016_391_421],
+    [6_662_094_247, 7_004_088_808, 8_958_272_044, 8_746_432_471, 7_824_460_410, 8_670_839_179, 7_402_232_889, 7_075_522_765],
 ];
 
 #[test]

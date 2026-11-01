@@ -3,6 +3,9 @@
 This table changes allocations per owner call only. It preserves the owner
 multiplicity, content/capacity, scans, numeric work and downstream copies.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import ast
 import hashlib
 import os
@@ -58,11 +61,11 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12053,
+    "line": 12057,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12011:exact_straight_summary_extrema",
-    "short": "lib.rs:12053",
-    "from": "lib.rs:12011:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12015:exact_straight_summary_extrema",
+    "short": "lib.rs:12057",
+    "from": "lib.rs:12015:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5209:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -72,11 +75,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12059,
+    "line": 12063,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12011:exact_straight_summary_extrema",
-    "short": "lib.rs:12059",
-    "from": "lib.rs:12011:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12015:exact_straight_summary_extrema",
+    "short": "lib.rs:12063",
+    "from": "lib.rs:12015:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:5209:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -86,11 +89,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12722,
+    "line": 12726,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12703:recover_curved_bend_local_forces",
-    "short": "lib.rs:12722",
-    "from": "lib.rs:12703:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12707:recover_curved_bend_local_forces",
+    "short": "lib.rs:12726",
+    "from": "lib.rs:12707:recover_curved_bend_local_forces",
     "parents": [
       "core/product_physics/src/lib.rs:5209:solve_prepared_load_case"
     ]

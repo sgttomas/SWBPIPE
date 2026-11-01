@@ -863,6 +863,16 @@ H-a is recommended: no new format, and it removes an asymmetry (§6).
 - **H-3, constant-effort.** A locked constant-effort hanger: no constant force, a prescribed
   DOF, and the reaction equal to the rigid-support reaction.
 
+### 4.7a HYDROTEST reference identity
+
+The H-1, H-1b, H-2 and H-3 labels in **this document, §4.7** name the
+HYDROTEST prerequisites. They are distinct from the historical H-1/H-2 rulings
+cited by `pressure-contract.md`. Reference generators, test documentation and evidence
+must cite `DEL-04-07 Work/route-unification-r4.md §4.7 (HYDROTEST)` in full.
+The frozen reference set must include the active/held contrast and nominal and
+reduced pressure bases; an unchanged reference label does not permit changing
+its mechanics to fit an implementation.
+
 ### 4.8 Size and stage
 
 **Size: M.** It covers:
@@ -874,6 +884,82 @@ H-a is recommended: no new format, and it removes an asymmetry (§6).
 
 **Stage S4.** It comes after S1 (most test systems have tees) and S2. It is independent of the
 nonlinear stages for linear-support models, and models with resting supports wait for S5.
+
+### 4.9 Held-device interface and ownership (Agent 0, 2026-10-31)
+
+**Status: implementation boundary, not built.** Model-document 0.9.0 S1 adds
+only closed/persisted `test_condition {kind: hydrostatic, held_supports: …}`.
+It retains `LOAD_CASE_TEST_CONDITION_UNSUPPORTED` in
+`operating_conditions.rs` and `HYDROTEST_PRESSURE_UNSUPPORTED` for pressure
+primitives. It does not supply hydrotest mechanics, contents resolution,
+authoring operations or result/report markings. This boundary supplements the
+historical outline above; no refusal lifts merely because the shape persists.
+
+**Ownership.** DEL-05-01's load-case implementation owns S2/S4 condition
+resolution and authoring/lowering, the callable per-case contents-density
+resolver and self-weight provenance/staleness, hydrostatic integration and
+results/report test markings, with its references and user/theory guidance.
+RT-A3 owns the EX device, reaction and ledger mechanics described here and
+HYDROTEST §4.7's prerequisite evidence. It supplies no second condition
+lowerer, contents resolver or authoring path. Its mechanics/theory and support
+use guidance must explain the active/held distinction and reaction meaning;
+the user-facing test workflow stays with DEL-05-01.
+
+**Callable mechanics seam to implement.** A product-internal
+`case_devices::resolve_case_devices(model, case, diagnostics)` will return a
+complete `ResolvedCaseDevices` or a named blocking diagnostic. The names here
+are planned Rust seams, not an existing API or a new serialized format. Its
+input is the per-case device participation and entered prescribed positions
+produced by the owning load-case lowering path, using the existing
+load/reference-state contract; it does not interpret condition sets or infer
+water weight. The resolved plan must carry:
+
+- active spring entries and active device force/preload actions;
+- rigid/prescribed DOFs and their entered absolute reference positions;
+- support/node/DOF identities and active/held attribution for recovery and
+  evidence, including which original device laws are suppressed.
+
+For each held spring, variable-spring hanger or constant-effort DOF, the plan
+replaces the device with its rigid/prescribed equivalent and suppresses **both**
+its stiffness and its force/preload law. No parallel spring or constant force
+remains at that held DOF. `held_supports: none` preserves active devices. A
+case's assembly, ledger, solve, support recovery and evidence must consume the
+same resolved plan; a failed resolution supplies no partially usable plan.
+Reaction recovery uses the complete unreduced equations of that replacement
+system and retains the original support identity. A held device cannot also
+publish an active applied-load row for the suppressed law.
+
+**Why the seam is required.** At frozen RT-A3 source `8517ee24`,
+`prepare_boundary` runs before the case loop and `form_basis_stiffness` uses
+that model-level spring list even for resolved cases. The existing
+`case_state::resolve::ResolvedCase` carries prescribed positions but no device
+replacement plan. `add_constant_effort_support_loads` and
+`append_constant_effort_support_results` also consume model-level devices.
+Passing only another prescribed value would retain the spring or force law
+and can misattribute the reaction. Per-case stiffness formation/cache identity
+and both device consumers must therefore be connected before held mechanics
+are usable. This work touches shared `lib.rs` and pricing and follows S1's
+first integration priority; no such implementation is included in 1b.
+
+**Shared-document prerequisite H-a.** Generated equivalent-static loads must
+be admitted and ledgered on the lockable load-state EX document. Hydrotest and
+static seismic must coexist in 0.9.0 through that route; this boundary creates
+no 0.10 format and does not duplicate the load-case generator. Generated-source
+identity, factors, collisions and inclusion evidence remain part of H-a's
+integration design, not an assumption that every stored primitive is applied.
+
+**Unresolved semantics for the mechanics design.** The lowerer's mapping from
+`held_supports` to entered absolute positions must be explicit; neither a
+predecessor position nor an implicit device datum is invented here. Skewed
+held-device directions need their admitted constraint/reaction representation;
+S1's exact-axis lowering does not establish a general skew constraint. The
+interaction of an explicit locked participation record with test-condition
+lowering needs one consistency/refusal rule, never array-order precedence.
+These points require resolution with the owning load-case design before the
+corresponding admission lifts. PF test-condition admission, test-case
+combinations, contents resolution and hydrotest pressure-primitive policy stay
+with the load-case owner. H-1/H-1b/H-2/H-3 are small-case prerequisites; scaling
+or sparse P does not substitute for them.
 
 ---
 
@@ -985,10 +1071,96 @@ These were measured in one `t3_exclusive.sh` window, 01:39:14–01:50:21Z.
 The 2,000-node PF run was refused by `NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED`, with a leading-buffer estimate of 14.79 GB against 11.60 GB. M-2 scales one-way supports as N/10 and explicit-normal friction as N/40, and took 1–4 active-set iterations per case.
 
 **Readings.**
-- **EX linear time** grows about as n^2.3 between 1,000 and 2,000 nodes, while rows grow linearly. A dry-run stack sample places the dominant cost in `u4b_rows::published`, a linear scan of every published row per member, station and basis lookup, shared by both routes. RT-A3 increment 1b repairs it, with byte-identical output, and M-1a is re-measured after it.
+- **EX linear time in the first window** grows about as n^2.3 between 1,000 and 2,000 nodes, while rows grow linearly. A dry-run stack sample places the dominant cost in `u4b_rows::published`, a linear scan of every published row per member, station and basis lookup, shared by both routes. RT-A3 increment 1b replaces that lookup with a member index; its re-measurement is below.
 - **PF nonlinear at 2,000 nodes with the guard lifted** is an extrapolation, not a measurement: about 230–300 s (time exponent 1.8–2.1) and about 16–20 GB peak RSS (RSS exponent 1.4–2). The dense loop therefore does not fit the 16 GiB base machine, and stage P is needed on both routes (Agent 0, 2026-10-31).
 - **Result volume** is about 244k rows per linear case at 2,000 nodes, or 2.05 M rows and 1.5 GB of JSON for 8 cases. The desktop path (IPC, reader, parse, render) and the result-volume design belong to DEL-04-05's performance lane, not to RT-A3 (Agent 0, 2026-10-31).
 - **Finding for the performance lane: warning volume.** The generated racks raise one `LOAD_CATEGORY_PREVIEW_MAPPED` warning per authored line load: 9,995 on the 2,000-node EX rack and 4,995 at 1,000 nodes. In results and reports this is unusable noise. Aggregating it is a usability fix for that lane to design (Agent 0, 2026-10-31).
+
+### 5.4b Increment 1b re-measurement (recovered 2026-10-31)
+
+The saved `t3_exclusive.sh` window completed at **18:54:59–19:04:44Z** on
+`8517ee24ecfb401be1bda46ed3b7f3dc4bfd5fd9`. These are the original observations;
+recovery did not rerun them. The source identity, binary/model digests and raw
+runner records were retained locally for review. This remains development-host
+evidence, not a measurement on the 16 GiB base machine.
+
+The same invented M-1a racks, driver, sparse mode and eight cases as §5.4a gave:
+
+| Run | Nodes | Solve + publication | Serialization | Peak RSS | Rows | JSON |
+|---|---|---|---|---|---|---|
+| M-1a, EX linear, 1b | 1,000 | 39.264 s | 0.376 s | 2.597 GB | 1,022,753 | 754 MB |
+| M-1a, EX linear, 1b | 2,000 | 138.384 s | 0.785 s | 5.161 GB | 2,046,521 | 1.51 GB |
+
+Both runs returned `MECHANICS_SOLVED` with no blocking diagnostics. RSS is the
+whole-process `/usr/bin/time -l` maximum, including serialization; the driver
+reports entry/publication and serialization times separately. The row and byte
+counts are unchanged. The 2,000-node result still takes over two minutes; this
+lookup repair does not establish exit criterion 9. The first window used a
+different source, including uncommitted tee work and concurrent pytest, so
+these windows are not a controlled A/B comparison. The 2,000-node peak RSS
+increased from 4.47 to 5.161 GB; that increase is unexplained by this evidence.
+
+The maintained release runner's **window2 linear EX, 1,000-node** rack also
+completed, with its own prebuilt timing binary on the same source head:
+
+| Run | Runner wall time | Peak RSS | Peak lifetime-max physical footprint |
+|---|---|---|---|
+| Timing | 141.672 s | 15.053 GB | 10.944 GB |
+| Attribution | 142.408 s | 10.875 GB | 11.034 GB |
+
+Both runner records classify the run `ok`. They use a different model and
+measurement path from M-1a and must not be substituted for it. RSS and physical
+footprint are different observations. The footprint column records the
+kernel's lifetime maximum as read by the sampler, while RSS is the runner's
+recorded maximum. The timing run's 15.053 GB RSS on this 1,000-node rack also
+leaves base-machine headroom unestablished. Neither row is a true nonlinear EX rack. The earlier
+PF nonlinear results and dense-memory refusal in §5.4a remain applicable limits;
+S5/S6/S7 admission and P's scale repair remain unfinished.
+
+**Implementation and reconciliation.** `PublishedScope` identifies a member's
+first possible row, and `MemberRows` indexes its station/basis quantities. An
+entity-id collision falls back to the original first-match scan. The saved
+comparison corpus covers 469 documents in both modes (938 serialized results
+or refusals), including the collision case: index source `4c2a1c05f` against
+main `ae729fc96`, byte for byte. It did not compare frozen `8517ee24` binaries;
+the index implementation is unchanged, but the binary build identities rest
+on the original run record. Ten entries were dropped from `list.txt` to
+`list2.txt` without recorded reasons: the 10,000-node UI rack, four
+`exact_report_package_requests/pressure_2_*` requests, the user-release
+`pressure_2_straight` request and four reader/result corpora. Witness-input
+variants of the four report requests remain in the corpus. This is bounded
+regression evidence, not a proof for every input or a complete fixture census.
+
+Independent scrutiny of `8517ee24` confirmed first-row equivalence and the
+RTA3B-PS/MR allocation arithmetic on the actual D1 domain. It found the original
+tests missed same-length removal/replacement after fallback and discovery of a
+previously absent row after an earlier lookup; focused regressions now cover
+those cases. It also found the pre-S1 draft's §8.36 (now §8.37) grow-only premise false: both arc and exact
+pressure publication can retain rows. The current charge is sound because
+removals shrink lengths and every length seen by `begin` is bounded by P_final;
+the false grow-only check has been removed and its premise corrected in the
+combined-source tool. Model document 0.9.0 S1 integrated first as `136f3e086`;
+1b merged it without rebasing and derives pricing, laws, fixtures and routing
+from the combined source, with focused scrutiny of changed proof. S1 owns
+DEL-04-08 §8.36; the pre-S1 1b draft bearing that number is unadopted evidence,
+not a basis to transplant. The combined 1b registration belongs to §8.37; no
+generated block or pin is merged by hand. The combined-source comparison against main `136f3e086` ran 478 common-byte
+inputs in both modes: **956 outputs identical, 662 solved envelopes and 294
+refusals, no panics**. This restores all nine report/reader exclusions from the
+older selection. Only the 10,000-node desktop geometry fixture is excluded:
+it exceeds the bounded two-mode regression size and no new resource window
+was authorized. Maintained inputs came from the committed main archive;
+seven historical invented scratch inputs were copied with only their schema
+token moved from 0.8.0 to 0.9.0, all physical fields unchanged, and both
+binaries read the same copied bytes. Input and binary digests are retained
+with the comparison evidence. The candidate's build source is recorded there;
+subsequent documentation/proof comments preserve its product source bytes.
+
+DEL-04-07's ScopeOfWork and dependency conditions do not change: this repair
+changes lookup/storage strategy within its existing publication contract and
+admits no new family. Retained storage uses the owner-approved combined-source §8.37 profile;
+final native/stack/hosted evidence remains governed by that registration.
+no acceptance or release standing follows from these observations.
 
 ### 5.5 Verdict
 
