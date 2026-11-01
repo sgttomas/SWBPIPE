@@ -393,7 +393,8 @@ are always the native writer's output for the hash-checked text.
   chooser or file access. The in-process pipeline of §3.6 runs only through a test seam
   (`InProcessWriterTestSeam`), whose constructor is compiled only for tests; no command,
   menu or other entry point reaches it.
-- **Admission.** `command_ingress::admit(…, ArgsDecoding::Moved)` admits envelope + M + 4 KiB,
+- **Admission.** The command follows the DEL-04-07 ingress rules for model-sized interactive
+  commands: `command_ingress::admit(…, ArgsDecoding::Moved)` admits envelope + M + 4 KiB,
   held until the command returns.
 - **Host-side reservations.** `PoolReadMemory` is seeded with the lease. Each of these is
   reserved before it is made:
