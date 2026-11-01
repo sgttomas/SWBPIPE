@@ -1,0 +1,15 @@
+{
+  "schema": "swbpipe.desktop-perf-plan/v1",
+  "budget_s": 840,
+  "sample_interval_ms": 200,
+  "timeouts": { "start_ms": 30000, "open_ms": 60000, "record_ms": 150000, "save_ms": 150000 },
+  "runs": [
+    {"id": "native-linear-ex-n0500", "mode": "native", "model": "linear-ex-n0500.json", "estimate_s": 720, "timeout_s": 720, "paint_ms": 300000},
+    {"id": "native-linear-ex-n1000", "mode": "native", "model": "linear-ex-n1000.json", "estimate_s": 780, "timeout_s": 780, "paint_ms": 360000}
+  ],
+  "subsets": {
+    "window": ["native-linear-ex-n0500"],
+    "c1-500": ["native-linear-ex-n0500"],
+    "c1-1000": ["native-linear-ex-n1000"]
+  }
+}
