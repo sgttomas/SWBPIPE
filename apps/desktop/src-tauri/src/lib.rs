@@ -45,6 +45,9 @@ mod result_planes;
 mod result_detail;
 mod result_summary;
 mod result_summary_tables;
+#[cfg(test)]
+#[path = "native_replay_tests.rs"]
+mod native_replay_tests;
 mod report_package_bridge;
 mod report_package_save;
 mod report_render_exact;

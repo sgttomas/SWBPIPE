@@ -110,7 +110,7 @@ fn built(case: &SummaryCase) -> Vec<u8> {
     build(&case.name, &source, &model, standing.as_ref(), &health, |_| Ok::<(), ()>(())).unwrap().0
 }
 
-fn base64(bytes: &[u8]) -> String {
+pub(crate) fn base64(bytes: &[u8]) -> String {
     const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::with_capacity(bytes.len().div_ceil(3) * 4);
     for chunk in bytes.chunks(3) {
