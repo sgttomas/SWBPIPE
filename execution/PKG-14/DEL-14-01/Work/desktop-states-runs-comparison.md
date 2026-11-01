@@ -521,6 +521,12 @@ the History panel and `useModelStateHistory.ts`.
   Save Project and the record preview from a job handle
   (`NATIVE-PERSISTENCE-CUSTODY`, `ANALYSIS-RUN-PREVIEW-READ-FAILED`) and has no
   exact-route custody.
+  Historical model/envelope hashes use JavaScript's binary64 number readings,
+  including wide exact-digit stored integers, without rewriting stored bytes.
+  The complete record header, including matching rule-pack diagnostics and
+  wrapper keys, is measured before allocation and omitted above 4 MiB. Its
+  temporary text and parsed value are leased before allocation, with the
+  parsed-value lease held through reply serialization.
 - **Saving a reopened project (C1 slice 6's save continuity).** Save or Create
   of a project showing its reopened saved run sends
   `save_restored_result_local_project` the restored handle, its stored source,

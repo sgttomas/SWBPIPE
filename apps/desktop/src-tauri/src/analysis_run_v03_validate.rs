@@ -39,7 +39,7 @@ use crate::analysis_runs::{
     manifest_excluded_rule_packs, manifest_members, rule_pack_identity, rule_pack_ref_diagnostic, RULE_PACKS_NOT_RESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH,
     RULE_PACK_REF_UNRESOLVED,
 };
-use open_pipe_stress_canonical_json::CHECKED_PROFILE_V1;
+use open_pipe_stress_canonical_json::{ecma_number_to_string, CHECKED_PROFILE_V1};
 use open_pipe_stress_result_export::{reader_verdict as rv, retained_precision as rp};
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -120,7 +120,39 @@ pub(crate) fn checked_sha256(value: &Value) -> Result<String, String> {
 
 /// `canonicalSha256Hex(value)` (RFC 8785, no profile check), streamed.
 pub(crate) fn jcs_sha256(value: &Value) -> String {
-    canonical_sha256(value)
+    let mut hasher = Sha256::new();
+    js_canonical_value(&mut Writer::new(&mut hasher, Style::Canonical), value);
+    hex(&hasher.finalize())
+}
+
+/// Historical JSON is read by JavaScript before RFC 8785 hashing. Even serde's
+/// exact integer variants therefore pass through binary64. This does not
+/// normalize the stored value or change the checked-profile writer.
+fn js_canonical_value<S: Sink>(w: &mut Writer<'_, S>, value: &Value) {
+    match value {
+        Value::Number(number) => w.raw(&ecma_number_to_string(number.as_f64().expect("a JSON number is binary64-readable"))),
+        Value::Array(items) => {
+            w.raw("[");
+            for (index, item) in items.iter().enumerate() {
+                if index > 0 { w.raw(","); }
+                js_canonical_value(w, item);
+            }
+            w.raw("]");
+        }
+        Value::Object(map) => {
+            let mut keys: Vec<_> = map.keys().collect();
+            keys.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
+            w.raw("{");
+            for (index, key) in keys.into_iter().enumerate() {
+                if index > 0 { w.raw(","); }
+                w.string(key);
+                w.raw(":");
+                js_canonical_value(w, &map[key]);
+            }
+            w.raw("}");
+        }
+        _ => w.value(value),
+    }
 }
 
 /// The error codes the validator's caller shows as they are (`NAMED_REFUSAL`:
@@ -933,23 +965,23 @@ fn envelope_payload_sha256(project: &SavedProject<'_>, result: &Value, record: &
     let mut hasher = Sha256::new();
     let mut w = Writer::new(&mut hasher, Style::Canonical);
     w.raw("{\"analysis_run\":");
-    w.value(record);
+    js_canonical_value(&mut w, record);
     w.raw(",\"editor_intents\":");
     if project.editor_intents.is_null() {
         w.raw("[]");
     } else {
-        w.value(project.editor_intents);
+        js_canonical_value(&mut w, project.editor_intents);
     }
     w.raw(",\"mechanics_result\":");
-    w.value(result);
+    js_canonical_value(&mut w, result);
     w.raw(",\"model\":");
-    w.value(project.model);
+    js_canonical_value(&mut w, project.model);
     w.raw(",\"model_hash\":");
-    w.value(project.model_hash);
+    js_canonical_value(&mut w, project.model_hash);
     w.raw(",\"proposal\":");
-    w.value(project.proposal);
+    js_canonical_value(&mut w, project.proposal);
     w.raw(",\"selected_review_target\":");
-    w.value(project.selected_review_target);
+    js_canonical_value(&mut w, project.selected_review_target);
     w.raw("}");
     drop(w);
     hex(&hasher.finalize())

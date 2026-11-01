@@ -93,7 +93,15 @@ fn legacy_resave(path: &Path, stored_result: &str, stored_record: &str, opened: 
     let model = args["model"].clone();
     let project_id = crate::project_id_from_model(&model);
     let computed = crate::computed_project_envelope_hash(&project_id, &model, &args["editorIntents"], &args["proposal"], &args["selectedReviewTarget"], &result, &record, &model_hash);
-    let envelope = if computed["value"] == opened["stored_run"]["findings"]["envelope_payload_hash"] {
+    // Derive the historical payload independently from the legacy session's
+    // JavaScript readings, never from the native reopen's findings.
+    let prior = as_legacy_sent(&serde_json::to_string(opened).unwrap());
+    let prior_payload = crate::computed_project_envelope_hash(
+        &project_id, &prior["model"],
+        &if prior["editor_intents"].is_null() { json!([]) } else { prior["editor_intents"].clone() },
+        &prior["proposal"], &prior["selected_review_target"], &result, &record, &model_hash,
+    );
+    let envelope = if computed["value"] == prior_payload["value"] {
         as_legacy_sent(&serde_json::to_string(&opened["project_envelope_hash"]).unwrap())
     } else {
         computed
@@ -304,7 +312,10 @@ fn stored_texts_in_other_forms_are_resaved_as_the_legacy_session_normalized_them
             assert_eq!(opened["stored_run"]["state"], "restored", "{name}");
             let handle = opened["stored_run"]["handle"].as_str().unwrap().to_string();
             let base = opened["project_envelope_hash"]["value"].clone();
-            resave_matches_legacy(&registry, &path, &opened, &resave_args(&opened, &opened_fields(&opened), "save", base, Value::Null), &name);
+            let reply = resave_matches_legacy(&registry, &path, &opened, &resave_args(&opened, &opened_fields(&opened), "save", base, Value::Null), &name);
+            assert_eq!(reply["restored"]["envelope_basis_kept"], true, "{name}: unchanged raw numbers preserve evidence");
+            assert_eq!(reply["project_envelope_hash"], opened["project_envelope_hash"], "{name}");
+            assert!(reply["restored"]["findings"]["findings"].as_array().unwrap().contains(&json!("HISTORICAL_ENVELOPE_HASH_MISMATCH")), "{name}: stale evidence remains advisory");
             let (written, _) = stored_texts(&path, &project_id);
             assert_ne!(written, result, "{name}: the stored text is the normalized form, not the copied text");
             // Negative zeros `0`, integral floats integers, JavaScript's binary64 values and number
@@ -335,7 +346,7 @@ fn historical_cases_are_resaved_with_their_findings_unchanged() {
             continue;
         }
         let (result, record) = saved_run(case, &builder);
-        let project = &case["project"];
+        let project = crate::stored_custody::tests::saved_project(case);
         let path = dir.join(format!("{}.sqlite", id.replace(|c: char| !c.is_ascii_alphanumeric(), "-")));
         let project_id = crate::project_id_from_model(&project["model"]);
         {
@@ -366,6 +377,8 @@ fn historical_cases_are_resaved_with_their_findings_unchanged() {
         if opened["stored_run"]["state"] != "restored" {
             continue;
         }
+        // The old webview read small project fields through JavaScript too.
+        let opened = as_legacy_sent(&serde_json::to_string(&opened).unwrap());
         let expected = &case["expected"];
         assert_eq!(opened["stored_run"]["findings"]["findings"], expected["findings"], "{id}: the reopen's findings are the TypeScript's");
         let handle = opened["stored_run"]["handle"].as_str().unwrap().to_string();

@@ -34,7 +34,7 @@ const BUILDER_CASES = "apps/desktop/src/test-support/analysis-run-v03/analysis_r
 type Project = { model: Json; editor_intents: Json; proposal: Json; selected_review_target: Json; model_hash: Json; project_envelope_hash: Json };
 type Expected = { findings: string[]; run_id: string; envelope_payload_hash: string | null; model_hash: Json } | { absent: true };
 /** A saved case's run: embedded, or (`base`) the builder corpus case whose held text and record it is. */
-export type SavedCase = { id: string; kind: "saved"; project: Project; base?: string; patches?: Patch[]; reseal?: boolean; mechanics_result?: Json; analysis_run?: Json; expected: Expected };
+export type SavedCase = { id: string; kind: "saved"; project: Project; project_text?: string; base?: string; patches?: Patch[]; reseal?: boolean; mechanics_result?: Json; analysis_run?: Json; expected: Expected };
 export type RecordedCase = {
   id: string; kind: "recorded";
   read: { run: { state_id: string; producer_run_id: string; run_record_hash: string }; state: { state_id: string; project_id: string; model_hash: string }; record: Json; result_json: string; input_manifest_canonical: string };
@@ -47,16 +47,18 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 /** One edit of a case's run or project, applied identically by the native leg
  * (`stored_custody_tests.rs`): `set` (the empty path replaces the whole value), `delete`, or
  * `append` to an array. */
-export type Patch = { on: "result" | "record" | "project"; path: Array<string | number>; op: "set" | "delete" | "append"; value?: Json };
+export type Patch = { on: "result" | "record" | "project"; path: Array<string | number>; op: "set" | "delete" | "append"; value?: Json; raw_json?: string };
 function applyPatches<T extends Record<string, Json>>(target: T, patches: Patch[]): T {
   for (const patch of patches) {
-    if (patch.path.length === 0) { (target as Json)[patch.on] = clone(patch.value); continue; }
+    // Raw stored text lets Rust read the exact integer while JS reads binary64.
+    const value = patch.raw_json === undefined ? patch.value : JSON.parse(patch.raw_json);
+    if (patch.path.length === 0) { (target as Json)[patch.on] = clone(value); continue; }
     let at: Json = target[patch.on];
     for (const key of patch.path.slice(0, -1)) at = at[key];
     const last = patch.path[patch.path.length - 1];
-    if (patch.op === "set") at[last] = clone(patch.value);
+    if (patch.op === "set") at[last] = clone(value);
     else if (patch.op === "delete") delete at[last];
-    else at[last].push(clone(patch.value));
+    else at[last].push(clone(value));
   }
   return target;
 }
@@ -127,6 +129,15 @@ async function savedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; rec
     await variant("row-value-changed", [{ on: "result", path: ["results", 0, "value"], op: "set", value: (source.results[0].value ?? 0) + 1 }]);
     await variant("row-id-missing", [{ on: "result", path: ["results", 0, "id"], op: "delete" }]);
     await variant("row-unsafe-integer", [{ on: "result", path: ["results", 0, "value"], op: "set", value: 9007199254740992 }]);
+    await variant("wide-stored-result-integer", [{ on: "result", path: ["edge_probe"], op: "set", raw_json: "[9007199254740993,12345678901234567890,-9007199254740993]" }]);
+    const wideModel = { ...clone(model), edge_probe: JSON.parse("9007199254740993") };
+    const wideProject = await project(wideModel, source, record);
+    const projectText = JSON.stringify(wideProject).replace('"edge_probe":9007199254740992', '"edge_probe":9007199254740993');
+    const receivedProject = JSON.parse(projectText) as Project;
+    out.push({
+      id: `saved-variant:${route}:wide-stored-model-integer`, kind: "saved", project: receivedProject,
+      project_text: projectText, base: c.id, expected: await savedExpected(receivedProject, source, record)
+    });
     await variant("duplicate-row-id", [{ on: "result", path: ["results", 1, "id"], op: "set", value: source.results[0].id }]);
     await variant("record-checksum-altered", [{ on: "record", path: ["analysis_run", "hashes", hashIndex("analysis_run_record"), "value"], op: "set", value: "0".repeat(64) }]);
     await variant("record-retired-0.2.0", [{ on: "record", path: ["schema_version"], op: "set", value: "0.2.0" }]);

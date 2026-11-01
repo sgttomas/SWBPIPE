@@ -47,6 +47,9 @@
 //!   - each parse (result, record, manifest) is the prescan's materialization
 //!     M, admitted before the parse; the findings' passes stream the
 //!     canonical texts into SHA-256 and build no copy;
+//!   - the complete record header is capped before allocation, then its text
+//!     and parse are leased before allocation; the parse lease lives through
+//!     reply serialization;
 //!   - the reply is leased at its exact length before it is serialized.
 //!
 //!   The held leases become result leases and live with the bytes in the
@@ -132,83 +135,78 @@ pub(crate) fn parse_leased(registry: &SolveJobRegistry, what: &str, text: &str) 
     }
 }
 
-/// The stored record's header: the envelope with its `analysis_run` members
-/// other than [`ROW_SCALE_MEMBERS`], and their counts, measured before it is
-/// built; `Err(bytes)` above [`RECORD_HEADER_LIMIT_BYTES`]. A projection of
-/// the stored record as stored, never a rebuilt one.
-pub(crate) fn record_header(record: &Value) -> Result<Value, u64> {
+/// A borrowed projection: measuring the complete header (including matching
+/// diagnostics and escaped keys) allocates no cloned record or diagnostic list.
+struct HeaderRecord<'a>(&'a Value, bool);
+impl Serialize for HeaderRecord<'_> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        let Value::Object(map) = self.0 else { return self.0.serialize(serializer); };
+        let mut out = serializer.serialize_map(None)?;
+        for (key, value) in map {
+            if self.1 && ROW_SCALE_MEMBERS.contains(&key.as_str()) { continue; }
+            if !self.1 && key == "analysis_run" && value.is_object() {
+                out.serialize_entry(key, &HeaderRecord(value, true))?;
+            } else {
+                out.serialize_entry(key, value)?;
+            }
+        }
+        out.end()
+    }
+}
+struct HeaderDiagnostics<'a>(Option<&'a Vec<Value>>);
+impl Serialize for HeaderDiagnostics<'_> {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeSeq;
+        let mut out = serializer.serialize_seq(None)?;
+        for item in self.0.into_iter().flatten() {
+            if item.pointer("/source_annotation/source").and_then(Value::as_str) == Some(RULE_PACK_REF_DIAGNOSTIC_SOURCE) {
+                out.serialize_element(item)?;
+            }
+        }
+        out.end()
+    }
+}
+#[derive(Serialize)]
+struct Header<'a> {
+    record: HeaderRecord<'a>,
+    rule_pack_ref_diagnostics: HeaderDiagnostics<'a>,
+    result_ref_count: Option<usize>,
+    diagnostic_count: Option<usize>,
+    carried_members: Vec<&'static str>,
+}
+
+/// The entire projected header is measured before allocation. Above the cap,
+/// omit it; otherwise lease both its temporary text and its parsed Value before
+/// allocating either. The Value's lease travels with the reply until serialized.
+fn record_header(registry: &SolveJobRegistry, record: &Value) -> Result<(Value, Option<u64>, Option<Lease>), String> {
+    let run = record.get("analysis_run").and_then(Value::as_object);
+    let items = |key: &str| run.and_then(|run| run.get(key)).and_then(Value::as_array);
+    let header = Header {
+        record: HeaderRecord(record, false),
+        rule_pack_ref_diagnostics: HeaderDiagnostics(items("diagnostics")),
+        result_ref_count: items("result_refs").map(Vec::len),
+        diagnostic_count: items("diagnostics").map(Vec::len),
+        carried_members: ["contract_evidence", "source_block_recovery", "retained_precision"].into_iter()
+            .filter(|member| run.is_some_and(|run| run.contains_key(*member))).collect(),
+    };
     struct Counter(u64);
     impl std::io::Write for Counter {
         fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-            self.0 += bytes.len() as u64;
+            self.0 = self.0.saturating_add(bytes.len() as u64);
             Ok(bytes.len())
         }
-        fn flush(&mut self) -> std::io::Result<()> {
-            Ok(())
-        }
+        fn flush(&mut self) -> std::io::Result<()> { Ok(()) }
     }
-    let measure = |value: &Value| {
-        let mut counter = Counter(0);
-        serde_json::to_writer(&mut counter, value).expect("a Value serializes");
-        counter.0
-    };
-    let Value::Object(map) = record else {
-        let bytes = measure(record);
-        if bytes > RECORD_HEADER_LIMIT_BYTES {
-            return Err(bytes);
-        }
-        return Ok(serde_json::json!({"record": record, "rule_pack_ref_diagnostics": [], "result_ref_count": null, "diagnostic_count": null, "carried_members": []}));
-    };
-    let mut bytes = 0u64;
-    for (key, value) in map {
-        match (key.as_str(), value) {
-            ("analysis_run", Value::Object(run)) => {
-                for (member, value) in run {
-                    if !ROW_SCALE_MEMBERS.contains(&member.as_str()) {
-                        bytes = bytes.saturating_add(measure(value)).saturating_add(member.len() as u64 + 4);
-                    }
-                }
-            }
-            _ => bytes = bytes.saturating_add(measure(value)).saturating_add(key.len() as u64 + 4),
-        }
+    let mut counter = Counter(0);
+    serde_json::to_writer(&mut counter, &header).map_err(|error| error.to_string())?;
+    if counter.0 > RECORD_HEADER_LIMIT_BYTES {
+        return Ok((Value::Null, Some(counter.0), None));
     }
-    if bytes > RECORD_HEADER_LIMIT_BYTES {
-        return Err(bytes);
-    }
-    let mut header = serde_json::Map::new();
-    for (key, value) in map {
-        match (key.as_str(), value) {
-            ("analysis_run", Value::Object(run)) => {
-                let mut kept = serde_json::Map::new();
-                for (member, value) in run {
-                    if !ROW_SCALE_MEMBERS.contains(&member.as_str()) {
-                        kept.insert(member.clone(), value.clone());
-                    }
-                }
-                header.insert(key.clone(), Value::Object(kept));
-            }
-            _ => {
-                header.insert(key.clone(), value.clone());
-            }
-        }
-    }
-    let run = map.get("analysis_run").and_then(Value::as_object);
-    let count = |member: &str| run.and_then(|run| run.get(member)).and_then(Value::as_array).map(Vec::len);
-    let carried: Vec<&str> = ["contract_evidence", "source_block_recovery", "retained_precision"].into_iter().filter(|member| run.is_some_and(|run| run.contains_key(*member))).collect();
-    // The record's rule-pack reference diagnostics (model-scale: one per excluded reference), as the
-    // fresh preview header carries them, for the run's rule-pack references.
-    let rule_pack_diagnostics: Vec<Value> = run
-        .and_then(|run| run.get("diagnostics"))
-        .and_then(Value::as_array)
-        .map(|items| items.iter().filter(|item| item.pointer("/source_annotation/source").and_then(Value::as_str) == Some(RULE_PACK_REF_DIAGNOSTIC_SOURCE)).cloned().collect())
-        .unwrap_or_default();
-    let mut wrapper = serde_json::Map::new();
-    wrapper.insert("record".into(), Value::Object(header));
-    wrapper.insert("rule_pack_ref_diagnostics".into(), Value::Array(rule_pack_diagnostics));
-    wrapper.insert("result_ref_count".into(), count("result_refs").map_or(Value::Null, Value::from));
-    wrapper.insert("diagnostic_count".into(), count("diagnostics").map_or(Value::Null, Value::from));
-    wrapper.insert("carried_members".into(), Value::from(carried));
-    Ok(Value::Object(wrapper))
+    let (text, _text_lease) = reply(registry, &header)?;
+    let (value, held) = parse_leased(registry, "the restored record header", &text)
+        .map_err(|error| match error { Ok(message) | Err(message) => message })?;
+    Ok((value, None, Some(held)))
 }
 
 /// What a reopened run tells the webview, besides its findings.
@@ -229,6 +227,8 @@ pub(crate) struct RestoredRun {
     /// carried_members}`, or null with `record_header_bytes` above the limit.
     pub(crate) record_header: Value,
     pub(crate) record_header_bytes: Option<u64>,
+    #[serde(skip)]
+    _header_lease: Option<Lease>,
 }
 
 /// The project's stored run, as the open found it.
@@ -338,6 +338,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
     };
     // Each stored run text that is not JSON fails the open, as `open_local_project` fails it.
     let mut parsed: Option<(Value, Lease, Value, Lease)> = None;
+    let mut header = None;
     if let Some(run) = &loaded {
         match parse_leased(registry, "the stored result", &run.result) {
             Err(Ok(message)) => return Err(message),
@@ -345,7 +346,13 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
             Ok((result, result_parse)) => match parse_leased(registry, "the stored record", &run.record) {
                 Err(Ok(message)) => return Err(message),
                 Err(Err(pool)) => refusal = Some(pool),
-                Ok((record, record_parse)) => parsed = Some((result, result_parse, record, record_parse)),
+                Ok((record, record_parse)) => match record_header(registry, &record) {
+                    Ok(projected) => {
+                        header = Some(projected);
+                        parsed = Some((result, result_parse, record, record_parse));
+                    }
+                    Err(pool) => refusal = Some(pool),
+                },
             },
         }
     }
@@ -389,7 +396,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
             };
             let result_present = !result.is_null();
             let record_present = !record.is_null();
-            let header = record_header(&record);
+            let (record_header, record_header_bytes, header_lease) = header.expect("an admitted record has an admitted header");
             let mut found = validate::saved_run_findings(&project, &mut result, &record).expect("a stored run holds a result or a record");
             validate::saved_run_validation(&mut found, &mut result, &record);
             drop((result, result_parse, record, record_parse));
@@ -406,10 +413,6 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
             let basis = RestoredBasis { model_hash: model_hash.clone(), envelopes: vec![EnvelopeBasis { payload_sha256: found.envelope_payload_hash.clone(), evidence: project_envelope_hash.clone() }] };
             match registry.restore_with_basis(epoch, source.clone(), HeldResult::restored(run.result, run.result_lease), Some(HeldResult::restored(run.record, run.record_lease)), Some(basis)) {
                 Ok(handle) => {
-                    let (record_header, record_header_bytes) = match header {
-                        Ok(header) => (header, None),
-                        Err(bytes) => (Value::Null, Some(bytes)),
-                    };
                     (
                         summary,
                         StoredRun::Restored(RestoredRun {
@@ -423,6 +426,7 @@ pub(crate) fn open_project_in_store(registry: &SolveJobRegistry, path: PathBuf, 
                             findings: found,
                             record_header,
                             record_header_bytes,
+                            _header_lease: header_lease,
                         }),
                     )
                 }
@@ -525,7 +529,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
     if let Some(result) = result_value.as_mut() {
         validate::recorded_run_validation(&mut found, &context, result, manifest, &record);
     }
-    let header = record_header(&record);
+    let (record_header, record_header_bytes, header_lease) = record_header(registry, &record)?;
     let result_present = result_value.as_ref().is_some_and(|value| !value.is_null()) || result_value.is_none();
     drop((result_value, result_parse, parsed_manifest, record));
     drop(guard);
@@ -540,10 +544,6 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
     let handle = registry
         .restore(epoch, source.clone(), HeldResult::restored(result_json, result_lease), Some(HeldResult::restored(record_text, record_lease)))
         .map_err(|error| format!("{RESTORE_REFUSED}: recorded run `{}` was not opened: {}", stored_read::shown(recording_id), restore_refusal(error)))?;
-    let (record_header, record_header_bytes) = match header {
-        Ok(header) => (header, None),
-        Err(bytes) => (Value::Null, Some(bytes)),
-    };
     Ok(NativeRunRead {
         run,
         state,
@@ -559,6 +559,7 @@ pub(crate) fn read_run_in_store(registry: &SolveJobRegistry, path: PathBuf, proj
             findings: found,
             record_header,
             record_header_bytes,
+            _header_lease: header_lease,
         },
     })
 }

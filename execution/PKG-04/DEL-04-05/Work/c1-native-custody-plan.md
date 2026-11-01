@@ -797,7 +797,8 @@ restored and browser-preview results):
   behind the standing findings is never sent.
 - **The record header** is the stored record without `result_refs`, `diagnostics`, `contract_evidence`,
   `source_block_recovery` and `retained_precision`, with their counts, the carried members and the
-  record's rule-pack reference diagnostics; above 4 MiB it is omitted with its length. It is a
+  record's rule-pack reference diagnostics; the complete wrapper, escaped keys and matching
+  diagnostics are measured before allocation, and above 4 MiB it is omitted with its length. It is a
   projection of the stored record, never a rebuilt one.
 - **Webview.** The session opens through the native command on the desktop (`openStoredProject`):
   the historical panel's `ResultsPanel` routes the restored handle to `NativeResultsPanel` (S, pages,
@@ -916,11 +917,15 @@ restored and browser-preview results):
   and review inputs, not a new optimization task).
 - The re-save parses each held text once (M each) and holds the stored writer's output texts with
   the parses until the statements; the validator's working memory for the reply's findings is the
-  stated residual. The reopen's findings hash the stored values as serde_json reads them, so an
-  integer stored outside binary64's exact range (no store writer produces one) makes the reopen's
-  envelope payload hash differ from the TypeScript's, whose `JSON.stringify` reads it as a double; a
-  re-save of such a run then writes computed evidence instead of keeping the stored one (review
-  input; the re-save itself hashes JavaScript's numbers).
+  stated residual. Historical model and envelope hashes read every number as JavaScript's
+  binary64 value before RFC 8785 writing, including exact-digit stored integers outside binary64's
+  exact range. The stored bytes and checked-profile hash rules are unchanged. An unchanged re-save
+  therefore preserves the stored evidence, including advisory mismatch findings. The TypeScript
+  oracle includes raw wide integers in models and results; the re-save's legacy oracle derives its
+  prior payload independently from the stored fields rather than the native findings.
+- The unused bounded whole-record read (`read_restored_result_record_all`) releases its copy lease
+  when the response is built; a future consumer must account for the webview copy's lifetime before
+  adopting it. No production reopen or re-save path uses that read.
 - Recorded-manifest member checks reuse the store's `manifest_members` after the store's own read has
   checked them; their TypeScript `TypeError` points are therefore unreachable here and not emulated.
 
@@ -1226,8 +1231,10 @@ configured, the owner-adopted 12 GiB default. The cap is checked under the pool 
 - **The reopen's leases** (slice 6), under the same rules: the args lease as every command's; from
   the measured lengths, before anything of the run is loaded, the held result's and record's leases
   (each its text's envelope, adaptive, capped) and SQLite's copies of both (ended after the load); each
-  parse's materialization M (result, record, manifest) admitted before the parse; the reply's exact
-  length. The held leases become result leases and live with the bytes in the registry until disposal
+  parse's materialization M (result, record, manifest) admitted before the parse; the capped header's
+  temporary serialized text and its parse M, both admitted before allocation, with the header parse
+  lease held through reply serialization; the reply's exact length. The held leases become result
+  leases and live with the bytes in the registry until disposal
   or reset (or the last reader's share). A restored result counts toward retention
   (`MAX_RETAINED_RESULTS`), and a restoration begun before a session reset is refused at registration.
   Unpriced: as listed in slice 6's limits.

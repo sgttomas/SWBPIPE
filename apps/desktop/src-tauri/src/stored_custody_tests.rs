@@ -95,7 +95,8 @@ fn apply_patches(result: &mut Value, record: &mut Value, patches: &[Value]) {
             other => panic!("patch on {other}"),
         };
         let path = patch["path"].as_array().unwrap();
-        let value = patch.get("value").cloned().unwrap_or(Value::Null);
+        let value = patch["raw_json"].as_str().map(|text| serde_json::from_str(text).unwrap())
+            .unwrap_or_else(|| patch.get("value").cloned().unwrap_or(Value::Null));
         if path.is_empty() {
             *target = value;
             continue;
@@ -149,6 +150,12 @@ pub(crate) fn saved_run(case: &Value, builder: &std::collections::HashMap<String
     (result, record)
 }
 
+/// A raw project preserves stored integer digits that JavaScript's oracle rounds.
+pub(crate) fn saved_project(case: &Value) -> Value {
+    case["project_text"].as_str().map(|text| serde_json::from_str(text).unwrap())
+        .unwrap_or_else(|| case["project"].clone())
+}
+
 #[test]
 fn the_native_findings_are_the_typescript_contexts() {
     let builder = builder_cases();
@@ -161,7 +168,7 @@ fn the_native_findings_are_the_typescript_contexts() {
         let actual = match case["kind"].as_str().unwrap() {
             "saved" => {
                 let (mut result, record) = saved_run(case, &builder);
-                let project = &case["project"];
+                let project = saved_project(case);
                 let saved = SavedProject {
                     model: &project["model"],
                     editor_intents: &project["editor_intents"],
@@ -208,6 +215,42 @@ fn the_native_findings_are_the_typescript_contexts() {
 // ---------------------------------------------------------------------------
 // The connecting path: native Save / Record Run -> SQLite -> native reopen
 // ---------------------------------------------------------------------------
+
+#[test]
+fn matching_diagnostics_are_capped_before_the_header_is_allocated() {
+    let host = ScriptedHost::normal();
+    let (registry, _gate) = gated(&host);
+    let diagnostic = json!({"source_annotation":{"source":RULE_PACK_REF_DIAGNOSTIC_SOURCE}, "message":"x".repeat(1024)});
+    let record = json!({"analysis_run":{"diagnostics":vec![diagnostic; 5000]}});
+    let ((header, omitted, held), measured) = crate::ingress::counting::measure(|| record_header(&registry, &record).unwrap());
+    assert!(header.is_null());
+    assert!(omitted.unwrap() > RECORD_HEADER_LIMIT_BYTES);
+    assert!(held.is_none());
+    assert!(measured.peak_priced < 64 * 1024, "omission cloned diagnostics: {measured:?}");
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+#[test]
+fn the_header_cap_includes_wrapper_and_escaped_key_bytes() {
+    let host = ScriptedHost::normal();
+    let (registry, _gate) = gated(&host);
+    let mut record = json!({"\"\\\n": ""});
+    let (header, omitted, held) = record_header(&registry, &record).unwrap();
+    assert!(omitted.is_none());
+    let overhead = serde_json::to_vec(&header).unwrap().len();
+    drop((header, held));
+    record["\"\\\n"] = json!("x".repeat(RECORD_HEADER_LIMIT_BYTES as usize - overhead));
+    let (header, omitted, held) = record_header(&registry, &record).unwrap();
+    assert!(omitted.is_none());
+    assert_eq!(serde_json::to_vec(&header).unwrap().len() as u64, RECORD_HEADER_LIMIT_BYTES);
+    drop((header, held));
+    let text = format!("{}x", record["\"\\\n"].as_str().unwrap());
+    record["\"\\\n"] = json!(text);
+    let (header, omitted, held) = record_header(&registry, &record).unwrap();
+    assert!(header.is_null() && held.is_none());
+    assert_eq!(omitted, Some(RECORD_HEADER_LIMIT_BYTES + 1));
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
 
 use crate::command_ingress::test_support::headers;
 use crate::command_ingress::INGRESS_ARGS_JSON_V1;
@@ -438,6 +481,34 @@ fn stored_case(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_sup
     let outcome = native_record(registry, path, &case.record_args(&job, request), None).unwrap();
     registry.dispose_all_results();
     (case, outcome["run"]["recording_id"].as_str().unwrap().to_string())
+}
+
+#[test]
+fn both_reopen_headers_hold_their_leases_until_reply_serialization_ends() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("reopen-header-lease");
+    let path = dir.join("store.sqlite");
+    let (case, recording_id) = stored_case(&registry, &gate, &path);
+    let project_id = case.project_id();
+    let epoch = registry.reset_epoch();
+    let opened = open_project_in_store(&registry, path.clone(), Some(project_id), epoch).unwrap().unwrap();
+    registry.dispose_all_results();
+    assert!(registry.pool().reserved_total() > 0, "project header outlived its lease");
+    let (text, response_lease) = reply(&registry, &opened).unwrap();
+    drop((text, response_lease));
+    assert!(registry.pool().reserved_total() > 0);
+    drop(opened);
+    assert_eq!(registry.pool().reserved_total(), 0);
+    let read = read_run_in_store(&registry, path.clone(), project_id, &recording_id, registry.reset_epoch()).unwrap();
+    registry.dispose_all_results();
+    assert!(registry.pool().reserved_total() > 0, "recorded header outlived its lease");
+    let (text, response_lease) = reply(&registry, &read).unwrap();
+    drop((text, response_lease));
+    assert!(registry.pool().reserved_total() > 0);
+    drop(read);
+    assert_eq!(registry.pool().reserved_total(), 0);
+    std::fs::remove_dir_all(dir).unwrap();
 }
 
 /// #51's withholding stays on the legacy whole-value reads (lowered seam);
