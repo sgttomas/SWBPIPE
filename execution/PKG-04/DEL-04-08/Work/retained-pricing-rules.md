@@ -2046,6 +2046,20 @@ main remains the authority. The line map carries 880 keys, with 37 prunes and
 seven reviewed resolutions, unchanged from S1. Live source keys are re-derived
 against unchanged line text; historical preimages keep their original keys.
 
+**Pinned Git-reader integration (#58).** Main `74c23082e` merged without
+rebasing as `deb7e0117`. Its eight incoming files change the Git/locale reader,
+its tests and method text; core Rust and the owner rules remain byte-identical
+to the reviewed candidate. The new raw-blob snapshot has the same 984 core
+files as the preceding snapshot. All five carried rule/pin files and the
+line-map findings are identical; only the target-revision summary changes.
+The applicable tool/formation/index tests pass (141). The four-point run at
+`deb7e0117` completes with both O-10 checks clear and all **1,602 coefficients
+equal** to the preceding combined tree. All 80 native evaluations and the
+selected-basis `generate --check` reproduce the reviewed proposal and its
+minimum headroom. The proposed file SHA above is unchanged. No coefficient
+or owner-rule repair and no fourth broad review was needed for this delta;
+reserved adoption remains pending.
+
 **Implementation and pins.** The case solve forms one `PublishedScope` before
 its per-member publication loop and calls `begin` at each member's start.
 `MemberRows` is local to the station-quantity block and is passed to its two
