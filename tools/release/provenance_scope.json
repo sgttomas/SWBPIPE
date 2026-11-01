@@ -63,7 +63,7 @@
     },
     {
       "path": "fixtures/comparison/model_state_comparison_golden.json",
-      "sha256": "bb71934b55592fca9bbf1da5be131e86ef6aeb753325b21a695d24eea3208d87",
+      "sha256": "71cd461bcccd87a59ac9b2ac0f6e5969191948722bf6fa0c4a53a1e6faefc39d",
       "labels": [
         [
           "\"invented_non_engineering_example\"",
