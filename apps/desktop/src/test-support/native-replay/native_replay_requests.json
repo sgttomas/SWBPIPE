@@ -1,0 +1,220 @@
+{
+ "document_kind": "swbpipe.desktop.native_replay_requests",
+ "note": "Recorded from the webview's tests (src/test/nativeReplayStore.ts); answered by src-tauri/src/native_replay_tests.rs.",
+ "requests": [
+  {
+   "key": "2df3098bceb5331253a0fa8ae8da8c318737eb8c7eba5a0d830e46b39744146f",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB"
+   },
+   "source_sha256": "2fdb92b30bf94f485c477ee3a51be08922a1b1549790ecc057df96007302cbed",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
+  },
+  {
+   "key": "366261f979f472374a7f4a421cc7da6accb7312d6674e879c33e18f9b97b07c0",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"project\":{\"id\":\"project:precision-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic ordinary precision consumer control\",\"description\":\"Explicit unpressurized linear beam with entered E and G; synthetic consumer/transport fixture, no material library or code rules.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\",\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"}}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}",
+    "standing": {
+     "eligible": true,
+     "findings": []
+    }
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "439648d43246ad87f2682dd8084ec83fc6e58f07e886c326632bf07ba92fe8ad",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"},\"project\":{\"id\":\"project:exact-pressure-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic exact-pressure authoring control\",\"description\":\"Synthetic user-input fixture; no library or code-rule data.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"corrosion_allowance\":{\"value\":0,\"unit\":\"m\"},\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"poisson_ratio\":{\"value\":0.3,\"unit\":\"1\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\"}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:closed-pressure\",\"primitive_loads\":[],\"pressure_regions\":[{\"id\":\"region:fixture-pressure\",\"member_pipe_ids\":[\"pipe:fixture-span\"],\"pressure_basis\":\"internal_differential_zero_external_v1\",\"pressure\":{\"value\":2000,\"unit\":\"kPa\"},\"terminals\":[{\"node_ref\":\"node:fixture-root\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"node_ref\":\"node:fixture-tip\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"closed-pressure\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"},{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"pressure_regions\":[],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}"
+   },
+   "source_sha256": "2fdb92b30bf94f485c477ee3a51be08922a1b1549790ecc057df96007302cbed",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
+  },
+  {
+   "key": "46773e516ec34df403d35a8386c2439b3233f4dc46321dca300264dc82b087db",
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "880eed8999591f3b3775a64bc68c5facbe65ce2e20a4f9823766b8e9145bcebe",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"project\":{\"id\":\"project:precision-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic ordinary precision consumer control\",\"description\":\"Explicit unpressurized linear beam with entered E and G; synthetic consumer/transport fixture, no material library or code rules.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\",\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"}}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "ace6c4ad8fed0b1978a4e9375fe43738f1f7ec29314e7b429affae7523e70de1",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:project-precision-connected-fixture:cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83"
+     },
+     "manifest_sha256": "cca3862b0ec08ffeceada7188a5be6f505e81feb06ea28cc9a062dee96a89c83",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"case:six-component-load\",\"kind\":\"primitive_user_load\",\"label\":\"six-component-load\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:fixture-global_x\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:fixture-global_y\",\"magnitude\":{\"unit\":\"N\",\"value\":2000},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_z\",\"id\":\"load:fixture-global_z\",\"magnitude\":{\"unit\":\"N\",\"value\":-3000},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_x\",\"id\":\"load:fixture-rotation_x\",\"magnitude\":{\"unit\":\"N*m\",\"value\":400},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_y\",\"id\":\"load:fixture-rotation_y\",\"magnitude\":{\"unit\":\"N*m\",\"value\":-500},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_z\",\"id\":\"load:fixture-rotation_z\",\"magnitude\":{\"unit\":\"N*m\",\"value\":600},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"status\":\"preview_only\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case:six-component-load\",\"kind\":\"primitive_user_load\",\"label\":\"six-component-load\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:fixture-global_x\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:fixture-global_y\",\"magnitude\":{\"unit\":\"N\",\"value\":2000},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_z\",\"id\":\"load:fixture-global_z\",\"magnitude\":{\"unit\":\"N\",\"value\":-3000},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_x\",\"id\":\"load:fixture-rotation_x\",\"magnitude\":{\"unit\":\"N*m\",\"value\":400},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_y\",\"id\":\"load:fixture-rotation_y\",\"magnitude\":{\"unit\":\"N*m\",\"value\":-500},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}},{\"category\":\"concentrated_moment\",\"dimension\":\"moment\",\"direction\":\"rotation_z\",\"id\":\"load:fixture-rotation_z\",\"magnitude\":{\"unit\":\"N*m\",\"value\":600},\"provenance\":\"synthetic_integration_input_not_library_data\",\"target\":{\"node\":\"node:fixture-tip\",\"type\":\"node\"}}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material:fixture-isotropic\",\"label\":\"fixture-isotropic\",\"provenance\":\"synthetic_integration_input_not_library_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":77000000000}}],\"nodes\":[{\"id\":\"node:fixture-root\",\"label\":\"fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"node:fixture-tip\",\"label\":\"fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"pipe_segments\":[{\"from\":\"node:fixture-root\",\"id\":\"pipe:fixture-span\",\"label\":\"fixture-span\",\"material\":\"material:fixture-isotropic\",\"provenance\":\"synthetic_integration_input_not_library_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.12},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"to\":\"node:fixture-tip\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"description\":\"Explicit unpressurized linear beam with entered E and G; synthetic consumer/transport fixture, no material library or code rules.\",\"id\":\"project:precision-connected-fixture\",\"name\":\"Synthetic ordinary precision consumer control\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.8.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"support:fixture-root\",\"label\":\"fixture-root\",\"node\":\"node:fixture-root\",\"provenance\":\"synthetic_integration_input_not_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}]},\"model_ref\":\"project:precision-connected-fixture\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": null,
+    "rulePackExclusions": []
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "b235f159a7f3a43861995e8896d2550be65af628309298b3e3849ff1b8d8e58d",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "preview-physics",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"project\":{\"id\":\"project:precision-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic ordinary precision consumer control\",\"description\":\"Explicit unpressurized linear beam with entered E and G; synthetic consumer/transport fixture, no material library or code rules.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\",\"shear_modulus\":{\"value\":77000000000,\"unit\":\"Pa\"}}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "bec3d4f493e7530c1cc7851e2b105fa695d55d484498ff329ae6d96e08193d0c",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "c0adcc3dfb1cade49ec36fc16235488ca3f49dd91e03badb68a6097b451204b5",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "pressure",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"},\"project\":{\"id\":\"project:exact-pressure-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic exact-pressure authoring control\",\"description\":\"Synthetic user-input fixture; no library or code-rule data.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"corrosion_allowance\":{\"value\":0,\"unit\":\"m\"},\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"poisson_ratio\":{\"value\":0.3,\"unit\":\"1\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\"}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:closed-pressure\",\"primitive_loads\":[],\"pressure_regions\":[{\"id\":\"region:fixture-pressure\",\"member_pipe_ids\":[\"pipe:fixture-span\"],\"pressure_basis\":\"internal_differential_zero_external_v1\",\"pressure\":{\"value\":2000,\"unit\":\"kPa\"},\"terminals\":[{\"node_ref\":\"node:fixture-root\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"node_ref\":\"node:fixture-tip\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"closed-pressure\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"},{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"pressure_regions\":[],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}"
+   },
+   "source_sha256": "2fdb92b30bf94f485c477ee3a51be08922a1b1549790ecc057df96007302cbed",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
+  },
+  {
+   "key": "d21b6e72ba33fe6b400dc9c5c6526037f9713ef18c455cacc543771251a4825c",
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$JOB",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "ebc2242a69cff55944d386ec2933e4c903a1e58d5cbf07445570c1e3f9936365",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.8.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"pressure_contract\":{\"version\":\"3.0.0\",\"mode\":\"exact_pressure_v3\",\"shear_model\":\"euler_bernoulli\"},\"project\":{\"id\":\"project:exact-pressure-connected-fixture\",\"units\":{\"length\":\"m\",\"force\":\"N\",\"angle\":\"rad\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Synthetic exact-pressure authoring control\",\"description\":\"Synthetic user-input fixture; no library or code-rule data.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"rule_check\":\"not_performed_user_rule_inputs_missing\",\"professional_acceptance\":\"not_provided\"},\"nodes\":[{\"id\":\"node:fixture-root\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"},{\"id\":\"node:fixture-tip\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-tip\"}],\"pipe_segments\":[{\"id\":\"pipe:fixture-span\",\"from\":\"node:fixture-root\",\"to\":\"node:fixture-tip\",\"section\":{\"corrosion_allowance\":{\"value\":0,\"unit\":\"m\"},\"outside_diameter\":{\"value\":0.12,\"unit\":\"m\"},\"wall_thickness\":{\"value\":0.01,\"unit\":\"m\"}},\"material\":\"material:fixture-isotropic\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-span\"}],\"materials\":[{\"id\":\"material:fixture-isotropic\",\"constitutive_basis\":\"homogeneous_isotropic_E_nu_v1\",\"elastic_modulus\":{\"value\":200000000000,\"unit\":\"Pa\"},\"poisson_ratio\":{\"value\":0.3,\"unit\":\"1\"},\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-isotropic\"}],\"supports\":[{\"id\":\"support:fixture-root\",\"node\":\"node:fixture-root\",\"family\":\"anchor\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"fixture-root\"}],\"components\":[],\"load_cases\":[{\"id\":\"case:closed-pressure\",\"primitive_loads\":[],\"pressure_regions\":[{\"id\":\"region:fixture-pressure\",\"member_pipe_ids\":[\"pipe:fixture-span\"],\"pressure_basis\":\"internal_differential_zero_external_v1\",\"pressure\":{\"value\":2000,\"unit\":\"kPa\"},\"terminals\":[{\"node_ref\":\"node:fixture-root\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"node_ref\":\"node:fixture-tip\",\"closure_transfer\":\"transfers_to_wall\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"closed-pressure\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"},{\"id\":\"case:six-component-load\",\"primitive_loads\":[{\"id\":\"load:fixture-global_x\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_x\",\"magnitude\":{\"value\":1000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_y\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_y\",\"magnitude\":{\"value\":2000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-global_z\",\"category\":\"concentrated_force\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"global_z\",\"magnitude\":{\"value\":-3000,\"unit\":\"N\"},\"dimension\":\"force\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_x\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_x\",\"magnitude\":{\"value\":400,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_y\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_y\",\"magnitude\":{\"value\":-500,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"},{\"id\":\"load:fixture-rotation_z\",\"category\":\"concentrated_moment\",\"target\":{\"type\":\"node\",\"node\":\"node:fixture-tip\"},\"direction\":\"rotation_z\",\"magnitude\":{\"value\":600,\"unit\":\"N*m\"},\"dimension\":\"moment\",\"provenance\":\"synthetic_integration_input_not_library_data\"}],\"pressure_regions\":[],\"provenance\":\"synthetic_integration_input_not_library_data\",\"label\":\"six-component-load\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\"}],\"combinations\":[],\"data_boundary\":{\"source\":\"synthetic_integration_input_not_library_data\"},\"diagnostics\":[]}",
+    "standing": {
+     "eligible": true,
+     "findings": []
+    }
+   },
+   "source_sha256": "2fdb92b30bf94f485c477ee3a51be08922a1b1549790ecc057df96007302cbed",
+   "source_path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json"
+  },
+  {
+   "key": "fa982d15ec6f63674d77e805e21f6a29ca804c8866b5a037844b06cd92b4b9dc",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "kinds": [
+     "preview_intensified_bending_stress"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  },
+  {
+   "key": "ff80c9175356cae880ef407b3d9b312843d16f19afbf1d4e78406b0b918564c3",
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$JOB",
+    "ids": [
+     "result:force:pipe-P-120:axial"
+    ],
+    "kinds": [
+     "element_local_axial_force"
+    ],
+    "match": "first"
+   },
+   "source_sha256": "118697f45e3556f25dc565a138205e17d65580cae84b1abf592f0a3e441c2bcb",
+   "source_path": "fixtures/results/preview_physics_connected_sparse.json"
+  }
+ ]
+}

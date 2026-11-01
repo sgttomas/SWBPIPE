@@ -236,7 +236,7 @@ async function installPreviewReplay() {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
-    if (["load_preview_model", "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args, options);
+    if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   };
   const replay = { invoke, notice: mechanics.notice };

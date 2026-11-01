@@ -85,15 +85,6 @@ export function resultArrayBuffer(text: string): ArrayBuffer {
   const bytes = new TextEncoder().encode(text);
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
 }
-export const SOLVE_JOB_COMMANDS = Object.freeze([
-  "start_preview_mechanics_job",
-  "poll_preview_mechanics_job",
-  "take_preview_mechanics_job_result",
-  "dispose_preview_mechanics_result",
-  "cancel_preview_mechanics_job",
-  "read_preview_mechanics_job_rows_all",
-  "release_preview_mechanics_job_full_copy",
-]);
 /** C1: the native result commands (raw-body ingress), answered with the actual Rust commands'
  * recorded replies (`nativeReplayStore.ts`). */
 export const NATIVE_RESULT_COMMANDS = Object.freeze([
@@ -104,6 +95,16 @@ export const NATIVE_RESULT_COMMANDS = Object.freeze([
   "read_preview_mechanics_job_row_semantics",
   "query_preview_mechanics_job_source_recovery",
   "read_preview_mechanics_job_analysis_run_preview",
+]);
+export const SOLVE_JOB_COMMANDS = Object.freeze([
+  "start_preview_mechanics_job",
+  "poll_preview_mechanics_job",
+  "take_preview_mechanics_job_result",
+  "dispose_preview_mechanics_result",
+  "cancel_preview_mechanics_job",
+  "read_preview_mechanics_job_rows_all",
+  "release_preview_mechanics_job_full_copy",
+  ...NATIVE_RESULT_COMMANDS,
 ]);
 /** The native host's limit on a C2 full copy (PR #51's 64 MiB). */
 export const FULL_COPY_LIMIT_BYTES = 64 * 1024 * 1024;
@@ -132,7 +133,7 @@ export function createSolveJobTransport(
     worker_peak_grant_bytes: finished ? REPLAY_WORKER_PEAK_GRANT_BYTES : null,
     worker_peak_footprint_bytes: finished ? REPLAY_WORKER_PEAK_FOOTPRINT_BYTES : null,
   });
-  const handles = (command: string) => SOLVE_JOB_COMMANDS.includes(command) || NATIVE_RESULT_COMMANDS.includes(command);
+  const handles = (command: string) => SOLVE_JOB_COMMANDS.includes(command);
   const invoke = async (command: string, args?: unknown, invokeOptions?: unknown): Promise<any> => {
     calls.push(command);
     if (command === "start_preview_mechanics_job") {
@@ -159,7 +160,9 @@ export function createSolveJobTransport(
     if (NATIVE_RESULT_COMMANDS.includes(command)) {
       // As the native host: a raw-body request on a held native-custody result, answered by the
       // actual command's recorded reply for these exact arguments and bytes.
-      const decoded = decodeIngressBody(command, args, invokeOptions as never);
+      // A raw body is decoded here; `ingressDecodingInvoke` hands over the arguments it decoded
+      // (after asserting the raw body and header).
+      const decoded = ArrayBuffer.isView(args) ? decodeIngressBody(command, args, invokeOptions as never) : args as Record<string, unknown>;
       const jobId = decoded.jobId as string;
       const held = jobs.get(jobId);
       if (!held) throw { code: "INVALID_REQUEST", message: `unknown solve job: ${jobId}` };
@@ -244,3 +247,7 @@ export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; pro
   };
   return { invoke, notice: NATIVE_MECHANICS_REPLAY_NOTICE, custody: transport.custody, disposed: transport.disposed, disposeAllCount: transport.disposeAllCount, nativeHeld: transport.nativeHeld, commands: transport.commands };
 }
+
+/** Every command a native mechanics replay answers (the job contract, the C1 native result
+ * commands and the bundled model), for tests that route commands to it. */
+export const REPLAY_COMMANDS: readonly string[] = Object.freeze(["load_preview_model", ...SOLVE_JOB_COMMANDS]);

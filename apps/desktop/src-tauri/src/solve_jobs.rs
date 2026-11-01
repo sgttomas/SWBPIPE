@@ -3122,6 +3122,94 @@ mod tests {
         assert_eq!(registry.status(&receipt.job_id).unwrap().result_too_large.map(|r| r.result_bytes), Some(LIMIT + 1));
     }
 
+    /// C1 custody mode (seam limit L): a native-custody result above the webview limit publishes
+    /// under its result lease (the worker's grant and the pool bound it, unchanged), is never taken
+    /// (`PREVIEW-SOLVE-RESULT-NATIVE-CUSTODY`, the result kept), stays readable by the native
+    /// readers, and its C2 full copy is refused by name above L, before anything is reserved; a
+    /// webview-custody job keeps the refusal at publication. Disposal releases the bytes once.
+    #[test]
+    fn native_custody_admits_results_above_the_webview_limit_and_never_hands_them_over() {
+        const LIMIT: u64 = 16;
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let registry = registry.with_result_limit(LIMIT);
+        // Webview custody (the default): refused at publication, as before.
+        let webview = registry.start_with_custody(MODEL, None, ResultCustody::Webview).unwrap();
+        gate.wait_started(1);
+        gate.release(&"x".repeat(LIMIT as usize + 1));
+        assert_eq!(wait_terminal(&registry, &webview.job_id).state, "refused");
+        // Native custody: L + 1 bytes publish and are held.
+        let native = registry.start_with_custody(MODEL, None, ResultCustody::Native).unwrap();
+        gate.wait_started(2);
+        let text = "y".repeat(LIMIT as usize + 1);
+        gate.release(&text);
+        let status = wait_terminal(&registry, &native.job_id);
+        assert_eq!((status.state, status.result_bytes, status.result_too_large), ("completed", Some(LIMIT + 1), None), "{status:?}");
+        let held_lease = registry.pool().reserved(LeasePurpose::Result);
+        assert!(held_lease > 0);
+        // Never taken: refused by name, the result still held.
+        match registry.take_result(&native.job_id) {
+            Err(SolveJobError::InvalidRequest { message }) => assert!(message.starts_with(RESULT_NATIVE_CUSTODY_CODE), "{message}"),
+            other => panic!("{other:?}"),
+        }
+        assert_eq!(registry.held_result(&native.job_id).unwrap().text(), text);
+        // The C2 full copy above L: refused by name with the sizes, nothing reserved.
+        let before = registry.pool().reserved_total();
+        match registry.copy_result_within(&native.job_id, LIMIT) {
+            Err(SolveJobError::InvalidRequest { message }) => {
+                assert!(message.starts_with(&format!("{RESULT_DETAIL_WEBVIEW_LIMIT_CODE} (result_bytes={}, limit_bytes={LIMIT})", LIMIT + 1)), "{message}")
+            }
+            other => panic!("{other:?}"),
+        }
+        assert_eq!(registry.pool().reserved_total(), before);
+        // At the limit: the exact bytes, its custody lease held until release, one copy at a time.
+        let copy = registry.copy_result_within(&native.job_id, LIMIT + 1).unwrap();
+        assert_eq!(copy, text.as_bytes());
+        assert_eq!(registry.pool().reserved(LeasePurpose::Custody), held_lease);
+        assert_eq!(registry.pool_status().webview_custody_results, 1);
+        match registry.copy_result_within(&native.job_id, LIMIT + 1) {
+            Err(SolveJobError::InvalidRequest { message }) => assert!(message.starts_with(RESULT_FULL_COPY_HELD_CODE), "{message}"),
+            other => panic!("{other:?}"),
+        }
+        assert!(registry.release_full_copy(&native.job_id).unwrap());
+        assert!(!registry.release_full_copy(&native.job_id).unwrap());
+        assert_eq!(registry.pool().reserved(LeasePurpose::Custody), 0);
+        // A copy still held is released with the result's disposal, once.
+        registry.copy_result_within(&native.job_id, LIMIT + 1).unwrap();
+        let disposal = registry.dispose_result(&native.job_id).unwrap();
+        assert!(disposal.released);
+        assert_eq!(disposal.released_bytes, 2 * held_lease);
+        assert_eq!(registry.pool().reserved_total(), 0);
+        assert!(!registry.dispose_result(&native.job_id).unwrap().released);
+        // A webview job is taken, not copied.
+        let other = registry.start(MODEL, None).unwrap();
+        gate.wait_started(3);
+        gate.release("z");
+        wait_terminal(&registry, &other.job_id);
+        assert!(registry.copy_result_within(&other.job_id, LIMIT).is_err());
+        registry.dispose_result(&other.job_id).unwrap();
+        // The header's values.
+        assert_eq!(ResultCustody::from_wire(None), Some(ResultCustody::Webview));
+        assert_eq!(ResultCustody::from_wire(Some("native")), Some(ResultCustody::Native));
+        assert_eq!(ResultCustody::from_wire(Some("other")), None);
+    }
+
+    /// Session reset releases a native result's full-copy lease with the result.
+    #[test]
+    fn session_reset_releases_native_results_and_their_full_copies() {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let native = registry.start_with_custody(MODEL, None, ResultCustody::Native).unwrap();
+        gate.wait_started(1);
+        gate.release("held");
+        wait_terminal(&registry, &native.job_id);
+        registry.copy_result_within(&native.job_id, MAX_DISPLAYABLE_RESULT_BYTES).unwrap();
+        let reset = registry.dispose_all_results();
+        assert_eq!(reset.released_results, 1);
+        assert_eq!(registry.pool().reserved_total(), 0);
+        assert_eq!(registry.pool_status().webview_custody_results, 0);
+    }
+
     /// A refused result's attestation never enters the attestation table; a
     /// result within the limit still records its own (seam limit 16).
     #[test]
