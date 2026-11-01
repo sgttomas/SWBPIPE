@@ -93,7 +93,7 @@ keychain use, signing or live qualification follows from a repository migration.
 
 Prepare, review, or close out Git changes in the SWBPIPE repository using its branch, verification, merge, and authority conventions. Use only for SWBPIPE project work, not general Git tasks or other repositories.
 
-Apply these project conventions while using ordinary Git judgment and the authorization already present in the session. They specialize the bundled, repository-agnostic `change` workflow for this repository; where both apply, these conventions supply its repository-specific defaults and authorization.
+Apply these project conventions while using ordinary Git judgment and the authorization already present in the session. Authorized briefs and these repository conventions govern Git work here.
 
 - Treat `main` as SWBPIPE's integration branch. Name task branches with a prefix that identifies the authoring agent, such as `codex/` or `claude/`, unless the user or an applicable owning-loop rule specifies otherwise. Integrate a PR with a merge commit (no fast-forward) unless the PR or its owning loop chooses otherwise.
 - Preserve unrelated work and accepted historical evidence. For ordinary changes, use the Git diff/commit and one concise review or PR record identifying the checked revision, results, and remaining limits. Keep additional records only for a concrete consumer, acceptance requirement or recovery need; do not duplicate Git history in chains of source copies, hash manifests, and closeout reports.
