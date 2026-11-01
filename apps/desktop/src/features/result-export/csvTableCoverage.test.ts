@@ -44,7 +44,9 @@ describe("every results and comparison table exports to CSV", () => {
     const scan = scanTables(features);
     expect(scan.missing).toEqual({});
     expect(scan.controlsShort).toEqual([]);
-    expect(scan.marked).toBe(9);
+    // The 9 tables (RT-R6), with C1's native results panel (DEL-04-05 slice 4) rendering its own
+    // marked copy of two of them, the results groups and the endpoint pair, each with its control.
+    expect(scan.marked).toBe(11);
   });
 
   it("scans nested component folders, so an unmarked table there fails (Codex review of #1726)", () => {

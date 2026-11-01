@@ -13,7 +13,7 @@ import { CsvExportControl } from "../result-export/CsvExportControl";
 import { CSV_SOFTWARE_VERSION, csvAnalysisRoute, csvModelHash, csvResultHash } from "../result-export/csvProvenance";
 import { CSV_NOT_RECORDED } from "../result-export/csvTable";
 import type { CsvExport } from "../result-export/CsvExportControl";
-import { displayConversionBasis, resultGroupCsv, type ResultRowsCsvRow } from "./resultRowsCsv";
+import { displayConversionBasis, ENDPOINT_PAIR_CSV_KIND, endpointPairCsv, resultGroupCsv, resultGroupCsvKind, type ResultRowsCsvRow } from "./resultRowsCsv";
 import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, resultRowLabel } from "./knownSemanticLimitations";
@@ -279,7 +279,18 @@ export function NativeResultsPanel({
         </label>
         <p className="muted" role="status" data-testid="results-navigator-native-note">Kind and element stepping read every filtered row; for a result held natively they are not yet available. Use the family, case, frame and entity filters to reach any row.</p>
       </section>
-      <NativeResultDetail result={result} selectedResultId={selectedResultId} analysisRun={analysisRun} />
+      <NativeResultDetail result={result} selectedResultId={selectedResultId} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
+        const rows = await Promise.all(pair.map(async (item) => {
+          const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" };
+          return { location: item.metadata?.location ?? "summary", resultId: item.id, fallback: `${item.value} ${item.unit}`, quantity, display: await displayResolver.resolve(quantity) };
+        }));
+        return endpointPairCsv({
+          rows, provenance: { modelHash: model ? await csvModelHash(model) : CSV_NOT_RECORDED, resultHash: csvResultHash(result, csvRecord), analysisRoutes: [csvAnalysisRoute(result)] },
+          softwareVersion: CSV_SOFTWARE_VERSION,
+          unitBasis: await displayConversionBasis({ preference: displayResolver.preference, rows: rows.map((row) => ({ quantity: row.quantity, display: row.display })), convertRaw: displayResolver.convertRaw }),
+          caseOrFilter: `endpoint pair of ${selectedResultId ?? "the selected result"}`
+        });
+      }} />
       <GoverningRatioState ratioCount={0} />
       {current?.status === "refused" ? <p role="alert" data-testid="result-query-refused">{current.text}</p> : null}
       {!current && !selectionOnlyWithoutEntity ? <p role="status" data-testid="result-page-reading">Reading the result rows natively…</p> : null}
@@ -288,7 +299,7 @@ export function NativeResultsPanel({
           <section key={group.title} className="result-group" aria-label={`${group.title} results`} data-testid={`result-group-${group.title.toLowerCase()}`}>
             <h3>{group.title}</h3>
             <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
-            <table data-csv-export={`results-${group.title.toLowerCase()}`}>
+            <table data-csv-export={resultGroupCsvKind(group.title)}>
               <thead><tr><th>ID</th><th>Entity</th><th>Location</th><th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th><th>Value</th><th>Entered source</th></tr></thead>
               <tbody>
                 {group.items.map((item) => (
@@ -327,7 +338,7 @@ function useNativeKindPresence(result: NativeResult, kind: string): boolean {
 
 /** The selected row's detail, by bounded native lookup: its members, its source rows' ids, and its
  * endpoint pair (the same entity's end rows of the same component, frame and basis, by query). */
-function NativeResultDetail({ result, selectedResultId, analysisRun }: { result: NativeResult; selectedResultId: string | null; analysisRun: SessionAnalysisRun | null }) {
+function NativeResultDetail({ result, selectedResultId, analysisRun, exportEndpointPair }: { result: NativeResult; selectedResultId: string | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: Row[]) => Promise<CsvExport> }) {
   const [read, setRead] = useState<{ id: string; row: Row | null; pair: Row[] } | null>(null);
   useEffect(() => {
     if (!selectedResultId) return;
@@ -359,9 +370,12 @@ function NativeResultDetail({ result, selectedResultId, analysisRun }: { result:
       <p data-testid="result-detail-frame">Frame: {row.metadata?.coordinate_system ?? "result_envelope"}; component {row.metadata?.component ?? row.kind}; sign convention {row.metadata?.sign_convention ?? "not specified in result metadata"}; result value checksums in the run record: {hashes}.</p>
       {row.source_result_refs?.length ? <p data-testid="result-detail-sources">Source results: {row.source_result_refs.join(", ")}</p> : null}
       {read.pair.length ? (
-        <table data-testid="endpoint-pair-table" aria-label="Endpoint pair results">
-          <tbody>{read.pair.map((item) => <tr key={item.id}><td>{item.metadata?.location}</td><td>{item.id}</td><td>{item.value} {item.unit}</td></tr>)}</tbody>
-        </table>
+        <section className="endpoint-pair" aria-label="Endpoint pair results" data-testid="endpoint-pair-table">
+          <CsvExportControl tableLabel="Endpoint pair results" testId="endpoint-pair-export-csv" build={() => exportEndpointPair(read.pair)} />
+          <table data-csv-export={ENDPOINT_PAIR_CSV_KIND}>
+            <tbody>{read.pair.map((item) => <tr key={item.id}><td>{item.metadata?.location}</td><td>{item.id}</td><td>{item.value} {item.unit}</td></tr>)}</tbody>
+          </table>
+        </section>
       ) : null}
     </section>
   );
