@@ -127,10 +127,13 @@ It is what modal proposes, and it adds no stored column.
 - **For modal** (§5), the per-kind request and its hash projection are open. They must
   bind every option, the state, the extraction bound, the basis, `a`, the materials
   and the model. Modal's task hash is not hanger's solve-request hash.
-- **Every kind.** The only unhashed members are the labels (name, tags, notes and
-  run-level assumptions), and they are never consumed by the analysis. Modelling
-  options, states and any assumption the analysis consumes are hashed, authoritative
-  payload.
+- **Every kind.** The only unhashed members are **display annotations that nothing
+  consumes**: the run's name, tags, notes, and free-text assumption remarks shown with
+  it. No computation, validation or reader reads them.
+  - Every engineering, model, state, extraction or constitutive assumption that a
+    computation or validation uses is hashed, authoritative payload, never a label.
+  - A remark that would change a result belongs in the task payload instead, or it is
+    not offered.
 
 ### 2.2 Which record carries the result
 
@@ -180,10 +183,50 @@ hanger task records. Two forms of C differ here:
 | **C-layered** (recommended) | A stable common envelope plus a separately versioned **family binding** per kind. A record names its family binding (`family_binding: {id, version}`), and the envelope dispatches validation to it. The envelope's own accepted set is structural and does not list families | A new family binding (modal 1.0.0); the envelope and the hanger binding are unchanged, so stored hanger records stay current |
 
 C-layered is the reviewer's "minimal separately versioned family-document binding": C
-with family admission moved out of the envelope's version.
-- **What it needs.** An explicit ruling that registering a new family binding under an
-  unchanged envelope version is not a change to an existing format's accepted set
-  (D-11): every record names the versions that fix its meaning.
+with family admission moved out of the envelope's version. It is an eligible, preferred
+**design**, and it adopts no exception to the one-version rule. Stated plainly: under
+C-layered, the set of records the format accepts **widens** when a family is added.
+A C-closed enum would widen the same way. C-layered does not avoid that; it makes the
+widening an explicit, versioned registry step. Whether that is permitted is the owner's
+policy decision (D-11).
+
+**The model D-11 would permit:**
+- **Two acceptance layers.**
+  - *Syntax acceptance* is the envelope schema at its one version: structure, closure,
+    checksums, and the presence and form of `family_binding: {id, version}`.
+  - *Semantic admission* is the named family binding at its named version: the
+    `settings.task` schema, the family document's kind, version and contract, and its
+    reader.
+- **Unknown family.** A syntactically valid record naming a binding this build does not
+  recognize gets *recognition refusal*. It is not admitted, read for standings,
+  recorded or re-saved as a recognized run. It may be listed for inspection by its
+  envelope only, and is shown as "family not supported by this build".
+- **Allowed and forbidden registry changes.**
+  - *Allowed:* registering a new binding id, or a new version of an existing binding
+    alongside the earlier one.
+  - *Forbidden:* changing an existing `{id, version}`'s meaning. Its schema, document
+    kind, contract and reader are fixed once registered.
+  - A breaking change to a family is a new binding version. Whether an earlier binding
+    version stays admitted after a successor is itself the one-version question, at
+    family level, and needs the owner's answer.
+- **Immutability.** A record's `family_binding` is part of its hashed envelope and
+  never changes. A re-save keeps it byte for byte.
+
+**Compatibility consequences, concretely:**
+
+| Reader and store | Hanger task record | Modal task record, added later |
+|---|---|---|
+| A build from before any task record (0.3.0 only) | Not seen: the store refuses newer versions (D-9) | Not seen, as for hanger |
+| A build with the envelope and the hanger binding | Admitted | Recognition refusal; envelope inspection only |
+| A build with both bindings | Admitted | Admitted |
+| Any build | 0.3.0 records unchanged, read as today | Unchanged |
+
+- **Store.** The task table arrives with the first task-record build's store migration.
+  A later family needs no further store migration if it fits the same columns.
+- **What the policy is not.** It does not claim the accepted set is unchanged. The
+  owner's decision packet asks whether to permit this explicitly versioned family
+  extension, against the concrete alternatives: C-closed with a successor envelope
+  version that retires the earlier one, or A.
 - **What it does not avoid.** A change to the envelope itself is still a version event
   under the one-version rule, as it would be for A.
 
@@ -201,7 +244,7 @@ decided. It is JSON Schema 2020-12, every object closed, and its hashes are
 |---|---|
 | `task_kind`, `family_binding` | `task_kind` is the discriminator and is never `mechanics_solve`. `family_binding: {id, version}` names the separately versioned binding (C-layered, §2.2), which fixes the kind's `settings.task` schema, family document kind and version, semantic contract id and reader. The first binding is `hanger_sizing` 1.0.0; `modal` gets its own when adopted. A record naming an unregistered binding, or members of another kind, is refused (`ANALYSIS_TASK_RECORD_KIND_MISMATCH`) |
 | `record_contract` | Constants: `strict_analysis_task_record_v1`; `result_binding: "received_family_document"`; `external_validation_boundary` with 0.3.0's wording |
-| `run_id`, `created_at`, `model_state_ref` | As 0.3.0, including the transient `null` `created_at` and `state:<model ref>:preview`. The name, tags, notes and assumptions are labels outside the hash |
+| `run_id`, `created_at`, `model_state_ref` | As 0.3.0, including the transient `null` `created_at` and `state:<model ref>:preview`. Outside the hash are only non-consumed display annotations: name, tags, notes and free-text assumption remarks that no computation, validation or reader reads. Any assumption used in computation or validation is in the hashed task payload (§2.1) |
 | `engine` | `{engine_name, engine_version, build_ref}`: the build that reproduction is claimed against (§6) |
 | `reproducibility` | 0.3.0's form: `input_manifest_refs` and `input_manifest_hashes`, one entry each. The manifest carries the typed task (§2.1). Also `task_input_hashes: [{role, sha256}]`: each family-bound input's checked hash, recomputed on Record from the manifest's payloads |
 | `result` | `{document_kind, schema_version, semantic_contract_id, status, sha256}`: the family document's identity members and the hash of its checked canonical text |
@@ -612,8 +655,8 @@ unchanged.
 | D-7 | Desktop materials | `[]` only, as a restriction of the desktop route (§4.1), for review |
 | D-8 | Modal's `task_kind` row and document | Open (§5, M-6) |
 | D-9 | Store migration number, older-build refusal, rollback and data access | Number allocated at implementation. The cost is owner-visible and decided before adoption |
-| D-10 | Private payloads in the manifest's settings (hanger's library; modal's private materials, library and constitutive payload) | **Checked: failed as stated.** The existing report consumers emit every settings key (§2.1). Adoption needs the allow-listed report projection in both languages, with sentinel export checks, and explicit manifest caps |
-| D-11 | C-layered: registering a family binding under an unchanged envelope version is not a change to an existing format's accepted set (§2.2) | Open; owner policy question if Agent 0 does not consider it settled by the one-version rule's wording |
+| D-10 | Private payloads in the manifest's settings (hanger's library; modal's private materials, library and constitutive payload) | **Checked: failed as stated.** The existing report consumers emit every settings key (§2.1). An allow-listed report projection is **mandatory before any typed private payload is deployed**. The allow-list is bounded and exact, with parity across the TypeScript report input, the Rust user-release context and the renderer, and with sentinel private fields in the checks. This is not permission to edit C1 or the report consumers now |
+| D-11 | **Owner policy.** Whether to permit an explicitly versioned family-extension model under a stable envelope (§2.2). It is defined by four rules: syntax acceptance separate from semantic admission; recognition refusal of unknown families; a registry that only adds, with existing bindings immutable; and record binding versions that never change. Under it, the accepted set widens when a family is added. The alternatives are C-closed with a successor envelope version, and A. The owner's rule in force is quoted in §2.2 | Open. Not adopted; C-layered is the preferred design only |
 
 ## 12. Commitment text proposed (old and new; not applied)
 
