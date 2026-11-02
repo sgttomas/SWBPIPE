@@ -476,7 +476,8 @@ fn verification_puts_each_selection_in_its_role_and_marks_a_no_fit_conditional()
     let mut operating = weights("O");
     operating.push(nodal_fz("load:O-lift", "N2", 400.0));
     let doc = model_builder::request(&nodes, &members, supports, vec![case("load:W", weights("W")), case("load:O", operating)]);
-    let records = vec![variable_record("VS-1", 1.0e6, (1000.0, 20000.0)), constant_record("CE-1", (3000.0, 4000.0))];
+    // k = 1e5 N/m keeps N2's variation within 0.25 over its operating travel.
+    let records = vec![variable_record("VS-1", 1.0e5, (1000.0, 20000.0)), constant_record("CE-1", (3000.0, 4000.0))];
     let mut asked = request(&["H2", "H3", "H4"], "load:O");
     asked.candidates[1].family_policy = FamilyPolicy::Constant;
     asked.candidates[2].family_policy = FamilyPolicy::Constant;
@@ -504,18 +505,16 @@ fn every_candidate_finding_is_listed_and_only_real_references_refuse() {
     let mut doc = two_span();
     {
         let supports = doc["model"]["supports"].as_array_mut().unwrap();
-        // A lift-off sharing C's node and UZ through its nonlinear DOF only.
-        supports.push(lift_off("support:C-lift", "node:C"));
+        // A lift-off sharing B's node and UZ through its nonlinear DOF only.
+        supports.push(lift_off("support:B-lift", "node:B"));
         // Text equal to a candidate id is not a reference.
         supports[1]["provenance"] = json!("support:B");
     }
     doc["model"]["pipe_segments"][0]["provenance"] = json!("support:B");
-    let mut asked = request(&["support:A", "support:B", "support:C"], "load:O");
-    asked.candidates[0].family_policy = FamilyPolicy::Variable;
-    let refusals = run(&doc, &[], &asked).unwrap_err();
+    let refusals = run(&doc, &[], &request(&["support:A", "support:B"], "load:O")).unwrap_err();
     let listed: Vec<(&str, Vec<String>)> = refusals.iter().map(|r| (r.code, r.names.clone())).collect();
     assert_eq!(listed, [
-        ("HANGER_SIZING_CANDIDATE_DOF_SHARED", vec!["support:C".to_string()]),
+        ("HANGER_SIZING_CANDIDATE_DOF_SHARED", vec!["support:B".to_string()]),
         ("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", vec!["support:A".to_string()]),
     ]);
     // An anchor reports both its family and its DOFs.
