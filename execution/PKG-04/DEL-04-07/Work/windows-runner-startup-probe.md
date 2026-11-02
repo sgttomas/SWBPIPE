@@ -74,8 +74,16 @@ missing-marker, wrong-candidate and empty/unknown-selection controls are explici
 
 Hosted native x64 `windows-2025`, Rust 1.97.1 MSVC, builds the unchanged existing
 `core/runner/headless` stable CLI with default features, `--locked --release`
-and a fresh target. The existing runner lock SHA256 remains
-`14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c`.
+and a fresh target. The checked runner lock SHA256 is
+`49aabbef93419085d70d8c83011b94768645558a46e18f90a1b77137623e3cc0`. PR #83
+(DEL-04-11) refreshed it from
+`14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c`. That change
+added only path entries: the local `open_pipe_stress_hanger_sizing` and
+`open_pipe_stress_library_import_document` packages and the runner's edge to them.
+No registry version or checksum changed. The pin binds this diagnostic to the
+candidate's lock; it is not a permanent bar on later product dependencies. Earlier
+native statements do not qualify a binary built from a changed lock. Each candidate
+needs its own hosted run.
 The controller/nine PE tests use rustc directly; no new Cargo graph or registry
 input is introduced. Exact candidate, native architecture, lock, executable hash
 and launched process image are checked. Build/link/case diagnostics stream live.
