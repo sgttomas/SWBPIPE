@@ -202,7 +202,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "537b5cc32b5328caee007f5e5d2fdd606c620008380c9f5f4b1c1ae6b5bd8edd",
+      "core/analysis/hanger_sizing/Cargo.toml": "a5e1fae2161e3b9c78ac98097b1b2e59a35e60c95a6150d652f8a900e1f621bc",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "e6eabce9c82e4987e065b41f62ab110b0f54a1fd6d2044ed374511d08bda6e01",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
@@ -228,7 +228,7 @@
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
       "core/rules/rule_pack_document/Cargo.toml": "4f7c86c11d3106f5e8ddb32f542784c0913c135011e07f4e6ae1eca976961ae9",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "1cad0d86f2b9fcc2b3f9e1f8a1efd1d64d7320e28a4d5d2d0cf84f882dd38498",
+      "core/runner/headless/Cargo.toml": "97f515f481a0f23afbfc9eb2cda80b6f82e603f0582fabc41c2920520f4b2c30",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "11db1409fcfd3b0312ef80085e36eac4d7a66eb0f4298832137119835b1c92e8",
@@ -1389,6 +1389,14 @@
             },
             "files": [
               "fixtures/results/base_reader_outcomes.json",
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
               "fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
               "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
@@ -2409,9 +2417,12 @@
               "apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs",
               "apps/desktop/src-tauri/src/user_release_save_tests.rs",
               "apps/desktop/src-tauri/src/worker_alloc.rs",
+              "core/analysis/hanger_sizing/src/admission.rs",
               "core/analysis/hanger_sizing/src/derived.rs",
               "core/analysis/hanger_sizing/src/lib.rs",
               "core/analysis/hanger_sizing/src/library.rs",
+              "core/analysis/hanger_sizing/src/publish.rs",
+              "core/analysis/hanger_sizing/src/reader.rs",
               "core/analysis/hanger_sizing/src/tests.rs",
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
@@ -3346,7 +3357,7 @@
         ]
       },
       "core/runner/headless/src/bin/openpipestress-runner.rs": {
-        "sha256": "bd6fafdf3066e4d30adf47d64ffdf351a232bc9367a33845b431e0ab3a0b596f",
+        "sha256": "d4030a63be1975e4bd86d45d5df1dd0b381df64da025da753bde7bc70a2abecc",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
@@ -4971,6 +4982,14 @@
               "fixtures/reports/invented/user_release_record.json",
               "fixtures/reports/invented/user_release_runner_refusal_request.json",
               "fixtures/results/base_reader_outcomes.json",
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
               "fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
               "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
@@ -5560,6 +5579,7 @@
               "core/runner/headless/tests/refused_package_ids.rs",
               "core/runner/headless/tests/retained_precision_admission.rs",
               "core/runner/headless/tests/s11g_zero_work_receipt.rs",
+              "core/runner/headless/tests/size_hangers_cli.rs",
               "core/runner/headless/tests/tied_joint_references.rs",
               "core/runner/headless/tests/untied_joint_pressure_references.rs",
               "core/runner/headless/tests/user_release_runner_refused.rs"
@@ -5714,6 +5734,52 @@
           "kind": "audited-external-inputs",
           "reason": "Also reads files the test writes under std::env::temp_dir."
         }
+      },
+      "core/analysis/hanger_sizing/tests/publication.rs": {
+        "sha256": "96dbbf94e9c4aba17b089b7de9b84e8059e91fea750cfc339093204bf63b4bc9",
+        "source_trees": [
+          "core/analysis/hanger_sizing/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/results",
+            "base": "project",
+            "files": [
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json"
+            ]
+          },
+          {
+            "anchor": "schemas/hanger_sizing_result.schema.json",
+            "base": "project",
+            "files": [
+              "schemas/hanger_sizing_result.schema.json"
+            ]
+          }
+        ]
+      },
+      "core/runner/headless/tests/size_hangers_cli.rs": {
+        "sha256": "80cd5d1c92915cab07fa3253d03dfa948978cd89926fc8eb6df2e975c170421e",
+        "source_trees": [
+          "core/runner/headless/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/results",
+            "base": "project",
+            "files": [
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json"
+            ]
+          }
+        ]
       }
     }
   },

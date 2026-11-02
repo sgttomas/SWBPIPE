@@ -1,0 +1,237 @@
+{
+  "basis_statement": [
+    "Every position is measured from the drawn geometry, taken as the installed position at which each spring is set; F_cold is that setting and F_C the cold-condition load.",
+    "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios."
+  ],
+  "document_kind": "openpipestress.hanger_sizing.result",
+  "inputs": {
+    "canonical_profile": "openpipestress_jcs_ijson_v1",
+    "library": {
+      "library_id": "invented.hangers.sizing",
+      "sha256": "e904866d00f0b665b9f4d7fc078b95fd583418d5b6174d09eb3bca0adfdc7861"
+    },
+    "sizing_request": {
+      "candidates": [
+        {
+          "family_policy": "variable",
+          "support": "support:B"
+        }
+      ],
+      "check_operating_cases": [
+        "load:O2"
+      ],
+      "design_operating_case": "load:O1",
+      "method": {
+        "load_design": "hot",
+        "selection_rule": "smallest_capacity",
+        "travel_allowance_m": 0.002,
+        "variation_limit": 0.25,
+        "variation_reference": "operating_load"
+      },
+      "solver_mode": "dense_scrutiny",
+      "weight_case": "load:W",
+      "weight_support_state": "own_solve"
+    },
+    "sizing_request_sha256": "080dbade793695812b8ad444d6dca6db45045a8217a861ca090b06c47b8b0d09",
+    "solve_request": {
+      "sha256": "966be96d808dae54a17143264c4648477647ad76c2b5d4ef44c61212bbbe6ac4"
+    }
+  },
+  "limitations": [
+    "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
+    "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
+    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
+    "Hanger sizing is published on the pressure-free route only."
+  ],
+  "result": {
+    "candidates": [
+      {
+        "dof": "UZ",
+        "failure_counts": {
+          "constant": null,
+          "variable": {
+            "E1": 1,
+            "E2": 1,
+            "L": 1,
+            "T": 1,
+            "V": 0,
+            "V0": 0
+          }
+        },
+        "family_policy": "variable",
+        "governing": {
+          "travel_case": "load:O1",
+          "variation_case": "load:O1"
+        },
+        "node": "node:B",
+        "operating": [
+          {
+            "case": "load:O1",
+            "u_m": 0.000987294403206484
+          },
+          {
+            "case": "load:O2",
+            "u_m": -0.0005923766419238903
+          }
+        ],
+        "outcome": "selected",
+        "required_travel_m": 0.005579671045130375,
+        "selected": {
+          "envelope_n": [
+            4600.0,
+            5715.934209026074
+          ],
+          "f_cold_condition_n": 5197.458880641297,
+          "f_cold_n": 5197.458880641297,
+          "family": "variable_spring",
+          "hanger_id": "VS-200-L",
+          "k_n_per_m": 200000.0,
+          "operating": [
+            {
+              "case": "load:O1",
+              "f_n": 5000.0,
+              "variation": 0.03949177612825936
+            },
+            {
+              "case": "load:O2",
+              "f_n": 5315.934209026074,
+              "variation": 0.022286831199606543
+            }
+          ],
+          "record_sha256": "008305de2dab833901ab4d9d4bd7bf29f7399670f12c9cedf7714502bb1683de"
+        },
+        "span_m": [
+          -0.0005923766419238903,
+          0.000987294403206484
+        ],
+        "support": "support:B",
+        "u_cold_m": 5.942062022110673e-42,
+        "verification": {
+          "departure_n": 0.0,
+          "f_cold_condition_n": 5141.555929763012,
+          "failed_tests": [],
+          "family": "variable_spring",
+          "operating": [
+            {
+              "case": "load:O1",
+              "f_n": 5000.0,
+              "u_m": 0.0009872944032064837,
+              "variation": 0.028311185952602402
+            },
+            {
+              "case": "load:O2",
+              "f_n": 5226.489487620819,
+              "u_m": -0.00014515303489761239,
+              "variation": 0.016250593837216405
+            }
+          ],
+          "required_travel_m": 0.0051324474381040965,
+          "span_m": [
+            -0.00014515303489761239,
+            0.0009872944032064837
+          ],
+          "t_pass": true,
+          "u_cold_m": 0.00027951475439142365
+        },
+        "verification_assumption": {
+          "f_cold_n": 5197.458880641297,
+          "k_n_per_m": 200000.0,
+          "role": "spring"
+        },
+        "w_n": 5000.0
+      }
+    ],
+    "cases": [
+      {
+        "case": "load:W",
+        "load_categories": [
+          "weight"
+        ],
+        "role": "weight",
+        "uses_condition_set": false
+      },
+      {
+        "case": "load:O1",
+        "load_categories": [
+          "concentrated_force",
+          "weight"
+        ],
+        "role": "operating",
+        "uses_condition_set": false
+      },
+      {
+        "case": "load:O2",
+        "load_categories": [
+          "concentrated_force",
+          "weight"
+        ],
+        "role": "operating",
+        "uses_condition_set": false
+      }
+    ],
+    "disclosures": [],
+    "solves": [
+      {
+        "case": "load:W",
+        "derived_document_sha256": "4d67c22620b95ee5ee5443596fc0c1fea22bf11747b5a8569f79489e38176bf1",
+        "label": "S_W",
+        "states": {
+          "support:C-lift": "active"
+        }
+      },
+      {
+        "case": "load:W",
+        "derived_document_sha256": "515996e4f40bfe1e1ffd4735d60e6bcf497b86867b15d7de4ff4754c7061cb7c",
+        "label": "S_C",
+        "states": {
+          "support:C-lift": "active"
+        }
+      },
+      {
+        "case": "load:O1",
+        "derived_document_sha256": "5ee42b4c0d22e5096655f1417bffb92cc236d2cbdc2a061c849a657abd9bef44",
+        "label": "S_O1",
+        "states": {
+          "support:C-lift": "active"
+        }
+      },
+      {
+        "case": "load:O2",
+        "derived_document_sha256": "590df0f06c498e3e017fcf697b75b6e2be034bf4ad931367b3b37731f7e4a615",
+        "label": "S_O2",
+        "states": {
+          "support:C-lift": "active"
+        }
+      },
+      {
+        "case": "load:W",
+        "derived_document_sha256": "d830b64d501dd6255691a0e77b76563747903061de3e2af0c2f0e06328ccfbb7",
+        "label": "V_C",
+        "states": {
+          "support:C-lift": "active"
+        }
+      },
+      {
+        "case": "load:O1",
+        "derived_document_sha256": "65256fd6a36909b2a0562479c0cfd3aefd2aa83e0037255d21d8c40b942b6f85",
+        "label": "V_O1",
+        "states": {
+          "support:C-lift": "active"
+        }
+      },
+      {
+        "case": "load:O2",
+        "derived_document_sha256": "50240857f7c0b49d3e2c5ce1006f8b407ad6014d7ba79644ebc9b919ff6bae14",
+        "label": "V_O2",
+        "states": {
+          "support:C-lift": "active"
+        }
+      }
+    ],
+    "verification_standing": "unconditional"
+  },
+  "route": "pressure_free",
+  "schema_version": "1.0.0",
+  "semantic_contract_id": "openpipestress.result_semantics/hanger-sizing-1",
+  "status": "sized"
+}
