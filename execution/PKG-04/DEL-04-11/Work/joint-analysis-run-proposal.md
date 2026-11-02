@@ -31,6 +31,9 @@
   dynamics lane's answers to questions 1–6. Those answers were relayed by Agent 0 on
   2026-11-02, at modal 4cf32bfd4, S2 API 064dc8bb9 and C1 ee7a7f13b, and are cited as
   M-1 to M-6.
+- **Dynamics consumer check of r2** (4426a59fc, relayed by Agent 0): no architecture
+  objection, subject to five bounded corrections, which r3 applies. This was a
+  consumer check, not an independent review or an adoption.
 
 ## 1. What the current record and manifest can and cannot carry
 
@@ -80,7 +83,7 @@ record carries the result (§2.2).
 | Model | `model_basis.model_payload`, the model part of the task request. The bare-model binding applies to it unchanged | Inside the wrapper; needs extraction |
 | Typing | Needs a closed per-kind schema under a new `settings.task` member, and validators. Today only completeness is checked | Closed by its own schema |
 | Size | The manifest grows by the library (hanger) or the options (modal). Consumers with manifest caps (`MAX_INPUT_MANIFEST_TEXT_BYTES` = 2 × the model-document maximum, report-package save) refuse larger manifests; a large private library could reach that cap | The bundle has its own cap; the manifest is unchanged |
-| Privacy | The manifest is bound into report packages by hash (`report_package/src/bindings.rs`) and handed to report-package save as text. A private library in it needs a check that no export emits the manifest's settings content (§11, D-10) | The library stays out of the manifest |
+| Privacy | The manifest is bound into report packages by hash (`report_package/src/bindings.rs`) and handed to report-package save as text. Private payloads in it (hanger's library; modal's private materials, library and constitutive payload) need a check that no export emits the manifest's settings content (§11, D-10) | The library stays out of the manifest |
 | Lanes | Modal names the existing settings as its proposed payload home (M-4, M-5) | One new surface for both |
 
 **Recommendation: the typed task payload in the existing manifest's settings.** It
@@ -90,14 +93,22 @@ It is what modal proposes, and it adds no stored column.
 **Conditions:**
 - a closed `settings.task` schema per kind, validated on build and on Record;
 - explicit refusal at the manifest caps, with no truncation;
-- D-10's privacy check before adoption.
+- D-10's privacy check, covering every family's private payloads, before adoption.
 
 **Request hash and request payload stay distinct.**
-- The family document binds `solve_request.sha256`, the hash of the checked canonical
-  `{model, materials}`.
 - The manifest carries the payloads.
-- On Record, each family hash is recomputed from the payloads (§4.1); a hash never
-  stands in for a payload.
+- On Record, each family hash is recomputed from the payloads by **that family's own
+  binding**; a hash never stands in for a payload.
+- **For hanger** (§4.1), the family document binds `solve_request.sha256`, the hash of
+  the checked canonical `{model, materials}`, and binds the sizing request and library
+  separately.
+- **For modal** (§5), the per-kind request and its hash projection are open. They must
+  bind every option, the state, the extraction bound, the basis, `a`, the materials
+  and the model. Modal's task hash is not hanger's solve-request hash.
+- **Every kind.** The only unhashed members are the labels (name, tags, notes and
+  run-level assumptions), and they are never consumed by the analysis. Modelling
+  options, states and any assumption the analysis consumes are hashed, authoritative
+  payload.
 
 ### 2.2 Which record carries the result
 
@@ -154,7 +165,7 @@ decided. It is JSON Schema 2020-12, every object closed, and its hashes are
 | `engine` | `{engine_name, engine_version, build_ref}`: the build that reproduction is claimed against (§6) |
 | `reproducibility` | 0.3.0's form: `input_manifest_refs` and `input_manifest_hashes`, one entry each. The manifest carries the typed task (§2.1). Also `task_input_hashes: [{role, sha256}]`: each family-bound input's checked hash, recomputed on Record from the manifest's payloads |
 | `result` | `{document_kind, schema_version, semantic_contract_id, status, sha256}`: the family document's identity members and the hash of its checked canonical text |
-| `standings` | The family reader's standings on the stored bytes at record time, each `passed`. Not a claim of correctness |
+| `standings` | The family reader's required validation checks on the stored bytes at record time, each `passed`. These are the family's validation checks, not every health or census indicator being good: a validated modal result may truthfully carry Sensitive standings or a partially completed cluster (§5). Not a claim of correctness |
 | `diagnostics` | The family's refusals and disclosures, carried unchanged as source annotations (REQ-06-02) |
 | `analysis_status` | Not settled; options in §3.1 |
 | `immutability_policy`, `professional_boundary`, `provenance` | 0.3.0's members and constants, unchanged in meaning |
@@ -277,7 +288,9 @@ reader is added in both languages. It checks:
   - the extraction bound: positive `mode_count` and/or `frequency_cutoff`, with no
     default, cluster completion governing;
   - `solver_mode`;
-  - `state_case`, required for load or reference-state documents and nonlinear models;
+  - `state_case`, required when the document is a load or reference-state profile or
+    document, or when the model has nonlinear supports (modal §1.4). A plain model with
+    load cases does not need one;
   - the modulus basis, only without a state case, and otherwise a conflict;
   - `weight_to_mass_acceleration`, positive, for component mass;
   - the later dynamic-restraint choice.
@@ -296,6 +309,9 @@ reader is added in both languages. It checks:
     completion and counts.
   - Units follow the normalization case, as modal §1.5 gives them.
   - Undefined fractions stay undefined, with their reason.
+  - **Below-normal-range values.** A nonzero published value below the binary64 normal
+    range carries a per-value below-normal-range flag (modal `BelowNormalRange`, §3.2).
+    It stays distinct from an unflagged 0. NaN and infinity are never substituted.
   - `mode:<i>` is run-local only, not a persistent physical identity. The concrete index
     and row spellings, and the signatures, are unknown.
   - The global mass summary needs an explicit model or group basis, not mode 0 and not
@@ -330,7 +346,10 @@ reader is added in both languages. It checks:
   - Source resource basis: the dense kernel is 32n²B, and the combined product with
     Sturm is about 64n², an estimate and not a final count. Work is 9n³ + s·n³/3, plus
     band 4pn² in exact product insertions and 2n² visits (not binary64 flops).
-  - Nothing is measured: no product time, output bytes or worker qualification.
+  - No modal **product** time, output-byte budget or worker qualification has been
+    measured. Kernel-buffer and static-stack evidence exists. The ~64n² estimate stays
+    separate from the exact product cost, and paging, depth and worker qualification
+    remain unknown.
   - Outputs are O(k·n), plus mass, cluster and Sturm evidence.
   - The family must keep row-scale arrays out of the 4 MiB header, and must define
     bounded pages, detail, summary and CSV.
@@ -343,14 +362,26 @@ reader is added in both languages. It checks:
   signatures and row basis, including the global mass; the route, readers, summary,
   CSV, headless and historical parity; the angular-frequency-squared catalog
   extension; and the S2 single-resolution and original-effective-case observation.
-- **Before engineering publication**, modal also needs:
+- **Production pins and format conditions** before engineering publication:
   - production pins for O-6, identity, residual, orthogonality, cluster, QL and Sturm,
-    and the O-4 work guard. The test τ_e of 1e-6 is not a production value;
-  - general census unresolved, with no rank truncation or rescue; above-band modes not
-    judged by τ_e; the full per-mode standing mandatory;
-  - the O-3 benchmark rights and comparison, and the guide and theory, which stay open.
+    and the O-4 work guard. The test τ_e of 1e-6 is not a production value.
+- **Standing rules** (unchanged):
+  - **Unresolved census.** Where the census is general or not a coordinate null space,
+    and no independent census is established, it stays unresolved. There is no rank
+    truncation or rescue.
+  - **Whole-spectrum endpoint.** Refused (`MODAL_FINITE_COUNT_UNRESOLVED`), but the
+    valid lower-cluster or gap path remains.
+  - **Above-band modes.** Not judged by τ_e, and the full per-mode standing is
+    mandatory.
+- **Release and completeness obligations** (separate, and not a gate on every modal
+  preview):
+  - **Benchmarks.** The O-3 benchmark rights and comparison. Modal §4.4 and D-q permit
+    the M1–M3 reference classes a and b, with FR-SOL-016 PARTIAL until a published
+    benchmark is compared after M1b. The rights-uncertain source hold is unchanged,
+    with no transcription.
+  - **Documentation.** The guide and theory.
 
-  No dates or pins are promised.
+  This neither weakens nor adds a gate. No dates or pins are promised.
 
 ## 6. Fresh and restored standings (hanger)
 
@@ -380,7 +411,7 @@ as v13 runs are (`unreadable_run_entry`), and is never repaired.
   of label statements, so the label code is written once over a table name.
 - **Record.** One `BEGIN IMMEDIATE` transaction:
   1. allocate `created_at`;
-  2. run §4.1's steps;
+  2. run the selected family's binding steps (hanger §4.1; modal §5 when adopted);
   3. recompute the checksums;
   4. require the family readers' standings on the stored bytes to equal the transient
      record's;
@@ -466,7 +497,7 @@ unchanged.
 - **Mutations**, each refused by its named code:
   - the task payload swapped or retyped;
   - the model swapped under the same project id;
-  - `materials` non-empty on the desktop route;
+  - hanger only: `materials` non-empty on the desktop route (D-7);
   - the library swapped, or a record edited;
   - the result swapped, or its status changed;
   - `task_kind` against `settings.task.kind`;
@@ -501,7 +532,7 @@ unchanged.
 | D-7 | Desktop materials | `[]` only, as a restriction of the desktop route (§4.1), for review |
 | D-8 | Modal's `task_kind` row and document | Open (§5, M-6) |
 | D-9 | Store migration number, older-build refusal, rollback and data access | Number allocated at implementation. The cost is owner-visible and decided before adoption |
-| D-10 | A private library in the manifest's settings: confirm no export emits manifest settings content, and the manifest caps | Open; must be checked before adoption |
+| D-10 | Private payloads in the manifest's settings (hanger's library; modal's private materials, library and constitutive payload): confirm no export emits manifest settings content, and the manifest caps | Open; must be checked before adoption |
 
 ## 12. Commitment text proposed (old and new; not applied)
 
