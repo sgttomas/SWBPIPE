@@ -214,7 +214,7 @@ cases=json.load(open('fixtures/hanger/invented_hanger_cases.json'))
 out=[]
 for c in cases:
  r=validate_library_import(c['payload'],library_kind='hanger',intended_visibility=c['visibility'])
- out.append({'outcome':r.outcome,'findings':[[f.code,f.path,f.severity] for f in r.findings]})
+ out.append({'outcome':r.outcome,'findings':[[f.code,f.path,f.severity]+([f.message,f.remediation] if f.path.endswith('.working_load_range') else []) for f in r.findings]})
 print(json.dumps(out))
 "#]).output().expect("Python parity runner");
     assert!(python.status.success(), "{}", String::from_utf8_lossy(&python.stderr));
@@ -227,9 +227,15 @@ print(json.dumps(out))
         if let Some(code) = case["required_code"].as_str() {
             assert!(result.findings.iter().any(|f| f.code == code), "{}", case["name"]);
         }
-        let tuples: Vec<Value> = result.findings.iter().map(|f| json!([f.code, f.path, f.severity])).collect();
+        // Format 1.1.0's range findings also compare message and remediation.
+        let tuples: Vec<Value> = result.findings.iter().map(|f| if f.path.ends_with(".working_load_range") {
+            json!([f.code, f.path, f.severity, f.message, f.remediation])
+        } else {
+            json!([f.code, f.path, f.severity])
+        }).collect();
         if case.get("required_path").is_some() {
-            assert!(tuples.contains(&json!([case["required_code"], case["required_path"], case["required_severity"]])), "{}", case["name"]);
+            let triple = |t: &Value| json!([t[0], t[1], t[2]]);
+            assert!(tuples.iter().any(|t| triple(t) == json!([case["required_code"], case["required_path"], case["required_severity"]])), "{}", case["name"]);
         }
         assert_eq!(json!({"outcome":result.outcome,"findings":tuples}), expected[i], "{}", case["name"]);
         assert_eq!(case["payload"], before);

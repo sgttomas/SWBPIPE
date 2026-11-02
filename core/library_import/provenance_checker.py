@@ -537,17 +537,19 @@ def _validate_hanger_import(payload, visibility):
                         f"$.hanger_records[{i}].hanger_id", "Duplicate hanger identity.",
                         "Use a unique hanger_id within the library."))
                 seen.add(identity)
-    findings.extend(_hanger_load_range_findings(payload))
+    findings.extend(_hanger_load_range_findings(payload, schema))
     return ImportValidationResult(_determine_outcome(findings, visibility), tuple(findings))
 
 
-def _hanger_load_range_findings(payload):
+def _hanger_load_range_findings(payload, schema):
     """Format 1.1.0 (DEL-03-02 CLM-030; DEL-04-11 Design §8.2), as the Rust boundary.
 
     The schema admits working_load_range under either version, so the version
     rule is applied here: a 1.0.0 document refuses the member as an unknown
-    field. A range is refused when its ends differ in unit or when its minimum
-    is not below its maximum, which JSON Schema cannot compare.
+    field. A range whose subtree passes the shape check is refused when its ends
+    differ in unit or when its minimum is not below its maximum, which JSON Schema
+    cannot compare. The ends are compared as binary64 numbers, the values sizing
+    computes with, so ends distinct only beyond binary64 precision are refused.
     """
     findings = []
     version = payload.get("schema_version") if isinstance(payload, dict) else None
@@ -561,6 +563,11 @@ def _hanger_load_range_findings(payload):
         if version == "1.0.0":
             findings.append(ImportFinding("IMPORT_HANGER_SCHEMA_INVALID", "blocking", path,
                 "Unknown hanger field.", "Remove unsupported fields, or declare schema_version 1.1.0, which admits working_load_range."))
+            continue
+        # Semantic rules run only on a range that is itself well formed.
+        shape = []
+        _hanger_shape(load_range, schema["$defs"]["LoadRange"], schema, path, shape)
+        if shape:
             continue
 
         def end(key):
@@ -583,7 +590,7 @@ def _hanger_load_range_findings(payload):
                     "The working load range's minimum and maximum use different units.", "Enter both ends of the range in one unit."))
             elif not minimum[0] < maximum[0]:
                 findings.append(ImportFinding("IMPORT_HANGER_LOAD_RANGE_INVALID", "blocking", path,
-                    "The working load range's minimum is not below its maximum.", "Enter a minimum below the maximum."))
+                    "The working load range's minimum is not below its maximum when both are read as binary64 numbers, the values sizing uses.", "Enter a minimum below the maximum."))
     return findings
 
 

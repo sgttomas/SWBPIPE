@@ -278,7 +278,8 @@ suitability, and nothing here determines code compliance.
   - **Schema.** The hanger library schema (DEL-03-02) admits format 1.1.0. A record may
     carry `working_load_range` (a minimum and a maximum force, each with provenance).
     The import boundary refuses, by name, the member in a 1.0.0 document (as an unknown
-    field), a range whose ends differ in unit, and a minimum not below its maximum.
+    field), a range whose ends differ in unit, and a minimum not below its maximum read as
+    binary64 numbers. The last two rules apply only to a well-formed range.
   - **Compatibility.** Format 1.0.0 documents import unchanged. Sizing lists their
     records, and any 1.1.0 record without a range, as "not sizable: no working load
     range". A stored 1.0.0 document needs no migration.

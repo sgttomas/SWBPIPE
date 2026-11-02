@@ -937,7 +937,7 @@ fn validate_hanger_import(payload: &Value, visibility: IntendedVisibility) -> Im
                 &format!("$.hanger_records[{i}].hanger_id"), "Duplicate hanger identity.", "Use a unique hanger_id within the library.")); }
         }
     }
-    findings.extend(hanger_load_range_findings(payload));
+    findings.extend(hanger_load_range_findings(payload, &schema));
     let outcome = determine_outcome(&findings, visibility);
     ImportValidationResult { accepted: matches!(outcome.as_str(), "PRIVATE_LOCAL_ONLY" | "ACCEPTED_PUBLIC"),
         outcome, library_kind: LibraryKind::Hanger, intended_visibility: visibility, findings }
@@ -947,9 +947,11 @@ fn validate_hanger_import(payload: &Value, visibility: IntendedVisibility) -> Im
 /// Format 1.1.0 (DEL-03-02 CLM-030; DEL-04-11 Design §8.2). The schema admits
 /// `working_load_range` under either version, so the version rule is applied here:
 /// a 1.0.0 document refuses the member as an unknown field, as before 1.1.0. A range
-/// is refused when its ends differ in unit (the boundary converts nothing) or when
-/// its minimum is not below its maximum, which JSON Schema cannot compare.
-fn hanger_load_range_findings(payload: &Value) -> Vec<ImportFinding> {
+/// whose subtree passes the shape check is refused when its ends differ in unit (the
+/// boundary converts nothing) or when its minimum is not below its maximum, which JSON
+/// Schema cannot compare. The ends are compared as binary64 numbers, the values sizing
+/// computes with, so ends that are distinct only beyond binary64 precision are refused.
+fn hanger_load_range_findings(payload: &Value, schema: &Value) -> Vec<ImportFinding> {
     let mut findings = Vec::new();
     let version = payload.get("schema_version").and_then(Value::as_str);
     for (i, record) in payload.get("hanger_records").and_then(Value::as_array).into_iter().flatten().enumerate() {
@@ -958,6 +960,12 @@ fn hanger_load_range_findings(payload: &Value) -> Vec<ImportFinding> {
         if version == Some("1.0.0") {
             findings.push(ImportFinding::new("IMPORT_HANGER_SCHEMA_INVALID", "blocking", &path,
                 "Unknown hanger field.", "Remove unsupported fields, or declare schema_version 1.1.0, which admits working_load_range."));
+            continue;
+        }
+        // Semantic rules run only on a range that is itself well formed.
+        let mut shape = Vec::new();
+        hanger_shape(range, &schema["$defs"]["LoadRange"], schema, &path, &mut shape);
+        if !shape.is_empty() {
             continue;
         }
         let end = |key: &str| {
@@ -971,7 +979,7 @@ fn hanger_load_range_findings(payload: &Value) -> Vec<ImportFinding> {
                     "The working load range's minimum and maximum use different units.", "Enter both ends of the range in one unit."));
             } else if !(minimum < maximum) {
                 findings.push(ImportFinding::new("IMPORT_HANGER_LOAD_RANGE_INVALID", "blocking", &path,
-                    "The working load range's minimum is not below its maximum.", "Enter a minimum below the maximum."));
+                    "The working load range's minimum is not below its maximum when both are read as binary64 numbers, the values sizing uses.", "Enter a minimum below the maximum."));
             }
         }
     }

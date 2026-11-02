@@ -433,10 +433,17 @@ This design defines what sizing needs from it.
   - a range whose minimum and maximum differ in unit is refused
     (`IMPORT_HANGER_LOAD_RANGE_INVALID`). The boundary converts no unit, and one
     catalogue record states its range in one unit;
-  - a range whose minimum is not below its maximum is refused, under the same code.
+  - a range whose minimum is not below its maximum is refused, under the same code. The
+    ends are compared as binary64 numbers, the values sizing computes with, so ends that
+    are distinct only beyond binary64 precision are refused;
+  - the two range rules run only on a range whose own subtree passes the shape check. A
+    malformed range gets its shape findings and nothing more.
 
-  This keeps the two bounded schema interpreters on the keywords they already
-  support, and leaves their agreement with a full JSON Schema validator untouched.
+  This keeps the two bounded schema interpreters on the keywords they already support.
+  Their agreement with a full JSON Schema validator holds within the supported numeric
+  domain, finite binary64 magnitudes. An integer beyond it, such as 10^400, is refused by
+  the interpreters although a full validator admits it, as for every force quantity
+  before 1.1.0.
 - **[decided] Compatibility.** A 1.0.0 document still imports unchanged, and its records
   are listed by sizing as "not sizable: no working load range". A 1.0.0 document with
   `working_load_range` is refused as an unknown field, as today. A 1.1.0 document with a
