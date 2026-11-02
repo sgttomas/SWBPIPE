@@ -1,6 +1,6 @@
 {
   "schema": "swbpipe.hanger_sizing_reference.r3/1",
-  "basis": "Independent reference for DEL-04-11 hanger-sizing arithmetic: R-3, R-3b and the arithmetic part of R-4/R-4b, from execution/PKG-04/DEL-04-11/Work/hanger-sizing.md sections 4.2, 6 and 7. SI units (N, m, N/m). Every position is measured from the installed position u = 0 along the candidate's positive DOF axis; a variable spring set to F_cold carries F(u) = F_cold - k*u. design_index is 0-based into u_operating_m. Inputs are the exact rational values of the decimals (or stated fractions) in the generator; every result is computed exactly with fractions.Fraction and emitted rounded to the nearest binary64. Fit tests, selection, tie-breaks and verification tests are decided on exact rational values; boundary-equality cases use inputs exactly representable in binary64, and the generator confirms that every discrete outcome is unchanged when each input is replaced by the exact value of its emitted binary64 number. Every value is invented; no supplier catalogue or standards data is used.",
+  "basis": "Independent reference for DEL-04-11 hanger-sizing arithmetic: R-3, R-3b and the arithmetic part of R-4/R-4b, from execution/PKG-04/DEL-04-11/Work/hanger-sizing.md sections 4.2, 6 and 7. SI units (N, m, N/m). Every position is measured from the installed position u = 0 along the candidate's positive DOF axis; a variable spring set to F_cold carries F(u) = F_cold - k*u. design_index is 0-based into u_operating_m. Inputs are the exact rational values of the decimals (or stated fractions) in the generator; every result is computed exactly with fractions.Fraction and emitted rounded to the nearest binary64. Fit tests, selection, tie-breaks and verification tests are decided on exact rational values; boundary-equality cases use inputs exactly representable in binary64, and the generator confirms that every discrete outcome is unchanged when each input is replaced by the exact value of its emitted binary64 number. Every value is invented; no supplier catalogue or standards data is used. Sizing-time variation lists are never null: sizing forms no ratio with a non-positive reference, because V0 fails the record first. In a verification block, an entry of the variation list is null where the verified reference load is not positive (F_i^v <= 0 under operating_load): no ratio is formed for that case, V0 reports it, and V is judged only on the ratios that are formed (hanger-sizing.md section 7).",
   "cases": [
     {
       "id": "R3-01",
@@ -3656,6 +3656,635 @@
           }
         ],
         "verification_standing": "conditional"
+      }
+    },
+    {
+      "id": "R4-05",
+      "description": "Verified operating load exactly 0 under operating_load (binary64-exact): hot design, W = 1024, k = 8192, u_D = 1/16 m, so F_cold = 1536. Verified u_D^v = 3/16 m gives F_D^v = 0: no ratio is formed (variation [null]); V0 and L fail, T passes, and V is not failed because no ratio is formed. Departure -1024 N.",
+      "method": {
+        "load_design": "hot",
+        "variation_reference": "operating_load",
+        "variation_limit": 0.75,
+        "travel_allowance_m": 0.0,
+        "selection_rule": "smallest_capacity"
+      },
+      "records": [
+        {
+          "hanger_id": "VS-R4Z0",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 8192.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            512.0,
+            2048.0
+          ],
+          "travel_range_m": 0.25
+        }
+      ],
+      "candidates": [
+        {
+          "id": "H-1",
+          "dof": "UZ",
+          "family_policy": "variable",
+          "w_n": 1024.0,
+          "u_cold_m": 0.0,
+          "u_operating_m": [
+            0.0625
+          ],
+          "design_index": 0,
+          "verified": {
+            "u_cold_m": 0.0,
+            "u_operating_m": [
+              0.1875
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "id": "H-1",
+            "outcome": "selected",
+            "hanger_id": "VS-R4Z0",
+            "f_cold_n": 1536.0,
+            "f_cold_condition_n": 1536.0,
+            "f_operating_n": [
+              1024.0
+            ],
+            "variation": [
+              0.5
+            ],
+            "span_m": [
+              0.0,
+              0.0625
+            ],
+            "required_travel_m": 0.0625,
+            "envelope_n": [
+              1024.0,
+              1536.0
+            ],
+            "failure_counts": {
+              "variable": {
+                "E1": 0,
+                "E2": 0,
+                "V0": 0,
+                "L": 0,
+                "T": 0,
+                "V": 0
+              }
+            },
+            "verification": {
+              "u_cold_m": 0.0,
+              "u_operating_m": [
+                0.1875
+              ],
+              "span_m": [
+                0.0,
+                0.1875
+              ],
+              "required_travel_m": 0.1875,
+              "t_pass": true,
+              "f_cold_condition_n": 1536.0,
+              "f_operating_n": [
+                0.0
+              ],
+              "variation": [
+                null
+              ],
+              "departure_n": -1024.0,
+              "failed_tests": [
+                "V0",
+                "L"
+              ]
+            }
+          }
+        ],
+        "verification_standing": "unconditional"
+      }
+    },
+    {
+      "id": "R4-06",
+      "description": "Verified operating load negative under operating_load (the section 7 witness): hot design, W = 1000, k = 10000, u_C = 0, u_D = 10 mm, so F_cold = 1100. Verified u_D^v = 120 mm gives F_D^v = -100 N: variation [null]; V0 and L fail, T passes, V is not failed. Departure -1100 N.",
+      "method": {
+        "load_design": "hot",
+        "variation_reference": "operating_load",
+        "variation_limit": 0.25,
+        "travel_allowance_m": 0.0,
+        "selection_rule": "smallest_capacity"
+      },
+      "records": [
+        {
+          "hanger_id": "VS-R4N",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 10000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            500.0,
+            1500.0
+          ],
+          "travel_range_m": 0.2
+        }
+      ],
+      "candidates": [
+        {
+          "id": "H-1",
+          "dof": "UZ",
+          "family_policy": "variable",
+          "w_n": 1000.0,
+          "u_cold_m": 0.0,
+          "u_operating_m": [
+            0.01
+          ],
+          "design_index": 0,
+          "verified": {
+            "u_cold_m": 0.0,
+            "u_operating_m": [
+              0.12
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "id": "H-1",
+            "outcome": "selected",
+            "hanger_id": "VS-R4N",
+            "f_cold_n": 1100.0,
+            "f_cold_condition_n": 1100.0,
+            "f_operating_n": [
+              1000.0
+            ],
+            "variation": [
+              0.1
+            ],
+            "span_m": [
+              0.0,
+              0.01
+            ],
+            "required_travel_m": 0.01,
+            "envelope_n": [
+              1000.0,
+              1100.0
+            ],
+            "failure_counts": {
+              "variable": {
+                "E1": 0,
+                "E2": 0,
+                "V0": 0,
+                "L": 0,
+                "T": 0,
+                "V": 0
+              }
+            },
+            "verification": {
+              "u_cold_m": 0.0,
+              "u_operating_m": [
+                0.12
+              ],
+              "span_m": [
+                0.0,
+                0.12
+              ],
+              "required_travel_m": 0.12,
+              "t_pass": true,
+              "f_cold_condition_n": 1100.0,
+              "f_operating_n": [
+                -100.0
+              ],
+              "variation": [
+                null
+              ],
+              "departure_n": -1100.0,
+              "failed_tests": [
+                "V0",
+                "L"
+              ]
+            }
+          }
+        ],
+        "verification_standing": "unconditional"
+      }
+    },
+    {
+      "id": "R4-07",
+      "description": "Mixed absent and formed verified ratios, formed ratio passing: hot design, operating_load, W = 1000, k = 10000, cases +10 mm (design) and +20 mm, F_cold = 1100. Verified u^v = (12, 150) mm give F^v = (980, -400) N: variation [120/980, null]; 6/49 <= 0.25 so V passes; V0 and L fail, T passes. Departure -20 N.",
+      "method": {
+        "load_design": "hot",
+        "variation_reference": "operating_load",
+        "variation_limit": 0.25,
+        "travel_allowance_m": 0.0,
+        "selection_rule": "smallest_capacity"
+      },
+      "records": [
+        {
+          "hanger_id": "VS-R4M",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 10000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            500.0,
+            1500.0
+          ],
+          "travel_range_m": 0.2
+        }
+      ],
+      "candidates": [
+        {
+          "id": "H-1",
+          "dof": "UZ",
+          "family_policy": "variable",
+          "w_n": 1000.0,
+          "u_cold_m": 0.0,
+          "u_operating_m": [
+            0.01,
+            0.02
+          ],
+          "design_index": 0,
+          "verified": {
+            "u_cold_m": 0.0,
+            "u_operating_m": [
+              0.012,
+              0.15
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "id": "H-1",
+            "outcome": "selected",
+            "hanger_id": "VS-R4M",
+            "f_cold_n": 1100.0,
+            "f_cold_condition_n": 1100.0,
+            "f_operating_n": [
+              1000.0,
+              900.0
+            ],
+            "variation": [
+              0.1,
+              0.2222222222222222
+            ],
+            "span_m": [
+              0.0,
+              0.02
+            ],
+            "required_travel_m": 0.02,
+            "envelope_n": [
+              900.0,
+              1100.0
+            ],
+            "failure_counts": {
+              "variable": {
+                "E1": 0,
+                "E2": 0,
+                "V0": 0,
+                "L": 0,
+                "T": 0,
+                "V": 0
+              }
+            },
+            "verification": {
+              "u_cold_m": 0.0,
+              "u_operating_m": [
+                0.012,
+                0.15
+              ],
+              "span_m": [
+                0.0,
+                0.15
+              ],
+              "required_travel_m": 0.15,
+              "t_pass": true,
+              "f_cold_condition_n": 1100.0,
+              "f_operating_n": [
+                980.0,
+                -400.0
+              ],
+              "variation": [
+                0.12244897959183673,
+                null
+              ],
+              "departure_n": -20.0,
+              "failed_tests": [
+                "V0",
+                "L"
+              ]
+            }
+          }
+        ],
+        "verification_standing": "unconditional"
+      }
+    },
+    {
+      "id": "R4-08",
+      "description": "Mixed absent and formed verified ratios, formed ratio failing V: cold design, operating_load, W = 1000, k = 10000, u_C = 0, cases +10 and +20 mm, F_cold = 1000. Verified u_C^v = 1 mm, u^v = (50, 120) mm give F_C^v = 990, F^v = (500, -200) N: variation [490/500, null]; 0.98 > 0.3 fails V; V0 and L also fail, T passes. Departure (cold) -10 N.",
+      "method": {
+        "load_design": "cold",
+        "variation_reference": "operating_load",
+        "variation_limit": 0.3,
+        "travel_allowance_m": 0.0,
+        "selection_rule": "smallest_capacity"
+      },
+      "records": [
+        {
+          "hanger_id": "VS-R4MV",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 10000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            500.0,
+            1500.0
+          ],
+          "travel_range_m": 0.2
+        }
+      ],
+      "candidates": [
+        {
+          "id": "H-1",
+          "dof": "UZ",
+          "family_policy": "variable",
+          "w_n": 1000.0,
+          "u_cold_m": 0.0,
+          "u_operating_m": [
+            0.01,
+            0.02
+          ],
+          "design_index": 0,
+          "verified": {
+            "u_cold_m": 0.001,
+            "u_operating_m": [
+              0.05,
+              0.12
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "id": "H-1",
+            "outcome": "selected",
+            "hanger_id": "VS-R4MV",
+            "f_cold_n": 1000.0,
+            "f_cold_condition_n": 1000.0,
+            "f_operating_n": [
+              900.0,
+              800.0
+            ],
+            "variation": [
+              0.1111111111111111,
+              0.25
+            ],
+            "span_m": [
+              0.0,
+              0.02
+            ],
+            "required_travel_m": 0.02,
+            "envelope_n": [
+              800.0,
+              1000.0
+            ],
+            "failure_counts": {
+              "variable": {
+                "E1": 0,
+                "E2": 0,
+                "V0": 0,
+                "L": 0,
+                "T": 0,
+                "V": 0
+              }
+            },
+            "verification": {
+              "u_cold_m": 0.001,
+              "u_operating_m": [
+                0.05,
+                0.12
+              ],
+              "span_m": [
+                0.0,
+                0.12
+              ],
+              "required_travel_m": 0.12,
+              "t_pass": true,
+              "f_cold_condition_n": 990.0,
+              "f_operating_n": [
+                500.0,
+                -200.0
+              ],
+              "variation": [
+                0.98,
+                null
+              ],
+              "departure_n": -10.0,
+              "failed_tests": [
+                "V0",
+                "L",
+                "V"
+              ]
+            }
+          }
+        ],
+        "verification_standing": "unconditional"
+      }
+    },
+    {
+      "id": "R3-33",
+      "description": "design_index 1, hot design: W = 1000, k = 10000, u_C = 0, u_operating = (10, 20) mm with the design case at index 1, so F_cold = W + k*u_D = 1200 (not 1100), F = (1100, 1000), envelope [1000, 1200] N, variation (1/11, 0.2). VS-DI fits; VS-IDX0 (range [850, 1150]) would fit only if F_cold were read from index 0, and fails L.",
+      "method": {
+        "load_design": "hot",
+        "variation_reference": "operating_load",
+        "variation_limit": 0.25,
+        "travel_allowance_m": 0.0,
+        "selection_rule": "smallest_capacity"
+      },
+      "records": [
+        {
+          "hanger_id": "VS-IDX0",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 10000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            850.0,
+            1150.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-DI",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 10000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            950.0,
+            1250.0
+          ],
+          "travel_range_m": 0.05
+        }
+      ],
+      "candidates": [
+        {
+          "id": "H-1",
+          "dof": "UZ",
+          "family_policy": "variable",
+          "w_n": 1000.0,
+          "u_cold_m": 0.0,
+          "u_operating_m": [
+            0.01,
+            0.02
+          ],
+          "design_index": 1,
+          "verified": null
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "id": "H-1",
+            "outcome": "selected",
+            "hanger_id": "VS-DI",
+            "f_cold_n": 1200.0,
+            "f_cold_condition_n": 1200.0,
+            "f_operating_n": [
+              1100.0,
+              1000.0
+            ],
+            "variation": [
+              0.09090909090909091,
+              0.2
+            ],
+            "span_m": [
+              0.0,
+              0.02
+            ],
+            "required_travel_m": 0.02,
+            "envelope_n": [
+              1000.0,
+              1200.0
+            ],
+            "failure_counts": {
+              "variable": {
+                "E1": 0,
+                "E2": 0,
+                "V0": 0,
+                "L": 1,
+                "T": 0,
+                "V": 0
+              }
+            },
+            "verification": null
+          }
+        ],
+        "verification_standing": "unconditional"
+      }
+    },
+    {
+      "id": "R4-09",
+      "description": "design_index 1 in verification, hot design: W = 1000, k = 10000, u_operating = (-5, 10) mm with the design case at index 1, F_cold = 1100. Verified u_C^v = 1 mm, u^v = (-4, 12) mm give F_C^v = 1090, F^v = (1140, 980) N; the departure F_D^v - W reads index 1: -20 N (index 0 would give +140 N). All tests pass.",
+      "method": {
+        "load_design": "hot",
+        "variation_reference": "operating_load",
+        "variation_limit": 0.25,
+        "travel_allowance_m": 0.0,
+        "selection_rule": "smallest_capacity"
+      },
+      "records": [
+        {
+          "hanger_id": "VS-R4D",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 10000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            900.0,
+            1200.0
+          ],
+          "travel_range_m": 0.05
+        }
+      ],
+      "candidates": [
+        {
+          "id": "H-1",
+          "dof": "UZ",
+          "family_policy": "variable",
+          "w_n": 1000.0,
+          "u_cold_m": 0.0,
+          "u_operating_m": [
+            -0.005,
+            0.01
+          ],
+          "design_index": 1,
+          "verified": {
+            "u_cold_m": 0.001,
+            "u_operating_m": [
+              -0.004,
+              0.012
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "id": "H-1",
+            "outcome": "selected",
+            "hanger_id": "VS-R4D",
+            "f_cold_n": 1100.0,
+            "f_cold_condition_n": 1100.0,
+            "f_operating_n": [
+              1150.0,
+              1000.0
+            ],
+            "variation": [
+              0.043478260869565216,
+              0.1
+            ],
+            "span_m": [
+              -0.005,
+              0.01
+            ],
+            "required_travel_m": 0.015,
+            "envelope_n": [
+              1000.0,
+              1150.0
+            ],
+            "failure_counts": {
+              "variable": {
+                "E1": 0,
+                "E2": 0,
+                "V0": 0,
+                "L": 0,
+                "T": 0,
+                "V": 0
+              }
+            },
+            "verification": {
+              "u_cold_m": 0.001,
+              "u_operating_m": [
+                -0.004,
+                0.012
+              ],
+              "span_m": [
+                -0.004,
+                0.012
+              ],
+              "required_travel_m": 0.016,
+              "t_pass": true,
+              "f_cold_condition_n": 1090.0,
+              "f_operating_n": [
+                1140.0,
+                980.0
+              ],
+              "variation": [
+                0.043859649122807015,
+                0.11224489795918367
+              ],
+              "departure_n": -20.0,
+              "failed_tests": []
+            }
+          }
+        ],
+        "verification_standing": "unconditional"
       }
     }
   ]

@@ -43,7 +43,12 @@ BASIS = (
     "exactly representable in binary64, and the generator confirms that every "
     "discrete outcome is unchanged when each input is replaced by the exact value "
     "of its emitted binary64 number. Every value is invented; no supplier "
-    "catalogue or standards data is used."
+    "catalogue or standards data is used. Sizing-time variation lists are never "
+    "null: sizing forms no ratio with a non-positive reference, because V0 fails "
+    "the record first. In a verification block, an entry of the variation list is "
+    "null where the verified reference load is not positive (F_i^v <= 0 under "
+    "operating_load): no ratio is formed for that case, V0 reports it, and V is "
+    "judged only on the ratios that are formed (hanger-sizing.md section 7)."
 )
 
 
@@ -102,12 +107,18 @@ def f_cold(m, c, k):
     return c["w"] + k * c["uc"]
 
 
-def variations(m, w, k, uc, uops, fi):
+def variations(m, w, k, uc, uops, fi, absent_allowed=False):
+    """Variation ratios. A non-positive reference forms no ratio: in sizing that
+    cannot happen (V0 fails the record first), so it raises; in verification the
+    entry is None (absent, section 7)."""
     out = []
     for u, f in zip(uops, fi):
         r = f if m["variation_reference"] == "operating_load" else w
         if r <= 0:
-            raise ValueError("variation reference not positive; ratio undefined")
+            if not absent_allowed:
+                raise ValueError("variation reference not positive; ratio undefined")
+            out.append(None)
+            continue
         out.append(k * abs(u - uc) / r)
     return out
 
@@ -241,11 +252,11 @@ def verify(m, c, rec, det):
     fcc = fc0 - k * uc
     fi = [fc0 - k * u for u in uops]
     v0 = fcc > 0 and all(f > 0 for f in fi)
-    v = variations(m, w, k, uc, uops, fi)
+    v = variations(m, w, k, uc, uops, fi, absent_allowed=True)
     lo, hi = envelope(fc0, k, smin, smax, a)
     fmin, fmax = rec["range"]
     l_pass = lo >= fmin and hi <= fmax
-    v_pass = all(x <= lam for x in v)
+    v_pass = all(x <= lam for x in v if x is not None)
     out["f_cold_condition_n"] = fcc
     out["f_operating_n"] = fi
     out["variation"] = v
@@ -306,7 +317,9 @@ def discrete(exp):
         return exp
     return ([(r["id"], r["outcome"], r["hanger_id"], r["failure_counts"],
               None if r["verification"] is None else
-              (r["verification"]["t_pass"], r["verification"]["failed_tests"]))
+              (r["verification"]["t_pass"], r["verification"]["failed_tests"],
+               None if r["verification"]["variation"] is None else
+               [x is None for x in r["verification"]["variation"]]))
              for r in exp["candidates"]], exp["verification_standing"])
 
 
@@ -348,6 +361,37 @@ def check_stated_values(cases_by_id, exps):
     assert a["verification"]["failed_tests"] == []
     assert b["verification"]["required_travel_m"] == F(26, 3000)
     assert b["verification"]["failed_tests"] == ["T"]
+
+    # Absent verified ratios (section 7).
+    r = row("R4-05")["verification"]
+    assert r["f_operating_n"] == [0] and r["variation"] == [None]
+    assert r["failed_tests"] == ["V0", "L"] and r["departure_n"] == -1024
+    r = row("R4-06")
+    assert r["f_cold_n"] == 1100 and r["variation"] == [F(1, 10)]
+    v = r["verification"]
+    assert v["f_operating_n"] == [-100] and v["variation"] == [None]
+    assert v["departure_n"] == -1100
+    assert "V0" in v["failed_tests"] and "V" not in v["failed_tests"]
+    assert v["failed_tests"] == ["V0", "L"]
+    r = row("R4-07")["verification"]
+    assert r["f_operating_n"] == [980, -400] and r["variation"] == [F(6, 49), None]
+    assert r["failed_tests"] == ["V0", "L"] and r["departure_n"] == -20
+    r = row("R4-08")["verification"]
+    assert r["f_cold_condition_n"] == 990 and r["f_operating_n"] == [500, -200]
+    assert r["variation"] == [F(49, 50), None]
+    assert r["failed_tests"] == ["V0", "L", "V"] and r["departure_n"] == -10
+
+    # Nonzero design index.
+    r = row("R3-33")
+    assert r["f_cold_n"] == 1200 and r["f_cold_condition_n"] == 1200
+    assert r["f_operating_n"] == [1100, 1000] and r["envelope_n"] == [1000, 1200]
+    assert r["variation"] == [F(1, 11), F(1, 5)]
+    r = row("R4-09")
+    assert r["f_cold_n"] == 1100 and r["f_operating_n"] == [1150, 1000]
+    v = r["verification"]
+    assert v["f_cold_condition_n"] == 1090 and v["f_operating_n"] == [1140, 980]
+    assert v["departure_n"] == -20 and v["failed_tests"] == []
+    assert v["variation"] == [F(50, 1140), F(110, 980)]
 
 
 # ---------------------------------------------------------------- cases
@@ -632,6 +676,64 @@ def build_cases():
         [base("H-OK", verified=("0.0001", ["0.0105"])),
          base("H-HEAVY", w="5000", verified=("0.0002", ["0.011"]))],
         {"H-OK": ("selected", "VS-OK"), "H-HEAVY": ("no_record_fits", None)})
+
+    # Absent verified ratios (section 7): a non-positive verified reference load
+    # under operating_load forms no ratio; its variation entry is null, V0 reports
+    # it, and V is judged only on the ratios that are formed.
+    add("R4-05", "Verified operating load exactly 0 under operating_load (binary64-exact): hot "
+        "design, W = 1024, k = 8192, u_D = 1/16 m, so F_cold = 1536. Verified u_D^v = 3/16 m "
+        "gives F_D^v = 0: no ratio is formed (variation [null]); V0 and L fail, T passes, "
+        "and V is not failed because no ratio is formed. Departure -1024 N.",
+        method("hot", "operating_load", "0.75", "0"),
+        [vs("VS-R4Z0", "8192", ("512", "2048"), "0.25")],
+        [cand("H-1", "1024", "0", ["0.0625"], verified=("0", ["0.1875"]))],
+        {"H-1": ("selected", "VS-R4Z0")})
+    add("R4-06", "Verified operating load negative under operating_load (the section 7 "
+        "witness): hot design, W = 1000, k = 10000, u_C = 0, u_D = 10 mm, so F_cold = 1100. "
+        "Verified u_D^v = 120 mm gives F_D^v = -100 N: variation [null]; V0 and L fail, "
+        "T passes, V is not failed. Departure -1100 N.",
+        method("hot", "operating_load", "0.25", "0"),
+        [vs("VS-R4N", "10000", ("500", "1500"), "0.2")],
+        [cand("H-1", "1000", "0", ["0.010"], verified=("0", ["0.120"]))],
+        {"H-1": ("selected", "VS-R4N")})
+    add("R4-07", "Mixed absent and formed verified ratios, formed ratio passing: hot design, "
+        "operating_load, W = 1000, k = 10000, cases +10 mm (design) and +20 mm, F_cold = 1100. "
+        "Verified u^v = (12, 150) mm give F^v = (980, -400) N: variation [120/980, null]; "
+        "6/49 <= 0.25 so V passes; V0 and L fail, T passes. Departure -20 N.",
+        method("hot", "operating_load", "0.25", "0"),
+        [vs("VS-R4M", "10000", ("500", "1500"), "0.2")],
+        [cand("H-1", "1000", "0", ["0.010", "0.020"], verified=("0", ["0.012", "0.150"]))],
+        {"H-1": ("selected", "VS-R4M")})
+    add("R4-08", "Mixed absent and formed verified ratios, formed ratio failing V: cold design, "
+        "operating_load, W = 1000, k = 10000, u_C = 0, cases +10 and +20 mm, F_cold = 1000. "
+        "Verified u_C^v = 1 mm, u^v = (50, 120) mm give F_C^v = 990, F^v = (500, -200) N: "
+        "variation [490/500, null]; 0.98 > 0.3 fails V; V0 and L also fail, T passes. "
+        "Departure (cold) -10 N.",
+        method("cold", "operating_load", "0.3", "0"),
+        [vs("VS-R4MV", "10000", ("500", "1500"), "0.2")],
+        [cand("H-1", "1000", "0", ["0.010", "0.020"], verified=("0.001", ["0.050", "0.120"]))],
+        {"H-1": ("selected", "VS-R4MV")})
+
+    # Nonzero design index.
+    add("R3-33", "design_index 1, hot design: W = 1000, k = 10000, u_C = 0, u_operating = "
+        "(10, 20) mm with the design case at index 1, so F_cold = W + k*u_D = 1200 (not 1100), "
+        "F = (1100, 1000), envelope [1000, 1200] N, variation (1/11, 0.2). VS-DI fits; "
+        "VS-IDX0 (range [850, 1150]) would fit only if F_cold were read from index 0, and "
+        "fails L.",
+        method("hot", "operating_load", "0.25", "0"),
+        [vs("VS-IDX0", "10000", ("850", "1150"), "0.05"),
+         vs("VS-DI", "10000", ("950", "1250"), "0.05")],
+        [cand("H-1", "1000", "0", ["0.010", "0.020"], d=1)],
+        {"H-1": ("selected", "VS-DI")})
+    add("R4-09", "design_index 1 in verification, hot design: W = 1000, k = 10000, u_operating = "
+        "(-5, 10) mm with the design case at index 1, F_cold = 1100. Verified u_C^v = 1 mm, "
+        "u^v = (-4, 12) mm give F_C^v = 1090, F^v = (1140, 980) N; the departure "
+        "F_D^v - W reads index 1: -20 N (index 0 would give +140 N). All tests pass.",
+        method("hot", "operating_load", "0.25", "0"),
+        [vs("VS-R4D", "10000", ("900", "1200"), "0.05")],
+        [cand("H-1", "1000", "0", ["-0.005", "0.010"], d=1,
+              verified=("0.001", ["-0.004", "0.012"]))],
+        {"H-1": ("selected", "VS-R4D")})
     return cases
 
 

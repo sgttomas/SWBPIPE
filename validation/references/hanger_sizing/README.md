@@ -22,6 +22,12 @@ Independent reference values for DEL-04-11 hanger sizing.
   It also checks each case's intended outcome and the values stated in the brief.
 - **Conventions:** SI units (N, m, N/m). `design_index` is 0-based into
   `u_operating_m`.
+- **Absent verified ratios:** in a `verification` block, an entry of the
+  `variation` list is `null` where the verified reference load is not positive
+  (F_i^v ≤ 0 under `operating_load`). No ratio is formed for that case, V0
+  reports it, and V is judged only on the ratios that are formed (§7). The
+  sizing-time `variation` list is never `null`: sizing forms no ratio with a
+  non-positive reference, because V0 fails the record first.
 - **Invented data:** every value is invented. No supplier catalogue or standards
   data is used.
 
