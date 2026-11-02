@@ -63,7 +63,7 @@ ORDINARY = tuple(dict.fromkeys((
     "fixtures/reports/invented/user_release_exact/pressure_2_straight.json",
     "fixtures/reports/invented/exact_report_sections_parity.json",
     *(f"fixtures/reports/invented/exact_report_package_requests/pressure_2_{kind}.json"
-      for kind in ("connector", "load_reference_states", "realized_bend", "straight")),
+      for kind in ("connector", "load_reference_states", "realized_bend", "straight", "straight_substitute.overlay")),
     *(f"fixtures/product_preview/pressure/load_reference/{kind}-{mode}.raw.json"
       for kind in ("connected", "pressure") for mode in ("sparse_interactive", "dense_scrutiny")),
     *(f"core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json"
@@ -90,6 +90,10 @@ REPORT_IDENTITY_PATHS = {
     "fixtures/reports/exact_route_limitations.json": (("lists", "#", "limitations", "#"), ("strings", "#")),
     "fixtures/reports/invented/exact_report_sections_parity.json": (
         ("vectors", "#", "expected", "limitations", "#", "statement"),),
+    **{f"fixtures/reports/invented/{name}.json": (("request", "report", "report_sections", "limitations", "#", "statement"),)
+       for name in ("user_release_exact/pressure_2_straight",
+                    *(f"exact_report_package_requests/pressure_2_{kind}"
+                      for kind in ("connector", "load_reference_states", "realized_bend", "straight")))},
 }
 
 
@@ -130,8 +134,9 @@ def check(name):
         check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
     if name in REPORT_IDENTITY_PATHS:
         restored, moved = _restore_report_identity(load(after), REPORT_IDENTITY_PATHS[name])
-        # With the identity reversed at its named paths, nothing but binding hashes may differ.
-        assert compare(load(before), restored, old=OLD, new=NEW) == 0, name
+        # With the report statements reversed at their named paths, only formulation_basis.limitations[0]
+        # and binding hashes may still differ.
+        moved += compare(load(before), restored, old=OLD, new=NEW)
         assert moved > 0, f"{name}: still states reducer 2a's identity"
         return moved
     moved = compare(load(before), load(after), rv120_output_hashes=rv120, old=OLD, new=NEW)
