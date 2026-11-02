@@ -81,11 +81,59 @@ def _states_old(name):
     return any(form in text for form in (json.dumps(OLD)[1:-1], json.dumps(OLD, ensure_ascii=False)[1:-1]))
 
 
+# pressure-2 table digest at 2a's endpoint and now (the restated admitted-families limitation).
+TABLE_SHA256 = ("032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025",
+                "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e")
+# The report fixtures state the identity as a statement, not as a published
+# formulation basis: only these exact paths (an int matches "#") may carry it.
+REPORT_IDENTITY_PATHS = {
+    "fixtures/reports/exact_route_limitations.json": (("lists", "#", "limitations", "#"), ("strings", "#")),
+    "fixtures/reports/invented/exact_report_sections_parity.json": (
+        ("vectors", "#", "expected", "limitations", "#", "statement"),),
+}
+
+
+def _matches(path, pattern):
+    return len(path) == len(pattern) and all(
+        (isinstance(part, int) if want == "#" else part == want) for part, want in zip(path, pattern))
+
+
+def _restore_report_identity(value, patterns, path=()):
+    """Reverse the authorized restatement at the named report paths only; return (value, count)."""
+    if isinstance(value, Obj):
+        out, count = [], 0
+        for key, item in value:
+            item, n = _restore_report_identity(item, patterns, path + (key,))
+            out.append((key, item))
+            count += n
+        return Obj(out), count
+    if isinstance(value, list):
+        out, count = [], 0
+        for i, item in enumerate(value):
+            item, n = _restore_report_identity(item, patterns, path + (i,))
+            out.append(item)
+            count += n
+        return out, count
+    if type(value) is str and any(_matches(path, p) for p in patterns):
+        if value == NEW:
+            return OLD, 1
+        # A report statement that quotes the pressure-2 table's digest: only that digest moves.
+        if TABLE_SHA256[1] in value:
+            return value.replace(TABLE_SHA256[1], TABLE_SHA256[0]), 1
+    return value, 0
+
+
 def check(name):
     before, after = _at(BASE, name), (ROOT / name).read_text()
     rv120 = name == "fixtures/results/retained_precision_rv120_b3_inputs.json"
     if rv120:
         check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
+    if name in REPORT_IDENTITY_PATHS:
+        restored, moved = _restore_report_identity(load(after), REPORT_IDENTITY_PATHS[name])
+        # With the identity reversed at its named paths, nothing but binding hashes may differ.
+        assert compare(load(before), restored, old=OLD, new=NEW) == 0, name
+        assert moved > 0, f"{name}: still states reducer 2a's identity"
+        return moved
     moved = compare(load(before), load(after), rv120_output_hashes=rv120, old=OLD, new=NEW)
     # A carrier that stated 2a's identity must now state 2b's: a stale file fails here.
     assert moved > 0 or not _states_old(name), f"{name}: still states reducer 2a's identity"
@@ -125,6 +173,19 @@ def test_reducer_2b_guard_rejects_other_moves_and_the_2a_pair():
     # Input-scoped hashes stay protected in this stage too.
     with pytest.raises(AssertionError):
         compare(Obj([("model_sha256", "1" * 64)]), Obj([("model_sha256", "2" * 64)]), old=OLD, new=NEW)
+
+
+def test_reducer_2b_report_identity_paths_are_exact():
+    name = "fixtures/reports/exact_route_limitations.json"
+    good = Obj([("lists", [Obj([("limitations", [NEW, "x"])])]), ("strings", [NEW])])
+    restored, moved = _restore_report_identity(good, REPORT_IDENTITY_PATHS[name])
+    assert moved == 2 and restored == Obj([("lists", [Obj([("limitations", [OLD, "x"])])]), ("strings", [OLD])])
+    # The identity under any other member is not reversed, so the comparison refuses it.
+    planted = Obj([("lists", [Obj([("producer", NEW)])])])
+    restored, moved = _restore_report_identity(planted, REPORT_IDENTITY_PATHS[name])
+    assert moved == 0
+    with pytest.raises(AssertionError):
+        compare(Obj([("lists", [Obj([("producer", OLD)])])]), restored, old=OLD, new=NEW)
 
 
 def test_reducer_2b_identity_is_the_producers():
