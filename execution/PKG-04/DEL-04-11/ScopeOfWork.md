@@ -320,10 +320,17 @@ suitability, and nothing here determines code compliance.
     - for an unfitted candidate or a fallback, the count of records failing each test.
   - **Derived solves.** The result also gives each candidate's cold-reference
     displacement and each nonlinear support's states.
-  - **Basis.** A basis block states every request input, the library id and digest, the
-    model revision, the route and each case's load kinds after lowering. It also states
-    the installation assumption, that each spring is set at the drawn geometry. The table
-    labels the installed setting separately from the cold-condition load.
+  - **Basis.** A basis block states:
+    - every request input;
+    - the library id and hash;
+    - the solve request's hash, which identifies the exact model and materials;
+    - the route;
+    - each named case's role, its authored load categories and whether it uses an
+      operating-condition set.
+
+    It also states the installation assumption, that each spring is set at the drawn
+    geometry. The table labels the installed setting separately from the
+    cold-condition load (Design §8.3).
   - **Document.** Results are published as a closed hanger-sizing result document
     (Design §8.3). It embeds the sizing request, binds the solve request and library by
     hash, and has two statuses: `sized`, meaning the algorithm completed (never
@@ -339,9 +346,11 @@ suitability, and nothing here determines code compliance.
     the published positions are the model's mechanics without reproducing them.
   - **CSV.** The table exports to CSV (Design §8.1), with the desktop work.
 - **AC-007** — Maintained tests show:
-  - the two readers returning the same verdict for every committed result and every
-    committed mutation of it;
-  - a mutated position missed by the arithmetic standing and caught by reproduction;
+  - the two readers returning the same closure, binding and arithmetic verdicts for
+    every committed result and mutation (derivation and reproduction are the Rust
+    reader's alone);
+  - a self-consistent forgery of the positions that passes the arithmetic standing and
+    fails reproduction;
   - that the Python verifier imports no producer code (an independence test);
   - existing readers' named refusal of the document;
   - the table in DEL-08-04's CSV coverage guard, with the desktop work.
