@@ -463,11 +463,19 @@ its key and value rules.
   - finite numbers;
   - integers within ±(2⁵³ − 1);
   - objects without duplicate keys.
-- **Admission before any lossy parse.** The runner reads the input as text and parses
-  it with the checked parser (`canonical_json_checked_v1_text`'s rules) before any
-  other parse. That parser rejects duplicate keys and numbers outside the profile. An
-  input outside the profile is refused (`HANGER_SIZING_INPUT_NOT_ADMITTED`), naming
-  the parser's finding: its kind and JSON path, never the offending value. A
+- **Admission before any lossy parse.** The runner reads the input as text and admits
+  it through a **path-aware admission layer** owned by the sizing crate, before any
+  other parse. The layer parses the text itself and rejects duplicate keys and numbers
+  outside the profile. Each finding has:
+  - a kind: `invalid_json`, `duplicate_key` or `number_outside_profile`;
+  - the JSON path of the offending member.
+
+  The offending value is never reported. The existing `canonical_json_checked_v1_text`
+  returns string errors that can quote the value and carry no path, so it is not used
+  for diagnostics. A test shows the layer's accept or reject verdict agreeing with
+  that function's on the same text across the profile's boundary cases. An input
+  outside the profile is refused (`HANGER_SIZING_INPUT_NOT_ADMITTED`), and the
+  finding's kind and path make up the refusal's `names`. A
   quantity outside the profile, such as an integral 1e20 N, is refused under this
   code; sizing does not round it. A reader admits a result document by the same
   rule.
@@ -545,8 +553,14 @@ The verb is `openpipestress-runner size-hangers [--input <file>|-] [--output <fi
 
 **The refused variant** has exactly these members: the identity members,
 `limitations`, `basis_statement`, `status`, `inputs` and `refusals`. In it:
-- `inputs.sizing_request` is either the admitted request or `null`;
-- each hash is a hash or `null` (§8.3.1);
+- `inputs.sizing_request` is either the admitted request or `null`, and
+  `inputs.sizing_request_sha256` is `null` exactly when the request is;
+- `inputs.solve_request.sha256` is a hash or `null` (§8.3.1);
+- `inputs.library` is `{library_id: string|null, sha256: string|null}`:
+  - `library_id` is `null` when the input supplies no `hanger_library.library_id`
+    string, or when the input was not admitted, in which case its id is not
+    trusted;
+  - `sha256` is `null` when the library could not be hashed;
 - `refusals` is non-empty, each `{code, names, message}`:
   - `code` is one of the codes this design names;
   - `names` is an array of strings, possibly empty;
@@ -640,9 +654,16 @@ string, to `"inactive"|"active"|"sticking"|"sliding"`. It is empty when the mode
 no nonlinear support. A state code outside these four refuses publication
 (`HANGER_SIZING_RESULT_NOT_PUBLISHABLE`). No other dynamic-key map exists.
 
-**Uniqueness.** Uniqueness holds within each array: candidate `support`, case `case`,
-solve `label`. Each case id inside a candidate's `operating` follows the order of
-`result.cases`.
+**Uniqueness and per-case lists.** Uniqueness holds within each array: candidate
+`support`, case `case`, solve `label`.
+
+Each of a candidate's three per-case lists has exactly one entry per operating case,
+whose `case` ids equal the operating entries of `result.cases`, in the same order:
+- `operating`;
+- a variable `selected.operating`;
+- `verification.operating` (variable and constant).
+
+Every list of operating cases has n ≥ 1 entries.
 
 #### 8.3.6 Arithmetic, numerics and comparisons
 
@@ -700,12 +721,19 @@ Each standing is reported as passed, failed (with the first difference) or
   - each candidate's `verification_assumption` for `V_C` and `V_Oi`.
 - **`reproduction`** (Rust reader only; needs both the solve request and the library,
   each hash-matched). It re-runs the sizing from the bound inputs through the same
-  engine and compares the whole result. Outcomes, ids and counts must be equal, and
-  every value equal bit for bit. This is the only standing that ties positions and
-  states to the bound model.
+  engine and compares the whole result. Every non-numeric member must be equal, and
+  every number equal as a binary64 number under §8.3.6's rule, with −0 equal to 0,
+  because canonical text writes −0 as 0. This is the only standing that ties
+  positions and states to the bound model.
   - A mismatch is reported as failed reproduction.
   - Reproduction is claimed only for the same engine build on the same platform. A
     valid document from another build may fail it.
+
+**Refused documents.** For a refused document:
+- `closure` checks the refused variant's rules;
+- `binding` checks each non-null hash against its input when the input is supplied,
+  and checks `sizing_request_sha256` only when `sizing_request` is non-null;
+- `arithmetic`, `derivation` and `reproduction` are `not_checked`.
 
 **Verdict parity.** The Rust reader and the Python verifier must return the same
 verdict for `closure`, `binding` and `arithmetic` on every committed document and

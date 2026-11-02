@@ -352,7 +352,8 @@ suitability, and nothing here determines code compliance.
   - a self-consistent forgery of the positions that passes the arithmetic standing and
     fails reproduction;
   - that the Python verifier imports no producer code (an independence test);
-  - existing readers' named refusal of the document;
+  - each existing reader's actual named refusal or disclosure of the document, as
+    tested;
   - the table in DEL-08-04's CSV coverage guard, with the desktop work.
 - **REQ-008** — *Applying a selection.*
   - Applying a selected record is the person's explicit act. It goes through the
