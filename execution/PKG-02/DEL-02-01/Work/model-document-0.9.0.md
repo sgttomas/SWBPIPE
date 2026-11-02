@@ -1398,6 +1398,9 @@ records what was built against it.
   method bounds this candidate at actual native atoms. Law/challenge expectations
   now derive from the kept block and actual 680 B case layout; no lower proposal
   is adopted.
-- **Left:** native verification of those amended expectations, AC-004's six
-  witnesses for the changed retained stack, integrated-main frozen/native-Wasm
-  bindings, any writer-required carrier refresh, and exact-head hosted checks.
+  At `34c25044e`, all 71 retained-memory laws and 17 S2 integration tests pass.
+  The separately cleared prebuilt exclusive window passed all six AC-004
+  witnesses and one isolated challenge process (four observations); §8.40 records
+  exact source/binary bindings, queue/execution/release and the unchanged bounds.
+- **Left:** integrated-main frozen/native-Wasm bindings, any writer-required
+  carrier refresh, and exact-head hosted checks.

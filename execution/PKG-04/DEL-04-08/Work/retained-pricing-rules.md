@@ -2511,7 +2511,9 @@ in both modes. The two old expectations tied to that record failed at `bf59efa95
 retained-memory law tests passed. The re-derived `PINNED_RECORD` adds 24 B
 to every phase except X1, which adds 48 B. Challenge W1 is
 [6,602,964,678, 6,662,096,022] and MAX is [8,899,142,475, 8,958,273,819],
-all without R. Native verification of these amended expectations follows.
+all without R. At `34c25044e`, all 71 retained-memory law tests and all 17 S2
+integration tests pass on the selected native build, including the two amended
+expectations and the actual 680 B atom.
 
 The proposal, maintained `generate` output with basis
 `, re-run as RT-G5 S2 at 064dc8bb9 (§8.40): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`,
@@ -2548,8 +2550,9 @@ observed live `lower`/`judge`/`plan`/`resolve_case` frames total 13,184 B before
 additional callees; their return slots and locals occupy those frames. `apply`
 runs later below `lower`, after the judge/plan/resolve frames return. These are
 current-binary frame observations, not an incremental predecessor comparison
-or a whole-chain bound. No witness has run for S2; six source-bound AC-004
-witnesses remain subject to a separately cleared prebuilt exclusive window.
+or a whole-chain bound. The six source-bound witnesses below establish the
+required observed stack outcomes, without turning these frame observations
+into a whole-chain bound.
 
 **Chosen standing and independent scrutiny.** Agent 0 directs conservative
 carry of the unchanged registered coefficients, including the approved
@@ -2579,10 +2582,51 @@ native-pin completion gap is addressed by the derived expectations above; its
 stack-frame and allocation-abstraction wording corrections are applied here.
 This scrutiny does not supply stack qualification or merge readiness.
 
-**Still open.** Verification of the amended native law/challenge pins, the six
-AC-004 witnesses, integrated-main frozen-input and current native/Wasm bindings,
+**AC-004 and isolated challenge (2026-11-02).** Agent 0 cleared exactly six
+prebuilt witnesses and one isolated challenge process in one bounded window,
+with 55 seconds internally and 60 externally, no builds and no retries. The
+clean candidate was `34c25044e58358dc4336d3f4d7ecb5db7ea2fdbd`; production source
+is unchanged from `064dc8bb9`. The prebuilt library test binary
+`open_pipe_stress_product_physics-fbca7a87862453fd` has SHA-256
+`73d1ca1298d9f202e1229aa5c2d667bef3a7bf8a8095d5032337994edc165c4c`;
+`retained_memory_challenge-b12eb53242e0f3d4` has SHA-256
+`4165cc77a5253223d5569e461f0a8f51d8d90167a884733aaf0e1c5f913a9778`.
+The candidate, both binaries and the unchanged entire profile file (`8cd8fcf3…`)
+were verified before execution. The amended native laws passed 71/71.
+
+`t3_exclusive.sh` held all four slots under memguard. Request was
+10:28:26.337145 UTC; the acquired script began at 10:28:26.410814 UTC, so the
+approximately 0.074-second queue interval is separate from execution. Execution
+ended at 10:28:40.701548 UTC after 14.291 seconds; the wrapper logged
+`END-EXCLUSIVE rc=0` at 10:28:40 UTC and released immediately. All seven child
+processes were reaped. At 10:28:55 UTC the pending marker was absent and all four
+lock files had no owner. No ordinary build ran during this acquired window.
+Each witness was its own exact ignored test process with one test thread:
+
+| Witness | Sparse | Dense |
+|---|---|---|
+| W1 at 1 MiB | passed | passed |
+| W2 deep (4 MiB and 1 MiB) | passed | passed |
+| W-C2 (4 MiB and 1 MiB) | passed | passed |
+
+The seventh process, `retained_direct_peak_is_within_the_profiles_bounds`, passed
+four allocator observations; it is one test process, not seven challenge cases:
+
+| Input | Mode | Peak requested bytes | Kept bound, without R |
+|---|---|---:|---:|
+| milestone | sparse | 3,807,283 | 8,899,142,475 |
+| milestone | dense | 2,144,036 | 8,958,273,819 |
+| W-C2 | sparse | 7,126,028 | 8,899,142,475 |
+| W-C2 | dense | 7,127,015 | 8,958,273,819 |
+
+All four published successors. The 16 GiB abort cap, M and reserve policy were
+unchanged. Durations establish completion within the cleared window, not
+performance qualification. These are local source-bound witnesses, not native
+App, acceptance or release evidence.
+
+**Still open.** Integrated-main frozen-input and current native/Wasm bindings,
 any build-bound carrier regeneration that the maintained writers require, and
-exact-head hosted checks. No exclusive window or acceptance is implied.
+exact-head hosted checks.
 
 Maintained tests: 870 pass, including `tests/test_840_rt_g5_s2.py`. The named
 proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:
