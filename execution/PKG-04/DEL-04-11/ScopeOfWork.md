@@ -122,8 +122,13 @@ These deliverables keep their scope.
 
   Slice 1d-α publishes the result as a closed document through the headless runner
   (`openpipestress-runner size-hangers`) only, with the Rust reader and the test-only
-  Python verifier (Design §8.3); nothing reaches the desktop, and the exact route is
-  refused until increment 4. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
+  Python verifier (Design §8.3), and the exact route is refused until increment 4.
+  Increment 3a adds the desktop's result types and a pure display adapter
+  (`apps/desktop/src/features/results/hangerSizingResult.ts`, `hangerSizingView.ts`),
+  tested on the committed family fixtures. It gates record details on the bound library
+  hash and reader standings on evidence bound to the document's hash. It is not a usable
+  desktop feature: 3b adds the table component and its CSV (after PR #59), and 3c the
+  native sizing job. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
   owned by DEL-11-03) explains the built method. The user guide's non-UI section for
   the implemented PF sizing and the headless verb exists (`docs/user_guide/index.md`
   §7.1, owned by DEL-11-01); its desktop sections follow increment 3. Before this

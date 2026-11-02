@@ -1017,6 +1017,18 @@ outcome.
      tests.
   2. The verification pass and multi-case sizing, with R-4 and R-5.
   3. The desktop request, table, CSV and application, and the report section.
+     - **3a, built:** the desktop's types for the result document and a pure display
+       adapter (`features/results/hangerSizingResult.ts`, `hangerSizingView.ts`), tested
+       on the committed family fixtures. It gives §8.1's display model: the basis block,
+       one row per candidate, the solves, the standing and the disclosures, or a refused
+       document's refusals. It keeps every published number and computes nothing. A
+       record's details come only from a supplied library whose checked canonical hash
+       equals `inputs.library.sha256`, and a record only when its own hash equals
+       `record_sha256`; otherwise a named not-shown state. The readers' standings are shown
+       only from evidence that carries the document's checked hash; otherwise every standing
+       is `not_checked`. It is not a usable desktop feature.
+     - **3b:** the table component and its CSV through DEL-08-04 (after PR #59).
+     - **3c:** the native sizing job and its command.
   4. EX derived solves (the ledger entry of §4.1) and the reference system, R-7. This
      needs RT-A3 increments 3 and 4 for the reference system's non-candidate families.
   5. The user guide and theory notes (RT-V4), and any standing refusal entered in
