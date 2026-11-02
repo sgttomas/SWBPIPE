@@ -140,13 +140,15 @@ fn request(candidates: &[&str], operating: &str) -> SizingRequest {
     }
 }
 
-/// Two equal spans of 4 m on three supports, w = 1000 N/m, the interior a candidate.
+/// Two equal spans of 4 m on three simple supports, w = 1000 N/m, the interior a
+/// candidate. The ends are pinned about Y (no RY restraint), so the classical
+/// continuous-beam result applies; RX and RZ at A remove out-of-plane mechanisms.
 fn two_span() -> Value {
     let member = |id, from, to| Member { id, from, to, outside_diameter_m: 0.2, wall_m: 0.01, elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
     let nodes = [("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0]), ("node:C", [8.0, 0.0, 0.0])];
     let members = [member("pipe:AB", "node:A", "node:B"), member("pipe:BC", "node:B", "node:C")];
     let supports = vec![
-        support("support:A", "node:A", "anchor", &["UX", "UY", "UZ", "RX", "RY", "RZ"]),
+        support("support:A", "node:A", "guide", &["UX", "UY", "UZ", "RX", "RZ"]),
         support("support:B", "node:B", "vertical_support", &["UZ"]),
         support("support:C", "node:C", "guide", &["UY", "UZ"]),
     ];
@@ -233,14 +235,15 @@ fn candidate_and_case_refusals_are_listed_together() {
 
 #[test]
 fn a_singular_force_replacement_refuses_the_request_with_the_solve_diagnostics() {
-    // A single span supported only at its ends: replacing one end by a force leaves
-    // a mechanism, which the derived solve refuses.
+    // A single span pinned about Y at A with the candidate at B: rigid, it is a
+    // simple beam; replaced by a force, the span rotates freely about A, a
+    // mechanism the derived solve refuses.
     let member = Member { id: "pipe:AB", from: "node:A", to: "node:B", outside_diameter_m: 0.2, wall_m: 0.01,
                           elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
     let doc = model_builder::request(
         &[("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0])],
         &[member],
-        vec![support("support:A", "node:A", "guide", &["UX", "UY", "UZ", "RX"]), support("support:B", "node:B", "vertical_support", &["UZ"])],
+        vec![support("support:A", "node:A", "guide", &["UX", "UY", "UZ", "RX", "RZ"]), support("support:B", "node:B", "vertical_support", &["UZ"])],
         vec![case("load:W", vec![line_load("load:W-AB", "pipe:AB", 100.0)]), case("load:O", vec![line_load("load:O-AB", "pipe:AB", 100.0)])],
     );
     let refusals = run(&doc, &[], &request(&["support:B"], "load:O")).unwrap_err();
