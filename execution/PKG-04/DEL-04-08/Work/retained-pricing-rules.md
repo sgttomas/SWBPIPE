@@ -2319,6 +2319,100 @@ immediate actual-closure confirmation. This is stack evidence, not a desktop
 or base-machine performance metric, acceptance or release. Required hosted
 checks including `harness` on the exact PR head remain the integration gate.
 
+### §8.39 Modal kernel read-only seams: actual-source D3 (DEL-04-09 I1)
+
+**Selected predecessor and changed proof.** This change takes integrated reducer
+2a `393a11ee7` (§8.38), including the MBF and G11 changes, as its predecessor.
+The merge is `0468d2ca2`; the proof-tool candidate is `8e91c3941`. The modal
+numerical source remains independently reviewed `0ba65b9d4`. Nothing in this
+D3 adopts S2 or later reducer 2b source, changes a commitment or grants acceptance.
+
+`sparse_direct` adds two borrowing observation iterators without changing its
+factor storage, solve or factorization. Their only new consumers are the modal
+Sturm premises; neither accessor is reached by the retained root. The frame
+kernel's `frame_matrix` and `curved_matrix` delegate to generic `*_with`
+formations with the same binary64 operands and arithmetic order. Retained leaf
+implementations lift `FrameSection` and `CurvedFormation` fields exactly;
+`LEAF_SEAM` checks the audited delegation, leaf bodies and listed lexical implementation/call forms. It is supplementary to full-file pins, not a Rust parser: an explicit generic caller uses another spelling, and restating a source pin requires a fresh audit.
+B7a's source pins and the W1 reduction pins bind the full changed files. The
+`FormationSource` Cow, load closure, evaluation, scaled-force children, Value
+moves, constructors, guards and reduction lifetimes are unchanged. The six live
+`structural.rs` owner-choice keys move by its two module-declaration lines;
+historical preimage identities remain unchanged. Mutation tests reject changed
+leaves, implementations, callers and delegations, including a restated file pin.
+
+The four modal-only `reform_*` entries, their element split and wide-operand
+lifting do not enter the retained graph. No product crate consumes `modal_eigen`,
+and it is outside the priced crate list. The name-based graph adds conservative
+accessor edges, including modal-only leaf methods with matching names; it loses
+no reachable function. Those incidental leaves allocate/format nothing. The
+formation bodies' existing loops and operations move with their helpers; this
+is not authority to drop a bound as a deleted function. No retained struct,
+enum, static, capacity, ownership or input carrier changes. All thirteen reviewed
+inputs, reader layouts, atoms, M, R and the reserve policy stay unchanged.
+
+**Run and registration standing.** The committed tool prices `8e91c3941` on all
+four points with exit 0, no unmapped header or unclassified argument, and both
+O-10 checks clear. Its line map carries 880 keys, prunes 37 and applies seven
+resolutions, identical entry for entry to the adopted §8.38 summary. The
+coefficient comparison against the actual predecessor gives **1,602 equal,
+none higher and none lower**, with equal tree structure. `generate --check`
+with the existing §8.38 basis reproduces the committed generated block. No
+coefficient adoption, generated block, registration, law expectation or schema
+hash is changed. The §8.38 registered profile therefore stands; this is a new
+actual-source proof, not a transplant of old source pins. The 859 maintained
+pricing tests pass, including 14 seam regressions and mutation refusals.
+
+Supporting comparison artifacts are the named adopted reducer-2a tree and
+summary, and the fresh runs `scratch/rt-dynamics-d3-8e91c3941/` and
+`scratch/rt-dynamics-d3-base393/` outside the checkout. They are run evidence,
+not permanent build/test inputs. Evaluation with predecessor native atoms
+reproduces merged W3 E+R 8,966,251,315 B sparse and 9,025,382,659 B dense;
+the four current-source native profile/law/layout tests also pass and their newly collected atoms reproduce the same merged phase evaluations.
+
+**Stack consequence.** No inlining is presumed for the registered debug build.
+Static prologue inspection at the predecessor and candidate, with default and
+single-codegen-unit builds agreeing, finds the straight formation unchanged at
+16,416 B plus its new 128 B wrapper and at most 80 B accessor; curved formation
+moves from 7,744 B to 7,760 B plus a 32 B wrapper and 32 B accessor. These give
+added depth of at most 208 B straight and 80 B curved on those paths. The return
+slot is passed through, without an extra 12×12 matrix copy; the straight wrapper
+copies only its three coordinate arrays. These observations establish no whole
+call-chain stack bound. Because the retained-reachable stack changed despite
+coefficient identity, the six source-bound headroom witnesses were run as below.
+
+**Independent scrutiny and AC-004 (2026-11-02).** GPT-6 Astra at medium effort
+reviewed exact source and governing text at `9410d8ae3`, independently reproduced
+the coefficient/atom/phase/generator and mapping checks, and found no blockers.
+Its nonblocking supplementary-guard coverage clarification is applied; no pricing
+or Rust logic changed after review. Native profile checks (eight tests selected
+by `profile_`) and 14 seam regressions passed in that review; the recorded
+859-test suite and complete pricing runs were reused explicitly.
+
+Agent 0 cleared exactly six prebuilt witnesses, each its own process with
+`--exact --ignored --test-threads=1`, under `t3_exclusive.sh` and memguard.
+The clean bound source was `9b47b63f6043450cdef13895a93975d7f80006ec`; the prebuilt
+library test binary was `core/product_physics/target/debug/deps/
+open_pipe_stress_product_physics-d5dc083ee24455b5` (one path, line wrapped), SHA-256
+`ca227662c8d1e35eaf7bc6521f14d043965f16c0d1869ba12baf57cecd4acd33`.
+The full approved profile SHA-256 remained
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
+Request was 06:19:17.496 UTC. The wrapper acquired all four slots at 06:28:31 UTC
+(binding event 06:28:31.959); execution ended 06:28:41.103 and wrapper release was
+06:28:41.112 UTC, rc 0. Queue wait (about 554.46 seconds) was separate from the
+9.306-second acquired execution, within 55 seconds internally and 60 seconds
+externally. No build ran inside. All six passed: W1 at 1 MiB sparse/dense
+0.68/0.66 s, W2 deep 1.32/1.32 s and W-C2 2.49/2.47 s. These test durations
+are evidence of completion, not performance qualification. Afterward the own
+runner/test/wrapper process group was absent, `exclusive.pending` was absent,
+all four lock files had no owner on inspection and the wrapper logged
+`END-EXCLUSIVE rc=0`. Actual closure was reported to Agent 0 promptly.
+
+The §8.38 registered block stands unchanged. Exact-head hosted checks and
+integration remain required; neither this proof nor these witnesses grant owner
+acceptance, release, native App qualification or adoption of the recorded modal
+consuming-slice limitations.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)

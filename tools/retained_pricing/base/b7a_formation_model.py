@@ -41,7 +41,10 @@ SOURCE_FILES = {
     # re-export under the off feature (W1R-FG). No formed-load traversal or finding owner changes.
     # W1 coverage repair corner 1 (§8.12): read 32e0c3faf0; the same for LOADED_MAXIMUM_HOOKS and the
     # loaded_maximum_hooks re-export under the off `loaded-maximum-hooks` feature.
-    "core/solver/frame_kernel/src/structural.rs": "c4d96b2c41ce74044953dc8893b269570809651867ac55fee430ea2d1b475e82",
+    # DEL-04-09 dynamics D3 (read 393a11ee7..0468d2ca2): structural.rs only declares `pub mod element_reformation;`
+    # (+2 lines after line 4; every later line moves with unchanged text). The module's reform_* entries and wide
+    # leaves are reached only from modal_eigen, outside crate_dirs. No formed-load traversal or finding owner changes.
+    "core/solver/frame_kernel/src/structural.rs": "73c3cc5d03394bde643270d5b6727dcac6fa291b9e538abe05ac7fbb9bbd703e",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.

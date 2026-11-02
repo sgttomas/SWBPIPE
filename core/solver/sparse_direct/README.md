@@ -10,6 +10,7 @@ This crate is the first bounded implementation slice of the human ruling `DEC-02
 - Forward/diagonal/backward substitution solve in the ordered numbering, with permutation back to the caller's numbering.
 - A high-level `solve_symmetric_system` seam that orders, stores, factors, and solves a dense symmetric system and returns ordering, profile, and factorization observations for benchmark evidence (FR-008).
 - Factorization reporting: singular pivot location (ordered and original indices), accepted-pivot extrema, a pivot-ratio conditioning proxy, and nonpositive-pivot count and first location.
+- A read-only observation accessor on `ProfileFactorization` (`lower_factor_entries`, `pivots`): borrowing iterators over the strictly lower factor's stored entries and the pivots, with no mutation and no allocation, used by DEL-04-09's Sturm-count premises (`core/solver/modal_eigen`).
 
 ## Ordering Algorithm Choice and Determinism
 
