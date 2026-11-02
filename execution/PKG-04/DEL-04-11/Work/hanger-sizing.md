@@ -375,8 +375,9 @@ Notes on the tests:
   reference), no ratio is formed for that case. Its variation is published as absent, V0
   reports it, and V is judged on the ratios that are formed, as in §6.2.
 
-  Each failed test, formed with the verified values, is reported by name
-  (`HANGER_SIZING_VERIFICATION_TEST_FAILED`, warning):
+  Each failed test, formed with the verified values, is reported by name in the
+  candidate's `verification.failed_tests` (§8.3.5). The published document has no
+  separate warning code for it:
   - V0, L, T and V for a variable selection;
   - T for a constant selection; its L is unchanged, because its load stays W.
 - **[decided] No automatic iteration.** The selection stands as sized, and the

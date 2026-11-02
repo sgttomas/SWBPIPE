@@ -37,7 +37,8 @@ a service, and it does not determine code compliance.
 | The sizing arithmetic, fit tests, selection and verification arithmetic | Built (slice 1a) |
 | Hanger library format 1.1.0, with a per-record working load range | Built (slice 1b) |
 | The derived solves on the pressure-free route, the full sizing run and the library reader | Built (slice 1c) |
-| A published hanger table, its readers, CSV export and a headless runner entry | Not built (slice 1d) |
+| A published result document, its Rust reader and test-only Python verifier, and a headless runner entry (`openpipestress-runner size-hangers`) | Built (slice 1d-α); the user guide's §7.1 describes the entry |
+| The hanger table's CSV export, and recording a sizing as an analysis run | Not built (increment 3; recording awaits the joint analysis-run design) |
 | The desktop request form, hanger table, detail view and application of a selection | Not built (increment 3) |
 | Sizing on the exact pressure route | Not built (increment 4); a request on that route is refused (`HANGER_SIZING_EXACT_ROUTE_PENDING`) |
 | A variable spring carrying its cold load in the model's own solve (preload) | Decided, not built (increment 6) |
@@ -115,9 +116,9 @@ verification pass, and, once increment 6 is built, in the model's own solve.
 **This is an assumption.** Practice also sets springs at a settled cold position or with
 an erection offset. SWBPIPE offers neither. Where the cold-condition position u_C is not
 zero, the installed setting F_cold and the cold-condition load F_C differ. The engine
-returns both, and only F_cold is a setting. Stating the assumption in the published
-basis, and labelling the two loads in the hanger table, are planned publication
-behaviour (slice 1d).
+returns both, and only F_cold is a setting. The published result states the
+assumption in its basis statement (slice 1d-α). Labelling the two loads in the
+displayed hanger table comes with the desktop work (increment 3).
 
 ## The method
 
@@ -253,8 +254,8 @@ The verification returns:
   formed;
 - the departure from W: F_D^v − W under hot design, F_C^v − W under cold design.
 
-The engine returns each test that the verified values fail, by name. Publishing these
-as named warnings is planned publication behaviour (slice 1d). No selection is changed
+The engine returns each test that the verified values fail, by name. The published
+result lists them in each candidate's `verification.failed_tests` (slice 1d-α). No selection is changed
 automatically, because no convergence rule for re-sizing is offered. When any
 candidate has no fit, the verification is marked **conditional**. It assumed a
 force W at that candidate, and applying the selected records alone does not
