@@ -2263,10 +2263,16 @@ that production source/pricing logic still matches `3c3e976075` and every one
 of the thirteen reviewed-input hashes matches the selected candidate. The
 maintained generator reproduces the approved full file byte for byte. Native
 law and challenge phase records derive from the reviewed 80 native evaluations.
+The combined-source replay at `0d70dca9e` completes all four points with
+O-10 clear and reproduces all 1,602 coefficients unchanged and the approved
+generated block. The 71 native law tests and default native challenge pass
+on the approved profile. Retained producer/derivative/RV120 writers regenerate
+the current carriers; all 56 preservation cases pass, including independent
+materialization of RV120's result-statement digests and unchanged invocations.
 M, its margin, R, reserve policy and layouts are unchanged; any additional
-coefficient movement requires separate disposition. Native laws/challenge,
-retained carrier regeneration, separately scheduled stack evidence and
-exact-head hosted checks remain outstanding. Approval supplies no exclusive
+coefficient movement requires separate disposition. The final consumer tests,
+separately scheduled stack evidence and exact-head hosted checks remain
+outstanding. Approval supplies no exclusive
 window, acceptance or release authority.
 
 ## 9. Memory-profile gates and registration

@@ -515,7 +515,10 @@ the current files. Frozen numerical references and recorded 0.7/0.8 model
 runs are preserved verbatim. The new stage excludes model/request/input-manifest
 hashes and input-scoped digest records from its hash allowance and preserves
 the digest encoding. Independent carrier scrutiny also checks source-input
-hashes across the generated outputs.
+hashes across the generated outputs. RV120's `input_sha256` is explicitly a
+digest of its materialized result statement and invocation, not an authored
+model hash: that fixture's exact shape field is re-derived and checked at both
+comparison endpoints, with the authored invocations required unchanged.
 
 **Next boundary.** Agent 0's adopted sequence is concentric 2a, bounded
 eccentric 2b, then constant effort. RS-R1 remains eccentric and pending 2b;

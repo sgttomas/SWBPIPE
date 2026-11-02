@@ -2591,8 +2591,8 @@ fn b3b_witness_inputs_and_routes() {
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100", "8547e37f7b65c54138fdf308684c810bd8774a750e6f1fad37c87f1d41bb48bf", "e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3"),
-    ("dense_scrutiny", "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3", "9b29ea2a8d88e794579a1ba08729adfb47073efc76cb67a629942d3ef93209cd", "6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579"),
+    ("sparse_interactive", "b3fd74047dc916df2a6e9749c27715b46f24764806df747ecc3548e20421ccc3", "4a9ee57606e5dcf7cc2f6b11184e94444dc8db80c4cf5af3ba3b9c21954d9a83", "cdf1a3e06507b7aa0954a271518c09668a0d105214d3a25aed55a1cc873f8d88"),
+    ("dense_scrutiny", "c05b284caa27ff2b3b24c74a5e2e330a4ee611688861a3b5835550d8741228b4", "2b552ab54c8fcc971188aa5f79be969337c55c4c86ccced5720163c626df16cf", "be545e4c29b4ccfdf1fdc104412b7ec981eb903cd3e2861b078782346ed5a92b"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
