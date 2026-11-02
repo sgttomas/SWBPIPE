@@ -2597,8 +2597,10 @@ as CQ-17-01-016. Both are drafts for the owner to send.
       scope. Before implementation it needs independent persistence scrutiny and explicit
       backwards compatibility and refusals: formats 2–4 unchanged, and a stated outcome for a
       format-4-only importer that meets format 5. There is no silent product-schema bump.
-      §20.4.5 states how a generated row is proved: against a source associated with the
-      export independently of the sidecar, never by the sidecar's self-consistency alone.
+      §20.4.5 states how a generated row is proved: against a source the user explicitly
+      designates, never by the sidecar's self-consistency alone. It also states exactly what
+      the refusal of a forged or mismatched sidecar covers (**What "no forged sidecar
+      acceptance" covers**).
     - **Release limitation.** Varying α and cold-modulus files go to the criterion 3 list,
       with the owner's acceptance pending. No acceptance is inferred. The proposed entry is in
       §20.4.10, for the implementation PR.
@@ -2638,6 +2640,34 @@ as CQ-17-01-016. Both are drafts for the owner to send.
       into the planned G-2 register-change PR. §20.4 stays blocked on that evidence until the
       exact expansion passes independent IP review and the applicable adoption authority.
       Historical use does not establish that a statement was within the registered boundary.
+  - *Source association (Agent 0, 2026-11-02, after reading `f3d08f015` and its independent
+    re-review; paraphrase).*
+    - **The digest verifies, never selects.** The rule is correct.
+    - **Explicit user designation is approved as the initial bound-import route.** The user
+      designates the source independently, before the digest and content checks. A mismatch,
+      or no association, is refused. The relabel-residual withdrawal and the G-2 block stay.
+    - **The trusted export ledger (store v14) is not adopted.** It is eligible only for a
+      separate design review, and this Design grants no persistence, schema or retention
+      authority. Turning unsaved text into a `handoff_basis` state is a new write, consent and
+      storage effect, not automatically equivalent to Record Run's authority. The exact design
+      and its old and new commitments go to independent review and Agent 0's adoption before
+      any migration or command; there is no current shared-store grant. §20.4.5 lists what that
+      design must establish.
+    - **Retention (Open 1).** Indefinite retention or non-deletion is not adopted by analogy.
+      The designation route keeps no export record. Current deletion behaviour is preserved,
+      and restricting an existing authorized delete path needs exact review.
+    - **Source-free exports (Open 2)** may remain offered if otherwise eligible. The complete
+      review clearly notices that a later bound import requires independent source designation
+      and access to the exact source, and that no automatic round trip is promised. The
+      existing format and export authority are preserved, with no unstated source persistence.
+    - **No digest-lookup fallback (Open 3).** Until a separate ledger design and implementation
+      is adopted, imports with points require designation.
+    - **Point-free materials (Open 4)** are not approved just because they have no points. The
+      exact format-5 fields and what they restore are reviewed; if format 5 restores thermal,
+      reference or selection metadata beyond format 4's consistency level, designation is
+      required for that too, or the path stays refused. Points were the minimum mandatory
+      guard, not a waiver for other metadata. §20.4.5 (**Point-free materials**) gives the
+      analysis and the rule chosen.
 - **O-4.** How CAEPIPE-exported MBFs are produced for §18.3: by hand by the owner, or by a
   guest automation step.
 - **O-6 (open, not adopted).** Binding the sidecar's digest into the MBF, so that a
@@ -2680,10 +2710,10 @@ tranche, in priority order, each with its writer counterpart where one is missin
      under decision 3's conditions (§20.4.2 e). Derived MATERIAL rows at a member's T1 are
      admitted only exactly (option (a), Agent 0, 2026-11-02), and remain conditional on G-4.
    - **Imports.** Bound imports restore the group's inputs exactly through sidecar format 5.
-     Every bound import with temperature-point materials needs a source associated with the
-     export independently of the sidecar and verified by hash and content; otherwise it is
+     Every bound format-5 import needs a source the user explicitly designates, verified by hash
+     and then by content, whether or not any material has temperature points; otherwise it is
      refused, and a derived row is stripped only when that source proves it generated (§20.4.4,
-     §20.4.5). Unbound imports keep refusing a
+     §20.4.5). The sidecar's digest never selects the source. Unbound imports keep refusing a
      temperature-dependent MATERIAL (§7.1).
    - **What it waits on.** The implementation waits on G-1 (the hot-modulus field) and G-4 (proof
      that the target uses the exact supplied T1 row), §20.4.9. CQ-17-01-016 stays open. A
@@ -2789,8 +2819,10 @@ format 5 (§20.4.5).
   which Agent 0 chose; they remain conditional on G-4, which stays open, as does CQ-17-01-016.
   Sidecar format 5 must bind source and export bytes, identities and derivation provenance.
   Every bound format-5 import with temperature-point materials is admitted only against a
-  source associated with the export independently of the sidecar, and verified by hash and
-  content (§20.4.4, §20.4.5; Agent 0, 2026-11-02, paraphrase). Varying α and
+  source the user explicitly designates, verified by hash and then by content; the sidecar's
+  source digest verifies that source and never selects it (§20.4.4, §20.4.5; Agent 0,
+  2026-11-02, paraphrase). §20.4.5 extends the same requirement to point-free materials
+  (**Point-free materials**). The trusted export ledger is proposed, not adopted. Varying α and
   cold-modulus files go to the criterion 3 list with the owner's acceptance pending (§20.4.10).
   Source consultation for G-1 and G-4 stays within each registered row's current boundary
   (§20.4.9).
@@ -3189,8 +3221,8 @@ Any refusal refuses the whole file, as today (§17).
 | `MBF-SI-SHEAR-MODULUS-NOT-EXPORTED` | existing (omitted) | a point carrying `shear_modulus`, which the selector ignores (`resolve.rs:991`) and the MBF cannot carry |
 | `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED` | new (importer) | a Route 1 file whose OPTEMP modulus field does not select the hot modulus. The writer never writes the cold modulus. On the writer side, a selection at T_ref in a member whose T1 differs is a mismatch |
 | `MBF-IMPORT-REFERENCE-STATE-UNBOUND` | new (importer) | a format-5 sidecar on the rebind route (`rebind_by_node_number`), where the regeneration identity does not run |
-| `MBF-IMPORT-SOURCE-UNASSOCIATED` | new (importer; design code) | a bound format-5 import in which any material has temperature points, with no source associated with the export independently of the sidecar: no export record matches the presented MBF and sidecar digests and the caller designated no source, or a matching record fails its re-verification on read (§20.4.5, **The associated source**). Names the presented digests, or the record. Nothing is restored or stripped |
-| `MBF-IMPORT-SOURCE-MISMATCH` | new (importer) | an associated source whose canonical SHA-256 differs from the sidecar's `source_model_sha256`, or whose own format-5 sidecar for the presented MBF digest differs from the presented sidecar (§20.4.4, **Source proof**). Names the first differing field; for a row, the row and both classifications |
+| `MBF-IMPORT-SOURCE-UNASSOCIATED` | new (importer; design code) | a bound format-5 import for which the caller explicitly designated no source, whether or not any material has temperature points (§20.4.5, **The designated source** and **Point-free materials**). The importer never finds a source by the sidecar's digest or any other sidecar field, and there is no fallback. Names the presented MBF and sidecar digests. Nothing is restored or stripped |
+| `MBF-IMPORT-SOURCE-MISMATCH` | new (importer) | a designated source whose canonical SHA-256 differs from the sidecar's `source_model_sha256` (check 1), or whose own format-5 sidecar for the presented MBF digest differs from the presented sidecar (check 2; §20.4.4, **Source proof**). Names the first differing field; for a row, the row and both classifications |
 | `MBF-IMPORT-DERIVED-ROW-UNPROVED` | new (importer) | a MATERIAL row that the format-5 sidecar marks as generated, but whose generation §20.4.4 does not prove: any of stripping conditions 2 to 7 fails after the source proof has passed. Names the material and row. The row is never stripped, and the import is refused |
 | `MBF-IMPORT-SIDECAR-INVALID` | existing (importer) | a format-5 sidecar given to an importer that reads formats 2 to 4 only. Its parser refuses `sidecar_format` 5 before binding (`importer.py:1176-1179`, `:1661-1665`), so the import neither binds nor falls back to an unbound reading (§20.4.5) |
 | `MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT` | existing (importer) | unbound: unchanged (§20.4.4) |
@@ -3209,14 +3241,15 @@ What comes from the MBF (MBF-determined, checked):
 - E per row, the constant α and ν, from MATERIAL;
 - the hot-modulus field, from OPTEMP.
 
-**Source proof: required for every material with points.** A bound format-5 import in which any
-material has temperature points is admitted only against a source S associated with this
-export independently of the sidecar (§20.4.5, **The associated source**): the state named by an
-export record that matches the presented MBF and sidecar digests, or a source the caller
-designates. Without one, the import is refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`. The sidecar's
-`source_model_sha256` only verifies S; it never selects S. Before any identity is restored or any
-row stripped, S must pass both of these checks, which are the same for a recorded and a
-designated source:
+**Source proof: required for every bound format-5 import.** A bound format-5 import is admitted
+only against a source S that the user explicitly designates, independently of the sidecar and
+before any check (§20.4.5, **The designated source**): a saved state the user chooses or a model
+document the user supplies. Without a designation, the import is refused,
+`MBF-IMPORT-SOURCE-UNASSOCIATED`. The sidecar's `source_model_sha256` only verifies S; it never
+selects S, and the importer has no lookup by it. Agent 0's ruling requires this wherever a
+material has temperature points; §20.4.5 (**Point-free materials**) shows why it is required for
+point-free materials too. Before any identity is restored or any row stripped, S must pass both
+of these checks, in this order:
 
 1. **Hash.** S's canonical SHA-256, computed from S's own text, equals the sidecar's
    `source_model_sha256`. A source that differs is `MBF-IMPORT-SOURCE-MISMATCH`.
@@ -3232,14 +3265,12 @@ designated source:
 Both checks run whether or not any row is marked generated. A sidecar that marks an authored row
 as generated, relabels a generated row as a point, or changes an authored identity, order or
 provenance therefore differs from S's own sidecar and is refused (§20.4.6, examples 8b and 8c).
-Example 8d shows why S is associated independently and never found by the sidecar's digest.
-These are the checks that establish **source authenticity**. Consistency between the sidecar,
-the MBF and the restored model (the stripping conditions and the regeneration identity below) does
-not, and neither does the self-digest, which anyone who edits a sidecar can recompute.
-
-A Route 1 export whose materials are all point-free carries no point identities, point order or
-row classification. Its bound import needs no source, as Agent 0's ruling is drawn, and its
-report lists the recorded source digest as unverified provenance (§20.4.5).
+So does a sidecar that changes a point-free export's reference-state metadata (example 9).
+Example 8d shows why S is designated independently and never found by the sidecar's digest.
+These are the checks that establish **source authenticity**, relative to the designated S.
+Consistency between the sidecar, the MBF and the restored model (the stripping conditions and
+the regeneration identity below) does not, and neither does the self-digest, which anyone who
+edits a sidecar can recompute.
 
 What the import restores:
 
@@ -3274,14 +3305,14 @@ What the import restores:
   restored model; any difference is `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`. These establish
   **consistency** only. A sidecar that drops an authored point's identity and calls its row
   derived can satisfy conditions 2 to 7 and still reproduce (§20.4.6, example 8). Condition 1,
-  the source proof, is what refuses it: only the associated source shows which rows were
+  the source proof, is what refuses it: only the designated source shows which rows were
   authored.
 
-  **Consequence.** A bound import of a Route 1 model with temperature-point materials is refused
-  wherever no associated source is available, whether or not any row is marked generated. That
-  includes an import on another machine, unless the user supplies the source there (§20.4.5,
-  **Cross-machine imports**). Only a Route 1 model whose materials are all point-free imports
-  bound without a source.
+  **Consequence.** A bound import of a Route 1 model is refused wherever the user designates no
+  source, whether or not any row is marked generated and whether or not any material has
+  points. That includes an import on another machine, unless the user supplies the source there
+  (§20.4.5, **Cross-machine imports**). Without its source, a Route 1 MBF whose materials all have
+  a single E still imports unbound, with the group listed as lost (**Unbound**, below).
 - **Thermal states,** by the recorded kind:
   - `constant_alpha_interval`: coefficient α, ΔT = T1 − T_ref;
   - `free_length_state`: the law id, `operating_temperature` T1;
@@ -3393,9 +3424,9 @@ The writer records **format 5** only for a Route 1 export. It is format 4 plus t
   - `source_model_sha256` is the SHA-256, as 64 lowercase hex digits, of the RFC 8785 (JCS)
     canonical text of the model document the writer read. That is the serialization the
     self-digest already uses (`sidecar_canonical_bytes`, `si_writer.py:281-290`), and the text
-    the desktop hashes as a document's model hash (below), so an associated source can be
-    checked against it whatever bytes it was read from. The digest verifies a source; it is
-    never used to find one (below, **The associated source**).
+    the desktop hashes as a document's model hash, so a designated source can be checked
+    against it whatever bytes it was read from. The digest verifies a source; it is never used
+    to find one (below, **The designated source**).
   - `selection_semantics` is the fixed name `swbpipe_case_state_selection_binary64_v1`. It
     stands for the solver's selection as §20.4.2 (e) cites it. A later change to those semantics
     changes the name, and a sidecar naming other semantics is refused
@@ -3408,7 +3439,7 @@ The import reads every value from the MBF. It then verifies that each copy equal
 it copies, and that the regenerated derived rows equal the MBF's rows (§20.4.4). A copy that
 differs is `MBF-IMPORT-SIDECAR-CONFLICT`. The copies let the regeneration identity compare row
 provenance with values, so that a relabelled row is refused. The absence of numerical authority
-is not by itself the reversibility proof. The proof is the associated source's verification
+is not by itself the reversibility proof. The proof is the designated source's verification
 below and in §20.4.4 (**Source proof**), the proven stripping of §20.4.4 and the regeneration
 identity; the last establishes consistency only. The every-field-required rule, the self-digest and the
 parser of §15 apply unchanged.
@@ -3428,132 +3459,159 @@ parser of §15 apply unchanged.
   the sidecar describes the model that was exported.
 - **Source bytes: authenticity.** The restored model is not byte-equal to the source, because
   units are respelled, so `source_model_sha256` cannot be regenerated. Authenticity comes only
-  from a source associated with the export independently of the sidecar (below). Its canonical
-  SHA-256 must equal the recorded digest, and its own format-5 sidecar must equal the presented
-  one (§20.4.4, **Source proof**); `MBF-IMPORT-SOURCE-MISMATCH` otherwise. The import then
-  compares the restored model with the source under §20.4.4. Where any material has
-  temperature points and no source is associated, the import is refused,
-  `MBF-IMPORT-SOURCE-UNASSOCIATED`, whatever the sidecar marks. Only an import whose materials
-  are all point-free proceeds without a source, with the recorded digest reported as unverified
-  provenance.
+  from a source the user explicitly designates (below). Its canonical SHA-256 must equal the
+  recorded digest, and its own format-5 sidecar must equal the presented one (§20.4.4,
+  **Source proof**); `MBF-IMPORT-SOURCE-MISMATCH` otherwise. The import then compares the
+  restored model with the source under §20.4.4. A bound format-5 import with no designated
+  source is refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`, whatever the sidecar marks and whether
+  or not any material has points (below, **Point-free materials**).
 
-**The associated source.** The source S must be identified as the source of this export
-independently of the sidecar. The sidecar's `source_model_sha256` verifies S (§20.4.4, **Source
-proof**, check 1); it never selects S, and the importer never searches a store or a folder by it.
+**The designated source: the only adopted association.** Agent 0 approved explicit user
+designation as the initial bound-import route (2026-11-02; paraphrase in O-7). The source S is
+associated with the export by the user's explicit designation, made independently of the
+sidecar. The steps run in this order:
+
+1. **Designation, before any check.** The caller designates S:
+   - in the desktop, a saved state the user chooses from a project's state list, read and
+     re-hashed by `read_state_for_in_store_with` (`model_states.rs:2377`), which refuses a
+     snapshot whose stored text no longer matches its hash (`:2438-2443`); or a model document
+     the user supplies, through the Open Model Document route's checks (desktop design §4.1);
+   - in the headless importer, its source-document parameter, as the round-trip tests use it.
+
+   The state list is shown as it is today. It is not filtered, ranked, preselected or annotated
+   by `source_model_sha256` or by any other sidecar field. A document lying beside the MBF, or
+   a copy carried inside the sidecar, is a source only when the user names it.
+2. **Hash.** Check 1 of §20.4.4's source proof: S's canonical SHA-256, computed from S's own
+   text, equals the sidecar's `source_model_sha256`.
+3. **Content.** Check 2: S's own format-5 sidecar for the presented MBF digest equals the
+   presented sidecar in every field, and S's rows equal the MBF's.
+
+A designated source that fails either check is `MBF-IMPORT-SOURCE-MISMATCH`. An import with no
+designation is `MBF-IMPORT-SOURCE-UNASSOCIATED`. Either way nothing is restored or stripped, and
+the import does not fall back to any other association. The importer never searches a store, a
+project or a folder by the sidecar's digest: it has no digest lookup. The import review names the
+designated source and how it was designated. Nothing else is a source: not the session's
+restored document, not a state found by the sidecar's digest, not a file found beside the MBF
+and not a copy carried inside the sidecar.
 
 *Why the digest must not select.* One project holds saved state A, EX-A's three points, and saved
 state B, the same table plus a redundant authored point at 175 °C (§20.4.6, example 8). Both write
 the same MBF bytes. The user exports B. An attacker substitutes a sidecar regenerated from A,
 which the writer forms deterministically from A even if A was never exported. A lookup by the
 digest would find genuine A, every check would agree with the substituted sidecar and the MBF,
-and B's authored point would be stripped. The association therefore comes from a record of the
-export itself, or from the caller, never from the sidecar. Two associations qualify:
+and B's authored point would be stripped. The association therefore comes from the user, never
+from the sidecar (example 8d).
 
-- **(i) A trusted export record (desktop; new persistence).**
-  - *What exists today.* No record associates an MBF export with its source. Export MBF is
-    given the session's canonical text and its claimed hash, not a project or a saved state
-    (`MbfExportRequest`, `apps/desktop/src-tauri/src/mbf_export.rs:180-193`). It admits that
-    text as its own canonical form with that hash (`model_document_save.rs:259-282`), writes
-    two files under a file-level rollback, and opens the store only for library reads
-    (`mbf_export.rs:1266-1305`, `:1394-1410`). It writes nothing to the store, and its
-    production entry refuses every request as not connected (`mbf_export.rs:1415-1438`), so no
-    existing export would lack a record. The store's migrations (`lib.rs:659-819`; v12
-    `model_states`, `model_states.rs:51-79`; v13 `analysis_runs`, `analysis_runs.rs:60-89`)
-    hold projects, libraries, states and runs, not exports. Report-package and handoff saves
-    write files only. The exported text may be unsaved: a state exists for it only if the user
-    saved one.
-  - *The record.* A new store table (store v14), one row per successful format-5 export with
-    temperature-point materials, holding the project id, the saved state id, the
-    `source_model_sha256`, the MBF's SHA-256, the sidecar's SHA-256, `created_at` and a record
-    hash over those fields. It is append-only, on the pattern of v12 and v13
-    (`model_states.rs:51-79`, `analysis_runs.rs:60-89`): one trigger refuses any `UPDATE`, and
-    another refuses an `INSERT` that meets an existing record's key, before conflict
-    resolution. The state is referenced by a `NO ACTION` foreign key, so a state with export
-    records cannot be deleted, as recorded runs already block it (`analysis_runs.rs:66-69`;
-    the refusal at `model_states.rs:2672-2690` gains the reason). Deleting the project cascades
-    to its records. The store target moves from 13 to 14 (`lib.rs:639`), so an older build
-    refuses the store by name (`STORE-SCHEMA-NEWER`, `lib.rs:860-869`).
-  - *The source is an immutable state.* The export reads the session's text, which may be
-    unsaved, so the save makes that text a state first, as Record Run does for a solved model
-    (`analysis_runs.rs:26-28`, `:1744-1760`). If the project already holds a state with the
-    admitted text's hash, which the desktop computes from that text, the record names it
-    (`state_with_model_hash`, `model_states.rs:2106-2145`). Otherwise the save writes a new
-    immutable state of that text (`insert_new_state`, `model_states.rs:2148-2160`), of kind
-    `handoff_basis`, with labels the user names in the export dialog. The admitted text is kept
-    until then; today it is released after the worker run (`mbf_export.rs:1324`). A session
-    whose project has no stored row has no store to record in. Its export is still written, its
-    receipt states that no export record was kept, and a later bound import needs the caller's
-    designation (ii).
-  - *Where it is written, and failure.* After the read-back of both files succeeds (§3.6 step
-    9 of the desktop design; `write_pair`, `mbf_export.rs:1169`) and before the backups are
-    removed, one `BEGIN IMMEDIATE` transaction checks the project row as Save Model State does
-    (`model_states.rs:26-30`), writes the state if absent, inserts the record and commits. No
-    write lock is held over the chooser, and no record is written before its files are read
-    back. If the transaction fails, step 8's rollback undoes the file save (written files
-    removed, backups renamed back) and the export is refused by a new named code
-    (`MBF-EXPORT-RECORD-FAILED`), so no format-5 pair with point materials is left without its
-    record. A rollback that cannot complete is reported as today
-    (`MBF-EXPORT-ROLLBACK-INCOMPLETE`). A crash between the read-back and the commit leaves
-    files without a record. That fails closed: their bound import is refused unless the caller
-    designates a source.
-  - *How the import reads it.* The desktop computes the SHA-256 of the MBF and sidecar bytes it
-    read (`open_mbf_file`, desktop design §4.1 step 2) and looks up the records whose MBF and
-    sidecar digests both equal them. These are digests of the presented bytes, computed by the
-    desktop, not claims read from the sidecar. The lookup covers the whole store, because an
-    import forms a new unsaved project (desktop design §4.1 step 5, §4.4). Every matching record is
-    re-verified on read: its record hash; its state, read by `read_state_for_in_store_with`
-    (`model_states.rs:2377`), which re-hashes the stored text and refuses a snapshot that does
-    not match (`:2438-2443`); and the state's hash equal to the record's `source_model_sha256`.
-    A record that fails is `MBF-IMPORT-SOURCE-UNASSOCIATED`, naming it, and the import does not
-    fall back to another association. S is the state's text, and §20.4.4's source proof then
-    runs on it. Records that match one presented pair all carry the same source digest, because
-    the sidecar bytes contain it, so they name states with identical text.
-  - *Several exports with one MBF.* States A and B can write identical MBF bytes with different
-    sidecars, and each export has its own record. The import is admitted only for the record
-    whose sidecar digest equals the presented sidecar's, and restores that record's state. That
-    is a faithful round trip of that export, not a substitution. The MBF bytes cannot tell the
-    two exports apart; the identity file is what distinguishes them, and a recorded pair is a
-    pair the desktop wrote from that state. Every identity, point and classification restored
-    is that state's own, read from the user's store, and only rows that state's own export
-    generated are stripped. The reviewer's counterexample needs a sidecar regenerated from A but never
-    exported; it has no record and is refused (example 8d). Because the user may have meant
-    another export, the import review names the state used and lists the other recorded exports
-    that share the MBF digest.
-- **(ii) A source the caller designates.** Where no record matches: another machine, a session
-  with no stored project, or the headless importer. The caller explicitly designates S: a saved
-  state chosen from a project's state list, read and re-hashed by
-  `read_state_for_in_store_with`, or a model document the user supplies (the headless
-  importer's parameter, as the round-trip tests use; in the desktop, through the Open Model
-  Document route's checks, desktop design §4.1). The designation is the association, and
-  §20.4.4's two checks verify it, exactly as for a recorded source. The importer never looks
-  for a source by the sidecar's digest. A document lying beside the MBF, or a copy carried
-  inside the sidecar, is a source only when the caller names it.
-- **Cross-machine imports.** A bound import of such an export on another machine requires the
-  user to supply S there: a model document of the exported state (for example, one saved with
-  Save Model Document and carried with the MBF), or a saved state of that text in the receiving
-  store. Without it, the bound import is refused (`MBF-IMPORT-SOURCE-UNASSOCIATED`). The MBF
-  without its sidecar still imports unbound (§20.4.4, **Unbound**).
+*What designation establishes, and what it does not.* With both checks passed, every field of
+the presented sidecar is the designated source's own, and the MBF bytes are those its export
+writes (`mbf_sha256` is one of those fields). The import therefore restores that source's own
+identities, order, classifications, provenance and reference-state metadata, and strips only
+the rows that source's own export generates. Designation decides *which* source; the checks
+verify only that the pair is that source's export content. They do not show that the pair was
+exported from that source rather than from another with the same canonical text, which is the
+same model. A sidecar that the writer forms from the designated source is accepted whether or
+not that source was ever exported. In each case what is restored is exactly the designated
+source.
 
-The import review names the source used and how it was associated. Nothing else is a source:
-not the session's restored document, not a state found by the sidecar's digest, not a file found
-beside the MBF and not a copy carried inside the sidecar.
+- **Cross-machine imports.** A bound import of a Route 1 export on another machine requires the
+  user to supply the exact S there: a model document of the exported text (for example, one
+  saved with Save Model Document and carried with the MBF), or a saved state of that text in
+  the receiving store. Without it, the bound import is refused
+  (`MBF-IMPORT-SOURCE-UNASSOCIATED`). The MBF without its sidecar still imports unbound
+  (§20.4.4, **Unbound**).
 
-**Persistence.** (i) is new persistence: a store table, a migration to store v14, a change to
-Export MBF's save and to state deletion. Tests that use v14 as a newer store's version (for
-example `model_states.rs:3411`) move with it. It is not part of the writer's or importer's format-5
-PR. It needs its own implementation PR with independent persistence and migration scrutiny
-under the local loop's rules. Until that PR lands, a bound import with temperature-point
-materials is admitted only through (ii). Designation (ii) adds no table, column or store.
+**The export review's notice (Agent 0's Open 2, 2026-11-02; paraphrase of the ruling).** Export
+MBF keeps no record of its source (below, **Persistence**), so every Route 1 export is
+source-free in that sense. It may remain offered when it is otherwise eligible. Its complete
+review (desktop design §3.3) states clearly, before Save is offered, that:
+
+- a later bound import of this pair requires the user to designate the exported source,
+  independently of the files;
+- the user must then have access to the exact source: a saved state or a model document whose
+  canonical text is the exported text. Where the exported text is unsaved, keeping it is the
+  user's choice, through the existing Save Model State or Save Model Document commands;
+- no automatic round trip is promised.
+
+The export's format and authority are unchanged: it writes the MBF and its sidecar and persists
+nothing about its source. The notice is desktop work, among the export review's Route 1 entries.
+
+**Point-free materials (Agent 0's Open 4, 2026-11-02; the ruling paraphrased, the analysis
+here).**
+
+- **What format 4 carries, at its existing assurance.** §15 lists the format-4 fields:
+  `node_map`, `element_map`, `support_map`, `load_case_map`, `material_map` (a material's
+  `swbpipe_material` id and `origin`), `section_map`, `load_map`, `pressure_map`, `mbf_sha256`
+  and `sidecar_sha256`. A bound format-2, -3 or -4 import restores from them what the MBF does
+  not carry (§15, **Bound**), under §15's checks against the MBF and the regeneration
+  identity, and consults no source. §14 (**Consistent edits**) lists the values that pass from
+  the model to the sidecar unchanged, so that a consistent, re-digested edit of one is accepted:
+  ids (format 4's section ids included), `reversed`, an authored `y_reference` or `family`, a
+  recorded `origin`, a thermal direction, the shear model of a contract, region ids, and
+  closure transfers with their provenance. Those fields remain at format 4's adopted
+  consistency-only assurance (O-6). This Design leaves that unchanged for every format-2, -3 and
+  -4 import.
+- **What format 5 adds, point-free materials included.** A point-free material's `material_map`
+  entry is format 4's. But every format-5 sidecar carries `reference_state_map` and
+  `derivation`, whatever its materials, and a bound format-5 import restores from
+  `reference_state_map` meaning that no format-4 import restores (§20.4.4, **What the import
+  restores**; a format-4 or unbound reading gives thermal primitives only, **Unbound**):
+  - *reference metadata:* the configuration's id, label and provenance, each member reference's
+    provenance, and with them the reference configuration itself (installation temperature T_ref,
+    basis `temperature_reference`, fit `none`);
+  - *thermal metadata:* each member's thermal-state kind and `thermal_provenance`, a
+    `free_length_state`'s law, the laws' ids and provenance, and
+    `operating_temperature_authored`;
+  - *selection metadata:* each member's selection kind, an `explicit_base_properties`
+    selection's `applicability_reference` text, and an `override`'s reason and provenance;
+  - each case's `role`, `provenance`, `ledger` order and `supports` order.
+- **Counterexample: consistency alone admits a mutation.** §20.4.6, example 9: a point-free
+  export whose sidecar is edited to change a member's thermal kind, add a law, change an
+  `applicability_reference` text and change the configuration's id and provenance, with the
+  self-digest recomputed and the MBF unchanged. The restored model regenerates the edited
+  sidecar exactly, and its strain agrees with the original's within §20.4.4's bound, so the
+  regeneration identity and every numerical check pass. Point-free format 5 therefore restores
+  thermal, reference and selection metadata beyond format 4's consistency level, and the
+  distinction is resolved against an exemption.
+- **The rule.** Every bound format-5 import requires a designated source that passes both
+  checks, whether or not any material has temperature points. Points remain the minimum
+  mandatory guard of Agent 0's earlier ruling; this rule waives no other metadata. Refusing
+  point-free bound format-5 imports outright was the alternative; designation is chosen because
+  check 2 verifies every field. Without its source, a point-free Route 1 MBF still imports
+  unbound as an ordinary model, the group listed as lost.
+- **Why designation suffices.** The import restores only from the MBF and the sidecar. Check 2
+  makes the sidecar equal, field for field, the one the writer forms from S, and that sidecar
+  binds the MBF bytes through `mbf_sha256`. Every restored identity and item of metadata is
+  therefore S's own, the format-4 maps inside a format-5 sidecar included. The stripping
+  conditions and the regeneration identity then run as consistency checks on top. The
+  assurance is relative to S, and S is the user's designation (above).
+
+**What "no forged sidecar acceptance" covers.** The binding requirement's "no ...
+forged/mismatched sidecar acceptance" is met here in this exact sense: no bound format-5 import
+accepts a sidecar unless it equals, in every field, the sidecar the writer forms from the source
+the user designated, and that source's canonical SHA-256 equals the sidecar's
+`source_model_sha256`. It does not cover:
+
+- format-2, -3 and -4 sidecars, which keep format 4's consistency-only assurance (above);
+- the choice of source: a sidecar the writer forms from the designated source is accepted
+  whether or not that source was exported (above, *What designation establishes*);
+- an MBF imported without its sidecar, which is unbound and forms no group.
+
+**Persistence: the adopted design adds no store.** Designation reads an existing saved state
+through an existing read, or a document the user supplies. It adds no table, column, migration,
+state or file, and it changes no deletion or retention behaviour. Export MBF writes its two
+files as the desktop design gives them (desktop design §3.6) and nothing else. This Design grants
+no schema, persistence or retention authority. The export ledger at the end of this subsection
+is a proposal outside the adopted design.
 
 - **No residual acceptance.** Agent 0 ruled that every bound format-5 import containing
-  temperature-point materials requires a verified source (2026-11-02; paraphrase). No sidecar is
-  admitted on its own word: one that marks an authored row as generated, one that relabels a
-  generated row as a point (example 8c), and one that changes authored identities, order or
-  provenance are each refused, by the source proof when a source is associated and by
-  `MBF-IMPORT-SOURCE-UNASSOCIATED` when none is. The earlier residual, an added point imported
-  with the source digest reported as unverified, is withdrawn. Point-free materials carry no
-  point identities, order or row classification; such an import keeps format 4's consistency
-  level for its other identities (O-6).
+  temperature-point materials requires a verified source (2026-11-02; paraphrase), and approved
+  explicit designation as the route. No sidecar is admitted on its own word: one that marks an
+  authored row as generated, one that relabels a generated row as a point (example 8c), and one
+  that changes authored identities, order or provenance are each refused, by the source proof
+  when a source is designated and by `MBF-IMPORT-SOURCE-UNASSOCIATED` when none is. The earlier
+  residual, an added point imported with the source digest reported as unverified, is
+  withdrawn. Point-free materials need a designated source too (above, **Point-free
+  materials**).
 
 **Backwards compatibility and refusals (required before implementation).**
 
@@ -3578,8 +3636,9 @@ materials is admitted only through (ii). Designation (ii) adds no table, column 
   explicitly.
 - **Scrutiny.** Format 5 changes persistence. Its implementation PR takes an independent
   persistence review of the exact format, these refusals and the compatibility tests, under
-  the local loop's rules for persistence changes. The export record of (i) is a separate store
-  change with its own PR and scrutiny (above, **Persistence**).
+  the local loop's rules for persistence changes. The export ledger is not part of the adopted
+  design; any ledger needs its own separate design review (below, **Proposed, not adopted,
+  unimplemented**).
 
 **Where provenance lives.** The **ledger** is in the MBF's case membership (`CAEPIPE-LOAD-CASES`)
 and in `load_map` and `reference_state_map.cases[].ledger`. **Temperatures:** T_ref is in
@@ -3596,6 +3655,81 @@ selected E and its source (point or derived), α, and the strain α(T1 − T_ref
 report gains the same block. The export review (desktop design §3.3) can show it; that is
 desktop work, not part of this subsection. The solver's own per-case evidence
 (`resolve.rs:976-1000`) is unchanged.
+
+##### Proposed, not adopted, unimplemented: a trusted export ledger (store v14)
+
+**Status (Agent 0, 2026-11-02; paraphrase).** Not adopted, and not implemented. It is eligible
+only for a separate design review. Nothing here is a requirement on the writer, the importer or
+the desktop. This Design grants no schema, persistence or retention authority, and the adopted
+design still adds no store (above, **Persistence**). The ledger would be substantive new
+persistence: no part of it exists in today's code. Its exact design, and its old and new
+commitments, go to independent review and Agent 0's adoption before any migration or command;
+there is no current shared-store grant. Until such a design and its implementation are adopted,
+every bound format-5 import requires designation, with no digest-lookup fallback.
+
+**Motivation.** Designation asks the user to keep and name the exact source. A record written
+by Export MBF could associate a pair with its source on the same machine without that step.
+
+**What exists today** (facts a ledger would change). No record associates an MBF export with its
+source. Export MBF is given the session's canonical text and its claimed hash, not a project or a
+saved state (`MbfExportRequest`, `apps/desktop/src-tauri/src/mbf_export.rs:180-193`). It admits
+that text as its own canonical form with that hash (`model_document_save.rs:259-282`), writes
+two files under a file-level rollback, and opens the store only for library reads
+(`mbf_export.rs:1266-1305`, `:1394-1410`). It writes nothing to the store, and its production
+entry refuses every request as not connected (`mbf_export.rs:1415-1438`). The store's
+migrations (`lib.rs:659-819`; v12 `model_states`, `model_states.rs:51-79`; v13 `analysis_runs`,
+`analysis_runs.rs:60-89`) hold projects, libraries, states and runs, not exports. Report-package
+and handoff saves write files only. The exported text may be unsaved: a state exists for it only
+if the user saved one. Tests that use v14 as a newer store's version (for example
+`model_states.rs:3411`) would move with any v14 migration.
+
+**The candidate drafted at `f3d08f015` (recorded, not adopted).** A store v14 table with one
+row per format-5 export with temperature-point materials, holding the project id, a saved-state id, `source_model_sha256`, the
+MBF's and the sidecar's SHA-256, `created_at` and a record hash, append-only under v12's and
+v13's trigger pattern. It would be written after the read-back of both files, in one
+`BEGIN IMMEDIATE` transaction that also saved the exported text as a new `handoff_basis` state
+when no state held it, with a new code `MBF-EXPORT-RECORD-FAILED` and the file rollback on
+failure. At import, the desktop would look up records by its own digests of the presented bytes
+and re-verify the named state on read. None of this is adopted. The candidate's claims are the
+open requirements below, not properties.
+
+**Open requirements a separate design must establish (Agent 0, 2026-11-02, with the independent
+re-review at `f3d08f015`; paraphrase).**
+
+1. **An association key** independent of the MBF and sidecar digests, which an attacker
+   controls.
+2. **Two legitimate exports with the same MBF from different states.** *Counterexample (re-review
+   P1).* State A (example 1) and state B (example 8's source) write the same MBF bytes, and the
+   user exports both, so the ledger holds both records. An attacker replaces B's sidecar with A's
+   genuine recorded sidecar. The candidate's lookup matches A's record and restores A, and B's
+   authored point `point:EX-A-175` is removed: a recorded sidecar selects between different
+   authored sources. The candidate's reading of this as a faithful round trip does not hold. The
+   re-review's suggested rule, recorded for that design and not adopted: "When records sharing an
+   MBF digest identify different source-model digests, automatic source association is refused;
+   caller must designate; repeated records of the same source do not create ambiguity."
+3. **Record authenticity and provenance.**
+4. **Matching of the full pair.**
+5. **Project and state selection.** An import forms a new unsaved project (desktop design §4.1
+   step 5, §4.4), so the candidate searched the whole store.
+6. **Atomic filesystem-plus-database failure ordering.**
+7. **Recovery, crash and rollback.** The candidate claimed that a crash between the read-back
+   and the commit fails closed. That holds only where no earlier record matches the same pair.
+   An earlier export of the same pair has a record, and the uncommitted export's files would
+   import through it. The design must state the behaviour in both cases.
+8. **Idempotence and duplicate exports.**
+9. **Orphan-state cleanup.**
+10. **Consent and storage for unsaved text.** Saving unsaved session text as a `handoff_basis`
+    state is a new write, consent and storage effect. It is not automatically equivalent to
+    Record Run's authority (`analysis_runs.rs:26-28`, `:1744-1760`).
+11. **Retention: not decided (Agent 0's Open 1; paraphrase).** Indefinite retention or
+    non-deletion is not adopted by analogy. The candidate would have blocked deleting a state
+    with an export record, with no record-retirement action. That is stronger than the
+    recorded-run precedent: a state's runs block its deletion (`analysis_runs.rs:66-69`;
+    `model_states.rs:2672-2690`), but `delete_analysis_run` removes a run
+    (`analysis_runs.rs:2094-2130`), after which the state can be deleted. A design must specify
+    reference integrity, deletion and refusal behaviour, and its effect on existing user
+    deletion or retirement. Current behaviour is preserved; restricting an existing authorized
+    delete path needs exact review.
 
 #### 20.4.6 Worked examples (invented values)
 
@@ -3630,11 +3764,11 @@ The equivalence:
 | EX-1 | E = 194 GPa; strain 1.1e-5·150/(1 + 1.1e-5·0) = 1.65e-3 | E = 194000 MPa at 175; strain 1.1e-5·(175 − 25) |
 | EX-2 | E = 196 GPa; strain 1.1e-5·125 = 1.375e-3 | E = 196000 MPa at 150; strain 1.1e-5·(150 − 25) |
 
-The bound round trip, with the exported model as the associated source (an export record or the
-caller's designation, §20.4.5), restores 25, 175, 150, 125, the three points and α exactly, drops
-the derived row, and the per-member rule holds. Without an associated source, the import is
-refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`, before anything is restored or stripped. The comparison is equal with no tolerance used
-(only E prints differently, as MPa).
+The bound round trip, with the exported model designated as the source (§20.4.5), restores 25,
+175, 150, 125, the three points and α exactly, drops the derived row, and the per-member rule
+holds. Without a designated source, the import is refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`,
+before anything is restored or stripped. The comparison is equal with no tolerance used (only E
+prints differently, as MPa).
 
 **2. Mismatch.** As example 1, but EX-1 selects `exact_point` `point:EX-A-150`, with an
 `analysis_basis_override` that the solver needs for 150 ≠ 175 (`material.rs:155-157`). The
@@ -3748,36 +3882,56 @@ reproduction of `material.rs:300-326` and the kelvin representatives, with `fma`
 - **Why consistency does not catch it.** Conditions 2 to 7 of §20.4.4 hold: the restored
   three-point model selects exactly 194000000000.0 Pa at 175 degC, and it regenerates the same
   MBF and the same forged sidecar. Stripping would delete an authored point.
-- **8a, no associated source.** Refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`: EX-A has points, no
-  export record matches the presented pair, and the caller designated no source. Nothing is
-  restored and no row is stripped.
-- **8b, the genuine source exists.** The user exported the four-point source, so its
-  export record matches the presented MBF digest, but not the forged sidecar's digest. With the
-  forged sidecar presented, no record matches it: `MBF-IMPORT-SOURCE-UNASSOCIATED`. If the
-  caller designates the genuine source instead, check 1 passes only if the forger kept its
-  digest; check 2 then finds S's own sidecar listing `point:EX-A-175` and classifying the 175 row
-  as a point: `MBF-IMPORT-SOURCE-MISMATCH`, naming the row and both classifications. If the
-  forger changed the digest, check 1 refuses the designated source, `MBF-IMPORT-SOURCE-MISMATCH`.
-  A changed digest is not looked up, so it cannot reach some other stored state.
+- **8a, no designated source.** Refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`: the caller designated
+  no source. Nothing is restored and no row is stripped.
+- **8b, the genuine source designated.** The user designates the four-point source. Check 1
+  passes only if the forger kept its digest; check 2 then finds S's own sidecar listing
+  `point:EX-A-175` and classifying the 175 row as a point: `MBF-IMPORT-SOURCE-MISMATCH`, naming
+  the row and both classifications. If the forger changed the digest, check 1 refuses the
+  designated source, `MBF-IMPORT-SOURCE-MISMATCH`. A changed digest is not looked up, so it
+  cannot reach some other stored state.
 - **8c, the reverse relabelling.** The genuine example 1 sidecar with its 175 derived row
   relabelled as an authored point (a new point id added to `points`), self-digest recomputed.
-  No derived row is marked, but EX-A has points, so the source is still required. With no
-  associated source: `MBF-IMPORT-SOURCE-UNASSOCIATED`. With the example 1 model designated:
+  No derived row is marked, but the source is still required. With no designated source:
+  `MBF-IMPORT-SOURCE-UNASSOCIATED`. With the example 1 model designated:
   `MBF-IMPORT-SOURCE-MISMATCH` at the 175 row, derived in S and a point in the sidecar. It is
   never imported with an added point.
-- **8d, the two-saved-state substitution.** One project holds state A, EX-A's three points with
-  `pipe:EX-1` interpolating at 175 degC (example 1), and state B, example 8's source with
-  `point:EX-A-175`. Both write the same MBF bytes. The user exports B, so the store holds one
-  record: B's state, the MBF digest and B's sidecar digest. A was never exported. The attacker
-  replaces B's sidecar with A's, regenerated from A by the writer; it is genuine in every field
-  and its `source_model_sha256` is A's real digest. A lookup by that digest would find A, and
-  every check against A would pass while B's authored point is stripped. The import does not
-  look it up. No record holds the presented sidecar's digest, and the caller designated nothing:
-  `MBF-IMPORT-SOURCE-UNASSOCIATED`, and nothing is restored or stripped. If the caller designates
-  B, check 1 refuses (A's digest is not B's), `MBF-IMPORT-SOURCE-MISMATCH`. Had the user also
-  exported A, the presented pair would be A's own recorded export: the import would restore A
-  exactly, and its review would name A and list B's export of the same MBF (§20.4.5, **Several
-  exports with one MBF**).
+- **8d, the two-saved-state substitution, refused under designation.** One project holds state
+  A, EX-A's three points with `pipe:EX-1` interpolating at 175 degC (example 1), and state B,
+  example 8's source with `point:EX-A-175`. Both write the same MBF bytes. The user exports B.
+  The attacker replaces B's sidecar with A's, which the writer forms deterministically from A
+  whether or not A was ever exported; it is genuine in every field and its
+  `source_model_sha256` is A's real digest. A lookup by that digest would find A, and every
+  check against A would pass while B's authored point is stripped. The import does no lookup.
+  The user, meaning to restore B, designates B: check 1 refuses, since A's digest is not B's,
+  `MBF-IMPORT-SOURCE-MISMATCH`, and nothing is restored or stripped. With no designation:
+  `MBF-IMPORT-SOURCE-UNASSOCIATED`. If the user designates A instead, the import restores A
+  exactly and its review names A: that is the user's choice of source, not a selection by the
+  sidecar (§20.4.5, *What designation establishes*). Under the proposed ledger, the same
+  substitution with both A and B exported is the re-review's counterexample, an open
+  requirement of that proposal (§20.4.5, **Proposed, not adopted, unimplemented**, item 2).
+
+**9. A consistent edit to a point-free export (Open 4's counterexample).**
+
+- **The source.** Example 7a: point-free `material:EX-B`, and `pipe:EX-5`
+  `constant_alpha_interval` {1.2e-5 1/K, 150 K} with `explicit_base_properties` whose
+  `applicability_reference` is `REF-EX-B-1`. The MBF has OPTEMP `25`, T1 `175` and three
+  identical MATERIAL rows at 200000 N/mm² and α 1.2e-05.
+- **The edit.** A sidecar in which EX-5 is `free_length_state` under a new law `law:EX-B-F`
+  (constant `engineering_secant`, α 1.2e-5 1/K, datum 25 degC), with `operating_temperature`
+  175 degC authored; the `applicability_reference` reads `REF-EX-B-2`; and the configuration's
+  id and provenance are changed. The self-digest is recomputed, and the MBF bytes are unchanged.
+- **Why consistency does not catch it.** The restored model has a law the source never had, a
+  different thermal-state kind and a different applicability reference. Writing it again gives
+  the same MBF (T1 is 175 either way) and regenerates the edited sidecar exactly. Its strain,
+  1.2e-5·(175 − 25)/(1 + 1.2e-5·0), and the source's 1.2e-5·150 are both 1.8e-3 as rationals
+  and agree within §20.4.4's bound, so no numerical check refuses it. A format-4 import restores
+  none of this metadata.
+- **9a, no designated source.** `MBF-IMPORT-SOURCE-UNASSOCIATED`. Nothing is restored. The MBF
+  alone imports unbound as an ordinary model, the group listed as lost.
+- **9b, the 7a model designated.** Check 1 passes if the editor kept the digest; check 2 finds
+  S's own sidecar recording EX-5 as `constant_alpha_interval`: `MBF-IMPORT-SOURCE-MISMATCH`,
+  naming the first differing field.
 
 #### 20.4.7 Planned tests (both twins; generated vectors only)
 
@@ -3799,12 +3953,12 @@ the Python tests and the Rust engine (`core/handoff/caepipe_mbf_engine/tests/wri
 codes.
 
 1. **Admitted vectors** (§20.4.6 1, 3b, 5a, 5c, 5d, 5e, 6b, 6c, 7a, and a point-free mix):
-   written; MBF records as stated; format-5 sidecar; bound import `imported`, with the source
-   designated wherever a material has points, and without one for the point-free mix; the
-   regeneration identity holds; exact rational equality of every §20.4.4 input; ids and the authored point
-   order equal.
+   written; MBF records as stated; format-5 sidecar; bound import `imported`, with the exported
+   model designated as the source in every vector, the point-free mix included; the
+   regeneration identity holds; exact rational equality of every §20.4.4 input; ids and the
+   authored point order equal.
 2. **Refusal vectors.** One per §20.4.3 code, each naming its entity (2, 3a, 3c, 4a, 4b, 5b, 6a,
-   6d, 6e, 7b, 7c, 7d and 8 among them).
+   6d, 6e, 7b, 7c, 7d, 8 and 9 among them).
 2a. **Derived rows (option (a)), each with the selected E checked bit for bit against d × 10⁶ Pa
    on the exported and the restored model:**
    - endpoints: T1 at the lowest and highest point temperatures, which take the points and
@@ -3822,9 +3976,10 @@ codes.
      derived rows in MBF order;
    - the round trip: derived rows stripped only under §20.4.4's seven conditions, with the
      source designated by the caller, points restored in authored order, and the regenerated
-     `derivation` equal; the same export imported with no associated source, refused
-     `MBF-IMPORT-SOURCE-UNASSOCIATED`; and an export with temperature-point materials but no
-     derived row, refused the same way without a source.
+     `derivation` equal; the same export imported with no designated source, refused
+     `MBF-IMPORT-SOURCE-UNASSOCIATED`; an export with temperature-point materials but no
+     derived row, refused the same way without a source; and a point-free export (7a), refused
+     the same way without a source.
    No vector's table, temperature or tolerance is chosen to fit RS-M1.
 2b. **Canonical-decimal round trip (§20.4.2 g).** A vector per retained value kind (temperature,
    ΔT, point E, point-free E, ν, α) fails each of the two checks once. ΔT includes a pair of
@@ -3846,7 +4001,7 @@ codes.
    classification, a provenance text, a checked value), each mutated once. Forged
    classifications, each with the self-digest recomputed and the MBF bytes unchanged:
    - **the redundant-authored-point attack** (§20.4.6, example 8): an authored point at
-     175 °C whose row the sidecar calls derived. With no associated source it is
+     175 °C whose row the sidecar calls derived. With no designated source it is
      `MBF-IMPORT-SOURCE-UNASSOCIATED` (8a); with the genuine source designated it is
      `MBF-IMPORT-SOURCE-MISMATCH`, naming the row and both classifications (8b); with a
      `source_model_sha256` that names the forged three-point model and the genuine source
@@ -3862,9 +4017,16 @@ codes.
    - **the reverse relabelling** (8c): `MBF-IMPORT-SOURCE-MISMATCH` with the source designated
      and `MBF-IMPORT-SOURCE-UNASSOCIATED` without one; the test asserts that no model with an
      added point is returned;
-   - **the two-saved-state substitution** (8d): with only B designated, refused at check 1; with
-     no designation, `MBF-IMPORT-SOURCE-UNASSOCIATED`. The test also asserts that the importer
-     takes no source it was not given (it has no lookup by `source_model_sha256` to call).
+   - **the two-saved-state substitution** (8d): A's genuine sidecar beside the MBF B's export
+     wrote. With B designated, refused at check 1, `MBF-IMPORT-SOURCE-MISMATCH`; with no
+     designation, `MBF-IMPORT-SOURCE-UNASSOCIATED`; with A designated, A restored exactly and
+     named as the source. The test also asserts that the importer takes no source it was not
+     given (it has no lookup by `source_model_sha256` to call);
+   - **a consistent edit to a point-free export** (9): the thermal kind with its new law, the
+     `applicability_reference` text, and the configuration's id and provenance, each edited
+     once with the self-digest recomputed. Each is `MBF-IMPORT-SOURCE-MISMATCH` with the 7a
+     model designated and `MBF-IMPORT-SOURCE-UNASSOCIATED` without one; the test asserts that
+     no edited model is returned.
 6. **Writer argument.** On Route 1, an omitted reference takes the configuration's, an equal
    explicit one is accepted, and a different one is `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`. On
    the ordinary route, the omitted reference is still 20 °C.
@@ -3882,20 +4044,17 @@ codes.
    and the named set includes `MBF-SI-MODULUS-SELECTION-MISMATCH` at `pipe:RS-P180` and
    `MBF-SI-BOUNDARY-MOTION-UNSUPPORTED` at `load:RS-SAM` (§20.4.8). The fixture is read, not
    edited.
-8a. **Export record (desktop; the store change's own PR, §20.4.5 (i)).** Rust tests in that PR:
-   - the save of an unsaved session text writes a `handoff_basis` state and the record in one
-     transaction; a text that already has a state reuses it;
-   - an injected failure of the record transaction undoes both files and refuses
-     `MBF-EXPORT-RECORD-FAILED`; a crash point before the commit leaves files whose bound
-     import is refused;
-   - the triggers refuse an `UPDATE` and a replacing `INSERT`; a state with a record cannot be
-     deleted; deleting the project removes its records; the v13 to v14 migration is
-     idempotent, and a v13 build refuses a v14 store by name;
-   - the import's lookup by the presented digests admits the matching record's state; a record
-     whose state text no longer matches its hash, or whose record hash fails, is
-     `MBF-IMPORT-SOURCE-UNASSOCIATED`; 8d with only B exported is refused, and with A and B
-     both exported admits A and lists B's export;
-   - a designated state passes the same two checks as a recorded one.
+8a. **Designation and no store (desktop, with the import and export slices).** Rust tests:
+   - a designated saved state passes the same two checks as a supplied document, and a saved
+     state whose stored text no longer matches its hash is refused by its read
+     (`read_state_for_in_store_with`) before either check;
+   - the state list offered for designation is the same, in the same order, whatever sidecar is
+     presented;
+   - a Route 1 export writes its two files and nothing to the store, and its complete review
+     carries §20.4.5's notice.
+
+   There are no export-ledger tests. The ledger is proposed, not adopted (§20.4.5); a separate
+   design would carry its own.
 9. **Compatibility.** Before format 5 lands, a test pins today's importer refusing a format-5
    sidecar with `MBF-IMPORT-SIDECAR-INVALID` at `sidecar_format`, bound and unbound. After it
    lands: formats 2, 3 and 4 replay unchanged, and the mismatched pairs of §20.4.5 are refused
@@ -4014,16 +4173,23 @@ Route 1 does not by itself export the reference system. Its records are:
   widen the boundary.
 - **A verified source for every bound import with points (Agent 0, 2026-11-02; paraphrase).**
   Option (a) is chosen and applied (§20.4.4, **Source proof**; §20.4.5): the relabel-as-point
-  residual is withdrawn, and such imports are refused wherever no source is associated
-  (example 8c). The digest only verifies the source; the association comes from an export
-  record or the caller's designation (§20.4.5, **The associated source**; example 8d).
-- **Open for Agent 0: the export record's persistence.** §20.4.5 (i) is a store change (store
-  v14) needing its own PR and persistence scrutiny. Two consequences are designed but are
-  Agent 0's to confirm: a state with an export record cannot be deleted while the project
-  exists, as with recorded runs, and no record-retirement action is designed; and an export
-  from a session without a stored project is written without a record, so its round trip needs
-  the caller's designation. Until that PR lands, bound imports with points are admitted only
-  by designation (ii).
+  residual is withdrawn, and such imports are refused wherever no source is designated
+  (example 8c).
+- **Explicit designation is the adopted route (Agent 0, 2026-11-02; paraphrase).** The user
+  designates the source before the hash and content checks; the digest only verifies it, and
+  there is no lookup or fallback (§20.4.5, **The designated source**; examples 8a to 8d).
+- **The export ledger is not adopted (Agent 0, 2026-11-02; paraphrase).** §20.4.5 records it as
+  proposed, not adopted and unimplemented, with the open requirements a separate design must
+  establish, the re-review's counterexample among them. This Design grants no schema,
+  persistence or retention authority, and no retention is decided (Open 1). Source-free exports
+  carry the export review's notice (Open 2).
+- **For Agent 0's confirmation: point-free materials (Open 4).** §20.4.5 (**Point-free
+  materials**) and example 9 show that a consistent sidecar edit can change a point-free
+  export's thermal, reference and selection metadata, which no format-4 import restores, while
+  the regeneration identity and every numerical check pass. The rule chosen: every bound
+  format-5 import requires designation, whether or not any material has points. Refusing
+  point-free bound format-5 imports outright was the alternative. Format 2 to 4 imports keep
+  their adopted consistency-only assurance, unchanged.
 - **Paraphrase.** Every ruling in O-7 is a paraphrase of Agent 0, decision 3 included (its text
   was normalized from Agent 0's message). D-2's historical attribution (2026-10-31) is a
   paraphrase, unverified against the original messages; Agent 0's confirmation of 2026-11-02
