@@ -44,7 +44,7 @@ cited.
 | CAEPIPE-TECH-REF | `https://docs.sstcae.com/tech_manual/index.htm` (CAEPIPE Technical Reference Manual) | Not checked |
 | CAEPIPE-BEND | `https://docs.sstcae.com/tech_manual/bend.htm` (technical reference, `Bend`; end-node naming and section assignment only) | `https://web.archive.org/web/20251112195552/https://www.sstusa.com/docs/tech_manual/bend.htm`, 2025-11-12 |
 | CAEPIPE-FORCE | `https://docs.sstcae.com/tech_manual/force.htm` (technical reference, `Force`; case-membership semantics only) | `https://web.archive.org/web/20251114212139/https://www.sstusa.com/docs/tech_manual/force.htm`, 2025-11-14 |
-| CAEPIPE-ANALYSIS | `https://docs.sstcae.com/users_manual/analysis.htm` (`Analysis`; analysis-option semantics only: number of thermal loads, gravitational acceleration and direction) | `https://web.archive.org/web/20251114203205/https://www.sstusa.com/docs/users_manual/analysis.htm`, 2025-11-14 |
+| CAEPIPE-ANALYSIS | `https://docs.sstcae.com/users_manual/analysis.htm` (`Analysis`; analysis-option semantics only: number of thermal loads; gravitational acceleration and direction; the elastic-modulus option (hot or cold modulus) and the modulus each load case is solved with under it, the sustained case included; and how the expansion load case is formed from the operating and sustained cases. Adopted by Agent 0, 2026-11-02; see **Boundary change** below) | `https://web.archive.org/web/20251114203205/https://www.sstusa.com/docs/users_manual/analysis.htm`, 2025-11-14 |
 | CAEPIPE-LOCAL-AXES | `https://docs.sstcae.com/tech_manual/local_coordinate_system.htm` (technical reference, `Local Coordinate System`; pipe local-axis convention only) | `https://web.archive.org/web/20251112192726/https://www.sstusa.com/docs/tech_manual/local_coordinate_system.htm`, 2025-11-12 |
 | CAEPIPE-GUIDE | `https://docs.sstcae.com/tech_manual/guide.htm` (technical reference, `Guide`; support-type semantics only) | Not checked |
 | CAEPIPE-LIMIT-STOP | `https://docs.sstcae.com/tech_manual/limit_stop.htm` (technical reference, `Limit Stop`; support-type semantics only) | Not checked |
@@ -54,36 +54,40 @@ cited.
 | CAEPIPE-MATERIAL | `https://docs.sstcae.com/tech_manual/material.htm` (technical reference, `Material`; material-property semantics only) | Not checked |
 | CAEPIPE-PCF | Not yet checked under `docs.sstcae.com`; not used by the correlation pilot. | Not checked |
 
-### Proposed boundary change: `CAEPIPE-ANALYSIS` (G-2; proposed 2026-11-02, not adopted)
+### Boundary change: `CAEPIPE-ANALYSIS` (G-2; adopted by Agent 0, 2026-11-02)
 
-**Proposed, pending independent IP review and Agent 0's adoption.** The adopted boundary in
-the table above is unchanged and governs. Until this change is adopted, no use of the widened
-content is permitted: no public artifact may rely on it, and DEL-17-04
-`Work/caepipe-mbf-import.md` §20.4 stays blocked on it.
+**Adopted by Agent 0 on 2026-11-02** (paraphrase), after independent IP/contract review of the
+identical proposed text at `dfae224bd` (PR #85). The table above now carries the adopted
+boundary.
 
-- **Adopted boundary (unchanged):** analysis-option semantics only: number of thermal loads,
+- **Old boundary cell:** analysis-option semantics only: number of thermal loads,
   gravitational acceleration and direction.
-- **Proposed boundary:** analysis-option semantics only: number of thermal loads;
+- **New boundary cell:** analysis-option semantics only: number of thermal loads;
   gravitational acceleration and direction; the elastic-modulus option (hot or cold modulus)
   and the modulus each load case is solved with under it, the sustained case included; and how
   the expansion load case is formed from the operating and sustained cases.
+- **What adoption does and does not do.** It establishes permissible consultation scope only.
+  It establishes no source fact, default, token mapping, implementation or qualification. The
+  existing IP, data, professional and source-use boundaries remain: no standards formula,
+  table or licence permission, and no redistribution of protected content. A bounded
+  consultation, confined to this boundary, records the actual subsection locations and
+  evidence before DEL-17-04 §20.4 relies on any of it. No general read of adjacent Analysis
+  content is permitted, and extracts stay tightly bounded.
 - **Subsections: named by function, not by heading.** A headings-only read of the live page on
   2026-11-02 recorded its four table-of-contents headings: *Temperature*, *Pressure*,
   *Dynamics* and *Misc*. No body text was read or used. The headings alone do not show which
-  subsection states the semantics above, so this proposal names none. Independent IP review
-  assesses this functional boundary. After Agent 0 adoption, consultation confined to that
-  boundary records the supporting subsection locations and checks each claim; adoption alone
-  establishes no source fact.
+  subsection states the semantics above, so the boundary names none. Independent IP review
+  assessed this functional boundary. Consultation confined to it records the supporting
+  subsection locations and checks each claim; adoption alone establishes no source fact.
 - **Why.** DEL-17-04 Design O-7 (2026-10-27) and §20.4 record the hot/cold modulus option and
   the expansion case (operating minus sustained) from this page, outside its adopted boundary.
   Route 1's gaps G-1 and G-2 depend on them. Agent 0 folded that conflict into this G-2 change
   (2026-11-02; paraphrase). Historical use does not establish that the use was within the
   boundary. The DEL-17-04 statements and DEL-17-01 CQ-17-01-016 are marked as relying on
   content outside the current boundary.
-- **On adoption.** The adoption change edits the row's boundary cell to the adopted text, and the
-  marked statements are re-checked against it. If the proposal is rejected or narrowed, those
-  statements stay marked, and §20.4 stays blocked on whatever the adopted boundary does not
-  cover.
+- **On adoption.** The marked DEL-17-04 statements and CQ-17-01-016's evidence stay marked as
+  historical. They now fall within this consultation scope, but each still waits on the bounded
+  consultation before §20.4 relies on it.
 
 ## Accepted Project References
 
