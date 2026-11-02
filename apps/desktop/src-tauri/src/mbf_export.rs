@@ -380,7 +380,8 @@ impl WorkerStatus {
 
 /// A request task 3 refuses: a bad mode, length or field.
 pub const WORKER_REQUEST_INVALID: &str = "MBF-WORKER-REQUEST-INVALID";
-/// A result the parent refuses: a malformed envelope, or one whose shape does not match the requested mode.
+/// A result the parent refuses: a malformed envelope, or one whose shape does not match the requested mode. The worker
+/// refuses by the same code a formed review above its bound (R), which the engine never forms.
 pub const WORKER_PROTOCOL: &str = "MBF-EXPORT-WORKER-PROTOCOL";
 /// The worker run was cancelled (4b.2: a newer review, the dialog closed, the session changed).
 pub const CANCELLED: &str = "MBF-EXPORT-CANCELLED";
@@ -439,8 +440,9 @@ fn request_invalid(detail: impl std::fmt::Display) -> String {
     worker_failure(WORKER_REQUEST_INVALID, format_args!("The MBF worker request is malformed: {detail}."))
 }
 
-/// Reads task 3's request with its strict invariants: a mode of 1 (`review`) or 2 (`save`), a settings length within
-/// [`mbf::MAX_EXPORT_SETTINGS_JSON_BYTES`] and the request, both fields UTF-8 and a model text that is not empty.
+/// Reads task 3's request with its strict invariants: a mode of 1 (`review`) or 2 (`save`), a settings length of 1 to
+/// [`mbf::MAX_EXPORT_SETTINGS_JSON_BYTES`] within the request (empty settings are a missing field), both fields UTF-8
+/// and a model text that is not empty.
 /// Views into `raw`; nothing is copied.
 pub fn decode_worker_request(raw: &[u8]) -> Result<WorkerRequest<'_>, String> {
     if raw.len() < WORKER_REQUEST_HEADER_BYTES {
@@ -453,6 +455,9 @@ pub fn decode_worker_request(raw: &[u8]) -> Result<WorkerRequest<'_>, String> {
         other => return Err(request_invalid(format_args!("mode {other} is neither review (1) nor save (2)"))),
     };
     let settings_len = field(4) as usize;
+    if settings_len == 0 {
+        return Err(request_invalid("the settings are missing"));
+    }
     if settings_len > mbf::MAX_EXPORT_SETTINGS_JSON_BYTES {
         return Err(request_invalid(format_args!("the settings are {settings_len} bytes, more than {}", mbf::MAX_EXPORT_SETTINGS_JSON_BYTES)));
     }
@@ -473,17 +478,30 @@ pub fn decode_worker_request(raw: &[u8]) -> Result<WorkerRequest<'_>, String> {
 /// it under smaller ones.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct RenderLimits {
+    /// The allowance the review is formed within.
     review_allowance: usize,
+    /// The most bytes a formed review may have, checked in every build before it leaves the worker. It equals the
+    /// allowance; only a test sets it lower, to reach the check.
+    review_bound: usize,
     output_ceiling: u64,
 }
 
 impl RenderLimits {
-    pub(crate) const PRODUCTION: RenderLimits =
-        RenderLimits { review_allowance: mbf::MBF_REVIEW_MAX_BYTES, output_ceiling: mbf::MBF_EXPORT_OUTPUT_MAX_BYTES };
+    pub(crate) const PRODUCTION: RenderLimits = RenderLimits {
+        review_allowance: mbf::MBF_REVIEW_MAX_BYTES,
+        review_bound: mbf::MBF_REVIEW_MAX_BYTES,
+        output_ceiling: mbf::MBF_EXPORT_OUTPUT_MAX_BYTES,
+    };
 
     #[cfg(test)]
     pub(crate) fn for_tests(review_allowance: usize, output_ceiling: u64) -> Self {
-        RenderLimits { review_allowance, output_ceiling }
+        RenderLimits { review_allowance, review_bound: review_allowance, output_ceiling }
+    }
+
+    /// The same allowance with a lower bound, so a review formed within the allowance exceeds the bound.
+    #[cfg(test)]
+    pub(crate) fn with_review_bound(self, review_bound: usize) -> Self {
+        RenderLimits { review_bound, ..self }
     }
 }
 
@@ -530,6 +548,8 @@ fn envelope(mode: MbfMode, status: WorkerStatus, mbf_text: &str, ids: &str, revi
 ///   (`writer-refused`), when the review is truncated (`review-truncated`, whatever its blocking count) or when the
 ///   save result would exceed the output ceiling (`output-too-large`, decided from the computed lengths before the
 ///   result is built). Otherwise it returns the MBF text, the identity file and the review (`written`).
+///
+/// A formed review above its bound is refused [`WORKER_PROTOCOL`], checked in every build.
 ///
 /// The writer's diagnostics and messages never leave this function. `Err` is a bounded failure message
 /// (`<code>: <message>`, at most [`MAX_WORKER_FAILURE_BYTES`]) with no engine message text. The old worker task codes
@@ -580,6 +600,14 @@ pub(crate) fn worker_render_limited(raw: &[u8], limits: RenderLimits) -> Result<
     let review = mbf::export_review(&result, files, limits.review_allowance, fits)
         .map_err(|error| worker_failure(ENGINE_FAILED, format_args!("The review's fixed fields need {} bytes, more than {}.", error.needed, error.allowance)))?;
     drop(result);
+    // The engine keeps the review within its allowance (a debug assertion there). This check holds in every build: a
+    // review above its bound never leaves the worker, and is refused as the parent refuses a review above R.
+    if review.text.len() > limits.review_bound {
+        return Err(worker_failure(
+            WORKER_PROTOCOL,
+            format_args!("The review is {} bytes, more than the {} it may hold.", review.text.len(), limits.review_bound),
+        ));
+    }
     let summary = &review.summary;
     let status = match request.mode {
         MbfMode::Review => WorkerStatus::Reviewed,
@@ -2607,6 +2635,8 @@ mod tests {
             ("short", vec![1, 0, 0, 0, 0]),
             ("mode 0", with(0, settings_len, &body)),
             ("mode 3", with(3, settings_len, &body)),
+            ("settings missing", with(1, 0, text.as_bytes())),
+            ("settings missing in a save", with(2, 0, &body)),
             ("settings too long", with(1, mbf::MAX_EXPORT_SETTINGS_JSON_BYTES as u32 + 1, &body)),
             ("settings past the end", with(1, body.len() as u32 + 1, &body)),
             ("settings not UTF-8", with(1, 2, &[b"\xff\xfe".as_slice(), text.as_bytes()].concat())),
@@ -2624,6 +2654,32 @@ mod tests {
         let error = worker(MbfMode::Review, &settings(), "not json", RenderLimits::PRODUCTION).unwrap_err();
         assert!(error.starts_with(&format!("{MODEL_JSON_INVALID}: ")), "{error}");
         assert!(worker_failure("CODE", "x".repeat(2 * MAX_WORKER_FAILURE_BYTES)).len() <= MAX_WORKER_FAILURE_BYTES);
+    }
+
+    /// A formed review above its bound never leaves the worker, in either mode: it is refused
+    /// `MBF-EXPORT-WORKER-PROTOCOL`, and the review replies with that code. A review at its bound is unchanged. A lower
+    /// bound than the allowance stands for an engine that overran it.
+    #[test]
+    fn a_review_above_its_bound_is_refused_by_name_in_every_build() {
+        let text = canonical_of(EXPORT_MODEL);
+        let full = worker(MbfMode::Review, &settings(), &text, RenderLimits::PRODUCTION).unwrap();
+        let review_len = envelope_parts(&full).4.len();
+        for mode in [MbfMode::Review, MbfMode::Save] {
+            let at_bound = worker(mode, &settings(), &text, RenderLimits::PRODUCTION.with_review_bound(review_len)).unwrap();
+            assert_eq!(at_bound, worker(mode, &settings(), &text, RenderLimits::PRODUCTION).unwrap());
+            let error = worker(mode, &settings(), &text, RenderLimits::PRODUCTION.with_review_bound(review_len - 1)).unwrap_err();
+            assert!(error.starts_with(&format!("{WORKER_PROTOCOL}: ")), "{error}");
+            assert!(error.len() <= MAX_WORKER_FAILURE_BYTES);
+        }
+        let seam = InProcessWriterTestSeam::for_tests();
+        let limits = RenderLimits::PRODUCTION.with_review_bound(review_len - 1);
+        let (outcome, _) = review_with(&mut InProcessWriterRun::new(&seam, limits), review_request(&text, &settings()));
+        match outcome {
+            MbfReviewOutcome::Refused { diagnostics } => {
+                assert_eq!(diagnostics.iter().map(|item| item.code.as_str()).collect::<Vec<_>>(), vec![WORKER_PROTOCOL]);
+            }
+            other => panic!("not refused: {other:?}"),
+        }
     }
 
     /// Each mode's result has its fixed shape, and decodes to views of exactly what the worker formed.
@@ -2672,6 +2728,12 @@ mod tests {
             worker(MbfMode::Save, &settings(), &text, RenderLimits::for_tests(full.len() - 1, mbf::MBF_EXPORT_OUTPUT_MAX_BYTES)).unwrap()
         };
         let (_, _, _, _, truncated_body) = envelope_parts(&truncated_review);
+        // The same reviews claiming to block (only the flag changed; the lengths given are the new ones).
+        let blocking = |review: &str| {
+            assert_eq!(review.matches(r#""blocking":false"#).count(), 1);
+            review.replacen(r#""blocking":false"#, r#""blocking":true"#, 1)
+        };
+        let (blocking_body, blocking_truncated_body) = (blocking(&body), blocking(&truncated_body));
         let both = format!("{mbf_text}{ids}{body}");
         let mut tampered = mbf_text.clone().into_bytes();
         tampered[0] ^= 1;
@@ -2703,6 +2765,8 @@ mod tests {
             ("a truncation claimed of a complete review", MbfMode::Save, raw_envelope("save", "review-truncated", [0, 0, body.len()], &body)),
             ("a ceiling refusal of a review within it", MbfMode::Save, raw_envelope("save", "output-too-large", [0, 0, body.len()], &body)),
             ("a writer refusal of a written review", MbfMode::Save, raw_envelope("save", "writer-refused", [0, 0, body.len()], &body)),
+            ("written with a blocking review", MbfMode::Save, raw_envelope("save", "written", [mbf_text.len(), ids.len(), blocking_body.len()], &format!("{mbf_text}{ids}{blocking_body}"))),
+            ("a truncation of a blocking review", MbfMode::Save, raw_envelope("save", "review-truncated", [0, 0, blocking_truncated_body.len()], &blocking_truncated_body)),
         ];
         for (name, mode, result) in cases {
             let refusal = decode_worker_result(mode, &result).map(|decoded| decoded.status).unwrap_err();

@@ -84,7 +84,7 @@ own solve entry and never persisted.
 - the hanger table, the hanger-sizing profile, the `hanger-sizing-1` semantic table and
   the hanger-sizing analysis-run kind;
 - the Rust reader and its test-only Python verifier;
-- the product module `core/product_physics/src/hanger_sizing.rs` and its entries;
+- the sizing crate `core/analysis/hanger_sizing` and its entries;
 - the frozen references under `validation/references/hanger_sizing/`;
 - the sizing meaning of the hanger library's `working_load_range`;
 - the desktop request form and hanger table, and the report's hanger-sizing section,
@@ -108,8 +108,24 @@ These deliverables keep their scope.
 
 ### CLM-003 — Current reach and sequence
 
-- **Built:** nothing. The hanger records import, and one record can be applied to a
-  support as the person's act (`features/hanger-selection`). A variable spring is
+- **Built:** slice 1a, the sizing arithmetic (`core/analysis/hanger_sizing`). It covers
+  the loads, fit tests, selection, failure counts, request checks that need no solve,
+  and the verification arithmetic and standing (Design §13), with its unit tests and
+  the R-3 references. Slice 1b: hanger library format 1.1.0 in the schema and both
+  import boundaries (REQ-006). Slice 1c, the derived solves on PF (REQ-002, REQ-003,
+  REQ-005):
+  - candidate and case checks;
+  - derived documents through the product's public solve entry;
+  - the full sizing run with its verification pass and disclosures;
+  - the library reader;
+  - the closed-form references R-1, R-2 and R-5.
+
+  The run's results are a typed value; nothing is yet published or reaches the desktop,
+  and the exact route is refused until increment 4. The theory note
+  (`docs/theory/hanger_sizing.md`, RT-V4, owned by DEL-11-03) explains the built method;
+  the user guide waits for the desktop work. Before this
+  deliverable: the hanger records import, and one record can be applied to a support as
+  the person's act (`features/hanger-selection`). A variable spring is
   solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
 - **Sequence** (Design §13):
   1. the engine on PF with library format 1.1.0;
@@ -145,7 +161,8 @@ suitability, and nothing here determines code compliance.
     - the load design (hot or cold);
     - the variation limit and its reference load (operating or design load);
     - the travel allowance at each end of the travel span;
-    - the selection rule (smallest capacity or least variation).
+    - the selection rule (smallest capacity or least variation);
+    - the solver mode of the caller's own solve, which every derived solve uses.
   - Each absent or invalid input is refused by name. The engine, the headless runner
     and the native entry supply no value. The desktop pre-fills the values last used in
     the project, and the request records the values used.
@@ -271,8 +288,10 @@ suitability, and nothing here determines code compliance.
 
 - **REQ-006** — *Hanger library format 1.1.0.*
   - **Schema.** The hanger library schema (DEL-03-02) admits format 1.1.0. A record may
-    carry `working_load_range` (a minimum and a maximum force, each with provenance),
-    and the import boundary refuses a minimum not below its maximum by name.
+    carry `working_load_range` (a minimum and a maximum force, each with provenance).
+    The import boundary refuses, by name, the member in a 1.0.0 document (as an unknown
+    field), a range whose ends differ in unit, and a minimum not below its maximum read as
+    binary64 numbers. The last two rules apply only to a well-formed range.
   - **Compatibility.** Format 1.0.0 documents import unchanged. Sizing lists their
     records, and any 1.1.0 record without a range, as "not sizable: no working load
     range". A stored 1.0.0 document needs no migration.
@@ -281,13 +300,16 @@ suitability, and nothing here determines code compliance.
 - **AC-006** — Import tests show:
   - 1.0.0 documents importing unchanged, and a 1.0.0 document with the new field
     refused;
-  - a 1.1.0 document importing;
-  - the range refusal;
+  - a 1.1.0 document importing, with and without the range;
+  - the range refusals: equal ends, an inverted range, ends in different units, a
+    missing end and an extra member;
   - provenance and units preserved;
   - parity between the Rust import boundary and the Python provenance checker;
-  - every 1.0.0 record listed as not sizable.
+  - every 1.0.0 record listed as not sizable, once sizing reads library records
+    (slice 1c).
 
-  The persistence change takes an xhigh review.
+  The persistence change takes an independent review of the exact changed format and
+  commitment text.
 - **REQ-007** — *The hanger table, its basis and readers.*
   - **The table**, one row per candidate, gives:
     - the outcome and the selected record;
@@ -298,21 +320,41 @@ suitability, and nothing here determines code compliance.
     - for an unfitted candidate or a fallback, the count of records failing each test.
   - **Derived solves.** The result also gives each candidate's cold-reference
     displacement and each nonlinear support's states.
-  - **Basis.** A basis block states every request input, the library id and digest, the
-    model revision, the route and each case's load kinds after lowering. It also states
-    the installation assumption, that each spring is set at the drawn geometry. The table
-    labels the installed setting separately from the cold-condition load.
-  - **Profile.** Results are published under the hanger-sizing profile and semantic
-    table, and the analysis-run record gains the hanger-sizing run kind.
+  - **Basis.** A basis block states:
+    - every request input;
+    - the library id and hash;
+    - the solve request's hash, which identifies the exact model and materials;
+    - the route;
+    - each named case's role, its authored load categories and whether it uses an
+      operating-condition set.
+
+    It also states the installation assumption, that each spring is set at the drawn
+    geometry. The table labels the installed setting separately from the
+    cold-condition load (Design §8.3).
+  - **Document.** Results are published as a closed hanger-sizing result document
+    (Design §8.3). It embeds the sizing request, binds the solve request and library by
+    hash, and has two statuses: `sized`, meaning the algorithm completed (never
+    acceptance, and always with each outcome and the verification standing), and
+    `refused`.
+  - **Analysis run.** A hanger-sizing run kind awaits the joint analysis-run 0.4.0,
+    approved for design only. Until it is adopted, a sizing result is not a recordable
+    run.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no
-    code with the producer each recompute the loads, variations, fit tests and selection
-    from the published values, the request and the library document.
-  - **CSV.** The table exports to CSV (Design §8.1).
+    code with the producer. Each establishes the document's closure, its binding to the
+    inputs supplied, and arithmetic consistent with the published positions. The Rust
+    reader alone can establish reproduction from the bound inputs. No reader states that
+    the published positions are the model's mechanics without reproducing them.
+  - **CSV.** The table exports to CSV (Design §8.1), with the desktop work.
 - **AC-007** — Maintained tests show:
-  - the two readers returning the same verdict for every committed result and every
-    committed mutation of it;
+  - the two readers returning the same closure, binding and arithmetic verdicts for
+    every committed result and mutation (derivation and reproduction are the Rust
+    reader's alone);
+  - a self-consistent forgery of the positions that passes the arithmetic standing and
+    fails reproduction;
   - that the Python verifier imports no producer code (an independence test);
-  - the table in DEL-08-04's CSV coverage guard.
+  - each existing reader's actual named refusal or disclosure of the document, as
+    tested;
+  - the table in DEL-08-04's CSV coverage guard, with the desktop work.
 - **REQ-008** — *Applying a selection.*
   - Applying a selected record is the person's explicit act. It goes through the
     existing hanger-selection operation builder and the one operation route, and is

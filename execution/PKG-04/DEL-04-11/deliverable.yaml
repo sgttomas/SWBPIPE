@@ -61,8 +61,9 @@ needs:
   evidence: schemas/hanger.schema.yaml
 - from: DEL-03-07
   condition: >-
-    The library import boundary validates format 1.1.0, refuses a working load range whose minimum is not
-    below its maximum by name, and keeps the Rust boundary and the Python provenance checker in parity.
+    The library import boundary validates format 1.1.0. It refuses by name `working_load_range` in a 1.0.0
+    document (as an unknown field), a range whose ends differ in unit, and a minimum not below its maximum,
+    and it keeps the Rust boundary and the Python provenance checker in parity (slice 1b).
   gating: true
   evidence: core/library_import/library_import_document
 - from: DEL-02-02
@@ -73,11 +74,13 @@ needs:
   evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
-    The hanger-sizing profile and its semantic table join the result envelope, and the hanger-sizing run
-    kind joins the analysis-run record, under DEL-00-06's diagnostics and result-envelope contract and the
-    one-version rule. Refusals and warnings are typed diagnostics under that contract.
+    The hanger-sizing result is a closed document of its own (Design §8.3), so no mechanics profile or
+    0.3 semantic table is extended. A hanger-sizing analysis-run kind enters only through the joint
+    analysis-run 0.4.0 under DEL-00-06's contract, which is approved for design and not adopted; until
+    then a sizing result is not a recordable run. Refusals and warnings follow DEL-00-06's typed
+    diagnostics.
   gating: true
-  when: Before sizing results are published.
+  when: Before a sizing result is recorded as an analysis run.
 - from: DEL-04-08
   condition: >-
     Derived sizing solves never enter the retained Direct entry or D1. A change to a priced source,
@@ -108,17 +111,17 @@ needs:
     The derived-solve count and result volume (Design §10) are agreed with the performance lane against
     its result-volume design.
   gating: false
-# Planned paths: none of these exists yet (Design §13).
+# Planned paths (Design §13); slice 1a built core/analysis/hanger_sizing (arithmetic) and the R-3 references.
 code_paths:
-- core/product_physics/src/hanger_sizing.rs
-- core/product_physics/src/hanger_sizing/**
-- core/product_physics/tests/hanger_sizing_*.rs
-- core/reporting/result_export/src/hanger_sizing_evidence.rs
-- fixtures/results/semantic_contract_v0_3_hanger_sizing_1.json
+- core/analysis/hanger_sizing/**
+- schemas/hanger_sizing_result.schema.json
+- fixtures/results/hanger_sizing_*.json
 - fixtures/hanger/invented_hanger_catalogue_*.json
 - tests/verifiers/hanger_sizing_evidence.py
 - tests/test_hanger_sizing_*.py
+- core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
-# Planned checks: registered by each increment (ScopeOfWork VER-001 to VER-011).
+# Checks: the crate's cargo tests run in hosted piping-numerical, which discovers the crate; no local
+# registration is needed for slice 1a. Later increments register checks where a local selector needs them.
 checks: []

@@ -1,0 +1,1252 @@
+{
+  "library": {
+    "hanger_library": {
+      "library_id": "invented.hangers.sizing",
+      "library_scope": "private_user_library",
+      "name": "Invented hanger sizing fixture only",
+      "privacy_class": "private_user_supplied",
+      "provenance": {
+        "contributor": "Test author",
+        "contributor_certification": "Invented values, no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:test-only",
+        "source_name": "Invented non-engineering fixture"
+      }
+    },
+    "hanger_records": [
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-200-L",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 200000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 50.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "mm"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 6000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 4000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-200-L",
+        "name": "Invented VS-200-L",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-200-S",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 200000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 50.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "mm"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 5500.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 4800.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-200-S",
+        "name": "Invented VS-200-S",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-570-W",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 570.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "lbf/in"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 2.4,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "in"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 2025.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "lbf"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 1012.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "lbf"
+            }
+          }
+        },
+        "hanger_id": "VS-570-W",
+        "name": "Invented VS-570-W",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-500-T",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 500000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 2.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "mm"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 20000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 1000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-500-T",
+        "name": "Invented VS-500-T",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-200-UY",
+          "stiffness": {
+            "dof": "UY",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 200000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 50.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "mm"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 6000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 4000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-200-UY",
+        "name": "Invented VS-200-UY",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-NORANGE",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 200000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 50.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "mm"
+          }
+        },
+        "hanger_id": "VS-NORANGE",
+        "name": "Invented VS-NORANGE",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "constant_load": {
+            "dimension": "force",
+            "magnitude": 4000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "hanger_type": "constant_effort_support",
+          "source_reference": "invented-local:CE-1",
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 100.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "mm"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 4000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 3000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "CE-1",
+        "name": "Invented CE-1",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "constant_load": {
+            "dimension": "force",
+            "magnitude": 4000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "hanger_type": "constant_effort_support",
+          "source_reference": "invented-local:CE-2",
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 0.1,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "m"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 5000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 4000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "CE-2",
+        "name": "Invented CE-2",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "constant_load": {
+            "dimension": "force",
+            "magnitude": 4000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "hanger_type": "constant_effort_support",
+          "source_reference": "invented-local:CE-3",
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 0.04,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "in"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 1124.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "lbf"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 1012.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "lbf"
+            }
+          }
+        },
+        "hanger_id": "CE-3",
+        "name": "Invented CE-3",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      }
+    ],
+    "schema_version": "1.1.0"
+  },
+  "request": {
+    "materials": [],
+    "model": {
+      "analysis_status": {
+        "mechanics": "ready_for_preview_diagnostics",
+        "professional_acceptance": "not_provided",
+        "rule_check": "not_performed_user_rule_inputs_missing"
+      },
+      "combinations": [],
+      "components": [],
+      "data_boundary": {
+        "private_data_policy": "no_private_project_data",
+        "professional_boundary": "technical_preview_requires_human_engineering_review",
+        "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+        "public_examples_policy": "invented_or_cleared_data_only"
+      },
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [
+        {
+          "id": "load:W",
+          "kind": "primitive_user_load",
+          "primitive_loads": [
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:W-AB",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:AB",
+                "type": "element"
+              }
+            },
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:W-BC",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:BC",
+                "type": "element"
+              }
+            },
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:W-CD",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:CD",
+                "type": "element"
+              }
+            },
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:W-DE",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:DE",
+                "type": "element"
+              }
+            }
+          ],
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "load:O1",
+          "kind": "primitive_user_load",
+          "primitive_loads": [
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:O1-AB",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:AB",
+                "type": "element"
+              }
+            },
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:O1-BC",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:BC",
+                "type": "element"
+              }
+            },
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:O1-CD",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:CD",
+                "type": "element"
+              }
+            },
+            {
+              "category": "weight",
+              "dimension": "force_per_length",
+              "direction": "global_z",
+              "id": "load:O1-DE",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -1000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "pipe": "pipe:DE",
+                "type": "element"
+              }
+            },
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "load:O1-lift",
+              "magnitude": {
+                "unit": "N",
+                "value": 400.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "node:C",
+                "type": "node"
+              }
+            }
+          ],
+          "provenance": "invented_test_value"
+        }
+      ],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:pipe:AB",
+          "label": "Invented test material",
+          "provenance": "invented_test_value",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 76923076923.07692
+          },
+          "thermal_expansion_coefficient": {
+            "unit": "1/degC",
+            "value": 0.000012
+          }
+        },
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:pipe:BC",
+          "label": "Invented test material",
+          "provenance": "invented_test_value",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 76923076923.07692
+          },
+          "thermal_expansion_coefficient": {
+            "unit": "1/degC",
+            "value": 0.000012
+          }
+        },
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:pipe:CD",
+          "label": "Invented test material",
+          "provenance": "invented_test_value",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 76923076923.07692
+          },
+          "thermal_expansion_coefficient": {
+            "unit": "1/degC",
+            "value": 0.000012
+          }
+        },
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:pipe:DE",
+          "label": "Invented test material",
+          "provenance": "invented_test_value",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 76923076923.07692
+          },
+          "thermal_expansion_coefficient": {
+            "unit": "1/degC",
+            "value": 0.000012
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:A",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "node:B",
+          "position": {
+            "x": 4.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "node:C",
+          "position": {
+            "x": 8.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "node:D",
+          "position": {
+            "x": 12.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "node:E",
+          "position": {
+            "x": 16.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented_test_value"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:A",
+          "id": "pipe:AB",
+          "material": "material:pipe:AB",
+          "provenance": "invented_test_value",
+          "section": {
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.2
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:B",
+          "y_reference": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          }
+        },
+        {
+          "from": "node:B",
+          "id": "pipe:BC",
+          "material": "material:pipe:BC",
+          "provenance": "invented_test_value",
+          "section": {
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.2
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:C",
+          "y_reference": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          }
+        },
+        {
+          "from": "node:C",
+          "id": "pipe:CD",
+          "material": "material:pipe:CD",
+          "provenance": "invented_test_value",
+          "section": {
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.2
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:D",
+          "y_reference": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          }
+        },
+        {
+          "from": "node:D",
+          "id": "pipe:DE",
+          "material": "material:pipe:DE",
+          "provenance": "invented_test_value",
+          "section": {
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.2
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:E",
+          "y_reference": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+          }
+        }
+      ],
+      "project": {
+        "id": "project:hanger-sizing-test",
+        "name": "Invented hanger sizing test",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.9.0",
+      "supports": [
+        {
+          "family": "guide",
+          "id": "support:A",
+          "node": "node:A",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ"
+          ]
+        },
+        {
+          "family": "spring",
+          "id": "support:A-torsion",
+          "node": "node:A",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "RX"
+          ],
+          "stiffness": {
+            "dof": "RX",
+            "value": {
+              "unit": "N*m/rad",
+              "value": 1000000000.0
+            }
+          }
+        },
+        {
+          "family": "vertical_support",
+          "id": "support:B",
+          "node": "node:B",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UZ"
+          ]
+        },
+        {
+          "family": "vertical_support",
+          "id": "support:C",
+          "node": "node:C",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UZ"
+          ]
+        },
+        {
+          "family": "vertical_support",
+          "id": "support:D",
+          "node": "node:D",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UZ"
+          ]
+        },
+        {
+          "family": "guide",
+          "id": "support:E",
+          "node": "node:E",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UY",
+            "UZ"
+          ]
+        }
+      ]
+    }
+  },
+  "sizing": {
+    "candidates": [
+      {
+        "family_policy": "variable_else_constant",
+        "support": "support:B"
+      },
+      {
+        "family_policy": "constant",
+        "support": "support:C"
+      },
+      {
+        "family_policy": "variable",
+        "support": "support:D"
+      }
+    ],
+    "check_operating_cases": [],
+    "design_operating_case": "load:O1",
+    "method": {
+      "load_design": "cold",
+      "selection_rule": "least_variation",
+      "travel_allowance_m": 0.0,
+      "variation_limit": 0.001,
+      "variation_reference": "design_load"
+    },
+    "solver_mode": "sparse_interactive",
+    "weight_case": "load:W",
+    "weight_support_state": "own_solve"
+  }
+}

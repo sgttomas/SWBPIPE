@@ -2319,6 +2319,327 @@ immediate actual-closure confirmation. This is stack evidence, not a desktop
 or base-machine performance metric, acceptance or release. Required hosted
 checks including `harness` on the exact PR head remain the integration gate.
 
+### §8.39 Modal kernel read-only seams: actual-source D3 (DEL-04-09 I1)
+
+**Selected predecessor and changed proof.** This change takes integrated reducer
+2a `393a11ee7` (§8.38), including the MBF and G11 changes, as its predecessor.
+The merge is `0468d2ca2`; the proof-tool candidate is `8e91c3941`. The modal
+numerical source remains independently reviewed `0ba65b9d4`. Nothing in this
+D3 adopts S2 or later reducer 2b source, changes a commitment or grants acceptance.
+
+`sparse_direct` adds two borrowing observation iterators without changing its
+factor storage, solve or factorization. Their only new consumers are the modal
+Sturm premises; neither accessor is reached by the retained root. The frame
+kernel's `frame_matrix` and `curved_matrix` delegate to generic `*_with`
+formations with the same binary64 operands and arithmetic order. Retained leaf
+implementations lift `FrameSection` and `CurvedFormation` fields exactly;
+`LEAF_SEAM` checks the audited delegation, leaf bodies and listed lexical implementation/call forms. It is supplementary to full-file pins, not a Rust parser: an explicit generic caller uses another spelling, and restating a source pin requires a fresh audit.
+B7a's source pins and the W1 reduction pins bind the full changed files. The
+`FormationSource` Cow, load closure, evaluation, scaled-force children, Value
+moves, constructors, guards and reduction lifetimes are unchanged. The six live
+`structural.rs` owner-choice keys move by its two module-declaration lines;
+historical preimage identities remain unchanged. Mutation tests reject changed
+leaves, implementations, callers and delegations, including a restated file pin.
+
+The four modal-only `reform_*` entries, their element split and wide-operand
+lifting do not enter the retained graph. No product crate consumes `modal_eigen`,
+and it is outside the priced crate list. The name-based graph adds conservative
+accessor edges, including modal-only leaf methods with matching names; it loses
+no reachable function. Those incidental leaves allocate/format nothing. The
+formation bodies' existing loops and operations move with their helpers; this
+is not authority to drop a bound as a deleted function. No retained struct,
+enum, static, capacity, ownership or input carrier changes. All thirteen reviewed
+inputs, reader layouts, atoms, M, R and the reserve policy stay unchanged.
+
+**Run and registration standing.** The committed tool prices `8e91c3941` on all
+four points with exit 0, no unmapped header or unclassified argument, and both
+O-10 checks clear. Its line map carries 880 keys, prunes 37 and applies seven
+resolutions, identical entry for entry to the adopted §8.38 summary. The
+coefficient comparison against the actual predecessor gives **1,602 equal,
+none higher and none lower**, with equal tree structure. `generate --check`
+with the existing §8.38 basis reproduces the committed generated block. No
+coefficient adoption, generated block, registration, law expectation or schema
+hash is changed. The §8.38 registered profile therefore stands; this is a new
+actual-source proof, not a transplant of old source pins. The 859 maintained
+pricing tests pass, including 14 seam regressions and mutation refusals.
+
+Supporting comparison artifacts are the named adopted reducer-2a tree and
+summary, and the fresh runs `scratch/rt-dynamics-d3-8e91c3941/` and
+`scratch/rt-dynamics-d3-base393/` outside the checkout. They are run evidence,
+not permanent build/test inputs. Evaluation with predecessor native atoms
+reproduces merged W3 E+R 8,966,251,315 B sparse and 9,025,382,659 B dense;
+the four current-source native profile/law/layout tests also pass and their newly collected atoms reproduce the same merged phase evaluations.
+
+**Stack consequence.** No inlining is presumed for the registered debug build.
+Static prologue inspection at the predecessor and candidate, with default and
+single-codegen-unit builds agreeing, finds the straight formation unchanged at
+16,416 B plus its new 128 B wrapper and at most 80 B accessor; curved formation
+moves from 7,744 B to 7,760 B plus a 32 B wrapper and 32 B accessor. These give
+added depth of at most 208 B straight and 80 B curved on those paths. The return
+slot is passed through, without an extra 12×12 matrix copy; the straight wrapper
+copies only its three coordinate arrays. These observations establish no whole
+call-chain stack bound. Because the retained-reachable stack changed despite
+coefficient identity, the six source-bound headroom witnesses were run as below.
+
+**Independent scrutiny and AC-004 (2026-11-02).** GPT-6 Astra at medium effort
+reviewed exact source and governing text at `9410d8ae3`, independently reproduced
+the coefficient/atom/phase/generator and mapping checks, and found no blockers.
+Its nonblocking supplementary-guard coverage clarification is applied; no pricing
+or Rust logic changed after review. Native profile checks (eight tests selected
+by `profile_`) and 14 seam regressions passed in that review; the recorded
+859-test suite and complete pricing runs were reused explicitly.
+
+Agent 0 cleared exactly six prebuilt witnesses, each its own process with
+`--exact --ignored --test-threads=1`, under `t3_exclusive.sh` and memguard.
+The clean bound source was `9b47b63f6043450cdef13895a93975d7f80006ec`; the prebuilt
+library test binary was `core/product_physics/target/debug/deps/
+open_pipe_stress_product_physics-d5dc083ee24455b5` (one path, line wrapped), SHA-256
+`ca227662c8d1e35eaf7bc6521f14d043965f16c0d1869ba12baf57cecd4acd33`.
+The full approved profile SHA-256 remained
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
+Request was 06:19:17.496 UTC. The wrapper acquired all four slots at 06:28:31 UTC
+(binding event 06:28:31.959); execution ended 06:28:41.103 and wrapper release was
+06:28:41.112 UTC, rc 0. Queue wait (about 554.46 seconds) was separate from the
+9.306-second acquired execution, within 55 seconds internally and 60 seconds
+externally. No build ran inside. All six passed: W1 at 1 MiB sparse/dense
+0.68/0.66 s, W2 deep 1.32/1.32 s and W-C2 2.49/2.47 s. These test durations
+are evidence of completion, not performance qualification. Afterward the own
+runner/test/wrapper process group was absent, `exclusive.pending` was absent,
+all four lock files had no owner on inspection and the wrapper logged
+`END-EXCLUSIVE rc=0`. Actual closure was reported to Agent 0 promptly.
+
+The §8.38 registered block stands unchanged. Exact-head hosted checks and
+integration remain required; neither this proof nor these witnesses grant owner
+acceptance, release, native App qualification or adoption of the recorded modal
+consuming-slice limitations.
+
+### §8.40 Model document 0.9.0 S2 pressure-free resolution: actual-source D3 (conservative carry)
+
+**Selected predecessor and source.** The predecessor is integrated main
+`4cf32bfd4` (dynamics I1, §8.39, on reducer 2a, §8.38). Its own committed tool
+prices it with exit 0, O-10 clear, the same 880 carried keys, 37 prunes and seven
+resolutions as §8.39, and `generate --check` with §8.38's basis line matches the
+registered 1,712-line block. The entire unchanged 4,154-line `retained_memory.rs` file's SHA-256 is
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`. The
+candidate is `064dc8bb9`, S2's reviewed source (`d738d34d8`) merged normally
+with that main. Its S2 product files are byte-identical to the reviewed source.
+No §8.36–§8.38 source pin or profile is transplanted. The pins below are read
+from this source. Agent 0 directs keeping the registered coefficients and approved conservative
+allowance. No lower coefficient is adopted, and the generated block, registration
+identity, inputs, reader layouts, M and reserve policy remain unchanged. The
+native law/challenge expectations are re-derived below; this grants no acceptance.
+
+**Changed source and D1 premises.** S2 splits the lowering into a read-only
+`operating_conditions::judge`, which `lower` applies, and adds
+`operating_conditions/resolution.rs` (`plan`, `resolve_case`,
+`ResolutionPlan::apply`). It also adds a read-only preview and a closed wind wire
+record. The candidate's D1 clauses, family clauses and admission prefix are
+unchanged, and their pins hold. D1.3 declines a non-empty `condition_sets`
+(capacity 0) and any pipe's `condition_set_ref`, and D1.5 declines any case's
+`condition_use`. Therefore, on D1:
+- `plan`'s set map is collected from an empty slice, with no backing.
+- Every `resolve_case` returns `Ok(None)` at its first statement.
+- The plan holds no case, so `apply` appends nothing.
+- `judge`'s own diagnostic vector stays empty, with no allocation. D1.3–D1.6
+  leave no plan refusal, condition use, test condition, direction or snubber.
+- Route E has a contract, so `judge` does not call `plan`.
+- The preview is called only from the applier's wasm entry. That crate is not
+  priced, and no retained caller reaches it.
+
+`WindGenerationInput` now decodes through `WindGenerationWire` (serde `from`).
+The wire carries the same five members, and the closed-record scan's declared
+fields are the wire's. The two private presence booleans grow the type inline.
+D1.5 refuses every `equivalent_static`, so no admitted request owns wind
+children.
+
+`canonical_decimal.rs` changes by insertion only: U256 `bit`, `bit_len` and
+`div_rem_u128`, `KELVIN_DENOMINATOR_BITS`, `round_kelvin_ratio` and a test.
+Every pre-existing line, including `canonical_decimal` and `kelvin_numerator`,
+is byte-identical, and `temperature.rs` (`exact_kelvin`) is unchanged. The new
+helpers are reached only through `exact_temperature_difference` from
+`resolve_case`. In the heap-pricing abstraction they have no multiplicity. `bit_len`'s
+by-name `.find(` edge into `sparse.rs` therefore leads nowhere.
+
+**Rules, by label.**
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **S2-PIN** (guard) | `resolution.rs` complete bytes (`74e08bef…`). `operating_conditions.rs` (`e3ddf5bd…`) follows S1-PIN and `canonical_decimal.rs` (`431ac320…`) TIM's pins. PP `lib.rs` (`9488c504…`) is re-bound in the B7a domain, W1 reduction and KD5 primitive pins: its only production change is the wind type, impl and wire. Supplementary premise checks: `resolve_case` begins with its `condition_use` return; `plan` is its only caller, over `model.load_cases`, with the set map from `model.condition_sets`; `judge` calls `plan` only off the exact route; `lower` applies only `judge`'s plan. Mutation tests show that each premise stops the run even with a restated file pin. |
+| **S2-ZR** (`O10_EDGE_ZERO`) | `plan` → `resolve_case`. The callee is entered once per case but returns before any allocation, diagnostic, generated record or callee (D1.5). |
+| **S2-BN** (`CG_RULES`) | `plan`'s `set.id.as_str()` is `String::as_str`. Its by-name edges had reached every crate's `as_str`. |
+| **S2-RK** (re-key) | S1 rules for code that moved from `lower` into `judge`: the `is_empty` target, the two S1-ZR edges (support and exact-combination refusals), S1-ZS/S1-ID sites (the condition-use diagnostic, now split over lines 393–396, and the test condition's). The removed S1 interim message is dropped from those lists. S1-L1's `4*z` findings bound moves to `judge`'s `iter:diagnostics: found.into_vec().into_iter().map`, placed first. Bounds and premises are unchanged. |
+| **S2-ID** (`O10_ID_AUDIT`) | Unreached format arguments: a JCS id or key is ≤ 2 + 6·128 B; `what` is the longest of `resolve_case`'s four static suffixes (20 B). |
+| **S2-JD** (owner, `s1_owners_model.py`) | A document refused by its findings now converts them with a collect into `judge`'s own `Vec<Diagnostic>`, before `lower` extends its caller's vector. Diagnostic (144 B) is larger than Finding (112 B), so the collect cannot reuse the Finding backing. The exact-size backing of ≤ 4z Diagnostic (S1-L1) is charged in S1-VW at z ≥ 1, beside the findings. The caller's single exact reserve is no larger than S1's push growth. Bound to the module bytes and the exact conversion statement. |
+
+SD-L1's closed-record list adds `WindGenerationWire` (five members). The model
+root stays the largest record. Snapshot keys whose text is unchanged move with
+the wind block: PP `lib.rs` +49 after line 945 (B7a domain and scoped-TEXT keys,
+owner-choice helpers, phase/T25 callers, returning-error owners). The carried
+`_X` emitter's only change is `retained_w1`'s key 4044 → 4093
+(`d6c252a2…`). Historical preimage keys keep their historical lines.
+
+**Graph and comparison.** The candidate prices with exit 0 on all four points.
+No point has an unmapped header or an unclassified argument, and both O-10
+checks are clear. D is unchanged: L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237
+and E 76,356. The line map is the predecessor's entry for entry (880 keys, 37
+prunes, seven resolutions). In the normalized heap-pricing graph only `judge` and `plan`
+gain multiplicity (1 each). No existing function's multiplicity changes.
+`resolve_case` executes once per case, including `Option::as_ref`, then returns
+before heap work on D1. Its zero allocation-edge multiplicity does not mean the
+runtime call or stack frame is absent. The rounding helpers and preview are
+not called on this path.
+
+`compare <candidate> <predecessor>` gives equal structure: **1,596 coefficients
+equal, none higher and six lower**. The six are `TAV_W[1]`, `TAV_X[1]`, their
+`success__` copies and `TAV_text_requested`/`_moving`, each −3,990,536 B. This
+is §8.36's known short-key over-bound going away. The +49 carries PP `lib.rs`'s
+formation-report aggregate key from 1662 to 1711, so
+`primitive_loads/src/lib.rs:1662` is charged its own 764 B. PP's report keeps
+its 1,996,032 B per call. A short-key audit of every site, size, aggregate,
+lexical, total, from and audit key against all reached rows finds that
+collision on the predecessor and none on the candidate. The unmerged L(2,1) and
+L(1,2) also gain S2-JD's 4 and 8 `s(Diagnostic)`.
+
+**Native layout and evaluation.** S2 moves one in-build atom:
+`s(PreviewLoadCase)` 672 → 680 B (`WindGenerationInput`'s two `bool`s inside
+`Option<EquivalentStaticGenerationInput>`). The predecessor tree, evaluated at
+the candidate's 328 collected atoms with only that atom at 672, reproduces all
+16 `PINNED_RECORD` phases. With the registered block unchanged, the candidate's
+in-build record rises by +24 B (W1–W5, X2, X3) and +48 B (X1, two typed copies)
+in both modes. The two old expectations tied to that record failed at `bf59efa95`:
+`profile_in_build_record` and `challenge_bounds_are_the_profile`; the other 69
+retained-memory law tests passed. The re-derived `PINNED_RECORD` adds 24 B
+to every phase except X1, which adds 48 B. Challenge W1 is
+[6,602,964,678, 6,662,096,022] and MAX is [8,899,142,475, 8,958,273,819],
+all without R. At `34c25044e`, all 71 retained-memory law tests and all 17 S2
+integration tests pass on the selected native build, including the two amended
+expectations and the actual 680 B atom.
+
+The proposal, maintained `generate` output with basis
+`, re-run as RT-G5 S2 at 064dc8bb9 (§8.40): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`,
+is a scratch file with SHA-256
+`74a960dbc980186c75d9ba450754c92d960880391b5ddd95f8345ad6ee30e44f`. It has 328
+atoms, 100 forms and 26 SourceUpper. It differs from the registered file only in
+the basis, the two TAV text atoms, the four TAV form constants and
+`PYTHON_CHECK`. Identity, reviewed inputs, layouts and threshold are unchanged.
+
+All 80 native evaluations, using the S1/§8.31 combination supplement for z ≥ 1,
+fit at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the
+upward-rounded 5 % TEXT reserve:
+- **Proposal.** Merged W3 E + R is 8,962,260,803 B sparse and 9,021,392,147 B
+  dense. The W/X reserves are 255,142,980 / 275,814,406 B, and the tightest
+  headroom is dense W3 at **+2,319,876,572 B**. Each point's tightest is dense
+  W3: L(3,0) +2,924,681,438, L(2,1) +3,553,502,263, L(1,2) +4,457,156,151 and
+  E +2,405,827,373 B.
+- **Registered block kept.** The tightest is +2,315,686,509 B, 24 B below
+  §8.38's.
+
+**Stack consequence.** The retained-reachable stack changes. In the registered
+debug configuration's library test binary, the frames are:
+
+| Frame | Size |
+|---|---:|
+| `lower` | 480 B |
+| `judge` | about 1,840 B |
+| `plan` | about 800 B |
+| `resolve_case` | 10,064 B (including 32 B saved-register prologue) |
+| `apply` | about 592 B |
+
+`resolve_case`'s frame is entered once per case on D1, sequentially. The
+observed live `lower`/`judge`/`plan`/`resolve_case` frames total 13,184 B before
+additional callees; their return slots and locals occupy those frames. `apply`
+runs later below `lower`, after the judge/plan/resolve frames return. These are
+current-binary frame observations, not an incremental predecessor comparison
+or a whole-chain bound. The six source-bound witnesses below establish the
+required observed stack outcomes, without turning these frame observations
+into a whole-chain bound.
+
+**Chosen standing and independent scrutiny.** Agent 0 directs conservative
+carry of the unchanged registered coefficients, including the approved
+3,990,536 B allowance. This follows the maintained README's `a_le_b` rule:
+the current source-derived tree is coefficient-wise bounded by the adopted
+block. All 80 candidate point/phase evaluations, including S2-JD's L21/L12
+owners, also lie below the corresponding kept merged phases at actual atoms.
+The kept W/X reserves are 255,342,507 / 276,013,933 B. The native layout increase
+is real: this carry is not a zero-memory-change claim.
+
+Reproduce the kept block with the exact predecessor `4cf32bfd4` tool cohort,
+its complete run and the adopted §8.38 basis, then `generate --check` against
+the unchanged registered file. Run the current source with this S2 tool and
+compare its merged tree against that reproduced predecessor tree (`a_le_b`
+true, equal structure); evaluate both at current native atoms, and confirm
+all 80 points are bounded by the kept merged phases/reserves. The lower
+proposal is only comparison evidence. Its generated output does not equal
+the kept block. No generated constant is manually selected or overwritten;
+all thirteen reviewed-input files and reader-layout declarations are unchanged.
+
+Independent GPT-6 Astra at medium effort reviewed exact `bf59efa95`, freshly
+reproduced all four candidate points and the comparison, checked the unchanged
+predecessor tool/generator binding and native integer evaluations, and found
+no omitted positive heap owner or method issue with this carry. It passed 25
+focused S2/modal tests and reused the reported broader suites explicitly. Its
+native-pin completion gap is addressed by the derived expectations above; its
+stack-frame and allocation-abstraction wording corrections are applied here.
+This scrutiny does not supply stack qualification or merge readiness.
+
+**AC-004 and isolated challenge (2026-11-02).** Agent 0 cleared exactly six
+prebuilt witnesses and one isolated challenge process in one bounded window,
+with 55 seconds internally and 60 externally, no builds and no retries. The
+clean candidate was `34c25044e58358dc4336d3f4d7ecb5db7ea2fdbd`; production source
+is unchanged from `064dc8bb9`. The prebuilt library test binary
+`open_pipe_stress_product_physics-fbca7a87862453fd` has SHA-256
+`73d1ca1298d9f202e1229aa5c2d667bef3a7bf8a8095d5032337994edc165c4c`;
+`retained_memory_challenge-b12eb53242e0f3d4` has SHA-256
+`4165cc77a5253223d5569e461f0a8f51d8d90167a884733aaf0e1c5f913a9778`.
+The candidate, both binaries and the unchanged entire profile file (`8cd8fcf3…`)
+were verified before execution. The amended native laws passed 71/71.
+
+`t3_exclusive.sh` held all four slots under memguard. Request was
+10:28:26.337145 UTC; the acquired script began at 10:28:26.410814 UTC, so the
+approximately 0.074-second queue interval is separate from execution. Execution
+ended at 10:28:40.701548 UTC after 14.291 seconds; the wrapper logged
+`END-EXCLUSIVE rc=0` at 10:28:40 UTC and released immediately. All seven child
+processes were reaped. At 10:28:55 UTC the pending marker was absent and all four
+lock files had no owner. No ordinary build ran during this acquired window.
+Each witness was its own exact ignored test process with one test thread:
+
+| Witness | Sparse | Dense |
+|---|---|---|
+| W1 at 1 MiB | passed | passed |
+| W2 deep (4 MiB and 1 MiB) | passed | passed |
+| W-C2 (4 MiB and 1 MiB) | passed | passed |
+
+The seventh process, `retained_direct_peak_is_within_the_profiles_bounds`, passed
+four allocator observations; it is one test process, not seven challenge cases:
+
+| Input | Mode | Peak requested bytes | Kept bound, without R |
+|---|---|---:|---:|
+| milestone | sparse | 3,807,283 | 8,899,142,475 |
+| milestone | dense | 2,144,036 | 8,958,273,819 |
+| W-C2 | sparse | 7,126,028 | 8,899,142,475 |
+| W-C2 | dense | 7,127,015 | 8,958,273,819 |
+
+All four published successors. The 16 GiB abort cap, M and reserve policy were
+unchanged. Durations establish completion within the cleared window, not
+performance qualification. These are local source-bound witnesses, not native
+App, acceptance or release evidence.
+
+**Integrated-main bindings (2026-11-02).** Between integrated main `4cf32bfd4`
+and candidate `34c25044e`, whose sources equal `9d8cf5820`'s, the frozen-input
+comparison found no difference in 876 comparisons (949 files, 438 requests,
+both modes). At `9d8cf5820` all three desktop engines were rebuilt from
+re-derived stamps, and the operation engine's preview equals the native preview
+on all 14 parity inputs (DEL-02-01 Work `model-document-0.9.0.md` §10). The
+CI-selected Python suite found no stale build-bound carrier, so none was
+regenerated.
+
+**Still open.** Exact-head hosted checks.
+
+Maintained tests: 870 pass, including `tests/test_840_rt_g5_s2.py`. The named
+proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:
+`proposal/retained_memory.rs`, `run-cand/`, `run-base4cf/` and
+`eval80-*.json`. They are review inputs, not permanent dependencies.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2428,3 +2749,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Model document 0.9.0 actual-source D3", "§8.36" (S1-PIN, S1-BN, S1-NR, S1-RK, S1-HS, S1-L1, S1-ZR, S1-ZS, S1-ID, S1-MS, S1-VW, S1-WH, S1-TS) | §8.36 |
 | "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |
 | "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |
+| "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |

@@ -918,28 +918,77 @@ pub struct SeismicGenerationInput {
     pub g_factor_z: Option<Quantity>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(from = "WindGenerationWire")]
 pub struct WindGenerationInput {
-    #[serde(default)]
     pub pressure: Option<Quantity>,
-    #[serde(default)]
     pub shape_factor: Option<Quantity>,
     /// Global axis the projected wind intensity acts along
     /// (`global_x` | `global_y` | `global_z`).
-    #[serde(default)]
     pub direction: Option<String>,
     /// User-marked exposed spans by pipe id; wind is generated on these
     /// spans only.
-    #[serde(default)]
     pub exposed_pipe_refs: Vec<String>,
     /// User-marked partial-extent exposed spans. Each entry generates its
     /// own wind load over the marked fraction range of one pipe span only;
     /// multiple disjoint extents per pipe are allowed, overlapping extents
     /// block, and a pipe named here must not also appear in
     /// `exposed_pipe_refs`.
-    #[serde(default)]
     pub exposed_spans: Vec<WindExposedSpanInput>,
+    /// Whether the document authored `exposed_pipe_refs` (an empty list
+    /// included). Private presence only: never serialized, read by the
+    /// operating-condition wind-exposure conflict (DEL-02-01 Design
+    /// `model-document-0.9.0.md` §1.3, §1.7). A value built in code with this
+    /// false still counts as authored when its list is non-empty.
+    pub(crate) exposed_pipe_refs_authored: bool,
+    /// Whether the document authored `exposed_spans` (an empty list included).
+    pub(crate) exposed_spans_authored: bool,
+}
+
+impl WindGenerationInput {
+    /// Whether the case states its own exposed pipes: the member was authored,
+    /// even as `[]`, or the list is non-empty.
+    pub(crate) fn authors_exposed_pipe_refs(&self) -> bool {
+        self.exposed_pipe_refs_authored || !self.exposed_pipe_refs.is_empty()
+    }
+
+    /// Whether the case states its own exposed spans, as above.
+    pub(crate) fn authors_exposed_spans(&self) -> bool {
+        self.exposed_spans_authored || !self.exposed_spans.is_empty()
+    }
+}
+
+/// Closed wire form of `WindGenerationInput` (`model_fields` reads its keys):
+/// the same members and defaults, with each list's presence kept. A present
+/// list decodes exactly as the plain `Vec` did, so `null` and malformed values
+/// keep their errors.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct WindGenerationWire {
+    #[serde(default)]
+    pressure: Option<Quantity>,
+    #[serde(default)]
+    shape_factor: Option<Quantity>,
+    #[serde(default)]
+    direction: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    exposed_pipe_refs: Option<Vec<String>>,
+    #[serde(default, deserialize_with = "deserialize_present_value")]
+    exposed_spans: Option<Vec<WindExposedSpanInput>>,
+}
+
+impl From<WindGenerationWire> for WindGenerationInput {
+    fn from(wire: WindGenerationWire) -> Self {
+        WindGenerationInput {
+            pressure: wire.pressure,
+            shape_factor: wire.shape_factor,
+            direction: wire.direction,
+            exposed_pipe_refs_authored: wire.exposed_pipe_refs.is_some(),
+            exposed_spans_authored: wire.exposed_spans.is_some(),
+            exposed_pipe_refs: wire.exposed_pipe_refs.unwrap_or_default(),
+            exposed_spans: wire.exposed_spans.unwrap_or_default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -21186,6 +21235,7 @@ mod tests {
                 direction: Some("global_z".to_string()),
                 exposed_pipe_refs: vec!["pipe:P-100".to_string()],
                 exposed_spans: Vec::new(),
+                ..Default::default()
             }),
             provenance: Some("invented_example_user_input".to_string()),
         });
@@ -21311,6 +21361,7 @@ mod tests {
                 direction: Some("global_z".to_string()),
                 exposed_pipe_refs: Vec::new(),
                 exposed_spans: Vec::new(),
+                ..Default::default()
             }),
             provenance: Some("invented_example_user_input".to_string()),
         });
@@ -21367,6 +21418,7 @@ mod tests {
                 direction: Some("global_x".to_string()),
                 exposed_pipe_refs,
                 exposed_spans,
+                ..Default::default()
             }),
             provenance: Some("invented_example_user_input".to_string()),
         });
@@ -21659,6 +21711,7 @@ mod tests {
                 direction: Some("global_y".to_string()),
                 exposed_pipe_refs: Vec::new(),
                 exposed_spans: vec![exposed_span_input("pipe:P-100", 0.2, 0.7)],
+                ..Default::default()
             }),
             provenance: Some("invented_example_user_input".to_string()),
         });
@@ -23507,6 +23560,7 @@ mod tests {
                 exposed_spans: span
                     .map(|(a, b)| vec![exposed_span_input("pipe:P-100", a, b)])
                     .unwrap_or_default(),
+                ..Default::default()
             }),
             provenance: Some("independent_p5_invented_uniform_fixture".into()),
         });

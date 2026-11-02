@@ -171,3 +171,4 @@ needs:
 code_paths:
 - tools/validation/validate_dependencies_schema.py
 - docs/theory/centerline_analysis.md
+- docs/theory/hanger_sizing.md

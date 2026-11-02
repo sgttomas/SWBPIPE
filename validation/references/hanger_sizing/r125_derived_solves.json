@@ -1,0 +1,910 @@
+{
+  "schema": "swbpipe.hanger_sizing_reference.r125/1",
+  "basis": "Independent reference for DEL-04-11 hanger-sizing derived solves: R-1 (rigid reactions of continuous beams), R-2 (free riser growth) and R-5 (lift-off), from execution/PKG-04/DEL-04-11/Work/hanger-sizing.md sections 4, 5 and 12 and classical Euler-Bernoulli beam and frame mechanics. Global Z is vertical, positive up; gravity acts along -Z. SI units (m, N, Pa, N/m, 1/K, K). Every member is a straight circular tube: d = D - 2t, A = pi*(D^2 - d^2)/4, I = pi*(D^4 - d^4)/64; shear deformation is neglected and axial deformation (EA) is included. line_loads give the magnitude w of a uniform line load acting along -Z on the named member (no self-weight is added); nodal_forces give fz positive along +Z; delta_t_k is a uniform temperature change of the named member, free expansion alpha*dT per unit length. A candidate acts on UZ only, positive along +Z. Each operating case carries the weight case's line loads. Solves (section 4.2): w_n is the candidate's UZ reaction in the weight case with every candidate a rigid UZ restraint (S_W); u_cold_m is its UZ displacement in the weight case with every candidate replaced by an upward nodal force w_n and no restraint (S_C); u_operating_m is its UZ displacement in each operating case with the same replacement (S_Oi). Displacements are measured from the drawn geometry. A lift_off_uz support restrains UZ only while its reaction is compressive (pushing the pipe up, reaction >= 0); when inactive its reaction is zero and its UZ gap opens upward (u >= 0). nonlinear_states gives each lift-off support's state in S_W (weight_rigid), S_C (cold) and each S_Oi (by case id). Every case is planar in the X-Z plane and loaded only in that plane; the out-of-plane DOFs (UY, RX, RZ) carry no load, and no expected value depends on the shear modulus or Poisson ratio. Inputs are the exact rational values of the decimals in the generator. Exact quantities: every w_n and every non-candidate reaction (rational in w and the lengths, independent of E, A and I), every u_cold_m (exactly 0), R-2's u_operating_m (alpha*dT*H, rational), R-1's and R-5b's u_operating_m (exactly 0); these are computed with fractions.Fraction and emitted rounded to the nearest binary64. Closed-form floating-point quantities: R-5a's u_operating_m, which is a rational divided by pi; it is evaluated with pi to 101 significant digits in 80-digit decimal arithmetic and then rounded to binary64. Each closed form is checked exactly against an independent exact-rational plane-frame stiffness solve, every solve's vertical equilibrium is asserted, and the lift-off states are confirmed unchanged when every input is replaced by its emitted binary64 value. Every value is invented; no standards or supplier data is used.",
+  "cases": [
+    {
+      "id": "R-1a",
+      "description": "Two equal spans L = 6 m on three supports, uniform w = 1500 N/m on both spans. Ends N1 and N3 are rigid_uz (S-1, S-3). Rigid-body motion is removed by guide G-1 at N1 (UX, UY, RX) and guide G-3 at N3 (UY): UX at one end only, so axial growth is free; UY at both ends removes UY and RZ; RX at N1 removes rotation about the beam axis, which no translational restraint on collinear nodes can remove. No end restrains RY (an anchor at an end would fix its rotation and change W). Interior N2 is the candidate H-2. Three-moment equation with M_A = M_C = 0: M_B = -wL^2/8, so each end reaction is wL/2 + M_B/L = 3wL/8 = 3375 N and W = 2(wL/2 - M_B/L) = 5wL/4 = 11250 N, independent of E, A and I. u_C = 0: in a linear model the force W reproduces the rigid equilibrium. Operating case O1 adds dT = 150 K on both members: growth along X is unrestrained (UX at N1 only) and changes no UZ, so u_O1 = 0.",
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          6.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          12.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        }
+      ],
+      "supports": [
+        {
+          "id": "S-1",
+          "node": "N1",
+          "kind": "rigid_uz",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-1",
+          "node": "N1",
+          "kind": "guide",
+          "dofs": [
+            "UX",
+            "UY",
+            "RX"
+          ]
+        },
+        {
+          "id": "H-2",
+          "node": "N2",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "S-3",
+          "node": "N3",
+          "kind": "rigid_uz",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-3",
+          "node": "N3",
+          "kind": "guide",
+          "dofs": [
+            "UY"
+          ]
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1500.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1500.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": []
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1500.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1500.0
+            }
+          ],
+          "delta_t_k": [
+            {
+              "member": "M1",
+              "value": 150.0
+            },
+            {
+              "member": "M2",
+              "value": 150.0
+            }
+          ],
+          "nodal_forces": []
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "support": "H-2",
+            "node": "N2",
+            "w_n": 11250.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.0
+            }
+          }
+        ],
+        "nonlinear_states": {}
+      }
+    },
+    {
+      "id": "R-1b",
+      "description": "Three equal spans L = 5 m, uniform w = 2000 N/m on all spans. Ends N1, N4 rigid_uz (S-1, S-4) with guides G-1 at N1 (UX, UY, RX) and G-4 at N4 (UY), as in R-1a. Interior N2, N3 are candidates H-2, H-3. Three-moment equation, symmetric: M_B = M_C = -wL^2/10, so each end reaction is wL/2 + M_B/L = 2wL/5 = 4000 N and each W = (wL/2 - M_B/L) + wL/2 = 11wL/10 = 11000 N (the outer span's share plus half the symmetric centre span). u_C = 0 at both candidates (linear). Operating case O1 adds dT = 150 K on all members; growth along X is free, so u_O1 = 0.",
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          5.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          10.0,
+          0.0,
+          0.0
+        ],
+        "N4": [
+          15.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M3",
+          "end_nodes": [
+            "N3",
+            "N4"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        }
+      ],
+      "supports": [
+        {
+          "id": "S-1",
+          "node": "N1",
+          "kind": "rigid_uz",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-1",
+          "node": "N1",
+          "kind": "guide",
+          "dofs": [
+            "UX",
+            "UY",
+            "RX"
+          ]
+        },
+        {
+          "id": "H-2",
+          "node": "N2",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "H-3",
+          "node": "N3",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "S-4",
+          "node": "N4",
+          "kind": "rigid_uz",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-4",
+          "node": "N4",
+          "kind": "guide",
+          "dofs": [
+            "UY"
+          ]
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 2000.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 2000.0
+            },
+            {
+              "member": "M3",
+              "w_n_per_m": 2000.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": []
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 2000.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 2000.0
+            },
+            {
+              "member": "M3",
+              "w_n_per_m": 2000.0
+            }
+          ],
+          "delta_t_k": [
+            {
+              "member": "M1",
+              "value": 150.0
+            },
+            {
+              "member": "M2",
+              "value": 150.0
+            },
+            {
+              "member": "M3",
+              "value": 150.0
+            }
+          ],
+          "nodal_forces": []
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "support": "H-2",
+            "node": "N2",
+            "w_n": 11000.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.0
+            }
+          },
+          {
+            "support": "H-3",
+            "node": "N3",
+            "w_n": 11000.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.0
+            }
+          }
+        ],
+        "nonlinear_states": {}
+      }
+    },
+    {
+      "id": "R-1c",
+      "description": "Two unequal spans L1 = 4 m (N1-N2) and L2 = 6 m (N2-N3), uniform w = 1200 N/m on both, same section. Ends rigid_uz (S-1, S-3) with guides G-1 at N1 (UX, UY, RX) and G-3 at N3 (UY), as in R-1a; interior N2 is the candidate H-2. Three-moment equation with M_A = M_C = 0 and uniform EI: M_B = -w(L1^3 + L2^3)/(8(L1 + L2)) = -4200 N m; R_A = wL1/2 + M_B/L1 = 1350 N; R_C = wL2/2 + M_B/L2 = 2900 N; W = w(L1 + L2)/2 - M_B(1/L1 + 1/L2) = 7750 N (exact; independent of E, A and I). u_C = 0 (linear). Operating case O1 adds dT = 150 K on both members; growth along X is free, so u_O1 = 0.",
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          10.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        }
+      ],
+      "supports": [
+        {
+          "id": "S-1",
+          "node": "N1",
+          "kind": "rigid_uz",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-1",
+          "node": "N1",
+          "kind": "guide",
+          "dofs": [
+            "UX",
+            "UY",
+            "RX"
+          ]
+        },
+        {
+          "id": "H-2",
+          "node": "N2",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "S-3",
+          "node": "N3",
+          "kind": "rigid_uz",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "G-3",
+          "node": "N3",
+          "kind": "guide",
+          "dofs": [
+            "UY"
+          ]
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1200.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1200.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": []
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1200.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1200.0
+            }
+          ],
+          "delta_t_k": [
+            {
+              "member": "M1",
+              "value": 150.0
+            },
+            {
+              "member": "M2",
+              "value": 150.0
+            }
+          ],
+          "nodal_forces": []
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "support": "H-2",
+            "node": "N2",
+            "w_n": 7750.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.0
+            }
+          }
+        ],
+        "nonlinear_states": {}
+      }
+    },
+    {
+      "id": "R-2",
+      "description": "Free riser. Riser M1 vertical from N1 (0,0,0) to N2 (0,0,H), H = 6 m, anchored at N1 (A-1, all six DOF). Leg M2 horizontal along +X from N2 to N3 (Lh,0,H), Lh = 4 m, with no other support; N3 is free. The candidate H-2 is at the riser top N2 (UZ). Line loads w_r = 900 N/m on the riser (along -Z, axial) and w_h = 1800 N/m on the leg. S_W: UZ is prescribed zero at both riser ends, and in a straight member axial and bending responses are uncoupled, so the riser's own weight is shared half and half as in a fixed-fixed bar under uniform axial load (w_r H/2 each); the leg's shear w_h Lh reaches the corner, where the rigid UZ takes it all; the leg's end moment w_h Lh^2/2 bends the riser laterally and changes no UZ. W = w_h Lh + w_r H/2 = 7200 + 2700 = 9900 N; the anchor's UZ reaction is w_r H/2 = 2700 N; neither depends on E, A or I. S_C: with the upward force W the riser's axial force is N(z) = w_r H/2 - w_r (H - z), whose integral over the height is zero, so u_C = 0. S_Oi: with the candidate as a force the frame is a statically determinate cantilever, so uniform dT gives free growth with no stress; the riser lengthens by alpha dT H and the leg grows along X, so u_i = alpha dT_i H (alpha = 1.25e-5 1/K): O1 dT = 160 K on riser and leg, u_O1 = 0.012 m; O2 dT = 80 K, u_O2 = 0.006 m. The hanger force is the same W cold and hot; the anchor reaction is unchanged.",
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          0.0,
+          0.0,
+          6.0
+        ],
+        "N3": [
+          4.0,
+          0.0,
+          6.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        }
+      ],
+      "supports": [
+        {
+          "id": "A-1",
+          "node": "N1",
+          "kind": "anchor",
+          "dofs": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        },
+        {
+          "id": "H-2",
+          "node": "N2",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 900.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1800.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": []
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 900.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1800.0
+            }
+          ],
+          "delta_t_k": [
+            {
+              "member": "M1",
+              "value": 160.0
+            },
+            {
+              "member": "M2",
+              "value": 160.0
+            }
+          ],
+          "nodal_forces": []
+        },
+        {
+          "id": "O2",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 900.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1800.0
+            }
+          ],
+          "delta_t_k": [
+            {
+              "member": "M1",
+              "value": 80.0
+            },
+            {
+              "member": "M2",
+              "value": 80.0
+            }
+          ],
+          "nodal_forces": []
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "support": "H-2",
+            "node": "N2",
+            "w_n": 9900.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.012,
+              "O2": 0.006
+            }
+          }
+        ],
+        "nonlinear_states": {}
+      }
+    },
+    {
+      "id": "R-5a",
+      "description": "Lift-off beam. Members M1 N1-N2 and M2 N2-N3 along +X, L = 4 m each, uniform w = 1400 N/m on both. Anchor A-1 at N1 (x = 0, all six DOF), candidate H-2 at N2 (x = L), lift_off_uz support L-3 at N3 (x = 2L). S_W (L-3 active): fixed-pinned-pinned two-span beam; three-moment with a zero-length span at the fixed end gives M_A = -wL^2/14, M_B = -3wL^2/28, so R_A = 13wL/28 = 2600 N, W = 8wL/7 = 6400 N, R_C = 11wL/28 = 2200 N > 0 (active, consistent). S_C (H-2 as upward force W, L-3 active): the rigid equilibrium is reproduced, R_C = 2200 N > 0, u_C = 0. O1 adds an upward nodal force P = 5000 N at N3 > 11wL/28 = 2200 N. The active trial would need R_C = 11wL/28 - P = -2800 N (tensile), so L-3 is inactive: superposing the excess dP = P - 11wL/28 = 2800 N at the tip of the cantilever (length 2L) on the S_C field gives u_O1 = dP 5L^3/(6EI) at the candidate and an upward gap dP 8L^3/(3EI) at N3 with zero reaction (consistent); I = pi(D^4 - d^4)/64. The anchor UZ reaction is 2wL - W - P = 1800 N. u_O1 is a rational divided by pi, evaluated in floating point.",
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          8.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        }
+      ],
+      "supports": [
+        {
+          "id": "A-1",
+          "node": "N1",
+          "kind": "anchor",
+          "dofs": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        },
+        {
+          "id": "H-2",
+          "node": "N2",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "L-3",
+          "node": "N3",
+          "kind": "lift_off_uz",
+          "dofs": [
+            "UZ"
+          ]
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1400.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1400.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": []
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1400.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1400.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": [
+            {
+              "node": "N3",
+              "fz_n": 5000.0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "support": "H-2",
+            "node": "N2",
+            "w_n": 6400.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.01132308205149453
+            }
+          }
+        ],
+        "nonlinear_states": {
+          "L-3": {
+            "weight_rigid": "active",
+            "cold": "active",
+            "O1": "inactive"
+          }
+        }
+      }
+    },
+    {
+      "id": "R-5b",
+      "description": "Lift-off beam. Members M1 N1-N2 and M2 N2-N3 along +X, L = 4 m each, uniform w = 1400 N/m on both. Anchor A-1 at N1 (x = 0, all six DOF), candidate H-2 at N2 (x = L), lift_off_uz support L-3 at N3 (x = 2L). S_W (L-3 active): fixed-pinned-pinned two-span beam; three-moment with a zero-length span at the fixed end gives M_A = -wL^2/14, M_B = -3wL^2/28, so R_A = 13wL/28 = 2600 N, W = 8wL/7 = 6400 N, R_C = 11wL/28 = 2200 N > 0 (active, consistent). S_C (H-2 as upward force W, L-3 active): the rigid equilibrium is reproduced, R_C = 2200 N > 0, u_C = 0. O1 adds an upward nodal force P = 1000 N at N3, below 11wL/28 = 2200 N. A force applied at a restrained node passes straight into the restraint, so R_C = 11wL/28 - P = 1200 N is still compressive: L-3 stays active (consistent), the displacement field is the S_C field, u_O1 = 0, and the anchor reaction stays 13wL/28.",
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          8.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ],
+          "outside_diameter_m": 0.25,
+          "wall_thickness_m": 0.0125,
+          "elastic_modulus_pa": 200000000000.0,
+          "thermal_expansion_per_k": 1.25e-05
+        }
+      ],
+      "supports": [
+        {
+          "id": "A-1",
+          "node": "N1",
+          "kind": "anchor",
+          "dofs": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        },
+        {
+          "id": "H-2",
+          "node": "N2",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ]
+        },
+        {
+          "id": "L-3",
+          "node": "N3",
+          "kind": "lift_off_uz",
+          "dofs": [
+            "UZ"
+          ]
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1400.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1400.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": []
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "line_loads": [
+            {
+              "member": "M1",
+              "w_n_per_m": 1400.0
+            },
+            {
+              "member": "M2",
+              "w_n_per_m": 1400.0
+            }
+          ],
+          "delta_t_k": [],
+          "nodal_forces": [
+            {
+              "node": "N3",
+              "fz_n": 1000.0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "candidates": [
+          {
+            "support": "H-2",
+            "node": "N2",
+            "w_n": 6400.0,
+            "u_cold_m": 0.0,
+            "u_operating_m": {
+              "O1": 0.0
+            }
+          }
+        ],
+        "nonlinear_states": {
+          "L-3": {
+            "weight_rigid": "active",
+            "cold": "active",
+            "O1": "active"
+          }
+        }
+      }
+    }
+  ]
+}
