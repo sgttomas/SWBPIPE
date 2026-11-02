@@ -4695,6 +4695,664 @@ Route 1 does not by itself export the reference system. Its records are:
   >   standing by the Route 1 implementation PR.
   > - **Status:** owner's acceptance pending.
 
+### 20.5 Operating case (W+P+T) mapping: designed, not implemented
+
+**Status.** Design only. Nothing in this subsection is implemented, and no code, fixture, schema,
+register or ScopeOfWork changes with it. Basis: branch `claude/rt-mbf-analysis-record` at
+`718f5be39` (PR #87). It defines when a SWBPIPE operating case, a case that carries weight,
+pressure and temperature together, is written to MBF and read back exactly, and refuses every
+other operating case by name. It claims no progress on criterion 6 beyond "designed"; the
+reference system stays refused (§20.5.10). Nothing here creates, proposes or accepts a release
+limitation.
+
+- **Ruling applied (Agent 0, 2026-11-02; paraphrase).** Agent 0 approved designing the operating
+  W+P+T mapping as a separate design-first item toward criterion 6. Route 1 (§20.4) is thermal only
+  and does not provide it (§20.4.8).
+- **Source rules applied (Agent 0's brief for this item, 2026-11-02; paraphrase).** Only facts
+  already recorded in this Design and the DEL-17-01 dossier are used, each within its row's
+  registered boundary. One bounded read-only consultation was permitted where essential; it was
+  made of `CAEPIPE-LOAD-CASES` only and is recorded in §20.5.1. The hold on code-to-locked-modulus
+  rows stands (§20.4, **Sources**); this subsection names no code against a modulus option and
+  applies the fail-closed Route 1 policy as adopted (§20.4.9, G-1). G-1 (b), (c) and (e), G-2,
+  G-4 and G-5 stay open, none inferred from another; §20.5.11 states how each bounds what this
+  mapping can claim.
+- **Labels.** Statements about the MBF or the target follow §0: *documented* (citing an admitted
+  row), *selected interpretation* (the profile's choice), or *not stated*, which is a gap
+  (§20.5.11) and is never filled. SWBPIPE's side is cited from code and schema.
+
+#### 20.5.1 Sources, and the bounded consultation of `CAEPIPE-LOAD-CASES` (2026-11-02)
+
+The design uses, within their registered boundaries:
+
+- `CAEPIPE-IMPORT-MBF`: the LOADS record (T1, P1, specific gravity, per element through `L=`;
+  §9.1), OPTEMP (§6; G-1 (a)), OPPRES (fields 2 and 3 switch the Bourdon effect and the pressure
+  correction for bends; §9.4) and MATERIAL (weight density on the first line, rows of temperature,
+  E and α; §7).
+- `CAEPIPE-ANALYSIS`, as consulted on 2026-11-02 (§20.4, **Sources**): the number of thermal
+  loads; the hot option gives operating case i the modulus E(Ti), the cold option gives every
+  case E(T_ref); the two thermal-case options.
+- `CAEPIPE-FORCE`: sustained-category forces and moments also participate in operating cases.
+- `CAEPIPE-LOAD-CASES`, as recorded before this item (§9.3, §9.4, §20.4.2 b) and as consulted
+  below.
+
+**Why a consultation was essential.** The operating mapping's central fact is which loads the
+target's operating case includes. Before this item the Design recorded, from `CAEPIPE-LOAD-CASES`,
+that Pressure 1 acts in the sustained and operating cases and that sustained membership carries
+no temperature (§9.4, §20.4.2 b). Whether the operating case includes weight was not recorded.
+No other registered row states it.
+
+**The consultation, recorded as a source observation.** It sets no default, token mapping,
+implementation or qualification.
+
+- *Access.* `https://docs.sstcae.com/users_manual/load_cases.htm`, the registered live URL
+  (boundary: "case-membership semantics only"), 2026-11-02 19:24Z, HTTP 200, 25,540 bytes, SHA-256
+  `5d4044ff50d2b6b120c63c3d2dc1745db8ebd10b87bcfe725b6406a1c25f8a2c`. Fetched read-only with
+  `curl -s` into a fresh scratch directory; a second fetch gave identical bytes. The raw HTML was
+  reduced to text with Python's standard-library HTML parser under `python3 -I`, by a script kept
+  in a separate directory, and read only through keyword-located extracts (Operating, Sustained,
+  Expansion, Displacement, Thermal). The scratch was deleted afterwards. No WebFetch digest was
+  used.
+- *Stated (documented).* The page defines a sustained case for each pressure, *Sustained
+  (W+Px)*, x from 1 to 10, and an operating case for each thermal load, *Operating (W+Px+Tx)*.
+  Both include the weight of the piping, its components, content, insulation and lining, and both
+  include "operating fluid pressure and its effect". The operating case also includes "the effect
+  of temperature increase/decrease". With one thermal load these are Sustained (W+P1) and
+  Operating (W+P1+T1). It also lists a case named *Sustained Oper (W+P)*, whose loads are W and P.
+- *Not stated.* What a pressure's "effect" comprises (G-7). Any membership of an expansion or
+  thermal case: the page's one mention of expansion cases repeats that several exist only when
+  several thermal loads are set, which this Design already records (§2, §9.1). The membership of
+  specified displacements in any case: the page names displacements only as result sections
+  (G-11).
+- *Disclosure.* The extracts also displayed, outside the boundary or outside this item's need:
+  the page footer; the description of *Sustained Oper (W+P)* beyond its loads, which concerns support
+  status; the definitions of other cases (an empty
+  weight case, a peak case, cold-spring cases); a statement about which cases enter stress
+  calculations; and notes on the case dialog. None is used or reproduced here. The support-status
+  content is outside "which loads each case includes"; it is not used, and the question it bears
+  on is a gap (G-10).
+- *A finding against an existing statement, not resolved here.* §9.4 says that Pressure 1 does
+  not act in the expansion case and cites `CAEPIPE-LOAD-CASES`. This consultation did not locate
+  that statement on the page as served on 2026-11-02; the page defines no expansion case's
+  membership. This is search-scope evidence only. §9.4 is unchanged, and the matter goes to Agent 0
+  (G-9, §20.5.12).
+
+#### 20.5.2 The SWBPIPE side: what an operating case is
+
+SWBPIPE has no operating case type. A load case's `label`, `kind` and `status` are desktop
+members the solver ignores (`schemas/model.schema.yaml`, `LoadCase`). Every case is solved as its
+own equilibrium. On the load/reference-state route the only history is `independent_equilibrium`
+(`schemas/load_reference_state.schema.json`, `History`, :906). An *operating case* in this Design
+therefore means one SWBPIPE load case whose content includes weight or other mechanical loads,
+pressure or both, together with a member temperature other than the reference. It is solved once,
+with all of that content and one stiffness.
+
+- **Ordinary route** (no load/reference-state group). The case's `primitive_loads` hold weight
+  (`weight`, force per length), concentrated forces and moments, and `thermal` primitives (a
+  temperature interval per pipe). Under the exact pressure contract its `pressure_regions` carry
+  pressure. The exact route admits thermal primitives in a pressurized case: it composes them with
+  the regions and requires a finite α from the same material (`pressure_runtime.rs:905-915`).
+  Materials are temperature-independent here: a material with temperature points is refused by
+  the writer outside Route 1 (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`, §20.4.1).
+- **Load/reference-state route** (§20.4.1's entry condition). The case's `analysis_state`
+  (schema `AnalysisState`, :923) holds:
+  - the ledger `load_sources` (:889), each a stored primitive with a factor. The resolver forms
+    the effective case from the ledger alone, each magnitude times its factor
+    (`resolve.rs:1089-1104`);
+  - `element_states` (:610), each with a thermal state and a material selection, which give the
+    member's strain and its E and ν (§20.4.2 c to e);
+  - `support_states` (:836), with participation and optional `boundary_motion`;
+  - the case's `pressure_regions`, which the resolver records as pressure eigenloads and closure
+    loads (`resolve.rs:1105-1108`, classification `pressure_eigen_and_closure`).
+
+  The resolved case supplies each member's selected E/ν pair to the pressure assembly
+  (`ResolvedCase.pairs`, `resolve.rs:391-399`; `pressure_runtime.rs:853`). Pressure, weight and
+  temperature therefore act on one stiffness, each member's at its own selection.
+- **Pressure effects SWBPIPE models** (exact contract; DEL-04-07 `pressure-contract.md`). Closure
+  caps p·Aᵢ at each `transfers_to_wall` terminal and at junctions, which is the pressure thrust;
+  the straight members' Poisson eigenload pair ±2νpAᵢ (`source_geometry.rs:314-323`), which is
+  independent of E; on each realized bend, the pressure-free strain (1−2ν)pAᵢ/(E·A_s) with the
+  bend's end caps, which depends on the member's E; and the kink remainder at bend junctions. The
+  route excludes Bourdon opening of bends and pressure stiffening of k and SIF (D-3). Closure
+  transfer is declared, never inferred.
+- **Combinations are not cases.** A combination combines solved results
+  (`schemas/model.schema.yaml`, `Combination`): `mechanics` sums terms linearly, and
+  `result_state_subtraction` takes minuend minus subtrahend, optionally with `difference_basis`
+  `operating_minus_sustained` and a `subtrahend_support_state` (`own` or `minuend_final`), both
+  of which the solver withholds today (`document_members.rs:53-80`). An operating state formed as
+  a `mechanics` sum of a sustained case and a thermal case is a different object from an
+  operating case. With a temperature-dependent modulus the two differ, because each term is
+  solved with its own case's stiffness.
+- **The reference system's form** (§20.5.10). RS-SUS (W+P), RS-OPE (W+P+T) and RS-SAM
+  (W+P+motion) are three load/reference-state cases; RS-EXP is the combination RS-OPE − RS-SUS
+  with no `difference_basis`.
+
+#### 20.5.3 The MBF side: what the admitted records express
+
+- **Thermal loads.** OPTEMP's number of thermal loads N decides how many operating cases exist,
+  and several operating and expansion cases exist only when N is above 1 (documented:
+  `CAEPIPE-ANALYSIS`, `CAEPIPE-LOAD-CASES`; §9.1). The writer writes OPTEMP field 1 only. Whether
+  an omitted field 3 means one thermal load is not stated (G-8). This mapping uses one thermal
+  load; T2 to T10 and P2 to P10 are not written.
+- **Temperature.** One T1 per element, through its LOADS record (documented, §9.1, §9.2), with the
+  reference temperature in OPTEMP field 1.
+- **Pressure.** One P1 per element, in bar in SI files (documented, §9.4). P1 acts in Sustained
+  (W+P1) and Operating (W+P1+T1) (documented, §20.5.1). The same P1 serves both cases: the MBF
+  has no way to give the sustained case one pressure and the operating case another.
+- **Weight.** Only as MATERIAL weight density with specific gravity 0 (§7.3, §9.1), which the
+  target turns into weight under earth gravity (§6). Weight is in both cases (documented,
+  §20.5.1). One weight per element serves both: the MBF cannot give the two cases different
+  weights.
+- **Forces and moments.** `FOR` and `MOM` with `FLC=1` are in the sustained case (documented,
+  *Format of .MBF*), and sustained-category forces and moments also act in operating cases
+  (documented, `CAEPIPE-FORCE`). The writer writes them without `FLC`; that they are then
+  sustained is the writer's convention and rests on private notes (PD-1; TBD-17-04-007 open). The
+  operating mapping inherits that dependency unchanged, as today's sustained export does.
+- **Specified displacements.** Their membership in the operating case is not stated (G-11).
+- **Pressure effects.** OPPRES fields 2 and 3 switch the target's Bourdon effect and pressure
+  correction for bends; the writer writes both off (documented, §9.4). What "its effect" in the
+  case definitions includes with both off, for example closed-end pressure thrust and the axial
+  Poisson effect, is not stated (G-7).
+- **How the cases relate.**
+  - The operating case is a case in its own right: the *Elastic Modulus* option gives each load
+    case its own stiffness, operating case i at E(Ti) under hot (documented, `CAEPIPE-ANALYSIS`).
+  - The thermal case is operating minus sustained under *Thermal = Operating – Sustained*, or
+    solved independently under *Solve Thermal case*. Which applies to an MBF, and its default, is
+    G-5.
+  - The page states the modulus per load case without making it depend on the thermal-case
+    option. Reading it as holding for the operating case under either option is a reading, not a
+    separate statement (G-6).
+  - The sustained case's modulus under hot is not stated (G-2).
+- **No case records.** The MBF carries no case definitions: the target forms its cases from the
+  loads (§9.3), and SWBPIPE's case ids, labels and roles travel only in the sidecar (§15). Three
+  different SWBPIPE models can therefore write the same MBF bytes (§20.5.8, example O-2).
+
+#### 20.5.4 Equivalence, part by part
+
+Each part is checked against the SWBPIPE operating case O, and, where present, against the
+sustained case S that the same MBF records also feed.
+
+**(a) Weight.**
+
+- *SWBPIPE.* O's weight primitives, or its ledger sources of category `weight`, each a force per
+  length on a pipe along −Y. Today's writer exports only that form (`si_writer.py:1425-1443`).
+- *MBF.* One weight density per element, acting in Sustained (W+P1) and Operating (W+P1+T1)
+  (§20.5.3).
+- *Equivalence.* O's weight and the target operating case's are the same load, by §7.3's existing
+  inverse. Where S exists, its weight and O's must be equal exactly: the same targets, directions
+  and dimensions, with magnitudes equal as exact rationals in N/m after §5.2's unit normalization.
+  Otherwise the MBF cannot state both, and the export is refused
+  (`MBF-SI-OPERATING-PARTNER-MISMATCH`, naming the first differing source). Content folded into
+  the weight density (§7.3) is the same in both cases; nothing is claimed about a target case
+  that SWBPIPE does not author.
+- *Gravity.* The weight is earth gravity along the declared vertical (§6, OPMISC). A weight along
+  any other direction is refused today by the writer (`MBF-SI-LOAD-UNSUPPORTED`), unchanged.
+
+**(b) Pressure.**
+
+- *SWBPIPE.* O's pressure regions: members, terminals with closure transfer, pressure and basis.
+  They act on O's stiffness through the effects listed in §20.5.2.
+- *MBF.* P1 per element, acting in Sustained (W+P1) and Operating (W+P1+T1); OPPRES with the
+  Bourdon effect and the pressure correction for bends off (§9.4).
+- *Equivalence.* O's regions are written as P1 exactly as a sustained case's are today (§9.4,
+  **Writer counterpart**, the export preflight included). Where S exists, O's regions and S's
+  must be equal region for region: the same members in the same order, the same terminals with
+  the same closure transfers, the same basis, and pressures equal as exact rationals in bar. Only
+  ids and provenance texts may differ. Otherwise `MBF-SI-OPERATING-PARTNER-MISMATCH`, naming the
+  region and field. Closure transfer has no MBF field; it travels in the sidecar (§20.5.7).
+- *Pressure effects.* SWBPIPE models pressure thrust through its closure caps, the straight
+  members' Poisson pair, and the bends' pressure-free strain. It does not model Bourdon opening
+  of bends (§20.5.2). With OPPRES written as today, the operating mapping relies on exactly the
+  reading §9.4 already applies to the sustained export: the written OPPRES asks the target for
+  the same exclusions as SWBPIPE's model. That reading is not proved (G-7), and this mapping
+  claims nothing beyond it. The pressure-free strain of a bend depends on E, so in O it is formed
+  at O's selected E; the target's operating stiffness under hot is E(T1) (part e).
+
+**(c) Thermal.**
+
+- *Ordinary route.* O's thermal primitives give T1 = T_ref + ΔT per element, as the writer
+  writes today for a thermal case (§9.2). Materials are temperature-independent (§20.5.2).
+- *Load/reference-state route.* O's element states are mapped exactly as Route 1 maps the thermal
+  case's: one reference configuration and T_ref (§20.4.2 a), the admitted thermal-state variants
+  and their T1 (c), constant secant laws with datum T_ref (d), constant α (e), and the
+  canonical-decimal round trip (g). Every Route 1 refusal applies to O by its existing name.
+- *Strain.* Equivalence rests on the constant-α reading that §7.1, §9.2 and §20.4.2 (c) already
+  apply (G-3), and on nothing more. The operating case includes "the effect of temperature
+  increase/decrease" (documented, §20.5.1); the strain formula is not stated (G-3).
+
+**(d) Combination semantics.**
+
+- *Operating case to operating case.* SWBPIPE's O is solved once with W, P and T on one
+  stiffness. The target's Operating (W+P1+T1) includes the same loads (documented, §20.5.1)
+  with its own stiffness (documented, `CAEPIPE-ANALYSIS`). The mapping is therefore direct, case
+  to case. It needs no superposition and no thermal-case method, subject to G-6.
+- *A `mechanics` combination is not mapped.* A SWBPIPE combination that sums a sustained and a
+  thermal case is not the target's operating case. With a varying modulus, each term carries its
+  own case's stiffness. With nonlinear supports, each term carries its own support status. It
+  stays omitted (`MBF-SI-COMBINATION-NOT-EXPORTED`), as today, and its cases are mapped by their
+  own roles. Mapping it to the target's operating case would be an approximation; none is
+  admitted.
+- *A `result_state_subtraction` O − S* (RS-EXP's form) would correspond to the target's thermal
+  case only under the difference option (G-5), only when the target's sustained case equals S
+  (G-2 with a varying modulus), and, with nonlinear supports, only under matching support-status
+  semantics (G-10; `difference_basis` and `subtrahend_support_state` are withheld by the solver
+  today). The MBF has no combination record. This mapping writes nothing for it and claims no
+  correspondence: it stays omitted, as today (§17.1). Restoring its identity from the sidecar is
+  an option for Agent 0 (§20.5.12, item 4), not part of the subset.
+- *A thermal-only case beside O.* Route 1 maps a thermal-only case to the expansion label. With an
+  O present, that case's T1 would have to equal O's, and its response would equal the target's
+  thermal case only under conditions G-2 and G-5 leave open. It is refused
+  (`MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED`).
+
+**(e) The modulus of each case.**
+
+- *Operating case, constant E (ordinary route).* Every MATERIAL row states the same E (§7.1), so
+  O's E is the E the target uses under either modulus option. This is the reading that today's
+  export, and §20.4.2 (e) for a sustained case beside single-E materials, already use. It does
+  not depend on G-1 (b), (c) or (e), G-2 or G-4. It names G-6 as a condition (§20.5.11).
+- *Operating case, varying E (Route 1).* The per-member rule (§20.4, **The per-member rule**)
+  applies to O's members. Each member selects at its T1, and the row at T1 states the selected E
+  exactly (option (a), §20.4.2 e). Under hot, operating case 1 uses E(T1) (documented). The
+  equivalence then holds directly, without G-5 and without the null-sustained argument Route 1
+  needs for its thermal case. It still needs the hot option to be in effect for the file (G-1 (b),
+  (c), (e), and the fail-closed piping-code rule), the target's use of the row at T1 unchanged
+  (G-4), and G-6.
+- *Sustained partner.* S's members are at T_ref with zero strain (§20.4.2 b). Beside constant-E
+  materials, S's E is every row's E. Beside a varying modulus, the target's sustained modulus
+  under hot is G-2: such an S is refused (`MBF-SI-SUSTAINED-MODULUS-UNPROVED`), as Route 1
+  refuses it.
+- *The thermal case.* Its modulus under *Solve Thermal case* is not stated (G-2, G-5). No SWBPIPE
+  case is mapped to it (part d).
+
+**(f) Supports.**
+
+- Linear supports only. The writer refuses `nonlinear` and `hanger` members today (§17.1), and on
+  the load/reference-state route a support state other than `active_model_device` is refused
+  (§20.4.2 b). Both are unchanged.
+- With nonlinear supports, an operating case's support status is a solve result. The target's
+  handling of it (lift-off in operating cases, and *Sustained Oper*) is outside every registered
+  boundary (G-10). An operating case with nonlinear supports stays refused, by those existing
+  names.
+- Boundary motion and anchor displacements in O are refused: their operating membership is not
+  stated (G-11). On Route 1 the code is `MBF-SI-BOUNDARY-MOTION-UNSUPPORTED`, as today. On the
+  ordinary route it is `MBF-SI-OPERATING-DISPLACEMENT-UNSUPPORTED`, which is new. The exact
+  pressure route already refuses a support-targeted displacement primitive
+  (`EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED`).
+
+#### 20.5.5 The admitted subset
+
+A model's cases are classified by role from their content: on the ordinary route by primitive
+category, and on the load/reference-state route as §20.4.2 (b) classifies them. This subsection
+adds one role:
+
+| Role | Condition | MBF case |
+|---|---|---|
+| operating | mechanical content (weight, forces, moments) or pressure regions, together with a member at T1 ≠ T_ref (ordinary route: a non-zero thermal primitive) | Operating (W+P1+T1); a new writer label `LOAD_CASE_LABELS["operating"]`, the writer's own name for the target's case |
+
+The subset has two tiers, with the same conditions except where stated.
+
+**Tier O-A: constant modulus, ordinary route.** Admitted when all of these hold:
+
+1. **One operating case.** At most one case has the operating role. A second one is refused
+   (`MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED`): N = 1 (§20.5.3).
+2. **At most one sustained partner, and no thermal-only case.** At most one sustained-role case S
+   exists (as today), and no thermal-role case exists beside O
+   (`MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED`, §20.5.4 d).
+3. **Mechanical identity with the partner.** If S exists, O's mechanical content equals S's
+   exactly, and O's regions equal S's (§20.5.4 a, b). Otherwise
+   `MBF-SI-OPERATING-PARTNER-MISMATCH`. If no S exists, O's mechanical content is written as the
+   MBF's sustained loads, and the sidecar records that SWBPIPE authored no sustained case.
+4. **Temperatures.** Every thermal primitive of O is a temperature interval on a pipe whose
+   material has α. T1 = T_ref + ΔT per element, at the writer's reference temperature as today
+   (§9.2). A bend and its incoming straight share T1 and P1, as one layout row requires
+   (`MBF-SI-BEND-UNSUPPORTED`, as today).
+5. **Constant modulus.** Every material is temperature-independent. A material with points is
+   refused outside Route 1, as today.
+6. **No displacement in O.** `MBF-SI-OPERATING-DISPLACEMENT-UNSUPPORTED` (§20.5.4 f).
+7. **Supports, pressure contract, sections and everything else** as today's writer admits them
+   (§9.4, §12, §17.1). Every existing refusal applies by its existing name.
+
+**Tier O-B: varying modulus, load/reference-state route (Route 1 plus an operating case).**
+Conditions 1 to 3 and 6 to 7 of O-A, and:
+
+- O's element states, laws, materials and selections meet every §20.4.2 condition that Route 1
+  sets for the thermal case, with O in that case's place. That includes the per-member rule,
+  option (a) for derived rows, and the canonical-decimal round trip.
+- O's ledger meets §20.4.2 (b)'s ledger rules: factor 1, and every stored primitive in the
+  ledger.
+- S, if present, meets Route 1's sustained-case rules, including G-2's single-E condition
+  (`MBF-SI-SUSTAINED-MODULUS-UNPROVED`). Its ledger's sources pair with O's mechanical sources
+  under condition 3, compared on the effective (ledger) case.
+- Route 1's adopted fail-closed modulus-selection policy applies unchanged:
+  `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED` for every piping-code/OPTEMP combination until
+  admitted evidence establishes one (G-1).
+- O-B waits on everything Route 1 waits on (G-1 (b), (c), (e), G-4), and on G-6. It does not
+  wait on G-5 or, without a varying-modulus sustained partner, on G-2.
+
+**Ordering of checks.** A model is classified first. A case that fails a tier condition is
+refused by that condition's code; the existing codes keep their present meaning for everything
+outside this subsection (`MBF-SI-PRESSURE-CASE-UNSUPPORTED` for regions in a case with thermal or
+displacement content that no tier admits; `MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED` as listed). Any
+refusal refuses the whole file (§17).
+
+**The writer's stores.** The MBF's weight, forces, moments and P1 are filled once, from S when it
+exists and from O otherwise. O's mechanical content is compared with S's, never added to the
+stores: summing both would double the weight. T1 comes from O.
+
+**What stays unchanged.** Every model without an operating-role case is written byte for byte as
+today, with its present sidecar format. Route 1 without an operating case is unchanged. §20.4.2
+(b)'s "operating (mixed)" row is unchanged for every case outside this subsection's tiers.
+
+#### 20.5.6 Refusals
+
+| Code | New or existing | Condition |
+|---|---|---|
+| `MBF-SI-OPERATING-PARTNER-MISMATCH` | new | O's mechanical content or regions differ from the sustained partner's (§20.5.4 a, b). Names O, S and the first differing source, region or field |
+| `MBF-SI-OPERATING-DISPLACEMENT-UNSUPPORTED` | new | an imposed displacement in O on the ordinary route (G-11). On Route 1, `MBF-SI-BOUNDARY-MOTION-UNSUPPORTED` as today |
+| `MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED` | existing, extended | a second operating case; a thermal-only case beside O; a second sustained case (as today) |
+| `MBF-SI-PRESSURE-CASE-UNSUPPORTED` | existing | regions in a case with thermal or displacement content that neither tier admits |
+| `MBF-SI-SUSTAINED-MODULUS-UNPROVED` | Route 1 design code | a sustained partner beside a varying modulus (G-2) |
+| `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED` | Route 1 design code | every tier O-B export until G-1 is answered |
+| Every Route 1 code of §20.4.3 | Route 1 design codes | as there, with O in the thermal case's place |
+| `MBF-SI-COMBINATION-NOT-EXPORTED` | existing (omitted) | every combination, including O − S and a sustained-plus-thermal sum (§20.5.4 d) |
+| `MBF-IMPORT-OPERATING-UNBOUND` | new (importer) | a sidecar with `operating_map` on the rebind route (`rebind_by_node_number`), which skips the regeneration identity |
+| `MBF-IMPORT-SIDECAR-CONFLICT` | existing (importer) | an `operating_map` inconsistent with the MBF: a partner pairing whose contents differ, a region whose members do not carry P1, or an operating case in a file with no T1 ≠ T_ref |
+| `MBF-IMPORT-SOURCE-UNASSOCIATED`, `MBF-IMPORT-SOURCE-MISMATCH`, `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` | format 5 design codes | as §20.4.4, for every bound import of an operating export (§20.5.7) |
+| `MBF-IMPORT-SIDECAR-INVALID` | existing (importer) | a sidecar of the new format given to an importer that does not read it (§20.4.5, **Backwards compatibility**) |
+
+#### 20.5.7 Identity, sidecar and the importer's inverse
+
+**What the MBF cannot carry.** The MBF carries values, not cases. With a partner, the same MBF
+records describe two SWBPIPE cases. Without one, they describe one case where the target forms
+two. So the sidecar must carry:
+
+- the operating case's id and role, and whether a partner exists;
+- O's own primitive ids or ledger source ids, and their pairing with S's;
+- O's own region ids, provenance texts and terminal provenance, and the closure transfers;
+- on Route 1, O's element states, as `reference_state_map.cases[O]` already provides.
+
+**Proposed sidecar content (needs persistence review; not adopted).** A top-level
+`operating_map`, written only for an export with an operating-role case:
+
+- `case`: O's id; `partner`: S's id or null; `label`: the operating label.
+- `sources`: O's mechanical and thermal sources in authored order (primitive order on the ordinary
+  route, ledger order on the load/reference-state route). Each is
+  `{id, kind: "mechanical" | "thermal", partner: <S's source id> | null}`. A mechanical source
+  pairs with S's first unpaired source of exactly equal content, in authored order. The pairing is
+  deterministic, and since paired contents are equal, it decides only ids.
+- `regions`: O's regions in authored order, each `{id, partner, provenance, terminals: [{node,
+  closure_transfer, provenance}], pressure_bar}`. `pressure_bar` is a checked copy, as in
+  `pressure_map` (§9.4).
+- `load_map` gains O's entries under `<O>/<id>`, each with `caepipe_load_case` the operating
+  label. A mechanical entry names the same MBF record as its partner's; a thermal entry names
+  `LOADS Temperature 1`. `load_case_map` gains O. `pressure_map` stays S's when S exists and is
+  O's when it does not.
+
+**Format.** These fields change persistence. Their implementation takes an independent
+persistence review of the exact format, its refusals and compatibility tests, as §20.4.5
+requires for format 5. The format number is proposed as 6. It is format 5's `derivation` plus
+`operating_map`, with format 5's `material_map` and `reference_state_map` on tier O-B, and
+`reference_state_map` explicitly null on tier O-A. Agent 0 decides the number and shape.
+
+**Source designation applies to every bound import of an operating export, tier O-A
+included.** Format 4's consistency-only assurance (O-6) is not enough here. The MBF of {S, O}
+equals byte for byte the MBF of {S, X}, where X is O's thermal part alone (example O-2). A sidecar
+that recasts O as a thermal-only case, with its digests recomputed, regenerates exactly from the
+model it yields, yet that model is a different object: the T response alone instead of
+W+P+T solved together. Like §20.4.5's point-free case (example 9), this is meaning beyond
+format 4's level. So every bound import of a sidecar with `operating_map` requires a source the
+user designates, checked by hash and by independent rendering (§20.4.4, **Source proof**;
+§20.4.5, **The designated source**), with the same codes, the same notice in the export review,
+and no store. A genuine format-4 sidecar of {S, X} beside the same MBF still imports {S, X}: that
+pair is {S, X}'s export content, at format 4's adopted assurance.
+
+**The importer's inverse (bound, with the source proof passed).**
+
+- The partner S, if any, is formed as today's sustained case, with ids from the existing maps.
+- O is formed from the same MBF-determined values: the weight from the weight density by §7.3's
+  inverse, forces and moments, and regions from P1. Each takes O's own ids, provenance and
+  closure transfers from `operating_map`, in the recorded order. O's temperature content comes
+  from T1. On the ordinary route that is thermal primitives ΔT = T1 − T_ref with O's ids. On
+  Route 1 it is element states per §20.4.4.
+- No `case:mbf-expansion-t1` is formed when the sidecar assigns T1 to O.
+- The regeneration identity regenerates the whole sidecar, `operating_map` included.
+- *What is exact.* Inputs are exact as §18.2 and §20.4.4 state them for the same values. O's
+  weight and S's are restored from one density, so they are equal to each other on the restored
+  model as they were on the source. The restored weight's agreement with the authored weight is
+  §18.2's existing class for weight density.
+
+**Unbound.** Unchanged. An unbound import forms the sustained case (W+P) and the expansion case
+(T1) of §9.3, never an operating case. Forming one from an unbound file would need its own
+profile decision; none is proposed.
+
+#### 20.5.8 Worked examples (invented values)
+
+Common to every example:
+
+- **Material `material:EX-B`.** Point-free: E 200 GPa, ν 0.3, α 1.2e-5 1/K.
+- **Pipes.** Two straights, `pipe:EX-11` and `pipe:EX-12`, on one section of outside diameter
+  168.3 mm and wall 7.11 mm, with corrosion allowance 0 stated explicitly. Supports are rigid
+  anchors at both ends.
+- **Route.** Exact pressure contract, ordinary route, writer reference temperature 20 °C (the
+  ordinary route's default).
+- **S, `case:EX-S`.** Weight −300 N/m along −Y on each pipe (`load:EX-S-W11`, `load:EX-S-W12`),
+  and region `region:EX-S-R1` over both pipes at 1000 kPa, both terminals `transfers_to_wall`.
+- **O, `case:EX-O`.** The same weights (`load:EX-O-W11`, `load:EX-O-W12`), region
+  `region:EX-O-R1` equal to S's, and a thermal interval of 150 K on each pipe (`load:EX-O-T11`,
+  `load:EX-O-T12`).
+- **MBF.** One LOADS record with T1 170 and P1 10 bar, specific gravity 0; MATERIAL with today's
+  identical rows and the weight density from −300 N/m; OPPRES `0,0,0,1,0`.
+
+**O-1. Admitted (tier O-A).** {S, O} is written as above, with the proposed sidecar. A bound import
+with the exported model designated restores S and O with their ids. O's weights and region pair
+with S's, and O's thermal primitives are 150 K. Without a designated source:
+`MBF-IMPORT-SOURCE-UNASSOCIATED`.
+
+**O-2. Three models, one MBF.** {S, O}, {O} alone, and {S, X}, where `case:EX-X` holds only the two
+150 K intervals, all write the same MBF bytes. Only the sidecar tells them apart, and only the
+designated source authenticates it. A sidecar of {S, O} edited into the form of {S, X}, with its
+digests recomputed, is refused with {S, O} designated, `MBF-IMPORT-SOURCE-MISMATCH` at
+`operating_map`. {S, X}'s genuine format-4 sidecar imports {S, X}, as today.
+
+**O-3. Partner mismatches.**
+
+- **O-3a.** O's region at 1200 kPa: `MBF-SI-OPERATING-PARTNER-MISMATCH` at `region:EX-O-R1`,
+  pressure.
+- **O-3b.** One of O's terminals is `separately_supported_or_compensated`: refused the same way,
+  naming the terminal.
+- **O-3c.** O's weight on `pipe:EX-12` is −300.0000001 N/m: refused, naming `load:EX-O-W12`.
+- **O-3d.** O's weight is given as −0.3 kN/m: exactly equal after normalization, so admitted.
+
+**O-4. Case structure.**
+
+- **O-4a.** {S, O, X}: `MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED` at `case:EX-X`.
+- **O-4b.** A second operating case: refused the same way.
+- **O-4c.** O with an imposed displacement at an anchor, and without pressure:
+  `MBF-SI-OPERATING-DISPLACEMENT-UNSUPPORTED`.
+
+**O-5. Combinations.** A `result_state_subtraction` O − S and a `mechanics` sum S + X are each
+omitted, `MBF-SI-COMBINATION-NOT-EXPORTED`, as today. Neither is mapped to a target case.
+
+**O-6. Tier O-B (Route 1).** Material `material:EX-A` (§20.4.6). O's members are
+`free_length_state` at 175 degC under `law:EX-A`, selecting at 175 degC, so the derived row is
+194000 N/mm² (§20.4.6, example 1).
+
+- **O-6a.** With a partner S whose members select `exact_point` `point:EX-A-025`:
+  `MBF-SI-SUSTAINED-MODULUS-UNPROVED` (G-2).
+- **O-6b.** O alone. The design admits it, with the per-member rule holding and no dependence on
+  G-5. Until G-1 is answered, it is refused by the adopted policy,
+  `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`. It also waits on G-4 and G-6.
+- **O-6c.** O alone, with one member `unchanged_reference` selecting at 175 degC (RS-P180's
+  pattern): `MBF-SI-MODULUS-SELECTION-MISMATCH` at that member, as in §20.4.6, example 3a.
+
+#### 20.5.9 Planned tests (both twins; generated vectors only)
+
+No model document is written by hand. A generator `operating_models()` is added beside
+`reference_state_models()` (§20.4.7) in `tools/fixtures/caepipe_mbf_writer_vectors.py`, with its
+import counterpart. The vectors are replayed byte for byte by the Python tests and the Rust engine
+(`writer_parity.rs`, `parity.rs`). The existing check that every writer code is emitted by a
+vector covers the new codes. No vector is chosen to fit the reference system.
+
+1. **Admitted (O-A):** O-1, O-2's {O} alone, O-3d, and a case with forces and moments as well as
+   weight. Each is written, its MBF records are as stated, and its bound import with the source
+   designated restores every id, pairing, region, closure transfer and provenance. The
+   regeneration identity holds. The weight density written for {S, O} equals the density written
+   for {S} alone (no double summing).
+2. **Refusals:** one vector per §20.5.6 code: O-3a to O-3c, O-4a to O-4c, and O-6a to O-6c, each
+   naming its entity.
+3. **Same bytes, different models:** O-2. The three models' MBF bytes are equal. Each genuine
+   sidecar imports its own model with that model designated. Each recast sidecar, digests
+   recomputed, is `MBF-IMPORT-SOURCE-MISMATCH` with the true source designated and
+   `MBF-IMPORT-SOURCE-UNASSOCIATED` with none. The test asserts that no recast model is
+   returned.
+4. **Unchanged routes:** every existing vector replays byte-identical, and a model without an
+   operating case gets no `operating_map`.
+5. **Unbound and rebind:** an operating export's MBF imported unbound forms the §9.3 cases. With
+   its sidecar on the rebind route: `MBF-IMPORT-OPERATING-UNBOUND`.
+6. **Compatibility:** before the new format lands, today's importer refuses its sidecar by
+   `MBF-IMPORT-SIDECAR-INVALID`, bound and unbound.
+7. **Solver agreement (engine):** for each admitted vector, the solver's published results for
+   O, on the original and on the imported model, agree within §18.2's tolerances. On O-B,
+   `selected_E_pa` is equal bit for bit (§20.4.7, item 7).
+8. **Reference system:** exporting `fixtures/reference_system/reference_system.json` is still
+   refused, and the named set includes each code listed in §20.5.10. The fixture is read, not
+   edited.
+
+#### 20.5.10 The reference system
+
+RS-OPE's parts against this subset, from the fixture as authored (read, not edited):
+
+- **Structure: designed (tier O-B).** RS-OPE has the operating role. RS-SUS is its partner: its
+  primitive contents and RS-OPE's are equal as multisets apart from ids and provenance, and its
+  five regions equal RS-OPE's apart from ids and provenance. Condition 3 therefore holds as
+  authored. RS-SAM is a third mechanical case (W+P plus boundary motion on RS-C), so it is a
+  second sustained-role case, `MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED`. Its `boundary_motion`
+  stays a separate dependency (`MBF-SI-BOUNDARY-MOTION-UNSUPPORTED`).
+- **Weight: refused today, independently of this design.** RS's self-weight is `distributed_force`
+  along `global_z` (Z vertical, §2 of DEL-09-01), and its component weights are `weight` forces
+  and moments at nodes. The writer exports only `weight` force per length along −Y
+  (`MBF-SI-LOAD-UNSUPPORTED`). The flanges and valve are refused as components (RT-K3).
+  Covering RS-OPE's weight needs a weight-form tranche; this design adds none.
+- **Pressure: designed, refused today by other dependencies.** RS-OPE's five regions are at
+  1600 kPa, every terminal `transfers_to_wall`, and they equal RS-SUS's. RG-4 lists connector
+  RS-EJ1 (`MBF-SI-PRESSURE-UNSUPPORTED`: regions with connectors), and RG-1 to RG-3 meet at the
+  tee RS-T1 (RT-K2, refused). Bourdon and pressure-effect equivalence is G-7's inherited reading.
+- **Thermal: designed.** The 25 `free_length_state` members at 210 °C meet §20.4.2 (c) and (d).
+  Their derived row at 210 °C is exactly 188300 N/mm² (§20.4.8; an observed outcome).
+- **RS-P180: refused by name.** It is `unchanged_reference` with its selection at 210 °C, while its
+  T1 is T_ref = 20 °C: `MBF-SI-MODULUS-SELECTION-MISMATCH` at `pipe:RS-P180` (§20.4.8),
+  unchanged. It leaves the export only through the expansion-joint tranche's proof (RT-K4).
+- **Modulus.** RS-OPE's members can be mapped only under tier O-B, which waits on G-1 (b), (c)
+  and (e), G-4 and G-6. The desktop records a null piping code (G-1 (e)), so today the policy
+  gives `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`.
+- **RS-SUS and G-2.** RS-SUS selects `exact_point` `point:RS-M1-T020` (E at T_ref) beside RS-M1's
+  varying modulus: `MBF-SI-SUSTAINED-MODULUS-UNPROVED` until G-2 is answered. Because RS-SUS is
+  RS-OPE's partner and any refusal refuses the file, RS-OPE cannot be exported while RS-SUS is
+  refused.
+- **RS-EXP.** It stays omitted (`MBF-SI-COMBINATION-NOT-EXPORTED`); no correspondence with the
+  target's thermal case is claimed (G-5, G-2). RS-dSAM likewise.
+- **Supports.** RS-VS1 is a `variable_spring_hanger` (refused as a hanger). The nonlinear supports
+  are pending in the fixture; when they land, an operating case with them stays refused (G-10).
+
+**Consequence.** RS-OPE's W+P+T structure, its pressure regions and its thermal states are
+designed under tier O-B. The reference system's export stays refused, by RS-P180, RS-SUS (G-2),
+RS-SAM, the weight form, the connector and tee, and the hanger, and RS-OPE's own modulus waits on
+G-1, G-4 and G-6. Criterion 6 progress: designed.
+
+#### 20.5.11 Gaps (no admitted source states these; none is filled)
+
+How the open gaps of §20.4.9 bound this mapping, each separately:
+
+- **G-1 (b), (c), (e).** Tier O-B's operating equivalence needs the hot option in effect for the
+  file. Which field 5 value selects it, what an omitted field means and what a null code means
+  are unknown. O-B is therefore under the fail-closed policy, and nothing in O-B is implemented
+  before they are answered. Tier O-A states one E in every row and does not depend on them, on
+  the reading today's export uses (§20.5.4 e). Whether to extend the fail-closed policy to O-A
+  anyway is Agent 0's choice (§20.5.12, item 3).
+- **G-2.** It bounds only a sustained partner beside a varying modulus: refused. It does not
+  bound O itself, O-A's partner, or O-B without a partner.
+- **G-4.** It bounds O-B's rows at T1, as for Route 1. It does not bound O-A.
+- **G-5.** It bounds no admitted case. It bounds what may be said about O − S (RS-EXP) and about a
+  thermal-only case beside O. Both are outside the subset.
+
+New gaps raised by this item:
+
+- **G-6. The operating case under the independent thermal-case option.** `CAEPIPE-ANALYSIS`
+  states the modulus per load case, operating case i at E(Ti) under hot, without making it depend
+  on the thermal-case option. Whether, under *Solve Thermal case*, the operating case is still
+  solved with all its loads on its own stiffness, rather than assembled from other cases'
+  results, is not stated. Both tiers' claims rely on the former reading. For O-A, an operating
+  case assembled from linear responses at the one E of every row would describe the same state
+  as a whole solve; that is an argument from linearity, not a target statement, so O-A's claim
+  still names G-6 as a condition.
+- **G-7. What a pressure's "effect" includes.** The case definitions include "operating fluid
+  pressure and its effect" without defining it. OPPRES switches the Bourdon effect and the
+  pressure correction for bends, but no admitted source states what the target includes with
+  both off. Examples are closed-end pressure thrust at closures, the axial Poisson effect of
+  hoop stress, and the pressure-free strain of bends. §9.4's writer reading ("the same
+  exclusions as SWBPIPE's model") is inherited unchanged and unproved. This item adds no claim.
+- **G-8. An omitted number of thermal loads.** The writer writes OPTEMP field 1 only. That an
+  omitted field 3 gives one thermal load, and so one operating case, is not stated. Today's
+  thermal export already relies on it; the operating mapping inherits it.
+- **G-9. The expansion case's pressure membership.** §9.4's citation of `CAEPIPE-LOAD-CASES` for
+  "not in the expansion case" was not located on the page as served on 2026-11-02 (§20.5.1). This
+  is search-scope evidence only, and §9.4 is unchanged pending Agent 0.
+- **G-10. Nonlinear supports in operating and sustained cases.** The target's support status in
+  operating cases, and the related sustained case named *Sustained Oper (W+P)*, are described
+  outside every registered boundary (§20.5.1, disclosure). Not used; an operating case with
+  nonlinear supports stays refused.
+- **G-11. Specified displacements in the operating case.** Their membership is not stated on the
+  consulted page. They are refused in O.
+
+**Draft CQ text for the owner (not sent; no supplier contacted).** Proposed as further drafts under
+CQ-17-01-016 (or a new CQ-17-01-018 if Agent 0 prefers). These are drafts only; the dossier is not
+edited here.
+
+- (G-6) "For a version 15.10 MBF, when the thermal load case is solved independently (Solve
+  Thermal case), is the Operating (W+P1+T1) load case still solved as one analysis of all its
+  loads with its own stiffness, at the modulus the Elastic Modulus option gives it?"
+- (G-7) "With OPPRES Bourdon effect and pressure correction for bends both off, which pressure
+  effects does CAEPIPE include in the Sustained and Operating load cases' displacements and
+  forces? For example, axial pressure thrust at closed ends, axial strain from hoop stress
+  (Poisson), and pressure effects at bends."
+- (G-8) "When OPTEMP gives only the reference temperature, how many thermal loads does CAEPIPE
+  use?"
+- (G-11) "Are specified anchor displacements (D, ROT) included in the Operating load cases, the
+  Sustained load cases, or only in the expansion (thermal) cases?"
+- (G-9) "Which loads does the expansion (thermal) load case include? In particular, does
+  operating pressure act in it?"
+
+G-10 is not drafted: its subject is outside every registered boundary, and a question about it
+needs a boundary decision first (§20.5.12).
+
+#### 20.5.12 For Agent 0
+
+1. **The subset.** Tier O-A (constant modulus, ordinary route) and tier O-B (Route 1 plus one
+   operating case), with the partner identity condition, are proposed for adoption as design.
+   O-A rests on readings today's export already uses (G-3, G-7, G-8, TBD-17-04-007) and on G-6's
+   reading, which is new. O-B adds Route 1's waits. Whether O-A may be implemented on those
+   readings, as today's export is, or waits for their answers, is Agent 0's decision.
+2. **The sidecar.** `operating_map`, proposed format 6, and source designation for every bound
+   import of an operating export (O-A included, by example O-2). These change persistence and need
+   independent persistence review before implementation.
+3. **Fail-closed scope.** Whether to apply Route 1's fail-closed modulus-selection policy to tier
+   O-A as well. No evidence requires it under the single-E reading, but it would make every
+   operating export wait on G-1.
+4. **Combinations.** Whether RS-EXP-like `result_state_subtraction` combinations, and other
+   omitted combinations, count as Must-family omissions under criterion 6 (A-3 table). Options:
+   leave them omitted as today, or carry their identities in the sidecar for a bound import to
+   restore, with no MBF content and no claimed correspondence. The latter is a further sidecar
+   change.
+5. **The `CAEPIPE-LOAD-CASES` consultation (§20.5.1).** It is recorded here only. Whether to note
+   it in DEL-17-01 `Source_Basis_Register.md`, and how to handle G-9's finding against §9.4, are
+   Agent 0's. The register is not edited here.
+6. **G-10.** Any consultation about nonlinear support status in the target's operating and
+   sustained cases needs a boundary decision on a registered row first.
+7. **Reference-system dependencies outside this item.** These are weight form (Z vertical,
+   `distributed_force` self-weight, component weights), the tee, the connector, the hanger,
+   RS-SAM's boundary motion and third case, and RS-P180 (RT-K4). Each stays its own coverage
+   tranche. None is assumed closed by this design.
+8. **Release limitations.** None is created or proposed here.
+
 ## 21. Reconciliation with this Design
 
 - **DEL-17-04 `ScopeOfWork.md`:** REQ-012 to REQ-020, verification, acceptance, OUT-002,
