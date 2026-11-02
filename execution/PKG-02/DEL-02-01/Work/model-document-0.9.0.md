@@ -1457,3 +1457,18 @@ records what was built against it.
   helper and failed three new command checks; rebuilding the maintained helpers
   cleared them without product, fixture or expected-value changes. The updated
   exact-head hosted run remains required.
+
+The updated hosted head `3d70547a0` completed 12,148 Python tests successfully;
+two later mutation snapshots failed with `[Errno 122] Disk quota exceeded`.
+The E2E-labelled aggregate and harness propagated that Python failure; the
+browser product job itself passed. The maintained Python CI command now uses
+pytest's `tmp_path_retention_policy=failed`, releasing passed snapshots at each
+test's teardown while keeping failed snapshots for diagnosis. Test selection,
+assertions, worker scheduling and failure propagation are unchanged. This is a
+test-scratch lifetime repair, with no product/profile or native witness effect.
+
+The pricing mutation suite and Python CI-selection checks pass with that policy
+(909 tests); their dedicated temporary snapshot directory has no retained files
+afterward. A separate intentionally failing control confirms that failed
+snapshots remain and pytest's failure exit code is preserved. Exact-head hosted
+checks remain required after this execution-only repair.
