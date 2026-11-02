@@ -15,6 +15,9 @@
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashSet};
 
+pub mod derived;
+pub mod library;
+
 /// A candidate's single translational DOF, or a variable record's stiffness DOF.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dof {
@@ -459,9 +462,8 @@ fn refusal(code: &'static str, names: Vec<String>, message: &str) -> Refusal {
     Refusal { code, names, message: message.to_string() }
 }
 
-/// Checks the method and the request's candidates and records. Every refusal
-/// refuses the whole request, with every finding listed (Design §3).
-pub fn check_request(candidates: &[Candidate], records: &[Record], method: &Method) -> Vec<Refusal> {
+/// Checks the method's values (Design §2).
+pub fn check_method(method: &Method) -> Vec<Refusal> {
     let mut refusals = Vec::new();
     if !finite_positive(method.variation_limit) {
         refusals.push(refusal("HANGER_SIZING_VARIATION_LIMIT_INVALID", Vec::new(),
@@ -471,6 +473,13 @@ pub fn check_request(candidates: &[Candidate], records: &[Record], method: &Meth
         refusals.push(refusal("HANGER_SIZING_TRAVEL_ALLOWANCE_INVALID", Vec::new(),
             "the travel allowance must be a finite length of at least zero"));
     }
+    refusals
+}
+
+/// Checks the method and the request's candidates and records. Every refusal
+/// refuses the whole request, with every finding listed (Design §3).
+pub fn check_request(candidates: &[Candidate], records: &[Record], method: &Method) -> Vec<Refusal> {
+    let mut refusals = check_method(method);
     if candidates.is_empty() {
         refusals.push(refusal("HANGER_SIZING_CANDIDATES_REQUIRED", Vec::new(),
             "at least one candidate support is required"));
