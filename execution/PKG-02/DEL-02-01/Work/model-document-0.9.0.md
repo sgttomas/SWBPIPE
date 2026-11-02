@@ -1384,7 +1384,16 @@ records what was built against it.
   (o10's typed census names it).
 - **Typed ΔT and frozen-input invariance.** No code on the typed-interval path changed. The integrating manager compared the maintained `physics_source_connected` example at baseline `2656dcb33328b12c5572a30c10124a40f35adffc` and S2 `45b21e1f04a2a0152ac488a206b9210787f5963a`: 946 unchanged selected JSON files (validation inputs, reader corpora, retained successors and the native-smoke expected-input paths), 438 distinct requests after the identical maintained `common/current_model.rs` in-memory re-authoring, both solver modes. All 876 comparisons had byte-identical stdout/stderr and equal exit status: 860 solved envelopes and 16 matching refusal envelopes, no differences. SHA-bound source bytes and `expected.json` were never edited, and no native App was invoked. This is before/after evidence for the no-condition frozen corpus; new condition behavior is established by the independent references/twins. Subsequent preview-only namespace fixes do not change the ordinary solve path. Integration against later main must reassess source applicability.
 - **Independent numerical/persistence scrutiny.** Round 1 independently recomputed every admitted/refused temperature row, all decimal samples/ties and the mechanics closed forms by a separate rational/rounding method, and cleared the math, order, presence and all-or-none behavior. Its preview finding (M1) is repaired by the solve's existing namespace/profile checks and kind/missing-version diagnostics before preview judgement; valid no-use documents are successful no-ops on either route (L2). The status wording now names E1–E6 and E7's precondition (L3). Native and actual-Wasm namespace counterexamples cover retired/newer/empty versions, wrong kind and retired/unsupported contracts. The focused re-check at `d738d34d8` cleared M1/L2/L3 with no blocking finding, exercised all 14 inputs and additional no-use namespace mutants on the actual Wasm, and independently recomputed both engine content stamps from the selected clean tree. The operation stamp is `sha256:4f2ee6b5e374165afd311ae7c27e66cd9a7ac1e8b7d6f39e0a36b4fc1b281b8c` (295 inputs), self-weight `sha256:9b3e2a09c18e8eeabc093870735734a0bdc1b87f3034dc9fd5e079454b6c2942` (273 inputs). These are local source/transport checks, not native App or acceptance evidence.
-- **Left:** the retained routes'
-  placement (they and the source readers still decline condition sets,
-  references and uses, §3.8), D3 pricing of the D1-reachable change, independent
-  pricing-registration scrutiny and exact-head hosted checks. The shared registration queue is reducer 2a, then dynamics, then S2; S2 re-derives against the integrated head when released rather than adopting an old profile or editing shared owner pins in parallel.
+- **D3 (DEL-04-08 `retained-pricing-rules.md` §8.40, proposal).** S2 was
+  re-derived on integrated main `4cf32bfd4`. On D1 (D1.3, D1.5) the resolution
+  enters `plan` with an empty set map, and each case returns at once. Retained
+  admission and the source readers still decline condition sets, references and
+  uses. The priced tree's structure is unchanged: no coefficient rises, and six
+  TAV text coefficients fall by 3,990,536 B because §8.36's short-key over-bound
+  no longer coincides. `PreviewLoadCase` grows 8 B with the wind presence
+  booleans, raising the in-build phase record by +24/+48 B. All 80 native
+  evaluations fit either way.
+- **Left:** adopting or declining the §8.40 proposal and re-deriving the law and
+  challenge pins (a reserved decision), independent pricing-registration
+  scrutiny, AC-004's witnesses for the changed retained stack, carrier
+  regeneration after any adoption, and exact-head hosted checks.

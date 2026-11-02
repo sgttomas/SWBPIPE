@@ -88,7 +88,7 @@ RF_PINS = {
 # children are untouched (L1b, L1c); no Value move, constructor or guard changes (L2, L3, L5). No reduction's owner
 # or lifetime changes.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73",
+    "core/product_physics/src/lib.rs": "9488c5040051aebfb386765068ffc5f5e2c893dde5ee8dbea981cfead1c3b867",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",

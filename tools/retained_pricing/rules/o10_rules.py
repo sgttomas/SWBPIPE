@@ -2556,6 +2556,11 @@ if fnkey("unknown_field_refusal", _SD_MF):
     _SD_RECORDS = ("PreviewModelWire", "PreviewLoadCase", "PreviewPrimitiveLoad", "PreviewCombination",
                    "PreviewCombinationTerm", "EquivalentStaticGenerationInput", "SeismicGenerationInput",
                    "WindGenerationInput", "WindExposedSpanInput")
+    # Model document 0.9.0 S2 (§8.40): WindGenerationInput decodes through its closed wire record (serde `from`), which
+    # carries the same five members; the scan's declared fields are the wire's. Its two presence booleans are private
+    # and never serialized.
+    if _re.search(r"\nstruct WindGenerationWire \{", _text_of(_LIB)):
+        _SD_RECORDS += ("WindGenerationWire",)
     _SD_KEYS = _sd_fields("PreviewModelWire")
     if max(_sd_fields(r) for r in _SD_RECORDS) != _SD_KEYS:
         raise SystemExit("SD-L1: the model root is no longer the largest closed record; re-review the key-loop bound")
@@ -3732,7 +3737,7 @@ if fnkey("selects", _TIM):
     # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
     # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '152ed6c3470ca3cfedf60db97878e7b6ad7701e3fe36a91a1ccf901f90e38882'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -3877,7 +3882,7 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     import hashlib as _hashlib
     # S1-PIN: the three modules' complete bytes, read before these rules were written; a change stops the run.
     _S1_PINS = {_S1_DM: "6ada6a00c3f8300747dfa3420fd920df595e2e3b1f88d5a4cb0bc8c32e463910",
-                _S1_OC: "81460837757326180e30d9cca33bce6b7c3a2357b403dea37409084dc05bf8ef",
+                _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
         if _hashlib.sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
@@ -3907,7 +3912,7 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         (_s1("text"), "get", []),
         (_s1("quantity", _S1_OC), "new", [_S1_FINDING_NEW]),
         (_s1("findings", _S1_OC), "new", [_S1_FINDING_NEW]), (_s1("findings", _S1_OC), "as_str", []),
-        (_s1("lower", _S1_OC), "is_empty", [_S1_IS_EMPTY]),
+        (_s1("judge", _S1_OC), "is_empty", [_S1_IS_EMPTY]),
         (_s1("findings", _S1_SP), "new", [_S1_FINDING_NEW]), (_s1("findings", _S1_SP), "as_str", []),
     ]:
         CG_RULES += [{"caller": _caller, "name": _name, "targets": _targets, "added": "S1-BN",
@@ -3954,8 +3959,8 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # judge only a condition set's values (D1.3: no set). The by-name `.values(` of combination_call is a map's.
     _S1_ZR = O10 + "S1-ZR: unreached on D1 (§8.36): "
     O10_EDGE_ZERO += [
-        (fnkey("lower", _S1_OC), _s1_short(_s1("interim_support_refusals")), _S1_ZR + "every push needs a snubber or a direction (D1.6)"),
-        (fnkey("lower", _S1_OC), _s1_short(_s1("interim_exact_combination_refusals")), _S1_ZR + "L has no contract; E has no combination (D1.4)"),
+        (fnkey("judge", _S1_OC), _s1_short(_s1("interim_support_refusals")), _S1_ZR + "every push needs a snubber or a direction (D1.6)"),
+        (fnkey("judge", _S1_OC), _s1_short(_s1("interim_exact_combination_refusals")), _S1_ZR + "L has no contract; E has no combination (D1.4)"),
         (fnkey("lower", _S1_OC), _s1_short(_s1("lower_axis_aligned_directions")), _S1_ZR + "only a support with a direction is rewritten (D1.6)"),
         (_s1_short(_s1("supports_findings")), _s1_short(_s1("snubber_findings")), _S1_ZR + "only a snubber family (D1.6)"),
         (fnkey("findings", _S1_OC), fnkey("quantity", _S1_OC), _S1_ZR + "a condition set's values only (D1.3)"),
@@ -3996,11 +4001,11 @@ if fnkey("withhold_interim_combinations", _S1_DM):
             'let path = format!("load_cases[{index}].condition_use");', "let refs = vec![case.to_string()];",
             "is empty; it names at least one use, and absence means none.", 'let at = format!("{path}.{member}");',
             "is false; it admits only true, and absence means not used.")]
-        + [(_s1_at("lower", _S1_OC, t), _S1_D15) for t in (
-            "uses operating conditions on a document with a pressure contract;", "uses operating conditions; their resolution",
-            '&format!("diagnostic:load-case:{}:condition-use"', "diagnostics.push(crate::diag(",
+        + [(_s1_at("judge", _S1_OC, t), _S1_D15) for t in (
+            "uses operating conditions on a document with a pressure contract;",
+            '&format!("diagnostic:load-case:{}:condition-use"', "diagnostics.push(crate::diag(", "vec![case.id.clone()]));",
             '&format!("diagnostic:load-case:{}:test-condition"', "is a hydrostatic test condition;", "vec![case.id.clone()],")]
-        + [(_s1_at("lower", _S1_OC, "diagnostics.push(crate::diag(", 2), _S1_D15 + " (the test condition's diagnostic)")]
+        + [(_s1_at("judge", _S1_OC, "diagnostics.push(crate::diag(", 2), _S1_D15 + " (the test condition's diagnostic)")]
         + [(_s1_at("unknown_field_refusal", PP_ + "model_fields.rs", t), _S1_D15 + " (its closed-record check)") for t in (
             'format!("the condition_use of {case_name}")', 'format!("the test_condition of {case_name}")')]
     )
@@ -4008,8 +4013,11 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # S1-L1 (the lowering's findings): on D1 the findings are the combinations' unknown operands (<= 3 per combination,
     # S1-L1 above) and one cycle finding per strongly connected set (<= z); the sets, references, uses, directions,
     # snubbers, difference bases and spectra find nothing (D1.3-D1.6). Route E has no combination (D1.4): none.
-    O10_LOOPS_LAST += [("for finding in found.into_vec()", "4*z", O10 + "S1-L1: the lowering's findings (<= 3z unknown operands "
-                        "and <= z cycles; nothing else finds on D1)", ["operating_conditions.rs:lower"])]
+    # S2-RK (§8.40): S2 moves this conversion from lower's `for finding in found.into_vec()` into judge's collect closure
+    # (`diagnostics: found.into_vec().into_iter().map(..).collect()`); the bound and its premise are unchanged.
+    _S1_FOUND = "iter:diagnostics: found.into_vec().into_iter().map"
+    O10_LOOPS_LAST += [(_S1_FOUND, "4*z", O10 + "S1-L1: the lowering's findings (<= 3z unknown operands "
+                        "and <= z cycles; nothing else finds on D1)", ["operating_conditions.rs:judge"])]
     # S1-L1 (cont.): operand_refs' term and operand loops, each over one combination's <= 3 (D1.9's rows); the term
     # loop's body pushes only for a term's combination operand (D1.4: none). The findings loop is placed first: the base
     # chain's broad `finding` rule would otherwise capture its header.
@@ -4017,8 +4025,8 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         ("for (j, term) in view.terms.iter().enumerate()", "3", O10 + "S1-L1: one combination's terms (<= 3, D1.9)", ["document_members.rs:operand_refs"]),
         ("for (k, id) in view.operand_ids.iter().enumerate()", "3", O10 + "S1-L1: one combination's range operands (<= 3, D1.9)", ["document_members.rs:operand_refs"]),
     ]
-    O10_LOOPS_FIRST += [_r for _r in O10_LOOPS_LAST if _r[0] == "for finding in found.into_vec()"]
-    O10_LOOPS_LAST = [_r for _r in O10_LOOPS_LAST if _r[0] != "for finding in found.into_vec()"]
+    O10_LOOPS_FIRST += [_r for _r in O10_LOOPS_LAST if _r[0] == _S1_FOUND]
+    O10_LOOPS_LAST = [_r for _r in O10_LOOPS_LAST if _r[0] != _S1_FOUND]
     # S1-ZR (cont.): Finding::new's callers whose every call is behind a D1-refused member or inside a loop D1.3 bounds
     # at 0: supports_findings' (a direction, D1.6), operating_conditions::findings' (sets, references and uses,
     # D1.3/D1.5) and spectra::findings' (spectra, D1.3). combinations_findings' calls stay priced.
@@ -4095,12 +4103,12 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         ("findings", _S1_OC, "is empty; it names at least one use, and absence means none.", ("path", "case")),
         ("findings", _S1_OC, 'let at = format!("{path}.{member}");', ("path", "member")),
         ("findings", _S1_OC, "is false; it admits only true, and absence means not used.", ("at", "case")),
-        ("lower", _S1_OC, "uses operating conditions on a document with a pressure contract;", ("case.id",)),
-        ("lower", _S1_OC, "uses operating conditions; their resolution", ("case.id",)),
-        ("lower", _S1_OC, '&format!("diagnostic:load-case:{}:condition-use"', ("crate::stable_suffix(&case.id)", "case.id")),
-        ("lower", _S1_OC, '&format!("diagnostic:load-case:{}:test-condition"', ("crate::stable_suffix(&case.id)",)),
-        ("lower", _S1_OC, "is a hydrostatic test condition;", ("case.id",)),
-        ("lower", _S1_OC, "vec![case.id.clone()],", ("case.id",)),
+        ("judge", _S1_OC, "uses operating conditions on a document with a pressure contract;", ("case.id",)),
+        ("judge", _S1_OC, '&format!("diagnostic:load-case:{}:condition-use"', ("crate::stable_suffix(&case.id)",)),
+        ("judge", _S1_OC, "vec![case.id.clone()]));", ("case.id",)),
+        ("judge", _S1_OC, '&format!("diagnostic:load-case:{}:test-condition"', ("crate::stable_suffix(&case.id)",)),
+        ("judge", _S1_OC, "is a hydrostatic test condition;", ("case.id",)),
+        ("judge", _S1_OC, "vec![case.id.clone()],", ("case.id",)),
         ("findings", _S1_SP, 'let path = format!("{at}.{field}");', ("at", "field")),
         ("findings", _S1_SP, 'format!("spectrum `{}`: {path} {reason}.", spectrum.id)', ("spectrum.id", "path", "reason")),
         ("findings", _S1_SP, 'found.push(Finding::empty_id(SPECTRUM_ENTITY, &format!("{at}.id")));', ("at",)),
@@ -4137,3 +4145,60 @@ if fnkey("withhold_interim_combinations", _S1_DM):
     # S1-MS (LEX_SITE_SIZE): the cycle's names joined by ", " (<= z = 2 back-quoted IN128 ids: 262 B).
     LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
         (_s1_at("combinations_findings", _S1_DM, 'names.join(", ")'), {"class": 262, "why": O10 + "S1-MS: <= z back-quoted ids joined by ', '"})]
+
+
+# ---- Model document 0.9.0 S2 (DEL-02-01 Design model-document-0.9.0.md §1.5, §4.2; retained-pricing-rules.md §8.40).
+# S2 splits the lowering into a read-only judge (operating_conditions::judge) that lower applies, adds the
+# pressure-free resolution (operating_conditions/resolution.rs: plan -> resolve_case, ResolutionPlan::apply) and a
+# read-only preview (preview_operating_conditions, reached only from the applier's wasm entry, outside the priced
+# crates). D1.3 declines a non-empty condition_sets (capacity 0) and any pipe's condition_set_ref, and D1.5 any case's
+# condition_use, so on D1 plan's set map is empty (no backing), every resolve_case returns Ok(None) at its first
+# statement, the plan holds no case and apply appends nothing. The exact route (E) does not call plan.
+_S2_RES = PP_ + "operating_conditions/resolution.rs"
+if fnkey("plan", _S2_RES):
+    import hashlib as _hashlib
+    # S2-PIN: resolution.rs's complete bytes (operating_conditions.rs is bound by S1-PIN, canonical_decimal.rs by TIM's
+    # pins), read before these rules were written; a change stops the run.
+    if _hashlib.sha256(open(_os.path.join(_SNAP, _S2_RES), "rb").read()).hexdigest() != \
+            "74e08befaae18384974661c80d611445613dc6f4eab18d1e1e457f5cf06084a2":
+        raise SystemExit(f"S2-PIN: {_S2_RES} changed; re-review §8.40's rules")
+    # S2-PIN (premises, supplementary to the pins): resolve_case's first statement returns Ok(None) without a
+    # condition_use; plan is its only caller, over model.load_cases, with the set map collected from
+    # model.condition_sets; judge calls plan only off the exact route; lower applies only judge's plan.
+    _s2_text, _s2_oc = _text_of(_S2_RES), _text_of(_S1_OC)
+    _s2_ok = (
+        _re.search(r"\) -> Result<Option<CaseResolution>, Vec<Diagnostic>> \{\n    let Some\(using\) = "
+                   r"case\.condition_use\.as_ref\(\) else \{\n        return Ok\(None\);\n    \};\n", _s2_text) is not None,
+        _s2_text.count("resolve_case(") == 2 and "match resolve_case(model, &sets, index, case) {" in _s2_text,
+        "for (index, case) in model.load_cases.iter().enumerate() {" in _s2_text,
+        "model.condition_sets.iter().map(|set| (set.id.as_str(), set)).collect();" in _s2_text,
+        _s2_oc.count("resolution::plan(model)") == 1
+        and _s2_oc.index("let planned = if exact {\n        None\n    } else {") < _s2_oc.index("resolution::plan(model)"),
+        _s2_oc.count("planned.apply(model);") == 1 and "if let Some(planned) = judged.plan {" in _s2_oc,
+    )
+    if not all(_s2_ok):
+        raise SystemExit(f"S2-PIN: a premise of §8.40 changed; re-review its rules: {_s2_ok}")
+    # S2-ZR (EDGE_ZERO): resolve_case is entered once per case but returns Ok(None) at its first statement on D1 (D1.5),
+    # before any allocation, diagnostic, generated record or callee (case_diag, the id and provenance builders,
+    # exact_temperature_difference and the canonical-decimal rounding, the wind presence accessors).
+    O10_EDGE_ZERO += [(fnkey("plan", _S2_RES), fnkey("resolve_case", _S2_RES),
+                       O10 + "S2-ZR: unreached with work on D1 (§8.40): every case returns Ok(None) at once (no condition_use, D1.5)")]
+    # S2-BN (CG_RULES, exact targets): plan's `set.id.as_str()` is String's (its by-name edges reached every crate as_str).
+    CG_RULES += [{"caller": fnkey("plan", _S2_RES), "name": "as_str", "targets": [], "added": "S2-BN",
+                  "evidence": "model document 0.9.0 S2: String::as_str of a set id, in the pinned body (§8.40)"}]
+    # S2-ID (ID_AUDIT, site-specific): arguments of the resolution's format sites that no existing class covers; each
+    # site is behind S2-ZR's zero on D1 (the chain classifies every format row before its multiplicity applies). A JCS
+    # string of an authored id or key (IN128) is at most its two quotes and six bytes (`\u00xx`) per input byte; `what`
+    # is one of resolve_case's four static suffixes (the longest, "installation-missing", is 20 B).
+    _S2_JCS = {"bytes": 2 + 6 * 128, "source": O10 + "S2-ID: the JCS text of an IN128 id or key (two quotes, <= 6 B per byte)"}
+    _s2_whats = _re.findall(r'at\("([a-z-]+)"\)', _fn_text("resolve_case", _S2_RES))
+    if sorted(set(_s2_whats)) != ["difference", "installation-missing", "key-missing", "value-missing"]:
+        raise SystemExit(f"S2-ID: resolve_case's temperature suffixes changed; re-review: {_s2_whats}")
+    O10_ID_AUDIT += [
+        (site("temperature_provenance", _S2_RES, "jcs_string(key),", full=True, row="format!("),
+         {"jcs_string(key)": _S2_JCS, "jcs_string(set)": _S2_JCS}),
+        (site("added_weight_provenance", _S2_RES, "jcs_string(set)", full=True, row="format!("), {"jcs_string(set)": _S2_JCS}),
+        (site("resolve_case", _S2_RES, 'let at = |what: &str| format!("temperature:{}:{what}"', full=True),
+         {"what": {"bytes": max(len(_w) for _w in _s2_whats), "source": O10 + "S2-ID: the longest static temperature suffix"},
+          "crate::stable_suffix(pipe_id)": IN}),
+    ]

@@ -2413,6 +2413,146 @@ integration remain required; neither this proof nor these witnesses grant owner
 acceptance, release, native App qualification or adoption of the recorded modal
 consuming-slice limitations.
 
+### §8.40 Model document 0.9.0 S2 pressure-free resolution: actual-source D3 (proposal)
+
+**Selected predecessor and source.** The predecessor is integrated main
+`4cf32bfd4` (dynamics I1, §8.39, on reducer 2a, §8.38). Its own committed tool
+prices it with exit 0, O-10 clear, the same 880 carried keys, 37 prunes and seven
+resolutions as §8.39, and `generate --check` with §8.38's basis line matches the
+registered 1,712-line block. That block's file SHA-256 remains
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`. The
+candidate is `064dc8bb9`, S2's reviewed source (`d738d34d8`) merged normally
+with that main. Its S2 product files are byte-identical to the reviewed source.
+No §8.36–§8.38 source pin or profile is transplanted. The pins below are read
+from this source. Nothing here adopts a coefficient, edits the generated block,
+law or challenge expectations, registers a profile or grants acceptance.
+
+**Changed source and D1 premises.** S2 splits the lowering into a read-only
+`operating_conditions::judge`, which `lower` applies, and adds
+`operating_conditions/resolution.rs` (`plan`, `resolve_case`,
+`ResolutionPlan::apply`). It also adds a read-only preview and a closed wind wire
+record. The candidate's D1 clauses, family clauses and admission prefix are
+unchanged, and their pins hold. D1.3 declines a non-empty `condition_sets`
+(capacity 0) and any pipe's `condition_set_ref`, and D1.5 declines any case's
+`condition_use`. Therefore, on D1:
+- `plan`'s set map is collected from an empty slice, with no backing.
+- Every `resolve_case` returns `Ok(None)` at its first statement.
+- The plan holds no case, so `apply` appends nothing.
+- `judge`'s own diagnostic vector stays empty, with no allocation. D1.3–D1.6
+  leave no plan refusal, condition use, test condition, direction or snubber.
+- Route E has a contract, so `judge` does not call `plan`.
+- The preview is called only from the applier's wasm entry. That crate is not
+  priced, and no retained caller reaches it.
+
+`WindGenerationInput` now decodes through `WindGenerationWire` (serde `from`).
+The wire carries the same five members, and the closed-record scan's declared
+fields are the wire's. The two private presence booleans grow the type inline.
+D1.5 refuses every `equivalent_static`, so no admitted request owns wind
+children.
+
+`canonical_decimal.rs` changes by insertion only: U256 `bit`, `bit_len` and
+`div_rem_u128`, `KELVIN_DENOMINATOR_BITS`, `round_kelvin_ratio` and a test.
+Every pre-existing line, including `canonical_decimal` and `kelvin_numerator`,
+is byte-identical, and `temperature.rs` (`exact_kelvin`) is unchanged. The new
+helpers are reached only through `exact_temperature_difference` from
+`resolve_case`. In the priced graph they have no multiplicity. `bit_len`'s
+by-name `.find(` edge into `sparse.rs` therefore leads nowhere.
+
+**Rules, by label.**
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **S2-PIN** (guard) | `resolution.rs` complete bytes (`74e08bef…`). `operating_conditions.rs` (`e3ddf5bd…`) follows S1-PIN and `canonical_decimal.rs` (`431ac320…`) TIM's pins. PP `lib.rs` (`9488c504…`) is re-bound in the B7a domain, W1 reduction and KD5 primitive pins: its only production change is the wind type, impl and wire. Supplementary premise checks: `resolve_case` begins with its `condition_use` return; `plan` is its only caller, over `model.load_cases`, with the set map from `model.condition_sets`; `judge` calls `plan` only off the exact route; `lower` applies only `judge`'s plan. Mutation tests show that each premise stops the run even with a restated file pin. |
+| **S2-ZR** (`O10_EDGE_ZERO`) | `plan` → `resolve_case`. The callee is entered once per case but returns before any allocation, diagnostic, generated record or callee (D1.5). |
+| **S2-BN** (`CG_RULES`) | `plan`'s `set.id.as_str()` is `String::as_str`. Its by-name edges had reached every crate's `as_str`. |
+| **S2-RK** (re-key) | S1 rules for code that moved from `lower` into `judge`: the `is_empty` target, the two S1-ZR edges (support and exact-combination refusals), S1-ZS/S1-ID sites (the condition-use diagnostic, now split over lines 393–396, and the test condition's). The removed S1 interim message is dropped from those lists. S1-L1's `4*z` findings bound moves to `judge`'s `iter:diagnostics: found.into_vec().into_iter().map`, placed first. Bounds and premises are unchanged. |
+| **S2-ID** (`O10_ID_AUDIT`) | Unreached format arguments: a JCS id or key is ≤ 2 + 6·128 B; `what` is the longest of `resolve_case`'s four static suffixes (20 B). |
+| **S2-JD** (owner, `s1_owners_model.py`) | A document refused by its findings now converts them with a collect into `judge`'s own `Vec<Diagnostic>`, before `lower` extends its caller's vector. Diagnostic (144 B) is larger than Finding (112 B), so the collect cannot reuse the Finding backing. The exact-size backing of ≤ 4z Diagnostic (S1-L1) is charged in S1-VW at z ≥ 1, beside the findings. The caller's single exact reserve is no larger than S1's push growth. Bound to the module bytes and the exact conversion statement. |
+
+SD-L1's closed-record list adds `WindGenerationWire` (five members). The model
+root stays the largest record. Snapshot keys whose text is unchanged move with
+the wind block: PP `lib.rs` +49 after line 945 (B7a domain and scoped-TEXT keys,
+owner-choice helpers, phase/T25 callers, returning-error owners). The carried
+`_X` emitter's only change is `retained_w1`'s key 4044 → 4093
+(`d6c252a2…`). Historical preimage keys keep their historical lines.
+
+**Graph and comparison.** The candidate prices with exit 0 on all four points.
+No point has an unmapped header or an unclassified argument, and both O-10
+checks are clear. D is unchanged: L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237
+and E 76,356. The line map is the predecessor's entry for entry (880 keys, 37
+prunes, seven resolutions). In the normalized call graph only `judge` and `plan`
+gain multiplicity (1 each). No existing function's multiplicity changes, and
+`resolve_case`, its callees, the rounding helpers and the preview have none.
+
+`compare <candidate> <predecessor>` gives equal structure: **1,596 coefficients
+equal, none higher and six lower**. The six are `TAV_W[1]`, `TAV_X[1]`, their
+`success__` copies and `TAV_text_requested`/`_moving`, each −3,990,536 B. This
+is §8.36's known short-key over-bound going away. The +49 carries PP `lib.rs`'s
+formation-report aggregate key from 1662 to 1711, so
+`primitive_loads/src/lib.rs:1662` is charged its own 764 B. PP's report keeps
+its 1,996,032 B per call. A short-key audit of every site, size, aggregate,
+lexical, total, from and audit key against all reached rows finds that
+collision on the predecessor and none on the candidate. The unmerged L(2,1) and
+L(1,2) also gain S2-JD's 4 and 8 `s(Diagnostic)`.
+
+**Native layout and evaluation.** S2 moves one in-build atom:
+`s(PreviewLoadCase)` 672 → 680 B (`WindGenerationInput`'s two `bool`s inside
+`Option<EquivalentStaticGenerationInput>`). The predecessor tree, evaluated at
+the candidate's 328 collected atoms with only that atom at 672, reproduces all
+16 `PINNED_RECORD` phases. With the registered block unchanged, the candidate's
+in-build record rises by +24 B (W1–W5, X2, X3) and +48 B (X1, two typed copies)
+in both modes. The two pins tied to that record therefore fail:
+`profile_in_build_record` and `challenge_bounds_are_the_profile`. The other 69
+retained-memory law tests pass.
+
+The proposal, maintained `generate` output with basis
+`, re-run as RT-G5 S2 at 064dc8bb9 (§8.40): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`,
+is a scratch file with SHA-256
+`74a960dbc980186c75d9ba450754c92d960880391b5ddd95f8345ad6ee30e44f`. It has 328
+atoms, 100 forms and 26 SourceUpper. It differs from the registered file only in
+the basis, the two TAV text atoms, the four TAV form constants and
+`PYTHON_CHECK`. Identity, reviewed inputs, layouts and threshold are unchanged.
+
+All 80 native evaluations, using the S1/§8.31 combination supplement for z ≥ 1,
+fit at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the
+upward-rounded 5 % TEXT reserve:
+- **Proposal.** Merged W3 E + R is 8,962,260,803 B sparse and 9,021,392,147 B
+  dense. The W/X reserves are 255,142,980 / 275,814,406 B, and the tightest
+  headroom is dense W3 at **+2,319,876,572 B**. Each point's tightest is dense
+  W3: L(3,0) +2,924,681,438, L(2,1) +3,553,502,263, L(1,2) +4,457,156,151 and
+  E +2,405,827,373 B.
+- **Registered block kept.** The tightest is +2,315,686,509 B, 24 B below
+  §8.38's.
+
+**Stack consequence.** The retained-reachable stack changes. In the registered
+debug configuration's library test binary, the frames are:
+
+| Frame | Size |
+|---|---:|
+| `lower` | 480 B |
+| `judge` | about 1,840 B |
+| `plan` | about 800 B |
+| `resolve_case` | about 10,032 B |
+| `apply` | about 592 B |
+
+`resolve_case`'s frame is entered once per case on D1, sequentially. The added
+depth below `lower` is at most about 12.7 KiB, at the start of the solve. These
+observations establish no whole-chain bound. No predecessor binary was
+inspected and no witness was run, so AC-004's applicability goes to Agent 0.
+
+**Reserved and open.** Each of these needs a reserved decision or independent
+review:
+- Adopting the six-lower proposal, or keeping the registered block. Either way
+  the law record and the challenge W1/MAX pins must be re-derived.
+- The AC-004 witnesses.
+- Independent scrutiny of this registration.
+- Regenerating the run carriers after any adoption.
+
+Maintained tests: 870 pass, including `tests/test_840_rt_g5_s2.py`. The named
+proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:
+`proposal/retained_memory.rs`, `run-cand/`, `run-base4cf/` and
+`eval80-*.json`. They are review inputs, not permanent dependencies.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2522,3 +2662,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Model document 0.9.0 actual-source D3", "§8.36" (S1-PIN, S1-BN, S1-NR, S1-RK, S1-HS, S1-L1, S1-ZR, S1-ZS, S1-ID, S1-MS, S1-VW, S1-WH, S1-TS) | §8.36 |
 | "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |
 | "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |
+| "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |
