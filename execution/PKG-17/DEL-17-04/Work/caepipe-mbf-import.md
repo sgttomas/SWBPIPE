@@ -2954,11 +2954,15 @@ points.
     and how an MBF records the choice (G-5). The page says "thermal load case"; equating it with
     this Design's expansion case is a reading. An "add up" remark for linear models is inference
     only and is not used for G-2.
-  - *Code-specific locks: held.* The *Elastic Modulus* Note states code-specific option locks.
-    They are held out of this Design pending a focused IP review (Agent 0, 2026-11-02;
+  - *Code-specific locks: not recorded.* The *Elastic Modulus* Note states code-specific option
+    locks. Agent 0 held them out of this Design pending a focused IP review (2026-11-02;
     paraphrase): product behaviour does not by itself exempt material selected by code from
-    `docs/IP_AND_DATA_BOUNDARY.md` §3. No code is named here against an option, and none of the
-    Note's content is recorded (G-1 (d); §20.4.10).
+    `docs/IP_AND_DATA_BOUNDARY.md` §3. The focused independent IP review (2026-11-02) found no
+    permissible public row: the Note grounds the locks in standards provisions, removing its
+    rationale and clause references does not establish redistribution clearance under §3 and
+    B-17-01-001, and the adopted consultation boundary supplies none. No code is named here
+    against an option, and none of the Note's content is recorded. The mapping stays
+    unestablished, as a question in CQ-17-01-016 (G-1 (d); §20.4.10).
   - *G-4 not stated.* A search of the page for "interpolat" found no occurrence. That is
     search-scope evidence only, not proof that no relevant semantics exist anywhere.
   - *Disclosure.* During extraction, out-of-scope labels and some sentences paraphrasing
@@ -4431,9 +4435,9 @@ Route 1 does not by itself export the reference system. Its records are:
     flag could mean another selection policy, and none is inferred. Neither §6 nor this
     subsection recorded this before 2026-11-02.
     *Narrowed (2026-11-02):* the *Elastic Modulus* Note on `CAEPIPE-ANALYSIS` states
-    code-specific option locks. They are held out of this Design pending a focused IP review
-    (Agent 0, 2026-11-02; paraphrase; §20.4, **Sources**), so no code is named here against an
-    option and none of the Note's content is recorded. That statement and the import-page
+    code-specific option locks. A focused independent IP review (2026-11-02) found no
+    permissible public row (§20.4, **Sources**), so no code is named here against an option and
+    none of the Note's content is recorded; the mapping stays unestablished. That statement and the import-page
     statement above are kept separate; neither is used to infer the other. Which modulus applies
     for any code stays open, and the fail-closed rule below is unchanged.
   - *(e) A null piping code: open, and separate from (c).* With a null code argument the writer
@@ -4582,13 +4586,17 @@ Route 1 does not by itself export the reference system. Its records are:
   not sent. After the bounded consultation of 2026-11-02, (b) is narrowed (the options and
   their meaning are located; field 5's link to them is not stated), and so are (d) and G-2
   (§20.4.9). G-4 is not stated on the consulted page.
-- **Code-specific modulus locks: held pending a focused IP review (Agent 0, 2026-11-02;
-  paraphrase).** The *Elastic Modulus* Note on `CAEPIPE-ANALYSIS` states code-specific option
-  locks. The rows tying codes to locked options are held out of new public design text until a
-  focused IP review decides whether they may be recorded; product behaviour does not by itself
-  exempt material selected by code from `docs/IP_AND_DATA_BOUNDARY.md` §3. This Design names no
-  code against an option and records none of the Note's content. The fail-closed admission rule
-  is unaffected.
+- **Code-specific modulus locks: not recorded (focused IP review, 2026-11-02).** The *Elastic
+  Modulus* Note on `CAEPIPE-ANALYSIS` states code-specific option locks. Agent 0 held the rows
+  tying codes to locked options out of public design text pending a focused IP review
+  (paraphrase). That review found no permissible row: a lock row would communicate a
+  standards-derived selection rule taken from a Note grounded in standards provisions, and
+  removing its rationale and clause references does not establish redistribution clearance under
+  `docs/IP_AND_DATA_BOUNDARY.md` §3 and B-17-01-001. It also noted that one of the Note's items
+  describes a stress-calculation rule, not an option lock. The rows are not needed under the
+  fail-closed admission rule, which is unaffected. This Design names no code against an option
+  and records none of the Note's content; the mapping stays an unestablished question in
+  CQ-17-01-016.
 - **G-5, the thermal-case method (added by Agent 0's ruling, 2026-11-02; paraphrase).** Which
   of the two thermal-case options applies to an MBF, where it is recorded and its default are
   an unresolved condition of candidate Route 1 (§20.4.9). No OPTEMP field-4 mapping is inferred.
