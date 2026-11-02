@@ -2735,7 +2735,11 @@ the other eleven inputs, layouts and threshold are unchanged.
   kept tree and the candidate tree: the kept coefficients except `STATICS[1]`
   and its success copy (+286 B), keeping the 3,990,536 B allowance's unused
   3,989,660 B. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/A/retained_memory.rs`,
-  SHA-256 `a263e437f35388ca7a6154f041df38be4c7e0a91c801a506316edf1cb6121886`.
+  SHA-256 `755108238ce1b94add0a76106df6b0fb7e12fb484ba5e964a91925861502c6d1`.
+  Its comment and generated basis name the pointwise maximum explicitly;
+  proposal status lives here rather than in a comment that would become stale
+  immediately upon exact-byte adoption. This wording correction changes no
+  coefficient, input binding or evaluation.
 - **B, source-derived (comparison only).** The candidate tree itself: six TAV
   coefficients 3,989,660 B lower, `STATICS[1]` +286 B. It drops the kept
   allowance and is not recommended. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/B/retained_memory.rs`,
