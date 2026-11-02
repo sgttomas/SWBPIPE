@@ -28,8 +28,7 @@ supplier catalogue, supplier selection procedure or standards text is used, and
 none ships. The load-variation limit, the travel allowance and the selection rule
 are the user's inputs. A selected record is the record that meets the user's own
 tests on the user's own model. Sizing does not judge whether a hanger is suitable for
-a service, and it does not determine code compliance. Standard claim fence applies
-(claims taxonomy per DEC-081).
+a service, and it does not determine code compliance.
 
 ## What is built, and what is not yet
 
@@ -75,6 +74,11 @@ A named case must be a load case, not a combination. It may not carry a test
 condition, because a hydrotest holds its springs, which is not the state a hanger is
 sized in. A case may be named in only one role.
 
+The weight case's content is the user's. Sizing does not check that it holds only
+weight, and every load it carries enters W. The run returns the load categories each
+named case carries as authored, so that a weight case with thermal or other loads can
+be seen as such.
+
 ## Candidates
 
 A candidate is a support of the model that:
@@ -108,11 +112,12 @@ A variable spring of rate k set to the load F_cold at the installed position car
 at any position u. The same law is used everywhere: in the sizing arithmetic, in the
 verification pass, and, once increment 6 is built, in the model's own solve.
 
-**This is an assumption the result states.** Practice also sets springs at a settled
-cold position or with an erection offset. SWBPIPE offers neither. Where the
-cold-condition position u_C is not zero, the installed setting F_cold and the
-cold-condition load F_C differ. The result reports both, and only F_cold is a
-setting.
+**This is an assumption.** Practice also sets springs at a settled cold position or with
+an erection offset. SWBPIPE offers neither. Where the cold-condition position u_C is not
+zero, the installed setting F_cold and the cold-condition load F_C differ. The engine
+returns both, and only F_cold is a setting. Stating the assumption in the published
+basis, and labelling the two loads in the hanger table, are planned publication
+behaviour (slice 1d).
 
 ## The method
 
@@ -216,9 +221,12 @@ A constant-effort support carries W in every position, so it has no variation te
 
 Among the fitting records:
 - **smallest capacity** chooses the smallest range maximum, then the smallest
-  variation, then the smallest `hanger_id` in byte order;
-- **least variation** chooses the smallest variation, then the smallest range
+  governing variation, then the smallest `hanger_id` in byte order;
+- **least variation** chooses the smallest governing variation, then the smallest range
   maximum, then the smallest `hanger_id`.
+
+A record's governing variation is the largest of its v_i over the operating cases. A
+constant-effort record's is zero.
 
 The tie-breaks make every selection deterministic.
 
@@ -236,7 +244,7 @@ by solving the weight case and every operating case again, with:
 - each selected constant-effort record as the force W;
 - each candidate with no fit left as the force W.
 
-The verification publishes:
+The verification returns:
 - for every selected family, the verified positions, travel span and travel test.
   A constant-effort support pushed further by a neighbouring spring is caught here;
 - for a variable selection, the verified loads F_C^v and F_i^v and the verified
@@ -245,7 +253,8 @@ The verification publishes:
   formed;
 - the departure from W: F_D^v − W under hot design, F_C^v − W under cold design.
 
-Each test that the verified values fail is warned by name. No selection is changed
+The engine returns each test that the verified values fail, by name. Publishing these
+as named warnings is planned publication behaviour (slice 1d). No selection is changed
 automatically, because no convergence rule for re-sizing is offered. When any
 candidate has no fit, the verification is marked **conditional**. It assumed a
 force W at that candidate, and applying the selected records alone does not
@@ -294,6 +303,7 @@ full ordinary publication, which the sizing then discards.
   and each entered spring load is warned as not applied
   (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
 - **No automatic re-sizing:** the user re-runs sizing after applying selections.
+- **The weight case's content** is not checked: every load it carries enters W.
 - **Inherited premises:** a sizing result inherits every premise of the solves it
   uses. It bounds no modelling, input or physical error.
 
@@ -315,9 +325,15 @@ against it:
 - **R-5:** lift-off that opens in the operating case, and lift-off that holds,
   including the support states in every solve.
 
-The engine is compared with these at 1e-9 relative. Selection outcomes are compared
-exactly. A selected spring's verification is also checked against a closed-form
-pinned-span solution.
+Selection outcomes, record ids, failure counts and failed tests are compared exactly.
+Values are compared at 1e-9 relative, with an absolute allowance:
+- in `core/analysis/hanger_sizing/tests/r3_references.rs`, the allowance is 1e-12;
+- in `tests/derived_solves.rs`, positions get an allowance of 1e-9 of the case's
+  largest expected position, never below 1e-12 m, because a closed-form zero
+  cannot be judged by a relative tolerance.
+
+A selected spring's verification is also checked against a closed-form pinned-span
+solution in `tests/derived_solves.rs`.
 
 ## Source notes
 
