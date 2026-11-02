@@ -3158,15 +3158,19 @@ sustained case (G-2). Until G-2 is answered, a sustained case is admitted only w
 material it uses has a single E across its MBF rows. Its selections are restored at T_ref (or
 as explicit base properties). Otherwise it is refused (§20.4.3). The thermal case's
 equivalence then holds without G-2: with no sustained loads the sustained case is null, so the
-documented expansion case (operating minus sustained) is the T1 response at E(T1).
+expansion case recorded historically as operating minus sustained (outside `CAEPIPE-ANALYSIS`'s
+current boundary; pending G-2 adoption and corroboration) is conditionally the T1 response at
+E(T1).
 
 **(f) OPTEMP, LOADS and layout.**
 
 - **OPTEMP.** Field 1 is T_ref (a). The cold-modulus flag, OPTEMP field 5 (§6; G-1 (a),
   admitted), is written so that it selects the hot modulus. The value that does so, the effect
   of an omitted field and the modulus under a null piping code are G-1 (b), (c) and (e), and the
-  implementation waits on them. A piping code for which the page says the flag is ignored is
-  proposed for non-admission (§20.4.3; G-1 (d)).
+  implementation waits on them. Proposed for candidate Route 1 only: a piping-code/OPTEMP
+  combination is admitted only when admitted evidence establishes its mapped modulus selection,
+  and none is established today (`MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`, §20.4.3;
+  G-1 (d)).
 - **LOADS.** T1 per element as in (c), P1 as today (§9.4).
 - **Layout.** Layout rows carry `L=` as today. A bend pipe and its incoming straight still share
   one row, so they must share T1 (`MBF-SI-BEND-UNSUPPORTED`, as today).
@@ -3247,7 +3251,7 @@ Any refusal refuses the whole file, as today (§17).
 | `MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED` | existing | more than one thermal-role or sustained-role case; an operating (mixed) case |
 | `MBF-SI-PRESSURE-CASE-UNSUPPORTED` | existing | pressure regions in a case with a member at T1 ≠ T_ref |
 | `MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED`, `MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`, `MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED` | existing | outside Route 1 (§20.4.1), including Route 2 |
-| `MBF-SI-ROUTE1-PIPING-CODE-IGNORES-MODULUS-FLAG` | new (proposed design code; not adopted) | a Route 1 export whose piping-code argument is a token on §20.4.9's proposed list (G-1 (d)): the page says the cold-modulus flag is ignored for that code, so the mapped modulus selection (E at each member's T1) is not established for it. Names the token. A null code is not refused by it (G-1 (e)); exports outside Route 1 are unchanged |
+| `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED` | new (proposed design code, candidate Route 1 only; not adopted) | a Route 1 export whose piping-code/OPTEMP combination has no mapped modulus selection (E at each member's T1) established by admitted evidence. No combination is established today (§20.4.9, G-1). Names the piping-code token, or null, and the unresolved condition: G-1 (b), (c), (d) or (e). Existing routes and their output are unchanged, and no release limitation is created |
 | `MBF-SI-SHEAR-MODULUS-NOT-EXPORTED` | existing (omitted) | a point carrying `shear_modulus`, which the selector ignores (`resolve.rs:991`) and the MBF cannot carry |
 | `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED` | new (importer) | a Route 1 file whose OPTEMP modulus field does not select the hot modulus. The writer never writes the cold modulus. On the writer side, a selection at T_ref in a member whose T1 differs is a mismatch |
 | `MBF-IMPORT-REFERENCE-STATE-UNBOUND` | new (importer) | a format-5 sidecar on the rebind route (`rebind_by_node_number`), where the regeneration identity does not run |
@@ -3514,7 +3518,7 @@ Each input outside S:
 | Input | Effect on the bytes | Format 5 records | Check 2's rendering |
 |---|---|---|---|
 | Title | the title line only, printed as `_title(title)` (`si_writer.py:1785`, `:2136-2142`) | `export_inputs.title`: the printed title line, by value | uses it. `_title` returns its own output unchanged (printable ASCII without commas, stripped, at most 70 characters), so the printed line reproduces itself |
-| Piping code | the OPTIONS line, and OPCODE for an ASME B31 code (`si_writer.py:1785-1787`) | `export_inputs.piping_code`: the token, or null | uses it. The desktop's export settings carry no piping code (`export_settings.rs:7-13`, `:96-103`; `WriterSettings::new` defaults it to null, `writer/mod.rs:411-418`), so a desktop export records null. Under Route 1 the code also decides admission (proposed, `MBF-SI-ROUTE1-PIPING-CODE-IGNORES-MODULUS-FLAG`, §20.4.3), and a null code leaves G-1 (e) open |
+| Piping code | the OPTIONS line, and OPCODE for an ASME B31 code (`si_writer.py:1785-1787`) | `export_inputs.piping_code`: the token, or null | uses it. The desktop's export settings carry no piping code (`export_settings.rs:7-13`, `:96-103`; `WriterSettings::new` defaults it to null, `writer/mod.rs:411-418`), so a desktop export records null. Under Route 1 the code is part of the piping-code/OPTEMP combination that decides admission (proposed, `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`, §20.4.3). No combination is established today, and a null code is G-1 (e) |
 | Reference temperature | OPTEMP field 1 | not recorded | omits it. Under Route 1, OPTEMP comes from S's configuration and never from the argument, and an explicit argument that differs is refused (§20.4.2 a, `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`). An omitted argument and an accepted equal one must print the same field (§20.4.7, item 6) |
 | Layout-row limit | none; it raises only a warning (`si_writer.py:1867-1871`). The desktop fixes it at none (`export_settings.rs:84-86`) | not recorded | none |
 | Library store content | none. The desktop's export reads the store only to screen the document's dispositions (`apps/desktop/src-tauri/src/mbf_export.rs:1294-1302`). The admission returns the canonical text unchanged (`model_document_save.rs:279-283`), and the worker renders that text (`mbf_export.rs:1315`). The writer's section library is the document's own `sections` (`si_writer.py:797-803`) | not recorded | reads no store. A library changed or deleted since the export does not affect it |
@@ -3533,8 +3537,9 @@ Each input outside S:
     another, the associated OPCODE record (`si_writer.py:1786-1788`). The importer keeps them
     only in the import result's `target_options`, listed as delegated, pass-through target
     configuration (`importer.py:1637-1643`, `:264`). They change no restored model value.
-    Under the proposed Route 1 non-admission (§20.4.3), an edit to a listed token is refused at
-    check 2, because the writer refuses to render S with it;
+    Under the proposed fail-closed modulus-selection rule (§20.4.3), an edit to a token whose
+    combination is not established is refused at check 2, because the writer refuses to render
+    S with it;
   - through any of these byte changes, the MBF digest, and with it the import-generated project
     id and digest description (`importer.py:3267-3268`).
 
@@ -4208,12 +4213,12 @@ codes.
 5a. **Export inputs (§20.4.5, Export inputs outside the source document):**
    - admitted vectors re-render to identical bytes with a non-default title (one that the writer
      sanitizes, and one longer than 70 characters) and with each piping-code kind (none; an
-     ASME B31 code off §20.4.9's proposed list, such as `B311`, with OPCODE; another documented
-     code off that list). The null-code and off-list vectors stay conditional on G-1 (b), (c)
-     and (e);
-   - each token on §20.4.9's proposed list, given as the piping-code argument for an otherwise
-     admitted vector: `MBF-SI-ROUTE1-PIPING-CODE-IGNORES-MODULUS-FLAG`, naming the token; the
-     same argument on the ordinary route writes today's bytes;
+     ASME B31 code with OPCODE; another documented code), each only once admitted evidence
+     establishes that combination's modulus selection (G-1 (b), (c), (d), (e));
+   - until then, every piping-code/OPTEMP combination, null included, given for an otherwise
+     admitted vector: `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`, naming the token or null
+     and the unresolved condition; the same argument on the ordinary route writes today's
+     bytes;
    - `export_inputs.title` or `piping_code` edited, with the digests recomputed and the MBF
      unchanged: `MBF-IMPORT-SOURCE-MISMATCH` at check 2 (a);
    - the same edit applied to the MBF's title or OPTIONS line (and OPCODE record, when the
@@ -4332,25 +4337,27 @@ Route 1 does not by itself export the reference system. Its records are:
     hot/cold option itself is recorded from `CAEPIPE-ANALYSIS`, whose current boundary does not
     cover it (§20.4, **Sources**). The route for that is the G-2 proposal (DEL-17-01
     `Source_Basis_Register.md`, **Proposed boundary change**).
-  - *Piping codes that ignore the flag: proposed non-admission, candidate Route 1 only.* This is
-    proposed for numerical and contract review and Agent 0's decision, and is not adopted. It is
-    scoped to the candidate Route 1 design. Existing routes and their output are unchanged,
-    nothing is implemented, and no release limitation is created.
-    - **Rule.** A Route 1 export whose piping-code argument is a token on the list below is
-      refused as `MBF-SI-ROUTE1-PIPING-CODE-IGNORES-MODULUS-FLAG` (§20.4.3), naming the token.
-    - **Rationale.** For these codes, the mapped modulus selection (E at each member's T1) is
-      not established: the page says the flag is ignored and does not say what applies instead.
-    - **Exact list and basis.** The tokens are drawn from the writer's and importer's documented
-      OPTIONS tokens (`PIPING_CODE_OPTIONS`, `importer.py:145-151`). They are `B313`, `B314`,
-      `B315`, `B318`, `B3112`, `B3112-PL` and `EUROPEAN`. The first five are matched to B31.3,
-      B31.4, B31.5, B31.8 and B31.12 by their names. `B3112-PL` is included because its name
-      also denotes B31.12. `EUROPEAN` is included conservatively: no reviewed source here maps a
-      token to EN 13480, and it is the only listed token whose name could denote it (`EN13941`
-      names another standard by number). This lane read only the OPTEMP and MATERIAL
-      descriptions, so it did not check this name-to-token correspondence against the OPTIONS
-      description. A reviewed mapping replaces the list.
-    - **Not covered.** A token off the list, such as `B311`, still waits on (b) and (c). A null
-      code is (e).
+  - *Modulus selection per piping-code/OPTEMP combination: proposed fail-closed admission,
+    candidate Route 1 only.* This is proposed for numerical and contract review and Agent 0's
+    decision, and is not adopted. Existing routes and their output are unchanged, nothing is
+    implemented, and no release limitation is created.
+    - **Rule.** Admit a piping-code/OPTEMP combination only when admitted evidence establishes
+      its mapped modulus selection (E at each member's T1). No combination is established by
+      this consultation. Otherwise refuse with `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`
+      (§20.4.3), naming the token or null and the unresolved condition: G-1 (b) and (c) for the
+      flag's value and its omission, (d) for a code for which the page says the flag is
+      ignored, (e) for a null code. These stay independent questions.
+    - **Rationale.** The mapped modulus selection is not established for any combination today.
+      For a code for which the flag is ignored, the page does not say what applies instead; an
+      ignored flag could imply another selection policy, and none is inferred.
+    - **Investigation candidates for (d), not an admission boundary.** The page names B31.3,
+      B31.4, B31.5, B31.8 (printed "31.8"), B31.12 and EN 13480. Among the writer's and
+      importer's documented OPTIONS tokens (`PIPING_CODE_OPTIONS`, `importer.py:145-151`), the
+      tokens `B313`, `B314`, `B315`, `B318`, `B3112`, `B3112-PL` and `EUROPEAN` are candidates
+      inferred from their names only. This lane read only the OPTEMP and MATERIAL descriptions
+      and did not check any name-to-token correspondence against the OPTIONS description. The
+      list is neither verified nor exhaustive. Because admission is fail-closed, nothing
+      depends on its completeness.
 - **G-2. The sustained case's modulus.** `CAEPIPE-ANALYSIS`, as recorded, states the modulus for
   operating case 1 and the reference temperature for the cold option. It does not state the
   modulus of the sustained case under the hot option. So it also does not state whether the
@@ -4418,10 +4425,12 @@ Route 1 does not by itself export the reference system. Its records are:
   current boundary (§20.4.9). G-4 stays open, and so does CQ-17-01-016. G-1 (a) is admitted
   (2026-11-02); (b), (c) and (e) stay open, and their draft questions are in CQ-17-01-016,
   not sent.
-- **For Agent 0's decision: piping codes that ignore the flag (proposed).** The proposed
-  candidate-Route-1 non-admission `MBF-SI-ROUTE1-PIPING-CODE-IGNORES-MODULUS-FLAG` and its
-  exact token list (§20.4.9, G-1 (d)) go to numerical and contract review. The list's
-  `B3112-PL` and `EUROPEAN` entries rest on token names, not on a reviewed mapping.
+- **For Agent 0's decision: modulus-selection admission (proposed).** The proposed
+  candidate-Route-1 rule admits a piping-code/OPTEMP combination only when admitted evidence
+  establishes its mapped modulus selection, refusing otherwise with
+  `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED` (§20.4.9, G-1). No combination is established
+  today. The seven tokens listed for G-1 (d) are investigation candidates inferred from names,
+  not a verified mapping (independent review, 2026-11-02).
 - **For Agent 0's adoption: the `CAEPIPE-ANALYSIS` boundary (proposed).** The exact widened text
   is in DEL-17-01 `Source_Basis_Register.md`, **Proposed boundary change**. It is named by
   function because a headings-only read could not place it. It awaits independent IP review.

@@ -70,9 +70,10 @@ content is permitted: no public artifact may rely on it, and DEL-17-04
 - **Subsections: named by function, not by heading.** A headings-only read of the live page on
   2026-11-02 recorded its four table-of-contents headings: *Temperature*, *Pressure*,
   *Dynamics* and *Misc*. No body text was read or used. The headings alone do not show which
-  subsection states the semantics above, so this proposal names none. The independent IP review
-  identifies the subsection or subsections and narrows the proposed text to them before
-  adoption.
+  subsection states the semantics above, so this proposal names none. Independent IP review
+  assesses this functional boundary. After Agent 0 adoption, consultation confined to that
+  boundary records the supporting subsection locations and checks each claim; adoption alone
+  establishes no source fact.
 - **Why.** DEL-17-04 Design O-7 (2026-10-27) and §20.4 record the hot/cold modulus option and
   the expansion case (operating minus sustained) from this page, outside its adopted boundary.
   Route 1's gaps G-1 and G-2 depend on them. Agent 0 folded that conflict into this G-2 change
