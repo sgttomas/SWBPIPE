@@ -29,6 +29,7 @@
 
 mod correctly_rounded;
 mod decimal90;
+mod export_review;
 mod export_settings;
 mod importer;
 mod pyfmt;
@@ -42,6 +43,11 @@ mod unicode_tables;
 pub mod value;
 mod writer;
 
+pub use export_review::{
+    export_review, Review, ReviewAllowanceTooSmall, ReviewFiles, ReviewList, ReviewSummary, EXPORT_OUTPUT_TOO_LARGE,
+    MBF_EXPORT_OUTPUT_MAX_BYTES, MBF_REVIEW_MAX_BYTES, REVIEW_DOCUMENT_KIND, REVIEW_FIELD_MAX_BYTES, REVIEW_FORMAT,
+    REVIEW_TRUNCATED,
+};
 pub use export_settings::{
     export_settings_from_json, ExportSettingsError, EXPORT_SETTINGS_INVALID, MAX_EXPORT_SETTINGS_JSON_BYTES, MAX_EXPORT_TITLE_BYTES,
 };

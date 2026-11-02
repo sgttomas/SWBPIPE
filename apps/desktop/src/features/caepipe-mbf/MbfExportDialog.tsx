@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { canonicalJsonString } from "../../services/hashService";
-import { mbfSettingsJson, renderMbfExport, type MbfExportSettings, type WasmMbfEngine } from "../../services/mbfEngine";
 import type { ModelHashEvidence, PreviewModel } from "../../types";
 import {
   prepareModelDocumentSave,
@@ -12,8 +11,14 @@ import {
   MBF_ASSUMPTIONS_SENTENCE,
   MBF_BOUNDARY_SENTENCE,
   MBF_EXPORT_INTENT_LABEL,
+  MBF_EXPORT_OUTPUT_TOO_LARGE,
   MBF_EXPORT_REVIEW_STALE,
   MBF_EXPORT_ROUTE,
+  MBF_OUTPUT_TOO_LARGE_SENTENCE,
+  MBF_REVIEW_NATIVE_ONLY,
+  MBF_REVIEW_NATIVE_ONLY_SENTENCE,
+  MBF_REVIEW_TRUNCATED,
+  MBF_REVIEW_TRUNCATED_SENTENCE,
   MBF_IDENTITY_FILE_SUFFIX,
   MBF_LOSS_DESCRIPTIONS,
   MBF_IDENTITY_SENTENCE,
@@ -26,16 +31,22 @@ import {
   lossDescription,
   mbfExportSettings,
   mbfReview,
+  mbfSettingsJson,
   reviewAdmitsSave,
+  reviewBlockingCodes,
   savedStatusLine,
   suggestedMbfName,
+  type MbfExportSettings,
   type MbfReview,
   type MbfReviewEntry,
+  type MbfReviewListCounts,
+  type ReviewMbfExport,
   type SaveMbfExport
 } from "./mbfExport";
 
-/** The open Export MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3). Slice 4b mounts it from
- * File > Export MBF… and the Exports section, and supplies `saveMbfExport` (the native `save_mbf_export`). */
+/** The open Export MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.9.5). Slice 4b.2 mounts
+ * it from File > Export MBF… and the Exports section, and supplies `reviewMbfExport` and `saveMbfExport` (the native
+ * `review_mbf_export` and `save_mbf_export`). */
 export type MbfExportDialogRequest = {
   model: PreviewModel;
   modelHash: ModelHashEvidence | null;
@@ -44,16 +55,20 @@ export type MbfExportDialogRequest = {
   opener: HTMLElement | null;
   close: () => void;
   saveMbfExport: SaveMbfExport;
+  /** The native review (§3.9.5), or null in the browser-only route, which has no native review and no save: the
+   * dialog then declines the review with `MBF-REVIEW-NATIVE-ONLY` and runs no writer. */
+  reviewMbfExport: ReviewMbfExport | null;
   /** The model's library references resolved against the local store (`resolveLibraryDispositions`). */
   libraries?: LibraryResolution;
-  /** The wasm writer; the loaded `public/mbf-engine` build by default. */
-  engine?: WasmMbfEngine;
 };
 
 type ReviewState =
   | { key: string; phase: "running" }
   | { key: string; phase: "ready"; review: MbfReview }
+  | { key: string; phase: "declined"; diagnostics: ModelFileDiagnostic[] }
   | { key: string; phase: "failed"; message: string };
+
+const CLAIMED_HASH = /^sha256:[0-9a-f]{64}$/;
 
 /** File > Export MBF…: the review of what the writer writes and leaves out, then the save of the model batch file
  * and its identity file through the native chooser. Modal like Save Model Document: Tab stays on its controls, window
@@ -127,15 +142,25 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
       setState(null);
       return;
     }
+    const review = request.reviewMbfExport;
+    if (!review) {
+      setState({ key: reviewKey, phase: "declined", diagnostics: [{ code: MBF_REVIEW_NATIVE_ONLY, path: "", message: MBF_REVIEW_NATIVE_ONLY_SENTENCE }] });
+      return;
+    }
+    const claimedModelHash = request.modelHash?.value ?? "";
+    if (!CLAIMED_HASH.test(claimedModelHash)) {
+      setState({ key: reviewKey, phase: "running" });
+      return;
+    }
     let current = true;
     setState({ key: reviewKey, phase: "running" });
     void (async () => {
       try {
-        const text = await canonicalJsonString(request.model);
-        const outcome = await renderMbfExport(text, settingsJson, request.engine);
+        const canonicalText = await canonicalJsonString(request.model);
+        const outcome = await review({ canonicalText, claimedModelHash, settingsJson });
         if (!current) return;
-        if (outcome.status === "failed") setState({ key: reviewKey, phase: "failed", message: `${outcome.failure.code}: ${outcome.failure.message}` });
-        else setState({ key: reviewKey, phase: "ready", review: mbfReview(outcome) });
+        if (outcome.outcome === "reviewed") setState({ key: reviewKey, phase: "ready", review: mbfReview(outcome.review) });
+        else setState({ key: reviewKey, phase: "declined", diagnostics: outcome.diagnostics });
       } catch (error) {
         if (current) setState({ key: reviewKey, phase: "failed", message: String(error instanceof Error ? error.message : error) });
       }
@@ -148,7 +173,11 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
   if (!request) return null;
   const review = state?.phase === "ready" && state.key === reviewKey ? state.review : null;
   const stale = state !== null && state.key !== reviewKey;
-  const canSave = reviewAdmitsSave(review) && intent && !saving && settingsJson !== null;
+  const native = request.reviewMbfExport !== null;
+  // Every current condition but the save in progress: a complete, eligible review of this model and these settings,
+  // the explicit choice, and the native route.
+  const permitted = reviewAdmitsSave(review) && intent && settingsJson !== null && native;
+  const canSave = permitted && !saving;
   const suggestedName = suggestedMbfName(label);
   const identityName = suggestedName.replace(/\.mbf$/, MBF_IDENTITY_FILE_SUFFIX);
 
@@ -176,9 +205,11 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
         reviewed: { mbfSha256: review.mbfSha256, sidecarSha256: review.sidecarSha256 }
       });
       if (outcome.outcome === "saved") {
-        setStatus(savedStatusLine(outcome, review.omitted.length));
+        setStatus(savedStatusLine(outcome, review.lists.omitted.total));
       } else if (outcome.outcome === "refused") {
         setRefusal(outcome.diagnostics);
+        // The save's own run formed its review: it replaces the one shown, and blocks Save while it blocks.
+        if (outcome.review && reviewKey) setState({ key: reviewKey, phase: "ready", review: mbfReview(outcome.review) });
         // The model or settings moved since the review: review again.
         if (outcome.diagnostics.some((item) => item.code === MBF_EXPORT_REVIEW_STALE)) setNonce((value) => value + 1);
       }
@@ -236,8 +267,14 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
             <p data-testid="mbf-export-review-running">{stale ? "The model or a setting changed; the review runs again…" : "Reviewing what the file holds…"}</p>
           ) : state.phase === "failed" ? (
             <p role="alert" data-testid="mbf-export-review-failed">The review could not run: {state.message}</p>
+          ) : state.phase === "declined" ? (
+            <ul role="alert" data-testid="mbf-export-review-declined">
+              {state.diagnostics.map((item, index) => (
+                <li key={`${item.code}-${index}`}>{item.code}: {describeRefusal(item)}</li>
+              ))}
+            </ul>
           ) : review ? (
-            <ReviewSections review={review} />
+            <ReviewSections review={review} permitted={permitted} />
           ) : null}
         </div>
         <p data-testid="mbf-export-identity">{MBF_IDENTITY_SENTENCE}</p>
@@ -253,7 +290,7 @@ export function MbfExportDialog({ request }: { request: MbfExportDialogRequest |
               <li key={`${item.code}-${index}`}>
                 {/* A writer refusal is named by its code and the product-side description, not the engine's text; every
                     diagnostic of the native writer's refusal is an error. */}
-                {item.code}{item.path ? ` (${item.path})` : ""}: {isWriterCode(item.code) ? lossDescription(item.code, true) : item.message}
+                {item.code}{item.path ? ` (${item.path})` : ""}: {describeRefusal(item)}
               </li>
             ))}
           </ul>
@@ -278,6 +315,31 @@ function isWriterCode(code: string): boolean {
   return code.startsWith("MBF-SI-") || Object.hasOwn(MBF_LOSS_DESCRIPTIONS, code);
 }
 
+/** A refusal's text: a writer code by its product-side description, a review condition by its sentence, else the
+ * native message (the save's and the review's own text, never the engine's). */
+function describeRefusal(item: ModelFileDiagnostic): string {
+  if (isWriterCode(item.code)) return lossDescription(item.code, true);
+  if (item.code === MBF_REVIEW_TRUNCATED) return MBF_REVIEW_TRUNCATED_SENTENCE;
+  if (item.code === MBF_EXPORT_OUTPUT_TOO_LARGE) return MBF_OUTPUT_TOO_LARGE_SENTENCE;
+  return item.message;
+}
+
+/** The entries of a list the review does not show, and how many of them block. */
+function NotShown({ counts, testId }: { counts: MbfReviewListCounts; testId: string }) {
+  if (counts.not_shown === 0) return null;
+  return (
+    <p data-testid={testId}>
+      {counts.not_shown} more {counts.not_shown === 1 ? "entry is" : "entries are"} not shown
+      {counts.not_shown_blocking > 0 ? `, ${counts.not_shown_blocking} of which block the save.` : "; none of them blocks the save on its own."}
+    </p>
+  );
+}
+
+const SENTENCES: Record<string, string> = {
+  [MBF_REVIEW_TRUNCATED]: MBF_REVIEW_TRUNCATED_SENTENCE,
+  [MBF_EXPORT_OUTPUT_TOO_LARGE]: MBF_OUTPUT_TOO_LARGE_SENTENCE
+};
+
 function EntryItem({ entry }: { entry: MbfReviewEntry }) {
   return (
     <li>
@@ -286,9 +348,11 @@ function EntryItem({ entry }: { entry: MbfReviewEntry }) {
   );
 }
 
-/** The review of §3.3: the profile by its product label, each loss entry by its code, entity and product-side
- * description, and each unit conversion by its exact factor. The writer's own messages and assumptions are not shown. */
-function ReviewSections({ review }: { review: MbfReview }) {
+/** The review of §3.3: the profile by its product label, whether the review is complete and within the output
+ * ceiling, each listed entry by its code, entity and product-side description with the count of those not shown, and
+ * each unit conversion by its exact factor. The writer's own messages and assumptions are not shown. */
+function ReviewSections({ review, permitted }: { review: MbfReview; permitted: boolean }) {
+  const blocked = reviewBlockingCodes(review);
   return (
     <>
       <section data-testid="mbf-export-profile">
@@ -297,6 +361,27 @@ function ReviewSections({ review }: { review: MbfReview }) {
           {MBF_PROFILE_LABEL}. Open items: {MBF_PROFILE_OPEN_ITEMS.join(", ")} (open).
         </p>
       </section>
+      <section data-testid="mbf-export-completeness">
+        <h3>Review</h3>
+        <p data-testid="mbf-export-completeness-state">
+          {review.complete
+            ? "Complete: every entry of the loss report is listed."
+            : `Truncated: ${review.notShown} ${review.notShown === 1 ? "entry is" : "entries are"} not shown, ${review.notShownBlocking} of which block the save.`}
+        </p>
+        <p data-testid="mbf-export-ceiling">
+          {review.outputWithinCeiling
+            ? "The files are within the 64 MiB an export may write."
+            : "The files would be larger than the 64 MiB an export may write."}
+        </p>
+      </section>
+      {blocked.length > 0 ? (
+        <section role="alert" data-testid="mbf-export-blocked">
+          <h3>Not offered (blocks the save)</h3>
+          <ul>
+            {blocked.map((code) => <li key={code}>{code}: {SENTENCES[code]}</li>)}
+          </ul>
+        </section>
+      ) : null}
       {review.notWritten.length > 0 ? (
         <section data-testid="mbf-export-not-written">
           <h3>Not written (blocks the save)</h3>
@@ -309,6 +394,12 @@ function ReviewSections({ review }: { review: MbfReview }) {
               </ul>
             </div>
           ))}
+          <NotShown counts={review.lists.not_written} testId="mbf-export-not-written-not-shown" />
+        </section>
+      ) : review.lists.not_written.not_shown > 0 ? (
+        <section data-testid="mbf-export-not-written">
+          <h3>Not written (blocks the save)</h3>
+          <NotShown counts={review.lists.not_written} testId="mbf-export-not-written-not-shown" />
         </section>
       ) : null}
       {review.refusedUnexplained ? (
@@ -317,13 +408,20 @@ function ReviewSections({ review }: { review: MbfReview }) {
           <p>SWBPIPE refused to write the file without naming an entry. Save is unavailable.</p>
         </section>
       ) : null}
-      {review.omitted.length > 0 ? (
+      {review.lists.omitted.total > 0 ? (
         <section data-testid="mbf-export-omitted">
-          <h3>Omitted ({review.omitted.length})</h3>
-          <p>{review.status === "written" ? "These are not in the file. You can still save." : "These would not be in the file either."}</p>
+          <h3>Omitted ({review.lists.omitted.total})</h3>
+          <p>
+            {review.status !== "written" || review.blocking
+              ? "These would not be in the file either."
+              : permitted
+                ? "These are not in the file. You can still save."
+                : "These are not in the file."}
+          </p>
           <ul>
             {review.omitted.map((entry, index) => <EntryItem key={`${entry.entity}-${entry.code}-${index}`} entry={entry} />)}
           </ul>
+          <NotShown counts={review.lists.omitted} testId="mbf-export-omitted-not-shown" />
         </section>
       ) : null}
       <section data-testid="mbf-export-conversions">
@@ -341,18 +439,20 @@ function ReviewSections({ review }: { review: MbfReview }) {
         )}
         <p data-testid="mbf-export-assumptions">{MBF_ASSUMPTIONS_SENTENCE}</p>
       </section>
-      {review.warnings.length > 0 ? (
+      {review.lists.warnings.total > 0 ? (
         <section data-testid="mbf-export-warnings">
           <h3>Warnings</h3>
           <ul>
             {review.warnings.map((entry, index) => <EntryItem key={`${entry.code}-${index}`} entry={entry} />)}
           </ul>
+          <NotShown counts={review.lists.warnings} testId="mbf-export-warnings-not-shown" />
         </section>
       ) : null}
-      {review.undeclaredMaterials.length > 0 ? (
+      {review.lists.undeclared_materials.total > 0 ? (
         <section data-testid="mbf-export-materials">
           <h3>Materials</h3>
-          <p>{review.undeclaredMaterials.join(", ")}: {MBF_UNDECLARED_MATERIAL_SENTENCE}.</p>
+          {review.undeclaredMaterials.length > 0 ? <p>{review.undeclaredMaterials.join(", ")}: {MBF_UNDECLARED_MATERIAL_SENTENCE}.</p> : null}
+          <NotShown counts={review.lists.undeclared_materials} testId="mbf-export-materials-not-shown" />
         </section>
       ) : null}
     </>
