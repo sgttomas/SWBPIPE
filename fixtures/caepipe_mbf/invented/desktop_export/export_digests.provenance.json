@@ -1,0 +1,6 @@
+{
+  "description": "SHA-256 values the webview wrapper (caepipe_mbf_wasm) computes for the invented export model, which the native MBF save must reproduce",
+  "license": "project-original",
+  "origin": "invented for the DEL-17-04 desktop MBF export (slice 4a)",
+  "produced_by_caepipe": false
+}

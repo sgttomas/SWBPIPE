@@ -23,6 +23,7 @@ open_pipe_stress_self_weight_wasm = { path = "../../../core/loads/self_weight_wa
 open_pipe_stress_operation_applier = { path = "../../../core/model_operations/operation_applier" }
 open_pipe_stress_canonical_json = { path = "../../../core/serialization/canonical_json" }
 open_pipe_stress_library_import_document = { path = "../../../core/library_import/library_import_document" }
+open_pipe_stress_caepipe_mbf = { path = "../../../core/handoff/caepipe_mbf_engine" }
 open_pipe_stress_report_renderer = { path = "../../../core/reporting/report_renderer" }
 open_pipe_stress_report_package = { path = "../../../core/reporting/report_package" }
 open_pipe_stress_audit_manifest = { path = "../../../core/reporting/audit_manifest" }

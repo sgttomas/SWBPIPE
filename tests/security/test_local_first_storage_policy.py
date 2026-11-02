@@ -507,7 +507,8 @@ def test_csv_route_is_admitted_only_for_local_private_with_explicit_intent():
 
     assert CSV_TABLE_ROUTE_ID == CSV_ROUTE
     assert CSV_ROUTE in GOVERNED_LOCAL_FIRST_ROUTE_IDS
-    assert LOCAL_PRIVATE_ONLY_ROUTE_IDS == frozenset({CSV_ROUTE})
+    # The CSV save and, since the MBF export's review round, DOTH-MBF-012 (DEL-17-04).
+    assert LOCAL_PRIVATE_ONLY_ROUTE_IDS == frozenset({CSV_ROUTE, "DOTH-MBF-012"})
     allowed = enforce_local_first_route(
         route_id=CSV_ROUTE,
         export_context="local_private",
@@ -593,9 +594,9 @@ def test_csv_route_catalogues_agree_across_python_typescript_and_rust():
     assert f'export const CSV_TABLE_ROUTE_ID = "{CSV_ROUTE}";' in ts
     assert (
         "export const LOCAL_PRIVATE_ONLY_ROUTE_IDS: ReadonlySet<string> = "
-        "new Set([CSV_TABLE_ROUTE_ID]);"
+        "new Set([CSV_TABLE_ROUTE_ID, MBF_EXPORT_ROUTE_ID]);"
     ) in ts
-    assert LOCAL_PRIVATE_ONLY_ROUTE_IDS == frozenset({CSV_ROUTE})
+    assert LOCAL_PRIVATE_ONLY_ROUTE_IDS == frozenset({CSV_ROUTE, "DOTH-MBF-012"})
 
     rust = RUST_NATIVE_SAVE.read_text(encoding="utf-8")
     assert f'const CSV_ROUTE: &str = "{CSV_ROUTE}";' in rust
@@ -611,3 +612,35 @@ def test_csv_route_catalogues_agree_across_python_typescript_and_rust():
     assert 's.export_context != "local_private"' in rust
     assert "lossless_required: false" in profiles.group(1)
     assert profiles.group(1).count("lossless_required: true") == 1  # the shared JSON profile
+
+
+def test_mbf_export_route_agrees_across_python_typescript_and_rust():
+    """DEL-17-04 A-4: DOTH-MBF-012 in the three catalogues; the native admission is the MBF save module's."""
+    import re
+
+    from core.security.local_first_storage.route_control import (
+        GOVERNED_LOCAL_FIRST_ROUTE_IDS,
+        LOCAL_PRIVATE_ONLY_ROUTE_IDS,
+    )
+
+    route = "DOTH-MBF-012"
+    assert route in GOVERNED_LOCAL_FIRST_ROUTE_IDS
+    ts = TS_CATALOGUE.read_text(encoding="utf-8")
+    ts_block = re.search(r"GOVERNED_LOCAL_FIRST_ROUTE_IDS: ReadonlySet<string> = new Set\(\[(.*?)\]\);", ts, re.S)
+    assert ts_block is not None and route in re.findall(ROUTE_ID_PATTERN, ts_block.group(1))
+    # Like the CSV save, the route is in the local-private-only set of both catalogues (the native save itself
+    # admits only local_private evidence with explicit intent, lossless and an exact payload, and stays authoritative).
+    assert route in LOCAL_PRIVATE_ONLY_ROUTE_IDS
+    ts_only = re.search(r"LOCAL_PRIVATE_ONLY_ROUTE_IDS: ReadonlySet<string> = new Set\(\[(.*?)\]\);", ts, re.S)
+    assert ts_only is not None
+    ts_constants = dict(re.findall(r'export const ([A-Z_]+_ROUTE_ID) = "([^"]+)";', ts))
+    ts_set = {ts_constants.get(name.strip(), name.strip().strip('"')) for name in ts_only.group(1).split(",") if name.strip()}
+    assert ts_set == set(LOCAL_PRIVATE_ONLY_ROUTE_IDS)
+    rust = (ROOT / "apps/desktop/src-tauri/src/mbf_export.rs").read_text(encoding="utf-8")
+    assert f'pub const MBF_EXPORT_ROUTE_ID: &str = "{route}";' in rust
+    assert "validate_local_private_route_evidence(MBF_EXPORT_ROUTE_ID," in rust
+    # The shared native check it calls admits only local_private, lossless, exact-payload evidence with intent.
+    shared = (ROOT / "apps/desktop/src-tauri/src/model_document_save.rs").read_text(encoding="utf-8")
+    for clause in ('s.export_context == "local_private"', "s.explicit_local_private_intent", "s.lossless_required",
+                   "s.exact_payload_match", "!s.materialization_withheld", 'l.action == "include_metadata_only"'):
+        assert clause in shared, clause

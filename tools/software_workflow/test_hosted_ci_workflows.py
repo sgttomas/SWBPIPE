@@ -256,7 +256,7 @@ def test_exact_wasm_cache_wiring_and_main_build_only_warmer():
     assert restore['continue-on-error'] == 'true'
     build = next(s for s in steps if s.get('name') == 'Build desktop WASM engine')
     assert build['if'] == "steps.engine-verified.outputs.valid != 'true'"
-    assert 'rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine' in build['run']
+    assert 'rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine apps/desktop/public/mbf-engine' in build['run']
     assert 'npm run build:wasm:desktop' in build['run']
     assert 'wasm_cache.py verify --key "$ENGINE_KEY"' in by_id['engine-verified']['run']
     save = next(s for s in steps if s.get('uses') == 'actions/cache/save@v4')
