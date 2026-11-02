@@ -1529,16 +1529,30 @@ authoring is the document's route:
 - An empty use, or `false` in a `true`-only member, is the validator's
   `LOAD_CASE_CONDITION_USE_EMPTY`.
 
-**The solve's judgement, shown, not imposed.** After an admitted condition-set,
-assignment or condition-use operation, the applier runs S2's read-only
-judgement (`operating_conditions::judge`, the function behind
-`preview_operating_conditions`) on the candidate and reports each case-level
-finding it gives (a pipe without a set, a missing key, value or installation
-temperature, the temperature and wind-exposure conflicts, a missing wind
-input) as a **warning** finding with the solve's code and message. Authoring is
-not blocked by them, so a person can stage a case's use before assigning every
-pipe; the solve refuses the case by name until they are resolved (OC-8). No ΔT is
-computed by the applier itself.
+**The solve's judgement, classified (SWBPIPE Agent 0, 2026-11-02).** After an
+admitted condition-set, assignment or condition-use operation, the applier runs
+S2's public read-only judgement, `operating_conditions::preview_operating_conditions`,
+on the candidate document (no product_physics change), and classifies each
+finding it gives deliberately, never by blanket downgrade:
+- **Staged-state findings, reported as warnings** (the solve's code and message,
+  authoring not blocked, so a person can state a case's use before assigning
+  every pipe, OC-8): exactly `OPERATING_CONDITION_SET_MISSING`,
+  `OPERATING_CONDITION_KEY_MISSING`, `OPERATING_CONDITION_VALUE_MISSING`,
+  `OPERATING_CONDITION_INSTALLATION_TEMPERATURE_MISSING`,
+  `LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT`,
+  `LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`,
+  `LOAD_CASE_CONDITION_WIND_INPUT_MISSING`, and an empty wind exposure resolved
+  from the sets (`EQUIVALENT_STATIC_INPUT_MISSING` on the case's generated
+  `exposed_pipe_refs`). Each names the case, pipe, set, key and quantity as the
+  solve does.
+- **Everything else stays blocking:** a parse or unknown-field refusal, every
+  document-level code (structure, schema, references, quantities, range,
+  provenance), every route and admission code (the interim refusals above), and
+  any code not on the staged list, including codes added later until this list
+  admits them.
+
+The solve still refuses a case with a staged finding by name until it is
+resolved; the applier computes no ΔT of its own.
 
 **Inverses.** create ↔ delete, update ↔ update with the before record, set ↔
 clear or set; the desktop undoes through its session checkpoint, which restores
@@ -1546,6 +1560,10 @@ the prior document exactly.
 
 **Verification.** One regression per operation and per refusal; save and reopen
 byte for byte; batches mixing the operations with `create_load_case` and
-`connect_pipe_run`; the judgement warnings equal what the solve reports on the
-same candidate; a contract-corpus file under `fixtures/model_operations/`.
+`connect_pipe_run`, atomic on a refusal; undo by inverse; stale `before`;
+EX and contents refusals; every existing S1 refusal preserved; the staged
+warnings equal what the solve reports on the same candidate, and a
+non-staged finding blocks; an explicitly empty wind exposure (no set marks
+wind) reported by name with its provenance; a contract-corpus file under
+`fixtures/model_operations/`.
 Persistence review by an independent agent.
