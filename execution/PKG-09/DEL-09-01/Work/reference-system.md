@@ -457,6 +457,22 @@ or absence a solve of the full model shows today.
 The generator keeps a pending flag per row of this table, and the fixture test checks
 that the two agree.
 
+**MBF export dependency beside the ledger (not a table row).** Agent 0 gave the entry below
+(2026-11-02) as a row to follow the RS-FR1/RS-FR1V row. It stands here because the table must
+equal the generator's ledger and `authoring.json`
+(`tools/validation/test_reference_system_ledger.py`), and the fixture is unchanged. RS-P180 is in
+tranche 1, so the entry has no pending flag. Its four columns, verbatim:
+
+- **Family or analysis:** RS-P180 modulus selection under MBF export
+- **State:** RS-OPE selects RS-P180 at 210 °C (`material_selection`, `temperature_interpolation`)
+  while its `thermal_state` is `unchanged_reference`; the fixture is unchanged
+- **Row / lane:** DEL-17-04 MBF thermal export (D-2 Route 1, design first)
+- **Expected until then:** Under D-2's per-member rule an exported member must select at its
+  mapped MBF T1; RS-P180 is refused by name with its id while it is exported as a member, and an
+  `unchanged_reference` member's T1 is not taken as the reference temperature until a reference
+  configuration establishes it. Whether RS-EJ1's MBF representation removes RS-P180 from the
+  exported members is decided only when expansion-joint MBF coverage proves that representation
+
 ## 11. Consumer views
 
 ### 11.1 Criterion 6 (MBF)
@@ -467,8 +483,11 @@ importer on `main` (DEL-17-04 §1.4), this system's families expected in the los
 today are:
 
 - the temperature-dependent modulus table (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`):
-  a gap for the MBF lane, which Agent 0 will staff. The family stays in the fixture;
-  it is not dropped to make criterion 6 pass;
+  planned for the restricted subset defined by D-2's Route 1, a designed load/reference-state
+  thermal export with a per-member condition (DEL-17-04 import Design §20.4, design first),
+  still to come. RS-OPE also needs the operating-case mapping, a separate design item. RS-P180's
+  selection mismatch is in §10. The family stays in the fixture; it is not dropped to make
+  criterion 6 pass;
 - the tee, the reducer, the valve and flanges, the expansion joint and its rods;
 - the gap, lift-off and friction supports, the constant-effort support, and the
   variable spring as a hanger;
