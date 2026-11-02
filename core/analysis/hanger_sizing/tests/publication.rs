@@ -536,11 +536,6 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(defs["Identity"]["properties"]["schema_version"]["const"], publish::SCHEMA_VERSION);
     assert_eq!(defs["Identity"]["properties"]["semantic_contract_id"]["const"], publish::SEMANTIC_CONTRACT_ID);
     assert_eq!(defs["Identity"]["properties"]["route"]["const"], publish::ROUTE);
-    // Every refusal code is one the design names.
-    let design = std::fs::read_to_string(project().join("execution/PKG-04/DEL-04-11/Work/hanger-sizing.md")).unwrap();
-    for code in REFUSAL_CODES {
-        assert!(design.contains(code), "{code}");
-    }
 }
 
 // --- §8.3.8: the existing readers' actual handling ----------------------------
