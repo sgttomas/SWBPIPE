@@ -504,6 +504,9 @@
       report.shell_ready_ms = now();
       await progress("ready");
       if (plan.c1_probes) {
+        if (plan.c1_reader_diagnostics) globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__ = async event => {
+          await call("native_smoke_log", { line: `reader-phase:${JSON.stringify(event)}` });
+        };
         report.c1 = { completed: false };
         trace = beginC1Trace();
         await preflight(report.c1);
@@ -534,6 +537,7 @@
     }
     finally {
       stopMonitor?.();
+      delete globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__;
       if (trace) { trace.restore(); report.c1.trace = trace.data; }
     }
     await call("native_smoke_finish", { report });

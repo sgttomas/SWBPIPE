@@ -92,6 +92,81 @@ pub(crate) async fn verdict(registry: &SolveJobRegistry, body: &InvokeBody, head
         .unwrap_or_else(|_| Err(CommandError::Command(VERDICT_READ_FAILED.into())))
 }
 
+pub(crate) fn diagnostic_call() -> u64 {
+    #[cfg(feature = "native-smoke")]
+    {
+        crate::native_smoke::reader_diagnostic_call()
+    }
+    #[cfg(not(feature = "native-smoke"))]
+    {
+        0
+    }
+}
+
+pub(crate) fn diagnostic_phase<T, E>(
+    call: u64,
+    phase: &'static str,
+    bytes: u64,
+    work: impl FnOnce() -> Result<T, E>,
+) -> Result<T, E> {
+    #[cfg(feature = "native-smoke")]
+    {
+        crate::native_smoke::reader_diagnostic_phase(call, phase, bytes, work)
+    }
+    #[cfg(not(feature = "native-smoke"))]
+    {
+        let _ = (call, phase, bytes);
+        work()
+    }
+}
+
+/// Smoke-only expansion of the operation-applier JSON wrapper, with the same
+/// parse order, errors, Value reader and serialization. No reader checks change.
+/// Product builds continue to call the original wrapper directly.
+#[cfg(feature = "native-smoke")]
+fn diagnostic_read(
+    call: u64,
+    reader: Option<&str>,
+    source: &str,
+    model: Option<&str>,
+    invocation: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_result_export::reader_verdict as rv;
+    use serde_json::Value;
+    let parse = |label: &str, text: &str| {
+        serde_json::from_str::<Value>(text)
+            .map_err(|error| format!("{INPUT_JSON_INVALID}: {label} is not valid JSON: {error}"))
+    };
+    let source = diagnostic_phase(call, "source_parse", source.len() as u64, || {
+        parse("source", source)
+    })?;
+    let (model, invocation) = diagnostic_phase(call, "inputs_parse", 0, || {
+        let model = model
+            .map(|text| parse("model", text))
+            .transpose()?
+            .filter(|value| !value.is_null());
+        let invocation = invocation
+            .map(|text| parse("invocation", text))
+            .transpose()?
+            .filter(|value| !value.is_null());
+        Ok::<_, String>((model, invocation))
+    })?;
+    let outcome = diagnostic_phase(call, "validate", 0, || {
+        Ok::<_, String>(match reader {
+            None => rv::dispatch(&source, model.as_ref(), invocation.as_ref()),
+            Some(reader) => rv::validate(reader, &source, model.as_ref(), invocation.as_ref()),
+        })
+    })?;
+    let text = diagnostic_phase(call, "serialize", 0, || {
+        Ok::<_, String>(outcome.to_string())
+    })?;
+    diagnostic_phase(call, "source_drop", 0, || {
+        drop((outcome, source, model, invocation));
+        Ok::<_, String>(())
+    })?;
+    Ok(text)
+}
+
 /// The blocking part: the arguments' admission, then the dispatch outcome
 /// text of the held result.
 pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<String, CommandError<String>> {
@@ -99,12 +174,13 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     tests::gate::pass(tests::gate::key(&registry, "admit"));
     // `raw` is the copy `copy` reserves; the args lease adds the prescan's
     // admission bound to it, before any deserialization.
+    let call = diagnostic_call();
     let copy_bytes = copy.bytes();
-    let (mut args, mut lease) = command_ingress::admit_raw(&registry, &raw, COMMAND, ArgsDecoding::Moved, |bytes| {
+    let (mut args, mut lease) = diagnostic_phase(call, "args_admit", raw.len() as u64, || command_ingress::admit_raw(&registry, &raw, COMMAND, ArgsDecoding::Moved, |bytes| {
         let mut lease = copy;
         lease.grow_to(copy_bytes.saturating_add(bytes)).map_err(|refusal| registry.refuse(refusal))?;
         Ok(lease)
-    })?;
+    }))?;
     drop(raw);
     let job_id: String = args.decode("jobId")?;
     let model_json: Option<String> = args.decode("modelJson")?;
@@ -118,7 +194,7 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let held = registry.held_result(&job_id)?;
     // The reader's order: the source, the model, the invocation.
     let texts = [("source", Some(held.text())), ("model", model_json.as_deref()), ("invocation", invocation_json.as_deref())];
-    let bounds = prescan_in_order(&registry, &texts)?;
+    let bounds = diagnostic_phase(call, "source_prescan", held.text().len() as u64, || prescan_in_order(&registry, &texts))?;
     let (source_bound, _) = bounds[0].expect("the source is always prescanned");
     let mut argument_bytes = 0u64;
     for (label, text) in &texts[1..] {
@@ -128,12 +204,20 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
         argument_bytes = argument_bytes.saturating_add(bytes);
     }
     // Capped as the args lease was admitted (`acquire_interactive_capped`).
-    lease
+    diagnostic_phase(call, "inputs_admit", argument_bytes, || lease
         .grow_to(lease.bytes().saturating_add(argument_bytes))
-        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
-    let reading = registry.acquire_result_parse(source_bound.materialization_bytes)?;
+        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal))))?;
+    let reading = diagnostic_phase(call, "source_admit", source_bound.materialization_bytes, || registry.acquire_result_parse(source_bound.materialization_bytes))?;
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
+    #[cfg(feature = "native-smoke")]
+    let outcome = if call != 0 {
+        diagnostic_read(call, reader.as_deref(), held.text(), model_json.as_deref(), invocation_json.as_deref())
+    } else { match reader.as_deref() {
+        None => open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref()),
+        Some(reader) => open_pipe_stress_operation_applier::reader_validate_json(reader, held.text(), model_json.as_deref(), invocation_json.as_deref()),
+    }}.map_err(CommandError::Command);
+    #[cfg(not(feature = "native-smoke"))]
     let outcome = match reader.as_deref() {
         None => open_pipe_stress_operation_applier::reader_dispatch_json(held.text(), model_json.as_deref(), invocation_json.as_deref()),
         Some(reader) => {
@@ -244,3 +328,33 @@ impl<'de> Visitor<'de> for DiscardVisitor {
 #[cfg(test)]
 #[path = "native_verdict_tests.rs"]
 pub(crate) mod tests;
+
+
+#[cfg(test)]
+#[cfg(feature = "native-smoke")]
+mod diagnostic_tests {
+    #[test]
+    fn diagnostic_value_path_matches_the_maintained_file_backed_reader_corpus() {
+        for input in super::tests::file_backed_corpus() {
+            let model = input.model.as_deref();
+            let invocation = input.invocation.as_deref();
+            assert_eq!(super::diagnostic_read(0, None, &input.source, model, invocation), open_pipe_stress_operation_applier::reader_dispatch_json(&input.source, model, invocation), "{}", input.id);
+            for reader in ["pressure", "preview-physics", "pressure-source", "source-recovery"] {
+                assert_eq!(super::diagnostic_read(0, Some(reader), &input.source, model, invocation), open_pipe_stress_operation_applier::reader_validate_json(reader, &input.source, model, invocation), "{}:{reader}", input.id);
+            }
+        }
+    }
+    #[test]
+    fn diagnostic_value_path_preserves_original_wrapper_replies_and_parse_errors() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json");
+        let source = std::fs::read_to_string(path).unwrap();
+        for text in [source.as_str(), "{", "[1e400]", "null"] {
+            for model in [None, Some("null"), Some("{"), Some("{}") ] {
+                assert_eq!(super::diagnostic_read(0, None, text, model, None), open_pipe_stress_operation_applier::reader_dispatch_json(text, model, None));
+                for reader in ["pressure", "preview-physics", "pressure-source", "source-recovery"] {
+                    assert_eq!(super::diagnostic_read(0, Some(reader), text, model, None), open_pipe_stress_operation_applier::reader_validate_json(reader, text, model, None));
+                }
+            }
+        }
+    }
+}

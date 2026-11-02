@@ -48,7 +48,7 @@
 import { execFile, fork, spawn, spawnSync } from "node:child_process";
 import { rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
+import { chmodSync, constants, copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, closeSync, fsyncSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -400,6 +400,8 @@ export function validatePlan(plan) {
   if (plan.c1_probes && ["interaction_ms", "csv_ms"].some(key => !Number.isFinite(plan.timeouts?.[key]) || plan.timeouts[key] <= 0)) throw new Error("perf plan: C1 interaction and CSV timeouts are required");
   if (plan.c1_profile_readers !== undefined && typeof plan.c1_profile_readers !== "boolean") throw new Error("perf plan: c1_profile_readers must be boolean");
   if (plan.c1_profile_readers && (!plan.c1_probes || !Number.isFinite(plan.timeouts?.profile_ms) || plan.timeouts.profile_ms <= 0)) throw new Error("perf plan: reader profiling needs C1 probes and a bounded timeout");
+  if (plan.c1_reader_diagnostics !== undefined && typeof plan.c1_reader_diagnostics !== "boolean") throw new Error("perf plan: reader diagnostics must be boolean");
+  if (plan.c1_reader_diagnostics && !plan.c1_probes) throw new Error("perf plan: reader diagnostics require C1 probes");
   const ids = new Set();
   for (const run of plan.runs) {
     planName(run.id, "run id");
@@ -712,6 +714,54 @@ export async function readStartupHost(appPath, execute = execFile, now = Date.no
   return { ...sample, requested_at_ms: sentAt, received_at_ms: receivedAt };
 }
 
+/** C1-only fixed phase journal. A received entry is fsynced before it is
+ * retained/reported. Entries without exits remain explicit, including after
+ * App/runner failure. Never accepts model/result/identity or free-form text. */
+export function createReaderPhaseEvidence(file) {
+  const fd = openSync(file, "wx", 0o600);
+  const events = [], active = new Map();
+  let overflow = false, closed = false;
+  const web = new Set(["header", "registration", "standing", "summary"]);
+  const native = new Set(["args_admit", "source_prescan", "source_admit", "inputs_admit", "source_parse", "inputs_parse", "validate", "serialize", "source_drop", "summary_health", "summary_build"]);
+  const write = value => { writeSync(fd, `${JSON.stringify(value)}\n`); fsyncSync(fd); };
+  const summary = () => {
+    const covered = layer => new Set(events.filter(event => event.layer === layer && event.edge === "exit" && event.status === "ok").map(event => event.phase));
+    const webCovered = covered("web"), nativeCovered = covered("native");
+    return { events: events.slice(), incomplete: [...active.values()], overflow,
+      evidence_complete: !overflow && active.size === 0 && [...web].every(phase => webCovered.has(phase)) && [...native].every(phase => nativeCovered.has(phase)) && !events.some(event => event.edge === "exit" && event.status !== "ok") };
+  };
+  return {
+    accept(value) {
+      if (closed) throw new Error("C1 reader phase evidence is closed");
+      if (value?.overflow === true && value.layer === "native" && Object.keys(value).every(key => ["layer", "overflow"].includes(key))) {
+        if (!overflow) write({ overflow: true });
+        overflow = true; return;
+      }
+      const allowed = ["layer", "call", "phase", "edge", "status", "mono_ms", "bytes"];
+      const fields = value && Object.keys(value);
+      if (!fields || fields.some(key => !allowed.includes(key)) || !["web", "native"].includes(value.layer) || !(value.layer === "web" ? web : native).has(value.phase) || !Number.isInteger(value.call) || value.call < 1 || value.call > 32 || !Number.isFinite(value.mono_ms) || value.mono_ms < 0 || !["enter", "exit"].includes(value.edge) || !(value.edge === "enter" ? value.status === "pending" : ["ok", "error", "incomplete"].includes(value.status)) || (value.bytes !== undefined && (!Number.isSafeInteger(value.bytes) || value.bytes < 0))) throw new Error("C1 reader phase event is malformed");
+      if (events.length >= 256) {
+        if (!overflow) write({ overflow: true });
+        overflow = true; return;
+      }
+      const event = { ...value, received_epoch_ms: Date.now() };
+      const key = `${value.layer}:${value.call}:${value.phase}`;
+      if (value.edge === "enter" && active.has(key) || value.edge === "exit" && !active.has(key)) throw new Error("C1 reader phase has an unmatched boundary");
+      write(event);
+      events.push(event);
+      if (value.edge === "enter") active.set(key, event);
+      else if (value.status !== "incomplete") active.delete(key);
+    },
+    summary,
+    close() {
+      if (closed) return summary();
+      const result = summary();
+      write({ terminal: true, incomplete: result.incomplete.map(({ layer, call, phase }) => ({ layer, call, phase })), overflow, evidence_complete: result.evidence_complete });
+      closeSync(fd); closed = true; return result;
+    }
+  };
+}
+
 async function runOne(run, ctx) {
   const record = { id: run.id, mode: run.mode, model: run.model, binding: ctx.binding, harness: ctx.harness, started_at: new Date().toISOString() };
   // Every plan-named source and destination stays inside its root (validatePlan, containedPath).
@@ -728,7 +778,7 @@ async function runOne(run, ctx) {
   const modelPath = containedPath(root, run.model);
   copyFileSync(modelSource, modelPath, constants.COPYFILE_EXCL);
   const document = JSON.parse(readFileSync(modelPath, "utf8"));
-  run = { ...run, project_id: document.project.id, c1_probes: ctx.plan.c1_probes === true, c1_profile_readers: ctx.plan.c1_profile_readers === true };
+  run = { ...run, project_id: document.project.id, c1_probes: ctx.plan.c1_probes === true, c1_reader_diagnostics: ctx.plan.c1_reader_diagnostics === true, c1_profile_readers: ctx.plan.c1_profile_readers === true };
   record.project_id = run.project_id;
   record.model_bytes = statSync(modelPath).size;
   record.model_sha256 = sha256File(modelPath);
@@ -740,7 +790,7 @@ async function runOne(run, ctx) {
   const timeoutMs = Math.min(run.timeout_s * 1000, ctx.remainingMs());
   const plan = {
     run_id: run.id, model_path: modelPath, project_id: run.project_id, record_run: true, save_project: true,
-    c1_probes: ctx.plan.c1_probes === true, c1_profile_readers: ctx.plan.c1_profile_readers === true, model_jcs_sha256: record.model_jcs_sha256,
+    c1_probes: ctx.plan.c1_probes === true, c1_reader_diagnostics: ctx.plan.c1_reader_diagnostics === true, c1_profile_readers: ctx.plan.c1_profile_readers === true, model_jcs_sha256: record.model_jcs_sha256,
     timeouts: { ...ctx.plan.timeouts, paint_ms: Math.min(run.paint_ms, timeoutMs) }
   };
   const env = { ...process.env, HOME: home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
@@ -750,6 +800,10 @@ async function runOne(run, ctx) {
     env[INJECT_ENV] = resultFile;
     env[INJECT_ROOT_ENV] = realpathSync(ctx.results);
   }
+  if (ctx.plan.c1_reader_diagnostics) env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS = "1";
+  else delete env.SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS;
+  record.reader_phase_file = ctx.plan.c1_reader_diagnostics ? path.join(ctx.out, `perf-reader-phases-${planName(path.basename(ctx.scratch), "window")}-${planName(run.id, "run")}.jsonl`) : null;
+  const phases = record.reader_phase_file ? createReaderPhaseEvidence(record.reader_phase_file) : null;
   const baseline = webkitPids();
   record.startup_host = await readStartupHost(ctx.binary);
   const startedMs = Date.now();
@@ -805,6 +859,14 @@ async function runOne(run, ctx) {
     while ((index = stderrBuffer.indexOf("\n")) >= 0) {
       const line = stderrBuffer.slice(0, index);
       stderrBuffer = stderrBuffer.slice(index + 1);
+      if (line.startsWith("[native-smoke] reader-phase:")) {
+        try {
+          if (!phases || line.length > 1024) throw new Error("unexpected/unbounded C1 phase event");
+          phases.accept(JSON.parse(line.slice("[native-smoke] reader-phase:".length)));
+          if (phases.summary().overflow) audit({ type: "stop", reason: "reader_phase_evidence_overflow" });
+        } catch { audit({ type: "stop", reason: "reader_phase_evidence_invalid_or_write_failed" }); }
+        continue;
+      }
       const perf = line.match(/^\[native-smoke\] perf:(.*)$/);
       if (perf) { try {
         const event = JSON.parse(perf[1]); progress.push(event);
@@ -832,6 +894,16 @@ async function runOne(run, ctx) {
     const fallback = setTimeout(() => sampler.kill("SIGTERM"), 5000);
     sampler.on("exit", () => { clearTimeout(fallback); resolve(); });
   });
+  // Exit can precede the final pipe data. Drain only within a fixed bound;
+  // an undrained pipe is incomplete evidence, never a fabricated phase exit.
+  let phasePipeDrained = app.stderr.readableEnded;
+  if (phases && !phasePipeDrained) await new Promise(resolve => {
+    const ended = () => { clearTimeout(timer); phasePipeDrained = true; resolve(); };
+    const timer = setTimeout(() => { app.stderr.off("end", ended); resolve(); }, 1000);
+    app.stderr.once("end", ended);
+  });
+  record.reader_phases = phases?.close() ?? null;
+  if (record.reader_phases && !phasePipeDrained) record.reader_phases.evidence_complete = false;
   record.elapsed_s = (exit.ended_ms - startedMs) / 1000;
   record.exit = { ...exit, timed_out: timedOut, timeout_ms: timeoutMs };
   const reportPath = path.join(root, "report.json");
@@ -861,6 +933,10 @@ async function runOne(run, ctx) {
   };
   const resultBytes = report?.solve?.timeline?.marks?.find((mark) => mark.stage === "job_done")?.detail?.result_bytes ?? null;
   Object.assign(record, classify({ report, exit, timedOut, progress, memory, store, run, resultBytes }));
+  if (ctx.plan.c1_reader_diagnostics && record.reader_phases?.evidence_complete !== true) {
+    record.findings.push({ class: "refused_with_message", step: "reader_phases", message: "Native reader phase exits are incomplete or omitted.", needs_review: true });
+    if (record.class === "ok") record.class = "refused_with_message";
+  }
   if (run.c1_probes) record.c1_physical = c1PhysicalPhases(samples, report?.c1?.reader_allocations, jobDone);
   Object.assign(record, { report, progress, memory, store, stderr_tail: stderrTail.slice(-40) });
   record.kept = root; // Supervisor removes only after all owned processes exit.

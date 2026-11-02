@@ -941,6 +941,16 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**Authorized diagnostic preparation only.** The next candidate adds fixed,
+bounded, durable checkpoints to the four existing session awaits and native
+command prescan/admission/parse/validate/drop boundaries. It leaves shared core
+readers/operation-applier and all proposed optimizations untouched. Diagnostic
+smoke-only wrapper expansion is checked for existing Value-reader reply/error
+parity; ordinary builds keep the original wrapper. Summary health remains an
+explicitly combined private-core phase. The proposal names retention, incomplete
+exit semantics, overhead, checks and the distinct app-reader-phases binding.
+No further native attempt is authorized by preparation or review/CI.
+
 **Bounded offline timeout diagnosis.** The observed `reader_verdict_start` mark
 covers header dispatch, registration, standing and summary. Four small maintained
 replay freezes reproduce the same mark at each await; the failed packet cannot

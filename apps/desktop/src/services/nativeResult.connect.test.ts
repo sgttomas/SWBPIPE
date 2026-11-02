@@ -50,6 +50,8 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       markSolveStage("job_done", { result_bytes: terminal.result_bytes ?? 0 });
       const forward = invokeMock.getMockImplementation()!;
       const phases: string[] = [];
+      const boundaries: {phase: string; edge: string; status: string}[] = [];
+      globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__ = async event => { boundaries.push(event); };
       let unblock: (() => void) | undefined;
       invokeMock.mockImplementation(async (command: string, raw?: unknown, options?: unknown) => {
         const args = raw as { reader?: string; modelJson?: string; invocationJson?: string };
@@ -64,16 +66,45 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       try {
         await vi.waitFor(() => expect(unblock).toBeTypeOf("function"));
         expect(phases.at(-1)).toBe(pendingPhase);
+        expect(boundaries.at(-1)).toMatchObject({phase: pendingPhase, edge: "enter", status: "pending"});
+        expect(boundaries.filter(event => event.edge === "exit")).toHaveLength(phases.length - 1);
         expect(readSolveTimeline()?.marks.at(-1)?.stage).toBe("reader_verdict_start");
       } finally { unblock?.(); }
       const native = (await reading).result;
       expect(phases).toEqual(["header", "registration", "standing", "summary"]);
+      expect(boundaries).toHaveLength(8);
+      expect(boundaries.at(-1)).toMatchObject({phase: "summary", edge: "exit", status: "ok"});
       // Exact input caching reuses the final construction's standing verdict.
       expect(phases.filter(phase => phase !== "summary")).toHaveLength(3);
       expect(readSolveTimeline()?.marks.at(-1)?.stage).toBe("reader_verdict_end");
       await disposeDeliveredMechanicsResult(native);
     });
   }
+  it("keeps the entered await and records a refusal when a pending small replay is disposed", async () => {
+    const replay = createNativeMechanicsReplay({profile:"pressure"});
+    install(replay);
+    const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"pressure"});
+    const started = await startPreviewMechanicsJob(pair.model,"sparse_interactive",{custody:"native"});
+    if (started.mode !== "backend_job") throw new Error("not native");
+    const terminal = await awaitPreviewMechanicsJob(started.job_id);
+    const events: {phase:string; edge:string; status:string}[]=[];
+    globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__=async event=>{events.push(event);};
+    const forward=invokeMock.getMockImplementation()!;
+    let resume!:()=>void;
+    invokeMock.mockImplementation(async(command:string,args?:unknown,options?:unknown)=>{
+      const reply=await forward(command,args,options);
+      if(command === "read_preview_mechanics_job_verdict" && !(args as {reader?:string})?.reader && !(args as {modelJson?:string})?.modelJson) await new Promise<void>(resolve=>{resume=resolve;});
+      return reply;
+    });
+    const reading=readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model});
+    const refused=expect(reading).rejects.toThrow("NATIVE-RESULT-DISPOSED");
+    await vi.waitFor(()=>expect(resume).toBeTypeOf("function"));
+    expect(events).toEqual([expect.objectContaining({phase:"header",edge:"enter",status:"pending"})]);
+    await discardPreviewMechanicsJobResult(started.job_id);
+    resume();await refused;
+    expect(events.some(event=>event.edge === "exit" && event.status === "error")).toBe(true);
+    expect(events.some(event=>event.phase === "summary")).toBe(false);
+  });
   it("names the run record when its full-copy size is refused", () => {
     const refusal = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 65, 64, "record_bytes=65", "record");
     expect(describeFullResultRefused(refusal,"reports")).toContain("This run record is 65 bytes");

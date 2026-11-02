@@ -3,6 +3,7 @@
   "budget_s": 840,
   "sample_interval_ms": 200,
   "c1_probes": true,
+  "c1_reader_diagnostics": true,
   "c1_profile_readers": true,
   "timeouts": { "start_ms": 30000, "open_ms": 60000, "record_ms": 150000, "save_ms": 150000, "interaction_ms": 15000, "csv_ms": 120000, "profile_ms": 90000 },
   "runs": [

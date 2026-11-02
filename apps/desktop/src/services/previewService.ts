@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { traceNativeReaderAwait } from "./solveTimeline";
 import { isRetainedIdentity, isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from '../features/results/numericalResultQuality';
 import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceContract } from '../features/results/resultReader';
 import { registerSourceRecovery, sameModelData } from '../features/results/resultStanding';
@@ -640,18 +641,18 @@ export async function readNativeFreshResult(
   if (capture) { capture.terminalClaimed = true; nativeJobCaptures.set(jobId, capture); }
   if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
   if (timed) markSolveStage("reader_verdict_start");
-  const header = await readNativeVerdict(jobId, {});
+  const header = await traceNativeReaderAwait("header", () => readNativeVerdict(jobId, {}));
   const route = header.route;
-  const readers = await validateNativeReaders(jobId, route, capture);
+  const readers = await traceNativeReaderAwait("registration", () => validateNativeReaders(jobId, route, capture));
   const summaryModelText = jsonTextKeepingNegativeZero(summaryModel);
-  let standing = await readNativeStanding(jobId, route, readers === null, standingModel);
-  let summary = await readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings });
+  let standing = await traceNativeReaderAwait("standing", () => readNativeStanding(jobId, route, readers === null, standingModel));
+  let summary = await traceNativeReaderAwait("summary", () => readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings }));
   const unregistered = readers ?? nativeEnvelopeRefusal(summary.header.envelope as never, route, capture);
   if (unregistered !== null && readers === null) {
     // The envelope refused registration after the readers passed: the standing is read again
     // without the invocation, and S with that standing.
-    standing = await readNativeStanding(jobId, route, false, standingModel);
-    summary = await readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings });
+    standing = await traceNativeReaderAwait("standing", () => readNativeStanding(jobId, route, false, standingModel));
+    summary = await traceNativeReaderAwait("summary", () => readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings }));
   }
   if (timed) markSolveStage("reader_verdict_end", { registered: unregistered === null, reason_code: unregistered });
   const bound = { eligible: standing.eligible, findings: standing.findings };

@@ -116,12 +116,13 @@ pub(crate) async fn summary(registry: &SolveJobRegistry, body: &InvokeBody, head
 pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<Vec<u8>, CommandError<String>> {
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "admit"));
+    let call = native_verdict::diagnostic_call();
     let copy_bytes = copy.bytes();
-    let (mut args, mut lease) = command_ingress::admit_raw(&registry, &raw, COMMAND, ArgsDecoding::Moved, |bytes| {
+    let (mut args, mut lease) = native_verdict::diagnostic_phase(call, "args_admit", raw.len() as u64, || command_ingress::admit_raw(&registry, &raw, COMMAND, ArgsDecoding::Moved, |bytes| {
         let mut lease = copy;
         lease.grow_to(copy_bytes.saturating_add(bytes)).map_err(|refusal| registry.refuse(refusal))?;
         Ok(lease)
-    })?;
+    }))?;
     drop(raw);
     let job_id: String = args.decode("jobId")?;
     let model_json: String = args.decode("modelJson")?;
@@ -129,31 +130,31 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     drop(args);
     let held = registry.held_result(&job_id)?;
     let texts = [("source", Some(held.text())), ("model", Some(model_json.as_str()))];
-    let bounds = native_verdict::prescan_in_order(&registry, &texts)?;
+    let bounds = native_verdict::diagnostic_phase(call, "source_prescan", held.text().len() as u64, || native_verdict::prescan_in_order(&registry, &texts))?;
     let (source_bound, _) = bounds[0].expect("the source is always prescanned");
     let model_bytes = command_ingress::text_parse_bytes(&model_json, ArgsDecoding::Moved)
         .map_err(|invalid| CommandError::Command(native_verdict::prescan_refusal("model", invalid)))?;
     // Capped as the args lease was admitted (`acquire_interactive_capped`).
-    lease
+    native_verdict::diagnostic_phase(call, "inputs_admit", model_bytes, || lease
         .grow_to(lease.bytes().saturating_add(model_bytes))
-        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
-    let reading = registry.acquire_result_parse(source_bound.materialization_bytes)?;
+        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal))))?;
+    let reading = native_verdict::diagnostic_phase(call, "source_admit", source_bound.materialization_bytes, || registry.acquire_result_parse(source_bound.materialization_bytes))?;
     #[cfg(test)]
     tests::gate::pass(tests::gate::key(&registry, "read"));
     // The health parses the held text itself; its `Value` is gone before S's parse.
     let health = match &standing {
         Some(standing) => {
             let findings = serde_json::to_string(&standing.findings).expect("strings");
-            let text = open_pipe_stress_operation_applier::numerical_health_json(held.text(), Some(&findings)).map_err(CommandError::Command)?;
+            let text = native_verdict::diagnostic_phase(call, "summary_health", held.text().len() as u64, || open_pipe_stress_operation_applier::numerical_health_json(held.text(), Some(&findings))).map_err(CommandError::Command)?;
             serde_json::from_str::<Value>(&text).map_err(|error| CommandError::Command(format!("{SUMMARY_READ_FAILED}: numerical health: {error}")))?
         }
         None => Value::Null,
     };
-    let source = parse("source", held.text())?;
-    let model = parse("model", &model_json)?;
+    let source = native_verdict::diagnostic_phase(call, "source_parse", held.text().len() as u64, || parse("source", held.text()))?;
+    let model = native_verdict::diagnostic_phase(call, "inputs_parse", model_json.len() as u64, || parse("model", &model_json))?;
     let standing = standing.map(|s| Standing { eligible: s.eligible, health: tables::health_view(&health) });
-    let (response, written) = build(&job_id, &source, &model, standing.as_ref(), &health, |bytes| registry.acquire_result_parse(bytes))?;
-    drop((written, source, model, reading, held, lease));
+    let (response, written) = native_verdict::diagnostic_phase(call, "summary_build", 0, || build(&job_id, &source, &model, standing.as_ref(), &health, |bytes| registry.acquire_result_parse(bytes)))?;
+    native_verdict::diagnostic_phase(call, "source_drop", 0, || { drop((written, source, model, reading, held, lease)); Ok::<_, CommandError<String>>(()) })?;
     Ok(response)
 }
 

@@ -305,4 +305,37 @@ declare global {
 /** Test support only. */
 export function resetSolveTimelineForTests(): void {
   current = null;
+  nativeReaderCalls = 0;
+  delete globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__;
+}
+
+
+/** C1's four native registration awaits, observed only by the smoke driver.
+ * Fixed scalar events; no job/model/result identity or standing contents.
+ * A missing exit remains missing after cancellation/disposal or process exit. */
+export type NativeReaderPhase = "header" | "registration" | "standing" | "summary";
+export type NativeReaderBoundary = Readonly<{ layer: "web"; call: number; phase: NativeReaderPhase; edge: "enter" | "exit"; status: "pending" | "ok" | "error"; mono_ms: number }>;
+let nativeReaderCalls = 0;
+declare global {
+  var __SWBPIPE_NATIVE_SMOKE_READER_PHASE__: ((event: NativeReaderBoundary) => Promise<void>) | undefined;
+}
+export async function traceNativeReaderAwait<T>(phase: NativeReaderPhase, work: () => Promise<T>): Promise<T> {
+  const reporter = globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__;
+  if (!reporter) return work();
+  // A single native-smoke launch gets at most 32 observed awaits. Overflow
+  // is a diagnostic failure, never a made-up successful/incomplete exit.
+  const call = ++nativeReaderCalls;
+  if (call > 32) throw new Error("C1-READER-DIAGNOSTIC-LIMIT");
+  const emit = (edge: NativeReaderBoundary["edge"], status: NativeReaderBoundary["status"]) => reporter({ layer: "web", call, phase, edge, status, mono_ms: performance.now() });
+  await emit("enter", "pending");
+  let result: T;
+  try { result = await work(); }
+  catch (error) {
+    await emit("exit", "error");
+    throw error;
+  }
+  // A failed evidence write is not a failed product call, and must not
+  // fabricate a second/conflicting exit for the same await.
+  await emit("exit", "ok");
+  return result;
 }

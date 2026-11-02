@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { c1PhysicalPhases, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -871,4 +871,63 @@ test("a stalled startup telemetry process is killed and refuses admission", asyn
   };
   await assert.rejects(readStartupHost('/fixture/not-an-app',execute),/failed or stalled/);
   assert.throws(()=>process.kill(childPid,0),/ESRCH/);
+});
+
+
+test("fixed C1 phase evidence is durable before a blocked phase and keeps missing exits", t => {
+  const dir=mkdtempSync(path.join(os.tmpdir(),"c1-phases-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const file=path.join(dir,"phases.jsonl"), journal=createReaderPhaseEvidence(file);
+  const event={layer:"native",call:1,phase:"source_parse",edge:"enter",status:"pending",mono_ms:1,bytes:128};
+  journal.accept(event);
+  assert.equal(JSON.parse(readFileSync(file,"utf8").trim()).phase,"source_parse");
+  // No final reply is needed to recover the last entered phase.
+  assert.equal(journal.summary().incomplete.length,1);
+  const closed=journal.close();
+  assert.equal(closed.evidence_complete,false);
+  assert.equal(closed.incomplete[0].phase,"source_parse");
+  assert.equal(JSON.parse(readFileSync(file,"utf8").trim().split("\n").at(-1)).evidence_complete,false);
+  assert.throws(()=>journal.accept({...event,edge:"exit",status:"ok"}),/closed/);
+});
+
+test("C1 phase journal bounds retention, rejects contents and never hides overflow", t => {
+  const dir=mkdtempSync(path.join(os.tmpdir(),"c1-phases-bound-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const file=path.join(dir,"phases.jsonl"),journal=createReaderPhaseEvidence(file);
+  const event={layer:"native",call:1,phase:"validate",edge:"enter",status:"pending",mono_ms:1};
+  assert.throws(()=>journal.accept({...event,source:"must not be logged"}),/malformed/);
+  assert.throws(()=>journal.accept({...event,phase:"customer-text"}),/malformed/);
+  for(let i=0;i<128;i++) {journal.accept(event);journal.accept({...event,edge:"exit",status:"ok"});}
+  journal.accept(event);journal.accept({...event,edge:"exit",status:"ok"});
+  const result=journal.close();
+  assert.equal(result.events.length,256);assert.equal(result.overflow,true);assert.equal(result.evidence_complete,false);
+  assert.ok(readFileSync(file).length<100000);
+  assert.equal(readFileSync(file,"utf8").includes("must not be logged"),false);
+});
+
+test("an interrupted fake App leaves its entered native phase in the evidence file", {timeout:5000}, async t => {
+  const dir=mkdtempSync(path.join(os.tmpdir(),"c1-phases-child-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const file=path.join(dir,"phases.jsonl"),journal=createReaderPhaseEvidence(file);
+  const child=spawn(process.execPath,['-e',String.raw`process.stdout.write(JSON.stringify({layer:'native',call:1,phase:'validate',edge:'enter',status:'pending',mono_ms:1})+'\n');setInterval(()=>{},1000)`],{stdio:['ignore','pipe','ignore']});
+  t.after(()=>{try{child.kill('SIGKILL');}catch{}});
+  const exited=once(child,'exit');
+  const [bytes]=await Promise.race([once(child.stdout,'data'), exited.then(()=>{throw new Error('fixture exited before phase entry');})]);journal.accept(JSON.parse(String(bytes)));
+  child.kill('SIGKILL');await exited;
+  assert.equal(journal.close().incomplete[0].phase,'validate');
+  assert.equal(readFileSync(file,"utf8").includes('"edge":"enter"'),true);
+});
+
+
+test("C1 phase evidence requires all fixed awaits and native boundaries, not just an empty active set", t => {
+  const dir=mkdtempSync(path.join(os.tmpdir(),"c1-phase-coverage-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  assert.equal(createReaderPhaseEvidence(path.join(dir,"empty.jsonl")).close().evidence_complete,false);
+  const journal=createReaderPhaseEvidence(path.join(dir,"complete.jsonl"));
+  const phases={web:["header","registration","standing","summary"],native:["args_admit","source_prescan","source_admit","inputs_admit","source_parse","inputs_parse","validate","serialize","source_drop","summary_health","summary_build"]};
+  for(const [layer,names] of Object.entries(phases)) for(const phase of names) {
+    journal.accept({layer,phase,call:1,edge:"enter",status:"pending",mono_ms:1});
+    journal.accept({layer,phase,call:1,edge:"exit",status:"ok",mono_ms:2});
+  }
+  assert.equal(journal.close().evidence_complete,true);
 });

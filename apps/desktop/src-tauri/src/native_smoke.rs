@@ -648,3 +648,139 @@ mod reader_probe_tests {
         assert_eq!(registry.pool_status().reserved_bytes, 0);
     }
 }
+
+// C1 diagnostic evidence: fixed phases, launch-local counters, no input/identity
+// text. stderr is consumed and synchronously persisted by the existing runner.
+static READER_DIAGNOSTIC_CALLS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static READER_DIAGNOSTIC_EVENTS: std::sync::atomic::AtomicU64 =
+    std::sync::atomic::AtomicU64::new(0);
+static READER_DIAGNOSTIC_ORIGIN: std::sync::OnceLock<std::time::Instant> =
+    std::sync::OnceLock::new();
+
+pub(crate) fn reader_diagnostic_call() -> u64 {
+    if std::env::var_os("SWBPIPE_NATIVE_SMOKE_READER_DIAGNOSTICS").as_deref()
+        != Some(std::ffi::OsStr::new("1"))
+    {
+        return 0;
+    }
+    READER_DIAGNOSTIC_CALLS.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1
+}
+
+fn reader_diagnostic_event(
+    call: u64,
+    phase: &'static str,
+    edge: &'static str,
+    status: &'static str,
+    bytes: u64,
+) {
+    if call == 0 {
+        return;
+    }
+    #[cfg(test)]
+    reader_phase_tests::record(phase, edge, status);
+    let sequence = READER_DIAGNOSTIC_EVENTS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    if sequence > 256 {
+        return;
+    }
+    if sequence == 256 || call > 32 {
+        if sequence == 256 || call == 33 && edge == "enter" && phase == "args_admit" {
+            eprintln!("[native-smoke] reader-phase:{{\"layer\":\"native\",\"overflow\":true}}");
+        }
+        return;
+    }
+    let mono_ms = READER_DIAGNOSTIC_ORIGIN
+        .get_or_init(std::time::Instant::now)
+        .elapsed()
+        .as_secs_f64()
+        * 1000.0;
+    eprintln!("[native-smoke] reader-phase:{{\"layer\":\"native\",\"call\":{call},\"phase\":\"{phase}\",\"edge\":\"{edge}\",\"status\":\"{status}\",\"mono_ms\":{mono_ms},\"bytes\":{bytes}}}");
+}
+
+pub(crate) fn reader_diagnostic_phase<T, E>(
+    call: u64,
+    phase: &'static str,
+    bytes: u64,
+    work: impl FnOnce() -> Result<T, E>,
+) -> Result<T, E> {
+    struct Exit {
+        call: u64,
+        phase: &'static str,
+        bytes: u64,
+        done: bool,
+    }
+    impl Drop for Exit {
+        fn drop(&mut self) {
+            if !self.done {
+                reader_diagnostic_event(self.call, self.phase, "exit", "incomplete", self.bytes);
+            }
+        }
+    }
+    reader_diagnostic_event(call, phase, "enter", "pending", bytes);
+    let mut exit = Exit {
+        call,
+        phase,
+        bytes,
+        done: false,
+    };
+    let result = work();
+    reader_diagnostic_event(
+        call,
+        phase,
+        "exit",
+        if result.is_ok() { "ok" } else { "error" },
+        bytes,
+    );
+    exit.done = true;
+    result
+}
+
+#[cfg(test)]
+mod reader_phase_tests {
+    use super::*;
+    thread_local! {
+        static EVENTS: std::cell::RefCell<Vec<(&'static str, &'static str, &'static str)>> = const { std::cell::RefCell::new(Vec::new()) };
+    }
+    pub(super) fn record(phase: &'static str, edge: &'static str, status: &'static str) {
+        EVENTS.with(|events| {
+            let mut events = events.borrow_mut();
+            if events.len() < 256 {
+                events.push((phase, edge, status));
+            }
+        });
+    }
+    fn take() -> Vec<(&'static str, &'static str, &'static str)> {
+        EVENTS.with(|events| std::mem::take(&mut *events.borrow_mut()))
+    }
+    #[test]
+    fn entries_precede_every_native_phase_and_failed_or_unwound_exits_are_honest() {
+        for phase in [
+            "args_admit",
+            "source_prescan",
+            "source_admit",
+            "inputs_admit",
+            "source_parse",
+            "inputs_parse",
+            "validate",
+            "serialize",
+            "source_drop",
+            "summary_health",
+            "summary_build",
+        ] {
+            take();
+            let result = reader_diagnostic_phase(1, phase, 10, || {
+                assert_eq!(take(), vec![(phase, "enter", "pending")]);
+                Err::<(), _>("fixture cancelled/disposed")
+            });
+            assert!(result.is_err());
+            assert_eq!(take(), vec![(phase, "exit", "error")]);
+            let panic = std::panic::catch_unwind(|| {
+                reader_diagnostic_phase(1, phase, 10, || -> Result<(), ()> {
+                    assert_eq!(take(), vec![(phase, "enter", "pending")]);
+                    panic!("fixture native task failure")
+                })
+            });
+            assert!(panic.is_err());
+            assert_eq!(take(), vec![(phase, "exit", "incomplete")]);
+        }
+    }
+}

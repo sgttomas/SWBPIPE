@@ -11,6 +11,113 @@ reader validation. Both approvals are consumed. **No retry, B1000 or further
 native interval is authorized.** This document retains their selected identities,
 original recipes and partial-evidence limits; it is not a runnable grant.
 
+## Bounded reader subphase candidate (offline; no execution grant)
+
+Agent0 authorized only the diagnostic delta needed by the missing phase claim.
+It adds no optimization, route-only reader contract, parse cache or core source
+change. The historical A500 facts below remain immutable, and the counts of
+possible pressure passes/parses remain source-path counts, never observed A
+behavior. No third App/solver/profile/large-input attempt is authorized.
+
+The existing four session awaits emit fixed `header`, `registration`, `standing`
+and `summary` entry/exit records only when the native-smoke driver installs its
+narrow reporter. The timeline module's helper accepts no arbitrary phase, input
+or message. It awaits the existing `native_smoke_log` delivery before entering
+the product await; errors record `error`, while pending work has no invented
+successful exit. Boundary `ok` means the function returned, never numerical
+eligibility or a Current grant; validation/refusal payloads are unchanged and
+not logged. A launch permits at most 32 observed awaits. Ordinary sessions
+without the smoke reporter perform the same calls without reporting.
+
+The native command boundaries use launch-local call numbers and monotonic times:
+`args_admit`, `source_prescan`, `inputs_admit`, `source_admit`, `source_parse`,
+`inputs_parse`, `validate`, `serialize`, `source_drop`, `summary_health` and
+`summary_build`. Sizes are scalar raw/parse-lease bytes, not measured heap.
+No job id, model/result/record contents, diagnostic messages or unbounded
+standing are emitted. RAII emits an `incomplete` exit on unwind; a killed
+process leaves a missing exit. Process-local clocks have separate origins;
+runner receipt epoch times align delivery only, not atomic cross-process time.
+
+For diagnostic-enabled smoke builds, native verdict expands only the existing
+operation-applier text wrapper locally: same source/model/invocation parse order,
+null handling, exact parse-error text, unchanged public Value dispatch/validation
+calls and same serde serialization. This exposes parse/validate/drop boundaries
+without writing `operation_applier` or shared `result_export`. Ordinary product
+builds and smoke launches without the flag still use the original wrapper.
+The diagnostic branch preserves replies/errors against the maintained file-backed
+reader corpus and malformed/tiny inputs. It adds logging/branch overhead and
+slightly explicit Value drop sequencing; it is a newly selected runtime, not
+the old bound `app-p3` executable or a claim of identical performance.
+
+Summary's own source parse, input parse, build/response and drop are separated.
+The private core `numerical_health_json` entry internally owns its parse and
+work; **`summary_health` deliberately combines that parse/validate/serialize/drop**.
+Splitting inside it is not possible under this assignment's core no-write
+boundary. If that combined phase is pending, further core observation would
+require a separately reviewed interface; no finer attribution is claimed.
+
+The runner validates fixed IDs and bounded numeric fields, and synchronously
+writes/fsyncs each received event to an exclusive-created JSONL file outside
+throwaway scratch before retaining/reporting it. It accepts at most **256
+boundary records**, one overflow notice and one terminal summary; the tested
+maximum is below 100 KiB. Native emission is separately capped at 256 events;
+web emission at 64 boundaries. Unknown fields/IDs, mismatched boundaries, write
+failure or overflow fail diagnostic evidence, not a successful gate. Pending
+entries survive a blocked await, native task failure or App exit without needing
+a final reply; a killed runner may lack its terminal summary, and the already
+persisted entries still show the last received boundary. Pipe delivery before
+persistence is not a power-loss/instantaneous-process-kill guarantee.
+
+After App exit the runner drains stderr for at most one second; uncertainty
+marks evidence incomplete. Completion requires all four web awaits and all fixed
+native boundaries, not merely an empty pending set. Phase scopes/overflows and
+missing exits are reported with the existing run/partial/report path. No new
+ordinary handler, file chooser, export, native window or general tracer is added.
+The journal, fsyncs, IPC acknowledgements and additional drop scopes add overhead;
+a subsequent authorized run would diagnose phase location, not silently replace
+the selected uninstrumented throughput/memory basis.
+
+Offline checks use only maintained small fixtures, replay, injected closures and
+tiny fake Node processes. They stall each of the four real session awaits and
+inspect native phase entries before injected work, error and unwind; preserve
+pending cancellation/disposal exits, reject contents/overflow/empty evidence,
+and recover an entered phase after killing only their fake child. No native App,
+solver, sampler mode, 919 MB parse, allocation profile or exclusive interval ran.
+The initial fake-child test had an escaping error and was stopped under its own
+ownership; it now has early-exit detection and a timeout. A TypeScript import
+was initially put before the existing Vite triple-reference and was corrected;
+no ambient declarations were weakened.
+
+Current offline evidence: **45 Node tests** pass, including journal persistence,
+interruption, all-fixed-phase coverage and bounded retention; **29 TypeScript
+connection/timeline/global tests** pass, including actual small replay disposal
+while a header is pending; the native diagnostic wrapper matches the maintained
+file-backed corpus and malformed inputs, and the native boundary error/unwind
+check passes. Default and smoke library compilation pass. The reach scan's
+initial combined test attribute was replaced by its existing separate test-only
+form; all 35 reach tests then pass. The scanner and its rules are unchanged. TypeScript's Vite reference order
+was repaired rather than adding ambient exceptions. These are offline functional
+checks, not parse/allocation/timing or native usability measurements.
+
+The selected runtime must be built/bound in **`app-reader-phases/`**, preserving
+`app-p3/` and both failed packets. Plan/input/budget remain the maintained500
+case, 300 s first-paint wait and 840/810 s supervisor/child limits, with only
+`c1_reader_diagnostics:true` added. The exact recipe for a future owner decision
+uses fresh **`evidence/n0500-reader-phases1`**, not either consumed path:
+
+```sh
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-reader-phases" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-reader-phases1"
+```
+
+This is not permission to run it. Before returning readiness: bind the clean
+runtime/frontend/worker/scripts/plan, reconcile these identities, pass focused
+measurement/permission scrutiny and exact-head CI. Before any actual run: a new
+explicit owner/resource decision, exact hash/fresh-output checks and normal
+shared admission are required. No retry, B1000, 2,000-node, screenshot/capture,
+LLM/provider/auth/network or release authority follows. Core readers/semantics,
+validation/refusal/source identities, budgets/reserves and existing failed raw
+samples/lifetime maxima remain unchanged.
+
 ## Repaired A500 result and closure (2026-11-02)
 
 The owner explicitly approved one repaired attempt on clean `eb77d0067`, using
