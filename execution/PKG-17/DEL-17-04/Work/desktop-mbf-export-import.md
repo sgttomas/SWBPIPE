@@ -125,7 +125,7 @@ Criterion 1 lists the reference system's contents. On `main` today:
 | Family (criterion 1) | Row | Writer | Importer |
 |---|---|---|---|
 | Straight pipe; temperature-independent material; section | RT-G1, RT-G3 | written | read |
-| Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`). D-2 Route 1 is designed, not implemented (import Design §20.4), with constant α and one thermal case. It applies the per-member rule: each member's modulus selection is at its MBF T1, and the row there states the selected E exactly. The one bounded exception is `explicit_base_properties` on a point-free material, under decision 3's conditions. Derived T1 rows are admitted only exactly (option (a), Agent 0, 2026-11-02). Route 1 waits on G-1 and G-4, and CQ-17-01-016 stays open | refused (O-7 ruling). Once Route 1 is implemented, bound imports with sidecar format 5 restore its inputs exactly. A derived row is stripped only when a trusted source proves it generated: a saved model state whose model hash equals the sidecar's source digest, or a source document the user supplies. Otherwise such an import is refused (`MBF-IMPORT-DERIVED-ROW-UNPROVED`). Unbound imports stay refused |
+| Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`). D-2 Route 1 is designed, not implemented (import Design §20.4), with constant α and one thermal case. It applies the per-member rule: each member's modulus selection is at its MBF T1, and the row there states the selected E exactly. The one bounded exception is `explicit_base_properties` on a point-free material, under decision 3's conditions. Derived T1 rows are admitted only exactly (option (a), Agent 0, 2026-11-02). Route 1 waits on G-1 and G-4, and CQ-17-01-016 stays open | refused (O-7 ruling). Once Route 1 is implemented, bound imports with sidecar format 5 restore its inputs exactly. Every bound import with temperature-point materials needs a source associated with the export independently of the sidecar: a trusted export record matching the presented MBF and sidecar digests, or a source the user designates. The sidecar's source digest only verifies it. Otherwise such an import is refused (`MBF-IMPORT-SOURCE-UNASSOCIATED`), and a derived row is stripped only when that source proves it generated. Unbound imports stay refused |
 | Realized bend with user k | RT-K1 | written | read |
 | User SIFs | RT-K1 | a realized bend's directional pair is written as the bend comment `BSIF` (#1730); the scalar `sif_user_value` is not written | read: `BSIF` on a bend row restores the pair |
 | Tee with user modifiers | RT-K2 | refused (`MBF-SI-COMPONENT-UNSUPPORTED`) | not read |
@@ -157,12 +157,23 @@ question.
   `explicit_base_properties` selection on a material with no temperature points. It is eligible
   only when the selected E basis is constant and exactly representable in the MBF, with ν, α
   and the law checked separately (decision 3). It is not an unconditional temperature rule.
-- **The import's trusted source.** A bound import strips a derived MATERIAL row only against
-  an independently trusted source (import Design §20.4.4 and §20.4.5): a saved model state of
-  the open project whose `model_hash` equals the sidecar's `source_model_sha256`, found by
-  `state_with_model_hash` in `model_states.rs`, or a source document the user supplies. The
-  import review names the source used. Without one, such an import is refused. Wiring the
-  lookup into Import MBF is part of the import slice; it adds no store.
+- **The import's associated source.** Every bound format-5 import with temperature-point
+  materials needs a source S associated with the export independently of the sidecar, and
+  verified by hash and content before anything is restored or stripped (import Design §20.4.4
+  and §20.4.5). The sidecar's `source_model_sha256` only verifies S; the import never searches
+  by it. S is associated in one of two ways:
+  - **A trusted export record.** On a successful Route 1 export with points, Export MBF records
+    the project, an immutable saved state of the exported text (made first if none holds it)
+    and the MBF, sidecar and source digests, in one transaction after the read-back. Import MBF
+    admits S only from a record that matches the presented MBF and sidecar digests, re-verified
+    on read. This is new persistence (store v14), with its own implementation PR and persistence
+    and migration scrutiny; it is not part of slice 4 or 5 as designed here.
+  - **The user's designation.** A saved state the user chooses, or a model document the user
+    supplies through the Open Model Document route's checks. It passes the same checks. A
+    cross-machine import needs this source to be supplied.
+
+  The import review names the source used. Without one, such an import is refused
+  (`MBF-IMPORT-SOURCE-UNASSOCIATED`).
 
 - **RS-P180.** It stays as authored: `unchanged_reference`, selecting its modulus at 210 °C. It
   is therefore refused by name (`MBF-SI-MODULUS-SELECTION-MISMATCH` at `pipe:RS-P180`) while it
