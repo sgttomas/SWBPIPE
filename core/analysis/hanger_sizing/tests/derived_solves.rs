@@ -283,3 +283,118 @@ fn library_records_normalize_to_si_and_a_record_without_a_range_is_not_sizable()
     let constant = records.iter().find(|r| r.hanger_type == HangerType::ConstantEffort).unwrap();
     assert_eq!(constant.travel_range_m, None);
 }
+
+const R125: &str = include_str!("../../../../validation/references/hanger_sizing/r125_derived_solves.json");
+
+/// Builds the product solve request for one R-1/R-2/R-5 case. A reference guide's
+/// RX restraint, which carries no load in these planar cases, becomes a stiff
+/// torsion spring, because the product's guide restrains translations only.
+fn reference_request(case: &Value) -> Value {
+    let nodes: Vec<(String, [f64; 3])> = case["nodes"]
+        .as_object()
+        .unwrap()
+        .iter()
+        .map(|(id, p)| (id.clone(), [p[0].as_f64().unwrap(), p[1].as_f64().unwrap(), p[2].as_f64().unwrap()]))
+        .collect();
+    let node_refs: Vec<(&str, [f64; 3])> = nodes.iter().map(|(id, p)| (id.as_str(), *p)).collect();
+    let members: Vec<Member> = case["members"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|m| Member {
+            id: m["id"].as_str().unwrap(),
+            from: m["end_nodes"][0].as_str().unwrap(),
+            to: m["end_nodes"][1].as_str().unwrap(),
+            outside_diameter_m: m["outside_diameter_m"].as_f64().unwrap(),
+            wall_m: m["wall_thickness_m"].as_f64().unwrap(),
+            elastic_modulus_pa: m["elastic_modulus_pa"].as_f64().unwrap(),
+            expansion_per_k: m["thermal_expansion_per_k"].as_f64().unwrap(),
+        })
+        .collect();
+    let mut supports = Vec::new();
+    for s in case["supports"].as_array().unwrap() {
+        let (id, node) = (s["id"].as_str().unwrap(), s["node"].as_str().unwrap());
+        let dofs: Vec<&str> = s["dofs"].as_array().unwrap().iter().map(|d| d.as_str().unwrap()).collect();
+        match s["kind"].as_str().unwrap() {
+            "anchor" => supports.push(support(id, node, "anchor", &["UX", "UY", "UZ", "RX", "RY", "RZ"])),
+            "rigid_uz" | "candidate" => supports.push(support(id, node, "vertical_support", &["UZ"])),
+            "lift_off_uz" => supports.push(lift_off(id, node)),
+            "guide" => {
+                let translations: Vec<&str> = dofs.iter().copied().filter(|d| d.starts_with('U')).collect();
+                supports.push(support(id, node, "guide", &translations));
+                if dofs.contains(&"RX") {
+                    supports.push(torsion_spring(&format!("{id}-torsion"), node));
+                }
+            }
+            other => panic!("unknown support kind {other}"),
+        }
+    }
+    let cases: Vec<Value> = case["load_cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|lc| {
+            let id = lc["id"].as_str().unwrap();
+            let mut loads = Vec::new();
+            for (i, l) in lc["line_loads"].as_array().into_iter().flatten().enumerate() {
+                loads.push(line_load(&format!("load:{id}-w{i}"), l["member"].as_str().unwrap(), l["w_n_per_m"].as_f64().unwrap()));
+            }
+            for (i, t) in lc["delta_t_k"].as_array().into_iter().flatten().enumerate() {
+                loads.push(thermal(&format!("load:{id}-t{i}"), t["member"].as_str().unwrap(), t["value"].as_f64().unwrap()));
+            }
+            for (i, f) in lc["nodal_forces"].as_array().into_iter().flatten().enumerate() {
+                loads.push(nodal_fz(&format!("load:{id}-f{i}"), f["node"].as_str().unwrap(), f["fz_n"].as_f64().unwrap()));
+            }
+            model_builder::case(id, loads)
+        })
+        .collect();
+    model_builder::request(&node_refs, &members, supports, cases)
+}
+
+#[test]
+fn derived_solves_reproduce_the_closed_form_references_r1_r2_r5() {
+    let document: Value = serde_json::from_str(R125).unwrap();
+    assert_eq!(document["schema"], "swbpipe.hanger_sizing_reference.r125/1");
+    for case in document["cases"].as_array().unwrap() {
+        let id = case["id"].as_str().unwrap();
+        let doc = reference_request(case);
+        let weight = case["load_cases"].as_array().unwrap().iter().find(|c| c["role"] == "weight").unwrap()["id"].as_str().unwrap();
+        let operating: Vec<&str> = case["load_cases"].as_array().unwrap().iter()
+            .filter(|c| c["role"] == "operating").map(|c| c["id"].as_str().unwrap()).collect();
+        let expected = case["expected"]["candidates"].as_array().unwrap();
+        let candidates: Vec<&str> = expected.iter().map(|c| c["support"].as_str().unwrap()).collect();
+        let mut asked = request(&candidates, operating[0]);
+        asked.weight_case = weight.into();
+        asked.check_operating_cases = operating[1..].iter().map(|s| s.to_string()).collect();
+        let run = run(&doc, &[], &asked).unwrap_or_else(|r| panic!("{id}: {r:?}"));
+        for e in expected {
+            let who = format!("{id}/{}", e["support"].as_str().unwrap());
+            let c = run.candidates.iter().find(|c| c.id == e["support"].as_str().unwrap()).unwrap();
+            let w = e["w_n"].as_f64().unwrap();
+            assert!(close(c.w_n, w, 1e-9), "{who} W {} against {w}", c.w_n);
+            // Positions: 1e-9 relative, with a floor of 1e-9 of the case's largest
+            // expected position or 1e-12 m, for values that are zero in closed form.
+            let largest = e["u_operating_m"].as_object().unwrap().values().map(|v| v.as_f64().unwrap().abs()).fold(1e-3, f64::max);
+            let near = |a: f64, b: f64| (a - b).abs() <= 1e-9 * a.abs().max(b.abs()) + 1e-9 * largest;
+            let u_c = e["u_cold_m"].as_f64().unwrap();
+            assert!(near(c.positions.u_cold_m, u_c), "{who} u_C {} against {u_c}", c.positions.u_cold_m);
+            for (i, case_id) in operating.iter().enumerate() {
+                let u = e["u_operating_m"][*case_id].as_f64().unwrap();
+                assert!(near(c.positions.u_operating_m[i], u), "{who} u_{case_id} {} against {u}", c.positions.u_operating_m[i]);
+            }
+        }
+        if let Some(states) = case["expected"]["nonlinear_states"].as_object() {
+            for (support, by_solve) in states {
+                for (solve, state) in by_solve.as_object().unwrap() {
+                    let label = match solve.as_str() {
+                        "weight_rigid" => "S_W".to_string(),
+                        "cold" => "S_C".to_string(),
+                        case_id => format!("S_O{}", operating.iter().position(|c| *c == case_id).unwrap() + 1),
+                    };
+                    let found = &run.states.iter().find(|s| s.solve == label).unwrap().states[support];
+                    assert_eq!(found, state.as_str().unwrap(), "{id} {support} in {label}");
+                }
+            }
+        }
+    }
+}
