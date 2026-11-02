@@ -383,6 +383,20 @@ fn derived_solves_reproduce_the_closed_form_references_r1_r2_r5() {
                 assert!(near(c.positions.u_operating_m[i], u), "{who} u_{case_id} {} against {u}", c.positions.u_operating_m[i]);
             }
         }
+        // R-5a: the lift-off is active in S_W and inactive in the design operating solve,
+        // which is disclosed by name; the cold reference keeps S_W's state. R-5b: none.
+        let differs: Vec<&Disclosure> = run.disclosures.iter().filter(|d| d.code == "HANGER_SIZING_SUPPORT_STATE_DIFFERS").collect();
+        let lifting: Vec<String> = case["expected"]["nonlinear_states"].as_object().into_iter().flatten()
+            .filter(|(_, by)| by["weight_rigid"] != by[operating[0]])
+            .map(|(support, _)| support.clone())
+            .collect();
+        if lifting.is_empty() {
+            assert!(differs.is_empty(), "{id}: unexpected {differs:?}");
+        } else {
+            assert_eq!(differs.len(), 1, "{id}");
+            assert_eq!(differs[0].names, lifting, "{id}");
+        }
+        assert!(run.disclosures.iter().all(|d| d.code != "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"), "{id}");
         if let Some(states) = case["expected"]["nonlinear_states"].as_object() {
             for (support, by_solve) in states {
                 for (solve, state) in by_solve.as_object().unwrap() {
@@ -398,3 +412,133 @@ fn derived_solves_reproduce_the_closed_form_references_r1_r2_r5() {
         }
     }
 }
+
+fn variable_record(id: &str, k: f64, range: (f64, f64)) -> Record {
+    Record { hanger_id: id.into(), hanger_type: HangerType::VariableSpring, stiffness_n_per_m: Some(k),
+             stiffness_dof: Some(Dof::Uz), working_load_range_n: Some(range), travel_range_m: Some(0.1) }
+}
+
+fn constant_record(id: &str, range: (f64, f64)) -> Record {
+    Record { hanger_id: id.into(), hanger_type: HangerType::ConstantEffort, stiffness_n_per_m: None,
+             stiffness_dof: None, working_load_range_n: Some(range), travel_range_m: Some(0.1) }
+}
+
+#[test]
+fn a_selected_spring_is_verified_as_its_rate_plus_its_cold_load_in_closed_form() {
+    // The two-span beam is one pinned span 2L = 8 m with the candidate at midspan.
+    // Midspan flexibility δ = (2L)³/(48EI); the weight's midspan deflection is δ·W,
+    // since W = 5wL/4. Operating adds P = 500 N up at B, so u_D = δ·P. Hot design:
+    // F_cold = W + k·u_D. With the spring in place, u = δ·(F_cold − k·u − W + P_case),
+    // so u = δ·(F_cold − W + P_case)/(1 + δ·k).
+    let doc = two_span();
+    let k = 1.0e6;
+    let records = vec![variable_record("VS-1", k, (1000.0, 20000.0))];
+    let run = run(&doc, &records, &request(&["support:B"], "load:O")).unwrap_or_else(|r| panic!("{r:?}"));
+    let (d_out, d_in) = (0.2_f64, 0.2_f64 - 2.0 * 0.01);
+    let ei = STEEL_E * std::f64::consts::PI / 64.0 * (d_out.powi(4) - d_in.powi(4));
+    let delta = 8.0_f64.powi(3) / (48.0 * ei);
+    let (w, p) = (5000.0, 500.0);
+    let u_d = delta * p;
+    assert!(close(run.candidates[0].positions.u_operating_m[0], u_d, 1e-9));
+    let f_cold = w + k * u_d;
+    let Some(Selected::Variable { loads, .. }) = &run.results[0].selected else { panic!("a variable selection") };
+    assert!(close(loads.f_cold_n, f_cold, 1e-9));
+    let v = run.verifications[0].as_ref().unwrap();
+    let u_c_v = delta * (f_cold - w) / (1.0 + delta * k);
+    let u_o_v = delta * (f_cold - w + p) / (1.0 + delta * k);
+    assert!(close(v.positions.u_cold_m, u_c_v, 1e-9), "{} against {u_c_v}", v.positions.u_cold_m);
+    assert!(close(v.positions.u_operating_m[0], u_o_v, 1e-9), "{} against {u_o_v}", v.positions.u_operating_m[0]);
+    let vv = v.variable.as_ref().unwrap();
+    assert!(close(vv.f_cold_condition_n, f_cold - k * u_c_v, 1e-9));
+    assert!(close(vv.f_operating_n[0], f_cold - k * u_o_v, 1e-9));
+    assert!(close(vv.departure_n, f_cold - k * u_o_v - w, 1e-9));
+}
+
+fn displacement_m(envelope: &open_pipe_stress_product_physics::MechanicsEnvelope, node: &str) -> f64 {
+    let row = envelope.results.iter().find(|r| r.kind == "global_nodal_displacement_z" && r.entity_ref == node).unwrap();
+    match row.unit.as_str() { "mm" => row.value / 1000.0, "m" => row.value, other => panic!("unit {other}") }
+}
+
+#[test]
+fn verification_puts_each_selection_in_its_role_and_marks_a_no_fit_conditional() {
+    // Four equal spans of 4 m: interior reactions 8wL/7 at N2 and N4 and 13wL/14 at N3.
+    // N2 takes a variable record, N3 a constant record that fits 13wL/14 = 3714 N,
+    // and N4 has no fit (8wL/7 = 4571 N is outside the constant record's range).
+    let member = |id, from, to| Member { id, from, to, outside_diameter_m: 0.2, wall_m: 0.01, elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
+    let nodes = [("N1", [0.0, 0.0, 0.0]), ("N2", [4.0, 0.0, 0.0]), ("N3", [8.0, 0.0, 0.0]), ("N4", [12.0, 0.0, 0.0]), ("N5", [16.0, 0.0, 0.0])];
+    let members = [member("P1", "N1", "N2"), member("P2", "N2", "N3"), member("P3", "N3", "N4"), member("P4", "N4", "N5")];
+    let supports = vec![
+        support("S1", "N1", "guide", &["UX", "UY", "UZ"]), torsion_spring("S1-torsion", "N1"),
+        support("H2", "N2", "vertical_support", &["UZ"]), support("H3", "N3", "vertical_support", &["UZ"]),
+        support("H4", "N4", "vertical_support", &["UZ"]), support("S5", "N5", "guide", &["UY", "UZ"]),
+    ];
+    let weights = |c: &str| ["P1", "P2", "P3", "P4"].iter().map(|m| line_load(&format!("load:{c}-{m}"), m, 1000.0)).collect::<Vec<_>>();
+    let mut operating = weights("O");
+    operating.push(nodal_fz("load:O-lift", "N2", 400.0));
+    let doc = model_builder::request(&nodes, &members, supports, vec![case("load:W", weights("W")), case("load:O", operating)]);
+    let records = vec![variable_record("VS-1", 1.0e6, (1000.0, 20000.0)), constant_record("CE-1", (3000.0, 4000.0))];
+    let mut asked = request(&["H2", "H3", "H4"], "load:O");
+    asked.candidates[1].family_policy = FamilyPolicy::Constant;
+    asked.candidates[2].family_policy = FamilyPolicy::Constant;
+    let run = run(&doc, &records, &asked).unwrap_or_else(|r| panic!("{r:?}"));
+    assert_eq!(run.results.iter().map(|r| r.outcome).collect::<Vec<_>>(), [Outcome::Selected, Outcome::Selected, Outcome::NoRecordFits]);
+    assert_eq!(run.standing, VerificationStanding::Conditional);
+    assert!(run.verifications[2].is_none());
+    // The verification solves must be exactly the derived solves of the stated roles.
+    let Some(Selected::Variable { k, loads, .. }) = &run.results[0].selected else { panic!("variable") };
+    let roles = [Role::Spring { k: *k, f_cold: loads.f_cold_n }, Role::Force(run.candidates[1].w_n), Role::Force(run.candidates[2].w_n)];
+    for (case_id, pick) in [("load:W", None), ("load:O", Some(0usize))] {
+        let derived = derived_document(&doc, case_id, &run.sites, &roles);
+        let envelope = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(derived, PreviewSolverMode::DenseScrutiny).unwrap();
+        for (i, site) in run.sites.iter().enumerate().take(2) {
+            let expected = displacement_m(&envelope, &site.node);
+            let verified = run.verifications[i].as_ref().unwrap();
+            let actual = match pick { None => verified.positions.u_cold_m, Some(j) => verified.positions.u_operating_m[j] };
+            assert!(close(actual, expected, 1e-12), "{} in {case_id}: {actual} against {expected}", site.support);
+        }
+    }
+}
+
+#[test]
+fn every_candidate_finding_is_listed_and_only_real_references_refuse() {
+    let mut doc = two_span();
+    {
+        let supports = doc["model"]["supports"].as_array_mut().unwrap();
+        // A lift-off sharing C's node and UZ through its nonlinear DOF only.
+        supports.push(lift_off("support:C-lift", "node:C"));
+        // Text equal to a candidate id is not a reference.
+        supports[1]["provenance"] = json!("support:B");
+    }
+    doc["model"]["pipe_segments"][0]["provenance"] = json!("support:B");
+    let mut asked = request(&["support:A", "support:B", "support:C"], "load:O");
+    asked.candidates[0].family_policy = FamilyPolicy::Variable;
+    let refusals = run(&doc, &[], &asked).unwrap_err();
+    let listed: Vec<(&str, Vec<String>)> = refusals.iter().map(|r| (r.code, r.names.clone())).collect();
+    assert_eq!(listed, [
+        ("HANGER_SIZING_CANDIDATE_DOF_SHARED", vec!["support:C".to_string()]),
+        ("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", vec!["support:A".to_string()]),
+    ]);
+    // An anchor reports both its family and its DOFs.
+    let mut anchored = two_span();
+    anchored["model"]["supports"][0]["family"] = json!("anchor");
+    anchored["model"]["supports"][0]["restraints"] = json!(["UX", "UY", "UZ", "RX", "RY", "RZ"]);
+    let refusals = run(&anchored, &[], &request(&["support:A"], "load:O")).unwrap_err();
+    let codes: Vec<&str> = refusals.iter().map(|r| r.code).collect();
+    assert_eq!(codes, ["HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", "HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED"]);
+    // A support-targeted load and a friction normal-reaction source are references.
+    let mut targeted = two_span();
+    targeted["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(json!({
+        "id": "load:O-imposed", "category": "imposed_displacement", "target": {"type": "support", "support": "support:B", "dof": "UZ"},
+        "direction": "UZ", "magnitude": {"value": 0.001, "unit": "m"}, "dimension": "length", "provenance": "invented_test_value"}));
+    let refusals = run(&targeted, &[], &request(&["support:B"], "load:O")).unwrap_err();
+    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_CANDIDATE_REFERENCED" && r.names == ["support:B"]));
+    let mut sourced = two_span();
+    sourced["model"]["supports"].as_array_mut().unwrap().push(json!({
+        "id": "support:F", "node": "node:C", "family": "nonlinear", "restraints": [],
+        "nonlinear": {"behavior": "friction", "dof": "UX", "friction_coefficient": {"value": 0.3, "unit": "1"},
+                      "normal_reaction_source": {"support_ref": "support:B", "dof": "UZ"}},
+        "provenance": "invented_test_value"}));
+    let refusals = run(&sourced, &[], &request(&["support:B"], "load:O")).unwrap_err();
+    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_CANDIDATE_REFERENCED" && r.names == ["support:B"]));
+}
+

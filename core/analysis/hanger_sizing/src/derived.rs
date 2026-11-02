@@ -163,24 +163,47 @@ pub fn check_cases(request_doc: &Value, request: &SizingRequest) -> Vec<Refusal>
     refusals
 }
 
-fn mentions(value: &Value, id: &str) -> bool {
+/// A `support_ref` or `support_id` naming `id` anywhere in an analysis state, other
+/// than the support's own entry in `support_states` (its participation declaration,
+/// Design §3, handled with the exact route in increment 4).
+fn state_refers(value: &Value, id: &str, in_support_states: bool) -> bool {
     match value {
-        Value::String(s) => s == id,
-        Value::Array(items) => items.iter().any(|v| mentions(v, id)),
-        Value::Object(map) => map.values().any(|v| mentions(v, id)),
+        Value::Object(map) => map.iter().any(|(key, v)| {
+            let names = matches!(key.as_str(), "support_ref" | "support_id") && v.as_str() == Some(id);
+            (names && !in_support_states) || state_refers(v, id, key == "support_states")
+        }),
+        Value::Array(items) => items.iter().any(|v| state_refers(v, id, in_support_states)),
         _ => false,
     }
 }
 
-/// Whether any model object other than the candidate itself refers to it. The
-/// stored diagnostics and status are records about the model, not model objects.
+/// Whether a model object refers to the candidate through a member that references
+/// a support (Design §3): a primitive load targeted at it, another support's friction
+/// normal-reaction source, or an analysis-state support reference. Text that merely
+/// equals the id, such as a provenance note, is not a reference.
 fn referenced(model: &Value, id: &str) -> bool {
-    let Some(object) = model.as_object() else { return false };
-    object.iter().any(|(key, value)| match key.as_str() {
-        "diagnostics" | "analysis_status" | "project" | "data_boundary" => false,
-        "supports" => value.as_array().into_iter().flatten().any(|s| s.get("id").and_then(Value::as_str) != Some(id) && mentions(s, id)),
-        _ => mentions(value, id),
-    })
+    let targeted = array(model, "load_cases").iter().any(|case| {
+        array(case, "primitive_loads").iter().any(|load| {
+            let target = &load["target"];
+            target["type"] == "support" && target["support"].as_str() == Some(id)
+        }) || case.get("analysis_state").is_some_and(|state| state_refers(state, id, false))
+    });
+    let normal_source = array(model, "supports").iter().any(|support| {
+        support["nonlinear"]["normal_reaction_source"]["support_ref"].as_str() == Some(id)
+    });
+    targeted || normal_source
+}
+
+/// The DOFs a support acts on: its rigid restraints, its nonlinear DOF and its
+/// stiffness DOF.
+fn effective_dofs(support: &Value) -> Vec<Dof> {
+    let mut dofs: Vec<Dof> = array(support, "restraints").iter().filter_map(Value::as_str).filter_map(parse_dof).collect();
+    for dof in [&support["nonlinear"]["dof"], &support["stiffness"]["dof"]] {
+        if let Some(dof) = dof.as_str().and_then(parse_dof) {
+            dofs.push(dof);
+        }
+    }
+    dofs
 }
 
 /// Candidate checks (Design §3).
@@ -204,6 +227,17 @@ pub fn check_candidates(request_doc: &Value, request: &SizingRequest) -> Result<
             flag("HANGER_SIZING_CANDIDATE_UNKNOWN", id);
             continue;
         };
+        // Checks that do not need the DOF run first, so that every finding is listed.
+        if is_present(support.get("direction")) {
+            flag("HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED", id);
+        }
+        let family = support.get("family").and_then(Value::as_str);
+        if is_present(support.get("nonlinear")) || matches!(family, Some("anchor" | "snubber" | "nonlinear")) {
+            flag("HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED", id);
+        }
+        if is_present(support.get("boundary_association")) || referenced(model, id) {
+            flag("HANGER_SIZING_CANDIDATE_REFERENCED", id);
+        }
         let restraints: Vec<&str> = array(support, "restraints").iter().filter_map(Value::as_str).collect();
         let dof = match restraints.as_slice() {
             [only] => parse_dof(only),
@@ -213,24 +247,14 @@ pub fn check_candidates(request_doc: &Value, request: &SizingRequest) -> Result<
             flag("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", id);
             continue;
         };
-        if is_present(support.get("direction")) {
-            flag("HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED", id);
-        }
-        let family = support.get("family").and_then(Value::as_str);
-        if is_present(support.get("nonlinear")) || matches!(family, Some("anchor" | "snubber" | "nonlinear")) {
-            flag("HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED", id);
-        }
         let node = support.get("node").and_then(Value::as_str).unwrap_or_default().to_string();
         let shared = supports.iter().any(|other| {
             other.get("id").and_then(Value::as_str) != Some(id)
                 && other.get("node").and_then(Value::as_str) == Some(node.as_str())
-                && array(other, "restraints").iter().filter_map(Value::as_str).any(|r| parse_dof(r) == Some(dof))
+                && effective_dofs(other).contains(&dof)
         });
         if shared {
             flag("HANGER_SIZING_CANDIDATE_DOF_SHARED", id);
-        }
-        if is_present(support.get("boundary_association")) || referenced(model, id) {
-            flag("HANGER_SIZING_CANDIDATE_REFERENCED", id);
         }
         sites.push(Site { support: id.to_string(), node, dof });
     }
@@ -463,14 +487,18 @@ pub fn run(request_doc: &Value, records: &[Record], request: &SizingRequest) -> 
     // S_W: the weight case with every candidate rigid.
     let weight = request.weight_case.as_str();
     let rigid = vec![Role::Rigid; sites.len()];
-    let envelope = solve(derived_document(request_doc, weight, &sites, &rigid), mode, "S_W").map_err(|r| vec![r])?;
-    let w: Vec<Option<f64>> = sites.iter().map(|s| reaction(&envelope, s)).collect();
+    // The full envelope is dropped once W and the states are read, before the next
+    // solve starts (Design §10).
+    let (w, weight_states) = {
+        let envelope = solve(derived_document(request_doc, weight, &sites, &rigid), mode, "S_W").map_err(|r| vec![r])?;
+        (sites.iter().map(|s| reaction(&envelope, s)).collect::<Vec<Option<f64>>>(), states(&envelope, "S_W"))
+    };
     let absent: Vec<&Site> = sites.iter().zip(&w).filter(|(_, v)| v.is_none()).map(|(s, _)| s).collect();
     if !absent.is_empty() {
         return Err(vec![missing("S_W", "support reaction", &absent)]);
     }
     let w: Vec<f64> = w.into_iter().map(Option::unwrap).collect();
-    let mut solve_states = vec![states(&envelope, "S_W")];
+    let mut solve_states = vec![weight_states];
     let not_positive: Vec<String> = sites.iter().zip(&w).filter(|(_, w)| !(**w > 0.0)).map(|(s, _)| s.support.clone()).collect();
     if !not_positive.is_empty() {
         return Err(vec![refusal("HANGER_SIZING_LOAD_NOT_POSITIVE", not_positive,
