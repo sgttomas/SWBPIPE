@@ -116,7 +116,7 @@ page and section. Their text, tables and examples are not reproduced.
 | `CAEPIPE-LOAD-CASES` | `users_manual/load_cases.htm` (*Load cases*) | Case-membership semantics only: which loads each CAEPIPE case includes. Used to state the writer's case mapping and its inverse |
 | `CAEPIPE-BEND` | `tech_manual/bend.htm` (technical reference, *Bend*) | CAEPIPE generates the near and far end nodes of a bend's curved portion, named with A and B suffixes on the bend node. The section given on the bend row applies to the curved portion and to the straight from the preceding node to the A node |
 | `CAEPIPE-FORCE` | `tech_manual/force.htm` (technical reference, *Force*) | The Force technical reference documents that sustained-category forces and moments also participate in operating cases. It does not state which category an MBF force or moment without `FLC` takes |
-| `CAEPIPE-ANALYSIS` | `users_manual/analysis.htm` (*Analysis*: *Number of Thermal Loads*; *Gravitational Acceleration and Direction*) | The number of thermal loads is the count of operating temperatures (and their pressures) in use; with `CAEPIPE-LOAD-CASES`, multiple operating and expansion cases exist only when it is above 1 (§9.1). From 15.10 a gravitational acceleration and direction scale the analysis, with all input given for earth gravity (§6) |
+| `CAEPIPE-ANALYSIS` | `users_manual/analysis.htm` (*Analysis*: *Number of Thermal Loads*; *Gravitational Acceleration and Direction*; under the *Temperature* label, *Reference Temperature*, *Thermal = Operating – Sustained*, *Solve Thermal case* and *Elastic Modulus*, consulted 2026-11-02 within the boundary adopted that day, §20.4 **Sources**) | The number of thermal loads is the count of operating temperatures (and their pressures) in use; with `CAEPIPE-LOAD-CASES`, multiple operating and expansion cases exist only when it is above 1 (§9.1). From 15.10 a gravitational acceleration and direction scale the analysis, with all input given for earth gravity (§6). The elastic-modulus option and the two thermal-case options (§20.2, O-7; §20.4) |
 | `CAEPIPE-LOCAL-AXES` | `tech_manual/local_coordinate_system.htm` (technical reference, *Local Coordinate System*) | The pipe element local-axis convention: with global Y vertical, a non-vertical straight's local y lies in the plane of its local x and global Y, toward +Y; a vertical straight's local y is global −X (§10.5) |
 | `CAEPIPE-TECH-REF` | `tech_manual/index.htm` | The technical reference's index; the pages used are registered separately above |
 | `CAEPIPE-GUIDE` | `tech_manual/guide.htm` (technical reference, *Guide*) | A guide restrains the translations in the local y and z of the element it is attached to, its local x taken from the preceding element, else the following one; rotations are free; the default stiffness is rigid; a gap is symmetric about the guide axis; a friction coefficient makes the analysis nonlinear (§12) |
@@ -145,6 +145,14 @@ from that page, relied on `CAEPIPE-ANALYSIS` content outside its boundary as reg
 acceleration and direction"). They are now within its consultation scope adopted 2026-11-02 (G-2), pending the bounded consultation that records the subsection and evidence (DEL-17-01
 `Source_Basis_Register.md`, **Boundary change**). Historical use does not establish admission (Agent 0, 2026-11-02;
 paraphrase).
+
+*Current statement (bounded consultation, 2026-11-02; §20.4, **Sources**).* The consultation
+recorded the modulus option under *Elastic Modulus* and the thermal case under *Thermal =
+Operating – Sustained* and *Solve Thermal case*. *Superseded context:* the historical wording
+above, and O-7's, takes the expansion case to be operating minus sustained unconditionally. The
+page states that only as one option, the difference option; its alternative solves the thermal
+case independently. Which applies to an MBF, how an MBF records it and its default are not
+stated (G-5, §20.4.9).
 
 ## 3. Where it lives and its interface
 
@@ -2509,6 +2517,27 @@ as CQ-17-01-016. Both are drafts for the owner to send.
     `Source_Basis_Register.md`, **Boundary change**). Historical use does not establish admission (Agent 0, 2026-11-02;
     paraphrase). The flag's position, OPTEMP field 5, is admitted from `CAEPIPE-IMPORT-MBF`
     (§20.4.9, G-1 (a)).
+    *Superseded context (2026-11-02):* two parts of the sentence above are kept as history,
+    not as current fact. "The expansion case is operating minus sustained" is stated there
+    unconditionally, but the page gives it as one option. "The MBF carries the option as
+    OPTEMP's modulus flag" links the field to the option by inference; no admitted source
+    states that link.
+    *Current statement (bounded consultation of `CAEPIPE-ANALYSIS`, 2026-11-02; §20.4,
+    **Sources**).*
+    - *Elastic Modulus.* Two options: the temperature-dependent ("hot") modulus and the modulus
+      at the reference temperature ("cold"). The option sets the modulus used to form each load
+      case's stiffness. Under hot, an operating case's modulus is taken at that case's
+      temperature, T1 for operating 1 and likewise for each further operating case. Under cold, every load
+      case takes it at the reference temperature, which *Reference Temperature* says is used to
+      look the modulus up in the material table. The sustained case's modulus under hot is not
+      stated (G-2).
+    - *Thermal case.* Under *Thermal = Operating – Sustained*, the page's recommended option,
+      the thermal case is operating minus sustained and is not solved on its own. Under *Solve
+      Thermal case*, the thermal case is solved independently. Which applies to an MBF, how an
+      MBF records it and its default are not stated (G-5). This Design's "expansion case" is
+      read as the page's "thermal load case"; that equation is a reading.
+    - *The field.* Whether OPTEMP field 5 selects these options, and with which value, is not
+      stated (G-1 (b)).
   - *What SWBPIPE holds.* A material's `temperature_points` (temperature, E, G or ν, α), and on
     each load case `modulus_basis_ref` (one point) or `modulus_basis_temperature` (linear
     interpolation, no extrapolation). The basis selects E, G and α together, and the thermal
@@ -2742,7 +2771,9 @@ tranche, in priority order, each with its writer counterpart where one is missin
      temperature-dependent MATERIAL (§7.1).
    - **What it waits on.** The implementation waits on G-1 (b), (c) and (e) (the value that
      selects the hot modulus, an omitted flag, a null piping code) and G-4 (proof that the target
-     uses the exact supplied T1 row), §20.4.9. CQ-17-01-016 stays open. A
+     uses the exact supplied T1 row), §20.4.9. CQ-17-01-016 stays open. It also waits on G-5
+     (which thermal-case method the target applies to an MBF, where that is recorded, and its
+     default): every Route 1 thermal equivalence below assumes the difference option. A
      sustained case beside a varying modulus waits on G-2.
    - **Still refused.** Route 2 (a case-level modulus basis with thermal primitives); varying α
      and cold-modulus files, which go to the criterion 3 list with the owner's acceptance
@@ -2774,7 +2805,10 @@ refusing each item by name until its member exists, and then maps onto it.
   operating case (sustained plus thermal) in which the nonlinear supports are solved, with the
   expansion case as its difference from the sustained one, as `CAEPIPE-ANALYSIS` documents
   (outside that row's boundary as registered before 2026-11-02; now within its consultation
-  scope adopted 2026-11-02, pending the bounded consultation; §2).
+  scope adopted 2026-11-02, pending the bounded consultation; §2). *Superseded context
+  (2026-11-02):* the page documents the difference as one option, *Thermal = Operating –
+  Sustained*, beside *Solve Thermal case*, which solves the thermal case independently (§2;
+  §20.4, **Sources**; G-5). The ruling below chooses SWBPIPE's own member and is unchanged.
 - **Friction** (`MU` > 0). Same gap as above; SWBPIPE's `friction` behaviour exists per DOF.
 - *Ruling on these two: the operating case with nonlinear supports, expansion as the difference, is
   adopted in principle as the first priority, design first.* It goes to the solver lane, which first
@@ -2878,7 +2912,10 @@ points.
   table's range.
 - `CAEPIPE-ANALYSIS`, as O-7 records it: the hot-modulus option selects E at T1 for operating
   case 1, the cold-modulus option selects E at the reference temperature, and the expansion
-  case is operating minus sustained. Before 2026-11-02 the row's registered boundary was
+  case is operating minus sustained. *Superseded context (2026-11-02):* this sentence, and the
+  paragraph after it, are kept as history. The expansion-case clause is unconditional there;
+  the current statement, from the bounded consultation recorded next, is that it holds only
+  under the difference option. Before 2026-11-02 the row's registered boundary was
   narrower ("analysis-option semantics only: number of thermal loads, gravitational
   acceleration and direction"), so their historical use in O-7 does not establish that they
   were within it. Agent 0 adopted the widened boundary on 2026-11-02 after independent IP
@@ -2886,6 +2923,55 @@ points.
   permissible consultation scope only; it establishes no source fact, default or token mapping.
   §20.4 stays blocked on this evidence until a bounded consultation, confined to the adopted
   boundary, records the actual subsection locations and evidence (G-1, G-2, G-4).
+
+  **Bounded consultation of `CAEPIPE-ANALYSIS` (2026-11-02), within the boundary Agent 0 adopted
+  that day.** It is recorded here as a source observation. It sets no default, token mapping,
+  implementation or qualification, and the adopted boundary remains consultation scope only.
+  - *Access.* `https://docs.sstcae.com/users_manual/analysis.htm` (live), 2026-11-02 19:04Z,
+    HTTP 200, 102,637 bytes, SHA-256 prefix `7ed23ac8e2386d3c`. The page was read as raw HTML
+    with `curl -s` and parsed with Python's standard-library HTML parser; a second fetch gave
+    identical bytes. The page has no HTML heading tags, so the label structure below is the
+    consultant's reading.
+  - *Locations.* All under the page's *Temperature* label: *Reference Temperature*, *Thermal =
+    Operating – Sustained*, *Solve Thermal case*, and *Elastic Modulus* (its two option labels
+    and a Note).
+  - *Elastic Modulus: stated.* There are two options, "Use temperature dependent modulus" (the
+    page's hot modulus) and "Use modulus at reference temperature" (cold). The option sets the
+    modulus used to form the stiffness of each load case, and results are computed with it.
+    Under hot, the modulus is taken at the case's temperature: T1 for operating 1, and likewise
+    for each further operating case. Under cold, it is taken at the reference temperature for each load case;
+    *Reference Temperature* adds that the reference temperature is used to look the modulus up
+    in the material table. These are recorded as source observations: hot gives operating case
+    i the modulus E(Ti), and cold gives every case E(T_ref).
+  - *Elastic Modulus: not stated.* The sustained case's modulus under hot (G-2 stays open). Any
+    link to the MBF, to OPTEMP, to field 5 or to "Use Cold Modulus", none of which occurs on the
+    page (G-1 (b)).
+  - *Thermal case: stated.* *Thermal = Operating – Sustained* is described as the new,
+    recommended option: the thermal case is operating minus sustained and is not solved
+    independently. *Solve Thermal case* is the explicit alternative, under which the thermal case
+    is solved independently.
+  - *Thermal case: not stated.* Which option applies by default, whether the two are exclusive,
+    and how an MBF records the choice (G-5). The page says "thermal load case"; equating it with
+    this Design's expansion case is a reading. An "add up" remark for linear models is inference
+    only and is not used for G-2.
+  - *Code-specific locks: held.* The *Elastic Modulus* Note states code-specific option locks.
+    They are held out of this Design pending a focused IP review (Agent 0, 2026-11-02;
+    paraphrase): product behaviour does not by itself exempt material selected by code from
+    `docs/IP_AND_DATA_BOUNDARY.md` §3. No code is named here against an option, and none of the
+    Note's content is recorded (G-1 (d); §20.4.10).
+  - *G-4 not stated.* A search of the page for "interpolat" found no occurrence. That is
+    search-scope evidence only, not proof that no relevant semantics exist anywhere.
+  - *Disclosure.* During extraction, out-of-scope labels and some sentences paraphrasing
+    standards clauses were displayed to the consultant. None was used or reproduced here, and the
+    conclusions exclude unadmitted content.
+  - *Recording limits (Agent 0's ruling, 2026-11-02; paraphrase).* General product-option
+    semantics and the thermal-method alternatives are recorded, within the adopted boundary,
+    with at most a short phrase quoted per fact and the rest paraphrased. No clause, number,
+    standards rationale or example is copied. §20.4 cannot be implemented on the evidence still
+    missing (G-1 (b), (c), (e), G-2, G-4, G-5). The consultation grants no exception for target
+    facts in the product UI, and no target execution, vendor contact, sign-in or native
+    authority. No new operating-mapping implementation follows from it before that mapping's
+    own design proof.
 - `CAEPIPE-LOAD-CASES`: case membership.
 
 Statements about the MBF follow §0's labels. Where a needed fact has no admitted source, it is
@@ -3113,7 +3199,7 @@ for the rule. Option (b), print precision, is rejected (§20.4.10).
 
 | Selection | Admitted when | Equivalence |
 |---|---|---|
-| `temperature_interpolation` at T_sel (:486) | T_sel = the member's T1 under exact identity, and the selected E equals the row's d × 10⁶ Pa exactly (above) | SWBPIPE takes E and ν at T_sel: the point itself when T_sel is a point temperature (`material.rs:300-305`), else the binary64 fused interpolation above (`:307-326`); G = E/(2(1+ν)) is derived (`resolve.rs:987-990`). The MBF has a row at T1 that states exactly that E. With the hot-modulus option, the target uses E at T1 (`CAEPIPE-ANALYSIS`, within its consultation scope adopted 2026-11-02, pending the bounded consultation; §20.4, **Sources**), and a row states E at its own temperature (`CAEPIPE-IMPORT-MBF`, MATERIAL). That the target then uses the supplied row's E exactly, with no other interpolation or modulus convention, is not yet proved (G-4). CQ-17-01-016 stays open until it is |
+| `temperature_interpolation` at T_sel (:486) | T_sel = the member's T1 under exact identity, and the selected E equals the row's d × 10⁶ Pa exactly (above) | SWBPIPE takes E and ν at T_sel: the point itself when T_sel is a point temperature (`material.rs:300-305`), else the binary64 fused interpolation above (`:307-326`); G = E/(2(1+ν)) is derived (`resolve.rs:987-990`). The MBF has a row at T1 that states exactly that E. With the hot-modulus option, the target uses E at T1 for operating 1 (`CAEPIPE-ANALYSIS`, *Elastic Modulus*, bounded consultation 2026-11-02; §20.4, **Sources**). Under the difference option the thermal case is formed from that operating case; under the independent alternative its modulus is not stated (G-2, G-5). A row states E at its own temperature (`CAEPIPE-IMPORT-MBF`, MATERIAL). That the target then uses the supplied row's E exactly, with no other interpolation or modulus convention, is not yet proved (G-4). CQ-17-01-016 stays open until it is |
 | `exact_point` (:464) | the point is dated at the member's T1, and its E equals the row's d × 10⁶ Pa exactly | the same pair as interpolation at that temperature (`material.rs:228-273`), under the same G-4 condition |
 | `explicit_base_properties` (:444) | decision 3's bounded exception only, when every condition below holds | the selector's basis is the material's single base E and ν (`material.rs:199-227`), written as today's identical rows, which state that E at every row temperature (§7.1) |
 
@@ -3162,6 +3248,16 @@ expansion case recorded historically as operating minus sustained (within `CAEPI
 consultation scope adopted 2026-11-02; pending the bounded consultation and corroboration) is conditionally the T1 response at
 E(T1).
 
+*Current statement (bounded consultation, 2026-11-02; §20.4, **Sources**).* The paragraph above
+holds only when the difference option, *Thermal = Operating – Sustained*, is in effect. Then the
+thermal case is operating minus sustained, the operating case under hot uses E(T1) (recorded),
+and a null sustained case contributes nothing whatever its modulus, so the thermal case is the
+T1 response at E(T1). Under the alternative, *Solve Thermal case*, the thermal case is solved
+independently, and the page does not state its modulus; nothing above then follows (G-2, G-5).
+Which option applies to an MBF, where it is recorded and its default are G-5, and Route 1 waits
+on it. *Superseded context:* "recorded historically as operating minus sustained" above is kept
+as history; the page gives that as one option, not an unconditional rule.
+
 **(f) OPTEMP, LOADS and layout.**
 
 - **OPTEMP.** Field 1 is T_ref (a). The cold-modulus flag, OPTEMP field 5 (§6; G-1 (a),
@@ -3171,7 +3267,9 @@ E(T1).
   2026-11-02; not implemented): a piping-code/OPTEMP
   combination is admitted only when admitted evidence establishes its mapped modulus selection,
   and none is established today (`MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED`, §20.4.3;
-  G-1 (d)).
+  G-1 (d)). The thermal-case method is G-5. The import page lists a solve-thermal flag as OPTEMP
+  field 4 (G-1 (a)), but no admitted source links it to the *Solve Thermal case* option, and this
+  Design infers no field-4 mapping. Today the writer writes no field 4.
 - **LOADS.** T1 per element as in (c), P1 as today (§9.4).
 - **Layout.** Layout rows carry `L=` as today. A bend pipe and its incoming straight still share
   one row, so they must share T1 (`MBF-SI-BEND-UNSUPPORTED`, as today).
@@ -4320,6 +4418,11 @@ Route 1 does not by itself export the reference system. Its records are:
   - *(b) Which value selects the hot modulus: partly answered.* The page codes the flag
     "0 = Off, 1 = ON". It does not say that 0 selects each element's modulus at its operating
     temperature T1 (the hot modulus). That reading is an inference and is not admitted.
+    *Narrowed (bounded consultation of `CAEPIPE-ANALYSIS`, 2026-11-02; §20.4, **Sources**).* The
+    options and their meaning are now located: *Elastic Modulus* gives the hot and cold options,
+    with operating case i at E(Ti) under hot and every case at E(T_ref) under cold. That page
+    does not mention the MBF, OPTEMP, field 5 or "Use Cold Modulus". Which field 5 value selects
+    which option is therefore still not stated, and (b) stays open on that point.
   - *(c) An omitted field: open.* The page gives no default for an omitted OPTEMP field. Today
     the writer writes field 1 only.
   - *(d) Codes for which the flag is ignored: a new constraint.* The same field description says
@@ -4327,6 +4430,12 @@ Route 1 does not by itself export the reference system. Its records are:
     as B31.8), B31.12 and EN 13480. It does not say which modulus those codes use. An ignored
     flag could mean another selection policy, and none is inferred. Neither §6 nor this
     subsection recorded this before 2026-11-02.
+    *Narrowed (2026-11-02):* the *Elastic Modulus* Note on `CAEPIPE-ANALYSIS` states
+    code-specific option locks. They are held out of this Design pending a focused IP review
+    (Agent 0, 2026-11-02; paraphrase; §20.4, **Sources**), so no code is named here against an
+    option and none of the Note's content is recorded. That statement and the import-page
+    statement above are kept separate; neither is used to infer the other. Which modulus applies
+    for any code stays open, and the fail-closed rule below is unchanged.
   - *(e) A null piping code: open, and separate from (c).* With a null code argument the writer
     writes no code token, and every desktop export records null (`export_settings.rs:7-13`,
     `:96-103`; §20.4.5). No admitted source says which modulus applies to a file that names no
@@ -4338,7 +4447,10 @@ Route 1 does not by itself export the reference system. Its records are:
     hot/cold option itself is recorded from `CAEPIPE-ANALYSIS`. Agent 0 adopted a boundary
     covering it on 2026-11-02 (DEL-17-01 `Source_Basis_Register.md`, **Boundary change**); that
     sets consultation scope only, and §20.4 relies on it only after the bounded consultation
-    records the subsection and evidence (§20.4, **Sources**).
+    records the subsection and evidence (§20.4, **Sources**). That consultation recorded it on
+    2026-11-02 under *Elastic Modulus*. Route 1 also waits on G-5. The unknowns stay separate:
+    the field 5 value for each option (b), an omitted field (c), the codes (d), the null code
+    (e) and the default thermal-case method (G-5). None is inferred from another.
   - *Modulus selection per piping-code/OPTEMP combination: fail-closed admission, candidate
     Route 1 only.* Adopted by Agent 0 on 2026-11-02 as the candidate Route 1 design policy, as
     corrected after independent review (paraphrase). It is designed, not implemented. Existing
@@ -4371,6 +4483,15 @@ Route 1 does not by itself export the reference system. Its records are:
   covering the statements G-2 relies on (2026-11-02; DEL-17-01 `Source_Basis_Register.md`,
   **Boundary change**). Adoption sets consultation scope only; G-2 stays open until the bounded
   consultation records the subsection and evidence.
+  - *Narrowed (bounded consultation, 2026-11-02; §20.4, **Sources**); G-2 stays open.* Recorded
+    under *Elastic Modulus*: under hot, operating case i takes E(Ti); under cold, every load case
+    takes E(T_ref). The sustained case's modulus under hot is not stated. Nor is the modulus of a
+    thermal case solved independently under *Solve Thermal case*. "Operating minus sustained"
+    holds only under the difference option, *Thermal = Operating – Sustained* (G-5); the
+    paragraph above is superseded context where it states it unconditionally. An "add up"
+    remark for linear models is inference only and is not used here. Until G-2 is
+    answered, a sustained case is still admitted only beside single-E materials, and only with
+    the difference option in effect (§20.4.2 e).
 - **G-3. The strain formula.** The admitted pages give no strain formula or base of the mean
   (O-7). Route 1 uses only the constant-α reading that §7.1 and §9.2 already apply to today's
   export. It adds no claim, and it closes when CQ-17-01-016 does.
@@ -4390,16 +4511,45 @@ Route 1 does not by itself export the reference system. Its records are:
   - *G-4 stays open (Agent 0, 2026-11-02).* The mathematical argument above, that a row at T1
     makes interpolation irrelevant, is not sufficient without selected target semantic
     evidence.
+  - *Not stated by `CAEPIPE-ANALYSIS` (bounded consultation, 2026-11-02; §20.4, **Sources**).*
+    The hot modulus is now recorded under *Elastic Modulus* as the modulus at the case's
+    temperature, and *Reference Temperature* says the reference temperature is used to look the
+    modulus up in the material table. Neither says how the table is read at a temperature, or
+    whether a row at exactly that temperature is used unchanged. A search of the page for
+    "interpolat" found no occurrence. That is search-scope evidence only, not proof that no
+    relevant semantics exist anywhere, and G-4 stays open. The sentence above saying the hot
+    modulus is recorded "outside that row's current boundary" is superseded context: it
+    predates the boundary adopted and the consultation recorded on 2026-11-02.
   - *Source boundary.* Any consultation for G-1 and G-4 stays strictly within each registered
     row's current boundary in DEL-17-01 `Source_Basis_Register.md`. Being on a registered page
     does not admit its other subsections. Today `CAEPIPE-MATERIAL` is registered for
     material-property semantics only, `CAEPIPE-ANALYSIS` for the number of thermal loads and
     gravitational acceleration and direction only, and `CAEPIPE-IMPORT-MBF` for its listed
-    sections and record descriptions.
+    sections and record descriptions. *Superseded context (2026-11-02):* the `CAEPIPE-ANALYSIS`
+    boundary named here is the one before 2026-11-02. Its current boundary, adopted that day,
+    adds the elastic-modulus option, the modulus each load case is solved with under it, and how
+    the expansion load case is formed (DEL-17-01 `Source_Basis_Register.md`).
   - *Where the boundary is silent.* Target row-selection or point-value behaviour that a row's
     current boundary does not explicitly support becomes a dossier question (beside G-1, with
     CQ-17-01-016) or a source-boundary proposal before broader use. The CAEPIPE lane does that
     work; this Design fills nothing.
+- **G-5. The thermal-case method for an MBF (added by Agent 0's ruling, 2026-11-02; paraphrase).**
+  An unresolved condition of candidate Route 1. `CAEPIPE-ANALYSIS` gives two options for the
+  thermal case (§20.4, **Sources**): *Thermal = Operating – Sustained*, described as the new,
+  recommended option, under which the thermal case is operating minus sustained and is not solved
+  on its own; and *Solve Thermal case*, under which it is solved independently.
+  - *Not stated:* which option applies to a case imported from an MBF; whether and where an MBF
+    records the choice (its linkage); the default when nothing records it; and whether the two
+    options are exclusive.
+  - *No field-4 mapping.* The import page lists a solve-thermal flag as OPTEMP field 4 (G-1 (a)).
+    No admitted source links that field, or any value of it, to either option, and none is
+    inferred.
+  - *Effect on Route 1.* Every Route 1 thermal equivalence, and the sustained-case paragraph of
+    §20.4.2 (e), assumes the difference option. Under the independent alternative the thermal
+    case's modulus is not stated (G-2). Route 1's implementation therefore waits on G-5 as well
+    as G-1 (b), (c), (e) and G-4.
+  - *Kept separate.* G-5 is not inferred from G-1 (b), (c), (d) or (e), nor they from it. The
+    draft question is in CQ-17-01-016, not sent.
 
 #### 20.4.10 For Agent 0
 
@@ -4429,7 +4579,20 @@ Route 1 does not by itself export the reference system. Its records are:
 - **G-1, G-2 and G-4** go to the CAEPIPE lane and the dossier, within each registered row's
   current boundary (§20.4.9). G-4 stays open, and so does CQ-17-01-016. G-1 (a) is admitted
   (2026-11-02); (b), (c) and (e) stay open, and their draft questions are in CQ-17-01-016,
-  not sent.
+  not sent. After the bounded consultation of 2026-11-02, (b) is narrowed (the options and
+  their meaning are located; field 5's link to them is not stated), and so are (d) and G-2
+  (§20.4.9). G-4 is not stated on the consulted page.
+- **Code-specific modulus locks: held pending a focused IP review (Agent 0, 2026-11-02;
+  paraphrase).** The *Elastic Modulus* Note on `CAEPIPE-ANALYSIS` states code-specific option
+  locks. The rows tying codes to locked options are held out of new public design text until a
+  focused IP review decides whether they may be recorded; product behaviour does not by itself
+  exempt material selected by code from `docs/IP_AND_DATA_BOUNDARY.md` §3. This Design names no
+  code against an option and records none of the Note's content. The fail-closed admission rule
+  is unaffected.
+- **G-5, the thermal-case method (added by Agent 0's ruling, 2026-11-02; paraphrase).** Which
+  of the two thermal-case options applies to an MBF, where it is recorded and its default are
+  an unresolved condition of candidate Route 1 (§20.4.9). No OPTEMP field-4 mapping is inferred.
+  Route 1's implementation waits on it; the draft question is in CQ-17-01-016, not sent.
 - **Modulus-selection admission (adopted by Agent 0, 2026-11-02; paraphrase in §20.4.9).** The
   candidate-Route-1 rule, designed and not implemented, admits a piping-code/OPTEMP combination only when admitted evidence
   establishes its mapped modulus selection, refusing otherwise with
@@ -4443,7 +4606,8 @@ Route 1 does not by itself export the reference system. Its records are:
 - **The `CAEPIPE-ANALYSIS` boundary (adopted by Agent 0, 2026-11-02).** The exact old and new
   cell text is in DEL-17-01 `Source_Basis_Register.md`, **Boundary change**. It is named by
   function because a headings-only read could not place it. Adoption sets consultation scope
-  only; a bounded consultation records the subsection locations and evidence next.
+  only; a bounded consultation records the subsection locations and evidence next. That
+  consultation is recorded in §20.4, **Sources** (2026-11-02).
 - **`CAEPIPE-ANALYSIS`'s boundary (Agent 0, 2026-11-02; paraphrase).** O-7 (ruled 2026-10-27)
   and §20.4 record the hot/cold modulus option and the expansion case (operating minus
   sustained) from `CAEPIPE-ANALYSIS`, whose current boundary is the number of thermal loads and
@@ -4451,7 +4615,9 @@ Route 1 does not by itself export the reference system. Its records are:
   G-2 register-change PR. §20.4 stays blocked on that evidence until the exact expansion passes
   independent IP review and the applicable adoption authority; historical use does not
   establish that the statements were within the registered boundary. This Design does not
-  widen the boundary.
+  widen the boundary. *Superseded context (2026-11-02):* "the expansion case (operating minus
+  sustained)" is kept as history; the page gives it as one option beside an independently
+  solved thermal case (§20.4, **Sources**; G-5).
 - **A verified source for every bound import with points (Agent 0, 2026-11-02; paraphrase).**
   Option (a) is chosen and applied (§20.4.4, **Source proof**; §20.4.5): the relabel-as-point
   residual is withdrawn, and such imports are refused wherever no source is designated
