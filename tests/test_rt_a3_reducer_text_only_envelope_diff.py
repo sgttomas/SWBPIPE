@@ -34,6 +34,7 @@ NEW = OLD.replace(
 assert NEW != OLD
 FILES = tuple(dict.fromkeys((*RT_A3_LISTED,
     "fixtures/results/retained_precision_cases.json",
+    "fixtures/results/retained_precision_reader_outcomes.json",
     "fixtures/results/pressure_v3_combination_reader_corpus.json",
     "fixtures/results/pressure_arc_tangent_above_one_sparse.json",
     *(f"fixtures/results/retained_precision_o4_w1e_{kind}successor_{mode}.json"

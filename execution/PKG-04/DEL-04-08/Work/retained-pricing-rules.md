@@ -2267,8 +2267,25 @@ The combined-source replay at `0d70dca9e` completes all four points with
 O-10 clear and reproduces all 1,602 coefficients unchanged and the approved
 generated block. The 71 native law tests and default native challenge pass
 on the approved profile. Retained producer/derivative/RV120 writers regenerate
-the current carriers; all 56 preservation cases pass, including independent
+the current carriers; preservation covers the current carriers and the R1
+reader-outcomes record, including independent
 materialization of RV120's result-statement digests and unchanged invocations.
+Focused adoption/carrier scrutiny at `343bbe4b2` has no blockers. Its one
+nonblocking warrant limit for the three in-memory successor-pin groups was
+closed by the maintained `RTA3_RETAINED_PIN_OUT` hook: all eight actual
+successors reproduce their prior pinned byte hashes after restoring only
+the old identity sentence and dependent hashes. Every numerical token and
+other byte stays fixed. All structural/digest assertions remain active.
+The affected 22 native facade tests pass; the broader facade run
+passed 141 tests, with only those three stale-pin failures before repair.
+All 671 retained Python checks pass. The native reader run passed 84 tests;
+its four failures were the stale RV120 materialization digests and R1 output
+record, now regenerated and verified by targeted native checks. The R1 writer
+produces 938 ordered entries: 59 input-subject digests and 89 outcome digests
+change, while every reading summary, verdict, eligibility and row count stays
+unchanged. The 968 desktop retained-carrier/native-Wasm parity/report checks
+pass. Reducer references (13 tests) and shared-terminal regressions (6) pass.
+The exact head and remaining stack/hosted checks are recorded in the PR.
 M, its margin, R, reserve policy and layouts are unchanged; any additional
 coefficient movement requires separate disposition. The final consumer tests,
 separately scheduled stack evidence and exact-head hosted checks remain
