@@ -3,13 +3,15 @@
 Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
-**Execution status:** three separately owner-authorized 500-node attempts
+**Execution status:** four separately owner-authorized 500-node attempts
 have executed and closed. The initial attempt stopped on uninitialized telemetry;
 the repaired A500 timed out at the coarse reader-start mark; the reader-phase
-diagnostic at clean `cf8129cd1` also timed out but located the first header's
-native `validate` phase pending after its prescan, admission and parse exited.
-All three grants are consumed. **No retry, B1000 or further native interval is
-authorized.** Exact selected identities and all raw packets remain preserved.
+diagnostic at clean `cf8129cd1` timed out with the first header's native
+`validate` pending; the route-header run at clean `ee7a7f13b` completed the
+metadata header in 5.1 s and timed out with compulsory registration's native
+`validate` pending. All four grants are consumed. **No retry, B1000 or further
+native interval is authorized.** Exact selected identities and all raw packets
+remain preserved.
 
 ## Separate route-header executable: offline ready, no run authorized
 
@@ -139,6 +141,65 @@ would be **one** exact 500-node interval plus current shared-resource clearance;
 this offline return asks for neither and launches nothing. #59 remains draft;
 shared core/bridge/clone/pricing writes stay held. ScopeOfWork and dependency
 conditions are unchanged; this reconciles readiness and artifact identity only.
+
+## Route-header run result and closure (2026-11-02)
+
+The owner approved exactly one run of the separate route-header executable
+("I approve the reviewed single 500-node route-header run"); Agent0 delivered
+fresh App resource clearance. A pre-launch check at **23:46:59Z** passed: clean
+`ee7a7f13b`, runtime equivalence to `c21ec1048`, binary `5212d86b…0e53`, binding,
+frontend, engines, scripts, plan, model raw/JCS hashes, Python, all retained
+candidates and the 25 closure-hashed packets, fresh output, no prior attempt in
+the slot log, no App process, no pending exclusive, memguard running. The
+launching shell resolved `python3` to a newer interpreter first on PATH; the
+check refused that, and the run was launched with that directory removed from
+PATH so `python3` resolved to the bound `/usr/bin/python3` (Xcode 3.9.6,
+`b971331a…`). No artifact was substituted.
+
+Actual acquisition **23:47:12 UTC**, `END-EXCLUSIVE rc=1` **23:52:16 UTC**: **304 s**
+from one-second wrapper timestamps; supervisor **302,645 ms**. No overrun, held
+exception or second queue. After the wrapper ended, no App, worker, sampler or
+runner process remained, all four lock slots had no holder and
+`exclusive.pending` was absent; nothing unrelated was signalled.
+
+The worker published 918,638,964 B at **72,555 ms** from solve request, lifetime
+footprint 3,485,847,128 B, peak grant 6,375,342,080 B. Host readings stayed
+known-normal, available 70–71%, pressure 1, no unknown host samples. The
+300,000 ms first-paint gate failed (observed wait 300,711 ms). Cancellation was
+requested with success_claimed=false.
+
+The fsynced journal has **15 boundary records plus its terminal summary**, no
+overflow. Completed instrumented monotonic intervals:
+
+| Call | Boundary | Elapsed |
+| --- | --- | ---: |
+| 1 (`route_header`) | source_prescan | 1,533.9 ms |
+| 1 | source_parse | 2,204.3 ms |
+| 1 | validate (metadata only) | 357.6 ms |
+| 1 | serialize | 0.02 ms |
+| 1 | source_drop | 1,044.8 ms |
+| 2 (registration) | args_admit (2,064,276-byte body) | 8.0 ms |
+| 2 | source_prescan | 1,544.3 ms |
+| 2 | source_parse | 1,933.4 ms |
+| 2 | inputs_parse | 9.3 ms |
+
+Web `header` returned ok at 78,281 ms (5.16 s after entry). Web `registration`
+entered at 78,281 ms; native call 2 entered its full `validate` at native
+monotonic **8,800.5 ms** and never emitted an exit before the App ended. No
+standing, summary, first paint, navigation, CSV, persistence or P3 probe ran.
+The metadata header removed the first-call stall; compulsory registration's full
+route-specific validation is now the observed delay. This journal does not
+locate an inner validator, CPU use or allocations, or establish that it never
+terminates. A successful header grants no standing.
+
+Partial physical observations, separately labelled: App peak footprint
+6,825,106,944 B; aligned sampled App+WebContent maximum 7,254,352,488 B with
+worker absence inferred zero after `job_done`, **28 unknown aligned sums**;
+sequential PID reads, not atomic maxima. The store passed `quick_check`, with no
+saved project or run. Records: `evidence/a500-route-header1-{launch-check,
+admission,console,wrapper,summary,closure}.json|log` and the five-file packet
+`evidence/n0500-route-header1/`. No usable-size, memory-fit, C1 completion,
+base-machine, 1,000/2,000-node or acceptance claim.
 
 ## Reader-phase diagnostic result and closure (2026-11-02)
 
