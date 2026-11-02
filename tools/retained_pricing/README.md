@@ -435,3 +435,15 @@ profile raises each native merged phase by 1,751 B; all 80 native evaluations
 fit the unchanged M/margin and upward-rounded TEXT-reserve policy. The protected
 profile is owner-approved (2026-11-02, item 1) after clear focused scrutiny. See the
 governing rules' §8.38 for the exact source, proposal and remaining checks.
+
+### Modal leaf seam (DEL-04-09 I1, §8.39)
+
+The retained binary64 frame leaves are bound by B7a `LEAF_SEAM` as exact lifts,
+with the straight/curved wrapper delegations and single retained implementations
+checked alongside the full source pins. W1 reduction owners/lifetimes stay
+unchanged; live structural owner keys move by the module declaration's two lines.
+The four-point source run at `8e91c3941`, on integrated reducer2a `393a11ee7`,
+keeps all 1,602 coefficients and the registered generated block unchanged.
+Extra debug wrapper/accessor stack depth is assessed separately through AC-004;
+heap coefficient identity alone does not settle that check. See the governed
+§8.39 proof and `tests/test_dynamics_d3.py` for mutation refusals.

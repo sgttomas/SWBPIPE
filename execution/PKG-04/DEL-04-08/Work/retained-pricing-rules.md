@@ -2319,6 +2319,71 @@ immediate actual-closure confirmation. This is stack evidence, not a desktop
 or base-machine performance metric, acceptance or release. Required hosted
 checks including `harness` on the exact PR head remain the integration gate.
 
+### §8.39 Modal kernel read-only seams: actual-source D3 (DEL-04-09 I1)
+
+**Selected predecessor and changed proof.** This change takes integrated reducer
+2a `393a11ee7` (§8.38), including the MBF and G11 changes, as its predecessor.
+The merge is `0468d2ca2`; the proof-tool candidate is `8e91c3941`. The modal
+numerical source remains independently reviewed `0ba65b9d4`. Nothing in this
+D3 adopts S2 or later reducer 2b source, changes a commitment or grants acceptance.
+
+`sparse_direct` adds two borrowing observation iterators without changing its
+factor storage, solve or factorization. Their only new consumers are the modal
+Sturm premises; neither accessor is reached by the retained root. The frame
+kernel's `frame_matrix` and `curved_matrix` delegate to generic `*_with`
+formations with the same binary64 operands and arithmetic order. Retained leaf
+implementations lift `FrameSection` and `CurvedFormation` fields exactly;
+`LEAF_SEAM` binds the delegation, leaf bodies and single retained instantiation.
+B7a's source pins and the W1 reduction pins bind the full changed files. The
+`FormationSource` Cow, load closure, evaluation, scaled-force children, Value
+moves, constructors, guards and reduction lifetimes are unchanged. The six live
+`structural.rs` owner-choice keys move by its two module-declaration lines;
+historical preimage identities remain unchanged. Mutation tests reject changed
+leaves, implementations, callers and delegations, including a restated file pin.
+
+The four modal-only `reform_*` entries, their element split and wide-operand
+lifting do not enter the retained graph. No product crate consumes `modal_eigen`,
+and it is outside the priced crate list. The name-based graph adds conservative
+accessor edges, including modal-only leaf methods with matching names; it loses
+no reachable function. Those incidental leaves allocate/format nothing. The
+formation bodies' existing loops and operations move with their helpers; this
+is not authority to drop a bound as a deleted function. No retained struct,
+enum, static, capacity, ownership or input carrier changes. All thirteen reviewed
+inputs, reader layouts, atoms, M, R and the reserve policy stay unchanged.
+
+**Run and registration standing.** The committed tool prices `8e91c3941` on all
+four points with exit 0, no unmapped header or unclassified argument, and both
+O-10 checks clear. Its line map carries 880 keys, prunes 37 and applies seven
+resolutions, identical entry for entry to the adopted §8.38 summary. The
+coefficient comparison against the actual predecessor gives **1,602 equal,
+none higher and none lower**, with equal tree structure. `generate --check`
+with the existing §8.38 basis reproduces the committed generated block. No
+coefficient adoption, generated block, registration, law expectation or schema
+hash is changed. The §8.38 registered profile therefore stands; this is a new
+actual-source proof, not a transplant of old source pins. The 859 maintained
+pricing tests pass, including 14 seam regressions and mutation refusals.
+
+Supporting comparison artifacts are the named adopted reducer-2a tree and
+summary, and the fresh runs `scratch/rt-dynamics-d3-8e91c3941/` and
+`scratch/rt-dynamics-d3-base393/` outside the checkout. They are run evidence,
+not permanent build/test inputs. Evaluation with predecessor native atoms
+reproduces merged W3 E+R 8,966,251,315 B sparse and 9,025,382,659 B dense;
+current-source native law/layout verification remains a separate check.
+
+**Stack consequence.** No inlining is presumed for the registered debug build.
+Static prologue inspection at the predecessor and candidate, with default and
+single-codegen-unit builds agreeing, finds the straight formation unchanged at
+16,416 B plus its new 128 B wrapper and at most 80 B accessor; curved formation
+moves from 7,744 B to 7,760 B plus a 32 B wrapper and 32 B accessor. These give
+added depth of at most 208 B straight and 80 B curved on those paths. The return
+slot is passed through, without an extra 12×12 matrix copy; the straight wrapper
+copies only its three coordinate arrays. These observations establish no whole
+call-chain stack bound. AC-004's six source-bound headroom witnesses still need
+the separately cleared exclusive run, because the retained-reachable stack
+changed even though the heap coefficients did not. No build or witness is
+permitted by this paragraph alone. Independent changed-proof scrutiny, exact-head
+checks and integration remain separate from owner acceptance and release.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
