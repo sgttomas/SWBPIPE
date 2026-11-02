@@ -131,6 +131,64 @@ and finite-element sources for ordinary mechanics vocabulary and structural
 modeling context, while project governance defines which SWBPIPE
 results, diagnostics, and provenance records are exposed to users.
 
+## Operating Conditions And Thermal Strain
+
+A real line runs at several operating modes (design, operating, hydrotest,
+upset), and each line segment has its own temperature in each mode. Model
+document 0.9.0 lets a user state those values once, in named operating-condition
+sets, and lets a load case say which condition it uses. The design is DEL-02-01
+Work `model-document-0.9.0.md` §1; the numerical policy is §1.5.1 and §1.8, and
+DEL-05-01 Work `thermal-temperature-change.md` records how it relates to a
+typed temperature change.
+
+The principle is that a condition set is a source of values, not new mechanics.
+On the pressure-free route a case's use of conditions resolves, before anything
+else in the solve, into exactly the records an ordinary case carries:
+
+- **Temperature.** For each pipe, the temperature change ΔT = T − T₀ between the
+  case's condition temperature T and the pipe's set installation temperature T₀
+  becomes an ordinary thermal primitive in kelvin. The free thermal strain of
+  the element is α·ΔT, with α the material's user-entered expansion
+  coefficient; a restrained element carries the axial force E·A·α·ΔT, a free one
+  grows by α·ΔT·L. Condition temperatures drive thermal strain only: the case's
+  one elastic basis (`modulus_basis_ref` or `modulus_basis_temperature`) is
+  unchanged, and no per-element E(T) is introduced.
+- **Added weight.** Each set's uniform added weight (a line load the user types,
+  with the axis it acts along, since the model has no vertical axis) becomes an
+  ordinary weight primitive on each pipe carrying the set, beside the case's
+  other weights.
+- **Wind exposure.** The pipes whose set is marked wind-exposed become the
+  case's exposed pipes; the wind pressure, shape factor and direction remain the
+  case's own entered inputs, and the line load is the existing
+  pressure × shape factor × exposed diameter.
+
+**The temperature difference is exact, then rounded once.** Each authored
+temperature is read as the decimal the user typed (its shortest round-trip
+decimal; ties between 16- and 17-digit candidates go to the even digit), converted
+to kelvin by its unit's exact definition (degC adds 273.15, degF is
+(x + 459.67)·5/9, degR is x·5/9) and subtracted exactly in integer arithmetic;
+the difference is rounded once to the nearest binary64. So 20.3 degC − 20.1 degC
+gives the binary64 nearest 0.2, where a floating conversion of each temperature
+before subtracting gives 0.19999999999998863. A temperature change typed
+directly in degF or degR keeps its existing interval conversion (the value times
+the binary64 5/9), so the two routes can differ in the last bit for the same
+change: a typed 7 degF gives 3.8888888888888893 K, while 77 degF − 70 degF from
+conditions gives 3.888888888888889 K. Typed K and degC changes of up to 15
+significant digits agree exactly with the condition route. Absolute
+temperatures are admitted within |value| ≤ 10⁶ in their own unit with a decimal
+exponent of at least −24; anything outside, or below zero kelvin, is refused by
+name.
+
+Nothing is defaulted. A pipe without a set, a missing key, value or installation
+temperature, a case that states temperature or wind exposure both through
+conditions and through its own records, and a wind-exposure use without wind
+inputs each refuse the case by name. These are mechanics inputs; they do not
+encode any piping code's operating, design or occasional load definitions,
+which remain the user's rule packs and professional judgment. The closed-form
+checks of `validation/references/rt_g5_s2_conditions/` (restrained and free
+thermal expansion, cantilevers under added weight and wind from conditions)
+verify the connected resolution against hand formulas.
+
 ## What The Global Model Does Not Decide
 
 The global model is not a private rule library, a standards database, a

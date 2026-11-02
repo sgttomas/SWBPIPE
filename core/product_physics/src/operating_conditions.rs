@@ -4,10 +4,11 @@
 //! document-level admission rules of §1.3, and the lowering entry of §1.5.
 //!
 //! A set is a source of values; a case's use of it resolves into the per-case
-//! records the solve already consumes. In S1 the resolution is not built: a
-//! case that uses conditions is refused by name (`LOAD_CASE_CONDITION_USE_UNSUPPORTED`,
-//! or `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` on a document with a pressure
-//! contract). Every set and reference is judged whether or not a case uses it,
+//! records the solve already consumes. On the pressure-free route S2 resolves
+//! temperature, added weight and wind exposure ([`resolution`]); contents
+//! density and a pressure use stay refused by name there, and on a document with
+//! a pressure contract every use is refused (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`,
+//! until S4). Every set and reference is judged whether or not a case uses it,
 //! so a document's admissibility does not depend on which cases use what.
 //!
 //! [`lower`] runs first in the solve. It applies the document-level rules of
@@ -18,10 +19,12 @@
 //! it is today's pipeline applied to the lowered model.
 use crate::case_state::temperature::canonical_decimal::{canonical_decimal, kelvin_numerator, CanonicalError};
 use crate::document_members::{Finding, MemberFindings};
-use crate::{Diagnostic, PreviewModel, Quantity};
+use crate::{Diagnostic, PreviewModel, PreviewPrimitiveLoad, Quantity};
 use open_pipe_stress_units::{convert, unit_by_symbol, Dimension, UnitId};
 use serde::Deserialize;
 use std::collections::HashSet;
+
+pub mod resolution;
 
 /// Two conditions in one set share a key.
 pub const OPERATING_CONDITION_KEY_DUPLICATE: &str = "OPERATING_CONDITION_KEY_DUPLICATE";
@@ -36,7 +39,8 @@ pub const OPERATING_CONDITION_PROVENANCE_MISSING: &str = "OPERATING_CONDITION_PR
 pub const OPERATING_CONDITION_SET_UNRESOLVED: &str = "OPERATING_CONDITION_SET_UNRESOLVED";
 /// An empty `condition_use`, or `false` in a `true`-only member.
 pub const LOAD_CASE_CONDITION_USE_EMPTY: &str = "LOAD_CASE_CONDITION_USE_EMPTY";
-/// Interim (S1 only; S2 removes it): any `condition_use` before the PF resolution lands.
+/// Interim refusal of S1, removed from the solve by S2 (the PF resolution). The
+/// applier still refuses authoring a `condition_use` with it until S3a.
 pub const LOAD_CASE_CONDITION_USE_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_UNSUPPORTED";
 /// Interim until S4: any `condition_use` on a document with `pressure_contract`.
 pub const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED";
@@ -346,30 +350,50 @@ pub(crate) fn findings(
     }
 }
 
-/// §1.5: the lowering. It runs first in the solve, before `validate_profile`:
-/// the document-level rules of every 0.9.0 member, the S1 interim refusals, and
-/// then the removal of every member no later stage reads. A document refused here
-/// keeps its members; nothing after the refusal solves it.
-pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+/// What the lowering decides about a model, without changing it: the
+/// diagnostics it adds, whether a document-level rule refused the document, and
+/// the PF resolution plan, present only when the lowering refuses nothing (so a
+/// refused document never carries part of the generated records). [`lower`]
+/// (the solve and its pre-formation checks) and [`preview_operating_conditions`]
+/// (the read-only preview) both take this one judgement, so they cannot differ.
+pub(crate) struct Judgement {
+    pub(crate) diagnostics: Vec<Diagnostic>,
+    pub(crate) document_refused: bool,
+    pub(crate) plan: Option<resolution::ResolutionPlan>,
+}
+
+/// §1.3 and §1.5 on a model it reads only: the document-level rules of every
+/// 0.9.0 member, the PF resolution of each case's `condition_use` (S2,
+/// [`resolution`]) and the remaining interim refusals.
+pub(crate) fn judge(model: &PreviewModel) -> Judgement {
     let found = crate::document_members::model_findings(model);
-    let refused = !found.is_empty();
-    for finding in found.into_vec() {
-        diagnostics.push(finding.into_diagnostic("blocking"));
+    if !found.is_empty() {
+        return Judgement {
+            diagnostics: found.into_vec().into_iter().map(|finding| finding.into_diagnostic("blocking")).collect(),
+            document_refused: true,
+            plan: None,
+        };
     }
-    if refused {
-        return;
-    }
+    let mut diagnostics = Vec::new();
     let exact = model.pressure_contract.is_some();
+    // The PF resolution (§1.5), read-only; the exact route's is S4's.
+    let planned = if exact {
+        None
+    } else {
+        match resolution::plan(model) {
+            Ok(planned) => Some(planned),
+            Err(refusals) => {
+                diagnostics.extend(refusals);
+                None
+            }
+        }
+    };
     for case in &model.load_cases {
-        if case.condition_use.is_some() {
-            let (code, message) = if exact {
-                (LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
-                 format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id))
-            } else {
-                (LOAD_CASE_CONDITION_USE_UNSUPPORTED,
-                 format!("load case `{}` uses operating conditions; their resolution into the case's records is not built yet, so nothing is solved", case.id))
-            };
-            diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)), code, "blocking", message, vec![case.id.clone()]));
+        if exact && case.condition_use.is_some() {
+            diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:condition-use", crate::stable_suffix(&case.id)),
+                LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, "blocking",
+                format!("load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved", case.id),
+                vec![case.id.clone()]));
         }
         if case.test_condition.is_some() {
             diagnostics.push(crate::diag(
@@ -381,8 +405,25 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
             ));
         }
     }
-    crate::document_members::interim_support_refusals(model, diagnostics);
-    crate::document_members::interim_exact_combination_refusals(model, diagnostics);
+    crate::document_members::interim_support_refusals(model, &mut diagnostics);
+    crate::document_members::interim_exact_combination_refusals(model, &mut diagnostics);
+    let plan = planned.filter(|_| !crate::has_blocking(&diagnostics));
+    Judgement { diagnostics, document_refused: false, plan }
+}
+
+/// §1.5: the lowering. It runs first in the solve, before `validate_profile`:
+/// it takes [`judge`]'s diagnostics, applies its plan when there is one, and then
+/// removes every member no later stage reads. A document refused by a
+/// document-level rule keeps its members; nothing after the refusal solves it.
+pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    let judged = judge(model);
+    diagnostics.extend(judged.diagnostics);
+    if judged.document_refused {
+        return;
+    }
+    if let Some(planned) = judged.plan {
+        planned.apply(model);
+    }
     // The members no later stage reads.
     model.condition_sets.clear();
     model.spectra.clear();
@@ -393,6 +434,86 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
         case.condition_use = None;
     }
     crate::document_members::lower_axis_aligned_directions(model);
+}
+
+/// The `document_kind` of [`preview_operating_conditions`]'s report.
+pub const OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND: &str = "openpipestress.operating_condition_preview";
+
+fn generated_record(load: &PreviewPrimitiveLoad) -> serde_json::Value {
+    let target = match &load.target {
+        crate::LoadTargetInput::Element { pipe } => serde_json::json!({"type": "element", "pipe": pipe}),
+        // The resolution generates element records only.
+        other => serde_json::json!(format!("{other:?}")),
+    };
+    serde_json::json!({
+        "id": load.id, "category": load.category, "target": target, "direction": load.direction,
+        "magnitude": {"value": load.magnitude.value, "unit": load.magnitude.unit},
+        "dimension": load.dimension, "provenance": load.provenance,
+    })
+}
+
+/// The read-only preview of a model document's operating-condition resolution
+/// (DEL-02-01 Design `model-document-0.9.0.md` §4.2): the document is read
+/// through the solve's own request parse, judged by the lowering's own
+/// [`judge`], and reported without changing it. With `resolved: true` the
+/// cases list exactly the records the solve's lowering appends, in its order
+/// (generated thermal, then added-weight records, and the resolved wind-exposed
+/// pipe ids). A valid document with no condition use resolves to a no-op on
+/// either route. The solve's namespace checks run before judgement here, so
+/// retired/unsupported versions, wrong document kinds and invalid pressure
+/// contracts cannot report a successful resolution. A refused preview lists no
+/// generated records and names its diagnostics, or the request parse's text in
+/// `refusal`. Later physical validation and formation do not run; `resolved`
+/// reports condition resolution, never that the model can solve.
+pub fn preview_operating_conditions(model_document: &serde_json::Value) -> serde_json::Value {
+    let request = serde_json::json!({"model": model_document, "materials": []});
+    let refusal = |text: String| serde_json::json!({
+        "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND, "resolved": false, "refusal": text,
+        "cases": [], "diagnostics": [],
+    });
+    if let Some(text) = crate::model_fields::unknown_field_refusal(&request) {
+        return refusal(text);
+    }
+    let parsed = match crate::source_receipt::CapturedInvocation::parse(request, crate::PreviewSolverMode::default()) {
+        Ok((parsed, _)) => parsed,
+        Err(error) => return refusal(error.0),
+    };
+    // Parsing establishes the wire shape, not the current model namespace.
+    // Reuse the solve's version/pressure-contract checks; this does not move
+    // their position in the solve or change any existing mechanics result.
+    let mut namespace = Vec::new();
+    crate::pressure_runtime::validate_profile(&parsed.model, &mut namespace);
+    if parsed.model.document_kind != "openpipestress.product_preview.model" {
+        namespace.push(crate::diag(
+            "diagnostic:physics:document-kind", "PREVIEW_DOCUMENT_KIND_INVALID", "blocking",
+            "physics adapter requires an openpipestress.product_preview.model document",
+            vec!["model".to_string()],
+        ));
+    }
+    if parsed.model.schema_version.is_empty() {
+        namespace.push(crate::diag(
+            "diagnostic:physics:schema-version", "PREVIEW_SCHEMA_VERSION_MISSING", "blocking",
+            "preview model requires an explicit schema version", vec!["model".to_string()],
+        ));
+    }
+    if crate::has_blocking(&namespace) {
+        return serde_json::json!({
+            "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND,
+            "resolved": false, "cases": [], "diagnostics": namespace,
+        });
+    }
+    let judged = judge(&parsed.model);
+    let cases: Vec<serde_json::Value> = judged.plan.iter().flat_map(|plan| plan.cases.iter()).map(|case| serde_json::json!({
+        "case_id": case.case_id,
+        "generated_primitive_loads": case.temperatures.iter().chain(&case.added_weights).map(generated_record).collect::<Vec<_>>(),
+        "wind_exposed_pipe_refs": case.wind_exposed_pipe_refs,
+    })).collect();
+    serde_json::json!({
+        "document_kind": OPERATING_CONDITION_PREVIEW_DOCUMENT_KIND,
+        "resolved": !judged.document_refused && !crate::has_blocking(&judged.diagnostics),
+        "cases": cases,
+        "diagnostics": judged.diagnostics,
+    })
 }
 
 #[cfg(test)]
