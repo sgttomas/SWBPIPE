@@ -2764,8 +2764,8 @@ requested on the rebuilt adopted head; none was run here.
 
 **Maintained tests.** `tools/retained_pricing/tests/test_841_rt_a3_reducer_2b.py`;
 the I1 seam and S2 mutation warrants (`test_dynamics_d3.py`, `test_840_rt_g5_s2.py`)
-are unchanged. Run evidence is under `/private/tmp/rt-a3-2b-d3-8ef/` (run1,
-native atoms, `eval80-candidate.json`, proposals); it is review input, not a
+are unchanged. Run evidence is under `/private/tmp/rt-a3-2b-d3-8ef/` (run-final,
+native atoms, `eval80-candidate-final.json`, proposals); it is review input, not a
 permanent dependency.
 
 ## 9. Memory-profile gates and registration
