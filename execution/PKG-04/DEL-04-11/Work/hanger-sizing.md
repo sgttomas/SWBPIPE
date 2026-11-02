@@ -504,9 +504,17 @@ The verb is `openpipestress-runner size-hangers [--input <file>|-] [--output <fi
   - the runner's reading of `--input` and stdin and its writing of `--output`;
   - the exit statuses: 0 when sized, 1 when refused or blocked, 2 when the invocation
     or input is unusable and no document is formed;
-  - the local-private output control (`control_local_private` and
+  - the local-private output form and flag (`ControlledExport` and
     `--explicit-local-private-intent`). The result names records of a private
-    library, so it is local-private output.
+    library, so it is local-private output, sized or refused.
+- **Whole-document gate.** `control_local_private` classifies scalars by path tokens,
+  and no member of this document matches one, so its walk would leave the document
+  ungated. The verb therefore applies the walk's `$.report_package` rule to the whole
+  document instead. It makes one decision at `$`:
+  - without the flag, `block_export` (`LOCAL_PRIVATE_INTENT_REQUIRED`). No payload
+    is emitted, nothing is written to `--output`, and the exit status is 1;
+  - with the flag, `warning_only` (`PRIVATE_LOCAL_ALLOWED_WITH_WARNING`), and the
+    document is the payload.
 - **Byte cap.** The input is limited to 64 MiB. A larger input exits with status 2
   (`HANGER_SIZING_INPUT_TOO_LARGE`) before it is parsed. This limit is the verb's own,
   stated here; it is not an engineering value.
@@ -747,6 +755,12 @@ includes:
   hash;
 - a **self-consistent forgery**, whose positions and every dependent value were
   recomputed together. It passes `arithmetic` and fails `reproduction`.
+
+Reproduction of a genuine committed document is not asserted, because the document
+may come from another build or platform. For each genuine sized entry, the test
+publishes the document afresh from the committed input and checks that reproduction
+passes on that fresh document. Every other standing is asserted on the committed
+bytes.
 
 #### 8.3.8 Compatibility
 

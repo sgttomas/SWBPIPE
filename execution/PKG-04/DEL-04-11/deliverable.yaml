@@ -119,6 +119,7 @@ code_paths:
 - fixtures/hanger/invented_hanger_catalogue_*.json
 - tests/verifiers/hanger_sizing_evidence.py
 - tests/test_hanger_sizing_*.py
+- core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
 # Checks: the crate's cargo tests run in hosted piping-numerical, which discovers the crate; no local
