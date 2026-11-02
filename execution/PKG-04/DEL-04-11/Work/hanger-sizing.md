@@ -447,7 +447,8 @@ document; the two share basis and identity terminology, not a carrier.
 - **Where it is published:** in 1d-α, only through the headless runner and the
   session.
 - **Not a recordable run:** the joint analysis-run 0.4.0 is approved for design, not
-  adoption (P2).
+  adoption (P2). The design proposal, which is not adopted, is
+  `joint-analysis-run-proposal.md`.
 - **Not the full publication criteria:** 1d-α does not meet the desktop, report or CSV
   criteria (REQ-007, REQ-012); those come with increment 3.
 
