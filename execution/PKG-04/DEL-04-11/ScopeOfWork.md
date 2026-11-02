@@ -112,7 +112,16 @@ These deliverables keep their scope.
   the loads, fit tests, selection, failure counts, request checks that need no solve,
   and the verification arithmetic and standing (Design §13), with its unit tests and
   the R-3 references. Slice 1b: hanger library format 1.1.0 in the schema and both
-  import boundaries (REQ-006). Nothing yet solves, publishes or reaches the desktop. Before this
+  import boundaries (REQ-006). Slice 1c, the derived solves on PF (REQ-002, REQ-003,
+  REQ-005):
+  - candidate and case checks;
+  - derived documents through the product's public solve entry;
+  - the full sizing run with its verification pass and disclosures;
+  - the library reader;
+  - the closed-form references R-1, R-2 and R-5.
+
+  The run's results are a typed value; nothing is yet published or reaches the desktop,
+  and the exact route is refused until increment 4. Before this
   deliverable: the hanger records import, and one record can be applied to a support as
   the person's act (`features/hanger-selection`). A variable spring is
   solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
@@ -150,7 +159,8 @@ suitability, and nothing here determines code compliance.
     - the load design (hot or cold);
     - the variation limit and its reference load (operating or design load);
     - the travel allowance at each end of the travel span;
-    - the selection rule (smallest capacity or least variation).
+    - the selection rule (smallest capacity or least variation);
+    - the solver mode of the caller's own solve, which every derived solve uses.
   - Each absent or invalid input is refused by name. The engine, the headless runner
     and the native entry supply no value. The desktop pre-fills the values last used in
     the project, and the request records the values used.

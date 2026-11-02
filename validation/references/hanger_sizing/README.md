@@ -37,3 +37,41 @@ Independent reference values for DEL-04-11 hanger sizing.
 python3 validation/references/hanger_sizing/generate_r3.py          # writes r3_arithmetic.json
 python3 validation/references/hanger_sizing/generate_r3.py --check  # exit 1 if the frozen file differs
 ```
+
+# Derived-solve reference (R-1, R-2, R-5)
+
+`generate_r125.py` writes `r125_derived_solves.json`. It holds the sizing quantities
+of the derived solves of §4.2 for each candidate: W (S_W), u_C (S_C) and u_i (S_Oi).
+It also holds each lift-off support's state in every solve (§5).
+
+- **Basis:** `hanger-sizing.md` §4, §5 and §12, the task brief and classical
+  Euler–Bernoulli beam and frame mechanics, with axial deformation (EA) included and
+  shear deformation neglected. The cases are:
+  - R-1a, R-1b and R-1c: continuous beams with two equal, three equal and two
+    unequal spans (three-moment equation);
+  - R-2: a free riser with u_i = α·ΔT·H;
+  - R-5a: a lift-off support that is active in S_W and S_C and inactive in S_O;
+  - R-5b: the same beam with a P too small to lift the support.
+- **Independence:** written from that text and the brief only. It reads, searches
+  and imports no product code (`core/`, `apps/`, `tests/`) and uses only the Python 3
+  standard library. It shares no code with `generate_r3.py`.
+- **Precision:** every W and every u_C is exact (`fractions.Fraction`), and so is
+  every u_i except R-5a's. R-5a's u_i is a rational divided by π. It is evaluated
+  with π to 101 digits in 80-digit decimal arithmetic. All values are emitted
+  rounded to the nearest binary64.
+- **Self-checks:** each closed form must agree exactly with an exact-rational
+  plane-frame stiffness solve written in the generator, which uses active-set
+  iteration for lift-off. Every solve's vertical equilibrium is asserted. R-5's
+  active-set consistency is asserted: a compressive reaction while the support is
+  active, and a zero reaction with an upward gap while it is inactive. The lift-off
+  states must not change when every input is replaced by its binary64 value.
+- **Support model:** the R-1 ends are `rigid_uz`, with a `guide` at one end on UX,
+  UY and RX and a `guide` at the other end on UY. No end restrains RY. RX is needed
+  because no translational restraint on collinear nodes stops rotation about the
+  beam axis. The out-of-plane DOFs carry no load, so no value depends on the shear
+  modulus.
+
+```sh
+python3 validation/references/hanger_sizing/generate_r125.py          # writes r125_derived_solves.json
+python3 validation/references/hanger_sizing/generate_r125.py --check  # exit 1 if the frozen file differs
+```
