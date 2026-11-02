@@ -11,8 +11,14 @@ reducer candidate bindings under DEL-03-05 `Work/eccentric-reducer-offset.md`.
 The implementation and binding review checked `0ee639782022085fb2bf20a8393dc998a467c5c3`
 against adopted 2a merge `393a11ee75dcc1836d2fd586c842f90312a6023d`, with no
 blocking numerical finding. The 27 cases in both solver modes supply candidate
-product evidence for the declared controls only; full RS-R1 thermal/weight,
-carrier reconciliation, registration and integration remain pending.
+product evidence for the declared controls only. The full-system thermal/weight
+connecting path is also checked by `rt_a3_reducer_2b_reference_system.rs`;
+independent delta review of `d1ef2eccf1297ae3cc468a20d7d4f7ee4afc7ee6` found
+no corrections needed within that scope. Its local consistency relations use
+published motions/actions and do not provide independent global displacements
+or individual reactions. Integrity remains `sensitive`, without an accuracy
+claim. Maintained RS-R1 fixture adoption, carrier reconciliation, registration
+and integration remain pending.
 
 The historical mathematical source was
 `74e57d55ffd4cb09b68680e36bcaca06f4ad81eb` (then branch
@@ -321,8 +327,10 @@ exposed.
   the implementation review reused their coverage and the unchanged decision
   functions. Complete-envelope metadata equality is not established by the PF
   digest controls, which bind ordered diagnostics and row identities/value bits.
-- Full RS with thermal and weight, carrier reconciliation, and 2b's queued D3
-  registration remain pending. Exact 2a profile `8cd8fcf3` was owner-approved
+- Full-system thermal/weight connecting-path verification is complete within
+  the local-consistency limits above. Maintained RS-R1 fixture/capture/ledger
+  adoption, carrier reconciliation and 2b's queued D3 registration remain
+  pending. Exact 2a profile `8cd8fcf3` was owner-approved
   and integrated in `393a11ee7`; dynamics and S2 take their D3 turns before 2b.
   The independent implementation review examined the literal old/new governing
   diffs. The 2b PR record must retain the complete paired passages and that

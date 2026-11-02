@@ -661,7 +661,9 @@ declared offset by 4.2e8. The same file also runs these checks:
 `rt_a3_reducer_2b_pf_controls.rs` digests 23 pressure-free and outside-region
 W-15c controls, compared with their outcomes before the helper extraction.
 
-**Full reference system (candidate; numerical review pending).**
+**Full reference system (candidate).** Independent numerical/commitment delta
+review checked `d1ef2eccf` against `ee833b0c5` and found no correction needed
+within this scope; it supplies no adoption, accuracy or release authority.
 `rt_a3_reducer_2b_reference_system.rs` overlays RS-R1 on the maintained
 fixture `fixtures/reference_system/reference_system.json` in the test only.
 RS-R1 is entered as DEL-09-01 §5 specifies, and no node, region, support or
