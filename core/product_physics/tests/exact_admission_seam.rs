@@ -825,10 +825,15 @@ fn w15_scaled_body_in_a_region_keeps_its_wall_force() {
     }
 }
 
-/// W-15 §2.7: a reducer whose mapped member belongs to a pressure region is
-/// refused case by case by name, in a single-member region and an equal-bore
-/// region; one mapped at a region's boundary node with its own member
-/// outside, or outside every region, is admitted like a valve.
+/// W-15 §2.7 with RT-A3 reducer 2a: a reducer whose mapped member belongs to a
+/// pressure region is refused case by case by name unless it is the
+/// concentric pressure-bore step (its own single-member region joined at both
+/// ends to one collinear straight member of another region,
+/// `rt_a3_reducer_references.rs`). Both regions here stay refused: the
+/// single-member region's ends are an anchor and a free tip, joined to no
+/// other region, and the equal-bore region has two members. One mapped at a
+/// region's boundary node with its own member outside, or outside every
+/// region, is admitted like a valve.
 #[test]
 fn w15_reducer_is_refused_only_where_its_member_is_in_a_region() {
     for base in [Base::X0, Base::Y0] {

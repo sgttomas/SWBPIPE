@@ -880,10 +880,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1",
+        "6218734669b76d98f64e22804ca862ba43d543b7c0d22894b196724998c39be8",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
-        "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf",
+        "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -1985,9 +1985,10 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // minus reserved stack R. M, the margin and TEXT reserve policy are unchanged.
 // §8.37: owner decision "1A, 2A" approves the reviewed +172,554 B profile.
 // Values derive from maintained tree_eval native evaluations, excluding R.
+// §8.38: owner-approved reducer 2a adds 1,751 B per phase; input #8/#11 rebind.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_962_903, 6_944_957_464, 8_899_140_700, 8_687_301_127, 7_765_329_066, 8_611_707_835, 7_343_101_545, 7_016_391_421],
-    [6_662_094_247, 7_004_088_808, 8_958_272_044, 8_746_432_471, 7_824_460_410, 8_670_839_179, 7_402_232_889, 7_075_522_765],
+    [6_602_964_654, 6_944_959_215, 8_899_142_451, 8_687_302_878, 7_765_330_817, 8_611_709_586, 7_343_103_296, 7_016_393_172],
+    [6_662_095_998, 7_004_090_559, 8_958_273_795, 8_746_434_222, 7_824_462_161, 8_670_840_930, 7_402_234_640, 7_075_524_516],
 ];
 
 #[test]

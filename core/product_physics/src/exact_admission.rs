@@ -6,9 +6,15 @@
 //! connectors have their own mechanics, evidence and readers. W-15 (DEL-03-05
 //! Design `rigid-component-stiffness-scaling.md` §2.7) admits valve, flange,
 //! reducer, rigid and specialty components with the DEC-045 stiffness scale of
-//! their mapped straight member, an equivalent pipe of the mapped section; a
-//! reducer whose mapped member belongs to a pressure region is refused by
-//! [`REDUCER_IN_REGION`]. RT-A3 increment 1 (DEL-04-07 Design
+//! their mapped straight member, an equivalent pipe of the mapped section. A
+//! reducer whose mapped member belongs to a pressure region is admitted only
+//! as RT-A3 reducer increment 2a's concentric pressure-bore step (DEL-04-07
+//! `route-unification-r4.md` §00 C-3/C-4, §3.1): the body is its own
+//! single-member region, collinear between one straight neighbour of another
+//! region at each end, every terminal there transferring to the wall, so the
+//! junction caps carry the bore-step load ([`reducers_in_regions`] and
+//! `pressure_runtime`'s geometric guard). Every other reducer in a region is
+//! refused by [`REDUCER_IN_REGION`]. RT-A3 increment 1 (DEL-04-07 Design
 //! `pressure-contract.md`, "Tees and pressure junctions") admits the branch
 //! connection (tee) as the metadata record it is on the pressure-free route,
 //! with its user SIFs as intensified rows on both section bases
@@ -17,7 +23,9 @@
 //! of another family must supply those consumers together; lifting a refusal
 //! alone cannot establish mechanics.
 
-use super::{FormulationBasis, PreviewComponent, PreviewModel, PreviewSupport};
+use super::pressure_runtime::{PressureRegionInput, PressureTerminalInput};
+use super::{FormulationBasis, PreviewComponent, PreviewLoadCase, PreviewModel, PreviewSupport};
+use std::collections::HashSet;
 
 /// The ordinary result semantics of the current exact contract.
 pub(crate) const PRESSURE_SEMANTIC_CONTRACT_ID: &str =
@@ -31,11 +39,12 @@ pub(crate) const PRESSURE_PROFILE_ID: &str = "exact_pressure_v3";
 /// The named seam refusal for a family a v3 document may not yet contain.
 pub(crate) const FAMILY_NOT_ADMITTED: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 
-/// W-15 §2.7: the case-specific refusal of a reducer whose mapped member
-/// belongs to a pressure region of that case.
+/// W-15 §2.7, narrowed by RT-A3 reducer increment 2a: the case-specific
+/// refusal of a reducer whose mapped member belongs to a pressure region of
+/// that case, other than the admitted concentric pressure-bore step.
 pub(crate) const REDUCER_IN_REGION: &str = "EXACT_PRESSURE_REDUCER_IN_REGION";
 /// The static text of [`REDUCER_IN_REGION`] (the seam composes no text).
-pub(crate) const REDUCER_IN_REGION_TEXT: &str = "reducer maps a member of this pressure region; a reducer's thrust from a bore change is not modelled under 3.0.0/exact_pressure_v3, and the equal-bore region check never reads the reducer, so the exact route refuses it rather than analyse it as equal-bore pipe; a reducer whose mapped member lies outside every pressure region is admitted with its DEC-045 stiffness scale";
+pub(crate) const REDUCER_IN_REGION_TEXT: &str = "reducer maps a member of this pressure region but is not the admitted concentric pressure-bore step; under 3.0.0/exact_pressure_v3 a reducer in a pressure region is admitted only when its mapped member exists, ends at the reducer's node and is the only member of its own region, no nonzero eccentric_offset is authored (an absent offset declares nothing), and at each end of the member exactly one other pipe meets it, a straight member of another region of the case whose region has a terminal there, continuing collinear in the opposite direction within the 64*epsilon representation guard, with transfers_to_wall at every terminal at that node, so the junction caps carry the bore-step load; a multi-member region, an eccentric or slanted body, a tee, bend or connector at an end, or a dry, free or branched end is refused rather than analysed as equal-bore pipe; the absolute direction-agreement guard can also refuse an intended collinear skewed run when a short body is rounded far from the origin, and that refusal does not establish physical eccentricity; a reducer whose mapped member lies outside every pressure region is admitted with its DEC-045 stiffness scale";
 
 /// §8.30 correction 1 (RT-A3; R-4 design C-1): the case-specific refusal of a
 /// node where terminals of two or more pressure regions meet and at least one
@@ -122,7 +131,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     let identity = if selected {
         "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     } else {
-        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers only when their mapped member lies outside every pressure region (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a concentric pressure-bore step, the only member of its own region, collinear between single straight members of other regions with transfers_to_wall at both ends, whose junction caps carry the step's pressure load (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     };
     let source = if selected {
         "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing. No code compliance or professional acceptance is produced, and actual numerical admission remains separate."
@@ -304,7 +313,9 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // mapped straight member with the DEC-045 scale (`rigid_component`),
         // an equivalent pipe of the mapped section: bore continuity, cap thrust
         // and the annular kappa are the mapped section's. A reducer in a
-        // pressure region is refused case by case ([`reducer_region_refusals`]).
+        // pressure region is admitted case by case only as RT-A3 2a's
+        // concentric pressure-bore step and refused otherwise
+        // ([`reducers_in_regions`]).
         (
             ExactContract::PressureV3,
             ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer | ExactFamily::RigidComponent,
@@ -369,33 +380,172 @@ pub(crate) fn component_family(component: &PreviewComponent) -> ExactFamily {
     }
 }
 
-/// W-15 §2.7: each (case, region, reducer, member) where a reducer's mapped
-/// member belongs to a pressure region of that case, in case, region and
-/// model order. Region membership is the authored `member_pipe_ids`; the
-/// equal-bore guard cannot stand in for this refusal (it compares traversed
-/// members only and never reads the reducer). A reducer whose mapped member
-/// lies outside every region, including one mapped at a region's boundary
-/// node, is not listed.
-pub(crate) fn reducer_region_refusals(model: &PreviewModel) -> Vec<[&str; 4]> {
-    let reducers = model
-        .components
-        .iter()
-        .filter(|component| component_family(component) == ExactFamily::Reducer)
-        .filter_map(|component| super::rigid_component::mapped_pipe_ref(component).map(|pipe| (component.id.as_str(), pipe)))
-        .collect::<Vec<_>>();
+/// RT-A3 reducer 2a: one end of an admitted step body, as the geometric guard
+/// (`pressure_runtime`) reads it on the built coordinates.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ReducerStepEnd<'a> {
+    /// The body's end node, shared with the neighbour only.
+    pub node: &'a str,
+    /// The reducer's mapped (body) member.
+    pub body: &'a str,
+    /// The one other pipe at the node, a straight member of another region.
+    pub neighbour: &'a str,
+}
+
+/// A reducer whose mapped member is listed in a pressure region of a case.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct ReducerInRegion<'a> {
+    /// (case, region, reducer, member): the refusal's references.
+    pub refs: [&'a str; 4],
+    /// `Some` when the step's topology holds (the body's two ends), so the
+    /// geometric guard decides; `None` when it is refused on topology.
+    pub step: Option<[ReducerStepEnd<'a>; 2]>,
+}
+
+/// W-15 §2.7 with RT-A3 reducer increment 2a: each (case, region, reducer,
+/// member) where a reducer's mapped member is listed in a pressure region of
+/// the case, in region and model order, with its step topology. Region
+/// membership is the authored `member_pipe_ids`; the equal-bore guard cannot
+/// stand in for this check (it compares traversed members only and never
+/// reads the reducer). A reducer whose mapped member lies outside every
+/// region, including one mapped at a region's boundary node, is not listed.
+///
+/// The step topology (unit-free, so it is read before normalization) holds
+/// only when: (1) the mapped member exists and ends at the reducer's node
+/// (W-15 §2.3); (2) it is the region's only member, with no connector edge;
+/// (3) no nonzero `eccentric_offset` is authored (a zero signed component
+/// counts zero; an absent slot declares nothing); and (4) at each of the
+/// body's two distinct end nodes, both of them the region's terminals, every
+/// terminal of the case transfers to the wall, no tee record sits there, and
+/// exactly one other pipe is incident: a straight member (no realized or
+/// geometry-only bend, expansion-joint or connector-replaced span) listed in
+/// another region of the case that has a terminal at that node. The
+/// collinear, opposite-direction continuation is judged on the built
+/// coordinates by `pressure_runtime` within its 64*epsilon representation
+/// guard. Scale eligibility stays W-15's: an unscaled or marker body that
+/// meets the step is admitted with its existing warnings, and the end sizes
+/// are descriptive and enter nothing.
+pub(crate) fn reducers_in_regions<'a>(model: &'a PreviewModel, case: &'a PreviewLoadCase) -> Vec<ReducerInRegion<'a>> {
     let mut found = Vec::new();
-    for case in &model.load_cases {
-        for region in case.pressure_regions.iter().flatten() {
-            let Some(members) = &region.member_pipe_ids else { continue };
-            let region_id = region.id.as_deref().unwrap_or("");
-            for &(component, pipe) in &reducers {
-                if members.iter().any(|member| member == pipe) {
-                    found.push([case.id.as_str(), region_id, component, pipe]);
-                }
+    let Some(regions) = case.pressure_regions.as_deref() else { return found };
+    let mut not_straight = None;
+    for region in regions {
+        let Some(members) = &region.member_pipe_ids else { continue };
+        let region_id = region.id.as_deref().unwrap_or("");
+        for component in model.components.iter().filter(|component| component_family(component) == ExactFamily::Reducer) {
+            let Some(pipe) = super::rigid_component::mapped_pipe_ref(component) else { continue };
+            if members.iter().any(|member| member == pipe) {
+                let step = step_topology(model, regions, region, component, pipe, &mut not_straight);
+                found.push(ReducerInRegion { refs: [case.id.as_str(), region_id, component.id.as_str(), pipe], step });
             }
         }
     }
     found
+}
+
+/// The (case, region, reducer, member) refusals decided on topology alone, in
+/// case, region and model order (`pressure_runtime::validate_profile`).
+/// Every listed reducer whose topology holds is judged again with its geometry
+/// when its case is assembled.
+pub(crate) fn reducer_region_refusals(model: &PreviewModel) -> Vec<[&str; 4]> {
+    model
+        .load_cases
+        .iter()
+        .flat_map(|case| reducers_in_regions(model, case))
+        .filter(|reducer| reducer.step.is_none())
+        .map(|reducer| reducer.refs)
+        .collect()
+}
+
+/// Members that are not straight run for a step neighbour: any member a
+/// component names as a bend or expansion-joint member, and any span an
+/// objective connector names (conservatively, whether or not it decodes).
+fn non_straight_members(model: &PreviewModel) -> HashSet<&str> {
+    let mut found = HashSet::new();
+    for component in &model.components {
+        if let Some(geometry) = &component.geometry {
+            for pipe in [geometry.bend_pipe_ref.as_deref(), geometry.expansion_joint_pipe_ref.as_deref()].into_iter().flatten() {
+                found.insert(pipe);
+            }
+        }
+        if let Some(span) = component
+            .objective_connector
+            .as_ref()
+            .and_then(|connector| connector.pointer("/topology/span_ref"))
+            .and_then(serde_json::Value::as_str)
+        {
+            found.insert(span);
+        }
+    }
+    found
+}
+
+fn ends_at(terminal: &PressureTerminalInput, node: &str) -> bool {
+    terminal.node_ref.as_deref() == Some(node)
+}
+
+/// [`reducers_in_regions`]'s conditions (1)-(4) for one listed reducer.
+fn step_topology<'a>(
+    model: &'a PreviewModel,
+    regions: &'a [PressureRegionInput],
+    region: &'a PressureRegionInput,
+    component: &'a PreviewComponent,
+    pipe: &'a str,
+    not_straight: &mut Option<HashSet<&'a str>>,
+) -> Option<[ReducerStepEnd<'a>; 2]> {
+    // (1) W-15 §2.3's mapping.
+    let body = model.pipe_segments.iter().find(|candidate| candidate.id == pipe)?;
+    if (body.from != component.node && body.to != component.node) || body.from == body.to {
+        return None;
+    }
+    // (2) The region's only member.
+    if !matches!(region.member_pipe_ids.as_deref(), Some([only]) if only == pipe)
+        || region.member_connector_ids.as_ref().is_some_and(|ids| !ids.is_empty())
+    {
+        return None;
+    }
+    // (3) No authored nonzero offset; a non-finite component is nonzero.
+    if super::rigid_component::eccentric_offset(component)
+        .is_some_and(|offset| [offset.x, offset.y, offset.z].iter().any(|value| *value != 0.0))
+    {
+        return None;
+    }
+    // (4) Each end: a region terminal joining one straight neighbour of
+    // another region, every terminal at the node transferring.
+    let terminals = region.terminals.as_deref()?;
+    let mut end = |node: &'a str| -> Option<ReducerStepEnd<'a>> {
+        if !terminals.iter().any(|terminal| ends_at(terminal, node)) {
+            return None;
+        }
+        if regions
+            .iter()
+            .flat_map(|other| other.terminals.iter().flatten())
+            .any(|terminal| ends_at(terminal, node) && terminal.closure_transfer.as_deref() != Some("transfers_to_wall"))
+        {
+            return None;
+        }
+        if model.components.iter().any(|other| component_family(other) == ExactFamily::Branch && other.node == node) {
+            return None;
+        }
+        let mut incident = model
+            .pipe_segments
+            .iter()
+            .filter(|other| other.id != body.id && (other.from == node || other.to == node));
+        let neighbour = incident.next()?;
+        if incident.next().is_some() || neighbour.from == neighbour.to {
+            return None;
+        }
+        if not_straight.get_or_insert_with(|| non_straight_members(model)).contains(neighbour.id.as_str()) {
+            return None;
+        }
+        let joined = regions.iter().any(|other| {
+            !std::ptr::eq(other, region)
+                && other.member_pipe_ids.iter().flatten().any(|member| *member == neighbour.id)
+                && other.terminals.iter().flatten().any(|terminal| ends_at(terminal, node))
+        });
+        joined.then_some(ReducerStepEnd { node, body: body.id.as_str(), neighbour: neighbour.id.as_str() })
+    };
+    Some([end(body.from.as_str())?, end(body.to.as_str())?])
 }
 
 /// The family of a support outside the straight base, or `None` for a linear

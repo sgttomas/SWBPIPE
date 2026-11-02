@@ -1,0 +1,3294 @@
+{
+ "reference_id": "rt_a3_reducer_2a",
+ "status": "frozen analytical candidate; product agreement and independent scrutiny recorded separately",
+ "source_revision_read": "2656dcb33328b12c5572a30c10124a40f35adffc",
+ "governing_sources": [
+  "execution/PKG-04/DEL-04-07/Work/route-unification-r4.md §00 C-3, C-4; §2.1; §3.1",
+  "execution/PKG-04/DEL-04-07/Work/pressure-contract.md 'Tees and pressure junctions' (D-1)",
+  "execution/PKG-03/DEL-03-05/Work/rigid-component-stiffness-scaling.md §2.1, §2.4, §2.7",
+  "execution/PKG-03/DEL-03-05/Work/eccentric-reducer-offset.md §2, §3.2 (absent vs zero offset; end sizes descriptive)",
+  "execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md §1, §2.1 (D-5)"
+ ],
+ "independence": "standard library only; no product code, product output or frozen product reference is imported, read or run; all data invented",
+ "model": {
+  "theory": "small-displacement linear elastic collinear straight members; axial problem only (transverse and rotational DOFs unloaded, exactly 0); shear-model independent",
+  "constitutive": "s*E*A_n*eps = N_w - 2*nu*p*A_i; N_w = N_m + 2*nu*p*A_i; S = N_w - p*A_i (s = DEC-045 scale; Poisson pair has no E)",
+  "caps": "-p*A_i*s at each transfers_to_wall terminal, s the unit vector from the node into the member; implicit junction = node where two or more regions end",
+  "d5": "A_n (nominal wall) for stiffness; A_i = pi*r_i,r^2 (pressure bore) for caps and the Poisson pair; sigma_m = N_w/A_b per basis; Lame per basis's own annulus: radial -p inner, 0 outer; hoop outer 2p*r_i,b^2/(r_o^2-r_i,b^2), inner = outer + p",
+  "end_sizes": "descriptive only; never enter a number (bores come from the member sections)",
+  "material": {
+   "E_Pa": "200000000000",
+   "nu": "3/10"
+  },
+  "sections": {
+   "L": {
+    "D_m": "3/10",
+    "t_m": "3/250",
+    "c_m_m": "1/2000",
+    "c_a_m": "1/1000",
+    "r_o_m": "3/20",
+    "r_i_nominal_m": "69/500",
+    "t_reduced_m": "21/2000",
+    "r_i_pressure_bore_m": "279/2000",
+    "A_nominal_m2": {
+     "exact": "54/15625*pi",
+     "decimal": "0.01085734421080632543212689553261396196779",
+     "value": 0.010857344210806325
+    },
+    "A_reduced_m2": {
+     "exact": "12159/4000000*pi",
+     "decimal": "0.009549656268749573996616820224323868892238",
+     "value": 0.009549656268749575
+    },
+    "A_i_bore_m2": {
+     "exact": "77841/4000000*pi",
+     "decimal": "0.06113617843702077386879265589946494600220",
+     "value": 0.06113617843702077
+    }
+   },
+   "S": {
+    "D_m": "1/5",
+    "t_m": "1/125",
+    "c_m_m": "1/2000",
+    "c_a_m": "1/1000",
+    "r_o_m": "1/10",
+    "r_i_nominal_m": "23/250",
+    "t_reduced_m": "13/2000",
+    "r_i_pressure_bore_m": "187/2000",
+    "A_nominal_m2": {
+     "exact": "24/15625*pi",
+     "decimal": "0.004825486315913922414278620236717316430127",
+     "value": 0.004825486315913922
+    },
+    "A_reduced_m2": {
+     "exact": "5031/4000000*pi",
+     "decimal": "0.003951338160052562445676389715319794752599",
+     "value": 0.003951338160052563
+    },
+    "A_i_bore_m2": {
+     "exact": "34969/4000000*pi",
+     "decimal": "0.02746458837584536993895004411747523408937",
+     "value": 0.02746458837584537
+    }
+   },
+   "M": {
+    "D_m": "1/4",
+    "t_m": "1/100",
+    "c_m_m": "1/2000",
+    "c_a_m": "1/1000",
+    "r_o_m": "1/8",
+    "r_i_nominal_m": "23/200",
+    "t_reduced_m": "17/2000",
+    "r_i_pressure_bore_m": "233/2000",
+    "A_nominal_m2": {
+     "exact": "3/1250*pi",
+     "decimal": "0.007539822368615503772310344119870806922073",
+     "value": 0.007539822368615503
+    },
+    "A_reduced_m2": {
+     "exact": "8211/4000000*pi",
+     "decimal": "0.006448904319656448070254191205026999545536",
+     "value": 0.006448904319656448
+    },
+    "A_i_bore_m2": {
+     "exact": "54289/4000000*pi",
+     "decimal": "0.04263848089268407128072461165871523302005",
+     "value": 0.04263848089268407
+    }
+   }
+  },
+  "formulations": {
+   "A": "closed form: sum S_k s_k = 0 at free nodes, S = 0 beyond free capped terminals, series compatibility between far anchors; left/right chain terms, no member orientation",
+   "B": "assembled exact 1-D axial stiffness with member direction cosines, held Poisson end actions, caps as nodal loads, Gauss-Jordan over Fractions, R = K u - f"
+  },
+  "exact_form": "q*pi^k with q rational; forces k=1, displacements and stresses k=0; 'value' is the nearest binary64, decided by rational pi bounds 2e-100 apart",
+  "units": "m, N, Pa"
+ },
+ "lame_rows_Pa": {
+  "L@-100000Pa": {
+   "nominal_section": {
+    "hoop_outer": {
+     "exact": "-3306250/3",
+     "decimal": "-1102083.333333333333333333333333333333333",
+     "value": -1102083.3333333333
+    },
+    "hoop_inner": {
+     "exact": "-3606250/3",
+     "decimal": "-1202083.333333333333333333333333333333333",
+     "value": -1202083.3333333333
+    },
+    "radial_inner": {
+     "exact": "100000",
+     "decimal": "100000",
+     "value": 100000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_outer": {
+     "exact": "-1729800000/1351",
+     "decimal": "-1280384.900074019245003700962250185048113",
+     "value": -1280384.9000740193
+    },
+    "hoop_inner": {
+     "exact": "-1864900000/1351",
+     "decimal": "-1380384.900074019245003700962250185048113",
+     "value": -1380384.9000740193
+    },
+    "radial_inner": {
+     "exact": "100000",
+     "decimal": "100000",
+     "value": 100000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  },
+  "L@10000000Pa": {
+   "nominal_section": {
+    "hoop_outer": {
+     "exact": "330625000/3",
+     "decimal": "110208333.3333333333333333333333333333333",
+     "value": 110208333.33333333
+    },
+    "hoop_inner": {
+     "exact": "360625000/3",
+     "decimal": "120208333.3333333333333333333333333333333",
+     "value": 120208333.33333333
+    },
+    "radial_inner": {
+     "exact": "-10000000",
+     "decimal": "-10000000",
+     "value": -10000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_outer": {
+     "exact": "172980000000/1351",
+     "decimal": "128038490.0074019245003700962250185048113",
+     "value": 128038490.00740193
+    },
+    "hoop_inner": {
+     "exact": "186490000000/1351",
+     "decimal": "138038490.0074019245003700962250185048113",
+     "value": 138038490.0074019
+    },
+    "radial_inner": {
+     "exact": "-10000000",
+     "decimal": "-10000000",
+     "value": -10000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  },
+  "M@10000000Pa": {
+   "nominal_section": {
+    "hoop_outer": {
+     "exact": "330625000/3",
+     "decimal": "110208333.3333333333333333333333333333333",
+     "value": 110208333.33333333
+    },
+    "hoop_inner": {
+     "exact": "360625000/3",
+     "decimal": "120208333.3333333333333333333333333333333",
+     "value": 120208333.33333333
+    },
+    "radial_inner": {
+     "exact": "-10000000",
+     "decimal": "-10000000",
+     "value": -10000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_outer": {
+     "exact": "1085780000000/8211",
+     "decimal": "132234806.9662647667762757276823772987456",
+     "value": 132234806.96626477
+    },
+    "hoop_inner": {
+     "exact": "1167890000000/8211",
+     "decimal": "142234806.9662647667762757276823772987456",
+     "value": 142234806.96626475
+    },
+    "radial_inner": {
+     "exact": "-10000000",
+     "decimal": "-10000000",
+     "value": -10000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  },
+  "S@-100000Pa": {
+   "nominal_section": {
+    "hoop_outer": {
+     "exact": "-3306250/3",
+     "decimal": "-1102083.333333333333333333333333333333333",
+     "value": -1102083.3333333333
+    },
+    "hoop_inner": {
+     "exact": "-3606250/3",
+     "decimal": "-1202083.333333333333333333333333333333333",
+     "value": -1202083.3333333333
+    },
+    "radial_inner": {
+     "exact": "100000",
+     "decimal": "100000",
+     "value": 100000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_outer": {
+     "exact": "-6993800000/5031",
+     "decimal": "-1390141.125024845955078513218048101769032",
+     "value": -1390141.125024846
+    },
+    "hoop_inner": {
+     "exact": "-7496900000/5031",
+     "decimal": "-1490141.125024845955078513218048101769032",
+     "value": -1490141.125024846
+    },
+    "radial_inner": {
+     "exact": "100000",
+     "decimal": "100000",
+     "value": 100000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  },
+  "S@10000000Pa": {
+   "nominal_section": {
+    "hoop_outer": {
+     "exact": "330625000/3",
+     "decimal": "110208333.3333333333333333333333333333333",
+     "value": 110208333.33333333
+    },
+    "hoop_inner": {
+     "exact": "360625000/3",
+     "decimal": "120208333.3333333333333333333333333333333",
+     "value": 120208333.33333333
+    },
+    "radial_inner": {
+     "exact": "-10000000",
+     "decimal": "-10000000",
+     "value": -10000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_outer": {
+     "exact": "699380000000/5031",
+     "decimal": "139014112.5024845955078513218048101769032",
+     "value": 139014112.5024846
+    },
+    "hoop_inner": {
+     "exact": "749690000000/5031",
+     "decimal": "149014112.5024845955078513218048101769032",
+     "value": 149014112.5024846
+    },
+    "radial_inner": {
+     "exact": "-10000000",
+     "decimal": "-10000000",
+     "value": -10000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  },
+  "S@5000000Pa": {
+   "nominal_section": {
+    "hoop_outer": {
+     "exact": "165312500/3",
+     "decimal": "55104166.66666666666666666666666666666667",
+     "value": 55104166.666666664
+    },
+    "hoop_inner": {
+     "exact": "180312500/3",
+     "decimal": "60104166.66666666666666666666666666666667",
+     "value": 60104166.666666664
+    },
+    "radial_inner": {
+     "exact": "-5000000",
+     "decimal": "-5000000",
+     "value": -5000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_outer": {
+     "exact": "349690000000/5031",
+     "decimal": "69507056.25124229775392566090240508845160",
+     "value": 69507056.2512423
+    },
+    "hoop_inner": {
+     "exact": "374845000000/5031",
+     "decimal": "74507056.25124229775392566090240508845160",
+     "value": 74507056.2512423
+    },
+    "radial_inner": {
+     "exact": "-5000000",
+     "decimal": "-5000000",
+     "value": -5000000.0
+    },
+    "radial_outer": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  }
+ },
+ "cases": [
+  {
+   "label": "R2A-FREE-N",
+   "purpose": "reducing; junction N (upstream pipe to body) anchored; far ends P, Q free and capped; F free (R-4 C-3)",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "N"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "-2883/6400000",
+      "decimal": "-0.00045046875",
+      "value": -0.00045046875
+     },
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "2883/51200000",
+      "decimal": "0.00005630859375",
+      "value": 5.630859375e-05
+     },
+     "Q": {
+      "exact": "8147/20480000",
+      "decimal": "0.000397802734375",
+      "value": 0.000397802734375
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "107180*pi",
+      "decimal": "336715.9006117540392984261178198971191283",
+      "value": 336715.90061175404
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "107180*pi",
+     "decimal": "336715.9006117540392984261178198971191283",
+     "value": 336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/6400000",
+       "decimal": "0.00045046875",
+       "value": 0.00045046875
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/51200000",
+       "decimal": "0.00005630859375",
+       "value": 5.630859375e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "34969*pi",
+       "decimal": "109858.3535033814797558001764699009363575",
+       "value": 109858.35350338148
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-174845/2*pi",
+       "decimal": "-274645.8837584536993895004411747523408937",
+       "value": -274645.8837584537
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "elongation_m": {
+       "exact": "34969/102400000",
+       "decimal": "0.000341494140625",
+       "value": 0.000341494140625
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "2731953125/48",
+         "decimal": "56915690.10416666666666666666666666666667",
+         "value": 56915690.104166664
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "349690000000/5031",
+         "decimal": "69507056.25124229775392566090240508845160",
+         "value": 69507056.2512423
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-FREE-N-S2",
+   "purpose": "as R2A-FREE-N with body stiffness scale 2 (DEC-045 equivalent reference pipe)",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "N"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "-2883/6400000",
+      "decimal": "-0.00045046875",
+      "value": -0.00045046875
+     },
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "2883/102400000",
+      "decimal": "0.000028154296875",
+      "value": 2.8154296875e-05
+     },
+     "Q": {
+      "exact": "9463/25600000",
+      "decimal": "0.0003696484375",
+      "value": 0.0003696484375
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "107180*pi",
+      "decimal": "336715.9006117540392984261178198971191283",
+      "value": 336715.90061175404
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "107180*pi",
+     "decimal": "336715.9006117540392984261178198971191283",
+     "value": 336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/6400000",
+       "decimal": "0.00045046875",
+       "value": 0.00045046875
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "2",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/102400000",
+       "decimal": "0.000028154296875",
+       "value": 2.8154296875e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "34969*pi",
+       "decimal": "109858.3535033814797558001764699009363575",
+       "value": 109858.35350338148
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-174845/2*pi",
+       "decimal": "-274645.8837584536993895004411747523408937",
+       "value": -274645.8837584537
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "elongation_m": {
+       "exact": "34969/102400000",
+       "decimal": "0.000341494140625",
+       "value": 0.000341494140625
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "2731953125/48",
+         "decimal": "56915690.10416666666666666666666666666667",
+         "value": 56915690.104166664
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "349690000000/5031",
+         "decimal": "69507056.25124229775392566090240508845160",
+         "value": 69507056.2512423
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-FREE-F-ENL-REV",
+   "purpose": "enlarging along +x, every member's from/to reversed; the other junction F (body to large pipe) anchored; far ends free and capped",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "3",
+     "F": "7/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "F"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "-8147/20480000",
+      "decimal": "-0.000397802734375",
+      "value": -0.000397802734375
+     },
+     "N": {
+      "exact": "-2883/51200000",
+      "decimal": "-0.00005630859375",
+      "value": -5.630859375e-05
+     },
+     "F": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "Q": {
+      "exact": "2883/6400000",
+      "decimal": "0.00045046875",
+      "value": 0.00045046875
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "F": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "-107180*pi",
+      "decimal": "-336715.9006117540392984261178198971191283",
+      "value": -336715.90061175404
+     },
+     "F": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "-107180*pi",
+     "decimal": "-336715.9006117540392984261178198971191283",
+     "value": -336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "N",
+      "to": "P",
+      "section": "S",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "34969*pi",
+       "decimal": "109858.3535033814797558001764699009363575",
+       "value": 109858.35350338148
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-174845/2*pi",
+       "decimal": "-274645.8837584536993895004411747523408937",
+       "value": -274645.8837584537
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "elongation_m": {
+       "exact": "34969/102400000",
+       "decimal": "0.000341494140625",
+       "value": 0.000341494140625
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "2731953125/48",
+         "decimal": "56915690.10416666666666666666666666666667",
+         "value": 56915690.104166664
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "349690000000/5031",
+         "decimal": "69507056.25124229775392566090240508845160",
+         "value": 69507056.2512423
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "F",
+      "to": "N",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/51200000",
+       "decimal": "0.00005630859375",
+       "value": 5.630859375e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "Q",
+      "to": "F",
+      "section": "L",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/6400000",
+       "decimal": "0.00045046875",
+       "value": 0.00045046875
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-HELD",
+   "purpose": "reducing; far ends P and Q anchored; both junctions N and F free",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "5359/36000000",
+      "decimal": "0.0001488611111111111111111111111111111111111",
+      "value": 0.0001488611111111111
+     },
+     "F": {
+      "exact": "5359/32000000",
+      "decimal": "0.00016746875",
+      "value": 0.00016746875
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "260589/5*pi",
+      "decimal": "163732.8976012621260435483553210844754180",
+      "value": 163732.8976012621
+     },
+     "Q": {
+      "exact": "-260589/5*pi",
+      "decimal": "-163732.8976012621260435483553210844754180",
+      "value": -163732.8976012621
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "107180*pi",
+      "decimal": "336715.9006117540392984261178198971191283",
+      "value": 336715.90061175404
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "107180*pi",
+     "decimal": "336715.9006117540392984261178198971191283",
+     "value": 336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "128616/5*pi",
+       "decimal": "80811.81614682096943162226827677530859078",
+       "value": 80811.81614682097
+      },
+      "effective_force_S_N": {
+       "exact": "-260589/5*pi",
+       "decimal": "-163732.8976012621260435483553210844754180",
+       "value": -163732.8976012621
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-1424847/10*pi",
+       "decimal": "-447628.8867689456126443782036735649846040",
+       "value": -447628.8867689456
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "elongation_m": {
+       "exact": "5359/36000000",
+       "decimal": "0.0001488611111111111111111111111111111111111",
+       "value": 0.0001488611111111111
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1484215625/36",
+         "decimal": "41228211.80555555555555555555555555555556",
+         "value": 41228211.80555555
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "189979600000/4053",
+         "decimal": "46873821.86035035775968418455465087589440",
+         "value": 46873821.860350356
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "128616/5*pi",
+       "decimal": "80811.81614682096943162226827677530859078",
+       "value": 80811.81614682097
+      },
+      "effective_force_S_N": {
+       "exact": "-260589/5*pi",
+       "decimal": "-163732.8976012621260435483553210844754180",
+       "value": -163732.8976012621
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-1424847/10*pi",
+       "decimal": "-447628.8867689456126443782036735649846040",
+       "value": -447628.8867689456
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "elongation_m": {
+       "exact": "5359/288000000",
+       "decimal": "0.00001860763888888888888888888888888888888889",
+       "value": 1.860763888888889e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1484215625/36",
+         "decimal": "41228211.80555555555555555555555555555556",
+         "value": 41228211.80555555
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "189979600000/4053",
+         "decimal": "46873821.86035035775968418455465087589440",
+         "value": 46873821.860350356
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "353047/10*pi",
+       "decimal": "110912.9861571915733459520858536678654757",
+       "value": 110912.98615719157
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-85744/5*pi",
+       "decimal": "-53874.54409788064628774817885118353906052",
+       "value": -53874.544097880644
+      },
+      "effective_force_S_N": {
+       "exact": "-260589/5*pi",
+       "decimal": "-163732.8976012621260435483553210844754180",
+       "value": -163732.8976012621
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-353047/10*pi",
+       "decimal": "-110912.9861571915733459520858536678654757",
+       "value": -110912.98615719157
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "353047/10*pi",
+       "decimal": "110912.9861571915733459520858536678654757",
+       "value": 110912.98615719157
+      },
+      "elongation_m": {
+       "exact": "-5359/32000000",
+       "decimal": "-0.00016746875",
+       "value": -0.00016746875
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1103271875/48",
+         "decimal": "22984830.72916666666666666666666666666667",
+         "value": 22984830.729166668
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "141218800000/5031",
+         "decimal": "28069727.68833233949513019280461140926257",
+         "value": 28069727.688332338
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-HELD-S2",
+   "purpose": "as R2A-HELD with body stiffness scale 2 (indeterminate: redistributes)",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "5359/35200000",
+      "decimal": "0.0001522443181818181818181818181818181818182",
+      "value": 0.0001522443181818182
+     },
+     "F": {
+      "exact": "91103/563200000",
+      "decimal": "0.0001617595880681818181818181818181818181818",
+      "value": 0.00016175958806818183
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "566865/11*pi",
+      "decimal": "161896.2654161071040110114855875214002228",
+      "value": 161896.2654161071
+     },
+     "Q": {
+      "exact": "-566865/11*pi",
+      "decimal": "-161896.2654161071040110114855875214002228",
+      "value": -161896.2654161071
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "107180*pi",
+      "decimal": "336715.9006117540392984261178198971191283",
+      "value": 336715.90061175404
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "107180*pi",
+     "decimal": "336715.9006117540392984261178198971191283",
+     "value": 336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "3147525/22*pi",
+       "decimal": "449465.5189541006346769150734071280597992",
+       "value": 449465.5189541006
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "289386/11*pi",
+       "decimal": "82648.44833197599146415913801033838378603",
+       "value": 82648.44833197599
+      },
+      "effective_force_S_N": {
+       "exact": "-566865/11*pi",
+       "decimal": "-161896.2654161071040110114855875214002228",
+       "value": -161896.2654161071
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-3147525/22*pi",
+       "decimal": "-449465.5189541006346769150734071280597992",
+       "value": -449465.5189541006
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "3147525/22*pi",
+       "decimal": "449465.5189541006346769150734071280597992",
+       "value": 449465.5189541006
+      },
+      "elongation_m": {
+       "exact": "5359/35200000",
+       "decimal": "0.0001522443181818181818181818181818181818182",
+       "value": 0.0001522443181818182
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1821484375/44",
+         "decimal": "41397372.15909090909090909090909090909091",
+         "value": 41397372.15909091
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "699450000000/14861",
+         "decimal": "47066146.28894421640535630172935872417738",
+         "value": 47066146.288944215
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "2",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "3147525/22*pi",
+       "decimal": "449465.5189541006346769150734071280597992",
+       "value": 449465.5189541006
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "289386/11*pi",
+       "decimal": "82648.44833197599146415913801033838378603",
+       "value": 82648.44833197599
+      },
+      "effective_force_S_N": {
+       "exact": "-566865/11*pi",
+       "decimal": "-161896.2654161071040110114855875214002228",
+       "value": -161896.2654161071
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-3147525/22*pi",
+       "decimal": "-449465.5189541006346769150734071280597992",
+       "value": -449465.5189541006
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "3147525/22*pi",
+       "decimal": "449465.5189541006346769150734071280597992",
+       "value": 449465.5189541006
+      },
+      "elongation_m": {
+       "exact": "5359/563200000",
+       "decimal": "0.000009515269886363636363636363636363636363636",
+       "value": 9.515269886363637e-06
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1821484375/44",
+         "decimal": "41397372.15909090909090909090909090909091",
+         "value": 41397372.15909091
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "699450000000/14861",
+         "decimal": "47066146.28894421640535630172935872417738",
+         "value": 47066146.288944215
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "789565/22*pi",
+       "decimal": "112749.6183423465953784889555872309406710",
+       "value": 112749.6183423466
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-182206/11*pi",
+       "decimal": "-52037.91191272562425521130911762046386528",
+       "value": -52037.91191272563
+      },
+      "effective_force_S_N": {
+       "exact": "-566865/11*pi",
+       "decimal": "-161896.2654161071040110114855875214002228",
+       "value": -161896.2654161071
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-789565/22*pi",
+       "decimal": "-112749.6183423465953784889555872309406710",
+       "value": -112749.6183423466
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "789565/22*pi",
+       "decimal": "112749.6183423465953784889555872309406710",
+       "value": 112749.6183423466
+      },
+      "elongation_m": {
+       "exact": "-91103/563200000",
+       "decimal": "-0.0001617595880681818181818181818181818181818",
+       "value": -0.00016175958806818183
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "12336953125/528",
+         "decimal": "23365441.52462121212121212121212121212121",
+         "value": 23365441.52462121
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1579130000000/55341",
+         "decimal": "28534540.39500551128458105202291248802877",
+         "value": 28534540.395005513
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-HELD-ENL-REV",
+   "purpose": "enlarging along +x, every member's from/to reversed; far ends anchored, junctions free",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "3",
+     "F": "7/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "-5359/32000000",
+      "decimal": "-0.00016746875",
+      "value": -0.00016746875
+     },
+     "F": {
+      "exact": "-5359/36000000",
+      "decimal": "-0.0001488611111111111111111111111111111111111",
+      "value": -0.0001488611111111111
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "260589/5*pi",
+      "decimal": "163732.8976012621260435483553210844754180",
+      "value": 163732.8976012621
+     },
+     "Q": {
+      "exact": "-260589/5*pi",
+      "decimal": "-163732.8976012621260435483553210844754180",
+      "value": -163732.8976012621
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "-107180*pi",
+      "decimal": "-336715.9006117540392984261178198971191283",
+      "value": -336715.90061175404
+     },
+     "F": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "-107180*pi",
+     "decimal": "-336715.9006117540392984261178198971191283",
+     "value": -336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "N",
+      "to": "P",
+      "section": "S",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "353047/10*pi",
+       "decimal": "110912.9861571915733459520858536678654757",
+       "value": 110912.98615719157
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-85744/5*pi",
+       "decimal": "-53874.54409788064628774817885118353906052",
+       "value": -53874.544097880644
+      },
+      "effective_force_S_N": {
+       "exact": "-260589/5*pi",
+       "decimal": "-163732.8976012621260435483553210844754180",
+       "value": -163732.8976012621
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-353047/10*pi",
+       "decimal": "-110912.9861571915733459520858536678654757",
+       "value": -110912.98615719157
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "353047/10*pi",
+       "decimal": "110912.9861571915733459520858536678654757",
+       "value": 110912.98615719157
+      },
+      "elongation_m": {
+       "exact": "-5359/32000000",
+       "decimal": "-0.00016746875",
+       "value": -0.00016746875
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1103271875/48",
+         "decimal": "22984830.72916666666666666666666666666667",
+         "value": 22984830.729166668
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "141218800000/5031",
+         "decimal": "28069727.68833233949513019280461140926257",
+         "value": 28069727.688332338
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "F",
+      "to": "N",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "128616/5*pi",
+       "decimal": "80811.81614682096943162226827677530859078",
+       "value": 80811.81614682097
+      },
+      "effective_force_S_N": {
+       "exact": "-260589/5*pi",
+       "decimal": "-163732.8976012621260435483553210844754180",
+       "value": -163732.8976012621
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-1424847/10*pi",
+       "decimal": "-447628.8867689456126443782036735649846040",
+       "value": -447628.8867689456
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "elongation_m": {
+       "exact": "5359/288000000",
+       "decimal": "0.00001860763888888888888888888888888888888889",
+       "value": 1.860763888888889e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1484215625/36",
+         "decimal": "41228211.80555555555555555555555555555556",
+         "value": 41228211.80555555
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "189979600000/4053",
+         "decimal": "46873821.86035035775968418455465087589440",
+         "value": 46873821.860350356
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "Q",
+      "to": "F",
+      "section": "L",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "128616/5*pi",
+       "decimal": "80811.81614682096943162226827677530859078",
+       "value": 80811.81614682097
+      },
+      "effective_force_S_N": {
+       "exact": "-260589/5*pi",
+       "decimal": "-163732.8976012621260435483553210844754180",
+       "value": -163732.8976012621
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-1424847/10*pi",
+       "decimal": "-447628.8867689456126443782036735649846040",
+       "value": -447628.8867689456
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "1424847/10*pi",
+       "decimal": "447628.8867689456126443782036735649846040",
+       "value": 447628.8867689456
+      },
+      "elongation_m": {
+       "exact": "5359/36000000",
+       "decimal": "0.0001488611111111111111111111111111111111111",
+       "value": 0.0001488611111111111
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1484215625/36",
+         "decimal": "41228211.80555555555555555555555555555556",
+         "value": 41228211.80555555
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "189979600000/4053",
+         "decimal": "46873821.86035035775968418455465087589440",
+         "value": 46873821.860350356
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-HELD-VAC",
+   "purpose": "as R2A-HELD with a signed (vacuum) differential p = -100 kPa in every region; collapse not assessed",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "-5359/3600000000",
+      "decimal": "-0.000001488611111111111111111111111111111111111",
+      "value": -1.488611111111111e-06
+     },
+     "F": {
+      "exact": "-5359/3200000000",
+      "decimal": "-0.0000016746875",
+      "value": -1.6746875e-06
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "-260589/500*pi",
+      "decimal": "-1637.328976012621260435483553210844754180",
+      "value": -1637.3289760126213
+     },
+     "Q": {
+      "exact": "260589/500*pi",
+      "decimal": "1637.328976012621260435483553210844754180",
+      "value": 1637.3289760126213
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "-5359/5*pi",
+      "decimal": "-3367.159006117540392984261178198971191283",
+      "value": -3367.1590061175402
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "-5359/5*pi",
+     "decimal": "-3367.159006117540392984261178198971191283",
+     "value": -3367.1590061175402
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "-100000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "-1424847/1000*pi",
+       "decimal": "-4476.288867689456126443782036735649846040",
+       "value": -4476.288867689456
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-32154/125*pi",
+       "decimal": "-808.1181614682096943162226827677530859078",
+       "value": -808.1181614682097
+      },
+      "effective_force_S_N": {
+       "exact": "260589/500*pi",
+       "decimal": "1637.328976012621260435483553210844754180",
+       "value": 1637.3289760126213
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "1424847/1000*pi",
+       "decimal": "4476.288867689456126443782036735649846040",
+       "value": 4476.288867689456
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "-1424847/1000*pi",
+       "decimal": "-4476.288867689456126443782036735649846040",
+       "value": -4476.288867689456
+      },
+      "elongation_m": {
+       "exact": "-5359/3600000000",
+       "decimal": "-0.000001488611111111111111111111111111111111111",
+       "value": -1.488611111111111e-06
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "-59368625/144",
+         "decimal": "-412282.1180555555555555555555555555555556",
+         "value": -412282.11805555556
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "-1899796000/4053",
+         "decimal": "-468738.2186035035775968418455465087589440",
+         "value": -468738.2186035036
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "-100000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "-1424847/1000*pi",
+       "decimal": "-4476.288867689456126443782036735649846040",
+       "value": -4476.288867689456
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-32154/125*pi",
+       "decimal": "-808.1181614682096943162226827677530859078",
+       "value": -808.1181614682097
+      },
+      "effective_force_S_N": {
+       "exact": "260589/500*pi",
+       "decimal": "1637.328976012621260435483553210844754180",
+       "value": 1637.3289760126213
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "1424847/1000*pi",
+       "decimal": "4476.288867689456126443782036735649846040",
+       "value": 4476.288867689456
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "-1424847/1000*pi",
+       "decimal": "-4476.288867689456126443782036735649846040",
+       "value": -4476.288867689456
+      },
+      "elongation_m": {
+       "exact": "-5359/28800000000",
+       "decimal": "-1.860763888888888888888888888888888888889e-7",
+       "value": -1.8607638888888888e-07
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "-59368625/144",
+         "decimal": "-412282.1180555555555555555555555555555556",
+         "value": -412282.11805555556
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "-1899796000/4053",
+         "decimal": "-468738.2186035035775968418455465087589440",
+         "value": -468738.2186035036
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "-100000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "-353047/1000*pi",
+       "decimal": "-1109.129861571915733459520858536678654757",
+       "value": -1109.1298615719156
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "21436/125*pi",
+       "decimal": "538.7454409788064628774817885118353906052",
+       "value": 538.7454409788064
+      },
+      "effective_force_S_N": {
+       "exact": "260589/500*pi",
+       "decimal": "1637.328976012621260435483553210844754180",
+       "value": 1637.3289760126213
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "353047/1000*pi",
+       "decimal": "1109.129861571915733459520858536678654757",
+       "value": 1109.1298615719156
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "-353047/1000*pi",
+       "decimal": "-1109.129861571915733459520858536678654757",
+       "value": -1109.1298615719156
+      },
+      "elongation_m": {
+       "exact": "5359/3200000000",
+       "decimal": "0.0000016746875",
+       "value": 1.6746875e-06
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "-44130875/192",
+         "decimal": "-229848.3072916666666666666666666666666667",
+         "value": -229848.30729166666
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "-1412188000/5031",
+         "decimal": "-280697.2768833233949513019280461140926257",
+         "value": -280697.2768833234
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-HELD-BODYM",
+   "purpose": "as R2A-HELD with the body on an intermediate section M (bore between L and S): the body bore only moves the fitting load between N and F",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "M",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "425477/2752800000",
+      "decimal": "0.0001545615373437954083115373437954083115373",
+      "value": 0.0001545615373437954
+     },
+     "F": {
+      "exact": "57937/367040000",
+      "decimal": "0.0001578492807323452484742807323452484742807",
+      "value": 0.00015784928073234525
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "58649283/1147*pi",
+      "decimal": "160638.3231134339577629311741186024697076",
+      "value": 160638.32311343396
+     },
+     "Q": {
+      "exact": "-58649283/1147*pi",
+      "decimal": "-160638.3231134339577629311741186024697076",
+      "value": -160638.32311343396
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "58880*pi",
+      "decimal": "184976.9754433670258806804424074971298215",
+      "value": 184976.97544336703
+     },
+     "F": {
+      "exact": "48300*pi",
+      "decimal": "151738.9251683870134177456754123999893067",
+      "value": 151738.925168387
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "107180*pi",
+     "decimal": "336715.9006117540392984261178198971191283",
+     "value": 336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "329119569/2294*pi",
+       "decimal": "450723.4612567737809249953848760469903144",
+       "value": 450723.4612567738
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "30634344/1147*pi",
+       "decimal": "83906.39063464913771223944947925731430121",
+       "value": 83906.39063464914
+      },
+      "effective_force_S_N": {
+       "exact": "-58649283/1147*pi",
+       "decimal": "-160638.3231134339577629311741186024697076",
+       "value": -160638.32311343396
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-329119569/2294*pi",
+       "decimal": "-450723.4612567737809249953848760469903144",
+       "value": -450723.4612567738
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "329119569/2294*pi",
+       "decimal": "450723.4612567737809249953848760469903144",
+       "value": 450723.4612567738
+      },
+      "elongation_m": {
+       "exact": "425477/2752800000",
+       "decimal": "0.0001545615373437954083115373437954083115373",
+       "value": 0.0001545615373437954
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "571388140625/13764",
+         "decimal": "41513233.11718977041557686718977041557687",
+         "value": 41513233.11718977
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "73137682000000/1549597",
+         "decimal": "47197872.73723426155316511325202617196600",
+         "value": 47197872.737234265
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "M",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "194048849/2294*pi",
+       "decimal": "265746.4858134067550443149424685498604929",
+       "value": 265746.48581340676
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "3620200/1147*pi",
+       "decimal": "9915.600457302327359967272516258462372599",
+       "value": 9915.600457302327
+      },
+      "effective_force_S_N": {
+       "exact": "-58649283/1147*pi",
+       "decimal": "-160638.3231134339577629311741186024697076",
+       "value": -160638.32311343396
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-194048849/2294*pi",
+       "decimal": "-265746.4858134067550443149424685498604929",
+       "value": -265746.48581340676
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "194048849/2294*pi",
+       "decimal": "265746.4858134067550443149424685498604929",
+       "value": 265746.48581340676
+      },
+      "elongation_m": {
+       "exact": "18101/5505600000",
+       "decimal": "0.000003287743388549840162743388549840162743389",
+       "value": 3.28774338854984e-06
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "121280530625/3441",
+         "decimal": "35245722.35541993606509735541993606509736",
+         "value": 35245722.355419934
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "388097698000000/9418017",
+         "decimal": "41208005.67677888030994210352349119777550",
+         "value": 41208005.67677888
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "83248649/2294*pi",
+       "decimal": "114007.5606450197416265692670561498711861",
+       "value": 114007.56064501974
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-18539840/1147*pi",
+       "decimal": "-50779.96961005247800713099764870153335009",
+       "value": -50779.96961005248
+      },
+      "effective_force_S_N": {
+       "exact": "-58649283/1147*pi",
+       "decimal": "-160638.3231134339577629311741186024697076",
+       "value": -160638.32311343396
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-83248649/2294*pi",
+       "decimal": "-114007.5606450197416265692670561498711861",
+       "value": -114007.56064501974
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "83248649/2294*pi",
+       "decimal": "114007.5606450197416265692670561498711861",
+       "value": 114007.56064501974
+      },
+      "elongation_m": {
+       "exact": "-57937/367040000",
+       "decimal": "-0.0001578492807323452484742807323452484742807",
+       "value": -0.00015784928073234525
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "1300760140625/55056",
+         "decimal": "23626128.68034365010171461784365010171462",
+         "value": 23626128.68034365
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "166497298000000/5770557",
+         "decimal": "28852898.94892295492445529954907299243383",
+         "value": 28852898.948922954
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-ALLHELD",
+   "purpose": "every node anchored (P, N, F, Q): contrast to the free-capped-end T-3 case; step anchor carries -(1-2nu)*p*dA_i",
+   "notes": [],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "N",
+     "F",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "77841*pi",
+      "decimal": "244544.7137480830954751706235978597840088",
+      "value": 244544.7137480831
+     },
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "-42872*pi",
+      "decimal": "-134686.3602447016157193704471279588476513",
+      "value": -134686.36024470162
+     },
+     "Q": {
+      "exact": "-34969*pi",
+      "decimal": "-109858.3535033814797558001764699009363575",
+      "value": -109858.35350338148
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "107180*pi",
+      "decimal": "336715.9006117540392984261178198971191283",
+      "value": 336715.90061175404
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "107180*pi",
+     "decimal": "336715.9006117540392984261178198971191283",
+     "value": 336715.90061175404
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "233523/2*pi",
+       "decimal": "366817.0706221246432127559353967896760132",
+       "value": 366817.07062212465
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "effective_force_S_N": {
+       "exact": "-77841*pi",
+       "decimal": "-244544.7137480830954751706235978597840088",
+       "value": -244544.7137480831
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-233523/2*pi",
+       "decimal": "-366817.0706221246432127559353967896760132",
+       "value": -366817.07062212465
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "233523/2*pi",
+       "decimal": "366817.0706221246432127559353967896760132",
+       "value": 366817.07062212465
+      },
+      "elongation_m": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "135140625/4",
+         "decimal": "33785156.25",
+         "value": 33785156.25
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "51894000000/1351",
+         "decimal": "38411547.00222057735011102886750555144338",
+         "value": 38411547.00222058
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "233523/2*pi",
+       "decimal": "366817.0706221246432127559353967896760132",
+       "value": 366817.07062212465
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "effective_force_S_N": {
+       "exact": "-77841*pi",
+       "decimal": "-244544.7137480830954751706235978597840088",
+       "value": -244544.7137480831
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-233523/2*pi",
+       "decimal": "-366817.0706221246432127559353967896760132",
+       "value": -366817.07062212465
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "233523/2*pi",
+       "decimal": "366817.0706221246432127559353967896760132",
+       "value": 366817.07062212465
+      },
+      "elongation_m": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "135140625/4",
+         "decimal": "33785156.25",
+         "value": 33785156.25
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "51894000000/1351",
+         "decimal": "38411547.00222057735011102886750555144338",
+         "value": 38411547.00222058
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "104907/2*pi",
+       "decimal": "164787.5302550722196337002647048514045362",
+       "value": 164787.53025507223
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "effective_force_S_N": {
+       "exact": "-34969*pi",
+       "decimal": "-109858.3535033814797558001764699009363575",
+       "value": -109858.35350338148
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-104907/2*pi",
+       "decimal": "-164787.5302550722196337002647048514045362",
+       "value": -164787.53025507223
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "104907/2*pi",
+       "decimal": "164787.5302550722196337002647048514045362",
+       "value": 164787.53025507223
+      },
+      "elongation_m": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "546390625/16",
+         "decimal": "34149414.0625",
+         "value": 34149414.0625
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "69938000000/1677",
+         "decimal": "41704233.75074537865235539654144305307096",
+         "value": 41704233.75074538
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-FREE-N-DROPCAP",
+   "purpose": "MUTATION CONTROL, not an admitted case: R2A-FREE-N with the body's cap at junction N omitted (a dropped junction cap must be detected)",
+   "notes": [
+    "the anchor then carries the omitted cap, -p*A_i,body along +x"
+   ],
+   "admitted_case": false,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "N"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "-2883/6400000",
+      "decimal": "-0.00045046875",
+      "value": -0.00045046875
+     },
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "2883/51200000",
+      "decimal": "0.00005630859375",
+      "value": 5.630859375e-05
+     },
+     "Q": {
+      "exact": "8147/20480000",
+      "decimal": "0.000397802734375",
+      "value": 0.000397802734375
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "N": {
+      "exact": "-389205/2*pi",
+      "decimal": "-611361.7843702077386879265589946494600220",
+      "value": -611361.7843702077
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "-389205/2*pi",
+     "decimal": "-611361.7843702077386879265589946494600220",
+     "value": -611361.7843702077
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "389205/2*pi",
+      "decimal": "611361.7843702077386879265589946494600220",
+      "value": 611361.7843702077
+     },
+     "F": {
+      "exact": "107180*pi",
+      "decimal": "336715.9006117540392984261178198971191283",
+      "value": 336715.90061175404
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "603565/2*pi",
+     "decimal": "948077.6849819617779863526768145465791502",
+     "value": 948077.6849819617
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/6400000",
+       "decimal": "0.00045046875",
+       "value": 0.00045046875
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "77841*pi",
+       "decimal": "244544.7137480830954751706235978597840088",
+       "value": 244544.7137480831
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-389205/2*pi",
+       "decimal": "-611361.7843702077386879265589946494600220",
+       "value": -611361.7843702077
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "389205/2*pi",
+       "decimal": "611361.7843702077386879265589946494600220",
+       "value": 611361.7843702077
+      },
+      "elongation_m": {
+       "exact": "2883/51200000",
+       "decimal": "0.00005630859375",
+       "value": 5.630859375e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "225234375/4",
+         "decimal": "56308593.75",
+         "value": 56308593.75
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "86490000000/1351",
+         "decimal": "64019245.00370096225018504811250925240563",
+         "value": 64019245.003700964
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "34969*pi",
+       "decimal": "109858.3535033814797558001764699009363575",
+       "value": 109858.35350338148
+      },
+      "effective_force_S_N": {
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-174845/2*pi",
+       "decimal": "-274645.8837584536993895004411747523408937",
+       "value": -274645.8837584537
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "174845/2*pi",
+       "decimal": "274645.8837584536993895004411747523408937",
+       "value": 274645.8837584537
+      },
+      "elongation_m": {
+       "exact": "34969/102400000",
+       "decimal": "0.000341494140625",
+       "value": 0.000341494140625
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "2731953125/48",
+         "decimal": "56915690.10416666666666666666666666666667",
+         "value": 56915690.104166664
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "349690000000/5031",
+         "decimal": "69507056.25124229775392566090240508845160",
+         "value": 69507056.2512423
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "label": "R2A-HELD-PDIFF",
+   "purpose": "CONTROL (admitted with EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER under D-1): downstream region at 5 MPa, a closure at junction F; far ends anchored",
+   "notes": [
+    "numbers are the closure's, by the same cap sums; not an equal-pressure reducer reference"
+   ],
+   "admitted_case": true,
+   "inputs": {
+    "nodes_x_m": {
+     "P": "0",
+     "N": "4",
+     "F": "9/2",
+     "Q": "15/2"
+    },
+    "anchors_all_six_dof": [
+     "P",
+     "Q"
+    ],
+    "sections_used": [
+     "L",
+     "S"
+    ],
+    "terminals": "every region is one member; both its end nodes are terminals, transfers_to_wall",
+    "junction_nodes": [
+     "N",
+     "F"
+    ]
+   },
+   "results": {
+    "axial_displacement_x_m": {
+     "P": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "N": {
+      "exact": "120713/576000000",
+      "decimal": "0.0002095711805555555555555555555555555555556",
+      "value": 0.00020957118055555556
+     },
+     "F": {
+      "exact": "120713/512000000",
+      "decimal": "0.000235767578125",
+      "value": 0.000235767578125
+     },
+     "Q": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    },
+    "transverse_and_rotations": "exactly 0 at every node (unloaded collinear chain)",
+    "reaction_x_N": {
+     "P": {
+      "exact": "416271/10*pi",
+      "decimal": "130775.3915502476821168083023801141945108",
+      "value": 130775.39155024769
+     },
+     "Q": {
+      "exact": "-416271/10*pi",
+      "decimal": "-130775.3915502476821168083023801141945108",
+      "value": -130775.39155024769
+     }
+    },
+    "reaction_other_components": "exactly 0",
+    "total_reaction_x_N": {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    "junction_cap_sum_x_N": {
+     "N": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "F": {
+      "exact": "603565/4*pi",
+      "decimal": "474038.8424909808889931763384072732895751",
+      "value": 474038.84249098087
+     }
+    },
+    "fitting_resultant_x_N": {
+     "exact": "603565/4*pi",
+     "decimal": "474038.8424909808889931763384072732895751",
+     "value": 474038.84249098087
+    },
+    "members": [
+     {
+      "id": "pipe:up",
+      "from": "P",
+      "to": "N",
+      "section": "L",
+      "region": "region:up",
+      "role": "pipe",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "4",
+      "wall_force_N_w_N": {
+       "exact": "764877/5*pi",
+       "decimal": "480586.3928199600565711182566145352655112",
+       "value": 480586.3928199601
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "362139/10*pi",
+       "decimal": "113769.3221978354133583623212177455894980",
+       "value": 113769.32219783541
+      },
+      "effective_force_S_N": {
+       "exact": "-416271/10*pi",
+       "decimal": "-130775.3915502476821168083023801141945108",
+       "value": -130775.39155024769
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-764877/5*pi",
+       "decimal": "-480586.3928199600565711182566145352655112",
+       "value": -480586.3928199601
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "764877/5*pi",
+       "decimal": "480586.3928199600565711182566145352655112",
+       "value": 480586.3928199601
+      },
+      "elongation_m": {
+       "exact": "120713/576000000",
+       "decimal": "0.0002095711805555555555555555555555555555556",
+       "value": 0.00020957118055555556
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "796746875/18",
+         "decimal": "44263715.27777777777777777777777777777778",
+         "value": 44263715.277777776
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "203967200000/4053",
+         "decimal": "50324993.83172958302491981248457932395756",
+         "value": 50324993.83172958
+        }
+       }
+      }
+     },
+     {
+      "id": "pipe:body",
+      "from": "N",
+      "to": "F",
+      "section": "L",
+      "region": "region:body",
+      "role": "reducer_body",
+      "pressure_Pa": "10000000",
+      "stiffness_scale": "1",
+      "length_m": "1/2",
+      "wall_force_N_w_N": {
+       "exact": "764877/5*pi",
+       "decimal": "480586.3928199600565711182566145352655112",
+       "value": 480586.3928199601
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "362139/10*pi",
+       "decimal": "113769.3221978354133583623212177455894980",
+       "value": 113769.32219783541
+      },
+      "effective_force_S_N": {
+       "exact": "-416271/10*pi",
+       "decimal": "-130775.3915502476821168083023801141945108",
+       "value": -130775.39155024769
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-764877/5*pi",
+       "decimal": "-480586.3928199600565711182566145352655112",
+       "value": -480586.3928199601
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "764877/5*pi",
+       "decimal": "480586.3928199600565711182566145352655112",
+       "value": 480586.3928199601
+      },
+      "elongation_m": {
+       "exact": "120713/4608000000",
+       "decimal": "0.00002619639756944444444444444444444444444444",
+       "value": 2.6196397569444445e-05
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "796746875/18",
+         "decimal": "44263715.27777777777777777777777777777778",
+         "value": 44263715.277777776
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "203967200000/4053",
+         "decimal": "50324993.83172958302491981248457932395756",
+         "value": 50324993.83172958
+        }
+       }
+      },
+      "note": "equivalent mapped-section (reference pipe) rows under the body's forces, not a reducer body or taper stress (DEL-03-05 §2.4, component_body)"
+     },
+     {
+      "id": "pipe:dn",
+      "from": "F",
+      "to": "Q",
+      "section": "S",
+      "region": "region:dn",
+      "role": "pipe",
+      "pressure_Pa": "5000000",
+      "stiffness_scale": "1",
+      "length_m": "3",
+      "wall_force_N_w_N": {
+       "exact": "41683/20*pi",
+       "decimal": "6547.550328979167577941918207261975936100",
+       "value": 6547.550328979168
+      },
+      "mechanical_force_N_m_N": {
+       "exact": "-120713/5*pi",
+       "decimal": "-75846.21479855694223890821414516372633202",
+       "value": -75846.21479855695
+      },
+      "effective_force_S_N": {
+       "exact": "-416271/10*pi",
+       "decimal": "-130775.3915502476821168083023801141945108",
+       "value": -130775.39155024769
+      },
+      "end_action_axial_local_from_N": {
+       "exact": "-41683/20*pi",
+       "decimal": "-6547.550328979167577941918207261975936100",
+       "value": -6547.550328979168
+      },
+      "end_action_axial_local_to_N": {
+       "exact": "41683/20*pi",
+       "decimal": "6547.550328979167577941918207261975936100",
+       "value": 6547.550328979168
+      },
+      "elongation_m": {
+       "exact": "-120713/512000000",
+       "decimal": "-0.000235767578125",
+       "value": -0.000235767578125
+      },
+      "axial_membrane_stress_Pa": {
+       "nominal_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "130259375/96",
+         "decimal": "1356868.489583333333333333333333333333333",
+         "value": 1356868.4895833333
+        }
+       },
+       "reduced_section": {
+        "axial_membrane_sigma_m": {
+         "exact": "8336600000/5031",
+         "decimal": "1657046.312860266348638441661697475650964",
+         "value": 1657046.3128602663
+        }
+       }
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "checks": {
+  "count": 373,
+  "all_pass": true,
+  "by_kind": {
+   "* N_m A==B": 30,
+   "* N_w = 2 nu p A_i": 3,
+   "* N_w A==B": 30,
+   "* N_w unchanged by scale": 3,
+   "* S A==B": 30,
+   "* constitutive": 33,
+   "* displacement zero": 20,
+   "* elongation A==B": 30,
+   "* equilibrium (N_w s + caps + R)": 44,
+   "* free closed leg N_w = p A_i": 9,
+   "B free-DOF residual zero": 11,
+   "C-3 junction anchor reaction exactly 0": 3,
+   "R* = -1/100 x HELD": 2,
+   "R* A==B": 19,
+   "R_F = -(1-2nu) p (A_i,body - A_i,dn)": 1,
+   "R_N = -(1-2nu) p (A_i,up - A_i,body) = 0 (body on L)": 1,
+   "R_N = omitted cap = -p A_i,body (+x)": 1,
+   "R_P = -S0": 6,
+   "R_Q = +S0": 6,
+   "body elongation = (1-2nu) p A_i L/(2 E A_n)": 1,
+   "body elongation halved": 1,
+   "body on L section: junction N carries 0": 1,
+   "differs from equal-pressure R2A-HELD": 1,
+   "differs from the admitted R2A-FREE-N (0)": 1,
+   "each single-member closed region self-equilibrated (sum caps 0)": 10,
+   "effective force uniform along the chain": 6,
+   "end actions follow member orientation (-N_w at from, +N_w at to)": 1,
+   "enlarging fitting resultant = p(A_i,S - A_i,L) (+x)": 1,
+   "far anchors compatible (sum of elongations 0)": 6,
+   "fitting resultant = p(A_i,L - A_i,S) (+x)": 5,
+   "global balance sum R + sum caps": 11,
+   "junction F carries p(A_i,M - A_i,S)": 1,
+   "junction F closure load = p_b A_i,L - p_dn A_i,S": 1,
+   "junction N carries p(A_i,L - A_i,M)": 1,
+   "scale redistributes (S0 changes)": 1,
+   "u* = -1/100 x HELD": 2,
+   "u* A==B": 40
+  }
+ }
+}

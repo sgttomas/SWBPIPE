@@ -5332,15 +5332,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3",
-        "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100",
+        "cdf1a3e06507b7aa0954a271518c09668a0d105214d3a25aed55a1cc873f8d88",
+        "b3fd74047dc916df2a6e9749c27715b46f24764806df747ecc3548e20421ccc3",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579",
-        "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3",
+        "be545e4c29b4ccfdf1fdc104412b7ec981eb903cd3e2861b078782346ed5a92b",
+        "c05b284caa27ff2b3b24c74a5e2e330a4ee611688861a3b5835550d8741228b4",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5633,11 +5633,11 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// a126860a..., dc3685b6... and 4f95c26e...); RV120's inputs were re-derived the same way.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["4fa4eb1c507c388f139baaa26016864b4e8b0479a7b6ac954961ad26f789fd7a", "3d48340626d114279665fc6d540c2554347da383f0f5da809aa52766423922a1"];
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["a10810d2226bf7a553d0fcad904f5e16e730decee6bd95ec76e8f4e191558f76", "ba8a6fa8839b8a4f772296c30025ccd7f5586f831cfc54929d4f4263d87f65fd"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const RV120_N2_INPUTS: [&str; 2] = ["75085031157fd208c3b3f310e1a1eb5eb3cb6d66301ca61d2380e3b4a9ce98b8", "1f412616170323b7e0fdd699f871eddefb80335b21f86e530231eb521319d0f8"];
+const RV120_N2_INPUTS: [&str; 2] = ["10f381488dca5c55a3ab1c4963032e2ac6878bc0fddf5b44581790ebffbd34be", "593370a208566bb367bae72ac5de604fab6d112c041967c25bf60743100bd97f"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5648,10 +5648,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "c7bd597d2bdbbda3ae7b469ef1767491e681b0b088617f244e74dc0d0fdd0a52"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "8692005ea158dff03d8ec90374e201f8e8af42988e6066b7a2e10a8e0aa11a19"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "bdb0e7456c5dd3051ee1d7a618210d88c1e1adae0aa55a135c07d2a8adfa7987"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "8250ffd81f82c225fd39f687225dcd6e5e0748172a29f392e391ff285589c24f"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "2dcc95861d0704d6faee413ffa2c4815b26e85be147e1eb9a1c9a3d17222f44d"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "f6562cdb2ed94e178c0c6f08ecfc7f8654c32d0b8fa376790e72f30652793b62"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "862e523e41f7f0243d9f843a709b9ce49d570964a65b864d864d2cb54d27ff55"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "4c66daf9bee7b5130cc4dd910a97b9579c0957f4abcbedce78a35d3504ac2eb7"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.

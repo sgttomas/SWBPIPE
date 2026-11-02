@@ -438,7 +438,7 @@ or absence a solve of the full model shows today.
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
 | Variable spring as a user-stiffness spring | in tranche 1 | — | — |
 | Tee RS-T1 with user SIFs | in tranche 1 | — | — |
-| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
+| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | RT-A3 increment 4; with the connector, increment 5 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7 | interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31) | RT-A3, R-4 stage S7, after increment 4 (DEL-04-07 `Work/route-unification-r4.md` §0a) | a nonlinear friction normal source is refused on both routes |

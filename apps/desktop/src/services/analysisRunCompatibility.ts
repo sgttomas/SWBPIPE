@@ -60,10 +60,10 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d",
-    current: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf" },
+    current: "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025" },
   { id: "openpipestress.result_semantics/0.3.0/pressure-2",
     recorded: "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6",
-    current: "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf" },
+    current: "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025" },
 ]);
 /** The binding a record is checked against: the current table's, or the exact recorded basis
  * the record names when it is one of `RECORDED_RUN_TABLE_BASES` for that current table. */

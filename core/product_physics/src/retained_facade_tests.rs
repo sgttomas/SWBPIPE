@@ -11,6 +11,18 @@ use sha2::{Digest, Sha256};
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 
+/// Maintained writer for the in-memory exact successor pins. Writing leaves
+/// every structural and digest assertion below active; the record supports a
+/// text-only re-pin proof without storing another permanent fixture copy.
+fn write_exact_pin_input(kind: &str, raw: &Value, mode: PreviewSolverMode, successor: &Value) {
+    if let Some(dir) = std::env::var_os("RTA3_RETAINED_PIN_OUT") {
+        let path = std::path::PathBuf::from(dir).join(format!("{kind}_{}.json", mode.as_str()));
+        std::fs::write(path, serde_json::to_vec(&json!({
+            "source": successor, "invocation": {"request": raw, "solver_mode": mode.as_str()}
+        })).unwrap()).unwrap();
+    }
+}
+
 // W1 re-pin (w1-member-load-certification.md §§6.4, 10, 12, 14): DEF-O-bound
 // preparation/source identities and the outer receipt move; all other nodal successor
 // fields remain identical to merged RF. The raw publication pins below are hashes of
@@ -2591,8 +2603,8 @@ fn b3b_witness_inputs_and_routes() {
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "e83adb4cfe9e9e9443626ea17b11dce8e6e0daa99e512b38ee44dc5d36be3100", "8547e37f7b65c54138fdf308684c810bd8774a750e6f1fad37c87f1d41bb48bf", "e8a6c974b8fbf39f65a913825d9ead8cde0c2a1c8fe767eb1aebea4ccf8720f3"),
-    ("dense_scrutiny", "4664befd799f5ce3498ac1bd8fadf57ef11ed72f9f5bbd703e81366a71706bd3", "9b29ea2a8d88e794579a1ba08729adfb47073efc76cb67a629942d3ef93209cd", "6de92ba53e35c75ca9ea0f94459ec89cd2921554a9478b9e7b42d8281e62d579"),
+    ("sparse_interactive", "b3fd74047dc916df2a6e9749c27715b46f24764806df747ecc3548e20421ccc3", "4a9ee57606e5dcf7cc2f6b11184e94444dc8db80c4cf5af3ba3b9c21954d9a83", "cdf1a3e06507b7aa0954a271518c09668a0d105214d3a25aed55a1cc873f8d88"),
+    ("dense_scrutiny", "c05b284caa27ff2b3b24c74a5e2e330a4ee611688861a3b5835550d8741228b4", "2b552ab54c8fcc971188aa5f79be969337c55c4c86ccced5720163c626df16cf", "be545e4c29b4ccfdf1fdc104412b7ec981eb903cd3e2861b078782346ed5a92b"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2609,7 +2621,7 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "1d3900bed5070ea43b5ed8e42a1c9abad58d3f8897e151f767e767d5f2dfea4b", "52128e9af155581eb8f4dc3147b4eded8bf9e808e5aebc803aefeea3bb173232"),("dense_scrutiny", "c90679670c1a17f7388481e19c634c6813adf623284a801056d899cbaffe5e66", "2d29099bbfab2e333959a224a15eab19921f431f92ac432581c7235f9a53b952")];
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "83fff5b048df091a72369a7962cfc554b810202c6bfa7680c9262525d11c7fbb", "f191936b3775238f34e58372b12c0bc76bca69f47657dd5c0279266ea4209159"),("dense_scrutiny", "193cc73d50a8b3656f67a44ceacf614ac538a22e473012be3d23fdfd215f5b23", "567b2b8d21b683414141a24523e2ebd9676693cccb083ec0b8e2aa68d2138f19")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3021,6 +3033,7 @@ fn b3b_mixed_exact_base_selects_case_beside_not_required() {
         assert_exact_successor(name, &successor, &plain_value, &["selected", "not_required"]);
         let bytes = serde_json::to_vec(&successor).unwrap();
         println!("B3B_MIX_PIN {name} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
+        write_exact_pin_input("mixed", &raw, mode, &successor);
         assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{name}: the pinned mixed successor");
         let direct_raw = raw.clone();
         let (output, counts, direct_captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode, RETAINED_LIMIT).unwrap());
@@ -3646,10 +3659,10 @@ fn two_member_exact(reversed: bool) -> Value {
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "b07a6104d8a05d8536386af57e85f7444c90b343cb4b7012deb8abee78d3caa6"),
-    (false, "dense_scrutiny", "067b43958da8f8b3d246b7e589ade6b5c1825bd6c0930f5ad1ba3667a73b3a11"),
-    (true, "sparse_interactive", "c3231ac240edccb4a9fec682d9e754f6ceee9c06dd6c660ff2ac111658e46295"),
-    (true, "dense_scrutiny", "f74e1f113ddc8d1afba90bcb48e49c8beaa67fbc909ca3ab93f9c11eec5b33dc")];
+    (false, "sparse_interactive", "cfaaaddd1b24c1d9b696b1566acea782d72e54b1523e1afcb339c05917a79675"),
+    (false, "dense_scrutiny", "ec450b5f0f323bff47a068193af872d45a3ac986ab48b0e57e776391ef9199f0"),
+    (true, "sparse_interactive", "5893e55b32d1f1637d63d85671c7aae3bc1bc5cee792f3bd7a1cd9db08d52a8a"),
+    (true, "dense_scrutiny", "73ce51c3c417e701db82c8fbcf4ec233d5e2d9824a475a9c2c618bf6bff28da3")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3675,6 +3688,7 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
             }
             let bytes = sha(&serde_json::to_vec(&successor).unwrap());
             println!("RV123_S1 {label} successor_sha256={bytes}");
+            write_exact_pin_input(if reversed { "two_member_reversed" } else { "two_member" }, &raw, mode, &successor);
             let pinned = TWO_MEMBER_PINNED.iter().find(|(r, m, _)| *r == reversed && *m == mode.as_str()).unwrap().2;
             assert_eq!(bytes, pinned, "{label}: pinned");
         }
@@ -3701,8 +3715,8 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "0681de75782abb8f1724d57db2830c5af6c62fc771c9df88f86fa80b2781e863"),
-    ("dense_scrutiny", "e012cb05141b1dff8649d1a763d2a6904c340a27f050b794cbf81d2985299ff9")];
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "97449ad733ed90c61ed52f5591da7c6127e24dd435e274089fee9aab7c86565f"),
+    ("dense_scrutiny", "e6a553ce32de5aef6ddaab5c16702ffd26b8d66453b577d89fd65e1fe9137d80")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
@@ -3732,6 +3746,7 @@ fn b3b_rv123_s2_unavailable_exact_case_binds_def_e() {
         assert_eq!(source["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: DEF-E's H");
         let bytes = sha(&serde_json::to_vec(&successor).unwrap());
         println!("RV123_S2 {label} successor_sha256={bytes}");
+        write_exact_pin_input("unavailable", &raw, mode, &successor);
         let pinned = UNAVAILABLE_EXACT_PINNED.iter().find(|(m, _)| *m == mode.as_str()).unwrap().1;
         assert_eq!(bytes, pinned, "{label}: pinned");
     }

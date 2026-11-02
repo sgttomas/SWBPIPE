@@ -169,12 +169,12 @@ LEDGER = [
      "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf"],
      "note": f"nonlinear-pf: {TWIN_NOTE}"},
     {"family": "reducer at the branch connection (S270 header to S170 branch)",
-     "target_form": "reducer component on the branch's first member, inside the branch's pressure region",
+     "target_form": "reducer component on the branch's first member in its own pressure region, tee-adjacent at the branch junction",
      "interim_form": "omitted: the branch is S170 from the junction",
      "refusal_code": "EXACT_PRESSURE_REDUCER_IN_REGION",
-     "waits_for": "RT-A3 increment 2 (reducer in region)",
+     "waits_for": "RT-A3 reducer follow-on beyond initial 2a (own-region, tee-adjacent)",
      "profiles": ["linear-ex", "nonlinear-ex", "nonlinear-pf"],
-     "note": f"nonlinear-pf: {TWIN_NOTE}"},
+     "note": f"initial 2a admits a plain collinear run, not this tee-adjacent target; nonlinear-pf: {TWIN_NOTE}"},
     {"family": "nonlinear supports on the exact route (lift-off, friction shoe, gap)",
      "target_form": "nonlinear lift_off UZ at rests i % 3 == 1; friction UX (mu 0.30, normal from the rest) at rests "
                     "i % 12 in {2, 5, 8}; gap UY (5 mm, closes on positive displacement) replacing the guide's UY at "
