@@ -2274,8 +2274,9 @@ manifest's spelling, decides what each crate builds:
   - the headless runner (code review r9 at #1682): the library from
     `src/lib.rs`, the binaries `openpipestress-runner` and
     `headless_preview_runner` from `src/bin/<name>.rs`, each read as a crate
-    root, and its sixteen integration tests, each from `tests/<name>.rs`. It
-    has no build script.
+    root, and its seventeen integration tests, each from `tests/<name>.rs`.
+    It has no build script. The seventeenth, `size_hangers_cli`, was added by
+    DEL-04-11 slice 1d-α (PR #83), with that PR's scrutiny of the change.
   Each reporting crate's one library target must come from its `src/lib.rs`;
   the scan reads the reported file as the root, so a different one is both a
   finding and the file actually read. Any other target, a binary, example,
@@ -2703,10 +2704,17 @@ headless runner) is a scanned crate under the shell's rules:
   below).
 - **Dependency pins.** The runner's normal and development dependencies are
   pinned exactly from its `cargo metadata`, in `SHELL_DEPENDENCIES`' form
-  (`RUNNER_DEPENDENCIES`, ten normal entries, no development ones), and its
+  (`RUNNER_DEPENDENCIES`, eleven normal entries, no development ones), and its
   build-dependencies are pinned empty (`BUILD_DEPENDENCIES`). A new
   dependency of any kind, a rename (`<name> as <key>`) or a removal is a
-  finding.
+  finding. The eleventh, `open_pipe_stress_hanger_sizing`, was added by
+  DEL-04-11 slice 1d-α (PR #83) for the runner's `size-hangers` verb. Its normal direct
+  path dependencies are `product_physics` and `canonical_json` (both already
+  runner dependencies), `units` and `library_import_document`. Its one
+  development dependency is `result_export`, which is not built into the runner. It adds no reporting crate
+  to the runner's closure, and no path package in that closure builds a
+  proc-macro. The exact-set rule is unchanged: this is not a wildcard for later
+  dependencies.
 - **Proc-macros.** A proc-macro's expansion is code the scan never reads.
   From each allowed dependent's manifest the test follows every path
   dependency of every kind and platform, through any depth, with `cargo

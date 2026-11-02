@@ -1,0 +1,1154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/hanger_sizing_result.schema.json",
+  "title": "OpenPipeStress hanger sizing result 1.0.0",
+  "description": "DEL-04-11 slice 1d-α (execution/PKG-04/DEL-04-11/Work/hanger-sizing.md §8.3): a hanger-sizing result published as its own closed document, not as rows of a mechanics envelope and not as an analysis-run record. Every object is closed; the only map with dynamic keys is each solve's states. Two variants, discriminated by status: sized (the algorithm completed; no engineering acceptance) and refused (no table was formed). Every hash is the SHA-256 of the openpipestress_jcs_ijson_v1 canonical text; the hashes identify inputs and authenticate no origin. Numbers are inside that profile: finite, and integral values within ±(2^53 − 1). Cross-field rules JSON Schema cannot state (per-case lists against result.cases, the standing against outcomes, the assumption's numbers against the selection, a constant load_n equal to w_n, bytewise order) are the readers' closure (§8.3.7).",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/SizedDocument"
+    },
+    {
+      "$ref": "#/$defs/RefusedDocument"
+    }
+  ],
+  "$defs": {
+    "Number": {
+      "type": "number",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "Count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "NullableSha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "Pair": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/Number"
+        },
+        {
+          "$ref": "#/$defs/Number"
+        }
+      ],
+      "items": false,
+      "minItems": 2
+    },
+    "Limitations": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance."
+        },
+        {
+          "const": "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result."
+        },
+        {
+          "const": "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state."
+        },
+        {
+          "const": "Hanger sizing is published on the pressure-free route only."
+        }
+      ],
+      "items": false,
+      "minItems": 4
+    },
+    "BasisStatement": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "Every position is measured from the drawn geometry, taken as the installed position at which each spring is set; F_cold is that setting and F_C the cold-condition load."
+        },
+        {
+          "const": "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios."
+        }
+      ],
+      "items": false,
+      "minItems": 2
+    },
+    "Identity": {
+      "type": "object",
+      "properties": {
+        "document_kind": {
+          "const": "openpipestress.hanger_sizing.result"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "semantic_contract_id": {
+          "const": "openpipestress.result_semantics/hanger-sizing-1"
+        },
+        "route": {
+          "const": "pressure_free"
+        },
+        "limitations": {
+          "$ref": "#/$defs/Limitations"
+        },
+        "basis_statement": {
+          "$ref": "#/$defs/BasisStatement"
+        }
+      },
+      "required": [
+        "document_kind",
+        "schema_version",
+        "semantic_contract_id",
+        "route",
+        "limitations",
+        "basis_statement"
+      ]
+    },
+    "SizingRequest": {
+      "type": "object",
+      "properties": {
+        "weight_case": {
+          "type": "string"
+        },
+        "weight_support_state": {
+          "const": "own_solve"
+        },
+        "design_operating_case": {
+          "type": "string"
+        },
+        "check_operating_cases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "support": {
+                "type": "string"
+              },
+              "family_policy": {
+                "enum": [
+                  "variable",
+                  "constant",
+                  "variable_else_constant"
+                ]
+              }
+            },
+            "required": [
+              "support",
+              "family_policy"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "method": {
+          "type": "object",
+          "properties": {
+            "load_design": {
+              "enum": [
+                "hot",
+                "cold"
+              ]
+            },
+            "variation_reference": {
+              "enum": [
+                "operating_load",
+                "design_load"
+              ]
+            },
+            "variation_limit": {
+              "$ref": "#/$defs/Number"
+            },
+            "travel_allowance_m": {
+              "$ref": "#/$defs/Number"
+            },
+            "selection_rule": {
+              "enum": [
+                "smallest_capacity",
+                "least_variation"
+              ]
+            }
+          },
+          "required": [
+            "load_design",
+            "variation_reference",
+            "variation_limit",
+            "travel_allowance_m",
+            "selection_rule"
+          ],
+          "additionalProperties": false
+        },
+        "solver_mode": {
+          "enum": [
+            "sparse_interactive",
+            "dense_scrutiny"
+          ]
+        }
+      },
+      "required": [
+        "weight_case",
+        "weight_support_state",
+        "design_operating_case",
+        "check_operating_cases",
+        "candidates",
+        "method",
+        "solver_mode"
+      ],
+      "additionalProperties": false
+    },
+    "SizedInputs": {
+      "type": "object",
+      "properties": {
+        "canonical_profile": {
+          "const": "openpipestress_jcs_ijson_v1"
+        },
+        "sizing_request": {
+          "$ref": "#/$defs/SizingRequest"
+        },
+        "sizing_request_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "solve_request": {
+          "type": "object",
+          "properties": {
+            "sha256": {
+              "$ref": "#/$defs/Sha256"
+            }
+          },
+          "required": [
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "library": {
+          "type": "object",
+          "properties": {
+            "library_id": {
+              "type": "string"
+            },
+            "sha256": {
+              "$ref": "#/$defs/Sha256"
+            }
+          },
+          "required": [
+            "library_id",
+            "sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "canonical_profile",
+        "sizing_request",
+        "sizing_request_sha256",
+        "solve_request",
+        "library"
+      ],
+      "additionalProperties": false
+    },
+    "RefusedInputs": {
+      "type": "object",
+      "properties": {
+        "canonical_profile": {
+          "const": "openpipestress_jcs_ijson_v1"
+        },
+        "sizing_request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SizingRequest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sizing_request_sha256": {
+          "$ref": "#/$defs/NullableSha256"
+        },
+        "solve_request": {
+          "type": "object",
+          "properties": {
+            "sha256": {
+              "$ref": "#/$defs/NullableSha256"
+            }
+          },
+          "required": [
+            "sha256"
+          ],
+          "additionalProperties": false
+        },
+        "library": {
+          "type": "object",
+          "properties": {
+            "library_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sha256": {
+              "$ref": "#/$defs/NullableSha256"
+            }
+          },
+          "required": [
+            "library_id",
+            "sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "canonical_profile",
+        "sizing_request",
+        "sizing_request_sha256",
+        "solve_request",
+        "library"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "sizing_request": {
+              "type": "null"
+            },
+            "sizing_request_sha256": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "sizing_request": {
+              "type": "object"
+            },
+            "sizing_request_sha256": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "LoadCategory": {
+      "type": "string",
+      "enum": [
+        "weight",
+        "distributed_force",
+        "pressure",
+        "thermal",
+        "hydrotest",
+        "wind",
+        "seismic",
+        "occasional",
+        "concentrated_force",
+        "concentrated_moment",
+        "imposed_displacement"
+      ]
+    },
+    "StateCode": {
+      "type": "string",
+      "enum": [
+        "inactive",
+        "active",
+        "sticking",
+        "sliding"
+      ]
+    },
+    "RefusalCode": {
+      "type": "string",
+      "enum": [
+        "HANGER_SIZING_CANDIDATES_REQUIRED",
+        "HANGER_SIZING_CANDIDATE_DOF_SHARED",
+        "HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED",
+        "HANGER_SIZING_CANDIDATE_DUPLICATE",
+        "HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED",
+        "HANGER_SIZING_CANDIDATE_MOVED",
+        "HANGER_SIZING_CANDIDATE_REFERENCED",
+        "HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED",
+        "HANGER_SIZING_CANDIDATE_UNKNOWN",
+        "HANGER_SIZING_CASE_ROLES_OVERLAP",
+        "HANGER_SIZING_CASE_UNKNOWN",
+        "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED",
+        "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE",
+        "HANGER_SIZING_DERIVED_SOLVE_FAILED",
+        "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED",
+        "HANGER_SIZING_EXACT_ROUTE_PENDING",
+        "HANGER_SIZING_FAMILY_POLICY_REQUIRED",
+        "HANGER_SIZING_ID_COLLISION",
+        "HANGER_SIZING_INPUT_NOT_ADMITTED",
+        "HANGER_SIZING_INPUT_SHAPE_INVALID",
+        "HANGER_SIZING_INPUT_TOO_LARGE",
+        "HANGER_SIZING_LIBRARY_NOT_ADMITTED",
+        "HANGER_SIZING_LIBRARY_RECORD_DUPLICATE",
+        "HANGER_SIZING_LIBRARY_REQUIRED",
+        "HANGER_SIZING_LIBRARY_UNAVAILABLE",
+        "HANGER_SIZING_LOAD_DESIGN_REQUIRED",
+        "HANGER_SIZING_LOAD_NOT_POSITIVE",
+        "HANGER_SIZING_REQUEST_INVALID",
+        "HANGER_SIZING_RESULT_NOT_PUBLISHABLE",
+        "HANGER_SIZING_SELECTION_RULE_REQUIRED",
+        "HANGER_SIZING_SOLVER_MODE_REQUIRED",
+        "HANGER_SIZING_TEST_CASE_UNSUPPORTED",
+        "HANGER_SIZING_TRAVEL_ALLOWANCE_INVALID",
+        "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED",
+        "HANGER_SIZING_VARIATION_LIMIT_INVALID",
+        "HANGER_SIZING_VARIATION_LIMIT_REQUIRED",
+        "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED",
+        "HANGER_SIZING_WEIGHT_CASE_REQUIRED",
+        "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED",
+        "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED"
+      ]
+    },
+    "Case": {
+      "type": "object",
+      "properties": {
+        "case": {
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "weight",
+            "operating"
+          ]
+        },
+        "load_categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LoadCategory"
+          },
+          "uniqueItems": true,
+          "description": "Sorted bytewise and unique."
+        },
+        "uses_condition_set": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "case",
+        "role",
+        "load_categories",
+        "uses_condition_set"
+      ],
+      "additionalProperties": false
+    },
+    "VariableCounts": {
+      "type": "object",
+      "properties": {
+        "E1": {
+          "$ref": "#/$defs/Count"
+        },
+        "E2": {
+          "$ref": "#/$defs/Count"
+        },
+        "V0": {
+          "$ref": "#/$defs/Count"
+        },
+        "L": {
+          "$ref": "#/$defs/Count"
+        },
+        "T": {
+          "$ref": "#/$defs/Count"
+        },
+        "V": {
+          "$ref": "#/$defs/Count"
+        }
+      },
+      "required": [
+        "E1",
+        "E2",
+        "V0",
+        "L",
+        "T",
+        "V"
+      ],
+      "additionalProperties": false
+    },
+    "ConstantCounts": {
+      "type": "object",
+      "properties": {
+        "E1": {
+          "$ref": "#/$defs/Count"
+        },
+        "L": {
+          "$ref": "#/$defs/Count"
+        },
+        "T": {
+          "$ref": "#/$defs/Count"
+        }
+      },
+      "required": [
+        "E1",
+        "L",
+        "T"
+      ],
+      "additionalProperties": false
+    },
+    "Position": {
+      "type": "object",
+      "properties": {
+        "case": {
+          "type": "string"
+        },
+        "u_m": {
+          "$ref": "#/$defs/Number"
+        }
+      },
+      "required": [
+        "case",
+        "u_m"
+      ],
+      "additionalProperties": false
+    },
+    "VariableSelection": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "const": "variable_spring"
+        },
+        "hanger_id": {
+          "type": "string"
+        },
+        "record_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "k_n_per_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "f_cold_n": {
+          "$ref": "#/$defs/Number"
+        },
+        "f_cold_condition_n": {
+          "$ref": "#/$defs/Number"
+        },
+        "envelope_n": {
+          "$ref": "#/$defs/Pair"
+        },
+        "operating": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "case": {
+                "type": "string"
+              },
+              "f_n": {
+                "$ref": "#/$defs/Number"
+              },
+              "variation": {
+                "$ref": "#/$defs/Number"
+              }
+            },
+            "required": [
+              "case",
+              "f_n",
+              "variation"
+            ],
+            "additionalProperties": false
+          },
+          "description": "One entry per operating case, its case ids those of result.cases' operating entries in order (checked by the readers)."
+        }
+      },
+      "required": [
+        "family",
+        "hanger_id",
+        "record_sha256",
+        "k_n_per_m",
+        "f_cold_n",
+        "f_cold_condition_n",
+        "envelope_n",
+        "operating"
+      ],
+      "additionalProperties": false
+    },
+    "ConstantSelection": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "const": "constant_effort"
+        },
+        "hanger_id": {
+          "type": "string"
+        },
+        "record_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "load_n": {
+          "$ref": "#/$defs/Number",
+          "description": "Equal to the candidate's w_n."
+        }
+      },
+      "required": [
+        "family",
+        "hanger_id",
+        "record_sha256",
+        "load_n"
+      ],
+      "additionalProperties": false
+    },
+    "SpringAssumption": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "const": "spring"
+        },
+        "k_n_per_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "f_cold_n": {
+          "$ref": "#/$defs/Number"
+        }
+      },
+      "required": [
+        "role",
+        "k_n_per_m",
+        "f_cold_n"
+      ],
+      "additionalProperties": false
+    },
+    "ForceAssumption": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "const": "force"
+        },
+        "force_n": {
+          "$ref": "#/$defs/Number",
+          "description": "Equal to the candidate's w_n."
+        }
+      },
+      "required": [
+        "role",
+        "force_n"
+      ],
+      "additionalProperties": false
+    },
+    "VariableVerification": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "const": "variable_spring"
+        },
+        "u_cold_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "operating": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "case": {
+                "type": "string"
+              },
+              "u_m": {
+                "$ref": "#/$defs/Number"
+              },
+              "f_n": {
+                "$ref": "#/$defs/Number"
+              },
+              "variation": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/Number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "case",
+              "u_m",
+              "f_n",
+              "variation"
+            ],
+            "additionalProperties": false
+          },
+          "description": "One entry per operating case, its case ids those of result.cases' operating entries in order (checked by the readers)."
+        },
+        "span_m": {
+          "$ref": "#/$defs/Pair"
+        },
+        "required_travel_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "t_pass": {
+          "type": "boolean"
+        },
+        "f_cold_condition_n": {
+          "$ref": "#/$defs/Number"
+        },
+        "departure_n": {
+          "$ref": "#/$defs/Number"
+        },
+        "failed_tests": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "V0",
+              "L",
+              "T",
+              "V"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "description": "An ordered subset of V0, L, T, V."
+        }
+      },
+      "required": [
+        "family",
+        "u_cold_m",
+        "operating",
+        "span_m",
+        "required_travel_m",
+        "t_pass",
+        "f_cold_condition_n",
+        "departure_n",
+        "failed_tests"
+      ],
+      "additionalProperties": false
+    },
+    "ConstantVerification": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "const": "constant_effort"
+        },
+        "u_cold_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "operating": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "description": "One entry per operating case, its case ids those of result.cases' operating entries in order (checked by the readers)."
+        },
+        "span_m": {
+          "$ref": "#/$defs/Pair"
+        },
+        "required_travel_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "t_pass": {
+          "type": "boolean"
+        },
+        "failed_tests": {
+          "type": "array",
+          "items": {
+            "const": "T"
+          },
+          "maxItems": 1
+        }
+      },
+      "required": [
+        "family",
+        "u_cold_m",
+        "operating",
+        "span_m",
+        "required_travel_m",
+        "t_pass",
+        "failed_tests"
+      ],
+      "additionalProperties": false
+    },
+    "Candidate": {
+      "type": "object",
+      "properties": {
+        "support": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "dof": {
+          "enum": [
+            "UX",
+            "UY",
+            "UZ"
+          ]
+        },
+        "family_policy": {
+          "enum": [
+            "variable",
+            "constant",
+            "variable_else_constant"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "selected",
+            "selected_by_fallback",
+            "no_record_fits"
+          ]
+        },
+        "w_n": {
+          "$ref": "#/$defs/Number"
+        },
+        "u_cold_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "operating": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Position"
+          },
+          "description": "One entry per operating case, its case ids those of result.cases' operating entries in order (checked by the readers)."
+        },
+        "span_m": {
+          "$ref": "#/$defs/Pair",
+          "description": "[min, max] with min ≤ max."
+        },
+        "required_travel_m": {
+          "$ref": "#/$defs/Number"
+        },
+        "failure_counts": {
+          "type": "object",
+          "properties": {
+            "variable": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/VariableCounts"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "constant": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ConstantCounts"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "variable",
+            "constant"
+          ],
+          "additionalProperties": false
+        },
+        "selected": {},
+        "governing": {},
+        "verification_assumption": {},
+        "verification": {}
+      },
+      "required": [
+        "support",
+        "node",
+        "dof",
+        "family_policy",
+        "outcome",
+        "w_n",
+        "u_cold_m",
+        "operating",
+        "span_m",
+        "required_travel_m",
+        "failure_counts",
+        "selected",
+        "governing",
+        "verification_assumption",
+        "verification"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {
+            "outcome": {
+              "const": "no_record_fits"
+            },
+            "selected": {
+              "type": "null"
+            },
+            "governing": {
+              "type": "null"
+            },
+            "verification_assumption": {
+              "$ref": "#/$defs/ForceAssumption"
+            },
+            "verification": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "outcome": {
+              "enum": [
+                "selected",
+                "selected_by_fallback"
+              ]
+            },
+            "selected": {
+              "$ref": "#/$defs/VariableSelection"
+            },
+            "governing": {
+              "type": "object",
+              "properties": {
+                "travel_case": {
+                  "type": "string"
+                },
+                "variation_case": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "travel_case",
+                "variation_case"
+              ],
+              "additionalProperties": false
+            },
+            "verification_assumption": {
+              "$ref": "#/$defs/SpringAssumption"
+            },
+            "verification": {
+              "$ref": "#/$defs/VariableVerification"
+            }
+          }
+        },
+        {
+          "properties": {
+            "outcome": {
+              "enum": [
+                "selected",
+                "selected_by_fallback"
+              ]
+            },
+            "selected": {
+              "$ref": "#/$defs/ConstantSelection"
+            },
+            "governing": {
+              "type": "object",
+              "properties": {
+                "travel_case": {
+                  "type": "string"
+                },
+                "variation_case": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "travel_case",
+                "variation_case"
+              ],
+              "additionalProperties": false
+            },
+            "verification_assumption": {
+              "$ref": "#/$defs/ForceAssumption"
+            },
+            "verification": {
+              "$ref": "#/$defs/ConstantVerification"
+            }
+          }
+        }
+      ]
+    },
+    "Solve": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "pattern": "^(S_W|S_C|S_O[1-9][0-9]*|V_C|V_O[1-9][0-9]*)$"
+        },
+        "case": {
+          "type": "string"
+        },
+        "derived_document_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "states": {
+          "type": "object",
+          "propertyNames": {
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/StateCode"
+          },
+          "description": "Each nonlinear support's state in this solve; empty when the model has none."
+        }
+      },
+      "required": [
+        "label",
+        "case",
+        "derived_document_sha256",
+        "states"
+      ],
+      "additionalProperties": false
+    },
+    "Disclosure": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "enum": [
+            "HANGER_SIZING_SUPPORT_STATE_DIFFERS",
+            "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"
+          ]
+        },
+        "names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "Sorted bytewise."
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "names",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "Refusal": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/RefusalCode"
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "code",
+        "names",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "Result": {
+      "type": "object",
+      "properties": {
+        "verification_standing": {
+          "enum": [
+            "unconditional",
+            "conditional"
+          ]
+        },
+        "cases": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/Case"
+          },
+          "description": "Weight, design operating, then the checks in request order."
+        },
+        "candidates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Candidate"
+          }
+        },
+        "solves": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "$ref": "#/$defs/Solve"
+          },
+          "description": "Exactly 2n + 3: S_W, S_C, S_O1…S_On, V_C, V_O1…V_On."
+        },
+        "disclosures": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/Disclosure"
+          }
+        }
+      },
+      "required": [
+        "verification_standing",
+        "cases",
+        "candidates",
+        "solves",
+        "disclosures"
+      ],
+      "additionalProperties": false
+    },
+    "SizedDocument": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/Identity"
+        }
+      ],
+      "properties": {
+        "status": {
+          "const": "sized"
+        },
+        "inputs": {
+          "$ref": "#/$defs/SizedInputs"
+        },
+        "result": {
+          "$ref": "#/$defs/Result"
+        }
+      },
+      "required": [
+        "status",
+        "inputs",
+        "result"
+      ],
+      "unevaluatedProperties": false
+    },
+    "RefusedDocument": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/Identity"
+        }
+      ],
+      "properties": {
+        "status": {
+          "const": "refused"
+        },
+        "inputs": {
+          "$ref": "#/$defs/RefusedInputs"
+        },
+        "refusals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Refusal"
+          },
+          "description": "In the engine's order."
+        }
+      },
+      "required": [
+        "status",
+        "inputs",
+        "refusals"
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

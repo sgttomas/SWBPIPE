@@ -1139,6 +1139,20 @@ mod wasm_api {
         }
     }
 
+    /// Model document 0.9.0, S2 (DEL-02-01 Design `model-document-0.9.0.md` §4.2,
+    /// §10): the read-only preview of a document's operating-condition
+    /// resolution, `operating_conditions::preview_operating_conditions` (the
+    /// solve's own parse, document checks, refusals and resolution plan), as
+    /// JSON text; the input-error envelope when the text is not JSON. Nothing is
+    /// written to the model.
+    #[wasm_bindgen]
+    pub fn preview_operating_conditions_json(model_json: &str) -> String {
+        match parse_input("model", model_json) {
+            Ok(model) => open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&model).to_string(),
+            Err(error) => error,
+        }
+    }
+
     /// Display-only numeric conversion through the one accepted unit catalog.
     #[wasm_bindgen]
     pub fn convert_display_quantities_json(input_json: &str) -> String {

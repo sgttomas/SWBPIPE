@@ -1,0 +1,5991 @@
+{
+  "description": "Native operating-condition previews (core/product_physics operating_conditions::preview_operating_conditions) of invented documents, for the wasm engine's parity check. Written by core/product_physics/tests/model_document_0_9_0_s2.rs with OPENPIPESTRESS_WRITE_PREVIEW_PARITY=1; never edited by hand.",
+  "rows": [
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "resolved",
+      "preview": {
+        "cases": [
+          {
+            "case_id": "OPE",
+            "generated_primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_z",
+                "id": "load:condition-temperature:3:OPE:2:P1",
+                "magnitude": {
+                  "unit": "K",
+                  "value": 78.88888888888889
+                },
+                "provenance": "{\"condition\":\"OPE1\",\"condition_set\":\"cs:warm\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"temperature\"}",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_z",
+                "id": "load:condition-temperature:3:OPE:2:P2",
+                "magnitude": {
+                  "unit": "K",
+                  "value": 130.0
+                },
+                "provenance": "{\"condition\":\"OPE1\",\"condition_set\":\"cs:hot\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"temperature\"}",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_z",
+                "id": "load:condition-temperature:3:OPE:2:P3",
+                "magnitude": {
+                  "unit": "K",
+                  "value": 80.0
+                },
+                "provenance": "{\"condition\":\"OPE1\",\"condition_set\":\"cs:cold\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"temperature\"}",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "load:condition-added-weight:3:OPE:2:P2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "{\"condition_set\":\"cs:hot\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"added_weight\"}",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_y",
+                "id": "load:condition-added-weight:3:OPE:2:P3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 200.0
+                },
+                "provenance": "{\"condition_set\":\"cs:cold\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"added_weight\"}",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "wind_exposed_pipe_refs": null
+          },
+          {
+            "case_id": "SUS",
+            "generated_primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "load:condition-added-weight:3:SUS:2:P2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "{\"condition_set\":\"cs:hot\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"added_weight\"}",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_y",
+                "id": "load:condition-added-weight:3:SUS:2:P3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 200.0
+                },
+                "provenance": "{\"condition_set\":\"cs:cold\",\"method\":\"operating_condition_set_v1\",\"quantity\":\"added_weight\"}",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "wind_exposed_pipe_refs": null
+          },
+          {
+            "case_id": "WIND",
+            "generated_primitive_loads": [],
+            "wind_exposed_pipe_refs": [
+              "P2",
+              "P3"
+            ]
+          }
+        ],
+        "diagnostics": [],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": true
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "set_missing",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "OPE",
+              "P2",
+              "temperature"
+            ],
+            "code": "OPERATING_CONDITION_SET_MISSING",
+            "id": "diagnostic:load-case:OPE:condition:temperature:P2:set-missing",
+            "message": "load case `OPE` uses temperature from conditions and pipe `P2` carries no condition set; no pipe is skipped and no value is assumed, so nothing is solved",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          },
+          {
+            "affected_refs": [
+              "OPE",
+              "P2",
+              "added_weight"
+            ],
+            "code": "OPERATING_CONDITION_SET_MISSING",
+            "id": "diagnostic:load-case:OPE:condition:added-weight:P2:set-missing",
+            "message": "load case `OPE` uses added_weight from conditions and pipe `P2` carries no condition set; no pipe is skipped and no value is assumed, so nothing is solved",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          },
+          {
+            "affected_refs": [
+              "SUS",
+              "P2",
+              "added_weight"
+            ],
+            "code": "OPERATING_CONDITION_SET_MISSING",
+            "id": "diagnostic:load-case:SUS:condition:added-weight:P2:set-missing",
+            "message": "load case `SUS` uses added_weight from conditions and pipe `P2` carries no condition set; no pipe is skipped and no value is assumed, so nothing is solved",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          },
+          {
+            "affected_refs": [
+              "WIND",
+              "P2",
+              "wind_exposure"
+            ],
+            "code": "OPERATING_CONDITION_SET_MISSING",
+            "id": "diagnostic:load-case:WIND:condition:wind-exposure:P2:set-missing",
+            "message": "load case `WIND` uses wind_exposure from conditions and pipe `P2` carries no condition set; no pipe is skipped and no value is assumed, so nothing is solved",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "exposed_spans": [],
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "authored_empty_spans",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "WIND",
+              "exposed_spans"
+            ],
+            "code": "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
+            "id": "diagnostic:load-case:WIND:condition:wind-conflict:exposed_spans",
+            "message": "load case `WIND` takes its wind exposure from conditions and also authors equivalent_static.wind.exposed_spans; a case takes wind exposure from one source only, so nothing is solved",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                },
+                "temprature": 1
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "unknown_field",
+      "preview": {
+        "cases": [],
+        "diagnostics": [],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "refusal": "UNKNOWN_MODEL_FIELD: request: unknown field `temprature` in condition `OPE1` of condition set `cs:cold` (model.condition_sets[0].conditions[0]). The model document does not define these keys, so they would be ignored; nothing is solved. Correct or remove each key.",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "components": [],
+        "data_boundary": {
+          "private_data_policy": "no_private_project_data",
+          "professional_boundary": "technical_preview_requires_human_engineering_review",
+          "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+          "public_examples_policy": "invented_or_cleared_data_only"
+        },
+        "diagnostics": [],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "temperature": "OPE1"
+            },
+            "id": "case",
+            "kind": "primitive_user_load",
+            "label": "Invented case",
+            "pressure_regions": [],
+            "primitive_loads": [
+              {
+                "category": "concentrated_moment",
+                "dimension": "moment",
+                "direction": "RX",
+                "id": "torque",
+                "magnitude": {
+                  "unit": "N*m",
+                  "value": 1e-8
+                },
+                "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+                "target": {
+                  "node": "independent-tip",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "status": "user_entered"
+          }
+        ],
+        "materials": [
+          {
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "material",
+            "label": "Invented material",
+            "poisson_ratio": {
+              "unit": "1",
+              "value": 0.25
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "independent-root",
+            "label": "Invented independent-root",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+          },
+          {
+            "id": "independent-tip",
+            "label": "Invented independent-tip",
+            "position": {
+              "x": 2.0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "independent-root",
+            "id": "independent-member",
+            "label": "Invented independent-member",
+            "material": "material",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "section": {
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "independent-tip",
+            "y_reference": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_pressure_v3",
+          "shear_model": "euler_bernoulli",
+          "version": "3.0.0"
+        },
+        "project": {
+          "description": "Numerical reference inputs with explicitly invented desktop metadata; no external project or library data.",
+          "id": "synthetic:physics-source:n05",
+          "name": "Synthetic exact-profile retained-source n05",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "label": "Invented anchor",
+            "node": "independent-root",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "independent-spring",
+            "label": "Invented independent-spring",
+            "node": "independent-root",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "restraints": [
+              "RX"
+            ],
+            "stiffness": {
+              "dof": "RX",
+              "value": {
+                "unit": "N*m/rad",
+                "value": 0.0001
+              }
+            }
+          }
+        ]
+      },
+      "name": "exact_route",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "case"
+            ],
+            "code": "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
+            "id": "diagnostic:load-case:case:condition-use",
+            "message": "load case `case` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "pf_no_use",
+      "preview": {
+        "cases": [],
+        "diagnostics": [],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": true
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "components": [],
+        "data_boundary": {
+          "private_data_policy": "no_private_project_data",
+          "professional_boundary": "technical_preview_requires_human_engineering_review",
+          "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+          "public_examples_policy": "invented_or_cleared_data_only"
+        },
+        "diagnostics": [],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "case",
+            "kind": "primitive_user_load",
+            "label": "Invented case",
+            "pressure_regions": [],
+            "primitive_loads": [
+              {
+                "category": "concentrated_moment",
+                "dimension": "moment",
+                "direction": "RX",
+                "id": "torque",
+                "magnitude": {
+                  "unit": "N*m",
+                  "value": 1e-8
+                },
+                "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+                "target": {
+                  "node": "independent-tip",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "status": "user_entered"
+          }
+        ],
+        "materials": [
+          {
+            "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "material",
+            "label": "Invented material",
+            "poisson_ratio": {
+              "unit": "1",
+              "value": 0.25
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "independent-root",
+            "label": "Invented independent-root",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+          },
+          {
+            "id": "independent-tip",
+            "label": "Invented independent-tip",
+            "position": {
+              "x": 2.0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "independent-root",
+            "id": "independent-member",
+            "label": "Invented independent-member",
+            "material": "material",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "section": {
+              "corrosion_allowance": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "independent-tip",
+            "y_reference": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_pressure_v3",
+          "shear_model": "euler_bernoulli",
+          "version": "3.0.0"
+        },
+        "project": {
+          "description": "Numerical reference inputs with explicitly invented desktop metadata; no external project or library data.",
+          "id": "synthetic:physics-source:n05",
+          "name": "Synthetic exact-profile retained-source n05",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "label": "Invented anchor",
+            "node": "independent-root",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "independent-spring",
+            "label": "Invented independent-spring",
+            "node": "independent-root",
+            "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
+            "restraints": [
+              "RX"
+            ],
+            "stiffness": {
+              "dof": "RX",
+              "value": {
+                "unit": "N*m/rad",
+                "value": 0.0001
+              }
+            }
+          }
+        ]
+      },
+      "name": "exact_no_use",
+      "preview": {
+        "cases": [],
+        "diagnostics": [],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": true
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.8.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "retired_080",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "schema_version"
+            ],
+            "code": "MODEL_SCHEMA_VERSION_RETIRED",
+            "id": "diagnostic:pressure-runtime:schema_version:MODEL_SCHEMA_VERSION_RETIRED",
+            "message": "model document 0.8.0 is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated.",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.2.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "retired_020",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "schema_version"
+            ],
+            "code": "MODEL_SCHEMA_VERSION_RETIRED",
+            "id": "diagnostic:pressure-runtime:schema_version:MODEL_SCHEMA_VERSION_RETIRED",
+            "message": "model document 0.2.0 is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated.",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "9.9.9",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "newer_schema",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "schema_version"
+            ],
+            "code": "PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
+            "id": "diagnostic:pressure-runtime:schema_version:PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
+            "message": "direct mechanics solves support exactly model version 0.9.0",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "empty_schema",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "schema_version"
+            ],
+            "code": "PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
+            "id": "diagnostic:pressure-runtime:schema_version:PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
+            "message": "direct mechanics solves support exactly model version 0.9.0",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "model"
+            ],
+            "code": "PREVIEW_SCHEMA_VERSION_MISSING",
+            "id": "diagnostic:physics:schema-version",
+            "message": "preview model requires an explicit schema version",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "not.a.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "wrong_kind",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "model"
+            ],
+            "code": "PREVIEW_DOCUMENT_KIND_INVALID",
+            "id": "diagnostic:physics:document-kind",
+            "message": "physics adapter requires an openpipestress.product_preview.model document",
+            "severity": "blocking",
+            "source": "core/product_physics"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "exact_straight_pressure_v2",
+          "version": "2.0.0"
+        },
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "retired_contract",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "pressure_contract"
+            ],
+            "code": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
+            "id": "diagnostic:pressure-runtime:pressure_contract:PRESSURE_MODEL_REAUTHOR_REQUIRED",
+            "message": "this pressure contract is retired; re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "P1",
+              "corrosion_allowance"
+            ],
+            "code": "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "id": "diagnostic:pressure-runtime:P1-corrosion_allowance:EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "message": "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "P2",
+              "corrosion_allowance"
+            ],
+            "code": "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "id": "diagnostic:pressure-runtime:P2-corrosion_allowance:EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "message": "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "P3",
+              "corrosion_allowance"
+            ],
+            "code": "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "id": "diagnostic:pressure-runtime:P3-corrosion_allowance:EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "message": "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    },
+    {
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "C-SUM",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "terms": [
+              {
+                "factor": 1.0,
+                "load_case": "OPE"
+              },
+              {
+                "factor": 1.0,
+                "load_case": "SUS"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "C-SUB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          },
+          {
+            "basis": "result_state_subtraction",
+            "difference_basis": "operating_minus_sustained",
+            "id": "C-DB",
+            "minuend_id": "OPE",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "subtrahend_id": "SUS"
+          }
+        ],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_y",
+              "magnitude": {
+                "unit": "N/m",
+                "value": 200.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "K",
+                  "value": 373.15
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:cold",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -0.3
+              }
+            },
+            "conditions": [
+              {
+                "key": "HYDRO",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 20.0
+                }
+              },
+              {
+                "key": "OPE1",
+                "pressure": {
+                  "unit": "MPa",
+                  "value": 1.5
+                },
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "snow_ice": true,
+              "wind": true
+            },
+            "id": "cs:hot",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degF",
+                  "value": 212.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": false
+            },
+            "id": "cs:warm",
+            "installation_temperature": {
+              "unit": "degF",
+              "value": 70.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "condition_use": {
+              "added_weight": true,
+              "temperature": "OPE1"
+            },
+            "id": "OPE",
+            "primitive_loads": [
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w1",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": 100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w2",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -100000000.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "weight",
+                "dimension": "force_per_length",
+                "direction": "global_z",
+                "id": "OPE:w3",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -0.3
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P2",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "added_weight": true
+            },
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "condition_use": {
+              "wind_exposure": true
+            },
+            "equivalent_static": {
+              "provenance": "invented_rt_g5_s2_test_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "PLAIN",
+            "primitive_loads": [
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t1",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P1",
+                  "type": "element"
+                }
+              },
+              {
+                "category": "thermal",
+                "dimension": "temperature_change",
+                "direction": "global_x",
+                "id": "PLAIN:t3",
+                "magnitude": {
+                  "unit": "degF",
+                  "value": 7.0
+                },
+                "provenance": "invented_rt_g5_s2_test_input",
+                "target": {
+                  "pipe": "P3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          },
+          {
+            "id": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_rt_g5_s2_test_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:warm",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:hot",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:cold",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "pressure_contract": {
+          "mode": "unknown",
+          "version": "unknown"
+        },
+        "project": {
+          "id": "invented:rt-g5-s2",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_rt_g5_s2_test_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "name": "unsupported_contract",
+      "preview": {
+        "cases": [],
+        "diagnostics": [
+          {
+            "affected_refs": [
+              "pressure_contract"
+            ],
+            "code": "PRESSURE_CONTRACT_UNSUPPORTED",
+            "id": "diagnostic:pressure-runtime:pressure_contract:PRESSURE_CONTRACT_UNSUPPORTED",
+            "message": "model document 0.9.0 accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "P1",
+              "corrosion_allowance"
+            ],
+            "code": "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "id": "diagnostic:pressure-runtime:P1-corrosion_allowance:EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "message": "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "P2",
+              "corrosion_allowance"
+            ],
+            "code": "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "id": "diagnostic:pressure-runtime:P2-corrosion_allowance:EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "message": "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          },
+          {
+            "affected_refs": [
+              "P3",
+              "corrosion_allowance"
+            ],
+            "code": "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "id": "diagnostic:pressure-runtime:P3-corrosion_allowance:EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+            "message": "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default",
+            "severity": "blocking",
+            "source": "core/product_physics/src/pressure_runtime.rs"
+          }
+        ],
+        "document_kind": "openpipestress.operating_condition_preview",
+        "resolved": false
+      }
+    }
+  ]
+}

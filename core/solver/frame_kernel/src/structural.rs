@@ -2,6 +2,8 @@
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
 mod formation_check;
+/// DEL-04-09 seam (i): K-D5's p128 element formation from supplied operands.
+pub mod element_reformation;
 mod arc_certificate;
 mod certified_recovery;
 mod retained;

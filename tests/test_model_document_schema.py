@@ -138,8 +138,24 @@ UNBOUND_FROZEN_INPUTS = {
         "sha256 tools/release/provenance_scope.json records, not a SHA256SUMS",
 }
 
+# S2 preview parity deliberately records schema-invalid namespace/transport controls.
+# Exempt only these exact documents, not the whole fixture or a retired-version path.
+# The guard below repairs only the named fault and validates every remaining member;
+# native and actual-Wasm parity tests still require each original refusal.
+S2_PREVIEW_PARITY = "fixtures/operating_conditions/preview_parity.json"
+S2_PREVIEW_SCHEMA_CONTROLS = {
+    3: ("unknown_field", "closed-record refusal for the misspelled condition member `temprature`"),
+    7: ("retired_080", "explicit retired 0.8.0 model-version refusal"),
+    9: ("newer_schema", "unsupported future model-version refusal"),
+    10: ("empty_schema", "empty model-version refusal"),
+    12: ("retired_contract", "retired v2 pressure contract without a current shear-model member"),
+    13: ("unsupported_contract", "unknown pressure contract without a current shear-model member"),
+}
+
 # (file, JSON pointer of the document) -> reason. Keep this list short.
 EXPLICIT_EXCLUSIONS: dict[tuple[str, str], str] = {
+    **{(S2_PREVIEW_PARITY, f"/rows/{index}/model"): reason
+       for index, (_, reason) in S2_PREVIEW_SCHEMA_CONTROLS.items()},
     **{("fixtures/comparison/model_state_comparison_golden.json", f"/pairs/{pair}/{side}_entities/0/fields"):
        "the `model` entity of a state-comparison parity pair: the document's own members as flattened comparison "
        "fields of invented inputs (DEL-14-01 Design §4.1), not a model document"
@@ -355,6 +371,41 @@ def test_explicit_exclusions_are_live_and_still_fail():
     for key, document in present.items():
         with pytest.raises(AssertionError):
             validate_instance(schema, document, schema_label=str(SCHEMA_PATH), instance_label=f"{key[0]}#{key[1]}")
+
+
+@pytest.mark.parametrize("index", S2_PREVIEW_SCHEMA_CONTROLS)
+def test_s2_preview_schema_control_has_only_its_named_fault(index):
+    """An exact negative control exempts its named fault, not other malformed input."""
+    from copy import deepcopy
+
+    row = strict_json(ROOT / S2_PREVIEW_PARITY)["rows"][index]
+    assert row["name"] == S2_PREVIEW_SCHEMA_CONTROLS[index][0]
+    assert row["preview"]["resolved"] is False
+    document = deepcopy(row["model"])
+    if index == 3:
+        assert document["condition_sets"][0]["conditions"][0].pop("temprature") == 1
+    elif index in (7, 9, 10):
+        assert document["schema_version"] == {7: "0.8.0", 9: "9.9.9", 10: ""}[index]
+        document["schema_version"] = CURRENT_VERSION
+    else:
+        assert document["pressure_contract"] == {
+            12: {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+            13: {"version": "unknown", "mode": "unknown"},
+        }[index]
+        document["pressure_contract"] = {
+            "version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli",
+        }
+    _validate(format_schema(), document, f"{S2_PREVIEW_PARITY} row {index}, named fault repaired")
+
+
+@pytest.mark.parametrize("relative,pointer", [
+    (S2_PREVIEW_PARITY, "/rows/14/model"),
+    ("fixtures/operating_conditions/unlisted.json", "/rows/7/model"),
+])
+def test_s2_preview_exclusion_does_not_cover_another_document(monkeypatch, relative, pointer):
+    document = {"document_kind": DOCUMENT_KIND, "schema_version": "0.8.0"}
+    monkeypatch.setattr(sys.modules[__name__], "committed_documents", lambda: [(relative, pointer, document)])
+    assert classify() == [("unclassified", relative, pointer, document)]
 
 
 @pytest.mark.parametrize(("definition", "target"), [
