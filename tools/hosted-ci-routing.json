@@ -221,7 +221,7 @@
       "core/reporting/report_package/Cargo.toml": "4763094f697b2201e8f5cdc7745e5cd284941be1bc0b70f48388e3df67459a21",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "64d4c1fd58d393e2d4ed41b3517cd05fc2dec3ce4041584e16f5a1964f6e20f1",
+      "core/reporting/result_export/Cargo.toml": "b2f82c9c3d299310eeb31f0e4a1f979d498b143249444f0f032ae484ad14fcd3",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -1600,7 +1600,7 @@
         ]
       },
       "core/reporting/result_export/tests/load_reference_contract.rs": {
-        "sha256": "fed4eb1379beeb67a2488130e1dd97fe813d66edd36e59ad4259e89234b442f4",
+        "sha256": "290123b8b754b979254340648020279ae6bd3c5b326b7c830d71d5ce4d22ef59",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
