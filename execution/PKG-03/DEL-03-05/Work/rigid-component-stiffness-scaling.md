@@ -216,6 +216,9 @@ the same bounded topology's eccentric or slanted body when W-15c's whole
 run-evidence and offset method accepts it and the run passes through the body
 (“Eccentric reducer pressure step”); the slanted or eccentric bodies it does
 not accept keep `EXACT_PRESSURE_REDUCER_IN_REGION` or W-15c's own refusal.
+Its full-reference-system test overlays RS-R1 (s = 2, 300 N) with W
+regenerated and checks the scaled body's recovery, its reference-section
+records and the headline exclusion beside the valve and flanges (s = 10).
  Admitted valves and flanges are an equivalent
 pipe of the represented bore: bore continuity, cap thrust and the annular κ are
 those of the mapped section.

@@ -386,6 +386,16 @@ node-governs-mechanics meanings above are unchanged. The pressure caps stay at
 the actual nodes and members, and their resultant is the eccentric wrench.
 The retained and source sub-routes still refuse every component (W-15 §2.7).
 
+On the full reference system (candidate,
+`core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs`), RS-R1 is
+overlaid in the test only, with W regenerated. W-15c realizes its declared
+offset in every case, and the body is formed along the chord with s·K. Its
+free thermal growth uses the case modulus, and slice b's 300 N wrench replaces
+the body's distributed weight. Independent local recovery and equilibrium
+checks confirm this. DEL-04-07 `Work/pressure-contract.md`, "Eccentric reducer
+pressure step", states the proof and its limits. The maintained fixture and
+its ledger are not changed.
+
 ### 3.8 Not done in slice c
 
 These are recorded as remaining items:
