@@ -203,7 +203,8 @@
   "piping_runtime_reads": {
     "source_trees": {
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "938f5eaec9679588a64ddbd7e0545f071ef0ce3b4c481a3df94ce87d9bccd035",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "065a94ff712a62c8ae83dea69eb11342b5473d897d60461886a0a9e5faacd041",
+      "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
       "core/library_import/library_import_document/Cargo.toml": "26b545d7e2d6988d54a256e63f1136b49c4e2fc907af18c9c7affc38cd2498d4",
       "core/loads/load_case_algebra/Cargo.toml": "4e44202fd15779dc0b08e2f2ea34ed3401de8e8e2c394aba335d07dd65337b39",
       "core/loads/primitive_loads/Cargo.toml": "c62ebd4ac6ad01fe673db598aa412b29c6338fdd25d4d21385c51323d7709818",
@@ -2371,6 +2372,7 @@
               "apps/desktop/src-tauri/src/ingress.rs",
               "apps/desktop/src-tauri/src/lib.rs",
               "apps/desktop/src-tauri/src/main.rs",
+              "apps/desktop/src-tauri/src/mbf_export.rs",
               "apps/desktop/src-tauri/src/memory_pool.rs",
               "apps/desktop/src-tauri/src/model_document_file.rs",
               "apps/desktop/src-tauri/src/model_document_save.rs",
@@ -2405,6 +2407,7 @@
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
               "core/handoff/caepipe_mbf_engine/src/decimal90.rs",
+              "core/handoff/caepipe_mbf_engine/src/export_settings.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/assemble.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/build.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/finish.rs",
@@ -2423,6 +2426,7 @@
               "core/handoff/caepipe_mbf_engine/src/writer/mod.rs",
               "core/handoff/caepipe_mbf_engine/src/writer/read.rs",
               "core/handoff/caepipe_mbf_engine/src/writer/render.rs",
+              "core/handoff/caepipe_mbf_wasm/src/lib.rs",
               "core/library_import/library_import_document/src/lib.rs",
               "core/loads/load_case_algebra/src/factor_sum.rs",
               "core/loads/load_case_algebra/src/lib.rs",
@@ -4365,6 +4369,7 @@
               "apps/desktop/src-tauri/Cargo.toml",
               "core/gui/viewport_editor/Cargo.toml",
               "core/handoff/caepipe_mbf_engine/Cargo.toml",
+              "core/handoff/caepipe_mbf_wasm/Cargo.toml",
               "core/library_import/library_import_document/Cargo.toml",
               "core/loads/load_case_algebra/Cargo.toml",
               "core/loads/primitive_loads/Cargo.toml",
@@ -4648,6 +4653,10 @@
               "fixtures/caepipe_external/invented/print_to_file_results.provenance.json",
               "fixtures/caepipe_external/invented/skipped_run_package.json",
               "fixtures/caepipe_mbf/invented/caepipe_mbf_export_package.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/export_digests.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/export_digests.provenance.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/export_model.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/export_model.provenance.json",
               "fixtures/caepipe_mbf/invented/import/units_english.provenance.json",
               "fixtures/caepipe_mbf/invented/import/units_si.provenance.json",
               "fixtures/caepipe_mbf/invented/parity/import_vectors.json",
@@ -5589,6 +5598,29 @@
             "base": "project",
             "files": [
               "core/handoff/caepipe_mbf/si_writer.py"
+            ]
+          }
+        ]
+      },
+      "core/handoff/caepipe_mbf_wasm/tests/export.rs": {
+        "sha256": "40484a36098b47ba5dff806d54c219473b86b2c8e0c962809dbfea59d17f0609",
+        "source_trees": [
+          "core/handoff/caepipe_mbf_wasm/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/caepipe_mbf/invented/desktop_export",
+            "base": "project",
+            "files": [
+              "fixtures/caepipe_mbf/invented/desktop_export/export_digests.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/export_model.json"
+            ]
+          },
+          {
+            "anchor": "fixtures/model_document/invented_every_slot_model.json",
+            "base": "project",
+            "files": [
+              "fixtures/model_document/invented_every_slot_model.json"
             ]
           }
         ]

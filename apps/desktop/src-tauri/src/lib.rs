@@ -21,6 +21,7 @@ mod handoff_package_publish;
 mod host_memory;
 #[allow(unsafe_code)]
 mod ingress;
+mod mbf_export;
 mod memory_pool;
 mod model_document_file;
 mod model_document_save;

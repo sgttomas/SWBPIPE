@@ -647,10 +647,11 @@ class ReachabilitySafetyTests(unittest.TestCase):
         for path in ['fixtures/unknown-new-input.json','tools/unknown-new-input.py']:
             selected = hosted_ci.select_paths([ci.PROJECT + path], profile)['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'full-fallback')
-            # 43 discovered crates since DEL-04-05's release timing driver (core/solver/release_timing)
-            # joined the 42 of the MBF engine (core/handoff/caepipe_mbf_engine), which joined the 41 of
-            # the pressure-source join, which added core/numerics/correct_norm.
-            self.assertEqual(len(selected['manifests']), 43)
+            # 44 discovered crates since the desktop MBF wrapper (core/handoff/caepipe_mbf_wasm) joined the
+            # 43 of DEL-04-05's release timing driver (core/solver/release_timing), which joined the 42 of
+            # the MBF engine (core/handoff/caepipe_mbf_engine), which joined the 41 of the pressure-source
+            # join, which added core/numerics/correct_norm.
+            self.assertEqual(len(selected['manifests']), 44)
         # D8's one current corpus retains its exact reader reachability.
         selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
@@ -660,7 +661,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
         # The retired snapshot has no current reader edge; unknown reads stay full.
         retired = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
         self.assertEqual(retired['classification'], 'full-fallback')
-        self.assertEqual(len(retired['manifests']), 43)  # every discovered crate
+        self.assertEqual(len(retired['manifests']), 44)  # every discovered crate
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]

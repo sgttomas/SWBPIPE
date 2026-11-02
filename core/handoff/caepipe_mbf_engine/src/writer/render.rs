@@ -850,6 +850,7 @@ impl<'m> Writer<'m> {
             layout_row_count,
             loss_report: Vec::new(),
             assumptions: Vec::new(),
+            unit_normalizations: Vec::new(),
         };
         match result.sidecar_checked(&"0".repeat(64)) {
             Ok(_) => {}
@@ -866,6 +867,7 @@ impl<'m> Writer<'m> {
         result.diagnostics = self.diagnostics;
         result.loss_report = self.loss;
         result.assumptions = self.assumptions;
+        result.unit_normalizations = self.normalized.into_iter().collect();
         Ok(result)
     }
 

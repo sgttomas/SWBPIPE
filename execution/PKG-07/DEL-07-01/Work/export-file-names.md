@@ -52,6 +52,7 @@ A suggested name has the form `swbpipe-<kind>[-<qualifier>].<ext>`.
 | `results-stress-neutral` (stress-neutral result JSON) | `.json` | `run-<n>` | reports (DEL-08-04) |
 | `handoff` (handoff package folder) | `.swbhandoff` | saved state label, or the date `yyyy-mm-dd` | W-17 (DEL-02-05 / handoff) |
 | `model` (MBF export, RT-R7) | `.mbf` | none, or the user's label | W-17 desktop side, with the CAEPIPE lane's writer |
+| identity file of an MBF export (derived, not suggested) | `.swbpipe-ids.json` | none: native code names it `<chosen stem>.swbpipe-ids.json` beside the chosen `.mbf` | DEL-17-04 (Design `desktop-mbf-export-import.md` §3.2) |
 | `report` (report package) | the package's existing extension | report label | reports |
 
 A new export adds a row here in the PR that introduces it.
