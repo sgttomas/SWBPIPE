@@ -532,8 +532,11 @@ from 2a.
 
 Candidate (RT-A3 reducer 2b, on 2a's merge `393a11ee7`). Independent numerical
 and literal old/new commitment review checked `0ee639782` with no blocking
-numerical finding. Carrier reconciliation, queued registration and Agent 0
-integration remain pending; this is not adoption or release.
+numerical finding. The semantic tables and ordinary carriers are regenerated
+(identity and binding hashes only, `tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py`);
+the retained registration (DEL-04-08 `retained-pricing-rules.md` §8.41, owner
+disposition reserved), the retained carriers it gates and Agent 0 integration
+remain pending; this is not adoption or release.
 
 **Admission.** The step topology is 2a's and is checked first, unit-free:
 the body is the single member of its own region; at each body end exactly one
@@ -716,8 +719,8 @@ extrapolation follows. The following remain refused or future work:
 - RS-R1 in the maintained fixture, its W capture and the DEL-09-01 §10
   ledger, which the full-system test above neither edits nor adopts;
 - an independent global reference for the full system;
-- pricing and pins, the semantic tables and carriers (stale until
-  regenerated);
+- the retained profile registration (§8.41 candidate) and the retained
+  carriers and successor pins, which only a registered build regenerates;
 - final integration checks after carrier and registration reconciliation.
 The RS-R1 ledger row stays pending until that adoption. The full-system
 cases keep the unmodified fixture's `sensitive` integrity screen, and no

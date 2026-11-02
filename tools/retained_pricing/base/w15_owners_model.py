@@ -82,6 +82,17 @@ STATEMENTS = (
     (RE + "section_basis.rs", "crate::component_body::coverage_without_bodies(", 1),
     (RE + "u4b_evidence.rs", "crate::component_body::model_checks(", 2),
 )
+# RT-A3 reducer 2b (§8.41): (file, calling function, its D1-empty loop header, the one call after it).
+PRESSURE_STEP_PREMISES = (
+    (PP + "exact_admission.rs", "reducers_in_regions",
+     "for component in model.components.iter().filter(|component| component_family(component) == ExactFamily::Reducer) {",
+     "super::rigid_component::reducer_body_members(model)"),
+    (PP + "pressure_runtime.rs", "refuse_reducers_outside_step",
+     "for reducer in exact_admission::reducers_in_regions(model, case) {",
+     "super::rigid_component::pressure_step_run_evidence(model, reducer.component)"),
+)
+# Each is called exactly once in product_physics' sources (test modules included, conservatively).
+PRESSURE_STEP_ENTRIES = ("pressure_step_run_evidence", "reducer_body_members")
 # The preview extremum (ordinary_caps PREVIEW): <= 15 entries, three static strings <= 120 B, the pipe id (IN128) and
 # the result id (<= 1024 B), keys <= 40 B each.
 PREVIEW_EXTREMUM = {"arr": 0, "obj": 1, "ent": 15, "strb": 128 + 1024 + 3 * 120, "keyb": 15 * 40}
@@ -109,6 +120,27 @@ def inspect(snapshot):
     found = [(texts[rel] or "").count(needle) for rel, needle, _ in STATEMENTS]
     if found != [count for *_, count in STATEMENTS]:
         raise SystemExit(f"W15 owners: an owning statement or reader call changed; re-review W15-PM/W15-RB: {found}")
+    # RT-A3 reducer 2b (§8.41, RTA3R2B-NZ): each new pressure-step entry sits after its D1-empty loop header in the one
+    # function that calls it, so it has no multiplicity on D1 (reducers_in_regions' region and component loops; the
+    # loop over its result in refuse_reducers_outside_step). Supplementary to the full-file pins.
+    callers = {}
+    for root, _, names in os.walk(os.path.join(snapshot, PP)):
+        for name in names:
+            if name.endswith(".rs"):
+                with open(os.path.join(root, name), encoding="utf-8") as stream:
+                    body = stream.read()
+                for entry in PRESSURE_STEP_ENTRIES:
+                    callers[entry] = callers.get(entry, 0) + body.count(entry + "(") - body.count("fn " + entry + "(")
+    if callers != {entry: 1 for entry in PRESSURE_STEP_ENTRIES}:
+        raise SystemExit(f"W15 owners: a pressure-step entry gained or lost a caller; re-review its zero multiplicity: {callers}")
+    for rel, fn, header, call in PRESSURE_STEP_PREMISES:
+        text = texts.get(rel) or _read(snapshot, rel) or ""
+        start = text.find(f"fn {fn}")
+        ends = [text.find(n, start + 1) for n in ("\nfn ", "\npub(crate) fn ", "\npub fn ")] if start >= 0 else []
+        end = min([e for e in ends if e >= 0] or [len(text)])
+        at_header, at_call = text.find(header, start, end), text.find(call, start, end)
+        if not (0 <= start < at_header < at_call) or text.count(call) != 1:
+            raise SystemExit(f"W15 owners: the pressure-step premise changed ({fn}); re-review its zero multiplicity")
     return True
 
 
