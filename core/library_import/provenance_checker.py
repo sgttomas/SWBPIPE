@@ -537,7 +537,61 @@ def _validate_hanger_import(payload, visibility):
                         f"$.hanger_records[{i}].hanger_id", "Duplicate hanger identity.",
                         "Use a unique hanger_id within the library."))
                 seen.add(identity)
+    findings.extend(_hanger_load_range_findings(payload, schema))
     return ImportValidationResult(_determine_outcome(findings, visibility), tuple(findings))
+
+
+def _hanger_load_range_findings(payload, schema):
+    """Format 1.1.0 (DEL-03-02 CLM-030; DEL-04-11 Design §8.2), as the Rust boundary.
+
+    The schema admits working_load_range under either version, so the version
+    rule is applied here: a 1.0.0 document refuses the member as an unknown
+    field. A range whose subtree passes the shape check is refused when its ends
+    differ in unit or when its minimum is not below its maximum, which JSON Schema
+    cannot compare. The ends are compared as binary64 numbers, the values sizing
+    computes with, so ends distinct only beyond binary64 precision are refused.
+    """
+    findings = []
+    version = payload.get("schema_version") if isinstance(payload, dict) else None
+    records = payload.get("hanger_records") if isinstance(payload, dict) else None
+    for i, record in enumerate(records if isinstance(records, list) else []):
+        hanger = record.get("hanger") if isinstance(record, dict) else None
+        if not isinstance(hanger, dict) or "working_load_range" not in hanger:
+            continue
+        load_range = hanger["working_load_range"]
+        path = f"$.hanger_records[{i}].hanger.working_load_range"
+        if version == "1.0.0":
+            findings.append(ImportFinding("IMPORT_HANGER_SCHEMA_INVALID", "blocking", path,
+                "Unknown hanger field.", "Remove unsupported fields, or declare schema_version 1.1.0, which admits working_load_range."))
+            continue
+        # Semantic rules run only on a range that is itself well formed.
+        shape = []
+        _hanger_shape(load_range, schema["$defs"]["LoadRange"], schema, path, shape)
+        if shape:
+            continue
+
+        def end(key):
+            quantity = load_range.get(key) if isinstance(load_range, dict) else None
+            if not isinstance(quantity, dict):
+                return None
+            magnitude, unit = quantity.get("magnitude"), quantity.get("unit")
+            if isinstance(magnitude, bool) or not isinstance(magnitude, (int, float)) or not isinstance(unit, str):
+                return None
+            try:
+                magnitude = float(magnitude)
+            except OverflowError:
+                return None
+            return (magnitude, unit) if math.isfinite(magnitude) else None
+
+        minimum, maximum = end("minimum"), end("maximum")
+        if minimum is not None and maximum is not None:
+            if minimum[1] != maximum[1]:
+                findings.append(ImportFinding("IMPORT_HANGER_LOAD_RANGE_INVALID", "blocking", path,
+                    "The working load range's minimum and maximum use different units.", "Enter both ends of the range in one unit."))
+            elif not minimum[0] < maximum[0]:
+                findings.append(ImportFinding("IMPORT_HANGER_LOAD_RANGE_INVALID", "blocking", path,
+                    "The working load range's minimum is not below its maximum when both are read as binary64 numbers, the values sizing uses.", "Enter a minimum below the maximum."))
+    return findings
 
 
 def _hanger_disposition(item, path, visibility):

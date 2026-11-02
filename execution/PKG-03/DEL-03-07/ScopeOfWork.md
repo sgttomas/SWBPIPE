@@ -331,6 +331,8 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 
 Retain provenance checking and rights-safe fixture responsibilities for user-imported hanger libraries under DEL-03-07; DEL-03-02 owns schema, DEL-07-03 UI and DEL-07-09 coverage.
 
+**Format 1.1.0** (SCA-015; DEL-03-02 CLM-030). The import boundary, the Rust carrier and the Python checker alike, refuses by name `working_load_range` in a 1.0.0 document (as an unknown field), a range whose ends differ in unit, and a minimum not below its maximum read as binary64 numbers, the last two only on a range that passes the shape check. The shared cases in `fixtures/hanger/invented_hanger_cases.json` keep the two in parity.
+
 - **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
 - **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
 - **VER-002** — Exercise accepted/private/rejected/quarantined hanger input paths under the owned provenance contract; no source-license authority is inferred from a passing parser.
