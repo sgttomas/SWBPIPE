@@ -4886,8 +4886,10 @@ with all of that content and one stiffness.
 - **Thermal loads.** OPTEMP's number of thermal loads N decides how many operating cases exist,
   and several operating and expansion cases exist only when N is above 1 (documented:
   `CAEPIPE-ANALYSIS`, `CAEPIPE-LOAD-CASES`; §9.1). The writer writes OPTEMP field 1 only. Whether
-  an omitted field 3 means one thermal load is not stated (G-8). This mapping uses one thermal
-  load; T2 to T10 and P2 to P10 are not written.
+  an omitted field 3 means one thermal load is not stated (G-8). An explicit field 3 of 1 would
+  use the admitted count semantics instead, once the encoding of the intervening field 2 is
+  specified (§20.5.12). This mapping uses one thermal load; T2 to T10 and P2 to P10 are not
+  written.
 - **Temperature.** One T1 per element, through its LOADS record (documented, §9.1, §9.2), with the
   reference temperature in OPTEMP field 1.
 - **Pressure.** One P1 per element, in bar in SI files (documented, §9.4). P1 acts in Sustained
@@ -5239,9 +5241,16 @@ proof cannot re-render a 25 °C export, which differs from the default 20 °C re
   the recorded value and no °F argument. A vector must show that an export made with a °F
   argument re-renders byte for byte from the recorded °C value. If it does not, this
   representation is wrong, and the format records the argument as given instead.
-- *Verify.* The value read from OPTEMP field 1 must be the recorded value as printed, and every
-  interval reconstructed as ΔT = T1 − T_ref must equal the designated source's interval within
-  §18.2's ΔT class. Otherwise `MBF-IMPORT-SIDECAR-CONFLICT`, or `MBF-IMPORT-SOURCE-MISMATCH`
+- *Two representations.* An exact °F argument is converted once, as an exact rational, to
+  binary64 °C, and that binary64 value is retained in JCS form as `reference_temperature_c`.
+  Source rendering and sidecar regeneration use the retained value. The MBF prints it through the
+  render profile's number formatting (`_num`, currently `.10g`), so the printed OPTEMP value need
+  not equal the retained one: 77 °F gives exactly 25 °C (OPTEMP `25`, T1 `175`, interval `150`),
+  while 70 °F gives the rational 190/9, retained as `21.11111111111111` and printed as
+  `21.11111111` (T1 `171.1111111`, reconstructed interval `149.99999999`).
+- *Verify.* OPTEMP field 1 must equal the render-profile formatting of the retained value, and
+  every interval reconstructed from the printed MBF temperatures as ΔT = T1 − T_ref must equal
+  the designated source's interval within §18.2's ΔT class. Otherwise `MBF-IMPORT-SIDECAR-CONFLICT`, or `MBF-IMPORT-SOURCE-MISMATCH`
   when the re-render differs.
 - *Why it may be an export input.* §20.4.5 admits to `export_inputs` only an argument that does
   not change the meaning of restored model data. On O-A the restored intervals depend on T_ref
@@ -5337,8 +5346,11 @@ Common to every example:
 
 **O-1. Tier O-A.** {S, O} meets O-A's conditions 1 to 7. Condition 8 refuses it today: the desktop's
 null piping code has no established mapped E,
-`MBF-SI-OPERATING-MODULUS-SELECTION-UNESTABLISHED` (§20.5.4 e). The rest of this example states
-the proposed behaviour once a mapped E is established. {S, O} is written as above, with the
+`MBF-SI-OPERATING-MODULUS-SELECTION-UNESTABLISHED` (§20.5.4 e), and the other applicable matrix
+prerequisites (§20.5.12) refuse it too: G-3 for T1, and G-7 for its pressure regions
+(`MBF-SI-PRESSURE-CASE-UNSUPPORTED`). The rest of this example states the proposed behaviour
+only once every applicable prerequisite is established, or avoided by an explicitly specified
+encoding, and the persistence proposal is adopted. {S, O} is written as above, with the
 proposed sidecar. A bound import in the source-authenticated mode, with the exported model
 designated, restores S and O with their ids. O's weights and region pair with S's, and O's
 thermal primitives are 150 K. Its sidecar presented without a designated source:
@@ -5410,12 +5422,16 @@ import counterpart. The vectors are replayed byte for byte by the Python tests a
 (`writer_parity.rs`, `parity.rs`). The existing check that every writer code is emitted by a
 vector covers the new codes. No vector is chosen to fit the reference system.
 
-1. **Admitted (O-A), each only once admitted evidence establishes the combination's mapped E
-   (§20.5.4 e):** O-1, O-2's {O} alone, O-3d, O-7, and a case with forces and moments as well as
+1. **Conditional success vectors (O-A), each only after every applicable prerequisite in
+   §20.5.12 is established or avoided by an explicitly specified encoding (mapped E, §20.5.4 e;
+   G-3; the thermal-load count; G-7 where pressure regions are present; the force category,
+   TBD-17-04-007, or an explicitly written admitted category, where forces or moments are
+   present), and the persistence proposal is adopted:** O-1, O-2's {O} alone, O-3d, O-7, and a case with forces and moments as well as
    weight. Each is written, its MBF records are as stated, and its bound import in the
    source-authenticated mode restores every id, pairing, region, closure transfer and
    provenance. The regeneration identity holds. The weight density written for {S, O} equals the
-   density written for {S} alone (no double summing). Until then, each is the refusal vector
+   density written for {S} alone (no double summing). Until then, each asserts the applicable
+   named refusals: each is the refusal vector
    `MBF-SI-OPERATING-MODULUS-SELECTION-UNESTABLISHED`, naming the token or null.
 2. **Refusals:** one vector per §20.5.6 code: O-3a to O-3c, O-4a to O-4c, O-6a to O-6c and O-7c,
    each naming its entity, and one split-weight vector (§20.5.4 a, subset restriction).
@@ -5524,7 +5540,8 @@ New gaps raised by this item:
   exclusions as SWBPIPE's model") is inherited unchanged and unproved. This item adds no claim.
 - **G-8. An omitted number of thermal loads.** The writer writes OPTEMP field 1 only. That an
   omitted field 3 gives one thermal load, and so one operating case, is not stated. Today's
-  thermal export already relies on it; the operating mapping inherits it.
+  thermal export already relies on it. An operating mapping inherits it only while field 3 stays
+  omitted; writing field 3 = 1 avoids it once the field-2 encoding is specified (§20.5.12).
 - **G-9. The expansion case's pressure membership: an unestablished dependency.** §9.4's
   citation of `CAEPIPE-LOAD-CASES` for "not in the expansion case" was not located in the page's
   extracts as served on 2026-11-02, and no retained capture corroborates it (§20.5.1). That is
@@ -5614,22 +5631,28 @@ an inherited reading alone.
 
 | MBF field | SWBPIPE source value | Claimed effect: Sustained (W+P1) | Claimed effect: Operating (W+P1+T1) | Admitted proof, or open gap | Smallest subset |
 |---|---|---|---|---|---|
-| OPTIONS code token (and OPCODE for a B31 code) | `export_inputs.piping_code`; the desktop records null | none beyond the modulus row below | decides, with OPTEMP, whether and how the target takes E | G-1 (d), (e): open | refused with the modulus row |
-| OPTEMP field 1, T_ref | O-A: the writer argument, recorded as `export_inputs.reference_temperature_c` (proposed, §20.5.7). O-B: S's configuration | none: sustained membership carries no temperature (documented) | the datum from which T1 is measured; the cold option's lookup temperature | field: documented (G-1 (a)). Lookup role: documented (`CAEPIPE-ANALYSIS`, *Reference Temperature*). Role as strain datum: G-3. Recording and replay: proposal only | writable as a value; its claims rest on the T1 and E rows |
-| OPTEMP fields 2 to 5, not written | none | none | one thermal load, so one operating case | G-8: open. Field 5 (cold modulus): see the E row. Field 4 (solve thermal): G-5, which concerns the thermal case only and is not mapped | no narrower refusal keeps an operating case; refused |
+| OPTIONS code token | `export_inputs.piping_code`; the desktop records null | none beyond the modulus row below | decides, with OPTEMP, whether and how the target takes E | G-1 (d), (e): open | refused with the modulus row |
+| OPCODE (written for a B31 code) | `export_inputs.piping_code` | code stresses only (§6: delegated) | code stresses only (delegated) | §6: delegated, no mechanical claim | unchanged; no claim |
+| OPTEMP field 1, T_ref | O-A: the writer argument, recorded as `export_inputs.reference_temperature_c` (proposed, §20.5.7). O-B: S's configuration | no thermal load (documented); under cold, the modulus lookup temperature, E(T_ref) | the datum from which T1 is measured; the cold option's lookup temperature | field: documented (G-1 (a)). Lookup role: documented (`CAEPIPE-ANALYSIS`, *Reference Temperature*). Role as strain datum: G-3. Recording and replay: proposal only | writable as a value; its claims rest on the T1 and E rows |
+| OPTEMP field 3, number of thermal loads | the constant 1 | none | one thermal load, so one operating case | an explicit value of 1 uses the admitted count semantics (§6; §9.1; G-1 (a) places it as field 3). G-8 applies only while field 3 is omitted, as today. Writing it needs an encoding for the intervening optional field 2 (thermal cycles): an empty position is not stated by the admitted record, and writing a cycle count would add a delegated code-stress setting, so that encoding is open | avoidable by writing field 3 = 1 once its field-2 encoding is specified; until then refused under G-8 |
+| OPTEMP fields 4 and 5, not written | none | none | none claimed | field 5 (cold modulus): see the E row. Field 4 (solve thermal): G-5, which concerns the thermal case only and is not mapped | no claim |
+| MATERIAL ν | the material's ν (§7.2) | stiffness, through G = E/(2(1+ν)) (§7.2, existing adopted mapping) | the same | §7.2: existing adopted mapping | unchanged; carried with the E row's refusal |
 | MATERIAL rows: E | O-A: the constant E of O's materials, at three row temperatures. O-B: per-member rows (§20.4.2) | stiffness: E(T_ref) under cold. Under hot the sustained modulus is not stated (G-2); O-A's constant rows need the proof in the next cell | stiffness E(T1) under hot, E(T_ref) under cold (documented) | O-A: the mapped E for the constant basis is unestablished (G-1 (c), (d), (e); G-4's question for constant rows; §20.5.4 e). O-B: G-1 (b), (c), (e), G-4 | refused: `MBF-SI-OPERATING-MODULUS-SELECTION-UNESTABLISHED` (O-A), `MBF-SI-ROUTE1-MODULUS-SELECTION-UNESTABLISHED` (O-B) |
 | LOADS T1 per element; MATERIAL α | T1 = T_ref + ΔT from O's thermal primitives (O-A) or element states (O-B); constant α | none (documented) | "the effect of temperature increase/decrease" (documented membership). Strain α·ΔT | membership: documented. Strain formula and the base of the mean: G-3, open (the inherited reading of §7.1 and §9.2) | no narrower refusal keeps an operating case; refused |
-| MATERIAL weight density, LOADS SG 0, gravity | S's weight, which O's equals source for source | weight, by §7.3's inverse (documented membership) | the same weight (documented membership) | membership: documented (§20.5.1). Inverse: §7.3, existing. Earth gravity: documented (§6) | admitted |
-| FOR, MOM without `FLC` | S's forces and moments, which O's equal | sustained, by the writer's convention (PD-1) | sustained-category forces also act in operating cases (documented, `CAEPIPE-FORCE`), if these are sustained | the category of a force without `FLC`: TBD-17-04-007, open | narrower refusal: forces and moments in an operating export refused by name |
-| LOADS P1 (bar); OPPRES `0,0,0,1,0` | S's regions, which O's equal | "operating fluid pressure and its effect" (documented membership) | the same (documented membership) | the switches: documented (§9.4). What the effect comprises (thrust, Poisson, bend strain): G-7, open | narrower refusal: regions in O refused, `MBF-SI-PRESSURE-CASE-UNSUPPORTED` (existing) |
+| MATERIAL weight density, LOADS SG 0, gravity | S's weight if S is present, otherwise O's; O's equals S's source for source | weight, by §7.3's inverse (documented membership) | the same weight (documented membership) | membership: documented (§20.5.1). Inverse: §7.3, existing. Earth gravity: documented (§6) | admitted |
+| FOR, MOM without `FLC` | S's forces and moments if S is present, otherwise O's; O's equal S's | sustained, by the writer's convention (PD-1) | sustained-category forces also act in operating cases (documented, `CAEPIPE-FORCE`), if these are sustained | the category of a force without `FLC`: TBD-17-04-007, open | narrower refusal: forces and moments in an operating export refused by name |
+| LOADS P1 (bar); OPPRES `0,0,0,1,0` | S's regions if S is present, otherwise O's; O's equal S's | "operating fluid pressure and its effect" (documented membership) | the same (documented membership) | the switches: documented (§9.4). What the effect comprises (thrust, Poisson, bend strain): G-7, open | narrower refusal: regions in O refused, `MBF-SI-PRESSURE-CASE-UNSUPPORTED` (existing) |
 | D, ROT | not written for O | none | membership not stated | G-11, open | refused: `MBF-SI-OPERATING-DISPLACEMENT-UNSUPPORTED` or `MBF-SI-BOUNDARY-MOTION-UNSUPPORTED` |
-| Layout, PIPE, supports | as today | as today | as today; linear supports only | the existing adopted basis; nonlinear supports: G-10 | existing refusals unchanged |
+| Layout, PIPE, sections, supports, and every other emitted field not listed above | as today | as today | as today; linear supports only | the existing adopted mappings of §7 to §12, unchanged; nonlinear supports: G-10 | existing refusals unchanged |
 | none: case ids, pairing, closure transfers, provenance | `operating_map` (proposal) | none | none | not MBF content: identity only, and proposed persistence (§20.5.7) | not implementable before persistence review and adoption |
 
-**The smallest implementable subset on admitted evidence alone.** Every operating case needs T1
-(G-3), one thermal load (G-8) and a mapped E (fail-closed). None of the three has admitted proof.
-None can be refused away while the case stays an operating case. So the smallest subset
-implementable today **writes no operating case**. What is implementable on admitted evidence
+**The smallest implementable subset on admitted evidence alone.** Every operating case needs a
+mapped E (fail-closed) and T1 (G-3), and neither has admitted proof or can be refused away while
+the case stays an operating case. G-8 applies while OPTEMP field 3 is omitted. An explicit
+field-3 value of 1 uses the admitted count semantics and avoids that dependency, once the
+intervening field-2 encoding is specified (matrix above). So no operating export is presently
+admitted: the mapped-E proof remains unresolved, alongside the applicable thermal-mechanics
+prerequisites. The smallest subset implementable today **writes no operating case**. What is implementable on admitted evidence
 alone is on the refusal side:
 
 - the operating-role classification of §20.5.5 and the partner check of condition 3, both
@@ -5637,7 +5660,7 @@ alone is on the refusal side:
 - the refusal of every operating-role case, naming each unestablished prerequisite in the
   matrix's order. That is `MBF-SI-OPERATING-MODULUS-SELECTION-UNESTABLISHED` or Route 1's code
   for E. For the other gaps it is `MBF-SI-OPERATING-CLAIM-UNESTABLISHED` (new), naming the field
-  and the gap: G-3 for T1, G-8 for OPTEMP, G-7 for regions, TBD-17-04-007 for forces and
+  and the gap: G-3 for T1, G-8 for an omitted OPTEMP field 3, G-7 for regions, TBD-17-04-007 for forces and
   moments. It is `MBF-SI-OPERATING-DISPLACEMENT-UNSUPPORTED` for displacements;
 - no MBF bytes, no sidecar format and no store write.
 
@@ -5648,7 +5671,8 @@ reviewed implementation change of its own.
 
 **What each answer would add (for planning only; nothing here is adopted).**
 
-1. With G-3, G-8 and the constant-basis proof (the O-A question in §20.5.11) admitted, and the
+1. With G-3 and the constant-basis proof (the O-A question in §20.5.11) admitted, field 3 written
+   as 1 with a specified field-2 encoding (or G-8 answered), and the
    persistence proposal adopted: tier O-A with weight and temperature only. Forces and moments
    join when TBD-17-04-007 is answered. Writing `FLC=1`, which *Format of .MBF* documents as
    sustained, would be a narrower route, but it changes the writer's bytes and is not proposed
