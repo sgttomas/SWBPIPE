@@ -181,6 +181,8 @@ fn check_case(case: &Value) {
             continue;
         };
         let ev = expected_verification;
+        assert_close(&who, "verified u_C", verification.positions.u_cold_m, &ev["u_cold_m"]);
+        assert_all_close(&who, "verified u_i", &verification.positions.u_operating_m, &ev["u_operating_m"]);
         let (vmin, vmax) = pair(&ev["span_m"]);
         assert!(close(verification.span.min_m, vmin) && close(verification.span.max_m, vmax), "{who} verified span");
         assert_close(&who, "verified required travel", verification.required_travel_m, &ev["required_travel_m"]);
@@ -192,8 +194,16 @@ fn check_case(case: &Value) {
             Some(v) => {
                 assert_close(&who, "F_C^v", v.f_cold_condition_n, &ev["f_cold_condition_n"]);
                 assert_all_close(&who, "F_i^v", &v.f_operating_n, &ev["f_operating_n"]);
-                let variation: Vec<f64> = v.variation.iter().map(|x| x.expect("formed ratio")).collect();
-                assert_all_close(&who, "v_i^v", &variation, &ev["variation"]);
+                // A ratio is absent where the verified reference load is not positive.
+                let expected_variation = ev["variation"].as_array().expect("verified variation");
+                assert_eq!(v.variation.len(), expected_variation.len(), "{who} v_i^v length");
+                for (actual, expected) in v.variation.iter().zip(expected_variation) {
+                    match (actual, expected.is_null()) {
+                        (None, true) => {}
+                        (Some(a), false) => assert_close(&who, "v_i^v", *a, expected),
+                        _ => panic!("{who} v_i^v presence: {actual:?} against {expected}"),
+                    }
+                }
                 assert_close(&who, "departure", v.departure_n, &ev["departure_n"]);
             }
             None => assert!(ev["f_cold_condition_n"].is_null() && ev["variation"].is_null(), "{who} constant verification"),

@@ -226,3 +226,32 @@ fn verification_of_no_fit_is_absent_and_bad_positions_refuse() {
     let refused = verify(&c, &some, &records, &m, &Positions { u_cold_m: 0.0, u_operating_m: vec![] }).unwrap_err();
     assert_eq!(refused.code, "HANGER_SIZING_DERIVED_SOLVE_FAILED");
 }
+
+#[test]
+fn the_design_case_index_selects_the_setting_and_the_departure() {
+    // Hot design with the second case as the design case: F_cold = W + k·u_2.
+    let m = method(LoadDesign::Hot, VariationReference::DesignLoad, 1.0, 0.0, SelectionRule::SmallestCapacity);
+    let mut c = candidate("c", FamilyPolicy::Variable, 1000.0, 0.0, &[0.01, 0.02]);
+    c.design_index = 1;
+    let records = vec![variable("v", 10_000.0, (500.0, 2000.0), 0.1)];
+    let result = size_candidate(&c, &records, &m);
+    let Some(Selected::Variable { loads, .. }) = &result.selected else { panic!("fits") };
+    assert!(close(loads.f_cold_n, 1200.0));
+    assert!(close(loads.f_operating_n[0], 1100.0) && close(loads.f_operating_n[1], 1000.0));
+    // Verified positions differ per case: the departure reads the design case, F_2^v − W.
+    let verified = Positions { u_cold_m: 0.0, u_operating_m: vec![0.005, 0.025] };
+    let v = verify(&c, &result, &records, &m, &verified).unwrap().unwrap();
+    assert!(close(v.variable.unwrap().departure_n, -50.0));
+}
+
+#[test]
+fn a_non_positive_verified_reference_load_forms_no_ratio() {
+    // F_cold = 1100; verified u_D = 0.12 gives F_D^v = −100: no ratio, V0 reports it.
+    let m = method(LoadDesign::Hot, VariationReference::OperatingLoad, 0.25, 0.0, SelectionRule::SmallestCapacity);
+    let c = candidate("c", FamilyPolicy::Variable, 1000.0, 0.0, &[0.01]);
+    let records = vec![variable("v", 10_000.0, (500.0, 2000.0), 1.0)];
+    let result = size_candidate(&c, &records, &m);
+    let v = verify(&c, &result, &records, &m, &Positions { u_cold_m: 0.0, u_operating_m: vec![0.12] }).unwrap().unwrap();
+    assert_eq!(v.variable.as_ref().unwrap().variation, [None]);
+    assert!(v.failed_tests.contains(&Test::V0) && !v.failed_tests.contains(&Test::V));
+}
