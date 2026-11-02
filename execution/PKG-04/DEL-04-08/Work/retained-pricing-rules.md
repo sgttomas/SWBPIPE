@@ -2190,6 +2190,135 @@ exact-head hosted checks are recorded in PR #68 and required before integration.
 storage, not admitted families or ScopeOfWork/dependency conditions. No
 acceptance, release or base-machine performance qualification follows.
 
+### §8.38 RT-A3 reducer 2a: bounded concentric pressure-bore steps
+
+**Source and status.** The four-point run at `3c3e976075` extends the
+integrated §8.37 source (`2656dcb33`) with reducer 2a's bounded admission.
+All points are complete with zero unmapped or unclassified sites; both O-10
+checks are clear. The owner approved this exact profile on 2026-11-02
+(verbatim: "1. approved. 2. approved. 3. approved.", item 1). Eccentric 2b, CE and nonlinear
+admission are outside this registration.
+
+**Changed proof.** D1.4 excludes components and D1.5 gives route E explicitly
+empty pressure regions. Thus `reducers_in_regions` returns an empty Vec
+without backing allocation on D1 in both validation and assembly. Its
+`step_topology`, lazily built `non_straight_members` set, per-end pipe/node
+searches and geometric arithmetic are unreachable there. Ordinary EX now
+checks those paths before forming loads; the numerical review independently
+checked that all solve entries pass this guard. No retained-domain exclusion,
+row cap, layout or owner coefficient is relaxed. The runtime production-prefix
+and full-file source pins bind this proof. The scoped `problem` parent keys
+follow their original functions, including the new
+`refuse_reducers_outside_step` parent; it is inside the empty classified list,
+not an additional reachable diagnostic owner. The reducer refusal is now 1,173 B,
+above §8.4's 453 B `problem` message class; both reducer calls have multiplicity
+zero on D1, so that class does not bound either unreached message (as with
+C30-JR/C30-ID in §8.30). The fixed three-component
+dot/cross predicates were covered by the numerical review.
+
+**Carry and comparison.** The line map carries 880 keys, prunes 37 and applies
+seven reviewed resolutions. The original prune keys and resolutions equal
+§8.37's; the only prune-record difference is the surviving caller's line
+carry `build_pressure_case_with_members` 714 → 716, not another dropped bound.
+Tree structure is equal: **1,594 coefficients equal, eight higher, none lower**.
+The pressure-2 table's `supported_profile_limitations` grows by 437 serialized
+bytes (5,742 → 6,179), raising `STATICS[1]`
+and its success copy by 437 B. The inherited physics-retained table changes
+only its fixed-length parent digest. The longer ordinary pressure identity
+(2,102 → 2,321 bytes) is read by existing U6-J4's exact-literal rule; six
+charged copies raise `TAV_W[1]`, `TAV_X[1]` and their success copies by
+1,314 B. The remaining two increases are TAV requested/moving metadata;
+these are not additional form atoms. No other coefficient moves. Illustrative
+merged checks rise by 1,751 B to 8,748,965,400 B sparse and 8,808,096,744 B
+dense; illustrative M is not native qualification.
+
+**Native evaluation and adopted profile.** The current in-build collector
+(`profile_in_build_record`, one passing test) supplies all 328 merged atoms.
+The unchanged S1/§8.31 combination-type supplement is reused as in §8.37:
+Node(String,BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
+(String,&str,Operand) 56 and (&str,String) 40 B. Maintained `tree_eval` evaluates
+all 80 point/mode/phase combinations; every separate phase is no higher than
+the corresponding merged phase. The merged W3 E + R is 8,966,251,315 B sparse
+and 9,025,382,659 B dense. M remains 12,884,901,888 B, its 0.9 margin
+11,596,411,699 B and R 67,108,864 B. Upward-rounded W/X TEXT reserves are
+255,342,507 / 276,013,933 B, used conservatively for all separate points.
+The tightest headroom, dense W3 including reserve, is 2,315,686,533 B.
+
+The owner-approved full file is
+`/private/tmp/rt-a3-2a-proposed-retained_memory.rs`, SHA-256
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
+The generated block is maintained `generate` output with basis
+`, re-run as RT-A3 reducer 2a at 3c3e976075 (§8.38): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`.
+Only reviewed-input entries #8 and #11 take the new derived table hashes;
+identity, layouts and threshold stay unchanged. The four-point tree and
+summary are in `/private/tmp/rt-a3-2a-price/`; the complete native evaluations
+are `/private/tmp/rt-a3-2a-native-eval80.json`. These are named proposal/review
+inputs, not permanent test dependencies. Focused Claude Opus 5.5/high review
+of `648e424c5` found no blockers: it independently reproduced all 80 fits, the
+coefficient comparison, source pins, caller carry and generator output. Its
+two prose findings are corrected above; the final proposal only wraps the
+basis line and clarifies the registration comment relative to its reviewed
+file, with identical generated coefficients and input hashes. Adoption verified
+that production source/pricing logic still matches `3c3e976075` and every one
+of the thirteen reviewed-input hashes matches the selected candidate. The
+maintained generator reproduces the approved full file byte for byte. Native
+law and challenge phase records derive from the reviewed 80 native evaluations.
+The combined-source replay at `0d70dca9e` completes all four points with
+O-10 clear and reproduces all 1,602 coefficients unchanged and the approved
+generated block. The 71 native law tests and default native challenge pass
+on the approved profile. Retained producer/derivative/RV120 writers regenerate
+the current carriers; preservation covers the current carriers and the R1
+reader-outcomes record, including independent
+materialization of RV120's result-statement digests and unchanged invocations.
+Focused adoption/carrier scrutiny at `343bbe4b2` has no blockers. Its one
+nonblocking warrant limit for the three in-memory successor-pin groups was
+closed by the maintained `RTA3_RETAINED_PIN_OUT` hook: all eight actual
+successors reproduce their prior pinned byte hashes after restoring only
+the old identity sentence and dependent hashes. Every numerical token and
+other byte stays fixed. All structural/digest assertions remain active.
+The affected 22 native facade tests pass; the broader facade run
+passed 141 tests, with only those three stale-pin failures before repair.
+All 671 retained Python checks pass. The native reader run passed 84 tests;
+its four failures were the stale RV120 materialization digests and R1 output
+record, now regenerated and verified by targeted native checks. The R1 writer
+produces 938 ordered entries: 59 input-subject digests and 89 outcome digests
+change, while every reading summary, verdict, eligibility and row count stays
+unchanged. The 968 desktop retained-carrier/native-Wasm parity/report checks
+pass. Reducer references (13 tests) and shared-terminal regressions (6) pass.
+The exact head and remaining stack/hosted checks are recorded in the PR.
+The J7 census is regenerated through its maintained writer for the same
+identity-only change: all 322 entries preserve every field except 260
+`public.envelope_sha256` values. Replacing those digests restores the exact
+prior file bytes. Results/summary digests, public identities, first causes,
+counts, work and frozen-row verdicts are unchanged, under AC-002's existing
+product-text rule. The 23 native J7 checks pass with hosted test settings;
+182 preservation/input/history checks pass, including new negative controls
+for result/summary hashes, identity and charged work. Frozen T3 R1 reference
+and census-input bytes stay unchanged. The approved profile and O0
+stack-tested binary remain unchanged.
+M, its margin, R, reserve policy and layouts are unchanged; any additional
+coefficient movement requires separate disposition. Preservation/routing/pin
+checks pass (229 tests and 120 subtests); two shell-subprocess checks needed
+Python 3.13 on PATH, not the older host Python. No test or workflow was weakened.
+
+**AC-004 source-bound witnesses (2026-11-02).** After C1 and supplier actual
+closure and Agent 0's explicit six-witness clearance, queue/acquisition were
+02:49:58 UTC and end/release 02:50:07 UTC (request-to-script wait about 0.072 s).
+All six passed, separately invoked with `--exact --ignored --test-threads=1`:
+W1 at 1 MiB sparse/dense 0.685/0.679 s; W2 deep 1.277/1.331 s; W-C2
+2.384/2.471 s. Script elapsed was 8.964 s inside the cleared 60-second total.
+`t3_exclusive.sh` held all four slots, memguard was active, and no Cargo/build
+ran inside. The clean selected source was
+`5f72100baf6c4845486dbaa4fa118abfc552395c`; the prebuilt library test binary
+`core/product_physics/target/debug/deps/open_pipe_stress_product_physics-0f1d2c7f024eccac`
+had SHA-256 `bd4fd95b69be20d40bf99b2bd63b28c8b9322bd6e15f74d43fefc28b67ab14ff`.
+The approved profile hash was checked before execution. Every test process
+was reaped; the script and all five wrapper/lockf processes were verified
+absent after wrapper rc 0 and its END-EXCLUSIVE record. Agent 0 received
+immediate actual-closure confirmation. This is stack evidence, not a desktop
+or base-machine performance metric, acceptance or release. Required hosted
+checks including `harness` on the exact PR head remain the integration gate.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2298,3 +2427,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-U4 reader bundle: `reader_verdict.rs` content re-pin", "§8.35" | §8.35 |
 | "Model document 0.9.0 actual-source D3", "§8.36" (S1-PIN, S1-BN, S1-NR, S1-RK, S1-HS, S1-L1, S1-ZR, S1-ZS, S1-ID, S1-MS, S1-VW, S1-WH, S1-TS) | §8.36 |
 | "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |
+| "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |

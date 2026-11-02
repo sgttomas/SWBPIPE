@@ -340,7 +340,7 @@ The `..._REALIZED` info states:
 | Self-weight | The member's distributed self-weight acts over ‖D‖ (§9, P5). Slice b replaces it when the component's weight is generated (W-15 §3). |
 | Component weight | Slice b's wrench at the component's node, with the R10 centre of gravity. It is independent of the offset. |
 | Thermal | The body's free growth is αΔT·D, offset included, at every scale (§9, P10). |
-| Pressure | PF: none. EX: a reducer whose member lies in a pressure region is refused (`EXACT_PRESSURE_REDUCER_IN_REGION`, W-15 §2.7). Outside every region it is admitted like a valve. |
+| Pressure | PF: none. EX: RT-A3 2a admits the bounded own-region concentric step; authored nonzero offsets and other unverified in-region forms remain `EXACT_PRESSURE_REDUCER_IN_REGION` pending follow-on work. Outside every region admission is unchanged (W-15 §2.7; DEL-04-07 pressure-contract). |
 | Other element loads | As authored on the body member, over ‖D‖ |
 | Displacements, reactions | Unchanged meaning. Node motions are the centerline motions. |
 | Stress rows | Rows of the mapped pipe section along the chord. A scaled body's rows carry slice d's `component_body` record and are excluded from the headline (W-15 §2.4, §5). An unscaled reducer's rows are ordinary pipe rows, and the reference-section meaning is disclosed in the info, the UI and the report (§4, §9, P11). |
@@ -363,8 +363,14 @@ vitest), and §7.5 holds the convention-dependent benchmark rows.
 The exact route forms the same member in the same function, with
 Euler–Bernoulli or `timoshenko_annulus_energy_v1` (PP `pressure_runtime.rs`
 ~49). Under Timoshenko the body's shear adds its shear compliance, and §7's
-generator includes it. The reducer-in-region refusal is unchanged. The retained
-and source sub-routes still refuse every component (W-15 §2.7).
+generator includes it. RT-A3 2a adds only the bounded concentric pressure-step
+exception (DEL-04-07 `Work/pressure-contract.md`). It checks actual collinear
+geometry and keeps an authored nonzero offset outside its initial pressure
+domain, including an offset on a marker; this is an admission restriction,
+not a use of that offset to reform the member. The ordinary offset-consistency
+and node-governs-mechanics meanings above are preserved. Eccentric pressure
+transformation/formation/recovery is increment 2b. The retained and source
+sub-routes still refuse every component (W-15 §2.7).
 
 ### 3.8 Not done in slice c
 

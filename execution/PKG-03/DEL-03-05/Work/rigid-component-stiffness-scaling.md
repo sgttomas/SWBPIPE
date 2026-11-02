@@ -200,18 +200,19 @@ sentence is authored by hand (`tools/serialization/semantic_contract_tables.py`
 ~4). Its derived tables and pins are then regenerated with `derive` and
 `repin`, followed by the required carrier regeneration.
 
-A reducer whose mapped member belongs to any pressure region in any case is
-refused on EX, by an explicit, case-specific refusal,
-`EXACT_PRESSURE_REDUCER_IN_REGION`. The reducer's thrust from a bore change is
-not modelled. The equal-bore guard (PP `pressure_runtime.rs` ~684-694) cannot
-stand in for this refusal: it compares the bores of traversed members only,
-never reads the reducer, and has nothing to compare in a single-member region.
-A reducer whose mapped member lies outside every region is admitted like a
-valve, including when it is mapped at a region's boundary node but its own
-member is outside the region. A reducer marker with no mapped member is not
-refused: it solves as pipe with the mapping warning (§2.6), no bore change is
-modelled, and the equal-bore guard still governs any actual bore difference
-between region members. The refusal names (case, region, component, member). Admitted valves and flanges are an equivalent
+RT-A3 reducer 2a admits the initial concentric step: the mapped body is its
+own single-member pressure region between single opposite collinear straight
+members of other regions, every terminal there transferring to the wall, with
+no authored nonzero eccentric offset or unverified tee/bend/joint adjacency.
+Topology and normalized geometry (64-epsilon representation guard) are both
+checked. `EXACT_PRESSURE_REDUCER_IN_REGION` keeps naming (case, region,
+component, member) for other in-region forms, including multi-member regions,
+slanted/eccentric bodies and dry/free ends. The equal-bore check does not
+replace this admission rule. A reducer outside every region and an unmapped
+marker keep their previous behavior. The complete user/theory contract and
+independent reference basis are DEL-04-07 `Work/pressure-contract.md`,
+“Concentric reducer pressure-bore step”. Eccentric 2b remains outstanding.
+ Admitted valves and flanges are an equivalent
 pipe of the represented bore: bore continuity, cap thrust and the annular κ are
 those of the mapped section.
 
