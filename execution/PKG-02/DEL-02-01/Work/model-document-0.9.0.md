@@ -1472,3 +1472,80 @@ The pricing mutation suite and Python CI-selection checks pass with that policy
 afterward. A separate intentionally failing control confirms that failed
 snapshots remain and pytest's failure exit code is preserved. Exact-head hosted
 checks remain required after this execution-only repair.
+
+## 11. S3a: the condition-set operations (contract)
+
+**Basis:** main `575fcc776` (2026-11-02), after S2 (#84). **Scope (owner,
+2026-11-02, on resuming the load-cases lane):** pressure-free condition-set
+create, update, delete with reference guards, pipe assignment and case condition
+use, reusing S2's read-only judgement; no schema or version step, no EX
+resolution, no contents or hydrotest admission. `direction`,
+`difference_basis`, `subtrahend_support_state`, the unsigned bases, combination
+operands and `test_condition` stay refused at authoring as at S1 (§3.8). The
+desktop surfaces are S3b's (§4). Every operation is one record or one member,
+identity-preserving (FR-MOD-003), admitted alone and in atomic
+`apply_operation_batch` batches with per-step refusals, and every candidate
+document is judged by the one document validator, so a set's shape, quantities,
+range and references take the document-level codes of §1.3 with their messages.
+
+**Object type `ConditionSet`** (collection `condition_sets`, key `id`), with the
+model-data families' wire and codes (`model_data_authoring.rs`; DEL-02-01 Design
+`model-document-0.7.0.md` §6):
+
+| Change kind | Operation kind | `before` | `after` | Refusals beyond the validator's |
+|---|---|---|---|---|
+| `create_condition_set` | create | `not_present` | the whole `ConditionSet` record, JSON object text; its `id` equals `target.ref` | `OP-DATA-PAYLOAD-INVALID`, `OP-DATA-ID-MISMATCH`, `OP-DATA-ID-INVALID`, `OP-DATA-ID-COLLISION`, `OP-STALE-BEFORE-VALUE` |
+| `update_condition_set` | modify | the current record's canonical JSON | the whole replacement record; `id` unchanged | `OP-TARGET-NOT-FOUND`, `OP-STALE-BEFORE-VALUE`, `OP-DATA-ID-MISMATCH`, `OP-DATA-UNCHANGED` |
+| `delete_condition_set` | delete | the current record's canonical JSON | `not_present` | `OP-CONDITION-SET-IN-USE` (blocking) while any pipe's `condition_set_ref` names it, naming every such pipe; `OP-DELETE-AFTER-VALUE-INVALID` |
+
+The product creates no set and suggests none; a record carries only what the
+person entered (§1.2: nothing defaulted, `null` refused). Deleting the last set
+leaves `condition_sets` as an empty array, so create-then-delete returns the
+document's members but not necessarily its bytes; an absent collection is
+written only by a create.
+
+**Pipe assignment, `assign_condition_set`** (§4.1's emission): operation kind
+modify, target `Element` (a pipe id), `field_path` `condition_set_ref`, unit
+`none`, dimension `dimensionless`; `before` is `{"condition_set_ref": id}` as
+canonical JSON or `not_present`; `after` is `{"condition_set_ref": id}`, or
+`not_present` to clear. A set that does not exist is the validator's
+`OPERATING_CONDITION_SET_UNRESOLVED`; the same value as stored is
+`OP-DATA-UNCHANGED`. `connect_pipe_run` still refuses `condition_set_ref` in its
+payload (S1): assignment is its own operation.
+
+**Case condition use, `set_load_case_condition_use` and
+`clear_load_case_condition_use`:** operation kind modify, target `Load`,
+`field_path` `condition_use`, unit `none`, dimension `dimensionless`; `before` the
+current member's canonical JSON or `not_present`; `after` the whole
+`ConditionUse` object text (set) or `not_present` (clear). `create_load_case`
+admits `condition_use` in its record under the same judgement. Admission at
+authoring is the document's route:
+- **Pressure-free documents:** `temperature`, `added_weight: true` and
+  `wind_exposure: true` are admitted. `contents_density` is refused,
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED` (RT-A6), and `pressure` is refused,
+  `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`.
+- **Documents with `pressure_contract`:** every use is refused,
+  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4).
+- An empty use, or `false` in a `true`-only member, is the validator's
+  `LOAD_CASE_CONDITION_USE_EMPTY`.
+
+**The solve's judgement, shown, not imposed.** After an admitted condition-set,
+assignment or condition-use operation, the applier runs S2's read-only
+judgement (`operating_conditions::judge`, the function behind
+`preview_operating_conditions`) on the candidate and reports each case-level
+finding it gives (a pipe without a set, a missing key, value or installation
+temperature, the temperature and wind-exposure conflicts, a missing wind
+input) as a **warning** finding with the solve's code and message. Authoring is
+not blocked by them, so a person can stage a case's use before assigning every
+pipe; the solve refuses the case by name until they are resolved (OC-8). No ΔT is
+computed by the applier itself.
+
+**Inverses.** create ↔ delete, update ↔ update with the before record, set ↔
+clear or set; the desktop undoes through its session checkpoint, which restores
+the prior document exactly.
+
+**Verification.** One regression per operation and per refusal; save and reopen
+byte for byte; batches mixing the operations with `create_load_case` and
+`connect_pipe_run`; the judgement warnings equal what the solve reports on the
+same candidate; a contract-corpus file under `fixtures/model_operations/`.
+Persistence review by an independent agent.
