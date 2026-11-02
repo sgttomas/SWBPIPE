@@ -120,10 +120,13 @@ These deliverables keep their scope.
   - the library reader;
   - the closed-form references R-1, R-2 and R-5.
 
-  The run's results are a typed value; nothing is yet published or reaches the desktop,
-  and the exact route is refused until increment 4. The theory note
-  (`docs/theory/hanger_sizing.md`, RT-V4, owned by DEL-11-03) explains the built method;
-  the user guide waits for the desktop work. Before this
+  Slice 1d-α publishes the result as a closed document through the headless runner
+  (`openpipestress-runner size-hangers`) only, with the Rust reader and the test-only
+  Python verifier (Design §8.3); nothing reaches the desktop, and the exact route is
+  refused until increment 4. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
+  owned by DEL-11-03) explains the built method. The user guide's non-UI section for
+  the implemented PF sizing and the headless verb exists (`docs/user_guide/index.md`
+  §7.1, owned by DEL-11-01); its desktop sections follow increment 3. Before this
   deliverable: the hanger records import, and one record can be applied to a support as
   the person's act (`features/hanger-selection`). A variable spring is
   solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
