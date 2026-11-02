@@ -2333,7 +2333,7 @@ Sturm premises; neither accessor is reached by the retained root. The frame
 kernel's `frame_matrix` and `curved_matrix` delegate to generic `*_with`
 formations with the same binary64 operands and arithmetic order. Retained leaf
 implementations lift `FrameSection` and `CurvedFormation` fields exactly;
-`LEAF_SEAM` binds the delegation, leaf bodies and single retained instantiation.
+`LEAF_SEAM` checks the audited delegation, leaf bodies and listed lexical implementation/call forms. It is supplementary to full-file pins, not a Rust parser: an explicit generic caller uses another spelling, and restating a source pin requires a fresh audit.
 B7a's source pins and the W1 reduction pins bind the full changed files. The
 `FormationSource` Cow, load closure, evaluation, scaled-force children, Value
 moves, constructors, guards and reduction lifetimes are unchanged. The six live

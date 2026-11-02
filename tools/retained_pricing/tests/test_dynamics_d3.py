@@ -2,7 +2,9 @@
 
 frame_matrix and curved_matrix delegate to frame_matrix_with::<FrameSection> and
 curved_matrix_with::<CurvedFormation>; the retained leaves are the exact lift of each binary64 field, so
-the retained formation is unchanged and adds no owner. Any other leaf, impl, caller or delegation stops.
+the audited retained formation is unchanged and adds no owner. The supplementary guard checks the
+listed lexical leaf/impl/caller/delegation forms; full-file pins also protect other spellings, such as
+explicit generic callers. Restating a pin requires a fresh source audit, not reliance on this guard alone.
 """
 import os
 from pathlib import Path

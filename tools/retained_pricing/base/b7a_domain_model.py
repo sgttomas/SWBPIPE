@@ -212,7 +212,8 @@ STATIC_OWNERS = (('core/reporting/result_export/src/semantic_contract.rs:preview
 
 
 # DEL-04-09 dynamics D3: the retained instantiation of the separated formation leaves. Each block occurs once, and
-# FrameLeaves/CurvedLeaves have no other impl and their *_with formations no other caller in formation_check.rs.
+# The counts below check these lexical impl/call forms, not all Rust spellings (for example explicit generic calls).
+# Full-file source pins cover such other edits; restating a pin requires a fresh audit, not this guard alone.
 LEAF_SEAM = (
     "pub(super) fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Element, WideError> {\n"
     "    frame_matrix_with(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference, &e.section)\n}\n",
