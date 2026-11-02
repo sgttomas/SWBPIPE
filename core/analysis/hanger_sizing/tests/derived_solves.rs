@@ -87,6 +87,12 @@ pub mod model_builder {
         json!({"id": id, "node": node, "family": family, "restraints": restraints, "provenance": "invented_test_value"})
     }
 
+    /// A stiff rotational spring that removes a beam's torsional mechanism.
+    pub fn torsion_spring(id: &str, node: &str) -> Value {
+        json!({"id": id, "node": node, "family": "spring", "restraints": ["RX"],
+               "stiffness": {"dof": "RX", "value": {"value": 1.0e9, "unit": "N*m/rad"}}, "provenance": "invented_test_value"})
+    }
+
     pub fn lift_off(id: &str, node: &str) -> Value {
         json!({"id": id, "node": node, "family": "nonlinear", "restraints": ["UZ"],
                "nonlinear": {"behavior": "lift_off", "dof": "UZ", "initial_state": "active", "contact_when": "positive_reaction"},
@@ -141,14 +147,16 @@ fn request(candidates: &[&str], operating: &str) -> SizingRequest {
 }
 
 /// Two equal spans of 4 m on three simple supports, w = 1000 N/m, the interior a
-/// candidate. The ends are pinned about Y (no RY restraint), so the classical
-/// continuous-beam result applies; RX and RZ at A remove out-of-plane mechanisms.
+/// candidate. The ends are pinned (no rotational restraint in bending), so the
+/// classical continuous-beam result applies; Y at A and C and a torsion spring at A
+/// remove the out-of-plane and torsional mechanisms.
 fn two_span() -> Value {
     let member = |id, from, to| Member { id, from, to, outside_diameter_m: 0.2, wall_m: 0.01, elastic_modulus_pa: STEEL_E, expansion_per_k: ALPHA };
     let nodes = [("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0]), ("node:C", [8.0, 0.0, 0.0])];
     let members = [member("pipe:AB", "node:A", "node:B"), member("pipe:BC", "node:B", "node:C")];
     let supports = vec![
-        support("support:A", "node:A", "guide", &["UX", "UY", "UZ", "RX", "RZ"]),
+        support("support:A", "node:A", "guide", &["UX", "UY", "UZ"]),
+        torsion_spring("support:A-torsion", "node:A"),
         support("support:B", "node:B", "vertical_support", &["UZ"]),
         support("support:C", "node:C", "guide", &["UY", "UZ"]),
     ];
@@ -243,7 +251,8 @@ fn a_singular_force_replacement_refuses_the_request_with_the_solve_diagnostics()
     let doc = model_builder::request(
         &[("node:A", [0.0, 0.0, 0.0]), ("node:B", [4.0, 0.0, 0.0])],
         &[member],
-        vec![support("support:A", "node:A", "guide", &["UX", "UY", "UZ", "RX", "RZ"]), support("support:B", "node:B", "vertical_support", &["UZ"])],
+        vec![support("support:A", "node:A", "guide", &["UX", "UY", "UZ"]), torsion_spring("support:A-torsion", "node:A"),
+             support("support:B-lateral", "node:B", "guide", &["UY"]), support("support:B", "node:B", "vertical_support", &["UZ"])],
         vec![case("load:W", vec![line_load("load:W-AB", "pipe:AB", 100.0)]), case("load:O", vec![line_load("load:O-AB", "pipe:AB", 100.0)])],
     );
     let refusals = run(&doc, &[], &request(&["support:B"], "load:O")).unwrap_err();
