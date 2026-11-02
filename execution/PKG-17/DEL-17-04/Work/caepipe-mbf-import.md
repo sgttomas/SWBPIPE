@@ -3222,7 +3222,8 @@ Any refusal refuses the whole file, as today (§17).
 | `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED` | new (importer) | a Route 1 file whose OPTEMP modulus field does not select the hot modulus. The writer never writes the cold modulus. On the writer side, a selection at T_ref in a member whose T1 differs is a mismatch |
 | `MBF-IMPORT-REFERENCE-STATE-UNBOUND` | new (importer) | a format-5 sidecar on the rebind route (`rebind_by_node_number`), where the regeneration identity does not run |
 | `MBF-IMPORT-SOURCE-UNASSOCIATED` | new (importer; design code) | a bound format-5 import for which the caller explicitly designated no source, whether or not any material has temperature points (§20.4.5, **The designated source** and **Point-free materials**). The importer never finds a source by the sidecar's digest or any other sidecar field, and there is no fallback. Names the presented MBF and sidecar digests. Nothing is restored or stripped |
-| `MBF-IMPORT-SOURCE-MISMATCH` | new (importer) | a designated source whose canonical SHA-256 differs from the sidecar's `source_model_sha256` (check 1), or whose own format-5 sidecar for the presented MBF digest differs from the presented sidecar (check 2; §20.4.4, **Source proof**). Names the first differing field; for a row, the row and both classifications |
+| `MBF-IMPORT-SOURCE-MISMATCH` | new (importer) | a designated source whose canonical SHA-256 differs from the sidecar's `source_model_sha256` (check 1); or one that the importer, rendering it independently with the recorded export inputs, either cannot render (the writer refuses it) or renders to MBF bytes whose SHA-256 differs from the presented MBF's (check 2 a); or one whose format-5 sidecar, formed for the *rendered* digest, differs from the presented sidecar (check 2 b; §20.4.4, **Source proof**). Names the first difference: the writer's refusal codes; for the bytes, the first differing record and field where practical; for the sidecar, the first differing field, and for a row the row and both classifications |
+| `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` | new (importer) | a format-5 sidecar whose `derivation.render_profile` is not the importing build's own writer profile, so check 2 cannot render the source as the export rendered it (§20.4.5, **Export inputs outside the source document**). Checked at check 2, before rendering. Names both profiles. Nothing is restored or stripped; the MBF alone still imports unbound |
 | `MBF-IMPORT-DERIVED-ROW-UNPROVED` | new (importer) | a MATERIAL row that the format-5 sidecar marks as generated, but whose generation §20.4.4 does not prove: any of stripping conditions 2 to 7 fails after the source proof has passed. Names the material and row. The row is never stripped, and the import is refused |
 | `MBF-IMPORT-SIDECAR-INVALID` | existing (importer) | a format-5 sidecar given to an importer that reads formats 2 to 4 only. Its parser refuses `sidecar_format` 5 before binding (`importer.py:1176-1179`, `:1661-1665`), so the import neither binds nor falls back to an unbound reading (§20.4.5) |
 | `MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT` | existing (importer) | unbound: unchanged (§20.4.4) |
@@ -3253,21 +3254,44 @@ of these checks, in this order:
 
 1. **Hash.** S's canonical SHA-256, computed from S's own text, equals the sidecar's
    `source_model_sha256`. A source that differs is `MBF-IMPORT-SOURCE-MISMATCH`.
-2. **Content.** The writer forms S's format-5 sidecar for the presented MBF digest, as the export
-   formed it, and it equals the presented sidecar in every field. For every material with
-   points, that covers the authored point identities and their order (`points`), every row's
-   classification and source (a point row's point id, `alpha_authored` and provenance; a
-   derived row's members and bracket), the checked copies of every row's values, `base_point`,
-   and the whole of `reference_state_map` and `derivation`. S's row values must also equal the
-   MBF's. A difference is `MBF-IMPORT-SOURCE-MISMATCH`, naming the first differing field; for a
-   row, it names the row and both classifications.
+2. **Content: an independent rendering of S.** The importer first requires the sidecar's
+   `render_profile` to be its own writer's (`MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` otherwise).
+   It then renders S itself with the export inputs that the sidecar records (§20.4.5, **Export
+   inputs outside the source document**), and computes the SHA-256 of the rendered MBF bytes.
+   The rendering runs the writer as the export ran it, apart from the reimport preflight, which
+   can only refuse an export and never alters its bytes (`si_writer.py:1936-1939`). So the
+   rendering does not recurse into another import. Then, in this order:
+   - **(a) Bytes.** The rendered digest equals the SHA-256 computed from the presented MBF file.
+     The bound route has already required that digest to equal the sidecar's `mbf_sha256`. The
+     rendered digest comes from S and the recorded export inputs only, and the presented digest
+     is never injected into anything expected. If the writer refuses S under the recorded inputs,
+     or the digests differ, the result is `MBF-IMPORT-SOURCE-MISMATCH`. It names the writer's
+     codes, or, where practical, the first record and field in which the rendered and presented
+     texts differ.
+   - **(b) Sidecar.** The format-5 sidecar that the writer forms from S for the *rendered*
+     digest equals the presented sidecar in every field. For every material with points, that
+     covers the authored point identities and their order (`points`), every row's
+     classification and source (a point row's point id, `alpha_authored` and provenance; a
+     derived row's members and bracket), the checked copies of every row's values, `base_point`,
+     and the whole of `reference_state_map` and `derivation`. A difference is
+     `MBF-IMPORT-SOURCE-MISMATCH`, naming the first differing field; for a row, it names the
+     row and both classifications.
+
+   (a) covers every value the MBF carries, including those that no sidecar field repeats.
+   Format 4's maps omit section dimensions, spring stiffness and every other MBF-determined
+   value (§15; `si_writer.py:233-266`). Forming S's sidecar for the *presented* digest instead,
+   as the regeneration route does (`regenerate_caepipe_sidecar`, `si_writer.py:444-464`, returns
+   `result.sidecar(mbf_sha256)` with the caller's digest), would only check a supplied digest
+   against itself. An MBF with an MBF-only value changed and both digests recomputed would then
+   pass the sidecar comparison and the MATERIAL rows alike (§20.4.6, example 10).
 
 Both checks run whether or not any row is marked generated. A sidecar that marks an authored row
 as generated, relabels a generated row as a point, or changes an authored identity, order or
 provenance therefore differs from S's own sidecar and is refused (§20.4.6, examples 8b and 8c).
-So does a sidecar that changes a point-free export's reference-state metadata (example 9).
-Example 8d shows why S is designated independently and never found by the sidecar's digest.
-These are the checks that establish **source authenticity**, relative to the designated S.
+So does a sidecar that changes a point-free export's reference-state metadata (example 9). An MBF
+in which a value that no sidecar field repeats has been changed, with both digests recomputed,
+renders differently from S and is refused at check 2 (a) (example 10). Example 8d shows why S is
+designated independently and never found by the sidecar's digest. These are the checks that establish **source authenticity**, relative to the designated S.
 Consistency between the sidecar, the MBF and the restored model (the stripping conditions and
 the regeneration identity below) does not, and neither does the self-digest, which anyone who
 edits a sidecar can recompute.
@@ -3431,7 +3455,14 @@ The writer records **format 5** only for a Route 1 export. It is format 4 plus t
     stands for the solver's selection as §20.4.2 (e) cites it. A later change to those semantics
     changes the name, and a sidecar naming other semantics is refused
     (`MBF-IMPORT-SIDECAR-INVALID`).
-  - The export bytes stay bound by `mbf_sha256`, as in every format.
+  - `render_profile` is the fixed name of the writer's byte rendering of Route 1 exports
+    (below, **Export inputs outside the source document**).
+  - `export_inputs` records the writer arguments that change the bytes and do not come from
+    the model document: `title`, the printed title line, and `piping_code`, the OPTIONS
+    piping-code token or null (below).
+  - The export bytes stay bound by `mbf_sha256`, as in every format. Under format 5, the source
+    proof also requires them to be the importer's own rendering of the designated source
+    (§20.4.4, check 2 (a)).
 
 **Numerical values in the sidecar.** The sidecar carries checked copies of MBF-determined
 values, the row temperatures, E and α in `rows`. It has no independent numerical authority.
@@ -3444,15 +3475,62 @@ below and in §20.4.4 (**Source proof**), the proven stripping of §20.4.4 and t
 identity; the last establishes consistency only. The every-field-required rule, the self-digest and the
 parser of §15 apply unchanged.
 
+**Export inputs outside the source document.** Check 2 renders the designated source again, so
+it needs every input that the export's bytes depend on. The writer's bytes are a function of the
+model document and of its arguments (`render_caepipe_mbf_si`, `si_writer.py:418-442`; the
+engine twin's `WriterSettings`, `core/handoff/caepipe_mbf_engine/src/writer/mod.rs:398-408`).
+Each input outside S:
+
+| Input | Effect on the bytes | Format 5 records | Check 2's rendering |
+|---|---|---|---|
+| Title | the title line only, printed as `_title(title)` (`si_writer.py:1785`, `:2136-2142`) | `export_inputs.title`: the printed title line, by value | uses it. `_title` returns its own output unchanged (printable ASCII without commas, stripped, at most 70 characters), so the printed line reproduces itself |
+| Piping code | the OPTIONS line, and OPCODE for an ASME B31 code (`si_writer.py:1785-1787`) | `export_inputs.piping_code`: the token, or null | uses it. The desktop's export settings carry no piping code (`export_settings.rs:7-13`, `:96-103`; `WriterSettings::new` defaults it to null, `writer/mod.rs:411-418`), so a desktop export records null |
+| Reference temperature | OPTEMP field 1 | not recorded | omits it. Under Route 1, OPTEMP comes from S's configuration and never from the argument, and an explicit argument that differs is refused (§20.4.2 a, `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`). An omitted argument and an accepted equal one must print the same field (§20.4.7, item 6) |
+| Layout-row limit | none; it raises only a warning (`si_writer.py:1867-1871`). The desktop fixes it at none (`export_settings.rs:84-86`) | not recorded | none |
+| Library store content | none. The desktop's export reads the store only to screen the document's dispositions (`apps/desktop/src-tauri/src/mbf_export.rs:1294-1302`). The admission returns the canonical text unchanged (`model_document_save.rs:279-283`), and the worker renders that text (`mbf_export.rs:1315`). The writer's section library is the document's own `sections` (`si_writer.py:797-803`) | not recorded | reads no store. A library changed or deleted since the export does not affect it |
+| Unit system | SI only, the writer's one rendering; the document's own project units decide the conversions (`si_writer.py:612`) | covered by `render_profile` | n/a |
+| Writer build | potentially every byte | `derivation.render_profile` | requires the importer's own profile; otherwise `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` |
+
+- **Recorded inputs are attacker-controlled, and why that is safe.** Anyone who edits the sidecar
+  and recomputes its digests can change `export_inputs` and `render_profile`. They only
+  parametrize the rendering of the source the user designated. They never select a source, and
+  they never stand in for any of S's values: every other byte of the expected MBF comes from S,
+  so check 2 (a) still requires every model record to be S's own. An edited input can change
+  only these:
+  - the title line, and with it the restored project name (`importer.py:3265-3267`). That name
+    is the export's label, chosen at export; no format restores S's project name;
+  - the OPTIONS piping-code token. The importer keeps it only in the import result's
+    `target_options`, listed as delegated, pass-through target configuration
+    (`importer.py:1637-1643`, `:264`). It changes no restored model value.
+
+  A different `render_profile` can only cause a refusal. Neither input changes the meaning of
+  restored model data, so neither needs binding to the designation. A later writer argument
+  that could change that meaning must be bound to S or refused; it may not be added to
+  `export_inputs`.
+- **Writer-build drift: an open requirement.** Today's code has no identifier for the writer's
+  byte rendering. `MBF_SI_PROFILE_ID` (`si_writer.py:34`) appears only in `to_dict()` (`:216`),
+  not in any sidecar, and `MBF_VERSION` (`:37`) is the target format's version, which the file
+  prints. `render_profile` is new. Its rule: any writer change that alters the bytes of any
+  admitted Route 1 export changes the name. The replayed writer vectors (§20.4.7) detect a byte
+  change only for the inputs they cover; for the rest, the rule rests on review. A missed change
+  fails closed: a genuine older pair renders differently and is refused at check 2 (a), never
+  accepted. An importer renders only with its own writer. Keeping older writers, to import older
+  profiles, is not proposed. A refused pair's MBF still imports unbound. The Python and Rust
+  writers must render the same bytes, as writer parity already requires.
+
 **What binds what, and what is refused.**
 
 - **Export bytes.** `mbf_sha256` decides the route, as today. A mismatch makes the import
-  unbound, and an unbound import never forms the group (§20.4.4).
+  unbound, and an unbound import never forms the group (§20.4.4). On a bound format-5 import,
+  the bytes must also equal the importer's own rendering of the designated source (§20.4.4,
+  check 2 (a)); `mbf_sha256` alone does not tie them to the source.
 - **Sidecar bytes.** The self-digest covers every field, `derivation` included. A mismatch is
   `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`, as today.
 - **Identities and meaning: consistency.** The regeneration identity regenerates the whole
   format-5 sidecar from the restored model and the given MBF digest, and compares it. That
-  includes `rows`, their sources and `derivation`, except `source_model_sha256`. A sidecar whose
+  includes `rows`, their sources and `derivation`, except `source_model_sha256` and
+  `export_inputs`. It takes those two as recorded, as it takes the MBF digest, and check 2
+  verifies them. A sidecar whose
   rows, sources, members or brackets do not reproduce is `MBF-IMPORT-SIDECAR-NOT-REPRODUCED` or
   `MBF-IMPORT-DERIVED-ROW-UNPROVED`. The self-digest and the regeneration identity establish
   that the sidecar, the MBF and the restored model are consistent. They do not establish that
@@ -3460,7 +3538,8 @@ parser of §15 apply unchanged.
 - **Source bytes: authenticity.** The restored model is not byte-equal to the source, because
   units are respelled, so `source_model_sha256` cannot be regenerated. Authenticity comes only
   from a source the user explicitly designates (below). Its canonical SHA-256 must equal the
-  recorded digest, and its own format-5 sidecar must equal the presented one (§20.4.4,
+  recorded digest. The importer's independent rendering of it must reproduce the presented MBF
+  bytes, and the sidecar formed for the rendered digest must equal the presented one (§20.4.4,
   **Source proof**); `MBF-IMPORT-SOURCE-MISMATCH` otherwise. The import then compares the
   restored model with the source under §20.4.4. A bound format-5 import with no designated
   source is refused, `MBF-IMPORT-SOURCE-UNASSOCIATED`, whatever the sidecar marks and whether
@@ -3483,8 +3562,10 @@ sidecar. The steps run in this order:
    a copy carried inside the sidecar, is a source only when the user names it.
 2. **Hash.** Check 1 of §20.4.4's source proof: S's canonical SHA-256, computed from S's own
    text, equals the sidecar's `source_model_sha256`.
-3. **Content.** Check 2: S's own format-5 sidecar for the presented MBF digest equals the
-   presented sidecar in every field, and S's rows equal the MBF's.
+3. **Content.** Check 2: the importer renders S itself with the recorded export inputs. The
+   SHA-256 of the rendered MBF bytes equals that of the presented MBF (a), and the format-5
+   sidecar formed from S for the rendered digest equals the presented sidecar in every field
+   (b). The presented digest is never injected into what is expected.
 
 A designated source that fails either check is `MBF-IMPORT-SOURCE-MISMATCH`. An import with no
 designation is `MBF-IMPORT-SOURCE-UNASSOCIATED`. Either way nothing is restored or stripped, and
@@ -3502,16 +3583,19 @@ digest would find genuine A, every check would agree with the substituted sideca
 and B's authored point would be stripped. The association therefore comes from the user, never
 from the sidecar (example 8d).
 
-*What designation establishes, and what it does not.* With both checks passed, every field of
-the presented sidecar is the designated source's own, and the MBF bytes are those its export
-writes (`mbf_sha256` is one of those fields). The import therefore restores that source's own
-identities, order, classifications, provenance and reference-state metadata, and strips only
-the rows that source's own export generates. Designation decides *which* source; the checks
-verify only that the pair is that source's export content. They do not show that the pair was
-exported from that source rather than from another with the same canonical text, which is the
-same model. A sidecar that the writer forms from the designated source is accepted whether or
-not that source was ever exported. In each case what is restored is exactly the designated
-source.
+*What designation establishes, and what it does not.* With both checks passed, the presented MBF
+is, byte for byte, the importer's own rendering of the designated source under the recorded
+export inputs. Every field of the presented sidecar is the one the writer forms from that source
+for those bytes. The import therefore restores that source's own values, MBF-only values such as
+section dimensions and spring stiffness included. It restores that source's identities, order,
+classifications, provenance and reference-state metadata, and strips only the rows that source's
+own export generates. The recorded export inputs decide only the title line and the OPTIONS
+piping-code token (above, **Export inputs outside the source document**). Designation decides
+*which* source; the checks verify only that the pair is that source's export content. They do
+not show that the pair was exported from that source rather than from another with the same
+canonical text, which is the same model. A pair that the writer forms from the designated source
+is accepted whether or not that source was ever exported. In each case what is restored is
+exactly the designated source.
 
 - **Cross-machine imports.** A bound import of a Route 1 export on another machine requires the
   user to supply the exact S there: a model document of the exported text (for example, one
@@ -3576,24 +3660,30 @@ here).**
   checks, whether or not any material has temperature points. Points remain the minimum
   mandatory guard of Agent 0's earlier ruling; this rule waives no other metadata. Refusing
   point-free bound format-5 imports outright was the alternative; designation is chosen because
-  check 2 verifies every field. Without its source, a point-free Route 1 MBF still imports
+  check 2 verifies every MBF byte and every sidecar field. Without its source, a point-free Route 1 MBF still imports
   unbound as an ordinary model, the group listed as lost.
 - **Why designation suffices.** The import restores only from the MBF and the sidecar. Check 2
-  makes the sidecar equal, field for field, the one the writer forms from S, and that sidecar
-  binds the MBF bytes through `mbf_sha256`. Every restored identity and item of metadata is
-  therefore S's own, the format-4 maps inside a format-5 sidecar included. The stripping
+  (a) makes the MBF the importer's own rendering of S, so every value the MBF carries is S's.
+  Check 2 (b) makes the sidecar equal, field for field, the one the writer forms from S for
+  those bytes. Every restored value, identity and item of metadata is therefore S's own, the
+  format-4 maps inside a format-5 sidecar included. The only exceptions are the title line and
+  the piping-code token that the export inputs carry (above). The stripping
   conditions and the regeneration identity then run as consistency checks on top. The
   assurance is relative to S, and S is the user's designation (above).
 
 **What "no forged sidecar acceptance" covers.** The binding requirement's "no ...
 forged/mismatched sidecar acceptance" is met here in this exact sense: no bound format-5 import
-accepts a sidecar unless it equals, in every field, the sidecar the writer forms from the source
-the user designated, and that source's canonical SHA-256 equals the sidecar's
-`source_model_sha256`. It does not cover:
+accepts a pair unless all three of these hold. The source the user designated has a canonical
+SHA-256 equal to the sidecar's `source_model_sha256`. The MBF is, byte for byte, the importer's
+own rendering of that source under the recorded export inputs. The sidecar equals, in every
+field, the one the writer forms from that source for those bytes. It does not cover:
 
 - format-2, -3 and -4 sidecars, which keep format 4's consistency-only assurance (above);
-- the choice of source: a sidecar the writer forms from the designated source is accepted
+- the choice of source: a pair the writer forms from the designated source is accepted
   whether or not that source was exported (above, *What designation establishes*);
+- the export inputs, the title and the piping code. They are the export's choices, not the
+  source's. Editing them changes only the title line and the restored project name, and the
+  piping-code token, which is delegated (above, **Export inputs outside the source document**);
 - an MBF imported without its sidecar, which is unbound and forms no group.
 
 **Persistence: the adopted design adds no store.** Designation reads an existing saved state
@@ -3933,6 +4023,31 @@ reproduction of `material.rs:300-326` and the kelvin representatives, with `fma`
   S's own sidecar recording EX-5 as `constant_alpha_interval`: `MBF-IMPORT-SOURCE-MISMATCH`,
   naming the first differing field.
 
+**10. An MBF-only value changed, with both digests recomputed (the circular source proof).**
+
+- **The source.** Example 1, with every pipe on one section of outside diameter 168.3 mm and
+  wall 7.11 mm (invented). In 10b, the source also has a spring support at EX-2's far node, of
+  linear stiffness 1750 N/mm in one translational direction (invented).
+- **The edit.**
+  - 10a: the MBF's PIPE record prints the wall as 7.5 mm.
+  - 10b: the spring's stiffness is printed as 1800 N/mm.
+
+  In both, the MBF's SHA-256 is recomputed and written as `mbf_sha256`, and the self-digest is
+  recomputed. Nothing else in the sidecar changes, because no map records a wall or a stiffness:
+  format 4's `section_map` records only the section's id (§15).
+- **Under a check that forms S's sidecar for the presented digest.** The bound route holds,
+  because the recorded digest is the presented file's. S's sidecar, formed for that digest,
+  equals the presented sidecar in every field, and S's MATERIAL rows equal the MBF's. The
+  regeneration identity reproduces the sidecar from the restored model, and stripping
+  conditions 2 to 7 hold. The import would restore a 7.5 mm wall (10a) or a 1800 N/mm spring
+  (10b), which S does not have.
+- **Under check 2.** The importer renders S with the recorded export inputs. Its PIPE record
+  prints 7.11 (10a), and its spring record prints 1750 (10b). The rendered digest therefore
+  differs from the presented MBF's: `MBF-IMPORT-SOURCE-MISMATCH` at check 2 (a). It names the
+  PIPE record's wall field (10a) or the spring record's stiffness field (10b) as the first
+  difference. Nothing is restored or stripped. With no designation, the import is
+  `MBF-IMPORT-SOURCE-UNASSOCIATED`.
+
 #### 20.4.7 Planned tests (both twins; generated vectors only)
 
 No model document is written by hand. A generator `reference_state_models()` is added beside
@@ -3958,7 +4073,7 @@ codes.
    regeneration identity holds; exact rational equality of every §20.4.4 input; ids and the
    authored point order equal.
 2. **Refusal vectors.** One per §20.4.3 code, each naming its entity (2, 3a, 3c, 4a, 4b, 5b, 6a,
-   6d, 6e, 7b, 7c, 7d, 8 and 9 among them).
+   6d, 6e, 7b, 7c, 7d, 8, 9 and 10 among them).
 2a. **Derived rows (option (a)), each with the selected E checked bit for bit against d × 10⁶ Pa
    on the exported and the restored model:**
    - endpoints: T1 at the lowest and highest point temperatures, which take the points and
@@ -4026,10 +4141,32 @@ codes.
      `applicability_reference` text, and the configuration's id and provenance, each edited
      once with the self-digest recomputed. Each is `MBF-IMPORT-SOURCE-MISMATCH` with the 7a
      model designated and `MBF-IMPORT-SOURCE-UNASSOCIATED` without one; the test asserts that
-     no edited model is returned.
+     no edited model is returned;
+   - **an MBF-only value** (10): a section's outside diameter and wall, and a spring's
+     stiffness, each changed once in the MBF, with `mbf_sha256` and the self-digest
+     recomputed. Each is `MBF-IMPORT-SOURCE-MISMATCH` at check 2 (a) with the source designated,
+     naming the first differing record and field, and `MBF-IMPORT-SOURCE-UNASSOCIATED` without
+     one. The test also asserts that S's sidecar formed for the *presented* digest
+     (`regenerate_caepipe_sidecar`'s caller-digest form) equals the presented sidecar, so that
+     the vector shows the gap check 2 (a) closes. It asserts that no mutated value is returned.
+5a. **Export inputs (§20.4.5, Export inputs outside the source document):**
+   - admitted vectors re-render to identical bytes with a non-default title (one that the writer
+     sanitizes, and one longer than 70 characters) and with each piping-code kind (none; an
+     ASME B31 code, with OPCODE; another documented code);
+   - `export_inputs.title` or `piping_code` edited, with the digests recomputed and the MBF
+     unchanged: `MBF-IMPORT-SOURCE-MISMATCH` at check 2 (a);
+   - the same edit applied to the MBF's title or OPTIONS line as well: admitted. The model
+     values restored are exactly S's; the edited title becomes the project name, and the
+     token is kept as delegated target configuration;
+   - a `render_profile` other than the importer's: `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED`,
+     before any rendering;
+   - a pinned digest of the Route 1 writer vectors' bytes, keyed by `render_profile`, fails
+     when those bytes change and the name does not;
+   - the source proof's rendering reads no store, and runs no reimport preflight.
 6. **Writer argument.** On Route 1, an omitted reference takes the configuration's, an equal
-   explicit one is accepted, and a different one is `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`. On
-   the ordinary route, the omitted reference is still 20 °C.
+   explicit one is accepted, and a different one is `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`. An
+   accepted equal reference, given in degC or in degF, prints the same OPTEMP field and the same
+   bytes as an omitted one. On the ordinary route, the omitted reference is still 20 °C.
 7. **Solver agreement (engine).** For each admitted vector, the solver's per-member evidence
    (`resolve.rs:976-1000`) is compared on the original and on the imported model:
    - `selected_E_pa`, `selected_nu` and `derived_G_pa` are equal bit for bit, and `selected_E_pa`
@@ -4190,6 +4327,14 @@ Route 1 does not by itself export the reference system. Its records are:
   format-5 import requires designation, whether or not any material has points. Refusing
   point-free bound format-5 imports outright was the alternative. Format 2 to 4 imports keep
   their adopted consistency-only assurance, unchanged.
+- **The source proof renders the source independently (independent review at `147d71586`).**
+  Check 2 now renders the designated source itself and compares MBF digests before comparing
+  the sidecar formed for the rendered digest (§20.4.4; example 10). The earlier form injected the
+  presented digest, so it could not exclude a changed MBF-only value. This adds
+  `derivation.render_profile`, `derivation.export_inputs` (title and piping code) and the code
+  `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` to format 5. The writer-build identifier and its
+  change rule remain an open requirement (§20.4.5, **Export inputs outside the source
+  document**).
 - **Paraphrase.** Every ruling in O-7 is a paraphrase of Agent 0, decision 3 included (its text
   was normalized from Agent 0's message). D-2's historical attribution (2026-10-31) is a
   paraphrase, unverified against the original messages; Agent 0's confirmation of 2026-11-02
