@@ -941,6 +941,18 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**Repaired A500 execution update (2026-11-02).** The newly approved single
+attempt on clean `eb77d0067` passed fresh startup telemetry but failed the
+300 s first-paint wait, last stage `reader_verdict_start`. The worker published
+918,638,964 B after 73.378 s. No table/usability/persistence/retirement probes or
+separate reader/parse allocation profile were reached. The wrapper acquired
+01:58:29 and closed rc=1 at 02:03:32 UTC (303 s from one-second timestamps);
+owned processes and lock custody closed, with no held exception. No retry or
+B1000 is authorized. The proposal records exact partial physical observations
+and failed packet/closure locations; these are not usable-size, reader-working
+attribution, memory-fit, C1-complete or acceptance evidence. Both packets remain
+preserved for the owner and diagnosis consumer. #59 remains draft/unmerged.
+
 **A500 execution update (2026-11-01).** The owner-approved attempt at clean
 `1e1453a29` failed/closed at initial host telemetry, with no solve, reader-profile
 or usable-size evidence. The exclusive wrapper recorded 19:34:58–19:34:59 UTC

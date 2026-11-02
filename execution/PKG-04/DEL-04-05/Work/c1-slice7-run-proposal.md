@@ -3,12 +3,93 @@
 Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
-**Execution status:** the owner-approved A500 attempt at clean
-`1e1453a29475a425770b733a07cae90b829c7b7a` failed and closed. That attempt is
-consumed; no retry is authorized and B1000 is blocked. The latest offline repair
-below is not permission to run it. The historical preparation/binding sections
-retain the identities used by A; statements about unlaunched artifacts in that
-preparation describe the pre-A snapshot.
+**Execution status:** both owner-authorized 500-node attempts have failed and
+closed. The initial attempt at `1e1453a29` stopped on uninitialized host telemetry;
+the repaired attempt at clean `eb77d0067bf9f09e81916cccb4ec487ba196ccfb`
+passed startup telemetry and timed out waiting for first paint during native
+reader validation. Both approvals are consumed. **No retry, B1000 or further
+native interval is authorized.** This document retains their selected identities,
+original recipes and partial-evidence limits; it is not a runnable grant.
+
+## Repaired A500 result and closure (2026-11-02)
+
+The owner explicitly approved one repaired attempt on clean `eb77d0067`, using
+the unchanged bound `app-p3` executable and maintained 500-node input, with fresh
+`evidence/n0500-refresh1`. Exact source, script/plan/model/Wasm/dist/binary hashes
+were reverified. The original failed packet's hashes are unchanged. Python was
+recorded as `/Applications/Xcode.app/Contents/Developer/usr/bin/python3`, 3.9.6;
+its reported monotonic implementation is `mach_absolute_time()`.
+
+The normal wrapper recorded WAIT at **01:58:28 UTC**, acquisition at
+**01:58:29 UTC**, and `END-EXCLUSIVE rc=1` at **02:03:32 UTC**. The elapsed value
+from those one-second timestamps is **303 s**; the supervisor window was
+**303,399 ms**. This is below the 900 s interval cap, with no extension or build
+inside it. The separate startup host attempt was fresh (sent 01:58:29.210,
+sampled 01:58:29.246, received 01:58:29.249 UTC), available 74%, pressure normal.
+Every streaming host sample remained known-normal, with available level 69–74%.
+Thus the initial-refresh correction worked in this attempt; the gate still failed.
+
+The App shell became ready, opened the selected model, started sparse solve and
+received the worker's published result. The solve timeline records `job_done`
+**73,378 ms** after `solve_requested`, **918,638,964 result bytes**, worker
+lifetime-maximum footprint **3,485,617,728 B** and peak grant **6,375,342,080 B**.
+Native `reader_verdict_start` was the next mark. No `reader_verdict_end` or first
+paint arrived before the configured **300,000 ms** first-paint timeout (observed
+wait 300,651 ms). The classifier is `hang` for that deadline; this does not prove
+the reader could never finish. No threshold, input, result or standing was changed.
+
+The table/navigation/filter/CSV, Record/Save, native reopen/re-save, History and
+normal result-retirement sequence was **not reached**. The scalar allocation
+probe was also not reached: there is no direct reader-working or parse-allocation
+peak and no health-working upper bound for this run. The UI cancellation attempt
+reported requested=true and success_claimed=false. That is not a completed
+cancellation/reap receipt. The App then exited with code 0 via the harness's
+failure report, and the runner exited 1; actual process closure was checked
+separately. The last native pool report still held one result, no worker, and
+8,446,497,008 reserved bytes. Normal lease retirement was not demonstrated before
+App exit, and must not be inferred from later process disappearance.
+
+Partial physical observations on this Apple M5 Max/18-CPU, 128 GiB host,
+Darwin 25.6.0:
+
+| Observation | Bytes | Interpretation |
+| --- | ---: | --- |
+| App sampled footprint maximum | 8,377,883,872 | Direct per-PID sampled value; not reader-only or parse-only |
+| App kernel lifetime maximum | 8,617,729,272 | Direct kernel high-water observation; includes all App phases |
+| Worker kernel lifetime maximum | 3,485,617,728 | Also reported by the completed worker |
+| WebContent sampled footprint maximum | 824,968,320 | One new baseline-attributed WebContent; parentage remains inferred |
+| Aligned sampled App + worker + WebContent maximum | 8,852,152,792 | Sequential PID readings at one sample, not an atomic concurrent peak; worker absence is inferred zero after `job_done` |
+
+The aligned sum has **21 unknown samples** (including incomplete process
+attribution/readings); this count is not unknown host telemetry. GPU/networking
+are retained separately in the raw packet, not added as independently timed
+maxima. These observations do not establish the full gate, memory fit, a material
+reader share, 500-node usable size, 1,000/2,000-node capability, or the 16 GiB base
+machine criterion. SQLite `quick_check` returned `ok`, with zero project, run and
+state rows; no persistence step was attempted.
+
+Closure: the supervisor reaped runner group 22336 and verified all private-exe
+PIDs gone, with no group errors. Independent control-only lookup returned `[]`;
+`ps` found none of the owned wrapper/runner/App/worker PIDs or group, and no
+A-owned lock/`exclusive.pending` remained. A later shared slot's unrelated
+`lockf` holders are explicitly distinguished from this closed interval; they
+were not signalled or changed. **No held exception.** Acquisition and actual
+closure/failure were reported to Agent0 promptly. No B or second run was queued.
+
+Preserve the new packet/private store/App copy for the owner and failure diagnosis
+consumer, alongside the unchanged first packet:
+
+- `scratch/rt-perf-c1-slice7/evidence/n0500-refresh1/perf-run-perf-vvmNnv-native-linear-ex-n0500.json`
+- `scratch/rt-perf-c1-slice7/evidence/n0500-refresh1/perf-window-1793584709038.json`
+- The same directory's raw sampler JSONL, aggregate report and `perf-vvmNnv/`.
+- Adjacent `a500-refresh1-preflight.json`, `a500-refresh1-admission.json`, console,
+  wrapper, summary and closure files. The closure records raw packet hashes and
+  verification time; it does not rewrite raw evidence.
+
+No new implementation, measurement or third-run proposal is selected by this
+return. The observed outstanding issue is native reader validation failing to
+reach first paint within the approved gate; source diagnosis is distinct from
+another solve/profile or a timeout extension. #59 stays draft and unmerged.
 
 ## A500 execution and closure (not performance evidence)
 
@@ -194,27 +275,25 @@ App cannot execute it. Its submitting revision and artifact digest are recorded 
 have passed. The new plan's default selects only 500; it has no 2,000-node run.
 Do not use the old `perf-plan.json` default window, which includes 2,000.
 
-## New one-run proposal (not authorized)
+## Repaired one-run recipe (approved, consumed and closed)
 
-After focused review and exact-head CI, request **one 500-node attempt only**
-using this repaired harness and the unchanged bound `app-p3` executable. Use the
+After focused review and exact-head CI, the owner approved **one 500-node
+attempt only** using this repaired harness and the unchanged bound `app-p3` executable.
+It executed and failed as recorded above. The following recipe is historical,
+not permission to execute it again. Use the
 existing variables above; do not build or nest a slot wrapper inside the window.
 Reverify the selected clean source and every current external/binary/model hash.
-The output below must still be absent; the original `n0500` packet is immutable.
+The output below now contains the failed packet and must be preserved; the
+original `n0500` packet is also immutable.
 
 ```sh
 /Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_APP" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-refresh1"
 ```
 
-This is a proposed new attempt, not a continuation or retry under the consumed
-approval. It needs fresh owner/resource authorization after CI, normal queue
-admission and announced acquisition/closure. At most 900 s including teardown;
-no build, altered input, cap/reserve, capture, LLM/auth/network or 2,000-node
-scope. A host-admission refusal consumes that new attempt too. It exercises the
-same full A interactions and scalar/memory observations below, with known-fresh
-startup admission first. Stop and preserve partial evidence on failure. Report
-closure and the actual result before any further proposal. **B1000 remains
-blocked and is not part of this proposal**, even if this attempt later passes.
+That one-run grant is consumed. There is no automatic retry or new window,
+no B1000 even if a later separate attempt passes, and no 2,000-node scope. The
+same no-capture/LLM/auth/network/release restrictions remain. Any further native
+work requires a separately concrete proposal and fresh authorization.
 
 ## Interactions and usable-size gate
 
