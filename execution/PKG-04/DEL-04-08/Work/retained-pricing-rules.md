@@ -2413,19 +2413,21 @@ integration remain required; neither this proof nor these witnesses grant owner
 acceptance, release, native App qualification or adoption of the recorded modal
 consuming-slice limitations.
 
-### §8.40 Model document 0.9.0 S2 pressure-free resolution: actual-source D3 (proposal)
+### §8.40 Model document 0.9.0 S2 pressure-free resolution: actual-source D3 (conservative carry)
 
 **Selected predecessor and source.** The predecessor is integrated main
 `4cf32bfd4` (dynamics I1, §8.39, on reducer 2a, §8.38). Its own committed tool
 prices it with exit 0, O-10 clear, the same 880 carried keys, 37 prunes and seven
 resolutions as §8.39, and `generate --check` with §8.38's basis line matches the
-registered 1,712-line block. That block's file SHA-256 remains
+registered 1,712-line block. The entire unchanged 4,154-line `retained_memory.rs` file's SHA-256 is
 `8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`. The
 candidate is `064dc8bb9`, S2's reviewed source (`d738d34d8`) merged normally
 with that main. Its S2 product files are byte-identical to the reviewed source.
 No §8.36–§8.38 source pin or profile is transplanted. The pins below are read
-from this source. Nothing here adopts a coefficient, edits the generated block,
-law or challenge expectations, registers a profile or grants acceptance.
+from this source. Agent 0 directs keeping the registered coefficients and approved conservative
+allowance. No lower coefficient is adopted, and the generated block, registration
+identity, inputs, reader layouts, M and reserve policy remain unchanged. The
+native law/challenge expectations are re-derived below; this grants no acceptance.
 
 **Changed source and D1 premises.** S2 splits the lowering into a read-only
 `operating_conditions::judge`, which `lower` applies, and adds
@@ -2455,7 +2457,7 @@ children.
 Every pre-existing line, including `canonical_decimal` and `kelvin_numerator`,
 is byte-identical, and `temperature.rs` (`exact_kelvin`) is unchanged. The new
 helpers are reached only through `exact_temperature_difference` from
-`resolve_case`. In the priced graph they have no multiplicity. `bit_len`'s
+`resolve_case`. In the heap-pricing abstraction they have no multiplicity. `bit_len`'s
 by-name `.find(` edge into `sparse.rs` therefore leads nowhere.
 
 **Rules, by label.**
@@ -2480,9 +2482,12 @@ owner-choice helpers, phase/T25 callers, returning-error owners). The carried
 No point has an unmapped header or an unclassified argument, and both O-10
 checks are clear. D is unchanged: L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237
 and E 76,356. The line map is the predecessor's entry for entry (880 keys, 37
-prunes, seven resolutions). In the normalized call graph only `judge` and `plan`
-gain multiplicity (1 each). No existing function's multiplicity changes, and
-`resolve_case`, its callees, the rounding helpers and the preview have none.
+prunes, seven resolutions). In the normalized heap-pricing graph only `judge` and `plan`
+gain multiplicity (1 each). No existing function's multiplicity changes.
+`resolve_case` executes once per case, including `Option::as_ref`, then returns
+before heap work on D1. Its zero allocation-edge multiplicity does not mean the
+runtime call or stack frame is absent. The rounding helpers and preview are
+not called on this path.
 
 `compare <candidate> <predecessor>` gives equal structure: **1,596 coefficients
 equal, none higher and six lower**. The six are `TAV_W[1]`, `TAV_X[1]`, their
@@ -2501,9 +2506,12 @@ L(1,2) also gain S2-JD's 4 and 8 `s(Diagnostic)`.
 the candidate's 328 collected atoms with only that atom at 672, reproduces all
 16 `PINNED_RECORD` phases. With the registered block unchanged, the candidate's
 in-build record rises by +24 B (W1–W5, X2, X3) and +48 B (X1, two typed copies)
-in both modes. The two pins tied to that record therefore fail:
-`profile_in_build_record` and `challenge_bounds_are_the_profile`. The other 69
-retained-memory law tests pass.
+in both modes. The two old expectations tied to that record failed at `bf59efa95`:
+`profile_in_build_record` and `challenge_bounds_are_the_profile`; the other 69
+retained-memory law tests passed. The re-derived `PINNED_RECORD` adds 24 B
+to every phase except X1, which adds 48 B. Challenge W1 is
+[6,602,964,678, 6,662,096,022] and MAX is [8,899,142,475, 8,958,273,819],
+all without R. Native verification of these amended expectations follows.
 
 The proposal, maintained `generate` output with basis
 `, re-run as RT-G5 S2 at 064dc8bb9 (§8.40): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`,
@@ -2532,21 +2540,49 @@ debug configuration's library test binary, the frames are:
 | `lower` | 480 B |
 | `judge` | about 1,840 B |
 | `plan` | about 800 B |
-| `resolve_case` | about 10,032 B |
+| `resolve_case` | 10,064 B (including 32 B saved-register prologue) |
 | `apply` | about 592 B |
 
-`resolve_case`'s frame is entered once per case on D1, sequentially. The added
-depth below `lower` is at most about 12.7 KiB, at the start of the solve. These
-observations establish no whole-chain bound. No predecessor binary was
-inspected and no witness was run, so AC-004's applicability goes to Agent 0.
+`resolve_case`'s frame is entered once per case on D1, sequentially. The
+observed live `lower`/`judge`/`plan`/`resolve_case` frames total 13,184 B before
+additional callees; their return slots and locals occupy those frames. `apply`
+runs later below `lower`, after the judge/plan/resolve frames return. These are
+current-binary frame observations, not an incremental predecessor comparison
+or a whole-chain bound. No witness has run for S2; six source-bound AC-004
+witnesses remain subject to a separately cleared prebuilt exclusive window.
 
-**Reserved and open.** Each of these needs a reserved decision or independent
-review:
-- Adopting the six-lower proposal, or keeping the registered block. Either way
-  the law record and the challenge W1/MAX pins must be re-derived.
-- The AC-004 witnesses.
-- Independent scrutiny of this registration.
-- Regenerating the run carriers after any adoption.
+**Chosen standing and independent scrutiny.** Agent 0 directs conservative
+carry of the unchanged registered coefficients, including the approved
+3,990,536 B allowance. This follows the maintained README's `a_le_b` rule:
+the current source-derived tree is coefficient-wise bounded by the adopted
+block. All 80 candidate point/phase evaluations, including S2-JD's L21/L12
+owners, also lie below the corresponding kept merged phases at actual atoms.
+The kept W/X reserves are 255,342,507 / 276,013,933 B. The native layout increase
+is real: this carry is not a zero-memory-change claim.
+
+Reproduce the kept block with the exact predecessor `4cf32bfd4` tool cohort,
+its complete run and the adopted §8.38 basis, then `generate --check` against
+the unchanged registered file. Run the current source with this S2 tool and
+compare its merged tree against that reproduced predecessor tree (`a_le_b`
+true, equal structure); evaluate both at current native atoms, and confirm
+all 80 points are bounded by the kept merged phases/reserves. The lower
+proposal is only comparison evidence. Its generated output does not equal
+the kept block. No generated constant is manually selected or overwritten;
+all thirteen reviewed-input files and reader-layout declarations are unchanged.
+
+Independent GPT-6 Astra at medium effort reviewed exact `bf59efa95`, freshly
+reproduced all four candidate points and the comparison, checked the unchanged
+predecessor tool/generator binding and native integer evaluations, and found
+no omitted positive heap owner or method issue with this carry. It passed 25
+focused S2/modal tests and reused the reported broader suites explicitly. Its
+native-pin completion gap is addressed by the derived expectations above; its
+stack-frame and allocation-abstraction wording corrections are applied here.
+This scrutiny does not supply stack qualification or merge readiness.
+
+**Still open.** Verification of the amended native law/challenge pins, the six
+AC-004 witnesses, integrated-main frozen-input and current native/Wasm bindings,
+any build-bound carrier regeneration that the maintained writers require, and
+exact-head hosted checks. No exclusive window or acceptance is implied.
 
 Maintained tests: 870 pass, including `tests/test_840_rt_g5_s2.py`. The named
 proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:

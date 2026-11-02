@@ -448,13 +448,13 @@ Extra debug wrapper/accessor stack depth is assessed separately through AC-004;
 heap coefficient identity alone does not settle that check. See the governed
 §8.39 proof and `tests/test_dynamics_d3.py` for mutation refusals.
 
-### §8.40: model document 0.9.0 S2 pressure-free resolution (proposal)
+### §8.40: model document 0.9.0 S2 pressure-free resolution (conservative carry)
 
 On D1, D1.3 and D1.5 leave `resolution::plan` with an empty set map, and every
 `resolve_case` returns `Ok(None)` at its first statement. `rules/o10_rules.py`
 adds:
 - S2-PIN: `resolution.rs`'s bytes and premise checks.
-- S2-ZR: zeroes `plan` → `resolve_case`.
+- S2-ZR: zeroes the heap-pricing edge `plan` → `resolve_case`; the call/frame remains live.
 - S2-BN: `plan`'s `as_str` has no crate target.
 - S2-ID: the resolution's unreached format arguments.
 - S2-RK: re-keys the S1 rules that moved from `lower` into `judge`.
@@ -466,6 +466,15 @@ for a document its findings refuse (≤ 4z, route L with combinations). PP
 Against main `4cf32bfd4`, six TAV coefficients fall by 3,990,536 B, because
 §8.36's short-key over-bound is no longer met. No coefficient rises. The native
 atom `s(PreviewLoadCase)` grows 672 → 680 B, so the in-build record moves +24/+48 B
-until a registration re-derives it. The generated block, law pins and
-registration are unchanged here. See the governed §8.40 proof and
+at actual native types. Law/challenge expectations derive from the kept block
+and those types; the generated block and registered identity/inputs/layouts
+remain unchanged. See the governed §8.40 proof and
 `tests/test_840_rt_g5_s2.py`.
+
+S2 keeps the registered coefficients under the `a_le_b` carry rule. Reproduce
+the kept block using the committed predecessor `4cf32bfd4` tool/source and adopted
+§8.38 basis; compare the current source-derived tree against that result, then
+evaluate both with actual native atoms. The six-lower S2 generated proposal is
+comparison evidence, not the kept block; `generate --check` of that proposal
+against the kept block is not an equality claim. See §8.40 for native-layout
+changes, the independent review and remaining qualification.
