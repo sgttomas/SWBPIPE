@@ -2751,9 +2751,44 @@ the other eleven inputs, layouts and threshold are unchanged.
 
 Whichever is chosen, adoption changes `retained_memory.rs` and the derived law
 records (`PINNED_RECORD` and challenge W1/MAX: +286 B per phase under A) and
-needs a rebuild; until then the build is `Stale`, so the retained successors,
-retained carriers and in-memory successor pins cannot be regenerated or
-re-proved, and the AC-004 witnesses would exercise the declined route.
+needs a rebuild. The selected branch remains `Stale`; its retained writers
+cannot emit successors, and its AC-004 witnesses would exercise the declined
+route. That gate is not waived by the prospective verification below.
+
+**Prospective retained-output verification (not adoption).** A separate
+manager-owned source snapshot tests exact A on `330dde049`, with explicit
+test-only capture and prospective pin/law overlays. Both its pinned build
+identity and all thirteen input bindings match; its Direct entry reports
+`Registered` in both modes. Baseline `2b743781a` with the same test-only
+capture reproduces the old pins. There are ten in-memory successors, not
+eight: EXACT and MIX have two modes each, TWO_MEMBER has four entries
+including reversed order, and UNAVAILABLE has two. Independently resealing
+the reviewed identity back to 2a's text and reversing only the resulting
+publication/receipt digests restores every raw baseline byte and old pin.
+Invocations, number tokens, rows, order, diagnostics, metadata, selection and
+status are unchanged. Maintained writers regenerate the ten retained
+carriers in that snapshot; the guarded corpus, derivative and RV120 checks
+pass. The reader-outcomes fixture is also regenerated and now belongs to the
+2b retained preservation guard: keys, readings and verdict summaries remain
+unchanged. Of 938 entries, 59 change their input digests and 89 successful
+outcome-JSON hashes move. Independent Python materialization and validation
+reproduce the 118 endpoint input hashes and 178 changed successful
+outcome-JSON hashes. Unchanged native error readings are protected exactly;
+this does not assert Python/native error-detail parity. These conditional
+results establish the proposed output delta;
+they do not claim that the selected branch's declined route has passed.
+
+The raw source/overlay/binary provenance and comparisons are in
+`/private/tmp/rt-a3-2b-prospective-proof/`. The snapshot's prospective law
+records pass the 71 law tests. Retained facade, result-export and report
+checks pass with their preservation-derived pins. Comparing the original
+22 failure names with the rebuilt and prospective logs finds every one in
+the prospective passing results; the selected rebuilt source passes fourteen
+and its remaining eight still hit the unadopted-input gate. Vitest pin checks and the
+native allocation-challenge executable remain unrun in this experiment; no
+stack, timing, heap-peak or RSS qualification is claimed. The selected
+profile and law/challenge files remain unchanged pending owner disposition,
+and the final selected head still needs a rebuild and required checks.
 
 **Stack.** Static prologues in the current lib-test binary (no predecessor
 binary was available for a delta; no whole-chain claim): entered on D1,

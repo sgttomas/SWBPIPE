@@ -46,6 +46,7 @@ assert NEW != OLD
 
 RETAINED = tuple(dict.fromkeys((
     "fixtures/results/retained_precision_cases.json",
+    "fixtures/results/retained_precision_reader_outcomes.json",
     "fixtures/results/retained_precision_rv120_b3_inputs.json",
     *(f"fixtures/results/retained_precision_exact_successor_{kind}{mode}.json"
       for kind in ("", "derivative_") for mode in ("sparse_interactive", "dense_scrutiny")),
@@ -129,6 +130,14 @@ def _restore_report_identity(value, patterns, path=()):
 
 def check(name):
     before, after = _at(BASE, name), (ROOT / name).read_text()
+    if name == "fixtures/results/retained_precision_reader_outcomes.json":
+        # These input hashes bind result statements plus invocations, not
+        # authored inputs. Native r1_native_reader_outcomes independently
+        # checks their materialization and all outcome-JSON hashes. Here the
+        # token comparison preserves every key, reading and verdict summary.
+        compare(load(before), load(after), old=OLD, new=NEW)
+        assert before != after, "reader outcomes still state the predecessor bindings"
+        return 0
     rv120 = name == "fixtures/results/retained_precision_rv120_b3_inputs.json"
     if rv120:
         check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
@@ -197,3 +206,15 @@ def test_reducer_2b_identity_is_the_producers():
     source = (ROOT / "core/product_physics/src/exact_admission.rs").read_text()
     assert source.count(json.dumps(NEW, ensure_ascii=False)) == 1
     assert json.dumps(OLD, ensure_ascii=False) not in source
+
+
+def test_reducer_2b_reader_outcome_guard_preserves_keys_readings_and_summaries():
+    def entry(key="corpus:case:example", reading="bound", summary="pass eligible rows=89", digest="1" * 64):
+        return Obj([("entries", [[key, digest, Obj([(reading, [digest, summary])])]])])
+
+    before = entry()
+    assert compare(before, entry(digest="2" * 64), old=OLD, new=NEW) == 0
+    for changed in (entry(key="corpus:case:other"), entry(reading="unbound"),
+                    entry(summary="pass eligible rows=90"), entry(summary="G8 REFUSED")):
+        with pytest.raises(AssertionError):
+            compare(before, changed, old=OLD, new=NEW)
