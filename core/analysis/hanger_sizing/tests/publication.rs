@@ -421,6 +421,7 @@ fn an_input_outside_the_profile_is_refused_by_kind_and_path_without_its_value() 
         (text.replacen("\"variation_limit\": 0.25", "\"variation_limit\": 1e20", 1), "number_outside_profile", "$.sizing.method.variation_limit"),
         (text.replacen("\"variation_limit\": 0.25", "\"variation_limit\": 0.25, \"variation_limit\": 0.3", 1), "duplicate_key", "$.sizing.method.variation_limit"),
         (text.replacen("\"variation_limit\": 0.25", "\"variation_limit\": 1e999", 1), "number_outside_profile", "$.sizing.method.variation_limit"),
+        (text.replacen("\"variation_limit\": 0.25", &format!("\"variation_limit\": {}", "9".repeat(5000)), 1), "number_outside_profile", "$.sizing.method.variation_limit"),
         (format!("{text} x"), "invalid_json", "$"),
     ] {
         let doc = refused(size_hangers(&bad));

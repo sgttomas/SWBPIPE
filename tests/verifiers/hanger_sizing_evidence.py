@@ -101,6 +101,14 @@ def _not_json(name):
     raise Difference(f"invalid_json: {name} is not JSON")
 
 
+def _integer(token: str) -> int:
+    # Refuse a long integer token before conversion: Python's int conversion limit
+    # would otherwise raise outside admission. 2^53 - 1 has 16 digits.
+    if len(token.lstrip("-")) > 16:
+        raise Difference("number_outside_profile: an integer token past the profile")
+    return int(token)
+
+
 def _profile(value: Any, path: str, depth: int) -> None:
     if isinstance(value, bool) or value is None:
         return
@@ -126,7 +134,8 @@ def _profile(value: Any, path: str, depth: int) -> None:
 def admit(text: str) -> Any:
     """A document text admitted under the checked profile, or Difference."""
     try:
-        value = json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_not_json)
+        value = json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_not_json,
+                           parse_int=_integer)
     except json.JSONDecodeError as error:
         raise Difference(f"invalid_json at character {error.pos}") from error
     except RecursionError as error:

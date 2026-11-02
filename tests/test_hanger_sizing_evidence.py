@@ -113,6 +113,7 @@ def test_admission_refuses_duplicate_keys_and_numbers_outside_the_profile():
                         (text.replace(f'"w_n": {w}', '"w_n": 1e20', 1), "number_outside_profile"),
                         (text.replace(f'"w_n": {w}', '"w_n": 9007199254740992', 1), "number_outside_profile"),
                         (text.replace(f'"w_n": {w}', '"w_n": 1e400', 1), "number_outside_profile"),
+                        (text.replace(f'"w_n": {w}', '"w_n": ' + "9" * 5000, 1), "number_outside_profile"),
                         (text.replace(f'"w_n": {w}', '"w_n": NaN', 1), "invalid_json"),
                         (text + " x", "invalid_json")):
         assert bad != text

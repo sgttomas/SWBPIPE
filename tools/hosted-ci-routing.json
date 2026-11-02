@@ -202,7 +202,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "332836db85b55f4bc9dd389996820833e4d8c445508fc0e600057629293e1946",
+      "core/analysis/hanger_sizing/Cargo.toml": "a5e1fae2161e3b9c78ac98097b1b2e59a35e60c95a6150d652f8a900e1f621bc",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "e6eabce9c82e4987e065b41f62ab110b0f54a1fd6d2044ed374511d08bda6e01",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
@@ -5729,7 +5729,7 @@
         }
       },
       "core/analysis/hanger_sizing/tests/publication.rs": {
-        "sha256": "620d522ae88fbc25a5fbefba4f433cb196cf8a85d03e19d0145fc0dc48eb042b",
+        "sha256": "96dbbf94e9c4aba17b089b7de9b84e8059e91fea750cfc339093204bf63b4bc9",
         "source_trees": [
           "core/analysis/hanger_sizing/Cargo.toml"
         ],
@@ -5767,6 +5767,7 @@
             "anchor": "fixtures/results",
             "base": "project",
             "files": [
+              "fixtures/results/hanger_sizing_input_four_span.json",
               "fixtures/results/hanger_sizing_input_refused.json",
               "fixtures/results/hanger_sizing_input_two_span.json"
             ]
