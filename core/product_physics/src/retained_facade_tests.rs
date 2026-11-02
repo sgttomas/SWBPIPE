@@ -2609,7 +2609,7 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "1d3900bed5070ea43b5ed8e42a1c9abad58d3f8897e151f767e767d5f2dfea4b", "52128e9af155581eb8f4dc3147b4eded8bf9e808e5aebc803aefeea3bb173232"),("dense_scrutiny", "c90679670c1a17f7388481e19c634c6813adf623284a801056d899cbaffe5e66", "2d29099bbfab2e333959a224a15eab19921f431f92ac432581c7235f9a53b952")];
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "83fff5b048df091a72369a7962cfc554b810202c6bfa7680c9262525d11c7fbb", "f191936b3775238f34e58372b12c0bc76bca69f47657dd5c0279266ea4209159"),("dense_scrutiny", "193cc73d50a8b3656f67a44ceacf614ac538a22e473012be3d23fdfd215f5b23", "567b2b8d21b683414141a24523e2ebd9676693cccb083ec0b8e2aa68d2138f19")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3646,10 +3646,10 @@ fn two_member_exact(reversed: bool) -> Value {
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "b07a6104d8a05d8536386af57e85f7444c90b343cb4b7012deb8abee78d3caa6"),
-    (false, "dense_scrutiny", "067b43958da8f8b3d246b7e589ade6b5c1825bd6c0930f5ad1ba3667a73b3a11"),
-    (true, "sparse_interactive", "c3231ac240edccb4a9fec682d9e754f6ceee9c06dd6c660ff2ac111658e46295"),
-    (true, "dense_scrutiny", "f74e1f113ddc8d1afba90bcb48e49c8beaa67fbc909ca3ab93f9c11eec5b33dc")];
+    (false, "sparse_interactive", "cfaaaddd1b24c1d9b696b1566acea782d72e54b1523e1afcb339c05917a79675"),
+    (false, "dense_scrutiny", "ec450b5f0f323bff47a068193af872d45a3ac986ab48b0e57e776391ef9199f0"),
+    (true, "sparse_interactive", "5893e55b32d1f1637d63d85671c7aae3bc1bc5cee792f3bd7a1cd9db08d52a8a"),
+    (true, "dense_scrutiny", "73ce51c3c417e701db82c8fbcf4ec233d5e2d9824a475a9c2c618bf6bff28da3")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3701,8 +3701,8 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "0681de75782abb8f1724d57db2830c5af6c62fc771c9df88f86fa80b2781e863"),
-    ("dense_scrutiny", "e012cb05141b1dff8649d1a763d2a6904c340a27f050b794cbf81d2985299ff9")];
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "97449ad733ed90c61ed52f5591da7c6127e24dd435e274089fee9aab7c86565f"),
+    ("dense_scrutiny", "e6a553ce32de5aef6ddaab5c16702ffd26b8d66453b577d89fd65e1fe9137d80")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),
