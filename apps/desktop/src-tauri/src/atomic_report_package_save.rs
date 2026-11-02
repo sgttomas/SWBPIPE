@@ -298,6 +298,40 @@ fn validate_destination(
     Ok((parent.to_path_buf(), replaced_existing))
 }
 
+/// Atomic replacement is claimed only for macOS: elsewhere a destination
+/// that exists is refused before anything is written.
+fn replacement_supported(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+    replaced_existing: bool,
+) -> Result<(), AtomicSaveError> {
+    #[cfg(not(target_os = "macos"))]
+    if replaced_existing {
+        return Err(AtomicSaveError::validation(
+            format,
+            "REPLACE-UNSUPPORTED-PLATFORM",
+            "atomic replacement is currently claimed only for macOS",
+            destination,
+        ));
+    }
+    let _ = (format, destination, replaced_existing);
+    Ok(())
+}
+
+/// The writer's own destination checks for `format`, without writing:
+/// the extension, an existing non-symlink parent, no symlink or directory
+/// destination, and (off macOS) no replacement. Returns whether a file is
+/// there to be replaced. A caller writing several files checks each first,
+/// so a destination the writer would refuse is refused before any write.
+pub fn check_destination_as(
+    format: &AtomicSaveFormat,
+    destination: &Path,
+) -> Result<bool, AtomicSaveError> {
+    let (_, replaced_existing) = validate_destination(format, destination)?;
+    replacement_supported(format, destination, replaced_existing)?;
+    Ok(replaced_existing)
+}
+
 #[cfg(test)]
 fn create_temp(parent: &Path, destination: &Path) -> Result<(PathBuf, File), AtomicSaveError> {
     create_temp_as(&REPORT_PACKAGE_FORMAT, parent, destination)
@@ -426,15 +460,7 @@ pub(crate) fn atomic_save_bytes_as_with_io(
         parent_class,
         parent_hash
     );
-    #[cfg(not(target_os = "macos"))]
-    if replaced_existing {
-        return Err(AtomicSaveError::validation(
-            format,
-            "REPLACE-UNSUPPORTED-PLATFORM",
-            "atomic replacement is currently claimed only for macOS",
-            destination,
-        ));
-    }
+    replacement_supported(format, destination, replaced_existing)?;
 
     let (temp_path, mut temp) = create_temp_as(format, &parent, destination)?;
     if let Err(error) = operations.write_all(&mut temp, bytes) {

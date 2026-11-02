@@ -25,7 +25,7 @@ if(command==='cargo') {
   if(args[0]==='metadata'&&m>=0){const manifest=args[m+1];console.log(JSON.stringify({target_directory:target,workspace_root:path.dirname(manifest),packages:[{manifest_path:manifest,dependencies:[],targets:[]}]}));}
   else if(args[0]==='metadata') console.log(JSON.stringify({target_directory:target}));
   else if(args[0]==='build'&&m>=0){
-    const crate=path.dirname(args[m+1]); const name=crate.includes('self_weight')?'self_weight_wasm':'operation_applier';
+    const crate=path.dirname(args[m+1]); const name=crate.includes('self_weight')?'self_weight_wasm':crate.includes('caepipe_mbf_wasm')?'caepipe_mbf_wasm':'operation_applier';
     const dir=path.join(target,'wasm32-unknown-unknown/release'); fs.mkdirSync(dir,{recursive:true});
     const wasm=path.join(dir,'open_pipe_stress_'+name+'.wasm'), dep=path.join(dir,'open_pipe_stress_'+name+'.d'), read=path.join(root,'fixtures/read.json');
     const deps=path.join(process.env.CARGO_BUILD_BUILD_DIR||target,'wasm32-unknown-unknown/release/deps'); fs.mkdirSync(deps,{recursive:true});
@@ -52,7 +52,7 @@ function fakeProject() {
   const scripts = path.join(root, 'apps/desktop/scripts');
   const bin = path.join(root, 'bin');
   mkdirSync(scripts, {recursive:true}); mkdirSync(bin);
-  for (const dir of ["core/model_operations/operation_applier", "core/loads/self_weight_wasm"]) { mkdirSync(path.join(root,dir,'src'),{recursive:true}); writeFileSync(path.join(root,dir,'Cargo.toml'),'[package]\n'); writeFileSync(path.join(root,dir,'src/lib.rs'),'// lib\n'); }
+  for (const dir of ["core/model_operations/operation_applier", "core/loads/self_weight_wasm", "core/handoff/caepipe_mbf_wasm"]) { mkdirSync(path.join(root,dir,'src'),{recursive:true}); writeFileSync(path.join(root,dir,'Cargo.toml'),'[package]\n'); writeFileSync(path.join(root,dir,'src/lib.rs'),'// lib\n'); }
   mkdirSync(path.join(root,'fixtures'),{recursive:true}); writeFileSync(path.join(root,'fixtures/read.json'),'{}');
   for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs','worktreeBuildLock.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
   const target = path.join(root,'custom-target');
@@ -70,7 +70,7 @@ test('dual artifact build resolves Cargo target paths and preserves old selfweig
     const scripts = path.join(root, 'apps/desktop/scripts');
     const bin = path.join(root, 'bin');
     mkdirSync(scripts, {recursive:true}); mkdirSync(bin);
-    const crates = ["core/model_operations/operation_applier", "core/loads/self_weight_wasm"];
+    const crates = ["core/model_operations/operation_applier", "core/loads/self_weight_wasm", "core/handoff/caepipe_mbf_wasm"];
     for (const dir of crates) { mkdirSync(path.join(root,dir,'src'),{recursive:true}); writeFileSync(path.join(root,dir,'Cargo.toml'),'[package]\n'); writeFileSync(path.join(root,dir,'src/lib.rs'),'// lib\n'); }
     mkdirSync(path.join(root,'fixtures'),{recursive:true}); writeFileSync(path.join(root,'fixtures/read.json'),'{}');
     for (const name of ['build-wasm-engine.mjs','engineSourceStamp.mjs','worktreeBuildLock.mjs']) copyFileSync(new URL(`./${name}`, import.meta.url), path.join(scripts, name));
@@ -125,7 +125,7 @@ test('Codex r1: a compile read edited after cargo read it is not stamped; cargo 
     writeFileSync(path.join(crate, 'src/lib.rs'), '// lib v2\n');
     const output = p.build({ BUILD_LOG: log, MUTATE_BUILDS: '1' });
     assert.match(output, /operation_applier: not stamped \(inputs changed during the build: fixtures\/read\.json\); building again/);
-    assert.deepEqual(readFileSync(log, 'utf8').trim().split('\n'), ['operation_applier', 'operation_applier', 'self_weight_wasm']);
+    assert.deepEqual(readFileSync(log, 'utf8').trim().split('\n'), ['operation_applier', 'operation_applier', 'self_weight_wasm', 'caepipe_mbf_wasm']);
     // The published engine embeds the fixture its stamp records.
     const fixture = readFileSync(path.join(p.root, 'fixtures/read.json'), 'utf8');
     assert.equal(fixture, '{"edit":1}');
@@ -142,7 +142,7 @@ test('a fresh build verifies its newly discovered compile reads with a second bu
     const log = path.join(p.root, 'builds.log');
     const output = p.build({ BUILD_LOG: log });
     assert.match(output, /not stamped \(compile reads not known before the build: fixtures\/read\.json\)/);
-    assert.deepEqual(readFileSync(log, 'utf8').trim().split('\n'), ['operation_applier', 'operation_applier', 'self_weight_wasm', 'self_weight_wasm']);
+    assert.deepEqual(readFileSync(log, 'utf8').trim().split('\n'), ['operation_applier', 'operation_applier', 'self_weight_wasm', 'self_weight_wasm', 'caepipe_mbf_wasm', 'caepipe_mbf_wasm']);
     const stampPath = path.join(p.root, 'apps/desktop/public/wasm-engine/source-stamp.json');
     const stamp = readFileSync(stampPath, 'utf8');
     writeFileSync(path.join(p.root, 'core/model_operations/operation_applier/src/lib.rs'), '// lib v2\n');

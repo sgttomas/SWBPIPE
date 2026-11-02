@@ -30,7 +30,8 @@ def shared_input(path):
 
 # The crates `apps/desktop/scripts/build-wasm-engine.mjs` compiles into the
 # engines the desktop suite executes.
-WASM_ENGINE_CRATES = ("core/model_operations/operation_applier/Cargo.toml", "core/loads/self_weight_wasm/Cargo.toml")
+WASM_ENGINE_CRATES = ("core/model_operations/operation_applier/Cargo.toml", "core/loads/self_weight_wasm/Cargo.toml",
+                      "core/handoff/caepipe_mbf_wasm/Cargo.toml")
 DESKTOP_SOURCES = "apps/desktop/src"
 # The desktop shell crate, whose Cargo tests the desktop Rust job runs.
 DESKTOP_RUST_CRATE = "apps/desktop/src-tauri"

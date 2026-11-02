@@ -1277,6 +1277,11 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
+    // §8.38 D3 at 3c3e976075 (RT-A3 reducer 2a): +437 B resident limitation text
+    // and +1,314 B source TEXT per phase. Reviewed inputs #8 (physics-retained-1)
+    // and #11 (pressure-2), counted from 0, take the derived table bytes. The build
+    // identity, other eleven inputs, layouts and threshold are unchanged; §8.37
+    // was the previous registration.
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
     // §8.33 D3 at 7e7fef2d4 (RT-A3 increment 1: tees and implicit pressure junctions on the exact
@@ -1366,7 +1371,7 @@ static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // previous registration. The one registered entry supplies G0; its genuine profile, input,
     // witness and resource checks still govern.
     identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9;../../schemas/results_pressure_2.v0.3.schema.json=258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf;../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json=a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
+    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac;../../schemas/retained_precision_mp_v2.schema.json=73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46;../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json=1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2;../../fixtures/results/retained_precision_prepared_combination_v1.json=fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2;../../fixtures/results/retained_precision_prepared_exact_v1.json=8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=6218734669b76d98f64e22804ca862ba43d543b7c0d22894b196724998c39be8;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9;../../schemas/results_pressure_2.v0.3.schema.json=258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2;../../fixtures/results/semantic_contract_v0_3_pressure_2.json=032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025;../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json=a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     reader_layouts: [
         TypeLayout { size: 56, align: 8 },
         TypeLayout { size: 64, align: 8 },
@@ -1475,8 +1480,8 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// RT-A3 increment 1b after model document 0.9.0 S1 at c0e79eea11 (§8.37): the maximum over routes
-/// L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.
+/// re-run as RT-A3 reducer 2a at 3c3e976075 (§8.38): the maximum over routes L (C_eq <= 3, worst
+/// shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1511,8 +1516,8 @@ pub(super) mod profile {
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
     pub(crate) const TEXT_D: u64 = 76356; // D
     pub(crate) const TEXT_D_ENV: u64 = 28775; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7443194026; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7440593326; // TAV_text_requested
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7443195340; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7440594640; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
     pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 274415304; // Text(diag_env)
     pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 449832066; // Text(diag_total)
@@ -2865,7 +2870,7 @@ pub(super) mod profile {
         Form { name: "O_base_dense", constant: 259232431, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2411), (26, 1408), (29, 3), (30, 32), (31, 24), (33, 896), (34, 96), (39, 256), (40, 256), (41, 1536), (42, 40960), (44, 96), (46, 192), (48, 576), (50, 4), (52, 84096), (56, 384), (60, 576), (62, 288), (63, 384), (64, 4416), (66, 1308), (67, 224), (68, 384), (70, 197184), (72, 267), (77, 4), (78, 3), (82, 12), (83, 4), (95, 1344), (107, 6), (108, 6), (109, 12), (110, 6), (111, 6), (112, 48), (113, 771), (114, 3), (115, 12), (116, 3), (117, 3), (118, 6), (119, 3), (120, 384), (123, 143328), (129, 131936), (130, 12), (131, 384), (132, 3072), (134, 5226), (136, 15), (138, 1443180), (140, 3), (143, 1152), (144, 34176), (145, 1536), (146, 1664), (147, 128), (148, 21360), (153, 256), (154, 55350), (155, 19968), (156, 6144), (157, 6), (158, 12312), (162, 28), (165, 3), (166, 15), (174, 96), (175, 96), (179, 768), (182, 786432), (190, 20388), (194, 672), (195, 1200), (196, 1728), (197, 5280), (198, 4608), (202, 5184), (208, 6), (209, 3), (212, 6), (213, 3), (214, 32), (215, 32), (216, 32), (217, 768), (218, 384), (230, 1344), (231, 12), (232, 6144), (233, 1536), (235, 12864), (236, 15744), (239, 3456), (240, 192), (245, 7680), (246, 3), (247, 52411), (248, 5280), (249, 1152), (254, 11721), (256, 6), (266, 9), (267, 96), (268, 32), (278, 12), (280, 12), (281, 24), (282, 126144), (283, 128), (285, 132), (286, 121256), (287, 96), (289, 256), (291, 96), (292, 32), (293, 24576), (296, 448), (305, 108293), (306, 228777), (307, 1728), (308, 6912), (310, 1728), (311, 7616), (321, 192), (324, 332), (326, 288), (327, 10238)] },
         Form { name: "O_base_sparse", constant: 237872911, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2411), (26, 1408), (29, 3), (30, 32), (31, 24), (33, 896), (34, 96), (39, 256), (40, 256), (41, 1536), (42, 40960), (44, 96), (46, 192), (48, 576), (50, 4), (52, 84096), (56, 384), (60, 576), (62, 288), (63, 384), (64, 4416), (65, 3456), (66, 4764), (67, 224), (68, 384), (70, 197184), (72, 267), (77, 4), (78, 3), (82, 12), (83, 4), (95, 1344), (107, 6), (108, 6), (109, 12), (110, 6), (111, 6), (112, 48), (113, 771), (114, 3), (115, 12), (116, 3), (117, 3), (118, 6), (119, 3), (120, 384), (123, 143328), (129, 131936), (130, 12), (131, 384), (132, 3072), (134, 5226), (136, 15), (138, 283116), (140, 3), (143, 1152), (144, 34176), (145, 1536), (146, 1664), (147, 128), (148, 21360), (153, 256), (154, 55350), (155, 19968), (156, 6144), (157, 6), (158, 12312), (162, 28), (165, 3), (166, 15), (174, 96), (175, 96), (179, 768), (182, 786432), (190, 20388), (194, 672), (195, 1200), (196, 1728), (197, 5280), (198, 4032), (202, 5184), (208, 6), (209, 3), (212, 6), (213, 3), (214, 32), (215, 32), (216, 32), (217, 768), (218, 384), (230, 1344), (231, 12), (232, 6144), (233, 1536), (235, 12864), (236, 15744), (239, 3456), (240, 192), (245, 7680), (246, 3), (247, 52411), (248, 5280), (249, 1152), (254, 11721), (256, 6), (266, 9), (267, 96), (268, 32), (278, 12), (280, 12), (281, 24), (282, 126144), (283, 128), (285, 132), (286, 121256), (287, 96), (289, 256), (291, 96), (292, 32), (293, 12288), (296, 448), (305, 108293), (306, 211497), (307, 1728), (310, 3456), (311, 9920), (321, 192), (324, 332), (326, 288), (327, 10232)] },
         Form { name: "STAGED", constant: 377293186, terms: &[(11, 5094), (129, 28775), (165, 1), (247, 12393), (286, 49572), (305, 9354)] },
-        Form { name: "STATICS", constant: 586272, terms: &[(11, 7806), (305, 30924)] },
+        Form { name: "STATICS", constant: 586709, terms: &[(11, 7806), (305, 30924)] },
         Form { name: "SUCC", constant: 608344114, terms: &[(11, 272449), (305, 359532)] },
         Form { name: "T07_moving", constant: 1797413, terms: &[] },
         Form { name: "T11", constant: 9838041, terms: &[(45, 32), (47, 8), (48, 96), (80, 5), (81, 1), (105, 3), (106, 2), (135, 64), (163, 23), (167, 3), (169, 96), (177, 384), (188, 192), (195, 576), (199, 12), (221, 96), (241, 64), (265, 3), (269, 96), (271, 768), (272, 96), (273, 96), (274, 384), (275, 96), (276, 384), (277, 96), (286, 672), (297, 384), (299, 64), (303, 384), (306, 1), (322, 96), (323, 6), (325, 576)] },
@@ -2901,8 +2906,8 @@ pub(super) mod profile {
         Form { name: "T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (119, 1), (142, 1), (168, 3), (227, 2048), (254, 4131), (305, 17137)] },
         Form { name: "T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (119, 3), (227, 6144), (254, 12393), (305, 26625)] },
         Form { name: "T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "TAV_W", constant: 5106848810, terms: &[] },
-        Form { name: "TAV_X", constant: 5520277328, terms: &[] },
+        Form { name: "TAV_W", constant: 5106850124, terms: &[] },
+        Form { name: "TAV_X", constant: 5520278642, terms: &[] },
         Form { name: "TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "W1_MEMBER_READER", constant: 6291456, terms: &[] },
         Form { name: "success__BODY", constant: 228635850, terms: &[(11, 127033), (305, 142979)] },
@@ -2915,7 +2920,7 @@ pub(super) mod profile {
         Form { name: "success__O_base_dense", constant: 259232431, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2411), (26, 1408), (29, 3), (30, 32), (31, 24), (33, 896), (34, 96), (39, 256), (40, 256), (41, 1536), (42, 40960), (44, 96), (46, 192), (48, 576), (50, 4), (52, 84096), (56, 384), (60, 576), (62, 288), (63, 384), (64, 4416), (66, 1308), (67, 224), (68, 384), (70, 197184), (72, 267), (77, 4), (78, 3), (82, 12), (83, 4), (95, 1344), (107, 6), (108, 6), (109, 12), (110, 6), (111, 6), (112, 48), (113, 771), (114, 3), (115, 12), (116, 3), (117, 3), (118, 6), (119, 3), (120, 384), (123, 143328), (129, 131936), (130, 12), (131, 384), (132, 3072), (134, 5226), (136, 15), (138, 1443180), (140, 3), (143, 1152), (144, 34176), (145, 1536), (146, 1664), (147, 128), (148, 21360), (153, 256), (154, 55350), (155, 19968), (156, 6144), (157, 6), (158, 12312), (162, 28), (165, 3), (166, 15), (174, 96), (175, 96), (179, 768), (182, 786432), (190, 20388), (194, 672), (195, 1200), (196, 1728), (197, 5280), (198, 4608), (202, 5184), (208, 6), (209, 3), (212, 6), (213, 3), (214, 32), (215, 32), (216, 32), (217, 768), (218, 384), (230, 1344), (231, 12), (232, 6144), (233, 1536), (235, 12864), (236, 15744), (239, 3456), (240, 192), (245, 7680), (246, 3), (247, 52411), (248, 5280), (249, 1152), (254, 11721), (256, 6), (266, 9), (267, 96), (268, 32), (278, 12), (280, 12), (281, 24), (282, 126144), (283, 128), (285, 132), (286, 121256), (287, 96), (289, 256), (291, 96), (292, 32), (293, 24576), (296, 448), (305, 108293), (306, 228777), (307, 1728), (308, 6912), (310, 1728), (311, 7616), (321, 192), (324, 332), (326, 288), (327, 10238)] },
         Form { name: "success__O_base_sparse", constant: 237872911, terms: &[(0, 11721), (9, 864), (11, 84868), (18, 24), (19, 294), (20, 15), (21, 3), (22, 36705), (23, 15), (25, 2411), (26, 1408), (29, 3), (30, 32), (31, 24), (33, 896), (34, 96), (39, 256), (40, 256), (41, 1536), (42, 40960), (44, 96), (46, 192), (48, 576), (50, 4), (52, 84096), (56, 384), (60, 576), (62, 288), (63, 384), (64, 4416), (65, 3456), (66, 4764), (67, 224), (68, 384), (70, 197184), (72, 267), (77, 4), (78, 3), (82, 12), (83, 4), (95, 1344), (107, 6), (108, 6), (109, 12), (110, 6), (111, 6), (112, 48), (113, 771), (114, 3), (115, 12), (116, 3), (117, 3), (118, 6), (119, 3), (120, 384), (123, 143328), (129, 131936), (130, 12), (131, 384), (132, 3072), (134, 5226), (136, 15), (138, 283116), (140, 3), (143, 1152), (144, 34176), (145, 1536), (146, 1664), (147, 128), (148, 21360), (153, 256), (154, 55350), (155, 19968), (156, 6144), (157, 6), (158, 12312), (162, 28), (165, 3), (166, 15), (174, 96), (175, 96), (179, 768), (182, 786432), (190, 20388), (194, 672), (195, 1200), (196, 1728), (197, 5280), (198, 4032), (202, 5184), (208, 6), (209, 3), (212, 6), (213, 3), (214, 32), (215, 32), (216, 32), (217, 768), (218, 384), (230, 1344), (231, 12), (232, 6144), (233, 1536), (235, 12864), (236, 15744), (239, 3456), (240, 192), (245, 7680), (246, 3), (247, 52411), (248, 5280), (249, 1152), (254, 11721), (256, 6), (266, 9), (267, 96), (268, 32), (278, 12), (280, 12), (281, 24), (282, 126144), (283, 128), (285, 132), (286, 121256), (287, 96), (289, 256), (291, 96), (292, 32), (293, 12288), (296, 448), (305, 108293), (306, 211497), (307, 1728), (310, 3456), (311, 9920), (321, 192), (324, 332), (326, 288), (327, 10232)] },
         Form { name: "success__STAGED", constant: 377293186, terms: &[(11, 5094), (129, 28775), (165, 1), (247, 12393), (286, 49572), (305, 9354)] },
-        Form { name: "success__STATICS", constant: 586272, terms: &[(11, 7806), (305, 30924)] },
+        Form { name: "success__STATICS", constant: 586709, terms: &[(11, 7806), (305, 30924)] },
         Form { name: "success__SUCC", constant: 608344114, terms: &[(11, 272449), (305, 359532)] },
         Form { name: "success__T07_moving", constant: 1797413, terms: &[] },
         Form { name: "success__T11", constant: 9838041, terms: &[(45, 32), (47, 8), (48, 96), (80, 5), (81, 1), (105, 3), (106, 2), (135, 64), (163, 23), (167, 3), (169, 96), (177, 384), (188, 192), (195, 576), (199, 12), (221, 96), (241, 64), (265, 3), (269, 96), (271, 768), (272, 96), (273, 96), (274, 384), (275, 96), (276, 384), (277, 96), (286, 672), (297, 384), (299, 64), (303, 384), (306, 1), (322, 96), (323, 6), (325, 576)] },
@@ -2951,8 +2956,8 @@ pub(super) mod profile {
         Form { name: "success__T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (119, 1), (142, 1), (168, 3), (227, 2048), (254, 4131), (305, 17137)] },
         Form { name: "success__T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (119, 3), (227, 6144), (254, 12393), (305, 26625)] },
         Form { name: "success__T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "success__TAV_W", constant: 5106848810, terms: &[] },
-        Form { name: "success__TAV_X", constant: 5520277328, terms: &[] },
+        Form { name: "success__TAV_W", constant: 5106850124, terms: &[] },
+        Form { name: "success__TAV_X", constant: 5520278642, terms: &[] },
         Form { name: "success__TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "success__W1_MEMBER_READER", constant: 6291456, terms: &[] },
     ];
@@ -3180,7 +3185,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8681854785, "W3 publication (T16) with the staged copy"), (8740986129, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8681856536, "W3 publication (T16) with the staged copy"), (8740987880, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 

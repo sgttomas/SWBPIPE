@@ -70,7 +70,7 @@ TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
-TABLE_SHA256 = "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"
+TABLE_SHA256 = "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025"
 TABLE_SIGNATURE_COUNT = 137
 TABLE_KIND_COUNT = 69
 

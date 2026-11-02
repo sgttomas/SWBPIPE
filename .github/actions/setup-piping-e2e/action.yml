@@ -42,7 +42,7 @@ runs:
         path: |
           ~/.cargo/registry/
           core/model_operations/operation_applier/target
-        key: ${{ runner.os }}-rust-1.97.1-${{ hashFiles('core/model_operations/operation_applier/Cargo.lock', 'core/loads/self_weight_wasm/Cargo.lock') }}
+        key: ${{ runner.os }}-rust-1.97.1-${{ hashFiles('core/model_operations/operation_applier/Cargo.lock', 'core/loads/self_weight_wasm/Cargo.lock', 'core/handoff/caepipe_mbf_wasm/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-rust-1.97.1-
 
@@ -58,6 +58,7 @@ runs:
       run: |
         cargo fetch --locked --manifest-path core/model_operations/operation_applier/Cargo.toml
         cargo fetch --locked --manifest-path core/loads/self_weight_wasm/Cargo.toml
+        cargo fetch --locked --manifest-path core/handoff/caepipe_mbf_wasm/Cargo.toml
       working-directory: .
 
     - name: Compute exact desktop WASM output key
@@ -75,6 +76,7 @@ runs:
         path: |
           apps/desktop/public/wasm-engine
           apps/desktop/public/self-weight-engine
+          apps/desktop/public/mbf-engine
           apps/desktop/public/wasm-cache.json
         key: ${{ steps.engine-key.outputs.key }}
 
@@ -92,7 +94,7 @@ runs:
       run: |
         # Partial restores must not let the build script skip an engine based
         # on its stamp while a generated declaration or glue file is missing.
-        rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine
+        rm -rf apps/desktop/public/wasm-engine apps/desktop/public/self-weight-engine apps/desktop/public/mbf-engine
         npm run build:wasm:desktop
       working-directory: .
 
@@ -113,6 +115,7 @@ runs:
         path: |
           apps/desktop/public/wasm-engine
           apps/desktop/public/self-weight-engine
+          apps/desktop/public/mbf-engine
           apps/desktop/public/wasm-cache.json
         key: ${{ steps.engine-key.outputs.key }}
 
