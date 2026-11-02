@@ -324,17 +324,27 @@ suitability, and nothing here determines code compliance.
     model revision, the route and each case's load kinds after lowering. It also states
     the installation assumption, that each spring is set at the drawn geometry. The table
     labels the installed setting separately from the cold-condition load.
-  - **Profile.** Results are published under the hanger-sizing profile and semantic
-    table, and the analysis-run record gains the hanger-sizing run kind.
+  - **Document.** Results are published as a closed hanger-sizing result document
+    (Design §8.3). It embeds the sizing request, binds the solve request and library by
+    hash, and has two statuses: `sized`, meaning the algorithm completed (never
+    acceptance, and always with each outcome and the verification standing), and
+    `refused`.
+  - **Analysis run.** A hanger-sizing run kind awaits the joint analysis-run 0.4.0,
+    approved for design only. Until it is adopted, a sizing result is not a recordable
+    run.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no
-    code with the producer each recompute the loads, variations, fit tests and selection
-    from the published values, the request and the library document.
-  - **CSV.** The table exports to CSV (Design §8.1).
+    code with the producer. Each establishes the document's closure, its binding to the
+    inputs supplied, and arithmetic consistent with the published positions. The Rust
+    reader alone can establish reproduction from the bound inputs. No reader states that
+    the published positions are the model's mechanics without reproducing them.
+  - **CSV.** The table exports to CSV (Design §8.1), with the desktop work.
 - **AC-007** — Maintained tests show:
   - the two readers returning the same verdict for every committed result and every
     committed mutation of it;
+  - a mutated position missed by the arithmetic standing and caught by reproduction;
   - that the Python verifier imports no producer code (an independence test);
-  - the table in DEL-08-04's CSV coverage guard.
+  - existing readers' named refusal of the document;
+  - the table in DEL-08-04's CSV coverage guard, with the desktop work.
 - **REQ-008** — *Applying a selection.*
   - Applying a selected record is the person's explicit act. It goes through the
     existing hanger-selection operation builder and the one operation route, and is

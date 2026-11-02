@@ -421,21 +421,164 @@ cold position.
   function of W, u_C, the u_i, the request and the library. The desktop's detail view for one
   candidate calls the same Rust function to list every record with its first failed test,
   so the table's size is independent of the catalogue's size (§10).
-- **Publication.** Results are published under the profile
-  `product_preview_hanger_sizing_v1`, with fixed limitation text, and the semantic table
-  `openpipestress.result_semantics/0.3.0/hanger-sizing-1`. The analysis-run record
-  gains a hanger-sizing run kind that carries the request. These join the result
-  envelope under DEL-00-06's contract and its one-version rule.
+- **Publication.** The table is published as its own closed document (§8.3), not under
+  a mechanics profile or a 0.3 semantic table. A hanger-sizing analysis-run kind awaits
+  the joint analysis-run 0.4.0, which is approved for design only (§8.3).
 - **[decided] Readers.** A Rust product reader and a test-only Python verifier, which
-  shares no code with the producer, each recompute from the published W, u_C, u_i, the
-  request and the library document:
-  - F_cold, F_i and v_i;
-  - every fit test of the selected record;
-  - the selection.
-
-  They do not re-run a solve.
+  shares no code with the producer. What each establishes, and what it does not, is
+  stated in §8.3.
 - **CSV.** The hanger table exports to CSV under DEL-08-04's serializer and coverage
-  guard (RT-R6).
+  guard (RT-R6), with the desktop work after PR #59 (increment 3).
+
+### 8.3 Publication contract, slice 1d-α (Agent 0, P1–P7, 2026-11-02)
+
+**[decided] Carrier.** A sizing result is published as its own closed, typed document,
+not as rows in a mechanics envelope (Agent 0, P1). Modal analysis publishes its own
+document; the two share basis and identity terminology, not a carrier. Slice 1d-α
+publishes through the headless runner and the session only. A sizing result is not a
+recordable analysis run: the joint analysis-run 0.4.0 is approved for design, not for
+adoption (P2). Nothing here satisfies the desktop or report publication criteria.
+
+#### Identity and status
+
+- `document_kind` is `"openpipestress.hanger_sizing.result"`.
+- `schema_version` is `"1.0.0"`, and the schema is `schemas/hanger_sizing_result.schema.json`.
+- `semantic_contract_id` is `"openpipestress.result_semantics/hanger-sizing-1"`.
+- `limitations` is the fixed text of the schema, compared byte for byte.
+- Every object is closed (`additionalProperties: false`).
+- `status` is `"sized"` or `"refused"`:
+  - **`sized`** means the algorithm completed. It does not mean that every candidate
+    fits, and it is no engineering acceptance. A sized result always carries each
+    candidate's outcome, including `no_record_fits`, and the verification standing,
+    including `conditional`.
+  - **`refused`** carries `refusals` (each with `code`, `names` and `message`) and no
+    `result`, exactly as the engine refuses: no partial table.
+
+#### Inputs and their binding
+
+The canonical profile for every hash is `openpipestress_jcs_ijson_v1`, as the product's
+`canonical_json` and the independent verifiers' `canonical_json.py` implement it. Every
+hash is the SHA-256 of the canonical text.
+
+- **`inputs.sizing_request`** is embedded in full, with `inputs.sizing_request_sha256`
+  beside it. Its members are:
+  - `weight_case`, `weight_support_state`;
+  - `design_operating_case`, `check_operating_cases`;
+  - `candidates` (each a `support` with its `family_policy`);
+  - `method`: `load_design`, `variation_reference`, `variation_limit`,
+    `travel_allowance_m`, `selection_rule`;
+  - `solver_mode`.
+- **`inputs.solve_request`**: `{sha256}`, a named external input. It is the solve
+  request `{model, materials}` exactly as the sizing run received it. Its `materials`
+  is the collection the solve entry normalizes, so the hash binds the material input
+  and the model together. The document does not embed the model.
+- **`inputs.library`**: `{library_id, sha256}`, a named external input. It is the
+  imported hanger library document exactly as stored.
+- **Selected records.** Each selected record carries `hanger_id` and `record_sha256`,
+  the hash of that record's object within the library document.
+- **Derived solves.** Each entry of `result.solves` records its `label` (`S_W`, `S_C`,
+  `S_O1…`, `V_C`, `V_O1…`), its `case`, and the `sha256` of its derived document. A
+  derived document is a deterministic function of the solve request, the sizing
+  request and the candidates' roles (§4.1), so these hashes can be reproduced.
+- **The `--solver-mode` flag.** The runner's existing rule accepts `--solver-mode` for
+  `solve` only (`openpipestress-runner.rs`). `size-hangers` therefore refuses the flag,
+  and `inputs.sizing_request.solver_mode` is the only source of the mode. No override
+  exists.
+
+#### The sized result
+
+All quantities are SI. Units are fixed by the schema and the member name: `_n`, `_m`,
+`_n_per_m`.
+
+- **`result.verification_standing`**: `unconditional` or `conditional`.
+- **`result.candidates[]`**, in request order, keyed by `support`. Each carries:
+  - `node`, `dof`, `family_policy`;
+  - `outcome`: `selected`, `selected_by_fallback` or `no_record_fits`;
+  - `w_n` and `u_cold_m`;
+  - `cases[]` of `{case, u_m}`, in request order;
+  - `span_m` as `[min, max]`, and `required_travel_m`;
+  - `failure_counts`: `{variable, constant}`, each `null` or a map from test name to
+    count;
+  - `selected`: `null`, or
+    `{hanger_id, record_sha256, hanger_type, k_n_per_m|null, f_cold_n|null, f_cold_condition_n|null, constant_load_n|null, envelope_n|null, cases: [{case, f_n, variation}]}`;
+  - `verification_role`: `spring`, or `force` (constant and no-fit candidates). This is
+    the assumption the verification made at the candidate;
+  - `verification`: `null` for no fit, else
+    `{u_cold_m, cases: [{case, u_m, f_n|null, variation|null}], span_m, required_travel_m, t_pass, f_cold_condition_n|null, departure_n|null, failed_tests: [..]}`.
+    A `variation` of `null` means no ratio was formed (§7).
+- **`result.solves[]`**: `{label, case, sha256, states: {support: state}}`.
+- **`result.disclosures[]`**: `{code, names, message}`.
+- **`result.case_load_categories`**: a map from case id to authored categories.
+- **`result.basis_statement`**: the installation assumption (§4.2) and the unit
+  statement, as fixed schema text.
+
+#### What a reader establishes
+
+The standings below are named exactly as they are. No reader states that mechanics
+are verified.
+
+- **`closure`**: the document matches the closed schema, ids are unique, and per-case
+  lists follow the request's case order.
+- **`binding`**: the embedded sizing request hashes to `sizing_request_sha256`. When
+  the caller supplies the library or the solve request, each must hash to its
+  recorded value; otherwise that binding is reported `not_checked`. A reader without
+  the library cannot recompute the selection and says so.
+- **`arithmetic`**, when the library is supplied: from the **published** W and
+  positions, the request and the library, the reader recomputes:
+  - every load, variation, envelope and fit outcome;
+  - the selection and the failure counts;
+  - the verification arithmetic.
+
+  It reports `arithmetic_consistent_with_published_positions`. This standing takes
+  W, the positions and the support states as published. It does not establish that
+  they are the mechanics of the bound model, because self-consistent numbers can be
+  supplied without a solve.
+- **`reproduction`**, Rust product reader only, when the solve request is supplied:
+  the reader re-runs the sizing from the bound inputs through the same engine and
+  compares the whole result. Selection outcomes and ids are compared exactly, and
+  values bit for bit. It reports `reproduced_from_bound_inputs` or the first
+  difference. This is the only standing that ties the published positions to the
+  model, and it costs a full sizing run.
+
+#### Readers
+
+- **Rust product reader:** `core/analysis/hanger_sizing/src/reader.rs`. It establishes
+  closure, binding and arithmetic through the shared `evaluate`, and reproduction
+  through `derived::run`.
+- **Python verifier:** `tests/verifiers/hanger_sizing_evidence.py`. It establishes
+  closure, binding (through the verifiers' own `canonical_json.py`) and arithmetic,
+  implemented independently in Python, and imports no product code. It has no
+  reproduction standing. It joins `tests/test_verifier_independence.py` under the
+  existing rule, with no module exemption.
+- **Parity corpus:** committed documents and their mutations under
+  `fixtures/results/hanger_sizing_*.json`, with the expected standing of each.
+  Each mutation is applied to:
+  - an outcome, a record id or a count;
+  - a W or a position, which the arithmetic standing must miss and reproduction must
+    catch;
+  - a hash;
+  - a closed member.
+
+  The two readers must agree on every arithmetic and binding verdict.
+
+#### The headless entry
+
+The new verb is `openpipestress-runner size-hangers`, with
+`--input <request.json>|- [--output <result.json>]`.
+- **Input:** `{request: {model, materials}, sizing: <sizing request>, library: <library document>}`.
+- **Output:** the result document.
+- **Admission:** the runner's existing input limits and admission rules apply
+  unchanged.
+- **Identity, not authority:** the output's hashes identify the inputs. They do not
+  authenticate an origin or claim an input manifest (P4).
+
+#### Compatibility
+
+The document is new, and it changes no existing version. Existing readers' handling
+of it is tested, not presumed:
+- the mechanics route reader refuses it by name;
+- the analysis-run builders do not accept it.
+
 
 ### 8.2 Hanger library format 1.1.0 (D-2)
 
@@ -665,10 +808,11 @@ outcome.
     the solver's reachability for CI selection; no `product_physics` file changes. The
     run's results are a typed `SizingRun`.
   - **From slice 1d:** publication. That means the profile, the semantic table and the
-    readers in `result_export`, and a headless runner entry, with the overlap routed
-    first. The native desktop command follows with increment 3.
-- **Readers:** `core/reporting/result_export` (the Rust reader) and
-  `tests/verifiers/hanger_sizing_evidence.py`.
+    readers of §8.3 and the headless `size-hangers` entry (slice 1d-α). The native
+    desktop command follows with increment 3.
+- **Readers:** `core/analysis/hanger_sizing/src/reader.rs` (the Rust reader; a reader in
+  `result_export` would form a dependency cycle through `product_physics`) and
+  `tests/verifiers/hanger_sizing_evidence.py` (§8.3).
 - **Desktop:** the request form, the hanger table and its detail view, in
   `apps/desktop/src/features/results/` (DEL-07-05). Application goes through
   `features/hanger-selection`.
