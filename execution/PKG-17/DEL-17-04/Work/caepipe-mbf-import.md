@@ -5749,7 +5749,31 @@ Under every reading the rest of the reference system's refusals stand (§20.5.10
    tranche. None is assumed closed by this design.
 8. **Release limitations.** None is created or proposed here.
 
-## 21. Reconciliation with this Design
+**Agent 0's decisions on this section (2026-11-02, at `f340f782e`; paraphrase).**
+
+- **(a) Tiers.** O-A and O-B remain PROPOSED, not adopted coverage. The matrix shows that no
+  operating writer is currently justified; nothing is implemented or admitted until the
+  indispensable facts are established. The existing generic refusals remain valid.
+- **(b) No refusal-only implementation now.** The precise diagnostics of §20.5.12 fold into the
+  next substantive, eligible writer change, unless a current refusal actually misleads or loses
+  required data, which would be reported as a concrete defect.
+- **(c) One format.** The preference is one not-yet-adopted, source-bound format 5 that
+  incorporates the proved thermal and operating contract, with no format 6 while format 5 is
+  unimplemented and unadopted. No format is adopted. If format 5 ships first, a later extension
+  needs an explicit compatibility decision, with no silent expansion of the accepted set. The
+  format-4 downgrade limitation stays explicit, and no provenance authenticity is claimed
+  without trusted selection. An independent persistence review comes before implementation.
+- **(d) Criterion 6 stays as written.** The recommendation to the owner is option 1 of §20.5.13
+  while the missing evidence and coverage are pursued, not acceptance of the omissions or a
+  reduced family list. Sidecar ids, if carried, are identity support only, never mechanics. The
+  owner alone accepts a limitation or amends the criterion.
+- **(e) G-10.** A generic support-type grant does not imply case-specific nonlinear solve state.
+  The proposed `CAEPIPE-LOAD-CASES` cell is an explicit boundary extension, pending a focused
+  IP/contract review and Agent 0's adoption. No new content consultation now.
+- **(f) Next output.** One concise, owner-sendable question packet (not sent by an agent),
+  prioritising the constant-E selection, G-3 and the explicit OPTEMP field 2 and 3 encoding.
+- **(g) This section** may merge as a proposal-only design and evidence record. No code, format
+  or commitment is adopted by the merge.
 
 - **DEL-17-04 `ScopeOfWork.md`:** REQ-012 to REQ-020, verification, acceptance, OUT-002,
   AC-002 and VER-002, TBD-17-04-005 to -009, and the two edited "parser" sentences, as
