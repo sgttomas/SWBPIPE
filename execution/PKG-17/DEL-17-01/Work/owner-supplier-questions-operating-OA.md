@@ -7,27 +7,36 @@ example files or licensing. The packet follows Agent 0's decision (f) of 2026-11
 (paraphrase), recorded in DEL-17-04 `Work/caepipe-mbf-import.md` §20.5.14, referred to below
 as "the Design".
 
-Only the quoted **Ask** text and its example go to the supplier; the bullets are notes for the
-owner. The examples are **invented** and are written in the project writer's own form (Design
-§7.1, §9.1); none is copied from a vendor example. Record any answer under the dossier's
-**Closure Rule**, including whether it is public-citable. Asking a question closes nothing.
+Only the quoted **Ask** text and its record excerpts go to the supplier; the bullets marked
+*Owner note* are for the owner only. The excerpts are **invented**, written in the project
+writer's own form (Design §7.1, §9.1), and none is copied from a vendor example. They are record
+excerpts, not complete files: they stand inside an otherwise valid version 15.10 model (layout,
+sections and supports omitted), and no executable example is offered. Record any answer under
+the dossier's **Closure Rule**, including whether it is public-citable. Asking a question closes
+nothing, and an answer admits only the scope it actually covers.
 
 ## Priority 1: indispensable for tier O-A
 
-According to the Design's §20.5.12, O-A needs three supplier facts: the mapped E, the strain
-behind T1, and an explicit thermal-load count. It also needs an internal persistence decision.
-No fourth question is indispensable. Forces, moments and pressure extend O-A later
-(§20.5.12, **What each answer would add**).
+*Owner note.* Within the scope of the Design's §20.5.12 matrix, O-A needs three supplier facts:
+the mapped E, the strain behind T1 (with its units), and an explicit thermal-load count. No
+fourth supplier question is indispensable for that matrix scope. Answers progress O-A only for
+the units, options, field-5 states, piping codes (null included), reference temperatures and
+recorded encodings they actually cover, and only once authenticated and admitted under the
+dossier's Closure Rule. Even then the Design's acceptance, an independent persistence review and
+the implementation remain. Answers here do not cover the full reference system, pressure,
+forces or combinations (§20.5.12, **What each answer would add**).
 
 ### Q1. Constant modulus
 
 > **Ask.** In a version 15.10 MBF, suppose every temperature row of a MATERIAL gives the same
-> elastic modulus E. Is exactly that E used, unchanged, for every load case (Sustained,
-> Operating, and the thermal or expansion case)? Please cover all of these conditions: either
-> Elastic Modulus option; OPTEMP field 5 ("Use Cold Modulus") set to 0, set to 1, or omitted;
-> any piping code on OPTIONS, including one for which field 5 is ignored; no piping code at
-> all; and an element temperature T1 that lies between rows. If the answer is not "yes, in
-> every case", which conditions differ, and which E do they use?
+> elastic modulus E. For which of these conditions is exactly that E used, unchanged, for
+> every load case (Sustained, Operating, and the thermal or expansion case): either Elastic
+> Modulus option; OPTEMP field 5 ("Use Cold Modulus") set to 0, set to 1, or omitted; each
+> piping code on OPTIONS; no piping code at all; and an element temperature T1 that lies
+> between rows? Please name any conditions that are exceptions, and the E they use. We ask only
+> about the analysis behaviour, not about any code's rules or rationale.
+>
+> Record excerpts (inside an otherwise valid model):
 >
 > ```text
 > OPTIONS
@@ -42,19 +51,21 @@ No fourth question is indispensable. Forces, moments and pressure extend O-A lat
 > L1,170,0,0
 > ```
 >
-> The same file also with OPTEMP `20,,1,,0` or `20,,1,,1`, and with a piping-code token after
-> `HGRA`. *The values are invented.*
+> Variants of the same excerpts: OPTEMP `20,,1,,0` or `20,,1,,1`, and a piping-code token
+> after `HGRA`. *The values are invented.*
 
-- **Fields.** MATERIAL rows (temperature, E, α), OPTEMP field 5, and the OPTIONS code token
+- *Owner note: fields.* MATERIAL rows (temperature, E, α), OPTEMP field 5, and the OPTIONS code token
   (`CAEPIPE-IMPORT-MBF`, *Format of .MBF*; Design §6, §7.1, §20.4.9 G-1 (a)). The hot and cold
   options come from `CAEPIPE-ANALYSIS`, *Elastic Modulus* and *Reference Temperature*.
-- **Desired fact.** One statement: when all rows give one E, that E is the stiffness modulus
-  for every case, under every option, field-5 state and code, null included. This is the
-  source proof named in §20.5.4 (e). It settles the constant-E part of G-1 (c), (d), (e) and
-  G-4. O-A does not need G-1 (b) (§20.5.11).
-- **Unblocks.** The §20.5.12 rows "MATERIAL rows: E" and "OPTIONS code token", which is O-A
-  condition 8 (§20.5.5).
-- **Until answered.** The proposed design refuses every O-A export with
+- *Owner note: desired fact.* The supported subset of conditions under which a single-E table
+  gives that E for every case, with its exceptions, for version 15.10 files. That is the source
+  proof named in §20.5.4 (e) for the conditions it covers. An answer for one code or option
+  admits only that code or option; it does not admit other codes or the null code. A complete
+  answer would settle the constant-E part of G-1 (c), (d), (e) and G-4; O-A does not need
+  G-1 (b) (§20.5.11). No standards rule or rationale is requested.
+- *Owner note: unblocks.* The §20.5.12 rows "MATERIAL rows: E" and "OPTIONS code token" (O-A
+  condition 8, §20.5.5), for the covered conditions only.
+- *Owner note: until answered.* The proposed design refuses every O-A export with
   `MBF-SI-OPERATING-MODULUS-SELECTION-UNESTABLISHED`, naming the token or null. The
   implemented writer keeps its existing generic refusals (`MBF-SI-PRESSURE-CASE-UNSUPPORTED`,
   `MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED`), per decision (b).
@@ -70,20 +81,23 @@ No fourth question is indispensable. Forces, moments and pressure extend O-A lat
 > (c) In an SI file (OPTIONS `SI`), are temperatures in °C and α in mm/mm/°C? In an English
 > file, are they in °F and in/in/°F?
 >
-> Example: the Q1 file, with OPTEMP `20`, LOADS `L1,170,0,0` and α 1.2E-05 in both rows. Our
-> reading is a strain of 1.2E-05 × 150 = 1.8E-03, or 5.4 mm of free growth on a 3000 mm
-> straight. *The values are invented.*
+> Example, using the Q1 record excerpts: OPTEMP `20`, LOADS `L1,170,0,0` and α 1.2E-05 in both
+> rows. Our reading would be a strain of 1.2E-05 × 150 = 1.8E-03, or 5.4 mm of free growth on a
+> 3000 mm straight. Is that reading correct? *The values are invented.*
 
-- **Fields.** LOADS T1, OPTEMP field 1 and the MATERIAL row's α (`CAEPIPE-IMPORT-MBF`,
+- *Owner note: fields.* LOADS T1, OPTEMP field 1 and the MATERIAL row's α (`CAEPIPE-IMPORT-MBF`,
   *Format of .MBF*; Design §7.1, §9.1, §9.2). The units follow the importer's reading in
   Design §5.2. `CAEPIPE-MATERIAL` says α is a mean coefficient but gives no base and no
   interpolation.
-- **Desired fact.** O-A needs (a): with constant α every base gives α·(T1 − Tref) (§7.1), so
-  only the formula is asked. (b) is CQ-17-01-016's original question; it lifts the O-7 refusal
-  of varying tables and is not needed for O-A. (c) confirms the units.
-- **Unblocks.** The §20.5.12 row "LOADS T1 per element; MATERIAL α". No narrower refusal keeps
+- *Owner note: desired fact.* O-A needs (a) and (c). The Design's proposed mathematical mapping
+  is that, with constant α, any base of the mean gives α·(T1 − Tref) (§7.1); the target's use of
+  it is unconfirmed, which is why (a) asks. (c), or an existing admitted unit proof, is a
+  prerequisite too, not an optional part of the answer. (b) is CQ-17-01-016's original
+  question and is not needed for O-A. An answer to (b) alone does not lift the O-7 refusal of
+  varying tables: G-1, G-2 and G-4 conditions remain.
+- *Owner note: unblocks.* The §20.5.12 row "LOADS T1 per element; MATERIAL α". No narrower refusal keeps
   an operating case without it.
-- **Until answered.** The proposed design refuses with `MBF-SI-OPERATING-CLAIM-UNESTABLISHED`,
+- *Owner note: until answered.* The proposed design refuses with `MBF-SI-OPERATING-CLAIM-UNESTABLISHED`,
   naming T1 and G-3. Unbound imports of a varying table stay refused, as implemented
   (`MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT`).
 
@@ -97,6 +111,8 @@ No fourth question is indispensable. Forces, moments and pressure extend O-A lat
 > and moments unaffected? We use the analysis results, not the code-stress results.
 > (c) When OPTEMP gives only field 1 (`20`), how many thermal loads are used?
 >
+> Record excerpt (inside an otherwise valid model):
+>
 > ```text
 > OPTEMP
 > 20,,1
@@ -104,15 +120,16 @@ No fourth question is indispensable. Forces, moments and pressure extend O-A lat
 >
 > *The values are invented.*
 
-- **Fields.** OPTEMP fields 1 to 3; fields 2 to 5 are optional (`CAEPIPE-IMPORT-MBF`,
+- *Owner note: fields.* OPTEMP fields 1 to 3; fields 2 to 5 are optional (`CAEPIPE-IMPORT-MBF`,
   *Format of .MBF*, OPTEMP; Design §6, §20.4.9 G-1 (a)). The count's meaning is from
   `CAEPIPE-ANALYSIS` and `CAEPIPE-LOAD-CASES` (Design §9.1, §20.5.3). The writer writes field 1
   only.
-- **Desired fact.** An accepted encoding of field 3 = 1 that leaves the analysis unchanged.
-  Failing that, the meaning of an omitted field 3 (G-8).
-- **Unblocks.** The §20.5.12 row "OPTEMP field 3". It is avoided by writing field 3 = 1 once
+- *Owner note: desired fact.* An accepted encoding of field 3 = 1 that leaves the analysis
+  unchanged, recorded with the method selected. Failing that, the meaning of an omitted
+  field 3 (G-8).
+- *Owner note: unblocks.* The §20.5.12 row "OPTEMP field 3". It is avoided by writing field 3 = 1 once
   field 2's encoding is known; (c) would answer G-8 directly.
-- **Until answered.** The proposed design refuses with `MBF-SI-OPERATING-CLAIM-UNESTABLISHED`,
+- *Owner note: until answered.* The proposed design refuses with `MBF-SI-OPERATING-CLAIM-UNESTABLISHED`,
   naming OPTEMP field 3 and G-8. Today's thermal export is unchanged.
 
 ## Priority 2: later, ranked
