@@ -1437,5 +1437,11 @@ records what was built against it.
   refusals. Fixture bytes, schema and expected results are unchanged. The schema,
   0.9.0-member and actual-Wasm focused checks pass (35 tests); the two failures
   from the broader 12,104-pass selected run are cleared by this repair.
-- **Left:** independent scrutiny of the narrow classification amendment and
-  exact-head hosted checks.
+  Independent GPT-6 Astra/medium scrutiny at `26415d1ef` reproduced the two
+  original failures without the exclusions, confirmed the repaired checks and
+  rejected all 30 adversarial mutation probes, with no findings in the stated
+  threat model. This review used pure-Python checks and static native/Wasm
+  consumer review; it does not claim another numerical or native/Wasm rerun.
+- **Left:** exact-head hosted checks and PR integration. Main's subsequent
+  hanger-theory-only changes (`9aaa5dc51`) were merged normally; they change no
+  product, pricing, fixture or engine input, so these source bindings still apply.
