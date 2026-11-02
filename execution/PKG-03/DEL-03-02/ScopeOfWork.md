@@ -395,10 +395,10 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 Retain the user-imported hanger schema contract under DEL-03-02. DEL-03-07 owns provenance/fixture checking, DEL-07-03 the library editor, and DEL-07-09 coverage. No catalog is bundled and schema ownership does not move to coverage.
 
 **Format 1.1.0** (SCA-015; Agent 0, D-2, 2026-10-31). The schema admits `schema_version` `1.0.0` and `1.1.0`.
-- **The range.** A 1.1.0 record's `hanger` may carry `working_load_range` with a `minimum` and a `maximum`, each a force quantity with its own provenance. The import boundary refuses a minimum that is not below its maximum by name.
-- **Compatibility.** A 1.0.0 document imports unchanged. The new field in a 1.0.0 document stays an unknown field and is refused, and a stored 1.0.0 document needs no migration.
+- **The range.** A 1.1.0 record's `hanger` may carry `working_load_range` with a `minimum` and a `maximum`, each a force quantity with its own provenance, and no other member. The schema admits the member under either version. The import boundary (DEL-03-07: the Rust carrier and the Python checker alike) refuses by name a range whose ends differ in unit and a minimum that is not below its maximum (`IMPORT_HANGER_LOAD_RANGE_INVALID`).
+- **Compatibility.** A 1.0.0 document imports unchanged. The import boundary refuses the new field in a 1.0.0 document as an unknown field, with the existing finding (`IMPORT_HANGER_SCHEMA_INVALID`). A stored 1.0.0 document needs no migration.
 - **Meaning.** DEL-04-11 owns the sizing meaning of the range (its `Work/hanger-sizing.md` §8.2). A record without it imports and is not sizable.
-- **Evidence.** The change takes an xhigh persistence review and import compatibility tests for 1.0.0.
+- **Evidence.** Import compatibility tests for 1.0.0 and the range rules are shared cases in `fixtures/hanger/invented_hanger_cases.json`, read by both boundaries' tests. The change takes an independent persistence review of its exact format and commitment text.
 
 - **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
 - **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.

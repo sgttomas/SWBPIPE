@@ -424,8 +424,19 @@ DEL-03-02 owns the hanger library schema (`schemas/hanger.schema.yaml`, its CLM-
 This design defines what sizing needs from it.
 - **[decided]** `schema_version` admits `1.0.0` and `1.1.0`. A 1.1.0 record's `hanger` may
   carry `working_load_range: {minimum, maximum}`, each a ForceQuantity with its own
-  provenance. The import boundary refuses minimum ≥ maximum by name
-  (`IMPORT_HANGER_LOAD_RANGE_INVALID`), because JSON Schema cannot compare the two.
+  provenance; no other member is admitted in the range.
+- **[decided] Where the rules live** (slice 1b). The schema admits the member under
+  either version. The import boundary, the Rust carrier and the Python checker alike,
+  applies the rules JSON Schema cannot state:
+  - in a 1.0.0 document, the member is refused as an unknown field, with today's finding
+    (`IMPORT_HANGER_SCHEMA_INVALID`, "Unknown hanger field.") at its path;
+  - a range whose minimum and maximum differ in unit is refused
+    (`IMPORT_HANGER_LOAD_RANGE_INVALID`). The boundary converts no unit, and one
+    catalogue record states its range in one unit;
+  - a range whose minimum is not below its maximum is refused, under the same code.
+
+  This keeps the two bounded schema interpreters on the keywords they already
+  support, and leaves their agreement with a full JSON Schema validator untouched.
 - **[decided] Compatibility.** A 1.0.0 document still imports unchanged, and its records
   are listed by sizing as "not sizable: no working load range". A 1.0.0 document with
   `working_load_range` is refused as an unknown field, as today. A 1.1.0 document with a
@@ -434,19 +445,22 @@ This design defines what sizing needs from it.
   the record is to be used. `travel_range` is the record's total working travel.
   `constant_load` in a constant record is not read by sizing: a constant record is
   selected by its range, and the sized load is W.
-- **Consumers to change together:**
-  - the Rust import boundary (`core/library_import/library_import_document`, which
-    embeds the schema);
-  - the Python provenance checker (`core/library_import/provenance_checker.py`);
-  - the desktop library editor's draft documents (`libraryImportService.ts`, DEL-07-03);
-  - the desktop's typed record (`hangerSelection.ts`);
-  - the import tests (`tests/test_hanger_library_schema.py`,
-    `tests/test_library_import_provenance.py`, the importer's parity tests).
+- **Consumers:**
+  - **Changed in slice 1b:** the Rust import boundary
+    (`core/library_import/library_import_document`, which embeds the schema), the Python
+    provenance checker (`core/library_import/provenance_checker.py`), and the shared
+    import cases (`fixtures/hanger/invented_hanger_cases.json`). The cases are read by
+    `tests/test_hanger_library_schema.py` and the importer's Rust–Python parity test.
+  - **With the desktop work (increment 3):** the library editor's draft documents
+    (`libraryImportService.ts`, DEL-07-03), which still create 1.0.0 drafts and have no
+    range field until then, and the desktop's typed record (`hangerSelection.ts`). A 1.1.0
+    document imported from a file is accepted by the native boundary before then.
 
   The project library store keeps each document as imported (`upsert_library`), so a
   stored 1.0.0 document is read back as 1.0.0 and needs no migration.
-- **Review.** A library format change is persistence: it takes an xhigh review and
-  import compatibility tests for 1.0.0 (Agent 0, D-2).
+- **Review.** A library format change is persistence. It takes targeted import
+  compatibility regressions for 1.0.0 and an independent review of the exact changed
+  format and commitment text (Agent 0, D-2; reviewer route as the owner selects).
 
 ## 9. Applying a selection
 
