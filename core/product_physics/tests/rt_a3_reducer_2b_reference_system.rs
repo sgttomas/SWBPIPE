@@ -26,8 +26,10 @@
 //! eccentric step remains the 27 exact 3-D reference cases bound by
 //! `rt_a3_reducer_2b_references.rs`. No independent global solution of the
 //! 27-node system exists, and none is claimed. On the full model this file
-//! checks the following, each against values computed here from the inputs
-//! and not from product output:
+//! checks the following relations. Loads, geometry and constitutive parameters
+//! are computed here from the inputs. Local recovery uses the product's
+//! published motions, and section checks use its actions; these consistency
+//! relations do not supply independent global displacements or reactions:
 //! - total weight and its first moment (EQ-1, EQ-2): the frozen independent
 //!   `validation/references/reference_system/` totals, less RS-P150's
 //!   distributed weight from the same record, plus 300 N at the body midpoint;

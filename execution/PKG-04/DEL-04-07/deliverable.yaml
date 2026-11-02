@@ -284,6 +284,17 @@ needs:
     the same sequences.
   gating: true
   evidence: core/loads/stress_recovery/src/section_stress_quantities.rs
+- from: DEL-09-01
+  condition: >-
+    The RT-A3 reducer 2b full-system connecting-path check needs DEL-09-01's maintained
+    fixtures/reference_system/reference_system.json and independent weight record
+    validation/references/reference_system/references.json. The check overlays RS-R1 only
+    in its test input and regenerates its weight with the public producer; consuming these
+    verification inputs neither adopts RS-R1 into the fixture nor establishes a global
+    displacement/reaction reference or acceptance.
+  gating: true
+  when: Running the RT-A3 reducer 2b full-reference-system connecting-path check.
+  evidence: core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
 code_paths:
 # The product solve crate, including the retained method's producer whose contracts
 # DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.

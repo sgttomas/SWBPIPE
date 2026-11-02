@@ -673,7 +673,10 @@ runs Euler-Bernoulli and Timoshenko, each in both solver modes. In every
 run RS-R1 is realized and scaled by 2. Against the unmodified fixture solved
 alike, the diagnostics differ only by those two records and RS-P150's
 dropped weight-mapping warnings. The same row identities and solve-quality
-screens are published, and the reader's verdict is clean. The test computes these values from inputs, not from product output:
+screens are published, and the reader's verdict is clean. The test derives
+loads and constitutive parameters from inputs. Local recovery uses published
+motions, and section checks use actions; these are consistency relations,
+not independent global displacements or reactions:
 - **Weight.** EQ-1, EQ-2 and EQ-5 use the frozen
   `validation/references/reference_system/` totals, less RS-P150's weight,
   plus 300 N at the body midpoint (1e-9).
