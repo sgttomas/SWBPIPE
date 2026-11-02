@@ -3499,9 +3499,15 @@ Each input outside S:
   only these:
   - the title line, and with it the restored project name (`importer.py:3265-3267`). That name
     is the export's label, chosen at export; no format restores S's project name;
-  - the OPTIONS piping-code token. The importer keeps it only in the import result's
-    `target_options`, listed as delegated, pass-through target configuration
-    (`importer.py:1637-1643`, `:264`). It changes no restored model value.
+  - the OPTIONS piping-code token and, when the code changes between an ASME B31 code and
+    another, the associated OPCODE record (`si_writer.py:1786-1788`). The importer keeps them
+    only in the import result's `target_options`, listed as delegated, pass-through target
+    configuration (`importer.py:1637-1643`, `:264`). They change no restored model value;
+  - through any of these byte changes, the MBF digest, and with it the import-generated project
+    id and digest description (`importer.py:3267-3268`).
+
+  These are import-envelope fields, not restored source identities. Engineering values and
+  source-bound entity identities remain determined by S.
 
   A different `render_profile` can only cause a refusal. Neither input changes the meaning of
   restored model data, so neither needs binding to the designation. A later writer argument
@@ -3589,8 +3595,11 @@ export inputs. Every field of the presented sidecar is the one the writer forms 
 for those bytes. The import therefore restores that source's own values, MBF-only values such as
 section dimensions and spring stiffness included. It restores that source's identities, order,
 classifications, provenance and reference-state metadata, and strips only the rows that source's
-own export generates. The recorded export inputs decide only the title line and the OPTIONS
-piping-code token (above, **Export inputs outside the source document**). Designation decides
+own export generates. The recorded export inputs decide only import-envelope fields: the title
+line and restored project name, the OPTIONS piping-code token and its OPCODE record, and, through
+the bytes, the import-generated project id and digest description (above, **Export inputs
+outside the source document**). Engineering values and source-bound entity identities remain
+determined by S. Designation decides
 *which* source; the checks verify only that the pair is that source's export content. They do
 not show that the pair was exported from that source rather than from another with the same
 canonical text, which is the same model. A pair that the writer forms from the designated source
@@ -3666,8 +3675,10 @@ here).**
   (a) makes the MBF the importer's own rendering of S, so every value the MBF carries is S's.
   Check 2 (b) makes the sidecar equal, field for field, the one the writer forms from S for
   those bytes. Every restored value, identity and item of metadata is therefore S's own, the
-  format-4 maps inside a format-5 sidecar included. The only exceptions are the title line and
-  the piping-code token that the export inputs carry (above). The stripping
+  format-4 maps inside a format-5 sidecar included. The only exceptions are the import-envelope
+  fields that the export inputs decide: the title line and project name, the piping-code token
+  and its OPCODE record, and the import-generated project id and digest description (above).
+  None is a restored source identity or engineering value. The stripping
   conditions and the regeneration identity then run as consistency checks on top. The
   assurance is relative to S, and S is the user's designation (above).
 
@@ -3682,8 +3693,10 @@ field, the one the writer forms from that source for those bytes. It does not co
 - the choice of source: a pair the writer forms from the designated source is accepted
   whether or not that source was exported (above, *What designation establishes*);
 - the export inputs, the title and the piping code. They are the export's choices, not the
-  source's. Editing them changes only the title line and the restored project name, and the
-  piping-code token, which is delegated (above, **Export inputs outside the source document**);
+  source's. Editing them changes only import-envelope fields: the title line and restored
+  project name, the delegated piping-code token and its OPCODE record, and, through the bytes,
+  the import-generated project id and digest description (above, **Export inputs outside the
+  source document**);
 - an MBF imported without its sidecar, which is unbound and forms no group.
 
 **Persistence: the adopted design adds no store.** Designation reads an existing saved state
@@ -4155,9 +4168,11 @@ codes.
      ASME B31 code, with OPCODE; another documented code);
    - `export_inputs.title` or `piping_code` edited, with the digests recomputed and the MBF
      unchanged: `MBF-IMPORT-SOURCE-MISMATCH` at check 2 (a);
-   - the same edit applied to the MBF's title or OPTIONS line as well: admitted. The model
-     values restored are exactly S's; the edited title becomes the project name, and the
-     token is kept as delegated target configuration;
+   - the same edit applied to the MBF's title or OPTIONS line (and OPCODE record, when the
+     code changes between B31 and another) as well: admitted. The engineering values and
+     source-bound entity identities restored are exactly S's; the edited title becomes the
+     project name, the token and any OPCODE record are kept as delegated target configuration,
+     and the import-generated project id and digest description follow the new MBF digest;
    - a `render_profile` other than the importer's: `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED`,
      before any rendering;
    - a pinned digest of the Route 1 writer vectors' bytes, keyed by `render_profile`, fails
