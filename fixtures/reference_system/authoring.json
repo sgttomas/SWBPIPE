@@ -1552,7 +1552,7 @@
       "expected_until_then": "`EXACT_PRESSURE_REDUCER_IN_REGION`",
       "family": "Eccentric reducer RS-R1 in region RG-R",
       "in_tranche_1": false,
-      "row_lane": "RT-A3 increment 2",
+      "row_lane": "RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1",
       "state": "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region"
     },
     {
