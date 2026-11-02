@@ -11,6 +11,135 @@ native `validate` phase pending after its prescan, admission and parse exited.
 All three grants are consumed. **No retry, B1000 or further native interval is
 authorized.** Exact selected identities and all raw packets remain preserved.
 
+## Separate route-header executable: offline ready, no run authorized
+
+Agent0 authorized a separate build/preflight from reviewed, CI-green clean
+`c21ec1048244cc8535f130988878d277984fde49`. The maintained release recipe
+completed through `t3_slot.sh` at **2026-11-02T05:09:22.537Z**, without launching
+the App, worker, sampler or large result. The binding records `source_dirty:false`.
+This document's later reconciliation changes no runtime or external harness bytes.
+The independent gpt-6-astra/medium review is CLEAR at c21ec1048; exact-head CI
+completed with 16 successes including `harness`, one broad-matrix skip, no failures.
+No new product code or observer was needed for this preparation.
+
+| Selected item | Identity |
+| --- | --- |
+| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-route-header` |
+| App / same-executable worker | `openpipestress-desktop`, 47,960,208 B, SHA-256 `5212d86b839c8babcadb918835759804a95bfc53647585f211313f61fbaf0e53` |
+| `perf-binding.json` | SHA-256 `1c7fab5b52abfb7b06bb688a42e25271c3a55ebc5f6b889c680d56dd8cab0113` |
+| Embedded frontend `dist_digest` | `sha256:54cd4e5121ea2862328bc878be6c3bbbe8ca995d90fddfda8bc29e412ffb59af` |
+| Operation-applier Wasm source stamp / binary SHA-256 | `sha256:14ab23c574227e35d6cc5c94e5f7a1dde7d8343d8e4eebfdbbd3c35c624cd54a` / `6f584adcbc7b5233c8418075aa23f15fe33d68999042e30261984f34dedb1a3a` |
+| Self-weight Wasm source stamp / binary SHA-256 | `sha256:04c15ac0dded329c0e873985a34b3f73c68fdeab27331cbe02e7925a9539c938` / `5adff8809a205605654b1998d2f0bef405aae7462604b880d5f0647a0ab4a5ce` |
+| External `perf.mjs` | SHA-256 `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5` |
+| External `perf-driver.js` | SHA-256 `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` |
+| External `perf-sampler.py` | SHA-256 `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` |
+| Unchanged `perf-plan-c1.json` | SHA-256 `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` |
+| Maintained rack generator | SHA-256 `9bbc6b9b1f6f78c11233da9906bf1346d4322a16bfe1b5c5e2069c7914456559` |
+
+Python resolves as `/usr/bin/python3`, Xcode **3.9.6**, to
+`/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9`,
+SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`.
+Only interpreter/version/clock introspection was executed; no telemetry query or
+sampler mode ran. Recheck the resolving interpreter and digest before a run;
+a different selection requires reconciliation, not silent substitution.
+
+The existing `linear-ex-n0500.json` is unchanged: **1,828,475 B**, 500 nodes /
+499 members, raw SHA-256 `42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb`,
+JCS SHA-256 `0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c`.
+Its static container depth is 7; the corpus depth/actual-record reopening limits
+below remain. No deep-header acceptance is inferred. The 1,000-node fixture is
+also unchanged and retained, but is not selected by this proposal.
+
+The private `scratch/rt-perf-c1-slice7/route-header-preparation.json` binds the
+full engine output hashes, Python, both models, prior candidates and packet
+checks. It is a preparation observation, not a new required product tool or
+acceptance receipt. All three old bound copies (`app`, `app-p3`,
+`app-reader-phases`) retain their original identities; all **25 packet files**
+named by the three closure hash maps verified unchanged. Their private result
+stores and copies remain for the owner/comparison consumer.
+
+Reproducible build recipe, already completed from clean c21ec1048 (do not rerun
+over the preserved candidate; the destination was checked absent first):
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-route-header" --target-dir "$RT_C1_TARGET"
+node apps/desktop/native-smoke/perf.mjs --plan --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500
+```
+
+The recipe rebuilt the frontend, then Cargo release with
+`--locked --offline --features native-smoke,tauri/custom-protocol`; the binding
+contains the exact Cargo command, Tauri window configuration and reported
+executable path. Reusing the lane's target directory did not overwrite any
+preserved private candidate. Build warnings are retained in
+`scratch/rt-perf-c1-slice7/route-header-release-build.log`; no build error occurred.
+
+Offline connecting checks after the build: **29 tests** in
+`nativeResult.connect.test.ts` and `exactSessionSolve.session.test.tsx`, and
+**4 native route-header tests**, pass through normal slots. These use existing
+small maintained replay/corpus fixtures, not the large native workload. They
+exercise the exact operation/requested-job response, distinct decoder/cache,
+compulsory reader registration and model-bound actual verdict, disagreement,
+forged numeric evidence, unsupported metadata and disposal/refusal. Prior
+451-reply Rust replay / 419-old-outcome invariance and full-suite evidence were
+not repeated. No launch test of this particular binary is claimed.
+
+**One proposed run, pending a new owner decision and resource clearance:**
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-route-header" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-route-header1"
+```
+
+`evidence/n0500-route-header1` does not exist at preparation. Before launch,
+verify clean submitting source, unchanged runtime relative to selected c21ec1048,
+all table/model/binding/interpreter hashes and still-absent output. The maintained
+runner rechecks the binary/private copy and model; static preparation is no host
+admission. Normal queue/drain/memguard and all four exclusive locks govern
+acquisition. Announce actual acquisition and closure/held exception promptly.
+No nested slot/build inside the interval. Maximum **900 s including teardown**,
+supervisor **840 s**, child **810 s** with unchanged **30 s** post-run reserve,
+single-run timeout **720 s**, first paint **300,000 ms**, fixed **256-boundary**
+scalar/fsynced journal and all existing interaction timeouts remain unchanged.
+Pre-App refusal, timeout, journal overflow/invalid/write failure or any other
+failure consumes the attempt. No automatic retry, B1000 or 2,000-node attempt.
+
+Expected distinguishable progress, not promised completion: web `header` now
+requests `{jobId,operation:"route_header"}`; its native `validate` phase means
+metadata route/binding guards only, still after full prescan/admission/parse.
+It emits no `inputs_admit`/`inputs_parse` phases because that operation accepts
+no extra inputs. A returned header must serialize/drop and exit before web
+`registration` enters the full route-specific readers, followed by model-bound
+`standing`, `summary`/health and actual full-verdict agreement (which may reuse
+the exact-input full-verdict cache). Only then can a result reach the unchanged
+run-preview/session/report/store gates. The journal's native call IDs and pending
+web phase distinguish this progress without logging source/model/result data.
+An exit `ok` only means the call returned; successful metadata grants no standing.
+The same bottleneck may move to compulsory registration/standing or a later
+reader; no speed, memory-fit or full-gate completion is promised.
+
+If first paint and the later gates complete, retain the unchanged planned paged
+UI/navigation/group-CSV/Record/Save/native reopen/re-save/History/retirement
+sequence and existing scalar P3 probes. The resource/cancellation/owned-cleanup
+criteria below apply in full: fresh normal host/pool admission, unchanged 12 GiB
+limits, fresh-unknown stopping rules, process attribution, teardown and verified
+process/lock closure. Preserve partial journals/samples/records on failure.
+Direct reader/parse allocation counts, health's inferred working upper bound,
+per-PID physical/lifetime readings and sequential aligned sums/unknowns remain
+separate; no component result or successful header proves usable size. Only
+completion of the actual interaction and persistence sequence can establish
+those paths at this size/host. No screenshot/capture, embedded LLM, provider,
+auth/keychain/network, signing or release is needed or authorized.
+
+The executable prerequisite is now present. The only next execution authority
+would be **one** exact 500-node interval plus current shared-resource clearance;
+this offline return asks for neither and launches nothing. #59 remains draft;
+shared core/bridge/clone/pricing writes stay held. ScopeOfWork and dependency
+conditions are unchanged; this reconciles readiness and artifact identity only.
+
 ## Reader-phase diagnostic result and closure (2026-11-02)
 
 The owner approved exactly one diagnostic attempt on clean
@@ -80,7 +209,7 @@ The two previous packets remain byte-identical. Acquisition, observed phase and
 actual failure/closure were reported to Agent0 promptly. All further work below
 is ordinary offline proposal work; no further execution grant is requested.
 
-## Approved route_header implementation (offline; review/CI pending)
+## Approved route_header implementation (review CLEAR; c21ec1048 CI green)
 
 Agent0 approved the exact distinct contract below for C1 native/frontend writes
 only. The implementation is in `native_verdict.rs`, `nativeResult.ts` and
@@ -152,19 +281,20 @@ replay requests; those were recorded from actual calls, generated through Rust,
 and the complete suite then passed without weaker assertions or fallback.
 The new negative session cases explicitly demand the product refusal instead
 of accepting replay-coverage errors. No full local Rust suite is claimed here;
-required exact-head hosted checks remain pending before integration.
+exact-head hosted checks passed at c21ec1048, including `harness`.
 
 The old selected App/worker binary and all failed packet hashes are unchanged.
 The ordinary frontend build output is new source output, not a re-binding of
 `app-reader-phases` or permission to launch it with the new client. Any future
-native candidate must be built and explicitly bound from the selected integrated
-source before a separately authorized run. No new measurement is selected.
+native candidate must be built and explicitly bound from the selected source
+before a separately authorized run. The separate offline binding above now
+fulfils that executable preparation; no new measurement is authorized.
 
-Independent numerical/permissions review must check this exact implementation,
-contract and consumer graph on owner-selected **gpt-6-astra / medium**, with no
-fallback. Focused tests and actual replay generation are author evidence; final
-full desktop/reach/build and exact-head CI are recorded when complete. Shared
-clone-projection implementation remains on hold as specified below.
+Independent numerical/permissions review on owner-selected **gpt-6-astra /
+medium** cleared the exact c21ec1048 implementation/contract/consumer graph.
+It independently verified all 419 prior requests/outcomes unchanged and all
+451 source digests valid; suites above are inherited author evidence, not
+reviewer reruns. Shared clone-projection implementation remains held below.
 
 ## Distinct route/binding-only header proposal — approved interface basis
 

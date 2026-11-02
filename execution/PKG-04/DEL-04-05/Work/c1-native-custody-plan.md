@@ -948,9 +948,23 @@ dispatch/reader replies remain unchanged and compulsory later registration,
 standing, summary, full-verdict/run-preview/session/report/store gates remain.
 Strict new types/cache and final full-binding agreement bar metadata promotion.
 The proposal records exact old/new behavior, negative/session/native regressions
-and the required gpt-6-astra/medium numerical/permissions review. Full source parse
+and the CLEAR gpt-6-astra/medium numerical/permissions review at c21ec1048, with
+exact-head CI green. Full source parse
 remains and no 300 s/performance claim follows. Core/bridge/clone-projection and
 pricing source/pins remain on hold; RT-A3's exact pin/dependency facts are retained.
+
+**Separate executable prepared; no run authorized.** The maintained release
+recipe through normal slot/memguard bound clean reviewed c21ec1048 into separate
+`app-route-header/`, without launching it: App/worker SHA-256
+`5212d86b839c8babcadb918835759804a95bfc53647585f211313f61fbaf0e53`,
+47,960,208 B, frontend `sha256:54cd4e5121ea2862328bc878be6c3bbbe8ca995d90fddfda8bc29e412ffb59af`.
+All three earlier bound copies and 25 closure-hashed packet files are unchanged.
+The proposal binds Wasm/scripts/plan/model/Python and gives the exact future
+one-500 command with fresh `evidence/n0500-route-header1`, unchanged limits and
+current journal. Existing small-fixture connecting tests pass (29 TS, 4 Rust).
+No executable prerequisite remains, but a new owner run decision and current
+resource clearance do. No launch/sampler/profile/large replay occurred; full
+registration/standing may still stall. No B1000/retry/2,000 scope follows.
 
 **Reader-phase attempt executed/closed (2026-11-02).** The single newly approved
 attempt on clean `cf8129cd1` failed its 300 s first-paint gate but fulfilled the
@@ -962,7 +976,9 @@ no held exception/overflow; all packets preserved. No retry/B/third execution
 scope is implied. The proposal returns an exact distinct route_header contract
 and consumer graph for an implementation decision, plus a separate exact-parity
 clone-projection proposal under the existing shared-core/RT-A3/D3 write hold.
-Neither is implemented; full reader/registration/standing authority is unchanged.
+At that proposal return neither was implemented; the route header was then
+approved/implemented as recorded above. The clone remains held, and full
+reader/registration/standing authority is unchanged.
 
 **Authorized diagnostic preparation only.** The next candidate adds fixed,
 bounded, durable checkpoints to the four existing session awaits and native
