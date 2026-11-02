@@ -8,6 +8,16 @@
 //!   `reader_dispatch_json` wraps (`resultReader.ts` `readerDispatch`), on the
 //!   held text and the model and invocation texts the webview would hand the
 //!   wasm engine. Its outcome text is returned unchanged.
+//! - **Distinct route header (Agent0 decision after the 500-node diagnostic).**
+//!   `{jobId, operation:"route_header"}` returns only metadata from the
+//!   existing public `reader_verdict::route`, `binding_of` and `error_json`.
+//!   Its document kind/status/refusal are separate from dispatch/validation;
+//!   it contains no `ok`, standing, eligibility, attestation or result data.
+//!   Mixed/unknown route-header fields refuse before held-source parsing.
+//!   It still prescans, admits and parses the full source, with the same
+//!   held-byte sharing and lease lifetime. Absent `operation` retains the
+//!   original full dispatch/validation above, byte for byte. No metadata
+//!   recognition authorizes registration, Current, reporting or persistence.
 //! - **Inputs that are not JSON.** Each text is first prescanned without
 //!   allocating, in the reader's own order (source, model, invocation). A text
 //!   the prescan refuses is refused with the reader's own message: serde_json
@@ -167,6 +177,28 @@ fn diagnostic_read(
     Ok(text)
 }
 
+/// A metadata-only reading. No `ok`, standing, eligibility, attestation or
+/// evidence can be mistaken for the unchanged dispatch/validation contracts.
+fn route_header(call: u64, job_id: &str, text: &str) -> Result<String, String> {
+    use open_pipe_stress_result_export::reader_verdict as rv;
+    use serde_json::{json, Value};
+    let source: Value = diagnostic_phase(call, "source_parse", text.len() as u64, || serde_json::from_str(text)
+        .map_err(|error| format!("{INPUT_JSON_INVALID}: source is not valid JSON: {error}")))?;
+    let outcome = diagnostic_phase(call, "validate", 0, || {
+        // `route` retains all metadata/namespace/downgrade guards, including
+        // the raw-row W1 token scan. It grants no numerical reading.
+        let (status, route, binding, refusal) = match rv::route(&source) {
+            Ok((route, _)) => ("recognized", route, rv::binding_of(route, &source), Value::Null),
+            Err(error) => ("refused", rv::UNSUPPORTED, Value::Null, rv::error_json(&error)),
+        };
+        Ok::<_, String>(json!({"document_kind":"swbpipe.desktop.result_route_header", "version":1,
+            "job_id":job_id, "header_status":status, "route":route, "binding":binding, "refusal":refusal}))
+    })?;
+    let reply = diagnostic_phase(call, "serialize", 0, || Ok::<_, String>(outcome.to_string()))?;
+    diagnostic_phase(call, "source_drop", 0, || { drop((source, outcome)); Ok::<_, String>(()) })?;
+    Ok(reply)
+}
+
 /// The blocking part: the arguments' admission, then the dispatch outcome
 /// text of the held result.
 pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Result<String, CommandError<String>> {
@@ -183,6 +215,20 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     }))?;
     drop(raw);
     let job_id: String = args.decode("jobId")?;
+    let operation: Option<String> = if args.keys().any(|key| key == "operation") { Some(args.decode("operation")?) } else { None };
+    if let Some(operation) = operation {
+        if operation != "route_header" || args.keys().next().is_some() {
+            return Err(crate::solve_jobs::SolveJobError::InvalidRequest { message: "NATIVE-ROUTE-HEADER-ARGS: unknown operation or mixed/unknown route-header fields".into() }.into());
+        }
+        drop(args);
+        let held = registry.held_result(&job_id)?;
+        let bounds = diagnostic_phase(call, "source_prescan", held.text().len() as u64, || prescan_in_order(&registry, &[("source", Some(held.text()))]))?;
+        let (bound, _) = bounds[0].expect("the held source is present");
+        let reading = diagnostic_phase(call, "source_admit", bound.materialization_bytes, || registry.acquire_result_parse(bound.materialization_bytes))?;
+        let reply = route_header(call, &job_id, held.text()).map_err(CommandError::Command);
+        drop((reading, held, lease));
+        return reply;
+    }
     let model_json: Option<String> = args.decode("modelJson")?;
     let invocation_json: Option<String> = args.decode("invocationJson")?;
     // C1 slice 4: with `reader`, one named reader's validation

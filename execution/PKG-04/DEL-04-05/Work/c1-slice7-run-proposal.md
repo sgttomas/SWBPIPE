@@ -80,15 +80,101 @@ The two previous packets remain byte-identical. Acquisition, observed phase and
 actual failure/closure were reported to Agent0 promptly. All further work below
 is ordinary offline proposal work; no further execution grant is requested.
 
-## Distinct route/binding-only header proposal — implementation decision needed
+## Approved route_header implementation (offline; review/CI pending)
+
+Agent0 approved the exact distinct contract below for C1 native/frontend writes
+only. The implementation is in `native_verdict.rs`, `nativeResult.ts` and
+`previewService.ts`, with one non-allocating `Args::keys` accessor so new mode
+can reject unknown/mixed fields **including null** without changing old decoding.
+No core, operation-applier bridge, handler macro, worker, allocator, store,
+pricing source or permission policy was edited. No new ordinary command is added.
+The selected measurement executables/packets are preserved; none is silently
+relabelled as a build of this product change. No native/919 MB replay/profile or
+new execution grant is involved.
+
+Exact old/new consumer contract:
+
+- Old first await: `{jobId}` -> full `ReaderDispatch` including standing; only
+  its `route` was consumed at that point. The command/API remains unchanged for
+  every operation-absent caller, including all other full-dispatch consumers.
+- New first await: `{jobId, operation:"route_header"}` -> the exact distinct
+  `NativeRouteHeader` document specified below, with no `ok`/standing fields.
+  The native path calls unchanged public route/binding/error helpers only,
+  after full-source admission/parse, and never falls back to full dispatch.
+- The frontend validates the exact document shape, job, status/route/refusal
+  combination and known route-to-identity vocabulary, with a separate cache.
+  A SHA-256-formatted header digest is metadata, not a numerical proof: **before
+  result construction or the reader-end mark**, route/status/binding digest/error
+  must agree with the compulsory actual full verdict. Wrong digest or foreign
+  late response refuses, with no cache alias/fallback/promotion.
+- Unchanged captured-input registration, model-bound full standing, summary and
+  health, model/producer/retained checks, actual final full verdict/run preview,
+  generation/custody/stale checks and session/report/store gates remain in place.
+  Unsupported metadata follows the prior full-reading/inspection path, not a
+  newly invented early route-header error. Existing decoders structurally reject
+  the new reply; its type cannot supply the missing result/standing members.
+
+Native regression checks cover the file-backed corpus's header-field parity,
+absence of authority fields, strict mixed/null/unknown arguments, first full-reader
+path not entered by metadata, disposed handles, forged numerical rows and exact
+unsupported/downgrade metadata refusals. The operation-absent command's text and
+all **419 pre-existing recorded Rust outcomes** remain unchanged. New route
+requests come from actual small session/replay calls and are answered by the real
+Rust command. Only the per-launch handle is normalized to `$JOB` after Rust
+asserts the reply names its requested handle, then substituted for the JS replay
+job; routing/refusal/binding fields are never fabricated by a permissive fake.
+
+Frontend/session checks reject wrong/extra/missing fields, wrong handle, route/id
+or digest disagreement, old/new decoder mixing, cache alias and disposed/foreign
+late replies. A successful metadata reply followed by a registration resource
+refusal still refuses without summary/fallback. Small sessions with forged numeric
+evidence or unsupported metadata reach the expected product refusal and leave
+result, Current, record, manifest and solve proof empty; their held jobs release.
+The tests explicitly reject replay-coverage errors as a substitute for those
+expected refusals. Original positive Current/persistence tests remain unchanged.
+
+The metadata request still parses the complete source. Removing its redundant
+full-standing computation may move the observed cost into registration or standing;
+it is **not** evidence this patch alone meets 300 s or 500-node usability. The
+reader-phase diagnostic keeps its fixed phase IDs and limits; `header` now selects
+the distinct metadata operation, and later compulsory calls remain observable.
+All numerical arithmetic, validation functions/order within each full reader,
+source bytes, input, timeout, memory budget and reserve are unchanged.
+
+Author verification at the implementation candidate: full desktop Vitest
+**381 files / 7,429 passed / 1 todo**, after the actual Rust replay additions;
+focused connection/session/resource/source-integration **63 passed**; native verdict
+suite with smoke feature **19 passed / 1 ignored**; actual-request Rust replay
+**451 replies**, retaining all 419 old outcomes unchanged; reach scan **35 passed**;
+TypeScript, desktop build and model-version checks (8 passed, no Cargo build)
+pass. Initial full Vitest failed on missing new
+replay requests; those were recorded from actual calls, generated through Rust,
+and the complete suite then passed without weaker assertions or fallback.
+The new negative session cases explicitly demand the product refusal instead
+of accepting replay-coverage errors. No full local Rust suite is claimed here;
+required exact-head hosted checks remain pending before integration.
+
+The old selected App/worker binary and all failed packet hashes are unchanged.
+The ordinary frontend build output is new source output, not a re-binding of
+`app-reader-phases` or permission to launch it with the new client. Any future
+native candidate must be built and explicitly bound from the selected integrated
+source before a separately authorized run. No new measurement is selected.
+
+Independent numerical/permissions review must check this exact implementation,
+contract and consumer graph on owner-selected **gpt-6-astra / medium**, with no
+fallback. Focused tests and actual replay generation are author evidence; final
+full desktop/reach/build and exact-head CI are recorded when complete. Shared
+clone-projection implementation remains on hold as specified below.
+
+## Distinct route/binding-only header proposal — approved interface basis
 
 **Motivation and scope.** The diagnostic observed the initial header dispatch
 blocked in its full validation. The consumer at `readNativeFreshResult` uses only
 that first reply's `route`, while later registration and model-bound standing
-perform compulsory checks. The proposal removes that redundant *initial* full
-standing computation using a distinct header contract, not by weakening or
-changing `rv::dispatch`. It makes no claim about the next validator's duration or
-full 500-node usability. No implementation is selected by this proposal.
+perform compulsory checks. The approved change removes that redundant *initial* full standing computation
+using a distinct header contract, not by weakening or changing `rv::dispatch`.
+It makes no claim about the next validator's duration or full 500-node usability;
+the actual implementation and verification are recorded immediately above.
 
 **Exact native interface.** Reuse the existing raw-body handler
 `read_preview_mechanics_job_verdict` with a separately discriminated request
@@ -222,6 +308,23 @@ order; every accepted/refused code/detail/first failure and numerical/derived
 row byte stays identical. No arithmetic, rederivation, standing, receipt, hash,
 schema or output change. This proves avoided cloning of discarded material, not
 a quantified heap reduction, CPU dominance or sufficient cure for this timeout.
+
+RT-A3's coordinated source basis at clean reducer2a `d4441e1` is evidence of
+proof dependencies, not current-main adoption or a released write turn:
+`exact_combination_evidence.rs` was unchanged there (SHA-256
+`ecbc565fb8566538568c6c946a93bb534e79e0bb9c215e646c7c1a769f2677f6`), as was
+`reader_verdict.rs` (`f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3`).
+W16B-RD in `o10_rules.py` around 3378–3435 guards present/dispatch predicates and
+proves the projector/validator unreached on D1; a projection repair needs its own
+dataflow/ownership and ordinary byte/first-refusal equivalence. OP1A and
+TIM-PF/RD/CD-ID full-file pins can invalidate on a core edit even if public helpers
+are unchanged. The 2a semantic-contract edits change PRESSURE_TABLE_SHA256 and
+PHYSICS_RETAINED_SHA256; b7a_domain_model and the retained EXACT_TABLE_HASH/proofs
+bind those sources. #8/#11/carriers and profile `8cd8fcf3` are consumers. No
+operation-applier edit or planned 2b projector algorithm change was reported.
+Recheck selected current-main sources and combined registration state when a
+repair turn is actually authorized. Nonoverlapping edits do not prove coefficient
+neutrality, and this notice triggers no repricing/pin transplant/core write.
 
 This is a separate, narrow shared `core/reporting/result_export` patch requiring
 Agent0 sequencing with RT-A3 and D3/retained reader consumers, plus independent

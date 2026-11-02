@@ -44,6 +44,7 @@ import {
   type SourceRecovery
 } from "./resultDetail";
 import { ANALYSIS_RUN_PREVIEW_COMMAND, readAnalysisRunPreview, type AnalysisRunPreview } from "./analysisRunPreview";
+import { PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_IDS, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID, type SourceContract } from "../features/results/numericalResultQuality";
 import type { ReaderDispatch, ReaderName } from "../features/results/resultReader";
 import type { AnalysisRunEnvelope, MechanicsResult } from "../types";
 
@@ -205,6 +206,39 @@ export function decodeNativeValidation(delivered: unknown): { ok: true; eligible
   return freeze(delivered as Json);
 }
 
+/** A route/table reading only; it is neither a result nor a numerical verdict. */
+export type NativeRouteHeader = Readonly<{
+  document_kind: "swbpipe.desktop.result_route_header"; version: 1; job_id: string;
+  header_status: "recognized" | "refused"; route: SourceContract;
+  binding: Readonly<{id:string;sha256:string}> | null;
+  refusal: Readonly<{code:string;detail:string|null}> | null;
+}>;
+const ROUTE_HEADER_KEYS = ["document_kind", "version", "job_id", "header_status", "route", "binding", "refusal"];
+const routeIdentities: Readonly<Record<string, readonly string[]>> = {
+  pressure: [PRESSURE_CONTRACT_ID], pressure_source: [PRESSURE_SOURCE_CONTRACT_ID],
+  preview_physics: PREVIEW_PHYSICS_CONTRACT_IDS,
+  retained_preview_physics: [PREVIEW_PHYSICS_RETAINED_CONTRACT_ID], retained_physics: [PHYSICS_RETAINED_CONTRACT_ID]
+};
+export function decodeNativeRouteHeader(delivered: unknown, jobId: string): NativeRouteHeader {
+  const exact = (value: Record<string, unknown>, keys: readonly string[]) => Object.keys(value).length === keys.length && Object.keys(value).every(key => keys.includes(key));
+  if (!plain(delivered) || !exact(delivered, ROUTE_HEADER_KEYS) || delivered.document_kind !== "swbpipe.desktop.result_route_header" || delivered.version !== 1 || delivered.job_id !== jobId) malformed("not this job's distinct route header");
+  if (delivered.header_status === "recognized") {
+    const binding = delivered.binding;
+    if (typeof delivered.route !== "string" || !Object.prototype.hasOwnProperty.call(routeIdentities, delivered.route) || !plain(binding) || !exact(binding,["id","sha256"]) || typeof binding.id !== "string" || !routeIdentities[delivered.route].includes(binding.id) || typeof binding.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(binding.sha256) || delivered.refusal !== null) malformed("inconsistent recognized route/binding");
+  } else if (delivered.header_status === "refused") {
+    const error = delivered.refusal;
+    if (delivered.route !== "unsupported" || delivered.binding !== null || !plain(error) || !exact(error,["code","detail"]) || typeof error.code !== "string" || !error.code || !(error.detail === null || typeof error.detail === "string")) malformed("inconsistent refused route header");
+  } else malformed("unknown route-header status");
+  return freeze(delivered as unknown as NativeRouteHeader);
+}
+/** Exact binding agreement with the compulsory full reading, before a handle
+ * can be published. A syntactically valid digest in metadata is not a proof. */
+export function requireRouteHeaderAgreement(header: NativeRouteHeader, verdict: ReaderDispatch): void {
+  const bindingMatches = header.binding === null ? verdict.binding === null : plain(verdict.binding) && header.binding.id === verdict.binding.id && header.binding.sha256 === verdict.binding.sha256;
+  const refusalMatches = header.refusal === null ? verdict.error === null : plain(verdict.error) && header.refusal.code === verdict.error.code && header.refusal.detail === verdict.error.detail;
+  if (header.route !== verdict.route || (header.header_status === "recognized") !== verdict.ok || !bindingMatches || !refusalMatches) malformed("route header differs from the compulsory full verdict");
+}
+
 export type VerdictRequest = Readonly<{ modelText?: string | null; invocationText?: string | null; reader?: ReaderName | null }>;
 
 /* -------------------------------------------------------------------------- *
@@ -254,6 +288,15 @@ export function forgetNativeJob(jobId: string): void {
 /** Test support: forget every job. */
 export function resetNativeResultsForTests(): void {
   jobs.clear();
+}
+
+/** Metadata-only cache, never shared with dispatch or reader validation. */
+export function readNativeRouteHeader(jobId: string): Promise<NativeRouteHeader> {
+  return cached(jobId, keyOf("route_header"), async () => {
+    const header = decodeNativeRouteHeader(await send(NATIVE_VERDICT_COMMAND, {jobId, operation:"route_header"}), jobId);
+    live(jobId); // A late metadata reply cannot resurrect disposed custody.
+    return header;
+  });
 }
 
 /** The verdict (dispatch, or one reader's validation with `reader`), cached by its exact inputs. */

@@ -11,7 +11,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/na
 
 import { awaitPreviewMechanicsJob, discardPreviewMechanicsJobResult, disposeDeliveredMechanicsResult, loadNativeFullResult, readNativeFreshResult, resetSessionResultCustodyForTests, startPreviewMechanicsJob } from "./previewService";
 import * as readerModule from "../features/results/resultReader";
-import { decodeNativeVerdict, describeFullResultRefused, FullResultRefused, isNativeJobLive, isNativeResult, loadFullResult, nativeCustody, NativeResultRowsGuarded, resetNativeResultsForTests } from "./nativeResult";
+import { decodeNativeVerdict, decodeNativeValidation, decodeNativeRouteHeader, requireRouteHeaderAgreement, readNativeRouteHeader, readNativeVerdict, setNativeResultTransportForTests, tauriNativeResultInvoke, forgetNativeJob, describeFullResultRefused, FullResultRefused, isNativeJobLive, isNativeResult, loadFullResult, nativeCustody, NativeResultRowsGuarded, resetNativeResultsForTests } from "./nativeResult";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "../test/nativeMechanicsReplay";
 import { readerDispatch, rememberReceivedText } from "../features/results/resultReader";
 import type { MechanicsResult } from "../types";
@@ -30,6 +30,7 @@ beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTes
 afterEach(() => {
   vi.restoreAllMocks();
   invokeMock.mockReset();
+  setNativeResultTransportForTests(null);
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
@@ -57,7 +58,7 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
         const args = raw as { reader?: string; modelJson?: string; invocationJson?: string };
         const phase = command === "read_preview_mechanics_job_summary" ? "summary"
           : command !== "read_preview_mechanics_job_verdict" ? null
-          : args?.reader ? "registration" : args?.modelJson || args?.invocationJson ? "standing" : "header";
+          : (raw as {operation?:string})?.operation === "route_header" ? "header" : args?.reader ? "registration" : "standing";
         if (phase) phases.push(phase);
         if (phase === pendingPhase) await new Promise<void>(resolve => { unblock = resolve; });
         return forward(command, raw, options);
@@ -74,7 +75,7 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       expect(phases).toEqual(["header", "registration", "standing", "summary"]);
       expect(boundaries).toHaveLength(8);
       expect(boundaries.at(-1)).toMatchObject({phase: "summary", edge: "exit", status: "ok"});
-      // Exact input caching reuses the final construction's standing verdict.
+      // Distinct metadata, validation and dispatch caches; final standing is reused.
       expect(phases.filter(phase => phase !== "summary")).toHaveLength(3);
       expect(readSolveTimeline()?.marks.at(-1)?.stage).toBe("reader_verdict_end");
       await disposeDeliveredMechanicsResult(native);
@@ -93,7 +94,7 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
     let resume!:()=>void;
     invokeMock.mockImplementation(async(command:string,args?:unknown,options?:unknown)=>{
       const reply=await forward(command,args,options);
-      if(command === "read_preview_mechanics_job_verdict" && !(args as {reader?:string})?.reader && !(args as {modelJson?:string})?.modelJson) await new Promise<void>(resolve=>{resume=resolve;});
+      if(command === "read_preview_mechanics_job_verdict" && (args as {operation?:string})?.operation === "route_header") await new Promise<void>(resolve=>{resume=resolve;});
       return reply;
     });
     const reading=readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model});
@@ -139,10 +140,32 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
     if (started.mode!=="backend_job") throw new Error("not native");
     const terminal=await awaitPreviewMechanicsJob(started.job_id);
     await expect(readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).rejects.toMatchObject({refusal:{kind:"headroom_unknown"}});
+    const verdictRequests=invokeMock.mock.calls.filter(([command])=>command === "read_preview_mechanics_job_verdict").map(([,args])=>args as Record<string,unknown>);
+    expect(verdictRequests[0].operation).toBe("route_header");
+    expect(verdictRequests.at(-1)?.reader).toBe("preview-physics");
+    expect(invokeMock.mock.calls.some(([command])=>command === "read_preview_mechanics_job_summary")).toBe(false);
     await discardPreviewMechanicsJobResult(started.job_id);
     expect(isNativeJobLive(started.job_id)).toBe(false);
     expect(replay.nativeHeld()).toEqual([]);
     await expect(readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).rejects.toThrow("NATIVE-RESULT-DISPOSED");
+  });
+  it("rejects a metadata digest that disagrees with the compulsory full reading", async () => {
+    const replay=createNativeMechanicsReplay({profile:"pressure"});install(replay);
+    setNativeResultTransportForTests(async(command,args)=>{
+      const value=await tauriNativeResultInvoke(command,args);
+      return args.operation === "route_header" ? {...value as object,binding:{...(value as {binding:object}).binding,sha256:"0".repeat(64)}} : value;
+    });
+    const pair=nativeMechanicsReplayPair("sparse_interactive",{profile:"pressure"});
+    const started=await startPreviewMechanicsJob(pair.model,"sparse_interactive",{custody:"native"});
+    if(started.mode !== "backend_job")throw new Error("not native");
+    const terminal=await awaitPreviewMechanicsJob(started.job_id);
+    await expect(readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).rejects.toThrow("differs from the compulsory full verdict");
+    const requests=invokeMock.mock.calls.filter(([command])=>command === "read_preview_mechanics_job_verdict").map(([,args])=>args as Record<string,unknown>);
+    expect(requests[0].operation).toBe("route_header");
+    expect(requests.some(args=>args.reader === "pressure")).toBe(true);
+    expect(requests.some(args=>args.operation === undefined && args.reader === undefined && typeof args.modelJson === "string")).toBe(true);
+    await discardPreviewMechanicsJobResult(started.job_id);
+    expect(replay.nativeHeld()).toEqual([]);
   });
   for (const profile of ["preview", "pressure"] as const) {
     it(`${profile}: verdict, registration, standing and S through the actual ingress and the actual commands' replies`, async () => {
@@ -214,5 +237,58 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
       }
       await disposeDeliveredMechanicsResult(native);
     }
+  });
+});
+
+
+describe("the distinct native route header grants no verdict or registration", () => {
+  function pair(job = "header-job") {
+    const full = readerDispatch(nativeMechanicsReplayPair("sparse_interactive", {profile:"pressure"}).source);
+    const header = {document_kind:"swbpipe.desktop.result_route_header",version:1,job_id:job,header_status:"recognized",route:full.route,binding:full.binding,refusal:null};
+    return {full,header};
+  }
+  it("strictly decodes only its exact shape and old decoders reject it", () => {
+    const {header,full}=pair();
+    const decoded=decodeNativeRouteHeader(header,"header-job");
+    expect(Object.isFrozen(decoded)).toBe(true);
+    expect(() => decodeNativeVerdict(header)).toThrow("NATIVE-VERDICT-MALFORMED");
+    expect(() => decodeNativeValidation(header)).toThrow("NATIVE-VERDICT-MALFORMED");
+    expect(() => decodeNativeRouteHeader(full,"header-job")).toThrow("NATIVE-VERDICT-MALFORMED");
+    for(const value of [JSON.stringify(header),new TextEncoder().encode(JSON.stringify(header)),{...header,job_id:"foreign"},{...header,version:2},{...header,ok:true},{...header,standing:full.standing},{...header,model_ref:"x"},{...header,route:"unsupported"},{...header,header_status:"refused"},{...header,binding:{...header.binding,sha256:"wrong"}},{...header,binding:{...header.binding,id:"foreign"}}]) {
+      expect(()=>decodeNativeRouteHeader(value,"header-job")).toThrow("NATIVE-VERDICT-MALFORMED");
+    }
+  });
+  it("checks the actual table digest against the compulsory full verdict before use", () => {
+    const {header,full}=pair();
+    requireRouteHeaderAgreement(decodeNativeRouteHeader(header,"header-job"),full);
+    const wrong=decodeNativeRouteHeader({...header,binding:{...header.binding,sha256:"0".repeat(64)}},"header-job");
+    expect(()=>requireRouteHeaderAgreement(wrong,full)).toThrow("differs from the compulsory full verdict");
+    const refused={document_kind:header.document_kind,version:1,job_id:"header-job",header_status:"refused",route:"unsupported",binding:null,refusal:{code:"SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED",detail:null}};
+    expect(decodeNativeRouteHeader(refused,"header-job").route).toBe("unsupported");
+    expect(()=>requireRouteHeaderAgreement(decodeNativeRouteHeader(refused,"header-job"),full)).toThrow("differs");
+  });
+  it("keeps metadata and full-dispatch caches distinct with no fallback", async () => {
+    const {header,full}=pair();const sent: unknown[]=[];
+    setNativeResultTransportForTests(async(_command,args)=>{sent.push(args);return args.operation === "route_header" ? header : full;});
+    expect(await readNativeRouteHeader("header-job")).toEqual(header);
+    await readNativeRouteHeader("header-job");
+    expect(await readNativeVerdict("header-job",{})).toEqual(full);
+    expect(sent).toEqual([{jobId:"header-job",operation:"route_header"},{jobId:"header-job"}]);
+    forgetNativeJob("header-job");
+    expect(()=>readNativeRouteHeader("header-job")).toThrow("NATIVE-RESULT-DISPOSED");
+    expect(sent).toHaveLength(2);
+  });
+  it("rejects disposed or foreign late metadata and removes failed metadata cache entries", async () => {
+    const {header}=pair();let reply!: (value: unknown)=>void;let calls=0;
+    setNativeResultTransportForTests(async()=>{calls++;return new Promise(resolve=>{reply=resolve;});});
+    const pending=readNativeRouteHeader("header-job");
+    forgetNativeJob("header-job");reply(header);
+    await expect(pending).rejects.toThrow("NATIVE-RESULT-DISPOSED");
+    resetNativeResultsForTests();
+    const foreign=readNativeRouteHeader("header-job");reply({...header,job_id:"foreign"});
+    await expect(foreign).rejects.toThrow("NATIVE-VERDICT-MALFORMED");
+    const good=readNativeRouteHeader("header-job");reply(header);
+    await expect(good).resolves.toEqual(header);
+    expect(calls).toBe(3);
   });
 });

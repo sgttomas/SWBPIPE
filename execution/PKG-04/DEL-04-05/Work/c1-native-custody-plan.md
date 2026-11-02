@@ -941,6 +941,17 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**Approved metadata-only header implementation.** Agent0 selected the distinct
+route_header contract for C1 native/frontend surfaces only. The first await now
+requests metadata via unchanged public rv route/binding/error APIs; old full
+dispatch/reader replies remain unchanged and compulsory later registration,
+standing, summary, full-verdict/run-preview/session/report/store gates remain.
+Strict new types/cache and final full-binding agreement bar metadata promotion.
+The proposal records exact old/new behavior, negative/session/native regressions
+and the required gpt-6-astra/medium numerical/permissions review. Full source parse
+remains and no 300 s/performance claim follows. Core/bridge/clone-projection and
+pricing source/pins remain on hold; RT-A3's exact pin/dependency facts are retained.
+
 **Reader-phase attempt executed/closed (2026-11-02).** The single newly approved
 attempt on clean `cf8129cd1` failed its 300 s first-paint gate but fulfilled the
 missing observation: durable first-header call 1 entered native `validate` after

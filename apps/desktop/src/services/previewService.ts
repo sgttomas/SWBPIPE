@@ -41,6 +41,8 @@ import {
   readNativeSummary,
   readNativeValidation,
   readNativeVerdict,
+  readNativeRouteHeader,
+  requireRouteHeaderAgreement,
   type NativeResult
 } from "./nativeResult";
 import type { ReaderDispatch } from "../features/results/resultReader";
@@ -641,7 +643,7 @@ export async function readNativeFreshResult(
   if (capture) { capture.terminalClaimed = true; nativeJobCaptures.set(jobId, capture); }
   if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
   if (timed) markSolveStage("reader_verdict_start");
-  const header = await traceNativeReaderAwait("header", () => readNativeVerdict(jobId, {}));
+  const header = await traceNativeReaderAwait("header", () => readNativeRouteHeader(jobId));
   const route = header.route;
   const readers = await traceNativeReaderAwait("registration", () => validateNativeReaders(jobId, route, capture));
   const summaryModelText = jsonTextKeepingNegativeZero(summaryModel);
@@ -654,9 +656,11 @@ export async function readNativeFreshResult(
     standing = await traceNativeReaderAwait("standing", () => readNativeStanding(jobId, route, false, standingModel));
     summary = await traceNativeReaderAwait("summary", () => readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings }));
   }
+  const standingInputs = nativeStandingInputs(route, capture, unregistered === null, standingModel);
+  const verdict = await readNativeVerdict(jobId, standingInputs);
+  requireRouteHeaderAgreement(header, verdict);
   if (timed) markSolveStage("reader_verdict_end", { registered: unregistered === null, reason_code: unregistered });
   const bound = { eligible: standing.eligible, findings: standing.findings };
-  const standingInputs = nativeStandingInputs(route, capture, unregistered === null, standingModel);
   const recovery = route === "pressure_source" || summary.header.omitted_members.includes("source_block_recovery")
     ? await queryNativeRecovery(jobId, 0, 1)
     : null;
@@ -665,7 +669,7 @@ export async function readNativeFreshResult(
     origin: "fresh_job",
     resultBytes,
     summary,
-    verdict: await readNativeVerdict(jobId, standingInputs),
+    verdict,
     binding: { standingModelText: standingInputs.modelText, invocationText: standingInputs.invocationText, summaryModelText, standing: bound },
     recovery
   });

@@ -83,7 +83,7 @@ afterEach(() => {
 
 let sequence = 0;
 /** A session whose loaded model is `model` and whose native solve hands over `bytes`. */
-async function session(model: PreviewModel, bytes: string, mode: Mode) {
+async function session(model: PreviewModel, bytes: string, mode: Mode, expectedState: "completed" | "failed" = "completed") {
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((request) => {
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model, mode })) throw new Error("REPLAY_REQUEST_MISMATCH");
@@ -103,6 +103,7 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
       }
     }
   });
+  const routeHeaders: Json[] = [];
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (isNativePersistenceCommand(command)) return fake.invoke(command, args as never);
     if (command === "get_local_storage_capability") return storage;
@@ -110,7 +111,9 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(model);
     if (command === "run_rule_checks") return structuredClone(RULE_ANSWER);
-    return transport.invoke(command, args, options);
+    const reply=await transport.invoke(command,args,options);
+    if(command === "read_preview_mechanics_job_verdict" && (args as Json)?.operation === "route_header") routeHeaders.push(structuredClone(reply));
+    return reply;
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   const rendered = renderHook(() => useWorkspaceSession());
@@ -118,8 +121,8 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
   await waitFor(() => expect(rendered.result.current.model.modelHash).not.toBeNull());
   if (mode !== rendered.result.current.results.solverMode) act(() => rendered.result.current.results.setSolverMode(mode));
   await act(async () => { await rendered.result.current.results.handleRun(); });
-  await waitFor(() => expect(rendered.result.current.results.solveJob.state, rendered.result.current.results.solveJob.error_message ?? undefined).toBe("completed"));
-  return { ...rendered, transport };
+  await waitFor(() => expect(rendered.result.current.results.solveJob.state, rendered.result.current.results.solveJob.error_message ?? undefined).toBe(expectedState));
+  return { ...rendered, transport, routeHeaders };
 }
 /** The exact profile's replay pair (pressure-2 without the load/reference-state group). */
 function exactPair(mode: Mode) {
@@ -190,6 +193,22 @@ async function expectViewable(result: NativeResult, analysisRun: WorkspaceSessio
 }
 
 describe("an exact (pressure-2) session solve", () => {
+  it.each(["forged numerical evidence", "unsupported metadata"] as const)("%s: a route header cannot become Current or a persisted solve", async variant => {
+    const {model,bytes}=exactPair("sparse_interactive"),source=JSON.parse(bytes);
+    if(variant === "forged numerical evidence") source.contract_evidence.exact_cases[0].pipe_sections[0].nominal_section.As_m2 *= 1.01;
+    else source.producer.semantic_contract_id="unrecognized metadata identity";
+    const {result:hook,routeHeaders,transport}=await session(model,JSON.stringify(source),"sparse_interactive","failed");
+    expect(routeHeaders).toHaveLength(1);
+    expect(routeHeaders[0].header_status).toBe(variant === "forged numerical evidence" ? "recognized" : "refused");
+    expect(routeHeaders[0].standing).toBeUndefined();expect(routeHeaders[0].ok).toBeUndefined();
+    expect(hook.current.results.result).toBeNull();expect(hook.current.results.currentSolvedResult).toBeNull();
+    expect(hook.current.results.analysisRun).toBeNull();expect(hook.current.results.inputManifest).toBeNull();
+    expect(hook.current.results.solveProof).toBeNull();
+    expect(hook.current.results.solveJob.error_message).toContain(variant === "forged numerical evidence" ? "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED" : "SOLVE-PRODUCER-CONTRACT-UNSUPPORTED");
+    expect(hook.current.results.solveJob.error_message).not.toContain("NATIVE_REPLAY_REQUEST_UNRECORDED");
+    await waitFor(()=>expect(transport.nativeHeld()).toEqual([]));
+  });
+
   it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: completes, and the session holds and shows the result and its Python-shaped record, Current (epoch 8)", async mode => {
     const { model, bytes } = exactPair(mode);
     const { result: hook } = await session(model, bytes, mode);

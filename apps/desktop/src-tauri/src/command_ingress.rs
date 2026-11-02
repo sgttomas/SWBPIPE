@@ -297,6 +297,12 @@ impl Args {
         invalid_request(format!("INGRESS-ARGS-INVALID: invalid args `{key}` for command `{}`: {error}", self.command))
     }
 
+    /// Names still present, without allocating or exposing their values. Used
+    /// by distinct command operations that must reject mixed/unknown fields.
+    pub(crate) fn keys(&self) -> impl Iterator<Item = &str> {
+        self.map.keys().map(String::as_str)
+    }
+
     /// A required `Value` argument (`null` included), moved.
     pub(crate) fn value(&mut self, key: &'static str) -> Result<Value, SolveJobError> {
         match self.map.remove(key) {

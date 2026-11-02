@@ -709,3 +709,98 @@ fn the_args_lease_is_capped_at_the_12_gib_default() {
     assert!(registry.acquire_interactive_ingress(13 * GIB).is_ok());
     assert_eq!(registry.pool().reserved_total(), 0);
 }
+
+fn route_reply(registry: &SolveJobRegistry, job: &str) -> Result<Value, CommandError<String>> {
+    let body = body(&json!({"jobId":job,"operation":"route_header"}));
+    let (raw, lease) = reserve(registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1)))?;
+    run(registry.clone(), raw, lease).map(|text| serde_json::from_str(&text).unwrap())
+}
+
+#[test]
+fn route_headers_are_distinct_metadata_and_preserve_full_reader_outcomes() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    for input in file_backed_corpus() {
+        let job = retained(&registry, &gate, &input.source);
+        let baseline = registry.pool().reserved_total();
+        let full_read = gate::hold(&registry, "read", true);
+        let header = route_reply(&registry, &job).unwrap();
+        assert_eq!(full_read.0.entered(), 0, "route header must not enter the full reader path");
+        let full: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_dispatch_json(&input.source, None, None).unwrap()).unwrap();
+        assert_eq!(header["document_kind"], "swbpipe.desktop.result_route_header");
+        assert_eq!(header["version"], 1);
+        assert_eq!(header["job_id"], job);
+        assert_eq!(header.as_object().unwrap().len(), 7);
+        for forbidden in ["ok","standing","eligible","token","attestation","results","model_ref","run_id"] { assert!(header.get(forbidden).is_none()); }
+        assert_eq!(header["route"], full["route"], "{}", input.id);
+        assert_eq!(header["binding"], full["binding"], "{}", input.id);
+        assert_eq!(header["refusal"], full["error"], "{}", input.id);
+        assert_eq!(header["header_status"] == "recognized", full["ok"] == true);
+        // Metadata mode does not alter the operation-absent command or any held bytes.
+        assert_eq!(read_verdict(&registry, &job, None, None).unwrap(), open_pipe_stress_operation_applier::reader_dispatch_json(&input.source, None, None).unwrap());
+        assert_eq!(full_read.0.entered(), 1, "operation-absent dispatch remains compulsory and unchanged");
+        assert_eq!(registry.held_result(&job).unwrap().text(), input.source);
+        assert_eq!(registry.pool().reserved_total(), baseline);
+        registry.dispose_result(&job).unwrap();
+    }
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+#[test]
+fn route_header_recognition_does_not_validate_a_forged_numerical_row() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let mut source = read_json(DEMO);
+    source["results"][0]["value"] = json!("forged numeric value");
+    let job = retained(&registry, &gate, &source.to_string());
+    assert_eq!(route_reply(&registry, &job).unwrap()["header_status"], "recognized");
+    let validation = open_pipe_stress_result_export::reader_verdict::validate("preview-physics", &source, None, None);
+    assert_eq!(validation["ok"], false);
+    let full: Value = serde_json::from_str(&read_verdict(&registry, &job, None, None).unwrap()).unwrap();
+    assert_eq!(full["standing"]["eligible"], false);
+    registry.dispose_result(&job).unwrap();
+    assert!(route_reply(&registry, &job).is_err());
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+#[test]
+fn route_header_rejects_unknown_operations_and_mixed_fields_before_held_lookup() {
+    let host = ScriptedHost::normal();
+    let (registry, _) = gated(&host);
+    let mut cases = vec![json!({"jobId":"unknown","operation":null}),json!({"jobId":"unknown","operation":7}),json!({"jobId":"unknown","operation":"dispatch"})];
+    for key in ["reader","modelJson","invocationJson","unknown"] {
+        for value in [Value::Null,json!("x")] {
+            let mut args = json!({"jobId":"unknown","operation":"route_header"});
+            args[key] = value;
+            cases.push(args);
+        }
+    }
+    for args in cases {
+        let (raw, lease) = reserve(&registry, &body(&args), &headers(Some(INGRESS_ARGS_JSON_V1))).unwrap();
+        let error = run(registry.clone(), raw, lease).unwrap_err();
+        let message = invalid_message(error);
+        assert!(message.contains("NATIVE-ROUTE-HEADER-ARGS") || message.contains("INGRESS-ARGS-INVALID"), "{message}");
+        assert!(!message.contains("unknown solve job"));
+        assert_eq!(registry.pool().reserved_total(), 0);
+    }
+}
+
+#[test]
+fn route_header_keeps_unsupported_and_downgrade_metadata_refusals() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let mut unsupported = read_json(DEMO);
+    unsupported["producer"]["semantic_contract_id"] = json!("unrecognized identity");
+    let mut downgrade = read_json(DEMO);
+    downgrade["results"][0]["recovery_method"] = json!(open_pipe_stress_result_export::retained_precision::METHOD);
+    for source in [unsupported, downgrade] {
+        let job = retained(&registry, &gate, &source.to_string());
+        let header = route_reply(&registry, &job).unwrap();
+        let full: Value = serde_json::from_str(&read_verdict(&registry, &job, None, None).unwrap()).unwrap();
+        assert_eq!(header["header_status"], "refused");
+        assert_eq!(header["route"], "unsupported");
+        assert_eq!(header["binding"], Value::Null);
+        assert_eq!(header["refusal"], full["error"]);
+        registry.dispose_result(&job).unwrap();
+    }
+}

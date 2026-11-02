@@ -78,7 +78,14 @@ export function nativeReplayReply(command: string, args: Record<string, unknown>
     throw new NativeReplayUnrecorded(command, key);
   }
   if (!reply.ok) throw reply.error;
-  if (reply.body === "json") return structuredClone(reply.value);
+  if (reply.body === "json") {
+    const value = structuredClone(reply.value) as Record<string, unknown>;
+    if (value?.document_kind === "swbpipe.desktop.result_route_header") {
+      if (value.job_id !== NATIVE_REPLAY_JOB) throw new Error("NATIVE_REPLAY_ROUTE_HANDLE_INVALID");
+      value.job_id = jobId;
+    }
+    return value;
+  }
   const bytes = Buffer.from(reply.base64, "base64");
   return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 }
