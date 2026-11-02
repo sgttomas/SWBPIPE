@@ -2190,13 +2190,13 @@ exact-head hosted checks are recorded in PR #68 and required before integration.
 storage, not admitted families or ScopeOfWork/dependency conditions. No
 acceptance, release or base-machine performance qualification follows.
 
-### §8.38 RT-A3 reducer 2a: bounded concentric pressure-bore steps (proposed)
+### §8.38 RT-A3 reducer 2a: bounded concentric pressure-bore steps
 
 **Source and status.** The four-point run at `3c3e976075` extends the
 integrated §8.37 source (`2656dcb33`) with reducer 2a's bounded admission.
 All points are complete with zero unmapped or unclassified sites; both O-10
-checks are clear. This is a proposal, not profile adoption. The committed
-profile remains §8.37's owner-approved bytes. Eccentric 2b, CE and nonlinear
+checks are clear. The owner approved this exact profile on 2026-11-02
+(verbatim: "1. approved. 2. approved. 3. approved.", item 1). Eccentric 2b, CE and nonlinear
 admission are outside this registration.
 
 **Changed proof.** D1.4 excludes components and D1.5 gives route E explicitly
@@ -2232,7 +2232,7 @@ these are not additional form atoms. No other coefficient moves. Illustrative
 merged checks rise by 1,751 B to 8,748,965,400 B sparse and 8,808,096,744 B
 dense; illustrative M is not native qualification.
 
-**Native evaluation and exact proposal.** The current in-build collector
+**Native evaluation and adopted profile.** The current in-build collector
 (`profile_in_build_record`, one passing test) supplies all 328 merged atoms.
 The unchanged S1/§8.31 combination-type supplement is reused as in §8.37:
 Node(String,BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
@@ -2244,7 +2244,7 @@ and 9,025,382,659 B dense. M remains 12,884,901,888 B, its 0.9 margin
 255,342,507 / 276,013,933 B, used conservatively for all separate points.
 The tightest headroom, dense W3 including reserve, is 2,315,686,533 B.
 
-The concrete proposed full file is
+The owner-approved full file is
 `/private/tmp/rt-a3-2a-proposed-retained_memory.rs`, SHA-256
 `8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
 The generated block is maintained `generate` output with basis
@@ -2258,8 +2258,16 @@ of `648e424c5` found no blockers: it independently reproduced all 80 fits, the
 coefficient comparison, source pins, caller carry and generator output. Its
 two prose findings are corrected above; the final proposal only wraps the
 basis line and clarifies the registration comment relative to its reviewed
-file, with identical generated coefficients and input hashes. Reserved adoption, generated law/challenge pins, native laws/challenge,
-required stack evidence and exact-head hosted checks remain outstanding.
+file, with identical generated coefficients and input hashes. Adoption verified
+that production source/pricing logic still matches `3c3e976075` and every one
+of the thirteen reviewed-input hashes matches the selected candidate. The
+maintained generator reproduces the approved full file byte for byte. Native
+law and challenge phase records derive from the reviewed 80 native evaluations.
+M, its margin, R, reserve policy and layouts are unchanged; any additional
+coefficient movement requires separate disposition. Native laws/challenge,
+retained carrier regeneration, separately scheduled stack evidence and
+exact-head hosted checks remain outstanding. Approval supplies no exclusive
+window, acceptance or release authority.
 
 ## 9. Memory-profile gates and registration
 

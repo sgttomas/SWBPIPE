@@ -1985,9 +1985,10 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // minus reserved stack R. M, the margin and TEXT reserve policy are unchanged.
 // §8.37: owner decision "1A, 2A" approves the reviewed +172,554 B profile.
 // Values derive from maintained tree_eval native evaluations, excluding R.
+// §8.38: owner-approved reducer 2a adds 1,751 B per phase; input #8/#11 rebind.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_962_903, 6_944_957_464, 8_899_140_700, 8_687_301_127, 7_765_329_066, 8_611_707_835, 7_343_101_545, 7_016_391_421],
-    [6_662_094_247, 7_004_088_808, 8_958_272_044, 8_746_432_471, 7_824_460_410, 8_670_839_179, 7_402_232_889, 7_075_522_765],
+    [6_602_964_654, 6_944_959_215, 8_899_142_451, 8_687_302_878, 7_765_330_817, 8_611_709_586, 7_343_103_296, 7_016_393_172],
+    [6_662_095_998, 7_004_090_559, 8_958_273_795, 8_746_434_222, 7_824_462_161, 8_670_840_930, 7_402_234_640, 7_075_524_516],
 ];
 
 #[test]
