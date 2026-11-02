@@ -94,7 +94,7 @@ pub mod model_builder {
     }
 
     pub fn lift_off(id: &str, node: &str) -> Value {
-        json!({"id": id, "node": node, "family": "nonlinear", "restraints": ["UZ"],
+        json!({"id": id, "node": node, "family": "nonlinear", "restraints": [],
                "nonlinear": {"behavior": "lift_off", "dof": "UZ", "initial_state": "active", "contact_when": "positive_reaction"},
                "provenance": "invented_test_value"})
     }
