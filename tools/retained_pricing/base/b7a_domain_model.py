@@ -153,7 +153,13 @@ import runpy
 # comments and test literals; physics_source.rs and retained_precision.rs add allocation-free Err-only declines
 # (ACTUAL_CONDITION_USE/SETS/SPECTRA/SET_REF, 20-24 B inside the 40 B detail class; G8's four need sites) and test
 # modules. No owner this model prices changes.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': '940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': 'ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/retained_precision.rs': '1bd0c1b935d3906f67092726e3453ed4c1489a79f447f46cd1bfb1745b7493f5', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': 'd2e0d9bab3abcddfeeee7df6fbe869389d3a432f44e9ae79a7c353f03f15c10d', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '064a62edb9a059b079f28433478bbbe43d16d0f9d78731ad7d0b606c03efe3de', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '4946bb3103a16a7a2985f5229177dab142d5589748d2443edfaf7d6e68e1a1c2', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
+# DEL-04-09 dynamics D3 (seam (i), read 393a11ee7..0468d2ca2): FK formation_check.rs only separates the element
+# formation's section leaves. frame_matrix and curved_matrix delegate to frame_matrix_with::<FrameSection> and
+# curved_matrix_with::<CurvedFormation>, whose leaves are the exact lift of each binary64 field (LEAF_SEAM below), so
+# the retained formation forms the same Element with the same operations, errors and stack values; no heap owner,
+# error path, TEXT site or lifetime is added. element_reformation's wide leaves (LiftedFrame, LiftedCurved) are
+# instantiated only by its own reform_* entries, which no retained root reaches (modal_eigen is outside crate_dirs).
+SOURCE_FILES = {'core/product_physics/src/lib.rs': '940b83a0666ac373f48d434524a73fa249b6c468e6579c17089ab07056da6e73', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/retained_precision.rs': '1bd0c1b935d3906f67092726e3453ed4c1489a79f447f46cd1bfb1745b7493f5', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': 'd2e0d9bab3abcddfeeee7df6fbe869389d3a432f44e9ae79a7c353f03f15c10d', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '064a62edb9a059b079f28433478bbbe43d16d0f9d78731ad7d0b606c03efe3de', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': '4946bb3103a16a7a2985f5229177dab142d5589748d2443edfaf7d6e68e1a1c2', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -204,6 +210,42 @@ STATIC_PREIMAGE = ('schemas/physics_source_recovery.schema.json', 'schemas/retai
 STATIC_OWNERS = (('core/reporting/result_export/src/semantic_contract.rs:preview_physics_timoshenko_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json'), ('core/reporting/result_export/src/physics_source.rs:schema', 'schemas/physics_source_recovery.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:schema', 'schemas/retained_precision_mp_v2.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:definition', 'fixtures/results/retained_precision_prepared_ordinary_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:table', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_2.json'), ('core/reporting/result_export/src/retained_precision.rs:combination_definition', 'fixtures/results/retained_precision_prepared_combination_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_definition', 'fixtures/results/retained_precision_prepared_exact_v1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_table', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract', 'fixtures/results/semantic_contract_v0_3_pressure_source_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract', 'fixtures/results/semantic_contract_v0_3_pressure_2.json'), ('core/reporting/result_export/src/load_reference.rs:transport_schema', 'schemas/load_reference_state.schema.json'))
 
 
+# DEL-04-09 dynamics D3: the retained instantiation of the separated formation leaves. Each block occurs once, and
+# FrameLeaves/CurvedLeaves have no other impl and their *_with formations no other caller in formation_check.rs.
+LEAF_SEAM = (
+    "pub(super) fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Element, WideError> {\n"
+    "    frame_matrix_with(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference, &e.section)\n}\n",
+    "pub(super) fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<Element, WideError> {\n"
+    "    curved_matrix_with(a, e, e)\n}\n",
+    "impl FrameLeaves for crate::FrameSection {\n" + "".join(
+        f"    fn {name}(&self) -> Result<Wide2, WideError> {{\n        lift(self.{name})\n    }}\n"
+        for name in ("elastic_modulus", "shear_modulus", "area", "torsion_constant", "second_moment_y",
+                     "second_moment_z")) +
+    "    fn shear_area(&self) -> Option<Result<Wide2, WideError>> {\n"
+    "        match self.beam_theory {\n"
+    "            BeamTheory::EulerBernoulli => None,\n"
+    "            BeamTheory::Timoshenko { shear_area } => Some(lift(shear_area)),\n"
+    "        }\n    }\n}\n",
+    "impl CurvedLeaves for CurvedFormation {\n" + "".join(
+        f"    fn {name}(&self) -> Result<Wide2, WideError> {{\n        lift(self.{name})\n    }}\n"
+        for name in ("elastic_modulus", "shear_modulus", "area", "second_moment", "torsion_constant",
+                     "in_plane_flexibility_factor", "out_of_plane_flexibility_factor")) + "}\n",
+)
+LEAF_SEAM_COUNTS = {"impl FrameLeaves for": 1, "impl CurvedLeaves for": 1,
+                    "fn frame_matrix_with<": 1, "fn curved_matrix_with<": 1,
+                    "frame_matrix_with(": 1, "curved_matrix_with(": 1}
+
+
+def leaf_seam(text):
+    """True on the separated-leaf formation (exact lifts, one retained instantiation); False before it."""
+    if "trait FrameLeaves" not in text and "trait CurvedLeaves" not in text:
+        return False
+    if (any(text.count(block) != 1 for block in LEAF_SEAM)
+            or any(text.count(token) != count for token, count in LEAF_SEAM_COUNTS.items())):
+        raise ValueError("B7a formation leaf seam changed: the retained frame/curved leaves must stay exact lifts; re-review")
+    return True
+
+
 def inspect(snapshot):
     fingerprints = {}
     for file, expected in SOURCE_FILES.items():
@@ -231,9 +273,12 @@ def inspect(snapshot):
         raise ValueError("B7a positive-domain admission caps changed")
     if hashlib.sha256(function_body(source, "family_clauses").encode()).hexdigest() != FAMILY_PIN:
         raise ValueError("B7a positive-domain family clauses changed")
+    with open(os.path.join(snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs"), "rb") as stream:
+        seam = leaf_seam(stream.read().decode("utf-8"))
     return {"full_raw_source_fingerprints": fingerprints,
             "admission_caps_sha256": CAPS_PIN, "family_clauses_sha256": FAMILY_PIN,
             "admission_prefix_sha256": ADMISSION_PREFIX_PIN, "admission_late_sha256": ADMISSION_LATE_PINS,
+            "formation_leaf_seam": seam,
             "model_sha256": hashlib.sha256(open(__file__, "rb").read()).hexdigest(),
             "formed_terms_per_input": 12, "manifest_operand_words": OPERAND_WORDS,
             "basis_material_count": MATERIALS, "named_basis_count": 3,
