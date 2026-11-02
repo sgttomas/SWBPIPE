@@ -9,11 +9,12 @@
 //! - **Status first.** The writer's status, the blocking state (`status` is not `written`, or any entry is not
 //!   written) and the global refusal (`refused_unexplained`: the writer refused and named nothing that explains it)
 //!   are computed over the full result before any bound is applied, and are always carried.
-//! - **Entries.** `not_written` (each `unsupported` loss entry, then each error diagnostic with no loss entry of the
-//!   same code and entity), then `omitted` (each `omitted` loss entry), then `warnings` (each warning diagnostic with
+//! - **Entries.** `not_written` (each `unsupported` loss entry, then each error diagnostic with no `unsupported` loss
+//!   entry of the same code and entity), then `omitted` (each `omitted` loss entry), then `warnings` (each warning diagnostic with
 //!   no `omitted` loss entry of the same code and entity), each in the writer's order, each with its code, entity and
-//!   category. A loss entry and the diagnostic of the same code and entity that the writer raised with it are one
-//!   entry, so they are listed together or counted together. Then the materials whose identity-file origin is
+//!   category. An `unsupported` loss entry and the error, or an `omitted` loss entry and the warning, of the same code
+//!   and entity that the writer raised with it are one entry, so they are listed together or counted together. An
+//!   error is never folded into an `omitted` entry: it is listed as its own blocking entry. Then the materials whose identity-file origin is
 //!   `undeclared`. Info diagnostics and the writer's messages are not carried: no engine message text, and so no
 //!   text about another program, leaves the review.
 //! - **Overflow.** The fixed fields (with every count at its widest) are reserved first. Entries are listed in order
@@ -289,22 +290,29 @@ fn text<'v>(item: &'v Value, key: &str) -> &'v str {
 /// §3.3's classification over the full result, in listing order, without copying any string.
 struct Classified<'r> {
     result: &'r WriterResult,
-    paired: HashSet<(&'r str, &'r str)>,
+    /// (code, entity) of each `unsupported` loss entry: an error of the same pair is that entry.
+    paired_unsupported: HashSet<(&'r str, &'r str)>,
+    /// (code, entity) of each `omitted` loss entry: a warning of the same pair is that entry.
     paired_omitted: HashSet<(&'r str, &'r str)>,
 }
 
 impl<'r> Classified<'r> {
     fn new(result: &'r WriterResult) -> Self {
-        let mut paired = HashSet::new();
+        let mut paired_unsupported = HashSet::new();
         let mut paired_omitted = HashSet::new();
         for item in &result.loss_report {
             let key = (text(item, "code"), text(item, "entity"));
-            paired.insert(key);
-            if text(item, "category") == "omitted" {
-                paired_omitted.insert(key);
+            match text(item, "category") {
+                "unsupported" => {
+                    paired_unsupported.insert(key);
+                }
+                "omitted" => {
+                    paired_omitted.insert(key);
+                }
+                _ => {}
             }
         }
-        Classified { result, paired, paired_omitted }
+        Classified { result, paired_unsupported, paired_omitted }
     }
 
     fn entries(&self) -> impl Iterator<Item = Entry<'r>> + '_ {
@@ -318,7 +326,7 @@ impl<'r> Classified<'r> {
         };
         let unpaired_errors = self.result.diagnostics.iter().filter(|item| text(item, "severity") == "error").filter_map(|item| {
             let key = (text(item, "code"), text(item, "entity"));
-            (!self.paired.contains(&key)).then_some(Entry { list: ReviewList::NotWritten, code: key.0, entity: key.1, category: "error" })
+            (!self.paired_unsupported.contains(&key)).then_some(Entry { list: ReviewList::NotWritten, code: key.0, entity: key.1, category: "error" })
         });
         let warnings = self.result.diagnostics.iter().filter(|item| text(item, "severity") == "warning").filter_map(|item| {
             let key = (text(item, "code"), text(item, "entity"));
