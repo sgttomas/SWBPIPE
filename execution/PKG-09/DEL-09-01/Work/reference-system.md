@@ -457,11 +457,13 @@ or absence a solve of the full model shows today.
 The generator keeps a pending flag per row of this table, and the fixture test checks
 that the two agree.
 
-**MBF export dependency beside the ledger (not a table row).** Agent 0 gave the entry below
-(2026-11-02) as a row to follow the RS-FR1/RS-FR1V row. It stands here because the table must
-equal the generator's ledger and `authoring.json`
-(`tools/validation/test_reference_system_ledger.py`), and the fixture is unchanged. RS-P180 is in
-tranche 1, so the entry has no pending flag. Its four columns, verbatim:
+**MBF consumer-coverage note (not a ledger row).** Agent 0 gave the entry below (2026-11-02)
+as a row to follow the RS-FR1/RS-FR1V row, and later labelled it an MBF consumer-coverage note
+(Agent 0, 2026-11-02). It is not a pending-family generator entry and not a completed
+admission. It stands here because the table must equal the generator's ledger and
+`authoring.json` (`tools/validation/test_reference_system_ledger.py`), and the fixture is
+unchanged. RS-P180 is in tranche 1, so the entry has no pending flag. Its four columns,
+verbatim:
 
 - **Family or analysis:** RS-P180 modulus selection under MBF export
 - **State:** RS-OPE selects RS-P180 at 210 °C (`material_selection`, `temperature_interpolation`)

@@ -2520,19 +2520,32 @@ as CQ-17-01-016. Both are drafts for the owner to send.
     SST confirms (as dossier questions) that the mean is taken from the OPTEMP reference
     temperature and that rows are interpolated linearly. Cold-modulus files stay refused until
     SWBPIPE has a separate α basis. The confirmation is drafted as DEL-17-01 CQ-17-01-016.
-  - *Wording of the entries below.* Only text in quotation marks is verbatim. The rest is a
-    paraphrase, and none of it is labelled accepted wording. D-2's wording was reconstructed
-    from Agent 0's thread; Agent 0 will check it against the original messages. The Route 1
-    ruling and the 2026-11-02 refinements are paraphrased from the lane's brief, except
-    decision 3, which is quoted from it.
-  - *D-2 (Agent 0, 2026-10-31; paraphrase from Agent 0's thread, pending Agent 0's check).*
-    Agent 0 accepted the narrower rule: a modulus that varies with temperature, with a constant
-    expansion coefficient, is written and read back exactly. Two conditions apply:
+  - *Wording of the entries below.* Every entry below paraphrases Agent 0; none quotes Agent 0,
+    and none is labelled accepted wording. Text in quotation marks quotes the label or document
+    text named beside it, not Agent 0's message. Decision 3 is a paraphrase too: its text was
+    normalized from Agent 0's delivered message, so it is not literally verbatim. D-2's
+    historical wording (2026-10-31) was reconstructed from Agent 0's thread; neither its date
+    nor its text has been verified against the original messages, and this Design does not
+    mark either as verified. Agent 0's confirmation of 2026-11-02, below, supplies the current
+    decision basis for D-2's substance without standing in for its historical words. The Route 1
+    ruling, the refinements and the decisions of 2026-11-02 are paraphrased from the lane's
+    briefs.
+  - *D-2 (attributed to Agent 0, 2026-10-31; paraphrase reconstructed from Agent 0's thread;
+    date and text unverified).* Agent 0 accepted the narrower rule: a modulus that varies with
+    temperature, with a constant expansion coefficient, is written and read back exactly. Two
+    conditions apply:
     - materials whose expansion varies stay refused and are written up as a release limitation
       for the owner (criterion 3), whose acceptance is pending;
     - the rule is written for materials in general and tested on more than the reference
       system's material, so that criterion 6 cannot pass only because the fixture was tailored
       to it.
+  - *Confirmation of D-2's design intent (Agent 0, 2026-11-02; paraphrase).* Agent 0 confirmed
+    the substantive narrow design intent: a modulus that varies with temperature, with a constant
+    expansion coefficient; a general mapping, not tailored to the fixture; mapping only where
+    exact per-member thermal, modulus and source proof holds; varying α and the cold-modulus
+    basis refused; acceptance pending. This is the current decision basis. It does not verify
+    D-2's historical date or wording. It does not complete criterion 6, and it closes no
+    dossier question.
   - *Route 1 (Agent 0, 2026-11-02, binding; paraphrase).* Design comes first, through the
     load/reference-state group, with a per-member faithful-equivalence condition rather than
     one inferred case T1. Only an explicitly designed subset is admitted:
@@ -2557,21 +2570,23 @@ as CQ-17-01-016. Both are drafts for the owner to send.
     - existing formats and ordinary routes are unchanged.
 
     The design is §20.4 (designed, not implemented). Cold-modulus files stay refused as above.
-  - *Refinements (Agent 0, 2026-11-02, binding; paraphrase except decision 3).*
-    - **Decision 3 (verbatim from the brief):** "`explicit_base_properties`/no temperature
-      points is eligible for the same-T1 condition ONLY if the actual selected E basis is
-      constant and exactly representable by mapped MBF material semantics, with other relevant
-      material properties/thermal-law conditions separately satisfied. Don't infer all
-      properties constant from missing E points; explicit per-member basis and alpha
-      restrictions remain. Add counterexamples for conflicting selectors/record basis."
-      It is the basis of the bounded exception above.
-    - **Derived T1 rows** are a candidate design, conditional on proof. They use SWBPIPE's
-      exact existing interpolation semantics and units, with representable output precision,
-      and are tested at endpoints, interior, a duplicate T1, a T1 colliding with an authored
-      row, a shared material and the round trip. CQ-17-01-016 is not retired automatically. It
-      may be marked inapplicable to this precisely bounded write route only after admitted
-      format semantics prove that the target selects the exact supplied T1 row, with no other
-      interpolation or modulus convention. Until then it stays open (G-4, §20.4.9).
+  - *Refinements (Agent 0, 2026-11-02, binding; paraphrase).*
+    - **Decision 3 (paraphrase, normalized from Agent 0's delivered message; not literally
+      verbatim).** An `explicit_base_properties` selection on a material with no temperature
+      points is eligible for the same-T1 condition only if the actual selected E basis is
+      constant and exactly representable by the mapped MBF material semantics, with the other
+      relevant material-property and thermal-law conditions satisfied separately. All
+      properties are not to be inferred constant from missing E points; the explicit
+      per-member basis and α restrictions remain. Counterexamples are to be added for
+      conflicting selectors and record bases. It is the basis of the bounded exception above.
+    - **Derived T1 rows** use SWBPIPE's exact existing interpolation semantics and units, with
+      representable output precision, and are tested at endpoints, interior, a duplicate T1, a
+      T1 colliding with an authored row, a shared material and the round trip. Their admission
+      basis is Agent 0's decision below (option (a), exact). CQ-17-01-016 is not retired
+      automatically. It may be marked inapplicable to this precisely bounded write route only
+      after admitted format semantics prove that the target selects the exact supplied T1 row,
+      with no other interpolation or modulus convention. Until then it stays open (G-4,
+      §20.4.9).
     - **Sidecar format 5** binds the source and export bytes, the identities and the
       derivation provenance, so that an import strips only proven generated rows and restores
       the authored table's order and meaning. It never strips by guessing, and a forged or
@@ -2580,12 +2595,36 @@ as CQ-17-01-016. Both are drafts for the owner to send.
       scope. Before implementation it needs independent persistence scrutiny and explicit
       backwards compatibility and refusals: formats 2–4 unchanged, and a stated outcome for a
       format-4-only importer that meets format 5. There is no silent product-schema bump.
+      §20.4.5 states how a generated row is proved: against an independently trusted source,
+      never by the sidecar's self-consistency alone.
     - **Release limitation.** Varying α and cold-modulus files go to the criterion 3 list,
       with the owner's acceptance pending. No acceptance is inferred. The proposed entry is in
       §20.4.10, for the implementation PR.
     - **The operating case.** Designing the operating W+P+T mapping is approved as a separate
       design-first item toward criterion 6. Thermal-only Route 1 does not complete the
       reference system.
+  - *Decisions (Agent 0, 2026-11-02, after reading the `ce093a4c7` diff; paraphrase).*
+    - **Derived T1 rows: option (a), exact admission, is chosen.** A derived row's printed E,
+      round-tripped through its printed unit, must equal the solver's actual selected binary64
+      E on both the exported and the restored model, with the conversion and rounding
+      semantics stated (§20.4.2 e). Otherwise the named member is refused. There is no §18.2
+      precision relaxation. Option (b), print precision, is rejected (§20.4.10). A random
+      sample's admission rate is sample evidence only, not a bound or a justification. Nothing
+      is tuned to RS-M1.
+    - **G-4 stays open.** The mathematical argument that a row at T1 makes interpolation
+      irrelevant is not sufficient without selected target semantic evidence. Any source
+      consultation for G-1 and G-4 stays strictly within each registered row's current boundary
+      (DEL-17-01 `Source_Basis_Register.md`). Being on a registered page does not admit its
+      other subsections. Target row-selection or point-value behaviour that the boundary does
+      not explicitly support becomes a dossier question or a source-boundary proposal before
+      broader use (§20.4.9).
+    - **DEL-09-01 §10's note** is kept below the table, verbatim, with the fixture unchanged,
+      and is labelled an "MBF consumer-coverage note". It is not a pending-family generator
+      entry and not a completed admission. §11.1's wording ("planned for the restricted subset
+      defined by") is correct.
+    - **Wording authenticity.** D-2's historical attribution stays a paraphrase, unverified;
+      decision 3 is a paraphrase; nothing implies that criterion 6 is complete or that a dossier
+      question is closed (the wording note above).
 - **O-4.** How CAEPIPE-exported MBFs are produced for §18.3: by hand by the owner, or by a
   guest automation step.
 - **O-6 (open, not adopted).** Binding the sidecar's digest into the MBF, so that a
@@ -2614,9 +2653,10 @@ tranche, in priority order, each with its writer counterpart where one is missin
    the writer writes springs as flexible anchors, with its preflight, and sidecar format 3 records
    them. Rotational stiffness is refused (TBD-17-04-010);
 5. hangers. **Refused** (§12): no exact mapping onto SWBPIPE's hanger members (gaps below);
-6. temperature-dependent materials. **Narrowed by D-2 (Agent 0, 2026-10-31) and the Route 1
-   ruling and its refinements (Agent 0, 2026-11-02); designed, not implemented (§20.4). The
-   rulings are paraphrased in O-7, except decision 3, which is quoted.**
+6. temperature-dependent materials. **Narrowed by D-2 (attributed to Agent 0, 2026-10-31;
+   wording unverified), Agent 0's confirmation of its design intent, and the Route 1 ruling, its
+   refinements and decisions (Agent 0, 2026-11-02); designed, not implemented (§20.4). All are
+   paraphrased in O-7, decision 3 included.**
    - **What Route 1 writes.** A temperature-dependent modulus with a constant expansion
      coefficient is written through the load/reference-state group: one thermal case, a
      constant-α basis, and the per-member rule. Each exported member's modulus-selection
@@ -2624,10 +2664,12 @@ tranche, in priority order, each with its writer counterpart where one is missin
      T1 exactly (§20.4.2 e, g). A selection that differs is refused by name with the member's id
      (`MBF-SI-MODULUS-SELECTION-MISMATCH`). The one bounded exception is an
      `explicit_base_properties` selection on a material with no temperature points, eligible only
-     under decision 3's conditions (§20.4.2 e). Derived MATERIAL rows at a member's T1 are a
-     candidate design, conditional on proof.
-   - **Imports.** Bound imports restore the group's inputs exactly through sidecar format 5.
-     Unbound imports keep refusing a temperature-dependent MATERIAL (§7.1).
+     under decision 3's conditions (§20.4.2 e). Derived MATERIAL rows at a member's T1 are
+     admitted only exactly (option (a), Agent 0, 2026-11-02), and remain conditional on G-4.
+   - **Imports.** Bound imports restore the group's inputs exactly through sidecar format 5. A
+     derived row is stripped only when an independently trusted source proves it generated;
+     otherwise the import is refused (§20.4.5). Unbound imports keep refusing a
+     temperature-dependent MATERIAL (§7.1).
    - **What it waits on.** The implementation waits on G-1 (the hot-modulus field) and G-4 (proof
      that the target uses the exact supplied T1 row), §20.4.9. CQ-17-01-016 stays open. A
      sustained case beside a varying modulus waits on G-2.
@@ -2704,13 +2746,19 @@ intermediate bend nodes; loops.
 
 **Status.** Design only. Nothing in this subsection is implemented, and no code, fixture,
 schema or ScopeOfWork changes with it. Basis: `main` at `50cfc630b`. It applies the rulings
-below (O-7, §20.2). Only quoted text is verbatim; the rest is paraphrase (O-7 says which).
+below (O-7, §20.2). Every ruling below is a paraphrase of Agent 0, decision 3 included; none
+quotes Agent 0 (O-7's wording note).
 
-- **D-2 (Agent 0, 2026-10-31; paraphrase, pending Agent 0's check).** A modulus that varies
-  with temperature, with a constant expansion coefficient, is written and read back exactly.
-  Materials with varying expansion stay refused and go to the owner as a release limitation,
-  whose acceptance is pending. The rule is written for materials in general and tested on more
-  than the reference system's material.
+- **D-2 (attributed to Agent 0, 2026-10-31; paraphrase; date and text unverified).** A modulus
+  that varies with temperature, with a constant expansion coefficient, is written and read back
+  exactly. Materials with varying expansion stay refused and go to the owner as a release
+  limitation, whose acceptance is pending. The rule is written for materials in general and
+  tested on more than the reference system's material.
+- **Confirmation of D-2's design intent (Agent 0, 2026-11-02; paraphrase).** Varying E with
+  constant α; a general mapping, not tailored to the fixture; mapping only where exact
+  per-member thermal, modulus and source proof holds; varying α and the cold-modulus basis
+  refused; acceptance pending. This is the current decision basis. It verifies no historical
+  wording, does not complete criterion 6 and closes no dossier question.
 - **Route 1 (Agent 0, 2026-11-02, binding; paraphrase).** Design comes first. The per-member
   modulus basis is carried through the load/reference-state group, and only an explicitly
   designed subset is admitted:
@@ -2720,11 +2768,14 @@ below (O-7, §20.2). Only quoted text is verbatim; the rest is paraphrase (O-7 s
 
   Route 2, a case-level `modulus_basis_temperature` with thermal primitives, stays refused.
   Q-5 is not adopted.
-- **Refinements (Agent 0, 2026-11-02, binding; O-7).** Decision 3 bounds the undated exception
-  below. Derived T1 rows are a candidate design, conditional on proof, and CQ-17-01-016 stays
-  open (G-4). Sidecar format 5 must bind source and export bytes, identities and derivation
-  provenance (§20.4.5). Varying α and cold-modulus files go to the criterion 3 list with the
-  owner's acceptance pending (§20.4.10).
+- **Refinements and decisions (Agent 0, 2026-11-02, binding; O-7).** Decision 3 bounds the
+  undated exception below. Derived T1 rows are admitted only by option (a), exact admission,
+  which Agent 0 chose; they remain conditional on G-4, which stays open, as does CQ-17-01-016.
+  Sidecar format 5 must bind source and export bytes, identities and derivation provenance, and
+  strips a generated row only against an independently trusted source (§20.4.5). Varying α and
+  cold-modulus files go to the criterion 3 list with the owner's acceptance pending (§20.4.10).
+  Source consultation for G-1 and G-4 stays within each registered row's current boundary
+  (§20.4.9).
 - **The operating case.** Agent 0 approved designing the operating W+P+T mapping as a separate
   design-first item toward criterion 6 (2026-11-02; paraphrase). Route 1 is thermal only and
   does not complete the reference system (§20.4.8). The operating mapping is not designed here.
@@ -2749,7 +2800,11 @@ points.
   table's range.
 - `CAEPIPE-ANALYSIS`, as O-7 records it: the hot-modulus option selects E at T1 for operating
   case 1, the cold-modulus option selects E at the reference temperature, and the expansion
-  case is operating minus sustained.
+  case is operating minus sustained. The row's current registered boundary is narrower:
+  "analysis-option semantics only: number of thermal loads, gravitational acceleration and
+  direction" (DEL-17-01 `Source_Basis_Register.md`). The modulus-option and expansion-case
+  semantics are therefore not admitted by that boundary as it stands. Route 1 does not rely on
+  them until a source-boundary proposal or a dossier answer admits them (G-1, G-2, G-4).
 - `CAEPIPE-LOAD-CASES`: case membership.
 
 Statements about the MBF follow §0's labels. Where a needed fact has no admitted source, it is
@@ -2892,10 +2947,10 @@ reference (§10.3). Members with equal (T1, P1) share one LOADS record, as today
 
 *MATERIAL rows.* A material with points is written with one row per point (temperature, the
 point's E, α). It also gets one **derived row** at each distinct member T1 (exact identity) of
-that material that is not a point temperature. Derived rows are a candidate design,
-conditional on proof (G-4, §20.4.9). A point-free material keeps today's three identical rows
-(`si_writer.py:1709-1715`), with ΔT_e = T1_e − T_ref. T_ref must lie within each material's
-point range. The target needs element temperatures within the table (`CAEPIPE-MATERIAL`), and
+that material that is not a point temperature. Derived rows are admitted only under option
+(a) below, and remain conditional on G-4 (§20.4.9). A point-free material keeps today's three
+identical rows (`si_writer.py:1709-1715`), with ΔT_e = T1_e − T_ref. T_ref must lie within each
+material's point range. The target needs element temperatures within the table (`CAEPIPE-MATERIAL`), and
 the members' T1 already are, since the selector forbids extrapolation (`material.rs:307`).
 
 *The E a row must state: the solver's selection, as the code performs it.* A derived row's E is
@@ -2917,31 +2972,57 @@ row serves:
 
 It is not an exact rational rounded once, and it is not, in general, a 10-digit decimal.
 
-*The equality basis: option (a), exact.* Let d be a row's printed decimal in N/mm². The row
-states d × 10⁶ Pa exactly. A row is admitted only when that exact rational equals the solver's
-selected binary64 E for every member the row serves. The check runs twice: on the exported model,
-and on the model a bound import restores from the printed values (§20.4.4). Otherwise the export
-is refused by the member's id (`MBF-SI-MODULUS-NOT-EXACT`), naming the material, T1, the
-selected E and d. For a derived row, d is the `.10g` decimal (§18.2's format) of the exact
-rational E/10⁶, not of a binary64 MPa quotient. The same equality applies to point rows and to a
-point-free material's E.
+*The equality basis: option (a), exact admission (Agent 0's decision, 2026-11-02; O-7).*
 
-- **Counterexample (review of `b74ac36e7`).** Points 204 GPa at 25 °C and 196 GPa at 100 °C,
-  selected at 50 °C. The solver's E is 201333333333.33334 Pa. The row would print
-  d = 201333.3333, which states 33.3 Pa less. The member is refused (§20.4.6, example 6).
-- **What it admits in practice.** A derived row is admitted when the solver's binary64 E lies
-  exactly on the printed grid: 100 Pa at magnitudes from 10⁵ to 10⁶ N/mm². That holds for
-  every integer-°C T1 inside RS-M1's table and the §20.4.6 tables, which have whole-GPa points.
-  A third-of-a-degree fraction, as in the counterexample, does not hold. Occasionally the exact
-  rational interpolation lies on the grid but the binary64 value does not: for example
-  184887999999.99997 Pa where the rational value is 184888 N/mm². Such a member is refused,
-  because the solver solves with the binary64 value. The alternative, option (b), is recorded
-  for Agent 0 in §20.4.10 and is not adopted.
+- **The printed value.** Let d be a row's printed `.10g` decimal in N/mm² (§18.2's format). For a
+  derived row, d is formed from the exact rational E/10⁶ of the selected binary64 E, not from a
+  binary64 MPa quotient. Since 1 N/mm² is exactly 10⁶ Pa, the row states exactly d × 10⁶ Pa.
+- **On the exported model.** For every member the row serves, the solver's selected binary64 E
+  (above) must equal d × 10⁶ Pa as a rational.
+- **On the restored model.** The import restores each point's E as the binary64 nearest its
+  printed decimal, in MPa, and each temperature as the binary64 nearest its printed decimal, in
+  °C (§20.4.4). The solver converts them as it converts any input: E to Pa as fl(x × 10⁶), and a
+  temperature to kelvin as fl(t + 273.15) (`material.rs:78-91`; `units/src/lib.rs:799-805`,
+  `:1007-1040`). The derived row itself is stripped (§20.4.4), so each member's E is selected
+  again from the restored points by the same selector. That selected binary64 E must again equal
+  d × 10⁶ Pa as a rational.
+- **Otherwise** the export is refused by the member's id (`MBF-SI-MODULUS-NOT-EXACT`), naming
+  the material, T1, the selected E and d. The comparison is exact. No §18.2 printed-precision
+  class, tolerance or relaxation applies to it.
+- **Point rows and point-free materials.** The same equality applies to a point row's E and to a
+  point-free material's E.
+
+Counterexamples, computed with a reproduction of `material.rs:300-326` and the kelvin
+representatives, with a fused multiply-add:
+
+- **6a, off the printed grid** (review of `b74ac36e7`). Points 204 GPa at 25 °C and 196 GPa at
+  100 °C, selected at 50 °C. The solver's E is 201333333333.33334 Pa. The row would print
+  d = 201333.3333, which states 33.3… Pa less. The member is refused (§20.4.6, example 6).
+- **6d, on the grid as a rational, off it in binary64.** Points 185 GPa at 0 °C and 150 GPa at
+  50 °C, selected at 0.16 °C, close to the lower endpoint. The exact rational interpolation is
+  184888 N/mm², and d prints as 184888. The solver's E is 184887999999.99997 Pa, one ulp below
+  184888 × 10⁶. The member is refused: the criterion is the value the solver solves with, not
+  the exact rational interpolation.
+- **Boundary.** A T1 equal to a table endpoint, or to any point's temperature, takes that point
+  (`material.rs:300-305`) and writes no derived row (below). It is admitted when the point's
+  d × 10⁶ Pa equals the point's binary64 E.
+- **Units.** 347 degF (5a) and 448.15 K (5c) on EX-A select 194000000000.0 Pa, which equals
+  194000 × 10⁶: admitted. A modulus authored as 29e6 psi is 199947.9615018825… N/mm² and is
+  refused (7c). Same-temperature spellings in different units are treated under one row per T1,
+  below.
+
+The admitted set is whatever meets that equality. A derived row is admitted only when the
+solver's binary64 E lies exactly on the printed grid, which is 100 Pa for E from 10⁵ to 10⁶
+N/mm². Enumerating every integer-°C T1 with the reproduction, every one inside the §20.4.6
+tables, and inside RS-M1's table, meets it. That is an observed outcome, not a design input. No
+value or rule is chosen to fit RS-M1, and no sampled admission rate is a bound or a justification
+for the rule. Option (b), print precision, is rejected (§20.4.10).
+
 - **One row per T1.** Members of one material whose T1 are exactly equal share one derived row.
   Each member has its own identity scope, so members that author the same temperature in
   different units can select E values one ulp apart. Points 189 GPa at 3 °C and 177.5 GPa at
-  78 °C, selected at 7.4 degC and at 45.32 degF, give 188325333333.3333 Pa and
-  188325333333.33334 Pa. Every member a row serves must select exactly d × 10⁶ Pa. A member that
+  78 °C, selected at 7.4 degC and at 45.32 degF, give 188325333333.33334 Pa and
+  188325333333.3333 Pa. Every member a row serves must select exactly d × 10⁶ Pa. A member that
   does not is refused by its id.
 - **No derived row at a point temperature.** A T1 exactly equal to a point's temperature uses
   that point's row, and the selector then takes the point itself (`material.rs:300-305`). A
@@ -3031,9 +3112,15 @@ documented expansion case (operating minus sustained) is the T1 response at E(T1
 
   For each value, two equalities must hold, or the export is refused by name
   (`MBF-SI-REFERENCE-STATE-NOT-PRINTABLE`, naming the value):
-  1. **Exported.** The authored canonical decimal, times its unit's exact factor into the MBF
-     unit (°C, K and degC ×1 for intervals, N/mm², 1/°C), equals the printed `.10g` decimal p
-     as a rational.
+  1. **Exported.** The authored canonical decimal is converted exactly, as a rational, into the
+     MBF unit by its unit's definition, and the result equals the printed `.10g` decimal p as a
+     rational:
+     - an absolute temperature by the unit's exact affine conversion to °C: degC as written,
+       K as T − 273.15, degF as (T − 32) × 5/9 (for example 77 degF is exactly 25 °C, not
+       77 × 5/9);
+     - an interval, and every other quantity, by its exact multiplicative factor: intervals in
+       K and degC ×1 and in degF ×5/9 into degC; E into N/mm²; α into 1/°C (1/K and 1/degC ×1,
+       1/degF ×9/5); ν ×1.
   2. **Restored.** The value the import restores is the binary64 nearest p, in the unit it
      restores (§20.4.4). Its canonical decimal must be p again. For ΔT, the restored value is
      the binary64 nearest the exact difference of the two printed decimals, and its canonical
@@ -3080,8 +3167,8 @@ Any refusal refuses the whole file, as today (§17).
 | `MBF-SI-SHEAR-MODULUS-NOT-EXPORTED` | existing (omitted) | a point carrying `shear_modulus`, which the selector ignores (`resolve.rs:991`) and the MBF cannot carry |
 | `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED` | new (importer) | a Route 1 file whose OPTEMP modulus field does not select the hot modulus. The writer never writes the cold modulus. On the writer side, a selection at T_ref in a member whose T1 differs is a mismatch |
 | `MBF-IMPORT-REFERENCE-STATE-UNBOUND` | new (importer) | a format-5 sidecar on the rebind route (`rebind_by_node_number`), where the regeneration identity does not run |
-| `MBF-IMPORT-SOURCE-MISMATCH` | new (importer) | a supplied source document whose SHA-256 differs from the sidecar's `source_model_sha256` (§20.4.5) |
-| `MBF-IMPORT-DERIVED-ROW-UNPROVED` | new (importer) | a MATERIAL row that the format-5 sidecar marks as generated, but whose generation §20.4.4 does not prove. The row is never stripped, and the import is refused |
+| `MBF-IMPORT-SOURCE-MISMATCH` | new (importer) | a source document supplied for the proof whose canonical SHA-256 differs from the sidecar's `source_model_sha256` (§20.4.5) |
+| `MBF-IMPORT-DERIVED-ROW-UNPROVED` | new (importer) | a MATERIAL row that the format-5 sidecar marks as generated, but whose generation §20.4.4 does not prove: no independently trusted source is available, the source classifies the row otherwise, or any other stripping condition fails. Names the material and row. The row is never stripped, and the import is refused |
 | `MBF-IMPORT-SIDECAR-INVALID` | existing (importer) | a format-5 sidecar given to an importer that reads formats 2 to 4 only. Its parser refuses `sidecar_format` 5 before binding (`importer.py:1176-1179`, `:1661-1665`), so the import neither binds nor falls back to an unbound reading (§20.4.5) |
 | `MBF-IMPORT-MATERIAL-TEMPERATURE-DEPENDENT` | existing (importer) | unbound: unchanged (§20.4.4) |
 
@@ -3109,25 +3196,48 @@ What the import restores:
   `alpha_authored`, with id and provenance from the sidecar. They are restored in the authored
   order the sidecar records (`points`, §20.4.5), not in MBF row order. The base E, ν and α come
   from the recorded `base_point`.
-- **Generated rows: stripped only when proved.** A MATERIAL row is removed only when every one
-  of these holds. Otherwise the import is refused (`MBF-IMPORT-DERIVED-ROW-UNPROVED`, naming
-  the material and row), and nothing is stripped by guessing:
-  1. the sidecar's `derivation` records the row as generated, with its members, its bracket
+- **Generated rows: stripped only when proved against a trusted source.** A MATERIAL row is
+  removed only when every one of these holds. Otherwise the import is refused
+  (`MBF-IMPORT-DERIVED-ROW-UNPROVED`, naming the material and row), and nothing is stripped by
+  guessing:
+  1. **Source proof.** An independently trusted source S is available (§20.4.5, **The trusted
+     source**). Its canonical SHA-256 equals the sidecar's `source_model_sha256`; a source that
+     differs is `MBF-IMPORT-SOURCE-MISMATCH`. The writer forms S's format-5 sidecar for the given
+     MBF digest, as the export formed it. For the row's material, S's authored point
+     identities and their order (`points`) and every row's classification and source (`rows`,
+     point or derived, with its members and bracket) must equal the given sidecar's, and S's
+     row values must equal the MBF's. A difference names the first differing row and both
+     classifications;
+  2. the sidecar's `derivation` records the row as generated, with its members, its bracket
      point ids and its MBF row index;
-  2. its temperature equals no restored point's temperature under exact identity;
-  3. every recorded member is in the thermal case and restores to `temperature_interpolation` at
+  3. its temperature equals no restored point's temperature under exact identity;
+  4. every recorded member is in the thermal case and restores to `temperature_interpolation` at
      a T1 exactly equal to the row's temperature. Every interpolating member at that T1 is
      recorded;
-  4. the bracket points are the restored points adjacent to that temperature;
-  5. the solver's selection on the restored model (§20.4.2 e) gives, for every recorded member,
+  5. the bracket points are the restored points adjacent to that temperature;
+  6. the solver's selection on the restored model (§20.4.2 e) gives, for every recorded member,
      exactly d × 10⁶ Pa, where d is the row's printed E, and the row's α and ν equal the
      material's;
-  6. every row the sidecar records as a point row is restored as a point, so the rows stripped
+  7. every row the sidecar records as a point row is restored as a point, so the rows stripped
      and the points restored together account for every MATERIAL row of the material.
 
-  The regeneration identity then regenerates the whole format-5 sidecar, the `derivation`
-  block included, from the restored model. Any difference is `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`.
-  An edited derived row, or one relabelled as a point, is refused, not dropped silently.
+  Conditions 2 to 7 are checked against the MBF and the sidecar, and the regeneration identity
+  then regenerates the whole format-5 sidecar, the `derivation` block included, from the
+  restored model; any difference is `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`. These establish
+  **consistency**: that the sidecar, the MBF and the restored model agree with each other. They
+  do not establish **source authenticity**. Neither does the self-digest, which anyone who edits
+  a sidecar can recompute. A sidecar that drops an authored point's identity and calls its row
+  derived can satisfy conditions 2 to 7 and still reproduce (§20.4.6, example 8). Condition 1
+  is therefore required before any row is stripped: only the trusted source shows which rows
+  were authored.
+
+  **Consequence.** A bound import of a Route 1 model with a row the sidecar marks as generated
+  is refused where no trusted source is available. A Route 1 model without derived rows, one
+  whose members all select at authored point temperatures, or one whose materials are all
+  point-free needs no stripping, and imports bound without a source; its report lists the
+  recorded source digest as unverified provenance (§20.4.5). Where a trusted source is
+  available, condition 1's comparison runs for every material with points, whether or not a
+  row is marked generated, so a derived row relabelled as a point is refused too.
 - **Thermal states,** by the recorded kind:
   - `constant_alpha_interval`: coefficient α, ΔT = T1 − T_ref;
   - `free_length_state`: the law id, `operating_temperature` T1;
@@ -3231,7 +3341,11 @@ The writer records **format 5** only for a Route 1 export. It is format 4 plus t
       `{"kind": "explicit_base_properties", "applicability_reference": <text>}`),
       `operating_temperature_authored` (bool), and `override` (null or `{reason, provenance}`).
 - **`derivation`**, which binds the bytes and names the method:
-  - `source_model_sha256` is the SHA-256 of the exact model-document bytes the writer read.
+  - `source_model_sha256` is the SHA-256, as 64 lowercase hex digits, of the RFC 8785 (JCS)
+    canonical text of the model document the writer read. That is the serialization the
+    self-digest already uses (`sidecar_canonical_bytes`, `si_writer.py:281-290`), and the text
+    the desktop hashes as a document's model hash (below), so a stored or supplied source can
+    be found and checked by it whatever bytes it was read from.
   - `selection_semantics` is the fixed name `swbpipe_case_state_selection_binary64_v1`. It
     stands for the solver's selection as §20.4.2 (e) cites it. A later change to those semantics
     changes the name, and a sidecar naming other semantics is refused
@@ -3244,8 +3358,9 @@ The import reads every value from the MBF. It then verifies that each copy equal
 it copies, and that the regenerated derived rows equal the MBF's rows (§20.4.4). A copy that
 differs is `MBF-IMPORT-SIDECAR-CONFLICT`. The copies let the regeneration identity compare row
 provenance with values, so that a relabelled row is refused. The absence of numerical authority
-is not by itself the reversibility proof. The proof is the binding above, the proven stripping
-of §20.4.4 and the regeneration identity. The every-field-required rule, the self-digest and the
+is not by itself the reversibility proof. The proof is the trusted source's binding below, the
+proven stripping of §20.4.4 and the regeneration identity; the last establishes consistency
+only. The every-field-required rule, the self-digest and the
 parser of §15 apply unchanged.
 
 **What binds what, and what is refused.**
@@ -3254,21 +3369,63 @@ parser of §15 apply unchanged.
   unbound, and an unbound import never forms the group (§20.4.4).
 - **Sidecar bytes.** The self-digest covers every field, `derivation` included. A mismatch is
   `MBF-IMPORT-SIDECAR-DIGEST-MISMATCH`, as today.
-- **Identities and meaning.** The regeneration identity regenerates the whole format-5 sidecar
-  from the restored model and the given MBF digest, and compares it. That includes `rows`,
-  their sources and `derivation`, except `source_model_sha256`. A forged or mismatched sidecar,
-  one whose rows, sources, members or brackets do not reproduce, is
-  `MBF-IMPORT-SIDECAR-NOT-REPRODUCED` or `MBF-IMPORT-DERIVED-ROW-UNPROVED`.
-- **Source bytes.** The restored model is not byte-equal to the source, because units are
-  respelled, so `source_model_sha256` cannot be regenerated. Where the caller supplies the
-  source document (the desktop round-trip check, the tests), the import checks its SHA-256
-  against the record and refuses a difference (`MBF-IMPORT-SOURCE-MISMATCH`, new). It then
-  compares the restored model with the source under §20.4.4. Without the source, the import
-  reports the recorded digest as unverified provenance.
-- **Residual.** A deliberately forged sidecar that is self-consistent, reproduces under
-  regeneration and describes another model writing the same MBF bytes is O-6's residual. Only
-  signing, or the source, detects it. No row is stripped on its word alone: §20.4.4's six
-  conditions still have to hold against the MBF.
+- **Identities and meaning: consistency.** The regeneration identity regenerates the whole
+  format-5 sidecar from the restored model and the given MBF digest, and compares it. That
+  includes `rows`, their sources and `derivation`, except `source_model_sha256`. A sidecar whose
+  rows, sources, members or brackets do not reproduce is `MBF-IMPORT-SIDECAR-NOT-REPRODUCED` or
+  `MBF-IMPORT-DERIVED-ROW-UNPROVED`. The self-digest and the regeneration identity establish
+  that the sidecar, the MBF and the restored model are consistent. They do not establish that
+  the sidecar describes the model that was exported.
+- **Source bytes: authenticity.** The restored model is not byte-equal to the source, because
+  units are respelled, so `source_model_sha256` cannot be regenerated. Authenticity comes only
+  from an independently trusted source (below): its canonical SHA-256 must equal the record
+  (`MBF-IMPORT-SOURCE-MISMATCH` otherwise), and its own classification of the rows must equal
+  the sidecar's (§20.4.4, condition 1). The import then compares the restored model with the
+  source under §20.4.4. Without a trusted source, the import strips nothing: a sidecar that
+  marks a row as generated is refused (`MBF-IMPORT-DERIVED-ROW-UNPROVED`), and a sidecar that
+  marks none imports with the recorded digest reported as unverified provenance.
+
+**The trusted source.** "Independently trusted" means that the source does not arrive with the
+MBF and its sidecar: the user's own store holds it, or the user selects it. It is found only by
+the recorded digest, never by a name, a folder or the sidecar's description of it. The import
+review names the source it used. Two sources qualify, and both exist today:
+
+- **A saved model state in the desktop's project store.** Store v12's `model_states` table
+  holds, per project, the canonical RFC 8785 text of a model document (`model_canonical`) and
+  its SHA-256 (`model_hash`, `sha256:<hex>`), unique per project. Its rows are immutable: the
+  triggers `model_states_immutable` and `model_states_no_replace` refuse any update or
+  replacement (`apps/desktop/src-tauri/src/model_states.rs:1-33`, `:58-78`). The import looks
+  for the state of the project the session has open whose `model_hash` is
+  `sha256:<source_model_sha256>`, with the existing `state_with_model_hash` (`:2106-2146`), and
+  reads it with `read_state_for_in_store_with` (`:2377`), which re-hashes the stored text and
+  refuses a stored snapshot that does not match its hash (`:2438-2443`). The export's own text
+  has that hash: the MBF export is given the session's canonical text and its claimed model
+  hash, and admits only text that is its own canonical form with that hash
+  (`mbf_export.rs:1-12`, `:180-200`; `model_document_save.rs:259-297`). So a state saved
+  (Save Model State, or Record Run's snapshot) from the exported document is found by the
+  digest. The project's mutable working copy (`local_projects.model_json`, `lib.rs:826-832`) is
+  not used: it changes with every save.
+- **A source document the user supplies.** The headless importer takes it as a parameter (the
+  round-trip tests); the desktop reads it through the existing Open Model Document route
+  (§4.1 of the desktop design names that route's checks). Its canonical text is hashed as
+  above.
+
+Nothing else is a trusted source: not the session's restored document, not a file found beside
+the MBF, and not a copy carried inside the sidecar. Wiring the lookup into the import is part of
+the Route 1 implementation and the desktop import slice. It adds no table, column or store.
+
+- **Residual.** A sidecar can still be forged so that it is self-consistent, reproduces under
+  regeneration and describes another model that writes the same MBF bytes. Where it marks a row
+  as generated, the import refuses it unless a trusted source proves the row (§20.4.4,
+  condition 1), so no authored point is deleted on the sidecar's word. Where it marks every row
+  as a point, for instance a genuine derived row relabelled as a point, no row is stripped and
+  no source is required: the import restores a model with an extra point that the MBF states,
+  that writes the same MBF and on which every member selects the same E (option (a) on the
+  restored model). Without a trusted source, that is O-6's residual: it adds a point the user
+  did not author, deletes nothing, and the report lists the source digest as unverified. With
+  a trusted source, the relabelling is refused (§20.4.4, condition 1, which then runs for
+  every material with points). §20.4.10 asks Agent 0 whether a trusted source should be
+  required for every bound Route 1 import of a material with points.
 
 **Backwards compatibility and refusals (required before implementation).**
 
@@ -3344,8 +3501,10 @@ The equivalence:
 | EX-1 | E = 194 GPa; strain 1.1e-5·150/(1 + 1.1e-5·0) = 1.65e-3 | E = 194000 MPa at 175; strain 1.1e-5·(175 − 25) |
 | EX-2 | E = 196 GPa; strain 1.1e-5·125 = 1.375e-3 | E = 196000 MPa at 150; strain 1.1e-5·(150 − 25) |
 
-The bound round trip restores 25, 175, 150, 125, the three points and α exactly, drops the
-derived row, and the per-member rule holds. The comparison is equal with no tolerance used
+The bound round trip, with the exported model available as a trusted source (§20.4.5),
+restores 25, 175, 150, 125, the three points and α exactly, drops the derived row, and the
+per-member rule holds. Without a trusted source, the import is refused,
+`MBF-IMPORT-DERIVED-ROW-UNPROVED` at the 175 row. The comparison is equal with no tolerance used
 (only E prints differently, as MPa).
 
 **2. Mismatch.** As example 1, but EX-1 selects `exact_point` `point:EX-A-150`, with an
@@ -3410,6 +3569,8 @@ reproduction of `material.rs:300-326` and the kelvin representatives, with `fma`
 | 5a, 347 degF; 5c, 448.15 K | 194000000000.0 | 194000 (derived) | admitted |
 | 5d and 5e, 467.6 degF | 188640000000.0 | 188640 (derived) | admitted |
 | 6a: points 204 GPa at 25 degC and 196 GPa at 100 degC, selected at 50 degC | 201333333333.33334 | 201333.3333 | refused, `MBF-SI-MODULUS-NOT-EXACT` |
+| 6d: points 185 GPa at 0 degC and 150 GPa at 50 degC, selected at 0.16 degC | 184887999999.99997 | 184888 (the exact rational interpolation) | refused, `MBF-SI-MODULUS-NOT-EXACT` |
+| 6e: points 189 GPa at 3 degC and 177.5 GPa at 78 degC, selected at 7.4 degC; and at 45.32 degF | 188325333333.33334; 188325333333.3333 | 188325.3333 | each refused by its own id, `MBF-SI-MODULUS-NOT-EXACT` |
 
 - **6b, a duplicate T1.** EX-1 and a second member EX-1b, both at 175 degC, share one derived
   row whose `derived.members` lists both. If EX-1b authors 347 degF, its own representative is
@@ -3417,6 +3578,8 @@ reproduction of `material.rs:300-326` and the kelvin representatives, with `fma`
   apart (§20.4.2 e), the member that differs from d × 10⁶ is refused by its id.
 - **6c, a T1 that collides with an authored row.** A member at 150 degC by interpolation takes
   `point:EX-A-150` itself. No derived row is written, and the row's source is the point.
+- **6f, boundaries.** Members of EX-A at 25 degC and at 250 degC by interpolation take the
+  endpoint points (204000 and 188000 N/mm²): no derived row, admitted.
 
 **7. The bounded exception for undated selections (decision 3).**
 
@@ -3444,6 +3607,30 @@ reproduction of `material.rs:300-326` and the kelvin representatives, with `fma`
   - EX-5 is `free_length_state` under a constant secant law on EX-B whose datum is 20 degC
     while T_ref is 25 degC: `MBF-SI-EXPANSION-DATUM-UNSUPPORTED`.
 
+**8. A forged classification (the redundant-authored-point attack).**
+
+- **The source.** EX-A plus an authored point `point:EX-A-175` at 175 °C with 194 GPa, which
+  lies on the line between its neighbours, and `pipe:EX-1` interpolating at 175 degC. The
+  selector takes the point itself. The writer writes four point rows and no derived row, and
+  the genuine sidecar lists four points.
+- **The forgery.** A sidecar that omits `point:EX-A-175` from `points`, records the 175 row as
+  derived with bracket `point:EX-A-150` and `point:EX-A-250` and members [`pipe:EX-1`], and
+  recomputes its self-digest. The MBF bytes are unchanged, so `mbf_sha256` still binds.
+- **Why consistency does not catch it.** Conditions 2 to 7 of §20.4.4 hold: the restored
+  three-point model selects exactly 194000000000.0 Pa at 175 degC, and it regenerates the same
+  MBF and the same forged sidecar. Stripping would delete an authored point.
+- **8a, no trusted source.** Refused, `MBF-IMPORT-DERIVED-ROW-UNPROVED` at EX-A's 175 row. No
+  row is stripped.
+- **8b, the source is available.** The forged `source_model_sha256` either names the genuine
+  source, whose own sidecar lists `point:EX-A-175` and classifies the 175 row as a point
+  (refused, `MBF-IMPORT-DERIVED-ROW-UNPROVED`, naming the row and both classifications), or names
+  another digest, which no stored state matches and which a supplied source fails
+  (`MBF-IMPORT-SOURCE-MISMATCH`, or `MBF-IMPORT-DERIVED-ROW-UNPROVED` when no source is found).
+- **8c, the reverse relabelling.** The genuine example 1 sidecar with its 175 derived row
+  relabelled as an authored point (a new point id added to `points`). With a trusted source it
+  is refused, `MBF-IMPORT-DERIVED-ROW-UNPROVED`. Without one, it is §20.4.5's stated residual:
+  it imports with an added point and the source digest reported as unverified.
+
 #### 20.4.7 Planned tests (both twins; generated vectors only)
 
 No model document is written by hand. A generator `reference_state_models()` is added beside
@@ -3468,19 +3655,27 @@ codes.
    identity holds; exact rational equality of every §20.4.4 input; ids and the authored point
    order equal.
 2. **Refusal vectors.** One per §20.4.3 code, each naming its entity (2, 3a, 3c, 4a, 4b, 5b, 6a,
-   7b, 7c and 7d among them).
+   6d, 6e, 7b, 7c, 7d and 8 among them).
 2a. **Derived rows (option (a)), each with the selected E checked bit for bit against d × 10⁶ Pa
    on the exported and the restored model:**
    - endpoints: T1 at the lowest and highest point temperatures, which take the points and
-     write no derived row;
+     write no derived row (6f);
    - interior: an admitted fraction (EX-1) and a refused one (6a);
+   - a T1 whose exact rational interpolation lies on the printed grid while the solver's
+     binary64 E does not: 184887999999.99997 Pa against d = 184888 (6d), refused;
+   - units: °F and K spellings that select an E on the grid (5a, 5c), admitted; the same
+     temperature in degC and degF selecting E one ulp apart, both off the grid (6e), each
+     refused by its own id; a psi modulus that does not print exactly (7c), refused;
    - a duplicate T1 across members, in one unit and in two units (6b), with a vector where the
      spellings select E one ulp apart, so that the differing member is refused by id;
    - a T1 colliding with an authored row (6c);
    - a material shared by several members at several T1, so that one table carries several
      derived rows in MBF order;
-   - the round trip: derived rows stripped only under §20.4.4's six conditions, points restored
-     in authored order, and the regenerated `derivation` equal.
+   - the round trip: derived rows stripped only under §20.4.4's seven conditions, with the
+     source supplied as a trusted source, points restored in authored order, and the
+     regenerated `derivation` equal; and the same export imported with no trusted source,
+     refused `MBF-IMPORT-DERIVED-ROW-UNPROVED`.
+   No vector's table, temperature or tolerance is chosen to fit RS-M1.
 2b. **Canonical-decimal round trip (§20.4.2 g).** A vector per retained value kind (temperature,
    ΔT, point E, point-free E, ν, α) fails each of the two checks once. ΔT includes a pair of
    10-digit printed temperatures whose difference has more than 15 significant digits, so its
@@ -3493,11 +3688,27 @@ codes.
    `MBF-IMPORT-REFERENCE-STATE-UNBOUND`.
 5. **Mutation.** Each MBF-determined Route 1 field ×1.01 is refused. An edited derived-row E,
    with both digests recomputed, is `MBF-IMPORT-DERIVED-ROW-UNPROVED` or
-   `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`. So is a sidecar that relabels an authored point row as
-   derived, or a derived row as a point. A sidecar copy that differs from the MBF value it copies
+   `MBF-IMPORT-SIDECAR-NOT-REPRODUCED`. A sidecar copy that differs from the MBF value it copies
    is `MBF-IMPORT-SIDECAR-CONFLICT`. A changed modulus field is
-   `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED`. A supplied source whose SHA-256 differs from
-   `source_model_sha256` is `MBF-IMPORT-SOURCE-MISMATCH`.
+   `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED`. A supplied source whose canonical SHA-256 differs from
+   `source_model_sha256` is `MBF-IMPORT-SOURCE-MISMATCH`. Forged classifications, each with the
+   self-digest recomputed and the MBF bytes unchanged:
+   - **the redundant-authored-point attack** (§20.4.6, example 8): an authored point at
+     175 °C whose row the sidecar calls derived. With no trusted source it is
+     `MBF-IMPORT-DERIVED-ROW-UNPROVED` (8a); with the genuine source it is
+     `MBF-IMPORT-DERIVED-ROW-UNPROVED`, naming both classifications (8b); with a
+     `source_model_sha256` that names the forged three-point model and a supplied genuine source,
+     `MBF-IMPORT-SOURCE-MISMATCH`. The test asserts that no authored point is deleted in any
+     variant;
+   - **a forged-classification variant:** on EX-A alone, an authored interior point
+     (`point:EX-A-150`, with a member interpolating at 150 degC) recorded as derived with bracket
+     `point:EX-A-025` and `point:EX-A-250`. `MBF-IMPORT-DERIVED-ROW-UNPROVED` with and without
+     the source. Here consistency catches it as well: the restored two-point table selects
+     195111111111.1111 Pa at 150 degC, not 196000 × 10⁶ (condition 6). It is the contrast to
+     example 8, which only the source check refuses;
+   - **the reverse relabelling** (8c): refused with the trusted source; without one, the import
+     is pinned to the §20.4.5 residual (an added point, the source digest reported unverified),
+     so that a change to that behaviour is seen.
 6. **Writer argument.** On Route 1, an omitted reference takes the configuration's, an equal
    explicit one is accepted, and a different one is `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`. On
    the ordinary route, the omitted reference is still 20 °C.
@@ -3515,6 +3726,10 @@ codes.
    and the named set includes `MBF-SI-MODULUS-SELECTION-MISMATCH` at `pipe:RS-P180` and
    `MBF-SI-BOUNDARY-MOTION-UNSUPPORTED` at `load:RS-SAM` (§20.4.8). The fixture is read, not
    edited.
+8a. **Trusted source (desktop).** A state saved from the exported document is found by
+   `state_with_model_hash` and admits the strip; a state whose stored text does not match its
+   hash is refused by the store read, and the import strips nothing; a project with no such
+   state refuses a marked derived row.
 9. **Compatibility.** Before format 5 lands, a test pins today's importer refusing a format-5
    sidecar with `MBF-IMPORT-SIDECAR-INVALID` at `sidecar_format`, bound and unbound. After it
    lands: formats 2, 3 and 4 replay unchanged, and the mismatched pairs of §20.4.5 are refused
@@ -3531,8 +3746,8 @@ Route 1 does not by itself export the reference system. Its records are:
   RS-EJ1 replaces (DEL-09-01 §5.1). It leaves the export only when an expansion-joint tranche
   (RT-K4, refused today) proves that the joint's exported representation removes the replaced
   span from the MBF, or maps it with its own per-member equivalence. Joint support is not
-  assumed to do either. DEL-09-01's document records the mismatch beside its §10 ledger and in
-  §11.1; its fixture is unchanged.
+  assumed to do either. DEL-09-01's document records the mismatch in an MBF consumer-coverage
+  note below its §10 ledger and in §11.1; its fixture is unchanged.
 - **RS-OPE.** RS-OPE is an operating case: W + P + T, with pressure regions. Under (b) it
   stays refused (`MBF-SI-PRESSURE-CASE-UNSUPPORTED`). Exporting it needs the operating W+P+T
   mapping, which Agent 0 approved as a separate design-first item toward criterion 6
@@ -3540,8 +3755,8 @@ Route 1 does not by itself export the reference system. Its records are:
   otherwise inside (c): `free_length_state` with a constant secant law whose datum equals T_inst
   (20 °C), and selection at their operating temperature (210 °C). Their selected E at 210 °C,
   between RS-M1's 189 GPa at 200 °C and 182 GPa at 300 °C, is 188300000000.0 Pa in the solver's
-  binary64 arithmetic. That is exactly 188300 N/mm², so a derived row at 210 meets option (a)
-  and would meet option (b).
+  binary64 arithmetic. That is exactly 188300 N/mm², so a derived row at 210 meets option (a).
+  This is an observed outcome; nothing in the rule is chosen to produce it.
 - **RS-SUS.** RS-SUS beside RS-M1's varying modulus is `MBF-SI-SUSTAINED-MODULUS-UNPROVED`
   until G-2. Its selections are at 20 °C = T_ref.
 - **RS-SAM.** RS-SAM's `boundary_motion` on anchor RS-C is a separate coverage dependency
@@ -3557,9 +3772,12 @@ Route 1 does not by itself export the reference system. Its records are:
   - which value selects the hot modulus;
   - which modulus applies when the field is omitted. The writer omits it today.
 
-  The CAEPIPE lane confirms them from the admitted `CAEPIPE-IMPORT-MBF` description. If that
-  page does not state them, they become a dossier question. Route 1's implementation waits on
-  G-1, because every Route 1 equivalence uses the hot modulus, and on G-4 below.
+  The CAEPIPE lane confirms them from `CAEPIPE-IMPORT-MBF`, within that row's current
+  registered boundary only (G-4 below states the rule). If that boundary does not state them,
+  they become a dossier question or a source-boundary proposal. The hot/cold option's meaning
+  itself is recorded from `CAEPIPE-ANALYSIS`, whose current boundary does not cover it (§20.4,
+  **Sources**). Route 1's implementation waits on G-1, because every Route 1 equivalence uses
+  the hot modulus, and on G-4 below.
 - **G-2. The sustained case's modulus.** `CAEPIPE-ANALYSIS`, as recorded, states the modulus for
   operating case 1 and the reference temperature for the cold option. It does not state the
   modulus of the sustained case under the hot option. So it also does not state whether the
@@ -3578,55 +3796,70 @@ Route 1 does not by itself export the reference system. Its records are:
   semantics prove it, Route 1's varying-modulus equivalence is conditional, its implementation
   waits on G-4 as well as G-1, and CQ-17-01-016 stays open. Only after that proof may
   CQ-17-01-016 be marked inapplicable to this precisely bounded write route, and only to it. It
-  still governs unbound imports and any interpolation between rows. The CAEPIPE lane confirms G-4
-  from the admitted sources, or drafts it as a dossier question beside G-1.
+  still governs unbound imports and any interpolation between rows.
+  - *G-4 stays open (Agent 0, 2026-11-02).* The mathematical argument above, that a row at T1
+    makes interpolation irrelevant, is not sufficient without selected target semantic
+    evidence.
+  - *Source boundary.* Any consultation for G-1 and G-4 stays strictly within each registered
+    row's current boundary in DEL-17-01 `Source_Basis_Register.md`. Being on a registered page
+    does not admit its other subsections. Today `CAEPIPE-MATERIAL` is registered for
+    material-property semantics only, `CAEPIPE-ANALYSIS` for the number of thermal loads and
+    gravitational acceleration and direction only, and `CAEPIPE-IMPORT-MBF` for its listed
+    sections and record descriptions.
+  - *Where the boundary is silent.* Target row-selection or point-value behaviour that a row's
+    current boundary does not explicitly support becomes a dossier question (beside G-1, with
+    CQ-17-01-016) or a source-boundary proposal before broader use. The CAEPIPE lane does that
+    work; this Design fills nothing.
 
 #### 20.4.10 For Agent 0
 
-- **Derived rows: option (a) is written; option (b) is the alternative, not adopted.** Both
-  keep derived rows a candidate design, conditional on G-4. Both use the solver's own selected
-  binary64 E (§20.4.2 e), computed for the examples with a reproduction of the solver's
-  arithmetic.
-  - *(a) Exact (written).* A row is admitted only when d × 10⁶ Pa equals the selected E exactly,
+- **Derived rows: option (a), exact admission, is Agent 0's decision (2026-11-02).** Derived
+  rows remain conditional on G-4. The rule uses the solver's own selected binary64 E (§20.4.2 e),
+  computed for the examples with a reproduction of the solver's arithmetic and checked against
+  the solver by §20.4.7 item 7.
+  - *(a) Exact (chosen).* A row is admitted only when d × 10⁶ Pa equals the selected E exactly,
     on the exported and the restored model; otherwise `MBF-SI-MODULUS-NOT-EXACT` by member id.
-    - Admits: EX-1, EX-2, EX-3 (3b), 5a, 5c, 5d and 5e, 6b, 6c and 7a.
-    - Refuses 6a (201333333333.33334 Pa against 201333.3333 N/mm²) and 7c.
-    - RS-M1 at 210 °C: E is 188300000000.0 Pa. The derived row at 210 is admitted for the 25
-      `free_length_state` members as far as E goes. They stay refused with RS-OPE as an operating
-      case, and RS-P180 stays refused by `MBF-SI-MODULUS-SELECTION-MISMATCH` (T1 20, selection
-      210) under both options.
-    - Indicative reach, from the reproduction, not product evidence: every integer-°C T1 inside
-      RS-M1's and EX-A's tables is admitted. The sample was about 20,000 random two-point tables
-      with whole-GPa points 50 to 200 °C apart, and T1 to 0, 1 or 2 decimals. In it, 85 % of
-      interior T1 were admitted and 15 % refused off the printed grid. 0.08 % were refused where
-      the exact rational lies on the grid but the binary64 value does not.
-  - *(b) Print precision (alternative).* A derived row's E would be compared in §18.2's
-    printed-directly class, which already applies to every printed value:
-    |E − d × 10⁶| ≤ (δ(d) + 4ε|d|) × 10⁶ Pa. Point and point-free values would keep (g)'s exact
-    checks. The text would read "equal to print precision" wherever it now says exactly for a
-    derived row's E.
-    - Admits everything (a) admits, plus 6a (33.3 Pa, 1.7e-10 relative, within δ = 50 Pa) and
-      every other interior T1, with the same RS-M1 outcome.
-    - Consequences: the per-member rule no longer states E exactly. The target would solve with an
-      E up to 5e-10 relative from SWBPIPE's. Route 1's E claim falls to the ordinary route's
-      class for interior members, and criterion 6's exactness for their E becomes a
-      printed-precision equality.
-    - The import round trip stays exact for inputs either way, because derived rows are stripped
-      and regenerated, not restored.
-- **The undated exception** is now written exactly as decision 3 (§20.4.2 e), with
-  counterexamples 7b to 7d.
+    - Admits: EX-1, EX-2, EX-3 (3b), 5a, 5c, 5d and 5e, 6b, 6c, 6f and 7a.
+    - Refuses 6a (201333333333.33334 Pa against 201333.3333 N/mm²), 6d (184887999999.99997 Pa
+      against 184888), 6e and 7c.
+    - RS-M1 at 210 °C: E is 188300000000.0 Pa, so the derived row at 210 meets (a) for the 25
+      `free_length_state` members as far as E goes. They stay refused with RS-OPE as an
+      operating case, and RS-P180 stays refused by `MBF-SI-MODULUS-SELECTION-MISMATCH` (T1 20,
+      selection 210).
+  - *(b) Print precision (rejected).* It would have compared a derived row's E in §18.2's
+    printed-directly class, |E − d × 10⁶| ≤ (δ(d) + 4ε|d|) × 10⁶ Pa, and admitted 6a. Agent 0
+    rejected it: the target would solve with an E up to 5e-10 relative from SWBPIPE's, the
+    per-member rule would no longer state E exactly, and §18.2's precision would be relaxed for
+    interior members. No such relaxation applies.
+  - *Sample evidence.* The random-sample admission rates given at `ce093a4c7` were sample
+    evidence only, not a bound or a justification. They are dropped.
+- **The undated exception** follows decision 3 (§20.4.2 e), with counterexamples 7b to 7d.
 - **The operating case** (W+P+T) is recorded as Agent 0's separate design-first item. Route 1
   does not include it.
-- **G-1, G-2 and G-4** go to the CAEPIPE lane and the dossier. CQ-17-01-016 stays open (G-4).
-- **Verbatim and paraphrase.** O-7's D-2 entry is marked as a paraphrase from Agent 0's thread,
-  pending Agent 0's check against the original messages. The Route 1 ruling and the 2026-11-02
-  refinements are paraphrased, except decision 3, which is quoted from the brief.
+- **G-1, G-2 and G-4** go to the CAEPIPE lane and the dossier, within each registered row's
+  current boundary (§20.4.9). G-4 stays open, and so does CQ-17-01-016.
+- **For Agent 0: `CAEPIPE-ANALYSIS`'s boundary.** O-7 (ruled 2026-10-27) and §20.4 record the
+  hot/cold modulus option and the expansion case (operating minus sustained) from
+  `CAEPIPE-ANALYSIS`. That row's current boundary is the number of thermal loads and
+  gravitational acceleration and direction only. Route 1's reliance on the option therefore
+  needs a source-boundary proposal for that row, or a dossier answer, before implementation.
+  This Design does not widen the boundary.
+- **For Agent 0: a trusted source for every material with points?** As designed, a trusted
+  source is required only where the sidecar marks a row as generated (§20.4.4). A forged
+  sidecar that relabels genuine derived rows as points needs none, and imports with an added
+  point, the same MBF and the same selected E (§20.4.5, **Residual**; example 8c). Requiring a
+  trusted source for every bound Route 1 import of a material with points would close that
+  residual, at the cost of refusing such imports wherever no source is at hand.
+- **Paraphrase.** Every ruling in O-7 is a paraphrase of Agent 0, decision 3 included (its text
+  was normalized from Agent 0's message). D-2's historical attribution (2026-10-31) is a
+  paraphrase, unverified against the original messages; Agent 0's confirmation of 2026-11-02
+  supplies the current basis for its substance.
 - **DEL-09-01 §10.** The RS-P180 ledger row given to this lane is not in the §10 table. That
   table is checked row for row against the fixture generator's `LEDGER` and `authoring.json`
   (`tools/validation/test_reference_system_ledger.py`). A new row there fails that check unless
   fixture files change, and this lane leaves the fixture unchanged. The row's text stands
-  verbatim as a note below the table. Agent 0 decides whether a fixture-owning change
-  should make it a ledger row.
+  verbatim below the table, labelled an "MBF consumer-coverage note" (Agent 0, 2026-11-02): not
+  a pending-family generator entry and not a completed admission.
 - **Release limitation: proposed, for the implementation PR.** The entry is not added to
   `docs/RELEASE_LIMITATIONS_v1.0.md` here. It is added in the PR that makes the refusal
   standing, as that file's entry form requires. Owner acceptance is pending and is not inferred.
