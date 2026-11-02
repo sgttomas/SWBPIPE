@@ -16,7 +16,9 @@ use std::process::ExitCode;
 use open_pipe_stress_headless_runner::{
     benchmark_binding::{self, SuiteRunReport},
     reader_binding,
-    redaction_binding::control_local_private,
+    redaction_binding::{
+        control_local_private, ControlledExport, RedactionDecision, RedactionFinding, RedactionSummary,
+    },
     run_preview_model_value_with_mode_and_rule_check, validate_request, validate_result,
     Diagnostic, JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult,
     RunnerValidation,
@@ -175,7 +177,11 @@ fn main() -> ExitCode {
         let (code, output) = execute_json_with_mode(&args.verb, &input, args.solver_mode);
         (code, serde_json::to_value(output).expect("CLI output must serialize as JSON"))
     };
-    let controlled = control_local_private(output, args.explicit_local_private_intent);
+    let controlled = if args.verb == SIZE_HANGERS {
+        control_whole_document_private(output, args.explicit_local_private_intent)
+    } else {
+        control_local_private(output, args.explicit_local_private_intent)
+    };
     let rendered = serde_json::to_string_pretty(&controlled)
         .expect("controlled CLI output must serialize as JSON");
     println!("{rendered}");
@@ -204,9 +210,10 @@ const SIZE_HANGERS: &str = "size-hangers";
 /// its own admission path. It takes no `CliInput.request` (no `RunnerRequest`,
 /// operation metadata or input-manifest reference is read or synthesized); the
 /// input text goes to the sizing crate's path-aware admission and pipeline. It
-/// reuses the runner's input reading, `--output` writing, local-private control
-/// and exit statuses: 0 sized, 1 refused (or blocked by the control), 2 when the
-/// invocation or input is unusable and no document is formed. `--solver-mode` is
+/// reuses the runner's input reading, `--output` writing, local-private intent
+/// flag and exit statuses: 0 sized, 1 refused (or blocked by the control), 2 when the
+/// invocation or input is unusable and no document is formed. The whole document
+/// is local-private (`control_whole_document_private`). `--solver-mode` is
 /// refused by the existing rule (solve only); the request's `solver_mode` is the
 /// only source of the mode. The input is limited to 64 MiB, checked before it is
 /// parsed (`HANGER_SIZING_INPUT_TOO_LARGE`, status 2).
@@ -219,6 +226,69 @@ fn execute_size_hangers(raw_input: &str) -> Result<(u8, Value), String> {
     }
     let published = size_hangers(raw_input);
     Ok((if published.is_sized() { 0 } else { 1 }, published.into_document()))
+}
+
+/// The local-private control of a `size-hangers` document (DEL-04-11 Design
+/// §8.3.2): the whole document is local-private output, because it names records
+/// of a private library. `control_local_private`'s path-token walk matches no
+/// member of the document, so the document is controlled as one item instead,
+/// by the rule that walk applies to `$.report_package`, with its reason codes and
+/// texts: without `--explicit-local-private-intent` one blocking decision at `$`
+/// and no payload; with it, one warning and the document unchanged. A refused
+/// document is controlled the same way, since it can name the library's id.
+fn control_whole_document_private(document: Value, explicit_intent: bool) -> ControlledExport {
+    let (action, reason, severity, message) = if explicit_intent {
+        (
+            "warning_only",
+            "PRIVATE_LOCAL_ALLOWED_WITH_WARNING",
+            "WARNING",
+            "Export retained the value in a local/private context with an explicit warning.",
+        )
+    } else {
+        (
+            "block_export",
+            "LOCAL_PRIVATE_INTENT_REQUIRED",
+            "BLOCKING",
+            "Export is blocked until wrapper-owned local-private intent is explicit.",
+        )
+    };
+    let blocked = !explicit_intent;
+    ControlledExport {
+        payload: if blocked { None } else { Some(document) },
+        decisions: vec![RedactionDecision {
+            decision_id: "REDC-DEC-0001".to_string(),
+            path: "$".to_string(),
+            field_class: "hanger_sizing_result".to_string(),
+            privacy_classification: "private_project_data".to_string(),
+            redistribution_status: "private_only".to_string(),
+            review_status: "accepted".to_string(),
+            export_context: "local_private",
+            action,
+            reason_code: reason,
+            source_metadata_present: true,
+        }],
+        findings: vec![RedactionFinding {
+            finding_id: "REDC-FND-0001".to_string(),
+            code: reason,
+            class: "PRIVATE_DATA_WARNING",
+            severity,
+            path: "$".to_string(),
+            action,
+            message,
+            remediation: "Use the runner's explicit local-private intent flag for known private values.",
+        }],
+        blocked,
+        summary: RedactionSummary {
+            decision_count: 1,
+            finding_count: 1,
+            redacted_count: 0,
+            omitted_count: 0,
+            warning_count: usize::from(!blocked),
+            blocking_count: usize::from(blocked),
+            cloud_transmission_attempted: false,
+            professional_claims_made: false,
+        },
+    }
 }
 
 /// `read <reader> [--input <path>|-]`: one product reader's verdict as JSON on

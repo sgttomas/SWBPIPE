@@ -5,6 +5,7 @@
 //! The inputs are the committed, invented corpus inputs
 //! (`fixtures/results/hanger_sizing_input_*.json`).
 
+use open_pipe_stress_hanger_sizing::publish::size_hangers;
 use open_pipe_stress_hanger_sizing::reader::{self, Status, Supplied};
 use serde_json::{json, Value};
 use std::io::Write;
@@ -52,18 +53,12 @@ fn controlled(run: &Run) -> Value {
     serde_json::from_str(&run.stdout).unwrap_or_else(|e| panic!("{e}: {}", run.stdout))
 }
 
-/// The number-aware equality the reader's reproduction uses: −0 equals 0.
-fn same(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Number(x), Value::Number(y)) => x.as_f64() == y.as_f64(),
-        (Value::Object(x), Value::Object(y)) => x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| same(v, w))),
-        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(v, w)| same(v, w)),
-        _ => a == b,
-    }
-}
-
+/// With the intent flag, the document is the payload, unchanged: the runner's
+/// document is the one this build forms in-process from the same input (both
+/// are this build on this platform, so no committed bytes are compared), and
+/// the product reader passes every standing on the runner's own bytes.
 #[test]
-fn a_sized_request_publishes_the_document_with_exit_zero() {
+fn a_sized_request_with_intent_publishes_the_document_with_exit_zero() {
     for stem in ["two_span", "four_span"] {
         let input = fixture(&format!("hanger_sizing_input_{stem}.json"));
         let out = run(&["size-hangers", "--explicit-local-private-intent", "--input", "-"], input.as_bytes());
@@ -71,9 +66,7 @@ fn a_sized_request_publishes_the_document_with_exit_zero() {
         let c = controlled(&out);
         assert_eq!(c["blocked"], false, "{stem}");
         let document = &c["payload"];
-        let committed: Value = serde_json::from_str(&fixture(&format!("hanger_sizing_result_{stem}.json"))).unwrap();
-        assert!(same(document, &committed), "{stem}: the runner's document is not the committed one");
-        // The product reader reads the runner's own bytes, every standing passing.
+        assert_eq!(document, &size_hangers(&input).into_document(), "{stem}: the payload is not the document");
         let bound: Value = serde_json::from_str(&input).unwrap();
         let verdict = reader::read(
             &serde_json::to_string(document).unwrap(),
@@ -141,21 +134,68 @@ fn an_unusable_invocation_or_input_exits_two_without_a_document() {
     assert_eq!((out.code, out.stdout.as_str()), (2, ""));
 }
 
-/// The local-private control is reused unchanged (§8.3.2). Its rule classifies
-/// by path token, and no member path of the hanger-sizing document carries one of
-/// its private tokens, so without `--explicit-local-private-intent` the document
-/// is not blocked: only its null members draw an unknown-provenance warning. This
-/// records the control's actual behaviour; it was reported to Agent 0 with the
-/// slice, because the design states the result is local-private output.
+fn assert_gate(c: &Value, blocked: bool, ctx: &str) {
+    let (action, reason, severity) = if blocked {
+        ("block_export", "LOCAL_PRIVATE_INTENT_REQUIRED", "BLOCKING")
+    } else {
+        ("warning_only", "PRIVATE_LOCAL_ALLOWED_WITH_WARNING", "WARNING")
+    };
+    assert_eq!(c["blocked"], blocked, "{ctx}");
+    assert_eq!(c["decisions"], json!([{
+        "decision_id": "REDC-DEC-0001", "path": "$", "field_class": "hanger_sizing_result",
+        "privacy_classification": "private_project_data", "redistribution_status": "private_only",
+        "review_status": "accepted", "export_context": "local_private", "action": action,
+        "reason_code": reason, "source_metadata_present": true
+    }]), "{ctx}");
+    assert_eq!(c["findings"], json!([{
+        "finding_id": "REDC-FND-0001", "code": reason, "class": "PRIVATE_DATA_WARNING", "severity": severity,
+        "path": "$", "action": action,
+        "message": if blocked { "Export is blocked until wrapper-owned local-private intent is explicit." }
+                   else { "Export retained the value in a local/private context with an explicit warning." },
+        "remediation": "Use the runner's explicit local-private intent flag for known private values."
+    }]), "{ctx}");
+    assert_eq!(c["summary"], json!({
+        "decision_count": 1, "finding_count": 1, "redacted_count": 0, "omitted_count": 0,
+        "warning_count": usize::from(!blocked), "blocking_count": usize::from(blocked),
+        "cloud_transmission_attempted": false, "professional_claims_made": false
+    }), "{ctx}");
+}
+
+/// The whole document is local-private output (§8.3.2), sized or refused (a
+/// refused document can name the library's id): without
+/// `--explicit-local-private-intent` it is blocked by one decision at `$`, with
+/// no payload, exit 1 and no `--output` file.
 #[test]
-fn the_unchanged_local_private_control_does_not_block_the_document_without_intent() {
-    let input = fixture("hanger_sizing_input_two_span.json");
-    let out = run(&["size-hangers"], input.as_bytes());
-    let c = controlled(&out);
-    assert_eq!(out.code, 0);
-    assert_eq!(c["blocked"], false);
-    assert_eq!(c["summary"]["blocking_count"], 0);
-    assert!(c["findings"].as_array().unwrap().iter().all(|f| f["code"] == "UNKNOWN_PROVENANCE_WARNING"));
-    let with_intent = controlled(&run(&["size-hangers", "--explicit-local-private-intent"], input.as_bytes()));
-    assert_eq!(with_intent["payload"], c["payload"]);
+fn without_intent_the_whole_document_is_blocked_and_nothing_is_written() {
+    let dir = std::env::temp_dir().join(format!("size-hangers-gate-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    for stem in ["two_span", "four_span", "refused"] {
+        let output = dir.join(format!("{stem}.json"));
+        let input = fixture(&format!("hanger_sizing_input_{stem}.json"));
+        let out = run(&["size-hangers", "--output", output.to_str().unwrap()], input.as_bytes());
+        assert_eq!(out.code, 1, "{stem}: {}", out.stderr);
+        let c = controlled(&out);
+        assert_eq!(c["payload"], Value::Null, "{stem}");
+        assert_gate(&c, true, stem);
+        assert!(!output.exists(), "{stem}: a blocked document was written");
+    }
+    // An input that is not admitted forms a refused document, gated alike.
+    let out = run(&["size-hangers"], b"{\"request\": ");
+    assert_eq!(out.code, 1);
+    assert_gate(&controlled(&out), true, "not admitted");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// With the intent flag the same decision warns, the document is the payload
+/// unchanged, and the exit status is the document's: 0 sized, 1 refused.
+#[test]
+fn with_intent_the_whole_document_is_kept_with_one_warning() {
+    for (stem, code) in [("two_span", 0), ("four_span", 0), ("refused", 1)] {
+        let input = fixture(&format!("hanger_sizing_input_{stem}.json"));
+        let out = run(&["size-hangers", "--explicit-local-private-intent"], input.as_bytes());
+        assert_eq!(out.code, code, "{stem}: {}", out.stderr);
+        let c = controlled(&out);
+        assert_gate(&c, false, stem);
+        assert_eq!(c["payload"], size_hangers(&input).into_document(), "{stem}");
+    }
 }

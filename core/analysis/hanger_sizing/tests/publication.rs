@@ -265,7 +265,7 @@ fn forgery(input: &Value) -> Value {
 }
 
 #[test]
-fn the_committed_inputs_are_the_builders_and_the_documents_are_this_builds() {
+fn the_committed_inputs_are_the_builders() {
     for (name, build) in INPUTS {
         let input = build();
         let import = open_pipe_stress_library_import_document::validate_library_import(
@@ -347,30 +347,62 @@ pub fn mutate(doc: &mut Value, ops: &[Value]) {
     }
 }
 
+fn statuses(verdict: &Value) -> Vec<Value> {
+    STANDINGS.iter().map(|standing| verdict[*standing]["status"].clone()).collect()
+}
+
+const STANDINGS: [&str; 5] = ["closure", "binding", "arithmetic_consistent_with_published_positions", "derivation", "reproduction"];
+
 /// Every committed document and mutation reads with the corpus's expected
-/// standings, all five; the Python verifier is held to the same expectations
-/// for `closure`, `binding` and arithmetic (`tests/test_hanger_sizing_evidence.py`).
+/// standings; the Python verifier is held to the same expectations for
+/// `closure`, `binding` and arithmetic (`tests/test_hanger_sizing_evidence.py`).
+///
+/// Reproduction is claimed only for the same engine build on the same platform
+/// (§8.3.7), and the committed sized documents were formed on one platform. A
+/// genuine sized entry's reproduction is therefore `same_build`: it is not
+/// asserted on the committed bytes. Instead the document is published afresh
+/// from the committed input in-process, and that document must reproduce and
+/// read with the entry's other expectations. Every other expectation (the
+/// forgery's and the mutations' failed reproduction included) is asserted on
+/// the committed bytes, where the outcome does not depend on the platform.
 #[test]
 fn the_reader_returns_the_corpus_standings() {
     let corpus = read_json("hanger_sizing_corpus.json");
     let entries = corpus["entries"].as_array().unwrap();
     assert!(entries.len() >= 12);
+    let mut same_build = 0;
     for entry in entries {
         let id = entry["id"].as_str().unwrap();
         let mut doc = read_json(entry["document"].as_str().unwrap());
         mutate(&mut doc, entry["mutations"].as_array().unwrap());
-        let input = read_json(entry["input"].as_str().unwrap());
+        let input_name = entry["input"].as_str().unwrap();
+        let input = read_json(input_name);
+        let supply = entry["supply"].as_array().unwrap();
         let supplied = Supplied {
-            solve_request: entry["supply"].as_array().unwrap().contains(&json!("solve_request")).then_some(&input["request"]),
-            library: entry["supply"].as_array().unwrap().contains(&json!("library")).then_some(&input["library"]),
+            solve_request: supply.contains(&json!("solve_request")).then_some(&input["request"]),
+            library: supply.contains(&json!("library")).then_some(&input["library"]),
         };
-        let verdict = reader::read(&serde_json::to_string(&doc).unwrap(), supplied).to_json();
         let expected = &entry["expected"];
-        for standing in ["closure", "binding", "arithmetic_consistent_with_published_positions", "derivation", "reproduction"] {
-            assert_eq!(verdict[standing]["status"], expected[standing], "{id}: {standing}: {}", verdict[standing]);
+        let mut wanted: Vec<Value> = STANDINGS.iter().map(|standing| expected[*standing].clone()).collect();
+        let verdict = reader::read(&serde_json::to_string(&doc).unwrap(), supplied).to_json();
+        if expected["reproduction"] == "same_build" {
+            same_build += 1;
+            assert!(entry["mutations"].as_array().unwrap().is_empty(), "{id}: same_build is for genuine documents");
+            // The committed bytes: every standing but reproduction.
+            assert_eq!(statuses(&verdict)[..4], wanted[..4], "{id}: {verdict}");
+            // A document published afresh by this build from the committed input.
+            let fresh = size_hangers(&read_text(input_name));
+            assert!(fresh.is_sized(), "{id}");
+            let fresh = reader::read(&serde_json::to_string(fresh.document()).unwrap(), supplied).to_json();
+            wanted[4] = json!("passed");
+            assert_eq!(statuses(&fresh), wanted, "{id}: the fresh document: {fresh}");
+            assert_eq!(fresh["binding"]["not_checked"], expected["binding_not_checked"], "{id}");
+        } else {
+            assert_eq!(statuses(&verdict), wanted, "{id}: {verdict}");
         }
         assert_eq!(verdict["binding"]["not_checked"], expected["binding_not_checked"], "{id}");
     }
+    assert_eq!(same_build, 2, "the two genuine sized entries");
 }
 
 // --- the headless pipeline's refusals -----------------------------------------
