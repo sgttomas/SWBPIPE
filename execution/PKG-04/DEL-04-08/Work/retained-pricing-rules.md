@@ -2655,7 +2655,7 @@ exactly 2b's `exact_admission.rs`, `pressure_runtime.rs` and
 admitted-families limitation (+286 serialized bytes; rows, signatures, units
 and numbers unchanged), the inherited physics-retained table's parent digest,
 the two `result_export` hash constants and the carriers below. The priced
-revision is `<PRICED_REV>`.
+revision is `0add60cac`.
 
 **D1 premises.** D1.4 admits no component (P2) and D1.5 leaves route E's
 regions `Some([])` and route L's absent. `reducers_in_regions` therefore
@@ -2677,7 +2677,7 @@ keeps multiplicity zero (as in §8.38).
 | **2B-KEY** (re-key) | Scoped `problem` parents carry with unchanged text: `refuse_reducers_outside_step` 1864 → 1882 and `collinear_run` 1917 → 1959 (2b's W-15c branch and the extracted direction helpers precede them). |
 | **RTA3R2B-NZ** (owner guard, `w15_owners_model.py`) | W15's statements count the second `Topology::of`, `member_mappings`' two callers, its one mapping table and the axis `Vec`. `pressure_step_run_evidence` and `reducer_body_members` each have exactly one caller in product_physics' sources, after the D1-empty loop header in the one calling function (`for reducer in exact_admission::reducers_in_regions(model, case)`, `for component in model.components.iter().filter(…Reducer)`). Mutation tests (`tests/test_841_rt_a3_reducer_2b.py`) show a moved or added caller, a renamed loop or a third `member_mappings` caller stops the run even with a restated module pin. |
 
-**Run and graph.** The committed tool prices `<PRICED_REV>` on all four points
+**Run and graph.** The committed tool prices `0add60cac` on all four points
 with exit 0, no unmapped header or unclassified argument and both O-10 checks
 clear. D is unchanged (L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237, E 76,356).
 The line map's outputs equal main `2b743781a`'s entry for entry (880 carried
@@ -2703,9 +2703,9 @@ tree with §8.38's basis) it has **1,594 equal, two higher, six lower**:
 `a_le_b` is false, so §8.40's conservative carry rule is not met and the
 registered block no longer bounds the head coefficient-wise.
 
-**Native atoms and evaluations.** The current lib-test binary (source
-`fb3ceacae`, SHA-256 `91c783a1…` for the run that collected the atoms; rustc
-1.97.1, debug, opt-level 0) passes all eight `profile_` law tests and
+**Native atoms and evaluations.** The lib-test binary built after `fc7873bd8`
+(production sources equal to `0add60cac`; SHA-256 `ccebe566…`; rustc 1.97.1,
+debug, opt-level 0) passes all eight `profile_` law tests and
 collects 328 in-build atoms, equal to 2a's except S2's
 `s(PreviewLoadCase)` 680 B. The z ≥ 1 combination supplement (Node(String,
 BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
@@ -2734,10 +2734,12 @@ the other eleven inputs, layouts and threshold are unchanged.
 - **A, minimal conservative bound (recommended).** `lib/merge_trees.py` of the
   kept tree and the candidate tree: the kept coefficients except `STATICS[1]`
   and its success copy (+286 B), keeping the 3,990,536 B allowance's unused
-  3,989,660 B. File `<PROPOSAL_A>`.
+  3,989,660 B. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/A/retained_memory.rs`,
+  SHA-256 `a263e437f35388ca7a6154f041df38be4c7e0a91c801a506316edf1cb6121886`.
 - **B, source-derived (comparison only).** The candidate tree itself: six TAV
   coefficients 3,989,660 B lower, `STATICS[1]` +286 B. It drops the kept
-  allowance and is not recommended. File `<PROPOSAL_B>`.
+  allowance and is not recommended. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/B/retained_memory.rs`,
+  SHA-256 `b30c3273bde3c0e58048f85d5a9b6d4da68121dc336e3ad48df3a3830e4e5f42`.
 - **Wording alternative.** The +286 B is entirely the restated table
   limitation. A disclosure no longer than 2a's would leave every coefficient
   bounded (`a_le_b`), so only the #8/#11 rebinding would remain; that wording
