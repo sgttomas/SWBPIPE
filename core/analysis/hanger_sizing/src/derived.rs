@@ -195,10 +195,12 @@ fn referenced(model: &Value, id: &str) -> bool {
 }
 
 /// The DOFs a support acts on: its rigid restraints, its nonlinear DOF and its
-/// stiffness DOF.
+/// stiffness DOF, taken as the solver takes it: the top-level `stiffness`, or else the
+/// hanger's (`product_physics` `support_stiffness_input`).
 fn effective_dofs(support: &Value) -> Vec<Dof> {
     let mut dofs: Vec<Dof> = array(support, "restraints").iter().filter_map(Value::as_str).filter_map(parse_dof).collect();
-    for dof in [&support["nonlinear"]["dof"], &support["stiffness"]["dof"]] {
+    let stiffness = if is_present(support.get("stiffness")) { &support["stiffness"] } else { &support["hanger"]["stiffness"] };
+    for dof in [&support["nonlinear"]["dof"], &stiffness["dof"]] {
         if let Some(dof) = dof.as_str().and_then(parse_dof) {
             dofs.push(dof);
         }

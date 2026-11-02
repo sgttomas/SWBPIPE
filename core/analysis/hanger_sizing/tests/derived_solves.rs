@@ -517,6 +517,14 @@ fn every_candidate_finding_is_listed_and_only_real_references_refuse() {
         ("HANGER_SIZING_CANDIDATE_DOF_SHARED", vec!["support:B".to_string()]),
         ("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", vec!["support:A".to_string()]),
     ]);
+    // A co-located variable hanger that acts on UZ only through its hanger stiffness.
+    let mut hung = two_span();
+    hung["model"]["supports"].as_array_mut().unwrap().push(json!({
+        "id": "support:B-hanger", "node": "node:B", "family": "variable_spring_hanger", "restraints": [],
+        "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UZ", "value": {"value": 1.0e5, "unit": "N/m"}}},
+        "provenance": "invented_test_value"}));
+    let refusals = run(&hung, &[], &request(&["support:B"], "load:O")).unwrap_err();
+    assert!(refusals.iter().any(|r| r.code == "HANGER_SIZING_CANDIDATE_DOF_SHARED" && r.names == ["support:B"]), "{refusals:?}");
     // An anchor reports both its family and its DOFs.
     let mut anchored = two_span();
     anchored["model"]["supports"][0]["family"] = json!("anchor");
