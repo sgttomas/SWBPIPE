@@ -2708,9 +2708,10 @@ headless runner) is a scanned crate under the shell's rules:
   build-dependencies are pinned empty (`BUILD_DEPENDENCIES`). A new
   dependency of any kind, a rename (`<name> as <key>`) or a removal is a
   finding. The eleventh, `open_pipe_stress_hanger_sizing`, was added by
-  DEL-04-11 slice 1d-α (PR #83) for the runner's `size-hangers` verb. Its direct path
-  dependencies are `product_physics` and `canonical_json` (both already runner
-  dependencies), `units` and `library_import_document`. It adds no reporting crate
+  DEL-04-11 slice 1d-α (PR #83) for the runner's `size-hangers` verb. Its normal direct
+  path dependencies are `product_physics` and `canonical_json` (both already
+  runner dependencies), `units` and `library_import_document`. Its one
+  development dependency is `result_export`, which is not built into the runner. It adds no reporting crate
   to the runner's closure, and no path package in that closure builds a
   proc-macro. The exact-set rule is unchanged: this is not a wildcard for later
   dependencies.
