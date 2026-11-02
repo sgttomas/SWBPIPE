@@ -1445,3 +1445,15 @@ records what was built against it.
 - **Left:** exact-head hosted checks and PR integration. Main's subsequent
   hanger-theory-only changes (`9aaa5dc51`) were merged normally; they change no
   product, pricing, fixture or engine input, so these source bindings still apply.
+  After the original PR head `1051552aa` passed all 17 hosted checks, integrated
+  hanger-publication main `723e4058f` was merged normally. Its new hanger/runner
+  consumers and runtime-read declarations are preserved. Product-physics,
+  frame/sparse and applier source, all 949 comparison inputs and the registered
+  profile are byte-unchanged. The combined native hanger publication (9 tests)
+  and runner CLI (6 tests) pass. The maintained engine script confirms all three
+  current stamps still match without rebuilding. Combined routing passes (77 tests and 120 subtests), and the hanger-evidence
+  checks pass (35 tests) with release runner helpers rebuilt from the merged
+  source. The first hanger-evidence attempt used the pre-publication release
+  helper and failed three new command checks; rebuilding the maintained helpers
+  cleared them without product, fixture or expected-value changes. The updated
+  exact-head hosted run remains required.
