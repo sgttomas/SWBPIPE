@@ -12,7 +12,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 import { App } from "./App";
 import { getLocalStorageCapability } from "./services/projectService";
 import { loadDesignKnowledge } from "./services/previewService";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
 afterEach(() => {
   // Unmount first: the session releases its delivered native result on unmount.
@@ -31,7 +31,7 @@ async function installPreviewReplay() {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
-    if (["load_preview_model", "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args, options);
+    if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -64,6 +64,8 @@ describe("the results navigator in the app", () => {
       fireEvent.click(within(results).getByTestId("results-navigator-kind-next"));
     }
     fireEvent.click(within(results).getByTestId("results-navigator-entity-next"));
+    // The result is held natively: the table's supports and elements arrive by one native query.
+    await waitFor(() => expect(within(results).getByTestId("results-navigator-entity-position")).toHaveTextContent(/ \(1 of \d+\)$/));
     const first = within(results).getByTestId("results-navigator-entity-position").textContent!.split(" (")[0];
     expect(pair.model.nodes.map((node) => node.id)).toContain(first);
     await waitFor(() => expect(readout).toHaveTextContent(`Selected node: ${first}; 0 queued`));
@@ -75,11 +77,14 @@ describe("the results navigator in the app", () => {
     const second = within(results).getByTestId("results-navigator-entity-position").textContent!.split(" (")[0];
     expect(second).not.toBe(first);
     await waitFor(() => expect(readout).toHaveTextContent(`Selected node: ${second}; 0 queued`));
-    expect(document.activeElement?.getAttribute("aria-selected")).toBe("true");
+    await waitFor(() => expect(document.activeElement?.getAttribute("aria-selected")).toBe("true"));
 
     // A case step keeps the node; the selection stays on it.
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown", altKey: true });
     expect(within(results).getByTestId("results-navigator-case-position")).not.toHaveTextContent(/^All cases/);
+    expect(readout).toHaveTextContent(`Selected node: ${second}; 0 queued`);
+    // The step lands on the node's first row of that case (a native lookup): still that node.
+    await waitFor(() => expect(within(results).getByTestId("results-navigator-status")).toHaveTextContent(new RegExp(`${second}, row `)));
     expect(readout).toHaveTextContent(`Selected node: ${second}; 0 queued`);
 
     expect(screen.getByTestId("workspace-undo")).toBeDisabled();

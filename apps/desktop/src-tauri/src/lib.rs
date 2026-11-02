@@ -29,8 +29,14 @@ mod model_document_shape;
 mod model_document_version;
 mod model_states;
 mod analysis_runs;
+mod analysis_run_v03_build;
+mod analysis_run_v03_validate;
+mod native_persistence;
+mod result_js_text;
 #[allow(unsafe_code)]
 mod stored_read;
+mod stored_custody;
+mod stored_save;
 #[allow(unsafe_code)]
 mod stored_model_document_export;
 #[cfg(feature = "native-smoke")]
@@ -39,7 +45,16 @@ mod native_smoke;
 mod native_smoke_inject;
 #[cfg(test)]
 mod native_smoke_reach_scan_tests;
+mod native_csv_stream;
 mod native_result_download;
+mod native_verdict;
+mod result_planes;
+mod result_detail;
+mod result_summary;
+mod result_summary_tables;
+#[cfg(test)]
+#[path = "native_replay_tests.rs"]
+mod native_replay_tests;
 mod report_package_bridge;
 mod report_package_save;
 mod report_render_exact;
@@ -376,7 +391,7 @@ struct StorageCapability {
 }
 
 #[derive(Debug, Serialize)]
-struct LocalProjectSummary {
+pub(crate) struct LocalProjectSummary {
     project_id: String,
     project_name: String,
     database_path: String,
@@ -1094,10 +1109,79 @@ fn write_project_rows(
     let model_hash_json = serde_json::to_string(model_hash).map_err(|error| error.to_string())?;
     let project_envelope_hash_json =
         serde_json::to_string(project_envelope_hash).map_err(|error| error.to_string())?;
-    let search_text = format!(
-        "{model_json}\n{editor_intents_json}\n{proposal_json}\n{selected_review_target_json}\n{analysis_run_json}"
-    );
-    let now = now_unix_seconds()?;
+    let texts = ProjectTexts {
+        model_json: &model_json,
+        editor_intents_json: &editor_intents_json,
+        proposal_json: &proposal_json,
+        selected_review_target_json: &selected_review_target_json,
+        mechanics_result_json: &mechanics_result_json,
+        analysis_run_json: &analysis_run_json,
+        model_hash_json: &model_hash_json,
+        project_envelope_hash_json: &project_envelope_hash_json,
+    };
+    let search_text = texts.search_text();
+    write_project_texts(transaction, project_id, project_name, &texts, &search_text, now_unix_seconds()?).map_err(|error| error.to_string())
+}
+
+/// A project row's stored texts: each slot's `serde_json::to_string`, as
+/// [`write_project_rows`] writes them (the native Save Project,
+/// `native_persistence`, writes the result and record slots from the held
+/// result in the same forms).
+pub(crate) struct ProjectTexts<'t> {
+    pub(crate) model_json: &'t str,
+    pub(crate) editor_intents_json: &'t str,
+    pub(crate) proposal_json: &'t str,
+    pub(crate) selected_review_target_json: &'t str,
+    pub(crate) mechanics_result_json: &'t str,
+    pub(crate) analysis_run_json: &'t str,
+    pub(crate) model_hash_json: &'t str,
+    pub(crate) project_envelope_hash_json: &'t str,
+}
+
+impl ProjectTexts<'_> {
+    /// The search row's text: the model, the editor intents, the proposal, the
+    /// selected review target and the analysis-run record, one per line.
+    pub(crate) fn search_text_length(&self) -> u64 {
+        [self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json]
+            .iter()
+            .fold(4u64, |sum, text| sum.saturating_add(text.len() as u64))
+    }
+
+    /// [`ProjectTexts::search_text_length`]'s text, written into a buffer of
+    /// exactly that length.
+    pub(crate) fn search_text(&self) -> String {
+        let mut text = String::with_capacity(usize::try_from(self.search_text_length()).unwrap_or(usize::MAX));
+        for (at, part) in [self.model_json, self.editor_intents_json, self.proposal_json, self.selected_review_target_json, self.analysis_run_json].iter().enumerate() {
+            if at > 0 {
+                text.push('\n');
+            }
+            text.push_str(part);
+        }
+        text
+    }
+}
+
+/// The project row and its search row, from their texts, at `now` (unix
+/// seconds): the upsert, then the search row replaced. SQLite's own errors are
+/// returned as they are, so a caller can name a row SQLite refused as too big.
+pub(crate) fn write_project_texts(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    search_text: &str,
+    now: i64,
+) -> Result<(), rusqlite::Error> {
+    let ProjectTexts {
+        model_json,
+        editor_intents_json,
+        proposal_json,
+        selected_review_target_json,
+        mechanics_result_json,
+        analysis_run_json,
+        model_hash_json,
+        project_envelope_hash_json,
+    } = *texts;
     transaction
         .execute(
             "
@@ -1128,23 +1212,18 @@ fn write_project_rows(
                 project_envelope_hash_json,
                 now
             ],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "DELETE FROM local_project_fts WHERE project_id = ?1",
-            params![project_id],
-        )
-        .map_err(|error| error.to_string())?;
-    transaction
-        .execute(
-            "
+        )?;
+    transaction.execute(
+        "DELETE FROM local_project_fts WHERE project_id = ?1",
+        params![project_id],
+    )?;
+    transaction.execute(
+        "
             INSERT INTO local_project_fts (project_id, project_name, model_text)
             VALUES (?1, ?2, ?3)
             ",
-            params![project_id, project_name, search_text],
-        )
-        .map_err(|error| error.to_string())?;
+        params![project_id, project_name, search_text],
+    )?;
     Ok(())
 }
 
@@ -2168,7 +2247,14 @@ async fn start_preview_mechanics_job(
             message: "unsupported preview solver mode header".into(),
         })?),
     };
-    state.start(body, mode)
+    // C1: `native` keeps the result in native custody (never taken whole).
+    let custody = request
+        .headers()
+        .get(solve_jobs::RESULT_CUSTODY_HEADER)
+        .map(|value| value.to_str().ok())
+        .map_or(Some(solve_jobs::ResultCustody::Webview), |value| value.and_then(|v| solve_jobs::ResultCustody::from_wire(Some(v))))
+        .ok_or_else(|| SolveJobError::InvalidRequest { message: "unsupported result custody header".into() })?;
+    state.start_with_custody(body, mode, custody)
 }
 
 #[tauri::command]
@@ -2191,11 +2277,256 @@ async fn take_preview_mechanics_job_result(
     state.take_result(&job_id).map(tauri::ipc::Response::new)
 }
 
+/// C1 native custody (slice 1): the base readers' dispatch verdict on a
+/// retained result, read natively from the held bytes (`native_verdict`).
+/// Raw args body `{jobId, modelJson?, invocationJson?}`; the response is the
+/// reader's outcome JSON, as the wasm engine's `reader_dispatch_json` returns
+/// it. Only the header check, copy reservation and body copy run here;
+/// argument admission, diagnostics, parse admission and the reader run in
+/// a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_verdict(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_verdict::verdict(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 2): S, the summary of a retained result, built
+/// natively from the held bytes (`result_summary`). Raw args body
+/// `{jobId, modelJson, standing}`; the response is binary: S's JSON header
+/// and its little-endian f64 planes (`result_planes`). Only the header
+/// check, copy reservation and body copy run here; admission, parses and
+/// projection run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_summary(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_summary::summary(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): a page of a retained result's rows, the
+/// exact published bytes, read natively (`result_detail`). Raw args body
+/// `{jobId, filter, offset, limit}`; the response is binary: a JSON header
+/// (total, ordinals, lengths) and the rows' texts. Only the header check,
+/// copy reservation and body copy run here; admission, indexing, filtering
+/// and the response run in a blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 4's results navigator): the entity axis of a
+/// retained result's rows under the panel's filters (`result_detail`). Raw
+/// args body `{jobId, filter, probe}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the scan run in a
+/// blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_navigator(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_navigator(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): rows of a retained result by exact ordinal,
+/// or the first or last row with an id or kind (`result_detail`). Raw args
+/// body `{jobId, ordinals?, ids?, kinds?, match}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the lookup run in a
+/// blocking task.
+#[tauri::command]
+async fn lookup_preview_mechanics_job_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::lookup_rows(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 3): the reader's row semantics of a batch of a
+/// retained result's rows, `reader_verdict::row_semantics_each` with the held
+/// source (`result_detail`). Raw args body `{jobId, ordinals}`; the response
+/// is the outcome array's JSON as raw bytes, so Tauri delivers an ArrayBuffer.
+/// Admission and the read run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_row_semantics(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::row_semantics(&registry, invoke.body(), invoke.headers()).await.map(result_detail::semantics_response)
+}
+
+/// C1 native custody (slice 3): the recorded source-block recovery facts of
+/// a retained result and a page of its recorded cases (`result_detail`). Raw
+/// args body `{jobId, offset, limit, raw?}`; binary response as
+/// `query_preview_mechanics_job_rows`'. Admission and the read run in a
+/// blocking task.
+#[tauri::command]
+async fn query_preview_mechanics_job_source_recovery(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    result_detail::query_source_recovery(&registry, invoke.body(), invoke.headers()).await.map(tauri::ipc::Response::new)
+}
+
+/// C1 native custody (slice 5's builder): the current (0.3.0) analysis-run
+/// record of a retained result, built natively from the held bytes
+/// (`analysis_run_v03_build`), returned as its preview header only. Raw args
+/// body `{jobId, inputManifest: {manifest_ref, manifest_sha256,
+/// canonical_bytes}, ruleCheckAggregate, rulePackExclusions}`; the response
+/// is the header's JSON as raw bytes, so Tauri delivers an ArrayBuffer. Only
+/// the header check, copy reservation and body copy run here; admission, the
+/// parse and the passes run in a blocking task.
+#[tauri::command]
+async fn read_preview_mechanics_job_analysis_run_preview(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    analysis_run_v03_build::analysis_run_preview(&registry, invoke.body(), invoke.headers()).await.map(analysis_run_v03_build::response)
+}
+
+/// C1 native custody (slice 5's persistence): Record Run of a native-custody
+/// solve from its job handle (`native_persistence`). Raw args body `{jobId,
+/// inputManifest, ruleCheckAggregate, rulePackExclusions, expectedRecord:
+/// {run_id, record_sha256, received_sha256}, request: {expected_base,
+/// state_id, new_state, run_labels}}`; no result, record or manifest object
+/// is sent. The record is rebuilt from the held bytes and must be the one the
+/// session previewed; the run is stored in today's forms after the store's
+/// checks and the connection's exact length limit. The reply is the store's
+/// outcome (as `record_analysis_run`'s) as a JSON body. Only the header
+/// check, copy reservation and body copy run here.
+#[tauri::command]
+async fn record_preview_mechanics_job_analysis_run(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_persistence::record_run(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 native custody (slice 5's persistence): Save or Create Project with a
+/// native-custody solve from its job handle (`native_persistence`). Raw args
+/// body `{jobId, inputManifest, ruleCheckAggregate, rulePackExclusions,
+/// expectedRecord, mode: "create"|"save", projectId?, projectName?, model,
+/// editorIntents, proposal, selectedReviewTarget, modelHash,
+/// confirmedRevision, expectedBase}`; no result, record or envelope hash is
+/// sent. The reply is the stored project's small fields, hashes and what
+/// happened to the result, as a JSON body; never the model, result or record.
+#[tauri::command]
+async fn save_preview_mechanics_job_local_project(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    native_persistence::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6: open a stored project with its saved run reopened into
+/// native custody (`stored_custody`). Raw args body `{projectId?}`; the reply
+/// (a JSON body) is `open_local_project`'s envelope without the result and
+/// the record, plus the run: a restored handle with its historical findings
+/// and record header, or a named refusal with the model open for editing.
+#[tauri::command]
+async fn open_local_project_in_native_custody(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_custody::open_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6's save continuity: Save or Create Project of a project whose
+/// saved run was reopened into native custody, from the restored handle
+/// (`stored_save`). Raw args body `{jobId, expectedSource, envelopeBasis,
+/// mode: "create"|"save", projectId?, projectName?, model, editorIntents,
+/// proposal, selectedReviewTarget, confirmedRevision, expectedBase}`; no
+/// result, record, model hash or envelope hash is sent. The stored run is
+/// written as the legacy session wrote it back; the reply is the native
+/// save's small reply with the restored run's findings, as a JSON body.
+#[tauri::command]
+async fn save_restored_result_local_project(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_save::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 slice 6: a recorded run reopened into native custody after the store's
+/// verified read (`stored_custody`). Raw args body `{projectId, recordingId}`;
+/// the reply (a JSON body) is the run and state summaries, the stored
+/// manifest's canonical text and the restored handle with its findings.
+#[tauri::command]
+async fn read_analysis_run_in_native_custody(
+    app: AppHandle,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<String>> {
+    stored_custody::read_run(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+}
+
+/// C1 interim for a restored result's C2 consumers (slice 6): its stored
+/// record's exact bytes, copied whole only at or under 64 MiB
+/// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`), above it refused by name
+/// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy runs in a blocking task under a
+/// lease of its size; the response is raw bytes (an ArrayBuffer).
+#[tauri::command]
+async fn read_restored_result_record_all(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<tauri::ipc::Response, SolveJobError> {
+    let registry = (*state).clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        registry.copy_restored_record_within(&job_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES).map(|(copy, lease)| {
+            let response = tauri::ipc::Response::new(copy);
+            drop(lease);
+            response
+        })
+    })
+    .await
+    .unwrap_or_else(|_| Err(SolveJobError::InvalidRequest { message: "RESULT-DETAIL-FULL-COPY-FAILED: the copy ended without an outcome".into() }))
+}
+
+/// C1 interim (slice 4): a native-custody result's exact bytes, copied
+/// whole for a C2 consumer (reports, comparisons, rule checks, derivative
+/// exports, handoffs) only at or under 64 MiB
+/// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`); above it refused by name
+/// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy's lease is held as custody
+/// until `release_preview_mechanics_job_full_copy` or disposal. The copy runs
+/// in a blocking task; the response is raw bytes (an ArrayBuffer).
+#[tauri::command]
+async fn read_preview_mechanics_job_rows_all(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<tauri::ipc::Response, SolveJobError> {
+    let registry = (*state).clone();
+    tauri::async_runtime::spawn_blocking(move || registry.copy_result_within(&job_id, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES))
+        .await
+        .unwrap_or_else(|_| Err(SolveJobError::InvalidRequest { message: "RESULT-DETAIL-FULL-COPY-FAILED: the copy ended without an outcome".into() }))
+        .map(tauri::ipc::Response::new)
+}
+
+/// The webview dropped its C2 full copy of a native-custody result: its
+/// custody lease is released; the held result stays.
+#[tauri::command]
+fn release_preview_mechanics_job_full_copy(
+    state: tauri::State<'_, SolveJobRegistry>,
+    job_id: String,
+) -> Result<bool, SolveJobError> {
+    state.release_full_copy(&job_id)
+}
+
 #[tauri::command]
 fn dispose_preview_mechanics_result(
     state: tauri::State<'_, SolveJobRegistry>,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
     job_id: String,
 ) -> Result<SolveResultDisposal, SolveJobError> {
+    // A CSV stream begun on this result ends with it (its partial file removed).
+    streams.abort_job(Some(&job_id));
     state.dispose_result(&job_id)
 }
 
@@ -2206,7 +2537,12 @@ fn dispose_preview_mechanics_result(
 /// holds no result copy and no handle on the previous page's jobs. Returns
 /// `{released_results, released_bytes, abandoned_jobs}`.
 #[tauri::command]
-fn dispose_all_preview_mechanics_results(state: tauri::State<'_, SolveJobRegistry>) -> SolveResultsDisposal {
+fn dispose_all_preview_mechanics_results(
+    state: tauri::State<'_, SolveJobRegistry>,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+) -> SolveResultsDisposal {
+    // The session reset ends every CSV stream (a fresh webview holds none).
+    streams.abort_job(None);
     state.dispose_all_results()
 }
 
@@ -5394,6 +5730,105 @@ fn save_local_result_json_args(args: &mut Args) -> Result<native_result_download
     args.decode("request")
 }
 
+/// C1 native custody (DEL-04-05 `c1-native-custody-plan.md` §5): the CSV table route written
+/// in bounded chunks (`native_csv_stream`). Each command is bound to the calling
+/// webview's label and, through the stream, to the held job it began on; the raw args body is
+/// admitted under the ingress lease up to one JSON-escaped chunk, and the file work runs in a
+/// blocking task. `{jobId, request: {file_name, text, screening, local_first}}`.
+#[tauri::command]
+async fn begin_local_csv_stream(
+    app: AppHandle,
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    use native_csv_stream::MAX_STREAM_BODY_BYTES;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "begin_local_csv_stream", ArgsDecoding::Moved, MAX_STREAM_BODY_BYTES)?;
+    let job_id: String = args.decode("jobId")?;
+    let request: native_csv_stream::BeginRequest = args.decode("request")?;
+    drop(args);
+    let job_held = registry.held_result(&job_id).is_ok();
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.begin(&label, &job_id, job_held, request, || app.path().download_dir())
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId, sequence, chunk: {text, screening, local_first}}` (`begin_local_csv_stream`).
+#[tauri::command]
+async fn append_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    use native_csv_stream::MAX_STREAM_BODY_BYTES;
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "append_local_csv_stream", ArgsDecoding::Moved, MAX_STREAM_BODY_BYTES)?;
+    let stream_id: String = args.decode("streamId")?;
+    let sequence: u64 = args.decode("sequence")?;
+    let chunk: native_csv_stream::ChunkRequest = args.decode("chunk")?;
+    drop(args);
+    let job_held = streams.job_of(&stream_id).is_some_and(|job| registry.held_result(&job).is_ok());
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.append(&label, &stream_id, job_held, sequence, chunk)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId, sequence, byteCount}`: the receipt of `save_local_result_json`'s CSV profile.
+#[tauri::command]
+async fn finish_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "finish_local_csv_stream", ArgsDecoding::Moved, 64 << 10)?;
+    let stream_id: String = args.decode("streamId")?;
+    let sequence: u64 = args.decode("sequence")?;
+    let byte_count: u64 = args.decode("byteCount")?;
+    drop(args);
+    let job_held = streams.job_of(&stream_id).is_some_and(|job| registry.held_result(&job).is_ok());
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.finish(&label, &stream_id, job_held, sequence, byte_count)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
+/// `{streamId}`: ends the webview's stream and removes its partial file.
+#[tauri::command]
+async fn abort_local_csv_stream(
+    webview: tauri::Webview,
+    streams: tauri::State<'_, Arc<native_csv_stream::CsvStreams>>,
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError<native_result_download::SaveError>> {
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "abort_local_csv_stream", ArgsDecoding::Moved, 64 << 10)?;
+    let stream_id: String = args.decode("streamId")?;
+    drop(args);
+    let (streams, label) = (Arc::clone(&streams), webview.label().to_owned());
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        streams.abort(&label, &stream_id)
+    })
+    .await
+    .unwrap_or_else(|_| Err(native_result_download::SaveError::worker()));
+    respond(outcome.map_err(CommandError::Command))
+}
+
 /// Raw, bounded native session surface. No caller-supplied path or webview
 /// identity is accepted. The actual Wry window and loaded app origin bind it.
 #[tauri::command]
@@ -5473,6 +5908,22 @@ macro_rules! app_invoke_handler {
             start_preview_mechanics_job,
             poll_preview_mechanics_job,
             take_preview_mechanics_job_result,
+            read_preview_mechanics_job_verdict,
+            read_preview_mechanics_job_summary,
+            query_preview_mechanics_job_rows,
+            lookup_preview_mechanics_job_rows,
+            read_preview_mechanics_job_row_semantics,
+            query_preview_mechanics_job_source_recovery,
+            query_preview_mechanics_job_navigator,
+            read_preview_mechanics_job_analysis_run_preview,
+            record_preview_mechanics_job_analysis_run,
+            save_preview_mechanics_job_local_project,
+            read_preview_mechanics_job_rows_all,
+            release_preview_mechanics_job_full_copy,
+            open_local_project_in_native_custody,
+            read_analysis_run_in_native_custody,
+            read_restored_result_record_all,
+            save_restored_result_local_project,
             dispose_preview_mechanics_result,
             dispose_all_preview_mechanics_results,
             cancel_preview_mechanics_job,
@@ -5531,7 +5982,11 @@ macro_rules! app_invoke_handler {
             delete_local_library,
             render_calculation_report,
             save_report_package,
-            save_local_result_json $(, $extra)*
+            save_local_result_json,
+            begin_local_csv_stream,
+            append_local_csv_stream,
+            finish_local_csv_stream,
+            abort_local_csv_stream $(, $extra)*
         ]
     };
 }
@@ -5542,6 +5997,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
+        .manage(Arc::new(native_csv_stream::CsvStreams::default()))
         .manage(close_guard::CloseGuard::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
@@ -5571,6 +6027,7 @@ pub fn run() {
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
         native_smoke::native_smoke_plan,
+        native_smoke::native_smoke_profile_readers,
         native_smoke::native_smoke_log,
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,

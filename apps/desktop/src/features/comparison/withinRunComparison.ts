@@ -23,6 +23,7 @@
 //   exactly as before S3c.
 import {
   buildPreviewComparison,
+  type ComparedRun,
   DEFAULT_COMPARISON_LEFT_BASIS_REF,
   DEFAULT_COMPARISON_RIGHT_BASIS_REF,
   previewComparisonId
@@ -150,7 +151,7 @@ export function droppedBases(held: HeldWithinRunSelection, options: WithinRunOpt
 
 /** The comparison of one pair, or, when the unchanged builder refuses it, the record
  * of that refusal with the pair and the reason. */
-export function buildWithinRunComparison(result: MechanicsResult, analysisRun: AnalysisRunEnvelope, pair: WithinRunPair): WithinRunComparisonBuild {
+export function buildWithinRunComparison(result: MechanicsResult, analysisRun: ComparedRun, pair: WithinRunPair): WithinRunComparisonBuild {
   try {
     return { pair, comparison: buildPreviewComparison({ result, analysisRun, leftBasisRef: pair.left, rightBasisRef: pair.right }), unavailable: null };
   } catch (error) {
@@ -179,7 +180,7 @@ const FIXED_PAIR: WithinRunPair = { left: DEFAULT_COMPARISON_LEFT_BASIS_REF, rig
 const samePair = (left: WithinRunPair, right: WithinRunPair) => left.left === right.left && left.right === right.right;
 
 /** The fixed pair's build, as the session holds it for the packages without a choice. */
-export function fixedPairComparison(result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null): WithinRunComparisonBuild | null {
+export function fixedPairComparison(result: MechanicsResult | null, analysisRun: ComparedRun | null): WithinRunComparisonBuild | null {
   return result && analysisRun ? buildWithinRunComparison(result, analysisRun, FIXED_PAIR) : null;
 }
 
@@ -195,7 +196,7 @@ export function resolveWithinRun({
   fixedPair = null
 }: {
   result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  analysisRun: ComparedRun | null;
   options: WithinRunOptions | null;
   held: HeldWithinRunSelection | null;
   fixedPair?: WithinRunComparisonBuild | null;

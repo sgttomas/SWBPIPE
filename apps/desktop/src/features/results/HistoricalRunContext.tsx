@@ -10,6 +10,8 @@ import type { CurrentSessionInputManifest } from "../../services/inputManifestSe
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
+import type { NativeResult } from "../../services/nativeResult";
+import { restoredNativeResult, type NativeProjectEnvelope, type NativeRunRead, type RestoredRun } from "../../services/nativeReopen";
 
 // Transient evidence only. Saved run references do not contain the historical
 // input-manifest payload, so reopening cannot establish a current solve basis.
@@ -21,7 +23,14 @@ export type HistoricalRunContext = {
   referenceProvenance?: BundledMechanicsReference["provenance"];
   rawMechanicsResult: unknown;
   rawAnalysisRun: unknown;
-  mechanicsResult: MechanicsResult | null;
+  /** The rows the panel reads: the whole result (browser preview, bundled reference), or (C1
+   * slice 6) the restored run's native handle, read through S and bounded pages. */
+  mechanicsResult: MechanicsResult | NativeResult | null;
+  /** C1 slice 6: the stored run held natively (desktop). Its raw values never enter the webview;
+   * `rawMechanicsResult`/`rawAnalysisRun` are null. A project save re-saves it from the handle
+   * (`saveRestoredLocalProject`); an approved C2 whole-value consumer loads it through the bounded
+   * copy (`loadRestoredRun`). */
+  restored?: RestoredRun;
   analysisRun: AnalysisRunEnvelope | null;
   modelHash: ModelHashEvidence | null;
   envelopeHash: ProjectEnvelopeHashEvidence | null;
@@ -87,7 +96,10 @@ async function sameSavedReceipt(copy: unknown, receipt: unknown): Promise<boolea
   try { return await canonicalSha256HexCheckedV1(copy) === await canonicalSha256HexCheckedV1(receipt); } catch { return false; }
 }
 
-export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<HistoricalRunContext | null> {
+/** A context over the whole result (the browser preview's store, the legacy whole-value reads). */
+export type WholeHistoricalRunContext = HistoricalRunContext & { mechanicsResult: MechanicsResult | null };
+
+export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<WholeHistoricalRunContext | null> {
   const rawMechanicsResult: unknown = opened.mechanics_result;
   const rawAnalysisRun: unknown = opened.analysis_run;
   const hasReceivedMechanics = rawMechanicsResult !== null && rawMechanicsResult !== undefined;
@@ -171,7 +183,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
  * manifest's model payload hashes to that state's model hash (the record
  * validator's recorded form). Any other mismatch is still flagged. Reading it
  * establishes nothing: no standing, overlay, rule check or report readiness. */
-export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<HistoricalRunContext> {
+export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<WholeHistoricalRunContext> {
   const findings: string[] = [];
   const parse = (text: string, finding: string): unknown => {
     try { return JSON.parse(text); } catch { findings.push(finding); return null; }
@@ -244,6 +256,45 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
 /** The findings of a recorded run that concern its record and its binding (not its numerical standing). */
 export function recordedRunBindingFindings(context: HistoricalRunContext): string[] {
   return context.findings.filter((finding) => /^(HISTORICAL_|RECORDED_RUN_|ANALYSIS[_-])/.test(finding));
+}
+
+/** C1 slice 6: a project's saved run reopened into native custody. The findings are the native
+ * port's (`analysis_run_v03_validate.rs`) of `buildHistoricalRunContext` on the stored texts, the
+ * same list in the same order (`historicalReopenParity.test.ts`, `stored_custody_tests.rs`); a
+ * renderable result is read through its restored handle. Null when the project stores no run. */
+export async function buildNativeHistoricalRunContext(opened: NativeProjectEnvelope): Promise<HistoricalRunContext | null> {
+  const run = opened.stored_run;
+  if (run.state !== "restored") return null;
+  return contextOfRestored("historical_saved_run", run, opened.project_envelope_hash ?? null, run.findings.envelope_payload_hash, opened.model_hash ?? null);
+}
+
+/** C1 slice 6: a recorded run reopened into native custody after the store's verified read; the
+ * findings are the native port's of `buildRecordedRunContext`. A record check shows findings and the
+ * record's rule-pack references, never rows, so no S is read (`mechanicsResult` null); its caller
+ * releases the handle once the check is built. */
+export function buildNativeRecordedRunContext(read: NativeRunRead): HistoricalRunContext {
+  const found = read.restored.findings;
+  return {
+    designation: "recorded_run", rawMechanicsResult: null, rawAnalysisRun: null, mechanicsResult: null,
+    analysisRun: null, restored: read.restored, modelHash: (found.model_hash ?? null) as ModelHashEvidence | null,
+    envelopeHash: null, envelopePayloadHash: null, findings: [...found.findings], runId: found.run_id
+  };
+}
+
+async function contextOfRestored(
+  designation: "historical_saved_run",
+  restored: RestoredRun,
+  envelopeHash: ProjectEnvelopeHashEvidence | null,
+  envelopePayloadHash: string | null,
+  modelHash: ModelHashEvidence | null
+): Promise<HistoricalRunContext> {
+  const found = restored.findings;
+  const mechanicsResult = found.renderable ? await restoredNativeResult(restored) : null;
+  return {
+    designation, rawMechanicsResult: null, rawAnalysisRun: null, mechanicsResult,
+    analysisRun: null, restored, modelHash, envelopeHash, envelopePayloadHash,
+    findings: [...found.findings], runId: found.run_id
+  };
 }
 
 /** A bundled example has its own model context and no current run evidence. */

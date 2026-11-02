@@ -2,6 +2,7 @@
 """Memory sampler of one desktop perf run (RT-U4, DEL-04-05; `perf.mjs`), macOS, standard library.
 
     perf-sampler.py --app-pid PID --app-path PATH --baseline PIDS --interval-ms MS
+    perf-sampler.py --host-status --app-path PATH  # one fresh admission reading, no PID counters
 
 Every interval it lists the host's processes (`proc_listallpids`), classifies each new one
 once by its executable path (`proc_pidpath`) and reads each tracked process's resident size,
@@ -24,6 +25,7 @@ import ctypes
 import json
 import os
 import signal
+import subprocess
 import sys
 import time
 
@@ -71,21 +73,74 @@ def kind_of(pid, path, app_pid, app_path, baseline):
     return None
 
 
+def emit_sample(value, evidence, output):
+    """Write/flush evidence before stdout can cause the supervisor to stop us."""
+    line = json.dumps(value, separators=(',', ':')) + '\n'
+    if evidence is not None:
+        evidence.write(line)
+        evidence.flush()
+    output.write(line)
+    output.flush()
+
+
+def read_host_status():
+    """One bounded fresh attempt; a failed attempt stays unknown, never normal."""
+    try:
+        reading = subprocess.run(['/usr/sbin/sysctl', '-n', 'kern.memorystatus_level', 'kern.memorystatus_vm_pressure_level'],
+                                 capture_output=True, text=True, timeout=0.5, check=True)
+        available, pressure = (int(value) for value in reading.stdout.splitlines())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        available, pressure = None, None
+    return {'available_percent': available, 'pressure_level': pressure,
+            'sampled_at_ms': round(time.time() * 1000)}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    parser.add_argument('--app-pid', type=int, required=True)
+    parser.add_argument('--app-pid', type=int)
     parser.add_argument('--app-path', required=True)
+    controls = parser.add_mutually_exclusive_group()
+    controls.add_argument('--list-owned', action='store_true', help='control-only PID/group lookup; reads no memory counters')
+    controls.add_argument('--host-status', action='store_true', help='one bounded fresh host-admission reading; no PID memory counters')
     parser.add_argument('--baseline', default='')
     parser.add_argument('--interval-ms', type=int, default=200)
+    parser.add_argument('--out', help='exclusive-create raw JSONL evidence; each line flushed before stdout')
     args = parser.parse_args(argv)
     app_path = os.path.realpath(args.app_path)
+    if args.host_status:
+        print(json.dumps(read_host_status(), separators=(',', ':')))
+        return
+    if args.list_owned:
+        owned = []
+        for pid in all_pids():
+            found = pid_path(pid)
+            if found is not None and os.path.realpath(found) == app_path:
+                try:
+                    owned.append({'pid': pid, 'group': os.getpgid(pid)})
+                except ProcessLookupError:
+                    pass
+        print(json.dumps(owned, separators=(',', ':')))
+        return
+    if args.app_pid is None:
+        parser.error('--app-pid is required for sampling')
+    evidence = open(args.out, 'x', encoding='utf-8', buffering=1) if args.out else None
+    def emit(value):
+        emit_sample(value, evidence, sys.stdout)
     baseline = {int(p) for p in args.baseline.split(',') if p}
     stop = []
     signal.signal(signal.SIGTERM, lambda *_: stop.append(True))
     kinds = {}
     gone = 0
+    # A monotonic clock may be process-relative and near zero. A numeric zero
+    # sentinel would defer the first attempt for a second and emit uninitialized
+    # telemetry. None means no attempt yet, independent of the clock origin.
+    host_at = None
+    host = {'available_percent': None, 'pressure_level': None, 'sampled_at_ms': None}
     while not stop:
         started = time.monotonic()
+        if host_at is None or started - host_at >= 1.0:
+            host_at = started
+            host = read_host_status()
         rows = []
         for pid in all_pids():
             if pid not in kinds:
@@ -98,13 +153,13 @@ def main(argv=None):
         # Gone: not listed, or no longer readable (an exited, unreaped process).
         if not any(row[1] == 'app' and row[3] is not None for row in rows):
             gone += 1
-        sys.stdout.write(json.dumps({'t': round(time.time() * 1000), 'p': rows}, separators=(',', ':')) + '\n')
-        sys.stdout.flush()
+        emit({'t': round(time.time() * 1000), 'p': rows, 'host': host})
         if gone >= 2:
             break
         time.sleep(max(0.0, args.interval_ms / 1000 - (time.monotonic() - started)))
-    sys.stdout.write(json.dumps({'end': round(time.time() * 1000)}) + '\n')
-    sys.stdout.flush()
+    emit({'end': round(time.time() * 1000)})
+    if evidence is not None:
+        evidence.close()
 
 
 if __name__ == '__main__':

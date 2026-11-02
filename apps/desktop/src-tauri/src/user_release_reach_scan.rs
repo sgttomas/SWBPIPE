@@ -542,9 +542,41 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// module, parameter path or scanned name is added. The
 /// headless runner's two (code review r9 at #1682) each write one `Reader`
 /// literal of its own reader table (reviewed: no `mod`, no `$parameter ::`,
-/// no scanned name).
+/// no scanned name). `app_invoke_handler` was re-pinned after C1 slice 1
+/// (DEL-04-05 `c1-native-custody-plan.md`) added one ordinary handler entry,
+/// `read_preview_mechanics_job_verdict` (reviewed: no `mod`, no
+/// `$parameter ::`, no scanned name), and again after C1 slice 2 added
+/// `read_preview_mechanics_job_summary` (reviewed likewise), and after C1
+/// slice 3 added four ordinary handler entries,
+/// `query_preview_mechanics_job_rows`, `lookup_preview_mechanics_job_rows`,
+/// `read_preview_mechanics_job_row_semantics` and
+/// `query_preview_mechanics_job_source_recovery` (reviewed likewise), and
+/// after C1 slice 5's builder added
+/// `read_preview_mechanics_job_analysis_run_preview` (reviewed likewise), and
+/// after C1 slice 4 added two ordinary handler entries,
+/// `read_preview_mechanics_job_rows_all` and
+/// `release_preview_mechanics_job_full_copy` (reviewed likewise), and after
+/// C1 slice 4's navigator and streamed CSV added five ordinary handler
+/// entries, `query_preview_mechanics_job_navigator`,
+/// `begin_local_csv_stream`, `append_local_csv_stream`,
+/// `finish_local_csv_stream` and `abort_local_csv_stream` (reviewed
+/// likewise: no `mod`, no `$parameter ::`, no scanned name), and after C1
+/// slice 5's persistence added two ordinary handler entries,
+/// `record_preview_mechanics_job_analysis_run` and
+/// `save_preview_mechanics_job_local_project` (the previous digest
+/// `04cd4d82…aadbeb` reproduced first; the macro's only change is those two
+/// lines; reviewed likewise: no `mod`, no `$parameter ::`, no scanned name),
+/// and after C1 slice 6's native reopen added three ordinary handler entries,
+/// `open_local_project_in_native_custody`, `read_analysis_run_in_native_custody`
+/// and `read_restored_result_record_all` (the previous digest `010b2557…d6d4bf`
+/// reproduced first; the macro's only change is those three lines; reviewed
+/// likewise: no `mod`, no `$parameter ::`, no scanned name), and after C1
+/// slice 6's save continuity added one ordinary handler entry,
+/// `save_restored_result_local_project` (the previous digest `4d4c5707…5c97ca`
+/// reproduced first; the macro's only change is that line; reviewed likewise:
+/// no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "1260b32b13fb6a12443b27442533556730781b961dd5fc0a2f7443eabb298d79"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "2af3c0143ed4383f0ea012f3a6549f6859442e68ab5bf5487eb1eef3de807279"),
     ("headless/src/reader_binding.rs", "base", "e4ca54306ec20645a40f7658e2d9f63508fd5ab234c9d29b83f95c7ac0bd5aea"),
     ("headless/src/reader_binding.rs", "transport", "b000ef8eab3fc5711dbb04be30705f8902c19adfee232aec9114210f6d48fd79"),
 ];
@@ -1522,6 +1554,20 @@ impl FileScan<'_> {
         let path = path_text(&mac.path);
         let line = line_of(mac.bang_token.span);
         self.check_invocation_path(&path, &mac.tokens, line);
+        // C1 P3 uses the standard TLS macro for the existing allocation
+        // counter. Only this path/file is admitted; parse every initializer
+        // as ordinary code instead of leaving its item body opaque.
+        if path == "std::thread_local" && self.file == "src-tauri/src/ingress.rs" {
+            match syn::parse2::<syn::File>(mac.tokens.clone()) {
+                Ok(body) if body.attrs.is_empty() && body.items.iter().all(|item| matches!(item, syn::Item::Static(_))) => {
+                    self.with_owner(Owner::Macro, |scan| {
+                        for item in &body.items { scan.visit_item(item); }
+                    });
+                }
+                _ => self.finding(line, "the ingress std::thread_local! body must contain only parsed statics"),
+            }
+            return;
+        }
         let subtree = in_defining_module(&self.file);
         let listed = SUBTREE_MACROS.contains(&path.as_str());
         if subtree && !listed {
@@ -1575,7 +1621,8 @@ impl FileScan<'_> {
     /// list.
     fn check_invocation_path(&mut self, path: &str, tokens: &TokenStream, line: usize) {
         let runner_listed = self.is_runner() && RUNNER_MACRO_INVOCATIONS.iter().any(|(listed, _)| *listed == path);
-        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed {
+        let ingress_tls = path == "std::thread_local" && self.file == "src-tauri/src/ingress.rs";
+        if !MACRO_INVOCATIONS.contains(&path) && !runner_listed && !ingress_tls {
             self.production_finding(line, format!("the macro {path}! is not on the invocation list"));
         }
         let last = path.rsplit("::").next().unwrap_or(path);

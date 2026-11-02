@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { traceNativeReaderAwait } from "./solveTimeline";
 import { isRetainedIdentity, isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from '../features/results/numericalResultQuality';
 import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceContract } from '../features/results/resultReader';
 import { registerSourceRecovery, sameModelData } from '../features/results/resultStanding';
@@ -28,6 +29,21 @@ import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
 import { errorCode, isSolveJob, markSolveStage, noteSolveResult, timedSolvePass } from "./solveTimeline";
+import { jsonTextKeepingNegativeZero } from "./jsonText";
+import {
+  createNativeResult,
+  forgetNativeJob,
+  isNativeJobLive,
+  isNativeResult,
+  loadFullResult,
+  nativeCustody,
+  queryNativeRecovery,
+  readNativeSummary,
+  readNativeValidation,
+  readNativeVerdict,
+  type NativeResult
+} from "./nativeResult";
+import type { ReaderDispatch } from "../features/results/resultReader";
 export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
@@ -210,11 +226,12 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
 }
 /** Query only: headers, hashes, clones and saved records cannot mint registration. */
 export function hasNativeMechanicsInvocation(
-  source: MechanicsResult | null | undefined,
+  source: MechanicsResult | NativeResult | null | undefined,
   model: PreviewModel | null | undefined,
   solverMode?: string,
 ): boolean {
   if (!source || !model) return false;
+  if (isNativeResult(source)) return nativeRegistrationHolds(source, model, solverMode);
   const registered = nativeSourceInvocations.get(source);
   if (!registered) return false;
   try {
@@ -228,7 +245,8 @@ export function hasNativeMechanicsInvocation(
         || nativeContentFingerprint(model) === nativeContentFingerprint(invocation.request.model));
   } catch { return false; }
 }
-export function retainedNativeMechanicsInvocation(source: MechanicsResult, model: PreviewModel): NativeMechanicsInvocation | null {
+export function retainedNativeMechanicsInvocation(source: MechanicsResult | NativeResult, model: PreviewModel): NativeMechanicsInvocation | null {
+  if (isNativeResult(source)) return nativeRegistrationHolds(source, model) ? structuredClone(nativeRegistrations.get(source)!.invocation) : null;
   return hasNativeMechanicsInvocation(source, model)
     ? structuredClone(nativeSourceInvocations.get(source)!.capture.invocation) : null;
 }
@@ -344,6 +362,8 @@ export type BackendSolveJobCancellationReceipt = {
 
 /** The solver-mode header of the raw-bytes start command. */
 export const SOLVER_MODE_HEADER = "x-swbpipe-solver-mode";
+/** C1: the start header that keeps the job's result in native custody (never taken whole). */
+export const RESULT_CUSTODY_HEADER = "x-swbpipe-result-custody";
 /** The native job states; the solve timeline's code table lists them. */
 export const BACKEND_JOB_STATES: readonly BackendSolveJobState[] = ["queued", "running", "completed", "cancelled", "failed", "refused"];
 const TERMINAL_JOB_STATES: readonly BackendSolveJobState[] = ["completed", "cancelled", "failed", "refused"];
@@ -352,6 +372,7 @@ export const SOLVE_JOB_POLL_INTERVAL_MS = 50;
 export async function startPreviewMechanicsJob(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
+  options: { custody?: "webview" | "native" } = {},
 ): Promise<SolveJobStartReceipt> {
   assertPreviewSolverMode(solverMode);
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
@@ -370,7 +391,7 @@ export async function startPreviewMechanicsJob(
     receipt = await invoke<Record<string, unknown>>(
       "start_preview_mechanics_job",
       new TextEncoder().encode(text),
-      { headers: { [SOLVER_MODE_HEADER]: solverMode } },
+      { headers: options.custody === "native" ? { [SOLVER_MODE_HEADER]: solverMode, [RESULT_CUSTODY_HEADER]: "native" } : { [SOLVER_MODE_HEADER]: solverMode } },
     );
   } catch (error) {
     throw nativeInvokeError(error);
@@ -501,6 +522,189 @@ export async function takePreviewMechanicsJobResult(jobId: string): Promise<Mech
   return result;
 }
 
+/* -------------------------------------------------------------------------- *
+ * C1 native custody (DEL-04-05 `c1-native-custody-plan.md` slice 4): a fresh
+ * solve's result stays held natively; the webview holds a `NativeResult`.
+ * -------------------------------------------------------------------------- */
+
+/** The capture a native result's registration was validated against. */
+const nativeRegistrations = new WeakMap<NativeResult, CapturedNativeInvocation>();
+/** The capture of each live native job, kept until disposal (its C2 full copy registers against it). */
+const nativeJobCaptures = new Map<string, CapturedNativeInvocation>();
+
+/** Rust `standing`'s findings for a pressure-source statement whose reader passed. */
+function nativeRegistrationHolds(source: NativeResult, model: PreviewModel, solverMode?: string): boolean {
+  const capture = nativeRegistrations.get(source);
+  if (!capture || !isNativeJobLive(nativeCustody(source).jobId)) return false;
+  try {
+    return !capture.invalidated
+      && (solverMode === undefined || solverMode === capture.invocation.solver_mode)
+      && nativeContentFingerprint(capture.invocation) === capture.fingerprint
+      && nativeContentFingerprint(capture.callerModel) === capture.callerFingerprint
+      && (nativeContentFingerprint(model) === capture.callerFingerprint
+        || nativeContentFingerprint(model) === nativeContentFingerprint(capture.invocation.request.model));
+  } catch { return false; }
+}
+
+/** The texts a native standing is read with, as `numericalResultStanding` reads them: the model's
+ * text, and, for a registered pressure-source statement whose model is the captured one, the
+ * captured invocation's text. */
+export function nativeStandingInputs(route: string, capture: CapturedNativeInvocation | null, registered: boolean, model: PreviewModel): { modelText: string; invocationText: string | null } {
+  const modelText = jsonTextKeepingNegativeZero(model);
+  if (route !== "pressure_source" || !registered || !capture || capture.invalidated) return { modelText, invocationText: null };
+  const captured = capture.invocation.request.model;
+  const same = sameModelData(model, captured) || sameModelData(model, JSON.parse(checkedJsonText(capture.callerModel)));
+  return { modelText, invocationText: same ? jsonTextKeepingNegativeZero(capture.invocation) : null };
+}
+
+/** `validateCapturedSource` for a result held natively: the same checks and the same readers, each
+ * run natively on the held bytes (`read_preview_mechanics_job_verdict` with `reader`). The checks
+ * that read the envelope's model reference and producer identity read them from S
+ * (`nativeEnvelopeRefusal`). Null when the readers pass, else the code why not. The checked
+ * canonical hash `validateCapturedSource` also computed is the native analysis-run preview's
+ * received-result checksum (the same canonicalization), read before the session commits. */
+async function validateNativeReaders(jobId: string, route: string, capture: CapturedNativeInvocation | null): Promise<string | null> {
+  if (!capture || capture.invalidated) return "CAPTURE_UNAVAILABLE";
+  try {
+    if (nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CAPTURE_MISMATCH";
+    const invocationText = jsonTextKeepingNegativeZero(capture.invocation);
+    const modelText = jsonTextKeepingNegativeZero(capture.invocation.request.model);
+    const refused = (outcome: Awaited<ReturnType<typeof readNativeValidation>>) => (outcome.ok ? null : outcome.error.code);
+    if (route === "pressure_source") {
+      if (!sameModelData(JSON.parse(checkedJsonText(capture.callerModel)), capture.invocation.request.model)) return "CALLER_DISPATCH_NORMALIZATION_MISMATCH";
+      const code = refused(await readNativeValidation(jobId, "pressure-source", { invocationText }));
+      if (code) return code;
+    }
+    if (route === "preview_physics") {
+      const code = refused(await readNativeValidation(jobId, "preview-physics", { modelText }));
+      if (code) return code;
+    }
+    if (route === "pressure") {
+      const code = refused(await readNativeValidation(jobId, "pressure", { modelText }));
+      if (code) return code;
+    }
+    if (capture.invalidated || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CHANGED_DURING_VALIDATION";
+    return null;
+  } catch (error) {
+    if (error instanceof ResourceUnavailableError) throw error;
+    return errorCode(error) ?? "UNCODED_REFUSAL";
+  }
+}
+/** The envelope checks of `validateCapturedSource`, on S's envelope members: the model reference,
+ * a claimed pressure-source identity on another route, and a retained-precision successor (a
+ * desktop solve never publishes one: the shared path never selects a retained caller profile, and
+ * its R1 registration has no native reader here). */
+function nativeEnvelopeRefusal(envelope: { model_ref?: unknown; producer?: { semantic_contract_id?: string } }, route: string, capture: CapturedNativeInvocation | null): string | null {
+  if (!capture) return "CAPTURE_UNAVAILABLE";
+  if (envelope.model_ref !== capture.invocation.request.model.project.id) return "CAPTURE_MISMATCH";
+  if (route !== "pressure_source" && envelope.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID) {
+    if (!sameModelData(JSON.parse(checkedJsonText(capture.callerModel)), capture.invocation.request.model)) return "CALLER_DISPATCH_NORMALIZATION_MISMATCH";
+    return route === "unsupported" ? "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" : "SOURCE_BLOCKS_CONTRACT";
+  }
+  if (isRetainedRoute(route as never) || isRetainedIdentity(envelope.producer?.semantic_contract_id)) return "RETAINED_PRECISION_NATIVE_REGISTRATION_UNAVAILABLE";
+  return null;
+}
+
+/** The presented standing of a native verdict (`numericalResultStanding`'s shape). */
+export type NativeStanding = { contract: string; status: "integrity_checked" | "needs_recompute"; eligible: boolean; findings: string[] };
+function presentedStanding(dispatch: ReaderDispatch): NativeStanding {
+  const standing = dispatch.standing;
+  return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings] };
+}
+
+/** What a fresh native reading established, besides the handle. */
+export type NativeFreshReading = Readonly<{
+  result: NativeResult;
+  standing: NativeStanding;
+  /** Null when the result registered with its captured invocation, else the reason. */
+  unregistered: string | null;
+}>;
+
+/** The standing of a native result for `model`: Rust's, as `numericalResultStanding` reads it. */
+export async function readNativeStanding(jobId: string, route: string, registered: boolean, model: PreviewModel): Promise<NativeStanding> {
+  const capture = nativeJobCaptures.get(jobId) ?? null;
+  const inputs = nativeStandingInputs(route, capture, registered, model);
+  return presentedStanding(await readNativeVerdict(jobId, inputs));
+}
+
+/** C1 slice 4: a completed native-custody job's result, read natively without taking it. The
+ * header dispatch, the registration (`validateCapturedSource`'s readers, natively), the standing
+ * for `standingModel` and S for `summaryModel` with that standing. Nothing of the envelope's text
+ * or rows enters the webview. On any failure the job's custody stays for the caller to release. */
+export async function readNativeFreshResult(
+  jobId: string,
+  resultBytes: number,
+  { standingModel, summaryModel }: { standingModel: PreviewModel; summaryModel: PreviewModel },
+): Promise<NativeFreshReading> {
+  const timed = isSolveJob(jobId);
+  const capture = jobInvocations.get(jobId) ?? null;
+  if (capture) { capture.terminalClaimed = true; nativeJobCaptures.set(jobId, capture); }
+  if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
+  if (timed) markSolveStage("reader_verdict_start");
+  const header = await traceNativeReaderAwait("header", () => readNativeVerdict(jobId, {}));
+  const route = header.route;
+  const readers = await traceNativeReaderAwait("registration", () => validateNativeReaders(jobId, route, capture));
+  const summaryModelText = jsonTextKeepingNegativeZero(summaryModel);
+  let standing = await traceNativeReaderAwait("standing", () => readNativeStanding(jobId, route, readers === null, standingModel));
+  let summary = await traceNativeReaderAwait("summary", () => readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings }));
+  const unregistered = readers ?? nativeEnvelopeRefusal(summary.header.envelope as never, route, capture);
+  if (unregistered !== null && readers === null) {
+    // The envelope refused registration after the readers passed: the standing is read again
+    // without the invocation, and S with that standing.
+    standing = await traceNativeReaderAwait("standing", () => readNativeStanding(jobId, route, false, standingModel));
+    summary = await traceNativeReaderAwait("summary", () => readNativeSummary(jobId, summaryModelText, { eligible: standing.eligible, findings: standing.findings }));
+  }
+  if (timed) markSolveStage("reader_verdict_end", { registered: unregistered === null, reason_code: unregistered });
+  const bound = { eligible: standing.eligible, findings: standing.findings };
+  const standingInputs = nativeStandingInputs(route, capture, unregistered === null, standingModel);
+  const recovery = route === "pressure_source" || summary.header.omitted_members.includes("source_block_recovery")
+    ? await queryNativeRecovery(jobId, 0, 1)
+    : null;
+  const result = createNativeResult({
+    jobId,
+    origin: "fresh_job",
+    resultBytes,
+    summary,
+    verdict: await readNativeVerdict(jobId, standingInputs),
+    binding: { standingModelText: standingInputs.modelText, invocationText: standingInputs.invocationText, summaryModelText, standing: bound },
+    recovery
+  });
+  if (unregistered === null && capture) nativeRegistrations.set(result, capture);
+  return { result, standing, unregistered };
+}
+
+/** Ends a native result's custody: forgets its readings and releases the held bytes natively. */
+async function disposeNativeResult(result: NativeResult): Promise<boolean> {
+  const { jobId } = nativeCustody(result);
+  if (!isNativeJobLive(jobId)) return false;
+  forgetNativeJob(jobId);
+  const capture = nativeJobCaptures.get(jobId);
+  if (capture) { capture.invalidated = true; nativeJobCaptures.delete(jobId); }
+  return disposePreviewMechanicsResult(jobId);
+}
+
+/** The native job a C2 full copy was copied from: the copy names that job's custody (the held
+ * result's exact bytes) while the job is live, never owning or releasing it. */
+const fullCopyJobs = new WeakMap<MechanicsResult, string>();
+
+/** C2 only: the native result's full copy (at or under 64 MiB), read from its exact bytes and
+ * registered as a taken result was (`validateCapturedSource` with the job's capture), so the C2
+ * consumers keep their reader and binding semantics: its delivered job (the exact-route report
+ * binding) is the native job, while that job is held. Cached per job until disposal. */
+export function loadNativeFullResult(result: NativeResult): Promise<MechanicsResult> {
+  const { jobId } = nativeCustody(result);
+  return loadFullResult(result, async (text) => {
+    const copy = receiveResultBytes(text);
+    const capture = nativeJobCaptures.get(jobId) ?? null;
+    if (nativeRegistrations.has(result)) {
+      const code = capture ? await validateCapturedSource(copy, capture) : "CAPTURE_UNAVAILABLE";
+      if (code !== null) throw new Error(`C2-RESULT-REGISTRATION-REFUSED: ${code}`);
+    }
+    fullCopyJobs.set(copy, jobId);
+    return copy;
+  });
+}
+
 /** Jobs whose result or custody the native host reported released: a job's
  * result is released at most once, so a later discard of the same job (for
  * example after its take already released an unreadable delivery) sends nothing. */
@@ -522,7 +726,8 @@ export async function disposePreviewMechanicsResult(jobId: string): Promise<bool
 /** Releases the delivered result the app is dropping (replaced, cleared or used
  * up). Results that were not delivered by a native job, or were already
  * released, are ignored. */
-export function disposeDeliveredMechanicsResult(result: MechanicsResult | null | undefined): Promise<boolean> {
+export function disposeDeliveredMechanicsResult(result: MechanicsResult | NativeResult | null | undefined): Promise<boolean> {
+  if (isNativeResult(result)) return disposeNativeResult(result);
   const delivered = result ? deliveredResults.get(result) : undefined;
   if (!delivered || delivered.disposed) return Promise.resolve(false);
   delivered.disposed = true;
@@ -530,7 +735,13 @@ export function disposeDeliveredMechanicsResult(result: MechanicsResult | null |
 }
 
 /** Query only: the native job a held result was delivered by, while it is held. */
-export function deliveredMechanicsResultJob(result: MechanicsResult | null | undefined): string | null {
+export function deliveredMechanicsResultJob(result: MechanicsResult | NativeResult | null | undefined): string | null {
+  if (isNativeResult(result)) {
+    const { jobId } = nativeCustody(result);
+    return isNativeJobLive(jobId) ? jobId : null;
+  }
+  const copied = result ? fullCopyJobs.get(result) : undefined;
+  if (copied !== undefined) return isNativeJobLive(copied) ? copied : null;
   const delivered = result ? deliveredResults.get(result) : undefined;
   return delivered && !delivered.disposed ? delivered.jobId : null;
 }
@@ -541,8 +752,13 @@ export function deliveredMechanicsResultJob(result: MechanicsResult | null | und
  * without a valid registration (a copy, an unregistered or edited result) and once the
  * result is no longer held (disposed). The native host checks its SHA-256 against the
  * digest it recorded when it admitted the job's body. */
-export function deliveredIntakeText(result: MechanicsResult | null | undefined): string | null {
+export function deliveredIntakeText(result: MechanicsResult | NativeResult | null | undefined): string | null {
   if (!result || deliveredMechanicsResultJob(result) === null) return null;
+  if (isNativeResult(result)) {
+    const capture = nativeRegistrations.get(result);
+    if (!capture || capture.invalidated || nativeContentFingerprint(capture.invocation) !== capture.fingerprint) return null;
+    try { return checkedJsonText(capture.invocation.request.model); } catch { return null; }
+  }
   const registered = nativeSourceInvocations.get(result);
   if (!registered) return null;
   try {
@@ -559,6 +775,9 @@ export function deliveredIntakeText(result: MechanicsResult | null | undefined):
  * and release the retained result natively, without copying it to the app. */
 export async function discardPreviewMechanicsJobResult(jobId: string): Promise<boolean> {
   retireJobCapture(jobId);
+  forgetNativeJob(jobId);
+  const capture = nativeJobCaptures.get(jobId);
+  if (capture) { capture.invalidated = true; nativeJobCaptures.delete(jobId); }
   return disposePreviewMechanicsResult(jobId);
 }
 
@@ -781,6 +1000,9 @@ export function declaredSourceResultDimension(
 export const DEFAULT_COMPARISON_LEFT_BASIS_REF = "load:L-100";
 export const DEFAULT_COMPARISON_RIGHT_BASIS_REF = "combination:C-OPER-ALT";
 
+/** The run identity a comparison names: a full record's, or a native record header's (C1). */
+export type ComparedRun = Readonly<{ analysis_run: Readonly<Pick<AnalysisRunEnvelope["analysis_run"], "run_id" | "model_state_ref">> }>;
+
 export function buildPreviewComparison({
   result,
   analysisRun,
@@ -788,7 +1010,7 @@ export function buildPreviewComparison({
   rightBasisRef = DEFAULT_COMPARISON_RIGHT_BASIS_REF,
 }: {
   result: MechanicsResult;
-  analysisRun: AnalysisRunEnvelope;
+  analysisRun: ComparedRun;
   leftBasisRef?: string;
   rightBasisRef?: string;
 }): PreviewComparison {

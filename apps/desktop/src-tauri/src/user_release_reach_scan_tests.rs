@@ -534,7 +534,7 @@ fn user_release_reach_scan_finds_each_break() {
         ("a new local macro without a scanned name", appended("pdf_emitter/src/lib.rs", "macro_rules! twice { ($e:expr) => { ($e, $e) }; }\n"), "the macro definition twice is not on the allow-list"),
         ("its invocation", appended("pdf_emitter/src/lib.rs", "macro_rules! twice { ($e:expr) => { ($e, $e) }; }\nfn t() { twice!(1); }\n"), "the macro twice! is not on the invocation list"),
         ("a macro 2.0 item", appended("pdf_emitter/src/lib.rs", "pub macro twice($e:expr) { ($e, $e) }\n"), "Verbatim"),
-        ("app_invoke_handler with a handler added", edited(TAURI, "            save_local_result_json $(, $extra)*", "            save_local_result_json, forward $(, $extra)*"), "differs from its pinned text"),
+        ("app_invoke_handler with a handler added", edited(TAURI, "            abort_local_csv_stream $(, $extra)*", "            abort_local_csv_stream, forward $(, $extra)*"), "differs from its pinned text"),
         ("app_invoke_handler with whitespace changed", edited(TAURI, "            save_report_package,\n", "            save_report_package,  \n"), "differs from its pinned text"),
         ("app_invoke_handler with a comment", edited(TAURI, "            save_report_package,\n", "            save_report_package, // invented\n"), "differs from its pinned text"),
         ("app_invoke_handler moved to another file", {
@@ -2644,4 +2644,24 @@ fn the_symbol_level_ffi_repros_in_scratch_copies() {
             assert!(expected.iter().any(|expected| finding.contains(expected.as_str())), "{case}: unexpected {finding:?}");
         }
     }
+}
+
+
+/// The feature-gated C1 allocation counter uses standard TLS; its statics'
+/// initializers remain visible to every existing call and source rule.
+#[test]
+fn ingress_tls_initializers_are_scanned_as_code() {
+    let source = |text: &str| with_file_text("src-tauri/src/ingress.rs", text, appended(TAURI, "#[allow(unsafe_code)] mod ingress;"));
+    let passing = source("std::thread_local! { static COUNT: std::cell::Cell<u64> = const { std::cell::Cell::new(0) }; }");
+    assert!(scan(&passing).is_empty(), "{:#?}", scan(&passing));
+    for text in [
+        "std::thread_local! { static COUNT: usize = { open_pipe_stress_report_renderer::render_calculation_report(i); 0 }; }",
+        "std::thread_local! { static COUNT: usize = { include!(\"hidden.rs\"); 0 }; }",
+        "std::thread_local! { fn hidden() {} }",
+        "thread_local! { static COUNT: usize = 0; }",
+    ] {
+        assert!(!scan(&source(text)).is_empty(), "{text}");
+    }
+    let other_file = with_file_text("src-tauri/src/not_ingress.rs", "std::thread_local! { static COUNT: usize = 0; }", appended(TAURI, "mod not_ingress;"));
+    assert!(!scan(&other_file).is_empty());
 }

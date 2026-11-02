@@ -5,6 +5,7 @@ import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREV
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
+import { isNativeResult, type NativeResult } from "../../services/nativeResult";
 import type { MechanicsResult } from "../../types";
 
 /** Static fresh-identity set: a constant, no route predicate.
@@ -83,7 +84,7 @@ export function retainedRowClassLabel(row: { id?: string; unit?: string }, sourc
 }
 
 /** Readable identity, by dispatch, that belongs to the static fresh set. */
-export function isFreshSemanticResult(source: MechanicsResult | null | undefined): boolean {
+export function isFreshSemanticResult(source: MechanicsResult | NativeResult | null | undefined): boolean {
   const binding = currentSemanticContract(source);
   return !!binding && FRESH_SEMANTIC_CONTRACT_IDS.includes(binding.id);
 }
@@ -114,7 +115,9 @@ export type KnownSemanticNotice = { id: string; text: string };
 
 /** Text-only notices a surface shows for a received result. The caller decides
  * placement; no notice changes standing, rows or exported bytes. */
-export function knownSemanticNotices(source: MechanicsResult | null | undefined): KnownSemanticNotice[] {
+/** `options.hasIntensified`: for a native result, whether a row of the intensified kind exists
+ * (a bounded native lookup by the caller); a full result's rows are read directly. */
+export function knownSemanticNotices(source: MechanicsResult | NativeResult | null | undefined, options: { hasIntensified?: boolean } = {}): KnownSemanticNotice[] {
   if (!source) return [];
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return []; }
@@ -124,14 +127,15 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
     const solved = source.status.mechanics === "MECHANICS_SOLVED";
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
     else if (solved) notices.push({ id: "headline-withheld", text: N_HEADLINE_WITHHELD });
-    if (source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND)) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
+    if (options.hasIntensified ?? (!isNativeResult(source) && source.results.some(row => row.kind === PREVIEW_INTENSIFIED_KIND))) notices.push({ id: "intensified-label", text: `Intensified measure: ${N_INTENSIFIED}.` });
     for (const gate of previewCombinationGates(source)) {
       if (gate.withheld && gate.reason) notices.push({ id: `combination-gate:${gate.combination_id}`, text: `${gate.combination_id}: ${COMBINATION_GATE_REASONS[gate.reason] ?? gate.reason}` });
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
   // successor; B3b's exact successor reads pressure-2's rows since B7b D4 (a), so no preview notice above).
-  if (isRetainedRoute(route)) {
+  // A native result is never a retained successor (a desktop solve never publishes one).
+  if (isRetainedRoute(route) && !isNativeResult(source)) {
     if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
     for (const c of classificationSummary(source)) {
       if (c.absolute_verified > 0) notices.push({ id: `retained-precision-absolute:${String(c.case_id)}`, text: `${String(c.case_id)}: ${c.absolute_verified} quantities verified only to an absolute bound, below the relative accuracy floor. Each is labelled and shown for inspection; rule checks cannot bind to them.` });
@@ -141,7 +145,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
   return notices;
 }
 
-export function previewCombinationGates(source: MechanicsResult): { combination_id: string; withheld: boolean; reason: string | null }[] {
+export function previewCombinationGates(source: MechanicsResult | NativeResult): { combination_id: string; withheld: boolean; reason: string | null }[] {
   const gates = (source.contract_evidence as { combination_gates?: unknown } | undefined)?.combination_gates;
   if (!Array.isArray(gates)) return [];
   return gates.filter((g): g is { combination_id: string; withheld: boolean; reason: string | null } =>

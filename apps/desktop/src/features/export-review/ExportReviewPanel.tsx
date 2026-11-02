@@ -1,3 +1,4 @@
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { Download, ShieldCheck } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
@@ -35,8 +36,8 @@ export function ExportReviewPanel({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   comparison: PreviewComparison | null;
   /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
@@ -193,8 +194,8 @@ function buildExportReviewManifest({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   comparison: PreviewComparison | null;
   /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
@@ -614,7 +615,7 @@ function buildExportReviewManifest({
       current_design_knowledge_record_count: knowledge?.records.length ?? 0,
       current_model_state_count: run ? 1 : 0,
       current_analysis_run_count: run ? 1 : 0,
-      current_result_row_count: result?.results.length ?? 0,
+      current_result_row_count: (result ? resultRowCount(result) : 0),
       current_comparison_pair_count: comparison?.summary.comparable_result_pairs ?? 0,
       operation_review_record_count: operationRecordCount,
       core_design_knowledge_record_count: 2,
@@ -729,7 +730,7 @@ function buildExportReviewManifest({
       readiness: resultExportReady ? "available" : "pending_mechanics_run",
       deliverable_refs: ["DEL-08-04", "DEL-14-02"],
       source_refs: result && run ? [result.run_id, run.model_state_ref.ref] : [],
-      result_ref_count: result?.results.length ?? 0,
+      result_ref_count: (result ? resultRowCount(result) : 0),
       result_set_count: result ? 1 : 0,
       diagnostic_ref_count: diagnostics.length,
       redaction_action: "classify_and_warn_no_private_payload",
@@ -748,9 +749,9 @@ function buildExportReviewManifest({
       source_refs: result && run
         ? [result.run_id, run.model_state_ref.ref, `result-envelope:${result.run_id}`]
         : [model.project.id],
-      result_ref_count: result?.results.length ?? 0,
+      result_ref_count: (result ? resultRowCount(result) : 0),
       csv_column_count: 11,
-      stable_id_count: result?.results.length ?? 0,
+      stable_id_count: (result ? resultRowCount(result) : 0),
       member_roles: ["manifest", "csv_text", "result_rows", "stable_id_map", "loss_report", "validation_report", "diagnostics"],
       comparison_semantics: "diagnostic_export_only_no_pass_fail",
       schema_validation_status: "desktop_preview_shape_aligned_not_runtime_json_schema_validated",
@@ -777,7 +778,7 @@ function buildExportReviewManifest({
       source_refs: result && run ? [result.run_id, run.model_state_ref.ref, model.project.id] : [model.project.id],
       operation: "solve",
       requested_outputs: ["result_envelope", "audit_manifest", "diagnostics", "regression_record"],
-      result_ref_count: result?.results.length ?? 1,
+      result_ref_count: (result ? resultRowCount(result) : 1),
       runner_job_state: result && run ? "COMPLETED" : "TBD",
       final_cli_command_syntax: HEADLESS_FINAL_CLI,
       package_scripts: "dev_test_convenience_only",
@@ -801,7 +802,7 @@ function buildExportReviewManifest({
       capabilities: ["export_model", "export_results", "validate_payload", "contribution_review"],
       parse_status: "not_parsed_by_framework",
       validation_plan: "schema_units_provenance_privacy_protected_content_export_review_required",
-      result_ref_count: result?.results.length ?? 1,
+      result_ref_count: (result ? resultRowCount(result) : 1),
       diagnostic_ref_count: diagnostics.length,
       external_format_list: "TBD",
       public_transport_protocol: "TBD",
@@ -1037,8 +1038,8 @@ function buildExportReviewManifest({
       readiness: nativePackageReady ? "available" : "pending_mechanics_run",
       deliverable_refs: ["DEL-17-02", "DEL-17-03", "DEL-02-05", "DEL-12-01", "DEL-08-04", "DEL-14-02"],
       source_refs: result && run ? [result.run_id, run.model_state_ref.ref, model.project.id] : [model.project.id],
-      result_ref_count: result?.results.length ?? 0,
-      stable_id_count: stableEntityCount + (result?.results.length ?? 0) + operationRecordCount,
+      result_ref_count: (result ? resultRowCount(result) : 0),
+      stable_id_count: stableEntityCount + ((result ? resultRowCount(result) : 0)) + operationRecordCount,
       operation_record_count: operationRecordCount,
       redaction_action: "classify_and_warn_no_private_payload",
       private_payload_included: false,
@@ -1054,7 +1055,7 @@ function buildExportReviewManifest({
       readiness: reportReady ? "available" : "pending_mechanics_run",
       deliverable_refs: ["DEL-08-01", "DEL-08-04", "DEL-08-06"],
       source_refs: result && run ? [result.run_id, run.model_state_ref.ref] : [],
-      result_ref_count: result?.results.length ?? 0,
+      result_ref_count: (result ? resultRowCount(result) : 0),
       diagnostic_ref_count: diagnostics.length,
       operation_record_count: operationRecordCount,
       redaction_action: "classify_and_warn_no_private_payload",
@@ -1119,8 +1120,8 @@ function buildExportReviewManifest({
       readiness: handoffReady ? "available" : "pending_mechanics_run",
       deliverable_refs: ["DEL-15-01", "DEL-15-02", "DEL-15-03", "DEL-17-03"],
       source_refs: run ? [run.run_id, run.model_state_ref.ref] : [],
-      result_ref_count: result?.results.length ?? 0,
-      stable_id_count: stableEntityCount + (result?.results.length ?? 0),
+      result_ref_count: (result ? resultRowCount(result) : 0),
+      stable_id_count: stableEntityCount + ((result ? resultRowCount(result) : 0)),
       operation_record_count: operationRecordCount,
       redaction_action: "classify_and_warn_no_private_payload",
       private_payload_included: false,
@@ -1139,7 +1140,7 @@ function buildExportReviewManifest({
         ...(proposal ? [proposal.proposal_id] : [])
       ],
       operation_record_count: operationRecordCount,
-      result_ref_count: result?.results.length ?? 0,
+      result_ref_count: (result ? resultRowCount(result) : 0),
       redaction_action: "classify_and_warn_no_private_payload",
       private_payload_included: false,
       protected_content_included: false,
@@ -1202,7 +1203,7 @@ function buildExportReviewUnitPolicySummary({
   exports
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
+  result: SessionResult | null;
   exports: Array<{
     export_id: string;
     document_kind: string;

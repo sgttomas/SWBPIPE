@@ -1,0 +1,401 @@
+{
+ "document_kind": "swbpipe.desktop.native_reopen_requests",
+ "note": "Written by nativeReopen.session.test.tsx (NATIVE_REOPEN_RECORD=1): the requests the session and historical panel send on the restored handle; stored_custody_tests.rs answers each with its actual command.",
+ "requests": [
+  {
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$HANDLE",
+    "modelJson": "null",
+    "standing": null
+   }
+  },
+  {
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$HANDLE"
+   }
+  },
+  {
+   "command": "query_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$HANDLE",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "offset": 0,
+    "limit": 50
+   }
+  },
+  {
+   "command": "lookup_preview_mechanics_job_rows",
+   "args": {
+    "jobId": "$HANDLE",
+    "kinds": [
+     "preview_intensified_bending_stress"
+    ],
+    "match": "first"
+   }
+  },
+  {
+   "command": "query_preview_mechanics_job_navigator",
+   "args": {
+    "jobId": "$HANDLE",
+    "filter": {
+     "text": "",
+     "family": "all",
+     "frame": "all",
+     "case": "all"
+    },
+    "probe": null
+   }
+  },
+  {
+   "command": "read_preview_mechanics_job_row_semantics",
+   "args": {
+    "jobId": "$HANDLE",
+    "ordinals": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49
+    ]
+   }
+  },
+  {
+   "command": "save_restored_result_local_project",
+   "args": {
+    "jobId": "$HANDLE",
+    "expectedSource": {
+     "kind": "saved_project_run",
+     "project_id": "project:exact-pressure-connected-fixture",
+     "record_sha256": "cf5855512071e2ea1c99a25c93756f6b6eda6b4a2fe420e5c246656c27975e6e",
+     "recording_id": null,
+     "result_sha256": "efa2b5207afd7a779370c225afa1218b2dcf570a6905637bf27708dd17366d13"
+    },
+    "envelopeBasis": {
+     "payload_sha256": "sha256:562c06a36803070ae6343a5981760bb09cadd4ef42ea399f615c17b39b459270",
+     "evidence": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "hash_status": "computed_local_preview",
+      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+      "payload_ref": "project:exact-pressure-connected-fixture",
+      "payload_scope": "project_envelope_payload",
+      "value": "sha256:562c06a36803070ae6343a5981760bb09cadd4ef42ea399f615c17b39b459270"
+     }
+    },
+    "mode": "save",
+    "projectId": "project:exact-pressure-connected-fixture",
+    "projectName": "Synthetic exact-pressure authoring control",
+    "model": {
+     "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+     },
+     "combinations": [],
+     "components": [],
+     "data_boundary": {
+      "source": "synthetic_integration_input_not_library_data"
+     },
+     "diagnostics": [],
+     "document_kind": "openpipestress.product_preview.model",
+     "load_cases": [
+      {
+       "id": "case:closed-pressure",
+       "kind": "primitive_user_load",
+       "label": "closed-pressure",
+       "pressure_regions": [
+        {
+         "id": "region:fixture-pressure",
+         "member_pipe_ids": [
+          "pipe:fixture-span"
+         ],
+         "pressure": {
+          "unit": "kPa",
+          "value": 2000
+         },
+         "pressure_basis": "internal_differential_zero_external_v1",
+         "provenance": "synthetic_integration_input_not_library_data",
+         "terminals": [
+          {
+           "closure_transfer": "transfers_to_wall",
+           "node_ref": "node:fixture-root",
+           "provenance": "synthetic_integration_input_not_library_data"
+          },
+          {
+           "closure_transfer": "transfers_to_wall",
+           "node_ref": "node:fixture-tip",
+           "provenance": "synthetic_integration_input_not_library_data"
+          }
+         ]
+        }
+       ],
+       "primitive_loads": [],
+       "provenance": "synthetic_integration_input_not_library_data",
+       "status": "preview_only"
+      },
+      {
+       "id": "case:six-component-load",
+       "kind": "primitive_user_load",
+       "label": "six-component-load",
+       "pressure_regions": [],
+       "primitive_loads": [
+        {
+         "category": "concentrated_force",
+         "dimension": "force",
+         "direction": "global_x",
+         "id": "load:fixture-global_x",
+         "magnitude": {
+          "unit": "N",
+          "value": 1000
+         },
+         "provenance": "synthetic_integration_input_not_library_data",
+         "target": {
+          "node": "node:fixture-tip",
+          "type": "node"
+         }
+        },
+        {
+         "category": "concentrated_force",
+         "dimension": "force",
+         "direction": "global_y",
+         "id": "load:fixture-global_y",
+         "magnitude": {
+          "unit": "N",
+          "value": 2000
+         },
+         "provenance": "synthetic_integration_input_not_library_data",
+         "target": {
+          "node": "node:fixture-tip",
+          "type": "node"
+         }
+        },
+        {
+         "category": "concentrated_force",
+         "dimension": "force",
+         "direction": "global_z",
+         "id": "load:fixture-global_z",
+         "magnitude": {
+          "unit": "N",
+          "value": -3000
+         },
+         "provenance": "synthetic_integration_input_not_library_data",
+         "target": {
+          "node": "node:fixture-tip",
+          "type": "node"
+         }
+        },
+        {
+         "category": "concentrated_moment",
+         "dimension": "moment",
+         "direction": "rotation_x",
+         "id": "load:fixture-rotation_x",
+         "magnitude": {
+          "unit": "N*m",
+          "value": 400
+         },
+         "provenance": "synthetic_integration_input_not_library_data",
+         "target": {
+          "node": "node:fixture-tip",
+          "type": "node"
+         }
+        },
+        {
+         "category": "concentrated_moment",
+         "dimension": "moment",
+         "direction": "rotation_y",
+         "id": "load:fixture-rotation_y",
+         "magnitude": {
+          "unit": "N*m",
+          "value": -500
+         },
+         "provenance": "synthetic_integration_input_not_library_data",
+         "target": {
+          "node": "node:fixture-tip",
+          "type": "node"
+         }
+        },
+        {
+         "category": "concentrated_moment",
+         "dimension": "moment",
+         "direction": "rotation_z",
+         "id": "load:fixture-rotation_z",
+         "magnitude": {
+          "unit": "N*m",
+          "value": 600
+         },
+         "provenance": "synthetic_integration_input_not_library_data",
+         "target": {
+          "node": "node:fixture-tip",
+          "type": "node"
+         }
+        }
+       ],
+       "provenance": "synthetic_integration_input_not_library_data",
+       "status": "preview_only"
+      }
+     ],
+     "materials": [
+      {
+       "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+       "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000
+       },
+       "id": "material:fixture-isotropic",
+       "label": "fixture-isotropic",
+       "poisson_ratio": {
+        "unit": "1",
+        "value": 0.3
+       },
+       "provenance": "synthetic_integration_input_not_library_data"
+      }
+     ],
+     "nodes": [
+      {
+       "id": "node:fixture-root",
+       "label": "fixture-root",
+       "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+       },
+       "provenance": "synthetic_integration_input_not_library_data"
+      },
+      {
+       "id": "node:fixture-tip",
+       "label": "fixture-tip",
+       "position": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+       },
+       "provenance": "synthetic_integration_input_not_library_data"
+      }
+     ],
+     "pipe_segments": [
+      {
+       "from": "node:fixture-root",
+       "id": "pipe:fixture-span",
+       "label": "fixture-span",
+       "material": "material:fixture-isotropic",
+       "provenance": "synthetic_integration_input_not_library_data",
+       "section": {
+        "corrosion_allowance": {
+         "unit": "m",
+         "value": 0
+        },
+        "outside_diameter": {
+         "unit": "m",
+         "value": 0.12
+        },
+        "wall_thickness": {
+         "unit": "m",
+         "value": 0.01
+        }
+       },
+       "to": "node:fixture-tip",
+       "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+       }
+      }
+     ],
+     "pressure_contract": {
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
+     },
+     "project": {
+      "description": "Synthetic user-input fixture; no library or code-rule data.",
+      "id": "project:exact-pressure-connected-fixture",
+      "name": "Synthetic exact-pressure authoring control",
+      "units": {
+       "angle": "rad",
+       "force": "N",
+       "length": "m",
+       "pressure": "Pa",
+       "stress": "Pa",
+       "temperature": "degC"
+      }
+     },
+     "schema_version": "0.9.0",
+     "supports": [
+      {
+       "family": "anchor",
+       "id": "support:fixture-root",
+       "label": "fixture-root",
+       "node": "node:fixture-root",
+       "provenance": "synthetic_integration_input_not_library_data",
+       "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+       ]
+      }
+     ]
+    },
+    "editorIntents": [],
+    "proposal": null,
+    "selectedReviewTarget": null,
+    "confirmedRevision": null,
+    "expectedBase": "sha256:562c06a36803070ae6343a5981760bb09cadd4ef42ea399f615c17b39b459270"
+   }
+  }
+ ]
+}

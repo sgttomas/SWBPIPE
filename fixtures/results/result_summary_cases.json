@@ -1,0 +1,1123 @@
+{
+  "document_kind": "swbpipe.test.result_summary_cases",
+  "note": "Written by resultSummaryParity.test.ts (RESULT_SUMMARY_CASES_WRITE=1) from test-support/resultSummaryCases.ts; read by result_summary_tests.rs.",
+  "cases": [
+    {
+      "name": "results/preview_physics_connected_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_connected_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/precision_connected_ui_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_connected_sparse#none",
+      "result": {
+        "path": "fixtures/results/preview_physics_connected_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/precision_connected_ui_model.json",
+        "pointer": ""
+      },
+      "standing": null
+    },
+    {
+      "name": "results/preview_physics_connected_sparse#not_eligible",
+      "result": {
+        "path": "fixtures/results/preview_physics_connected_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/precision_connected_ui_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": false,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_connected_dense",
+      "result": {
+        "path": "fixtures/results/preview_physics_connected_dense.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/precision_connected_ui_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_invented_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_invented_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_unicode_ids_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_unicode_ids_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/pressure_connected_ui_mechanics_sparse",
+      "result": {
+        "path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/exact_pressure_authoring_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/pressure_connected_ui_mechanics_sparse#none",
+      "result": {
+        "path": "fixtures/results/pressure_connected_ui_mechanics_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/exact_pressure_authoring_model.json",
+        "pointer": ""
+      },
+      "standing": null
+    },
+    {
+      "name": "results/pressure_connected_ui_mechanics_dense",
+      "result": {
+        "path": "fixtures/results/pressure_connected_ui_mechanics_dense.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/exact_pressure_authoring_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/pressure_thermal_ui_mechanics_sparse",
+      "result": {
+        "path": "fixtures/results/pressure_thermal_ui_mechanics_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/model_operations/physics_thermal_ui_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/pressure_u4b_arc_sparse",
+      "result": {
+        "path": "fixtures/results/pressure_u4b_arc_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "core/product_physics/tests/fixtures/u4b_l90_p_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_u4b_arc_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_u4b_arc_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "core/product_physics/tests/fixtures/u4b_z_preview_rev_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_range_envelope_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_range_envelope_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_timoshenko_arc_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_timoshenko_arc_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json",
+        "pointer": "/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/preview_physics_timoshenko_partial_span_blocked_sparse",
+      "result": {
+        "path": "fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json",
+        "pointer": "/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/invented_demo_result_preview_physics_1_sparse",
+      "result": {
+        "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/product_preview/invented_demo_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/invented_demo_result_preview_physics_1_sparse#not_eligible",
+      "result": {
+        "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/product_preview/invented_demo_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": false,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/invented_demo_result_preview_physics_1_dense",
+      "result": {
+        "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/product_preview/invented_demo_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "results/invented_mechanics_result_preview_physics_1_sparse",
+      "result": {
+        "path": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/product_preview/invented_preview_model.json",
+        "pointer": ""
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "nonlinear_operands/0",
+      "result": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/0/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/0/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "nonlinear_operands/1",
+      "result": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/1/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/1/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "nonlinear_operands/2",
+      "result": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/2/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/2/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "nonlinear_operands/3",
+      "result": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/3/document"
+      },
+      "model": {
+        "path": "fixtures/results/preview_physics_nonlinear_operands_corpus.json",
+        "pointer": "/documents/3/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "combination/0",
+      "result": {
+        "path": "fixtures/results/pressure_v3_combination_reader_corpus.json",
+        "pointer": "/cases/0/envelope"
+      },
+      "model": {
+        "path": "fixtures/results/pressure_v3_combination_reader_corpus.json",
+        "pointer": "/cases/0/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "combination/3",
+      "result": {
+        "path": "fixtures/results/pressure_v3_combination_reader_corpus.json",
+        "pointer": "/cases/3/envelope"
+      },
+      "model": {
+        "path": "fixtures/results/pressure_v3_combination_reader_corpus.json",
+        "pointer": "/cases/3/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "pressure_source/n05-sparse_interactive",
+      "result": {
+        "path": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json",
+        "pointer": ""
+      },
+      "model": {
+        "path": "fixtures/product_preview/pressure_source/physics_source/n05.request.json",
+        "pointer": "/model"
+      },
+      "standing": {
+        "eligible": true,
+        "findings": []
+      }
+    },
+    {
+      "name": "invented/overlay_standard",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/overlay_standard_l2_sensitive",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "sensitive",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/overlay_standard_not_eligible",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": false,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/overlay_standard_pressure_source",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "pressure_source",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/overlay_standard_retained_route",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "retained",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/overlay_standard_malformed_health",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": ""
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/overlay_standard_no_standing",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": null
+    },
+    {
+      "name": "invented/key_rows",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":40,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":80,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-1:i:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-1:i:R\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":90,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:support:S-D:load:L-1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-D\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"active_set_state_code\",\"coordinate_system\":\"solver_iteration\",\"location\":\"uy\",\"basis\":\"invented\",\"sign_convention\":\"0=inactive, 1=active, 2=sticking, 3=sliding\"}},{\"id\":\"state:support:S-D:load:L-2\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-D\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"active_set_state_code\",\"coordinate_system\":\"solver_iteration\",\"location\":\"uy\",\"basis\":\"invented\",\"sign_convention\":\"0=inactive, 1=active, 2=sticking, 3=sliding\"}}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"Nozzle C\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"nozzle_reference\":\"N1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"label\":\"Rest D\",\"family\":\"vertical_support\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"schema_version\":\"0.7.0\",\"document_kind\":\"pipe_stress_model\",\"data_boundary\":{},\"project\":{\"id\":\"project:invented\",\"name\":\"Invented\",\"description\":\"invented\",\"units\":{\"length\":\"m\",\"force\":\"N\"}},\"analysis_status\":{\"mechanics\":\"not_run\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"materials\":[],\"sections\":[],\"diagnostics\":[],\"rule_pack_refs\":[{\"rule_pack_id\":\"invented_pack_0\"},{\"rule_pack_id\":\"invented_pack_1\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/key_rows_one_pack",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":40,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":80,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-1:i:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-1:i:R\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":90,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:support:S-D:load:L-1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-D\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"active_set_state_code\",\"coordinate_system\":\"solver_iteration\",\"location\":\"uy\",\"basis\":\"invented\",\"sign_convention\":\"0=inactive, 1=active, 2=sticking, 3=sliding\"}},{\"id\":\"state:support:S-D:load:L-2\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-D\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"active_set_state_code\",\"coordinate_system\":\"solver_iteration\",\"location\":\"uy\",\"basis\":\"invented\",\"sign_convention\":\"0=inactive, 1=active, 2=sticking, 3=sliding\"}}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"Nozzle C\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"nozzle_reference\":\"N1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"label\":\"Rest D\",\"family\":\"vertical_support\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"schema_version\":\"0.7.0\",\"document_kind\":\"pipe_stress_model\",\"data_boundary\":{},\"project\":{\"id\":\"project:invented\",\"name\":\"Invented\",\"description\":\"invented\",\"units\":{\"length\":\"m\",\"force\":\"N\"}},\"analysis_status\":{\"mechanics\":\"not_run\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"materials\":[],\"sections\":[],\"diagnostics\":[],\"rule_pack_refs\":[{\"rule_pack_id\":\"invented_pack_0\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "quality_unresolved",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/key_rows_no_pack",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":40,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":80,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-1:i:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"invented\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-1:i:R\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":90,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:support:S-D:load:L-1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-D\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"active_set_state_code\",\"coordinate_system\":\"solver_iteration\",\"location\":\"uy\",\"basis\":\"invented\",\"sign_convention\":\"0=inactive, 1=active, 2=sticking, 3=sliding\"}},{\"id\":\"state:support:S-D:load:L-2\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-D\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"active_set_state_code\",\"coordinate_system\":\"solver_iteration\",\"location\":\"uy\",\"basis\":\"invented\",\"sign_convention\":\"0=inactive, 1=active, 2=sticking, 3=sliding\"}}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"Nozzle C\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"nozzle_reference\":\"N1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"label\":\"Rest D\",\"family\":\"vertical_support\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"schema_version\":\"0.7.0\",\"document_kind\":\"pipe_stress_model\",\"data_boundary\":{},\"project\":{\"id\":\"project:invented\",\"name\":\"Invented\",\"description\":\"invented\",\"units\":{\"length\":\"m\",\"force\":\"N\"}},\"analysis_status\":{\"mechanics\":\"not_run\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"materials\":[],\"sections\":[],\"diagnostics\":[]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": [
+            {
+              "combination_id": "comb:R",
+              "state": "checks_passed",
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invented/supports",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"r:support:S-A:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fy\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-200,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":300,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-400,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:My\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":500,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"My\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-600,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:F\",\"kind\":\"support_reaction_force_magnitude_v2\",\"entity_ref\":\"support:S-A\",\"value\":374.17,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"r:S-A:Fx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:L2:dup\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-0,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:C1\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":0.6,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:R\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":999,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"r:support:S-C:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":5,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"element_local\"}},{\"id\":\"r:S-C:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":6,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\"}},{\"id\":\"r:S-D:Fz:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":7,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-D:Qx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":8,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Qx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-G:nobasis\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-G\",\"value\":1,\"unit\":\"N\",\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-1:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-2:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:comb:C1:-1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":-1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-1:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-2:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":-0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.001\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.001,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.002\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.002,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:2\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"element_local\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-2:3\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:4\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":4,\"unit\":\"in\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:comb:R:9\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":9,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:load:L-1:null\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":null,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:Z:global_nodal_displacement_x:load:L-1:3\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:Z\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_x:load:L-2:0.5\",\"kind\":\"global_nodal_rotation_x\",\"entity_ref\":\"node:E\",\"value\":0.5,\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_y:load:L-1:-0.25\",\"kind\":\"global_nodal_rotation_y\",\"entity_ref\":\"node:E\",\"value\":-0.25,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":null}},{\"id\":\"d:A:L1\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"d:E:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:E\",\"value\":0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:S-E:L1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"solver_iteration\"}},{\"id\":\"state:S-E:C1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"}},{\"id\":\"state:S-E:none\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":2,\"unit\":\"state_code\"}],\"diagnostics\":[],\"contract_evidence\":{\"preview_cases\":[{\"load_case_id\":\"load:L-1\",\"support_attribution\":{\"withheld\":[{\"support_id\":\"support:S-D\",\"reason\":\"ambiguous_attribution\"},{\"support_id\":7},{\"support_id\":\"support:S-G\"}]}},null,\"x\"]}}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}},{\"id\":\"node:E\",\"label\":\"\",\"position\":{\"x\":3,\"y\":1,\"z\":0}},{\"id\":\"node:A\",\"label\":\"Again\",\"position\":{\"x\":9,\"y\":9,\"z\":9}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"family\":\"vertical_support\",\"hanger\":{\"hanger_type\":\" spring_hanger \"}},{\"id\":\"support:S-E\",\"node\":\"node:E\",\"label\":\"Lift\",\"family\":\"nonlinear\",\"nonlinear\":{\"behavior\":\"lift_off\",\"dof\":\"uy\"}},{\"id\":\"support:S-F\",\"node\":\"node:E\",\"label\":\"Custom\",\"family\":\"custom \\\"form\\\"\"},{\"id\":\"support:S-H\",\"node\":\"node:C\",\"label\":\"Snub\",\"family\":\"snubber\"},{\"id\":\"support:S-G\",\"node\":\"node:B\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"combinations\":[{\"id\":\"comb:C1\",\"label\":\"Combined\"},{\"id\":\"comb:R\",\"label\":\"\"}],\"equipment_interfaces\":[{\"id\":\"ei:1\",\"node_ref\":\"node:C\",\"label\":\"Pump flange\"},{\"id\":\"ei:2\",\"node_ref\":\"node:C\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": [
+            {
+              "combination_id": "comb:C1",
+              "state": "checks_passed",
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": false
+            },
+            {
+              "combination_id": "comb:R",
+              "state": "checks_passed",
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invented/supports_l2_failed",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"r:support:S-A:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fy\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-200,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":300,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-400,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:My\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":500,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"My\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-600,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:F\",\"kind\":\"support_reaction_force_magnitude_v2\",\"entity_ref\":\"support:S-A\",\"value\":374.17,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"r:S-A:Fx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:L2:dup\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-0,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:C1\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":0.6,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:R\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":999,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"r:support:S-C:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":5,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"element_local\"}},{\"id\":\"r:S-C:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":6,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\"}},{\"id\":\"r:S-D:Fz:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":7,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-D:Qx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":8,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Qx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-G:nobasis\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-G\",\"value\":1,\"unit\":\"N\",\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-1:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-2:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:comb:C1:-1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":-1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-1:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-2:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":-0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.001\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.001,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.002\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.002,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:2\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"element_local\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-2:3\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:4\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":4,\"unit\":\"in\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:comb:R:9\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":9,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:load:L-1:null\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":null,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:Z:global_nodal_displacement_x:load:L-1:3\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:Z\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_x:load:L-2:0.5\",\"kind\":\"global_nodal_rotation_x\",\"entity_ref\":\"node:E\",\"value\":0.5,\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_y:load:L-1:-0.25\",\"kind\":\"global_nodal_rotation_y\",\"entity_ref\":\"node:E\",\"value\":-0.25,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":null}},{\"id\":\"d:A:L1\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"d:E:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:E\",\"value\":0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:S-E:L1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"solver_iteration\"}},{\"id\":\"state:S-E:C1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"}},{\"id\":\"state:S-E:none\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":2,\"unit\":\"state_code\"}],\"diagnostics\":[],\"contract_evidence\":{\"preview_cases\":[{\"load_case_id\":\"load:L-1\",\"support_attribution\":{\"withheld\":[{\"support_id\":\"support:S-D\",\"reason\":\"ambiguous_attribution\"},{\"support_id\":7},{\"support_id\":\"support:S-G\"}]}},null,\"x\"]}}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}},{\"id\":\"node:E\",\"label\":\"\",\"position\":{\"x\":3,\"y\":1,\"z\":0}},{\"id\":\"node:A\",\"label\":\"Again\",\"position\":{\"x\":9,\"y\":9,\"z\":9}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"family\":\"vertical_support\",\"hanger\":{\"hanger_type\":\" spring_hanger \"}},{\"id\":\"support:S-E\",\"node\":\"node:E\",\"label\":\"Lift\",\"family\":\"nonlinear\",\"nonlinear\":{\"behavior\":\"lift_off\",\"dof\":\"uy\"}},{\"id\":\"support:S-F\",\"node\":\"node:E\",\"label\":\"Custom\",\"family\":\"custom \\\"form\\\"\"},{\"id\":\"support:S-H\",\"node\":\"node:C\",\"label\":\"Snub\",\"family\":\"snubber\"},{\"id\":\"support:S-G\",\"node\":\"node:B\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"combinations\":[{\"id\":\"comb:C1\",\"label\":\"Combined\"},{\"id\":\"comb:R\",\"label\":\"\"}],\"equipment_interfaces\":[{\"id\":\"ei:1\",\"node_ref\":\"node:C\",\"label\":\"Pump flange\"},{\"id\":\"ei:2\",\"node_ref\":\"node:C\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "solve_failed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": [
+            {
+              "combination_id": "comb:C1",
+              "state": "sensitive",
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": false
+            },
+            {
+              "combination_id": "comb:R",
+              "state": null,
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invented/supports_not_eligible",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"r:support:S-A:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fy\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-200,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":300,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-400,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:My\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":500,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"My\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-600,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:F\",\"kind\":\"support_reaction_force_magnitude_v2\",\"entity_ref\":\"support:S-A\",\"value\":374.17,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"r:S-A:Fx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:L2:dup\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-0,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:C1\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":0.6,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:R\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":999,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"r:support:S-C:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":5,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"element_local\"}},{\"id\":\"r:S-C:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":6,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\"}},{\"id\":\"r:S-D:Fz:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":7,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-D:Qx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":8,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Qx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-G:nobasis\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-G\",\"value\":1,\"unit\":\"N\",\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-1:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-2:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:comb:C1:-1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":-1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-1:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-2:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":-0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.001\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.001,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.002\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.002,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:2\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"element_local\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-2:3\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:4\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":4,\"unit\":\"in\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:comb:R:9\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":9,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:load:L-1:null\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":null,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:Z:global_nodal_displacement_x:load:L-1:3\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:Z\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_x:load:L-2:0.5\",\"kind\":\"global_nodal_rotation_x\",\"entity_ref\":\"node:E\",\"value\":0.5,\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_y:load:L-1:-0.25\",\"kind\":\"global_nodal_rotation_y\",\"entity_ref\":\"node:E\",\"value\":-0.25,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":null}},{\"id\":\"d:A:L1\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"d:E:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:E\",\"value\":0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:S-E:L1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"solver_iteration\"}},{\"id\":\"state:S-E:C1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"}},{\"id\":\"state:S-E:none\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":2,\"unit\":\"state_code\"}],\"diagnostics\":[],\"contract_evidence\":{\"preview_cases\":[{\"load_case_id\":\"load:L-1\",\"support_attribution\":{\"withheld\":[{\"support_id\":\"support:S-D\",\"reason\":\"ambiguous_attribution\"},{\"support_id\":7},{\"support_id\":\"support:S-G\"}]}},null,\"x\"]}}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}},{\"id\":\"node:E\",\"label\":\"\",\"position\":{\"x\":3,\"y\":1,\"z\":0}},{\"id\":\"node:A\",\"label\":\"Again\",\"position\":{\"x\":9,\"y\":9,\"z\":9}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"family\":\"vertical_support\",\"hanger\":{\"hanger_type\":\" spring_hanger \"}},{\"id\":\"support:S-E\",\"node\":\"node:E\",\"label\":\"Lift\",\"family\":\"nonlinear\",\"nonlinear\":{\"behavior\":\"lift_off\",\"dof\":\"uy\"}},{\"id\":\"support:S-F\",\"node\":\"node:E\",\"label\":\"Custom\",\"family\":\"custom \\\"form\\\"\"},{\"id\":\"support:S-H\",\"node\":\"node:C\",\"label\":\"Snub\",\"family\":\"snubber\"},{\"id\":\"support:S-G\",\"node\":\"node:B\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"combinations\":[{\"id\":\"comb:C1\",\"label\":\"Combined\"},{\"id\":\"comb:R\",\"label\":\"\"}],\"equipment_interfaces\":[{\"id\":\"ei:1\",\"node_ref\":\"node:C\",\"label\":\"Pump flange\"},{\"id\":\"ei:2\",\"node_ref\":\"node:C\"}]}"
+      },
+      "standing": {
+        "eligible": false,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/supports_no_standing",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"r:support:S-A:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fy\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-200,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Fz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":300,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-400,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:My\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":500,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"My\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:support:S-A:Mz\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-600,\"unit\":\"N*m\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Mz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:F\",\"kind\":\"support_reaction_force_magnitude_v2\",\"entity_ref\":\"support:S-A\",\"value\":374.17,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"r:S-A:Fx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:L2:dup\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":600,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":-0,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:C1\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":0.6,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-A:Fx:R\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-A\",\"value\":999,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"r:support:S-C:Fx\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":5,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"element_local\"}},{\"id\":\"r:S-C:Fy:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-C\",\"value\":6,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fy\"}},{\"id\":\"r:S-D:Fz:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":7,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Fz\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-D:Qx:L2\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-D\",\"value\":8,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"Qx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"r:S-G:nobasis\",\"kind\":\"support_reaction_component_v2\",\"entity_ref\":\"support:S-G\",\"value\":1,\"unit\":\"N\",\"metadata\":{\"component\":\"Fx\",\"coordinate_system\":\"global\",\"location\":\"node\",\"basis\":\"recovered_from_assembled_support_law\",\"sign_convention\":\"support-on-pipe; positive global force and right-hand couple about attached node\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-1:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:load:L-2:1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_x:comb:C1:-1.5\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:A\",\"value\":-1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-1:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_displacement_y:load:L-2:0\",\"kind\":\"global_nodal_displacement_y\",\"entity_ref\":\"node:A\",\"value\":-0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.001\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.001,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:A:global_nodal_rotation_z:load:L-1:0.002\",\"kind\":\"global_nodal_rotation_z\",\"entity_ref\":\"node:A\",\"value\":0.002,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:2\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"element_local\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-2:3\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"m:node:C:global_nodal_displacement_z:load:L-1:4\",\"kind\":\"global_nodal_displacement_z\",\"entity_ref\":\"node:C\",\"value\":4,\"unit\":\"in\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:comb:R:9\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":9,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"coordinate_system\":\"global\",\"basis\":\"explicit_user_range_envelope\"}},{\"id\":\"m:node:D:global_nodal_displacement_x:load:L-1:null\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:D\",\"value\":null,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:Z:global_nodal_displacement_x:load:L-1:3\",\"kind\":\"global_nodal_displacement_x\",\"entity_ref\":\"node:Z\",\"value\":3,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_x:load:L-2:0.5\",\"kind\":\"global_nodal_rotation_x\",\"entity_ref\":\"node:E\",\"value\":0.5,\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"m:node:E:global_nodal_rotation_y:load:L-1:-0.25\",\"kind\":\"global_nodal_rotation_y\",\"entity_ref\":\"node:E\",\"value\":-0.25,\"unit\":\"rad\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":null}},{\"id\":\"d:A:L1\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":1.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"global\"}},{\"id\":\"d:E:L2\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:E\",\"value\":0.5,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"state:S-E:L1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":1,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"solver_iteration\"}},{\"id\":\"state:S-E:C1\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":0,\"unit\":\"state_code\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"}},{\"id\":\"state:S-E:none\",\"kind\":\"nonlinear_support_active_set_state_code\",\"entity_ref\":\"support:S-E\",\"value\":2,\"unit\":\"state_code\"}],\"diagnostics\":[],\"contract_evidence\":{\"preview_cases\":[{\"load_case_id\":\"load:L-1\",\"support_attribution\":{\"withheld\":[{\"support_id\":\"support:S-D\",\"reason\":\"ambiguous_attribution\"},{\"support_id\":7},{\"support_id\":\"support:S-G\"}]}},null,\"x\"]}}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}},{\"id\":\"node:E\",\"label\":\"\",\"position\":{\"x\":3,\"y\":1,\"z\":0}},{\"id\":\"node:A\",\"label\":\"Again\",\"position\":{\"x\":9,\"y\":9,\"z\":9}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\",\"label\":\"Anchor A\",\"family\":\"anchor\"},{\"id\":\"support:S-C\",\"node\":\"node:C\",\"label\":\"\",\"family\":\"guide\",\"boundary_association\":{\"boundary_id\":\"b:C\",\"kind\":\"equipment_nozzle\",\"equipment_reference\":\"EQ-1\",\"coordinate_system\":\"global\"}},{\"id\":\"support:S-D\",\"node\":\"node:D\",\"family\":\"vertical_support\",\"hanger\":{\"hanger_type\":\" spring_hanger \"}},{\"id\":\"support:S-E\",\"node\":\"node:E\",\"label\":\"Lift\",\"family\":\"nonlinear\",\"nonlinear\":{\"behavior\":\"lift_off\",\"dof\":\"uy\"}},{\"id\":\"support:S-F\",\"node\":\"node:E\",\"label\":\"Custom\",\"family\":\"custom \\\"form\\\"\"},{\"id\":\"support:S-H\",\"node\":\"node:C\",\"label\":\"Snub\",\"family\":\"snubber\"},{\"id\":\"support:S-G\",\"node\":\"node:B\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"combinations\":[{\"id\":\"comb:C1\",\"label\":\"Combined\"},{\"id\":\"comb:R\",\"label\":\"\"}],\"equipment_interfaces\":[{\"id\":\"ei:1\",\"node_ref\":\"node:C\",\"label\":\"Pump flange\"},{\"id\":\"ei:2\",\"node_ref\":\"node:C\"}]}"
+      },
+      "standing": null
+    },
+    {
+      "name": "invented/stresses",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:1\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=nominal_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:3\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"midspan\",\"basis\":\"none\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:4\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:5\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"quarter_1\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:6\",\"kind\":\"pipe_elastic_normal_stress_maximum_v2\",\"entity_ref\":\"pipe:P-3\",\"value\":4000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":7,\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:7\",\"kind\":\"pipe_elastic_normal_stress_maximum_v2\",\"entity_ref\":\"pipe:P-3\",\"value\":-4000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"x; section_basis=other\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:8\",\"kind\":\"element_local_torsional_shear_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":-2,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"positive value follows the element-local DOF at the i-end force vector\"}},{\"id\":\"s:9\",\"kind\":\"element_local_torsional_shear_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"midspan\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:10\",\"kind\":\"element_local_torsional_shear_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:11\",\"kind\":\"element_local_axial_force\",\"entity_ref\":\"pipe:P-2\",\"value\":-100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:12\",\"kind\":\"element_local_axial_force\",\"entity_ref\":\"pipe:P-2\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:13\",\"kind\":\"element_local_axial_force\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:14\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-9\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:15\",\"kind\":\"pipe_lame_hoop_stress_v2\",\"entity_ref\":\"pipe:P-1\",\"value\":12,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"ib:1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"s:1\",\"missing\",\"s:dup\"]},{\"id\":\"s:dup\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-2\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:dup\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":2,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"body:1\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-3\",\"value\":2,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"component_body\":{\"component_ref\":\"component:K-1\",\"stiffness_scale\":1000}},{\"id\":\"body:2\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-3\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"component_body\":{\"component_ref\":\"component:K-2\",\"stiffness_scale\":10}},{\"id\":\"odd:frames:1\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"Zeta frame\"}},{\"id\":\"odd:frames:2\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"alpha_frame\"}},{\"id\":\"odd:frames:3\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"﻿ \"}},{\"id\":\"odd:frames:4\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":3}},{\"id\":\"😀:id\",\"kind\":\"some_unknown_kind_v9\",\"entity_ref\":\"pipe:�\",\"value\":1,\"unit\":\"😀\",\"basis_ref\":{\"ref_type\":\"other_basis\",\"ref_id\":\"x\"}}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"combinations\":[{\"id\":\"comb:C1\",\"label\":\"Combined\"},{\"id\":\"comb:R\",\"label\":\"Range\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": [
+            {
+              "combination_id": "comb:C1",
+              "state": "checks_passed",
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": false
+            },
+            {
+              "combination_id": "comb:R",
+              "state": "checks_passed",
+              "cases": [
+                "load:L-1",
+                "load:L-2"
+              ],
+              "withheld": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invented/stresses_l2_sensitive",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:1\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=nominal_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:3\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"midspan\",\"basis\":\"none\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:4\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:R\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:5\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"quarter_1\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:6\",\"kind\":\"pipe_elastic_normal_stress_maximum_v2\",\"entity_ref\":\"pipe:P-3\",\"value\":4000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":7,\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:7\",\"kind\":\"pipe_elastic_normal_stress_maximum_v2\",\"entity_ref\":\"pipe:P-3\",\"value\":-4000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"x; section_basis=other\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:8\",\"kind\":\"element_local_torsional_shear_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":-2,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"positive value follows the element-local DOF at the i-end force vector\"}},{\"id\":\"s:9\",\"kind\":\"element_local_torsional_shear_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"midspan\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:10\",\"kind\":\"element_local_torsional_shear_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:11\",\"kind\":\"element_local_axial_force\",\"entity_ref\":\"pipe:P-2\",\"value\":-100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:12\",\"kind\":\"element_local_axial_force\",\"entity_ref\":\"pipe:P-2\",\"value\":100,\"unit\":\"N\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:13\",\"kind\":\"element_local_axial_force\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"kN\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_j\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:14\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-9\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"s:15\",\"kind\":\"pipe_lame_hoop_stress_v2\",\"entity_ref\":\"pipe:P-1\",\"value\":12,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"combination\",\"ref_id\":\"comb:C1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"u4b; section_basis=reduced_section\",\"sign_convention\":\"j-side section action\"}},{\"id\":\"ib:1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"s:1\",\"missing\",\"s:dup\"]},{\"id\":\"s:dup\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-2\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:dup\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":2,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"body:1\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-3\",\"value\":2,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"component_body\":{\"component_ref\":\"component:K-1\",\"stiffness_scale\":1000}},{\"id\":\"body:2\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-3\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"component_body\":{\"component_ref\":\"component:K-2\",\"stiffness_scale\":10}},{\"id\":\"odd:frames:1\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"Zeta frame\"}},{\"id\":\"odd:frames:2\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"alpha_frame\"}},{\"id\":\"odd:frames:3\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":\"﻿ \"}},{\"id\":\"odd:frames:4\",\"kind\":\"element_local_axial_normal_stress\",\"entity_ref\":\"pipe:P-1\",\"value\":1,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"coordinate_system\":3}},{\"id\":\"😀:id\",\"kind\":\"some_unknown_kind_v9\",\"entity_ref\":\"pipe:�\",\"value\":1,\"unit\":\"😀\",\"basis_ref\":{\"ref_type\":\"other_basis\",\"ref_id\":\"x\"}}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}],\"combinations\":[{\"id\":\"comb:C1\",\"label\":\"Combined\"},{\"id\":\"comb:R\",\"label\":\"Range\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "sensitive",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/not_solved",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_BLOCKED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/empty_model",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[]}"
+      },
+      "model": {
+        "text": "{\"nodes\":[],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    },
+    {
+      "name": "invented/combination_evidence",
+      "result": {
+        "text": "{\"schema_version\":\"0.2.0\",\"document_kind\":\"mechanics_result\",\"run_id\":\"run:invented\",\"model_ref\":\"model:invented\",\"status\":{\"mechanics\":\"MECHANICS_SOLVED\",\"rule_check\":\"not_run\",\"professional_acceptance\":\"not_claimed\"},\"summary\":{},\"results\":[{\"id\":\"s:P-1:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":-4,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-1:j\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-1\",\"value\":3,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:i\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":8,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"s:P-2:env\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":99,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"metadata\":{\"component\":\"sigma_plus\",\"coordinate_system\":\"pipe_section\",\"location\":\"end_i\",\"basis\":\"explicit_user_range_envelope\",\"sign_convention\":\"invented\"}},{\"id\":\"s:P-2:L2\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-2\",\"value\":50,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-2\"}},{\"id\":\"s:P-3:nan\",\"kind\":\"element_local_normal_stress_extreme\",\"entity_ref\":\"pipe:P-3\",\"value\":null,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:A\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:A\",\"value\":0,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:B\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:B\",\"value\":2,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"d:C\",\"kind\":\"displacement_magnitude\",\"entity_ref\":\"node:C\",\"value\":1,\"unit\":\"mm\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"b:P-3:y\",\"kind\":\"element_local_bending_normal_stress_y\",\"entity_ref\":\"pipe:P-3\",\"value\":5,\"unit\":\"MPa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"}},{\"id\":\"ib:C-1\",\"kind\":\"component_equal_factor_intensified_bending_stress_v1\",\"entity_ref\":\"component:C-1\",\"value\":7000000,\"unit\":\"Pa\",\"basis_ref\":{\"ref_type\":\"load_case\",\"ref_id\":\"load:L-1\"},\"source_result_refs\":[\"b:P-3:y\"]}],\"diagnostics\":[],\"contract_evidence\":{\"exact_combinations\":[{\"combination_id\":\"comb:C1\",\"basis\":\"x\",\"gate\":{\"state\":\"open\"},\"operands\":[{\"load_case_id\":\"load:L-1\"}],\"rows\":[{\"result_id\":\"s:P-1:i\",\"sources\":[]}],\"recoveries\":[{\"value\":1},{\"value\":2}],\"missing_sources\":[],\"withheld\":[]},\"not a record\"],\"pressure\":[{\"load_case_id\":\"load:L-1\"}]},\"custom_member\":{\"kept\":\"out\"}}"
+      },
+      "model": {
+        "text": "{\"nodes\":[{\"id\":\"node:A\",\"position\":{\"x\":0,\"y\":0,\"z\":0}},{\"id\":\"node:B\",\"position\":{\"x\":1,\"y\":0,\"z\":0}},{\"id\":\"node:C\",\"position\":{\"x\":2,\"y\":0,\"z\":0}},{\"id\":\"node:D\",\"position\":{\"x\":2,\"y\":1,\"z\":0}}],\"pipe_segments\":[{\"id\":\"pipe:P-1\",\"from\":\"node:A\",\"to\":\"node:B\"},{\"id\":\"pipe:P-2\",\"from\":\"node:B\",\"to\":\"node:C\"},{\"id\":\"pipe:P-3\",\"from\":\"node:C\",\"to\":\"node:D\"}],\"supports\":[{\"id\":\"support:S-A\",\"node\":\"node:A\"},{\"id\":\"support:S-C\",\"node\":\"node:C\"},{\"id\":\"support:S-D\",\"node\":\"node:D\"}],\"components\":[],\"load_cases\":[{\"id\":\"load:L-1\",\"label\":\"Invented one\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"},{\"id\":\"load:L-2\",\"label\":\"Invented two\",\"kind\":\"invented\",\"status\":\"draft\",\"provenance\":\"invented\"}]}"
+      },
+      "standing": {
+        "eligible": true,
+        "health": {
+          "route": "generic",
+          "verdict_only": false,
+          "cases": [
+            {
+              "case_id": "load:L-1",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            },
+            {
+              "case_id": "load:L-2",
+              "state": "checks_passed",
+              "code": null,
+              "integrity_diagnostic_id": null,
+              "rcond": null,
+              "digits": null,
+              "conditioning_sensitive": false,
+              "causes": []
+            }
+          ],
+          "combinations": []
+        }
+      }
+    }
+  ]
+}

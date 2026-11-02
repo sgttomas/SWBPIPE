@@ -1,6 +1,7 @@
 // RT-R6 (DEL-08-04-R14; Design `csv-export.md` §3): the preamble's provenance values, from the
 // sources the desktop already records. Nothing is invented: a result without a recorded value
 // states `not_recorded`, and a table without a result states `not_applicable`.
+import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import desktopAppConfig from "../../../src-tauri/tauri.conf.json";
 import { canonicalSha256Hex } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -41,7 +42,7 @@ export function csvRecordedModelHash(value: unknown): string {
 
 /** The received-result hash of the result's own analysis-run record (`analysisResultHashScope`),
  * `not_recorded` when the result has none, `not_applicable` when there is no result. */
-export function csvResultHash(result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null | undefined): string {
+export function csvResultHash(result: SessionResult | null, analysisRun: SessionAnalysisRun | null | undefined): string {
   if (!result) return CSV_NOT_APPLICABLE;
   const run = analysisRun?.analysis_run;
   if (!run || run.run_id !== result.run_id) return CSV_NOT_RECORDED;
@@ -51,7 +52,7 @@ export function csvResultHash(result: MechanicsResult | null, analysisRun: Analy
 }
 
 /** The analysis route: the result's `producer.semantic_contract_id`, with the same tokens. */
-export function csvAnalysisRoute(result: MechanicsResult | null): string {
+export function csvAnalysisRoute(result: SessionResult | null): string {
   if (!result) return CSV_NOT_APPLICABLE;
   const id = result.producer?.semantic_contract_id;
   return typeof id === "string" && id.trim() !== "" && !/\s/.test(id) ? id : CSV_NOT_RECORDED;
@@ -61,8 +62,8 @@ export function csvAnalysisRoute(result: MechanicsResult | null): string {
  * result's analysis-run record. */
 export async function csvResultProvenance(input: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun?: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun?: SessionAnalysisRun | null;
 }): Promise<CsvProvenance> {
   return {
     modelHash: await csvModelHash(input.model),

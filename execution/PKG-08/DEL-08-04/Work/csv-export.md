@@ -221,6 +221,33 @@ tree, the library, units and split into parts.
 
   The request states `lossless_required=false`, because CSV is a derived view.
   Native admission accepts that only on this route.
+- **Streamed save (C1 native custody, DEL-04-05 `c1-native-custody-plan.md` §5).** A results
+  group of a result held natively is written in parts, with no row ceiling, through the commands
+  `begin_local_csv_stream`, `append_local_csv_stream`, `finish_local_csv_stream` and
+  `abort_local_csv_stream` (`apps/desktop/src-tauri/src/native_csv_stream.rs`). They reuse the
+  single save's code in `native_result_download.rs`: its evidence rules for this route, its file
+  name check, its exclusive creation with ` (n)` collision suffixes, its partial-file cleanup and
+  its receipt.
+  - **Per chunk.** Every chunk (the first holds the BOM) carries its own screening and
+    local-first evidence, taken by `controlRouteExport` on that chunk with the user's explicit
+    intent, the controlled payload exactly the chunk. A text payload's route decision reads its
+    path, not its characters, so each chunk's decision is the whole file's; it is still taken
+    and checked for every chunk sent (`csvSave.ts` `csvChunkEvidence`).
+  - **Binding and order.** A stream is bound to the calling webview and to the held result it
+    began on; chunks are numbered from 0 and must arrive in order, non-empty and at most 4 MiB
+    each (the webview sends at most 256 Ki UTF-16 units); finish states the chunk and byte counts
+    written. At most four streams are open; each holds a file handle and counters, never text.
+  - **Ending.** A stream ends exactly once: finish (the receipt), abort, any refused request
+    (wrong webview, order, size, evidence or BOM), a write or flush failure, or the disposal of
+    its result or the session reset. Each end removes the partial file when it is still the file
+    the stream created, and states the cleanup. No request names a path or another job's bytes.
+  - **The text.** It is the CSV the full rows give through the unchanged serializer and adapter
+    (`serializeCsvTable` is `serializeCsvHead` then `serializeCsvRows`; the group adapter's
+    columns depend only on a layout decided over every row). The rows are read twice by bounded
+    native pages: the first pass keeps the distinct units and one row per conversion, which fix
+    the header and the unit basis; the second writes each page under them
+    (`resultGroupCsvStream.ts`). At most one page of rows and one chunk of text are held in the
+    webview. The 200,000-row interim refusal is retired.
 - **Browser runtime.** It keeps today's anchor download.
 - **Not shareable.** The CSV is local-private, like the result JSON. Sharing
   goes through the user-released report (RT-R5).
@@ -258,6 +285,21 @@ tree, the library, units and split into parts.
      - `resultRowsCsv.test.tsx`: the `ResultsPanel` tables, one regression
        per conversion factor, with the panel's converter as the oracle.
    - Codex review.
+4. **Streamed group CSV for a result held natively (C1, RT-U4).**
+   - `resultGroupCsvStream.test.ts`: the parts equal `serializeCsvTable(resultGroupCsv(...))`
+     byte for byte at page sizes 1 to 1,000, entered and converted units, one and mixed units,
+     ties, quoting, formula guards, negative zero and non-finite values; a changed page fails
+     by name; 250,001 rows stream with one page outstanding and one page of text per part.
+   - `csvSaveStream.test.ts`: per-chunk screening and evidence, order, splitting without
+     truncation, refusals before sending, abort with the native cleanup stated, receipts.
+   - `NativeResultsPanel.native.test.tsx`: every group of the replay fixture, written through
+     the stream from the actual Rust page and semantics replies, equals the browser panel's CSV
+     of the full rows.
+   - `native_csv_stream_tests.rs`: exact bytes and receipt; every evidence mutation refused per
+     chunk with the partial file removed; order, size, counts and job refusals ending the stream
+     once; webview binding; abort, disposal and reset; at most four streams; existing entries
+     never replaced; write, flush, identity and cleanup failures stated truthfully; requests
+     carry no path.
 
 A rename that would touch `apps/desktop/native-smoke/expected.json` stops and
 goes to HELP_HUMAN.

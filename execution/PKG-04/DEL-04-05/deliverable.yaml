@@ -159,13 +159,21 @@ needs:
     model-file shape Open Model Document checks (`modelDocumentShape.ts`,
     `checkNativeOutcome`). A change to that harness, that global's installation or that
     shape needs the driver, runner or generator re-aligned; `rackModelOpen.test.ts` fails
-    on a shape the desktop refuses.
+    on a shape the desktop refuses. C1's native-smoke-only scalar reader probe uses the
+    same held producer bytes and intake-bound launch model, with the existing allocation
+    counter enabled only in smoke/test builds; it reports parser and reader phases without
+    exporting a result or adding product authority. The bounded native-reader phase
+    diagnostics use fixed timeline/native-smoke checkpoints and a capped durable runner
+    journal; smoke-only wrapper expansion preserves the existing Value-reader contract,
+    while the private health entry remains explicitly combined. Changed diagnostic
+    boundaries, delivery or wrappers require those checkpoints and parity tests re-aligned.
   gating: false
   evidence: apps/desktop/native-smoke/perf.mjs
 code_paths:
 - core/solver/performance_harness/**
 - validation/benchmarks/sparse_*.json
 - apps/desktop/native-smoke/perf*
+- apps/desktop/src-tauri/src/native_smoke.rs
 checks:
 - core/solver/performance_harness/src/lib.rs
 - core/solver/performance_harness/tests/k6*.rs

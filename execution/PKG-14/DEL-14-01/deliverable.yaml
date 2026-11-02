@@ -193,3 +193,5 @@ checks:
 - tests/test_model_state_record_parity.py
 - apps/desktop/src-tauri/src/model_states.rs
 - apps/desktop/src/features/history/modelStateHistory.session.test.tsx
+# C1 slice 6: the History panel's recorded-run check reopens the run natively.
+- apps/desktop/src/features/workspace/nativeReopen.session.test.tsx

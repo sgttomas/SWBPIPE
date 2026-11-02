@@ -31,7 +31,10 @@ open_pipe_stress_result_export = { path = "../../../core/reporting/result_export
 open_pipe_stress_rule_pack_document = { path = "../../../core/rules/rule_pack_document" }
 open_pipe_stress_rule_check_runner = { path = "../../../core/rules/rule_check_runner" }
 open_pipe_stress_units = { path = "../../../core/units" }
-rusqlite = { version = "0.32", features = ["bundled"] }
+# `limits` (no new package): the native Record Run and Save Project read the
+# writing connection's `SQLITE_LIMIT_LENGTH` before they build or write a
+# result (DEL-04-05 `c1-native-custody-plan.md` slice 5).
+rusqlite = { version = "0.32", features = ["bundled", "limits"] }
 sha2 = "0.10"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip", "raw_value"] }

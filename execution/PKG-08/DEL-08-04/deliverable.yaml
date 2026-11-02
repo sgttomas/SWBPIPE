@@ -203,6 +203,8 @@ code_paths:
 - tests/test_results_schema.py
 - tests/test_results_dispatcher_v0_3.py
 - apps/desktop/src-tauri/src/native_result_download.rs
+- apps/desktop/src-tauri/src/native_csv_stream.rs
+- apps/desktop/src/features/results/resultGroupCsvStream.ts
 - core/security/local_first_storage/route_control.py
 - apps/desktop/src/features/redaction-controls/redactionExportControls.ts
 - apps/desktop/src/features/report/reportQuantityDisplay.ts
@@ -241,4 +243,8 @@ checks:
 - core/reporting/report_package/tests/quantity_display_parity.rs
 - apps/desktop/src/features/result-export/rulePackExclusionDiagnostics.test.ts
 - apps/desktop/src-tauri/src/native_result_download.rs
+- apps/desktop/src-tauri/src/native_csv_stream_tests.rs
+- apps/desktop/src/features/results/resultGroupCsvStream.test.ts
+- apps/desktop/src/features/result-export/csvSaveStream.test.ts
+- apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
 - apps/desktop/e2e/result-compatibility.spec.ts

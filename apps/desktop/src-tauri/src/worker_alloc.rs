@@ -437,7 +437,7 @@ unsafe impl GlobalAlloc for CappedAllocator {
         if ptr.is_null() && enabled {
             uncharge(counted_size(&layout));
         }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "native-smoke"))]
         if !ptr.is_null() {
             crate::ingress::counting::record(layout.size(), 0, true);
         }
@@ -454,7 +454,7 @@ unsafe impl GlobalAlloc for CappedAllocator {
         if ptr.is_null() && enabled {
             uncharge(counted_size(&layout));
         }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "native-smoke"))]
         if !ptr.is_null() {
             crate::ingress::counting::record(layout.size(), 0, true);
         }
@@ -467,7 +467,7 @@ unsafe impl GlobalAlloc for CappedAllocator {
         if ENABLED.load(Ordering::Relaxed) {
             uncharge(counted_size(&layout));
         }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "native-smoke"))]
         crate::ingress::counting::record(0, layout.size(), false);
     }
 
@@ -484,7 +484,7 @@ unsafe impl GlobalAlloc for CappedAllocator {
         if enabled {
             uncharge(if new.is_null() { new_counted } else { counted_size(&layout) });
         }
-        #[cfg(test)]
+        #[cfg(any(test, feature = "native-smoke"))]
         if !new.is_null() {
             crate::ingress::counting::record(new_size, layout.size(), true);
         }

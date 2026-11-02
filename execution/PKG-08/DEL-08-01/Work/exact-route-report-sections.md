@@ -904,8 +904,11 @@ host computes `digest(source)` from text whose raw digest it recorded itself.
 This is bounded digest metadata, 65 bytes per job. No result or model bytes are
 retained for it, and no lease changes. A new query, `custody_binding(job_id)`,
 replaces revision 3's `custody_digest`. It returns a copy only while the
-result is delivered and its custody lease is held. A retained, untaken result
-has no binding. `dispose_result` (`:756`) and `dispose_all_results` (`:784`)
+result is in this app's custody: delivered with its custody lease held, or
+(C1 native custody, DEL-04-05 `c1-native-custody-plan.md` slice 4) held
+natively for a native-custody job until its disposal; the report's result
+text is then that job's C2 full copy, whose bytes are the held bytes. A
+retained, untaken webview-custody result has no binding. `dispose_result` (`:756`) and `dispose_all_results` (`:784`)
 take the digests together with the lease, and pruning a record (`:261`) removes
 them. The digests are therefore released with custody.
 
@@ -2034,8 +2037,10 @@ differences, each fail-closed:
 - Rust unit (`src-tauri/src/solve_jobs.rs`), the custody digests (§3.6):
   - `intake_sha256` is the SHA-256 of the admitted body, `result_sha256` that
     of the delivered bytes, and `solver_mode` the admitted mode;
-  - `custody_binding` is none for an untaken job, after `dispose_result`, after
-    `dispose_all_results`, after pruning and for an unknown job;
+  - `custody_binding` is none for an untaken webview-custody job, after
+    `dispose_result`, after `dispose_all_results`, after pruning and for an
+    unknown job; a native-custody job's held result is bound until its disposal
+    (`a_native_custody_result_is_bound_while_held_and_released_with_disposal`);
   - the two hashes allocate nothing (counting allocator), and `take_result`
     hashes nothing.
 - **Direct-native substitution** (`report_package_save.rs` and `lib.rs`

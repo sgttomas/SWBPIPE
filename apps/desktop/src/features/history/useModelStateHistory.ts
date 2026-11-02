@@ -6,6 +6,7 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
+import { isNativeResult } from "../../services/nativeResult";
 import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
@@ -40,7 +41,9 @@ import {
   type CurrentRunSlot,
   type RunLabels
 } from "../../services/analysisRunService";
-import { buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
+import { buildNativeRecordedRunContext, buildRecordedRunContext, type HistoricalRunContext } from "../results/HistoricalRunContext";
+import { disposeRestoredRun, readAnalysisRunNative } from "../../services/nativeReopen";
+import { isTauriRuntime } from "../../services/nativeMenu";
 import { COMPARISON_STATE_NOT_EXACT, compareModelDocuments, StateComparisonRefusal, type StateComparison } from "../comparison/stateComparison";
 import { computeModelHash } from "../../services/hashService";
 import { projectUnitsShapeRefusal } from "../model-file/modelDocumentShape";
@@ -582,6 +585,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const outcome = await recordAnalysisRun({
         expectedBase: depsRef.current.storedBaseRef.current!.value!,
         run,
+        native: depsRef.current.runSlot.nativeRequest?.(run.result, run.analysisRun) ?? null,
         stateId: state?.state_id ?? null,
         newState: state ? null : {
           labels: { state_name: snapshotName, tags: [], notes: [], assumptions: [] },
@@ -679,10 +683,21 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     if (!owner) return false;
     const generation = depsRef.current.projectSessionGenerationRef.current;
     try {
-      const read = await readAnalysisRun(run.project_id, recordingId);
-      const context = await buildRecordedRunContext(read);
+      // C1 slice 6: on the desktop the run is reopened into native custody and its findings computed
+      // there (no result or ResultRef crosses); the check holds no rows, so the handle is released at once.
+      let context: HistoricalRunContext, manifestText: string;
+      if (isTauriRuntime()) {
+        const read = await readAnalysisRunNative(run.project_id, recordingId);
+        void disposeRestoredRun(read.restored);
+        context = buildNativeRecordedRunContext(read);
+        manifestText = read.input_manifest_canonical;
+      } else {
+        const read = await readAnalysisRun(run.project_id, recordingId);
+        context = await buildRecordedRunContext(read);
+        manifestText = read.input_manifest_canonical;
+      }
       if (generation !== depsRef.current.projectSessionGenerationRef.current) return false;
-      setRunCheck({ recordingId, context, failure: null, manifest: parsedManifest(read.input_manifest_canonical) });
+      setRunCheck({ recordingId, context, failure: null, manifest: parsedManifest(manifestText) });
       setHistoryOperation("check_run");
       return true;
     } catch (error) {
@@ -808,11 +823,16 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     };
     try {
       const withCurrent = recordingIds.length === 1;
+      // A comparison reads full rows (C2): a native current run is compared through its bounded
+      // full copy and full record (at or under 64 MiB; refused by name above).
+      const comparedSlot = withCurrent && slot.result && isNativeResult(slot.result) && slot.loadFull
+        ? { ...slot, ...(await slot.loadFull(slot.result)) }
+        : slot;
       // The store refuses by name, before either run is read, when the runs' stored
       // results and manifests (with the current run's) exceed the per-invocation budget.
-      await admitAnalysisRunComparison(requestProjectId, recordingIds, withCurrent ? currentRunBytes(slot) : null);
+      await admitAnalysisRunComparison(requestProjectId, recordingIds, withCurrent ? currentRunBytes(comparedSlot) : null);
       const side = async (id: string): Promise<RunComparisonSide> => {
-        if (id === CURRENT_RUN_ID) { requireCurrentRun(); return currentRunSide(slot); }
+        if (id === CURRENT_RUN_ID) { requireCurrentRun(); return currentRunSide(comparedSlot); }
         try {
           return await recordedRunSide(await readAnalysisRun(requestProjectId, id));
         } catch (error) {

@@ -325,6 +325,12 @@ code_paths:
 - apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/worker_alloc.rs
+# C1 slice 1 (DEL-04-05 c1-native-custody-plan.md): a held result's shared lease and the native verdict's priced parse.
+- apps/desktop/src-tauri/src/native_verdict.rs
+# C1 slice 2: the summary's parse and response leases (result_summary.rs module docs).
+- apps/desktop/src-tauri/src/result_summary.rs
+# C1 slice 3: the detail index's lease, held with the result, and each detail query's working and response leases (result_detail.rs module docs).
+- apps/desktop/src-tauri/src/result_detail.rs
 # The temperature identity's canonical-decimal corpus writer (pressure-contract.md).
 - tools/fixtures/temperature_canonical_decimal_corpus.py
 - validation/platform/windows_runner_startup_probe/**
@@ -357,6 +363,9 @@ checks:
 - apps/desktop/src-tauri/src/solve_attestation.rs
 - apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
+- apps/desktop/src-tauri/src/native_verdict_tests.rs
+- apps/desktop/src-tauri/src/result_summary_tests.rs
+- apps/desktop/src-tauri/src/result_detail_tests.rs
 # The exact temperature identity: tie regressions, domain refusal and the repr corpus.
 - core/product_physics/src/case_state/temperature.rs
 - core/product_physics/src/case_state/temperature/canonical_decimal.rs

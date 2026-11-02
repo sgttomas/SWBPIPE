@@ -1,3 +1,4 @@
+import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import { Download, GitCompare } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
@@ -26,8 +27,8 @@ export function DesignWorkspacePanel({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   comparison: PreviewComparison | null;
   /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
@@ -133,8 +134,8 @@ function buildDesignWorkspacePacket({
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   comparison: PreviewComparison | null;
   /** W-12 S3c: the record of a chosen within-run comparison the builder refused. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
@@ -206,7 +207,7 @@ function buildDesignWorkspacePacket({
       current_total_diagnostic_count: currentDiagnostics.length,
       current_model_state_count: analysisRun ? 1 : 0,
       current_analysis_run_count: analysisRun ? 1 : 0,
-      current_result_row_count: result?.results.length ?? 0,
+      current_result_row_count: (result ? resultRowCount(result) : 0),
       current_comparison_pair_count: comparisonPairCount,
       current_unmatched_comparison_count: unresolvedComparisonCount,
       operation_review_record_count: operationRecords.length,
@@ -293,8 +294,8 @@ function buildWorkspaceUnitPolicyEvidence({
   comparison
 }: {
   model: PreviewModel;
-  result: MechanicsResult | null;
-  analysisRun: AnalysisRunEnvelope | null;
+  result: SessionResult | null;
+  analysisRun: SessionAnalysisRun | null;
   comparison: PreviewComparison | null;
 }): DesignWorkspaceUnitPolicyEvidence {
   return {
@@ -306,7 +307,7 @@ function buildWorkspaceUnitPolicyEvidence({
     storage_convention: "entered_units_preserved",
     workspace_unit_policy: "compose_model_result_and_comparison_units_without_conversion",
     model_units: sortedStringRecord(model.project.units),
-    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)),
+    result_units: uniqueSorted((result ? resultUnits(result) : [])),
     comparison_units: comparison?.unit_policy_evidence.matched_result_units.slice().sort() ?? [],
     comparison_unit_policy_ref: comparison?.unit_policy_evidence.evidence_id ?? "not generated",
     conversion_policy: "design_workspace_preserves_source_units_without_conversion",

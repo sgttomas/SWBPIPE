@@ -551,6 +551,27 @@ pub(crate) fn prescan(input: &[u8]) -> Result<IngressBound, IngressInvalid> {
     scan(input, None).map(|(bound, _)| bound)
 }
 
+/// [`prescan`] and its fixed allowances: the scratch buffer, the array
+/// transient, the float allowance, the error allowance and the solve
+/// wrapper. They bound what parsing `input` into a type that builds no
+/// strings and no containers allocates (`native_verdict`'s diagnostic parse,
+/// which goes through `Value`'s parser path and builds nothing).
+pub(crate) fn prescan_allowances(input: &[u8]) -> Result<(IngressBound, u64), IngressInvalid> {
+    scan(input, None).map(|(bound, regions)| (bound, regions.allowances))
+}
+
+/// The same allowances for a text the prescan refused, from its length
+/// alone: its scratch priced as if the whole text were one escaped string or
+/// float-path number (the scratch holds one at a time), plus the float and
+/// error allowances. `None` on overflow.
+pub(crate) fn length_allowances(len: u64) -> Option<u64> {
+    let largest = len.checked_add(SCRATCH_ESCAPE_SLACK.max(SCRATCH_NUMBER_SLACK))?;
+    let capacity = largest.checked_mul(2)?.max(SCRATCH_MIN_CAPACITY);
+    [allocation_envelope(capacity)?, allocation_envelope(capacity / 2)?, FLOAT_PARSE_ALLOWANCE_BYTES, ERROR_ALLOWANCE_BYTES]
+        .into_iter()
+        .try_fold(0u64, u64::checked_add)
+}
+
 /// [`prescan`], which also attributes each priced allocation of the bound M
 /// to a region of the typed value `root` the decoder builds from it, by the
 /// path the decoder follows (DEL-04-07 memory-budget decision, "Report-package
@@ -712,17 +733,19 @@ fn scan(input: &[u8], root: Option<&'static RegionStruct>) -> Result<(IngressBou
     Ok((IngressBound { raw_len: input.len() as u64, materialization_bytes }, regions))
 }
 
-#[cfg(test)]
+#[cfg(any(test, feature = "native-smoke"))]
 pub(crate) mod counting {
-    //! Per-thread allocation accounting for the ingress bound tests: the live
+    //! Per-thread allocation accounting for the ingress bound tests and the
+    //! feature-gated native-smoke reader probe: the live
     //! requested bytes and the live bytes priced by `allocation_envelope` of
     //! each requested size. A moving or in-place reallocation counts its old
     //! and new sizes as live together at that instant. Only requested sizes
     //! are counted, so the measure is deterministic: it does not depend on the
     //! heap's history (which blocks the allocator reuses) or on other threads.
     use std::cell::Cell;
+    use serde::Serialize;
 
-    thread_local! {
+    std::thread_local! {
         static ACTIVE: Cell<bool> = const { Cell::new(false) };
         static LIVE: Cell<i64> = const { Cell::new(0) };
         static PEAK: Cell<i64> = const { Cell::new(0) };
@@ -761,12 +784,14 @@ pub(crate) mod counting {
         bump(&LIVE_PRICED, &PEAK_PRICED, priced(added), priced(removed));
     }
 
-    #[derive(Debug, Clone, Copy)]
+    #[derive(Debug, Default, Clone, Copy, Serialize)]
     pub struct Measured {
         pub peak_requested: u64,
         /// Peak of the live sum of `allocation_envelope(requested size)`.
         pub peak_priced: u64,
         pub allocations: u64,
+        pub live_requested: i64,
+        pub live_priced: i64,
     }
 
     /// The live priced bytes now (inside [`measure`]).
@@ -774,19 +799,35 @@ pub(crate) mod counting {
         LIVE_PRICED.with(Cell::get)
     }
 
+    #[cfg(test)]
+    #[test]
+    fn accounting_disarms_during_unwind() {
+        let result = std::panic::catch_unwind(|| measure(|| panic!("fixture unwind")));
+        assert!(result.is_err());
+        assert!(!ACTIVE.with(Cell::get));
+    }
+
     /// Runs `f` with this thread's accounting active from zero.
     pub fn measure<T>(f: impl FnOnce() -> T) -> (T, Measured) {
+        struct Reset;
+        impl Drop for Reset {
+            fn drop(&mut self) { ACTIVE.with(|a| a.set(false)); }
+        }
+        assert!(!ACTIVE.with(Cell::get), "allocation measures cannot nest");
+        let reset = Reset;
         for cell in [&LIVE, &PEAK, &LIVE_PRICED, &PEAK_PRICED] {
             cell.with(|c| c.set(0));
         }
         ALLOCATIONS.with(|c| c.set(0));
         ACTIVE.with(|a| a.set(true));
         let out = f();
-        ACTIVE.with(|a| a.set(false));
+        drop(reset);
         let measured = Measured {
             peak_requested: PEAK.with(Cell::get).max(0) as u64,
             peak_priced: PEAK_PRICED.with(Cell::get).max(0) as u64,
             allocations: ALLOCATIONS.with(Cell::get),
+            live_requested: LIVE.with(Cell::get),
+            live_priced: LIVE_PRICED.with(Cell::get),
         };
         (out, measured)
     }

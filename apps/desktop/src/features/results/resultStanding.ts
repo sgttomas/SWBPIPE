@@ -15,6 +15,7 @@ import { readerDispatch, readerSourceText, readerValidate, ResultReaderError, ty
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
 import { isRetainedRoute, RETAINED_STANDING_STATUS, type SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
+import { isNativeResult, nativeCustody, type NativeResult } from "../../services/nativeResult";
 
 /** No registered validation with the captured invocation holds for these bytes and model. */
 export const SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED = "SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED";
@@ -106,7 +107,14 @@ function presented(standing: ReaderStanding): NumericalStanding {
 /** The numerical standing of a statement for the current model: Rust's, with the
  * registered invocation for a source route (G4). A successor's standing is R1's
  * registered reader validation with the live native capture. */
-export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
+export function numericalResultStanding(source: MechanicsResult | NativeResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
+  // C1: a native result's standing is the one read natively with its bound model text; another
+  // model has none here (fail closed, `NATIVE_VERDICT_NOT_BOUND`).
+  if (isNativeResult(source)) {
+    const { verdict, binding } = nativeCustody(source);
+    const bound = model != null && textOf(model) === binding.standingModelText;
+    return presented(bound ? verdict.standing : { ...verdict.standing, token: "needs_recompute", status: "needs_recompute", eligible: false, findings: ["NATIVE_VERDICT_NOT_BOUND"] });
+  }
   const route = readerDispatch(source).route;
   if (route === "pressure_source") {
     return presented(readerDispatch(source, model, registeredInvocation(source, model, route) ?? undefined).standing);

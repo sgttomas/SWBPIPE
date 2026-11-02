@@ -72,11 +72,27 @@ export function quantityColumns(
   convert: (value: number, unit: string) => CsvCell = exactValueCell,
   unitOf: (unit: string) => string = csvDisplayUnit
 ): { columns: CsvColumn[]; cells: CsvCell[][] } {
-  const units = new Set(entries.filter(present).map((entry) => unitOf(entry.unit)));
+  return quantityColumnsIn(label, entries, quantityHeaderUnit(new Set(entries.filter(present).map((entry) => unitOf(entry.unit)))), convert, unitOf);
+}
+
+/** The header unit of a numeric column whose present values have these display units: the one
+ * unit when there is exactly one, else null (a per-row unit column follows). */
+export function quantityHeaderUnit(units: ReadonlySet<string>): string | null {
+  return units.size === 1 ? [...units][0] : null;
+}
+
+/** `quantityColumns` with its header unit already decided (`quantityHeaderUnit` over every row of
+ * the table), so a table written in parts states the same columns and cells for each part. */
+export function quantityColumnsIn(
+  label: string,
+  entries: readonly CsvQuantityEntry[],
+  headerUnit: string | null,
+  convert: (value: number, unit: string) => CsvCell = exactValueCell,
+  unitOf: (unit: string) => string = csvDisplayUnit
+): { columns: CsvColumn[]; cells: CsvCell[][] } {
   const cell = (entry: CsvQuantityEntry): CsvCell => (present(entry) ? convert(entry.value, entry.unit) : csvStatus(entry.absent));
-  if (units.size === 1) {
-    const [unit] = units;
-    return { columns: [{ kind: "number", label, unit }], cells: entries.map((entry) => [cell(entry)]) };
+  if (headerUnit !== null) {
+    return { columns: [{ kind: "number", label, unit: headerUnit }], cells: entries.map((entry) => [cell(entry)]) };
   }
   const unitLabel = `${label} unit`;
   return {

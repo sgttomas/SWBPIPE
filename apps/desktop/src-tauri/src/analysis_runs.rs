@@ -730,7 +730,35 @@ fn check_manifest_binding<'m>(project_id: &str, transient: &Value, manifest: &'m
 /// each at most once, whose own checksum verifies, and whose members the
 /// manifest fixes are the manifest's. Returns the recomputed record hash.
 fn check_transient_record(project_id: &str, transient: &Value, manifest: &Value, manifest_hash_hex: &str, memory: &dyn ReadMemory) -> Result<String, String> {
-    const RECORD: &str = "ANALYSIS-RUN-NOT-TRANSIENT";
+    check_transient_shape(project_id, transient)?;
+    let claim = single_hash(transient, "analysis_run_record");
+    let recomputed = run_record_hash_within(transient, memory, "the run to record's record").map_err(|error| {
+        if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(NOT_TRANSIENT, error) }
+    })?;
+    if claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(recomputed.as_str()) {
+        return Err(refused(NOT_TRANSIENT, format_args!("the record's own checksum does not verify (it hashes to {recomputed})")));
+    }
+    check_manifest_members(transient, manifest, manifest_hash_hex)?;
+    Ok(recomputed)
+}
+
+const NOT_TRANSIENT: &str = "ANALYSIS-RUN-NOT-TRANSIENT";
+
+/// The members the manifest fixes, from the manifest (never from the record):
+/// the first that differs is refused.
+fn check_manifest_members(record: &Value, manifest: &Value, manifest_hash_hex: &str) -> Result<(), String> {
+    if let Some(name) = first_difference(record, &manifest_members(manifest, manifest_hash_hex, false).map_err(|error| refused(MANIFEST, error))?) {
+        return Err(refused(MANIFEST, format_args!("the record's {name} is not the input manifest's")));
+    }
+    Ok(())
+}
+
+/// Record Run's first checks of the record itself: a current (0.3.0) v0.3
+/// record, a solve's transient record (`created_at` null, the synthetic
+/// `state:<project>:preview` ref), whose status is v0.3's words, each at most
+/// once. Reads none of its row-scale members.
+fn check_transient_shape(project_id: &str, transient: &Value) -> Result<(), String> {
+    const RECORD: &str = NOT_TRANSIENT;
     if transient.get("schema_version").and_then(Value::as_str) != Some("0.3.0")
         || transient.pointer("/run_contract_status/record_contract").and_then(Value::as_str)
             != Some("strict_analysis_run_v0_3")
@@ -756,18 +784,7 @@ fn check_transient_record(project_id: &str, transient: &Value, manifest: &Value,
     if !status_accepted {
         return Err(refused(RECORD, "the record's analysis status is not a list of v0.3's status words, each at most once"));
     }
-    let claim = single_hash(transient, "analysis_run_record");
-    let recomputed = run_record_hash_within(transient, memory, "the run to record's record").map_err(|error| {
-        if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RECORD, error) }
-    })?;
-    if claim.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(recomputed.as_str()) {
-        return Err(refused(RECORD, format_args!("the record's own checksum does not verify (it hashes to {recomputed})")));
-    }
-    // The members the manifest fixes, from the manifest (never from the record).
-    if let Some(name) = first_difference(transient, &manifest_members(manifest, manifest_hash_hex, false).map_err(|error| refused(MANIFEST, error))?) {
-        return Err(refused(MANIFEST, format_args!("the record's {name} is not the input manifest's")));
-    }
-    Ok(recomputed)
+    Ok(())
 }
 
 /// The parsed result a record is checked against, with its run, its project
@@ -794,22 +811,7 @@ fn check_record_result(
     manifest: &Value,
     memory: &dyn ReadMemory,
 ) -> Result<bool, String> {
-    let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
-    let received = single_hash(transient, "received_result");
-    if received.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(bound.hash_hex)
-        || received.and_then(|hash| hash.get("payload_ref"))
-            != Some(&reference("ResultEnvelope", &format!("result-envelope:{}", bound.run_id)))
-    {
-        return Err(refused(RESULT, format_args!("the result hashes to {}, not the record's received result", bound.hash_hex)));
-    }
-    if bound.run_id != run_id || bound.model_ref != project_id {
-        return Err(refused(RESULT, "the result is not the record's run of this project"));
-    }
-    // The whole checksum inventory, exactly: algorithm, profile, scope, payload
-    // ref and value of both checksums, nothing else (v0.3; S1's exact descriptors).
-    if transient.pointer("/analysis_run/hashes") != Some(&expected_hashes(run_id, recomputed, bound.hash_hex)) {
-        return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", "the record's checksum descriptors are not exactly the v0.3 ones"));
-    }
+    check_received(project_id, transient, recomputed, bound.run_id, bound.model_ref, bound.hash_hex)?;
     if let Some(detail) = result_rows_difference(transient, bound.result, memory).map_err(|error| {
         if error.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE) { error } else { refused(RESULT, error) }
     })? {
@@ -829,6 +831,29 @@ fn check_record_result(
         Some(DiagnosticsDifference::NotResolved) | None => {}
     }
     Ok(difference == Some(DiagnosticsDifference::NotResolved))
+}
+
+/// Record Run's checks of the record's received result, from the result's run,
+/// project and checked SHA-256: the record's `received_result` checksum and its
+/// ref are the result's, the result is the record's run of `project_id`, and
+/// the checksum inventory is exactly v0.3's (algorithm, profile, scope, payload
+/// ref and value of both checksums, nothing else; S1's exact descriptors).
+fn check_received(project_id: &str, transient: &Value, recomputed: &str, result_run_id: &str, result_model_ref: &str, hash_hex: &str) -> Result<(), String> {
+    let run_id = transient.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
+    let received = single_hash(transient, "received_result");
+    if received.and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(hash_hex)
+        || received.and_then(|hash| hash.get("payload_ref"))
+            != Some(&reference("ResultEnvelope", &format!("result-envelope:{result_run_id}")))
+    {
+        return Err(refused(RESULT, format_args!("the result hashes to {hash_hex}, not the record's received result")));
+    }
+    if result_run_id != run_id || result_model_ref != project_id {
+        return Err(refused(RESULT, "the result is not the record's run of this project"));
+    }
+    if transient.pointer("/analysis_run/hashes") != Some(&expected_hashes(run_id, recomputed, hash_hex)) {
+        return Err(refused("ANALYSIS-RUN-CHECKSUM-MISMATCH", "the record's checksum descriptors are not exactly the v0.3 ones"));
+    }
+    Ok(())
 }
 
 /// Record Run's binding checks over values a caller has already parsed and
@@ -943,22 +968,7 @@ impl RecordRunRequest {
     pub(crate) fn from_value(value: Value) -> Result<Self, command_ingress::ArgsError> {
         let mut fields = command_ingress::Fields::of(value, "struct RecordRunRequest")?;
         let run_labels = fields.required_value("run_labels")?;
-        let new_state = match fields.value_or_null("new_state") {
-            Value::Null => None,
-            Value::Object(mut map) => {
-                let labels = map.remove("labels").unwrap_or(Value::Null);
-                let parent_state_id = match map.remove("parent_state_id") {
-                    None | Some(Value::Null) => None,
-                    Some(Value::String(parent)) => Some(parent),
-                    Some(_) => return Err(serde::de::Error::custom("`new_state.parent_state_id` is not a string")),
-                };
-                Some(NewStateRequest {
-                    labels: model_states::labels_from_value(labels).map_err(serde::de::Error::custom)?,
-                    parent_state_id,
-                })
-            }
-            _ => return Err(serde::de::Error::custom("`new_state` is not an object")),
-        };
+        let new_state = new_state_from_value(fields.value_or_null("new_state"))?;
         Ok(Self {
             project_id: fields.required("project_id")?,
             expected_base: fields.required("expected_base")?,
@@ -969,6 +979,26 @@ impl RecordRunRequest {
             new_state,
             run_labels: run_labels_from_value(run_labels).map_err(serde::de::Error::custom)?,
         })
+    }
+}
+
+/// A request's `new_state` (`null`, or `{labels, parent_state_id?}`).
+pub(crate) fn new_state_from_value(value: Value) -> Result<Option<NewStateRequest>, command_ingress::ArgsError> {
+    match value {
+        Value::Null => Ok(None),
+        Value::Object(mut map) => {
+            let labels = map.remove("labels").unwrap_or(Value::Null);
+            let parent_state_id = match map.remove("parent_state_id") {
+                None | Some(Value::Null) => None,
+                Some(Value::String(parent)) => Some(parent),
+                Some(_) => return Err(serde::de::Error::custom("`new_state.parent_state_id` is not a string")),
+            };
+            Ok(Some(NewStateRequest {
+                labels: model_states::labels_from_value(labels).map_err(serde::de::Error::custom)?,
+                parent_state_id,
+            }))
+        }
+        _ => Err(serde::de::Error::custom("`new_state` is not an object")),
     }
 }
 
@@ -1907,6 +1937,31 @@ pub(crate) fn read_run_in_store_within(
     memory: &dyn ReadMemory,
     limit: u64,
 ) -> Result<Metered<AnalysisRunRead>, String> {
+    read_run_in_store_core(path, project_id, recording_id, memory, limit, None)
+}
+
+/// C1 slice 6's hook into a recorded run's read for native custody
+/// (`stored_custody`): told the stored result's and record's lengths after
+/// they are measured and before anything of the run is loaded (it admits
+/// the held bytes' leases there, or refuses), and handed the stored record's
+/// exact text, loaded in the same read transaction after the record was
+/// verified.
+pub(crate) trait NativeRunLoad {
+    fn admit(&mut self, result_bytes: u64, record_bytes: u64) -> Result<(), String>;
+    fn record_text(&mut self, text: String);
+}
+
+/// [`read_run_in_store_within`], with C1 slice 6's native load when `native`
+/// is given (its `limit` is then the caller's: native custody applies no
+/// webview limit).
+pub(crate) fn read_run_in_store_core(
+    path: &Path,
+    project_id: &str,
+    recording_id: &str,
+    memory: &dyn ReadMemory,
+    limit: u64,
+    mut native: Option<&mut dyn NativeRunLoad>,
+) -> Result<Metered<AnalysisRunRead>, String> {
     let mut connection = stored_read::open_store(path)?;
     let transaction = stored_read::read_transaction(&mut connection)?;
     let _sqlite = stored_read::admit_sqlite_working_set(&transaction, memory)?;
@@ -1923,6 +1978,9 @@ pub(crate) fn read_run_in_store_within(
     let length = |value: i64| u64::try_from(value).unwrap_or(0);
     let (result_length, manifest_length, record_length) = (length(lengths.0), length(lengths.1), length(lengths.2));
     refuse_undisplayable_run(recording_id, result_length, record_length, limit)?;
+    if let Some(native) = native.as_deref_mut() {
+        native.admit(result_length, record_length)?;
+    }
     let what = format!("recorded run `{recording_id}`", recording_id = stored_read::shown(&recording_id));
     // Loaded here: the result and the manifest (the summaries reserve their
     // own; the canonical texts are reserved when they are built).
@@ -1936,6 +1994,15 @@ pub(crate) fn read_run_in_store_within(
     )?;
     let mut read = Metered::new(()).holding(load);
     let found = find_run_with(&transaction, project_id, recording_id, memory)?.ok_or_else(not_found)?;
+    if let Some(native) = native.as_deref_mut() {
+        // The verified record's exact stored text, for native custody: SQLite's
+        // copies are reserved here; the text itself is under the hook's lease.
+        let _sqlite_copies = memory.reserve(&format!("{what}'s stored record"), stored_read::exact_text_bytes(record_length).saturating_mul(2))?;
+        let text: String = transaction
+            .query_row("SELECT run_record_json FROM analysis_runs WHERE project_id = ?1 AND recording_id = ?2", params![project_id, recording_id], |row| row.get(0))
+            .map_err(|error| stored_read::column_fetch_error(error, |detail| integrity_of(recording_id, detail)))?;
+        native.record_text(text);
+    }
     let (run, record) = found.get();
     let (result_json, manifest_text): (String, String) = transaction
         .query_row(
@@ -2205,6 +2272,261 @@ pub(crate) fn delete_unreadable_run_in_store_finishing<R>(
 #[cfg(test)]
 pub(crate) fn delete_unreadable_run_in_store(path: &Path, project_id: &str, handle: &str) -> Result<AnalysisRunDeleteReceipt, String> {
     delete_unreadable_run_in_store_finishing(path, project_id, handle, &stored_read::UnmeteredReadMemory, Ok)?.into_unreserved()
+}
+
+// ---------------------------------------------------------------------------
+// Native Record Run (C1 slice 5; DEL-04-05 `c1-native-custody-plan.md`): a
+// record built in this process from the held result, never submitted. The
+// command, its admission and its texts are `native_persistence`'s; the checks,
+// the state, the time, the revision's row and its labels are this store's,
+// in the same transaction and order as `record_run_in_store_finishing`.
+// ---------------------------------------------------------------------------
+
+/// The native Record Run's request members other than the job and the record's
+/// inputs (snake_case, as [`RecordRunRequest`]'s): no record, result or
+/// manifest text is submitted.
+#[derive(Debug)]
+pub(crate) struct NativeRunRequest {
+    /// The held result's `model_ref` (the builder binds the manifest to it).
+    pub(crate) project_id: String,
+    pub(crate) expected_base: String,
+    pub(crate) state_id: Option<String>,
+    pub(crate) new_state: Option<NewStateRequest>,
+    pub(crate) run_labels: RunLabels,
+}
+
+/// What [`checked_native_record`] establishes (as [`CheckedSubmission`] does
+/// for a submitted record): the manifest's model payload's canonical text and
+/// its `sha256:<hex>`.
+pub(crate) struct NativeChecked {
+    pub(crate) payload_canonical: String,
+    pub(crate) payload_hash: String,
+}
+
+/// Record Run's checks of a record the desktop built from the held result
+/// (`analysis_run_v03_build`), on its header record (every member but the
+/// row-scale ones), with the built record's own and received-result checksums:
+/// the checks [`checked_submission`] applies to those members, in its order:
+/// the input manifest is its own canonical JCS text, its SHA-256 is the
+/// record's `input_manifest_hashes[0]` with the matching ref, and it and its
+/// model payload are `project_id`'s; the record is a current transient record
+/// with v0.3's status words; it carries the checksum the builder computed; the
+/// members the manifest fixes are the manifest's; the received result is the
+/// record's (its checksum and ref, its run and project) and the checksum
+/// inventory exactly v0.3's. The row checksums, the producer diagnostics and
+/// the rule-pack diagnostics are the builder's by construction: it computes
+/// them from the held result and the manifest it checks (nothing of the
+/// record arrives from the webview, so nothing of it is asserted).
+pub(crate) fn checked_native_record(
+    project_id: &str,
+    header: &Value,
+    record_sha256: &str,
+    received_sha256: &str,
+    manifest: &Value,
+    manifest_text: &str,
+    memory: &dyn ReadMemory,
+) -> Result<Metered<NativeChecked>, String> {
+    if !stored_read::is_jcs_text(memory, "the run to record's canonical input manifest", manifest, manifest_text)? {
+        return Err(refused(MANIFEST, "the input manifest is not its own canonical JCS text"));
+    }
+    let manifest_hash_hex = sha256_hex(manifest_text);
+    let model_payload = check_manifest_binding(project_id, header, manifest, &manifest_hash_hex)?;
+    let payload_canonical = stored_read::jcs_text(memory, "the run to record's model payload", model_payload)?;
+    let payload_hash = format!("sha256:{}", sha256_hex(payload_canonical.get()));
+    check_transient_shape(project_id, header)?;
+    if single_hash(header, "analysis_run_record").and_then(|hash| hash.get("value")).and_then(Value::as_str) != Some(record_sha256) {
+        return Err(refused(NOT_TRANSIENT, "the record does not carry its own checksum"));
+    }
+    check_manifest_members(header, manifest, &manifest_hash_hex)?;
+    let run_id = header.pointer("/analysis_run/run_id").and_then(Value::as_str).unwrap_or("");
+    check_received(project_id, header, record_sha256, run_id, project_id, received_sha256)?;
+    Ok(payload_canonical.map(|payload_canonical| NativeChecked { payload_canonical, payload_hash }))
+}
+
+/// The state a native Record Run is tied to, decided inside its write
+/// transaction before anything is written: an existing state (named, or the
+/// one holding the solved model's hash), or a new post-solve snapshot, checked
+/// and with its id and time allocated but not yet inserted; and the recording
+/// time.
+pub(crate) struct NativeRunPlan {
+    pub(crate) state_id: String,
+    pub(crate) state_outcome: &'static str,
+    new_state: Option<(Metered<model_states::CheckedSnapshot>, String, i64)>,
+    pub(crate) created_at: String,
+}
+
+/// [`record_run_in_store_finishing`]'s steps from the project row's stale-window
+/// check to the recording time, writing nothing: the base, the state (found,
+/// or a new snapshot's checks, its parent and its id and time), then the time.
+/// The clock and the token are read in the order the submitted path reads them.
+pub(crate) fn plan_native_run(
+    transaction: &Transaction<'_>,
+    request: &NativeRunRequest,
+    checked: &NativeChecked,
+    hooks: &RunWriteHooks<'_>,
+    memory: &dyn ReadMemory,
+) -> Result<NativeRunPlan, String> {
+    let project_id = request.project_id.as_str();
+    model_states::require_project_base(
+        transaction,
+        project_id,
+        &request.expected_base,
+        format!(
+            "ANALYSIS-RUN-PROJECT-MISSING: project `{}` has no stored local project; save the local project first. Nothing was recorded.",
+            stored_read::shown(project_id)
+        ),
+        memory,
+    )?;
+    let (state_id, state_outcome, new_state) = match &request.state_id {
+        Some(state_id) => {
+            let state = find_summary_with(transaction, project_id, state_id, memory)?.ok_or_else(|| {
+                refused("ANALYSIS-RUN-STATE-NOT-FOUND", format_args!("project `{project_id}` has no saved state `{state_id}`", project_id = stored_read::shown(&project_id), state_id = stored_read::shown(&state_id)))
+            })?;
+            if state.get().model_hash != checked.payload_hash {
+                return Err(refused(
+                    "ANALYSIS-RUN-STATE-MISMATCH",
+                    format_args!(
+                        "the solved model hashes to {}, not state {}'s {}",
+                        checked.payload_hash,
+                        state_description(state.get()),
+                        stored_read::shown(&state.get().model_hash)
+                    ),
+                ));
+            }
+            (state.get().state_id.clone(), "existing", None)
+        }
+        None => match model_states::state_with_model_hash(transaction, project_id, &checked.payload_hash, memory)? {
+            Some(state) => (state.get().state_id.clone(), "existing", None),
+            None => {
+                let Some(new_state) = &request.new_state else {
+                    return Err(refused(
+                        "ANALYSIS-RUN-STATE-REQUIRED",
+                        format_args!(
+                            "project `{}` has no saved state of the solved model ({}); name a post-solve snapshot to record the run against",
+                            stored_read::shown(project_id),
+                            stored_read::shown(&checked.payload_hash)
+                        ),
+                    ));
+                };
+                let copy = memory.reserve("the post-solve snapshot", stored_read::exact_text_bytes(checked.payload_canonical.len() as u64))?;
+                let snapshot = model_states::checked_new_state(project_id, POST_SOLVE_SNAPSHOT, checked.payload_canonical.clone(), &checked.payload_hash, memory)?.holding(copy);
+                if let Some(parent) = new_state.parent_state_id.as_deref() {
+                    if find_summary_with(transaction, project_id, parent, memory)?.is_none() {
+                        return Err(format!(
+                            "MODEL-STATE-PARENT-MISSING: project `{project_id}` has no saved state `{parent}`; nothing was saved.", project_id = stored_read::shown(&project_id), parent = stored_read::shown(&parent)
+                        ));
+                    }
+                }
+                let (token, now) = ((hooks.state_token)()?, (hooks.now)()?);
+                (format!("state:{token}"), "created", Some((snapshot, token, now)))
+            }
+        },
+    };
+    let created_at = allocate_created_at(transaction, project_id, (hooks.now)()?)?;
+    Ok(NativeRunPlan { state_id, state_outcome, new_state, created_at })
+}
+
+/// The texts a native Record Run writes, built by `native_persistence` after
+/// its size checks: the recorded revision's stored bytes and hash, the
+/// received result's text (`jsonTextKeepingNegativeZero` of its parse) and
+/// checked hash, the manifest's canonical text and the producer's run id.
+pub(crate) struct NativeRunTexts<'t> {
+    pub(crate) record_json: &'t str,
+    pub(crate) record_hash: &'t str,
+    pub(crate) result_json: &'t str,
+    pub(crate) result_hash: &'t str,
+    pub(crate) manifest_text: &'t str,
+    pub(crate) producer_run_id: &'t str,
+}
+
+/// The refusal of a run whose row SQLite refused as too big after every
+/// length was checked (a backstop): the transaction is rolled back.
+pub(crate) const RUN_RECORD_RESULT_TOO_LARGE: &str = "RUN-RECORD-RESULT-TOO-LARGE";
+
+/// [`record_run_in_store_finishing`]'s writes for a [`NativeRunPlan`]: the
+/// snapshot (its id and time the plan's) and its labels, the run row and its
+/// labels row, then the run's and the state's summaries for `finish`, before
+/// the caller commits. A row SQLite refuses as too big
+/// ([`RUN_RECORD_RESULT_TOO_LARGE`]) or any other failure leaves the caller's
+/// transaction to roll back: nothing is half written.
+pub(crate) fn write_native_run<R>(
+    transaction: &Transaction<'_>,
+    request: &NativeRunRequest,
+    plan: NativeRunPlan,
+    texts: &NativeRunTexts<'_>,
+    hooks: &RunWriteHooks<'_>,
+    memory: &dyn ReadMemory,
+    finish: impl FnOnce(Metered<RecordRunOutcome>) -> Result<R, String>,
+) -> Result<R, String> {
+    let project_id = request.project_id.as_str();
+    let too_big = |error: String| {
+        if error.starts_with(stored_read::SQLITE_TOO_BIG) {
+            format!("{RUN_RECORD_RESULT_TOO_LARGE}: SQLite refused the run's rows as too big ({error}); the transaction was rolled back and nothing was recorded.")
+        } else {
+            error
+        }
+    };
+    let NativeRunPlan { state_id, state_outcome, new_state, created_at } = plan;
+    if let Some((snapshot, token, now)) = new_state {
+        let labels = &request.new_state.as_ref().expect("a new state was requested").labels;
+        let allocate = || Ok((token.clone(), now));
+        let between_rows = |transaction: &Transaction<'_>| (hooks.between_rows)(transaction, "state");
+        let state = model_states::insert_new_state(
+            transaction,
+            project_id,
+            POST_SOLVE_SNAPSHOT,
+            request.new_state.as_ref().and_then(|state| state.parent_state_id.as_deref()),
+            snapshot.get(),
+            labels,
+            &StateWriteHooks { allocate: &allocate, between_rows: &between_rows },
+            memory,
+        )
+        .map_err(too_big)?;
+        if state.get().state_id != state_id {
+            return Err(format!("MODEL-STATE-INTEGRITY: the post-solve snapshot was written as `{}`, not `{}`.", stored_read::shown(&state.get().state_id), stored_read::shown(&state_id)));
+        }
+        drop((state, snapshot));
+    }
+    let recording_id = recording_id_of(texts.record_hash);
+    transaction
+        .execute(
+            "INSERT INTO analysis_runs (project_id, recording_id, state_id, producer_run_id, created_at, run_record_json, run_record_hash, input_manifest_json, result_json, result_hash)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+            params![
+                project_id,
+                recording_id,
+                state_id,
+                texts.producer_run_id,
+                created_at,
+                texts.record_json,
+                texts.record_hash,
+                texts.manifest_text,
+                texts.result_json,
+                texts.result_hash
+            ],
+        )
+        .map_err(|error| too_big(sql(error)))?;
+    (hooks.between_rows)(transaction, "run")?;
+    write_run_labels(transaction, project_id, &recording_id, &request.run_labels, &created_at, true)?;
+    let run = find_run_with(transaction, project_id, &recording_id, memory)?
+        .ok_or_else(|| format!("ANALYSIS-RUN-INTEGRITY: recorded run `{recording_id}` was not written.", recording_id = stored_read::shown(&recording_id)))?
+        .map(|(run, _record)| run);
+    let state = find_summary_with(transaction, project_id, &state_id, memory)?
+        .ok_or_else(|| format!("MODEL-STATE-INTEGRITY: state `{state_id}` vanished.", state_id = stored_read::shown(&state_id)))?;
+    let unused = if state_outcome == "existing" && request.state_id.is_none() && request.new_state.is_some() {
+        " The solved model was already saved as that state, so the post-solve snapshot name was not used."
+    } else {
+        ""
+    };
+    finish(run.join(state, |run, state| {
+        let against = if state_outcome == "created" {
+            format!("the new post-solve snapshot {}", state_description(&state))
+        } else {
+            format!("model state {}", state_description(&state))
+        };
+        let message = format!("Recorded run {} against {against}.{unused} {LABELS_DO_NOT_CHANGE_RUN}", run_description(&run));
+        RecordRunOutcome { run, state, state_outcome, message }
+    }))
 }
 
 // ---------------------------------------------------------------------------

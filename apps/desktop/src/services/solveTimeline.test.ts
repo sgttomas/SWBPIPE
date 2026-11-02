@@ -232,3 +232,34 @@ describe("the solve timeline's own global, beside the unchanged diagnostics glob
     expect("solveTimeline" in during).toBe(false);
   });
 });
+
+// C1 fixed native-await checkpoints are observed only when a smoke reporter is
+// installed; ordinary calls preserve their result/error without extra events.
+describe("C1 native reader boundary observations", () => {
+  it("keeps an entry without inventing an exit while disposed/cancelled work remains pending", async () => {
+    const { traceNativeReaderAwait, resetSolveTimelineForTests } = await import("./solveTimeline");
+    resetSolveTimelineForTests();
+    const events: {edge:string; status:string}[]=[];
+    globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__=async event=>{events.push(event);};
+    let reject!: (error: Error)=>void;
+    const pending=traceNativeReaderAwait("registration",()=>new Promise((_resolve,no)=>{reject=no;}));
+    await Promise.resolve();await Promise.resolve();
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({edge:"enter",status:"pending"});
+    const error=new Error("fixture disposed job");
+    reject(error);
+    await expect(pending).rejects.toBe(error);
+    expect(events.at(-1)).toMatchObject({edge:"exit",status:"error"});
+    resetSolveTimelineForTests();
+  });
+  it("limits observed awaits without truncating into a successful observation", async () => {
+    const { traceNativeReaderAwait, resetSolveTimelineForTests } = await import("./solveTimeline");
+    resetSolveTimelineForTests();
+    const events: unknown[]=[];
+    globalThis.__SWBPIPE_NATIVE_SMOKE_READER_PHASE__=async event=>{events.push(event);};
+    for(let i=0;i<32;i++) await traceNativeReaderAwait("header",async()=>null);
+    await expect(traceNativeReaderAwait("header",async()=>null)).rejects.toThrow("C1-READER-DIAGNOSTIC-LIMIT");
+    expect(events).toHaveLength(64);
+    resetSolveTimelineForTests();
+  });
+});

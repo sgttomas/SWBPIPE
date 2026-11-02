@@ -9,6 +9,7 @@
 //
 // This is identity recording only. The solve does not read rule content, run a
 // rule check or apply a pack; a reference never makes a check pass (F-PIP-2).
+import { isNativeAnalysisRun, nativeRunPreview, type SessionAnalysisRun } from "./nativeResult";
 import type { AnalysisRunEnvelope, PreviewModel } from "../types";
 import type { CurrentSessionInputManifest, InputManifestRulePack } from "./inputManifestService";
 import { openLocalRulePack, type RulePackOpenRoute } from "./rulePackService";
@@ -90,8 +91,10 @@ export async function resolveModelRulePacks(model: PreviewModel, open: OpenPack 
 /** The excluded references a run record names in its rule-pack diagnostics (after the
  * producer's), for re-recording the record (a rule-check aggregate) without a new solve.
  * Each identity is read back through the manifest's model references. */
-export function recordRulePackExclusions(run: AnalysisRunEnvelope | null | undefined, manifest: CurrentSessionInputManifest, producerDiagnosticCount: number): ExcludedRulePackRef[] {
-  const entries = rulePackRefDiagnosticEntries((run?.analysis_run.diagnostics ?? []).slice(producerDiagnosticCount)) ?? [];
+export function recordRulePackExclusions(run: SessionAnalysisRun | null | undefined, manifest: CurrentSessionInputManifest, producerDiagnosticCount: number): ExcludedRulePackRef[] {
+  // A native record carries its rule-pack reference diagnostics whole (the producer's stay native).
+  const appended = isNativeAnalysisRun(run) ? nativeRunPreview(run).rule_pack_ref_diagnostics : (run?.analysis_run.diagnostics ?? []).slice(producerDiagnosticCount);
+  const entries = rulePackRefDiagnosticEntries(appended) ?? [];
   const references = new Map((manifest.model_basis.model_payload.rule_pack_refs ?? []).map((reference) =>
     [rulePackIdentity(reference.rule_pack_id, reference.rule_pack_version), reference] as const));
   return entries.flatMap(({ code, identity }) => {
@@ -103,11 +106,13 @@ export function recordRulePackExclusions(run: AnalysisRunEnvelope | null | undef
 /** What a run shows of its rule-pack references: the packs its input manifest records,
  * then the diagnostic message of each excluded reference, read from the run record's
  * diagnostics. Null when the solved model referenced no pack. */
-export function runRulePackLines(manifest: CurrentSessionInputManifest | null | undefined, run: AnalysisRunEnvelope | null | undefined): { recorded: string[]; diagnostics: string[] } | null {
+/** C1 slice 6: a restored record's rule-pack reference diagnostics (its header's), read as a record's. */
+export type RestoredRecordDiagnostics = Readonly<{ analysis_run: Readonly<{ diagnostics: readonly unknown[] }> }>;
+export function runRulePackLines(manifest: CurrentSessionInputManifest | null | undefined, run: SessionAnalysisRun | RestoredRecordDiagnostics | null | undefined): { recorded: string[]; diagnostics: string[] } | null {
   if (!manifest || !(manifest.model_basis?.model_payload?.rule_pack_refs?.length)) return null;
   const recorded = (manifest.active_rule_packs ?? []).map((pack) =>
     `${pack.rule_pack_id} v${pack.version} (sha256 ${pack.checksum_sha256.slice(0, 12)}…)`);
-  const listed = run?.analysis_run?.diagnostics;
+  const listed = isNativeAnalysisRun(run) ? nativeRunPreview(run).rule_pack_ref_diagnostics : (run as { analysis_run?: { diagnostics?: unknown } } | null | undefined)?.analysis_run?.diagnostics;
   const diagnostics = (Array.isArray(listed) ? listed : [])
     .map((item) => item?.source_annotation as { code?: unknown; message?: unknown; source?: unknown } | undefined)
     .flatMap((annotation) => annotation?.source === RULE_PACK_REF_DIAGNOSTIC_SOURCE && typeof annotation.code === "string" && typeof annotation.message === "string"

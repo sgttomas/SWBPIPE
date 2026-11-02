@@ -343,6 +343,14 @@ Python agree.
 **Two kinds of run record:**
 1. **Transient.** Solve-time records are unchanged: the current-run slot, the
    synthetic `model_state_ref`, the existing validators and the fixtures.
+   C1 (RT-U4; DEL-04-05 `Work/c1-native-custody-plan.md` slice 5) adds a native
+   builder of the same transient record from a retained solve result
+   (`analysis_run_v03_build.rs`): the record's bytes in the stored form and its
+   checksums equal the TypeScript builder's. The webview receives only its
+   header. Record Run and Save/Create Project of such a result take the job
+   handle (`native_persistence.rs`, as built below): the record is rebuilt from
+   the held bytes and stored in today's forms; a taken or restored result is
+   recorded and saved as stated below, unchanged.
 2. **Recorded.** **Record Run** creates a new immutable record revision of the
    transient record, as `analysis_run.v0.3` permits
    (`mutation_policy: changes_create_new_immutable_record_revision`,
@@ -486,6 +494,54 @@ the History panel and `useModelStateHistory.ts`.
   desktop's displayable-result limit (64 MiB, RT-U4) with
   `STORED-RESULT-TOO-LARGE`, judged from both stored lengths before either is
   loaded; the run is unchanged (DEL-04-07 `Work/memory-budget-decision.md`).
+  These whole-value reads remain for the comparison sides and the browser
+  preview; the History panel's run check and the project open read natively
+  (below).
+- **Native reopen (C1 slice 6; DEL-04-05 `Work/c1-native-custody-plan.md`).**
+  On the desktop, a recorded run's check reads
+  `read_analysis_run_in_native_custody {projectId, recordingId}`: the same
+  verified store read (every integrity refusal above, in one read transaction),
+  without the 64 MiB webview limit, with the stored result's and record's texts
+  admitted as pool leases (capped at the per-invocation budget and 12 GiB) from
+  their measured lengths before either is loaded, held natively as a restored
+  handle of stored origin (`recorded_run`, the SHA-256 of the texts held). The
+  reply (a JSON body) carries the verified summaries, the stored manifest's
+  canonical text, the record's header without its row-scale members, and
+  `buildRecordedRunContext`'s findings computed natively on the stored texts
+  (`analysis_run_v03_validate.rs`, against the TypeScript oracle
+  `historical_reopen_cases.json`); never the result or a `ResultRef`. The check
+  holds no rows, so the webview releases the handle at once. Opening a project
+  reads `open_local_project_in_native_custody`: `open_local_project`'s members
+  (the same model-document refusals and serde messages) and the saved run held
+  natively (`saved_project_run`) with `buildHistoricalRunContext`'s findings
+  and the natively recomputed envelope payload hash, or, when the pool or
+  retention does not admit it, `STORED-RESULT-RESTORE-REFUSED` with the model
+  open for editing (a save in place is then refused until a new solve). Nothing
+  is written or migrated by either; a restored handle is refused by Record Run,
+  Save Project and the record preview from a job handle
+  (`NATIVE-PERSISTENCE-CUSTODY`, `ANALYSIS-RUN-PREVIEW-READ-FAILED`) and has no
+  exact-route custody.
+  Historical model/envelope hashes use JavaScript's binary64 number readings,
+  including wide exact-digit stored integers, without rewriting stored bytes.
+  Recorded-run model and manifest hashes use the same binary64 readings.
+  The complete record header, including matching rule-pack diagnostics and
+  wrapper keys, is measured before allocation and omitted above 4 MiB. Its
+  temporary text and parsed value are leased before allocation, with the
+  parsed-value lease held through reply serialization.
+- **Saving a reopened project (C1 slice 6's save continuity).** Save or Create
+  of a project showing its reopened saved run sends
+  `save_restored_result_local_project` the restored handle, its stored source,
+  the envelope basis the session holds and the project's small fields; no result,
+  record, model hash or envelope hash. The stored run is written as the legacy
+  session wrote it back (serde_json's reading of `JSON.stringify` of its stored
+  values), the stored project's model hash evidence (held with the handle), and
+  the envelope hash over what is stored, or the basis's stored evidence when that
+  payload is unchanged; the record is the stored record, never rebuilt. The
+  replacement guard, SQLite's exact lengths, the model-only save, the
+  withheld-run guard and the no-save rollback are the native save's. Only a
+  restored saved project run binds (`NATIVE-PERSISTENCE-CUSTODY` otherwise,
+  nothing written); the handle stays held and historical, and the reply carries
+  the findings of the project as stored.
 - **Request.** It carries the transient record, the result's JSON text (stored
   as given), the manifest's canonical text, the session's base, and optionally
   the state the session expects (`state_id`, checked:
@@ -493,6 +549,36 @@ the History panel and `useModelStateHistory.ts`.
   `post_solve_snapshot` (`new_state`); without one the request is refused with
   `ANALYSIS-RUN-STATE-REQUIRED`. The snapshot is the manifest's model payload. Its
   parent is the session's basis state.
+- **Native Record Run (C1 slice 5; DEL-04-05 `Work/c1-native-custody-plan.md`).**
+  For a native-custody solve the webview sends
+  `record_preview_mechanics_job_analysis_run` the job id, the record's inputs as
+  the native preview read them (the manifest evidence without its parsed copy,
+  the rule-check aggregate, the rule-pack exclusions), the previewed record's run
+  id and both checksums, the model text the job was sent (`intakeText`,
+  `deliveredIntakeText`) and `request: {expected_base, state_id, new_state,
+  run_labels}`; no record, result text or manifest object. The job must be held
+  natively, its bytes its publication's and its solver mode the manifest's, and
+  the model text must hash to the intake digest recorded when the job was
+  admitted and parse to the manifest's model (JSON data with JavaScript's
+  numbers), so a manifest model swapped under the same project id is refused
+  (`NATIVE-PERSISTENCE-CUSTODY`); the record rebuilt from the held bytes must be
+  the previewed one (`NATIVE-PERSISTENCE-RECORD-STALE`). The checks below then
+  apply to the rebuilt record's members that are not row-scale (the manifest's
+  canonical text, hash, ref and project; the transient shape and status; the
+  members the manifest fixes; the received result's checksum, ref, run and
+  project; the exact checksum inventory). The row checksums and diagnostics are
+  the builder's own, computed from the held bytes, so nothing of them is
+  asserted by the webview. The transaction, the state, the recording time and
+  the revision are this section's; `result_json` is
+  `jsonTextKeepingNegativeZero` of the held bytes' parse (written natively in
+  JavaScript's member order) and `run_record_json` the revision's stored form,
+  byte for byte the submitted path's (`native_persistence_tests.rs`). Before
+  anything is allocated or written, the writing connection's
+  `SQLITE_LIMIT_LENGTH` bounds every bound value and the run row's record; above
+  it the run is refused `RUN-RECORD-RESULT-TOO-LARGE (result_bytes, record_bytes,
+  row_bytes, limit_bytes)` with nothing written, and a row SQLite still refuses
+  rolls the transaction back, a new snapshot included. The outcome is
+  `record_analysis_run`'s.
 - **Checks before the store.**
   - `ANALYSIS-RUN-MANIFEST-MISMATCH`: the manifest is not its own canonical text;
     its hash is not `input_manifest_hashes[0]`; that entry's ref is not

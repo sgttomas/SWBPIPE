@@ -5,7 +5,8 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { buildAnalysisRunPreview, runPreviewMechanics, hasNativeMechanicsInvocation, loadDesignKnowledge } from "../../services/previewService";
-import { createSolveJobTransport, REPLAY_RESOURCE_GRANT, resultArrayBuffer, startRequestModel } from "../../test/nativeMechanicsReplay";
+import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
+import { isNativeResult } from "../../services/nativeResult";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
@@ -96,27 +97,23 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
   // Capture the real browser bootstrap records before installing the replay.
   delete (window as any).__TAURI_INTERNALS__; // eslint-disable-line @typescript-eslint/no-explicit-any
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
-  const scope = "unit_transport_replay_not_native_ui_qualification", started: string[] = [];
+  const started: string[] = [];
   assertLiveCase(generation);
+  // The job holds the captured producer bytes natively (C1); its native commands answer with the
+  // actual Rust commands' recorded replies. Job ids carry the generation.
+  const transport = createSolveJobTransport((sent) => {
+    assertLiveCase(generation);
+    if (!isDeepStrictEqual({ model: sent.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
+    started.push(String(sent.mode));
+    return sourceText;
+  }, { jobIdPrefix: `unit-transport-replay:${generation}:${name}` });
   invokeMock.mockImplementation(async (command: string, args: any, options?: unknown) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     assertLiveCase(generation);
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(request.model);
-    if (command === "start_preview_mechanics_job") {
-      const sent = startRequestModel(args, options);
-      if (!isDeepStrictEqual({ model: sent.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
-      started.push(String(sent.mode));
-      const job_id = `unit-transport-replay:${generation}:${name}:${started.length}`;
-      return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } };
-    }
-    const current = `unit-transport-replay:${generation}:${name}:${started.length}`;
-    if (command === "poll_preview_mechanics_job" && args?.jobId === current) {
-      return { job_id: args.jobId, state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result_available: true, result_bytes: sourceText.length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } };
-    }
-    if (command === "take_preview_mechanics_job_result" && args?.jobId === current) return resultArrayBuffer(sourceText);
-    if (command === "dispose_preview_mechanics_result") return null;
+    if (transport.handles(command)) return transport.invoke(command, args, options);
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });
   (window as any).__TAURI_INTERNALS__ = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -130,7 +127,11 @@ async function sessionReceived(name: string, mode: string, generation = caseGene
   await waitFor(() => expect(hook.result.current.results.result).not.toBeNull());
   expect(started).toEqual([mode]);
   const { result: source, inputManifest, analysisRun } = hook.result.current.results;
-  return { hook, started, model: hook.result.current.model.model!, source: source!, original, sourceText, inputManifest: inputManifest!, analysisRun: analysisRun! };
+  expect(isNativeResult(source)).toBe(true);
+  // The held result's bytes, read as a C2 consumer reads them (its one full copy).
+  let copy: MechanicsResult | null = null;
+  await act(async () => { copy = (await hook.result.current.results.loadC2Full(source!)).result; });
+  return { hook, started, model: hook.result.current.model.model!, source: source!, copy: copy!, original, sourceText, inputManifest: inputManifest!, analysisRun: analysisRun! };
 }
 
 describe("joined composite (pressure-source-1) native transport unit simulation", () => {
@@ -189,7 +190,7 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     // Through the workspace session: the solve completes and records the result, which is
     // Current with its registered invocation (design §4.1).
     const session = await sessionReceived(name,mode,generation);
-    expect(session.source).toEqual(session.original);
+    expect(session.copy).toEqual(session.original);
     expect(session.inputManifest.manifest.solver_basis.solver_mode).toBe(mode);
     expect(hasNativeMechanicsInvocation(session.source,session.model,mode)).toBe(true);
     expect(numericalResultStanding(session.source,session.model).eligible).toBe(true);
