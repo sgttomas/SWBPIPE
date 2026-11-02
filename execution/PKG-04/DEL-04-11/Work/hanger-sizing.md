@@ -375,8 +375,9 @@ Notes on the tests:
   reference), no ratio is formed for that case. Its variation is published as absent, V0
   reports it, and V is judged on the ratios that are formed, as in §6.2.
 
-  Each failed test, formed with the verified values, is reported by name
-  (`HANGER_SIZING_VERIFICATION_TEST_FAILED`, warning):
+  Each failed test, formed with the verified values, is reported by name in the
+  candidate's `verification.failed_tests` (§8.3.5). The published document has no
+  separate warning code for it:
   - V0, L, T and V for a variable selection;
   - T for a constant selection; its L is unchanged, because its load stays W.
 - **[decided] No automatic iteration.** The selection stands as sized, and the
@@ -447,7 +448,8 @@ document; the two share basis and identity terminology, not a carrier.
 - **Where it is published:** in 1d-α, only through the headless runner and the
   session.
 - **Not a recordable run:** the joint analysis-run 0.4.0 is approved for design, not
-  adoption (P2).
+  adoption (P2). The design proposal, which is not adopted, is
+  `joint-analysis-run-proposal.md`.
 - **Not the full publication criteria:** 1d-α does not meet the desktop, report or CSV
   criteria (REQ-007, REQ-012); those come with increment 3.
 
