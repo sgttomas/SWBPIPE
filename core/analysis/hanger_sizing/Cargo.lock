@@ -105,8 +105,21 @@ dependencies = [
 name = "open_pipe_stress_hanger_sizing"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_canonical_json",
+ "open_pipe_stress_library_import_document",
  "open_pipe_stress_product_physics",
+ "open_pipe_stress_result_export",
  "open_pipe_stress_units",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
+name = "open_pipe_stress_library_import_document"
+version = "0.1.0"
+dependencies = [
+ "serde",
  "serde_json",
 ]
 

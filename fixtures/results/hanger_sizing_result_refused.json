@@ -1,0 +1,63 @@
+{
+  "basis_statement": [
+    "Every position is measured from the drawn geometry, taken as the installed position at which each spring is set; F_cold is that setting and F_C the cold-condition load.",
+    "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios."
+  ],
+  "document_kind": "openpipestress.hanger_sizing.result",
+  "inputs": {
+    "canonical_profile": "openpipestress_jcs_ijson_v1",
+    "library": {
+      "library_id": "invented.hangers.sizing",
+      "sha256": "e904866d00f0b665b9f4d7fc078b95fd583418d5b6174d09eb3bca0adfdc7861"
+    },
+    "sizing_request": {
+      "candidates": [
+        {
+          "family_policy": "variable",
+          "support": "support:B"
+        },
+        {
+          "family_policy": "constant",
+          "support": "support:missing"
+        }
+      ],
+      "check_operating_cases": [
+        "load:O2"
+      ],
+      "design_operating_case": "load:O1",
+      "method": {
+        "load_design": "hot",
+        "selection_rule": "smallest_capacity",
+        "travel_allowance_m": 0.002,
+        "variation_limit": 0.25,
+        "variation_reference": "operating_load"
+      },
+      "solver_mode": "dense_scrutiny",
+      "weight_case": "load:W",
+      "weight_support_state": "own_solve"
+    },
+    "sizing_request_sha256": "b5343f6afddd1716902e57ce0c59359768ecd1ce89442b460e2a6fdde2c40b47",
+    "solve_request": {
+      "sha256": "966be96d808dae54a17143264c4648477647ad76c2b5d4ef44c61212bbbe6ac4"
+    }
+  },
+  "limitations": [
+    "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
+    "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
+    "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
+    "Hanger sizing is published on the pressure-free route only."
+  ],
+  "refusals": [
+    {
+      "code": "HANGER_SIZING_CANDIDATE_UNKNOWN",
+      "message": "the candidate does not meet the sizing rules of Design §3",
+      "names": [
+        "support:missing"
+      ]
+    }
+  ],
+  "route": "pressure_free",
+  "schema_version": "1.0.0",
+  "semantic_contract_id": "openpipestress.result_semantics/hanger-sizing-1",
+  "status": "refused"
+}
