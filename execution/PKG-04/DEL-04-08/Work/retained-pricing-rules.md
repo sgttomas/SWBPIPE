@@ -2624,9 +2624,16 @@ unchanged. Durations establish completion within the cleared window, not
 performance qualification. These are local source-bound witnesses, not native
 App, acceptance or release evidence.
 
-**Still open.** Integrated-main frozen-input and current native/Wasm bindings,
-any build-bound carrier regeneration that the maintained writers require, and
-exact-head hosted checks.
+**Integrated-main bindings (2026-11-02).** Between integrated main `4cf32bfd4`
+and candidate `34c25044e`, whose sources equal `9d8cf5820`'s, the frozen-input
+comparison found no difference in 876 comparisons (949 files, 438 requests,
+both modes). At `9d8cf5820` all three desktop engines were rebuilt from
+re-derived stamps, and the operation engine's preview equals the native preview
+on all 14 parity inputs (DEL-02-01 Work `model-document-0.9.0.md` §10). The
+CI-selected Python suite found no stale build-bound carrier, so none was
+regenerated.
+
+**Still open.** Exact-head hosted checks.
 
 Maintained tests: 870 pass, including `tests/test_840_rt_g5_s2.py`. The named
 proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:

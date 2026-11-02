@@ -1402,5 +1402,30 @@ records what was built against it.
   The separately cleared prebuilt exclusive window passed all six AC-004
   witnesses and one isolated challenge process (four observations); §8.40 records
   exact source/binary bindings, queue/execution/release and the unchanged bounds.
-- **Left:** integrated-main frozen/native-Wasm bindings, any writer-required
-  carrier refresh, and exact-head hosted checks.
+- **Integrated-main bindings (2026-11-02).** The integrating manager compared
+  the maintained `physics_source_connected` example at integrated main
+  `4cf32bfd4e8e660680d6e393766a8f30ca601fb8` and candidate
+  `34c25044e58358dc4336d3f4d7ecb5db7ea2fdbd` (its sources equal `9d8cf5820`'s,
+  which changes records only): 949 selected JSON files, 438 distinct requests,
+  both solver modes. All 876 comparisons had byte-identical output and equal
+  exit status (860 solved, 16 matching refusals), with no difference. At
+  `9d8cf5820` the maintained `build-wasm-engine.mjs` rebuilt all three desktop
+  engines clean, each stamp re-derived from the tree:
+  - operation: stamp `sha256:3ff18546d5ea1ec32570401809261bfdcab5c1d48acff6b3603672bfeae89463`
+    (297 inputs), wasm `7fea6454be3e94ff14357502951eed30b6a4b487b561f7f348f19d5e40c0ce51`;
+  - self-weight: stamp `sha256:181e38d07ee4679479d2b63e4c86ec904e600f34b3c152dae8905b22b8ac44eb`
+    (275 inputs), wasm `d1beebbbb80304c386da1308ef91678ab52150489dbde0cf9bec0a2f38e43ae9`;
+  - MBF: stamp `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46`
+    (28 inputs), wasm `9ab07de4aa351e389a37c5f9ad93f2f41f18482264cb736424e16f9f8cef9e13`.
+
+  The rebuilt operation engine returns the committed native preview on all 14
+  parity inputs and the input-error envelope for non-JSON text
+  (`tests/test_operating_condition_preview_wasm.py`, 2/2). The stamps recorded
+  above at `d738d34d8` bind that source only. The CI-selected Python suite
+  found no stale build-bound carrier, so none was regenerated. It found one
+  defect: `tests/test_model_document_schema.py` fails two tests because the
+  parity fixture's negative-control models (rows 3, 7, 9, 10, 12 and 13) are
+  neither valid 0.9.0 documents nor classified by that test's rules. These are
+  local source/transport checks, not native App or acceptance evidence.
+- **Left:** classification of the parity fixture's negative-control models in
+  the repository model-document test, and exact-head hosted checks.
