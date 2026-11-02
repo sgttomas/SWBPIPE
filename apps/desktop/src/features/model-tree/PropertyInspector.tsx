@@ -2008,7 +2008,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
           "dimensionless",
           "none",
           "user-entered modifier value; no code table default"
-        )
+        ),
+        ...(component.kind === "tee" ? [scalarField(
+          "Modifier source",
+          "modifiers.source_reference",
+          component.modifiers?.source_reference ?? "TBD",
+          "Component",
+          "dimensionless",
+          "none",
+          "user-entered source reference of the tee's modifiers; no source default"
+        )] : [])
       );
     }
     if (isRigidComponent(component)) {

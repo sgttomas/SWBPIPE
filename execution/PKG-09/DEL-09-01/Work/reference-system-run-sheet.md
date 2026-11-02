@@ -274,7 +274,7 @@ k and its source prefilled: **In-plane SIF i_ip** and **Out-of-plane SIF i_op** 
 (RS-B1, RS-B2) and 2.3 / 1.9 (RS-B3); **Queue bend realization update**, Apply. The fixture's
 `modifiers.source_reference` is ⟨S5⟩ for k and SIFs alike.
 
-### 3.6 Remaining component forms (9 min)
+### 3.6 Remaining component forms (9.75 min)
 
 Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features/component-creation/RigidDraftFields.tsx:11-32`,
 `ConnectorDraftFields.tsx:36-73`; the tee's at `PropertyInspector.tsx:948-969`). **Queue ⟨kind⟩**, Apply.
@@ -293,7 +293,7 @@ Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features
    internal_differential_zero_external_v1, source ⟨S5⟩; Stiffness source reference ⟨S5⟩;
    Measurement restraints `invented; no measurement`; Basis transform reference `none`;
    Validity statement `invented test object; no applicability claim`; Provenance ⟨P⟩.
-2. **Tee RS-T1** (3 min), after the run sheet, which makes RS-130 join RS-P120, RS-P130
+2. **Tee RS-T1** (3.75 min), after the run sheet, which makes RS-130 join RS-P120, RS-P130
    and RS-P210.
    1. **New component**: ID `component:RS-T1`; Label `Tee T1`; Kind tee; **New component
       node** RS-130; **New tee header pipe** RS-P120; **New tee branch pipe** RS-P210
@@ -310,10 +310,12 @@ Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features
    2. The person's SIFs (spec §11.3): select `component:RS-T1`, **Start task from current
       selection**, **Property to edit** = Header SIF user value, value 2.4, **Add**, Apply;
       again with Branch SIF user value, 2.0 (`PropertyInspector.tsx:474-560, 1981-1998`).
-      The fixture's `modifiers.source_reference` ⟨S5⟩ cannot be entered: the inspector offers
-      no modifier-source property on a tee, only on a rigid component as "Stiffness scale
-      source" (`PropertyInspector.tsx:1920-2009, 2097-2105`), although the applier accepts the
-      field (`lib.rs:679-682`) (gap G11).
+   3. The person's modifier source (G11): select `component:RS-T1`, **Start task from
+      current selection**, **Property to edit** = Modifier source; enter ⟨S5⟩, **Add**,
+      then Apply. This writes the existing `modifiers.source_reference` through the
+      guarded user operation. No source is suggested or copied from geometry provenance;
+      the missing field shows `TBD` until the person enters it. Agent/import refusals remain.
+
 
 ### 3.7 Variable spring RS-VS1 (1.75 min)
 
@@ -435,9 +437,8 @@ The solve time on the desktop is not measured here.
 
 ### 3.14 What still differs from the fixture
 
-The route above gives the fixture's ids, numbers and units, except the tee's modifier
-source (G11). Text and form differences remain, none in criterion 6's identity set or a
-numerical value:
+The route above gives the fixture's ids, numbers, units and tee modifier source.
+Text and form differences remain, none in criterion 6's identity set or a numerical value:
 
 - the project's id, name and description (`projectService.ts:440-455`);
 - labels the sheet derives: pipe labels (`runSheetModel.ts:757, 885`), and a bend's
@@ -454,8 +455,7 @@ numerical value:
   from, which differs from the fixture generator's capture model;
 - array order: the bend operation appends its nodes, arc and component
   (`bend_authoring.rs:699-701, 710, 729`), and the sheet creates supports in row order with
-  RS-VS1 after them, not in the fixture's order, so records are compared by id;
-- the tee: the desktop record lacks `modifiers.source_reference` (G11).
+  RS-VS1 after them, not in the fixture's order, so records are compared by id.
 
 ## 4. Pending families
 
@@ -485,7 +485,7 @@ queue or apply buttons are not entries; a quantity whose unit is not prefilled i
 two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not measurements.
 The tee's row uses the rates of its neighbours: its form entries at the rigid-component
 form's pre-G6 rate (about 5.5 s per entry: its former 10 minutes less the six end-size edits, over
-its 60 form entries) and each SIF edit at the RS-050 correction's 0.75 minutes. The rows #41
+its 60 form entries) and each SIF/source edit at the RS-050 correction's 0.75 minutes. The rows #41
 changed use the same two rates, rounded to the quarter minute: the run sheet at its own rate
 before #41, 8 minutes over 98 entries (about 4.9 s per entry), and the bend SIFs (§3.5) and
 RS-VS1 (§3.7) at the form rate.
@@ -499,7 +499,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.4 RS-050 correction | 3 | 1 | 0.75 |
 | 3.5 Bend SIFs | 9 | 3 | 0.75 |
 | 3.6 Expansion joint | 53 | 1 | 6 |
-| 3.6 Tee RS-T1 (15 form entries) and the person's two SIFs | 21 | 3 | 3 |
+| 3.6 Tee RS-T1 (15 form entries), the person's two SIFs and source | 24 | 4 | 3.75 |
 | 3.7 Variable spring RS-VS1 | 20 | 1 | 1.75 |
 | 3.8 Reference configuration | 14 | 1 | 1.5 |
 | 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
@@ -507,7 +507,7 @@ RS-VS1 (§3.7) at the form rate.
 | 3.11 Analysis states | 68 | 3 | 5 |
 | 3.12 Combinations | 14 | 2 | 1.5 |
 | 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **665** | **29** | **about 60 (59.5)** |
+| **Total** | **668** | **30** | **about 60 (60.25)** |
 
 Historical #41 counts (before the component rows below):
 
@@ -549,12 +549,17 @@ The 66-entry / three-cycle / six-minute valve/flange form step is removed. Total
 59.5 minutes. This is about one minute less than G6 alone, not a measured speedup.
 G9 batching still receives no inferred timing credit.
 
-With F/S numbering corrected, the 26 rows can be entered in place and pipe
-overrides need no special order. The B3 temporary-corner entry adds one cell:
+At the F/S numbering increment, the 26 rows could be entered in place and pipe
+overrides needed no special order. The B3 temporary-corner entry added one cell:
 197 sheet entries and 665 total. At the same rate, 197 × 8/98 = 16.08 minutes,
-rounded to 16 under the existing quarter-minute convention. The total stays
+rounded to 16 under the existing quarter-minute convention. The total was
 59.5 minutes with 29 per-intent cycles. This correctness fix receives no
 unmeasured navigation or timing credit.
+
+G11 adds the missing tee modifier-source edit: three entries (component selection,
+property selection and entered source) and one cycle, at the existing 0.75-minute
+field-edit rate. Totals become 668 entries, 30 per-intent cycles and 60.25 minutes.
+This closes an input capability gap; it is not a speed improvement or timed result.
 
 The estimate is about 60 minutes, about twice the provisional 30. It was about 77 before #41
 (the tee, #45, adds 3), and about 130 before #38's fills and case copies (gaps G7, G8),
@@ -566,7 +571,7 @@ id cells and numbering (gaps G1–G3) moved ten supports and the three bends int
 entries. The 40 typed ids became 9, and the support and bend cells add 67. The authoring lane's
 round-trip test (#41) reports the 9 ids, the ten supports' ids and labels, and the twelve bend
 ids with three geometry sources; the other cells are counted here from the code. The
-remaining component forms (§3.6) take about 9 minutes; the run sheet itself,
+remaining component forms (§3.6) take about 9.75 minutes; the run sheet itself,
 now including the valve and flanges, takes about 16 minutes and is the largest step.
 
 ## 6. Gaps found
@@ -584,11 +589,11 @@ cost §5 shows. None is worked around outside the operation route.
 | G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections in the component rows; no later end-size edits (§3.4) |
 | G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
 | G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
-| G9 | Closed by #54: independent queued user intents can move to one reviewed atomic batch, with named refusals for stale dependencies and duplicate operation ids | DEL-07-02 `Work/queued-changes-batch.md`; `queuedChangesBatch.test.tsx` | DEL-07-02 | Optional batching under Review changes; §5 retains 29 per-intent cycles before batching, with no inferred time credit |
+| G9 | Closed by #54: independent queued user intents can move to one reviewed atomic batch, with named refusals for stale dependencies and duplicate operation ids | DEL-07-02 `Work/queued-changes-batch.md`; `queuedChangesBatch.test.tsx` | DEL-07-02 | Optional batching under Review changes; §5 retains 30 per-intent cycles before batching, with no inferred time credit |
 | G10 | Closed in DEL-09-01: tee creation requires a run size, header size, connection type and reinforcement reference; spec §5 now gives invented values, which EX does not read | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) | §3.6 |
-| G11 | No modifier-source entry for a tee: the inspector offers header and branch SIFs but not `modifiers.source_reference`, which it offers only on rigid components | `PropertyInspector.tsx:1920-2009, 2097-2105`; applier field rule `lib.rs:679-682` | DEL-03-05 | Leaves the SIF source unentered (§3.6) |
+| G11 | Closed: tee Modifier source is entered explicitly through the existing inspector/applier field route; k/SIF values and non-user refusals are preserved | DEL-07-02 `Work/tee-modifier-source.md`; `teeModifierSource.test.tsx` | DEL-03-05 (original gap allocation); DEL-07-02 (GUI) | One source edit after the two SIFs (§3.6) |
 
 **RT-G2 candidates not named in spec §11.2:**
 - a unit per quantity on the rigid-component form (G6, implemented; see DEL-03-05 `Work/component-quantity-units.md`);
 - applying several queued intents as one reviewed batch (G9, implemented in #54);
-- a modifier-source field for a tee, beside its SIFs (G11).
+- a modifier-source field for a tee, beside its SIFs (G11, implemented).

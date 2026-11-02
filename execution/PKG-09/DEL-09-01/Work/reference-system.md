@@ -490,18 +490,20 @@ the criterion text is the owner's, and Agent 0 takes the question to the owner w
 RT-U2 walkthrough results.
 
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows in two chains
-(from A, and the branch from the tee), entered with 197 sheet entries, and 468
+(from A, and the branch from the tee), entered with 197 sheet entries, and 471
 follow-up form entries, 168 of them the per-member load/reference states and pressure
-regions of the three cases since the fills and case copies of #38, and 21 the tee RS-T1
-with the person's SIFs. The run sheet's estimate is about 60 minutes after component rows (about 61 after G6,
+regions of the three cases since the fills and case copies of #38, and 24 the tee RS-T1
+with the person's SIFs and modifier source. The run sheet's estimate is about 60 minutes
+(60.25) after G11 (59.5 after component rows/numbering, about 61 after G6,
 about 64 before G6, about 77 before #41 and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
 the sheet carries the fixture's support and bend ids: ten of the eleven supports and the
 three bends are rows. After the F/S numbering fix, 10 node and pipe ids are typed in
 natural order (run sheet §2, §3.4); the earlier optimized 9 / strict-order 35 remain historical. The valve and two flanges now
 also enter in those rows through Component details, preserving the fixture records. The variable
 spring RS-VS1, whose hanger data no support code carries, and the bends' SIFs are entered
-by forms (run sheet §3.5, §3.7), and the tee's inspector has no field for its modifier
-source (run sheet G11). The full model adds the reducer, the other
+by forms (run sheet §3.5, §3.7). The tee's modifier source now has its explicit
+inspector entry (run sheet G11), with the existing user-only authoring guard preserved.
+The full model adds the reducer, the other
 non-rigid supports, five more cases with their regions, the other eight combinations and
 the three analysis requests.
 
