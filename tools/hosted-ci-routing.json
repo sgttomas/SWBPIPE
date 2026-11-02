@@ -202,7 +202,7 @@
   ],
   "piping_runtime_reads": {
     "source_trees": {
-      "core/analysis/hanger_sizing/Cargo.toml": "537b5cc32b5328caee007f5e5d2fdd606c620008380c9f5f4b1c1ae6b5bd8edd",
+      "core/analysis/hanger_sizing/Cargo.toml": "a5e1fae2161e3b9c78ac98097b1b2e59a35e60c95a6150d652f8a900e1f621bc",
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
       "core/handoff/caepipe_mbf_engine/Cargo.toml": "e6eabce9c82e4987e065b41f62ab110b0f54a1fd6d2044ed374511d08bda6e01",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
@@ -212,9 +212,9 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "0d389f7473d9286a9df529c273beadc3cb880977ed8991aa5ce378e6263fea6c",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "0cd5c707234c527ed97256a9b9a1ac09038d600b24f8ad5faf801e14b0060822",
+      "core/model_operations/operation_applier/Cargo.toml": "2f785c299c51630d5cb723b56482ec8c87ba6fc73acb0d40642aa41235afa78b",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "c2240d0d08aae7e4f4fcdbd605ec4050c67310ab88caa87961ac06c74086d03c",
+      "core/product_physics/Cargo.toml": "0effc555541fbd7a57a93cf2db4e8a14195ac9d42b66071451b9f7dba7c02e01",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
@@ -228,17 +228,17 @@
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
       "core/rules/rule_pack_document/Cargo.toml": "4f7c86c11d3106f5e8ddb32f542784c0913c135011e07f4e6ae1eca976961ae9",
       "core/rules/rule_pack_lifecycle/Cargo.toml": "811d32918f3d13d8d2a9115ebb6ce9b0243078626bc426d8dbd97224eb2dbd56",
-      "core/runner/headless/Cargo.toml": "1cad0d86f2b9fcc2b3f9e1f8a1efd1d64d7320e28a4d5d2d0cf84f882dd38498",
+      "core/runner/headless/Cargo.toml": "97f515f481a0f23afbfc9eb2cda80b6f82e603f0582fabc41c2920520f4b2c30",
       "core/serialization/canonical_json/Cargo.toml": "fb2259bdfcb6adebc877b46e4e1b3126fdf1b08c0b6441a5e4ba49ab75e670a0",
       "core/solver/curved_bend/Cargo.toml": "5d7cf1288eac698c209aa4fd7493fa669aa57494950e75374ac07248001502d8",
       "core/solver/diagnostics/Cargo.toml": "11db1409fcfd3b0312ef80085e36eac4d7a66eb0f4298832137119835b1c92e8",
-      "core/solver/frame_kernel/Cargo.toml": "7491abbee207178a17d2e84ea8bef955bc072da92a28c026e5d996f390fe1c54",
+      "core/solver/frame_kernel/Cargo.toml": "df041afc30370d224ef517fdd34da38f8ff26e754680cc68e05667a995aaf3b7",
       "core/solver/linear_supports/Cargo.toml": "8d38681e7d09f9f1502d8986ccbea888bfb678b0ea8022885d3f67503ba4881d",
       "core/solver/nonlinear_integration/Cargo.toml": "38112c2d648ea25c1ae927353efa0aee5b254e82ef10bc2f78d1ed2b616a55e0",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "a40eb2f667e3e42e701b520849ade8c79bcbc4adcfb29ad866c795e7b31b9144",
       "core/solver/release_timing/Cargo.toml": "3a9145d9c3023bd7f75fc21da33c9b3ee9973b8206278707df04506355185a35",
-      "core/solver/sparse_direct/Cargo.toml": "16b0a0c8f750d930003ebb9f75b1f57259ce9600af64f78a471c787e92b73f40",
+      "core/solver/sparse_direct/Cargo.toml": "eb4e8051b38e3c67c379d88f27fc46aeed00b449464e44c8a7357fb4203c5b12",
       "core/solver/straight_pipe/Cargo.toml": "d510d190cbc1ac0c5dff64be8a693757c3679fadcb0cdce324c5854b5cc059d0",
       "core/units/Cargo.toml": "00e6e906eb640f8f61aef0d609319e96df3a21261b27c8f0b1423d5effea6e84",
       "validation/benchmarks/mechanics/Cargo.toml": "85169e69c38b7be6a4ee9cf8a41bc314d4785b9405a02c4da50ae12a2f784e08",
@@ -1389,6 +1389,14 @@
             },
             "files": [
               "fixtures/results/base_reader_outcomes.json",
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
               "fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
               "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
@@ -2409,9 +2417,12 @@
               "apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs",
               "apps/desktop/src-tauri/src/user_release_save_tests.rs",
               "apps/desktop/src-tauri/src/worker_alloc.rs",
+              "core/analysis/hanger_sizing/src/admission.rs",
               "core/analysis/hanger_sizing/src/derived.rs",
               "core/analysis/hanger_sizing/src/lib.rs",
               "core/analysis/hanger_sizing/src/library.rs",
+              "core/analysis/hanger_sizing/src/publish.rs",
+              "core/analysis/hanger_sizing/src/reader.rs",
               "core/analysis/hanger_sizing/src/tests.rs",
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
@@ -2515,6 +2526,8 @@
               "core/product_physics/src/o4_m3_judging_tests.rs",
               "core/product_physics/src/op1a_seed_tests.rs",
               "core/product_physics/src/operating_conditions.rs",
+              "core/product_physics/src/operating_conditions/resolution.rs",
+              "core/product_physics/src/operating_conditions/resolution_tests.rs",
               "core/product_physics/src/pf_timoshenko.rs",
               "core/product_physics/src/pressure_exact.rs",
               "core/product_physics/src/pressure_exact/source_geometry.rs",
@@ -2666,6 +2679,8 @@
               "core/solver/frame_kernel/src/structural/arc_recovery_tests.rs",
               "core/solver/frame_kernel/src/structural/certified_recovery.rs",
               "core/solver/frame_kernel/src/structural/certified_recovery_tests.rs",
+              "core/solver/frame_kernel/src/structural/element_reformation.rs",
+              "core/solver/frame_kernel/src/structural/element_reformation_tests.rs",
               "core/solver/frame_kernel/src/structural/exact_boundary.rs",
               "core/solver/frame_kernel/src/structural/exact_boundary/exact_operation_count.rs",
               "core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
@@ -2713,6 +2728,20 @@
               "core/solver/frame_kernel/src/structural/tie_rod_kd5_tests.rs",
               "core/solver/frame_kernel/src/tie_rod.rs",
               "core/solver/linear_supports/src/lib.rs",
+              "core/solver/modal_eigen/src/admission.rs",
+              "core/solver/modal_eigen/src/clusters.rs",
+              "core/solver/modal_eigen/src/dd.rs",
+              "core/solver/modal_eigen/src/dense.rs",
+              "core/solver/modal_eigen/src/exact.rs",
+              "core/solver/modal_eigen/src/lib.rs",
+              "core/solver/modal_eigen/src/matrix.rs",
+              "core/solver/modal_eigen/src/modal_quantities.rs",
+              "core/solver/modal_eigen/src/norm_estimate.rs",
+              "core/solver/modal_eigen/src/orthogonality.rs",
+              "core/solver/modal_eigen/src/reformation/mass.rs",
+              "core/solver/modal_eigen/src/reformation/mod.rs",
+              "core/solver/modal_eigen/src/reformation/section.rs",
+              "core/solver/modal_eigen/src/sturm.rs",
               "core/solver/nonlinear_integration/src/confirmation.rs",
               "core/solver/nonlinear_integration/src/confirmation_tests.rs",
               "core/solver/nonlinear_integration/src/dense_memory_guard_tests.rs",
@@ -3328,7 +3357,7 @@
         ]
       },
       "core/runner/headless/src/bin/openpipestress-runner.rs": {
-        "sha256": "bd6fafdf3066e4d30adf47d64ffdf351a232bc9367a33845b431e0ab3a0b596f",
+        "sha256": "d4030a63be1975e4bd86d45d5df1dd0b381df64da025da753bde7bc70a2abecc",
         "source_trees": [
           "core/runner/headless/Cargo.toml"
         ],
@@ -3855,6 +3884,8 @@
               "core/product_physics/src/o4_m3_judging_tests.rs",
               "core/product_physics/src/op1a_seed_tests.rs",
               "core/product_physics/src/operating_conditions.rs",
+              "core/product_physics/src/operating_conditions/resolution.rs",
+              "core/product_physics/src/operating_conditions/resolution_tests.rs",
               "core/product_physics/src/pf_timoshenko.rs",
               "core/product_physics/src/pressure_exact.rs",
               "core/product_physics/src/pressure_exact/source_geometry.rs",
@@ -4043,6 +4074,8 @@
               "core/product_physics/src/o4_m3_judging_tests.rs",
               "core/product_physics/src/op1a_seed_tests.rs",
               "core/product_physics/src/operating_conditions.rs",
+              "core/product_physics/src/operating_conditions/resolution.rs",
+              "core/product_physics/src/operating_conditions/resolution_tests.rs",
               "core/product_physics/src/pf_timoshenko.rs",
               "core/product_physics/src/pressure_exact.rs",
               "core/product_physics/src/pressure_exact/source_geometry.rs",
@@ -4411,6 +4444,7 @@
               "core/solver/diagnostics/Cargo.toml",
               "core/solver/frame_kernel/Cargo.toml",
               "core/solver/linear_supports/Cargo.toml",
+              "core/solver/modal_eigen/Cargo.toml",
               "core/solver/nonlinear_integration/Cargo.toml",
               "core/solver/nonlinear_supports/Cargo.toml",
               "core/solver/performance_harness/Cargo.toml",
@@ -4815,6 +4849,7 @@
               "fixtures/model_operations/pressure_v3_l_line_authoring.json",
               "fixtures/model_operations/run_sheet_authoring.json",
               "fixtures/native_json/invented/native_json_export_package.json",
+              "fixtures/operating_conditions/preview_parity.json",
               "fixtures/pcf_export/invented/pcf_export_package.json",
               "fixtures/pcf_export/invented/source_pcf_payload.json",
               "fixtures/persistence/invented_persisted_preview_project.json",
@@ -4947,6 +4982,14 @@
               "fixtures/reports/invented/user_release_record.json",
               "fixtures/reports/invented/user_release_runner_refusal_request.json",
               "fixtures/results/base_reader_outcomes.json",
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
               "fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
               "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
@@ -5536,6 +5579,7 @@
               "core/runner/headless/tests/refused_package_ids.rs",
               "core/runner/headless/tests/retained_precision_admission.rs",
               "core/runner/headless/tests/s11g_zero_work_receipt.rs",
+              "core/runner/headless/tests/size_hangers_cli.rs",
               "core/runner/headless/tests/tied_joint_references.rs",
               "core/runner/headless/tests/untied_joint_pressure_references.rs",
               "core/runner/headless/tests/user_release_runner_refused.rs"
@@ -5690,6 +5734,52 @@
           "kind": "audited-external-inputs",
           "reason": "Also reads files the test writes under std::env::temp_dir."
         }
+      },
+      "core/analysis/hanger_sizing/tests/publication.rs": {
+        "sha256": "96dbbf94e9c4aba17b089b7de9b84e8059e91fea750cfc339093204bf63b4bc9",
+        "source_trees": [
+          "core/analysis/hanger_sizing/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/results",
+            "base": "project",
+            "files": [
+              "fixtures/results/hanger_sizing_corpus.json",
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json",
+              "fixtures/results/hanger_sizing_result_forgery.json",
+              "fixtures/results/hanger_sizing_result_four_span.json",
+              "fixtures/results/hanger_sizing_result_refused.json",
+              "fixtures/results/hanger_sizing_result_two_span.json"
+            ]
+          },
+          {
+            "anchor": "schemas/hanger_sizing_result.schema.json",
+            "base": "project",
+            "files": [
+              "schemas/hanger_sizing_result.schema.json"
+            ]
+          }
+        ]
+      },
+      "core/runner/headless/tests/size_hangers_cli.rs": {
+        "sha256": "80cd5d1c92915cab07fa3253d03dfa948978cd89926fc8eb6df2e975c170421e",
+        "source_trees": [
+          "core/runner/headless/Cargo.toml"
+        ],
+        "inputs": [
+          {
+            "anchor": "fixtures/results",
+            "base": "project",
+            "files": [
+              "fixtures/results/hanger_sizing_input_four_span.json",
+              "fixtures/results/hanger_sizing_input_refused.json",
+              "fixtures/results/hanger_sizing_input_two_span.json"
+            ]
+          }
+        ]
       }
     }
   },

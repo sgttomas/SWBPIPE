@@ -107,6 +107,77 @@ impl U256 {
     fn cmp(&self, other: &Self) -> Ordering {
         self.0.iter().rev().cmp(other.0.iter().rev())
     }
+    /// Bit `index` (0 is the least significant).
+    fn bit(&self, index: u32) -> bool {
+        (self.0[(index / 64) as usize] >> (index % 64)) & 1 == 1
+    }
+    /// The number of significant bits; 0 for zero.
+    fn bit_len(&self) -> u32 {
+        (0..4usize)
+            .rev()
+            .find(|&i| self.0[i] != 0)
+            .map_or(0, |i| 64 * i as u32 + 64 - self.0[i].leading_zeros())
+    }
+    /// `(self / divisor, self % divisor)` by restoring binary long division,
+    /// for a quotient below 2^128 and a divisor below 2^126 (the rounding step's
+    /// divisor is D < 2^83 and its quotient below 2^54).
+    fn div_rem_u128(self, divisor: u128) -> (u128, u128) {
+        debug_assert!(divisor != 0 && divisor < 1u128 << 126);
+        let (mut quotient, mut remainder) = (0u128, 0u128);
+        for index in (0..self.bit_len()).rev() {
+            remainder = (remainder << 1) | self.bit(index) as u128;
+            quotient <<= 1;
+            if remainder >= divisor {
+                remainder -= divisor;
+                quotient |= 1;
+            }
+        }
+        (quotient, remainder)
+    }
+}
+
+/// bitlen(D) of §1.5.1's rounding step.
+const KELVIN_DENOMINATOR_BITS: i32 = 83;
+
+/// §1.5.1 "Rounding": RN(N / `KELVIN_DENOMINATOR`), the exact kelvin ratio
+/// rounded once to binary64, to nearest, ties to even, on the stack's 256-bit
+/// integers (no float formatter, no binary64 intermediate). N = 0 gives +0.0.
+/// The domain bounds |N| < 2^105 (a difference of two admitted kelvin
+/// numerators); the shifted numerator then has exactly 136 bits, above `i128`,
+/// and every nonzero result is a normal binary64.
+pub(crate) fn round_kelvin_ratio(numerator: i128) -> f64 {
+    if numerator == 0 {
+        return 0.0;
+    }
+    let magnitude = numerator.unsigned_abs();
+    debug_assert!(magnitude < 1u128 << 105, "outside the domain of §1.5.1");
+    let denominator = KELVIN_DENOMINATOR as u128;
+    debug_assert_eq!(128 - denominator.leading_zeros() as i32, KELVIN_DENOMINATOR_BITS);
+    // k = bitlen(a) - bitlen(D) - 53, negative throughout the domain.
+    let mut k = (128 - magnitude.leading_zeros()) as i32 - KELVIN_DENOMINATOR_BITS - 53;
+    let divide = |k: i32| {
+        debug_assert!(k < 0);
+        U256::from_u128(magnitude).shl((-k) as u32).div_rem_u128(denominator)
+    };
+    let (mut quotient, mut remainder) = divide(k);
+    if quotient >= 1u128 << 53 {
+        k += 1;
+        (quotient, remainder) = divide(k);
+    }
+    debug_assert!((1u128 << 52..1u128 << 53).contains(&quotient));
+    let twice = remainder << 1;
+    if twice > denominator || (twice == denominator && quotient & 1 == 1) {
+        quotient += 1;
+    }
+    if quotient == 1u128 << 53 {
+        quotient = 1u128 << 52;
+        k += 1;
+    }
+    // q·2^k with q in [2^52, 2^53): binary exponent k + 52, biased by 1023.
+    let biased = k + 52 + 1023;
+    debug_assert!((1..2047).contains(&biased), "a normal binary64");
+    let sign = if numerator < 0 { 1u64 << 63 } else { 0 };
+    f64::from_bits(sign | (biased as u64) << 52 | (quotient as u64 & ((1u64 << 52) - 1)))
 }
 
 /// The canonical decimal of a finite binary64 inside the domain (§1.5.1
@@ -320,6 +391,28 @@ mod tests {
             5 * (-10i128.pow(30) + 45967 * 10i128.pow(22))
         );
         assert_eq!(kelvin_numerator(parse("1"), UnitId::Meter), None);
+    }
+
+    /// §1.5.1's rounding step at its named rows: exact zero is +0.0, the width
+    /// regression (N = 9, shifted numerator 9·2^132, above `i128`), a ratio whose
+    /// first quotient reaches 2^53, and the round-up that carries into the next
+    /// binade.
+    #[test]
+    fn the_rounding_step_rounds_the_exact_ratio_once() {
+        assert_eq!(round_kelvin_ratio(0).to_bits(), 0, "positive zero");
+        assert_eq!(round_kelvin_ratio(9).to_bits(), 0x3af357c299a88ea7, "1e-24 K - 0 K");
+        assert_eq!(round_kelvin_ratio(-9).to_bits(), 0x3af357c299a88ea7 | 1 << 63);
+        // Exact integers: N = n·D gives exactly n.
+        for n in [1i128, 2, 3, 7, 1000, 1_000_000, -5] {
+            assert_eq!(round_kelvin_ratio(n * KELVIN_DENOMINATOR), n as f64, "{n}");
+        }
+        // 0.2 K = 18·10^23 / D.
+        assert_eq!(round_kelvin_ratio(18 * 10i128.pow(23)), 0.2);
+        // 1/3 K (N = 3·10^24) rounds to the nearest binary64 of 1/3.
+        assert_eq!(round_kelvin_ratio(3 * 10i128.pow(24)), 1.0 / 3.0);
+        // D·(2 - 2^-60) rounds up across the binade to exactly 2.
+        let near_two = 2 * KELVIN_DENOMINATOR - (KELVIN_DENOMINATOR >> 60);
+        assert_eq!(round_kelvin_ratio(near_two), 2.0);
     }
 
     /// Python `repr` of tie binaries and random binary64 values in the domain,

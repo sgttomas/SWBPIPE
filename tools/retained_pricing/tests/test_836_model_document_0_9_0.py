@@ -36,7 +36,8 @@ def test_the_s1_rules_are_present_with_their_bounds(monkeypatch, route):
     loops = {(r[0], r[1]) for r in d["O10_LOOPS_LAST"] + d["O10_LOOPS_FIRST"] if "S1-" in r[2]}
     assert ("for (index, set) in sets.iter().enumerate()", "0") in loops
     assert ("for (index, spectrum) in spectra.iter().enumerate()", "0") in loops
-    assert ("for finding in found.into_vec()", "4*z") in loops
+    # S2 (§8.40, S2-RK): the conversion moved into judge's collect closure with the same bound.
+    assert ("iter:diagnostics: found.into_vec().into_iter().map", "4*z") in loops
     assert ("for (code, message) in &reasons", "4") in loops
     assert not any(h == 'for key in [" ", " "]' for h, _ in loops), "case_observables shares this header"
     bn = [r for r in d["CG_RULES"] if r.get("added") == "S1-BN"]

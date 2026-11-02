@@ -341,3 +341,19 @@ def test_the_base_verifiers_read_raw_statements_without_any_process(no_processes
     # Admitted, never numerically eligible (LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1).
     assert validate_physics_source(deepcopy(joined)) is False
     assert compatibility._source_contract(joined)[0] == compatibility.PRESSURE_SOURCE_CONTRACT_ID
+
+
+@pytest.mark.parametrize("name", ["two_span", "four_span"])
+def test_the_hanger_sizing_verifier_reads_the_producers_documents_without_any_process(no_processes, name):
+    """DEL-04-11 §8.3.7: the hanger-sizing verifier admits the producer's document, hashes the bound request,
+    solve request, library and each selected record (every digest equal to the one the producer published),
+    converts the library's lbf, lbf/in, mm and in through `units` and recomputes the arithmetic, with no
+    process spawned."""
+    from tests.verifiers import hanger_sizing_evidence
+    results = ROOT / "fixtures/results"
+    document = (results / f"hanger_sizing_result_{name}.json").read_text(encoding="utf-8")
+    bound = json.loads((results / f"hanger_sizing_input_{name}.json").read_text(encoding="utf-8"))
+    verdict = hanger_sizing_evidence.verify(document, solve_request=bound["request"], library=bound["library"])
+    assert [verdict[standing]["status"] for standing in ("closure", "binding", "arithmetic_consistent_with_published_positions")] == [
+        "passed"] * 3
+    assert verdict["binding"]["not_checked"] == []

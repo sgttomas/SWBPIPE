@@ -1986,9 +1986,11 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.37: owner decision "1A, 2A" approves the reviewed +172,554 B profile.
 // Values derive from maintained tree_eval native evaluations, excluding R.
 // §8.38: owner-approved reducer 2a adds 1,751 B per phase; input #8/#11 rebind.
+// §8.40: keep §8.38 coefficients under the a_le_b carry proof. Actual PreviewLoadCase
+// grows 672 -> 680 B: +24 B per phase, +48 B in X1 (two typed copies), without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_964_654, 6_944_959_215, 8_899_142_451, 8_687_302_878, 7_765_330_817, 8_611_709_586, 7_343_103_296, 7_016_393_172],
-    [6_662_095_998, 7_004_090_559, 8_958_273_795, 8_746_434_222, 7_824_462_161, 8_670_840_930, 7_402_234_640, 7_075_524_516],
+    [6_602_964_678, 6_944_959_239, 8_899_142_475, 8_687_302_902, 7_765_330_841, 8_611_709_634, 7_343_103_320, 7_016_393_196],
+    [6_662_096_022, 7_004_090_583, 8_958_273_819, 8_746_434_246, 7_824_462_185, 8_670_840_978, 7_402_234_664, 7_075_524_540],
 ];
 
 #[test]
