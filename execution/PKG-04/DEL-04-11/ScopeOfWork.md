@@ -121,7 +121,9 @@ These deliverables keep their scope.
   - the closed-form references R-1, R-2 and R-5.
 
   The run's results are a typed value; nothing is yet published or reaches the desktop,
-  and the exact route is refused until increment 4. Before this
+  and the exact route is refused until increment 4. The theory note
+  (`docs/theory/hanger_sizing.md`, RT-V4, owned by DEL-11-03) explains the built method;
+  the user guide waits for the desktop work. Before this
   deliverable: the hanger records import, and one record can be applied to a support as
   the person's act (`features/hanger-selection`). A variable spring is
   solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
