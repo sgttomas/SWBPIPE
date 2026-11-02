@@ -949,7 +949,10 @@ smoke-only wrapper expansion is checked for existing Value-reader reply/error
 parity; ordinary builds keep the original wrapper. Summary health remains an
 explicitly combined private-core phase. The proposal names retention, incomplete
 exit semantics, overhead, checks and the distinct app-reader-phases binding.
-No further native attempt is authorized by preparation or review/CI.
+Focused diagnostic review cleared `d4a880680`; the proposal records its
+nonblocking limits, including that event overflow/invalidity stops the whole
+window and may leave only partial journal evidence. Exact-head CI remains
+required. No further native attempt is authorized by preparation or review/CI.
 
 **Bounded offline timeout diagnosis.** The observed `reader_verdict_start` mark
 covers header dispatch, registration, standing and summary. Four small maintained

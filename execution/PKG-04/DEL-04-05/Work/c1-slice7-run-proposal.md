@@ -62,7 +62,14 @@ throwaway scratch before retaining/reporting it. It accepts at most **256
 boundary records**, one overflow notice and one terminal summary; the tested
 maximum is below 100 KiB. Native emission is separately capped at 256 events;
 web emission at 64 boundaries. Unknown fields/IDs, mismatched boundaries, write
-failure or overflow fail diagnostic evidence, not a successful gate. Pending
+failure or overflow **stop the entire diagnostic window** through the existing
+supervisor, not just its evidence classification. Such a stop can leave no final
+run or terminal journal record; earlier fsynced entries remain partial evidence.
+The 256-record cap is shared by web and native events. Independent source review
+estimates roughly 200 events on a successful full sequence and roughly 240 with
+the re-read branch; those are unmeasured estimates, not evidence that the live
+sequence fits the cap. The cap and stop behavior are unchanged by this note.
+Pending
 entries survive a blocked await, native task failure or App exit without needing
 a final reply; a killed runner may lack its terminal summary, and the already
 persisted entries still show the last received boundary. Pipe delivery before
@@ -121,6 +128,37 @@ are historical):
 | `perf-driver.js` | `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` |
 | `perf-sampler.py` | `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` |
 | `perf-plan-c1.json` | `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` |
+
+Focused measurement/permissions review is **CLEAR at
+`d4a880680414a6e1fce47b3f9fd5cb8a2600d3c3`**, no blockers. The reviewer
+independently checked wrapper parity/lifetimes, persistence and completeness,
+identities and the absent proposed output, ran six phase-focused Node tests,
+and obtained a zero-error declaration check. Other test/build results above are
+inherited author evidence. No live event count, IPC/fsync overhead or pipe-drain
+behavior has been measured. Exact-head hosted CI remains required; review grants
+no window.
+
+Additional nonblocking limits retained for the next owner decision:
+
+- Native records identify a launch-local call and phase, not the command/reader.
+  Correlate with pending web phases or the phase set; do not invent exact matching.
+  Verdict `inputs_parse` has `bytes:0` as **unspecified**, while summary gives its
+  input length. Zero is not a measured parse size or zero allocation claim.
+- IPC/copy, executor queueing, argument decoding/held lookup, some admission-bound
+  calculation, summary health response parsing/health-view construction, reply
+  transfer/decode and JS work between awaits are uninstrumented gaps. A gap is
+  not validator CPU time. `summary_health` remains explicitly combined.
+- A web reporter delivery failure prevents an enter's product call, or replaces
+  an exit's success/error with the logging failure. It leaves missing evidence;
+  this is a diagnostic-induced stop/failure, not a product numerical refusal.
+  Ordinary sessions also incur additional async microtask ticks per await.
+- Opening the journal precedes startup admission. A pre-App failure can leave an
+  empty file/no terminal record; its descriptor closes with the stopped runner.
+  A write failure can leave a partial line. Treat it as incomplete, never repair
+  or rewrite raw evidence into a successful record.
+- Rust stderr line emission can involve multiple writes; interleaving could make
+  an event invalid and stop the window. No such interleaving was observed in the
+  earlier packet. The fixed drain and interpreter timeouts remain unchanged.
 
 The selected runtime is separately built/bound in **`app-reader-phases/`**,
 preserving `app-p3/` and both failed packets. Plan/input/budget remain the maintained500
