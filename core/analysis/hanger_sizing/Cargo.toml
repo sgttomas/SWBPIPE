@@ -1,0 +1,15 @@
+[package]
+name = "open_pipe_stress_hanger_sizing"
+version = "0.1.0"
+edition = "2021"
+description = "DEL-04-11 hanger sizing: loads, fit tests, selection and verification arithmetic"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+# No product dependency: this crate is pure arithmetic on positions and loads
+# that the derived solves supply (DEL-04-11 Design §6, §7). Cargo.lock pins
+# serde_json to the version the product crates use.
+[dev-dependencies]
+serde_json = "1"
