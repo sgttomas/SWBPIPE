@@ -186,8 +186,9 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 1. **Entry points.** File > Export MBF… (`file.export-mbf`), placed after Save Handoff…. The
    Model batch file panel in the Exports section opens the same dialog. Both are reachable by
    keyboard.
-2. **The dialog.** It captures the session's canonical model text and hash. It runs the wasm
-   writer with these settings:
+2. **The dialog.** It captures the session's canonical model text and hash. It never runs the
+   wasm writer: it asks the native `review_mbf_export` (§3.9.5) for a review with these
+   settings:
    - **Title:** defaults to the project name. The writer trims it to 70 printable ASCII
      characters.
    - **Reference temperature:** 20 °C by default, or 68 °F in a degF project, passed as
@@ -196,7 +197,8 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 3. **Review.** The dialog shows the review of §3.3. An edit to the model changes the hash, and
    the review runs again.
 4. **Save….** It is enabled only when the status is `written`. It calls `save_mbf_export`
-   (§3.6), which opens the native save chooser. Cancel writes nothing.
+   (§3.6), which opens the native save chooser. Cancel writes nothing. A review is not an
+   authorization: the save rechecks everything itself (§3.9.5).
 5. **Status line.** It names both written files and the count of omitted entries.
 
 ### 3.2 File names
@@ -223,8 +225,15 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   code, its entity and a product-side description, grouped by family. While any exists, Save is
   disabled. A refusal is never silent: when the writer refuses and reports nothing that
   explains it, the dialog still states that SWBPIPE refused to write the file.
-- **Omitted (warns).** Every `omitted` entry, listed in full with its code, its entity and a
-  product-side description. "You can still save" is shown only when the writer wrote the file.
+- **Omitted (warns).** Each `omitted` entry the review carries, with its code, its entity and
+  a product-side description; the entries beyond the review's bound are counted, not listed.
+  "You can still save" is shown only when the writer wrote the file.
+- **Bounded review.** The dialog shows the review that `review_mbf_export` returns, which is at
+  most 1 MiB serialized (§3.9.5). Its lists (not written, omitted, warnings) are therefore listed
+  within that bound. The dialog states whether the review is complete or truncated, the total
+  count of entries not shown and how many of them block. The status and the blocking state are
+  computed before truncation and always shown, so a truncated review never enables Save and
+  never hides a refusal.
 - **Unit conversions.** Each unit the writer normalized, with its exact definition and, where
   it has one, its exact factor (the writer's normalization data, not its assumption
   sentences).
@@ -255,6 +264,7 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 | Writer `status: refused` (any `unsupported` entry or other error diagnostic, an out-of-table unit, a retired model version) | Blocks |
 | Route screening blocked, or a protected disposition (§3.5) | Blocks |
 | Review stale (model hash or settings changed) | Blocks until the review runs again |
+| Review declined (`MBF-REVIEW-NATIVE-ONLY`, `MBF-REVIEW-MEMORY-UNAVAILABLE`) | Blocks |
 | `omitted` entries, warnings, undeclared material origin | Warn |
 
 The release target's "Must" is not product vocabulary. The Must-family table lives in the
@@ -324,13 +334,20 @@ maxLayoutRows: null}`: the text the review ran with. In order:
 3. **Document checks.** Run `check_model_document` and the desktop shape check, so an MBF is
    only ever written from a document the desktop opens.
 4. **Disposition screen.** As in §3.5.
-5. **Writer.** (The design 4b connects.) Run the Rust writer in the capped worker process (§3.7). If it refuses,
-   return its diagnostics without opening the chooser.
+5. **Writer.** (The design 4b connects.) Run the Rust writer in the capped worker process,
+   worker task 3 in `save` mode (§3.7, §3.9.5). If it refuses, return its diagnostics without
+   opening the chooser.
+   - **Output ceiling.** The whole serialized save result (MBF, identity file, diagnostics and
+     framing) is at most 64 MiB (§3.7). Above it the save is refused with
+     `MBF-EXPORT-OUTPUT-TOO-LARGE` before the host allocates any of the result. The chooser is
+     not opened and nothing is written.
 6. **Staleness.** Compute `mbf_sha256` and the sidecar. If either digest differs from
    `reviewed`, refuse with `MBF-EXPORT-REVIEW-STALE`.
 7. **Chooser.** Open the native save chooser (`.mbf`, the documents folder). The suggested
    name is checked against `swbpipe-model[-…].mbf`. The path comes only from the chooser.
-8. **Writes.** No failure loses a file the user already had.
+8. **Writes.** No failure loses a file the user already had. The output ceiling is decided at
+   step 5, before any write, so it never truncates valid file bytes and never leaves a partial
+   pair.
    - **Before the first write.** Both destinations pass the atomic writer's own destination
      checks (extension, an existing non-symlink parent, no symlink or directory destination,
      and off macOS no replacement), so a destination the writer would refuse is refused before
@@ -364,8 +381,9 @@ maxLayoutRows: null}`: the text the review ran with. In order:
 10. **Receipt.** Both file names, byte counts and digests, and the atomic writer's durability
     statement.
 
-The webview's wasm text is used for the review only and is then discarded. The written bytes
-are always the native writer's output for the hash-checked text.
+The webview never runs the writer (§3.9.5). The written bytes are always the native writer's
+output for the hash-checked text, from the save's own worker run. The review's digests serve
+only the staleness check of step 6.
 
 ### 3.7 Memory
 
@@ -404,20 +422,41 @@ are always the native writer's output for the hash-checked text.
   reserved before it is made:
   - the settings' parse (1 MiB, for a settings text of at most 25 KiB);
   - the parse and the canonical copy;
-  - the MBF and sidecar bytes;
+  - the worker's save result, at most the output ceiling below, and each host copy of it: the
+    result, its parse, the screen, the read-back and the reply are each leased;
   - a 64 KiB read-back block;
   - the response, bounded for a receipt and for the largest refusal after a write.
+- **Output ceiling** (the design 4b connects; Agent 0, 2026-11-02). This is a new, explicitly
+  bounded MBF product-route limit. The whole serialized save result (MBF, identity file,
+  diagnostics and framing) is at most 64 MiB (67,108,864 bytes). It applies in addition to the
+  existing rule that a result fit within the worker's grant.
+  - **Why.** The identity file grows super-linearly with the model (Q1, §3.9.2), so the result
+    cannot be priced from M, and the host cannot reserve its copies without a stated bound.
+  - **Where.** The worker's `result_limit` hook (`SupervisorHooks::result_limit`,
+    `solve_worker.rs`) checks the length the worker announces before any result lease is
+    admitted and before the host allocates any of the result, as for solve results (DEL-04-07
+    `Work/memory-budget-decision.md`). The child's construction of the result stays counted
+    against its grant.
+  - **Refusal.** `MBF-EXPORT-OUTPUT-TOO-LARGE`, distinct from a budget or worker refusal
+    (`MBF-EXPORT-MEMORY-UNAVAILABLE`), a writer refusal, a protocol failure and a cancel. Valid
+    file bytes are never truncated, nothing is written (§3.6 step 5), and §3.6's transaction and
+    rollback are unchanged.
+  - **Limitation.** A model whose export result exceeds 64 MiB cannot be exported from the
+    desktop. This is a usability limitation of the route. The owner has not accepted it as a
+    release limitation.
 - **Refusal.** A reservation the pool refuses refuses the save with
   `MBF-EXPORT-MEMORY-UNAVAILABLE`, including a refusal raised inside the admission's screen.
 - **Webview preview.** As built in 4a, the dialog's review runs the wasm writer in webview
-  memory, ungoverned; the dialog is not mounted. §3.9 (designed, not implemented) finds five
-  super-linear terms, none bounded by an existing limit, and runs the review in the app through
-  the 4b worker, returning a bounded review only.
+  memory, ungoverned; the dialog is not mounted. §3.9 (adopted design, Agent 0, 2026-11-02, not
+  implemented) finds five super-linear terms, none bounded by an existing limit. The shipped
+  dialog therefore never runs the wasm writer: `review_mbf_export` runs the 4b worker in
+  `review` mode and returns at most 1 MiB of review. The wasm writer remains only as an
+  unconnected or test resource, never a fallback.
 
 ### 3.8 Reach-scan re-pin
 
-- **The pin.** Adding `save_mbf_export` (and `open_mbf_file`, §4.7) changes the text of
-  `app_invoke_handler`.
+- **The pin.** Adding `save_mbf_export` and `review_mbf_export` (and `open_mbf_file`, §4.7)
+  changes the text of `app_invoke_handler`.
   - The PR that adds each command re-pins its SHA-256 in `user_release_reach_scan.rs`
     `MACRO_DEFINITIONS`.
   - It extends the doc comment with the entries, each reviewed: no `mod`, no
@@ -427,9 +466,11 @@ are always the native writer's output for the hash-checked text.
 - **Reach closure.** The engine crate depends on no reporting crate, so the renderer's reach
   closure is unchanged (DEL-08-01 `Work/report-user-release.md` §2.8).
 
-### 3.9 Webview preview admission (design)
+### 3.9 Webview preview admission (adopted design)
 
-**Status: designed, not implemented.** This answers Agent 0's ruling of 2026-11-01. The ruling
+**Status: adopted design (Agent 0, 2026-11-02), not implemented.** Agent 0 chose (iii) with the
+bounded review, the task-specific worker modes and the output ceiling recorded in §3.9.5,
+§3.9.7 and §3.7. This answers Agent 0's ruling of 2026-11-01. The ruling
 asks for every size dimension that makes the preview's allocations super-linear, set against
 the model's existing limits, and for the smallest sound admission. The analysis is from reading
 source only, because a host hold was in force: each count below is a count from source, and
@@ -555,53 +596,85 @@ No term is bounded by an existing limit.
   depends on the layout, the bends and the preflight's re-import (`MBF-SI-PREFLIGHT-REFUSED`),
   so a path that computes the loss entries and the status is the writer under another name, and
   outside the parity vectors.
-- **(iii) Review through the 4b worker. Recommended.** It reuses 4b's governance proof instead of
-  proving webview bounds. DEL-04-06 takes the same route for its model-sized work, which runs
+- **(iii) Review through the 4b worker. Chosen (Agent 0, 2026-11-02).** It reuses 4b's
+  governance proof instead of proving webview bounds. DEL-04-06 takes the same route for its model-sized work, which runs
   in the app in a capped worker (`modelChecks.ts:152`).
 
 #### 3.9.5 Design (iii)
 
-- **Route.** In the app (`isTauriRuntime()`), the dialog never calls `renderMbfJson`. It calls a
-  native `review_mbf_export` command with `{canonicalText, claimedModelHash, settingsJson}`.
-- **Admission.** The command takes the same ingress admission as `save_mbf_export` and §3.6
-  steps 2 and 3: the 64 MiB cap, canonicalization and the hash, and the document checks. The
-  review therefore runs on exactly what a save would write. It holds no route evidence and
-  writes nothing.
-- **Worker.** The command runs 4b's MBF worker task, task code 3 in the 4b proposal, with one
-  added `mode` field: `review` or `save`.
-  - The envelope, the starting grant, growth up to the admitted budget, the 2 s wait for a slot
-    and the worker refusals are 4b's.
-  - A worker refusal declines the review with `MBF-REVIEW-MEMORY-UNAVAILABLE`, which names the
-    worker's refusal.
-  - At most one review is in progress. A newer review, closing the dialog or a change of project
-    session kills the running worker and releases its grant after the reap, as for model
-    checks.
+- **Route.** The shipped dialog never runs the wasm writer. It calls a native
+  `review_mbf_export` command with `{canonicalText, claimedModelHash, settingsJson}`.
+  - **Browser-only route** (no native host). It has no save. The dialog declines the review
+    there with `MBF-REVIEW-NATIVE-ONLY` ("The model batch file review runs in the desktop app.")
+    and runs no writer.
+  - **The wasm writer** (`caepipe_mbf_wasm` `render_mbf_json`) stays only as an explicitly
+    unconnected or test resource. It is never a fallback.
+- **Admission.** The review uses the same model, settings, admission and binding as
+  `save_mbf_export`: the same ingress admission, the settings text read by
+  `export_settings_from_json`, and §3.6 steps 2 and 3 (the 64 MiB cap, canonicalization, the
+  hash bound to the claim, and the document checks). The review therefore runs on exactly what
+  a save would write. It holds no route evidence.
+- **Review touches nothing.** Review mode makes no mutation and touches no file, store,
+  destination or chooser.
+- **Permissions and reach.** `review_mbf_export` joins 4b's permissions review, reach-scan
+  re-pin (§3.8) and ingress review exactly as `save_mbf_export` does.
+- **Worker task and modes.** The command runs 4b's MBF worker task, task 3 in the 4b proposal.
+  Task 3 carries a strict `mode` discriminator, `review` or `save`, with these invariants:
+  - the child refuses any other `mode` value, and any field that does not belong to the
+    request's mode;
+  - each mode's result shape is fixed. `review` returns only the bounded review below. `save`
+    returns the save result (MBF bytes, identity-file bytes and diagnostics) within the output
+    ceiling (§3.7);
+  - there is no generic or arbitrary-worker dispatch. Task 3 and its two modes are the only MBF
+    work the worker accepts;
+  - the envelope's byte layout is to be agreed with the desktop performance work (#59). These
+    invariants hold whatever layout is agreed.
+
+  The envelope, the starting grant, growth up to the admitted budget, the 2 s wait for a slot
+  and the worker refusals are 4b's. A worker refusal declines the review with
+  `MBF-REVIEW-MEMORY-UNAVAILABLE`, which names the worker's refusal. At most one review is in
+  progress. A newer review, closing the dialog or a change of project session kills the running
+  worker and releases its grant after the reap, as for model checks.
+- **A review is not an authorization.** The save rechecks the current model, settings, binding,
+  route standing and staleness itself (§3.6 steps 1 to 6) in its own `save`-mode worker run.
+  `reviewed` carries the review's digests, and step 6 compares them with that run. Files are
+  created only on the user's explicit intent in the chooser (step 7).
 - **The bounded review.** One engine function, `export_review(result, allowance)`, beside
   `export_settings.rs`, forms the review inside the worker.
+  - **Ceiling.** The total serialized review is at most R = 1 MiB (1,048,576 bytes), counted
+    after escaping. R covers everything the review carries: headers, status, digests, counters,
+    codes, entities and conversions, not only the entries. R is an explicitly selected MBF
+    review ceiling under the engineering delegation (Agent 0, 2026-11-02). It is not inherited
+    from DEL-04-06's report semantics.
+  - **Status first.** The status, the blocking state and any global refusal are computed over
+    the full result before any bound is applied, and are always carried. Overflow can never turn
+    a blocked export into a savable one or hide a global refusal.
   - **Classification.** It applies §3.3's classification, which moves here from `mbfExport.ts`,
     before any bound is applied, so a diagnostic is never separated from its loss entry.
   - **Contents.** It returns:
-    - the status, `mbfSha256` and `sidecarSha256`, computed in the worker over the full text and
-      sidecar bytes;
+    - the status and blocking state, and `mbfSha256` and `sidecarSha256`, computed in the
+      worker over the full text and sidecar bytes;
     - the unit conversions;
     - the undeclared materials;
-    - the entries, each with list, code, entity and category: the not-written entries first, then
-      the omitted, then the warnings, each in the writer's order;
-    - per list, a count of the entries not shown, with how many of them block.
-  - **What stays in the worker.** Message texts are not sent, since §3.3 does not show them. In
-    review mode the MBF text and the sidecar bytes never leave the worker.
-  - **The allowance.** At most R = 1 MiB of serialized review, counted after escaping, which is
-    DEL-04-06's report allowance. Codes and entities are kept whole. An entry that would pass R
-    is counted, not cut, so an entity longer than R is counted.
-  - **The result.** It comes back under a result lease of R plus a fixed header. A longer frame
-    is a protocol failure.
-- **The save.** Unchanged. `reviewed` carries the review's digests, and step 6 compares them with
-  the save's own worker run.
-- **The browser-only preview** (no native host) has no save. The dialog declines the review there
-  with `MBF-REVIEW-NATIVE-ONLY` ("The model batch file review runs in the desktop app.") and runs
-  no writer.
-- **Text.** §3.3's "listed in full" becomes "listed within the review's allowance, the rest
-  counted with how many block". That wording change is for Agent 0 (§3.9.7).
+    - the entries, each with list, code, entity and category: the not-written entries first,
+      then the omitted, then the warnings, each in the writer's order;
+    - whether the review is `complete` or `truncated`, the total count of entries not shown and
+      how many of them block, and the same two counts per list.
+  - **Overflow.** Space for the status, digests and counts is reserved first. Entries are added
+    in order while they fit within R; the first that does not, and every later entry, is counted,
+    not listed. A diagnostic and its loss entry are listed together or counted together.
+  - **Long strings.** An id, code, entity or unit string longer than a fixed per-field bound
+    (set in 4b, well below R) is carried as its first bytes up to that bound, cut at a character
+    boundary, with its full byte length and SHA-256. The representation is formed from the
+    string in place: no unbounded intermediate, such as an escaped copy or a joined message, is
+    allocated only to be cut.
+  - **What stays in the worker.** Message texts are not sent: no target-program message reaches
+    product chrome, and §3.3's conversion and loss-text boundaries are unchanged. In review mode
+    the MBF text and the sidecar bytes never leave the worker.
+  - **The result.** It comes back under a result lease of R plus the worker's frame header. A
+    longer frame is a protocol failure.
+- **Text.** §3.3 lists entries within the bounded review and counts the rest with how many
+  block.
 
 **What (iii) bounds.**
 
@@ -611,24 +684,22 @@ No term is bounded by an existing limit.
   admitted per-invocation budget (DEL-04-07), and cancellation ends the time terms.
 - A model beyond the budget is declined by name, and its save would be declined by the same
   admission. Model validity is unchanged: such a model is still valid, and nothing new is
-  refused at open or save.
+  refused at open.
+- The save's result is bounded by the 64 MiB output ceiling (§3.7). A model whose export result
+  exceeds it cannot be exported (`MBF-EXPORT-OUTPUT-TOO-LARGE`).
 
 **What (iii) does not bound or claim.**
 
 - It does not predict the worker's peak. The cap enforces the budget; nothing estimates the peak
   in advance.
-- It does not make the save's outputs bounded (§3.9.7).
 - It sets no wall-clock limit beyond cancellation.
-- It covers nothing in the browser-only preview, where nothing runs.
-- It does not make the 4a wasm preview governed. The webview stays ungoverned until it no longer
-  runs the writer.
+- It covers nothing in the browser-only route, where nothing runs.
+- It does not make the 4a wasm preview governed. That code stays ungoverned and is not connected
+  to the shipped dialog.
 
-**Preview memory allowance.** (iii) needs no webview memory allowance. The allowance is the
-existing per-invocation budget, so no new host policy is set, and R is a bound on the payload,
-not on memory. A webview allowance is needed only if Agent 0 chooses (i) for the browser-only
-preview. It would then be a parameter, A, justified by the webview's practical wasm and heap
-limit (WKWebView and WebView2), confirmed by a planned test that grows wasm memory until
-allocation fails. It is not a minimum-host rule.
+**Preview memory allowance.** (iii) needs no webview memory allowance: the worker runs under the
+existing per-invocation budget. R and the output ceiling are MBF route limits on payloads, not
+memory policies. (i) is not chosen, so no webview allowance is set.
 
 #### 3.9.6 Planned tests (not run)
 
@@ -647,38 +718,42 @@ allocation fails. It is not a minimum-host rule.
   peak must grow at most linearly in M. These tests confirm the analysis; under (iii) they set no
   limit.
 - **Rust, the worker.**
-  - Review mode returns no MBF text and no sidecar bytes. Its digests equal save mode's and the
-    recorded `export_digests.json` cases.
+  - Review mode returns no MBF text and no sidecar bytes, and opens, creates or changes no file.
+    Its digests equal save mode's and the recorded `export_digests.json` cases.
+  - The child refuses an unknown `mode` and a field of the other mode; each mode's result has its
+    fixed shape.
   - For each Q shape above, the worker either completes within its budget, with a review of at
-    most R and the overflow counted, or ends with a named worker refusal that becomes
+    most R in total and the overflow counted, or ends with a named worker refusal that becomes
     `MBF-REVIEW-MEMORY-UNAVAILABLE`. In both cases the host's counted peak stays within the
-    ingress lease plus R plus the fixed header.
-  - An entity longer than R is counted, not cut, and the blocking counts are exact.
+    ingress lease plus R plus the frame header.
+  - A truncated review of a blocked export still reports the blocked status and its global
+    refusal, and its total and blocking counts are exact.
+  - A string longer than the per-field bound is carried as its prefix, byte length and SHA-256,
+    and the worker's counted peak shows no copy of the whole escaped string.
   - A diagnostic and its loss entry are listed together or counted together.
+  - A save result above 64 MiB is refused with `MBF-EXPORT-OUTPUT-TOO-LARGE` before any result
+    lease is admitted, opens no chooser and writes nothing; one at the limit is saved.
   - A newer review kills the running worker, and its grant is released after the reap.
   - A budget changed while a review waits does not extend it.
 - **Vitest.**
-  - In the app, the dialog calls `review_mbf_export` and never `renderMbfJson` (a spy on the
-    engine).
-  - In the browser-only preview the review declines with `MBF-REVIEW-NATIVE-ONLY` and Save stays
+  - The dialog calls `review_mbf_export` and never `renderMbfJson` (a spy on the engine).
+  - In the browser-only route the review declines with `MBF-REVIEW-NATIVE-ONLY` and Save stays
     disabled.
-  - The counts not shown and the blocking counts are displayed.
-  - A memory refusal is shown by name.
+  - Complete or truncated, the counts not shown and the blocking counts are displayed.
+  - A memory refusal and the output-ceiling refusal are shown by name.
   - A stale review after `MBF-EXPORT-REVIEW-STALE` runs again.
 
-#### 3.9.7 For Agent 0
+#### 3.9.7 Decided (Agent 0, 2026-11-02)
 
-- **Choose (iii) or (i).** (iii) for the app, with the browser-only preview declined, is
-  recommended. (i) would need its own coefficient argument and a measured webview ceiling.
-- **§3.3's wording.** Omitted entries move from "listed in full" to "listed within a 1 MiB
-  review allowance, the rest counted".
-- **The 4b worker proposal.** Under (iii) it gains the `mode` field and the review result.
-- **The save's outputs.** The identity file carries Q1, so its size is super-linear in the model
-  text. 4b's host-side reservation for "the MBF and sidecar bytes" (§3.7) cannot be priced from
-  M. The worker's result frame must bound those bytes, for example with a named refusal above a
-  stated output bound.
-- **The import slice.** The import (§4.7) runs the same regeneration. This section does not
-  analyse it.
+- **(iii)** is chosen. The browser-only route declines with `MBF-REVIEW-NATIVE-ONLY`, and the wasm
+  writer stays only as an unconnected or test resource.
+- **§3.3** lists entries within the 1 MiB bounded review and counts the rest with how many block.
+- **The 4b worker proposal** gains task 3's strict `review`/`save` modes and the review result.
+  Its envelope's byte layout is to be agreed with performance (#59).
+- **The save's outputs** are bounded by the 64 MiB output ceiling (§3.7), because the identity
+  file carries Q1 and so cannot be priced from M.
+- **The import slice.** The import (§4.7) runs the same regeneration. It needs its own design
+  before connection (§6, slice 5); this section does not analyse it.
 
 ## 4. Import (RT-R8)
 
@@ -849,8 +924,8 @@ Each slice is one PR. Every test must fail without its wiring.
 | 1 | This design | GEN-13; deliverables check | Agent 0 on §8 |
 | 2 | Engine crate: the writer port and `sidecar`, the wasm build, parity vectors. It starts from the CAEPIPE lane's SIF fix and Q-6 omitted-entries sweep (its named head), so the port does not copy the drop | Byte parity with Python over the whole committed MBF corpus and the authored cases, both ways, plus every writer test model and pilot case (text, sidecar, `to_dict()`); every `MBF-SI-*` code; normalization factors exact; float formatting at rounding boundaries; `forbid(unsafe_code)` | Independent numerical review (numerical meaning, file bytes) and targeted regressions |
 | 3 | Engine crate: the importer port | Byte parity over the whole committed MBF corpus and the authored cases, both ways, plus every import fixture and the outputs of `test_caepipe_mbf_round_trip.py`; every named refusal; bound and unbound imports; self-digest; the reversible and byte-reproducible sets in Rust | Independent numerical review |
-| 4 | Export: `DOTH-MBF-012` (local_private, explicit intent, lossless) in the three catalogues, with parity tests in all three; `save_mbf_export`; the atomic formats; reach-scan re-pin; menu item and dialog; retire the TypeScript builder (A-6); the #1711 row | Rust: admitted under its lease, with the counting-allocator peak within it; named arguments; hash mismatch; stale review; writer refusal opens no chooser; protected disposition refused; Cancel writes nothing; identity file before MBF; an injected failure of the second write removes the first; a read-back mismatch removes both; bytes equal the engine's. Route-catalogue parity; reach-scan pin. Vitest: refusals block Save, omissions warn, degF reference temperature, stale review runs again, suggested names, keyboard reach | Independent review (persistence, file writes) and an independent permissions review of the new governed route |
-| 5 | Import: `open_mbf_file`; the import source and review; material declaration; reach-scan re-pin | Rust: caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, lease. Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | Independent review (session replacement; provenance declarations) |
+| 4 | Export: `DOTH-MBF-012` (local_private, explicit intent, lossless) in the three catalogues, with parity tests in all three; `save_mbf_export` and `review_mbf_export` (worker task 3 in `save` and `review` modes, §3.9.5); the atomic formats; reach-scan re-pin; menu item and dialog; retire the TypeScript builder (A-6); the #1711 row | Rust: admitted under its lease, with the counting-allocator peak within it; named arguments; hash mismatch; stale review; writer refusal opens no chooser; protected disposition refused; Cancel writes nothing; identity file before MBF; an injected failure of the second write removes the first; a read-back mismatch removes both; bytes equal the engine's; review mode touches no file or chooser; unknown modes refused; the review is at most 1 MiB in total, with its status and blocking counts computed before truncation; a save result over 64 MiB refused with `MBF-EXPORT-OUTPUT-TOO-LARGE` before allocation, writing nothing. Route-catalogue parity; reach-scan pin. Vitest: the dialog never runs the wasm writer; `MBF-REVIEW-NATIVE-ONLY` in the browser-only route; refusals block Save, omissions warn, degF reference temperature, stale review runs again, suggested names, keyboard reach | Independent review (persistence, file writes) and an independent permissions review of the new governed route |
+| 5 | Import: `open_mbf_file`; the import source and review; material declaration; reach-scan re-pin. Before connection it needs its own source, memory and transaction design, analogous to §3.7 and §3.9: the export's proof does not cover the import, whose regeneration runs the writer again | Rust: caps, symlink and non-regular-file refusals, identity file absent, present and unreadable, lease. Vitest: the guard's Cancel keeps edits; refusals block Adopt; a bound import restores ids; an unbound import states its consequence; the declaration re-run; the adopted document passes `checkNativeOutcome`; unsaved with no stored base | Independent review (session replacement; provenance declarations) |
 | 6 | The criterion-6 check of §5 and its CI routing | As in §5 | Focused review |
 | 7 | Unbound pressure closure declaration; rebinding by node name | Vitest and engine tests for both | Independent review |
 | 8+ | Coverage tranches (CAEPIPE lane, each designed in the import Design §20.3), in Python and Rust together | Parity; each new family moves from `refused` to `covered` in §5's table | That Design's gates |
@@ -907,7 +982,8 @@ integrates.
 
 - **Webview writer.** `core/handoff/caepipe_mbf_wasm` wraps the engine for wasm (`render_mbf_json`,
   `import_mbf_json`), built by `build-wasm-engine.mjs` into `public/mbf-engine/` and loaded by
-  `src/services/mbfEngine.ts`. The model text is read as the engine reads JSON (`parse_sidecar_json`).
+  `src/services/mbfEngine.ts`. The model text is read as the engine reads JSON (`parse_sidecar_json`). Under §3.9's
+  adopted design the wasm writer stays only as an unconnected or test resource; the shipped dialog never runs it.
 - **Settings.** `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}`: `degC` is passed as
   `reference_temperature_c`, `degF` as `reference_temperature_f`, with no row limit, and the title is at most 4 KiB of
   UTF-8. One engine function maps them, `export_settings_from_json` in `core/handoff/caepipe_mbf_engine`
@@ -947,10 +1023,12 @@ integrates.
 - **Shared pins.** One line in `user_release_reach_scan.rs` `SHELL_DEPENDENCIES` admits the engine dependency
   (Agent 0, 2026-11-01). The engine adds `num-bigint`, `num-integer` and `num-traits` to the shell's normal
   dependency graph. `ryu`, `sha2` and the rest of its tree were already there.
-- **4b connects:** the writer in the capped worker process and the verification of that path (§3.7), command
-  registration and ingress admission (`save_mbf_export_args`, `save_mbf_export_admitted`), the `app_invoke_handler`
-  re-pin, the menu item, the Exports panel action, mounting the dialog, and retiring the
-  TypeScript builder (A-6).
+- **4b connects:** the writer in the capped worker process and the verification of that path (§3.7), as worker
+  task 3 with its strict `review` and `save` modes (§3.9.5); the 64 MiB output ceiling through the worker's
+  `result_limit` hook, refusing with `MBF-EXPORT-OUTPUT-TOO-LARGE` (§3.7); command registration and ingress admission
+  for `save_mbf_export` (`save_mbf_export_args`, `save_mbf_export_admitted`) and for `review_mbf_export`, which joins
+  the same permissions, reach and ingress review; the `app_invoke_handler` re-pin; the menu item, the Exports panel
+  action, mounting the dialog on `review_mbf_export` (§3.9), and retiring the TypeScript builder (A-6).
 
 ## 7. Boundaries
 
