@@ -298,6 +298,9 @@ Notes on the tests:
 - A record that fails E1 is "not sizable". A library 1.0.0 record always fails E1, with
   the reason "no working load range" (§8.2).
 - `movement_limit` is not read by sizing; the result says so.
+- A variable record's stiffness always carries a DOF in the library schema. If one
+  without a DOF reached the arithmetic, it would fail E2, not E1: a missing DOF does not
+  match the candidate's.
 
 ### 6.5 Family policy and selection
 
@@ -349,6 +352,10 @@ Notes on the tests:
   - for a variable selection, F_D^v − W (hot design) or F_C^v − W (cold design), the
     departure from the hot-load basis.
 
+  Where a verified reference load is not positive (F_i^v ≤ 0 under the operating-load
+  reference), no ratio is formed for that case. Its variation is published as absent, V0
+  reports it, and V is judged on the ratios that are formed, as in §6.2.
+
   Each failed test, formed with the verified values, is reported by name
   (`HANGER_SIZING_VERIFICATION_TEST_FAILED`, warning):
   - V0, L, T and V for a variable selection;
@@ -376,7 +383,9 @@ Notes on the tests:
 - the verification's assumed configuration, and the verified positions, travel, loads,
   variations and test outcomes of §7, for every selected family;
 - for a candidate with no fit or a fallback: the number of records failing each test,
-  E1 to V.
+  E1 to V, for each family tested. A `variable_else_constant` candidate with no fit
+  therefore shows both families' counts, which is how the table shows that the fallback
+  was tried.
 
 **Per derived solve:** u_C at each candidate, and each nonlinear support's state (§5).
 
@@ -487,7 +496,7 @@ This design defines what sizing needs from it.
   not in the app process. No attestation digest is taken for a derived solve: its
   result is never published as a case result (performance manager, 2026-10-31).
 - **[decided] One solve call site.** Every derived solve goes through one function in
-  `hanger_sizing.rs`. Today each solve pays the full publication (station rows,
+  the sizing crate (§13). Today each solve pays the full publication (station rows,
   serialized envelope) that sizing then discards, and that publication dominates the
   cost of a large solve. The performance lane's design C will define a minimal
   publication for derived solves: nodal, support and support-state rows only. When it
@@ -592,15 +601,25 @@ outcome.
 
 ## 13. Product layout and increments
 
-- **Engine:** `core/product_physics/src/hanger_sizing.rs` and `hanger_sizing/**`:
-  - the request DTO and refusals;
-  - candidate checks;
-  - derived-document construction;
-  - the solve loop;
-  - the arithmetic and selection, as one pure function shared with the detail view;
-  - the result rows.
+- **Engine:** its own crate, `core/analysis/hanger_sizing`.
+  - **[decided] Outside the solver library.** It changes no file in `core/product_physics`.
+    Two reasons: the retained route's pricing carries that crate's sources line by line,
+    and the product's public JSON solve entry
+    (`run_linear_static_preview_value_with_mode`) already runs the solve-time lowering on
+    the ordinary route (§4.1). Derived documents go through that entry from this crate.
+  - **Slice 1a, built:** the arithmetic of §6 and §7 as pure functions on W, the positions
+    and the SI-normalized records:
+    - the request checks that need no solve;
+    - the fit tests in order, the selection and the failure counts;
+    - the verification arithmetic and its standing.
 
-  It has a headless runner entry and a native desktop command.
+    The detail view and the readers share `evaluate`. The crate has no product
+    dependency.
+  - **From slice 1c:** the request DTO, the candidate checks, derived-document
+    construction, the solve loop and the result rows. These add the dependency on
+    `product_physics` and bring the crate into the solver's reachability; they are
+    reported before they touch shared surfaces. The crate then gains a headless runner
+    entry and a native desktop command.
 - **Readers:** `core/reporting/result_export` (the Rust reader) and
   `tests/verifiers/hanger_sizing_evidence.py`.
 - **Desktop:** the request form, the hanger table and its detail view, in

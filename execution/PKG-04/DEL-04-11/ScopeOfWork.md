@@ -84,7 +84,7 @@ own solve entry and never persisted.
 - the hanger table, the hanger-sizing profile, the `hanger-sizing-1` semantic table and
   the hanger-sizing analysis-run kind;
 - the Rust reader and its test-only Python verifier;
-- the product module `core/product_physics/src/hanger_sizing.rs` and its entries;
+- the sizing crate `core/analysis/hanger_sizing` and its entries;
 - the frozen references under `validation/references/hanger_sizing/`;
 - the sizing meaning of the hanger library's `working_load_range`;
 - the desktop request form and hanger table, and the report's hanger-sizing section,
@@ -108,8 +108,12 @@ These deliverables keep their scope.
 
 ### CLM-003 — Current reach and sequence
 
-- **Built:** nothing. The hanger records import, and one record can be applied to a
-  support as the person's act (`features/hanger-selection`). A variable spring is
+- **Built:** slice 1a, the sizing arithmetic (`core/analysis/hanger_sizing`). It covers
+  the loads, fit tests, selection, failure counts, request checks that need no solve,
+  and the verification arithmetic and standing (Design §13), with its unit tests and
+  the R-3 references. Nothing yet solves, publishes or reaches the desktop. Before this
+  deliverable: the hanger records import, and one record can be applied to a support as
+  the person's act (`features/hanger-selection`). A variable spring is
   solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
 - **Sequence** (Design §13):
   1. the engine on PF with library format 1.1.0;

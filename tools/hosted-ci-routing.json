@@ -2404,6 +2404,8 @@
               "apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs",
               "apps/desktop/src-tauri/src/user_release_save_tests.rs",
               "apps/desktop/src-tauri/src/worker_alloc.rs",
+              "core/analysis/hanger_sizing/src/lib.rs",
+              "core/analysis/hanger_sizing/src/tests.rs",
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
               "core/handoff/caepipe_mbf_engine/src/decimal90.rs",
@@ -4368,6 +4370,7 @@
             "base": "manifest",
             "files": [
               "apps/desktop/src-tauri/Cargo.toml",
+              "core/analysis/hanger_sizing/Cargo.toml",
               "core/gui/viewport_editor/Cargo.toml",
               "core/handoff/caepipe_mbf_engine/Cargo.toml",
               "core/handoff/caepipe_mbf_wasm/Cargo.toml",
