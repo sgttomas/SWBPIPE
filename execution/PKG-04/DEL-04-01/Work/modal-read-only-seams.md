@@ -13,4 +13,4 @@ DEL-04-09's slices add two read-only seams to DEL-04-01's code. DEL-04-09's desi
 - **Consumer:** DEL-04-09's modal formation check (check 1), which supplies section properties it re-derives itself from OD and wall.
 
 ## Pricing
-Both crates are priced (`tools/retained_pricing/base/crate_dirs.txt`). DEL-04-08 Work §8.39 records the source-bound seam proof: all 1,602 coefficients remain equal to integrated reducer2a, so the registered generated block stands. The changed debug wrapper/accessor depth still needs AC-004 source-bound headroom witnesses in a separately cleared exclusive run. Coefficient identity alone supplies no stack evidence.
+Both crates are priced (`tools/retained_pricing/base/crate_dirs.txt`). DEL-04-08 Work §8.39 records the source-bound seam proof: all 1,602 coefficients remain equal to integrated reducer2a, so the registered generated block stands. The changed debug wrapper/accessor depth received six passing AC-004 source-bound headroom witnesses on 2026-11-02 under Agent 0’s cleared exclusive run; §8.39 records the exact source/binary binding and closure. Coefficient identity alone supplied no stack evidence.

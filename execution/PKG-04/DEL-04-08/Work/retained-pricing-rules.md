@@ -2378,11 +2378,40 @@ moves from 7,744 B to 7,760 B plus a 32 B wrapper and 32 B accessor. These give
 added depth of at most 208 B straight and 80 B curved on those paths. The return
 slot is passed through, without an extra 12×12 matrix copy; the straight wrapper
 copies only its three coordinate arrays. These observations establish no whole
-call-chain stack bound. AC-004's six source-bound headroom witnesses still need
-the separately cleared exclusive run, because the retained-reachable stack
-changed even though the heap coefficients did not. No build or witness is
-permitted by this paragraph alone. Independent changed-proof scrutiny, exact-head
-checks and integration remain separate from owner acceptance and release.
+call-chain stack bound. Because the retained-reachable stack changed despite
+coefficient identity, the six source-bound headroom witnesses were run as below.
+
+**Independent scrutiny and AC-004 (2026-11-02).** GPT-6 Astra at medium effort
+reviewed exact source and governing text at `9410d8ae3`, independently reproduced
+the coefficient/atom/phase/generator and mapping checks, and found no blockers.
+Its nonblocking supplementary-guard coverage clarification is applied; no pricing
+or Rust logic changed after review. Native profile checks (eight tests selected
+by `profile_`) and 14 seam regressions passed in that review; the recorded
+859-test suite and complete pricing runs were reused explicitly.
+
+Agent 0 cleared exactly six prebuilt witnesses, each its own process with
+`--exact --ignored --test-threads=1`, under `t3_exclusive.sh` and memguard.
+The clean bound source was `9b47b63f6043450cdef13895a93975d7f80006ec`; the prebuilt
+library test binary was `core/product_physics/target/debug/deps/
+open_pipe_stress_product_physics-d5dc083ee24455b5` (one path, line wrapped), SHA-256
+`ca227662c8d1e35eaf7bc6521f14d043965f16c0d1869ba12baf57cecd4acd33`.
+The full approved profile SHA-256 remained
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
+Request was 06:19:17.496 UTC. The wrapper acquired all four slots at 06:28:31 UTC
+(binding event 06:28:31.959); execution ended 06:28:41.103 and wrapper release was
+06:28:41.112 UTC, rc 0. Queue wait (about 554.46 seconds) was separate from the
+9.306-second acquired execution, within 55 seconds internally and 60 seconds
+externally. No build ran inside. All six passed: W1 at 1 MiB sparse/dense
+0.68/0.66 s, W2 deep 1.32/1.32 s and W-C2 2.49/2.47 s. These test durations
+are evidence of completion, not performance qualification. Afterward the own
+runner/test/wrapper process group was absent, `exclusive.pending` was absent,
+all four lock files had no owner on inspection and the wrapper logged
+`END-EXCLUSIVE rc=0`. Actual closure was reported to Agent 0 promptly.
+
+The §8.38 registered block stands unchanged. Exact-head hosted checks and
+integration remain required; neither this proof nor these witnesses grant owner
+acceptance, release, native App qualification or adoption of the recorded modal
+consuming-slice limitations.
 
 ## 9. Memory-profile gates and registration
 
