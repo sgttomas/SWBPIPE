@@ -262,6 +262,70 @@ fn entries_follow_the_classification_and_a_diagnostic_travels_with_its_loss_entr
     assert_eq!(review.summary.not_shown_blocking(), 400 - blocked.len());
 }
 
+/// An error is folded only into an `unsupported` loss entry of its code and entity. One of the same code and entity
+/// as an `omitted` entry (today's writer raises none) is listed as its own blocking entry, and so explains a refusal.
+#[test]
+fn an_error_paired_only_with_an_omitted_entry_stays_listed_and_blocking() {
+    let listed = |value: &Value| -> Vec<(String, String, String, String)> {
+        value
+            .get_or_null("entries")
+            .as_list()
+            .unwrap()
+            .iter()
+            .map(|entry| ["list", "code", "entity", "category"].map(|key| entry.get_or_null(key).as_str().unwrap().to_string()))
+            .map(|[a, b, c, d]| (a, b, c, d))
+            .collect()
+    };
+    let owned = |rows: &[(&str, &str, &str, &str)]| -> Vec<(String, String, String, String)> {
+        rows.iter().map(|(a, b, c, d)| (a.to_string(), b.to_string(), c.to_string(), d.to_string())).collect()
+    };
+    for status in ["refused", "written"] {
+        let mut result = synthetic(status);
+        result.diagnostics = vec![diag("MBF-SI-FIELD-NOT-EXPORTED", "error", "node:n", "m")];
+        result.loss_report = vec![loss("MBF-SI-FIELD-NOT-EXPORTED", "omitted", "node:n", "r")];
+        let review = reviewed(&result, MBF_REVIEW_MAX_BYTES);
+        let summary = &review.summary;
+        assert!(summary.blocking && summary.complete && !summary.save_eligible(), "{status}");
+        assert!(!summary.refused_unexplained, "{status}: the error explains the refusal");
+        assert_eq!(summary.totals, [1, 1, 0, 0], "{status}");
+        let value = parsed(&review);
+        assert_eq!(value.get_or_null("blocking").as_bool(), Some(true));
+        assert_eq!(value.get_or_null("refused_unexplained").as_bool(), Some(false));
+        assert_eq!(
+            listed(&value),
+            owned(&[
+                ("not_written", "MBF-SI-FIELD-NOT-EXPORTED", "node:n", "error"),
+                ("omitted", "MBF-SI-FIELD-NOT-EXPORTED", "node:n", "omitted"),
+            ]),
+            "{status}"
+        );
+        // Counted, not listed, it still blocks.
+        let mut allowance = export_review(&result, None, MBF_REVIEW_MAX_BYTES, |_| true).unwrap().text.len();
+        let cut = loop {
+            allowance -= 1;
+            let review = export_review(&result, None, allowance, |_| true).unwrap();
+            if review.summary.listed[0] == 0 {
+                break review;
+            }
+        };
+        check(&cut, allowance);
+        assert!(cut.summary.blocking && !cut.summary.refused_unexplained && !cut.summary.complete, "{status}");
+        assert_eq!(cut.summary.not_shown_blocking(), 1, "{status}");
+    }
+    // The same error with an `unsupported` entry is that entry; the warning of an `omitted` entry is that entry.
+    let mut result = synthetic("refused");
+    result.diagnostics = vec![diag("MBF-SI-LOAD-UNSUPPORTED", "error", "load:a/1", "m"), diag("MBF-SI-FIELD-NOT-EXPORTED", "warning", "node:n", "m")];
+    result.loss_report = vec![loss("MBF-SI-LOAD-UNSUPPORTED", "unsupported", "load:a/1", "r"), loss("MBF-SI-FIELD-NOT-EXPORTED", "omitted", "node:n", "r")];
+    let review = reviewed(&result, MBF_REVIEW_MAX_BYTES);
+    assert_eq!(review.summary.totals, [1, 1, 0, 0]);
+    // An omitted entry and its warning alone do not explain a refusal.
+    let mut result = synthetic("refused");
+    result.loss_report = vec![loss("MBF-SI-FIELD-NOT-EXPORTED", "omitted", "node:n", "r")];
+    result.diagnostics = vec![diag("MBF-SI-FIELD-NOT-EXPORTED", "warning", "node:n", "m")];
+    let review = reviewed(&result, MBF_REVIEW_MAX_BYTES);
+    assert!(review.summary.blocking && review.summary.refused_unexplained);
+}
+
 /// A truncated review of a written model: not blocking, but not save-eligible, and its counts are exact.
 #[test]
 fn a_truncated_review_of_a_written_model_is_not_blocking_and_not_eligible() {

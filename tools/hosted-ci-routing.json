@@ -203,9 +203,9 @@
   "piping_runtime_reads": {
     "source_trees": {
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "9be4f356b75a52bc77b27424cfa96f0e4a34ac7e93dac500fe7ea64acfefd790",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "e6eabce9c82e4987e065b41f62ab110b0f54a1fd6d2044ed374511d08bda6e01",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
-      "core/library_import/library_import_document/Cargo.toml": "26b545d7e2d6988d54a256e63f1136b49c4e2fc907af18c9c7affc38cd2498d4",
+      "core/library_import/library_import_document/Cargo.toml": "1266b55acbe148e4c9a3f65581ad68b32b2da3f3e7af39291e5a73ec8e528ae8",
       "core/loads/load_case_algebra/Cargo.toml": "4e44202fd15779dc0b08e2f2ea34ed3401de8e8e2c394aba335d07dd65337b39",
       "core/loads/primitive_loads/Cargo.toml": "c62ebd4ac6ad01fe673db598aa412b29c6338fdd25d4d21385c51323d7709818",
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
@@ -312,7 +312,7 @@
         ]
       },
       "core/library_import/library_import_document/tests/provenance_parity.rs": {
-        "sha256": "13042a79ed8ff22dec530bc92ad55efc7be0a0a2abcb681e551cc20b9abdc200",
+        "sha256": "bc8852f5e2788ca866267118bf6e2b84044e9c5c4f16e04da3945038464ac77f",
         "source_trees": [
           "core/library_import/library_import_document/Cargo.toml"
         ],
@@ -2404,6 +2404,8 @@
               "apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs",
               "apps/desktop/src-tauri/src/user_release_save_tests.rs",
               "apps/desktop/src-tauri/src/worker_alloc.rs",
+              "core/analysis/hanger_sizing/src/lib.rs",
+              "core/analysis/hanger_sizing/src/tests.rs",
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
               "core/handoff/caepipe_mbf_engine/src/decimal90.rs",
@@ -4384,6 +4386,7 @@
             "base": "manifest",
             "files": [
               "apps/desktop/src-tauri/Cargo.toml",
+              "core/analysis/hanger_sizing/Cargo.toml",
               "core/gui/viewport_editor/Cargo.toml",
               "core/handoff/caepipe_mbf_engine/Cargo.toml",
               "core/handoff/caepipe_mbf_wasm/Cargo.toml",
