@@ -2368,7 +2368,7 @@ summary, and the fresh runs `scratch/rt-dynamics-d3-8e91c3941/` and
 `scratch/rt-dynamics-d3-base393/` outside the checkout. They are run evidence,
 not permanent build/test inputs. Evaluation with predecessor native atoms
 reproduces merged W3 E+R 8,966,251,315 B sparse and 9,025,382,659 B dense;
-current-source native law/layout verification remains a separate check.
+the four current-source native profile/law/layout tests also pass and their newly collected atoms reproduce the same merged phase evaluations.
 
 **Stack consequence.** No inlining is presumed for the registered debug build.
 Static prologue inspection at the predecessor and candidate, with default and
