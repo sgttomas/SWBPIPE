@@ -226,14 +226,30 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
   disabled. A refusal is never silent: when the writer refuses and reports nothing that
   explains it, the dialog still states that SWBPIPE refused to write the file.
 - **Omitted (warns).** Each `omitted` entry the review carries, with its code, its entity and
-  a product-side description; the entries beyond the review's bound are counted, not listed.
-  "You can still save" is shown only when the writer wrote the file.
+  a product-side description. "You can still save" is shown only when the review is complete,
+  the writer's output is otherwise eligible, and every other current condition (intent, route
+  standing, staleness, resources) permits the save; not merely when the writer produced bytes.
 - **Bounded review.** The dialog shows the review that `review_mbf_export` returns, which is at
   most 1 MiB serialized (§3.9.5). Its lists (not written, omitted, warnings) are therefore listed
   within that bound. The dialog states whether the review is complete or truncated, the total
   count of entries not shown and how many of them block. The status and the blocking state are
-  computed before truncation and always shown, so a truncated review never enables Save and
-  never hides a refusal.
+  computed before truncation and always shown.
+- **Complete review required.** The export is offered only after the writer's complete loss
+  report has been shown (AC-003; §8.2 Q-6; REQ-004). **Any truncated review blocks the save**
+  with `MBF-REVIEW-TRUNCATED` ("The loss report is too large to show in full, so the export is
+  not offered."), even when none of the entries not shown would block on its own. Truncation is
+  itself a blocking condition. The dialog claims nothing about the entries it does not show
+  beyond their counts. The save path enforces this itself (§3.9.5): it never relies on a
+  disabled control or on a flag sent by the webview. There is no second, unbounded view, report
+  or download of the loss report; the writer's complete report exists only inside the worker,
+  under its budget.
+- **Usability limitation.** A model whose review exceeds 1 MiB serialized cannot be exported.
+  The boundary is the size of the review: its entries (one per loss entry and unpaired
+  diagnostic, each carrying a code, an entity and a category) and its fixed fields, after
+  escaping and the per-field bound on long strings. No source argument excludes legitimate
+  complex models from it: a model with many unexported members or fields produces one entry
+  per member or field. This is a stated route limitation; the owner has not accepted it as a
+  release limitation.
 - **Unit conversions.** Each unit the writer normalized, with its exact definition and, where
   it has one, its exact factor (the writer's normalization data, not its assumption
   sentences).
@@ -265,6 +281,7 @@ writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
 | Route screening blocked, or a protected disposition (§3.5) | Blocks |
 | Review stale (model hash or settings changed) | Blocks until the review runs again |
 | Review declined (`MBF-REVIEW-NATIVE-ONLY`, `MBF-REVIEW-MEMORY-UNAVAILABLE`) | Blocks |
+| Review truncated (`MBF-REVIEW-TRUNCATED`), whatever the entries not shown | Blocks |
 | `omitted` entries, warnings, undeclared material origin | Warn |
 
 The release target's "Must" is not product vocabulary. The Must-family table lives in the
@@ -637,7 +654,11 @@ No term is bounded by an existing limit.
   worker and releases its grant after the reap, as for model checks.
 - **A review is not an authorization.** The save rechecks the current model, settings, binding,
   route standing and staleness itself (§3.6 steps 1 to 6) in its own `save`-mode worker run.
-  `reviewed` carries the review's digests, and step 6 compares them with that run. Files are
+  `reviewed` carries the review's digests, and step 6 compares them with that run.
+  - **Completeness enforced on the save path.** The `save`-mode worker run forms the same
+    bounded review (`export_review`, below) over the same model and settings, inside its
+    budget, and refuses with `MBF-REVIEW-TRUNCATED` when it is truncated, before any result
+    lease, chooser or write. The host does not accept a completeness flag from the webview. Files are
   created only on the user's explicit intent in the chooser (step 7).
 - **The bounded review.** One engine function, `export_review(result, allowance)`, beside
   `export_settings.rs`, forms the review inside the worker.
@@ -728,6 +749,9 @@ memory policies. (i) is not chosen, so no webview allowance is set.
     ingress lease plus R plus the frame header.
   - A truncated review of a blocked export still reports the blocked status and its global
     refusal, and its total and blocking counts are exact.
+  - A truncated review blocks the save even when its blocking count is 0: the `save`-mode run
+    refuses `MBF-REVIEW-TRUNCATED` before any result lease, chooser or write, whatever the
+    request claims about the review.
   - A string longer than the per-field bound is carried as its prefix, byte length and SHA-256,
     and the worker's counted peak shows no copy of the whole escaped string.
   - A diagnostic and its loss entry are listed together or counted together.
@@ -740,6 +764,8 @@ memory policies. (i) is not chosen, so no webview allowance is set.
   - In the browser-only route the review declines with `MBF-REVIEW-NATIVE-ONLY` and Save stays
     disabled.
   - Complete or truncated, the counts not shown and the blocking counts are displayed.
+  - A truncated review disables Save and shows `MBF-REVIEW-TRUNCATED`, also when its blocking
+    count is 0; "You can still save" appears only for a complete, eligible review.
   - A memory refusal and the output-ceiling refusal are shown by name.
   - A stale review after `MBF-EXPORT-REVIEW-STALE` runs again.
 
