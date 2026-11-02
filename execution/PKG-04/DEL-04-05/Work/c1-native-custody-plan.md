@@ -941,6 +941,18 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**Bounded offline timeout diagnosis.** The observed `reader_verdict_start` mark
+covers header dispatch, registration, standing and summary. Four small maintained
+replay freezes reproduce the same mark at each await; the failed packet cannot
+identify the active native parse/validate/drop phase. Source establishes repeated
+full-result parsing/pressure validation and combination projection's full-tree
+clone-before-delete, but no measured time/allocation attribution. The proposal
+records the exact call chain, 11 passing connection tests and the small existing
+combination-corpus check, the minimum missing boundary observation, and a
+conditional route-only/projection repair plan. No core/product algorithm,
+numerical/permission contract, timeout or resource policy was changed; shared
+reader edits still require Agent0 coordination and appropriate scrutiny.
+
 **Repaired A500 execution update (2026-11-02).** The newly approved single
 attempt on clean `eb77d0067` passed fresh startup telemetry but failed the
 300 s first-paint wait, last stage `reader_verdict_start`. The worker published

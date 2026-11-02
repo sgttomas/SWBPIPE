@@ -91,6 +91,111 @@ return. The observed outstanding issue is native reader validation failing to
 reach first paint within the approved gate; source diagnosis is distinct from
 another solve/profile or a timeout extension. #59 stays draft and unmerged.
 
+## Offline diagnosis of the repaired first-paint timeout
+
+**Supported conclusion:** the packet locates the timeout inside the awaited
+native-registration sequence, but cannot identify its active subcall or split
+CPU, parse, clone and drop costs. Its `trace.counts` is empty. No native result
+text, native phase checkpoints, stacks or P3 metrics survived in this packet.
+The last pool reservation total and physical samples cannot supply that missing
+attribution. They remain the observed values above, not parse/reader metrics.
+
+The exact path at selected `eb77d0067` is:
+
+1. `previewService.ts:642` marks `reader_verdict_start`.
+2. `readNativeVerdict(job,{})` sends the native verdict command. Despite its
+   local variable name `header`, this calls `reader_dispatch_json`, not a
+   route-only reader. The native path admits args, prescans held bytes without
+   materializing them, acquires the parse lease, then deserializes the entire
+   result via `serde_json::from_str<Value>`.
+3. `validateNativeReaders` sends a separate route-specific validation request
+   with the captured model or invocation. It performs another held-result
+   prescan, parse and validation.
+4. `readNativeStanding` dispatches again with the current binding, with another
+   held-result parse. Its exact-input cache differs from the header request.
+5. `readNativeSummary` prescans once, calls the health text API (which parses
+   the held source), then separately parses it again to build summary/planes.
+   The first health source tree is dropped before the summary source is parsed.
+6. Only after these awaits and envelope refusal handling does the session mark
+   `reader_verdict_end`. An envelope-registration refusal may repeat standing
+   and summary without binding. Later handle construction requests standing
+   again, but the exact-input cache reuses the successful standing request.
+
+Four bounded regressions in the maintained `nativeResult.connect.test.ts`
+freeze header, registration, standing and summary separately on the existing
+small pressure replay, using committed Rust responses. Every pending case gives
+exactly the same final `reader_verdict_start` mark as A500. The normal completed
+sequence issues three verdict requests plus one summary; there is no fourth
+verdict command at handle construction. **All 11 connection tests pass.** These
+are mocked/replay control-flow checks, not measurements or reproduction of the
+919 MB native workload.
+
+For an admitted ordinary pressure result, `reader_verdict::dispatch` calls
+`standing`. That computes its token using `numerical_use_standing_with_context`
+-> `for_source` -> full pressure evidence validation **before** the empty-basis
+return, and then the pressure branch validates evidence again to obtain findings.
+Thus the successful pressure sequence above invokes full pressure evidence checks
+**2 + 1 + 2 = 5 times**, independently of the five sequential result parses
+(three verdicts plus health plus summary). This is a source-path count, not an
+assertion that A reached all five. The selected model has exact combinations;
+the packet does not carry its returned route, so the pressure-route work count
+is stated conditionally rather than presented as observed call progress.
+
+Inside a pressure evidence pass with combinations,
+`exact_combination_evidence::direct_view` first does `source.clone()`, then removes
+`exact_combinations` and combination rows. This definitely allocates a second
+full `Value` tree before discarding those members; it is not just another copy
+of the raw UTF-8 buffer. The primitive check then builds borrowed ID/evidence
+indexes, and the combination check rederives expected rows/evidence and retains
+expected combination rows across records. It scans rows per operand/case;
+its support-magnitude reconstruction performs a linear row search for each
+support/component. Model binding also has member/section searches. These are
+concrete allocation/repeated-work and potential scaling sites, **not a proved
+CPU bottleneck for this packet**. Value destruction and allocator-retained
+blocks can contribute to later CPU/physical readings as well.
+
+The existing `exact_combination_contract` corpus-admission test passes under the
+normal slot wrapper on its five maintained small cases (735–1,828 rows), with
+and without models. No expected rows, numeric comparisons or authority changed.
+No core source was modified, and no allocation/timing benchmark, native App,
+worker solve, large-result parse or new measurement layer was run.
+
+**Smallest missing observation:** a bounded entry/exit checkpoint for the
+existing header/registration/standing/summary awaits, and within the pending
+native command, prescan/admission, parse, validate and source-drop boundaries.
+A checkpoint must be durable before the long phase starts; an end-only reply
+cannot identify a timeout. This is a proposal for narrowly extending existing
+smoke/timeline evidence, not a request to run the App. Replay tests can validate
+its ordering without the large input. No CPU/allocation value should be invented
+from the phase marker.
+
+**Smallest supported product repair plan, conditional on the identified phase:**
+
+- For the redundant initial dispatch, expose a route/binding-only reading using
+  the existing downgrade/identity/receipt-shape guards. It must have a separate
+  return type with no standing/eligibility; registration and model-bound standing
+  still run their full checks before the session grants Current. Merely deleting
+  validation from the existing dispatch API would change its contract and is
+  not proposed.
+- For combination projection, clone only the retained primitive members/rows
+  rather than cloning the full source and then deleting combination material.
+  Pin projected data equality and existing first-refusal/numeric outcomes on the
+  maintained corpus before considering a borrowed-view refactor or indexes.
+  Do not remove evidence checks, change their order or tune any tolerance.
+- A broader single-parse registration operation could remove later full parses,
+  but it is not the first patch: it changes lease lifetimes and the connection
+  contract. Reusing parsed trees globally without a custody-bound lease/cache
+  decision is not justified by this packet.
+
+Ownership: native verdict/summary, session connection and smoke boundaries are
+C1 surfaces. The combination projection and shared reader/standing APIs are
+`core/reporting/result_export` (DEL-05-02/DEL-04-07 numerical reading) and the
+operation-applier bridge; coordinate exact edits through Agent0 with RT-A3 and
+other consumers before shared writes. Any product change needs independent
+numerical/permission scrutiny and byte/refusal parity as applicable. No new
+handler, window, input, memory budget/reserve, timeout enlargement, authenticity
+or numerical-eligibility contract is selected by this diagnostic return.
+
 ## A500 execution and closure (not performance evidence)
 
 All approved source/script/plan/model/Wasm/dist/binary identities passed the

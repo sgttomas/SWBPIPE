@@ -15,6 +15,7 @@ import { decodeNativeVerdict, describeFullResultRefused, FullResultRefused, isNa
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "../test/nativeMechanicsReplay";
 import { readerDispatch, rememberReceivedText } from "../features/results/resultReader";
 import type { MechanicsResult } from "../types";
+import { beginSolveTimeline, markSolveStage, readSolveTimeline, resetSolveTimelineForTests } from "./solveTimeline";
 
 type Replay = ReturnType<typeof createNativeMechanicsReplay>;
 function install(replay: { invoke: Replay["invoke"] }) {
@@ -25,7 +26,7 @@ function install(replay: { invoke: Replay["invoke"] }) {
   });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
 }
-beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); });
+beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); resetSolveTimelineForTests(); });
 afterEach(() => {
   vi.restoreAllMocks();
   invokeMock.mockReset();
@@ -33,6 +34,46 @@ afterEach(() => {
 });
 
 describe("C1 slice 4: a fresh solve's result is read natively and never taken", () => {
+  // Bounded diagnosis of the A500 packet's coarse mark. Freeze each actual
+  // awaited native call in turn, while replaying committed small Rust replies.
+  // No solve/worker/App or timing/allocation workload is executed here.
+  for (const pendingPhase of ["header", "registration", "standing", "summary"] as const) {
+    it(`the existing reader-start mark also covers a pending ${pendingPhase} call`, async () => {
+      const replay = createNativeMechanicsReplay({ profile: "pressure" });
+      install(replay);
+      const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+      const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+      if (started.mode !== "backend_job") throw new Error("not native");
+      const terminal = await awaitPreviewMechanicsJob(started.job_id);
+      const timeline = beginSolveTimeline({ solver_mode: "sparse_interactive" });
+      timeline.jobStarted(started.job_id);
+      markSolveStage("job_done", { result_bytes: terminal.result_bytes ?? 0 });
+      const forward = invokeMock.getMockImplementation()!;
+      const phases: string[] = [];
+      let unblock: (() => void) | undefined;
+      invokeMock.mockImplementation(async (command: string, raw?: unknown, options?: unknown) => {
+        const args = raw as { reader?: string; modelJson?: string; invocationJson?: string };
+        const phase = command === "read_preview_mechanics_job_summary" ? "summary"
+          : command !== "read_preview_mechanics_job_verdict" ? null
+          : args?.reader ? "registration" : args?.modelJson || args?.invocationJson ? "standing" : "header";
+        if (phase) phases.push(phase);
+        if (phase === pendingPhase) await new Promise<void>(resolve => { unblock = resolve; });
+        return forward(command, raw, options);
+      });
+      const reading = readNativeFreshResult(started.job_id, terminal.result_bytes ?? 0, { standingModel: pair.model, summaryModel: pair.model });
+      try {
+        await vi.waitFor(() => expect(unblock).toBeTypeOf("function"));
+        expect(phases.at(-1)).toBe(pendingPhase);
+        expect(readSolveTimeline()?.marks.at(-1)?.stage).toBe("reader_verdict_start");
+      } finally { unblock?.(); }
+      const native = (await reading).result;
+      expect(phases).toEqual(["header", "registration", "standing", "summary"]);
+      // Exact input caching reuses the final construction's standing verdict.
+      expect(phases.filter(phase => phase !== "summary")).toHaveLength(3);
+      expect(readSolveTimeline()?.marks.at(-1)?.stage).toBe("reader_verdict_end");
+      await disposeDeliveredMechanicsResult(native);
+    });
+  }
   it("names the run record when its full-copy size is refused", () => {
     const refusal = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 65, 64, "record_bytes=65", "record");
     expect(describeFullResultRefused(refusal,"reports")).toContain("This run record is 65 bytes");
