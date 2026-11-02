@@ -203,7 +203,7 @@
   "piping_runtime_reads": {
     "source_trees": {
       "core/gui/viewport_editor/Cargo.toml": "32de48e1e1afd2bc77f84655a69561bdc96074a31fe17f705e7b3a0d8aa6eddf",
-      "core/handoff/caepipe_mbf_engine/Cargo.toml": "065a94ff712a62c8ae83dea69eb11342b5473d897d60461886a0a9e5faacd041",
+      "core/handoff/caepipe_mbf_engine/Cargo.toml": "9be4f356b75a52bc77b27424cfa96f0e4a34ac7e93dac500fe7ea64acfefd790",
       "core/handoff/caepipe_mbf_wasm/Cargo.toml": "0a7ff532a9caff6ec74bf06d79fd022e03416f544bb040dfca10aa32345cf427",
       "core/library_import/library_import_document/Cargo.toml": "26b545d7e2d6988d54a256e63f1136b49c4e2fc907af18c9c7affc38cd2498d4",
       "core/loads/load_case_algebra/Cargo.toml": "4e44202fd15779dc0b08e2f2ea34ed3401de8e8e2c394aba335d07dd65337b39",
@@ -2407,6 +2407,7 @@
               "core/gui/viewport_editor/src/lib.rs",
               "core/handoff/caepipe_mbf_engine/src/correctly_rounded.rs",
               "core/handoff/caepipe_mbf_engine/src/decimal90.rs",
+              "core/handoff/caepipe_mbf_engine/src/export_review.rs",
               "core/handoff/caepipe_mbf_engine/src/export_settings.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/assemble.rs",
               "core/handoff/caepipe_mbf_engine/src/importer/build.rs",
@@ -4657,6 +4658,8 @@
               "fixtures/caepipe_mbf/invented/desktop_export/export_digests.provenance.json",
               "fixtures/caepipe_mbf/invented/desktop_export/export_model.json",
               "fixtures/caepipe_mbf/invented/desktop_export/export_model.provenance.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/review_cases.json",
+              "fixtures/caepipe_mbf/invented/desktop_export/review_cases.provenance.json",
               "fixtures/caepipe_mbf/invented/import/units_english.provenance.json",
               "fixtures/caepipe_mbf/invented/import/units_si.provenance.json",
               "fixtures/caepipe_mbf/invented/parity/import_vectors.json",
