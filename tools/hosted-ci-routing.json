@@ -2812,7 +2812,7 @@
         }
       },
       "core/reporting/result_export/tests/retained_precision_contract.rs": {
-        "sha256": "cc1b297e231b921e0ac92a2ef518a9b4af76d6832ab564fa46033bc7fd48f0e5",
+        "sha256": "5993e610391522f5530b0b6e68dd25e6873aea3a964a8d055e4217acc6280b44",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
@@ -2971,7 +2971,7 @@
         ]
       },
       "core/reporting/result_export/tests/retained_precision_derivative_golden.rs": {
-        "sha256": "afa16990105b45fd70304acb6b8539727eb49a286568280f8a1b0f3bd44694e0",
+        "sha256": "c90b94aba08624320b58f106f2bfeacf2bf17774c90a8653d4abe3802cd2cd41",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
