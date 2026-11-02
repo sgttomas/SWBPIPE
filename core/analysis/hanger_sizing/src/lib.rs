@@ -15,8 +15,11 @@
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashSet};
 
+pub mod admission;
 pub mod derived;
 pub mod library;
+pub mod publish;
+pub mod reader;
 
 /// A candidate's single translational DOF, or a variable record's stiffness DOF.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

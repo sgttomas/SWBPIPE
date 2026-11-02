@@ -163,11 +163,19 @@ fn main() -> ExitCode {
         }
     };
 
-    let (code, output) = execute_json_with_mode(&args.verb, &input, args.solver_mode);
-    let controlled = control_local_private(
-        serde_json::to_value(output).expect("CLI output must serialize as JSON"),
-        args.explicit_local_private_intent,
-    );
+    let (code, output) = if args.verb == SIZE_HANGERS {
+        match execute_size_hangers(&input) {
+            Ok(outcome) => outcome,
+            Err(message) => {
+                eprintln!("{message}");
+                return ExitCode::from(2);
+            }
+        }
+    } else {
+        let (code, output) = execute_json_with_mode(&args.verb, &input, args.solver_mode);
+        (code, serde_json::to_value(output).expect("CLI output must serialize as JSON"))
+    };
+    let controlled = control_local_private(output, args.explicit_local_private_intent);
     let rendered = serde_json::to_string_pretty(&controlled)
         .expect("controlled CLI output must serialize as JSON");
     println!("{rendered}");
@@ -188,6 +196,29 @@ fn main() -> ExitCode {
     } else {
         code
     })
+}
+
+const SIZE_HANGERS: &str = "size-hangers";
+
+/// `size-hangers` (DEL-04-11 `Work/hanger-sizing.md` §8.3.2): hanger sizing on
+/// its own admission path. It takes no `CliInput.request` (no `RunnerRequest`,
+/// operation metadata or input-manifest reference is read or synthesized); the
+/// input text goes to the sizing crate's path-aware admission and pipeline. It
+/// reuses the runner's input reading, `--output` writing, local-private control
+/// and exit statuses: 0 sized, 1 refused (or blocked by the control), 2 when the
+/// invocation or input is unusable and no document is formed. `--solver-mode` is
+/// refused by the existing rule (solve only); the request's `solver_mode` is the
+/// only source of the mode. The input is limited to 64 MiB, checked before it is
+/// parsed (`HANGER_SIZING_INPUT_TOO_LARGE`, status 2).
+fn execute_size_hangers(raw_input: &str) -> Result<(u8, Value), String> {
+    use open_pipe_stress_hanger_sizing::publish::{size_hangers, INPUT_TOO_LARGE, MAX_INPUT_BYTES};
+    if raw_input.len() > MAX_INPUT_BYTES {
+        return Err(format!(
+            "openpipestress-runner: {INPUT_TOO_LARGE}: the size-hangers input exceeds {MAX_INPUT_BYTES} bytes"
+        ));
+    }
+    let published = size_hangers(raw_input);
+    Ok((if published.is_sized() { 0 } else { 1 }, published.into_document()))
 }
 
 /// `read <reader> [--input <path>|-]`: one product reader's verdict as JSON on
@@ -314,7 +345,7 @@ fn usage() -> String {
         .collect::<Vec<_>>()
         .join("|");
     format!(
-        "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner read <{readers}> [--input <reader-input.json>|-]"
+        "usage: openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent] [solve only: --solver-mode <sparse_interactive|dense_scrutiny>]\n       openpipestress-runner size-hangers [--input <sizing-input.json>|-] [--output <result.json>] [--explicit-local-private-intent]\n       openpipestress-runner read <{readers}> [--input <reader-input.json>|-]"
     )
 }
 

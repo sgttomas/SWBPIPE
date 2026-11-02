@@ -1,0 +1,447 @@
+{
+  "description": "DEL-04-11 slice 1d-α (Work/hanger-sizing.md §8.3.7): hanger-sizing result documents, mutations and the expected standings. The Rust reader (core/analysis/hanger_sizing/tests/publication.rs) checks all five; the Python verifier (tests/test_hanger_sizing_evidence.py) checks closure, binding and arithmetic against the same expectations, which is their verdict parity. Mutations are applied in order: replace (an existing member or element), add (a new object member). supply names the inputs taken from the input file. All values are invented.",
+  "entries": [
+    {
+      "id": "sized-variable-unconditional",
+      "note": "A variable selection with a check case and a lift-off support's states.",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "passed"
+      }
+    },
+    {
+      "id": "sized-fallback-constant-no-fit-conditional",
+      "note": "selected_by_fallback, a constant selection and no_record_fits; the standing is conditional.",
+      "document": "hanger_sizing_result_four_span.json",
+      "input": "hanger_sizing_input_four_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "passed"
+      }
+    },
+    {
+      "id": "refused",
+      "note": "An engine refusal: only closure and binding apply.",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "sized-no-inputs-supplied",
+      "note": "Binding checks the request hash only; the rest needs inputs.",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [
+          "library",
+          "solve_request"
+        ],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "sized-library-only",
+      "note": "Arithmetic needs the library; derivation and reproduction need the solve request.",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [
+          "solve_request"
+        ],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "self-consistent-forgery",
+      "note": "The check case's positions moved and every dependent value recomputed together: it passes arithmetic (and derivation, since the setting and roles are unchanged) and fails reproduction.",
+      "document": "hanger_sizing_result_forgery.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-outcome",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/candidates/0/outcome",
+          "value": "selected_by_fallback"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "failed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-record-id",
+      "note": "Another record of the library: its hash is not record_sha256, and the selection recomputes otherwise.",
+      "document": "hanger_sizing_result_four_span.json",
+      "input": "hanger_sizing_input_four_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/candidates/1/selected/hanger_id",
+          "value": "CE-2"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "failed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-count",
+      "note": "",
+      "document": "hanger_sizing_result_four_span.json",
+      "input": "hanger_sizing_input_four_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/candidates/2/failure_counts/variable/L",
+          "value": 4
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "failed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-closed-member",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "add",
+          "path": "/result/candidates/0/note",
+          "value": "not a member"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-fixed-text",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/limitations/1",
+          "value": "Sized means every candidate fits."
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-request-hash",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/inputs/sizing_request_sha256",
+          "value": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-derived-document-hash",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/solves/4/derived_document_sha256",
+          "value": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "failed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-library-hash",
+      "note": "A library that does not hash-match is not used for arithmetic or reproduction.",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/inputs/library/sha256",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "passed",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-verified-test",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/candidates/0/verification/failed_tests",
+          "value": [
+            "T"
+          ]
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "failed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-number-type",
+      "note": "",
+      "document": "hanger_sizing_result_two_span.json",
+      "input": "hanger_sizing_input_two_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/candidates/0/w_n",
+          "value": "5000"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-standing",
+      "note": "",
+      "document": "hanger_sizing_result_four_span.json",
+      "input": "hanger_sizing_input_four_span.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/result/verification_standing",
+          "value": "unconditional"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-refused-request-null",
+      "note": "sizing_request_sha256 must be null exactly when sizing_request is.",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/inputs/sizing_request",
+          "value": null
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-refused-code",
+      "note": "",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/refusals/0/code",
+          "value": "HANGER_SIZING_SUPPORT_STATE_DIFFERS"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    }
+  ]
+}
