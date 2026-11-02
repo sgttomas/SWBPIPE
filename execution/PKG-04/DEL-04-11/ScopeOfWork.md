@@ -150,7 +150,8 @@ suitability, and nothing here determines code compliance.
     - the load design (hot or cold);
     - the variation limit and its reference load (operating or design load);
     - the travel allowance at each end of the travel span;
-    - the selection rule (smallest capacity or least variation).
+    - the selection rule (smallest capacity or least variation);
+    - the solver mode of the caller's own solve, which every derived solve uses.
   - Each absent or invalid input is refused by name. The engine, the headless runner
     and the native entry supply no value. The desktop pre-fills the values last used in
     the project, and the request records the values used.
