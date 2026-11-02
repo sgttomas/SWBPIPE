@@ -120,9 +120,9 @@ def inspect(snapshot):
     found = [(texts[rel] or "").count(needle) for rel, needle, _ in STATEMENTS]
     if found != [count for *_, count in STATEMENTS]:
         raise SystemExit(f"W15 owners: an owning statement or reader call changed; re-review W15-PM/W15-RB: {found}")
-    # RT-A3 reducer 2b (§8.41, RTA3R2B-NZ): each new pressure-step entry sits after its D1-empty loop header in the one
-    # function that calls it, so it has no multiplicity on D1 (reducers_in_regions' region and component loops; the
-    # loop over its result in refuse_reducers_outside_step). Supplementary to the full-file pins.
+    # RT-A3 reducer 2b (§8.41, RTA3R2B-NZ): check listed spellings, counts and header-before-call order, not loop
+    # containment. Full-file pins and source review establish that these entries sit inside D1-empty loops in the
+    # selected source (reducers_in_regions' component loop and the loop over its result in refuse_reducers_outside_step).
     callers = {}
     for root, _, names in os.walk(os.path.join(snapshot, PP)):
         for name in names:
