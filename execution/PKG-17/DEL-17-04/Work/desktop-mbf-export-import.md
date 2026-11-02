@@ -125,7 +125,7 @@ Criterion 1 lists the reference system's contents. On `main` today:
 | Family (criterion 1) | Row | Writer | Importer |
 |---|---|---|---|
 | Straight pipe; temperature-independent material; section | RT-G1, RT-G3 | written | read |
-| Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`) | refused (O-7 ruling) |
+| Temperature-dependent modulus | RT-G3 | refused (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`). D-2 Route 1 is designed, not implemented (import Design §20.4), with constant α and one thermal case. It applies the per-member rule: each member's modulus selection is at its MBF T1, and the row there states the selected E exactly. The one bounded exception is `explicit_base_properties` on a point-free material, under decision 3's conditions. Derived T1 rows are admitted only exactly (option (a), Agent 0, 2026-11-02). Route 1 waits on G-1 and G-4, and CQ-17-01-016 stays open | refused (O-7 ruling). Once Route 1 is implemented, bound imports with sidecar format 5 restore its inputs exactly. Every bound format-5 import, point-free materials included, needs a source the user explicitly designates before the hash and content checks: a saved state the user chooses or a model document the user supplies. The sidecar's source digest only verifies it and never selects it. Otherwise such an import is refused (`MBF-IMPORT-SOURCE-UNASSOCIATED`), and a derived row is stripped only when that source proves it generated. A trusted export ledger is proposed, not adopted. Unbound imports stay refused |
 | Realized bend with user k | RT-K1 | written | read |
 | User SIFs | RT-K1 | a realized bend's directional pair is written as the bend comment `BSIF` (#1730); the scalar `sif_user_value` is not written | read: `BSIF` on a bend row restores the pair |
 | Tee with user modifiers | RT-K2 | refused (`MBF-SI-COMPONENT-UNSUPPORTED`) | not read |
@@ -142,6 +142,60 @@ Criterion 1 lists the reference system's contents. On `main` today:
 | Hydrotest | RT-A6 | refused (`MBF-SI-PRESSURE-UNSUPPORTED`) | not read |
 | Combinations, including SRSS and absolute sum | RT-A4 | omitted (`MBF-SI-COMBINATION-NOT-EXPORTED`) | none created |
 | Modal, response spectrum, hanger sizing | RT-A7, RT-A8, RT-A11 | no mapping; `model_settings` is omitted | not read |
+
+**MBF pending ledger: temperature-dependent modulus (D-2 Route 1, import Design §20.4).**
+Route 1 alone does not export the reference system. It is thermal only. Each dependency below is
+recorded so that no tranche is assumed to close another. The rulings are Agent 0's: D-2,
+attributed to 2026-10-31, and Route 1 with its refinements and decisions of 2026-11-02. All are
+paraphrased in the import Design's O-7, decision 3 included. D-2's historical date and wording
+are unverified against the original messages; Agent 0's confirmation of its design intent
+(2026-11-02) is the current basis. Nothing here completes criterion 6 or closes a dossier
+question.
+
+- **The per-member rule.** Every exported member selects its modulus at its mapped MBF T1, and
+  the MBF row at T1 states exactly the E the solver selects. The one bounded exception is an
+  `explicit_base_properties` selection on a material with no temperature points. It is eligible
+  only when the selected E basis is constant and exactly representable in the MBF, with ν, α
+  and the law checked separately (decision 3). It is not an unconditional temperature rule.
+- **The import's designated source.** Every bound format-5 import, point-free materials
+  included, needs a source S that the user explicitly designates, independently of the sidecar
+  and before any check: a saved state the user chooses, or a model document the user supplies
+  through the Open Model Document route's checks. S is then verified by hash and then by
+  content before anything is restored or stripped (import Design §20.4.4 and §20.4.5). The
+  sidecar's `source_model_sha256` only verifies S; the import never searches by it, and the
+  state list is not filtered, ranked or preselected by it. A cross-machine import needs the
+  exact source to be supplied. The import review names the source used. Without one, such an
+  import is refused (`MBF-IMPORT-SOURCE-UNASSOCIATED`).
+  - **Export review notice.** Export MBF keeps no record of its source. The complete review of
+    a Route 1 export states that a later bound import requires the user to designate the
+    exported source, that the user must have access to that exact source, and that no
+    automatic round trip is promised (import Design §20.4.5, **The export review's notice**).
+  - **No store.** The adopted design adds no store and changes no deletion or retention
+    behaviour. A trusted export ledger (store v14) is proposed, not adopted and unimplemented;
+    it is eligible only for a separate design review (Agent 0, 2026-11-02; paraphrase), and
+    nothing in slice 4 or 5 depends on it.
+
+- **RS-P180.** It stays as authored: `unchanged_reference`, selecting its modulus at 210 °C. It
+  is therefore refused by name (`MBF-SI-MODULUS-SELECTION-MISMATCH` at `pipe:RS-P180`) while it
+  is an exported member.
+  - It leaves the export only when the expansion-joint tranche (RT-K4, refused today) proves
+    that the joint's exported representation removes the replaced span from the MBF, or maps it
+    with its own per-member equivalence. Later joint support is not assumed to do either.
+  - DEL-09-01's fixture is unchanged. Its document records the mismatch: an MBF consumer-coverage
+    note below the §10 table, and §11.1.
+- **RS-OPE.** It is an operating case (W + P + T), which stays refused
+  (`MBF-SI-PRESSURE-CASE-UNSUPPORTED`). It needs the operating W+P+T mapping. Agent 0 approved
+  designing that as a separate design-first item toward criterion 6 (2026-11-02). Route 1 does
+  not provide it. As far as E goes, its 25 free-length members' derived row at 210 °C is exact
+  (188300 N/mm²).
+- **RS-SUS.** Beside RS-M1's varying modulus, it waits on G-2, the sustained case's modulus
+  (`MBF-SI-SUSTAINED-MODULUS-UNPROVED`).
+- **RS-SAM.** Its `boundary_motion` is a separate reference-system coverage dependency
+  (`MBF-SI-BOUNDARY-MOTION-UNSUPPORTED`). The thermal slice does not admit it.
+- **Varying expansion and cold-modulus files.** Under D-2 they stay refused
+  (`MBF-SI-EXPANSION-NOT-CONSTANT`; `MBF-IMPORT-COLD-MODULUS-UNSUPPORTED`). They go to the
+  criterion 3 limitations list with the owner's acceptance pending, and none is inferred. The
+  proposed entry, for the implementation PR, is in the import Design §20.4.10.
 
 Closing criterion 6 for the reference system therefore takes **coverage tranches** of the
 writer and importer. These are the CAEPIPE lane's work, not desktop work (Q-3):
