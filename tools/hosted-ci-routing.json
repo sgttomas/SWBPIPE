@@ -221,7 +221,7 @@
       "core/reporting/report_package/Cargo.toml": "4763094f697b2201e8f5cdc7745e5cd284941be1bc0b70f48388e3df67459a21",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "6a0458550472d0afa6651fafd6ec6c56c77d2d4ced10c45fe7ed2208aac4e3ed",
+      "core/reporting/result_export/Cargo.toml": "64d4c1fd58d393e2d4ed41b3517cd05fc2dec3ce4041584e16f5a1964f6e20f1",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -2812,7 +2812,7 @@
         }
       },
       "core/reporting/result_export/tests/retained_precision_contract.rs": {
-        "sha256": "5993e610391522f5530b0b6e68dd25e6873aea3a964a8d055e4217acc6280b44",
+        "sha256": "fda8b4215ece1d4899fa417c05324b5ea3b079896ff1b8f5222d8cc195ce8a01",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
