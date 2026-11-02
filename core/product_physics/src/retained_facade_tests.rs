@@ -11,6 +11,18 @@ use sha2::{Digest, Sha256};
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 
+/// Maintained writer for the in-memory exact successor pins. Writing leaves
+/// every structural and digest assertion below active; the record supports a
+/// text-only re-pin proof without storing another permanent fixture copy.
+fn write_exact_pin_input(kind: &str, raw: &Value, mode: PreviewSolverMode, successor: &Value) {
+    if let Some(dir) = std::env::var_os("RTA3_RETAINED_PIN_OUT") {
+        let path = std::path::PathBuf::from(dir).join(format!("{kind}_{}.json", mode.as_str()));
+        std::fs::write(path, serde_json::to_vec(&json!({
+            "source": successor, "invocation": {"request": raw, "solver_mode": mode.as_str()}
+        })).unwrap()).unwrap();
+    }
+}
+
 // W1 re-pin (w1-member-load-certification.md §§6.4, 10, 12, 14): DEF-O-bound
 // preparation/source identities and the outer receipt move; all other nodal successor
 // fields remain identical to merged RF. The raw publication pins below are hashes of
@@ -3021,6 +3033,7 @@ fn b3b_mixed_exact_base_selects_case_beside_not_required() {
         assert_exact_successor(name, &successor, &plain_value, &["selected", "not_required"]);
         let bytes = serde_json::to_vec(&successor).unwrap();
         println!("B3B_MIX_PIN {name} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
+        write_exact_pin_input("mixed", &raw, mode, &successor);
         assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{name}: the pinned mixed successor");
         let direct_raw = raw.clone();
         let (output, counts, direct_captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode, RETAINED_LIMIT).unwrap());
@@ -3675,6 +3688,7 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
             }
             let bytes = sha(&serde_json::to_vec(&successor).unwrap());
             println!("RV123_S1 {label} successor_sha256={bytes}");
+            write_exact_pin_input(if reversed { "two_member_reversed" } else { "two_member" }, &raw, mode, &successor);
             let pinned = TWO_MEMBER_PINNED.iter().find(|(r, m, _)| *r == reversed && *m == mode.as_str()).unwrap().2;
             assert_eq!(bytes, pinned, "{label}: pinned");
         }
@@ -3732,6 +3746,7 @@ fn b3b_rv123_s2_unavailable_exact_case_binds_def_e() {
         assert_eq!(source["preparation"]["sha256"], json!(preparation_hash(attempt, wire::EXACT_DEFINITION_SHA256)), "{label}: DEF-E's H");
         let bytes = sha(&serde_json::to_vec(&successor).unwrap());
         println!("RV123_S2 {label} successor_sha256={bytes}");
+        write_exact_pin_input("unavailable", &raw, mode, &successor);
         let pinned = UNAVAILABLE_EXACT_PINNED.iter().find(|(m, _)| *m == mode.as_str()).unwrap().1;
         assert_eq!(bytes, pinned, "{label}: pinned");
     }
