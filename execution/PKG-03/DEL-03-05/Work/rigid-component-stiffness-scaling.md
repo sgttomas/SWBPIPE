@@ -211,7 +211,11 @@ slanted/eccentric bodies and dry/free ends. The equal-bore check does not
 replace this admission rule. A reducer outside every region and an unmapped
 marker keep their previous behavior. The complete user/theory contract and
 independent reference basis are DEL-04-07 `Work/pressure-contract.md`,
-“Concentric reducer pressure-bore step”. Eccentric 2b remains outstanding.
+“Concentric reducer pressure-bore step”. RT-A3 reducer 2b (candidate) admits
+the same bounded topology's eccentric or slanted body when W-15c's whole
+run-evidence and offset method accepts it and the run passes through the body
+(“Eccentric reducer pressure step”); the slanted or eccentric bodies it does
+not accept keep `EXACT_PRESSURE_REDUCER_IN_REGION` or W-15c's own refusal.
  Admitted valves and flanges are an equivalent
 pipe of the represented bore: bore continuity, cap thrust and the annular κ are
 those of the mapped section.

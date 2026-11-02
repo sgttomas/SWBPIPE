@@ -157,6 +157,8 @@ code_paths:
 - apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx
 checks:
 - core/product_physics/tests/rt_a3_reducer_references.rs
+- core/product_physics/tests/rt_a3_reducer_2b_references.rs
+- core/product_physics/tests/rt_a3_reducer_2b_pf_controls.rs
 - tests/test_component_section_schema.py
 - core/product_physics/tests/exact_admission_seam.rs
 - core/product_physics/tests/exact_route_refusals.rs

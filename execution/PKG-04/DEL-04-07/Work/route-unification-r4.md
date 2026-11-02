@@ -1,6 +1,6 @@
 # R-4: route unification. The exact pressure route admits every family the pressure-free route has
 
-> **Status: adopted plan, carried by RT-A3 in the order tee, reducers in regions, constant-effort, nonlinear supports, then S6 connectors, S3, S7, P and R-3 (Agent 0, 2026-10-30; S7 added the same day, see below). Built: stage 2 (#1671); the §8.30 corrections; S1's tee and junction part (RT-A3 increment 1), with junctions recognised implicitly at shared terminal nodes and no `junction` token (D-1, recorded in [pressure-contract.md](pressure-contract.md) "Tees and pressure junctions"). Reducer 2a supplies the bounded plain-run concentric step described in pressure-contract.md; eccentric 2b and R-4 S2–S8/P remain unbuilt. Superseded by any later Design text.**
+> **Status: adopted plan, carried by RT-A3 in the order tee, reducers in regions, constant-effort, nonlinear supports, then S6 connectors, S3, S7, P and R-3 (Agent 0, 2026-10-30; S7 added the same day, see below). Built: stage 2 (#1671); the §8.30 corrections; S1's tee and junction part (RT-A3 increment 1), with junctions recognised implicitly at shared terminal nodes and no `junction` token (D-1, recorded in [pressure-contract.md](pressure-contract.md) "Tees and pressure junctions"). Reducer 2a supplies the bounded plain-run concentric step described in pressure-contract.md; reducer 2b (candidate, pending review) adds the bounded W-15c-checked eccentric step described there; R-4 S2–S8/P remain unbuilt. Superseded by any later Design text.**
 > Committed from the solver lane's working note so that the adopted decisions are
 > discoverable on main. The text is unchanged except that local absolute paths are
 > shortened to `scratch/…`; those name working files that are not retained.
@@ -69,6 +69,22 @@ The historical C-4 note below predates the completed implicit-junction path.
 Whether the existing cap positions already supply the total eccentric wrench
 must be verified in 2b together with formation and recovery; its old “moment
 not formed” wording does not authorize adding a second moment by assumption.
+
+**2b verification (candidate, 2026-11-02), correcting the old wording.** The
+“moment p·A·e that this design does not form” statement (§3.1 “Reducers”
+below) and C-4's “additional thrust-and-moment slice” are corrected as
+follows. In source, each region's caps `-p*A_i*s` sit at its actual terminal
+nodes, along each member's own direction (`pressure_runtime.rs` cap
+formation, unchanged by 2b). For an eccentric body, the two junctions' cap
+pairs therefore already form the step's total pressure force and its moment.
+The independent reference proves it: `validation/references/rt_a3_reducer_2b/`
+solves 27 RS-R1-neighbourhood cases by K and FM with exactly those caps, and
+the product binds every case within 1e-9 of the packet's zero-scaled criterion
+(largest 0.043 of a tolerance). The packet's mutant with an added p·A·e moment
+at N lies 3.8e9 tolerances away. 2b therefore adds admission (W-15c evidence)
+and verification only, with no thrust or moment term
+([pressure-contract.md](pressure-contract.md), “Eccentric reducer pressure
+step”).
 
 ## 00. Codex round-1 corrections (2026-10-28; these supersede the sections they name)
 
@@ -438,6 +454,8 @@ the misuse.**
     check never reads it, `:342-348`);
   - an eccentric reducer (DEL-03-05 `eccentric-reducer-offset.md`) stays refused in
     regions, because its offset adds a moment p·A·e that this design does not form.
+    *(Corrected by 2b, §0b: the existing caps at the actual nodes already form that
+    moment; no p·A·e term is added.)*
 - **Tee component on EX.** The branch family is admitted with:
   - its geometry and SIF validation, unchanged and shared (`validation.rs:1308-1377`);
   - PF's intensified rows, `component_equal_factor_intensified_bending_stress_v1`, at the

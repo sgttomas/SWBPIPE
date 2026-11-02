@@ -521,10 +521,156 @@ model hash: that fixture's exact shape field is re-derived and checked at both
 comparison endpoints, with the authored invocations required unchanged.
 
 **Next boundary.** Agent 0's adopted sequence is concentric 2a, bounded
-eccentric 2b, then constant effort. RS-R1 remains eccentric and pending 2b;
-its +25 mm offset, 270/220 mm sizes, scale 2 and RG-R region are preserved.
-Tee/arc/joint-adjacent targets remain beyond the plain-run slice. The existing
-caps' total eccentric wrench, its formation and recovered reference-section
-meaning need independent 3-D verification in 2b; an extra `p*A*e` term must
-not be presumed missing or added twice. No nonlinear or reference-system
-readiness follows from 2a.
+eccentric 2b, then constant effort. RS-R1's +25 mm offset, 270/220 mm sizes,
+scale 2 and RG-R region are preserved. Tee/arc/joint-adjacent targets remain
+beyond the plain-run slice. The bounded eccentric step and its 3-D verification
+are in "Eccentric reducer pressure step (RT-A3 increment 2b)" below; no extra
+`p*A*e` term is formed. No nonlinear or reference-system readiness follows
+from 2a.
+
+## Eccentric reducer pressure step (RT-A3 increment 2b)
+
+Candidate (RT-A3 reducer 2b, on 2a's merge `393a11ee7`); not adopted until its
+independent review and Agent 0 integration.
+
+**Admission.** The step topology is 2a's and is checked first, unit-free:
+the body is the single member of its own region; at each body end exactly one
+other pipe meets it, a straight member of another region of the case whose
+region has a terminal there; every terminal at both nodes is
+`transfers_to_wall`; no tee record, bend, expansion-joint or connector-replaced
+neighbour. A body that meets the topology is then admitted by either of two
+branches, each judged whole on the normalized geometry:
+- **Legacy 2a concentric step, unchanged:** no authored nonzero
+  `eccentric_offset` (a marker's offset counts) and, at both ends, the body and
+  neighbour directions opposite within the `64*f64::EPSILON` representation
+  guard. This branch is not W-15c run evidence: it still admits back-to-back
+  absent-offset bodies, whose neighbours W-15c never accepts as run evidence.
+- **2b W-15c branch:** W-15c's whole method (DEL-03-05
+  `eccentric-reducer-offset.md` §3.2–§3.3, `rigid_component.rs`) accepts the
+  body. That means the mapping, ambiguous, unsupported and unresolvable
+  evidence, θ ≤ θ_base + β_N + β_F with θ_base = 1e-3 rad (β_arc is part
+  of the method, though the topology already excludes arcs), J2's
+  better-resolved end, J3's split tie, D·t > 0 and, for a read offset, the
+  precision, transversality and rule-B placement allowances, unchanged and
+  read through the same functions as the pressure-free check. The run must
+  also pass through the body: at each end the neighbour leaves the shared node
+  on the far side of the body along W-15c's governing axis t, oriented so that
+  D·t > 0. This is a strict sign test with no tolerance. It keeps 2a's
+  opposite-direction continuation, because W-15c's undirected axis would
+  otherwise accept a folded-back neighbour.
+
+Offset states keep their W-15c meaning, and none is a shortcut:
+- **Read offset** (present, not on a `not_solver_consumed` marker): admitted
+  only when W-15c realizes it. A failed read offset is refused by W-15c's own
+  blocking diagnostic, before any case is assembled. A zero offset is judged
+  as zero, so on eccentric geometry it is a mismatch, not a concentric
+  declaration.
+- **Absent offset or an unread marker offset:** declares nothing. No offset is
+  compared and no concentricity is inferred, but W-15c's run evidence and
+  D·t > 0 are still required whole.
+- **No inclination limit:** none is added.
+- **Topology failures:** a failed W-15c branch never falls back to the legacy
+  branch, which needs its own collinear geometry. A body with an authored
+  nonzero offset beside another reducer's body is refused on topology
+  (`EXACT_PRESSURE_REDUCER_IN_REGION`), because only W-15c could admit it and
+  W-15c never accepts that neighbour. Other topology failures stay refused as
+  in 2a, before W-15c is read.
+
+**Old and new contract text (for commitment scrutiny).**
+- Refusal, old: "…is not the admitted concentric pressure-bore step; …no
+  nonzero eccentric_offset is authored (an absent offset declares nothing),
+  …continuing collinear in the opposite direction within the 64*epsilon
+  representation guard…; a multi-member region, an eccentric or slanted body,
+  … is refused". New: "…is not the admitted concentric pressure-bore step or
+  an eccentric or slanted pressure step accepted by W-15c; …it is then
+  admitted either as the concentric step, when no nonzero eccentric_offset is
+  authored … within the 64*epsilon representation guard, or by W-15c's run
+  evidence, when the two neighbours' run directions agree within 1e-3 rad plus
+  their coordinate-rounding uncertainties, the body has positive length along
+  the governing run axis, each neighbour runs on away from the body along that
+  axis … and a read eccentric_offset passes W-15c's consistency check…". The
+  2a prefix is retained.
+- Formulation basis, old: "reducers when their mapped member lies outside
+  every pressure region or forms a concentric pressure-bore step, the only
+  member of its own region, collinear between single straight members of other
+  regions with transfers_to_wall at both ends, whose junction caps carry the
+  step's pressure load". New: "…or forms a pressure step, the only member of
+  its own region between single straight members of other regions with
+  transfers_to_wall at both ends, either concentric and collinear or eccentric
+  or slanted with W-15c's run evidence and any read offset accepted, whose
+  junction caps at the actual nodes along each member's own axis carry the
+  step's pressure force and moment".
+- This section, old (2a): "Authored nonzero eccentric offsets remain refused
+  in pressure in 2a". New: the admission rules above.
+- Compatibility: every 2a admission is preserved, because the legacy branch's
+  conditions and guard are unchanged in code and every historical 2a positive
+  still binds its frozen reference. 2b only adds admissions. A read offset
+  that W-15c refuses keeps a blocking refusal, now W-15c's own code, where 2a
+  named `EXACT_PRESSURE_REDUCER_IN_REGION` at profile validation.
+
+**Mechanics and theory.** Nothing new is formed. Each region places its caps,
+`-p*A_i*s`, at its actual terminal nodes along each member's own direction, as
+before. For an eccentric or slanted body, their sum is the step's pressure
+force and their positions supply its moment. No averaged axis is used, no cap
+is projected to a declared offset, and no `p*A*e` term is added. The existing
+caps are the whole eccentric wrench, and a second term would count it twice.
+The other rules carry over from 2a:
+- the Poisson pair `2*nu*p*A_i` is unscaled, and
+  `s*E*A_n*epsilon = N_w - 2*nu*p*A_i`;
+- `S = N_w - p*A_i`;
+- the reduced bore is used once;
+- each basis divides N_w by its own metal area and has its own Lamé annulus;
+- body rows are reference-section rows (`component_body`); their per-member
+  maxima remain, and case maxima and headlines exclude them (DEL-03-05 §2.4).
+They are not cone, taper or body stresses. D-1 is unchanged: unequal
+pressures give the closure warning and the caps' actual resultant, not a
+hydrostatic gradient. A compensated shared terminal stays refused.
+
+**Verification.** Candidate references are in
+`validation/references/rt_a3_reducer_2b/` (generator `--check` is
+standard-library only). They are 27 exact frame cases on the actual RS-R1
+neighbourhood, each solved two ways: by K stiffness and by an FM
+force/unit-load method. Rigorous 70- to 560-digit enclosures decide each binary64 value.
+`core/product_physics/tests/rt_a3_reducer_2b_references.rs` binds every case
+through the public entry in both solver modes: Euler-Bernoulli and Timoshenko
+at s = 1, 2 and 4, determinate free and compensated cases, the reversed body,
+a general mechanical load, the tilted actual nbrN, D-1 unequal pressures, a
+rational rotation with far translation, and the C3 held-junction control. The
+bound rows are displacements, rotations, reactions, global end wrenches,
+N_w, S, wall endpoint actions, station section actions, element stress rows
+on both bases (MPa), membrane, Lamé and member-maximum rows (Pa), and the body
+record. The criterion is 1e-9·max(|expected|, zero scale), with the packet's
+own zero scales. There are 25,968 comparisons; the largest uses 0.043 of its
+tolerance. The packet's mutants sit far outside that bound: an extra `p*A*e`
+by 3.8e9 tolerances, averaged-axis caps by 3.0e9, a cap projected to the
+declared offset by 4.2e8. The same file also runs these checks:
+- the 24 W-15c geometry controls, on the pressure-free route and in pressure;
+- accepted and just-refused agreement bounds for declared, absent and marker
+  offsets;
+- bypass mutants: absent, zero and marker offsets with failed evidence, and
+  the D·t = 0 body;
+- the folded-back neighbour;
+- agreement where both branches apply;
+- the legacy guard's 64ε boundary on back-to-back bodies.
+
+`rt_a3_reducer_2b_pf_controls.rs` digests 23 pressure-free and outside-region
+W-15c controls, compared with their outcomes before the helper extraction.
+
+Row mapping: the element-local force and moment rows at `end_i`/`end_j` are
+end-DOF force vectors, the node's action on the member as each row's sign
+convention states. They bind to the packet's `end_wrench_on_member_local`.
+Interior stations and every stress row are the j-side section action. The
+packet README's sentence that the product's end_i station is the j-side
+action holds for the stress rows only.
+
+**Limits.** The determinate cases show force independence of s; an
+indeterminate system's response is not generally affine in 1/s, and no
+extrapolation follows. The following remain refused or future work:
+- tee-, arc- and joint-adjacent steps, reducers in series beyond 2a's
+  back-to-back legacy form, multi-member regions, and dry or free ends;
+- full RS-R1 with thermal and weight;
+- pricing and pins, the semantic tables and carriers (stale until
+  regenerated);
+- independent review.
+RS-R1 product proof remains pending the full system, and no reference-system,
+nonlinear or release readiness follows.
