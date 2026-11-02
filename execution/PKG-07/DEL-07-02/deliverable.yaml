@@ -201,6 +201,7 @@ checks:
 - apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx
 - tests/test_model_tree_property_inspector.py
 - apps/desktop/src/features/model-tree/PropertyInspector.test.tsx
+- apps/desktop/src/features/model-tree/teeModifierSource.test.tsx
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
 - apps/desktop/src/features/model-tree/MaterialTable.test.tsx
