@@ -102,6 +102,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "open_pipe_stress_hanger_sizing"
+version = "0.1.0"
+dependencies = [
+ "open_pipe_stress_product_physics",
+ "open_pipe_stress_units",
+ "serde_json",
+]
+
+[[package]]
 name = "open_pipe_stress_linear_supports"
 version = "0.1.0"
 dependencies = [
