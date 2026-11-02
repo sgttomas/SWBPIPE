@@ -2287,10 +2287,27 @@ unchanged. The 968 desktop retained-carrier/native-Wasm parity/report checks
 pass. Reducer references (13 tests) and shared-terminal regressions (6) pass.
 The exact head and remaining stack/hosted checks are recorded in the PR.
 M, its margin, R, reserve policy and layouts are unchanged; any additional
-coefficient movement requires separate disposition. The final consumer tests,
-separately scheduled stack evidence and exact-head hosted checks remain
-outstanding. Approval supplies no exclusive
-window, acceptance or release authority.
+coefficient movement requires separate disposition. Preservation/routing/pin
+checks pass (229 tests and 120 subtests); two shell-subprocess checks needed
+Python 3.13 on PATH, not the older host Python. No test or workflow was weakened.
+
+**AC-004 source-bound witnesses (2026-11-02).** After C1 and supplier actual
+closure and Agent 0's explicit six-witness clearance, queue/acquisition were
+02:49:58 UTC and end/release 02:50:07 UTC (request-to-script wait about 0.072 s).
+All six passed, separately invoked with `--exact --ignored --test-threads=1`:
+W1 at 1 MiB sparse/dense 0.685/0.679 s; W2 deep 1.277/1.331 s; W-C2
+2.384/2.471 s. Script elapsed was 8.964 s inside the cleared 60-second total.
+`t3_exclusive.sh` held all four slots, memguard was active, and no Cargo/build
+ran inside. The clean selected source was
+`5f72100baf6c4845486dbaa4fa118abfc552395c`; the prebuilt library test binary
+`core/product_physics/target/debug/deps/open_pipe_stress_product_physics-0f1d2c7f024eccac`
+had SHA-256 `bd4fd95b69be20d40bf99b2bd63b28c8b9322bd6e15f74d43fefc28b67ab14ff`.
+The approved profile hash was checked before execution. Every test process
+was reaped; the script and all five wrapper/lockf processes were verified
+absent after wrapper rc 0 and its END-EXCLUSIVE record. Agent 0 received
+immediate actual-closure confirmation. This is stack evidence, not a desktop
+or base-machine performance metric, acceptance or release. Required hosted
+checks including `harness` on the exact PR head remain the integration gate.
 
 ## 9. Memory-profile gates and registration
 
