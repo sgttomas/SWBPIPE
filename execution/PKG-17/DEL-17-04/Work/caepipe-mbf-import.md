@@ -2668,6 +2668,19 @@ as CQ-17-01-016. Both are drafts for the owner to send.
       required for that too, or the path stays refused. Points were the minimum mandatory
       guard, not a waiver for other metadata. §20.4.5 (**Point-free materials**) gives the
       analysis and the rule chosen.
+  - *Point-free rule and format-5 contract (Agent 0, 2026-11-02, after the independent reviews
+    at `147d71586` and `2dc8d26aa`; paraphrase).*
+    - **Every bound format-5 import requires independent source designation,** followed by the
+      hash and full-content checks, whether or not any material has temperature points. Without
+      designation, only an already-supported unbound import is permitted, and it reports the
+      lost metadata explicitly; no unbound route is added implicitly. Formats 2 to 4 are
+      unchanged, and the stronger assurance is scoped to format 5 against the designated source.
+    - **Confirmed:** `derivation.render_profile`, `derivation.export_inputs` and the code
+      `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` fit the source and export binding design.
+    - **Correction:** a profile check catches a declared mismatch, not a forgotten version
+      bump. Deterministic re-render equality is required, with tests that detect a rendering
+      change made without the required profile update (§20.4.5, **Writer-build drift**;
+      §20.4.7 item 5a).
 - **O-4.** How CAEPIPE-exported MBFs are produced for §18.3: by hand by the owner, or by a
   guest automation step.
 - **O-6 (open, not adopted).** Binding the sidecar's digest into the MBF, so that a
@@ -3517,10 +3530,21 @@ Each input outside S:
   byte rendering. `MBF_SI_PROFILE_ID` (`si_writer.py:34`) appears only in `to_dict()` (`:216`),
   not in any sidecar, and `MBF_VERSION` (`:37`) is the target format's version, which the file
   prints. `render_profile` is new. Its rule: any writer change that alters the bytes of any
-  admitted Route 1 export changes the name. The replayed writer vectors (§20.4.7) detect a byte
-  change only for the inputs they cover; for the rest, the rule rests on review. A missed change
-  fails closed: a genuine older pair renders differently and is refused at check 2 (a), never
-  accepted. An importer renders only with its own writer. Keeping older writers, to import older
+  admitted Route 1 export changes the name. The profile check catches only a declared
+  mismatch; it does not catch a forgotten bump (Agent 0, 2026-11-02; paraphrase in O-7). Two
+  requirements cover that case:
+  - **Deterministic re-render equality.** Rendering the same source with the same export inputs
+    gives the same bytes every time, in the Python and the Rust writer alike; the writer reads
+    no clock, environment or randomness. Check 2 (a) then requires the importing writer's own
+    rendering to equal the presented MBF byte for byte. A pair whose bytes that writer no longer
+    reproduces is refused, whatever profile it declares; it is never accepted.
+  - **Tests that detect an unbumped rendering change.** A pinned digest of the Route 1 writer
+    vectors' rendered bytes, keyed by `render_profile`, fails when those bytes change and the
+    name does not (§20.4.7 item 5a). It detects a change only for the inputs the vectors cover;
+    beyond them, the rule rests on review, and the re-render equality above still refuses
+    rather than accepts.
+
+  An importer renders only with its own writer. Keeping older writers, to import older
   profiles, is not proposed. A refused pair's MBF still imports unbound. The Python and Rust
   writers must render the same bytes, as writer parity already requires.
 
@@ -4175,8 +4199,12 @@ codes.
      and the import-generated project id and digest description follow the new MBF digest;
    - a `render_profile` other than the importer's: `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED`,
      before any rendering;
+   - deterministic re-render equality: each admitted vector rendered twice, and by the Python
+     and the Rust writer, gives identical bytes;
    - a pinned digest of the Route 1 writer vectors' bytes, keyed by `render_profile`, fails
-     when those bytes change and the name does not;
+     when those bytes change and the name does not, so a rendering change made without the
+     required profile update is detected (the profile check alone catches only a declared
+     mismatch);
    - the source proof's rendering reads no store, and runs no reimport preflight.
 6. **Writer argument.** On Route 1, an omitted reference takes the configuration's, an equal
    explicit one is accepted, and a different one is `MBF-SI-REFERENCE-TEMPERATURE-CONFLICT`. An
@@ -4335,7 +4363,7 @@ Route 1 does not by itself export the reference system. Its records are:
   establish, the re-review's counterexample among them. This Design grants no schema,
   persistence or retention authority, and no retention is decided (Open 1). Source-free exports
   carry the export review's notice (Open 2).
-- **For Agent 0's confirmation: point-free materials (Open 4).** §20.4.5 (**Point-free
+- **Point-free materials (Open 4; confirmed by Agent 0, 2026-11-02; paraphrase in O-7).** §20.4.5 (**Point-free
   materials**) and example 9 show that a consistent sidecar edit can change a point-free
   export's thermal, reference and selection metadata, which no format-4 import restores, while
   the regeneration identity and every numerical check pass. The rule chosen: every bound
@@ -4347,9 +4375,10 @@ Route 1 does not by itself export the reference system. Its records are:
   the sidecar formed for the rendered digest (§20.4.4; example 10). The earlier form injected the
   presented digest, so it could not exclude a changed MBF-only value. This adds
   `derivation.render_profile`, `derivation.export_inputs` (title and piping code) and the code
-  `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` to format 5. The writer-build identifier and its
-  change rule remain an open requirement (§20.4.5, **Export inputs outside the source
-  document**).
+  `MBF-IMPORT-RENDER-PROFILE-UNSUPPORTED` to format 5, which Agent 0 confirmed (2026-11-02;
+  paraphrase in O-7). The writer-build identifier is still to be implemented; a profile check
+  catches only a declared mismatch, so deterministic re-render equality and the unbumped-change
+  tests are required (§20.4.5, **Writer-build drift**; §20.4.7 item 5a).
 - **Paraphrase.** Every ruling in O-7 is a paraphrase of Agent 0, decision 3 included (its text
   was normalized from Agent 0's message). D-2's historical attribution (2026-10-31) is a
   paraphrase, unverified against the original messages; Agent 0's confirmation of 2026-11-02
