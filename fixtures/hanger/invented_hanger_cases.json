@@ -11025,5 +11025,2346 @@
     "required_code": "IMPORT_PROTECTED_CONTENT_SUSPECTED",
     "required_path": "$.hanger_records[0].hanger.installed_load",
     "required_severity": "quarantine"
+  },
+  {
+    "name": "1.1.0 working load range valid",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "PRIVATE_LOCAL_ONLY",
+    "required_code": null
+  },
+  {
+    "name": "1.1.0 without working load range imports, not sizable",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "PRIVATE_LOCAL_ONLY",
+    "required_code": null
+  },
+  {
+    "name": "1.0.0 refuses working load range as unknown field",
+    "payload": {
+      "schema_version": "1.0.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range minimum equals maximum",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_LOAD_RANGE_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range minimum above maximum",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 60,
+                "unit": "lbf",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "lbf",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_LOAD_RANGE_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range units differ",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "lbf",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 500,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_LOAD_RANGE_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range missing maximum",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range.maximum",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range extra member",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "nominal": {
+                "magnitude": 30,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range.nominal",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range ends equal in binary64",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 9007199254740992,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 9007199254740993,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_LOAD_RANGE_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range negative ends fail shape only",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": -1,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": -2,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range.minimum.magnitude",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range not an object",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": [
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 working load range end missing unit",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.hanger_records[0].hanger.working_load_range.minimum.unit",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "non-string schema version with working load range",
+    "payload": {
+      "schema_version": 1.1,
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_SCHEMA_INVALID",
+    "required_path": "$.schema_version",
+    "required_severity": "blocking"
+  },
+  {
+    "name": "1.1.0 duplicate records with working load ranges",
+    "payload": {
+      "schema_version": "1.1.0",
+      "hanger_library": {
+        "library_id": "invented.hangers",
+        "name": "Invented fixture only",
+        "library_scope": "private_user_library",
+        "privacy_class": "private_user_supplied",
+        "provenance": {
+          "source_name": "Invented non-engineering fixture",
+          "source_location": "invented-local:test-only",
+          "source_license": "unknown",
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending"
+        }
+      },
+      "hanger_records": [
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.constant",
+          "name": "Invented constant",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "constant_effort_support",
+            "source_reference": "invented-local:constant",
+            "constant_load": {
+              "magnitude": 19,
+              "unit": "lbf",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "movement_limit": {
+              "magnitude": 0.7,
+              "unit": "in",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            }
+          }
+        },
+        {
+          "hanger_id": "invented.variable",
+          "name": "Invented variable",
+          "provenance": {
+            "source_name": "Invented non-engineering fixture",
+            "source_location": "invented-local:test-only",
+            "source_license": "unknown",
+            "contributor": "Test author",
+            "contributor_certification": "Invented values, no engineering authority",
+            "redistribution_status": "private_only",
+            "review_status": "pending"
+          },
+          "hanger": {
+            "hanger_type": "variable_spring_hanger",
+            "source_reference": "invented-local:variable",
+            "stiffness": {
+              "dof": "UY",
+              "value": {
+                "magnitude": 123,
+                "unit": "N/m",
+                "dimension": "force_per_length",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "installed_load": {
+              "magnitude": 17,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "travel_range": {
+              "magnitude": 0.12,
+              "unit": "m",
+              "dimension": "length",
+              "provenance": {
+                "source_name": "Invented non-engineering fixture",
+                "source_location": "invented-local:test-only",
+                "source_license": "unknown",
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending"
+              }
+            },
+            "working_load_range": {
+              "minimum": {
+                "magnitude": 10,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              },
+              "maximum": {
+                "magnitude": 50,
+                "unit": "N",
+                "dimension": "force",
+                "provenance": {
+                  "source_name": "Invented non-engineering fixture",
+                  "source_location": "invented-local:test-only",
+                  "source_license": "unknown",
+                  "contributor": "Test author",
+                  "contributor_certification": "Invented values, no engineering authority",
+                  "redistribution_status": "private_only",
+                  "review_status": "pending"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visibility": "private",
+    "outcome": "REJECTED",
+    "required_code": "IMPORT_HANGER_DUPLICATE_ID",
+    "required_path": "$.hanger_records[2].hanger_id",
+    "required_severity": "blocking"
   }
 ]

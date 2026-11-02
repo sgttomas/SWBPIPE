@@ -64,6 +64,7 @@ project, as it does for the modal request; the request records the values actual
 | `variation_reference` | `operating_load` or `design_load` (§6.2) | `HANGER_SIZING_VARIATION_REFERENCE_REQUIRED` |
 | `travel_allowance` | A finite length ≥ 0, applied at each end of the travel span (§6.3). Zero is admitted only when entered | `HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED`, `HANGER_SIZING_TRAVEL_ALLOWANCE_INVALID` |
 | `selection_rule` | `smallest_capacity` or `least_variation` (§6.5) | `HANGER_SIZING_SELECTION_RULE_REQUIRED` |
+| `solver_mode` | The solver mode of the caller's own solve of these cases (sparse interactive or dense scrutiny); every derived solve uses it (§4.1) | `HANGER_SIZING_SOLVER_MODE_REQUIRED` |
 
 - **[decided] Case roles.** Every named case is a load case of the model, not a
   combination, and is solvable on the model's route. A case carrying a `test_condition`
@@ -73,9 +74,11 @@ project, as it does for the modal request; the request records the values actual
   (`HANGER_SIZING_CASE_ROLES_OVERLAP`). An unknown case is refused by name
   (`HANGER_SIZING_CASE_UNKNOWN`).
 - **[decided] The weight case's content is the person's.** Sizing does not inspect
-  whether the weight case holds only weight. The result lists the load kinds the case
-  carries, after solve-time lowering (§4.2), so that a case with thermal or other loads
-  is visible as such.
+  whether the weight case holds only weight. The result lists the load categories each
+  named case carries as authored, and whether it uses an operating-condition set, whose
+  temperature and added weight the solve lowers into the case (§4.1). A case with thermal
+  or other loads is then visible as such. Slice 1c lists the authored categories; the
+  condition-use flag follows with publication (slice 1d).
 - **Quantities** are normalized through DEL-02-02's unit catalog and stored in SI
   (N, m, N/m). The ratio `variation_limit` is dimensionless.
 
@@ -134,9 +137,11 @@ project, as it does for the modal request; the request records the values actual
 - **The modifications**, and nothing else:
   - *Rigid candidate* (solve S_W): the candidate's configuration is replaced by a rigid
     linear restraint of its DOF, with its `hanger`, `stiffness` and `nonlinear` members
-    removed. Increment 1 fixes the family token from those both routes admit as a
-    rigid single-DOF restraint. On an EX load/reference-state document, its ordinary
-    support-state entry is kept unchanged.
+    removed. **[decided]** (slice 1c) The family becomes `guide`, restrained in exactly
+    its DOF. `guide` is the product's family for a rigid restraint of named translational
+    DOFs (and its inference for any such set short of six), and both routes admit it. On
+    an EX load/reference-state document, its ordinary support-state entry is kept
+    unchanged.
   - *Force candidate* (solves S_C and S_Oi): the candidate support is removed, and a
     nodal force of magnitude W along the positive axis of its DOF is added to the solved
     case at its node. On an EX load/reference-state document:
@@ -144,15 +149,29 @@ project, as it does for the modal request; the request records the values actual
       that names no support is refused (`LOAD_STATE_SUPPORT_UNKNOWN`);
     - the force is entered in that case's `analysis_state.load_sources` ledger with
       factor 1, so that it is in the case's declared source ledger.
-  - *Selected candidate* (solves V_C and V_Oi, §7): see §7.
+  - *Selected candidate* (solves V_C and V_Oi, §7): a variable selection becomes family
+    `spring` restrained in its DOF, with the record's rate as its stiffness, plus the
+    force F_cold. Constant and unfitted candidates are force candidates.
   - Each derived document keeps only the case it solves and no combinations. Added
     primitive ids are in a reserved namespace (`load:hanger-sizing:…`) that is disjoint
     from every existing id; a collision is refused (`HANGER_SIZING_ID_COLLISION`).
 - **[decided] Never persisted.** A derived document is never saved, never returned as a
   model, never enters undo history and never passes through the operation route.
-- **[decided] Solve settings are the model's.** Each derived solve uses the route, solver
-  mode and settings the model's own solve of that case would use. It requests no
-  retained-precision recovery (§10).
+- **[decided] Solve settings are the model's.** Each derived solve uses the route and
+  settings of the caller's own solve request, and the solver mode the request carries
+  (§2). It requests no retained-precision recovery (§10).
+- **[decided] Reading the results** (slice 1c). From each solve's published rows:
+  - W is the candidate's `support_reaction_component_v2` row in its DOF's force
+    component (the support's action on the pipe, positive along the axis);
+  - u is the candidate node's `global_nodal_displacement_x|y|z` row;
+  - states are the `nonlinear_support_active_set_state_code` rows.
+
+  Each value is converted from its row's own unit through the unit catalog. A missing
+  row refuses the request (`HANGER_SIZING_DERIVED_SOLVE_FAILED`), and so does any
+  blocking diagnostic of the solve, whose code and message the refusal carries.
+- **The exact route** follows in increment 4. Until then a document with a
+  `pressure_contract` is refused (`HANGER_SIZING_EXACT_ROUTE_PENDING`), so that no EX
+  document is sized before its support-state and ledger handling is tested.
 
 ### 4.2 The solves
 
@@ -298,6 +317,9 @@ Notes on the tests:
 - A record that fails E1 is "not sizable". A library 1.0.0 record always fails E1, with
   the reason "no working load range" (§8.2).
 - `movement_limit` is not read by sizing; the result says so.
+- A variable record's stiffness always carries a DOF in the library schema. If one
+  without a DOF reached the arithmetic, it would fail E2, not E1: a missing DOF does not
+  match the candidate's.
 
 ### 6.5 Family policy and selection
 
@@ -349,6 +371,10 @@ Notes on the tests:
   - for a variable selection, F_D^v − W (hot design) or F_C^v − W (cold design), the
     departure from the hot-load basis.
 
+  Where a verified reference load is not positive (F_i^v ≤ 0 under the operating-load
+  reference), no ratio is formed for that case. Its variation is published as absent, V0
+  reports it, and V is judged on the ratios that are formed, as in §6.2.
+
   Each failed test, formed with the verified values, is reported by name
   (`HANGER_SIZING_VERIFICATION_TEST_FAILED`, warning):
   - V0, L, T and V for a variable selection;
@@ -376,12 +402,14 @@ Notes on the tests:
 - the verification's assumed configuration, and the verified positions, travel, loads,
   variations and test outcomes of §7, for every selected family;
 - for a candidate with no fit or a fallback: the number of records failing each test,
-  E1 to V.
+  E1 to V, for each family tested. A `variable_else_constant` candidate with no fit
+  therefore shows both families' counts, which is how the table shows that the fallback
+  was tried.
 
 **Per derived solve:** u_C at each candidate, and each nonlinear support's state (§5).
 
 **The basis block** gives every request input (§2), the library id and digest, the model
-revision hash, the route, the case ids and the load kinds of each case after lowering.
+revision hash, the route, the case ids and the load categories of each case (§2).
 It also states the installation assumption of §4.2: each spring is installed and set at
 the drawn geometry. The table labels F_cold "installed setting (at drawn position)" and
 F_C "cold-condition load", so that the two are never read as one where u_C is not zero.
@@ -415,8 +443,26 @@ DEL-03-02 owns the hanger library schema (`schemas/hanger.schema.yaml`, its CLM-
 This design defines what sizing needs from it.
 - **[decided]** `schema_version` admits `1.0.0` and `1.1.0`. A 1.1.0 record's `hanger` may
   carry `working_load_range: {minimum, maximum}`, each a ForceQuantity with its own
-  provenance. The import boundary refuses minimum ≥ maximum by name
-  (`IMPORT_HANGER_LOAD_RANGE_INVALID`), because JSON Schema cannot compare the two.
+  provenance; no other member is admitted in the range.
+- **[decided] Where the rules live** (slice 1b). The schema admits the member under
+  either version. The import boundary, the Rust carrier and the Python checker alike,
+  applies the rules JSON Schema cannot state:
+  - in a 1.0.0 document, the member is refused as an unknown field, with today's finding
+    (`IMPORT_HANGER_SCHEMA_INVALID`, "Unknown hanger field.") at its path;
+  - a range whose minimum and maximum differ in unit is refused
+    (`IMPORT_HANGER_LOAD_RANGE_INVALID`). The boundary converts no unit, and one
+    catalogue record states its range in one unit;
+  - a range whose minimum is not below its maximum is refused, under the same code. The
+    ends are compared as binary64 numbers, the values sizing computes with, so ends that
+    are distinct only beyond binary64 precision are refused;
+  - the two range rules run only on a range whose own subtree passes the shape check. A
+    malformed range gets its shape findings and nothing more.
+
+  This keeps the two bounded schema interpreters on the keywords they already support.
+  Their agreement with a full JSON Schema validator holds within the supported numeric
+  domain, finite binary64 magnitudes. An integer beyond it, such as 10^400, is refused by
+  the interpreters although a full validator admits it, as for every force quantity
+  before 1.1.0.
 - **[decided] Compatibility.** A 1.0.0 document still imports unchanged, and its records
   are listed by sizing as "not sizable: no working load range". A 1.0.0 document with
   `working_load_range` is refused as an unknown field, as today. A 1.1.0 document with a
@@ -425,19 +471,22 @@ This design defines what sizing needs from it.
   the record is to be used. `travel_range` is the record's total working travel.
   `constant_load` in a constant record is not read by sizing: a constant record is
   selected by its range, and the sized load is W.
-- **Consumers to change together:**
-  - the Rust import boundary (`core/library_import/library_import_document`, which
-    embeds the schema);
-  - the Python provenance checker (`core/library_import/provenance_checker.py`);
-  - the desktop library editor's draft documents (`libraryImportService.ts`, DEL-07-03);
-  - the desktop's typed record (`hangerSelection.ts`);
-  - the import tests (`tests/test_hanger_library_schema.py`,
-    `tests/test_library_import_provenance.py`, the importer's parity tests).
+- **Consumers:**
+  - **Changed in slice 1b:** the Rust import boundary
+    (`core/library_import/library_import_document`, which embeds the schema), the Python
+    provenance checker (`core/library_import/provenance_checker.py`), and the shared
+    import cases (`fixtures/hanger/invented_hanger_cases.json`). The cases are read by
+    `tests/test_hanger_library_schema.py` and the importer's Rust–Python parity test.
+  - **With the desktop work (increment 3):** the library editor's draft documents
+    (`libraryImportService.ts`, DEL-07-03), which still create 1.0.0 drafts and have no
+    range field until then, and the desktop's typed record (`hangerSelection.ts`). A 1.1.0
+    document imported from a file is accepted by the native boundary before then.
 
   The project library store keeps each document as imported (`upsert_library`), so a
   stored 1.0.0 document is read back as 1.0.0 and needs no migration.
-- **Review.** A library format change is persistence: it takes an xhigh review and
-  import compatibility tests for 1.0.0 (Agent 0, D-2).
+- **Review.** A library format change is persistence. It takes targeted import
+  compatibility regressions for 1.0.0 and an independent review of the exact changed
+  format and commitment text (Agent 0, D-2; reviewer route as the owner selects).
 
 ## 9. Applying a selection
 
@@ -487,7 +536,7 @@ This design defines what sizing needs from it.
   not in the app process. No attestation digest is taken for a derived solve: its
   result is never published as a case result (performance manager, 2026-10-31).
 - **[decided] One solve call site.** Every derived solve goes through one function in
-  `hanger_sizing.rs`. Today each solve pays the full publication (station rows,
+  the sizing crate (§13). Today each solve pays the full publication (station rows,
   serialized envelope) that sizing then discards, and that publication dominates the
   cost of a large solve. The performance lane's design C will define a minimal
   publication for derived solves: nodal, support and support-state rows only. When it
@@ -592,15 +641,32 @@ outcome.
 
 ## 13. Product layout and increments
 
-- **Engine:** `core/product_physics/src/hanger_sizing.rs` and `hanger_sizing/**`:
-  - the request DTO and refusals;
-  - candidate checks;
-  - derived-document construction;
-  - the solve loop;
-  - the arithmetic and selection, as one pure function shared with the detail view;
-  - the result rows.
+- **Engine:** its own crate, `core/analysis/hanger_sizing`.
+  - **[decided] Outside the solver library.** It changes no file in `core/product_physics`.
+    Two reasons: the retained route's pricing carries that crate's sources line by line,
+    and the product's public JSON solve entry
+    (`run_linear_static_preview_value_with_mode`) already runs the solve-time lowering on
+    the ordinary route (§4.1). Derived documents go through that entry from this crate.
+  - **Slice 1a, built:** the arithmetic of §6 and §7 as pure functions on W, the positions
+    and the SI-normalized records:
+    - the request checks that need no solve;
+    - the fit tests in order, the selection and the failure counts;
+    - the verification arithmetic and its standing.
 
-  It has a headless runner entry and a native desktop command.
+    The detail view and the readers share `evaluate`. The crate has no product
+    dependency.
+  - **Slice 1c, built:** `derived.rs` and `library.rs`:
+    - the request, the candidate and case checks;
+    - derived-document construction and the one solve call site;
+    - the sizing run with its verification and disclosures;
+    - the library reader, which normalizes through the unit catalog.
+
+    These add the path dependency on `product_physics`, which brings the crate into
+    the solver's reachability for CI selection; no `product_physics` file changes. The
+    run's results are a typed `SizingRun`.
+  - **From slice 1d:** publication. That means the profile, the semantic table and the
+    readers in `result_export`, and a headless runner entry, with the overlap routed
+    first. The native desktop command follows with increment 3.
 - **Readers:** `core/reporting/result_export` (the Rust reader) and
   `tests/verifiers/hanger_sizing_evidence.py`.
 - **Desktop:** the request form, the hanger table and its detail view, in

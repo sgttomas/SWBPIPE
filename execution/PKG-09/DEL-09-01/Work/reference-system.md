@@ -438,7 +438,7 @@ or absence a solve of the full model shows today.
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | — |
 | Variable spring as a user-stiffness spring | in tranche 1 | — | — |
 | Tee RS-T1 with user SIFs | in tranche 1 | — | — |
-| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 increment 2 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
+| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region | RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1 | `EXACT_PRESSURE_REDUCER_IN_REGION` |
 | Constant-effort support RS-CE1 | pending | RT-A3 increment 3 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | RT-A3 increment 4; with the connector, increment 5 | `EXACT_PRESSURE_FAMILY_NOT_ADMITTED` |
 | RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7 | interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31) | RT-A3, R-4 stage S7, after increment 4 (DEL-04-07 `Work/route-unification-r4.md` §0a) | a nonlinear friction normal source is refused on both routes |
@@ -457,6 +457,24 @@ or absence a solve of the full model shows today.
 The generator keeps a pending flag per row of this table, and the fixture test checks
 that the two agree.
 
+**MBF consumer-coverage note (not a ledger row).** Agent 0 gave the entry below (2026-11-02)
+as a row to follow the RS-FR1/RS-FR1V row, and later labelled it an MBF consumer-coverage note
+(Agent 0, 2026-11-02). It is not a pending-family generator entry and not a completed
+admission. It stands here because the table must equal the generator's ledger and
+`authoring.json` (`tools/validation/test_reference_system_ledger.py`), and the fixture is
+unchanged. RS-P180 is in tranche 1, so the entry has no pending flag. Its four columns,
+verbatim:
+
+- **Family or analysis:** RS-P180 modulus selection under MBF export
+- **State:** RS-OPE selects RS-P180 at 210 °C (`material_selection`, `temperature_interpolation`)
+  while its `thermal_state` is `unchanged_reference`; the fixture is unchanged
+- **Row / lane:** DEL-17-04 MBF thermal export (D-2 Route 1, design first)
+- **Expected until then:** Under D-2's per-member rule an exported member must select at its
+  mapped MBF T1; RS-P180 is refused by name with its id while it is exported as a member, and an
+  `unchanged_reference` member's T1 is not taken as the reference temperature until a reference
+  configuration establishes it. Whether RS-EJ1's MBF representation removes RS-P180 from the
+  exported members is decided only when expansion-joint MBF coverage proves that representation
+
 ## 11. Consumer views
 
 ### 11.1 Criterion 6 (MBF)
@@ -467,8 +485,11 @@ importer on `main` (DEL-17-04 §1.4), this system's families expected in the los
 today are:
 
 - the temperature-dependent modulus table (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`):
-  a gap for the MBF lane, which Agent 0 will staff. The family stays in the fixture;
-  it is not dropped to make criterion 6 pass;
+  planned for the restricted subset defined by D-2's Route 1, a designed load/reference-state
+  thermal export with a per-member condition (DEL-17-04 import Design §20.4, design first),
+  still to come. RS-OPE also needs the operating-case mapping, a separate design item. RS-P180's
+  selection mismatch is in §10. The family stays in the fixture; it is not dropped to make
+  criterion 6 pass;
 - the tee, the reducer, the valve and flanges, the expansion joint and its rods;
 - the gap, lift-off and friction supports, the constant-effort support, and the
   variable spring as a hanger;
@@ -490,18 +511,20 @@ the criterion text is the owner's, and Agent 0 takes the question to the owner w
 RT-U2 walkthrough results.
 
 Counts for tranche 1 (`reference-system-run-sheet.md` §5): 26 run-sheet rows in two chains
-(from A, and the branch from the tee), entered with 197 sheet entries, and 468
+(from A, and the branch from the tee), entered with 197 sheet entries, and 471
 follow-up form entries, 168 of them the per-member load/reference states and pressure
-regions of the three cases since the fills and case copies of #38, and 21 the tee RS-T1
-with the person's SIFs. The run sheet's estimate is about 60 minutes after component rows (about 61 after G6,
+regions of the three cases since the fills and case copies of #38, and 24 the tee RS-T1
+with the person's SIFs and modifier source. The run sheet's estimate is about 60 minutes
+(60.25) after G11 (59.5 after component rows/numbering, about 61 after G6,
 about 64 before G6, about 77 before #41 and about 130 before #38), against the provisional 30; it is not a measurement. Since #41
 the sheet carries the fixture's support and bend ids: ten of the eleven supports and the
 three bends are rows. After the F/S numbering fix, 10 node and pipe ids are typed in
 natural order (run sheet §2, §3.4); the earlier optimized 9 / strict-order 35 remain historical. The valve and two flanges now
 also enter in those rows through Component details, preserving the fixture records. The variable
 spring RS-VS1, whose hanger data no support code carries, and the bends' SIFs are entered
-by forms (run sheet §3.5, §3.7), and the tee's inspector has no field for its modifier
-source (run sheet G11). The full model adds the reducer, the other
+by forms (run sheet §3.5, §3.7). The tee's modifier source now has its explicit
+inspector entry (run sheet G11), with the existing user-only authoring guard preserved.
+The full model adds the reducer, the other
 non-rigid supports, five more cases with their regions, the other eight combinations and
 the three analysis requests.
 

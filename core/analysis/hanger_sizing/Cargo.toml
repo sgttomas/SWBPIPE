@@ -1,0 +1,19 @@
+[package]
+name = "open_pipe_stress_hanger_sizing"
+version = "0.1.0"
+edition = "2021"
+description = "DEL-04-11 hanger sizing: loads, fit tests, selection and verification arithmetic"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+# The arithmetic (lib.rs) uses no dependency. The derived solves (derived.rs) go
+# through the product's public JSON solve entry and normalize units through the
+# unit catalog (DEL-04-11 Design §4.1, §8.2). serde_json carries no feature of its
+# own, so the product's features are unchanged by unification; Cargo.lock pins the
+# product's versions.
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../product_physics" }
+open_pipe_stress_units = { path = "../../units" }
+serde_json = "1"

@@ -276,6 +276,33 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
     stored_members: StoredMembers,
     lookup: &mut dyn FnMut(&str, &str, &str) -> Result<Option<V>, String>,
 ) -> Result<AdmittedModelDocument, Vec<ModelDocumentSaveDiagnostic>> {
+    let (canonical_text, document, suggested_file_name) = checked_model_document_text(canonical_text, claimed_model_hash, Some(evidence_payload_sha256))?;
+    before_screening(&document)?;
+    let warnings = screen_model_document_dispositions_with(&document, stored_members, lookup)?;
+    drop(document);
+    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
+}
+
+/// The admission's checks before the screening, without route evidence or the disposition screen (the MBF export
+/// review, DEL-17-04 `desktop-mbf-export-import.md` §3.9.5: §3.6 steps 2 and 3): the 64 MiB cap, the canonical text,
+/// its hash against the claim, and the open path's checks. Returns the canonical text.
+#[cfg_attr(not(test), allow(dead_code))] // Slice 4b.2 registers the MBF review command that calls it.
+pub(crate) fn admit_model_document_text_unscreened(
+    canonical_text: String,
+    claimed_model_hash: &str,
+) -> Result<String, Vec<ModelDocumentSaveDiagnostic>> {
+    let (canonical_text, document, _) = checked_model_document_text(canonical_text, claimed_model_hash, None)?;
+    drop(document);
+    Ok(canonical_text)
+}
+
+/// The cap, the canonical text, the hash claim, the evidence binding (when given) and the open path's checks: the
+/// text, its checked document and its suggested file name.
+fn checked_model_document_text(
+    canonical_text: String,
+    claimed_model_hash: &str,
+    evidence_payload_sha256: Option<&str>,
+) -> Result<(String, Value, String), Vec<ModelDocumentSaveDiagnostic>> {
     let byte_count = canonical_text.len() as u64;
     if byte_count > MAX_MODEL_DOCUMENT_BYTES {
         return Err(vec![diagnostic(
@@ -304,7 +331,7 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
             format!("The text's SHA-256 is sha256:{hex}; the session claimed {claimed_model_hash}."),
         )]);
     }
-    if evidence_payload_sha256 != format!("sha256:{hex}") {
+    if let Some(evidence_payload_sha256) = evidence_payload_sha256.filter(|evidence| *evidence != format!("sha256:{hex}")) {
         return Err(vec![diagnostic(
             EVIDENCE_UNBOUND,
             "",
@@ -313,10 +340,7 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
     }
     let suggested_file_name = suggested_model_document_file_name(&document);
     let document = open_path_checks(byte_count, document, VERSION_NOT_CURRENT)?;
-    before_screening(&document)?;
-    let warnings = screen_model_document_dispositions_with(&document, stored_members, lookup)?;
-    drop(document);
-    Ok(AdmittedModelDocument { text: canonical_text, suggested_file_name, warnings })
+    Ok((canonical_text, document, suggested_file_name))
 }
 
 /// The open path's checks of a parsed document about to be written, so every

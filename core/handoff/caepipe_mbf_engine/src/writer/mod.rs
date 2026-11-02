@@ -438,6 +438,10 @@ pub struct WriterResult {
     pub layout_row_count: i64,
     pub loss_report: Vec<Value>,
     pub assumptions: Vec<String>,
+    /// The units the writer normalized by their exact definitions (NORMALIZATION's keys, `in`, `lbf`, …, and
+    /// `degF absolute`), each with its stated definition, in key order: the data the `MBF-SI-UNITS-NORMALIZED`
+    /// diagnostic and the assumptions state in prose. Not part of `to_dict()`, which is the Python's.
+    pub unit_normalizations: Vec<(String, String)>,
 }
 
 pub(crate) fn key_error(key: &str) -> PyError {
@@ -449,7 +453,12 @@ fn field<'v>(entry: &'v Value, key: &str) -> Result<&'v Value, PyError> {
 }
 
 impl WriterResult {
-    fn refused(diagnostics: Vec<Value>, loss_report: Vec<Value>, assumptions: Vec<String>) -> Self {
+    fn refused(
+        diagnostics: Vec<Value>,
+        loss_report: Vec<Value>,
+        assumptions: Vec<String>,
+        unit_normalizations: Vec<(String, String)>,
+    ) -> Self {
         WriterResult {
             status: "refused".into(),
             text: None,
@@ -465,6 +474,7 @@ impl WriterResult {
             layout_row_count: 0,
             loss_report,
             assumptions,
+            unit_normalizations,
         }
     }
 
@@ -853,7 +863,12 @@ impl<'m> Writer<'m> {
     }
 
     pub fn refused(&self) -> WriterResult {
-        WriterResult::refused(self.diagnostics.clone(), self.loss.clone(), self.assumptions.clone())
+        WriterResult::refused(
+            self.diagnostics.clone(),
+            self.loss.clone(),
+            self.assumptions.clone(),
+            self.normalized.iter().map(|(key, definition)| (key.clone(), definition.clone())).collect(),
+        )
     }
 
     // -- value helpers ---------------------------------------------------

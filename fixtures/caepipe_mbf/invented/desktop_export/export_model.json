@@ -1,0 +1,412 @@
+{
+  "schema_version": "0.9.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "content_basis": "invented_example"
+  },
+  "project": {
+    "id": "project:invented-mbf-export",
+    "name": "Invented MBF export",
+    "description": "Invented bent run for the desktop MBF export checks",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "analysis_status": {
+    "mechanics": "not_run",
+    "rule_check": "not_run",
+    "professional_acceptance": "not_claimed"
+  },
+  "materials": [
+    {
+      "id": "material:invented-steel",
+      "label": "Invented steel",
+      "elastic_modulus": {
+        "value": 200000000000.0,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 80000000000.0,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      },
+      "provenance": "invented_example",
+      "provenance_record": {
+        "source_name": "Invented values for the MBF export checks",
+        "source_location": "invented://mbf-export",
+        "source_license": "invented-permissive",
+        "contributor": "Invented contributor",
+        "contributor_certification": "invented non-engineering example",
+        "redistribution_status": "public_permissive",
+        "review_status": "accepted"
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "section:invented-a",
+      "name": "Invented section A",
+      "section_type": "pipe",
+      "properties": {
+        "outside_diameter": {
+          "value": 0.1683,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.00711,
+          "unit": "m"
+        }
+      },
+      "provenance": {
+        "source": "invented"
+      }
+    },
+    {
+      "id": "section:invented-b",
+      "name": "Invented section B",
+      "section_type": "pipe",
+      "properties": {
+        "outside_diameter": {
+          "value": 0.1683,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.00711,
+          "unit": "m"
+        }
+      },
+      "provenance": {
+        "source": "invented"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:A",
+      "label": "Anchor A",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:T1",
+      "label": "Bend near",
+      "position": {
+        "x": 3.75,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:T2",
+      "label": "Bend far",
+      "position": {
+        "x": 4.0,
+        "y": 0.0,
+        "z": 0.25
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:B",
+      "label": "Mid",
+      "position": {
+        "x": 4.0,
+        "y": 0.0,
+        "z": 3.0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:C",
+      "label": "Anchor C",
+      "position": {
+        "x": 4.0,
+        "y": 0.0,
+        "z": 6.0
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:S1",
+      "label": "Run 1",
+      "from": "node:A",
+      "to": "node:T1",
+      "material": "material:invented-steel",
+      "section": {
+        "outside_diameter": {
+          "value": 0.1683,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.00711,
+          "unit": "m"
+        }
+      },
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example",
+      "section_ref": "section:invented-a"
+    },
+    {
+      "id": "pipe:BEND",
+      "label": "Bend",
+      "from": "node:T1",
+      "to": "node:T2",
+      "material": "material:invented-steel",
+      "section": {
+        "outside_diameter": {
+          "value": 0.1683,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.00711,
+          "unit": "m"
+        }
+      },
+      "y_reference": {
+        "x": 1.0,
+        "y": 0.0,
+        "z": -1.0
+      },
+      "provenance": "invented_example",
+      "section_ref": "section:invented-a"
+    },
+    {
+      "id": "pipe:S2",
+      "label": "Run 2",
+      "from": "node:T2",
+      "to": "node:B",
+      "material": "material:invented-steel",
+      "section": {
+        "outside_diameter": {
+          "value": 0.1683,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.00711,
+          "unit": "m"
+        }
+      },
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example",
+      "section_ref": "section:invented-b"
+    },
+    {
+      "id": "pipe:S3",
+      "label": "Run 3",
+      "from": "node:B",
+      "to": "node:C",
+      "material": "material:invented-steel",
+      "section": {
+        "outside_diameter": {
+          "value": 0.1683,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.00711,
+          "unit": "m"
+        }
+      },
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:A",
+      "label": "Anchor A",
+      "node": "node:A",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_example"
+    },
+    {
+      "id": "support:C",
+      "label": "Anchor C",
+      "node": "node:C",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_example"
+    },
+    {
+      "id": "support:B-spring",
+      "label": "Spring B",
+      "node": "node:B",
+      "family": "spring",
+      "restraints": [
+        "UY"
+      ],
+      "stiffness": {
+        "dof": "UY",
+        "value": {
+          "value": 250000.0,
+          "unit": "N/m"
+        }
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "components": [
+    {
+      "id": "component:bend-1",
+      "label": "Bend",
+      "kind": "bend",
+      "node": "node:T1",
+      "provenance": "invented_example",
+      "geometry": {
+        "bend_pipe_ref": "pipe:BEND",
+        "bend_radius": {
+          "value": 250.0,
+          "unit": "mm"
+        },
+        "bend_angle": {
+          "value": 1.5707963267948966,
+          "unit": "rad"
+        }
+      },
+      "mechanics_interface": {
+        "solver_consumption": "curved_bend_macro_element"
+      },
+      "modifiers": {
+        "flexibility_factor_user_value": {
+          "value": 1.0,
+          "unit": "none"
+        }
+      }
+    }
+  ],
+  "load_cases": [
+    {
+      "id": "load_case:sus",
+      "label": "Sustained",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "provenance": "invented_example",
+      "primitive_loads": [
+        {
+          "id": "load:B-force",
+          "category": "concentrated_force",
+          "target": {
+            "type": "node",
+            "node": "node:B"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": -2500.0,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example"
+        }
+      ]
+    },
+    {
+      "id": "load_case:th",
+      "label": "Thermal",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "provenance": "invented_example",
+      "primitive_loads": [
+        {
+          "id": "load:t-S1",
+          "category": "thermal",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:S1"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 100.0,
+            "unit": "degC"
+          },
+          "dimension": "temperature_interval",
+          "provenance": "invented_example"
+        },
+        {
+          "id": "load:t-BEND",
+          "category": "thermal",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:BEND"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 100.0,
+            "unit": "degC"
+          },
+          "dimension": "temperature_interval",
+          "provenance": "invented_example"
+        },
+        {
+          "id": "load:t-S2",
+          "category": "thermal",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:S2"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 100.0,
+            "unit": "degC"
+          },
+          "dimension": "temperature_interval",
+          "provenance": "invented_example"
+        },
+        {
+          "id": "load:t-S3",
+          "category": "thermal",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:S3"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 100.0,
+            "unit": "degC"
+          },
+          "dimension": "temperature_interval",
+          "provenance": "invented_example"
+        }
+      ]
+    }
+  ],
+  "combinations": [],
+  "diagnostics": []
+}

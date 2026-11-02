@@ -13,6 +13,7 @@ on:
       - apps/desktop/scripts/build-wasm-engine.mjs
       - core/model_operations/operation_applier/Cargo.lock
       - core/loads/self_weight_wasm/Cargo.lock
+      - core/handoff/caepipe_mbf_wasm/Cargo.lock
   workflow_dispatch:
 
 permissions:

@@ -306,10 +306,10 @@ class HostedCITests(unittest.TestCase):
         selection = select_paths(['fixtures/new-unreviewed.json'], profile)
         numerical = selection['piping_numerical_selection']
         self.assertEqual(numerical['classification'], 'full-fallback')
-        # 43 discovered crates since DEL-04-05's release timing driver (core/solver/release_timing)
-        # joined the 42 of the MBF engine (core/handoff/caepipe_mbf_engine), which joined the 41 of the
-        # pressure-source join, which added core/numerics/correct_norm.
-        self.assertEqual(len(numerical['manifests']), 43)
+        # Compare the full identities: fallback cannot omit a new crate or
+        # substitute a duplicate while preserving an old count.
+        discovered = hosted_ci.numerical_module(SOURCE_ROOT).readiness.discover_cargo_manifests(SOURCE_ROOT)
+        self.assertEqual(sorted(numerical['manifests']), sorted(m.as_posix() for m in discovered))
         self.assertIn('Stale desktop resource declaration', numerical['fallback_reasons'][0])
 
 

@@ -79,7 +79,9 @@ const legacyOutDir = path.join(desktopRoot, "src", "services", "wasmEngine", "__
 // same list's stamps.
 export const ENGINE_BUILDS = [
   { crateDirectory: crateDir, crateName: "open_pipe_stress_operation_applier", destination: outDir },
-  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") }
+  { crateDirectory: path.join(projectRoot, "core", "loads", "self_weight_wasm"), crateName: "open_pipe_stress_self_weight_wasm", destination: path.join(desktopRoot, "public", "self-weight-engine") },
+  // DEL-17-04 slice 4a: the MBF writer and importer for the export review (`src/services/mbfEngine.ts`).
+  { crateDirectory: path.join(projectRoot, "core", "handoff", "caepipe_mbf_wasm"), crateName: "open_pipe_stress_caepipe_mbf_wasm", destination: path.join(desktopRoot, "public", "mbf-engine") }
 ];
 
 // A failure already reported: main() exits 1 once the lock is released and a

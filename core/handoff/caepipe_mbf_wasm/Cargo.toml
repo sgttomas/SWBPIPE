@@ -1,0 +1,23 @@
+[package]
+name = "open_pipe_stress_caepipe_mbf_wasm"
+version = "0.1.0"
+edition = "2021"
+description = "The desktop webview's MBF writer and importer: a JSON-text wasm-bindgen wrapper of the DEL-17-04 MBF engine"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+wasm = ["dep:wasm-bindgen"]
+
+[dependencies]
+open_pipe_stress_caepipe_mbf = { path = "../caepipe_mbf_engine" }
+serde_json = "1"
+sha2 = "0.10"
+wasm-bindgen = { version = "=0.2.123", optional = true }
+
+[dev-dependencies]
+# The desktop sends the model's RFC 8785 text; the tests canonicalize the fixture with the same serializer.
+open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
