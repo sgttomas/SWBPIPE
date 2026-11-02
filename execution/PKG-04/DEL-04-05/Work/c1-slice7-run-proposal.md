@@ -99,8 +99,31 @@ form; all 35 reach tests then pass. The scanner and its rules are unchanged. Typ
 was repaired rather than adding ambient exceptions. These are offline functional
 checks, not parse/allocation/timing or native usability measurements.
 
-The selected runtime must be built/bound in **`app-reader-phases/`**, preserving
-`app-p3/` and both failed packets. Plan/input/budget remain the maintained500
+The new diagnostic App/worker was built **offline, without launch**, from clean
+`973461eb08e4676011d87108d0763c28008c9786` by the maintained `perf.mjs --build` through the
+normal slot wrapper. Binding: `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-reader-phases/perf-binding.json`.
+The executable is 51,102,912 B, SHA-256
+`eff0f8d6ef68e8db65c4eb43cf0f5d80446477c7f78e69fc42e7272ddc0fab81`. Frontend/dist is
+`sha256:dd3b5127ba256f9ddda8da79f08efae12dd0234c0f3f7673e625546f69c4bf5a`; the existing operation/self-weight Wasm source stamps
+remain `sha256:14ab23c574227e35d6cc5c94e5f7a1dde7d8343d8e4eebfdbbd3c35c624cd54a` and
+`sha256:04c15ac0dded329c0e873985a34b3f73c68fdeab27331cbe02e7925a9539c938`. The worker is this same new executable
+with the unchanged solve-worker flag/protocol, not the selected old worker.
+The later external journal write fix loops over short writes before fsync; it
+changes no native/frontend/Wasm bytes and is separately identified by the current
+harness submitting revision. Its four focused journal/interruption tests pass.
+
+Current diagnostic external source hashes (the older preparation tables below
+are historical):
+
+| File | SHA-256 |
+| --- | --- |
+| `perf.mjs` | `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5` |
+| `perf-driver.js` | `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` |
+| `perf-sampler.py` | `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` |
+| `perf-plan-c1.json` | `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` |
+
+The selected runtime is separately built/bound in **`app-reader-phases/`**,
+preserving `app-p3/` and both failed packets. Plan/input/budget remain the maintained500
 case, 300 s first-paint wait and 840/810 s supervisor/child limits, with only
 `c1_reader_diagnostics:true` added. The exact recipe for a future owner decision
 uses fresh **`evidence/n0500-reader-phases1`**, not either consumed path:

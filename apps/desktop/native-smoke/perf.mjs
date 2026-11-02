@@ -723,7 +723,16 @@ export function createReaderPhaseEvidence(file) {
   let overflow = false, closed = false;
   const web = new Set(["header", "registration", "standing", "summary"]);
   const native = new Set(["args_admit", "source_prescan", "source_admit", "inputs_admit", "source_parse", "inputs_parse", "validate", "serialize", "source_drop", "summary_health", "summary_build"]);
-  const write = value => { writeSync(fd, `${JSON.stringify(value)}\n`); fsyncSync(fd); };
+  const write = value => {
+    const bytes = Buffer.from(`${JSON.stringify(value)}\n`);
+    let offset = 0;
+    while (offset < bytes.length) {
+      const written = writeSync(fd, bytes, offset, bytes.length - offset);
+      if (written <= 0) throw new Error("C1 reader phase evidence write made no progress");
+      offset += written;
+    }
+    fsyncSync(fd);
+  };
   const summary = () => {
     const covered = layer => new Set(events.filter(event => event.layer === layer && event.edge === "exit" && event.status === "ok").map(event => event.phase));
     const webCovered = covered("web"), nativeCovered = covered("native");

@@ -162,7 +162,11 @@ needs:
     on a shape the desktop refuses. C1's native-smoke-only scalar reader probe uses the
     same held producer bytes and intake-bound launch model, with the existing allocation
     counter enabled only in smoke/test builds; it reports parser and reader phases without
-    exporting a result or adding product authority.
+    exporting a result or adding product authority. The bounded native-reader phase
+    diagnostics use fixed timeline/native-smoke checkpoints and a capped durable runner
+    journal; smoke-only wrapper expansion preserves the existing Value-reader contract,
+    while the private health entry remains explicitly combined. Changed diagnostic
+    boundaries, delivery or wrappers require those checkpoints and parity tests re-aligned.
   gating: false
   evidence: apps/desktop/native-smoke/perf.mjs
 code_paths:
