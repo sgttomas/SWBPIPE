@@ -3,13 +3,232 @@
 Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
-**Execution status:** both owner-authorized 500-node attempts have failed and
-closed. The initial attempt at `1e1453a29` stopped on uninitialized host telemetry;
-the repaired attempt at clean `eb77d0067bf9f09e81916cccb4ec487ba196ccfb`
-passed startup telemetry and timed out waiting for first paint during native
-reader validation. Both approvals are consumed. **No retry, B1000 or further
-native interval is authorized.** This document retains their selected identities,
-original recipes and partial-evidence limits; it is not a runnable grant.
+**Execution status:** three separately owner-authorized 500-node attempts
+have executed and closed. The initial attempt stopped on uninitialized telemetry;
+the repaired A500 timed out at the coarse reader-start mark; the reader-phase
+diagnostic at clean `cf8129cd1` also timed out but located the first header's
+native `validate` phase pending after its prescan, admission and parse exited.
+All three grants are consumed. **No retry, B1000 or further native interval is
+authorized.** Exact selected identities and all raw packets remain preserved.
+
+## Reader-phase diagnostic result and closure (2026-11-02)
+
+The owner approved exactly one diagnostic attempt on clean
+`cf8129cd1e9726c4c4706ec084d35c3ddfe3f9f3`, with reviewed code at `d4a880680`,
+bound App/worker source `973461eb0`, executable SHA-256
+`eff0f8d6ef68e8db65c4eb43cf0f5d80446477c7f78e69fc42e7272ddc0fab81` and
+fresh `evidence/n0500-reader-phases1`. All script/plan/artifact/model/interpreter
+hashes passed preflight, source was clean, previous packet hashes matched, and
+App scheduling clearance preceded normal exclusive admission. Selected Python:
+Xcode 3.9.6, real executable SHA-256
+`b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`.
+
+Actual acquisition **04:00:57 UTC**, `END-EXCLUSIVE rc=1` **04:06:00 UTC**:
+**303 s** from one-second wrapper timestamps; the supervisor window was
+**303,635 ms**. No overrun, held exception or second queue. App/worker/runner
+and unique private executable PIDs/groups were gone in supervisor and independent
+control checks; all owned lock custody and `exclusive.pending` ended. No unrelated
+process was signalled or cleaned. Later shared-slot users are not held custody.
+
+The worker published 918,638,964 B after **72,411 ms** from solve request,
+reported lifetime maximum footprint 3,485,830,744 B and peak grant 6,375,342,080 B.
+Host readings remained known-normal, available 64–68%, with zero unknown host
+samples. The 300,000 ms first-paint gate failed (observed wait 300,684 ms).
+Cancellation was requested with success_claimed=false; actual process closure is
+separate evidence, not a fabricated cancellation receipt or normal lease retirement.
+
+The fsynced journal contains **14 boundary records plus its terminal summary**,
+no overflow, incomplete web `header` and native `validate` entries. Native call 1
+has no model or invocation; its header is still an ordinary full dispatch at
+this selected source. Completed instrumented monotonic intervals:
+
+| Boundary | Elapsed | Scalar size meaning |
+| --- | ---: | --- |
+| args_admit | 0.082083 ms | 31-byte argument body |
+| source_prescan | 1,545.133208 ms | 918,638,964 UTF-8 source bytes |
+| inputs_admit | 0.008209 ms | no extra model/invocation allocation requested |
+| source_admit | 0.053708 ms | 7,527,838,816-byte **parse lease bound**, not measured heap |
+| source_parse | 2,273.918292 ms | full source materialization returned |
+| inputs_parse | 0.011084 ms | unspecified/zero input text; no model/invocation supplied |
+
+`validate` entered at native monotonic **3,819.3515 ms** and never emitted an
+exit before the App ended. No serialization/drop entry, header exit, registration,
+model-bound standing or summary await was reached. No P3 allocation probe or
+navigation/CSV/persistence/reopen/retirement sequence ran. The observation locates
+this attempt's delay in the first full `rv::dispatch`/standing validation after
+parse/admission; it does **not** locate a particular inner validator, prove CPU
+utilization, separate its allocations/clones/internal drops, or establish that
+it never terminates. It does not retroactively identify the earlier A's phase.
+No five-pass/parse count is presented as observed progress: this journal shows
+only the first source parse completed and first full dispatch still pending.
+
+Partial physical observations remain separately labelled: sampled App footprint
+maximum 8,512,412,872 B; aligned sampled App+worker+WebContent maximum
+8,993,628,560 B, sequential PID reads with worker absence inferred zero after
+`job_done`, **31 unknown aligned sums**. These are not atomic concurrent maxima
+or reader/parse/P3 allocation measurements; host telemetry itself was known.
+The store passed `quick_check`, with no saved project/run. No usable-size,
+memory-fit, C1 completion, base-machine, 1,000/2,000-node or acceptance claim.
+
+Raw packet/private copy preserved at
+`scratch/rt-perf-c1-slice7/evidence/n0500-reader-phases1/`: journal
+`perf-reader-phases-perf-BTgJlc-native-linear-ex-n0500.jsonl`, window
+`perf-window-1793592057290.json`, matching run/report/samples and `perf-BTgJlc/`.
+Adjacent preflight/admission/console/wrapper/summary/closure records bind the
+selection and closure; `a500-reader-phases1-closure.json` records packet hashes.
+The two previous packets remain byte-identical. Acquisition, observed phase and
+actual failure/closure were reported to Agent0 promptly. All further work below
+is ordinary offline proposal work; no further execution grant is requested.
+
+## Distinct route/binding-only header proposal — implementation decision needed
+
+**Motivation and scope.** The diagnostic observed the initial header dispatch
+blocked in its full validation. The consumer at `readNativeFreshResult` uses only
+that first reply's `route`, while later registration and model-bound standing
+perform compulsory checks. The proposal removes that redundant *initial* full
+standing computation using a distinct header contract, not by weakening or
+changing `rv::dispatch`. It makes no claim about the next validator's duration or
+full 500-node usability. No implementation is selected by this proposal.
+
+**Exact native interface.** Reuse the existing raw-body handler
+`read_preview_mechanics_job_verdict` with a separately discriminated request
+`{jobId, operation:"route_header"}`. Absence of `operation` keeps the current
+full-dispatch/reader-validation contract and reply byte-for-byte. Unknown
+operations or a non-string operation refuse typed INVALID_REQUEST. The new mode
+accepts no `reader`, `modelJson` or `invocationJson` members, including null forms:
+reject mixed requests before held-source parse. It uses the same held-result
+lookup, ingress/prescan/adaptive parse admission, executor offload, custody
+sharing and release behavior. No handler, capability, route/export permission,
+new input source, budget, cache, worker or schema migration is added.
+
+Successful native transport returns one parsed JSON body with **exactly**:
+
+```json
+{
+  "document_kind": "swbpipe.desktop.result_route_header",
+  "version": 1,
+  "job_id": "<requested held handle>",
+  "header_status": "recognized",
+  "route": "pressure",
+  "binding": {"id": "<pinned semantic contract id>", "sha256": "<pinned table hash>"},
+  "refusal": null
+}
+```
+
+Metadata refusal is the same shape with header_status `refused`, route
+`unsupported`, binding null, and refusal `rv::error_json(code)` from `rv::route`.
+These are fixed route/table facts and the existing header refusal, not a checksum
+of numerical correctness or native provenance. `job_id` correlates the held
+source only, not a solver/capture/Current assertion. Do not include `ok`,
+`standing`, `eligible`, `token`, findings, attestation, run/model identity,
+result rows/text or any evidence payload. The absence of `ok` is deliberate:
+current full-dispatch and validation decoders reject the header structurally;
+it must not be accidentally accepted as `{ok:true}` validation.
+
+Compute facts by unchanged `rv::route(&source)` and
+`rv::binding_of(route,&source)`; use the existing exported `rv::error_json`, not
+copied tables or a substitute error parser. Do not call `rv::dispatch`,
+`standing`, `for_source` or any full numerical validator for this metadata mode.
+Preserve all of `rv::route`'s downgrade-member and **raw-row W1-token scan**,
+carrier namespace, source metadata/identity, evidence-object and receipt-shape
+checks in their existing order. It still parses/materializes the full held text
+and may inspect rows/retained transport metadata: this is route-only authority,
+**not** a promise of header-byte-only or constant-time processing.
+
+**Webview type and consumer.** Add a strict `NativeRouteHeader` decoder with the
+new document_kind/version, exact member set, valid route/status/refusal/binding
+combinations and response job_id equal to the requested handle. Freeze it; keep
+it a distinct type (optional private brand), with no standing/SessionResult
+conversion. `readNativeRouteHeader(jobId)` caches only under its own
+`route_header` key; never alias a dispatch or validation cache entry. The only
+initial consumer is the first `header` await in `readNativeFreshResult`; it uses
+route selection only. It must not feed this reply to `presentedStanding`,
+`readerDispatch`, native registration/persistence, exact report binding or a
+Current/inspection display. A type cast is not a security boundary: the runtime
+adapters and session gates must reject inappropriate promotion, and tests must
+exercise them.
+
+**Callgraph and compulsory checks before publication/use.**
+
+```text
+completed native solve / existing capture
+  -> route_header (metadata only; never a result or standing)
+  -> validateNativeReaders (same route-selected reader and captured inputs)
+  -> readNativeStanding (existing full dispatch, current model/capture binding)
+  -> readNativeSummary (existing numerical health + S)
+  -> nativeEnvelopeRefusal and existing model/producer/retained exclusions
+  -> existing unregistered/inspection handling, final full verdict, run-preview
+  -> existing generation/custody/capture/record gates before session publication
+```
+
+The fresh source still needs its pressure/preview/pressure-source reader against
+the captured model/invocation, model data/capture identity and stale/disposal
+checks. Standing/health and model/producer envelope consistency are unchanged.
+The final `NativeCustody.verdict` remains the actual full dispatch, not this
+header. Report/persistence keep their own custody/digest/record-binding checks.
+A refused header supplies no registration/Current. Choose the compatibility
+branch explicitly: use route `unsupported` and continue the existing full
+standing/S and envelope-refusal flow, exactly as the old first dispatch's
+unsupported route did; do not add an early route-header throw or present its
+metadata refusal as a new final UI outcome. The existing unsupported standing,
+unregistered/inspection and report/persistence gates remain responsible for
+refusal and source identity. Preserve final findings/refusal order on the corpus;
+if that cannot be shown, stop the patch for a design decision rather than change
+expectations. Metadata recognition never becomes numerical eligibility. Full
+dispatch semantics for historical, Wasm, Python, comparison and all other
+consumers remain untouched.
+
+**Acceptance checks for the proposed interface.** Compare only route, binding
+and metadata refusal with unchanged `rv::route`/dispatch header fields across
+the maintained corpus, including downgraded W1 rows, foreign identities, malformed
+receipt and retained sources. A forged numerical row may still have a recognized
+metadata header, but must fail the unchanged registration/standing checks before
+any eligible use. Existing full-dispatch replies and first-refusal outcomes stay
+byte-identical; old commands need no regenerated expectations merely to pass.
+Test old decoders rejecting the new shape, header decoder rejecting old replies,
+mixed requests/unknown keys, wrong handle, wrong table binding, unsupported
+route, disposal and stale generation. A small connection replay must show the
+first header makes no full-dispatch call but later validation/standing still do.
+No 919 MB replay, solver, App or allocation/timing run is needed to establish the
+interface semantics; no performance/fit promise follows from those tests.
+
+**Ownership/order.** C1 can own native_verdict/nativeResult/previewService,
+strict decoders and test integration after this exact interface/consumer proposal
+is reviewed and Agent0 selects implementation. Existing public `result_export`
+APIs suffice; core and operation-applier require **no writes** for this proposal.
+Any unexpected shared API mismatch returns to Agent0; there is no authority to
+change core reader, numerical tables/pricing, handler macro or permission policy.
+New independent reviewers use owner-selected gpt-6-astra/medium, resolved through
+the current capabilities; no new reviewer or implementation was dispatched for
+this proposal return.
+
+## Separate minimal clone-projection proposal — shared-core write hold
+
+`exact_combination_evidence::direct_view` currently checks the combination record
+is present and nonempty, clones the complete source, removes exact_combinations,
+then retains primitive rows. Proposed replacement keeps those **same checks and
+first refusal order**, then clones only the members that the existing final view
+retains. For `contract_evidence` objects omit only exact_combinations; for results
+arrays clone only rows for which the existing `is_combination_row` is false;
+clone every other value unchanged, including diagnostics, unknown members,
+strings, numbers and member/row order. Wrong-typed members behave exactly as the
+current guarded remove/retain operations. No source/held bytes are rewritten.
+
+Required proof: old and new projected `Value` trees are equal and serialize to
+identical serde/checked-canonical bytes on valid/forged corpus and small edge
+shapes (unknown fields, escaped/Unicode keys, negative zero and wide numbers).
+Then run the *same* primitive and combination validation functions in the same
+order; every accepted/refused code/detail/first failure and numerical/derived
+row byte stays identical. No arithmetic, rederivation, standing, receipt, hash,
+schema or output change. This proves avoided cloning of discarded material, not
+a quantified heap reduction, CPU dominance or sufficient cure for this timeout.
+
+This is a separate, narrow shared `core/reporting/result_export` patch requiring
+Agent0 sequencing with RT-A3 and D3/retained reader consumers, plus independent
+numerical/memory scrutiny. Any registration/pricing effect must be rederived on
+the combined tree; no coefficient/tolerance/control is silently adjusted. No
+borrowed-view redesign, indexing or broad cache is assumed. **No shared-core
+write or clone repair implementation is authorized in this return.**
 
 ## Bounded reader subphase candidate (offline; no execution grant)
 

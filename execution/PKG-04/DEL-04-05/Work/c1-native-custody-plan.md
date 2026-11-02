@@ -941,6 +941,18 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**Reader-phase attempt executed/closed (2026-11-02).** The single newly approved
+attempt on clean `cf8129cd1` failed its 300 s first-paint gate but fulfilled the
+missing observation: durable first-header call 1 entered native `validate` after
+source prescan/admission and its sole source parse exited. Later registration,
+standing, summary, serialization/drop and P3 were not reached. The wrapper held
+04:00:57–04:06:00 UTC (303 s from one-second logs), owned processes/locks closed,
+no held exception/overflow; all packets preserved. No retry/B/third execution
+scope is implied. The proposal returns an exact distinct route_header contract
+and consumer graph for an implementation decision, plus a separate exact-parity
+clone-projection proposal under the existing shared-core/RT-A3/D3 write hold.
+Neither is implemented; full reader/registration/standing authority is unchanged.
+
 **Authorized diagnostic preparation only.** The next candidate adds fixed,
 bounded, durable checkpoints to the four existing session awaits and native
 command prescan/admission/parse/validate/drop boundaries. It leaves shared core
