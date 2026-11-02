@@ -663,7 +663,7 @@ whose `case` ids equal the operating entries of `result.cases`, in the same orde
 - a variable `selected.operating`;
 - `verification.operating` (variable and constant).
 
-Every list of operating cases has n ≥ 1 entries.
+Each of these three result lists, where present, has n ≥ 1 entries, because the design operating case is always named. The request's `check_operating_cases` may be empty.
 
 #### 8.3.6 Arithmetic, numerics and comparisons
 
