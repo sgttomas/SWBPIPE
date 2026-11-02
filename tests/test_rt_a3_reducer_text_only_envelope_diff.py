@@ -15,7 +15,7 @@ import pytest
 
 from tests.test_o4_text_only_envelope_diff import (
     HASH, Obj, RT_A3_IDENTITY_NEW, RT_A3_LISTED, load, _embedded,
-    _rt_a3_member_path,
+    _rt_a3_member_path, classify, Token,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -179,3 +179,42 @@ def test_preservation_guard_keeps_input_hashes_and_hash_encoding():
     for path in (("input_sha256",), ("shapes", 0, "model_sha256"), ("other", 0, "input_sha256")):
         with pytest.raises(AssertionError):
             compare(old, new, path, rv120_output_hashes=True)
+
+
+def check_j7_envelope_digests_only(before, after):
+    """AC-002: a product-text change cannot move any other census fact."""
+    changes = classify(before, after)
+    assert changes
+    assert all(kind == "hash" and path == "/entries/*/public/envelope_sha256"
+               for kind, path in changes), changes[:8]
+    return len(changes)
+
+
+def test_reducer_2a_j7_moves_only_whole_envelope_digests():
+    name = "fixtures/results/j7_rf_census_expected.json"
+    before = subprocess.check_output(["git", "show", f"{BASE}:{name}"], cwd=ROOT, text=True)
+    check_j7_envelope_digests_only(load(before), load((ROOT / name).read_text()))
+
+
+def test_j7_guard_preserves_results_summary_identity_and_work():
+    name = "fixtures/results/j7_rf_census_expected.json"
+    baseline = load(subprocess.check_output(["git", "show", f"{BASE}:{name}"], cwd=ROOT, text=True))
+
+    def set_member(obj, key, value):
+        index = next(i for i, (k, _) in enumerate(obj) if k == key)
+        obj[index] = (key, value)
+
+    for field, replacement in (("results_sha256", "0" * 64),
+                               ("summary_sha256", "0" * 64),
+                               ("identity", "invented-wrong-identity")):
+        changed = deepcopy(baseline)
+        public = dict(dict(changed)["entries"][0])["public"]
+        set_member(public, field, replacement)
+        with pytest.raises(AssertionError):
+            check_j7_envelope_digests_only(baseline, changed)
+    changed = deepcopy(baseline)
+    entry = next(e for e in dict(changed)["entries"] if "work" in dict(dict(e)["first_cause"]))
+    work = dict(dict(entry)["first_cause"])["work"]
+    set_member(work, "charged", Token(str(int(dict(work)["charged"]) + 1)))
+    with pytest.raises(AssertionError):
+        check_j7_envelope_digests_only(baseline, changed)

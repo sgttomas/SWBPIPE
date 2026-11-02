@@ -2286,6 +2286,16 @@ change, while every reading summary, verdict, eligibility and row count stays
 unchanged. The 968 desktop retained-carrier/native-Wasm parity/report checks
 pass. Reducer references (13 tests) and shared-terminal regressions (6) pass.
 The exact head and remaining stack/hosted checks are recorded in the PR.
+The J7 census is regenerated through its maintained writer for the same
+identity-only change: all 322 entries preserve every field except 260
+`public.envelope_sha256` values. Replacing those digests restores the exact
+prior file bytes. Results/summary digests, public identities, first causes,
+counts, work and frozen-row verdicts are unchanged, under AC-002's existing
+product-text rule. The 23 native J7 checks pass with hosted test settings;
+182 preservation/input/history checks pass, including new negative controls
+for result/summary hashes, identity and charged work. Frozen T3 R1 reference
+and census-input bytes stay unchanged. The approved profile and O0
+stack-tested binary remain unchanged.
 M, its margin, R, reserve policy and layouts are unchanged; any additional
 coefficient movement requires separate disposition. Preservation/routing/pin
 checks pass (229 tests and 120 subtests); two shell-subprocess checks needed
