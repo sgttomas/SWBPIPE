@@ -24,7 +24,7 @@ foreach ($file in $fixtureFiles) {
 }
 Write-Host 'P7 committed fixture hashes/labels checked; solve fixture remains inactive'
 $lock = Join-Path $project 'core/runner/headless/Cargo.lock'
-$lockHash = '14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c'
+$lockHash = '49aabbef93419085d70d8c83011b94768645558a46e18f90a1b77137623e3cc0'
 if ((Get-FileHash $lock -Algorithm SHA256).Hash.ToLowerInvariant() -ne $lockHash) { throw 'Runner lock identity mismatch' }
 $rust = (& rustc -Vv) -join "`n"
 if ($LASTEXITCODE -ne 0 -or $rust -notmatch '(?m)^release: 1\.97\.1$' -or $rust -notmatch '(?m)^host: x86_64-pc-windows-msvc$') { throw 'Rust 1.97.1 native MSVC required' }

@@ -120,8 +120,13 @@ These deliverables keep their scope.
   - the library reader;
   - the closed-form references R-1, R-2 and R-5.
 
-  The run's results are a typed value; nothing is yet published or reaches the desktop,
-  and the exact route is refused until increment 4. Before this
+  Slice 1d-α publishes the result as a closed document through the headless runner
+  (`openpipestress-runner size-hangers`) only, with the Rust reader and the test-only
+  Python verifier (Design §8.3); nothing reaches the desktop, and the exact route is
+  refused until increment 4. The theory note (`docs/theory/hanger_sizing.md`, RT-V4,
+  owned by DEL-11-03) explains the built method. The user guide's non-UI section for
+  the implemented PF sizing and the headless verb exists (`docs/user_guide/index.md`
+  §7.1, owned by DEL-11-01); its desktop sections follow increment 3. Before this
   deliverable: the hanger records import, and one record can be applied to a support as
   the person's act (`features/hanger-selection`). A variable spring is
   solved as its stiffness only (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
@@ -318,21 +323,41 @@ suitability, and nothing here determines code compliance.
     - for an unfitted candidate or a fallback, the count of records failing each test.
   - **Derived solves.** The result also gives each candidate's cold-reference
     displacement and each nonlinear support's states.
-  - **Basis.** A basis block states every request input, the library id and digest, the
-    model revision, the route and each case's load kinds after lowering. It also states
-    the installation assumption, that each spring is set at the drawn geometry. The table
-    labels the installed setting separately from the cold-condition load.
-  - **Profile.** Results are published under the hanger-sizing profile and semantic
-    table, and the analysis-run record gains the hanger-sizing run kind.
+  - **Basis.** A basis block states:
+    - every request input;
+    - the library id and hash;
+    - the solve request's hash, which identifies the exact model and materials;
+    - the route;
+    - each named case's role, its authored load categories and whether it uses an
+      operating-condition set.
+
+    It also states the installation assumption, that each spring is set at the drawn
+    geometry. The table labels the installed setting separately from the
+    cold-condition load (Design §8.3).
+  - **Document.** Results are published as a closed hanger-sizing result document
+    (Design §8.3). It embeds the sizing request, binds the solve request and library by
+    hash, and has two statuses: `sized`, meaning the algorithm completed (never
+    acceptance, and always with each outcome and the verification standing), and
+    `refused`.
+  - **Analysis run.** A hanger-sizing run kind awaits the joint analysis-run 0.4.0,
+    approved for design only. Until it is adopted, a sizing result is not a recordable
+    run.
   - **Readers.** A Rust product reader and a test-only Python verifier that shares no
-    code with the producer each recompute the loads, variations, fit tests and selection
-    from the published values, the request and the library document.
-  - **CSV.** The table exports to CSV (Design §8.1).
+    code with the producer. Each establishes the document's closure, its binding to the
+    inputs supplied, and arithmetic consistent with the published positions. The Rust
+    reader alone can establish reproduction from the bound inputs. No reader states that
+    the published positions are the model's mechanics without reproducing them.
+  - **CSV.** The table exports to CSV (Design §8.1), with the desktop work.
 - **AC-007** — Maintained tests show:
-  - the two readers returning the same verdict for every committed result and every
-    committed mutation of it;
+  - the two readers returning the same closure, binding and arithmetic verdicts for
+    every committed result and mutation (derivation and reproduction are the Rust
+    reader's alone);
+  - a self-consistent forgery of the positions that passes the arithmetic standing and
+    fails reproduction;
   - that the Python verifier imports no producer code (an independence test);
-  - the table in DEL-08-04's CSV coverage guard.
+  - each existing reader's actual named refusal or disclosure of the document, as
+    tested;
+  - the table in DEL-08-04's CSV coverage guard, with the desktop work.
 - **REQ-008** — *Applying a selection.*
   - Applying a selected record is the person's explicit act. It goes through the
     existing hanger-selection operation builder and the one operation route, and is

@@ -314,7 +314,11 @@ def main():
     # Loadscope groups module functions or class methods on each parallel worker.
     # The controller builds the test binaries once before workers start (tests/conftest.py).
     # Name each result as it arrives, so a timeout cannot hide failing test identities.
+    # Source-mutation tests copy core into tmp_path. Retaining every successful
+    # snapshot exhausts hosted disk quotas; pytest removes a passed test's tmp_path
+    # at teardown with this policy, while failed snapshots remain for diagnosis.
     command = [sys.executable, '-m', 'pytest', '-v', '--tb=short', '--durations=20',
+               '-o', 'tmp_path_retention_policy=failed',
                '-n', 'auto', '--dist', 'loadscope', *selected]
     return 0 if args.dry_run else subprocess.run(command, cwd=project).returncode
 

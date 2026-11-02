@@ -65,6 +65,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 >
 > - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`. Current implementation (at `62c1efd75b`): `docs/theory/centerline_analysis.md` exists.
+> - Hanger sizing theory note (RT-V4, for DEL-04-11; 2026-11-02): `docs/theory/hanger_sizing.md` explains the implemented pressure-free method, its inputs, assumptions and limitations from DEL-04-11's governing design and engine, and marks the desktop, exact-route and preload capabilities that are not yet built. Its mechanics are classical beam statics, stated without external source; its evidence is DEL-04-11's independent references.
 > - The final theory note must be educational and auditable. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Classical lineage may be described at a conceptual level until public/permissive mechanics sources are selected and cited.
 > - Modern implementation may describe the project direction as a 3D line-element/frame model, but detailed code equations, protected formulas, code tables, and standard-derived examples remain out of scope.

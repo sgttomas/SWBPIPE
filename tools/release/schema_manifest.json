@@ -47,6 +47,10 @@
       "sha256": "043a8d7dde56eacbaa0ddfd4f1f61fa75100d71ecfe404e558851ebeed28922e"
     },
     {
+      "path": "schemas/hanger_sizing_result.schema.json",
+      "sha256": "209706cd065516a8d71db5e605ee9d6b8fcbaf5281e173adfacba9166760e1e6"
+    },
+    {
       "path": "schemas/load_reference_state.schema.json",
       "sha256": "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
     },
