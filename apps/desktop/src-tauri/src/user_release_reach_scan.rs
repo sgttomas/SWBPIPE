@@ -191,8 +191,9 @@ pub(crate) const DEPENDENT_CRATES: [&str; 2] = ["src-tauri", "headless"];
 /// proc-macro included, which can emit a call the scan never reads) or a
 /// rename, is a finding until reviewed. Its build-dependencies are also
 /// pinned (none, [`BUILD_DEPENDENCIES`]).
-pub(crate) const RUNNER_DEPENDENCIES: [&str; 10] = [
+pub(crate) const RUNNER_DEPENDENCIES: [&str; 11] = [
     "normal open_pipe_stress_canonical_json",
+    "normal open_pipe_stress_hanger_sizing",
     "normal open_pipe_stress_mechanics_benchmarks",
     "normal open_pipe_stress_nonlinear_benchmarks",
     "normal open_pipe_stress_product_physics",
@@ -950,6 +951,7 @@ pub(crate) const TARGETS: [(&str, &[(&str, &str, &str)]); 5] = [
             ("test", "refused_package_ids", "headless/tests/refused_package_ids.rs"),
             ("test", "retained_precision_admission", "headless/tests/retained_precision_admission.rs"),
             ("test", "s11g_zero_work_receipt", "headless/tests/s11g_zero_work_receipt.rs"),
+            ("test", "size_hangers_cli", "headless/tests/size_hangers_cli.rs"),
             ("test", "tied_joint_references", "headless/tests/tied_joint_references.rs"),
             ("test", "untied_joint_pressure_references", "headless/tests/untied_joint_pressure_references.rs"),
             ("test", "user_release_runner_refused", "headless/tests/user_release_runner_refused.rs"),
