@@ -1,40 +1,16 @@
-// The webview's MBF writer and importer (DEL-17-04 Design `desktop-mbf-export-import.md` §2, §3.1–§3.3, slice
-// 4a): the wasm32 build of `core/handoff/caepipe_mbf_wasm`, a JSON-text wrapper of the Rust MBF engine. The glue
-// and wasm artifact are produced by `npm run build:wasm` into `public/mbf-engine/` and are not committed; an
-// absent artifact is a named failure (MBF-ENGINE-ASSET-ABSENT) with the build command, never a fallback, because
-// no other MBF engine exists in the webview. Loading follows `wasmEngine/loadSelfWeightEngine.ts`.
+// The webview's MBF writer and importer (DEL-17-04 Design `desktop-mbf-export-import.md` §2, §3.9.5; slice 4a): the
+// wasm32 build of `core/handoff/caepipe_mbf_wasm`, a JSON-text wrapper of the Rust MBF engine. The glue and wasm
+// artifact are produced by `npm run build:wasm` into `public/mbf-engine/` and are not committed; an absent artifact is
+// a named failure (MBF-ENGINE-ASSET-ABSENT) with the build command, never a fallback. Loading follows
+// `wasmEngine/loadSelfWeightEngine.ts`.
 //
-// The export review runs the writer here; the text is shown, then discarded. The bytes written are always the
-// native writer's output for the hash-checked text (`src-tauri/src/mbf_export.rs`), which refuses a save whose
-// digests differ from the reviewed ones (`MBF-EXPORT-REVIEW-STALE`).
+// The export entry point (`renderMbfExport`) is an unconnected test resource only (§3.9.5): the export dialog never
+// runs the wasm writer, whose memory the webview does not govern; it asks the native `review_mbf_export`, which runs
+// the writer in the capped worker. Whether the import runs here is slice 5's design.
+import type { MbfUnitConversion } from "../features/caepipe-mbf/mbfExport";
 
 export const MBF_ENGINE_ABSENT_DIAGNOSTIC = "MBF-ENGINE-ASSET-ABSENT";
 export const MBF_ENGINE_BUILD_COMMAND = "npm run build:wasm --workspace apps/desktop";
-
-/** The export dialog's writer settings (§3.1, §3.6). */
-export type MbfExportSettings = {
-  title: string;
-  referenceTemperature: { value: number; unit: "degC" | "degF" };
-  /** No row limit in the product (Q-4). */
-  maxLayoutRows: null;
-};
-
-/** The most bytes of UTF-8 a title may hold (the engine refuses a longer one, `MBF-EXPORT-SETTINGS-INVALID`). */
-export const MBF_MAX_TITLE_BYTES = 4096;
-
-/** The settings' JSON text: what the review gives the wasm writer and the native save is given, so both read the same
- * text with the engine's one mapping (`export_settings_from_json`). */
-export function mbfSettingsJson(settings: MbfExportSettings): string {
-  return JSON.stringify({
-    title: settings.title,
-    referenceTemperature: { value: settings.referenceTemperature.value, unit: settings.referenceTemperature.unit },
-    maxLayoutRows: null
-  });
-}
-
-/** A unit the writer normalized by its exact definition, and its exact factor (`numerator/denominator`) where it has
- * one (an absolute temperature has an offset as well). */
-export type MbfUnitConversion = { unit: string; definition: string; factor: string | null };
 
 export type MbfDiagnostic = { code: string; severity: string; entity?: string; message: string };
 export type MbfLossEntry = { entity: string; category: string; code: string; reason: string };

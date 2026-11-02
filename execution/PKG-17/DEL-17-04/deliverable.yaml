@@ -128,6 +128,7 @@ checks:
 - core/handoff/caepipe_mbf_engine/tests/writer_parity.rs
 - core/handoff/caepipe_mbf_engine/tests/fail_closed.rs
 - core/handoff/caepipe_mbf_engine/tests/correctly_rounded.rs
+- core/handoff/caepipe_mbf_engine/tests/export_review.rs
 - tests/test_caepipe_mbf_correctly_rounded.py
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx

@@ -1081,6 +1081,60 @@ integrates.
   the same permissions, reach and ingress review; the `app_invoke_handler` re-pin; the menu item, the Exports panel
   action, mounting the dialog on `review_mbf_export` (§3.9), and retiring the TypeScript builder (A-6).
 
+**Slice 4b.1, as implemented (2026-11-01).** 4b is split around the desktop performance work (#59): 4b.1 builds the
+bounded review, worker task 3 and its envelope in MBF-owned files only, and connects nothing. Both production entry
+points (`save_mbf_export_admitted`, `review_mbf_export_admitted`) refuse with `MBF-EXPORT-NOT-CONNECTED`; no command is
+registered and no worker task is added.
+
+- **Engine.** `export_review(result, files, allowance, output_fits)` in `core/handoff/caepipe_mbf_engine`
+  (`src/export_review.rs`) holds §3.3's classification, moved from `mbfExport.ts`: `not_written` (each `unsupported`
+  loss entry, then each error diagnostic without a loss entry of the same code and entity), `omitted`, `warnings`
+  (each warning without an `omitted` entry of the same code and entity), then the undeclared materials. A loss entry
+  and the diagnostic raised with it are one entry, so they are listed or counted together. Info diagnostics and every
+  engine message, reason and assumption are not carried. The review is ASCII JSON (`swbpipe.mbf_export_review`, format
+  1), at most R after escaping: status, `blocking` and `refused_unexplained` are computed over the full result; the
+  fixed fields are reserved at their widest; entries are listed in order while they fit and the rest counted
+  (`completeness`, `not_shown`, `not_shown_blocking`, and per list `total`, `listed`, `not_shown`,
+  `not_shown_blocking`). The per-field bound is 512 bytes (`REVIEW_FIELD_MAX_BYTES`): a longer string is carried as
+  `{prefix, bytes, sha256}`, formed in place, each entry sized before it is written. `output_ceiling` (`within` or
+  `beyond`, one width) is the caller's decision on the review's exact length. The unit conversions (each normalized
+  unit, its definition and exact factor) and the digests and file lengths are carried. Tests:
+  `tests/export_review.rs`; the writer and import vectors are unchanged.
+- **Worker task 3** (`apps/desktop/src-tauri/src/mbf_export.rs`). `worker_render(raw)` reads `u32 mode ‖ u32
+  settings_len ‖ settings JSON (≤ 25 KiB) ‖ model canonical text` (little-endian; mode 1 `review`, 2 `save`; a bad
+  mode, length or field is refused `MBF-WORKER-REQUEST-INVALID`), runs `render_si`, forms the review and returns the
+  ASCII envelope `MBF1\n<mode>\n<status>\n<mbf_len>\n<ids_len>\n<review_len>\n` and the bodies. `review` mode
+  returns `reviewed` with the review only. `save` mode returns `written` with the MBF, the identity file and the
+  review, or `writer-refused`, `review-truncated` (whatever the blocking count) or `output-too-large` (decided from
+  the computed lengths before the result is built) with the review only. `Err` is a named failure of at most 64 KiB
+  with no engine text. `decode_worker_result(mode, text)` reads the envelope as views: header, canonical decimal
+  lengths exactly covering the bodies on character boundaries, the review within R and the result within 64 MiB, the
+  mode, a status of that mode with its fixed shape, and a review that supports the status; for `written` it
+  recomputes both digests and requires the review to name them and the lengths. Anything else is
+  `MBF-EXPORT-WORKER-PROTOCOL`.
+- **Pipelines.** Step 5 runs task 3 through a writer-run seam (`MbfWriterRun`); only `InProcessWriterRun`, which needs
+  `InProcessWriterTestSeam`, implements it. The written bytes and the step-6 digests come from the decoded envelope.
+  A refusal before the chooser replies with its code (`MBF-EXPORT-WRITER-REFUSED`, `MBF-REVIEW-TRUNCATED`,
+  `MBF-EXPORT-OUTPUT-TOO-LARGE`) and the bounded review only. `review_mbf_export_outcome` takes the settings mapping and
+  §3.6 steps 2 and 3 (`admit_model_document_text_unscreened` in `model_document_save.rs`), then task 3 in `review`
+  mode, and opens no store, file, destination or chooser. The seam's failures map to named codes (memory, the output
+  ceiling, protocol, `MBF-EXPORT-CANCELLED`). 4a's transaction, backups, lone-identity refusal, settings bounds, route
+  and full names are unchanged.
+- **Dialog.** `MbfExportDialog.tsx` takes an injected `reviewMbfExport` (`{canonicalText, claimedModelHash,
+  settingsJson}`), or null in the browser-only route, which declines with `MBF-REVIEW-NATIVE-ONLY`. It shows complete or
+  truncated, the counts not shown and how many block, per list, and the ceiling. `MBF-REVIEW-TRUNCATED` and
+  `MBF-EXPORT-OUTPUT-TOO-LARGE` block Save; "You can still save" needs a complete, eligible review and every other
+  condition, the explicit choice included. A save refusal's review replaces the one shown. The dialog does not import
+  the wasm engine; `services/mbfEngine.ts` is a test resource. Vitest reads review payloads generated by the worker
+  (`fixtures/caepipe_mbf/invented/desktop_export/review_cases.json`, regenerated by `mbf_export.rs`
+  `the_dialogs_review_cases_are_the_workers` with `MBF_REVIEW_CASES_REGENERATE=1`; the truncated and over-ceiling
+  variants use a test bound).
+- **4b.2 wires:** task 3 `MbfRender` in `solve_worker.rs` (an `ATST` status-0 frame, then `RSLT`; the workload returns
+  `(worker_render(&raw), None)`; pre-arm only `resident_envelope(raw_len) + reserve` and the raw read, parsing after
+  arm); `result_limit` at the 64 MiB ceiling; a `MbfWriterRun` over the capped worker; command registration and
+  ingress for both commands; the `app_invoke_handler` re-pin; the menu item, the Exports panel and mounting the dialog;
+  retiring the TypeScript builder (A-6); and the cancel, newer-review and budget tests of §3.9.6.
+
 ## 7. Boundaries
 
 - **No compliance or acceptance claims.** SWBPIPE makes no code-compliance claim. Piping-code,
