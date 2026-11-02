@@ -1,17 +1,44 @@
-// File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.5, §3.6; slice 4a): the export
-// review's pure parts and the native save's argument and outcome types. The dialog (`MbfExportDialog.tsx`) runs the
-// wasm writer (`services/mbfEngine.ts`) over the session's canonical model text for the review, then calls an
-// injected `saveMbfExport` with the arguments of the native command `save_mbf_export`
-// (`src-tauri/src/mbf_export.rs`), which repeats every check, writes the native writer's bytes and refuses a save
-// whose digests differ from the reviewed ones. Slice 4b connects the command, the menu item and the Exports panel.
+// File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.5, §3.6, §3.9.5; slices 4a and
+// 4b.1): the export review's presentation and the native commands' argument and outcome types. The dialog
+// (`MbfExportDialog.tsx`) never runs the wasm writer: it asks the injected `reviewMbfExport` (the native
+// `review_mbf_export`, which runs the capped worker's task 3 in `review` mode) for the bounded review of the session's
+// canonical model text, then calls the injected `saveMbfExport` (the native `save_mbf_export`), which repeats every
+// check in its own `save`-mode run, refuses a truncated review or a result above the output ceiling, writes the native
+// writer's bytes and refuses a save whose digests differ from the reviewed ones. The engine classifies the writer's
+// result (`export_review` in `core/handoff/caepipe_mbf_engine`); this module adds the product descriptions. Slice 4b.2
+// connects the commands, the menu item and the Exports panel.
 //
 // Product text names only the format ("Model batch file (.mbf)") and states nothing about any other program
-// (§3.3, §3.5): the review shows a neutral profile label, each loss entry by its code, its entity and a product-side
-// description of what SWBPIPE did or did not write (`MBF_LOSS_DESCRIPTIONS`), never the engine's message text, and the
-// unit conversions by their exact factors; the writer's assumptions are not displayed. Nothing here transmits anything
-// (F-PIP-1).
-import type { MbfExportSettings, MbfLossEntry, MbfRenderOutcome, MbfUnitConversion, MbfWriterReport } from "../../services/mbfEngine";
+// (§3.3, §3.5): the review shows a neutral profile label, each entry by its code, its entity and a product-side
+// description of what SWBPIPE did or did not write (`MBF_LOSS_DESCRIPTIONS`), never the engine's message text (the
+// review does not carry it), and the unit conversions by their exact factors; the writer's assumptions are not
+// displayed. Nothing here transmits anything (F-PIP-1).
 import type { ModelDocumentSaveArgs, ModelFileDiagnostic } from "../model-file/modelDocumentSave";
+
+/** The export dialog's writer settings (§3.1, §3.6). */
+export type MbfExportSettings = {
+  title: string;
+  referenceTemperature: { value: number; unit: "degC" | "degF" };
+  /** No row limit in the product (Q-4). */
+  maxLayoutRows: null;
+};
+
+/** The most bytes of UTF-8 a title may hold (the engine refuses a longer one, `MBF-EXPORT-SETTINGS-INVALID`). */
+export const MBF_MAX_TITLE_BYTES = 4096;
+
+/** The settings' JSON text: what the review is given and the save is given, so both read the same text with the
+ * engine's one mapping (`export_settings_from_json`). */
+export function mbfSettingsJson(settings: MbfExportSettings): string {
+  return JSON.stringify({
+    title: settings.title,
+    referenceTemperature: { value: settings.referenceTemperature.value, unit: settings.referenceTemperature.unit },
+    maxLayoutRows: null
+  });
+}
+
+/** A unit the writer normalized by its exact definition, and its exact factor (`numerator/denominator`) where it has
+ * one (an absolute temperature has an offset as well). */
+export type MbfUnitConversion = { unit: string; definition: string; factor: string | null };
 
 /** The governed local-private, lossless route of the save (A-4). */
 export const MBF_EXPORT_ROUTE_ID = "DOTH-MBF-012";
@@ -20,6 +47,19 @@ export const MBF_EXPORT_INTENT_LABEL =
 export const MBF_EXPORT_ROUTE = { routeId: MBF_EXPORT_ROUTE_ID, intentLabel: MBF_EXPORT_INTENT_LABEL } as const;
 /** The native refusal of a save whose model or settings changed after the review. */
 export const MBF_EXPORT_REVIEW_STALE = "MBF-EXPORT-REVIEW-STALE";
+/** Any truncated review blocks the save (§3.3), whatever the entries not shown. */
+export const MBF_REVIEW_TRUNCATED = "MBF-REVIEW-TRUNCATED";
+/** The save result (MBF, identity file, review and framing) would exceed the 64 MiB output ceiling (§3.7). */
+export const MBF_EXPORT_OUTPUT_TOO_LARGE = "MBF-EXPORT-OUTPUT-TOO-LARGE";
+/** The browser-only route has no native review and no save (§3.9.5). */
+export const MBF_REVIEW_NATIVE_ONLY = "MBF-REVIEW-NATIVE-ONLY";
+/** The native save's refusal of a model the writer refuses; its reply carries the bounded review. */
+export const MBF_EXPORT_WRITER_REFUSED = "MBF-EXPORT-WRITER-REFUSED";
+/** What each global blocking condition says (§3.3, §3.9.5). */
+export const MBF_REVIEW_TRUNCATED_SENTENCE = "The loss report is too large to show in full, so the export is not offered.";
+export const MBF_OUTPUT_TOO_LARGE_SENTENCE =
+  "The model batch file, its identity file and the review together are larger than the 64 MiB an export may write, so the export is not offered.";
+export const MBF_REVIEW_NATIVE_ONLY_SENTENCE = "The model batch file review runs in the desktop app.";
 /** What native code appends to the chosen file's stem to name the identity file (A-5). */
 export const MBF_IDENTITY_FILE_SUFFIX = ".swbpipe-ids.json";
 /** The open items the writer's profile carries (§3.3). */
@@ -142,10 +182,59 @@ export type MbfExportSaveOutcome =
       limitation: string;
       warnings: ModelFileDiagnostic[];
     }
+  /** A refusal before the chooser from the save's own worker run carries the bounded review. */
+  | { outcome: "refused"; diagnostics: ModelFileDiagnostic[]; review?: MbfReviewPayload };
+
+/** The function slice 4b.2 supplies: the native `save_mbf_export` through ingress. */
+export type SaveMbfExport = (args: MbfExportArgs) => Promise<MbfExportSaveOutcome>;
+
+/** A string of the bounded review: itself, or beyond the per-field bound its prefix (cut on a character boundary), its
+ * full length in bytes and its SHA-256. */
+export type MbfReviewField = string | { prefix: string; bytes: number; sha256: string };
+export type MbfReviewListName = "not_written" | "omitted" | "warnings" | "undeclared_materials";
+export type MbfReviewListCounts = { total: number; listed: number; not_shown: number; not_shown_blocking: number };
+
+/** The engine's bounded review (`export_review`, at most 1 MiB): status first, the entries that fit, and the counts of
+ * those that do not. */
+export type MbfReviewPayload = {
+  document_kind: "swbpipe.mbf_export_review";
+  review_format: number;
+  status: MbfReviewField;
+  /** The writer refused, or an entry is not written: computed over the full result. */
+  blocking: boolean;
+  /** The writer refused and named nothing that explains it. */
+  refused_unexplained: boolean;
+  completeness: "complete" | "truncated";
+  /** Whether the save result would be within the 64 MiB output ceiling. */
+  output_ceiling: "within" | "beyond";
+  mbf_sha256: MbfReviewField | null;
+  sidecar_sha256: MbfReviewField | null;
+  mbf_bytes: number;
+  sidecar_bytes: number;
+  layout_row_count: number;
+  field_max_bytes: number;
+  not_shown: number;
+  not_shown_blocking: number;
+  lists: Record<MbfReviewListName, MbfReviewListCounts>;
+  unit_conversions: Array<{ unit: MbfReviewField; definition: MbfReviewField; factor: MbfReviewField | null }>;
+  entries: Array<{
+    list: Exclude<MbfReviewListName, "undeclared_materials">;
+    code: MbfReviewField;
+    entity: MbfReviewField;
+    category: "unsupported" | "error" | "omitted" | "warning";
+  }>;
+  undeclared_materials: MbfReviewField[];
+};
+
+/** The native `review_mbf_export`'s arguments (§3.9.5): the same model, settings and binding a save would write. */
+export type MbfReviewArgs = { canonicalText: string; claimedModelHash: string; settingsJson: string };
+
+export type MbfReviewOutcome =
+  | { outcome: "reviewed"; review: MbfReviewPayload }
   | { outcome: "refused"; diagnostics: ModelFileDiagnostic[] };
 
-/** The function slice 4b supplies: the native `save_mbf_export` through ingress. */
-export type SaveMbfExport = (args: MbfExportArgs) => Promise<MbfExportSaveOutcome>;
+/** The function slice 4b.2 supplies: the native `review_mbf_export` through ingress. */
+export type ReviewMbfExport = (args: MbfReviewArgs) => Promise<MbfReviewOutcome>;
 
 /** The default reference temperature (§3.1): 20 °C, or 68 °F in a degF project (passed as
  * `reference_temperature_f`, exact). */
@@ -196,14 +285,26 @@ export function familyLabel(family: string): string {
   return FAMILY_LABELS[family] ?? family;
 }
 
-/** A loss entry or warning as the review shows it: its code, its entity and the product-side description. */
+/** A review string as text: a string carried in full as itself, a longer one as its prefix and its full length. */
+export function reviewFieldText(field: MbfReviewField | null): string {
+  if (field === null) return "";
+  return typeof field === "string" ? field : `${field.prefix}… (${field.bytes} bytes in full, SHA-256 ${field.sha256})`;
+}
+
+/** A review string carried in full, or null. */
+function wholeField(field: MbfReviewField | null): string | null {
+  return typeof field === "string" ? field : null;
+}
+
+/** An entry as the review shows it: its code, its entity and the product-side description. */
 export type MbfReviewEntry = { code: string; entity: string; description: string };
 
 export type MbfReview = {
-  status: "written" | "refused";
-  /** What keeps the file from being written, by family in first-seen order: each `unsupported` loss entry, and each
-   * error diagnostic that has no loss entry of its own (an invalid or out-of-range value, an unresolved reference, a
-   * schema version). Each blocks the save. */
+  status: string;
+  /** The writer refused, or an entry is not written (computed over the full result, before any bound). */
+  blocking: boolean;
+  /** What keeps the file from being written, by family in first-seen order, as far as the review lists it: each
+   * `unsupported` loss entry, and each error diagnostic that has no loss entry of its own. Each blocks the save. */
   notWritten: Array<{ family: string; entries: MbfReviewEntry[] }>;
   /** The writer refused and named nothing that explains it: the dialog still says that the file is not written. */
   refusedUnexplained: boolean;
@@ -214,53 +315,69 @@ export type MbfReview = {
   mbfSha256: string | null;
   sidecarSha256: string | null;
   layoutRowCount: number;
+  /** Every entry is listed; a truncated review blocks the save. */
+  complete: boolean;
+  /** The save result would be within the output ceiling. */
+  outputWithinCeiling: boolean;
+  /** The entries not listed, and how many of them block. */
+  notShown: number;
+  notShownBlocking: number;
+  lists: Record<MbfReviewListName, MbfReviewListCounts>;
 };
 
-/** The review of §3.3 from the writer's outcome. */
-function reviewEntry(item: { code: string; entity?: string }, blocking?: boolean): MbfReviewEntry {
-  return { code: item.code, entity: item.entity ?? "", description: lossDescription(item.code, blocking) };
-}
-
-export function mbfReview(outcome: Extract<MbfRenderOutcome, { status: "written" | "refused" }>): MbfReview {
-  const report: MbfWriterReport = outcome.report;
+/** The dialog's review from the engine's bounded review (§3.3): the engine has classified the entries; this adds the
+ * product descriptions and the families. */
+export function mbfReview(payload: MbfReviewPayload): MbfReview {
   const notWritten: MbfReview["notWritten"] = [];
-  const block = (entry: MbfReviewEntry) => {
-    const family = lossFamily(entry.entity);
-    const group = notWritten.find((item) => item.family === family);
-    if (group) group.entries.push(entry);
-    else notWritten.push({ family, entries: [entry] });
-  };
-  for (const entry of report.loss_report.filter((item: MbfLossEntry) => item.category === "unsupported")) block(reviewEntry(entry, true));
-  // An error the writer raised without a loss entry (`diag` and `invalid` in the engine) is never silent.
-  for (const item of report.diagnostics.filter((diagnostic) => diagnostic.severity === "error")) {
-    const entity = item.entity ?? "";
-    if (!report.loss_report.some((entry) => entry.code === item.code && entry.entity === entity)) block(reviewEntry(item, true));
+  const omitted: MbfReviewEntry[] = [];
+  const warnings: MbfReviewEntry[] = [];
+  for (const item of payload.entries) {
+    const code = reviewFieldText(item.code);
+    const entity = reviewFieldText(item.entity);
+    const blocking = item.list === "not_written";
+    const entry = { code, entity, description: lossDescription(code, blocking || MBF_BLOCKING_CODES.has(code)) };
+    if (item.list === "not_written") {
+      const family = lossFamily(typeof item.entity === "string" ? item.entity : item.entity.prefix);
+      const group = notWritten.find((candidate) => candidate.family === family);
+      if (group) group.entries.push(entry);
+      else notWritten.push({ family, entries: [entry] });
+    } else if (item.list === "omitted") omitted.push(entry);
+    else warnings.push(entry);
   }
-  const undeclaredMaterials = Object.values(report.material_map ?? {})
-    .filter((entry) => entry.origin === "undeclared")
-    .map((entry) => String(entry.swbpipe_material ?? ""));
   return {
-    status: outcome.status,
+    status: reviewFieldText(payload.status),
+    blocking: payload.blocking,
     notWritten,
-    refusedUnexplained: outcome.status === "refused" && notWritten.length === 0,
-    omitted: report.loss_report.filter((item) => item.category === "omitted").map((item) => reviewEntry(item)),
-    unitConversions: outcome.unitConversions,
-    // Each omitted entry is also a warning diagnostic: the warnings listed are the others.
-    warnings: report.diagnostics
-      .filter((item) => item.severity === "warning")
-      .filter((item) => !report.loss_report.some((entry) => entry.category === "omitted" && entry.code === item.code && entry.entity === item.entity))
-      .map((item) => reviewEntry(item)),
-    undeclaredMaterials,
-    mbfSha256: outcome.mbfSha256,
-    sidecarSha256: outcome.sidecarSha256,
-    layoutRowCount: report.layout_row_count
+    refusedUnexplained: payload.refused_unexplained,
+    omitted,
+    unitConversions: payload.unit_conversions.map((item) => ({
+      unit: reviewFieldText(item.unit),
+      definition: reviewFieldText(item.definition),
+      factor: item.factor === null ? null : reviewFieldText(item.factor)
+    })),
+    warnings,
+    undeclaredMaterials: payload.undeclared_materials.map(reviewFieldText),
+    mbfSha256: wholeField(payload.mbf_sha256),
+    sidecarSha256: wholeField(payload.sidecar_sha256),
+    layoutRowCount: payload.layout_row_count,
+    complete: payload.completeness === "complete",
+    outputWithinCeiling: payload.output_ceiling === "within",
+    notShown: payload.not_shown,
+    notShownBlocking: payload.not_shown_blocking,
+    lists: payload.lists
   };
 }
 
-/** Whether the review admits Save (§3.3): written, with nothing not written and both digests. */
+/** The review's global blocking conditions (§3.3): a truncated review, and a save result above the output ceiling. */
+export function reviewBlockingCodes(review: MbfReview): string[] {
+  return [...(review.complete ? [] : [MBF_REVIEW_TRUNCATED]), ...(review.outputWithinCeiling ? [] : [MBF_EXPORT_OUTPUT_TOO_LARGE])];
+}
+
+/** Whether the review admits Save (§3.3): written, nothing blocking, complete, within the output ceiling and with both
+ * digests. The native save checks all of it again in its own run. */
 export function reviewAdmitsSave(review: MbfReview | null): boolean {
-  return review !== null && review.status === "written" && review.notWritten.length === 0
-    && review.mbfSha256 !== null && review.sidecarSha256 !== null;
+  return review !== null && review.status === "written" && !review.blocking && review.notWritten.length === 0
+    && review.complete && review.outputWithinCeiling && review.mbfSha256 !== null && review.sidecarSha256 !== null;
 }
 
 /** The status line after a save (§3.1 step 5): both files and the count of omitted entries. */
