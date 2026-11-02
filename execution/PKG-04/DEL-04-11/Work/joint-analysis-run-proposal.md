@@ -34,6 +34,9 @@
 - **Dynamics consumer check of r2** (4426a59fc, relayed by Agent 0): no architecture
   objection, subject to five bounded corrections, which r3 applies. This was a
   consumer check, not an independent review or an adoption.
+- **Independent design and persistence review of r3** (gpt-6-astra, medium): "revise
+  before adoption". C is preferred to A, and the typed manifest payload is kept as the
+  input home, both subject to the findings, all of which r4 applies (§10).
 
 ## 1. What the current record and manifest can and cannot carry
 
@@ -44,7 +47,13 @@
   (`rfc8785_jcs` over the entire manifest);
 - Record Run (v13) and C1 store the manifest bytes (`input_manifest_json`);
 - today it carries two keys, `nonlinear_iteration_policy` and `sparse_evidence_lane`;
-- it is validated only for being complete JSON (`INPUT-MANIFEST-SOLVER-INCOMPLETE`).
+- it is not a general JSON payload slot:
+  - its validator (`isCompleteJson`, `inputManifestService.ts:249-259`) rejects `null`
+    at any depth, and non-finite numbers;
+  - the manifest's arguments require at least one load case.
+
+  A task payload with legitimate nulls, or a load-free modal model, needs task-specific
+  validation (§2.1).
 
 So a task's payload has a home. What is missing is three things:
 - a typed, validated task payload;
@@ -81,9 +90,9 @@ record carries the result (§2.2).
 | Storage | Existing `input_manifest_json`, already stored by v13 and C1 | A new stored column or blob |
 | Identity | The manifest hash (`rfc8785_jcs`), already in the record's `reproducibility` | A new bundle hash |
 | Model | `model_basis.model_payload`, the model part of the task request. The bare-model binding applies to it unchanged | Inside the wrapper; needs extraction |
-| Typing | Needs a closed per-kind schema under a new `settings.task` member, and validators. Today only completeness is checked | Closed by its own schema |
+| Typing | Needs a closed per-kind schema under a new `settings.task` member, and task-specific validators. Today's validator rejects nulls and requires a load case (§1) | Closed by its own schema |
 | Size | The manifest grows by the library (hanger) or the options (modal). Consumers with manifest caps (`MAX_INPUT_MANIFEST_TEXT_BYTES` = 2 × the model-document maximum, report-package save) refuse larger manifests; a large private library could reach that cap | The bundle has its own cap; the manifest is unchanged |
-| Privacy | The manifest is bound into report packages by hash (`report_package/src/bindings.rs`) and handed to report-package save as text. Private payloads in it (hanger's library; modal's private materials, library and constitutive payload) need a check that no export emits the manifest's settings content (§11, D-10) | The library stays out of the manifest |
+| Privacy | **Existing reports emit settings content.** `renderableReportInput.ts:657-678` (TypeScript) and `report_package/src/user_release.rs:640-667` (Rust) copy every settings key and its canonical value into `report_context.solver_settings`, and `report_renderer/src/lib.rs:703-709` renders each as a "Solver setting" row. A private payload under `settings.task` would reach report content wherever those consumers receive the manifest. Hash-only package binding and `included_as_package_member: false` do not prevent this. Today's mechanics and user-release eligibility checks mean no unimplemented task route exports a library now, but the condition "no export emits settings content" is false (D-10) | The private payloads stay out of the manifest and its report projections |
 | Lanes | Modal names the existing settings as its proposed payload home (M-4, M-5) | One new surface for both |
 
 **Recommendation: the typed task payload in the existing manifest's settings.** It
@@ -91,9 +100,22 @@ reuses the stored manifest, its identity and the bare-model binding for the mode
 It is what modal proposes, and it adds no stored column.
 
 **Conditions:**
-- a closed `settings.task` schema per kind, validated on build and on Record;
-- explicit refusal at the manifest caps, with no truncation;
-- D-10's privacy check, covering every family's private payloads, before adoption.
+1. **A closed `settings.task` schema per kind,** validated on build and on Record by
+   task-specific validators:
+   - legitimate nulls, and load-free models where a family needs them, are admitted
+     inside `settings.task` only;
+   - the mechanics manifest's validation and output stay unchanged.
+2. **Checked admission of the original task input** under `openpipestress_jcs_ijson_v1`
+   (§8.3.1) before any lossy parse. Two separate identities are then computed: the
+   manifest's `rfc8785_jcs` identity, and the checked family hashes. Neither substitutes
+   for the other.
+3. **Explicit refusal at the manifest caps,** with no truncation.
+4. **D-10, a consumer change in both languages,** before adoption:
+   - the report context's settings projection becomes a reviewed allow-list that
+     excludes `settings.task`'s private payloads and keeps their identity references
+     (kind and hashes);
+   - implementation carries sentinel-based export regression checks: a marker string in
+     a private payload must appear in no report context, rendered report or package.
 
 **Request hash and request payload stay distinct.**
 - The manifest carries the payloads.
@@ -130,7 +152,7 @@ It is what modal proposes, and it adds no stored column.
 
 | | Alternative | Consequence under the rule |
 |---|---|---|
-| A | **analysis_run 0.4.0 superseding 0.3.0**, with a `run_kind` discriminator | 0.4.0 becomes the one current version, so 0.3.0 is retired and refused by name, as 0.1 and 0.2 were. Every stored 0.3.0 record in every project becomes unreadable ("re-run the analysis"). Every 0.3 producer, reader and fixture is retired or repinned: TypeScript, C1's native builder, `core/analysis_runs`, the store's checks and 24 committed `*.analysis_run.json` fixtures. Avoiding that needs an **owner policy decision**: two current versions of one format |
+| A | **analysis_run 0.4.0 superseding 0.3.0**, with a `run_kind` discriminator | 0.4.0 becomes the one current version, so 0.3.0 is retired and refused by name, as 0.1 and 0.2 were. Stored 0.3.0 records keep their bytes, but they are no longer admitted by current-version validation, so supported reopening and re-saving of them cannot be promised ("re-run the analysis"). Every 0.3 producer, reader and fixture is retired or repinned: TypeScript, C1's native builder, `core/analysis_runs`, the store's checks and 24 committed `*.analysis_run.json` fixtures. Avoiding that needs an **owner policy decision**: two current versions of one format, or a retained archival 0.3.0 reader, each an exception |
 | B | **Additions within 0.3.0** | Not available. The constants and closed objects mean an addition changes the accepted set under an unchanged version (C1-4) |
 | C | **A sibling task-record format** with a common envelope and typed family results by reference; 0.3.0 unchanged | The rule holds per format. 0.3.0 keeps its current status and behaviour |
 | D | **One record format per family** | Divergent formats for the same envelope duties, contrary to C1's "coordinate shared extensions" |
@@ -147,6 +169,24 @@ record:
 | Readers | The six-table row readers | The family's own readers (§4.3, §5) |
 | `mechanics_solve` | The only kind | **Not admitted.** A mechanics solve can never be recorded as a task record, so 0.3.0's role is not split or taken over |
 
+**C's own evolution.** The rule that rejects B applies to C too. If the envelope fixes
+`task_kind` as a closed enum, adding `modal` later changes its accepted set. That needs
+a successor envelope version, which under the one-version rule would retire stored
+hanger task records. Two forms of C differ here:
+
+| Form | Description | Adding modal |
+|---|---|---|
+| C-closed | One envelope version whose closed `task_kind` enum lists the admitted families | A new envelope version, retiring the earlier one, as for A |
+| **C-layered** (recommended) | A stable common envelope plus a separately versioned **family binding** per kind. A record names its family binding (`family_binding: {id, version}`), and the envelope dispatches validation to it. The envelope's own accepted set is structural and does not list families | A new family binding (modal 1.0.0); the envelope and the hanger binding are unchanged, so stored hanger records stay current |
+
+C-layered is the reviewer's "minimal separately versioned family-document binding": C
+with family admission moved out of the envelope's version.
+- **What it needs.** An explicit ruling that registering a new family binding under an
+  unchanged envelope version is not a change to an existing format's accepted set
+  (D-11): every record names the versions that fix its meaning.
+- **What it does not avoid.** A change to the envelope itself is still a version event
+  under the one-version rule, as it would be for A.
+
 If the owner instead decides A with an exception, §3–§10 still apply with
 `schema_version: "0.4.0"` and `run_kind` in place of `task_kind`. The repinning list and
 the read consequence above are then the owner's decision (§11, D-1).
@@ -159,13 +199,13 @@ decided. It is JSON Schema 2020-12, every object closed, and its hashes are
 
 | Member | Content |
 |---|---|
-| `task_kind` | Discriminator, a closed enum without `mechanics_solve`. The first slice admits `hanger_sizing` only. `modal` is added when its family section (§5) is adopted. Each kind fixes its `settings.task` schema, family document kind and version, semantic contract id and reader. A mismatch is refused (`ANALYSIS_TASK_RECORD_KIND_MISMATCH`) |
+| `task_kind`, `family_binding` | `task_kind` is the discriminator and is never `mechanics_solve`. `family_binding: {id, version}` names the separately versioned binding (C-layered, §2.2), which fixes the kind's `settings.task` schema, family document kind and version, semantic contract id and reader. The first binding is `hanger_sizing` 1.0.0; `modal` gets its own when adopted. A record naming an unregistered binding, or members of another kind, is refused (`ANALYSIS_TASK_RECORD_KIND_MISMATCH`) |
 | `record_contract` | Constants: `strict_analysis_task_record_v1`; `result_binding: "received_family_document"`; `external_validation_boundary` with 0.3.0's wording |
 | `run_id`, `created_at`, `model_state_ref` | As 0.3.0, including the transient `null` `created_at` and `state:<model ref>:preview`. The name, tags, notes and assumptions are labels outside the hash |
 | `engine` | `{engine_name, engine_version, build_ref}`: the build that reproduction is claimed against (§6) |
 | `reproducibility` | 0.3.0's form: `input_manifest_refs` and `input_manifest_hashes`, one entry each. The manifest carries the typed task (§2.1). Also `task_input_hashes: [{role, sha256}]`: each family-bound input's checked hash, recomputed on Record from the manifest's payloads |
 | `result` | `{document_kind, schema_version, semantic_contract_id, status, sha256}`: the family document's identity members and the hash of its checked canonical text |
-| `standings` | The family reader's required validation checks on the stored bytes at record time, each `passed`. These are the family's validation checks, not every health or census indicator being good: a validated modal result may truthfully carry Sensitive standings or a partially completed cluster (§5). Not a claim of correctness |
+| `standings` | The family reader's required validation checks on the stored bytes at record time, each `passed`. These are the family's validation checks, not every health or census indicator being good: a validated modal result may truthfully carry Sensitive standings where the modal contract permits them, and completed clusters while the whole finite census stays unresolved (§5). Published clusters are always complete: "A partial cluster is never published" (modal §1.4). Not a claim of correctness |
 | `diagnostics` | The family's refusals and disclosures, carried unchanged as source annotations (REQ-06-02) |
 | `analysis_status` | Not settled; options in §3.1 |
 | `immutability_policy`, `professional_boundary`, `provenance` | 0.3.0's members and constants, unchanged in meaning |
@@ -183,17 +223,21 @@ REQ-06-04 requires distinguishing:
 - a rule-check result;
 - states needing human review.
 
-0.3.0 realizes these as `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`,
+0.3.0's status enum is `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`,
 `USER_RULE_CHECKED`, `USER_RULE_FAILED` and `HUMAN_REVIEW_REQUIRED`, with
-`HUMAN_REVIEW_REQUIRED` always present.
+`HUMAN_REVIEW_REQUIRED` always present. It has no separate invalid-input status:
+invalid input is carried by typed refusals, and a task record keeps that distinction
+the same way.
 
 | Option | For | Against |
 |---|---|---|
-| (a) 0.3.0's vocabulary, with `MECHANICS_SOLVED` for a completed task | No new term. A sizing is derived from mechanics solves | `MECHANICS_SOLVED` then also means "a sizing completed", or "an eigen-analysis completed", which REQ-06-04's "mechanics result" was not written for |
+| (a) 0.3.0's vocabulary, with `MECHANICS_SOLVED` for a completed task | No new term. A sizing is derived from mechanics solves, and an eigen-analysis is a mechanics result in the broad engineering sense | `MECHANICS_SOLVED` is tied to the specific `mechanics_solve` record contract. Reusing it for a task record invites confusion between the two record formats |
 | (b) A family-neutral completion status beside `HUMAN_REVIEW_REQUIRED`, for example `TASK_COMPLETED` | Never read as a mechanics solve | A new class under REQ-06-04 needs DEL-00-06's review, and it is not settled |
 | (c) Family-qualified statuses | Most specific | Grows the vocabulary per family |
 
-**Leaning:** (b), subject to the independent review and DEL-00-06. Under every option,
+**Leaning:** (b), subject to DEL-00-06. The independent review found (b) reasonable.
+`TASK_COMPLETED` would mean that the algorithm completed. It would not mean suitability,
+validation success or acceptance. Under every option,
 `HUMAN_REVIEW_REQUIRED` stays mandatory, and the family's own standing (hanger's
 `verification_standing`) stays in the family document.
 
@@ -315,7 +359,11 @@ reader is added in both languages. It checks:
   - `mode:<i>` is run-local only, not a persistent physical identity. The concrete index
     and row spellings, and the signatures, are unknown.
   - The global mass summary needs an explicit model or group basis, not mode 0 and not
-    a blanket all-rows mode.
+    a blanket all-rows mode (M-3). **This conflicts with modal §5.2 as written** ("Each
+    row carries `basis_ref {ref_type: "mode", …}`"). It is a governing-text change to
+    coordinate with the modal lane on adoption, not a statement of the current
+    contract. Modal §5.2's planned `modal` run kind in `analysis_run.v0.3` is likewise a
+    text to reconcile; O-8 leaves its compatibility open.
   - Rows are `ResultRef`-like: id, ordinal and canonical checksum. There is no LoadCase
     coercion.
   - RT-R2 views need their own family definition; storage alone gives no UI support.
@@ -391,8 +439,13 @@ reader is added in both languages. It checks:
 | Standings | `closure`, `binding`, `arithmetic_consistent_with_published_positions`, `derivation`, and `reproduction` (this build) | `closure`, `binding`, `arithmetic` and `derivation` from the complete stored payloads. `reproduction` is `not_checked`: §8.3.7 claims it for the same build and platform only, and a re-run is a new run. A missing payload gives scoped findings, never a reconstruction from digests |
 | Recordable | Yes, if `closure`, `binding`, `arithmetic` and `derivation` passed (`reproduction` shown, not required) | Never. Restored is not Current (C1-6) |
 
-A stored record whose bytes no longer hash to their checksums is listed as unreadable,
-as v13 runs are (`unreadable_run_entry`), and is never repaired.
+**Integrity checks, by step:**
+- **Listing** checks the envelope and the labels, and a record failing them is listed
+  as unreadable, as v13 does (`unreadable_run_entry`).
+- **A full read** checks the result and the manifest against their hashes. A corrupted
+  payload may therefore appear only when the record is opened, not in the list.
+
+Nothing is repaired.
 
 ## 7. Record, store, read, reopen and re-save
 
@@ -405,10 +458,22 @@ as v13 runs are (`unreadable_run_entry`), and is never repaired.
     key and the project cascade.
   - `analysis_runs` and its v13 readers are unchanged.
 - **Separate labels (D-6).** v13's `analysis_run_labels` has a foreign key to
-  `analysis_runs`. Generalizing it would mean rebuilding an existing table that holds
-  data, because SQLite cannot alter a foreign key. That is a data-bearing table
-  migration, which "no migration" excludes. A separate label table costs a second set
-  of label statements, so the label code is written once over a table name.
+  `analysis_runs`. Generalizing it would mean rebuilding an existing, data-bearing
+  table, because SQLite cannot alter a foreign key.
+  - Store migrations are routine, and the format rule's "no migration" is about retired
+    record formats, not store tables. A separate table is recommended because it leaves
+    existing rows and their referential integrity untouched, with less migration risk.
+  - Its cost is a second set of label statements. Shared SQL helpers select only fixed
+    internal table names, never a caller-supplied identifier.
+- **State relationships.** `model_states.rs` counts a state's references from
+  `analysis_runs` only (around lines 1285-1289 and 1688-1694), and its deletion path
+  uses those counts to explain what blocks a deletion.
+  - Task runs must be added to the state reference counts, the handling of unreadable
+    references, and the deletion explanations.
+  - Otherwise a state referenced only by task runs would show no recorded runs, and its
+    deletion would fail on the foreign key instead of on the named blocker.
+  - The state's `NO ACTION` relationship and the project cascade are kept. This is a
+    consumer update. It does not allow task evidence to be deleted implicitly.
 - **Record.** One `BEGIN IMMEDIATE` transaction:
   1. allocate `created_at`;
   2. run the selected family's binding steps (hanger §4.1; modal §5 when adopted);
@@ -417,10 +482,15 @@ as v13 runs are (`unreadable_run_entry`), and is never repaired.
      record's;
   5. write.
 
-  Any refusal writes nothing, and stored bytes are written as submitted (C1-7).
+  Any refusal writes nothing. The first recording constructs the timestamped,
+  state-bound revision from the transient record, as v13 does. From then on, that
+  stored revision's bytes are preserved exactly (C1-7).
 - **List and read.**
   - Listing reads the envelope and labels only, never `result_json` or the manifest, so
-    there are no row-scale fields in the 4 MiB header (C1-7, M-5).
+    there are no row-scale fields in the 4 MiB header (C1-7, M-5). The envelope copies
+    the family's diagnostics, so the envelope's serialized size is bounded explicitly,
+    and listing admits the aggregate of all listed envelopes against a budget. Leaving
+    result rows out alone bounds nothing.
   - Reading prices the result and manifest before parsing, and an oversized record is
     refused, typed, as `refuse_undisplayable_run` does.
   - A budget-withheld record leaves the model editable.
@@ -431,7 +501,8 @@ as v13 runs are (`unreadable_run_entry`), and is never repaired.
     project envelope (`computeProjectEnvelopeHash`) and `project_persistence` are
     unchanged.
   - A fresh sizing result lives in the session until Record.
-  - Re-save copies record, manifest and result bytes and checksums unchanged.
+  - Re-save copies the stored revision's record, manifest and result bytes, and its
+    checksums, unchanged.
 - **Headless.** `size-hangers` stays a document producer and is not importable as a
   record: it has no session custody, and its hashes identify inputs without
   authenticating an origin (P4).
@@ -440,8 +511,13 @@ as v13 runs are (`unreadable_run_entry`), and is never repaired.
     refuses the whole store: "STORE-SCHEMA-NEWER … Nothing was read or written; open it
     with that build" (`refuse_newer_store`). This covers every project in that store,
     not only those with task runs.
-  - **Rollback.** There is no downgrade path unless a copy of the store from before the
-    migration is kept.
+  - **When it happens.** The migration runs when the store is opened, not at the first
+    task recording.
+  - **Rollback.** A copy of the store taken before the migration restores that earlier
+    snapshot only. Writes made after the migration cannot be recovered into the older
+    build.
+  - **Implementation requirements.** The backup is consistent with SQLite and WAL, and
+    an interrupted migration can be recovered.
 
   These must be decided before adoption.
 
@@ -479,7 +555,7 @@ unchanged.
 | Record schema | A new task-record schema; `tools/release/schema_manifest.json` (regenerated) | DEL-14-02, DEL-00-06 |
 | Task payload | A per-kind `settings.task` schema; `inputManifestService.ts` validation; the Rust manifest checks (`analysis_runs.rs` `manifest_members`, and C1's builder's manifest checks) | DEL-14-01, C1 |
 | Envelope reader | A Rust reader (placement open) and an independent Python verifier | DEL-14-02 |
-| Store | `lib.rs` migration list (next number), a new task-run module, `model_states.rs` (lookup only) | DEL-14-01, C1 |
+| Store | `lib.rs` migration list (next number), a new task-run module, `model_states.rs` (reference counts, unreadable-reference handling and deletion explanations, §7) | DEL-14-01, C1 |
 | Native custody | `solve_jobs` (a task job kind, its task digest at admission), `native_persistence.rs` (task binding), `native_verdict.rs` (a family route-header entry, metadata only, C1-1) | C1 |
 | Commands | Record, list, read, delete and label for task runs, each with v13's ingress and argument limits | DEL-14-01, C1 |
 | TypeScript | A task-run service; the run list shows both formats, each through its own reader | DEL-14-01 |
@@ -505,7 +581,10 @@ unchanged.
   - restored-as-fresh;
   - oversized;
   - a manifest past its cap;
-  - a 0.3 record as a task record, and the reverse.
+  - a 0.3 record as a task record, and the reverse;
+  - a private payload's sentinel string found in any report context, rendered report or
+    package (D-10);
+  - a state referenced only by task runs, whose deletion must name its blocker.
 - **Legacy.** Every 0.3 fixture and test unchanged byte for byte. Mechanics-solve
   manifests unchanged.
 - **Store.**
@@ -515,9 +594,10 @@ unchanged.
   - Every refusal is atomic.
   - Size limits are applied before allocation.
 - **Fresh and restored.** As §6, including `reproduction` `not_checked` on restore.
-- **Scrutiny.** An independent design and persistence review (gpt-6-astra, medium) of
-  this proposal's alternatives and of the governing text before adoption. Implementation
-  reviews per slice.
+- **Scrutiny.** Independent design and persistence review of r3 (gpt-6-astra, medium,
+  2026-11-02): "revise before adoption". Its two blocking findings (D-10, and the
+  partial-cluster wording) and six should-fix findings are applied in r4. The adopted
+  governing text gets its own review; implementation is reviewed per slice.
 
 ## 11. Decisions (Agent 0's 2026-11-02 rulings recorded; the rest open)
 
@@ -528,11 +608,12 @@ unchanged.
 | D-3 | Contract owner | **DEL-14-02 with DEL-00-06** (Agent 0) |
 | D-4 | Status vocabulary | Open (§3.1); (b) leaning, for review |
 | D-5 | Recording a refused hanger document | **Not in the first slice**; displayed truthfully (Agent 0's preference) |
-| D-6 | Separate label table | Proposed (§7), for review |
+| D-6 | Separate label table | Recommended (§7); the independent review agreed, on the basis of risk rather than the format rule |
 | D-7 | Desktop materials | `[]` only, as a restriction of the desktop route (§4.1), for review |
 | D-8 | Modal's `task_kind` row and document | Open (§5, M-6) |
 | D-9 | Store migration number, older-build refusal, rollback and data access | Number allocated at implementation. The cost is owner-visible and decided before adoption |
-| D-10 | Private payloads in the manifest's settings (hanger's library; modal's private materials, library and constitutive payload): confirm no export emits manifest settings content, and the manifest caps | Open; must be checked before adoption |
+| D-10 | Private payloads in the manifest's settings (hanger's library; modal's private materials, library and constitutive payload) | **Checked: failed as stated.** The existing report consumers emit every settings key (§2.1). Adoption needs the allow-listed report projection in both languages, with sentinel export checks, and explicit manifest caps |
+| D-11 | C-layered: registering a family binding under an unchanged envelope version is not a change to an existing format's accepted set (§2.2) | Open; owner policy question if Agent 0 does not consider it settled by the one-version rule's wording |
 
 ## 12. Commitment text proposed (old and new; not applied)
 
@@ -542,7 +623,7 @@ Old:
 > Sanctioned additive classes (extensions, not contradictions of REQ-06-02): the analysis-run record keeps one version, 0.3.0 (`schemas/analysis_run.v0.3.schema.json`), which carries each received diagnostic unchanged as a source annotation and declares no warning-class enum of its own; …
 
 New (if D-1 = C is adopted):
-> Sanctioned additive classes (extensions, not contradictions of REQ-06-02): the analysis-run record keeps one version, 0.3.0 (`schemas/analysis_run.v0.3.schema.json`), for mechanics-solve runs, which carries each received diagnostic unchanged as a source annotation and declares no warning-class enum of its own. Typed task runs whose result is a family document (hanger sizing; modal when adopted) use the analysis task record, one version (`<adopted schema path>`). It never records a mechanics solve, binds its family document and input manifest by hash, carries the family's diagnostics unchanged as source annotations, and declares no warning-class enum of its own. …
+> Sanctioned additive classes (extensions, not contradictions of REQ-06-02): the analysis-run record keeps one version, 0.3.0 (`schemas/analysis_run.v0.3.schema.json`), for mechanics-solve runs, which carries each received diagnostic unchanged as a source annotation and declares no warning-class enum of its own. Typed task runs whose result is a family document (hanger sizing; modal when adopted) use the analysis task record, one envelope version (`<adopted schema path>`), with each family admitted through its own versioned family binding. It never records a mechanics solve, binds its family document and input manifest by hash, carries the family's diagnostics unchanged as source annotations, and declares no warning-class enum of its own. …
 
 DEL-00-06 `code_paths` gain the adopted schema path.
 
@@ -559,6 +640,7 @@ New:
   "the joint task-run record (`Work/joint-analysis-run-proposal.md`; DEL-14-02 on
   adoption)".
 - The same wording change applies at `ScopeOfWork.md` "Analysis run" and Design §8.1
-  and §8.3.
+  and §8.3. The full old and new passages will be written out when D-1, D-2 and D-11
+  fix the names.
 
-The proposal applies none of these. They wait for D-1, D-2 and D-9, and for the review.
+The proposal applies none of these. They wait for D-1, D-2, D-9, D-10 and D-11, and for the review of the adopted text.
