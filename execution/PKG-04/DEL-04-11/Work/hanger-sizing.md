@@ -655,11 +655,18 @@ outcome.
 
     The detail view and the readers share `evaluate`. The crate has no product
     dependency.
-  - **From slice 1c:** the request DTO, the candidate checks, derived-document
-    construction, the solve loop and the result rows. These add the dependency on
-    `product_physics` and bring the crate into the solver's reachability; they are
-    reported before they touch shared surfaces. The crate then gains a headless runner
-    entry and a native desktop command.
+  - **Slice 1c, built:** `derived.rs` and `library.rs`:
+    - the request, the candidate and case checks;
+    - derived-document construction and the one solve call site;
+    - the sizing run with its verification and disclosures;
+    - the library reader, which normalizes through the unit catalog.
+
+    These add the path dependency on `product_physics`, which brings the crate into
+    the solver's reachability for CI selection; no `product_physics` file changes. The
+    run's results are a typed `SizingRun`.
+  - **From slice 1d:** publication. That means the profile, the semantic table and the
+    readers in `result_export`, and a headless runner entry, with the overlap routed
+    first. The native desktop command follows with increment 3.
 - **Readers:** `core/reporting/result_export` (the Rust reader) and
   `tests/verifiers/hanger_sizing_evidence.py`.
 - **Desktop:** the request form, the hanger table and its detail view, in
