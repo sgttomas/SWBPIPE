@@ -1427,5 +1427,15 @@ records what was built against it.
   parity fixture's negative-control models (rows 3, 7, 9, 10, 12 and 13) are
   neither valid 0.9.0 documents nor classified by that test's rules. These are
   local source/transport checks, not native App or acceptance evidence.
-- **Left:** classification of the parity fixture's negative-control models in
-  the repository model-document test, and exact-head hosted checks.
+- **Parity-fixture classification repair.** The repository model-document test
+  uses its existing explicit-exclusion rule for exactly the six schema-invalid
+  preview controls (`/rows/{3,7,9,10,12,13}/model` in that one fixture), each with
+  its named refusal reason. The existing guard still requires every excluded
+  model to fail the schema. New guards repair only the named typo, version or
+  pressure contract on a copy and validate all remaining members; another row or
+  file is not excluded. Native and actual-Wasm parity still require the original
+  refusals. Fixture bytes, schema and expected results are unchanged. The schema,
+  0.9.0-member and actual-Wasm focused checks pass (35 tests); the two failures
+  from the broader 12,104-pass selected run are cleared by this repair.
+- **Left:** independent scrutiny of the narrow classification amendment and
+  exact-head hosted checks.
