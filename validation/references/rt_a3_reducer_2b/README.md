@@ -71,8 +71,11 @@ element-local frame. That frame is x = (x_to − x_from)/L; y is y_reference wit
 its x component removed, then normalized; z = x × y.
 
 At end_i the j-side action is **minus** the from-end action on the member. At
-end_j it equals the to-end action on the member. This matches the product's
-straight-member "j-side section action" convention. The cleared packet's
+end_j it equals the to-end action on the member. The product's interior local
+force and moment rows and its stress recovery use this j-side convention.
+Its local force and moment rows at end_i/end_j instead use node-on-member
+end-DOF actions, as their `sign_convention` states; bind those rows to this
+packet's `end_wrench_on_member_local`, not to the section action. The cleared
 `end_wrench_on_member_*` fields are node-on-member end actions, a different
 object. The stations are end_i (0), quarter_1 (1/4), midspan (1/2), quarter_3
 (3/4) and end_j (1) of the chord length.

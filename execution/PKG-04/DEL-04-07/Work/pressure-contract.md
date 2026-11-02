@@ -659,9 +659,10 @@ W-15c controls, compared with their outcomes before the helper extraction.
 Row mapping: the element-local force and moment rows at `end_i`/`end_j` are
 end-DOF force vectors, the node's action on the member as each row's sign
 convention states. They bind to the packet's `end_wrench_on_member_local`.
-Interior stations and every stress row are the j-side section action. The
-packet README's sentence that the product's end_i station is the j-side
-action holds for the stress rows only.
+Interior stations and every stress row use the j-side section action. The
+packet README and generated row semantics distinguish these from the
+endpoint force vectors; this mapping clarification changes no reference
+number.
 
 **Limits.** The determinate cases show force independence of s; an
 indeterminate system's response is not generally affine in 1/s, and no
