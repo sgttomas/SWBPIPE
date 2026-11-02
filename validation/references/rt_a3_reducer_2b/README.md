@@ -1,17 +1,25 @@
 # RT-A3 reducer 2b reference package (candidate)
 
-**Status: CANDIDATE ONLY.** This package is not adopted, not frozen, and not
-product evidence. It confers no family, readiness, adoption, acceptance or release
-standing. Before any product test may consume it, the additions described here
-need focused independent delta scrutiny and manager integration. The 26 cleared
+**Status: CANDIDATE ONLY.** This package is not adopted or frozen and confers no
+family readiness, acceptance or release standing. Its mathematics and package
+additions received independent scrutiny before placement here. The 26 cleared
 frame cases, their checks and their values are carried unchanged.
 
-**Consumer.** These are future RT-A3 increment 2b product bindings, for the
-bounded eccentric reducer under DEL-03-05 `Work/eccentric-reducer-offset.md`. No
-product test consumes this package yet.
+**Consumer.** `core/product_physics/tests/rt_a3_reducer_2b_references.rs`
+consumes this packet through the public product route for bounded eccentric
+reducer candidate bindings under DEL-03-05 `Work/eccentric-reducer-offset.md`.
+The implementation and binding review checked `0ee639782022085fb2bf20a8393dc998a467c5c3`
+against adopted 2a merge `393a11ee75dcc1836d2fd586c842f90312a6023d`, with no
+blocking numerical finding. The 27 cases in both solver modes supply candidate
+product evidence for the declared controls only; full RS-R1 thermal/weight,
+carrier reconciliation, registration and integration remain pending.
 
-Read for the declared model only: selected source `74e57d55ffd4cb09b68680e36bcaca06f4ad81eb`
-(branch `codex/rt-a3-reducer-2a`) on integrated baseline `2656dcb33`.
+The historical mathematical source was
+`74e57d55ffd4cb09b68680e36bcaca06f4ad81eb` (then branch
+`codex/rt-a3-reducer-2a`, on baseline `2656dcb33`). It identifies the source read
+when designing the independent mathematical object, not the current product
+implementation. Expected numbers describe exact decimal inputs; product
+binary64 leaves are compared with the stated tolerance.
 
 ## Files
 
@@ -293,23 +301,29 @@ for the section actions is the cleared FM statics, so a defect shared by both
 cleared formulations' inputs, such as a wrong declared input, would not be
 exposed.
 
-## Remaining consumer work
+## Consumer coverage and remaining work
 
-- Focused independent delta scrutiny of the package layer, then manager
-  integration and any freeze into `validation/references/`.
-- Product bindings: compare pressurized axial sections to `pipe_wall_axial_force_v2`
+- Independent package scrutiny and candidate placement in
+  `validation/references/` are complete; adoption and freezing are not implied.
+- The candidate product test compares pressurized axial sections to `pipe_wall_axial_force_v2`
   (N_w) and `pipe_effective_axial_force_v2` (S), and node-on-member axial end
   actions to `pipe_wall_endpoint_action_v2`. The ordinary exact straight-member
   maximum is `pipe_elastic_normal_stress_maximum_v2`, in Pa. Element stress rows
   use MPa; membrane, Lamé and member maxima use Pa. These are existing row/unit
   contracts at the selected source, not new decisions.
-- Preserve DEL-03-05 §2.4's existing body rule: per-member maxima stay, while
+- The candidate also checks DEL-03-05 §2.4's existing body rule: per-member maxima stay, while
   case maxima and headlines exclude `component_body` members. No body-stress
   or headline eligibility is chosen by this package.
 - Fibre coordinates for σ± are not emitted. The values can bind to the public
   sigma_plus/sigma_minus rows; any coordinate comparison needs a separate
   explicit witness (a constant circumferential stress has no unique fibre).
-- Full RS with thermal and weight, the governed W-15c product tests listed above,
-  and old and new commitment scrutiny are still future work, as is the D3
-  sequence (2a, dynamics, S2), where 2a owner adoption (8cd8fcf3) is still
-  pending.
+- Existing governed W-15c companion tests cover the geometry items listed above;
+  the implementation review reused their coverage and the unchanged decision
+  functions. Complete-envelope metadata equality is not established by the PF
+  digest controls, which bind ordered diagnostics and row identities/value bits.
+- Full RS with thermal and weight, carrier reconciliation, and 2b's queued D3
+  registration remain pending. Exact 2a profile `8cd8fcf3` was owner-approved
+  and integrated in `393a11ee7`; dynamics and S2 take their D3 turns before 2b.
+  The independent implementation review examined the literal old/new governing
+  diffs. The 2b PR record must retain the complete paired passages and that
+  review; it does not confer acceptance or release authority.

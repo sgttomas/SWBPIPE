@@ -530,8 +530,10 @@ from 2a.
 
 ## Eccentric reducer pressure step (RT-A3 increment 2b)
 
-Candidate (RT-A3 reducer 2b, on 2a's merge `393a11ee7`); not adopted until its
-independent review and Agent 0 integration.
+Candidate (RT-A3 reducer 2b, on 2a's merge `393a11ee7`). Independent numerical
+and literal old/new commitment review checked `0ee639782` with no blocking
+numerical finding. Carrier reconciliation, queued registration and Agent 0
+integration remain pending; this is not adoption or release.
 
 **Admission.** The step topology is 2a's and is checked first, unit-free:
 the body is the single member of its own region; at each body end exactly one
@@ -576,7 +578,10 @@ Offset states keep their W-15c meaning, and none is a shortcut:
   W-15c never accepts that neighbour. Other topology failures stay refused as
   in 2a, before W-15c is read.
 
-**Old and new contract text (for commitment scrutiny).**
+**Old and new contract excerpts.** The complete paired passages belong to the
+2b PR review record, including every changed governing document; these
+excerpts explain the compatibility rationale and do not replace those literal
+quotations. The independent review above examined the complete Git diff.
 - Refusal, old: "…is not the admitted concentric pressure-bore step; …no
   nonzero eccentric_offset is authored (an absent offset declares nothing),
   …continuing collinear in the opposite direction within the 64*epsilon
@@ -672,6 +677,6 @@ extrapolation follows. The following remain refused or future work:
 - full RS-R1 with thermal and weight;
 - pricing and pins, the semantic tables and carriers (stale until
   regenerated);
-- independent review.
+- final integration checks after carrier and registration reconciliation.
 RS-R1 product proof remains pending the full system, and no reference-system,
 nonlinear or release readiness follows.
