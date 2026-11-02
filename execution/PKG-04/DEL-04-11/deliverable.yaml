@@ -108,11 +108,9 @@ needs:
     The derived-solve count and result volume (Design §10) are agreed with the performance lane against
     its result-volume design.
   gating: false
-# Planned paths: none of these exists yet (Design §13).
+# Planned paths (Design §13); slice 1a built core/analysis/hanger_sizing (arithmetic) and the R-3 references.
 code_paths:
-- core/product_physics/src/hanger_sizing.rs
-- core/product_physics/src/hanger_sizing/**
-- core/product_physics/tests/hanger_sizing_*.rs
+- core/analysis/hanger_sizing/**
 - core/reporting/result_export/src/hanger_sizing_evidence.rs
 - fixtures/results/semantic_contract_v0_3_hanger_sizing_1.json
 - fixtures/hanger/invented_hanger_catalogue_*.json
@@ -120,5 +118,6 @@ code_paths:
 - tests/test_hanger_sizing_*.py
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
-# Planned checks: registered by each increment (ScopeOfWork VER-001 to VER-011).
+# Checks: the crate's cargo tests run in hosted piping-numerical, which discovers the crate; no local
+# registration is needed for slice 1a. Later increments register checks where a local selector needs them.
 checks: []
