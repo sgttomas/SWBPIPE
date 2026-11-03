@@ -73,8 +73,13 @@ needs:
     on EX, the same assembly with the D-5 nominal-wall sections and no load-dependent stiffness, and the
     families EX admits as RT-A3 extends them. On a load/reference-state document it resolves the named
     state case with DEL-04-07's `case_state::resolve::resolve_case` and builds with the resolved per-member
-    pairs (`build_model_for_members`), as the static path does (D-w). Timoshenko straights on either route
-    are refused by name (Design §1.2, D-r).
+    pairs (`build_model_for_members`), as the static path does (D-w). The state case is bound after the
+    solve's one operating-condition lowering (`operating_conditions::lower`) by a modal-side post-lowering
+    binding (Agent 0 decision D-L, built in I2a) that proves the lowered case is the authored case with
+    exactly S2's documented generated records appended, instead of an observation hook in the lowering; S2's
+    resolver bytes (`operating_conditions.rs`, `operating_conditions/resolution.rs`) are unchanged and no case
+    is planned, judged or resolved a second time. Timoshenko straights on either route are refused by name
+    (Design §1.2, D-r).
   gating: true
   evidence: core/product_physics/src/lib.rs
 - from: DEL-05-01
@@ -83,12 +88,18 @@ needs:
     length (`stable_mass_per_length`: on PF `STABLE_MASS_METHOD` `source_od_effective_wall_areas/v1`, on EX
     `EXACT_MASS_METHOD` `source_od_nominal_wall_pressure_bore_areas/v1`) and the
     component eligibility function (`component_weights`), both exposed `pub(crate)` without change of
-    meaning. For the identity check it adds, in M1a, one `pub(crate)` inspection entry that evaluates the
-    generator's loads for a named source case of the intact model, keeping that case's condition context and
-    writing under scratch identities, without clearing or adding cases (`generate_operations(…, true)` refuses
-    an existing case id and its lineage caller clears cases); on condition contents it reads the load-case
-    lane's shared `case_contents_density` once RT-A6 lands, and until then such a state is refused. It and reads applied self-weight evidence (`inspect_applied_self_weight`, the component
-    primitives' `normalized_acceleration_m_per_s2`) for the acceleration agreement (Design §2.3, §2.5).
+    meaning. For the identity check it adds, in M1a (built in I2a, Agent 0 decision D-SW), one `pub(crate)`
+    inspection entry, `inspect_generated_self_weight`, that calls `generate_operations(…, true)` unchanged on the
+    intact model under a scratch case id used by no case or primitive load, with an empty source hash, without
+    clearing, adding or renaming cases (`generate_operations(…, true)` refuses an existing case id and its
+    lineage caller clears cases). The entry is case-free only for the S2-admitted subset, where
+    condition-dependent contents are refused (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`), so every state's mass is the
+    section mass; the modal state binding stays case-specific through the post-lowering binding (DEL-04-07
+    need). The broader named-source-case inspection, keeping the case's condition context, and the RT-A6
+    `case_contents_density` extension are retained for the contents slice; until they land a state case that
+    resolves condition contents is refused. It also reads applied self-weight evidence
+    (`inspect_applied_self_weight`, the component primitives' `normalized_acceleration_m_per_s2`) for the
+    acceleration agreement (Design §2.3, §2.5).
   gating: true
   evidence: core/product_physics/src/self_weight.rs
 - from: DEL-03-05
@@ -161,7 +172,8 @@ needs:
     FR-SOL-016 is reported complete (ScopeOfWork REQ-010).
   gating: false
   when: After M1b, for REQ-010.
-# Paths: core/solver/modal_eigen/** exists (I1); the rest are planned (Design §3.5, §5).
+# Paths: core/solver/modal_eigen/** exists (I1); core/product_physics/src/modal.rs and modal/** exist (I2a);
+# the rest are planned (Design §3.5, §5).
 code_paths:
 - core/solver/modal_eigen/**
 - core/product_physics/src/modal.rs
