@@ -4260,6 +4260,8 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
          {'nonlinear.join(",")': _M_EMPTY}),
         (site("state_case_requirement", _MODAL + "request.rs", 'reasons.push(format!("the model has nonlinear supports ({})"', full=True),
          {'nonlinear.join(",")': _M_EMPTY}),
+        (site("state_case_unavailable", _MODAL + "prepare.rs", "({carried} blocking diagnostic(s), returned with this one)", full=True),
+         {"carried": _M_INT}),
         (site("state_case_unbound", _MODAL + "prepare.rs", "defines no modal model: {reason}", full=True),
          {"reason": _md(52, "one of state_case_unbound's two static reasons, the longer 52 B")}),
         (site("validate_modal_request", _MODAL + "request.rs", "is {hz} Hz; a frequency cut-off is positive", full=True), {"hz": _M_F64}),
