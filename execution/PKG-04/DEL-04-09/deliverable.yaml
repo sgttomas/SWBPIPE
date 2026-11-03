@@ -52,7 +52,8 @@ needs:
     solve is refused by name (Design §1.3, D-s). As built (I2b-2): the states are the final
     `SupportStateRecord`s of the same-run solve, read through the DEL-04-07 seam below, admitted only when
     the static path confirmed them (Agent 0's D2). DEL-04-04's confirmation runs on no gap state, so a model
-    with a gap support is refused until it does. A friction support ending inactive (its normal not bearing)
+    with a gap support is refused until RT-A3's R-3 (exact gap qualification and gap confirmation, required
+    for criterion 1) lands; a load/reference-state case with a nonlinear support also needs RT-A3's S6. A friction support ending inactive (its normal not bearing)
     is free, as `prescribed_displacement_for_state` treats it, and is admitted when confirmed, which
     DEL-04-04's confirmation establishes for an explicit normal that is not positive and never for a derived
     normal (O-14 (b), Agent 0, 2026-11-02). No DEL-04-04 code changes.
