@@ -615,7 +615,7 @@ Epoch 4 (model 0.6.0, the `-2` base pair, T4-U4b's derived stress rows, T4-U5b's
 - **U4B-ST.** One member's station quantities: the bases and their clone, the shear factors, the normal and directional witness lists (≤ 5 station pairs each) and one station's extremes.
 - **U5B-AB.** `ElementAbsorption`'s `vec![false; n]` (N bytes) in each of the three contribution-sum calls (contribution, load-fidelity and intended-action audits).
 - **U4B-W1.** `prepared_not_covered`'s operand table (m × `[[Option<usize>; 5]; 5]`, per attempted case, T14), and `failed_manifest`'s Poisson flags (m × `Option<f64>`) with its diagnostics clone grown by ≤ m warnings, per requested case. `ordinary.diagnostics.clone()` has exactly D_env slots (the staged copy's own capacity), so its first push reallocates to 2·D_env (Rust's amortized growth, `grown_from`); the grown backing is charged beside the staged copy. T4-S6 corrected the earlier pushcap(D_env + m) plus half of it, which is below 2·D_env whenever D_env + m stays under a power of two (route E: 49,152 against 57,598 slots, +3,648,672 B in every phase).
-- **U4B-RD.** In T17 V5 (G7), the base read's and route L's model checks' row `Index` (a growing hash table over the envelope rows, once per reader), the Poisson exemption sets, the station covers (route E: every case, member and basis), the material and pressurized-arc indices, and two copies of the captured model for `preview_model_checks`' per-lookup array clones. RT-U4: each `Index` also holds the map `Index::any` builds on first use and keeps until the `Index` drops, one entry per component-free slot (≤ the row index's entries), push-grown from empty with its previous table during its last resize. Its entry (five `&str` and a `&Value`) is no larger than the row index's (six `&str` and a `&Value`), so it is charged at that stride. It is built after `Index::new` returns, when the row table's own previous table is already freed, so each `Index` is charged the row table (HashReq) plus the map (HashMov) at the envelope rows. INDEX_PIN binds the span.
+- **U4B-RD.** In T17 V5 (G7), the base read's and route L's model checks' row `Index` (a growing hash table over the envelope rows, once per reader), the Poisson exemption sets, the station covers (route E: every case, member and basis), the material and pressurized-arc indices, and two copies of the captured model for `preview_model_checks`' per-lookup array clones. RT-U4 (§8.42): each `Index` also holds the map `Index::any` builds on first use and keeps until the `Index` drops, one entry per component-free slot (≤ the row index's entries), push-grown from empty with its previous table during its last resize. Its entry (five `&str` and a `&Value`) is no larger than the row index's (six `&str` and a `&Value`), so it is charged at that stride. It is built after `Index::new` returns, when the row table's own previous table is already freed, so each `Index` is charged the row table (HashReq) plus the map (HashMov) at the envelope rows. INDEX_PIN binds the span.
 - **U4B-NQ.** `not_qualified_for`'s vector of ≤ 30m treatments with its previous backing (T25.3); their strings move into the ledger, which already pays them. Its two filtered loops (`not_qualified_for`'s pass over the case's rows and `bind_for`'s pass over its treatments) are bounded by 30m, not P_final (T4-S6): the filter admits only the U4b derived kinds, which only `u4b_rows` pushes (append_station_quantities and the failed-manifest placeholders, bodies pinned), at most σ⁺, σ⁻ and τ_v,max at five stations on two bases per member, with no realized arc (P2). **Guard:** each kind's literal occurs once in PP production code and only `u4b_rows.rs` passes the kinds to a row constructor (four sites); otherwise the run stops, and without the pinned bodies the loops keep P.
 - **U5B-CG** (T4-S6). Each AssemblyEvidence (dense and sparse) owns `contribution_groups`, a `Vec<usize>` push-built with one entry per frame or curved element and per ground spring (`structural_adapter.rs`; curved elements and connectors are absent on D1, P2 and P3): 8·pushcap(m + s) per evidence owner, charged in the typed core's evidence term, so three times per case with W2's two evaluations (4,608 B in O_base at the caps). **Guard:** the four allocating lines occur once and the move into the evidence twice.
 - **Failed Preview formulation** (T4-S6; `b7a_domain_model.formulation_content`). The failed Preview manifest's formulation text is read from the current literals as the larger of its two forms: `preview_physics::formulation_basis` (its profile id, the seven `LIMITATIONS` and two recovery sentences: 9 limitation strings, 3,138 B) and `preview_formulation_basis` with `formulation_basis_for_model_with_source`'s two appended sentences (2,288 B). Raw literal bytes bound the decoded text. This replaces the B7a basis's 2,035 B in the held failed-manifest envelope owner (+3,309 B in O_base at three cases) and raises the `retained_product.rs` formulation-content lexical class from 2,914 B to the same 3,138 B (+896 B of TEXT). A changed constructor structure stops the run.
@@ -2854,6 +2854,170 @@ are unchanged. Run evidence is under `/private/tmp/rt-a3-2b-d3-8ef/` (run-final,
 native atoms, `eval80-candidate-final.json`, proposals); it is review input, not a
 permanent dependency.
 
+### §8.42 RT-U4 `u4b_evidence::Index::any`: the component-free station lookup (actual-source D3)
+
+**Status.** Proposed registration (Agent 0's D3 release for #95, 2026-11-03),
+under the owner's removal of explicit owner approval for coefficient movement;
+source-derived pricing, independent scrutiny and preservation of the
+registered state remain required. This records no acceptance.
+
+**Priced source.** The candidate is `92a6f81ff`: #95's reader repair merged
+normally (`--no-ff`) with RT-A3's reviewed #80 candidate `ecca6e07d`
+(reducer 2b, §8.41, on main `2b743781a`). Against that predecessor the only
+priced source change is RE `u4b_evidence.rs`:
+- `Index` gains `first`, a `OnceCell` holding the map `Index::any` builds on
+  first use: per slot without its component, the first row of `rows` in that
+  map's own iteration order. That is the row the replaced linear scan returned,
+  because `rows` is not changed after `new`, so every lookup returns the same
+  row and value. `any` was O(rows) per lookup, O(rows × stations) per reader
+  pass.
+- Three test-module lines at the end of the file declare
+  `u4b_evidence_any_tests.rs` (the old scan against `any` on the same Index),
+  outside U4B-RD's pinned span.
+
+The other branch changes are the #49 follow-up's tests and invariant comments
+in `exact_combinations.rs` (no production line), routing digests, and this
+tool's U4B-RD rule. The registration commit changes only
+`retained_memory.rs`'s generated block and registration comment, the derived
+law records and this text. The tool's pins on `retained_memory.rs` (B7a's
+admission prefix and late bodies, batch 5's bodies) exclude those parts, and a
+`run` of the registration commit's source (the tool's snapshot omits
+`execution/`) gives the candidate's tree, identical but the basis (1,602
+coefficients equal).
+
+**Route and multiplicity.** `Index::any` is called by `member_stations` in the
+preview and route E base reads and by route L's `preview_model_checks`, the
+three Indexes U4B-RD prices (T17 V5, G7). `directional_model_checks` builds an
+Index but never calls `any` (and realized arcs are absent on D1, P2). The
+lazy map's loop runs once per Index, over `rows`, inside the closure; it adds
+no unmapped loop header, unclassified argument, TEXT site or call-graph rule.
+U4B-RD's owner text (§8.8, positive owners) states the new owner:
+- **Entries:** one per component-free slot, at most the row index's entries.
+- **Growth:** push-grown from `HashMap::new`, with its previous table live
+  during its last resize (HashMov).
+- **Stride:** its entry (five `&str` and a `&Value`) is no larger than the row
+  index's (six `&str` and a `&Value`), so it is charged at `s(U4bSlotEntry)`
+  with no new layout symbol.
+- **Lifetime:** held with the Index. Built after `new` returns, when the row
+  table's previous table is already freed.
+
+So each Index is charged `HashReq(U4bSlotEntry, rows) + HashMov(U4bSlotEntry,
+rows)` in place of `HashMov(U4bSlotEntry, rows)`. `INDEX_PIN` follows the span
+(`b0d3074d…` → `334a2213…`); the other U4B-RD body pins are unchanged. A
+`HashMov(…) * 2` bound would also hold, but it charges the row table's previous
+table, which is never live beside the map.
+
+**Comparison basis.** The predecessor is `ecca6e07d8e8ba09471d6cf5a53bbf69351c6838`.
+Its own committed tool (a scratch copy of its `tools/`, `run ecca6e07d --repo`)
+prices it with exit 0 on all four points, O-10 clear. Its registered block is
+§8.41's proposal A. `lib/merge_trees.py` of the kept §8.38 tree (reproduced
+from `4cf32bfd4` with that revision's tool cohort) and the predecessor's tree,
+with §8.41's basis line, gives a tree whose `generate --check` against
+`ecca6e07d`'s `retained_memory.rs` (SHA-256 `75510823…c6d1`) is equal
+(1,713 lines, an empty diff).
+
+**Run and comparison.**
+- **Run.** This branch's tool prices `92a6f81ff` with exit 0 on all four points,
+  no unmapped header or unclassified argument, both O-10 checks at zero.
+  D is unchanged: L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237, E 76,356.
+- **Line map.** The predecessor's entry for entry: 880 carried keys, 37 prunes,
+  seven resolutions; no prune or resolution differs.
+- **Against the predecessor's source-derived tree:** structure equal, 1,598
+  coefficients equal, **four higher, none lower**; the merged check is unchanged
+  (sparse 8,744,976,026 B, dense 8,804,107,370 B).
+- **Against the predecessor's registered tree (proposal A):** 1,592 equal, four
+  higher, six lower. `a_le_b` is false, so the registered block no longer
+  bounds the head and the block is regenerated (README "Reading a profile
+  change", step 3).
+
+**Moved coefficients.** At the D1 caps the envelope rows give buckets(rows) =
+16,384 slots, with a previous table of 8,192:
+
+| Coefficient | Predecessor | Candidate | Change | Source |
+|---|---:|---:|---:|---|
+| `T17_V5[s(U4bSlotEntry)]` | 73,728 | 122,880 | +49,152 | three Indexes × 16,384 slots of the map's final table (its previous table is already in each Index's HashMov) |
+| `T17_V5[1]` | 622,752,135 | 622,801,356 | +49,221 | three × (16,384 control bytes + 8 + 15) |
+| `success__T17_V5[s(U4bSlotEntry)]` | 73,728 | 122,880 | +49,152 | the same owner in the success copy |
+| `success__T17_V5[1]` | 622,752,135 | 622,801,356 | +49,221 | the same owner in the success copy |
+
+**Dropped allowance.** Plain `generate` of the candidate tree drops §8.40's
+kept 3,990,536 B allowance, of which §8.41's block still carried 3,989,660 B.
+Six coefficients fall by 3,989,660 B against the registered block:
+- `TAV_W[1]` 5,106,850,124 → 5,102,860,464 B, and the same change in its
+  success copy;
+- `TAV_X[1]` 5,520,278,642 → 5,516,288,982 B, and the same change in its
+  success copy;
+- `TAV_text_moving` 7,443,195,340 → 7,439,205,680 B;
+- `TAV_text_requested` 7,440,594,640 → 7,436,604,980 B.
+
+No generated constant is selected or overwritten by hand. `PYTHON_CHECK` is
+(8,677,867,162, 8,736,998,506).
+
+**Native atoms and evaluation.** The lib-test binary of `92a6f81ff`
+(rustc 1.97.1, debug, opt-level 0, no RUSTFLAGS) collects 328 `I65_G5_ATOM`s.
+`s(U4bSlotEntry)` is 104 B. Maintained `eval` at those atoms, with R, gives:
+
+| Tree | Mode | W3 (maximum) | W4 | Other phases |
+|---|---|---:|---:|---|
+| Predecessor registered | sparse | 8,966,251,625 | 8,754,412,052 | |
+| Predecessor registered | dense | 9,025,382,969 | 8,813,543,396 | |
+| Predecessor source tree | sparse | 8,962,261,965 | 8,750,422,392 | |
+| Candidate | sparse | 8,962,261,965 | 8,755,583,421 | as the source tree |
+| Candidate | dense | 9,021,393,309 | 8,814,714,765 | as the source tree |
+
+Only W4 moves: +5,161,029 B (49,221 + 49,152 × 104) in both modes over the
+predecessor's source tree. Against the registered block, W4 rises by
+1,171,369 B and every other phase falls by 3,989,660 B. W3 stays the maximum
+in both modes. The policy (M = 12,884,901,888 B, ⌊0.9M⌋, R = 64 MiB and the
+upward-rounded 5 % TEXT reserve) is unchanged and the law tests pass on it.
+
+**Profile and re-pins.**
+- **Block.** Maintained `generate` output with basis
+  `, re-run as RT-U4 Index::any at 92a6f81ff (§8.42): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`
+  (1,712 lines). `generate --check` against the candidate tree is equal.
+- **`REGISTERED_PROFILES`.** Only its registration comment changes. The build
+  identity, all thirteen reviewed inputs, the reader layouts and the threshold
+  are unchanged.
+- **Law records.** With the regenerated block, only `profile_in_build_record`
+  and `challenge_bounds_are_the_profile` fail (82 other `retained_memory` lib
+  tests pass). Their values are re-pinned from the in-build record (requested
+  + moving, without R), which equals maintained `eval` less R:
+  - `PINNED_RECORD` sparse: 6,598,975,304 · 6,940,969,865 · 8,895,153,101 ·
+    8,688,474,557 · 7,761,341,467 · 8,607,720,260 · 7,339,113,946 ·
+    7,012,403,822 (W1 … X3).
+  - `PINNED_RECORD` dense: 6,658,106,648 · 7,000,101,209 · 8,954,284,445 ·
+    8,747,605,901 · 7,820,472,811 · 8,666,851,604 · 7,398,245,290 ·
+    7,071,535,166 (W1 … X3).
+  - `tests/retained_memory_challenge.rs`: `W1_PHASE_BYTES` [6,598,975,304,
+    6,658,106,648] and `MAX_PHASE_BYTES` [8,895,153,101, 8,954,284,445].
+- **Identity evidence.** On the reader side, before the merge, the main and
+  head runners gave identical verdicts on all 4,672 fixture calls, and
+  identical dispatch, model-bound dispatch and validate bytes on the 82- and
+  250-node linear-ex rack results. `u4b_evidence_any_tests.rs` compares the
+  old scan with `any` on the same Index across 64 hash orders; a last-wins
+  map fails it.
+
+**AC-004 status.** Not run in this turn. The six stack witnesses must be
+re-run, because the coefficients and the pinned phases move. They need an
+Agent 0-cleared exclusive window (`t3_exclusive.sh` with memguard), no
+concurrent builds and no compilation inside the window, one process per test:
+`python3 tools/release/check_release_readiness.py --profile stack-witnesses --execute`,
+which runs, for `<w>` in `witness_headroom_w1_at_one_mebibyte`,
+`witness_w2_deep_milestone_publishes` and `witness_w_c2_publishes` and `<mode>`
+in `sparse` and `dense`:
+`cargo test --offline --manifest-path core/product_physics/Cargo.toml --lib -- retained_memory::witness_tests::<w>::<mode> --exact --ignored --test-threads=1`.
+§8.40's isolated challenge process
+(`retained_memory_challenge`'s `retained_direct_peak_is_within_the_profiles_bounds`)
+passed in an ordinary run at this head; it was not run in isolation.
+
+**Maintained tests.** `tools/retained_pricing/tests/test_u4b_u5b_owners_model.py`:
+the owners model stops on a pre-sized `first`, and U4B-RD charges each of its
+three Indexes 2·buckets + previous slots of the row stride. The run evidence
+(the `run` outputs of `ecca6e07d`, `92a6f81ff` and `4cf32bfd4`, the
+reproduced proposal-A tree, comparisons, native-atom logs and evaluations) is
+in `scratch/rt-perf-index2/` outside the checkout. It is review input, not a
+permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2877,7 +3041,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.41's adopted source, `4e1972698`, which prices coefficient-identically to its candidate `0add60cac`; earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.42's priced source, `92a6f81ff`; §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -2965,3 +3129,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |
 | "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |
 | "RT-A3 reducer 2b: the W-15c pressure step", "§8.41" (2B-PIN, 2B-KEY, RTA3R2B-NZ) | §8.41 |
+| "RT-U4 `u4b_evidence::Index::any`: the component-free station lookup", "§8.42" (U4B-RD) | §8.42 |

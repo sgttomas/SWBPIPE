@@ -1277,6 +1277,12 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
+    // §8.42 D3 at 92a6f81ff (RT-U4 `u4b_evidence::Index::any`, on #80's ecca6e07d): the
+    // regenerated source-derived block. Each reader Index holds `any`'s component-free map
+    // (U4B-RD): T17_V5[1] and its success copy +49,221 B, T17_V5[s(U4bSlotEntry)] and its
+    // success copy +49,152. The kept TAV allowance is dropped (six TAV coefficients
+    // -3,989,660 B). The build identity, all thirteen reviewed inputs, layouts and threshold
+    // are unchanged; §8.41 was the previous registration.
     // §8.41 D3 at 0add60cac (RT-A3 reducer 2b): the pointwise maximum of the kept §8.38 tree
     // and the current source-derived tree (+286 B STATICS[1] and its success copy, the
     // restated pressure-2 limitation; the kept TAV allowance is retained). Reviewed inputs #8
@@ -1485,9 +1491,8 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// re-run as RT-A3 reducer 2b at 0add60cac (§8.41): the pointwise maximum of the kept §8.38 tree
-/// and the current source-derived maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E
-/// (c = 3), under SQ2 rules; text at l <= 128.
+/// re-run as RT-U4 Index::any at 92a6f81ff (§8.42): the maximum over routes L (C_eq <= 3, worst
+/// shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1522,8 +1527,8 @@ pub(super) mod profile {
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
     pub(crate) const TEXT_D: u64 = 76356; // D
     pub(crate) const TEXT_D_ENV: u64 = 28775; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7443195340; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7440594640; // TAV_text_requested
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 7439205680; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 7436604980; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
     pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 274415304; // Text(diag_env)
     pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 449832066; // Text(diag_total)
@@ -2896,7 +2901,7 @@ pub(super) mod profile {
         Form { name: "T17_V2_hash", constant: 24557772, terms: &[(25, 383907)] },
         Form { name: "T17_V3", constant: 3214952, terms: &[(11, 29559), (25, 63568), (305, 10592)] },
         Form { name: "T17_V4", constant: 40049899, terms: &[(2, 14030), (3, 412), (7, 39), (11, 47094), (24, 357295), (25, 1120), (27, 49152), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4100), (253, 20516), (286, 294012), (305, 49572), (306, 32777)] },
-        Form { name: "T17_V5", constant: 622752135, terms: &[(2, 14037), (3, 412), (4, 20), (5, 20), (6, 40), (7, 39), (11, 324183), (14, 193), (24, 295760), (25, 1312), (27, 49248), (28, 96), (32, 96), (43, 8), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4292), (253, 20516), (286, 294012), (301, 384), (302, 73728), (305, 425169), (306, 32777)] },
+        Form { name: "T17_V5", constant: 622801356, terms: &[(2, 14037), (3, 412), (4, 20), (5, 20), (6, 40), (7, 39), (11, 324183), (14, 193), (24, 295760), (25, 1312), (27, 49248), (28, 96), (32, 96), (43, 8), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4292), (253, 20516), (286, 294012), (301, 384), (302, 122880), (305, 425169), (306, 32777)] },
         Form { name: "T17_V6", constant: 405710171, terms: &[(2, 14030), (3, 412), (7, 39), (11, 262730), (24, 295752), (25, 17506), (27, 49152), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4100), (253, 20516), (286, 294012), (305, 245353), (306, 32777)] },
         Form { name: "T17_moving_invocation", constant: 258, terms: &[] },
         Form { name: "T17_moving_publication", constant: 12278238, terms: &[] },
@@ -2912,8 +2917,8 @@ pub(super) mod profile {
         Form { name: "T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (119, 1), (142, 1), (168, 3), (227, 2048), (254, 4131), (305, 17137)] },
         Form { name: "T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (119, 3), (227, 6144), (254, 12393), (305, 26625)] },
         Form { name: "T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "TAV_W", constant: 5106850124, terms: &[] },
-        Form { name: "TAV_X", constant: 5520278642, terms: &[] },
+        Form { name: "TAV_W", constant: 5102860464, terms: &[] },
+        Form { name: "TAV_X", constant: 5516288982, terms: &[] },
         Form { name: "TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "W1_MEMBER_READER", constant: 6291456, terms: &[] },
         Form { name: "success__BODY", constant: 228635850, terms: &[(11, 127033), (305, 142979)] },
@@ -2946,7 +2951,7 @@ pub(super) mod profile {
         Form { name: "success__T17_V2_hash", constant: 24557772, terms: &[(25, 383907)] },
         Form { name: "success__T17_V3", constant: 3214952, terms: &[(11, 29559), (25, 63568), (305, 10592)] },
         Form { name: "success__T17_V4", constant: 40049899, terms: &[(2, 14030), (3, 412), (7, 39), (11, 47094), (24, 357295), (25, 1120), (27, 49152), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4100), (253, 20516), (286, 294012), (305, 49572), (306, 32777)] },
-        Form { name: "success__T17_V5", constant: 622752135, terms: &[(2, 14037), (3, 412), (4, 20), (5, 20), (6, 40), (7, 39), (11, 324183), (14, 193), (24, 295760), (25, 1312), (27, 49248), (28, 96), (32, 96), (43, 8), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4292), (253, 20516), (286, 294012), (301, 384), (302, 73728), (305, 425169), (306, 32777)] },
+        Form { name: "success__T17_V5", constant: 622801356, terms: &[(2, 14037), (3, 412), (4, 20), (5, 20), (6, 40), (7, 39), (11, 324183), (14, 193), (24, 295760), (25, 1312), (27, 49248), (28, 96), (32, 96), (43, 8), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4292), (253, 20516), (286, 294012), (301, 384), (302, 122880), (305, 425169), (306, 32777)] },
         Form { name: "success__T17_V6", constant: 405710171, terms: &[(2, 14030), (3, 412), (7, 39), (11, 262730), (24, 295752), (25, 17506), (27, 49152), (55, 288), (79, 4), (184, 4), (185, 2), (201, 4100), (253, 20516), (286, 294012), (305, 245353), (306, 32777)] },
         Form { name: "success__T17_moving_invocation", constant: 258, terms: &[] },
         Form { name: "success__T17_moving_publication", constant: 12278238, terms: &[] },
@@ -2962,8 +2967,8 @@ pub(super) mod profile {
         Form { name: "success__T25_S5", constant: 131646371, terms: &[(11, 25833), (25, 96), (119, 1), (142, 1), (168, 3), (227, 2048), (254, 4131), (305, 17137)] },
         Form { name: "success__T25_carried_case", constant: 251153031, terms: &[(11, 40308), (25, 288), (119, 3), (227, 6144), (254, 12393), (305, 26625)] },
         Form { name: "success__T25_moving", constant: 12278238, terms: &[] },
-        Form { name: "success__TAV_W", constant: 5106850124, terms: &[] },
-        Form { name: "success__TAV_X", constant: 5520278642, terms: &[] },
+        Form { name: "success__TAV_W", constant: 5102860464, terms: &[] },
+        Form { name: "success__TAV_X", constant: 5516288982, terms: &[] },
         Form { name: "success__TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "success__W1_MEMBER_READER", constant: 6291456, terms: &[] },
     ];
@@ -3191,7 +3196,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8681856822, "W3 publication (T16) with the staged copy"), (8740988166, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(8677867162, "W3 publication (T16) with the staged copy"), (8736998506, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 

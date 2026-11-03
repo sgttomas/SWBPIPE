@@ -1988,9 +1988,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.38: owner-approved reducer 2a adds 1,751 B per phase; input #8/#11 rebind.
 // §8.40: keep §8.38 coefficients under the a_le_b carry proof. Actual PreviewLoadCase
 // grows 672 -> 680 B: +24 B per phase, +48 B in X1 (two typed copies), without R.
+// §8.41: proposal A, +286 B per phase. §8.42: the regenerated source-derived block
+// (Index::any's map; the kept TAV allowance is dropped): W4 +1,171,369 B and every
+// other phase -3,989,660 B in both modes, from the in-build record, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_964_964, 6_944_959_525, 8_899_142_761, 8_687_303_188, 7_765_331_127, 8_611_709_920, 7_343_103_606, 7_016_393_482],
-    [6_662_096_308, 7_004_090_869, 8_958_274_105, 8_746_434_532, 7_824_462_471, 8_670_841_264, 7_402_234_950, 7_075_524_826],
+    [6_598_975_304, 6_940_969_865, 8_895_153_101, 8_688_474_557, 7_761_341_467, 8_607_720_260, 7_339_113_946, 7_012_403_822],
+    [6_658_106_648, 7_000_101_209, 8_954_284_445, 8_747_605_901, 7_820_472_811, 8_666_851_604, 7_398_245_290, 7_071_535_166],
 ];
 
 #[test]
