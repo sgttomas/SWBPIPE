@@ -4430,3 +4430,71 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             # No audit: modal_parameter_refusals' `{:?}` of sturm_gap_log_positions and sturm_whole_spectrum_offsets
             # (Vec<f64>, caller-supplied, with no length cap in the source or D1); the run reports them unclassified.
         ]
+    if fnkey("solve_modal_state_case", _MODAL + "state.rs"):
+        # I2b-2 (#97): the state case's same-run solve (modal/state.rs; tests_state.rs is the #[cfg(test)] module) and
+        # lib.rs's decision-B seam.
+        _ST = _MODAL + "state.rs"
+
+        def _m_vocabulary(f, owner, why):
+            # The longest literal of `owner`'s `as_str`, read only when every arm of its one match is `Self::X =>
+            # "literal",` (a computed or wildcard arm breaks the shape and stops the run).
+            _src = _text_of(f)
+            _impl = _re.findall(r"impl " + owner + r" \{.*?pub fn as_str\(self\) -> &'static str \{\s*match self \{"
+                                r"((?:\s*Self::\w+ => \"[^\"\\]*\",)+)\s*\}\s*\}", _src, _re.S)
+            _arms = _re.findall(r'Self::\w+ => "([^"\\]*)",', _impl[0]) if len(_impl) == 1 else []
+            if len(_impl) != 1 or len(_arms) < 2:
+                raise SystemExit(f"MODAL-ID: {owner}::as_str is not an all-literal match ({len(_impl)}); re-review (§8.43)")
+            return _md(max(len(_a.encode()) for _a in _arms), why)
+
+        _M_MODE = _m_vocabulary(_LIB, "PreviewSolverMode", "PreviewSolverMode::as_str, its longest literal (sparse_interactive)")
+        _M_STATE = _m_vocabulary("core/solver/nonlinear_supports/src/lib.rs", "ActiveSetState",
+                                 "ActiveSetState::as_str, its longest literal")
+        # NotEstablished's sentence is nonlinear_not_established_sentence's text: its literal bytes and its `reason`,
+        # which the base classifies by name as error_display (8192 B, TEXT.md section 3).
+        _ne = _fn_text("nonlinear_not_established_sentence", _LIB)
+        _ne_fmt = _re.findall(r'format!\("((?:[^"\\]|\\.)*)"\)', _ne)
+        if len(_ne_fmt) != 1 or _re.findall(r"\{[^{}]*\}", _ne_fmt[0]) != ["{reason}"] or "{{" in _ne_fmt[0]:
+            raise SystemExit("MODAL-ID: nonlinear_not_established_sentence's format changed; re-review (§8.43)")
+        _M_SENTENCE = _md(len(_ne_fmt[0].replace("{reason}", "").encode()) + 8192,
+                          "nonlinear_not_established_sentence's literal bytes and its reason (error_display, 8192 B)")
+        O10_ID_AUDIT += [
+            (site("modal_refusal_reason", _ST, '"its same-run solve completed with no nonlinear-state evidence ({} blocking', full=True,
+                  row="format!("), {"codes.len()": _M_INT}),
+            (site("modal_refusal_reason", _ST, "published blocking diagnostics ({} of them", full=True), {"codes.len()": _M_INT}),
+            (site("modal_refusal_reason", _ST, "the solve's evidence is bound to case `{found}`", full=True), {"found": IN}),
+            (site("modal_refusal_reason", _ST, "the solve's evidence records solver mode {}, not the requested {}", full=True),
+             {"solved.as_str()": _M_MODE, "requested.as_str()": _M_MODE}),
+            (site("modal_refusal_reason", _ST, "its converged support state is not confirmed: {sentence}", full=True),
+             {"sentence": _M_SENTENCE}),
+            (site("modal_refusal_reason", _ST, "ended {}, which the modal state table does not admit", full=True, row="format!("),
+             {"state.as_str()": _M_STATE}),
+            # tests_state.rs (#[cfg(test)]): node numbers are usize decimals.
+            (site("alternating_chain", _MODAL + "tests_state.rs", 'format!("n{}", i + 1)', full=True), {"i+1": _M_INT}),
+            # lib.rs's capture (decision B): the case's id, an IN128 id; its multiplicity is zero by MODAL-SEAM below.
+            (site("capture_nonlinear_state_evidence", _LIB, "case_id: case_id.to_string(),", full=True), {"case_id": IN}),
+        ]
+        # MODAL-SEAM (O10_EDGE_ZERO; the G4 R-1 and OP1A-PF premise): D1.6 refuses every nonlinear support, so
+        # built.nonlinear_supports is empty and append_nonlinear_support_loop_results returns None at its first
+        # statement (base fn_zero, G4 R-1). selected_nonlinear is then None and capture_nonlinear_state_evidence
+        # returns None at its first statement, before its text, Box or final-state clone. The shapes that carry the
+        # premise are checked here; the capture's body is pinned.
+        _seam = _fn_text("capture_nonlinear_state_evidence", _LIB)
+        _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
+        _case = _fn_text("solve_prepared_load_case", _LIB)
+        _lib_text = _text_of(_LIB)
+        if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
+                != "714858644cbafb684e239e7b5b03974f66a55d11c2c16a477bd3b30f31f47b63"
+                or not _re.search(r"\) -> Option<Box<NonlinearStateEvidence>> \{\n    let solve = solve\.filter\(\|solve\| solve\.converged\)\?;\n", _seam)
+                or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
+                or _case.count("capture_nonlinear_state_evidence(&load_case.id, solver_mode, selected_nonlinear.as_ref(),") != 1
+                or _case.count("let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) = match "
+                               "append_nonlinear_support_loop_results(") != 1
+                or _re.search(r"\bselected_nonlinear\s*=[^=]", _case)
+                or _case.count("Some((solve, nonlinear, qualification)) => (Some(solve), Some(nonlinear), qualification),\n"
+                               "        None => (None, None, None),") != 1
+                or len(_re.findall(r"\bcapture_nonlinear_state_evidence\b", _lib_text)) != 2):
+            raise SystemExit("MODAL-SEAM: the capture, its call or the nonlinear loop's early return changed; re-review (§8.43)")
+        O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("capture_nonlinear_state_evidence", _LIB),
+                           O10 + "MODAL-SEAM: D1.6 refuses every nonlinear support, so append_nonlinear_support_loop_results "
+                           "returns None first (G4 R-1), selected_nonlinear is None, and capture_nonlinear_state_evidence "
+                           "returns None before its text, Box or final-state clone")]
