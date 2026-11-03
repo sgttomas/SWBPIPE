@@ -639,7 +639,8 @@ policy). Members not listed are unchanged.
   that id and a combination otherwise; the combination graph is acyclic and is evaluated in
   topological order, the earliest ready combination in the array first; a combination operand
   supplies its own published rows, paired by kind, unit, entity and every metadata field
-  except basis and sign_convention (a displacement magnitude by kind, unit and node); a row an
+  except basis and sign_convention, while still comparing any section_basis suffix within
+  basis (a displacement magnitude by kind, unit and node); a row an
   operand combination withheld or omitted is missing for every combination that names it".
 - `fixed_load_count` (new member): "each operand's fixed-load count κ, an exact dyadic
   rational: a load case 1; mechanics the exact sum of each factor times its operand's κ; a
@@ -716,7 +717,11 @@ listed are unchanged.
   whose raw installed reference (q_ref, a null-space reference included, or the rod's reference
   extension) is nonzero, and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with
   sum(factors) the exact sum of the binary64 factors, compared exactly and inclusively and not
-  scaled by sum(|factors|)"]`; new:
+  scaled by sum(|factors|)"; CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "the model has a
+  consuming constant-effort support (exactly one translational restraint DOF and a finite
+  positive constant load) and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with
+  sum(factors) the exact sum of the binary64 factors, compared exactly and inclusively and not
+  scaled by sum(|factors|)" (RT-A3's entry, on main before this text applies)]`; new:
   - NONLINEAR_COMBINATION_REQUIRES_SOLVE: the preview-physics-2 text (reached once the route
     admits nonlinear supports);
   - COMBINATION_MODULUS_BASIS_MIXED: "the load cases the combination reaches through its
@@ -729,11 +734,22 @@ listed are unchanged.
     raw installed reference (q_ref, a null-space reference included, or the rod's reference
     extension) is nonzero, and some operand's κ or the combination's own κ is undefined, or
     |κ - 1| > 64*epsilon, compared exactly and inclusively and not scaled by sum(|factors|);
+    over load cases κ is the exact sum of the binary64 factors";
+  - CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED: "the model has a consuming constant-effort
+    support (exactly one translational restraint DOF and a finite positive constant load) and
+    some operand's κ is undefined";
+  - CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "the model has a consuming constant-effort
+    support, every operand's κ is defined, and the combination's own κ is undefined or
+    |κ - 1| > 64*epsilon, compared exactly and inclusively and not scaled by sum(|factors|);
     over load cases κ is the exact sum of the binary64 factors".
+
+  The installed-reference entry precedes both constant-effort entries, so with both sources
+  gate 3's code is the single reason (§10, undefined κ on EX, by source).
 - `unsigned_gates` (new member): COMBINATION_MODULUS_BASIS_MIXED and
   COMBINATION_RESOLVED_STIFFNESS_MIXED as above; INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND:
   "the model has such a nonzero installed reference and some operand's κ is undefined or not
-  exactly 0".
+  exactly 0"; CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND: "the model has a consuming
+  constant-effort support and some operand's κ is undefined or not exactly 0".
 - `stress_metadata`: old text, then "; a displacement_magnitude row of an absolute sum, an SRSS
   or a combination with a combination operand carries metadata stating its derivation
   (component displacement_magnitude, global, node, the expression's basis and sign convention);
