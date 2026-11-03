@@ -966,23 +966,61 @@ standing of the same statement stays `unsupported`. Four rules govern the displa
   validator refused with, e.g., `SOURCE_RECOVERY_METADATA_CONTRADICTION` was offered as an
   eligible side on its as-recorded standing; `recordedPreRtA4.test.ts` "a stored record whose
   reopen validation fails" fails without the rule).
-- The reopened run's results panel classifies and states the result under the recorded table
-  (`ResultsPanel`'s `recordedTableRead`: its route, labels, health and standing line, the line
-  prefixed with the as-recorded label); every current caller omits it and reads under the
-  current tables. Before this rule (focused confirmation r6) the panel classified with the
-  current reader only, so a run read correctly under its table still said "Unsupported numerical
-  contract; historical values only. Needs recompute."; `HistoricalRunContext.test.tsx` "the
-  results panel states the run as read under its recorded table, as recorded" fails without it.
-  The same holds for row semantics: the panel's row labels (`semanticLabels`) and the
-  comparison's rows and semantic identity (`flattenRunResult`, `resultSemanticIdentity`, given
-  the side's `recordedTableRead`) read under the recorded table through the wasm export
-  `reader_recorded_row_semantics_each_json` (Rust `row_semantics_each_recorded`) and the
-  recorded dispatch (focused fix confirmation r7: a retained milestone row showed
-  `integrity_failure` and compared rows lost family and dimension). A historical side's
-  identity is its table's binding, so it compares with runs recorded under the same table and
-  a pair with a current run is refused as `semantic_identity_differs`; the retained standing
-  restriction (needs recompute) is unchanged. `HistoricalRunContext.test.tsx` "rows read under
-  the recorded table: panel categories and comparison rows" fails without it.
+- Every display surface a reopened or recorded run reaches classifies it under its recorded
+  table, explicitly as recorded, and never with a current-only reader. A current reader refuses
+  the statement (its limitation 6 is the old table's), so a surface that read it with one showed a
+  false current verdict; focused confirmations r6, r7 and r8 found these one surface at a time,
+  and this rule now covers the whole class. The table is threaded explicitly as an optional
+  `recordedTableRead` that every current caller omits. There is no ambient or module state, and
+  an unknown or refused binding reads as refused (`unsupported`, `integrity_failure`, no
+  dimension, no label or notice); it never falls back to the current reader. The threaded
+  surfaces are:
+  - `HistoricalRunPanel` passes the context's table to `ResultsPanel`.
+  - In `ResultsPanel`, the route through `displayRoute` (`resultReader.ts`: the recorded
+    dispatch under a table, else `sourceContract`). The route drives the label source and the
+    health, and it states the standing line, which is prefixed "As recorded under ...".
+  - `standaloneNumericalHealth` (`recordedResultStanding`).
+  - The row categories, family groups, filters and readout dimensions (`semanticLabels`).
+  - The row labels and the CSV "Row label" column (`resultRowLabel`).
+  - `KnownSemanticNotices` (`knownSemanticNotices`).
+  - Result Detail's family and endpoint pair (`buildResultInterpretation`).
+  - The detail and endpoint-pair readouts and the endpoint-pair CSV dimension
+    (`semanticDimension`).
+  - The recorded comparison's rows and semantic identity (`flattenRunResult`,
+    `resultSemanticIdentity`, from the side's `recordedTableRead`), with the side's standing
+    (`recordedResultStanding`).
+  - The reopen's and the History run check's own reads (`readStanding`, the successor's
+    `validateRetainedPrecisionRecorded`, `validateAnalysisRunV03(..., { recordedRead: true })`).
+
+  The row semantics under a table come from the wasm export `reader_recorded_row_semantics_each_json`
+  (Rust `row_semantics_each_recorded`). The other surfaces carry no reader verdict and are not
+  applicable:
+  - `componentBody`, `hangerPreload`, `PhysicsSourceEvidencePanel` (producer id only), the
+    section-basis headlines and the unit policy.
+  - The navigator (`resultsNavigator.ts`).
+  - The CSV provenance (`csvAnalysisRoute` is the producer id; `csvResultHash` hashes only).
+  - `readNumericalHealth` (it takes the threaded standing's findings).
+  - `retainedPrecisionStandingText` and `retainedRowClasses` (a session registration, which a
+    saved run never has).
+  - `RunComparisonView` and its CSV (they read the side's rows and standing).
+  - `HistoryPanel`'s run check (it shows the context's scoped findings).
+
+  Some current-only readers are not reached. `LoadReferenceOutputGate`, `loadReferenceDisclosure`,
+  `retainedPrecisionDisclosure`, the key-results, summary and export panels, and report
+  readiness all receive only the current solved result: the session's result is null while a
+  historical run is shown. In the recorded record validator, `readerValidate("pressure")` and
+  `validateRetainedRecoverySource` are reached only on the pressure routes, which have no
+  registry variant. A historical side's identity is its table's binding, so it compares with
+  runs recorded under the same table, and a pair with a current run is refused as
+  `semantic_identity_differs`. The retained standing restriction (needs recompute) is unchanged.
+  `recordedPreRtA4Display.test.tsx` renders `HistoricalRunPanel` for each registry variant.
+  It selects one row of every kind, so Result Detail and each endpoint pair show, and it exports
+  every CSV. It requires none of the current readers' refusal texts and a converting readout for
+  every displacement and stress row, and it requires the same row cells, Result Detail and
+  notices as the statement's current twin in `fixtures/results`. It checks the same for
+  recorded comparisons under one table and for the History run check. It fails at 485fb08f7:
+  each of the retained milestone's 40 representative Result Details showed `integrity_failure`
+  or an unknown-dimension readout, and its maximum-stress row label was missing.
 
 Python has no display surface for these runs: `validate_analysis_run_v0_3(...,
 recorded_read=True)` raises its refusal, and no product path turns it into standing.
@@ -1011,6 +1049,8 @@ record's). `tests/verifiers` mirrors the current reader and is unchanged; the hi
 substitutes the variant's limitations into it as an independent check. Desktop
 `resultReader.ts`, `retainedPrecisionReader.ts`, `resultStanding.ts`,
 `analysisRunCompatibility.ts`, `HistoricalRunContext.tsx`, `runComparisonSides.ts`,
+`runComparison.ts`, `ResultsPanel.tsx`, `resultSemantics.ts`, `resultInterpretation.ts`,
+`knownSemanticLimitations.ts`, `KnownSemanticNotices.tsx`,
 `loadWasmEngine.ts`, `HistoryPanel.tsx`, `RunComparisonView.tsx` and the wasm export
 (`operation_applier`, every export inside `entry_scope`): changed. Native src-tauri
 (`analysis_runs.rs`, the store): not applicable; it reads hashes and bytes only, and a test

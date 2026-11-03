@@ -315,6 +315,14 @@ export function recordedReaderRowSemantics(source: MechanicsResult, binding: Con
 export function sourceContract(source: MechanicsResult): SourceContract {
   return readerDispatch(source).route;
 }
+/** RT-A4 §10.4: the route a display surface classifies a statement under. A reopened run
+ * recorded before RT-A4 names its recorded table, and is classified by the recorded dispatch
+ * under it (a refused binding is `unsupported`; it never falls back to the current reader);
+ * without one (every current caller) this is `sourceContract`. Display only: it grants no
+ * standing and no current path passes a table. */
+export function displayRoute(source: MechanicsResult, recordedTableRead?: ContractBinding | null): SourceContract {
+  return recordedTableRead ? recordedReaderDispatch(source, recordedTableRead).route : sourceContract(source);
+}
 /** The route's pinned table binding; throws SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED for a
  * statement the dispatch refuses. */
 export function sourceSemanticBinding(source: MechanicsResult): ContractBinding {

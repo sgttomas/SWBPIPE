@@ -28,12 +28,13 @@ export function semanticLabels(source?: MechanicsResult | null, recordedTableRea
     category: row => { try { return signature(row)?.category ?? "unknown"; } catch { return "integrity_failure"; } },
   };
 }
-export function semanticFamily(row: SourceRow, source?: MechanicsResult): string {
-  return semanticLabels(source).family(row);
+/** One row's label (`recordedTableRead` as for `semanticLabels`; current callers omit it). */
+export function semanticFamily(row: SourceRow, source?: MechanicsResult, recordedTableRead?: ContractBinding | null): string {
+  return semanticLabels(source, recordedTableRead).family(row);
 }
-export function semanticDimension(row: SourceRow, source?: MechanicsResult): string | null {
-  return semanticLabels(source).dimension(row);
+export function semanticDimension(row: SourceRow, source?: MechanicsResult, recordedTableRead?: ContractBinding | null): string | null {
+  return semanticLabels(source, recordedTableRead).dimension(row);
 }
-export function semanticCategory(row: SourceRow, source?: MechanicsResult): string {
-  return semanticLabels(source).category(row);
+export function semanticCategory(row: SourceRow, source?: MechanicsResult, recordedTableRead?: ContractBinding | null): string {
+  return semanticLabels(source, recordedTableRead).category(row);
 }

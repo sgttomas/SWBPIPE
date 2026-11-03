@@ -1,6 +1,6 @@
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { isRetainedRoute } from "./numericalResultQuality";
-import { recordedReaderDispatch, sourceContract } from "./resultReader";
+import { displayRoute } from "./resultReader";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
@@ -186,12 +186,12 @@ export function ResultsPanel({
   const groups = result && labels ? groupResults(page.items, labels) : [];
   // Dispatch once per render; the row labels apply to preview-physics-2 and its successor only.
   // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
-  const contractOf = (source: MechanicsResult): string => recordedTableRead ? recordedReaderDispatch(source, recordedTableRead).route : sourceContract(source);
+  const contractOf = (source: MechanicsResult): string => displayRoute(source, recordedTableRead);
   const labelSource = useMemo(() => {
     try { return result && ["preview_physics", "retained_preview_physics", "retained_physics"].includes(contractOf(result)) ? result : null; } catch { return null; }
   }, [result, recordedTableRead]);
   const interpretation = result
-    ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
+    ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun, recordedTableRead })
     : null;
   const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead) : null), [numericalHealth, result, recordedTableRead]);
   const route = result ? contractOf(result) : "unsupported";
@@ -212,7 +212,7 @@ export function ResultsPanel({
     return {
       id: item.id,
       category: labels!.category(item),
-      label: (labelSource && resultRowLabel(item, labelSource)) || "",
+      label: (labelSource && resultRowLabel(item, labelSource, recordedTableRead)) || "",
       health: state ? NUMERICAL_HEALTH_STATE_TEXT[state] : "",
       withheld: kindFilter?.withheld[item.id] ?? "",
       componentBody: item.component_body ? `reference section of component body ${item.component_body.component_ref}` : "",
@@ -368,7 +368,7 @@ export function ResultsPanel({
           ) : null}
           {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
           <p data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
-          <KnownSemanticNotices result={result} testIdPrefix="results" />
+          <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
           <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />
           <ResultControls
@@ -414,10 +414,10 @@ export function ResultsPanel({
             onStep={(axis, delta) => navigate(axis, delta)}
             onChooseCase={(caseKey) => chooseCase(caseKey)}
           />
-          <ResultDetail interpretation={interpretation} result={result} exportEndpointPair={async (values) => {
+          <ResultDetail interpretation={interpretation} result={result} recordedTableRead={recordedTableRead} exportEndpointPair={async (values) => {
             const rows = await Promise.all(values.map(async (item) => {
               const row = result?.results.find((candidate) => candidate.id === item.result_id) ?? null;
-              const quantity = row ? { value: row.value, unit: row.unit, dimension_id: semanticDimension(row, result ?? undefined) ?? "unknown" } : null;
+              const quantity = row ? { value: row.value, unit: row.unit, dimension_id: semanticDimension(row, result ?? undefined, recordedTableRead) ?? "unknown" } : null;
               return { location: item.location, resultId: item.result_id, fallback: item.value_label, quantity, display: quantity ? await displayResolver.resolve(quantity) : null };
             }));
             const held = rows.flatMap((row) => (row.quantity && row.display ? [{ quantity: row.quantity, display: row.display }] : []));
@@ -466,7 +466,7 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
+                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
@@ -760,7 +760,7 @@ function compareResultUnits(left: string, right: string) {
 
 type EndpointPairExport = (values: NonNullable<ResultInterpretation["endpoint_pair"]>["values"]) => Promise<CsvExport>;
 
-function ResultDetail({ interpretation, result, exportEndpointPair }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null; exportEndpointPair?: EndpointPairExport }) {
+function ResultDetail({ interpretation, result, recordedTableRead, exportEndpointPair }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null; recordedTableRead: RecordedBinding | null; exportEndpointPair?: EndpointPairExport }) {
   if (!interpretation) {
     return (
       <section className="result-detail-panel" aria-label="Result detail" data-testid="result-detail-panel">
@@ -777,7 +777,7 @@ function ResultDetail({ interpretation, result, exportEndpointPair }: { interpre
         <DetailLine label="Result" value={interpretation.result_id} testId="selected-result-id" />
         <DetailLine label="Family" value={interpretation.family} />
         <DetailLine label="Entity ref" value={interpretation.entity_ref} testId="selected-result-entity-ref" />
-        <DetailLine label="Value" value={<SemanticResultQuantity result={result} id={interpretation.result_id} fallback={interpretation.value_label} />} />
+        <DetailLine label="Value" value={<SemanticResultQuantity result={result} recordedTableRead={recordedTableRead} id={interpretation.result_id} fallback={interpretation.value_label} />} />
         <DetailLine label="Component" value={interpretation.component} testId="selected-result-component" />
         <DetailLine label="Coordinate system" value={interpretation.coordinate_system} testId="selected-result-coordinate-system" />
         <DetailLine label="Location" value={interpretation.location} testId="selected-result-location" />
@@ -823,12 +823,12 @@ function ResultDetail({ interpretation, result, exportEndpointPair }: { interpre
         />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />
       </dl>
-      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} result={result} exportEndpointPair={exportEndpointPair} /> : null}
+      {interpretation.endpoint_pair ? <EndpointPairTable interpretation={interpretation} result={result} recordedTableRead={recordedTableRead} exportEndpointPair={exportEndpointPair} /> : null}
     </section>
   );
 }
 
-function EndpointPairTable({ interpretation, result, exportEndpointPair }: { interpretation: ResultInterpretation; result: MechanicsResult | null; exportEndpointPair?: EndpointPairExport }) {
+function EndpointPairTable({ interpretation, result, recordedTableRead, exportEndpointPair }: { interpretation: ResultInterpretation; result: MechanicsResult | null; recordedTableRead: RecordedBinding | null; exportEndpointPair?: EndpointPairExport }) {
   if (!interpretation.endpoint_pair) return null;
   const values = interpretation.endpoint_pair.values;
 
@@ -849,7 +849,7 @@ function EndpointPairTable({ interpretation, result, exportEndpointPair }: { int
             <tr key={item.result_id}>
               <td>{item.location}</td>
               <td>{item.result_id}</td>
-              <td><SemanticResultQuantity result={result} id={item.result_id} fallback={item.value_label} /></td>
+              <td><SemanticResultQuantity result={result} recordedTableRead={recordedTableRead} id={item.result_id} fallback={item.value_label} /></td>
             </tr>
           ))}
         </tbody>
@@ -1123,9 +1123,11 @@ function filterResults(
 function resultFamilyKey(result: MechanicsResult["results"][number], labels: RowLabels): ResultFamily {
   return labels.family(result) as ResultFamily;
 }
-function SemanticResultQuantity({result,id,fallback}:{result:MechanicsResult|null;id:string;fallback:string}) {
+/** A row's readout, its dimension read under the run's table (RT-A4 §10.4: a reopened run recorded
+ * before RT-A4 passes its recorded table; a current result passes none). */
+function SemanticResultQuantity({result,recordedTableRead,id,fallback}:{result:MechanicsResult|null;recordedTableRead:RecordedBinding|null;id:string;fallback:string}) {
   const row=result?.results.find(x=>x.id===id);
-  return row?<QuantityReadout quantity={{value:row.value,unit:row.unit,dimension_id:semanticDimension(row, result ?? undefined)??"unknown"}}/>:<span>{fallback}</span>;
+  return row?<QuantityReadout quantity={{value:row.value,unit:row.unit,dimension_id:semanticDimension(row, result ?? undefined, recordedTableRead)??"unknown"}}/>:<span>{fallback}</span>;
 }
 
 function hasResultSemanticToken(value: string, expected: string): boolean {
