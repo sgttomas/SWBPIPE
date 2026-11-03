@@ -378,21 +378,36 @@ fn request_modulus_basis_conflicts_with_a_state_case() {
 // Preparation parity with the static pre-formation checks
 // ---------------------------------------------------------------------------
 
+/// Two comparisons, neither a proof that the sequences are identical:
+/// (1) every diagnostic against `pre_formation_checks`, which is itself a
+/// mirror of the static entry's pre-formation steps (not the entry); and
+/// (2) the decision against the actual static entry
+/// (`run_linear_static_preview_value_with_mode`) on the same request: it is
+/// blocked exactly when preparation refuses, with the same blocking
+/// diagnostics. They hold only on the fixtures given.
 fn parity(request: Value, members: Value) {
     let static_found = LinearStaticPreviewRequest::pre_formation_checks_value(request.clone()).unwrap();
+    let entry = crate::run_linear_static_preview_value_with_mode(request.clone(), crate::PreviewSolverMode::DenseScrutiny)
+        .unwrap_or_else(|refusal| panic!("the static entry refused the request: {refusal}"));
     let modal_request = modal(with(request, members));
-    let modal_found = match prepare_modal(&modal_request) {
-        Ok(prepared) => prepared.diagnostics,
-        Err(found) => found,
+    let prepared = prepare_modal(&modal_request);
+    let modal_found = match &prepared {
+        Ok(prepared) => prepared.diagnostics.clone(),
+        Err(found) => found.clone(),
     };
     let key = |d: &Diagnostic| (d.id.clone(), d.code.clone(), d.severity.clone(), d.affected_refs.clone());
     let static_keys: Vec<_> = static_found.iter().map(key).collect();
     let modal_keys: Vec<_> = modal_found.iter().filter(|d| !d.code.starts_with("MODAL_")).map(key).collect();
-    assert_eq!(modal_keys, static_keys);
+    assert_eq!(modal_keys, static_keys, "against the mirrored pre-formation checks");
+    let blocking = |found: &[Diagnostic]| -> Vec<_> {
+        found.iter().filter(|d| d.severity == "blocking" && !d.code.starts_with("MODAL_")).map(key).collect()
+    };
+    assert_eq!(prepared.is_err(), has_blocking(&entry.diagnostics), "admitted or refused as the static entry decides: {:#?}", entry.diagnostics);
+    assert_eq!(blocking(&modal_found), blocking(&entry.diagnostics), "the static entry's blocking diagnostics");
 }
 
 #[test]
-fn prepare_agrees_with_the_static_pre_formation_checks() {
+fn prepare_agrees_with_the_mirrored_checks_and_the_static_entrys_decision() {
     // PF: the bundled demo, and the intermediate-stop witness made invalid as
     // the model-checks corpus makes it.
     // The demo's nonlinear supports would need a state case and stop at the
