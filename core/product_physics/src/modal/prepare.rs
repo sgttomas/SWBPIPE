@@ -69,6 +69,26 @@ fn state_case_unavailable(case: &str, carried: &[String]) -> Diagnostic {
     )
 }
 
+/// The id of [`request_basis_case`]'s internal case. It never leaves this
+/// module: [`attribute_request_basis`] renames it in every diagnostic the static
+/// resolver emits for it.
+const REQUEST_BASIS_CASE: &str = "modal:request-modulus-basis";
+
+/// Attributes the static resolver's diagnostics about the internal request
+/// case to the modal request itself, so the internal id reaches no output.
+fn attribute_request_basis(found: &mut [Diagnostic]) {
+    let suffix = stable_suffix(REQUEST_BASIS_CASE);
+    for finding in found {
+        finding.id = finding.id.replace(REQUEST_BASIS_CASE, "modal-request").replace(&suffix, "modal-request");
+        finding.message = finding.message.replace(REQUEST_BASIS_CASE, "the modal request");
+        for reference in &mut finding.affected_refs {
+            if reference == REQUEST_BASIS_CASE {
+                *reference = "modal_request".to_string();
+            }
+        }
+    }
+}
+
 /// A load case carrying only the request's modulus basis, so that the static
 /// resolver (`materials_for_modulus_basis`) is reused unchanged on a plain
 /// document; it is never solved, stored or published.
@@ -76,7 +96,7 @@ fn request_basis_case(req: &ModalPreviewRequest, diagnostics: &mut Vec<Diagnosti
     if req.modulus_basis_ref.is_none() && req.modulus_basis_temperature.is_none() {
         return None;
     }
-    let mut case: PreviewLoadCase = serde_json::from_value(serde_json::json!({"id": "modal:request-modulus-basis"}))
+    let mut case: PreviewLoadCase = serde_json::from_value(serde_json::json!({"id": REQUEST_BASIS_CASE}))
         .expect("a case with only an id decodes");
     case.modulus_basis_ref = req.modulus_basis_ref.clone();
     case.modulus_basis_temperature = req.modulus_basis_temperature.clone();
@@ -252,14 +272,17 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     }
     if let Some(case) = &basis_case {
         let before = diagnostics.len();
-        if modulus_basis_key(case, &mut diagnostics).is_some() {
-            match materials_for_modulus_basis(&model, &materials, case, &mut diagnostics) {
-                Some((basis_materials, _record)) => materials = basis_materials,
-                None => return Err(modal_stop(diagnostics, state_case, before)),
-            }
+        let resolved = if modulus_basis_key(case, &mut diagnostics).is_some() {
+            materials_for_modulus_basis(&model, &materials, case, &mut diagnostics).map(|(basis, _record)| basis)
+        } else {
+            Some(materials.clone())
+        };
+        if bound_case.is_none() {
+            attribute_request_basis(&mut diagnostics[before..]);
         }
-        if has_blocking(&diagnostics) {
-            return Err(modal_stop(diagnostics, state_case, before));
+        match resolved {
+            Some(basis_materials) if !has_blocking(&diagnostics) => materials = basis_materials,
+            _ => return Err(modal_stop(diagnostics, state_case, before)),
         }
     }
     let pairs = match (&resolved_cases, &bound_case) {

@@ -368,6 +368,10 @@ fn request_modulus_basis_conflicts_with_a_state_case() {
     // Without a state case the request's basis is resolved by the static resolver.
     let found = prepare_modal(&modal(with(pf_request(false), json!({"mode_count": 1, "modulus_basis_ref": "point:none"})))).err().unwrap();
     assert!(codes(&found).iter().any(|c| c.starts_with("MODULUS_BASIS")), "{found:#?}");
+    // The internal case that carries the request's basis is named in no diagnostic.
+    let text = serde_json::to_string(&found).unwrap();
+    assert!(!text.contains("request-modulus-basis"), "{text}");
+    assert!(!text.contains(&crate::stable_suffix("modal:request-modulus-basis")), "{text}");
 }
 
 // ---------------------------------------------------------------------------
