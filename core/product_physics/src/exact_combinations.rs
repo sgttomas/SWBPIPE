@@ -600,20 +600,26 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             Some(value) => {
                 outcomes[place] = Some(Outcome::Row { value, sources });
             }
-            // Invariant: unreachable with physical rows. `algebra_value` refuses only a
-            // non-finite operand (`AlgebraQuantity::new`, load_case_algebra lib.rs:83)
-            // or an evaluation finding. An operand is a case row, finite
-            // (`solve_prepared_load_case` refuses any other, lib.rs:7203), or recovered
-            // from one: zero, the row, or the row over the published wall area, positive
-            // (`source_geometry.rs:55`), non-finite only by overflow. The operands share
+            // Invariant: unreachable provided every recovered operand is finite.
+            // `algebra_value` refuses only a non-finite operand (`AlgebraQuantity::new`,
+            // load_case_algebra lib.rs:83) or an evaluation finding. A case-row operand
+            // is finite (`solve_prepared_load_case` refuses any other, lib.rs:7203). A
+            // recovered operand is zero, the axial row, or that row over the published
+            // wall area (`recover`). The area is positive and finite
+            // (`source_geometry.rs:55`) but has no lower bound (`validate_wall` requires
+            // only 0 < t <= od - t), so the quotient of a finite force by a small area
+            // can overflow (1e308 / 0.5 is +inf): `AlgebraQuantity::new` then refuses it
+            // and the row is withheld here as ALGEBRA_REFUSED, its recoveries rolled
+            // back. No upstream bound excludes that recovery overflow. The operands share
             // one dimension and two automatic statuses, and validation refuses the other
             // findings' inputs before the solve: a repeated or non-finite term
             // (validation.rs:2044 and 2065), a self-subtraction (2110) and a repeated
-            // range operand (2173). A result outside binary64 is not a refusal: a linear
+            // range operand (2173). Overflow of the combination result itself, from
+            // finite operands, is not a refusal and never reaches this branch: a linear
             // sum rounds to the signed infinity (`combination_value`, load_case_algebra
             // lib.rs:604) and a subtraction overflows to it (lib.rs:421). The value entry
             // refuses factors above 2^53 but the typed entry accepts any finite factor;
-            // either way an infinite row blocks the envelope (lib.rs:3563), not this branch.
+            // either way an infinite result row blocks the envelope (lib.rs:3563).
             None => {
                 let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
                 built.recoveries.truncate(built.recoveries.len() - kept);
