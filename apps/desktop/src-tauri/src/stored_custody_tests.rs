@@ -257,39 +257,144 @@ fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Val
     }
 }
 
-/// The rows of a frozen table in its source text, from `start` to the first `end`.
-fn table_text<'a>(text: &'a str, start: &str, end: &str) -> &'a str {
-    let at = text.find(start).unwrap_or_else(|| panic!("{start} not found"));
-    let rest = &text[at + start.len()..];
-    &rest[..rest.find(end).unwrap_or_else(|| panic!("{start}: no {end}"))]
+/// A token of a table literal: one of `()[]{},:`, a quoted string (either quote; no escapes or
+/// line breaks inside), or a name.
+#[derive(Debug, Clone, PartialEq)]
+enum Token {
+    Punct(char),
+    Str(String),
+    Name(String),
+}
+
+/// The tokens of the bracketed literal that opens at `text`'s first non-space character, through
+/// its matching close, and the text after it. Whitespace and line breaks separate tokens; any
+/// other character (a comment, an escape, an operator) fails, so nothing in the literal is
+/// skipped unread.
+fn bracketed_tokens<'a>(text: &'a str, what: &str) -> (Vec<Token>, &'a str) {
+    let mut tokens = Vec::new();
+    let mut depth = 0usize;
+    let mut chars = text.char_indices().peekable();
+    while let Some((at, c)) = chars.next() {
+        match c {
+            c if c.is_whitespace() => continue,
+            '(' | '[' | '{' => {
+                depth += 1;
+                tokens.push(Token::Punct(c));
+            }
+            ')' | ']' | '}' => {
+                assert!(depth > 0, "{what}: unbalanced {c}");
+                depth -= 1;
+                tokens.push(Token::Punct(c));
+                if depth == 0 {
+                    return (tokens, &text[at + 1..]);
+                }
+            }
+            ',' | ':' => tokens.push(Token::Punct(c)),
+            '"' | '\'' => {
+                let mut value = String::new();
+                loop {
+                    match chars.next() {
+                        Some((_, end)) if end == c => break,
+                        Some((_, '\\' | '\n')) | None => panic!("{what}: unsupported or unterminated string"),
+                        Some((_, other)) => value.push(other),
+                    }
+                }
+                tokens.push(Token::Str(value));
+            }
+            c if c.is_ascii_alphabetic() || c == '_' => {
+                let mut name = String::from(c);
+                while let Some(&(_, next)) = chars.peek() {
+                    if !(next.is_ascii_alphanumeric() || next == '_') {
+                        break;
+                    }
+                    name.push(next);
+                    chars.next();
+                }
+                tokens.push(Token::Name(name));
+            }
+            other => panic!("{what}: unrecognized text {other:?} in the table"),
+        }
+        assert!(depth > 0, "{what}: the table does not open with a bracket");
+    }
+    panic!("{what}: the table does not close")
+}
+
+/// The comma-separated entries of a bracketed list's tokens (`open … close`, an optional
+/// trailing comma), each entry's own tokens with its brackets.
+fn entries(tokens: &[Token], open: char, close: char, what: &str) -> Vec<Vec<Token>> {
+    assert!(tokens.first() == Some(&Token::Punct(open)) && tokens.last() == Some(&Token::Punct(close)), "{what}: not a {open}…{close} list: {tokens:?}");
+    let (mut out, mut depth, mut current) = (Vec::new(), 0usize, Vec::new());
+    for token in &tokens[1..tokens.len() - 1] {
+        match token {
+            Token::Punct(',') if depth == 0 => {
+                assert!(!current.is_empty(), "{what}: an empty entry");
+                out.push(std::mem::take(&mut current));
+                continue;
+            }
+            Token::Punct('(' | '[' | '{') => depth += 1,
+            Token::Punct(')' | ']' | '}') => depth -= 1,
+            _ => {}
+        }
+        current.push(token.clone());
+    }
+    if !current.is_empty() {
+        out.push(current);
+    }
+    out
 }
 
 /// The native `RECORDED_RUN_TABLE_BASES` (`analysis_run_v03_validate.rs`) is the record
 /// validator's table in both its twins, row for row and in order: `analysisRunCompatibility.ts`
-/// and `compatibility.py`.
+/// and `compatibility.py`. Each twin's whole table literal is read and every entry must be a
+/// recognized row: an entry or text that is not one fails the test rather than being skipped.
+/// Whitespace, line breaks, either quote style and a trailing comma are tolerated.
 #[test]
 fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
     let native: Vec<[String; 3]> = RECORDED_RUN_TABLE_BASES.iter().map(|(id, recorded, current)| [id.to_string(), recorded.to_string(), current.to_string()]).collect();
-    let quoted = |text: &str| -> Vec<String> { text.split('"').skip(1).step_by(2).map(str::to_string).collect() };
-    // TypeScript: `{ id: "…", recorded: "…", current: "…" }` rows of the frozen array.
+    // TypeScript: `Object.freeze([ { id: …, recorded: …, current: … }, … ]);`.
     let ts = read_text("apps/desktop/src/services/analysisRunCompatibility.ts");
+    assert_eq!(ts.matches("const RECORDED_RUN_TABLE_BASES").count(), 1);
     let declared = &ts[ts.find("const RECORDED_RUN_TABLE_BASES").unwrap()..];
-    let typescript: Vec<[String; 3]> = table_text(declared, "Object.freeze([", "]);").split("{ id:").skip(1).map(|row| {
-        let value = |from: usize| quoted(&row[from..])[0].clone();
-        [value(0), value(row.find("recorded:").unwrap()), value(row.find("current:").unwrap())]
+    let literal = &declared[declared.find("Object.freeze(").expect("the frozen TypeScript table") + "Object.freeze(".len()..];
+    let (tokens, rest) = bracketed_tokens(literal, "TypeScript");
+    assert!(rest.trim_start().starts_with(");"), "TypeScript: text after the table: {:?}", &rest[..rest.len().min(40)]);
+    let typescript: Vec<[String; 3]> = entries(&tokens, '[', ']', "TypeScript").iter().map(|row| {
+        let fields = entries(row, '{', '}', "TypeScript row");
+        let mut values = std::collections::BTreeMap::new();
+        for field in &fields {
+            match field.as_slice() {
+                [Token::Name(key), Token::Punct(':'), Token::Str(value)] if ["id", "recorded", "current"].contains(&key.as_str()) => {
+                    assert!(values.insert(key.clone(), value.clone()).is_none(), "TypeScript: {key} twice in {fields:?}");
+                }
+                other => panic!("TypeScript: unrecognized field {other:?}"),
+            }
+        }
+        assert_eq!(values.len(), 3, "TypeScript: {fields:?}");
+        [values["id"].clone(), values["recorded"].clone(), values["current"].clone()]
     }).collect();
-    // Python: `(NAME_OR_LITERAL, NAME_OR_LITERAL, NAME_OR_LITERAL),` rows; names are the module's string constants.
+    // Python: `RECORDED_RUN_TABLE_BASES = ( (item, item, item), … )`; a name is a module-level string constant.
     let py = read_text("core/analysis_runs/compatibility.py");
-    let constant = |item: &str| -> String {
-        let item = item.trim();
-        if item.starts_with('"') { return item.trim_matches('"').to_string(); }
-        let line = py.lines().find(|line| line.starts_with(&format!("{item} = \""))).unwrap_or_else(|| panic!("{item}: no string constant"));
-        quoted(line)[0].clone()
+    let head = "\nRECORDED_RUN_TABLE_BASES = ";
+    assert_eq!(py.matches(head).count(), 1);
+    let (tokens, _) = bracketed_tokens(&py[py.find(head).unwrap() + head.len()..], "Python");
+    let constant = |name: &str| -> String {
+        let assigned: Vec<&str> = py.lines().filter_map(|line| line.strip_prefix(&format!("{name} = "))).collect();
+        assert_eq!(assigned.len(), 1, "Python: {name} is not assigned once at module level");
+        let wrapped = format!("({})", assigned[0]);
+        let (value, rest) = bracketed_tokens(&wrapped, name);
+        assert!(rest.trim().is_empty(), "Python: {name}: {rest:?}");
+        match value.as_slice() {
+            [Token::Punct('('), Token::Str(text), Token::Punct(')')] => text.clone(),
+            other => panic!("Python: {name} is not one string constant: {other:?}"),
+        }
     };
-    let python: Vec<[String; 3]> = table_text(&py, "RECORDED_RUN_TABLE_BASES = (", "\n)\n").lines().map(str::trim).filter(|line| !line.is_empty()).map(|line| {
-        let items: Vec<&str> = line.trim_start_matches('(').trim_end_matches(',').trim_end_matches(')').split(',').collect();
-        assert_eq!(items.len(), 3, "{line}");
-        [constant(items[0]), constant(items[1]), constant(items[2])]
+    let python: Vec<[String; 3]> = entries(&tokens, '(', ')', "Python").iter().map(|row| {
+        let items: Vec<String> = entries(row, '(', ')', "Python row").iter().map(|item| match item.as_slice() {
+            [Token::Str(text)] => text.clone(),
+            [Token::Name(name)] => constant(name),
+            other => panic!("Python: unrecognized item {other:?}"),
+        }).collect();
+        <[String; 3]>::try_from(items).unwrap_or_else(|items| panic!("Python: a row of {} items: {items:?}", items.len()))
     }).collect();
     assert_eq!(native.len(), 4, "{native:?}");
     assert_eq!(typescript, native, "the TypeScript table");

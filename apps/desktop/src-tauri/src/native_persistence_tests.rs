@@ -1076,7 +1076,9 @@ fn the_webviews_persistence_replies_are_the_commands_replies() {
 
 /// The commands' executor part checks the header and copies the body only; admission, the parse,
 /// the build and the store run in a blocking task, so a held build leaves the async runtime free.
-/// The reply is a JSON body (Tauri delivers it parsed), as `record_analysis_run`'s is.
+/// The reply is a JSON body (Tauri delivers it parsed), as `record_analysis_run`'s is. Each command
+/// writes its own store, so this measures only progress off the executor; overlapping writes to
+/// one store are `overlapping_record_runs_on_one_store_commit_whole_or_are_refused_busy`.
 #[test]
 fn the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_body() {
     use crate::analysis_run_v03_build::tests::gate;
@@ -1086,12 +1088,19 @@ fn the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_bod
     let dir = scratch("executor");
     let case = case_named("preview:connected");
     let job = held(&registry, &gate_, &case.text, &case.intake, &case.mode, ResultCustody::Native);
-    let path = dir.join("store.sqlite");
-    stored_project(&path, case.project_id(), case.model());
     let commands = crate::native_verdict::tests::runtime_workers() * 2 + 2;
-    let held_gate = gate::hold(&registry, "read", false);
-    let handles: Vec<_> = (0..commands)
+    let paths: Vec<PathBuf> = (0..commands)
         .map(|index| {
+            let path = dir.join(format!("store-{index}.sqlite"));
+            stored_project(&path, case.project_id(), case.model());
+            path
+        })
+        .collect();
+    let held_gate = gate::hold(&registry, "read", false);
+    let handles: Vec<_> = paths
+        .iter()
+        .enumerate()
+        .map(|(index, path)| {
             let mut request = native_request(None);
             request["run_labels"]["run_name"] = json!(format!("Run {index}"));
             let (registry, body, path) = (registry.clone(), body(&case.record_args(&job, request)), path.clone());
@@ -1114,13 +1123,125 @@ fn the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_bod
         }
     }
     drop(held_gate);
-    assert_eq!(dump(&path, "analysis_runs", &[]).len(), commands, "each recorded once");
-    assert_eq!(dump(&path, "model_states", &[]).len(), 1, "one snapshot");
+    for path in &paths {
+        assert_eq!(dump(path, "analysis_runs", &[]).len(), 1, "each recorded once");
+        assert_eq!(dump(path, "model_states", &[]).len(), 1, "one snapshot");
+    }
     // A malformed body is refused only by the blocking part (the executor neither prescans nor parses).
     let (raw, lease) = reserve(&registry, &InvokeBody::Raw(br#"{"jobId":"#.to_vec()), &headers(Some(INGRESS_ARGS_JSON_V1)), SAVE_COMMAND).unwrap();
     let refused = run_save(&registry, || Ok(PathBuf::from("/nonexistent")), raw, lease, &unlimited(), &frozen_seconds).unwrap_err();
     assert!(matches!(refused, CommandError::Ingress(_)), "{refused:?}");
     assert!(matches!(reserve(&registry, &InvokeBody::Raw(b"{}".to_vec()), &headers(None), RECORD_COMMAND), Err(CommandError::Ingress(_))), "the header is required");
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+/// Overlapping Record Runs on one store. `open_project_store` (lib.rs) lets a second writer wait
+/// 5 s for the store's write lock and then fail visibly, so the contract asserted is the store's,
+/// not that every write succeeds: each command either commits its run completely or is refused
+/// with the named busy refusal (`STORE-SQL-ERROR: SQLite DatabaseBusy …`); exactly the committed
+/// runs are stored, each whole and readable, nothing partial is left, and the store passes
+/// `quick_check`. Whether overlapping writes to one store must all succeed (per-store
+/// serialization) is an open product matter (`c1-native-custody-plan.md`). Whether any write is
+/// refused in the overlapping phase depends on timing, so a second phase forces one: another
+/// connection holds the write lock past the busy timeout, the command is refused as busy, every
+/// table is exactly as before, and the same request then commits once the lock is released.
+#[test]
+fn overlapping_record_runs_on_one_store_commit_whole_or_are_refused_busy() {
+    use crate::analysis_run_v03_build::tests::gate;
+    use std::collections::BTreeSet;
+    use tauri::ipc::{InvokeResponseBody, IpcResponse};
+    const BUSY: &str = "STORE-SQL-ERROR: SQLite DatabaseBusy (";
+    let host = ScriptedHost::normal();
+    let (registry, gate_) = gated(&host);
+    let dir = scratch("one-store-writers");
+    let case = case_named("preview:connected");
+    let job = held(&registry, &gate_, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let path = dir.join("store.sqlite");
+    stored_project(&path, case.project_id(), case.model());
+    let commands = crate::native_verdict::tests::runtime_workers() * 2 + 2;
+    // Every command is held at the build, then all are released at once onto the one store.
+    let held_gate = gate::hold(&registry, "read", false);
+    let handles: Vec<_> = (0..commands)
+        .map(|index| {
+            let mut request = native_request(None);
+            request["run_labels"]["run_name"] = json!(format!("Run {index}"));
+            let (registry, body, path) = (registry.clone(), body(&case.record_args(&job, request)), path.clone());
+            tauri::async_runtime::spawn(async move { record_run(&registry, move || Ok(path), &body, &headers(Some(INGRESS_ARGS_JSON_V1))).await })
+        })
+        .collect();
+    assert!(held_gate.0.wait_entered(commands, std::time::Duration::from_secs(60)), "only {} of {commands} commands entered", held_gate.0.entered());
+    held_gate.0.open();
+    let (mut committed, mut busy) = (BTreeSet::new(), 0);
+    for handle in handles {
+        match tauri::async_runtime::block_on(handle).unwrap() {
+            Ok(response) => match response.body().unwrap() {
+                InvokeResponseBody::Json(text) => {
+                    let id = serde_json::from_str::<Value>(&text).unwrap()["run"]["recording_id"].as_str().unwrap().to_string();
+                    assert!(id.starts_with("runrec:"), "{id}");
+                    assert!(committed.insert(id), "each committed run is its own recording");
+                }
+                InvokeResponseBody::Raw(_) => panic!("the outcome is a JSON body"),
+            },
+            Err(CommandError::Command(text)) if text.starts_with(BUSY) => busy += 1,
+            Err(other) => panic!("neither committed nor refused as busy: {other:?}"),
+        }
+    }
+    drop(held_gate);
+    eprintln!("{commands} overlapping Record Runs on one store: {} committed, {busy} refused as busy", committed.len());
+    assert_eq!(committed.len() + busy, commands);
+    assert!(!committed.is_empty(), "the first writer to take the lock commits");
+    // Exactly the committed runs are stored; a refused write left nothing.
+    let connection = Connection::open(&path).unwrap();
+    let stored: BTreeSet<String> = connection
+        .prepare("SELECT recording_id FROM analysis_runs").unwrap()
+        .query_map([], |row| row.get::<_, String>(0)).unwrap()
+        .map(Result::unwrap)
+        .collect();
+    assert_eq!(stored, committed, "the stored runs are exactly the committed ones");
+    let orphans: i64 = connection
+        .query_row("SELECT COUNT(*) FROM analysis_runs WHERE NOT EXISTS (SELECT 1 FROM model_states s WHERE s.project_id = analysis_runs.project_id AND s.state_id = analysis_runs.state_id)", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(orphans, 0, "every stored run has its state");
+    assert_eq!(dump(&path, "model_states", &[]).len(), 1, "one snapshot");
+    let check: String = connection.query_row("PRAGMA quick_check", [], |row| row.get(0)).unwrap();
+    assert_eq!(check, "ok");
+    drop(connection);
+    // Each committed run is whole: it reads back through every integrity check of the legacy read.
+    for id in &committed {
+        crate::analysis_runs::read_run_in_store(&path, case.project_id(), id).unwrap_or_else(|e| panic!("{id}: {e}"));
+    }
+    // A forced refusal: the store's write lock held elsewhere past the 5 s busy timeout.
+    let tables = ["local_projects", "model_states", "analysis_runs"];
+    let before: Vec<Rows> = tables.iter().map(|table| dump(&path, table, &[])).collect();
+    let mut request = native_request(None);
+    request["run_labels"]["run_name"] = json!("Run refused, then retried");
+    let args = body(&case.record_args(&job, request));
+    let blocker = Connection::open(&path).unwrap();
+    blocker.execute_batch("BEGIN IMMEDIATE").unwrap();
+    let store = || { let path = path.clone(); move || Ok(path) };
+    let refused = tauri::async_runtime::block_on(record_run(&registry, store(), &args, &headers(Some(INGRESS_ARGS_JSON_V1))));
+    blocker.execute_batch("ROLLBACK").unwrap();
+    drop(blocker);
+    match refused {
+        Err(CommandError::Command(text)) if text.starts_with(BUSY) => {}
+        Err(other) => panic!("a held write lock is refused as busy, not {other:?}"),
+        Ok(_) => panic!("a write that could not take the lock was reported as success"),
+    }
+    let after: Vec<Rows> = tables.iter().map(|table| dump(&path, table, &[])).collect();
+    assert!(before == after, "the refused write changed the store");
+    let connection = Connection::open(&path).unwrap();
+    let check: String = connection.query_row("PRAGMA quick_check", [], |row| row.get(0)).unwrap();
+    assert_eq!(check, "ok");
+    drop(connection);
+    // The refusal leaves the request eligible: the same request commits once the lock is free.
+    let retried = tauri::async_runtime::block_on(record_run(&registry, store(), &args, &headers(Some(INGRESS_ARGS_JSON_V1)))).unwrap();
+    let InvokeResponseBody::Json(text) = retried.body().unwrap() else { panic!("the outcome is a JSON body") };
+    let id = serde_json::from_str::<Value>(&text).unwrap()["run"]["recording_id"].as_str().unwrap().to_string();
+    assert!(!committed.contains(&id));
+    crate::analysis_runs::read_run_in_store(&path, case.project_id(), &id).unwrap();
+    assert_eq!(dump(&path, "analysis_runs", &[]).len(), committed.len() + 1);
     assert!(registry.dispose_result(&job).unwrap().released);
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
