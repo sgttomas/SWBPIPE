@@ -3133,8 +3133,10 @@ above; it shares that registration only because no coefficient moves.
   `bounding_box_diagonal` (`min`, `max` on `f64` coordinates).
 - *MODAL-ID* adds site-specific bounds for the 23 format arguments no existing class covers in `eigen.rs`, `integrity.rs`, `outcome.rs` and the `#[cfg(test)]`
   `tests_eigen.rs`, under a guard keyed on `modal_sturm_count`, so an I2a head adds nothing. Mode numbers and counts
-  are usize decimals (20 B). Each set of static reasons is read from the pinned function with a count guard, so a new
-  or longer reason re-prices or stops. Debug and Display renderings are bounded at their longest variant with payloads
+  are usize decimals (20 B). Each set of static reasons is read from the pinned function, and a second guard counts
+  every instance of the construct that supplies one, literal or computed (the match arms, every
+  `reformation_refusal` call in its file, the domain tuples), so a new or longer literal re-prices and a computed one
+  stops. Debug and Display renderings are bounded at their longest variant with payloads
   at class bounds: `FiniteCensus` 162 B, `ShiftDecision` 143 B (`OutOfRange` with `ShiftTimesMass`; the widest
   `FactorizationRejected` is 136 B), a pencil DOF label 131 B, `PencilRangeUnsupported` 170 B, and the axis
   shortfall join of at most three entries 226 B.
@@ -3149,8 +3151,8 @@ above; it shares that registration only because no coefficient moves.
   follows.
 - *AC-004: analytical transfer of #94's witness evidence, not an executed #96 witness run and not a source-only
   argument* (Agent 0). I2b-1 compiles new code into the witnessed lib-test binary. Relative to I2a's witnessed head
-  `b85a5b131`, it changes only `modal.rs`'s module declarations and new modal files; every other product source,
-  every manifest and the modal_eigen crate are byte-equal. Its debug lib-test binary
+  `b85a5b131`, it changes only modal files: `modal.rs`'s module declarations, the new modules and the existing test
+  module `modal/tests.rs`; every other product source, every manifest and the modal_eigen crate are byte-equal. Its debug lib-test binary
   (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256 `75d4c1f0…4251`, same toolchain) was compared with
   the witnessed binary (`56c4444a…2d72`) from their disassemblies:
   - *Allocation forms.* Each function's whole body was scanned for every instruction that writes `sp`: immediate
