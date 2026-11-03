@@ -58,6 +58,17 @@ def site(name, f, text, full=False, row=None):
     return Resolved((f if full else f.split("/src/")[-1]) + f":{hits[0]}")
 
 
+def _fn_has(name, f, text):
+    """Whether fn `name` of file f (spanned as in `site`) holds `text` on some line; False without the fn."""
+    k = fnkey(name, f)
+    if not k:
+        return False
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", lines[i]) and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    return any(text in lines[i] for i in range(start - 1, end - 1))
+
+
 PP_ = "core/product_physics/src/"
 FK_ = "core/solver/frame_kernel/src/"
 if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
@@ -129,6 +140,10 @@ if fnkey("validate", CE):
         "`require_connector(admitted || records.is_empty(), ..)` passes; `records` is project(successor)'s "
         "contract_evidence.connector, which the producer sets to joint::connector_evidence(model): one record per "
         "objective-connector component (filter_map over model.components). " + D14 + ", so the list is empty")
+    # RT-U4 (order): validate walks the source's `results` array (`published`) in place of the row-ID map's values, and
+    # its coverage loop walks `records` (E1: empty) in place of `spans`' keys; the generic `record in records` rule
+    # bounds that loop, and every site under it stays under E1's empty records.
+    _CE_ORDERED = _fn_has("validate", CE, "for row in published {")
     O10_LOOPS_LAST += [
         ("for r in records", "0",
          O10 + (_E1_B7B if B7B_EXACT_BASE else
@@ -138,11 +153,14 @@ if fnkey("validate", CE):
          "PressureV3 callers are validate_pressure_evidence (physics_evidence.rs) and its load-state arm "
          "load_reference::validate_pressure_load_reference_evidence (load_reference.rs:387, called only from "
          "validate_pressure_evidence), both behind the edge R1 zeroes"), ["connector_evidence.rs:validate"]),
+    ] + ([] if _CE_ORDERED else [
         ("for component in spans.keys()", "0",
          O10 + "E2 (route E): `spans` is filled only inside the records loop (E1), so it is empty", ["connector_evidence.rs:validate"]),
-        ("for row in rows.values()", "Pall",
-         O10 + "E3 (route E): one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id), "
-         "<= C·P_final = Pall", ["connector_evidence.rs:validate"]),
+    ]) + [
+        ("for row in published" if _CE_ORDERED else "for row in rows.values()", "Pall",
+         O10 + "E3 (route E): one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id"
+         + ("; RT-U4: the same rows as the source's `results` array, whose IDs `indexed` has refused duplicates of" if _CE_ORDERED else "")
+         + "), <= C·P_final = Pall", ["connector_evidence.rs:validate"]),
     ]
     if fnkey("row_basis", CE):
         O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate", CE), fnkey("row_basis", CE),
@@ -1805,10 +1823,14 @@ if fnkey("tie_rods", _CN_FK) or _os.path.exists(_os.path.join(_SNAP, _TR)):
          O10 + "U5B-L: at most the pe_x row and the s_x row", ["lib.rs:append_connector_results"]),
         ("iter:rods .iter().map", "0", _U5L, ["connector.rs:force_scaled"]),
         ("for rod in entries", "0", _U5L + "; a tie_rods array is read only from a connector record (E1: records are empty on route E)", ["connector_evidence.rs:tie_rods"]),
-        ('for rod in record[" "].as_array().into_iter().flatten().filter_map(|r| r[" "].as_str())', "0", _U5L + "; inside E2's loop over spans (empty)", ["connector_evidence.rs:validate"]),
+        ('for rod in record[" "].as_array().into_iter().flatten().filter_map(|r| r[" "].as_str())', "0", _U5L + (
+            "; inside the coverage loop over connector records (E1: none; RT-U4 order)" if _fn_has("validate", CE, "for row in published {")
+            else "; inside E2's loop over spans (empty)"), ["connector_evidence.rs:validate"]),
         ('iter:record[" "].as_array().into_iter().flatten() .filter_map(|r| r[" "].as_str()).find', "0", _U5L + "; only for a tie-rod row of a connector record (E1: none)", ["connector_evidence.rs:validate"]),
         ("for rod in &rods", "0", _U5L + "; inside validate_pressure's loop over connector records (E1: none)", ["connector_evidence.rs:validate_pressure"]),
-        ("iter:rows.values().find", "Pall", O10 + "U5B-L: one pass over the indexed rows", ["connector_evidence.rs:validate_pressure"]),
+        ("iter:published.iter().find" if _fn_has("validate_pressure", CE, "published.iter().find(") else "iter:rows.values().find", "Pall",
+         O10 + "U5B-L: one pass over the indexed rows" + (" (RT-U4: the source's `results` array, the same rows)"
+         if _fn_has("validate_pressure", CE, "published.iter().find(") else ""), ["connector_evidence.rs:validate_pressure"]),
     ]
     # U5B-REC: ObjectiveConnector::force_scaled maps each rod through TieRod::force_scaled, not itself.
     if fnkey("force_scaled", _CN_FK) and fnkey("force_scaled", _TR):
