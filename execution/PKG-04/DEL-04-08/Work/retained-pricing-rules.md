@@ -2640,6 +2640,220 @@ proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:
 `proposal/retained_memory.rs`, `run-cand/`, `run-base4cf/` and
 `eval80-*.json`. They are review inputs, not permanent dependencies.
 
+### §8.41 RT-A3 reducer 2b: the W-15c pressure step (proposal A adopted)
+
+**Status.** Registered: proposal A (below) is adopted. Agent 0, 2026-11-02,
+under the owner's removal of explicit owner approval for coefficient movement
+(source-derived pricing, independent scrutiny and preservation remain
+required): "Approve exact proposal A SHA
+755108238ce1b94add0a76106df6b0fb7e12fb484ba5e964a91925861502c6d1 (+286
+STATICS, kept TAV allowance), based on reported independent review and
+prospective preservation; revalidate exact identity/current basis, apply with
+maintained generation, reproduce overlays and selected-head tests." The
+paragraphs from "Source" to "Prospective retained-output verification"
+record the proof that preceded the decision; "Adoption" records what was
+done on the selected head.
+
+**Source.** Reviewed reducer 2b (`49a71c41f`) merged normally with integrated
+main `2b743781a` (S2 on §8.39/§8.38) as `8ef5b1ef9`. Production changes are
+exactly 2b's `exact_admission.rs`, `pressure_runtime.rs` and
+`rigid_component.rs`; this change adds only the pressure-2 table's restated
+admitted-families limitation (+286 serialized bytes; rows, signatures, units
+and numbers unchanged), the inherited physics-retained table's parent digest,
+the two `result_export` hash constants and the carriers below. The priced
+revision is `0add60cac`.
+
+**D1 premises.** D1.4 admits no component (P2) and D1.5 leaves route E's
+regions `Some([])` and route L's absent. `reducers_in_regions` therefore
+returns before (L) or iterates no region (E); its component loop, the lazy
+reducer-body set and `step_topology` are not entered. `refuse_reducers_outside_step`
+is entered once per exact case, but the loop over that empty result runs
+zero times, so `pressure_step_run_evidence` (its `Topology::of`, `judge_reducer`
+and axis `Vec`) and the extracted `step_end_directions`/`step_end_passes_through`
+are not called. `judge_all` keeps W15C-NO's first-pass return; its body now
+collects `judge_reducer`'s outcomes (moved, unchanged) and `Topology::of` reads
+its mapping table from the extracted `member_mappings` (the same loop). No
+retained owner, lifetime, carrier, layout or reachable TEXT site is added. The
+identity grows 2,321 → 2,467 B and the reducer refusal text grows; the refusal
+keeps multiplicity zero (as in §8.38).
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **2B-PIN** (guard) | Full-file pins re-read after the diffs: B7a domain (`exact_admission.rs` `35122b23…`, `pressure_runtime.rs` `59774c3e…`, `semantic_contract.rs` `d5b41586…`, `retained_precision.rs` `da8b0fb9…`), W1 reductions (`retained_precision.rs`), W15 (`rigid_component.rs` `e8095fe5…`); batch 5's production prefix `0ba7ea7e…`. The two `result_export` files change only their table-hash constants. |
+| **2B-KEY** (re-key) | Scoped `problem` parents carry with unchanged text: `refuse_reducers_outside_step` 1864 → 1882 and `collinear_run` 1917 → 1959 (2b's W-15c branch and the extracted direction helpers precede them). |
+| **RTA3R2B-NZ** (owner guard, `w15_owners_model.py`) | W15's statements count the second `Topology::of`, `member_mappings`' two callers, its one mapping table and the axis `Vec`. `pressure_step_run_evidence` and `reducer_body_members` each have exactly one caller in product_physics' sources, after the D1-empty loop header in the one calling function (`for reducer in exact_admission::reducers_in_regions(model, case)`, `for component in model.components.iter().filter(…Reducer)`). The supplementary guard checks listed spellings, counts and header-before-call order; it does not establish loop containment. Full-file pins and source review establish the D1 exclusion. Mutation tests (`tests/test_841_rt_a3_reducer_2b.py`) reject the tested added calls or movement before the header, the renamed loop and the third `member_mappings` caller, including the test's restated module pin. |
+
+**Run and graph.** The committed tool prices `0add60cac` on all four points
+with exit 0, no unmapped header or unclassified argument and both O-10 checks
+clear. D is unchanged (L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237, E 76,356).
+The line map's outputs equal main `2b743781a`'s entry for entry (880 carried
+keys, 37 prunes, seven resolutions; no prune or resolution differs), so no
+bound is dropped for an extracted helper. The name graph gains exactly the
+seven new functions (`member_mappings`, `reducer_body_members`, `body_ends`,
+`judge_reducer`, `pressure_step_run_evidence`, `step_end_directions`,
+`step_end_passes_through`); every function multiplicity is unchanged and none
+of the seven has one. The five new `to_string` sites (W-15c's refusal details
+in `pressure_step_run_evidence`) have multiplicity zero; positive-multiplicity
+sites are unchanged at every point. TEXT rises by 876 B requested and moving
+at every point: six charged copies of the 146 B longer identity (U6-J4).
+
+**Comparison against both baselines.** Main `2b743781a` with the same tool
+reproduces the S2 source-only tree (1,602 equal). Against it the candidate has
+**1,594 equal, eight higher, none lower**: `STATICS[1]` and its success copy
++286 B (the table limitation), `TAV_W[1]`, `TAV_X[1]`, their success copies
+and `TAV_text_requested`/`_moving` +876 B. Against the kept registered bound
+(§8.38's block, reproduced by `generate --check` from the §8.40 predecessor
+tree with §8.38's basis) it has **1,594 equal, two higher, six lower**:
+`STATICS[1]` and its success copy +286 B; the six TAV coefficients are
+3,989,660 B below (the kept 3,990,536 B allowance less this identity's 876 B).
+`a_le_b` is false, so §8.40's conservative carry rule is not met and the
+registered block no longer bounds the head coefficient-wise.
+
+**Native atoms and evaluations.** The lib-test binary built after `fc7873bd8`
+(production sources equal to `0add60cac`; SHA-256 `ccebe566…`; rustc 1.97.1,
+debug, opt-level 0) passes all eight `profile_` law tests and
+collects 328 in-build atoms, equal to 2a's except S2's
+`s(PreviewLoadCase)` 680 B. The z ≥ 1 combination supplement (Node(String,
+BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
+(String,&str,Operand) 56, (&str,String) 40 B) is reused: the four type
+definitions are byte-identical to §8.36's measured source `867c63ec8` under the
+same rustc. Maintained `tree_eval` evaluates all 80 point/mode/phase
+combinations at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and
+the upward-rounded 5 % TEXT reserve:
+- **Candidate (source-derived).** All 80 fit. Merged W3 E + R is
+  8,962,261,965 B sparse and 9,021,393,309 B dense; W/X reserves
+  255,143,024 / 275,814,450 B; tightest dense W3 +2,319,875,366 B. Per point,
+  dense W3: L(3,0) +2,924,680,232, L(2,1) +3,553,501,057, L(1,2) +4,457,154,945,
+  E +2,405,826,167 B. Every one of the 80 lies at or below the kept block's
+  merged phase at the same atoms.
+- **Kept block.** Merged W3 E + R 8,966,251,339 / 9,025,382,683 B; reserves
+  255,342,507 / 276,013,933 B; tightest +2,315,686,509 B (as §8.40).
+- **Proposal A (below).** Every merged phase +286 B over the kept block;
+  W3 8,966,251,625 / 9,025,382,969 B; reserves unchanged; tightest
+  +2,315,686,223 B.
+
+**Proposals.** Both are maintained `generate` output
+on a copy of the unchanged registered file, outside the checkout, with only
+reviewed inputs #8 (physics-retained-1, `cf29fd5f…`) and #11 (pressure-2,
+`a2db16a5…`), counted from 0, rebound and a registration comment; identity,
+the other eleven inputs, layouts and threshold are unchanged.
+- **A, minimal conservative bound (recommended).** `lib/merge_trees.py` of the
+  kept tree and the candidate tree: the kept coefficients except `STATICS[1]`
+  and its success copy (+286 B), keeping the 3,990,536 B allowance's unused
+  3,989,660 B. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/A/retained_memory.rs`,
+  SHA-256 `755108238ce1b94add0a76106df6b0fb7e12fb484ba5e964a91925861502c6d1`.
+  Its comment and generated basis name the pointwise maximum explicitly;
+  proposal status lives here rather than in a comment that would become stale
+  immediately upon exact-byte adoption. This wording correction changes no
+  coefficient, input binding or evaluation.
+- **B, source-derived (comparison only).** The candidate tree itself: six TAV
+  coefficients 3,989,660 B lower, `STATICS[1]` +286 B. It drops the kept
+  allowance and is not recommended. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/B/retained_memory.rs`,
+  SHA-256 `b30c3273bde3c0e58048f85d5a9b6d4da68121dc336e3ad48df3a3830e4e5f42`.
+- **Wording alternative.** The +286 B is entirely the restated table
+  limitation. A disclosure no longer than 2a's would leave every coefficient
+  bounded (`a_le_b`), so only the #8/#11 rebinding would remain; that wording
+  choice was not taken; proposal A was adopted (Status).
+
+Whichever is chosen, adoption changes `retained_memory.rs` and the derived law
+records (`PINNED_RECORD` and challenge W1/MAX: +286 B per phase under A) and
+needs a rebuild. Before adoption the selected branch was `Stale`; its retained writers
+cannot emit successors, and its AC-004 witnesses would exercise the declined
+route. That gate is not waived by the prospective verification below.
+
+**Prospective retained-output verification (not adoption).** A separate
+manager-owned source snapshot tests exact A on `330dde049`, with explicit
+test-only capture and prospective pin/law overlays. Both its pinned build
+identity and all thirteen input bindings match; its Direct entry reports
+`Registered` in both modes. Baseline `2b743781a` with the same test-only
+capture reproduces the old pins. There are ten in-memory successors, not
+eight: EXACT and MIX have two modes each, TWO_MEMBER has four entries
+including reversed order, and UNAVAILABLE has two. Independently resealing
+the reviewed identity back to 2a's text and reversing only the resulting
+publication/receipt digests restores every raw baseline byte and old pin.
+Invocations, number tokens, rows, order, diagnostics, metadata, selection and
+status are unchanged. Maintained writers regenerate the ten retained
+carriers in that snapshot; the guarded corpus, derivative and RV120 checks
+pass. The reader-outcomes fixture is also regenerated and now belongs to the
+2b retained preservation guard: keys, readings and verdict summaries remain
+unchanged. Of 938 entries, 59 change their input digests and 89 successful
+outcome-JSON hashes move. Independent Python materialization and validation
+reproduce the 118 endpoint input hashes and 178 changed successful
+outcome-JSON hashes. Unchanged native error readings are protected exactly;
+this does not assert Python/native error-detail parity. These conditional
+results establish the proposed output delta;
+they do not claim that the selected branch's declined route has passed.
+
+The raw source/overlay/binary provenance and comparisons are in
+`/private/tmp/rt-a3-2b-prospective-proof/`. The snapshot's prospective law
+records pass the 71 law tests. Retained facade, result-export and report
+checks pass with their preservation-derived pins. Comparing the original
+22 failure names with the rebuilt and prospective logs finds every one in
+the prospective passing results; the selected rebuilt source passes fourteen
+and its remaining eight still hit the unadopted-input gate. Vitest pin checks and the
+native allocation-challenge executable remain unrun in this experiment; no
+stack, timing, heap-peak or RSS qualification is claimed. The selected
+profile and law/challenge files were then unchanged; "Adoption" records the
+rebuilt selected head.
+
+**Adoption (`codex/rt-a3-reducer-2b`, on `4e1972698`).**
+- **Basis.** Main has not changed a priced path since this branch's merge base
+  `2b743781a` (no change under `core/product_physics`, `core/reporting`,
+  `core/solver`, `core/loads`, `core/numerics`, `tools/retained_pricing`,
+  `schemas` or `fixtures/results` through main `b921104d4`). The committed tool
+  prices `4e1972698` with exit 0 on all four points, O-10 clear; against
+  `run-final` (priced `0add60cac`) it has the same structure and all 1,602
+  coefficients equal (identical but the basis), the same prunes and
+  resolutions.
+- **Profile.** `retained_memory.rs` is proposal A byte for byte (SHA-256
+  `75510823…c6d1`). Maintained `generate` of the pointwise tree
+  (`proposals/tree_A_pointwise.json`) with A's basis text reproduces the
+  committed block (1,713 lines, empty diff). Against the head's re-priced
+  candidate tree, A is `a_ge_b`: 1,596 coefficients equal and six higher, which
+  are exactly the kept TAV allowance (TAV_W[1], TAV_X[1], their success copies
+  and the two TAV text atoms, each 3,989,660 B).
+- **Derived records.** `PINNED_RECORD` and the challenge's `W1_PHASE_BYTES`
+  [6,602,964,964, 6,662,096,308] and `MAX_PHASE_BYTES` [8,899,142,761,
+  8,958,274,105] equal maintained `tree_eval`'s proposal-A record at the 328
+  collected atoms (`proposals/derived_law_records_A.json`): +286 B in every
+  phase and mode.
+- **Overlay.** The prospective snapshot's pin, carrier and fixture overlay is
+  applied except its test-only capture test, which is not committed. With it:
+  `product_physics` lib tests 1,032 passed, 0 failed (the 22 queued failures
+  and the native law tests included); the retained Python and preservation
+  guards (`test_retained_precision_b3.py` and the three text-only envelope
+  guards) 845 passed; the desktop `retainedPrecisionResultExport.test.tsx`
+  22 passed, which the prospective experiment had left unrun; the default
+  `retained_memory_challenge` 1 passed; result_export's
+  `retained_precision_contract` 88 passed (the reader-outcome and RV120
+  carriers included) and `retained_precision_derivative_golden` 6 passed.
+
+**Stack.** Static prologues in the current lib-test binary (no predecessor
+binary was available for a delta; no whole-chain claim): entered on D1,
+`reducers_in_regions` 1,088 B, `reducer_region_refusals` 352 B and
+`refuse_reducers_outside_step` 704 B; `validate_profile` 3,872 B and
+`assemble_pressure_case` 7,280 B. Not entered on D1: `step_topology` 896,
+`pressure_step_run_evidence` 3,056, `member_mappings` 1,008,
+`reducer_body_members` 240 + 160, `judge_reducer` 864, `body_ends` 64,
+`judge_all` 448, `step_end_directions` 416, `step_end_passes_through` 304 and
+`step_end_is_collinear` 208 B. The six AC-004 stack-headroom witnesses
+passed **6/6 at `c8b04254b`** (binary SHA-256 `b935bfae…11f9`, profile
+`75510823…c6d1`, rustc 1.97.1), in one Agent 0-cleared exclusive run of
+`python3 tools/release/check_release_readiness.py --profile stack-witnesses --execute`
+under `t3_exclusive.sh` with memguard: queued 2026-11-03T02:35:20Z, acquired
+02:35:53Z, ended and released 02:36:03Z (10 s with teardown), one process per
+test at `--test-threads=1`, nothing compiled inside. Sparse and dense:
+`witness_headroom_w1_at_one_mebibyte` ok (0.67 s) and ok (0.66 s),
+`witness_w2_deep_milestone_publishes` ok (1.32 s) and ok (1.32 s),
+`witness_w_c2_publishes` ok (2.48 s) and ok (2.47 s). This is test evidence,
+not an acceptance.
+
+**Maintained tests.** `tools/retained_pricing/tests/test_841_rt_a3_reducer_2b.py`;
+the I1 seam and S2 mutation warrants (`test_dynamics_d3.py`, `test_840_rt_g5_s2.py`)
+are unchanged. Run evidence is under `/private/tmp/rt-a3-2b-d3-8ef/` (run-final,
+native atoms, `eval80-candidate-final.json`, proposals); it is review input, not a
+permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2663,7 +2877,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.36's candidate source, `867c63ec8`; main `9b0f8f49c`, which prices coefficient-identically to §8.33's source, is reproduced with main's own tool cohort); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.41's adopted source, `4e1972698`, which prices coefficient-identically to its candidate `0add60cac`; earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -2750,3 +2964,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |
 | "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |
 | "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |
+| "RT-A3 reducer 2b: the W-15c pressure step", "§8.41" (2B-PIN, 2B-KEY, RTA3R2B-NZ) | §8.41 |

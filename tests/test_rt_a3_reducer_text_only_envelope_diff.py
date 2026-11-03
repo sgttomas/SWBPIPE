@@ -4,6 +4,10 @@ The preserved increment-1 endpoint is integrated main 2656dcb33. Across this
 stage, only formulation_basis.limitations[0] and binding hashes may change.
 Exact numeric tokens, member/array order, row sets, diagnostics and selection
 remain invariant. The old O4/W15/tee proofs keep their historical endpoints.
+
+Reducer 2b's regeneration is checked separately from this stage's endpoint,
+integrated main 2b743781a (2a with S2), by
+test_rt_a3_reducer_2b_text_only_envelope_diff; this proof keeps that endpoint.
 """
 from pathlib import Path
 from copy import deepcopy
@@ -20,6 +24,8 @@ from tests.test_o4_text_only_envelope_diff import (
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "2656dcb33328b12c5572a30c10124a40f35adffc"
+# 2a's integrated endpoint (main with S2), frozen when reducer 2b regenerated.
+END = "2b743781a2fbe533cb317bbd1dce10a394ce53c3"
 OLD = RT_A3_IDENTITY_NEW
 CLAUSE = (
     "reducers when their mapped member lies outside every pressure region or forms a concentric pressure-bore step, "
@@ -61,8 +67,10 @@ INPUT_BINDINGS = frozenset({
 })
 
 
-def compare(before, after, path=(), *, rv120_output_hashes=False):
-    """Return identity-field count; refuse every non-binding or numerical move."""
+def compare(before, after, path=(), *, rv120_output_hashes=False, old=OLD, new=NEW):
+    """Return identity-field count; refuse every non-binding or numerical move.
+
+    `old`/`new` name the one restated identity; each stage passes its own pair."""
     assert type(before) is type(after), path
     if isinstance(before, Obj):
         assert [k for k, _ in before] == [k for k, _ in after], path
@@ -70,13 +78,15 @@ def compare(before, after, path=(), *, rv120_output_hashes=False):
         # the path to `value`. Input-scoped records must stay unchanged too.
         if dict(before).get("payload_scope") in {"model", "request", "input_manifest"}:
             assert before == after, path
-        return sum(compare(a, b, _rt_a3_member_path(before, key, path), rv120_output_hashes=rv120_output_hashes)
+        return sum(compare(a, b, _rt_a3_member_path(before, key, path), rv120_output_hashes=rv120_output_hashes,
+                           old=old, new=new)
                    for (key, a), (_, b) in zip(before, after))
     if isinstance(before, list):
         assert len(before) == len(after), path
-        return sum(compare(a, b, path + (i,), rv120_output_hashes=rv120_output_hashes) for i, (a, b) in enumerate(zip(before, after)))
-    if type(before) is str and before == OLD and path[-3:] == ("formulation_basis", "limitations", 0):
-        assert after == NEW, path
+        return sum(compare(a, b, path + (i,), rv120_output_hashes=rv120_output_hashes, old=old, new=new)
+                   for i, (a, b) in enumerate(zip(before, after)))
+    if type(before) is str and before == old and path[-3:] == ("formulation_basis", "limitations", 0):
+        assert after == new, path
         return 1
     if before == after:
         return 0
@@ -92,56 +102,65 @@ def compare(before, after, path=(), *, rv120_output_hashes=False):
             return 0
         a, b = _embedded(before), _embedded(after)
         if a is not None and b is not None:
-            return compare(a, b, path + ("<json>",), rv120_output_hashes=rv120_output_hashes)
+            return compare(a, b, path + ("<json>",), rv120_output_hashes=rv120_output_hashes, old=old, new=new)
     raise AssertionError(path)
 
 
 @pytest.mark.parametrize("name", FILES)
 def test_reducer_2a_moves_only_identity_and_binding_hashes(name):
     before = subprocess.check_output(["git", "show", f"{BASE}:{name}"], cwd=ROOT, text=True)
-    after = (ROOT / name).read_text()
+    after = subprocess.check_output(["git", "show", f"{END}:{name}"], cwd=ROOT, text=True)
     rv120 = name == "fixtures/results/retained_precision_rv120_b3_inputs.json"
     if rv120:
-        check_rv120_output_digests(json.loads(before), json.loads(after))
+        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE, end=END)
     compare(load(before), load(after), rv120_output_hashes=rv120)
 
 
-def check_rv120_output_digests(before, after):
+def _rv120_at(rev, shape):
+    """Materialize one RV120 shape from its base corpus/document at `rev`: the edits, then the 07e reseal."""
+    from tests import test_retained_precision_b3 as rv
+    from tests.retained_precision_corpus import _STORAGE
+
+    def historical(name):
+        return json.loads(subprocess.check_output(["git", "show", f"{rev}:{name}"], cwd=ROOT, text=True))
+
+    kind, key = shape["base"]
+    if kind == "corpus":
+        base = {c["id"]: c for c in _STORAGE.expand(historical("fixtures/results/retained_precision_cases.json"))["cases"]}[key]
+    else:
+        base = historical(f"fixtures/results/retained_precision_exact_successor_{key}.json")
+    source, invocation = deepcopy(base["source"]), deepcopy(base["invocation"])
+    for value, edits in ((source, shape["edits"]), (invocation, shape["invocation_edits"])):
+        for edit in edits:
+            at = value
+            for part in edit["path"][:-1]:
+                at = at[part]
+            if edit["op"] == "remove":
+                del at[edit["path"][-1]]
+            else:
+                assert edit["op"] == "set"
+                at[edit["path"][-1]] = deepcopy(edit["value"])
+    return rv.reseal(source, invocation, rv.rp.EXACT_DEFINITION_HASH), invocation
+
+
+def check_rv120_output_digests(before, after, *, base=BASE, end=None):
     """Recompute both result-statement digests, preserving every authored invocation.
 
     The Rust materializer and Python writer separately check their first gates.
     Here the independent Python rehash rule checks the actual digest subject.
+    Each endpoint is materialized from its own revision's bases; `end=None`
+    is the current checkout, through the maintained `rv120_input`.
     """
     from tests import test_retained_precision_b3 as rv
 
-    def historical(name):
-        return json.loads(subprocess.check_output(["git", "show", f"{BASE}:{name}"], cwd=ROOT, text=True))
-
-    from tests.retained_precision_corpus import _STORAGE
-    old_cases = {c["id"]: c for c in _STORAGE.expand(historical("fixtures/results/retained_precision_cases.json"))["cases"]}
-    old_docs = {m: historical(f"fixtures/results/retained_precision_exact_successor_{m}.json")
-                for m in ("sparse_interactive", "dense_scrutiny")}
+    digest = lambda s, i: hashlib.sha256(json.dumps([s, i], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     assert len(before["shapes"]) == len(after["shapes"])
     for old, new in zip(before["shapes"], after["shapes"]):
         assert (old["name"], old["base"], old["want"], old["invocation_edits"]) == (
             new["name"], new["base"], new["want"], new["invocation_edits"])
-        kind, key = old["base"]
-        base = old_cases[key] if kind == "corpus" else old_docs[key]
-        source, invocation = deepcopy(base["source"]), deepcopy(base["invocation"])
-        for value, edits in ((source, old["edits"]), (invocation, old["invocation_edits"])):
-            for edit in edits:
-                at = value
-                for part in edit["path"][:-1]:
-                    at = at[part]
-                if edit["op"] == "remove":
-                    del at[edit["path"][-1]]
-                else:
-                    assert edit["op"] == "set"
-                    at[edit["path"][-1]] = deepcopy(edit["value"])
-        source = rv.reseal(source, invocation, rv.rp.EXACT_DEFINITION_HASH)
-        digest = lambda s, i: hashlib.sha256(json.dumps([s, i], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        source, invocation = _rv120_at(base, old)
         assert digest(source, invocation) == old["input_sha256"], old["name"]
-        new_source, new_invocation = rv.rv120_input(new)
+        new_source, new_invocation = rv.rv120_input(new) if end is None else _rv120_at(end, new)
         assert digest(new_source, new_invocation) == new["input_sha256"], new["name"]
         assert invocation == new_invocation, new["name"]
 
@@ -193,7 +212,8 @@ def check_j7_envelope_digests_only(before, after):
 def test_reducer_2a_j7_moves_only_whole_envelope_digests():
     name = "fixtures/results/j7_rf_census_expected.json"
     before = subprocess.check_output(["git", "show", f"{BASE}:{name}"], cwd=ROOT, text=True)
-    check_j7_envelope_digests_only(load(before), load((ROOT / name).read_text()))
+    after = subprocess.check_output(["git", "show", f"{END}:{name}"], cwd=ROOT, text=True)
+    check_j7_envelope_digests_only(load(before), load(after))
 
 
 def test_j7_guard_preserves_results_summary_identity_and_work():

@@ -478,3 +478,24 @@ evaluate both with actual native atoms. The six-lower S2 generated proposal is
 comparison evidence, not the kept block; `generate --check` of that proposal
 against the kept block is not an equality claim. See §8.40 for native-layout
 changes, the independent review and remaining qualification.
+
+### §8.41: RT-A3 reducer 2b (candidate; profile disposition reserved)
+
+2b's pressure-step branch adds no owner on D1: `pressure_step_run_evidence`,
+`reducer_body_members` and the extracted helpers are reached only behind
+D1-empty loops. `base/w15_owners_model.py` binds that premise (RTA3R2B-NZ: one
+caller each, after the D1-empty loop header), alongside re-read full-file pins,
+batch 5's prefix and the scoped `problem` keys (1882, 1959). The run is complete
+and O-10 clear, the line map equals main's, and no function multiplicity
+changes.
+
+The restated pressure-2 limitation raises `STATICS[1]` by 286 B and the longer
+identity raises TEXT by 876 B. Against the kept block, two coefficients are
+higher and six lower, so the `a_le_b` carry does not hold. Proposal A, made
+with `lib/merge_trees.py` from the kept and candidate trees, keeps every kept
+coefficient except +286 B on `STATICS[1]` and its success copy. Proposal B, the
+source-derived block, is comparison only. Both rebind only reviewed inputs #8
+and #11. All 80 native candidate evaluations fit and lie under the kept merged
+phases. Adoption, the law records and the stack witnesses wait for the owner's
+disposition. See the governing rules' §8.41 and
+`tests/test_841_rt_a3_reducer_2b.py`.

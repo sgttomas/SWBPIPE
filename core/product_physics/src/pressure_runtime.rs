@@ -306,10 +306,10 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             }
         }
         // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7)
-        // with RT-A3 reducer 2a: a reducer whose mapped member belongs to a
-        // pressure region is refused case by case unless its topology is the
-        // concentric pressure-bore step's; `assemble_pressure_case` judges the
-        // remaining ones again with their normalized geometry.
+        // with RT-A3 reducer 2a/2b: a reducer whose mapped member belongs to a
+        // pressure region is refused case by case unless its topology is a
+        // pressure step's; `assemble_pressure_case` judges the remaining ones
+        // again with their normalized geometry (legacy step or W-15c branch).
         for refs in exact_admission::reducer_region_refusals(model) {
             problem(diagnostics, exact_admission::REDUCER_IN_REGION, &refs, exact_admission::REDUCER_IN_REGION_TEXT);
         }
@@ -747,8 +747,8 @@ fn assemble_pressure_case(
         );
         return None;
     };
-    // RT-A3 reducer 2a: every reducer listed in a region of this case is
-    // refused unless both its step topology and its built geometry hold.
+    // RT-A3 reducer 2a/2b: every reducer listed in a region of this case is
+    // refused unless its step topology holds and one geometric branch admits it.
     if refuse_reducers_outside_step(model, built, case, diagnostics) {
         return None;
     }
@@ -1849,17 +1849,35 @@ fn traverse_region(
     Some((traversal.into_iter().filter(|step| !joint_spans.contains(&step.pipe_index)).collect(), junctions))
 }
 
-/// RT-A3 reducer increment 2a (DEL-04-07 `route-unification-r4.md` §00
-/// C-3/C-4, §3.1): each reducer whose mapped member is listed in a pressure
-/// region of `case` is admitted only as the concentric pressure-bore step,
-/// whose topology `exact_admission::reducers_in_regions` decides and whose
-/// geometry is judged here on the built (normalized) coordinates: at each body
-/// end the unit direction into the body and the unit direction into its one
-/// neighbour are opposite, with a negative dot product and a cross-product
-/// norm at most 64*epsilon. That is the representation guard of a collinear
-/// chain, not W-15c's placement tolerance or the 1e-3 rad tangency tolerance,
-/// so a slanted body (an eccentric reducer with or without its offset slot)
-/// is refused. Every other listed reducer is refused by name with its (case,
+/// RT-A3 reducer increments 2a and 2b (DEL-04-07 `pressure-contract.md`,
+/// "Concentric reducer pressure-bore step" and "Eccentric reducer pressure
+/// step"): each reducer whose mapped member is listed in a pressure region of
+/// `case`, with the step topology `exact_admission::reducers_in_regions`
+/// decides, is admitted by either of two branches, each judged whole:
+///
+/// - **Legacy 2a concentric step, unchanged:** no authored nonzero offset
+///   (`legacy_offset`) and, at each body end on the built (normalized)
+///   coordinates, the unit direction into the body and the unit direction
+///   into its one neighbour opposite, with a negative dot product and a
+///   cross-product norm at most 64*epsilon: the representation guard of a
+///   collinear chain, not W-15c's placement tolerance or the 1e-3 rad
+///   tangency tolerance. It is not W-15c run evidence.
+/// - **2b W-15c branch:** `rigid_component::pressure_step_run_evidence`
+///   accepts the body with W-15c's whole run-evidence, uncertainty and offset
+///   method, and the run passes through the body: at each end the neighbour
+///   leaves the shared node on the far side of the body along W-15c's
+///   governing axis t (oriented by the body, so D·t > 0), a sign test with no
+///   tolerance (`step_end_passes_through`). This keeps 2a's "continuing in
+///   the opposite direction" topology, since W-15c's run axis is undirected
+///   and would otherwise accept a folded-back neighbour. An eccentric or
+///   slanted body is admitted only here; a failed W-15c verdict never falls
+///   back to the legacy branch's looser reading of an absent or zero offset,
+///   because the legacy branch needs its own collinear geometry.
+///
+/// Neither branch moves a cap: each region keeps its caps at its actual
+/// terminal nodes along its own members, so an eccentric step's force and
+/// moment are those caps' resultant, with no averaged axis and no added
+/// p*A*e term. Every other listed reducer is refused by name with its (case,
 /// region, reducer, member). Returns whether any was refused.
 fn refuse_reducers_outside_step(
     model: &PreviewModel,
@@ -1869,7 +1887,13 @@ fn refuse_reducers_outside_step(
 ) -> bool {
     let mut refused = false;
     for reducer in exact_admission::reducers_in_regions(model, case) {
-        let admitted = reducer.step.is_some_and(|ends| ends.iter().all(|end| step_end_is_collinear(model, built, end)));
+        let admitted = reducer.step.is_some_and(|step| {
+            let legacy = step.legacy_offset && step.ends.iter().all(|end| step_end_is_collinear(model, built, end));
+            legacy
+                || super::rigid_component::pressure_step_run_evidence(model, reducer.component).is_ok_and(|axes| {
+                    step.ends.iter().all(|end| axes.iter().all(|axis| step_end_passes_through(model, built, end, *axis)))
+                })
+        });
         if !admitted {
             problem(diagnostics, exact_admission::REDUCER_IN_REGION, &reducer.refs, exact_admission::REDUCER_IN_REGION_TEXT);
             refused = true;
@@ -1881,9 +1905,37 @@ fn refuse_reducers_outside_step(
 /// One step end on the built coordinates: the body and the neighbour leave the
 /// shared node in opposite directions within the representation guard.
 fn step_end_is_collinear(model: &PreviewModel, built: &BuiltModel, end: &exact_admission::ReducerStepEnd) -> bool {
-    let Some(node) = model.nodes.iter().position(|candidate| candidate.id == end.node) else {
+    let Some((into_body, into_neighbour)) = step_end_directions(model, built, end) else {
         return false;
     };
+    // Written out: a three-term geometric predicate, not an accumulation.
+    let dot = into_body[0] * into_neighbour[0] + into_body[1] * into_neighbour[1] + into_body[2] * into_neighbour[2];
+    let cross = [
+        into_body[1] * into_neighbour[2] - into_body[2] * into_neighbour[1],
+        into_body[2] * into_neighbour[0] - into_body[0] * into_neighbour[2],
+        into_body[0] * into_neighbour[1] - into_body[1] * into_neighbour[0],
+    ];
+    dot < 0.0 && norm3(cross[0], cross[1], cross[2]) <= REPRESENTATION_GUARD
+}
+
+/// RT-A3 reducer 2b: one step end of the W-15c branch on the built
+/// coordinates: the body and the neighbour leave the shared node on opposite
+/// sides along the run axis `t`, each with a nonzero component (a strict sign
+/// test, no tolerance). With D·t > 0 the neighbour at N runs back along −t
+/// and the neighbour at F on along +t: the run passes through the body.
+fn step_end_passes_through(model: &PreviewModel, built: &BuiltModel, end: &exact_admission::ReducerStepEnd, t: [f64; 3]) -> bool {
+    let Some((into_body, into_neighbour)) = step_end_directions(model, built, end) else {
+        return false;
+    };
+    let along = |v: [f64; 3]| v[0] * t[0] + v[1] * t[1] + v[2] * t[2];
+    let (body, neighbour) = (along(into_body), along(into_neighbour));
+    (body > 0.0 && neighbour < 0.0) || (body < 0.0 && neighbour > 0.0)
+}
+
+/// The unit directions from a step end's shared node into the body and into
+/// its neighbour, on the built coordinates.
+fn step_end_directions(model: &PreviewModel, built: &BuiltModel, end: &exact_admission::ReducerStepEnd) -> Option<([f64; 3], [f64; 3])> {
+    let node = model.nodes.iter().position(|candidate| candidate.id == end.node)?;
     // The unit direction from the shared node into a built member.
     let leaving = |pipe_id: &str| -> Option<[f64; 3]> {
         let pipe = built.pipes.iter().find(|pipe| pipe.element_id == pipe_id)?;
@@ -1898,17 +1950,7 @@ fn step_end_is_collinear(model: &PreviewModel, built: &BuiltModel, end: &exact_a
         let length = norm3(chord[0], chord[1], chord[2]);
         (length.is_finite() && length > 0.0).then(|| chord.map(|value| value / length))
     };
-    let (Some(into_body), Some(into_neighbour)) = (leaving(end.body), leaving(end.neighbour)) else {
-        return false;
-    };
-    // Written out: a three-term geometric predicate, not an accumulation.
-    let dot = into_body[0] * into_neighbour[0] + into_body[1] * into_neighbour[1] + into_body[2] * into_neighbour[2];
-    let cross = [
-        into_body[1] * into_neighbour[2] - into_body[2] * into_neighbour[1],
-        into_body[2] * into_neighbour[0] - into_body[0] * into_neighbour[2],
-        into_body[0] * into_neighbour[1] - into_body[1] * into_neighbour[0],
-    ];
-    dot < 0.0 && norm3(cross[0], cross[1], cross[2]) <= REPRESENTATION_GUARD
+    Some((leaving(end.body)?, leaving(end.neighbour)?))
 }
 
 /// One collinear chain of straight members between two nodes: today's
