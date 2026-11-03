@@ -3793,7 +3793,7 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
     # Model document 0.9.0 D3 (§8.36): preview_physics.rs changes one test literal's version token only.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/reporting/result_export/src/reader_verdict.rs': 'd6f88225df1c6b5eca57ff2f3c9026bba1c7bdae8474923a940ccf046077e132'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/reporting/result_export/src/reader_verdict.rs': 'e1d2f7d0c8dea9f8afbb051ad7fc51af90d3db0e34b3c5457d4a50bade661a1b'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3855,7 +3855,7 @@ if fnkey("selects", _TIM):
     # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
     # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd6f88225df1c6b5eca57ff2f3c9026bba1c7bdae8474923a940ccf046077e132', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'e1d2f7d0c8dea9f8afbb051ad7fc51af90d3db0e34b3c5457d4a50bade661a1b', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -4812,3 +4812,45 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         (site("form", _A4_GATES, 'let vector_diag = |code: &str| format!("diagnostic:combination:{}:{}:{}", stable_suffix(id), stable_suffix(base), stable_suffix(code));', full=True),
          {"stable_suffix(id)": IN, "stable_suffix(base)": RS_, "stable_suffix(code)": ST}),
     ]
+
+# RT-A4-HS (RT-A4 §10.4, the historical read merged at 1b68b8401; §8.46): recorded_tables' variant selection. Its
+# thread-local SELECTED is a const-initialized Cell<Option<&'static RecordedVariant>> (no heap). Only read_recorded sets
+# it (and its Restore guard resets it); read_recorded's one production caller is reader_verdict's `recorded`, called
+# only by the public `*_recorded` entries (runner, wasm and desktop bindings), which no retained root reaches. So on the
+# retained graph selected() is None: selected_table returns at its `?` and g0_with takes its None arm, and no recorded
+# table is parsed (RecordedVariant::table's OnceLock and verify's digest and parse) nor its base digest copied. The
+# variants' bytes are include_bytes! statics (read-only data, not heap). `SELECTED.with(..)` is LocalKey::with, never
+# exact_combination_evidence's private Key::with that the by-name call graph names.
+_A4_RT = RE_ + "recorded_tables.rs"
+if fnkey("read_recorded", _A4_RT):
+    if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
+            "9f7574fdc3ba3fcfa1529ae364dae7a7ee642910cb05cb10901593e1423942b2":
+        raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
+    _a4_rt = _production(_A4_RT)
+    _a4_re_prod = "\n".join(_re.sub(r"//[^\n]*", "", _production(RE_ + _f)) for _f in __import__("os").listdir(_os.path.join(_SNAP, RE_))
+                            if _f.endswith(".rs"))
+    _a4_hs = (
+        _a4_rt.count("SELECTED.with(|s| s.set(") == 2 and _a4_rt.count("SELECTED.with(") == 3
+        and "static SELECTED: Cell<Option<&'static RecordedVariant>> = const { Cell::new(None) };" in _a4_rt,
+        _a4_re_prod.count("read_recorded(") == 1 and _a4_re_prod.count("fn read_recorded<R>(") == 1,   # reader_verdict's `recorded` only
+        _fn_text("recorded", RE_ + "reader_verdict.rs").count("crate::recorded_tables::read_recorded(") == 1,
+        _fn_text("selected_table", _A4_RT).count("let variant = selected().filter(|v| v.reads_under_variant)?;") == 1,
+        _fn_text("g0_with", RE_ + "retained_precision.rs").count(
+            "let (bytes_bound, inherited) = match crate::recorded_tables::selected().filter(|v| v.id == CONTRACT_ID) {") == 1,
+        not any(_re.search(r"recorded_tables|_recorded\(", _re.sub(r"//[^\n]*", "", _text_of(PP_ + _f)))
+                for _f in __import__("os").listdir(_os.path.join(_SNAP, PP_)) if _f.endswith(".rs")),
+    )
+    if not all(_a4_hs):
+        raise SystemExit(f"RT-A4-HS: the recorded-variant selection or its callers changed; re-review its zeros: {_a4_hs}")
+    _A4_HS = O10 + ("RT-A4-HS: no retained root reaches read_recorded (reader_verdict's *_recorded entries only), so "
+                    "selected() is None on the retained graph and no recorded table is selected, parsed or copied")
+    _a4_tab = fnkey("table", _A4_RT)
+    O10_EDGE_ZERO += [(fnkey("selected_table", _A4_RT), _a4_tab, _A4_HS),
+                      (fnkey("g0_with", RE_ + "retained_precision.rs"), _a4_tab, _A4_HS),
+                      (fnkey("g0_with", RE_ + "retained_precision.rs"), fnkey("base", _A4_RT), _A4_HS)]
+    O10_SITE_ZERO += [(site("g0_with", RE_ + "retained_precision.rs", "b.sha256.to_string()"), _A4_HS + " (the base digest copy)")]
+    _a4_with = fnkey("with", _W16B_EV)
+    if not _re.match(r"\s*fn with\(&self", _text_of(_W16B_EV).split("\n")[int(_a4_with.split(":")[1]) - 1]):
+        raise SystemExit("RT-A4-HS: exact_combination_evidence's Key::with is no longer a private method; re-review")
+    O10_EDGE_ZERO += [(fnkey(_n, _A4_RT), _a4_with, O10 + "RT-A4-HS: `SELECTED.with(..)` is LocalKey::with, not "
+                       "exact_combination_evidence's private Key::with") for _n in ("selected", "drop", "read_recorded")]
