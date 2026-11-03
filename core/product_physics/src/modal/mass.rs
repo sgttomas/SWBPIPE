@@ -103,7 +103,7 @@ fn add_block(blocks: &mut BTreeMap<(usize, usize), [[Dd; 6]; 6]>, row: usize, co
     for (a, line) in target.iter_mut().enumerate() {
         for (b, entry) in line.iter_mut().enumerate() {
             let value = if transpose { block(b, a) } else { block(a, b) };
-            *entry = entry.add(value);
+            *entry = Dd::add(*entry, value);
         }
     }
 }
@@ -115,7 +115,7 @@ pub(crate) fn symmetric_apply<const N: usize>(block: &[[Dd; N]; N], x: &[f64; N]
         for c in 0..N {
             let entry = if r <= c { block[r][c] } else { block[c][r] };
             if !entry.is_zero() && x[c] != 0.0 {
-                y[r] = y[r].add(entry.mul_f64(x[c]));
+                y[r] = Dd::add(y[r], entry.mul_f64(x[c]));
             }
         }
     }
@@ -157,9 +157,9 @@ impl ModalMass {
                     if entry.is_zero() {
                         continue;
                     }
-                    y[r] = y[r].add(entry.mul_f64(x[c]));
+                    y[r] = Dd::add(y[r], entry.mul_f64(x[c]));
                     if r != c {
-                        y[c] = y[c].add(entry.mul_f64(x[r]));
+                        y[c] = Dd::add(y[c], entry.mul_f64(x[r]));
                     }
                 }
             }
@@ -375,7 +375,7 @@ pub(crate) fn node_centroid(positions: &[[f64; 3]]) -> [f64; 3] {
             sum[k] = sum[k].add_f64(p[k]);
         }
     }
-    let n = Dd::from_f64(positions.len().max(1) as f64);
+    let n = Dd::from_f64(usize::max(positions.len(), 1) as f64);
     sum.map(|s| s.div(n).to_f64())
 }
 
@@ -386,13 +386,13 @@ pub(crate) fn nodal_resultant(loads: impl IntoIterator<Item = (usize, [Dd; 6])>,
         let d = [0, 1, 2].map(|k| Dd::from_f64(positions[node][k]).sub(Dd::from_f64(point[k])));
         let f = [load[0], load[1], load[2]];
         let moment = [
-            d[1].mul(f[2]).sub(d[2].mul(f[1])),
-            d[2].mul(f[0]).sub(d[0].mul(f[2])),
-            d[0].mul(f[1]).sub(d[1].mul(f[0])),
+            Dd::mul(d[1], f[2]).sub(Dd::mul(d[2], f[1])),
+            Dd::mul(d[2], f[0]).sub(Dd::mul(d[0], f[2])),
+            Dd::mul(d[0], f[1]).sub(Dd::mul(d[1], f[0])),
         ];
         for k in 0..3 {
-            out[k] = out[k].add(f[k]);
-            out[3 + k] = out[3 + k].add(moment[k]).add(load[3 + k]);
+            out[k] = Dd::add(out[k], f[k]);
+            out[3 + k] = Dd::add(Dd::add(out[3 + k], moment[k]), load[3 + k]);
         }
     }
     out

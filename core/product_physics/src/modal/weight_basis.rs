@@ -87,7 +87,7 @@ pub(crate) struct IdentityReport {
 impl IdentityReport {
     /// The largest discrepancy of `kind` (absolute, relative).
     pub(crate) fn largest_discrepancy(&self, kind: &str) -> (f64, f64) {
-        self.discrepancies.iter().filter(|d| d.kind == kind).fold((0.0, 0.0), |(a, r), d| (a.max(d.absolute), r.max(d.relative)))
+        self.discrepancies.iter().filter(|d| d.kind == kind).fold((0.0, 0.0), |(a, r), d| (f64::max(a, d.absolute), f64::max(r, d.relative)))
     }
 }
 
@@ -158,9 +158,9 @@ fn acceleration_agreement(prepared: &Prepared, a: Option<f64>, disclosures: &mut
 fn identity_scales(reference: &[f64], length: f64) -> [f64; 2] {
     let mut scale = [0.0f64; 2];
     for (i, r) in reference.iter().enumerate() {
-        scale[(i % 6) / 3] = scale[(i % 6) / 3].max(r.abs());
+        scale[(i % 6) / 3] = f64::max(scale[(i % 6) / 3], r.abs());
     }
-    scale[1] = scale[1].max(scale[0] * length);
+    scale[1] = f64::max(scale[1], scale[0] * length);
     if scale[0] == 0.0 && length > 0.0 {
         scale[0] = scale[1] / length;
     }
@@ -173,9 +173,9 @@ fn largest_difference(formed: &[Dd], reference: &[f64], length: f64) -> (f64, f6
     let (mut abs, mut rel) = (0.0f64, 0.0f64);
     for (i, (f, r)) in formed.iter().zip(reference).enumerate() {
         let d = f.sub(Dd::from_f64(*r)).abs().to_f64();
-        abs = abs.max(d);
+        abs = f64::max(abs, d);
         let s = scale[(i % 6) / 3];
-        rel = rel.max(if d == 0.0 { 0.0 } else if s == 0.0 { f64::INFINITY } else { d / s });
+        rel = f64::max(rel, if d == 0.0 { 0.0 } else if s == 0.0 { f64::INFINITY } else { d / s });
     }
     (abs, rel)
 }
@@ -194,11 +194,11 @@ fn bounding_diagonal(positions: &[[f64; 3]]) -> f64 {
     let mut high = [f64::NEG_INFINITY; 3];
     for p in positions {
         for k in 0..3 {
-            low[k] = low[k].min(p[k]);
-            high[k] = high[k].max(p[k]);
+            low[k] = f64::min(low[k], p[k]);
+            high[k] = f64::max(high[k], p[k]);
         }
     }
-    (0..3).map(|k| (high[k] - low[k]).max(0.0).powi(2)).sum::<f64>().sqrt()
+    (0..3).map(|k| f64::max(high[k] - low[k], 0.0).powi(2)).sum::<f64>().sqrt()
 }
 
 fn to_f64s(values: &[Dd]) -> Vec<f64> {
