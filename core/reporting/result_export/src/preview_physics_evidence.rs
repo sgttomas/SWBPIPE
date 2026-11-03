@@ -57,6 +57,10 @@ const GATE_CODES: &[&str] = &[
     "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
     "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
     "COMBINATION_MODULUS_BASIS_MIXED",
+    // RT-A4 (DEL-05-02 absolute-sum-srss §6).
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+    "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+    "LOAD_COMBINATION_OPERAND_WITHHELD",
 ];
 const SUPPORT_COMPONENTS: [&str; 8] = [
     "Fx",
@@ -782,6 +786,19 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                 require(rows.contains_key(text(reference)?), "DANGLING_RESULT_REF")?;
             }
         }
+        // RT-A4 (absolute-sum-srss §4): an unsigned row states its unsigned meaning and
+        // is a nonnegative value, never -0.0.
+        let unsigned_sign = match row["metadata"]["basis"].as_str() {
+            Some(crate::combination_graph::ABSOLUTE_SUM_BASIS) => Some(crate::combination_graph::ABSOLUTE_SUM_SIGN),
+            Some(crate::combination_graph::SRSS_BASIS) => Some(crate::combination_graph::SRSS_SIGN),
+            _ => None,
+        };
+        if let Some(sign) = unsigned_sign {
+            require(
+                row["metadata"]["sign_convention"] == sign && row["value"].as_f64().is_some_and(|v| v.is_finite() && v.to_bits() >> 63 == 0),
+                "COMBINATION_UNSIGNED_ROW",
+            )?;
+        }
         let members = combined.entry(combination).or_default();
         if members.is_empty() {
             combination_order.push(combination);
@@ -906,3 +923,52 @@ fn headline(value: &Value, rows: &[Value], kind: &str, allowed: bool, bodies: &s
 #[cfg(test)]
 #[path = "preview_magnitude_tests.rs"]
 mod magnitude_tests;
+
+/// RT-A4 (DEL-05-02 absolute-sum-srss §3-§4), with a supplied model: every published
+/// row of an absolute sum or SRSS that is formed from operand rows (not a recomputed
+/// magnitude) names one source row per term, each the term's operand's own row of
+/// the same quantity, and its value is the kernel's A or R of the model's factors
+/// times those source values, bit for bit.
+pub(crate) fn unsigned_model_checks(source: &Value, model: &Value) -> Check {
+    use crate::combination_graph::{unsigned_value, Operand};
+    let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let by_id: HashMap<&str, &Value> = rows.iter().filter_map(|r| r["id"].as_str().map(|id| (id, r))).collect();
+    for combination in model["combinations"].as_array().into_iter().flatten() {
+        let srss = match combination["basis"].as_str() {
+            Some("absolute_sum") => false,
+            Some("srss") => true,
+            _ => continue,
+        };
+        let id = combination["id"].as_str().unwrap_or_default();
+        let terms: Vec<(Operand<'_>, f64)> = combination["terms"].as_array().into_iter().flatten().filter_map(|t| {
+            let factor = t["factor"].as_f64()?;
+            match (t["combination"].as_str(), t["load_case"].as_str()) {
+                (Some(c), _) => Some((Operand::Combination(c), factor)),
+                (None, Some(case)) => Some((Operand::Case(case), factor)),
+                _ => None,
+            }
+        }).collect();
+        let factors: Vec<f64> = terms.iter().map(|(_, f)| *f).collect();
+        for row in rows.iter().filter(|r| combination_of(r) == Some(id)) {
+            let kind = row["kind"].as_str().unwrap_or_default();
+            if kind == "displacement_magnitude" || kind == SUPPORT_FORCE || kind == SUPPORT_MOMENT || kind == "combination_modulus_basis_record" {
+                continue;
+            }
+            let refs = array(&row["source_result_refs"]).map_err(|_| "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_SOURCES".to_string())?;
+            require(refs.len() == terms.len(), "COMBINATION_UNSIGNED_SOURCES")?;
+            let mut values = Vec::new();
+            for (reference, (operand, _)) in refs.iter().zip(&terms) {
+                let source = reference.as_str().and_then(|r| by_id.get(r)).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_SOURCES".to_string())?;
+                require(
+                    operand.owns(source) && source["kind"] == row["kind"] && source["entity_ref"] == row["entity_ref"] && source["unit"] == row["unit"]
+                        && source["metadata"]["component"] == row["metadata"]["component"] && source["metadata"]["location"] == row["metadata"]["location"],
+                    "COMBINATION_UNSIGNED_SOURCES",
+                )?;
+                values.push(number(&source["value"])?);
+            }
+            let expected = unsigned_value(srss, &factors, &values).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE".to_string())?;
+            require(row["value"].as_f64().is_some_and(|v| v.to_bits() == expected.to_bits()), "COMBINATION_UNSIGNED_VALUE")?;
+        }
+    }
+    Ok(())
+}

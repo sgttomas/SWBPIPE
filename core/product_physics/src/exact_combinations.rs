@@ -918,7 +918,8 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
             SOURCE_RECOVERY_EXCLUDED,
             "info",
             "this exact-route document has load combinations, so retained-source recovery is not attempted for any of its cases, primitive cases included; every case publishes ordinary structural recovery",
-            model.combinations.iter().map(|c| c.id.clone()).collect(),
+            // In evaluation order, as the records (a flat document's is its array order).
+            plan.order.iter().map(|&index| model.combinations[index].id.clone()).collect(),
         ));
     }
     records

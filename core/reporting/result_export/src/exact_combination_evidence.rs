@@ -19,12 +19,19 @@
 //! rounded once to nearest (ties to even, an exact or underflowed zero as +0.0);
 //! a subtraction is one binary64 difference; a range envelope selects by mode,
 //! ties to the smallest operand id; a recomputed magnitude is the correctly
-//! rounded norm of the combined components. The unit factor-sum rule of gate 3
-//! is decided on the exact sum of the factors. Nothing here calls product code.
+//! rounded norm of the combined components. Nothing here calls product code.
+//!
+//! RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §2-§6): absolute sums and
+//! SRSS are re-derived with the kernel's definitions (`load_case_algebra`), and so
+//! is the fixed-load count κ that gate 3 reads; a combination operand supplies its
+//! own published rows; the records follow the evaluation order (each operand
+//! combination before its dependants), and a withheld operand withholds its
+//! dependants (`combination_graph`).
 //!
 //! These checks establish internal source consistency, not solver accuracy.
 //! Combination rows carry no numerical check of their own and never enter
 //! numerical eligibility (§5), which stays with the primitive cases.
+use crate::combination_graph::{self as graph, Graph, Operand};
 use crate::section_basis::bit_equal;
 use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_units::{canonical_unit, Dimension};
@@ -65,6 +72,7 @@ const RANGE_BASIS: &str = "explicit_user_range_envelope";
 const LINEAR_SIGN: &str = "positive value follows explicit user linear combination of matching source result sign conventions";
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is recorded explicitly";
+const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
 const TIE_ROD_KIND: &str = "connector_tie_rod_force_v1";
 const SUPPORT_COMPONENT: &str = "support_reaction_component_v2";
 const SUPPORT_FORCE: &str = "support_reaction_force_magnitude_v2";
@@ -294,8 +302,10 @@ impl ExactProducts {
     }
 }
 
-/// §4 gate 3's rule: the exact sum of the factors is within 2^-46 of 1, compared
-/// exactly and inclusively.
+/// §4 gate 3's rule over flat factors: the exact sum of the factors is within 2^-46
+/// of 1, compared exactly and inclusively. Gate 3 reads κ (absolute-sum-srss §5.1),
+/// which equals this sum for a flat combination; the test below pins the rule.
+#[cfg(test)]
 fn unit_factor_sum(factors: &[f64]) -> bool {
     let bound = 2f64.powi(-46);
     let mut sum = ExactProducts::new();
@@ -324,26 +334,27 @@ enum Mode {
 }
 
 enum Expression<'a> {
-    Mechanics(Vec<(&'a str, f64)>),
+    /// `mechanics`, `absolute_sum` or `srss`: (operand, factor) in term order.
+    Terms(&'a str, Vec<(Operand<'a>, f64)>),
     Subtraction(&'a str, &'a str),
     Envelope { authored: Vec<&'a str>, sorted: Vec<&'a str>, mode: Mode },
 }
 
 impl<'a> Expression<'a> {
-    fn read(basis: &str, v: &'a Value) -> Result<Self, String> {
+    fn read(basis: &'a str, v: &'a Value) -> Result<Self, String> {
         match basis {
-            "mechanics" => {
+            "mechanics" | "absolute_sum" | "srss" => {
                 require(keys(v, &["terms"]), "EXPRESSION_SHAPE")?;
-                let mut terms = Vec::new();
+                let mut terms: Vec<(Operand<'a>, f64)> = Vec::new();
                 for term in array(&v["terms"], "EXPRESSION_SHAPE")? {
-                    require(keys(term, &["load_case_id", "factor"]), "EXPRESSION_SHAPE")?;
-                    let factor = term["factor"].as_f64().filter(|f| f.is_finite()).ok_or_else(|| fail("EXPRESSION_FACTOR"))?;
-                    let case = text(&term["load_case_id"], "EXPRESSION_SHAPE")?;
-                    require(terms.iter().all(|(c, _)| *c != case), "EXPRESSION_DUPLICATE")?;
-                    terms.push((case, factor));
+                    let (operand, factor) = graph::evidence_term(term).ok_or_else(|| {
+                        if term["factor"].as_f64().is_some_and(|f| !f.is_finite()) { fail("EXPRESSION_FACTOR") } else { fail("EXPRESSION_SHAPE") }
+                    })?;
+                    require(terms.iter().all(|(o, _)| *o != operand), "EXPRESSION_DUPLICATE")?;
+                    terms.push((operand, factor));
                 }
                 require(!terms.is_empty(), "EXPRESSION_SHAPE")?;
-                Ok(Expression::Mechanics(terms))
+                Ok(Expression::Terms(basis, terms))
             }
             "result_state_subtraction" => {
                 require(keys(v, &["minuend_id", "subtrahend_id"]), "EXPRESSION_SHAPE")?;
@@ -374,12 +385,27 @@ impl<'a> Expression<'a> {
             _ => Err(fail("BASIS")),
         }
     }
-    /// The operand order: term order, minuend then subtrahend, or sorted ids.
-    fn operands(&self) -> Vec<&'a str> {
+    /// The operand order: term order, minuend then subtrahend, or sorted ids. An id
+    /// names the load case when one has it, a combination otherwise (§2).
+    fn operands(&self, cases: &HashSet<&str>) -> Vec<Operand<'a>> {
+        let resolve = |id: &'a str| if cases.contains(id) { Operand::Case(id) } else { Operand::Combination(id) };
         match self {
-            Expression::Mechanics(terms) => terms.iter().map(|(c, _)| *c).collect(),
-            Expression::Subtraction(m, s) => vec![m, s],
-            Expression::Envelope { sorted, .. } => sorted.clone(),
+            Expression::Terms(_, terms) => terms.iter().map(|(o, _)| *o).collect(),
+            Expression::Subtraction(m, s) => vec![resolve(m), resolve(s)],
+            Expression::Envelope { sorted, .. } => sorted.iter().map(|id| resolve(id)).collect(),
+        }
+    }
+    fn factors(&self) -> Vec<f64> {
+        match self {
+            Expression::Terms(_, terms) => terms.iter().map(|(_, f)| *f).collect(),
+            _ => Vec::new(),
+        }
+    }
+    fn basis(&self) -> &str {
+        match self {
+            Expression::Terms(basis, _) => basis,
+            Expression::Subtraction(..) => "result_state_subtraction",
+            Expression::Envelope { .. } => "range_envelope",
         }
     }
     fn range(&self) -> bool {
@@ -387,14 +413,18 @@ impl<'a> Expression<'a> {
     }
     fn metadata_basis(&self) -> &'static str {
         match self {
-            Expression::Mechanics(_) => LINEAR_BASIS,
+            Expression::Terms("absolute_sum", _) => graph::ABSOLUTE_SUM_BASIS,
+            Expression::Terms("srss", _) => graph::SRSS_BASIS,
+            Expression::Terms(..) => LINEAR_BASIS,
             Expression::Subtraction(..) => SUBTRACTION_BASIS,
             Expression::Envelope { .. } => RANGE_BASIS,
         }
     }
     fn sign(&self) -> String {
         match self {
-            Expression::Mechanics(_) => LINEAR_SIGN.to_string(),
+            Expression::Terms("absolute_sum", _) => graph::ABSOLUTE_SUM_SIGN.to_string(),
+            Expression::Terms("srss", _) => graph::SRSS_SIGN.to_string(),
+            Expression::Terms(..) => LINEAR_SIGN.to_string(),
             Expression::Subtraction(..) => SUBTRACTION_SIGN.to_string(),
             Expression::Envelope { mode, .. } => format!(
                 "value is the {} mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention",
@@ -410,7 +440,8 @@ impl<'a> Expression<'a> {
     /// The combined value of one operand value per operand, in operand order.
     fn evaluate(&self, values: &[f64]) -> Option<f64> {
         match self {
-            Expression::Mechanics(terms) => {
+            Expression::Terms(basis @ ("absolute_sum" | "srss"), _) => graph::unsigned_value(*basis == "srss", &self.factors(), values),
+            Expression::Terms(_, terms) => {
                 let mut sum = ExactProducts::new();
                 for ((_, factor), value) in terms.iter().zip(values) {
                     sum.add_product(*factor, *value);
@@ -435,6 +466,14 @@ impl<'a> Expression<'a> {
                 Some(best)
             }
         }
+    }
+}
+
+/// The evidence of an operand's source row.
+fn row_source(operand: &Operand<'_>, id: &str) -> Value {
+    match operand {
+        Operand::Case(case) => json!({"load_case_id": case, "result_id": id}),
+        Operand::Combination(c) => json!({"combination_id": c, "result_id": id}),
     }
 }
 
@@ -481,10 +520,10 @@ struct CaseRows<'s> {
     order: Vec<&'s Value>,
 }
 
-fn case_rows<'s>(results: &'s [Value], case: &str) -> CaseRows<'s> {
+fn case_rows<'s>(results: &'s [Value], operand: &Operand<'_>) -> CaseRows<'s> {
     let mut by_key: HashMap<Key, Vec<&Value>> = HashMap::new();
     let mut order = Vec::new();
-    for row in results.iter().filter(|r| case_of(r) == Some(case)) {
+    for row in results.iter().filter(|r| operand.owns(r)) {
         order.push(row);
         if let Some(key) = Key::of(row) {
             by_key.entry(key).or_default().push(row);
@@ -583,17 +622,50 @@ fn modulus_key(operand: &Value) -> Result<Option<String>, String> {
     }
 }
 
-fn gate(expression: &Expression<'_>, operands: &[&Value], cases: &[CaseFacts<'_>], connector: &Value) -> Result<Option<&'static str>, String> {
-    let Expression::Mechanics(terms) = expression else { return Ok(None) };
-    let mut modulus = HashSet::new();
+/// The gates (§4; absolute-sum-srss §5) of the combination `id`, read after every
+/// earlier record: a withheld operand combination; then, for the term bases, gates 1
+/// and 2 over every load case the combination reaches and gate 3 on κ.
+#[allow(clippy::too_many_arguments)]
+fn gate(
+    id: &str,
+    expression: &Expression<'_>,
+    operands: &[Operand<'_>],
+    graph: &Graph<'_>,
+    modulus: &HashMap<&str, Option<String>>,
+    withheld: &[(&str, &str)],
+    evidence: &Value,
+) -> Result<Option<(&'static str, String, Vec<String>)>, String> {
+    let mut named: Vec<(&str, &str)> = Vec::new();
     for operand in operands {
-        modulus.insert(modulus_key(operand)?);
+        if let Operand::Combination(c) = operand {
+            if let Some((_, code)) = withheld.iter().find(|(w, _)| w == c) {
+                if !named.iter().any(|(n, _)| n == c) {
+                    named.push((c, code));
+                }
+            }
+        }
     }
-    if modulus.len() > 1 {
-        return Ok(Some(MODULUS_BASIS_MIXED));
+    if !named.is_empty() {
+        let text = named.iter().map(|(c, code)| format!("{c} ({code})")).collect::<Vec<_>>().join(", ");
+        let refs = std::iter::once(id.to_string()).chain(named.iter().map(|(c, _)| c.to_string())).collect();
+        return Ok(Some((graph::OPERAND_WITHHELD, format!("Combination withheld: its operand combination(s) {text} are withheld, so it is withheld whole."), refs)));
     }
+    let gated = |code: &'static str| Ok(Some((code, gate_message(code).to_string(), vec![id.to_string()])));
+    let basis = expression.basis();
+    if !graph::term_basis(basis) {
+        return Ok(None);
+    }
+    let reached = graph.reached(id);
+    let mut keys = HashSet::new();
+    for case in reached {
+        keys.insert(modulus.get(case).cloned().ok_or_else(|| fail("OPERAND_UNRESOLVED"))?);
+    }
+    if keys.len() > 1 {
+        return gated(MODULUS_BASIS_MIXED);
+    }
+    let cases: Vec<CaseFacts<'_>> = reached.iter().map(|case| case_facts(evidence, case)).collect();
     let mut members: Vec<&str> = Vec::new();
-    for case in cases {
+    for case in &cases {
         for pipe in &case.members {
             if !members.contains(pipe) {
                 members.push(pipe);
@@ -603,12 +675,18 @@ fn gate(expression: &Expression<'_>, operands: &[&Value], cases: &[CaseFacts<'_>
     for pipe in members {
         let first = stiffness(&cases[0], pipe);
         if cases[1..].iter().any(|case| !value_eq(&stiffness(case, pipe), &first)) {
-            return Ok(Some(RESOLVED_STIFFNESS_MIXED));
+            return gated(RESOLVED_STIFFNESS_MIXED);
         }
     }
-    let factors: Vec<f64> = terms.iter().map(|(_, f)| *f).collect();
-    if installed_reference(connector) && !unit_factor_sum(&factors) {
-        return Ok(Some(INSTALLED_REFERENCE));
+    if installed_reference(&evidence["connector"]) {
+        let kappas: Vec<_> = operands.iter().map(|o| graph.kappa_of(o)).collect();
+        if basis == "mechanics" {
+            if open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&graph.kappa_of(&Operand::Combination(id)), kappas.iter()).is_some() {
+                return gated(INSTALLED_REFERENCE);
+            }
+        } else if open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(kappas.iter()).is_some() {
+            return gated(INSTALLED_REFERENCE_UNSIGNED);
+        }
     }
     Ok(None)
 }
@@ -711,10 +789,15 @@ fn combined_row(combination: &str, expression: &Expression<'_>, template: &Value
     row
 }
 
-fn derive(combination: &str, expression: &Expression<'_>, operands: &[&str], results: &[Value], evidence: &Value, linear: &[&str], recomputed: &[&str]) -> Built {
+fn derive(combination: &str, expression: &Expression<'_>, operands: &[Operand<'_>], results: &[Value], evidence: &Value, linear: &[&str], recomputed: &[&str]) -> Built {
     let range = expression.range();
-    let rows: Vec<CaseRows<'_>> = operands.iter().map(|case| case_rows(results, case)).collect();
-    let facts: Vec<CaseFacts<'_>> = operands.iter().map(|case| case_facts(evidence, case)).collect();
+    let rows: Vec<CaseRows<'_>> = operands.iter().map(|operand| case_rows(results, operand)).collect();
+    // Only a load case's pressure-family value is recovered; a combination operand
+    // publishes every row it forms.
+    let facts: Vec<Option<CaseFacts<'_>>> = operands.iter().map(|operand| match operand {
+        Operand::Case(case) => Some(case_facts(evidence, case)),
+        Operand::Combination(_) => None,
+    }).collect();
     let mut built = Built::default();
     let support_kind = |kind: &str| matches!(kind, SUPPORT_COMPONENT | SUPPORT_FORCE | SUPPORT_MOMENT);
     let is_recomputed = |kind: &str| recomputed.contains(&kind);
@@ -761,7 +844,8 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[&str], res
         let mut values = Vec::new();
         let mut missing = Vec::new();
         let mut witnesses = Vec::new();
-        for (index, case) in operands.iter().enumerate() {
+        for (index, operand) in operands.iter().enumerate() {
+            let case = operand.id();
             if let Some(found) = rows[index].by_key.get(key) {
                 let Some(value) = found[0]["value"].as_f64() else {
                     missing.push(case.to_string());
@@ -769,9 +853,9 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[&str], res
                 };
                 values.push(value);
                 let id = found[0]["id"].as_str().unwrap_or_default().to_string();
-                sources.push(json!({"load_case_id": case, "result_id": id}));
+                sources.push(row_source(operand, &id));
                 refs.push(id);
-            } else if let Some((value, witness)) = recover(key, case, &rows[index], &facts[index]) {
+            } else if let Some((value, witness)) = facts[index].as_ref().and_then(|facts| recover(key, case, &rows[index], facts)) {
                 values.push(value);
                 sources.push(json!({"load_case_id": case, "recovery_index": built.recoveries.len() + witnesses.len()}));
                 if let Some(id) = witness["source_result_id"].as_str() {
@@ -820,7 +904,7 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[&str], res
                     other => {
                         let cases: Vec<String> = match other {
                             Some(Outcome::Missing(cases)) => cases.clone(),
-                            _ => operands.iter().map(|c| c.to_string()).collect(),
+                            _ => operands.iter().map(|c| c.id().to_string()).collect(),
                         };
                         for case in cases {
                             if !missing.contains(&case) {
@@ -886,7 +970,7 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[&str], res
                 let refs: Vec<String> = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
                 let row = combined_row(combination, expression, sources[0], &key, value, refs.clone());
                 component_ids.push(row["id"].as_str().unwrap_or_default().to_string());
-                let evidence = json!({"result_id": row["id"], "sources": operands.iter().zip(&refs).map(|(case, id)| json!({"load_case_id": case, "result_id": id})).collect::<Vec<_>>()});
+                let evidence = json!({"result_id": row["id"], "sources": operands.iter().zip(&refs).map(|(operand, id)| row_source(operand, id)).collect::<Vec<_>>()});
                 out.push((row, evidence));
             }
             for (kind, component, slots) in [(SUPPORT_FORCE, "force_magnitude", 0..3), (SUPPORT_MOMENT, "moment_magnitude", 3..6)] {
@@ -900,7 +984,7 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[&str], res
                     let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>().ok_or(SUPPORT_SOURCE_MISSING)?;
                     let value = expression.evaluate(&values).ok_or(ALGEBRA_REFUSED)?;
                     let refs: Vec<String> = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
-                    let evidence = operands.iter().zip(&refs).map(|(case, id)| json!({"load_case_id": case, "result_id": id})).collect::<Vec<_>>();
+                    let evidence = operands.iter().zip(&refs).map(|(operand, id)| row_source(operand, id)).collect::<Vec<_>>();
                     (value, refs, evidence)
                 } else {
                     let c = &combined[slots.clone()];
@@ -950,39 +1034,67 @@ pub(crate) fn validate(source: &Value) -> Check {
     let mut expected_diagnostics: Vec<Value> = Vec::new();
     let mut modulus_rows: Vec<Value> = Vec::new();
     let mut ids: Vec<&str> = Vec::new();
+    // absolute-sum-srss §2-§5: the records in evaluation order, κ and the reached load
+    // cases of each, the modulus key of every load-case operand stated so far, and
+    // the combinations withheld whole with their codes.
+    let mut combination_graph = Graph::default();
+    let mut modulus: HashMap<&str, Option<String>> = HashMap::new();
+    let mut withheld_combinations: Vec<(&str, &str)> = Vec::new();
     for record in records {
         require(keys(record, &RECORD_KEYS), "RECORD_SHAPE")?;
         let id = text(&record["combination_id"], "RECORD_SHAPE")?;
-        require(!ids.contains(&id) && !case_ids.contains(id), "ID_DUPLICATE")?;
+        // Ids are unique per entity kind: a combination may share a load case's id.
+        require(!ids.contains(&id), "ID_DUPLICATE")?;
         ids.push(id);
         let basis = text(&record["basis"], "BASIS")?;
         let expression = Expression::read(basis, &record["expression"])?;
-        let operand_ids = expression.operands();
-        require(operand_ids.iter().all(|c| case_ids.contains(c)), "OPERAND_UNRESOLVED")?;
+        let operand_ids = expression.operands(&case_ids);
+        for operand in &operand_ids {
+            match operand {
+                Operand::Case(case) => require(case_ids.contains(case), "OPERAND_UNRESOLVED")?,
+                // An operand combination is evaluated, and stated, before its dependants.
+                Operand::Combination(c) => require(combination_graph.knows(c), "OPERAND_UNRESOLVED")?,
+            }
+        }
         let operands = array(&record["operands"], "OPERAND_SHAPE")?;
         require(operands.len() == operand_ids.len(), "OPERAND_SHAPE")?;
-        let mut operand_records = Vec::new();
-        for (operand, case) in operands.iter().zip(&operand_ids) {
-            require(keys(operand, &OPERAND_KEYS) && operand["load_case_id"] == *case, "OPERAND_SHAPE")?;
-            modulus_key(operand)?;
+        for (operand, target) in operands.iter().zip(&operand_ids) {
+            let case = match target {
+                Operand::Combination(c) => {
+                    require(bit_equal(operand, &json!({"combination_id": c})), "OPERAND_SHAPE")?;
+                    continue;
+                }
+                Operand::Case(case) => *case,
+            };
+            require(keys(operand, &OPERAND_KEYS) && operand["load_case_id"] == case, "OPERAND_SHAPE")?;
+            let key = modulus_key(operand)?;
+            require(modulus.get(case).is_none_or(|known| *known == key), "OPERAND_SHAPE")?;
+            modulus.insert(case, key);
             // §5: the operand's standing and numerical findings are its case's.
-            let stated = quality.iter().find(|q| q["basis_ref"]["ref_type"] == "load_case" && q["basis_ref"]["ref_id"] == *case);
+            let stated = quality.iter().find(|q| q["basis_ref"]["ref_type"] == "load_case" && q["basis_ref"]["ref_id"] == case);
             require(stated.is_some_and(|q| bit_equal(q, &operand["numerical_quality"])), "OPERAND_STANDING")?;
-            operand_records.push(operand);
         }
         require(record["standing"] == STANDING, "STANDING")?;
         require(record["source_recovery"] == SOURCE_RECOVERY_EXCLUSION, "SOURCE_RECOVERY")?;
-        let facts: Vec<CaseFacts<'_>> = operand_ids.iter().map(|case| case_facts(evidence, case)).collect();
-        let reason = gate(&expression, &operand_records, &facts, &evidence["connector"])?;
-        require(bit_equal(&record["gate"], &json!({"withheld": reason.is_some(), "reason": reason})), "GATE")?;
-        if !matches!(expression, Expression::Mechanics(_)) {
-            // DEC-068 item 1: each operand's solve basis, in authored order.
+        let kappa = combination_graph.add(id, expression.basis(), &operand_ids, &expression.factors());
+        if kappa.is_unrepresentable() {
+            expected_diagnostics.push(json!({
+                "id": format!("{DIAGNOSTIC_PREFIX}fixed-load-count:{}", identity(&[id])), "code": graph::FIXED_LOAD_COUNT_UNREPRESENTABLE, "severity": "info",
+                "message": format!("combination {id}: its fixed-load count (the number of times it carries each fixed load) needs more than 4,096 significand bits exactly, so it is undefined; a gated use never treats an undefined count as passing"),
+                "source": DIAGNOSTIC_SOURCE, "affected_refs": [id],
+            }));
+        }
+        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence)?;
+        require(bit_equal(&record["gate"], &json!({"withheld": reason.is_some(), "reason": reason.as_ref().map(|r| r.0)})), "GATE")?;
+        if !graph::term_basis(expression.basis()) {
+            // DEC-068 item 1: each load-case operand's solve basis, in authored order
+            // (an operand combination records none).
             let authored: Vec<&str> = match &expression {
                 Expression::Subtraction(m, s) => vec![m, s],
                 Expression::Envelope { authored, .. } => authored.clone(),
-                Expression::Mechanics(_) => Vec::new(),
+                Expression::Terms(..) => Vec::new(),
             };
-            for case in authored {
+            for case in authored.into_iter().filter(|case| case_ids.contains(case)) {
                 let label = results
                     .iter()
                     .filter(|r| r["kind"] == "modulus_basis_record" && r["entity_ref"] == case && case_of(r).is_some())
@@ -998,11 +1110,13 @@ pub(crate) fn validate(source: &Value) -> Check {
                 }));
             }
         }
-        if let Some(code) = reason {
+        if let Some((code, message, refs)) = reason {
             for member in ["rows", "recoveries", "missing_sources", "withheld"] {
                 require(items(&record[member]).is_empty() && record[member].is_array(), "GATED_RECORD")?;
             }
-            expected_diagnostics.push(diagnostic(format!("{DIAGNOSTIC_PREFIX}gate:{}", identity(&[id])), code, "warning", gate_message(code).to_string(), id));
+            expected_diagnostics.push(json!({"id": format!("{DIAGNOSTIC_PREFIX}gate:{}", identity(&[id])), "code": code, "severity": "warning",
+                "message": message, "source": DIAGNOSTIC_SOURCE, "affected_refs": refs}));
+            withheld_combinations.push((id, code));
             continue;
         }
         let built = derive(id, &expression, &operand_ids, results, evidence, &linear, &recomputed);
@@ -1068,13 +1182,15 @@ fn gate_message(code: &str) -> &'static str {
     match code {
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
 }
 
 /// G2: each record's expression and its operands' modulus selections are the
-/// captured model's, one record per model combination in model order. A
-/// supplied model is complete: an absent or null `combinations` is the input's
+/// captured model's, one record per model combination in the model's evaluation
+/// order (absolute-sum-srss §2: topological, the earliest ready in the array first).
+/// A supplied model is complete: an absent or null `combinations` is the input's
 /// default, none, so the document then states no combination record.
 pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
     let combinations = match model.get("combinations") {
@@ -1083,17 +1199,18 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
         Some(_) => return Err(fail("MODEL_COVERAGE")),
     };
     let records = items(&source["contract_evidence"]["exact_combinations"]);
-    require(records.len() == combinations.len(), "MODEL_COVERAGE")?;
     let cases = items(&model["load_cases"]);
-    for (record, combination) in records.iter().zip(combinations) {
+    let case_ids: HashSet<&str> = cases.iter().filter_map(|c| c["id"].as_str()).collect();
+    let order = graph::model_order(combinations, &case_ids);
+    require(records.len() == combinations.len() && order.len() == combinations.len(), "MODEL_COVERAGE")?;
+    for (record, &index) in records.iter().zip(&order) {
+        let combination = &combinations[index];
         require(record["combination_id"] == combination["id"] && record["basis"] == combination["basis"], "MODEL_EXPRESSION")?;
-        let expression = match combination["basis"].as_str() {
-            Some("mechanics") => json!({"terms": items(&combination["terms"]).iter().map(|t| json!({"load_case_id": t["load_case"], "factor": t["factor"]})).collect::<Vec<_>>()}),
-            Some("result_state_subtraction") => json!({"minuend_id": combination["minuend_id"], "subtrahend_id": combination["subtrahend_id"]}),
-            _ => json!({"operand_ids": combination["operand_ids"], "mode": combination["mode"]}),
-        };
-        require(bit_equal(&record["expression"], &expression), "MODEL_EXPRESSION")?;
+        require(bit_equal(&record["expression"], &graph::evidence_expression(combination)), "MODEL_EXPRESSION")?;
         for operand in items(&record["operands"]) {
+            if operand.get("combination_id").is_some() {
+                continue;
+            }
             let case = cases.iter().find(|c| c["id"] == operand["load_case_id"]).ok_or_else(|| fail("MODEL_OPERAND"))?;
             let reference = case.get("modulus_basis_ref").cloned().unwrap_or(Value::Null);
             // The producer records the selection temperature normalized to the

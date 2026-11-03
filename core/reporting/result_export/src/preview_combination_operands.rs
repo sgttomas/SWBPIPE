@@ -4,8 +4,17 @@
 //! checks establish the statement's internal consistency, not any case's standing:
 //! each operand's quality record is the document's own, compared bit for bit, never
 //! re-established here. The Python mirror is `tests/verifiers/preview_combination_operands.py`.
+//!
+//! RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §4-§5): a record may also
+//! state an absolute sum, an SRSS, or a mechanics combination admitted by decision
+//! OQ-1 (one load case with factor exactly 1 plus combinations whose fixed-load
+//! count is exactly 0, re-derived here from the earlier records); a term names a
+//! load case or a combination; a combination operand is `{combination_id}` and
+//! states its own standing in its own, earlier record.
+use crate::combination_graph::{self as graph, Graph, Operand};
 use crate::section_basis::bit_equal;
 use serde_json::{json, Value};
+use std::collections::HashSet;
 
 type Check = Result<(), String>;
 
@@ -53,15 +62,30 @@ fn combination_of(row: &Value) -> Option<&str> {
     (row["basis_ref"]["ref_type"] == "combination").then(|| row["basis_ref"]["ref_id"].as_str()).flatten()
 }
 
-/// The operands of an expression in the producer's evaluation order: minuend then
-/// subtrahend; a range envelope's ids sorted (byte order).
-fn evaluation_order<'a>(basis: &str, expression: &'a Value) -> Result<Vec<&'a str>, String> {
+/// The operands of an expression in the producer's evaluation order (terms; minuend
+/// then subtrahend; a range envelope's ids sorted, byte order), with the terms'
+/// factors. An id names the load case when one has it, a combination otherwise.
+fn evaluation_order<'a>(basis: &str, expression: &'a Value, cases: &HashSet<&str>) -> Result<(Vec<Operand<'a>>, Vec<f64>), String> {
+    let resolve = |id: &'a str| if cases.contains(id) { Operand::Case(id) } else { Operand::Combination(id) };
     match basis {
+        "mechanics" | "absolute_sum" | "srss" => {
+            require(keys(expression, &["terms"]), "SHAPE")?;
+            let mut operands = Vec::new();
+            let mut factors = Vec::new();
+            for term in items(&expression["terms"]) {
+                let (operand, factor) = graph::evidence_term(term).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_SHAPE".to_string())?;
+                require(!operands.contains(&operand), "SHAPE")?;
+                operands.push(operand);
+                factors.push(factor);
+            }
+            require(!operands.is_empty(), "SHAPE")?;
+            Ok((operands, factors))
+        }
         "result_state_subtraction" => {
             require(keys(expression, &["minuend_id", "subtrahend_id"]), "SHAPE")?;
             let (a, b) = (text(&expression["minuend_id"]), text(&expression["subtrahend_id"]));
             require(a.is_some() && b.is_some() && a != b, "SHAPE")?;
-            Ok(vec![a.unwrap(), b.unwrap()])
+            Ok((vec![resolve(a.unwrap()), resolve(b.unwrap())], Vec::new()))
         }
         "range_envelope" => {
             require(keys(expression, &["operand_ids", "mode"]) && expression["mode"].as_str().is_some_and(|m| MODES.contains(&m)), "SHAPE")?;
@@ -69,9 +93,20 @@ fn evaluation_order<'a>(basis: &str, expression: &'a Value) -> Result<Vec<&'a st
             require(!ids.is_empty() && expression["operand_ids"].is_array(), "SHAPE")?;
             ids.sort_unstable();
             require(ids.windows(2).all(|w| w[0] != w[1]), "SHAPE")?;
-            Ok(ids)
+            Ok((ids.into_iter().map(resolve).collect(), Vec::new()))
         }
         _ => Err("SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_SHAPE".into()),
+    }
+}
+
+/// The row basis and, for the RT-A4 bases, the sign convention of a record's rows.
+fn row_basis(basis: &str) -> (&'static str, Option<&'static str>) {
+    match basis {
+        "range_envelope" => ("explicit_user_range_envelope", None),
+        "result_state_subtraction" => ("explicit_user_result_state_subtraction", None),
+        "absolute_sum" => (graph::ABSOLUTE_SUM_BASIS, Some(graph::ABSOLUTE_SUM_SIGN)),
+        "srss" => (graph::SRSS_BASIS, Some(graph::SRSS_SIGN)),
+        _ => (LINEAR_BASIS, Some(graph::SOLVED_STATE_PLUS_INCREMENTS_SIGN)),
     }
 }
 
@@ -164,6 +199,7 @@ fn states_notice(id: &str, operands: &[&str], rows: &[Value]) -> Result<Option<V
 fn standing_notice(id: &str, operands: &[Value]) -> Option<Value> {
     let failing: Vec<(&str, &str)> = operands
         .iter()
+        .filter(|o| o.get("load_case_id").is_some())
         .map(|o| (o["load_case_id"].as_str().unwrap_or_default(), o["numerical_quality"]["solve_quality"].as_str().unwrap_or("not_assessed")))
         .filter(|(_, quality)| *quality != "checks_passed")
         .collect();
@@ -194,31 +230,44 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
         .filter_map(|g| g["combination_id"].as_str())
         .collect();
     require(member.is_some() == (solved && nonlinear && !admitted.is_empty()), "PRESENCE")?;
-    // In a solved nonlinear document every mechanics combination is withheld.
-    if solved && nonlinear {
-        require(!rows.iter().any(|r| combination_of(r).is_some() && r["metadata"]["basis"] == LINEAR_BASIS), "MECHANICS_ADMITTED")?;
-    }
+    let quality = items(&source["numerical_quality"]["cases"]);
+    let cases: HashSet<&str> = quality.iter().filter(|q| q["basis_ref"]["ref_type"] == "load_case").filter_map(|q| q["basis_ref"]["ref_id"].as_str()).collect();
+    let mut recorded = Graph::default();
     if let Some(member) = member {
         let records = member.as_array().ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_SHAPE".to_string())?;
         require(records.len() == admitted.len(), "PRESENCE")?;
-        let quality = items(&source["numerical_quality"]["cases"]);
         for (record, gate_id) in records.iter().zip(&admitted) {
             require(keys(record, &RECORD_KEYS) && record["standing"] == STANDING, "SHAPE")?;
             let id = text(&record["combination_id"]).filter(|id| id == gate_id).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_PRESENCE".to_string())?;
-            let order = evaluation_order(record["basis"].as_str().unwrap_or_default(), &record["expression"])?;
+            let basis = record["basis"].as_str().unwrap_or_default();
+            let (order, factors) = evaluation_order(basis, &record["expression"], &cases)?;
+            // In a solved nonlinear document a mechanics combination is admitted only by
+            // decision OQ-1 (absolute-sum-srss §5.2).
+            if basis == "mechanics" {
+                let terms: Vec<(Operand<'_>, f64)> = order.iter().copied().zip(factors.iter().copied()).collect();
+                require(recorded.solved_state_plus_increments(&terms), "MECHANICS_ADMITTED")?;
+            }
             let operands = items(&record["operands"]);
             require(record["operands"].is_array() && operands.len() == order.len(), "SHAPE")?;
-            for (operand, case) in operands.iter().zip(&order) {
-                require(keys(operand, &OPERAND_KEYS) && operand["load_case_id"] == *case, "SHAPE")?;
+            for (operand, target) in operands.iter().zip(&order) {
+                let case = match target {
+                    // A combination operand states its standing in its own, earlier record.
+                    Operand::Combination(c) => {
+                        require(bit_equal(operand, &json!({"combination_id": c})) && recorded.knows(c), "SHAPE")?;
+                        continue;
+                    }
+                    Operand::Case(case) => *case,
+                };
+                require(keys(operand, &OPERAND_KEYS) && operand["load_case_id"] == case, "SHAPE")?;
                 require(operand["modulus_basis_ref"].is_null() || text(&operand["modulus_basis_ref"]).is_some(), "SHAPE")?;
                 let t = &operand["modulus_basis_temperature"];
                 require(t.is_null() || (keys(t, &["value", "unit"]) && t["value"].as_f64().is_some() && text(&t["unit"]).is_some()), "SHAPE")?;
-                let stated = quality.iter().find(|q| q["basis_ref"]["ref_type"] == "load_case" && q["basis_ref"]["ref_id"] == *case);
+                let stated = quality.iter().find(|q| q["basis_ref"]["ref_type"] == "load_case" && q["basis_ref"]["ref_id"] == case);
                 require(stated.is_some_and(|q| bit_equal(q, &operand["numerical_quality"])), "STANDING")?;
             }
+            recorded.add(id, basis, &order, &factors);
             // Rows: references by row kind and basis.
-            let basis = record["basis"].as_str().unwrap_or_default();
-            let row_basis = if basis == "range_envelope" { "explicit_user_range_envelope" } else { "explicit_user_result_state_subtraction" };
+            let (row_basis, sign) = row_basis(basis);
             let by_id = |reference: &Value| rows.iter().find(|r| r["id"] == *reference);
             for row in rows.iter().filter(|r| combination_of(r) == Some(id)) {
                 let kind = row["kind"].as_str().unwrap_or_default();
@@ -226,10 +275,12 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
                     continue;
                 }
                 require(row["metadata"].is_null() || row["metadata"]["basis"] == row_basis, "ROWS")?;
+                require(row["metadata"].is_null() || sign.is_none_or(|s| row["metadata"]["sign_convention"] == s), "ROWS")?;
                 let refs = items(&row["source_result_refs"]);
                 let recomputed: Option<Vec<(&str, Option<&str>)>> = match (basis, kind) {
-                    ("result_state_subtraction", "displacement_magnitude") => Some(DISPLACEMENT_COMPONENTS.iter().map(|k| (*k, None)).collect()),
-                    ("result_state_subtraction", "support_reaction_force_magnitude_v2" | "support_reaction_moment_magnitude_v2") => {
+                    ("range_envelope", _) => None,
+                    (_, "displacement_magnitude") => Some(DISPLACEMENT_COMPONENTS.iter().map(|k| (*k, None)).collect()),
+                    (_, "support_reaction_force_magnitude_v2" | "support_reaction_moment_magnitude_v2") => {
                         Some(SUPPORT_COMPONENTS.iter().map(|c| (SUPPORT_COMPONENT, Some(*c))).collect())
                     }
                     _ => None,
@@ -249,13 +300,13 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
                             )?;
                         }
                     }
-                    // Direct rows name one matching case row per operand, in evaluation order.
+                    // Direct rows name one matching operand row per operand, in evaluation order.
                     None => {
                         require(refs.len() == order.len(), "ROWS")?;
-                        for (reference, case) in refs.iter().zip(&order) {
+                        for (reference, operand) in refs.iter().zip(&order) {
                             let source = by_id(reference).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_ROWS".to_string())?;
                             require(
-                                case_of(source) == Some(*case)
+                                operand.owns(source)
                                     && source["kind"] == row["kind"]
                                     && source["entity_ref"] == row["entity_ref"]
                                     && source["unit"] == row["unit"]
@@ -267,7 +318,11 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
                     }
                 }
             }
-            expected.extend(states_notice(id, &order, rows)?);
+            let order_cases: Vec<&str> = order.iter().filter_map(|o| match o {
+                Operand::Case(case) => Some(*case),
+                Operand::Combination(_) => None,
+            }).collect();
+            expected.extend(states_notice(id, &order_cases, rows)?);
             expected.extend(standing_notice(id, operands));
         }
     }
@@ -279,31 +334,41 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
     Ok(())
 }
 
-/// §3, with a supplied model: one record per subtraction or range envelope, in model
-/// order, when the model has a nonlinear support, and none otherwise; each record's
-/// id, basis, expression and operand modulus selections are the model's.
+/// §3, with a supplied model: when the model has a nonlinear support, the records
+/// follow the model's evaluation order (absolute-sum-srss §2), each binds its id,
+/// basis, expression and operand modulus selections to the model's, and every
+/// subtraction or range envelope whose operand combinations are all recorded is
+/// recorded (only a withheld operand can withhold one); with no nonlinear support
+/// there is none.
 pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
     if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         return Ok(());
     }
     let nonlinear = items(&model["supports"]).iter().any(|s| s.get("nonlinear").is_some_and(|n| !n.is_null()));
-    let combinations: Vec<&Value> = match model.get("combinations") {
-        None | Some(Value::Null) => Vec::new(),
-        Some(Value::Array(list)) => list.iter().filter(|c| c["basis"] != "mechanics").collect(),
+    let combinations: &[Value] = match model.get("combinations") {
+        None | Some(Value::Null) => &[],
+        Some(Value::Array(list)) => list.as_slice(),
         Some(_) => return Err("SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_MODEL".into()),
     };
     let records = items(source["contract_evidence"].get(MEMBER).unwrap_or(&Value::Null));
-    let expected = if nonlinear { combinations.len() } else { 0 };
-    require(records.len() == expected, "MODEL")?;
+    if !nonlinear {
+        return require(records.is_empty(), "MODEL");
+    }
     let cases = items(&model["load_cases"]);
-    for (record, combination) in records.iter().zip(&combinations) {
-        require(record["combination_id"] == combination["id"] && record["basis"] == combination["basis"], "MODEL")?;
-        let expression = match combination["basis"].as_str() {
-            Some("result_state_subtraction") => json!({"minuend_id": combination["minuend_id"], "subtrahend_id": combination["subtrahend_id"]}),
-            _ => json!({"operand_ids": combination["operand_ids"], "mode": combination["mode"]}),
-        };
-        require(bit_equal(&record["expression"], &expression), "MODEL")?;
+    let case_ids: HashSet<&str> = cases.iter().filter_map(|c| c["id"].as_str()).collect();
+    let order = graph::model_order(combinations, &case_ids);
+    let recorded: HashSet<&str> = records.iter().filter_map(|r| r["combination_id"].as_str()).collect();
+    // The records, a subsequence of the evaluation order.
+    let mut position = 0;
+    for record in records {
+        let at = order[position..].iter().position(|&i| record["combination_id"] == combinations[i]["id"]).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_MODEL".to_string())?;
+        let combination = &combinations[order[position + at]];
+        position += at + 1;
+        require(record["basis"] == combination["basis"] && bit_equal(&record["expression"], &graph::evidence_expression(combination)), "MODEL")?;
         for operand in items(&record["operands"]) {
+            if operand.get("combination_id").is_some() {
+                continue;
+            }
             let case = cases.iter().find(|c| c["id"] == operand["load_case_id"]).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_MODEL".to_string())?;
             let reference = case.get("modulus_basis_ref").cloned().unwrap_or(Value::Null);
             let temperature = match case.get("modulus_basis_temperature").filter(|t| !t.is_null()) {
@@ -316,6 +381,14 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
                 None => Value::Null,
             };
             require(bit_equal(&operand["modulus_basis_ref"], &reference) && bit_equal(&operand["modulus_basis_temperature"], &temperature), "MODEL")?;
+        }
+    }
+    for &index in &order {
+        let combination = &combinations[index];
+        if matches!(combination["basis"].as_str(), Some("result_state_subtraction" | "range_envelope"))
+            && graph::model_operands(combination, &case_ids).iter().all(|o| matches!(o, Operand::Case(_)) || recorded.contains(o.id()))
+        {
+            require(combination["id"].as_str().is_some_and(|id| recorded.contains(id)), "MODEL")?;
         }
     }
     Ok(())

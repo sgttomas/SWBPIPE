@@ -11717,7 +11717,10 @@ fn append_combination_modulus_basis_records(model: &PreviewModel, results: &mut 
                 .map(|metadata| (item.entity_ref.clone(), metadata.basis.clone()))
         })
         .collect::<HashMap<_, _>>();
-    for combination in &model.combinations {
+    // In evaluation order (absolute-sum-srss §2), as the combinations' rows; a flat
+    // document's order is its array order.
+    let plan = combination_plan::Plan::new(model);
+    for combination in plan.order.iter().map(|&index| &model.combinations[index]) {
         let operand_ids: Vec<&str> = match combination.basis.as_str() {
             "result_state_subtraction" => combination
                 .minuend_id

@@ -298,6 +298,8 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                 bind_preview_shear_model(source, m)
                     .and_then(|()| crate::u4b_evidence::preview_model_checks(source, m))
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
+                    // RT-A4: the absolute sums and SRSS, re-derived with the model's factors.
+                    .and_then(|()| crate::preview_physics_evidence::unsigned_model_checks(source, m))
             })
         })),
         // Current pressure-2 reader, then G2's model checks,

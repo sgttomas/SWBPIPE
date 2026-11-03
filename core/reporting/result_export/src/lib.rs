@@ -1698,6 +1698,7 @@ mod physics_evidence;
 // W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): the pressure-2
 // reader's combination pass.
 mod exact_combination_evidence;
+mod combination_graph;
 pub mod section_basis;
 mod preview_physics_evidence;
 mod preview_combination_operands;

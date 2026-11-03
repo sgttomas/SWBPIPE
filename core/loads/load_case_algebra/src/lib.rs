@@ -10,6 +10,8 @@ pub use factor_sum::{factor_sum_within_unit_tolerance, FactorSumError, UNIT_FACT
 mod unsigned;
 pub use unsigned::{evaluate_absolute_sum, evaluate_srss, UNSIGNED_COMBINATION_MAX_TERMS};
 mod fixed_load_count;
+/// The dimension of an algebra quantity, for readers that form one.
+pub use open_pipe_stress_primitive_loads::LoadDimension as AlgebraDimension;
 pub use fixed_load_count::{
     mechanics_fixed_load_gate, solved_state_plus_increments, unsigned_fixed_load_gate, within_unit_factor_sum, Dyadic,
     FixedLoadCount, FixedLoadWithholding, Undefined as FixedLoadCountUndefined, FIXED_LOAD_COUNT_MAX_BITS,
