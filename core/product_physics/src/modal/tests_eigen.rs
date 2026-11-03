@@ -62,20 +62,20 @@ fn test_local_parameters() -> ModalIntegrityParameters {
 /// frozen references state no product tolerance of their own.
 const TEST_LOCAL_CLASS_A_FREQUENCY: f64 = 1e-9;
 
-fn run(request: Value) -> Result<ModalOutcome, Vec<Diagnostic>> {
-    run_with(request, &test_local_parameters())
+fn modal_run(request: Value) -> Result<ModalOutcome, Vec<Diagnostic>> {
+    modal_run_with(request, &test_local_parameters())
 }
 
-fn run_with(request: Value, params: &ModalIntegrityParameters) -> Result<ModalOutcome, Vec<Diagnostic>> {
+fn modal_run_with(request: Value, params: &ModalIntegrityParameters) -> Result<ModalOutcome, Vec<Diagnostic>> {
     run_modal_dense(&modal(request), params)
 }
 
-fn solved(request: Value) -> ModalOutcome {
-    run(request).unwrap_or_else(|found| panic!("refused: {found:#?}"))
+fn modal_solved(request: Value) -> ModalOutcome {
+    modal_run(request).unwrap_or_else(|found| panic!("refused: {found:#?}"))
 }
 
 fn refusal_codes(request: Value, params: &ModalIntegrityParameters) -> Vec<String> {
-    match run_with(request, params) {
+    match modal_run_with(request, params) {
         Ok(outcome) => panic!("expected a refusal, got {} modes", outcome.modes.len()),
         Err(found) => codes(&found).into_iter().map(str::to_string).collect(),
     }
@@ -100,7 +100,7 @@ struct Observation {
     formation_m: f64,
 }
 
-fn observe(model: &str, outcome: &ModalOutcome, max_frequency_error: Option<f64>) -> Observation {
+fn modal_observation(model: &str, outcome: &ModalOutcome, max_frequency_error: Option<f64>) -> Observation {
     let accepted = outcome.integrity.sturm.evidence.accepted().expect("a counted outcome has an accepted shift");
     let factored = accepted.factored.as_ref().expect("an accepted shift was factored");
     let fold = |f: fn(&super::outcome::ComputedModeEvidence) -> f64| outcome.integrity.computed.iter().map(f).fold(0.0f64, f64::max);
@@ -223,7 +223,7 @@ fn class_a_eigen_references_agree_through_the_product_path() {
     for case in eigen_cases() {
         let id = case["id"].as_str().unwrap().to_string();
         let reported = case["reported_mode_count"].as_u64().unwrap() as usize;
-        let outcome = match run(eigen_request(&case, reported)) {
+        let outcome = match modal_run(eigen_request(&case, reported)) {
             Ok(outcome) => {
                 assert_eq!(outcome.modes.len(), reported, "{id}");
                 outcome
@@ -233,7 +233,7 @@ fn class_a_eigen_references_agree_through_the_product_path() {
                 // whole-spectrum endpoint; a lower bound is then served.
                 assert_eq!(codes(&found), vec![MODAL_FINITE_COUNT_UNRESOLVED], "{id}: {found:#?}");
                 lower_only.push(id.clone());
-                let outcome = solved(eigen_request(&case, lower_cluster_count(&case)));
+                let outcome = modal_solved(eigen_request(&case, lower_cluster_count(&case)));
                 assert!(matches!(outcome.integrity.census, FiniteCensus::Unresolved { .. }), "{id}");
                 assert!(matches!(outcome.completed.endpoint, ReportedEndpoint::BelowComputedCluster { .. }), "{id}");
                 outcome
@@ -241,7 +241,7 @@ fn class_a_eigen_references_agree_through_the_product_path() {
         };
         assert_eq!(outcome.standing, ModalStanding::ChecksPassed, "{id}");
         let error = compare_eigen(&case, &outcome, &mut beyond_seed);
-        rows.push(observe(&id, &outcome, Some(error)));
+        rows.push(modal_observation(&id, &outcome, Some(error)));
     }
     print_observations("Class (a) eigen references through the product path", &rows);
     println!("served below a completed computed cluster (census unresolved): {lower_only:?}");
@@ -307,7 +307,7 @@ fn class_b_rayleigh_cantilever_converges_through_the_product_path() {
         if elements > 8 {
             continue;
         }
-        let outcome = solved(with(sec_a_cantilever(elements), json!({"mode_count": 6 * elements})));
+        let outcome = modal_solved(with(sec_a_cantilever(elements), json!({"mode_count": 6 * elements})));
         assert_eq!(outcome.standing, ModalStanding::ChecksPassed);
         let omegas: Vec<f64> = outcome.modes.iter().map(|m| m.circular_frequency / scale).collect();
         let mut largest = 0.0f64;
@@ -330,7 +330,7 @@ fn class_b_rayleigh_cantilever_converges_through_the_product_path() {
             let f_e = outcome.discretization.iter().map(|m| m.fixed_fixed_frequency).fold(f64::INFINITY, f64::min);
             o5.push((elements, n + 1, f_e / (expected * scale / (2.0 * std::f64::consts::PI)), error));
         }
-        rows.push(observe(&format!("SEC-A cantilever N = {elements}"), &outcome, Some(largest)));
+        rows.push(modal_observation(&format!("SEC-A cantilever N = {elements}"), &outcome, Some(largest)));
     }
     print_observations("Class (b) Rayleigh cantilever, SEC-A, L = 6 m", &rows);
     println!("O-5 observations (TEST-LOCAL; c is not adopted, no warning decision): | N | mode | f_e/f_n | rel f error vs continuum |");
@@ -350,23 +350,23 @@ fn ex_n05_an_arc_and_a_component_body_pass_through_the_product_path() {
     // above the test-local δ_c, so a bound of 4 stops between the pair's
     // members and is refused (`an_unseparated_or_ill_conditioned_final_shift_refuses`);
     // a bound of 3 ends below a well-separated gap.
-    let ex = solved(with(ex_request_with_density(), json!({"mode_count": 3})));
+    let ex = modal_solved(with(ex_request_with_density(), json!({"mode_count": 3})));
     assert!(ex.exact_route && ex.standing == ModalStanding::ChecksPassed, "{:?}", ex.standing);
     assert!(ex.disclosures.iter().any(|d| d.contains("pressure stiffening is not modelled")));
-    rows.push(observe("EX n05", &ex, None));
+    rows.push(modal_observation("EX n05", &ex, None));
 
-    let arc = solved(with(arc_request(false), json!({"mode_count": 6})));
+    let arc = modal_solved(with(arc_request(false), json!({"mode_count": 6})));
     assert_eq!(arc.standing, ModalStanding::ChecksPassed);
     assert!(arc.integrity.formation.section.is_some());
-    rows.push(observe("arc PF", &arc, None));
+    rows.push(modal_observation("arc PF", &arc, None));
 
-    let body = solved(with(pf_request(true), json!({"mode_count": 3, "weight_to_mass_acceleration": q(9.8125, "m/s^2")})));
+    let body = modal_solved(with(pf_request(true), json!({"mode_count": 3, "weight_to_mass_acceleration": q(9.8125, "m/s^2")})));
     assert_eq!(body.standing, ModalStanding::ChecksPassed);
     assert!(body.disclosures.iter().any(|d| d.contains("component bodies are point masses")));
     assert!(body.identity.acceleration == 9.8125);
     // The body replaces its member's distributed mass: no f_e for it.
     assert!(body.discretization.iter().all(|m| m.pipe != "body:v"));
-    rows.push(observe("component PF", &body, None));
+    rows.push(modal_observation("component PF", &body, None));
 
     // Each reported mode is in one normalization case with its +1 component.
     for outcome in [&ex, &arc, &body] {
@@ -392,7 +392,7 @@ fn ex_n05_an_arc_and_a_component_body_pass_through_the_product_path() {
 fn a_partial_cluster_at_the_bound_is_extended_and_disclosed() {
     // A circular cantilever's bending modes are exact pairs: a bound of one
     // mode stops inside the first pair.
-    let outcome = solved(with(sec_a_cantilever(2), json!({"mode_count": 1})));
+    let outcome = modal_solved(with(sec_a_cantilever(2), json!({"mode_count": 1})));
     assert_eq!((outcome.reported.bounded_count, outcome.reported.extension_count, outcome.reported.count), (1, 1, 2));
     assert_eq!(outcome.reported.stopped_by, StoppingBound::ModeCount);
     assert_eq!(outcome.modes.len(), 2);
@@ -401,15 +401,15 @@ fn a_partial_cluster_at_the_bound_is_extended_and_disclosed() {
     assert!(matches!(outcome.completed.endpoint, ReportedEndpoint::BelowComputedCluster { next_mode: 2 }));
     // The cut-off is inclusive and extends the same way.
     let f1 = outcome.modes[0].frequency;
-    let cut = solved(with(sec_a_cantilever(2), json!({"frequency_cutoff": q(f1, "Hz")})));
+    let cut = modal_solved(with(sec_a_cantilever(2), json!({"frequency_cutoff": q(f1, "Hz")})));
     assert_eq!(cut.modes.len(), 2);
     assert_eq!(cut.reported.stopped_by, StoppingBound::FrequencyCutoff);
     // Below the lowest mode: nothing reported, a zero count below mode 1.
-    let empty = solved(with(sec_a_cantilever(2), json!({"frequency_cutoff": q(f1 / 2.0, "Hz")})));
+    let empty = modal_solved(with(sec_a_cantilever(2), json!({"frequency_cutoff": q(f1 / 2.0, "Hz")})));
     assert!(empty.modes.is_empty() && empty.integrity.sturm.count == 0);
     assert_eq!(empty.completed.endpoint, ReportedEndpoint::BelowLowestMode);
     // Beyond the spectrum on an established census: the whole finite spectrum.
-    let whole = solved(with(sec_a_cantilever(2), json!({"mode_count": 1000})));
+    let whole = modal_solved(with(sec_a_cantilever(2), json!({"mode_count": 1000})));
     assert_eq!(whole.reported.stopped_by, StoppingBound::SpectrumExhausted);
     assert_eq!(whole.completed.endpoint, ReportedEndpoint::WholeFiniteSpectrum { established_finite_mode_count: 12 });
     assert_eq!(whole.integrity.sturm.count, 12);
@@ -431,7 +431,7 @@ fn a_non_coordinate_mass_nullspace_refuses_the_whole_spectrum_endpoint() {
         assert_eq!(found, vec![MODAL_FINITE_COUNT_UNRESOLVED], "{bound}");
     }
     // A bound below a completed computed cluster is served, and says so.
-    let outcome = solved(eigen_request(&case, 4));
+    let outcome = modal_solved(eigen_request(&case, 4));
     assert!(matches!(outcome.integrity.census, FiniteCensus::Unresolved { mass_block_established: false, .. }), "{:?}", outcome.integrity.census);
     assert!(outcome.disclosures.iter().any(|d| d.contains("finite-mode count is not established")));
     assert_eq!(outcome.integrity.sturm.count, 4);
@@ -442,7 +442,7 @@ fn a_coordinate_massless_node_is_condensed_and_counted() {
     // NODE's point lump at its own node: three structurally massless
     // rotations, condensed; the census of 21 is established.
     let case = eigen_cases().into_iter().find(|c| c["id"] == "E-POINTMASS-NODE").unwrap();
-    let outcome = solved(eigen_request(&case, 21));
+    let outcome = modal_solved(eigen_request(&case, 21));
     assert_eq!(outcome.integrity.census, FiniteCensus::Established { finite_mode_count: 21, structurally_massless: 3 });
     assert_eq!(outcome.completed.endpoint, ReportedEndpoint::WholeFiniteSpectrum { established_finite_mode_count: 21 });
 }
@@ -467,7 +467,7 @@ fn a_mechanism_is_refused_before_any_eigen_solve() {
 #[test]
 fn the_dense_guard_refuses_before_any_n2_allocation() {
     crate::DENSE_SCRUTINY_CEILING_OVERRIDE.with(|ceiling| ceiling.set(Some(1)));
-    let found = run(with(pf_request(false), json!({"mode_count": 1})));
+    let found = modal_run(with(pf_request(false), json!({"mode_count": 1})));
     crate::DENSE_SCRUTINY_CEILING_OVERRIDE.with(|ceiling| ceiling.set(None));
     let found = found.err().expect("the guard refuses");
     assert_eq!(found.len(), 1);
@@ -476,7 +476,7 @@ fn the_dense_guard_refuses_before_any_n2_allocation() {
 
 #[test]
 fn the_guard_record_states_formulas_not_a_budget() {
-    let outcome = solved(with(pf_request(false), json!({"mode_count": 1})));
+    let outcome = modal_solved(with(pf_request(false), json!({"mode_count": 1})));
     let DenseGuardRecord { global_dimension, free_dimension, static_estimate_bytes, eigen_core_bytes, operation_estimate, .. } = outcome.guard;
     assert_eq!((global_dimension, free_dimension), (18, 12));
     assert_eq!(static_estimate_bytes, 96 * 18 * 18);
@@ -524,7 +524,7 @@ fn every_integrity_parameter_is_required_finite_and_in_domain() {
     for (name, change) in cases {
         let mut params = test_local_parameters();
         change(&mut params);
-        let found = run_with(request(), &params).err().unwrap_or_else(|| panic!("{name} must refuse"));
+        let found = modal_run_with(request(), &params).err().unwrap_or_else(|| panic!("{name} must refuse"));
         assert_eq!(found.len(), 1, "{name}: {found:#?}");
         assert_eq!(found[0].code, MODAL_INTEGRITY_PARAMETER_INVALID);
         assert_eq!(found[0].affected_refs, vec![name.to_string()]);
@@ -556,13 +556,13 @@ fn a_residual_or_orthogonality_breach_demotes_to_sensitive_and_still_publishes()
     let request = || with(sec_a_cantilever(2), json!({"mode_count": 4}));
     let mut tight_residual = test_local_parameters();
     tight_residual.residual_threshold = f64::MIN_POSITIVE;
-    let outcome = run_with(request(), &tight_residual).unwrap();
+    let outcome = modal_run_with(request(), &tight_residual).unwrap();
     assert_eq!(outcome.modes.len(), 4);
     assert!(outcome.modes.iter().all(|m| matches!(m.standing, ModalStanding::Sensitive(_)) || m.residual.backward_error == 0.0));
     assert!(matches!(outcome.standing, ModalStanding::Sensitive(_)));
     let mut tight_orthogonality = test_local_parameters();
     tight_orthogonality.orthogonality_threshold = f64::MIN_POSITIVE;
-    let outcome = run_with(request(), &tight_orthogonality).unwrap();
+    let outcome = modal_run_with(request(), &tight_orthogonality).unwrap();
     if outcome.integrity.orthogonality.max_ratio > f64::MIN_POSITIVE {
         let ModalStanding::Sensitive(reasons) = &outcome.standing else { panic!("an orthogonality breach demotes the set") };
         assert!(reasons.iter().any(|r| r.contains("M-orthogonality")));
@@ -622,7 +622,7 @@ fn a_value_below_the_normal_range_is_published_as_a_flagged_zero() {
 
 #[test]
 fn every_computed_mode_keeps_its_re_formed_evidence() {
-    let outcome = solved(with(sec_a_cantilever(4), json!({"mode_count": 4})));
+    let outcome = modal_solved(with(sec_a_cantilever(4), json!({"mode_count": 4})));
     // 24 free DOFs, all massive: 24 computed modes, each with its check-2
     // evidence, whether reported or not.
     assert_eq!(outcome.integrity.computed.len(), 24);
@@ -638,13 +638,13 @@ fn every_computed_mode_keeps_its_re_formed_evidence() {
 
 #[test]
 fn a_constant_effort_support_adds_no_stiffness_and_no_mass() {
-    let plain = solved(with(pf_request(false), json!({"mode_count": 4})));
+    let plain = modal_solved(with(pf_request(false), json!({"mode_count": 4})));
     let mut request = with(pf_request(false), json!({"mode_count": 4}));
     request["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "support:ce", "node": "b", "family": "constant_effort_support", "restraints": [],
         "hanger": {"hanger_type": "constant_effort_support", "constant_load": q(375.0, "N"), "travel_range": q(0.04, "m"),
             "manufacturer_reference": "invented", "source_reference": "invented", "load_side_review_reference": "review_only_constant_load_not_combined_as_load_effect",
             "mechanics_consumption": "load_side_review_only_no_global_solve_consumption"}, "provenance": PROV}));
-    let with_support = solved(request);
+    let with_support = modal_solved(request);
     let bits = |o: &ModalOutcome| o.modes.iter().map(|m| m.eigenvalue.to_bits()).collect::<Vec<_>>();
     assert_eq!(bits(&plain), bits(&with_support));
     assert!(with_support.disclosures.iter().any(|d| d.contains("constant-effort supports contribute zero stiffness and zero mass")));
