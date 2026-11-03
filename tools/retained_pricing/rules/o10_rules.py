@@ -4648,7 +4648,8 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
          ["document_members.rs:withhold_interim_combinations"]),
         ("iter:> (0..values.len()).map", "3", _A4_L + "one value per target (producer and the reader's Expression::value)",
          ["lib.rs:evaluate_values", "combination_graph.rs:value"]),
-        ("iter:tokens .iter() .zip(values).map", "3", _A4_L + "one token per target", ["lib.rs:evaluate_values"]),
+        ("iter:tokens .iter() .zip(values).map", "3", _A4_L + "one token per target (producer and the reader's Expression::value)",
+         ["lib.rs:evaluate_values", "combination_graph.rs:value", "combination_graph.rs:unsigned_value"]),
         ("iter:terms.iter().zip(&tokens).filter_map", "3", _A4_L + "one combination's terms", ["lib.rs:evaluate_values"]),
         ("for &limb in limbs", "64", _A4_L + "a normalized significand's limbs (<= 4,096 bits)", ["fixed_load_count.rs:shift_left"]),
         ("for &index in &graph::model_order(combinations, &cases)", "z", _A4_L + "the model's combinations (unreached: RT-A4-RM)",
@@ -4910,3 +4911,20 @@ if fnkey("combination_derivation", _A4_PP):
         raise SystemExit("RT-A4-DC: the derivation call or its `combining` guard changed; re-review")
     EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("combination_derivation", _A4_PP),
         "min(1,z)", O10 + "RT-A4-DC: once per run with a combination (`if combining`), never at z = 0")]
+
+# RT-A4-TK: evaluate_values' three token copies (two per AlgebraOperand, one per CombinationTerm): a token is a
+# subtraction's operand id, a range operand id (IN128) or a term's decimal position (< 3), so IN128.
+if fnkey("evaluate_values", _LIB):
+    _a4_tk = [i + 1 for i, _l in enumerate(_text_of(_LIB).split("\n")) if "token.clone()" in _l]
+    _ev_lines = fn_lines("evaluate_values", _LIB)
+    if len(_a4_tk) != 3 or not all(_ev_lines[1] <= _l < _ev_lines[2] for _l in _a4_tk):
+        raise SystemExit(f"RT-A4-TK: evaluate_values' token copies changed; re-review: {_a4_tk}")
+    LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [(Resolved(f"lib.rs:{_l}"), {"class": 128, "why": O10 + "RT-A4-TK: a copied operand token (IN128)"})
+                                           for _l in sorted(set(_a4_tk))]
+    # The reader's Expression::value and unsigned_value (combination_graph.rs) copy their tokens the same way.
+    _a4_gtk = [i + 1 for i, _l in enumerate(_text_of(_A4_GRAPH).split("\n")) if "token.clone()" in _l]
+    _gv, _gu = fn_lines("value", _A4_GRAPH), fn_lines("unsigned_value", _A4_GRAPH)
+    if not _a4_gtk or not all(_gv[1] <= _l < _gv[2] or _gu[1] <= _l < _gu[2] for _l in _a4_gtk):
+        raise SystemExit(f"RT-A4-TK: combination_graph's token copies changed; re-review: {_a4_gtk}")
+    LEX_SITE_SIZE = list(LEX_SITE_SIZE) + [(Resolved(f"combination_graph.rs:{_l}"), {"class": 128, "why": O10 + "RT-A4-TK: a copied operand token (IN128)"})
+                                           for _l in sorted(set(_a4_gtk))]
