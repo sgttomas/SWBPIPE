@@ -20,6 +20,7 @@ import { numericalResultStanding, recordedResultStanding } from "../features/res
 import { readerDispatch, readerValidate, recordedReaderDispatch, recordedReaderValidate } from "../features/results/resultReader";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "../features/results/retainedPrecisionReader";
 import { recordedRunSide } from "../features/comparison/runComparisonSides";
+import { COMPARISON_RUN_RECORD_MISMATCH } from "../features/comparison/runComparison";
 import { RECORDED_PRE_RT_A4_TABLES, recordedPreRtA4Binding, recordedPreRtA4Table } from "./recordedPreRtA4";
 
 const root = resolve(__dirname, "../../../../");
@@ -183,20 +184,65 @@ describe("main's recorded preview-physics-2 run (historical read, compare and re
     expect(context.designation).toBe("recorded_run");
     expect(recordedRunBindingFindings(context)).toEqual([]);
     expect(context.findings).not.toContain("SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS");
-    // The findings are those of the statement as it read when recorded.
+    // Display rule: the historical reader's findings (the statement's standing as it read when
+    // recorded) are kept apart, scoped to the table they were read under; the ordinary findings
+    // are the reopen's checks, and there are none.
     const model = JSON.parse(transient.input_manifest_canonical).model_basis.model_payload as PreviewModel;
     const binding = witness.recorded_record.analysis_run.reproducibility.semantic_contract!;
-    expect(context.findings).toEqual(recordedResultStanding(context.mechanicsResult!, binding, model).findings);
+    expect(context.recordedTableRead).toEqual({ id: binding.id, sha256: VARIANTS[0].sha256 });
+    expect(context.historicalReaderFindings).toEqual(recordedResultStanding(context.mechanicsResult!, binding, model).findings);
+    expect(context.findings).toEqual([]);
+    expect(context.checkFindings).toEqual([]);
   });
 
-  it("is offered for comparison, with the standing it read with when recorded", async () => {
+  it("is offered for comparison, with the standing it read with when recorded, labelled with its table", async () => {
     const side = await recordedRunSide(read());
     expect(side.kind).toBe("recorded");
     expect(side.standing.findings).not.toContain("SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS");
+    const model = JSON.parse(transient.input_manifest_canonical).model_basis.model_payload as PreviewModel;
+    const binding = { id: witness.recorded_record.analysis_run.reproducibility.semantic_contract!.id, sha256: VARIANTS[0].sha256 };
+    expect(side.recordedTableRead).toEqual(binding);
+    expect(side.standing).toEqual(recordedResultStanding(JSON.parse(resultText), binding, model));
     // A tampered record is still refused for comparison.
     const tampered = read();
     tampered.record.analysis_run.run_name += " ";
     await expect(recordedRunSide(tampered)).rejects.toThrow();
+  });
+
+  // A failed reopen validation is never masked by the favourable read of the variant: the stored
+  // record below reads under its variant as main's does (same statement, same table), but its
+  // record is not main's (resealed, so the store and checksum agree) and the record validator
+  // refuses it, with a code outside the HISTORICAL_/RECORDED_RUN_/ANALYSIS prefixes.
+  async function resealedRead(edit: (record: Json) => void | Promise<void>): Promise<AnalysisRunRead> {
+    const tampered = read();
+    await edit(tampered.record);
+    await reseal(tampered.record);
+    tampered.run.run_record_hash = tampered.record.analysis_run.hashes.find(hash => hash.payload_scope === "analysis_run_record")!.value as string;
+    return tampered;
+  }
+  it.each([
+    { name: "a record validator refusal", refusal: "SOURCE_RECOVERY_METADATA_CONTRADICTION", favourable: true,
+      edit: (record: Json) => { record.analysis_run.source_block_recovery = { forged: true }; } },
+    { name: "a refused recorded binding (a variant of another identity)", refusal: "SOURCE_RECORDED_BINDING_IDENTITY", favourable: false,
+      edit: async (record: Json) => {
+        const other = RECORDED_PRE_RT_A4_TABLES.find(entry => entry.id !== record.analysis_run.reproducibility.semantic_contract.id)!;
+        Object.assign(record, await rebind(record, { id: other.id, sha256: other.sha256 }));
+      } },
+  ])("a stored record whose reopen validation fails ($name) shows the failure and is not compared", async ({ refusal, favourable, edit }) => {
+    const tampered = await resealedRead(edit);
+    expect(await verifyAnalysisRunRecord(tampered.record)).toBe("match");
+    const context = await buildRecordedRunContext(tampered);
+    expect(context.findings).toContain(refusal);
+    expect(recordedRunBindingFindings(context)).toContain(refusal);
+    expect(context.historicalReaderFindings).not.toContain(refusal);
+    if (favourable) {
+      // The variant read itself is the untampered run's: favourable, as recorded.
+      const untampered = await buildRecordedRunContext(read());
+      expect(context.recordedTableRead).toEqual(untampered.recordedTableRead);
+      expect(context.historicalReaderFindings).toEqual(untampered.historicalReaderFindings);
+      expect((await recordedRunSide(read())).standing.eligible).toBe(true);
+    }
+    await expect(recordedRunSide(tampered)).rejects.toThrow(COMPARISON_RUN_RECORD_MISMATCH);
   });
 
   it("is re-saved as main saved it: the recorded revision of main's transient record is main's witness", async () => {
@@ -225,6 +271,9 @@ describe("main's recorded preview-physics-2 run (historical read, compare and re
     expect(context.designation).toBe("historical_saved_run");
     expect(context.findings.filter(finding => /^ANALYSIS[_-]|^SOURCE_/.test(finding))).toEqual([]);
     expect(context.findings).toContain("HISTORICAL_INPUT_MANIFEST_MISSING");
+    expect(context.recordedTableRead).toEqual({ id: mechanics_result.producer!.semantic_contract_id, sha256: VARIANTS[0].sha256 });
+    expect(context.historicalReaderFindings).toEqual(recordedResultStanding(mechanics_result, context.recordedTableRead!, model).findings);
+    expect(context.findings.filter(finding => context.historicalReaderFindings.includes(finding))).toEqual([]);
     expect(JSON.stringify(opened)).toBe(before);
   });
 });

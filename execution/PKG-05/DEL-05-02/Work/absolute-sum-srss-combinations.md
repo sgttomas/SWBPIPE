@@ -889,13 +889,30 @@ entry: its main digest (a2db16a5…) and #101's (be29fabc…) are already
 registry member whose identity is the statement's `producer.semantic_contract_id`, and only on
 the recorded-run read, compare and re-save paths. There the readers run inside
 `recorded_tables::read_recorded`, which selects the variant for that read alone (a scoped
-thread-local, restored on return): the PF evidence reader, its transport check, the header's
+thread-local; see "Scope of the selection" below): the PF evidence reader, its transport check, the header's
 table, `binding_of`, and the retained reader's G0 table, inherited-digest check and G7 base read
 all take the variant's tables. The current binding on a recorded entry reads as the current
 entry does. Any other binding is refused by name: `SOURCE_RECORDED_BINDING_UNKNOWN`, or
 `SOURCE_RECORDED_BINDING_IDENTITY` for a variant of another identity (a successor under its
 base's variant, an exact successor under a preview successor's, and so on); a refused binding
 reads nothing.
+
+**Scope of the selection.** The selection is the calling thread's and lasts only for the
+synchronous call of `read_recorded`'s closure. It is restored to what the thread held before
+however that call ends: a returned value, an `Err` the closure returns, a refused binding
+(nothing is selected), or an unwinding panic (the guard's drop). A current binding nested in a
+recorded read clears it for its own read (review r5); a recorded read nested in another restores
+the outer one. No caller holds it across an async yield: every caller runs the read to
+completion on its own thread (the wasm engine's exports, which are synchronous; the runner's
+`read` command; the desktop's native code makes no recorded read). Under `panic = abort` a panic
+does not unwind and the guard does not run. Natively that ends the process (and the selection
+with it; the native profiles unwind). The wasm32 target aborts by default and a trap leaves the
+instance usable with the selection still set, so every outermost entry runs inside
+`recorded_tables::entry_scope`, which clears whatever selection it finds and leaves none: every
+wasm export of `operation_applier` (a scan test, `wasm_exports_run_as_outermost_entries`, keeps
+later exports in it) and the runner's `read` command. A selection leaked that way therefore never
+reaches a current read (`recorded_tables::tests::a_leaked_selection_does_not_reach_a_current_read_through_an_outermost_entry`,
+which fails without the guard).
 
 **Entries.** Rust `reader_verdict::{dispatch, validate, transport, row_semantics,
 row_semantics_each, retained, retained_transport}_recorded`; the runner's `read` admits a
@@ -923,12 +940,45 @@ current limitations under a variant's binding, mixed record and row bindings
 bytes differ from its digest (`SOURCE_RECORDED_TABLE_HASH`), and tampered record or statement
 bytes (their checksums, as before).
 
-**Standing.** A recorded or reopened run stays historical. The standing findings a recorded
-run displays, and a recorded comparison side's standing, are those its statement read with
-when recorded (Rust's recorded dispatch; a successor's is its registration's, and a saved
-successor never registers). They are display evidence of a historical run: nothing makes a
-reopened run Current, sets the solve stage, drives an overlay or rule check, or readies a
-report. The current standing of the same statement stays `unsupported`.
+**Standing and display rule.** A recorded or reopened run stays historical. The standing a
+recorded run displays, and a recorded comparison side's standing, are those its statement read
+with when recorded (Rust's recorded dispatch; a successor's is its registration's, and a saved
+successor never registers); they are not replaced by the current standing. They are display
+evidence of a historical run with no Current or Solve authority: nothing makes a reopened run
+Current, sets the solve stage, drives an overlay or rule check, or readies a report. The current
+standing of the same statement stays `unsupported`. Three rules govern the display
+(`HistoricalRunContext.tsx`, `runComparisonSides.ts`):
+
+- The findings the historical reader computes under the variant (the recorded standing's
+  findings) are kept apart from the reopen's findings, with their scope: the context's
+  `historicalReaderFindings` and `recordedTableRead` (`{id, sha256}` of the variant), and the
+  comparison side's `recordedTableRead`. They render under "As recorded under <id> (sha256
+  <digest>); historical evidence only, not a current standing" (the reopened-run panel, the
+  History panel's run check, the comparison's side text), never merged into the ordinary list.
+- Every check's finding stays an ordinary finding: corruption and hash mismatches, the record
+  validator's refusal with `recordedRead` whatever its code, a retained receipt mismatch or
+  successor refusal, a refused recorded read (`SOURCE_RECORDED_BINDING_*`,
+  `SOURCE_RECORDED_TABLE_HASH`, a malformed statement) and malformed evidence. The context keeps
+  them as `checkFindings` (every ordinary finding but a current standing's).
+- A favourable stored or as-recorded status never masks a failed reopen validation: a recorded
+  run with any check finding is not compared (`recordedRunBindingFindings` is `checkFindings`;
+  before this rule it kept only `HISTORICAL_`/`RECORDED_RUN_`/`ANALYSIS` codes, so a record the
+  validator refused with, e.g., `SOURCE_RECOVERY_METADATA_CONTRADICTION` was offered as an
+  eligible side on its as-recorded standing; `recordedPreRtA4.test.ts` "a stored record whose
+  reopen validation fails" fails without the rule).
+
+Python has no display surface for these runs: `validate_analysis_run_v0_3(...,
+recorded_read=True)` raises its refusal, and no product path turns it into standing.
+
+**Schema contract.** `schemas/analysis_run.v0.3.schema.json` stays the current production and
+admission schema; its semantic-contract digests are the current tables' only, and no accepted
+family set is widened. Its `description` states that runs recorded under earlier tables are read
+through this separate recorded historical-read contract (this registry, and pressure-2's
+`RECORDED_RUN_TABLE_BASES`), that the schema makes no claim that such historical records validate
+against it, and that a generic schema tool failing a stored record under it is not by itself proof
+that the stored bytes are corrupt: the record's checksum and the product's recorded-run read
+decide that. The description is an annotation only; the schema's digest moved with it
+(3d2776bb… → d30507f1…, `tools/release/schema_manifest.json` regenerated).
 
 **Bytes and re-save.** Nothing is migrated or resealed. Reading changes no byte. The record
 path and the store read hashes and bytes, never a table, so a re-saved run keeps its recorded
@@ -944,7 +994,8 @@ record's). `tests/verifiers` mirrors the current reader and is unchanged; the hi
 substitutes the variant's limitations into it as an independent check. Desktop
 `resultReader.ts`, `retainedPrecisionReader.ts`, `resultStanding.ts`,
 `analysisRunCompatibility.ts`, `HistoricalRunContext.tsx`, `runComparisonSides.ts`,
-`loadWasmEngine.ts` and the wasm export (`operation_applier`): changed. Native src-tauri
+`loadWasmEngine.ts`, `HistoryPanel.tsx`, `RunComparisonView.tsx` and the wasm export
+(`operation_applier`, every export inside `entry_scope`): changed. Native src-tauri
 (`analysis_runs.rs`, the store): not applicable; it reads hashes and bytes only, and a test
 pins that it stores and reads main's run as main wrote it. The performance lane's C1 native
 custody (DEL-04-05 `result-volume-design.md` §C1, branch `claude/rt-perf-c1-custody`) ports the
@@ -958,14 +1009,22 @@ record binding `recorded_tables::variant_of` reads through `rv::validate_recorde
 comparison side takes `rv::dispatch_recorded(...)["standing"]` (a successor keeps its
 registration standing); `result_detail.rs` may use `rv::row_semantics_each_recorded` (rows are
 identical, so its output is the same). Its parity corpus gains `fixtures/persistence/
-recorded_pre_rt_a4_pf`.
+recorded_pre_rt_a4_pf`. C1 must also mirror the display rule above (the historical reader's
+findings kept apart with their table, every check's finding ordinary, and any check finding
+refusing the comparison side) and run its reads synchronously on one thread. This is an explicit
+dependency of C1 (#59): #98's closure does not imply that #59 already mirrors the historical read
+or the display rule, and #59 is not complete for runs recorded before RT-A4 until it does.
 
-**Tests.** Rust `result_export/tests/recorded_pre_rt_a4.rs` and `recorded_tables` unit tests;
+**Tests.** Rust `result_export/tests/recorded_pre_rt_a4.rs` and `recorded_tables` unit tests
+(restoration on an error, a refusal and an unwind; nested current and nested historical reads;
+the leaked selection);
 runner `reader_binding` (`a_recorded_binding_runs_the_recorded_entry`, and the unusable
 inputs); wasm export `operation_applier/tests/reader_verdict_binding.rs`
-(`the_recorded_entry_returns_the_recorded_verdicts`); native `analysis_runs_tests.rs`
+(`the_recorded_entry_returns_the_recorded_verdicts`, `wasm_exports_run_as_outermost_entries`); native `analysis_runs_tests.rs`
 (`a_run_recorded_before_rt_a4_is_stored_and_read_back_as_main_wrote_it`); Python
-`tests/test_recorded_pre_rt_a4_pf.py`; desktop `src/services/recordedPreRtA4.test.ts`. Fixtures:
+`tests/test_recorded_pre_rt_a4_pf.py`; desktop `src/services/recordedPreRtA4.test.ts` (the
+display scope and the masking regression), `HistoricalRunContext.test.tsx` and
+`HistoryPanel.runs.test.tsx` (the rendered label and lists). Fixtures:
 `fixtures/persistence/recorded_pre_rt_a4_pf/` (README there: main's preview-physics-2 records
 verbatim; main has no recorded Timoshenko or successor run, so those records were built by
 main's own record builder from main's verbatim statements). Repin never edits either

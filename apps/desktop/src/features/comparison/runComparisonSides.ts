@@ -15,7 +15,7 @@ import type { RunSideCsvProvenance } from "./runComparisonCsv";
 import { recordableRun, runDescription, type AnalysisRunRead, type AnalysisRunSummary, type CurrentRunSlot } from "../../services/analysisRunService";
 import { buildRecordedRunContext, recordedRunBindingFindings } from "../results/HistoricalRunContext";
 import { numericalResultStanding, recordedResultStanding, type NumericalStanding } from "../results/resultStanding";
-import { recordedPreRtA4RecordBinding } from "../../services/recordedPreRtA4";
+import { recordedPreRtA4RecordBinding, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import {
@@ -44,6 +44,10 @@ export type RunComparisonSide = {
   /** The saved state a recorded run is tied to (`"<name>" (<state id>)`), or null. */
   state: string | null;
   standing: NumericalStanding;
+  /** RT-A4 §10.4 display rule: for a run recorded before RT-A4, the registry variant `standing`
+   * was read under (its standing as recorded, displayed as such and never as a current one);
+   * null for a side read under the current tables. */
+  recordedTableRead: RecordedBinding | null;
   input: RunComparisonInput;
   /** RT-R6: what the side states for a CSV preamble (absent sides state `not_recorded`). */
   csv?: RunSideCsvProvenance;
@@ -93,7 +97,9 @@ function sideInput(result: MechanicsResult, manifest: CurrentSessionInputManifes
  * result, snapshot, manifest and record, as the webview decoded them, are hashed again
  * in the store's canonical forms (`buildRecordedRunContext`): a hash that differs is
  * refused as `COMPARISON-RUN-NOT-EXACT`, any other disagreement with its stored state
- * and record as `COMPARISON-RUN-RECORD-MISMATCH`. */
+ * and record as `COMPARISON-RUN-RECORD-MISMATCH`. Every check's finding counts, the record
+ * validator's refusal whatever its code included: a standing that reads favourably, current or
+ * as recorded under a pre-RT-A4 table, never admits a run whose reopen validation failed. */
 export async function recordedRunSide(read: AnalysisRunRead): Promise<RunComparisonSide> {
   const context = await buildRecordedRunContext(read);
   const findings = recordedRunBindingFindings(context);
@@ -116,6 +122,7 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     createdAt: read.run.created_at,
     state: `"${read.state.state_name}" (${read.state.state_id})`,
     standing,
+    recordedTableRead: context.recordedTableRead,
     input: sideInput(result, manifest, read.record, standing),
     csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) }
   };
@@ -156,6 +163,7 @@ export function currentRunSide(slot: CurrentRunSlot): RunComparisonSide {
     createdAt: null,
     state: null,
     standing,
+    recordedTableRead: null,
     input: sideInput(result, inputManifest.manifest, analysisRun, standing),
     csv: { modelHash: null, model: inputManifest.manifest.model_basis.model_payload, resultHash: csvResultHash(result, analysisRun), analysisRoute: csvAnalysisRoute(result) }
   };

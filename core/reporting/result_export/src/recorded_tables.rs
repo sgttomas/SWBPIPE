@@ -19,6 +19,20 @@
 //! no current admission path (producer output checks, record building, current
 //! dispatch, standing or export) ever selects a variant, and a statement carrying a
 //! variant's limitations is refused there as before. Selection grants no standing.
+//!
+//! The selection is this thread's, held only for the synchronous call of a recorded read
+//! and restored when that call ends, however it ends: a returned value or error, a refusal
+//! (nothing is selected), or an unwinding panic (the `Restore` guard's drop). A current
+//! binding nested in a recorded read clears it for its read; a recorded read nested in
+//! another restores the outer one. No caller holds it across an async yield: every caller
+//! runs the read to completion on its own thread (the wasm engine's exports, the runner's
+//! `read` command; the desktop's native custody makes no recorded read).
+//!
+//! Under `panic = abort` a panic does not unwind, so the guard does not run. Natively that
+//! ends the process, and the selection with it. The wasm32 target aborts by default, and a
+//! trap leaves the instance usable with this (single-threaded) selection still set, so every
+//! outermost entry runs inside [`entry_scope`], which clears whatever it finds: the wasm
+//! engine's every export (`operation_applier`'s `wasm_api`) and the runner's `read` command.
 use serde_json::Value;
 use std::cell::Cell;
 use std::sync::OnceLock;
@@ -169,6 +183,18 @@ impl Drop for Restore {
     }
 }
 
+/// Run `read` as an outermost entry (a wasm export, the runner's `read` command): with no
+/// variant selected, and none selected after, whatever this thread held on entry. Nothing is
+/// legitimately selected at an outermost entry; a selection found there was left by a recorded
+/// read that trapped under `panic = abort` (the wasm32 target's strategy), whose `Restore`
+/// guard never ran, and it must not reach a current read. Only outermost entries call this: a
+/// call nested in a recorded read would clear that read's selection.
+pub fn entry_scope<R>(read: impl FnOnce() -> R) -> R {
+    let _clear = Restore(None);
+    SELECTED.with(|s| s.set(None));
+    read()
+}
+
 /// Run `read` as the recorded-run read of `source` under its recorded `binding`.
 ///
 /// A binding equal to the statement's current table binding (`current`, the reader's
@@ -178,6 +204,10 @@ impl Drop for Restore {
 /// Any other binding is refused by name (`SOURCE_RECORDED_BINDING_UNKNOWN`, or
 /// `SOURCE_RECORDED_BINDING_IDENTITY` for a variant of another identity), and `read`
 /// does not run.
+///
+/// `read` runs synchronously inside this call, and the thread's prior selection is restored
+/// when it ends: on return (an `Err` it returns included) and on unwind. Callers never hold
+/// the selection across an async yield (module documentation).
 pub fn read_recorded<R>(binding: &Value, source: &Value, current: Option<(&str, &str)>, read: impl FnOnce() -> R) -> Result<R, String> {
     let identity = source["producer"]["semantic_contract_id"].as_str();
     let is_current = current.is_some_and(|(id, sha)| {
@@ -238,6 +268,93 @@ mod tests {
         })
         .unwrap();
         assert_eq!((outer, inner, after), (Some(VARIANTS[0].sha256), None, Some(VARIANTS[0].sha256)));
+        assert!(selected().is_none());
+    }
+
+    fn sha(selection: Option<&'static RecordedVariant>) -> Option<&'static str> {
+        selection.map(|v| v.sha256)
+    }
+
+    #[test]
+    fn a_read_that_returns_an_error_or_is_refused_restores_the_prior_selection() {
+        let source = json!({"producer": {"semantic_contract_id": PREVIEW}});
+        let good = json!({"id": PREVIEW, "sha256": VARIANTS[0].sha256});
+        let inside = read_recorded(&good, &source, None, || -> Result<(), String> {
+            assert_eq!(sha(selected()), Some(VARIANTS[0].sha256));
+            Err("READ_FAILED".into())
+        });
+        assert_eq!(inside, Ok(Err("READ_FAILED".to_string())));
+        assert!(selected().is_none());
+        // Inside an outer read: an inner error and an inner refusal leave the outer selection.
+        let timoshenko = json!({"producer": {"semantic_contract_id": TIMOSHENKO}});
+        let outer = json!({"id": TIMOSHENKO, "sha256": VARIANTS[1].sha256});
+        read_recorded(&outer, &timoshenko, None, || {
+            let _ = read_recorded(&good, &source, None, || -> Result<(), ()> { Err(()) });
+            assert_eq!(sha(selected()), Some(VARIANTS[1].sha256));
+            let refused = read_recorded(&json!({"id": PREVIEW, "sha256": "0".repeat(64)}), &source, None, || ());
+            assert_eq!(refused.unwrap_err(), SOURCE_RECORDED_BINDING_UNKNOWN);
+            assert_eq!(sha(selected()), Some(VARIANTS[1].sha256));
+        })
+        .unwrap();
+        assert!(selected().is_none());
+    }
+
+    #[test]
+    fn a_read_that_panics_restores_the_prior_selection_on_unwind() {
+        let source = json!({"producer": {"semantic_contract_id": PREVIEW}});
+        let good = json!({"id": PREVIEW, "sha256": VARIANTS[0].sha256});
+        let unwound = std::panic::catch_unwind(|| read_recorded(&good, &source, None, || panic!("a reader panicked")));
+        assert!(unwound.is_err());
+        assert!(selected().is_none());
+        let timoshenko = json!({"producer": {"semantic_contract_id": TIMOSHENKO}});
+        let outer = json!({"id": TIMOSHENKO, "sha256": VARIANTS[1].sha256});
+        read_recorded(&outer, &timoshenko, None, || {
+            let unwound = std::panic::catch_unwind(|| read_recorded(&good, &source, None, || panic!("a nested reader panicked")));
+            assert!(unwound.is_err());
+            assert_eq!(sha(selected()), Some(VARIANTS[1].sha256));
+        })
+        .unwrap();
+        assert!(selected().is_none());
+    }
+
+    #[test]
+    fn a_recorded_read_nested_in_another_restores_the_outer_selection() {
+        let preview = json!({"producer": {"semantic_contract_id": PREVIEW}});
+        let timoshenko = json!({"producer": {"semantic_contract_id": TIMOSHENKO}});
+        let (outer, inner) = (json!({"id": PREVIEW, "sha256": VARIANTS[0].sha256}), json!({"id": TIMOSHENKO, "sha256": VARIANTS[1].sha256}));
+        let seen = read_recorded(&outer, &preview, None, || {
+            let before = sha(selected());
+            let during = read_recorded(&inner, &timoshenko, None, || sha(selected())).unwrap();
+            (before, during, sha(selected()))
+        })
+        .unwrap();
+        assert_eq!(seen, (Some(VARIANTS[0].sha256), Some(VARIANTS[1].sha256), Some(VARIANTS[0].sha256)));
+        assert!(selected().is_none());
+    }
+
+    /// A selection left set without its guard (as a recorded read that traps under
+    /// `panic = abort` leaves it) does not reach a current read made through an outermost
+    /// entry, and is cleared by it. Without `entry_scope` the leaked variant would be read.
+    #[test]
+    fn a_leaked_selection_does_not_reach_a_current_read_through_an_outermost_entry() {
+        let current: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json")).unwrap();
+        let read = || crate::reader_verdict::validate("preview-physics", &current, None, None);
+        assert_eq!(read()["ok"], true);
+        SELECTED.with(|s| s.set(Some(&VARIANTS[0])));
+        // The gap the guard closes: the leaked variant reaches an unguarded current read.
+        let leaked = read();
+        assert_eq!(leaked["ok"], false, "{leaked}");
+        assert_eq!(leaked["error"]["code"], "SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS");
+        let guarded = entry_scope(|| (sha(selected()), read()));
+        assert_eq!(guarded.0, None);
+        assert_eq!(guarded.1["ok"], true, "{}", guarded.1);
+        assert!(selected().is_none(), "an outermost entry leaves no selection behind");
+        assert_eq!(read()["ok"], true);
+        // A recorded read made through an outermost entry still selects its own variant.
+        let source = json!({"producer": {"semantic_contract_id": PREVIEW}});
+        let good = json!({"id": PREVIEW, "sha256": VARIANTS[0].sha256});
+        SELECTED.with(|s| s.set(Some(&VARIANTS[1])));
+        assert_eq!(entry_scope(|| read_recorded(&good, &source, None, || sha(selected()))), Ok(Some(VARIANTS[0].sha256)));
         assert!(selected().is_none());
     }
 

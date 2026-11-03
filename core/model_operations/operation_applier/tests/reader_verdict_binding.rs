@@ -254,3 +254,23 @@ fn the_recorded_entry_returns_the_recorded_verdicts() {
     assert!(reader_recorded_json("pressure", &text, PF2, None, None).unwrap_err().starts_with("WASM-ENGINE-INPUT-JSON-INVALID"));
     assert!(reader_recorded_json("dispatch", "{", PF2, None, None).unwrap_err().starts_with("WASM-ENGINE-INPUT-JSON-INVALID"));
 }
+
+/// RT-A4 §10.4: the wasm32 target aborts on panic, so a recorded read that traps leaves its
+/// table selection set in the instance (its guard never runs). Every wasm export therefore runs
+/// as an outermost entry (`recorded_tables::entry_scope`, whose leaked-selection behaviour
+/// `recorded_tables::tests` checks), which clears it first. This checks that no export, a later
+/// one included, skips it: each `#[wasm_bindgen]` function's body is one `entry_scope(|| …)` call.
+#[test]
+fn wasm_exports_run_as_outermost_entries() {
+    let text = include_str!("../src/lib.rs");
+    let module = &text[text.find("mod wasm_api {").expect("the wasm_api module")..];
+    let module = &module[..module.find("\n}\n").expect("the wasm_api module's end")];
+    assert!(module.contains("recorded_tables::entry_scope;"));
+    let exports: Vec<&str> = module.split("#[wasm_bindgen]").skip(1).collect();
+    assert!(exports.len() >= 23, "{} exports", exports.len());
+    for export in exports {
+        let name = export.trim_start().lines().next().unwrap_or_default();
+        let body = &export[export.find(" {\n").unwrap_or_else(|| panic!("{name}: a body")) + 3..];
+        assert!(body.trim_start().starts_with("entry_scope(|| {"), "{name} does not run inside entry_scope");
+    }
+}
