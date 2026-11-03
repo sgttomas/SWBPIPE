@@ -87,6 +87,8 @@ RF_PINS = {
 # impls, B7a LEAF_SEAM). FormationSource.loads stays the Cow (L1a); load_closure, evaluate and the scaled-force
 # children are untouched (L1b, L1c); no Value move, constructor or guard changes (L2, L3, L5). No reduction's owner
 # or lifetime changes.
+# RT-A4 D3 (§8.46): lib.rs's and preview_physics.rs's combination rewrite keeps the L5 callee's inputs (rows_by_base_id,
+# case_rows); the L5 guard, shadow, insert and call texts are unchanged; no reduction's owner or lifetime changes.
 REDUCED_PINS = {
     # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; no reduction's owner or lifetime changes.
     "core/product_physics/src/lib.rs": "d8bffa0d5ffb138581de849580471d8abc2c8c5e764b070bc9ac3a2bdc35af91",

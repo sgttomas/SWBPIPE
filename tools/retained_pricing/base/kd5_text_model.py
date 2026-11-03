@@ -222,6 +222,8 @@ def inspect_directed_helpers(snapshot):
 # Model document 0.9.0 D3 (§8.36): lib.rs's new members, term wire, lowering/withholding calls and snubber token add or
 # remove no `.min(`/`.max(` call.
 # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; it adds or removes no `.min(`/`.max(` call.
+# RT-A4 D3 (§8.46): lib.rs's combination rewrite adds or removes no `.min(`/`.max(` call; the observation lane stays
+# deleted.
 B7A_PRIMITIVE_LIB_SOURCE_PIN = 'd8bffa0d5ffb138581de849580471d8abc2c8c5e764b070bc9ac3a2bdc35af91'
 
 

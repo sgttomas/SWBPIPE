@@ -71,6 +71,9 @@ SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c',
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
+    # RT-A4 D3 (§8.46): RE lib.rs declares combination_graph, preview_combination_gates and recorded_tables; retained_precision.rs
+    # selects a recorded table in G0 only inside a recorded read (RT-A4-HS) and moves its table-hash constants. No
+    # member-load owner changes.
     "core/reporting/result_export/src/lib.rs": "394e2bb68d63fecfa647e7af195cb070e9c2be18556e1eef99838f6f52f33472",
     "core/reporting/result_export/src/retained_precision.rs": "e8a408da35b428ed292bf7b9c2d77eb1575d2932c1a3cf4c176ed72ab56d997d",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',

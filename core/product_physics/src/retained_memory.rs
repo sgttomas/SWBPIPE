@@ -1277,7 +1277,7 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
-    // §8.46 D3 at 401c9914d (RT-A4: absolute sums, SRSS and nested combinations, with the §10.2
+    // §8.46 D3 at fbd0931d5 (RT-A4: absolute sums, SRSS and nested combinations, with the §10.2
     // policy texts and the §10.4 historical read): the source-derived block. Against §8.44's
     // registered tree 22 coefficients rise and none fall: STATICS[1] +22,322 B,
     // STATICS[Node(String,Value)] +39 and STATICS[s(Value)] +294 (the restated tables);
@@ -1525,7 +1525,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// re-run as RT-A4 at 401c9914d (§8.46): the maximum over routes L (C_eq <= 3, worst shape c = 3, z
+/// re-run as RT-A4 at fbd0931d5 (§8.46): the maximum over routes L (C_eq <= 3, worst shape c = 3, z
 /// = 0) and E (c = 3), under SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
