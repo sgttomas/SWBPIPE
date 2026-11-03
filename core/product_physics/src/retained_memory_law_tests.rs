@@ -1991,9 +1991,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.41: proposal A, +286 B per phase. §8.42: the regenerated source-derived block
 // (Index::any's map; the kept TAV allowance is dropped): W4 +1,171,369 B and every
 // other phase -3,989,660 B in both modes, from the in-build record, without R.
+// §8.43: RT-A3 increment 3's regenerated block (two pressure-2 limitations and gate 4 in
+// STATICS, the identity's constant-effort clause and the D-2 sentence in TAV): +5,610 B in
+// every phase and mode, from maintained eval at the in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_975_304, 6_940_969_865, 8_895_153_101, 8_688_474_557, 7_761_341_467, 8_607_720_260, 7_339_113_946, 7_012_403_822],
-    [6_658_106_648, 7_000_101_209, 8_954_284_445, 8_747_605_901, 7_820_472_811, 8_666_851_604, 7_398_245_290, 7_071_535_166],
+    [6_598_980_914, 6_940_975_475, 8_895_158_711, 8_688_480_167, 7_761_347_077, 8_607_725_870, 7_339_119_556, 7_012_409_432],
+    [6_658_112_258, 7_000_106_819, 8_954_290_055, 8_747_611_511, 7_820_478_421, 8_666_857_214, 7_398_250_900, 7_071_540_776],
 ];
 
 #[test]
