@@ -519,12 +519,12 @@ fn wrench(weight: f64, cog: [f64; 3], axis: usize, acceleration: f64) -> (f64, [
 /// normalized weight (N) and centre of gravity (m), and the wrench primitives
 /// (part, axis, signed value): the force along the gravity axis, then each
 /// nonzero moment component in x, y, z order.
-struct ComponentWeight<'a> {
-    component: &'a PreviewComponent,
-    pipe: String,
-    weight: f64,
-    cog: [f64; 3],
-    primitives: Vec<(&'static str, &'static str, f64)>,
+pub(crate) struct ComponentWeight<'a> {
+    pub(crate) component: &'a PreviewComponent,
+    pub(crate) pipe: String,
+    pub(crate) weight: f64,
+    pub(crate) cog: [f64; 3],
+    pub(crate) primitives: Vec<(&'static str, &'static str, f64)>,
 }
 
 /// The normalized dependencies of a component-weight primitive: what makes it
@@ -545,7 +545,7 @@ fn component_dependencies(component: &PreviewComponent, pipe: &str, weight: f64,
 /// force and its centre of gravity a finite length vector. A component that
 /// fails a condition gets one warning naming the first unmet one, and the
 /// member keeps its pipe weight. No stiffness scale is required.
-fn component_weights<'a>(
+pub(crate) fn component_weights<'a>(
     model: &'a PreviewModel,
     selected: &HashSet<&String>,
     axis: &str,
@@ -728,7 +728,7 @@ fn component_primitive(
 /// binary64 order (`ExactSectionBases::reduced_wall`), the corrosion allowance
 /// c_a an explicit operand. Otherwise (`STABLE_MASS_METHOD`, the preview
 /// route, unchanged) both use the single wall t - c_m.
-fn stable_mass_per_length(pipe: &super::PreviewPipe, exact: bool, d: &mut Vec<Diagnostic>) -> Option<f64> {
+pub(crate) fn stable_mass_per_length(pipe: &super::PreviewPipe, exact: bool, d: &mut Vec<Diagnostic>) -> Option<f64> {
     use crate::annulus_geometry::{
         source_bore_area_m2, source_insulation_area_m2, source_wall_area_m2, SourceAreaError,
     };
@@ -1507,6 +1507,48 @@ pub fn validate_applied_self_weight(model: &PreviewModel, diagnostics: &mut Vec<
     for status in inspect_applied_self_weight(model, None) {
         diagnostics.extend(status.diagnostics);
     }
+}
+
+/// DEL-04-09 (F1 modal, Design §2.5): the generator's loads for the members
+/// `pipe_refs` of the intact `model` at `gravity`, for the modal weight-basis
+/// identity. It calls `generate_operations(model, request, true)` unchanged
+/// under a scratch case id used by no case and no primitive load of `model`
+/// (`modal:weight-basis`, lengthened deterministically until unique, so no
+/// generated identity collides either), with a label and provenance naming the
+/// modal inspection and an empty `source_model_hash`. It reads `model` only and
+/// clears, adds or renames no case.
+///
+/// Contract: the scratch case id and the empty hash bypass no validation the
+/// solve requires. The modal entry calls this only after its preparation has
+/// passed, including `validate_model_inputs` and every validation the static
+/// solve requires before formation. The returned plan is consumed only for an
+/// in-memory comparison; it is never applied, serialized into a result, stored
+/// or given any publication or authority meaning, and neither the scratch id
+/// nor the empty hash appears in any modal output.
+pub(crate) fn inspect_generated_self_weight(
+    model: &PreviewModel,
+    pipe_refs: &[String],
+    gravity: &SelfWeightGravity,
+) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
+    let taken = |case: &str| {
+        let generated = format!("load:self-weight:{}:{}:", case.len(), case);
+        model.load_cases.iter().any(|c| {
+            c.id == case || c.primitive_loads.iter().any(|l| l.id == case || l.id.starts_with(&generated))
+        })
+    };
+    let mut case_id = String::from("modal:weight-basis");
+    while taken(&case_id) {
+        case_id.push('~');
+    }
+    let request = SelfWeightRequest {
+        case_id,
+        label: "modal weight-basis inspection (in memory, never applied)".into(),
+        pipe_refs: pipe_refs.to_vec(),
+        gravity: gravity.clone(),
+        provenance: "DEL-04-09 modal weight-basis identity: an in-memory inspection of the generated self-weight, never applied or published".into(),
+        source_model_hash: String::new(),
+    };
+    generate_operations(model, &request, true)
 }
 
 #[cfg(test)]
