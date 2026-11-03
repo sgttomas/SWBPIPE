@@ -9,8 +9,8 @@
 //!
 //! Nothing here is public or reachable from any entry: there is no product,
 //! native, headless, schema or publication entry. It never enters the
-//! retained Direct entry or D1. The identity's tolerance
-//! is not pinned (D-TOL); only tests supply one.
+//! retained Direct entry or D1. The identity's tolerance is not pinned
+//! (D-TOL); only tests supply one.
 //!
 //! Function names here are chosen so that none is also a call token elsewhere
 //! in the priced crate sources (`tools/retained_pricing/base/crate_dirs.txt`):

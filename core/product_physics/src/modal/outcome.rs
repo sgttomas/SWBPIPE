@@ -26,9 +26,10 @@
 //! **Not built here**: no public, native, headless, schema or publication
 //! entry (O-8), no sparse path (the request carries no `solver_mode`; its
 //! closed wire form refuses one as an undeclared member: this entry is the
-//! `dense_scrutiny` path, and its state solve records that mode). §2.6's member frequency f_e is computed and reported;
-//! the discretization factor c is not adopted (O-5), so no
-//! `MODAL_MASS_DISCRETIZATION_COARSE` decision is made.
+//! `dense_scrutiny` path, and its state solve records that mode). §2.6's
+//! member frequency f_e is computed and reported; the discretization factor
+//! c is not adopted (O-5), so no `MODAL_MASS_DISCRETIZATION_COARSE` decision
+//! is made.
 use super::context::BoundCase;
 use super::eigen::{
     complete_reported_set, modal_basis, modal_extraction_bound, modal_sturm_count, normalize_modal_shape, solve_modal_pencil,
@@ -44,10 +45,6 @@ use super::state::{solve_modal_state_case, ModalStateCase};
 use super::stiffness::{form_modal_pencil, DenseGuardRecord};
 use super::weight_basis::{check_weight_basis, IdentityReport};
 use crate::{Diagnostic, PreviewSolverMode};
-
-/// The solver mode of this entry, the modal dense path: its state solve runs
-/// and records it (Agent 0's D3); no sparse or other mode is substituted.
-pub(crate) const MODAL_DENSE_PATH_MODE: PreviewSolverMode = PreviewSolverMode::DenseScrutiny;
 use open_pipe_stress_modal_eigen::clusters::{cluster_ids, ExtractionBound, ReportedSet};
 use open_pipe_stress_modal_eigen::dense::ScreenedMode;
 use open_pipe_stress_modal_eigen::modal_quantities::{
@@ -55,6 +52,10 @@ use open_pipe_stress_modal_eigen::modal_quantities::{
 };
 use open_pipe_stress_modal_eigen::orthogonality::MOrthogonality;
 use open_pipe_stress_modal_eigen::reformation::{cluster_error_estimates, FormationDifference, ResidualEstimate};
+
+/// The solver mode of this entry, the modal dense path: its state solve runs
+/// and records it (Agent 0's D3); no sparse or other mode is substituted.
+pub(crate) const MODAL_DENSE_PATH_MODE: PreviewSolverMode = PreviewSolverMode::DenseScrutiny;
 
 /// The standing of a reported mode or of the whole set (§3.4).
 #[derive(Debug, Clone, PartialEq)]
@@ -224,7 +225,9 @@ pub(crate) fn run_modal_dense(req: &ModalPreviewRequest, params: &ModalIntegrity
     let nonlinear_state = solve_modal_state_case(&prepared, MODAL_DENSE_PATH_MODE)?;
     let mass = assemble_mass(&prepared, prepared.inputs.weight_to_mass_acceleration)?;
     let identity = check_weight_basis(&prepared, &mass, params.identity_tolerance)?;
-    let restrained = nonlinear_state.as_ref().map_or(&prepared.boundary.restrained_dofs[..], |state| &state.restrained_dofs[..]);
+    let restrained = nonlinear_state
+        .as_ref()
+        .map_or(&prepared.boundary.restrained_dofs[..], |state| &state.restrained_dofs[..]);
     let pencil = form_modal_pencil(&prepared, &mass, restrained, params.sturm_max_candidates)?;
     let solution = solve_modal_pencil(&pencil, params)?;
     let census = FiniteCensus::of_solution(&solution);

@@ -12,9 +12,8 @@
 //!   positions come from `reduce_assembled_sparse_system` on the formed
 //!   stiffness with the restrained DOFs the caller passes (the prepared ones,
 //!   or with nonlinear supports the state case's linearized set, `state`)
-//!   and a zero force, and K_ff
-//!   and M_ff are the free rows and columns read through that partition; no
-//!   reduction arithmetic is copied. Restrained DOFs, imposed-motion (W-16)
+//!   and a zero force, and K_ff and M_ff are the free rows and columns read
+//!   through that partition; no reduction arithmetic is copied. Restrained DOFs, imposed-motion (W-16)
 //!   DOFs included, stay restrained, and no motion value enters. Constant-
 //!   effort supports were already excluded from the boundary (`build`), so
 //!   they contribute neither stiffness nor mass; connectors and tie rods
