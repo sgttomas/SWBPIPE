@@ -489,13 +489,11 @@ and `minuend_final` stay withheld.
   - A dependant of an interim-withheld combination (`difference_basis`,
     `minuend_final`) is removed at the solve, as S1 removes the withheld one, with
     `LOAD_COMBINATION_OPERAND_WITHHELD`.
-- **Not changed (reserved).** PF's published limitation "Mechanics combinations are
-  withheld for nonlinear supports …" and the preview-physics-2 and pressure-2
-  tables' `combination_policy` texts are bound into every published document of
-  their contract (directly or by table digest), so amending them moves every
-  existing result's bytes. They are left as they are for Agent 0; the OQ-1
-  exception and the unsigned bases are stated here, in the user guide §6.2 and in
-  `docs/theory/load_combinations.md`.
+- **Policy texts.** PF's published limitation and the preview-physics-2 and pressure-2
+  tables' `combination_policy` still state the pre-RT-A4 policy; Agent 0 chose to make them
+  state what is built (option (a)). The exact texts, the order they land in with #98's D3
+  and the digests they move are §10.2; until then the OQ-1 exception and the unsigned bases
+  are stated here, in the user guide §6.2 and in `docs/theory/load_combinations.md`.
 - **Applier.** `absolute_sum` and `srss` join the closed basis set (create and basis
   edit); terms and subtraction/envelope operands may name combinations; the
   document validator refuses cycles and unknown operands as before.
@@ -521,3 +519,194 @@ and `minuend_final` stay withheld.
   successors) are unchanged.
 - **Retained routes.** They keep declining the members
   (`FamilyFact::CombinationMember`); admitting them is a later slice with its D3.
+
+### 10.1 Review r1 repairs (persistence and numerical review, five P2s)
+
+- **Magnitude overflow (P1).** On both routes an absolute sum's or SRSS's recomputed
+  magnitude (`displacement_magnitude`, support force and moment magnitudes) whose norm
+  of finite combined components leaves the binary64 range withholds that row, or its
+  whole support group, under `LOAD_COMBINATION_ROW_WITHHELD` as "load-case algebra
+  refused" (§3, §6); every other result publishes. A linear combination keeps today's
+  rule (a signed infinity blocks the envelope), so no flat outcome moves. Both EX
+  readers mirror it.
+- **Reader re-derivation (P2).** RE `preview_combination_gates.rs` and its Python mirror
+  `tests/verifiers/preview_combination_gates.py`. With the model, every PF gate is
+  re-derived in evaluation order after S1's interim removal (withheld operand; nonlinear
+  except OQ-1; κ on a consuming constant-effort support; modulus over every reached case)
+  and every unsigned row bit for bit; this replaces `unsigned_model_checks`. Without the
+  model: `LOAD_COMBINATION_OPERAND_WITHHELD` needs its diagnostic naming earlier withheld
+  combinations; `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND` and
+  `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` are refused as unverifiable
+  (`SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED`), since the document states no
+  withheld combination's expression; an unsigned row is re-derived from the factors of its
+  `combination_operands` record (nonlinear models) and otherwise refused
+  (`..._UNSIGNED_UNVERIFIED`). The flat gates keep their model-free reading (the shared
+  retained corpus's `t_gate_ok` must pass). **Consequence:** model-free callers of
+  `semantic_contract::for_source` (report packaging `bindings.rs`, derivatives
+  `derivative.rs`, the runner's result-envelope binding) refuse a linear-model PF document
+  carrying an absolute sum or SRSS until they pass the model or PF publishes the factors.
+- **CLI (P3).** `openpipestress-runner read preview-physics` admits `model`.
+- **Derivation metadata (P4).** A `displacement_magnitude` row of an unsigned or nested
+  combination carries metadata `{component: displacement_magnitude, coordinate_system:
+  global, location: node, basis, sign_convention}`; a flat combination's carries none, as
+  before (V-8). A magnitude is paired and keyed by kind, unit and node on both routes and
+  in every reader. The component token joins the result schemas' metadata enums; the
+  tables take it with §10.2. The desktop recognizes an unsigned, OQ-1 or envelope row by
+  its sign convention on a combination `basis_ref`, and a row stating no derivation takes
+  its combination's (`combinationNotes`).
+
+### 10.2 Policy texts (old → new)
+
+Agent 0's option (a): the texts state exactly what is built; no numeric output moves.
+**Prepared, not applied.** The PF limitation sentence is `preview_physics.rs`
+`LIMITATIONS[6]`, published in every PF document's `formulation_basis`, the retained
+successors included. Those, and the tables (reviewed inputs #4, #5, #8, #11 and #12 of the
+registered retained-memory profile), move only in this order: an independent contract
+review of these texts; the texts applied through `semantic_contract_tables.py` (the two
+maintained tables, then `derive`, `apply-u4b` and `repin --from-rev HEAD`) and the carriers'
+writers; #98's D3 registration; then the retained successors and the shared retained corpus
+regenerated through the registered route. While the profile reads Stale, the retained route
+cannot regenerate them.
+
+**`policy_id`.** It becomes `PREVIEW-PHYSICS-1-COMBINATION-v2` and `PRESSURE-2-COMBINATION-v2`.
+The policy's meaning grows (combination operands, two bases, κ in place of the factor sum,
+OQ-1's admission). A consumer keyed on the v1 id must not read a v2 document as primitive-only;
+v1 documents keep v1's meaning.
+
+**PF limitation** (`LIMITATIONS[6]`; the preview-physics-2, -timoshenko-1 and -retained-1
+tables' copy).
+- Old: "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear
+  supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is
+  a labelled difference. No combination maxima and no code compliance."
+- New: "Headlines cover all load cases. In a model with nonlinear supports a mechanics
+  combination is withheld unless one term is a solved load case with factor exactly 1, at
+  least one other term exists, and every other term is a combination whose fixed-load count
+  κ is defined and exactly 0; it is then formed from rows, with its operands' standing, as a
+  solved state plus derived differences or bounds, not an equilibrium state. With a consuming
+  constant effort a mechanics combination is withheld when its κ is undefined or differs from
+  1 by more than 64ε, and an absolute sum or SRSS unless every operand's κ is exactly 0.
+  Mechanics combinations, absolute sums and SRSS are also withheld for mixed moduli over the
+  load cases they reach, and every combination is withheld with a withheld operand
+  combination. Absolute sums and SRSS are unsigned. Subtraction is a labelled difference. No
+  combination maxima and no code compliance."
+
+**preview-physics-2 `combination_policy`** (and the two derived tables, which publish the same
+policy). Members not listed are unchanged.
+- `policy_id`: old "PREVIEW-PHYSICS-1-COMBINATION-v1"; new "PREVIEW-PHYSICS-1-COMBINATION-v2".
+- `operands` (new member): "load cases or other combinations: a term names a load case or a
+  combination by kind; a subtraction's or range envelope's id names the load case when one has
+  that id and a combination otherwise; the combination graph is acyclic and is evaluated in
+  topological order, the earliest ready combination in the array first; a combination operand
+  supplies its own published rows, paired by kind, unit, entity and every metadata field
+  except basis and sign_convention (a displacement magnitude by kind, unit and node); a row an
+  operand combination withheld or omitted is missing for every combination that names it".
+- `fixed_load_count` (new member): "each operand's fixed-load count κ, an exact dyadic
+  rational: a load case 1; mechanics the exact sum of each factor times its operand's κ; a
+  subtraction the minuend's minus the subtrahend's; a range envelope the operands' common κ,
+  else undefined; an absolute sum or SRSS 0 when every operand's κ is exactly 0, else
+  undefined; undefined with an undefined operand (a subtraction or envelope propagates it) or
+  beyond 4,096 significand bits (COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE); over load
+  cases, κ is the exact sum of the binary64 factors".
+- `operand_gate` (new member): `{"code": "LOAD_COMBINATION_OPERAND_WITHHELD", "condition":
+  "an operand combination is withheld; the combination is withheld whole, naming each withheld
+  operand and its code"}`.
+- `mechanics_gates`: old `[NONLINEAR_COMBINATION_REQUIRES_SOLVE: "the model has any nonlinear
+  support record, including one inactive in every case"; CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE:
+  "the model has a consuming constant-effort support and a factor is not finite or |sum(factors)
+  - 1| > 64*epsilon, with sum(factors) the exact sum of the binary64 factors, compared exactly
+  and not scaled by sum(|factors|)"; COMBINATION_MODULUS_BASIS_MIXED: "the mechanics operands
+  have different modulus-basis keys"]`; new:
+  - NONLINEAR_COMBINATION_REQUIRES_SOLVE: "the model has any nonlinear support record,
+    including one inactive in every case, unless one term is a solved load case with factor
+    exactly 1, at least one other term exists, and every other term is a combination whose κ
+    is defined and exactly 0 (decision OQ-1), which is formed from rows as a solved state plus
+    derived differences or bounds; not an equilibrium state";
+  - CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED: "the model has a consuming constant-effort
+    support and some operand's κ is undefined";
+  - CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE: "the model has a consuming constant-effort
+    support and the combination's own κ is undefined or |κ - 1| > 64*epsilon, compared exactly
+    and not scaled by sum(|factors|); over load cases κ is the exact sum of the binary64
+    factors, and a non-finite factor leaves it undefined";
+  - COMBINATION_MODULUS_BASIS_MIXED: "the load cases the combination reaches through its
+    operands, transitively, have different modulus-basis keys".
+- `unsigned_gates` (new member): CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND: "the model has a
+  consuming constant-effort support and some operand's κ is undefined or not exactly 0";
+  COMBINATION_MODULUS_BASIS_MIXED: as in `mechanics_gates`.
+- `gate_precedence`: old "first gate in list order supplies the single withheld reason"; new
+  "operand_gate first, then the first gate in list order of the combination's form supplies
+  the single withheld reason".
+- `gated_forms`: old `["mechanics"]`; new `["mechanics", "absolute_sum", "srss"]`.
+- `absolute_sum` (new member): "per row over linear_state_kinds, the exact sum of |factor ×
+  source value| rounded once to nearest, ties to even; recomputed magnitudes are the norm of
+  the combined components, an upper bound on every signed combination's magnitude; rows are
+  unsigned (basis explicit_user_absolute_sum; sign convention \"unsigned value: the absolute sum
+  of |factor × source result| over explicit user terms; not an equilibrium state\"); a value,
+  or a recomputed magnitude, outside the binary64 range is withheld as load-case algebra
+  refused under LOAD_COMBINATION_ROW_WITHHELD (a support group whole); not an equilibrium state".
+- `srss` (new member): "per row over linear_state_kinds, the square root of the exact sum of the
+  squares of each factor × source value rounded once, the root rounded once to nearest, ties to
+  even; recomputed magnitudes are the norm of the combined components, which equals the SRSS of
+  the operands' magnitudes in exact arithmetic; rows are unsigned (basis explicit_user_srss; sign
+  convention \"unsigned value: the square root of the sum of squares of factor × source result
+  over explicit user terms; not an equilibrium state\"); a term or value, or a recomputed
+  magnitude, outside the binary64 range is withheld as load-case algebra refused under
+  LOAD_COMBINATION_ROW_WITHHELD (a support group whole); not an equilibrium state".
+- `canonical_metadata_vocabulary`: `basis` gains "explicit_user_absolute_sum" and
+  "explicit_user_srss"; `component` gains "displacement_magnitude".
+
+**pressure-2 `combination_policy`** (and physics-retained-1, which inherits it). Members not
+listed are unchanged.
+- `policy_id`: old "PRESSURE-2-COMBINATION-v1"; new "PRESSURE-2-COMBINATION-v2".
+- `operands`: old "primitive load cases only; a combination is never an operand"; new "load
+  cases or other combinations: a term names a load case or a combination by kind; a
+  subtraction's or range envelope's id names the load case when one has that id and a
+  combination otherwise; the combination graph is acyclic and is evaluated in topological
+  order, the earliest ready combination in the array first; a combination operand supplies its
+  own published rows under the same structural keys; a declared operating comparison
+  (difference_basis) names load cases only".
+- `fixed_load_count`, `operand_gate`, `gate_precedence`, `gated_forms`, `absolute_sum`, `srss`:
+  as for preview-physics-2 (the `absolute_sum` and `srss` texts add "a combined stress row keeps
+  its operand rows' metadata basis").
+- `mechanics_gates`: old `[COMBINATION_MODULUS_BASIS_MIXED: "the mechanics operands have
+  different modulus-basis keys"; COMBINATION_RESOLVED_STIFFNESS_MIXED: "some member's resolved
+  stiffness differs between the operands: its selected E/nu/G and material, its
+  property-temperature selection, or its section bases, shear model and Timoshenko shear
+  area"; COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE: "the model has a connector or tie rod
+  whose raw installed reference (q_ref, a null-space reference included, or the rod's reference
+  extension) is nonzero, and a factor is not finite or |sum(factors) - 1| > 64*epsilon, with
+  sum(factors) the exact sum of the binary64 factors, compared exactly and inclusively and not
+  scaled by sum(|factors|)"]`; new:
+  - NONLINEAR_COMBINATION_REQUIRES_SOLVE: the preview-physics-2 text (reached once the route
+    admits nonlinear supports);
+  - COMBINATION_MODULUS_BASIS_MIXED: "the load cases the combination reaches through its
+    operands, transitively, have different modulus-basis keys";
+  - COMBINATION_RESOLVED_STIFFNESS_MIXED: "some member's resolved stiffness differs between the
+    load cases the combination reaches through its operands, transitively: its selected E/nu/G
+    and material, its property-temperature selection, or its section bases, shear model and
+    Timoshenko shear area";
+  - COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE: "the model has a connector or tie rod whose
+    raw installed reference (q_ref, a null-space reference included, or the rod's reference
+    extension) is nonzero, and some operand's κ or the combination's own κ is undefined, or
+    |κ - 1| > 64*epsilon, compared exactly and inclusively and not scaled by sum(|factors|);
+    over load cases κ is the exact sum of the binary64 factors".
+- `unsigned_gates` (new member): COMBINATION_MODULUS_BASIS_MIXED and
+  COMBINATION_RESOLVED_STIFFNESS_MIXED as above; INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND:
+  "the model has such a nonzero installed reference and some operand's κ is undefined or not
+  exactly 0".
+- `stress_metadata`: old text, then "; a displacement_magnitude row of an absolute sum, an SRSS
+  or a combination with a combination operand carries metadata stating its derivation
+  (component displacement_magnitude, global, node, the expression's basis and sign convention);
+  a flat combination's carries none".
+- `canonical_metadata_vocabulary`: as for preview-physics-2.
+
+**Digests and identities that move when applied** (each by its maintained writer): the five
+tables (preview-physics-2 and pressure-2 edited; timoshenko-1, preview-physics-retained-1 and
+physics-retained-1 by `derive`); the result, analysis-run and stress-neutral schemas embedding
+their digests and the limitation records (`apply-u4b`, `repin`), and
+`tools/release/schema_manifest.json`; the pins `repin` lists (`semantic_contract.rs`,
+`compatibility.py` twice, `qualification_*.py`, the reader-outcome, persistence and report
+fixtures, desktop tests); every PF document carrying `LIMITATIONS[6]` (40 files, among them the
+`preview_physics_*` and `product_preview` fixtures, `validation/witness/inputs/del1005_*`, and
+the retained successors and `retained_precision_cases.json`, which only the registered route
+regenerates); and the retained-memory profile's reviewed inputs #4, #5, #8, #11 and #12 beside
+#10, which this branch has already moved, all recorded by #98's D3. No numeric output moves.

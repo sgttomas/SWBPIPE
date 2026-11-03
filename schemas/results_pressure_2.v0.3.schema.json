@@ -2521,6 +2521,7 @@
             "Mz",
             "force_magnitude",
             "moment_magnitude",
+            "displacement_magnitude",
             "maximum_absolute_normal_stress",
             "wall_axial_end_action",
             "wall_axial_force",
