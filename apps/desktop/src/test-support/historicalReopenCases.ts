@@ -14,8 +14,10 @@
  *   cases' records as recorded revisions of an invented state, with their variants.
  * - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one per recorded basis of
  *   `RECORDED_RUN_TABLE_BASES` (`RECORDED_BASIS_FIXTURES`: each a record, its source and its
- *   request model, never rewritten), each as a saved project's run and as a recorded revision
- *   built as `recordedRunModel080.test.ts` and `recordedRunModel090Disclosure.test.ts` build it.
+ *   request model, never rewritten), each as a recorded revision built as
+ *   `recordedRunModel080.test.ts` and `recordedRunModel090Disclosure.test.ts` build it, and, when
+ *   its model document is current, as a saved project's run (a project of a retired model
+ *   document is refused for editing before its run is read; recorded runs keep their own format).
  *   The cases name the fixture directory instead of copying it; the recorded revision is the
  *   verbatim record with its patches (`record_patches`), and the native leg reads the same files.
  * - **As the old open read them.** Each value is what the webview received from the store
@@ -28,6 +30,7 @@ import type { AnalysisRunEnvelope, LocalProjectEnvelope } from "../types";
 import { buildHistoricalRunContext, buildRecordedRunContext } from "../features/results/HistoricalRunContext";
 import { analysisRecordProjection, manifestFixedMembers, recordedAnalysisRunRevision } from "../services/analysisRunCompatibility";
 import { buildCurrentSessionInputManifest } from "../services/inputManifestService";
+import { MODEL_SCHEMA_VERSION } from "../services/modelSchemaVersion";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../services/hashService";
 import type { AnalysisRunRead } from "../services/analysisRunService";
 import { heldText, type AnalysisRunV03Case } from "./analysisRunV03Cases";
@@ -260,7 +263,7 @@ function recordPatches(before: Json, after: Json, path: Array<string | number> =
   return [{ on: "record", path, op: "set", value: clone(after) }];
 }
 
-/** Each recorded-basis fixture, verbatim, as a saved project's run and as a recorded revision. */
+/** Each recorded-basis fixture, verbatim, as a recorded revision and (current model documents) a saved project's run. */
 async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
   const saved: SavedCase[] = [], recorded: RecordedCase[] = [];
   for (const fixture of RECORDED_BASIS_FIXTURES) {
@@ -268,9 +271,11 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
     const name = fixture.slice(fixture.lastIndexOf("/") + 1);
     const record = JSON.parse(text(FIXTURE_RECORD)), sourceText = text(FIXTURE_SOURCE), source = JSON.parse(sourceText);
     const model = JSON.parse(text(FIXTURE_REQUEST)).model;
-    // As a saved project: the request's model, the verbatim source and record.
-    const p = await project(clone(model), source, record);
-    saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected: await savedExpected(p, source, record) });
+    // As a saved project (current model documents only): the request's model, the verbatim source and record.
+    if (model.schema_version === MODEL_SCHEMA_VERSION) {
+      const p = await project(clone(model), source, record);
+      saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected: await savedExpected(p, source, record) });
+    }
     // As a recorded revision of an invented state, built as the webview tests build it.
     const authored = clone(model);
     for (const c of authored.load_cases) { c.kind ||= "sustained"; c.status ||= "ready_for_preview_diagnostics"; c.provenance ||= "invented review input"; }

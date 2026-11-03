@@ -11,8 +11,9 @@
 //! - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one
 //!   per row of `RECORDED_RUN_TABLE_BASES` (`RECORDED_BASIS_FIXTURES`), are
 //!   cases of that file read from the fixture files themselves; the native
-//!   table must equal its TypeScript and Python twins, and each run saved
-//!   into a store must reopen natively with the webview's findings.
+//!   table must equal its TypeScript and Python twins, and each run of a
+//!   current model document saved into a store must reopen natively with the
+//!   webview's findings.
 use super::*;
 use crate::analysis_run_v03_validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation, RECORDED_RUN_TABLE_BASES};
 use serde_json::{json, Value};
@@ -299,10 +300,10 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
 /// (`RECORDED_BASIS_FIXTURES`: the 0.7.0- and 0.8.0-era tables, the 0.9.0 registration's
 /// `d46e1963…` and reducer 2a's `032e861f…`) reopen natively with the webview's findings and
 /// none of them is refused as `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`: each as a recorded revision
-/// read by the native reader's findings, and each as a saved project's run. Saved into a store,
-/// the 0.9.0 runs are opened by the native open with those findings; a project of a retired
-/// model document (0.7.0, 0.8.0) is refused for editing by the native open exactly as by the
-/// legacy open (recorded runs keep their own format, saved projects do not).
+/// read by the native reader's findings, and, when its model document is current, as a saved
+/// project's run, which the native open restores from a real store with those findings. A
+/// project of a retired model document (0.7.0, 0.8.0) is refused for editing by the native open
+/// exactly as by the legacy open (recorded runs keep their own format, saved projects do not).
 #[test]
 fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
     let host = ScriptedHost::normal();
@@ -313,13 +314,25 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
     for (index, fixture) in RECORDED_BASIS_FIXTURES.iter().enumerate() {
         let name = fixture.rsplit('/').next().unwrap();
         let verbatim: Value = serde_json::from_str(&read_text(&format!("{fixture}/{FIXTURE_RECORD}"))).unwrap();
-        let case = |id: String| cases.iter().find(|case| case["id"] == json!(id)).unwrap_or_else(|| panic!("no case {id}"));
-        let (saved, recorded) = (case(format!("saved-recorded-basis:{name}")), case(format!("recorded-basis:{name}")));
-        assert_eq!((&saved["fixture"], &recorded["read"]["fixture"]), (&json!(fixture), &json!(fixture)));
-        // The saved run is the fixture's record and source, verbatim, stored and reopened natively.
-        let (result, record) = saved_run(saved, &builder);
+        let case = |id: String| cases.iter().find(|case| case["id"] == json!(id));
+        let recorded = case(format!("recorded-basis:{name}")).unwrap_or_else(|| panic!("no recorded case for {fixture}"));
+        assert_eq!(recorded["read"]["fixture"], json!(fixture));
+        let saved = case(format!("saved-recorded-basis:{name}"));
+        // The run, verbatim, stored with its request's model and reopened natively.
+        let request: Value = serde_json::from_str(&read_text(&format!("{fixture}/exact_pressure_connected_request.json"))).unwrap();
+        let (project, (result, record)) = match saved {
+            Some(saved) => {
+                assert_eq!(saved["fixture"], json!(fixture));
+                (saved_project(saved), saved_run(saved, &builder))
+            }
+            None => {
+                let source: Value = serde_json::from_str(&read_text(&format!("{fixture}/{FIXTURE_SOURCE}"))).unwrap();
+                (json!({"model": request["model"], "editor_intents": [], "proposal": null, "selected_review_target": null, "model_hash": null, "project_envelope_hash": null}), (source, verbatim.clone()))
+            }
+        };
+        // The case's model went through JavaScript (`1.0` written `1`): the same data as the request's.
+        assert!(crate::native_persistence::same_js_data(&project["model"], &request["model"]), "{fixture}: the request's model");
         assert_eq!(record, verbatim);
-        let project = saved_project(saved);
         let path = dir.join(format!("{name}.sqlite"));
         let project_id = crate::project_id_from_model(&project["model"]);
         {
@@ -339,22 +352,24 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
             )
             .unwrap();
         }
-        match native_open(&registry, &path, Some(&project_id)) {
-            Ok(opened) => {
+        match (native_open(&registry, &path, Some(&project_id)), saved) {
+            (Ok(opened), Some(saved)) => {
                 let run = &opened["stored_run"];
                 assert_eq!(run["state"], "restored", "{fixture}: {run}");
                 assert_eq!(run["findings"]["findings"], saved["expected"]["findings"], "{fixture}: the native open's findings are the webview's");
                 assert!(registry.dispose_result(run["handle"].as_str().unwrap()).unwrap().released);
             }
-            Err(native) => {
-                assert_ne!(project["model"]["schema_version"], json!("0.9.0"), "{fixture}: {native}");
+            // A project of a retired model document: refused for editing, as the legacy open refuses it.
+            (Err(native), None) => {
                 assert!(native.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{fixture}: {native}");
                 let legacy = crate::open_project_in_store(path.clone(), Some(&project_id)).err();
                 assert_eq!(Some(native), legacy, "{fixture}: refused as the legacy open refuses");
             }
+            (Ok(opened), None) => panic!("{fixture}: a project with no saved case opened: {}", opened["stored_run"]),
+            (Err(native), Some(_)) => panic!("{fixture}: {native}"),
         }
         // Both forms' findings, natively from the stored values, are the webview's, and none refuses the basis.
-        for case in [saved, recorded] {
+        for case in saved.into_iter().chain([recorded]) {
             assert_eq!(native_findings(case, &builder), case["expected"], "{}", case["id"]);
             let findings = case["expected"]["findings"].as_array().unwrap();
             assert!(!findings.iter().any(|finding| finding.as_str().unwrap().contains("MISMATCH")), "{}: {findings:?}", case["id"]);
