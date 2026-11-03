@@ -500,13 +500,17 @@ _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json
 # read by the record validator only as the recorded basis of exactly this current table (id, recorded, current); the
 # builder binds the current table, and any other digest or a mixed binding is refused as before. Model document 0.9.0
 # (Design model-document-0.9.0.md §3.2) edits the same sentence's token again (0.8.0 -> 0.9.0), so a run recorded under
-# the 0.8.0-era table is read the same way. RT-A3 increment 3 (DEL-04-07 Design pressure-contract.md, "Constant-effort
-# supports") restates two limitations and appends a combination gate, rows unchanged, so a run recorded under the
-# pre-increment table (a2db16a5…) is read the same way. The desktop's twin is analysisRunCompatibility.ts
-# RECORDED_RUN_TABLE_BASES.
+# the 0.8.0-era table is read the same way. RT-A3 reducer 2a (#73) and 2b (#80) each restated only the table's
+# admitted-families disclosure (supported_profile_limitations[1]; every row is the same), so runs recorded under the
+# 0.9.0 registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too. RT-A3 increment 3
+# (DEL-04-07 Design pressure-contract.md, "Constant-effort supports") restates two limitations and appends a
+# combination gate, rows unchanged, so a run recorded under the pre-increment table (a2db16a5…) is read the same way.
+# The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
 RECORDED_RUN_TABLE_BASES = (
     (PRESSURE_CONTRACT_ID, "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", PRESSURE_CONTRACT_SHA256),
     (PRESSURE_CONTRACT_ID, "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", PRESSURE_CONTRACT_SHA256),
+    (PRESSURE_CONTRACT_ID, "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", PRESSURE_CONTRACT_SHA256),
+    (PRESSURE_CONTRACT_ID, "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", PRESSURE_CONTRACT_SHA256),
     (PRESSURE_CONTRACT_ID, "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", PRESSURE_CONTRACT_SHA256),
 )
 
