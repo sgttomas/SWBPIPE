@@ -4338,8 +4338,10 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                                   "the longest static reason of reformation_refusal's four callers (its only callers, all here)",
                                   (r'\breformation_refusal\b', "file", 5))
         # Every domain modal_parameter_refusals supplies, each in its all-literal shape: the checked-value table,
-        # whose every tuple ends in a literal domain (a computed one adds an opening without a literal close), and the
-        # five calls, each matched with its literal or fixed-format domain. Any other shape stops the run.
+        # whose 15 tuples each have four top-level elements ending in a lone string literal, and the five calls, each
+        # matched with its literal or fixed-format domain. parameter_refusal is private to integrity.rs, so its
+        # definition and those five calls are every mention in the file; a use as a function value adds one. Any
+        # other shape stops the run.
         _pr = _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs")
         _tbl = _re.findall(r'for \(name, value, ok, domain\) in \[(.*?)\]\s*\{', _pr, _re.S)
         _calls = [
@@ -4349,9 +4351,35 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                             r'\{MAX_GAP_POSITION_LEVEL\}"\),?\s*\)\);', _pr, _re.S)),
             len(_re.findall(r'"sturm_whole_spectrum_offsets",.*?"a non-empty list of finite positive offsets",?\s*\)\);', _pr, _re.S)),
         ]
-        if len(_tbl) != 1 or len(_re.findall(r'\(\s*"[a-z_.]+",', _tbl[0])) != 15 \
-                or len(_re.findall(r',\s*"[^"]*",?\s*\),?', _tbl[0])) != 15 \
-                or _calls != [1, 2, 1, 1] or _pr.count("parameter_refusal(") != 5:
+        def _m_tuples(block):
+            # The top-level tuples of the table, each split into its top-level elements (string literals skipped
+            # whole, so a parenthesis or comma inside one does not count).
+            out, depth, cur, elems, i = [], 0, "", [], 0
+            while i < len(block):
+                ch = block[i]
+                if ch == '"':
+                    j = i + 1
+                    while block[j] != '"':
+                        j += 2 if block[j] == "\\" else 1
+                    if depth >= 1: cur += block[i:j + 1]
+                    i = j + 1
+                    continue
+                if ch in "([{":
+                    depth += 1
+                    if depth == 1: cur, elems = "", []; i += 1; continue
+                elif ch in ")]}":
+                    depth -= 1
+                    if depth == 0: elems.append(cur.strip()); out.append([e for e in elems if e]); i += 1; continue
+                elif ch == "," and depth == 1:
+                    elems.append(cur.strip()); cur = ""; i += 1; continue
+                if depth >= 1: cur += ch
+                i += 1
+            return out
+        _tuples = _m_tuples(_tbl[0]) if len(_tbl) == 1 else []
+        if len(_tbl) != 1 or len(_tuples) != 15 \
+                or any(len(t) != 4 or not _re.fullmatch(r'"[^"\\]*"', t[3]) for t in _tuples) \
+                or _calls != [1, 2, 1, 1] or _pr.count("parameter_refusal(") != 5 \
+                or len(_re.findall(r'\bparameter_refusal\b', _text_of(_MODAL + "integrity.rs"))) != 6:
             raise SystemExit(f"MODAL-ID: modal_parameter_refusals' domains changed ({len(_tbl)}, {_calls}); re-review (§8.43)")
         _m_domain = _m_static("modal_parameter_refusals", "integrity.rs", r'"(finite[^"]*|at least 1|a non-empty[^"]*)"', 18,
                               "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)",
