@@ -100,9 +100,12 @@ needs:
     decision B): `LoadCaseSolve::nonlinear_state: Option<Box<NonlinearStateEvidence>>`, the recorded
     qualification branch as a third return member of `append_nonlinear_support_loop_results`, and one
     `#[inline(never)]` helper `capture_nonlinear_state_evidence` on the completed construction. The edits are
-    line-preserving (types and helper appended at the end of the file), every static envelope tested is
-    byte-identical, and `LoadCaseSolve` grows by one pointer (1,880 to 1,888 B, aarch64 debug). It is priced
-    under the DEL-04-08 need below. No public entry exists yet.
+    line-preserving (types and helper appended at the end of the file). Static outputs are unchanged: 30
+    static envelopes hashed before and after in a one-off test were byte-identical (an observation, not a
+    committed regression). `LoadCaseSolve` grows from 1,880 to 1,888 B (aarch64 debug), and ordinary
+    nonlinear static solves gain a small heap capture. The carrier atom, the helper's and callers' frames and
+    the stack chains are priced under the DEL-04-08 need below, not assumed unchanged. No public entry
+    exists yet.
   gating: true
   evidence: core/product_physics/src/lib.rs
 - from: DEL-05-01

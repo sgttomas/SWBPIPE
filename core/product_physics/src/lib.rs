@@ -25383,8 +25383,8 @@ struct NonlinearStateEvidence {
 }
 
 /// Decision B: the evidence of a completed case (see `NonlinearStateEvidence`),
-/// from values the case solve already holds; a separate frame so that the case
-/// solve's own frame grows by its one pointer.
+/// from values the case solve already holds. Its frame and stack consequences
+/// (and the carrier's measured 1,880 -> 1,888 B) are priced by D3, not assumed.
 #[inline(never)]
 fn capture_nonlinear_state_evidence(
     case_id: &str,
