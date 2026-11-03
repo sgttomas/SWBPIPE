@@ -18,14 +18,16 @@ def resolve_revision(repo, revision, *, env=None, git_options=()):
     if not explicit:
         # An original identity is usually absent here. In a partial (promisor) clone git would try to fetch the
         # missing object from the promisor remote on every call (hosted CI checks out with filter: blob:none);
-        # --no-lazy-fetch (Git 2.44 or later) keeps the lookup local. Only "not found" (128) falls through to the
-        # extraction map; any other failure, including a git that rejects the option, is refused, not mapped.
+        # --no-lazy-fetch (Git 2.45 or later) keeps the lookup local. Exit 128 (git's fatal exit: a revision not
+        # found here, but also, for example, a directory that is not a repository) keeps the existing fall-through to
+        # the extraction map, whose map and tree checks still guard success. Any other failure, including a git that
+        # rejects the option (129), is refused, not mapped.
         result = subprocess.run(['git', *git_options, '--no-lazy-fetch', '-C', str(repo), 'rev-parse', '--verify',
                                  revision + '^{commit}'], capture_output=True, text=True, env=env)
         if result.returncode == 0:
             return result.stdout.strip()
         if result.returncode != 128:
-            raise ValueError('Offline revision lookup failed (git exit %d; --no-lazy-fetch needs Git 2.44 or later): %s'
+            raise ValueError('Offline revision lookup failed (git exit %d; --no-lazy-fetch needs Git 2.45 or later): %s'
                              % (result.returncode, result.stderr.strip()))
     if not re.fullmatch('[0-9a-fA-F]{7,40}', source):
         raise ValueError('Unknown source revision: ' + source)

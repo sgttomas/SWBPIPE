@@ -59,8 +59,14 @@ def _git(*args, cwd=None):
 
 
 @pytest.fixture
-def promisor(tmp_path):
-    """(clone, trap log, ordinary commit, mapped target commit). ORIGINAL maps to the target, whose tree is recorded."""
+def promisor(tmp_path, monkeypatch):
+    """(clone, trap log, ordinary commit, mapped target commit). ORIGINAL maps to the target, whose tree is recorded.
+    The test runs in a git environment without inherited GIT_* variables (GIT_NO_LAZY_FETCH among them), so only the
+    resolver's own command line can keep a lookup local."""
+    for name in [name for name in os.environ if name.startswith('GIT_')]:
+        monkeypatch.delenv(name)
+    for name, value in GIT_ENV.items():
+        monkeypatch.setenv(name, value)
     src = tmp_path / 'src'
     _git('init', '-q', str(src))
     _git('config', 'uploadpack.allowFilter', 'true', cwd=src)
@@ -92,9 +98,8 @@ def promisor(tmp_path):
 def test_the_trap_detects_a_lazy_fetch(promisor):
     """Control: without --no-lazy-fetch, git asks the promisor remote for the absent object."""
     clone, log, _, _ = promisor
-    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')} | GIT_ENV
     result = subprocess.run(['git', '-C', str(clone), 'rev-parse', '--verify', ABSENT + '^{commit}'],
-                            env=env, capture_output=True, text=True)
+                            capture_output=True, text=True)
     assert result.returncode == 128 and log.is_file()
 
 
