@@ -608,11 +608,17 @@ and `minuend_final` stay withheld.
   `LOAD_COMBINATION_SOURCE_RESULT_MISSING`, `..._VECTOR_COMPONENT_MISSING`,
   `..._VECTOR_INVALID` and `LOAD_COMBINATION_ROW_WITHHELD` statements naming it must be
   exactly the derived ones (`SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_ROW`,
-  `..._NESTED_WITHHELD`). A recorded envelope's mode must be a kernel mode. Flat
-  combinations (load-case operands only) keep the reading they had before RT-A4: their
-  gates and magnitude consistency are checked, their signed values are not re-derived by
-  the PF readers (a pre-existing limit, unchanged here); a nested row is verified against
-  its operand combination's published rows as they stand.
+  `..._NESTED_WITHHELD`). A recorded envelope's mode must be a kernel mode. The same
+  whole-row derivation reads every admitted recorded absolute sum and SRSS, flat or
+  nested, after the unsigned-row checks above (which name a changed value
+  `..._UNSIGNED_VALUE`): rows pair by the producer's rules, nested with a combination
+  operand and flat otherwise (`combination_source_identity_matches`: kind, unit, entity
+  and the whole metadata), and a magnitude states its derivation on both. The codes keep
+  their `NESTED` names. Flat mechanics, subtractions and envelopes (load-case operands
+  only) keep the reading they had before RT-A4: their gates and magnitude consistency are
+  checked, their signed values are not re-derived by the PF readers (a pre-existing
+  limit, unchanged here); a nested row is verified against its operand combination's
+  published rows as they stand.
 
 ### 10.2 Policy texts (old → new)
 

@@ -1312,6 +1312,70 @@ fn pf_readers_re_derive_nested_combination_rows() {
     }
 }
 
+/// Review r2 P2 follow-up: both readers read every row of a flat and a nested unsigned
+/// combination whole (bit-exact values and magnitudes, completeness, support groups,
+/// withholdings), flat operands paired by the flat rules. Before the extension a value
+/// changed by one ulp was already refused (`..._UNSIGNED_VALUE`); every other tamper
+/// below was admitted with and without the model.
+#[test]
+fn pf_readers_re_derive_unsigned_combination_rows() {
+    // linear_combinations() without sus+srss, so no row of the two is cited by a dependant.
+    let mut combinations = linear_combinations().as_array().unwrap().clone();
+    combinations.retain(|c| c["id"] != "sus+srss");
+    let wire = pf_cantilever(false, pf_cases(), Value::Array(combinations));
+    let model = Some(&wire["model"]);
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "unsigned rows base");
+    for id in ["srss-w", "abs-d"] {
+        let mut value = out.clone();
+        ulp_up(nonzero_row(&mut value, id, "element_local_bending_moment_z"));
+        for given in [None, model] {
+            assert_refused(&value, given, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", &format!("{id} value + 1 ulp"));
+        }
+        for kind in ["displacement_magnitude", "support_reaction_force_magnitude_v2"] {
+            let mut magnitude = out.clone();
+            ulp_up(nonzero_row(&mut magnitude, id, kind));
+            for given in [None, model] {
+                assert_refused(&magnitude, given, NESTED_ROW, &format!("{id} {kind} + 1 ulp"));
+            }
+        }
+        let mut extra = out.clone();
+        let mut copied = nonzero_row(&mut extra, id, "element_local_shear_force_y").clone();
+        copied["id"] = json!(format!("result:combination:{id}:invented"));
+        extra["results"].as_array_mut().unwrap().push(copied);
+        let mut missing = out.clone();
+        let gone = nonzero_row(&mut missing, id, "element_local_bending_moment_z")["id"].clone();
+        missing["results"].as_array_mut().unwrap().retain(|r| r["id"] != gone);
+        for (tampered, what) in [(&extra, "extra row"), (&missing, "missing row")] {
+            for given in [None, model] {
+                assert_refused(tampered, given, NESTED_ROW, &format!("{id} {what}"));
+            }
+        }
+    }
+
+    // Withholdings: a flat absolute sum with a large factor withholds its overflowing
+    // rows and the anchor's group; a nested SRSS over it and a load case omits the
+    // matching rows and withholds the group. Either withholding removed is refused.
+    let wire = pf_cantilever(false, pf_cases(), json!([
+        terms("huge", "absolute_sum", &[("case", "W1", 1.0e306)]),
+        terms("srss-huge", "srss", &[("case", "W2", 1.0), ("comb", "huge", 1.0)]),
+    ]));
+    let model = Some(&wire["model"]);
+    let out = solved_typed(&wire, PreviewSolverMode::SparseInteractive, "unsigned withholdings");
+    let named = |code: &str, id: &str| with_code(&out, code).into_iter().filter(|d| d["affected_refs"][0] == id).map(|d| d["id"].clone()).collect::<Vec<_>>();
+    assert_eq!(named("LOAD_COMBINATION_ROW_WITHHELD", "huge").len(), 1);
+    assert!(!combination_rows(&out, "huge").iter().any(|r| r["entity_ref"] == "support:a"));
+    assert_eq!(named("LOAD_COMBINATION_ROW_WITHHELD", "srss-huge").len(), 1);
+    assert!(!named("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "srss-huge").is_empty());
+    for (code, id) in [("LOAD_COMBINATION_ROW_WITHHELD", "huge"), ("LOAD_COMBINATION_ROW_WITHHELD", "srss-huge"), ("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "srss-huge")] {
+        let first = named(code, id)[0].clone();
+        let mut unstated = out.clone();
+        unstated["diagnostics"].as_array_mut().unwrap().retain(|d| d["id"] != first);
+        for given in [None, model] {
+            assert_refused(&unstated, given, NESTED_WITHHELD, &format!("{id} without its {code}"));
+        }
+    }
+}
+
 /// §10.3, V-8: a document with flat combinations only publishes no derivation, and
 /// one stated on it is refused.
 #[test]

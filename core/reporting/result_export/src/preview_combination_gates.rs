@@ -27,12 +27,14 @@
 //!   constant-effort support applies, and the modulus bases of every load case reached.
 //!   Every row of an absolute sum or SRSS states its basis and sign convention, and each
 //!   row formed from operand rows is A or R of the model's factors, bit for bit.
-//! - **Nested rows** (review r2 P2; both readings). Every row of an admitted recorded
-//!   combination that is not unsigned and has a combination operand (mechanics,
-//!   subtraction, envelope) is re-derived from its operands' rows with the model's or the
-//!   record's factors, as the producer forms it (`form`), and the published rows and
-//!   withholdings must be exactly the derived ones (`..._NESTED_ROW`, `..._NESTED_WITHHELD`).
-//!   Flat combinations' signed values are not re-derived here (as before RT-A4).
+//! - **Whole rows** (review r2 P2; both readings). Every row of an admitted absolute sum
+//!   or SRSS (flat or nested), and of an admitted mechanics combination, subtraction or
+//!   envelope with a combination operand, is re-derived from its operands' rows with the
+//!   model's or the record's factors, as the producer forms it (`form`: nested pairing
+//!   with a combination operand, flat pairing otherwise), and the published rows and
+//!   withholdings must be exactly the derived ones (`..._NESTED_ROW`, `..._NESTED_WITHHELD`,
+//!   so named for the nested case they were introduced for). Flat mechanics,
+//!   subtractions and envelopes keep their pre-RT-A4 reading (signed values not re-derived).
 use crate::combination_graph::{self as graph, Expression, Graph, Operand};
 use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_load_case_algebra::AlgebraDimension as LoadDimension;
@@ -332,13 +334,16 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
                 "GATE_DERIVATION",
             )?;
             if derived.is_none() && stated.is_none() {
-                if matches!(record.basis, "absolute_sum" | "srss") {
+                let unsigned = matches!(record.basis, "absolute_sum" | "srss");
+                if unsigned {
                     unsigned_rows(rows, by_id, record.id, record.basis, &record.terms)?;
-                } else if record.operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
-                    // Review r2 P2: a mechanics, subtraction or envelope with a combination
-                    // operand, from its operands' rows and the record's factors.
+                }
+                if unsigned || record.operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
+                    // Review r2 P2: an absolute sum or SRSS, and a mechanics, subtraction or
+                    // envelope with a combination operand, whole, from its operands' rows and
+                    // the record's factors.
                     let index = index.get_or_insert_with(|| RowIndex::new(rows));
-                    nested_rows(index, source, record.id, record.basis, &record.operands, &factors, record.mode, derivation.nonlinear && oq1)?;
+                    derived_rows(index, source, record.id, record.basis, &record.operands, &factors, record.mode, derivation.nonlinear && oq1)?;
                 }
             }
         }
@@ -514,12 +519,16 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         )?;
         if derived.is_some() {
             withheld.insert(id.to_string());
-        } else if matches!(basis, "absolute_sum" | "srss") {
-            unsigned_rows(rows, by_id, id, basis, &terms)?;
-        } else if operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
-            // Review r2 P2: from its operands' rows and the model's factors.
-            let index = index.get_or_insert_with(|| RowIndex::new(rows));
-            nested_rows(index, source, id, basis, &operands, &factors, combination["mode"].as_str(), nonlinear && oq1)?;
+        } else {
+            let unsigned = matches!(basis, "absolute_sum" | "srss");
+            if unsigned {
+                unsigned_rows(rows, by_id, id, basis, &terms)?;
+            }
+            if unsigned || operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
+                // Review r2 P2: whole, from its operands' rows and the model's factors.
+                let index = index.get_or_insert_with(|| RowIndex::new(rows));
+                derived_rows(index, source, id, basis, &operands, &factors, combination["mode"].as_str(), nonlinear && oq1)?;
+            }
         }
     }
     // No row claims an unsigned basis its model combination does not have.
@@ -532,7 +541,7 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
     Ok(())
 }
 
-// ------------------------------------------------------------------ nested rows (review r2 P2)
+// ------------------------------------------------------------------ whole rows (review r2 P2)
 const NESTED_ROW: &str = "NESTED_ROW";
 const NESTED_WITHHELD: &str = "NESTED_WITHHELD";
 const SOURCE_MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
@@ -615,6 +624,14 @@ fn nested_identity(reference: &Value, candidate: &Value) -> bool {
                 }
                 _ => false,
             })
+}
+/// A flat combination's pairing (producer `combination_source_identity_matches`): kind,
+/// unit, entity and the whole metadata, `basis` and `sign_convention` included.
+fn flat_identity(reference: &Value, candidate: &Value) -> bool {
+    reference["kind"] == candidate["kind"]
+        && reference["unit"] == candidate["unit"]
+        && reference["entity_ref"] == candidate["entity_ref"]
+        && metadata(reference) == metadata(candidate)
 }
 fn combination_row_id(id: &str, base: &str) -> String {
     format!("result:combination:{}:{}", stable_suffix(id), result_tail(base))
@@ -727,9 +744,13 @@ fn combination_row(reference: &Value, id: &str, row_id: String, value: f64, refs
     row
 }
 
-/// The rows, withholdings and diagnostics of one admitted combination with a
-/// combination operand (producer `append_combination_results`, nested pairing).
+/// The rows, withholdings and diagnostics of one admitted combination (producer
+/// `append_combination_results`): rows pair by the nested rules with a combination
+/// operand and by the flat rules otherwise; a magnitude states its derivation (the
+/// producer's `derived`, true for every combination read here).
 fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[Operand<'_>], sign: &str) -> Formed {
+    let nested = targets.iter().any(|t| matches!(t, Operand::Combination(_)));
+    let pairs = |reference: &Value, source: &Value| if nested { nested_identity(reference, source) } else { flat_identity(reference, source) };
     let mut formed = Formed::default();
     let basis = expression.metadata_basis();
     let range = expression.is_range();
@@ -791,7 +812,7 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
         let mut values = Vec::new();
         let mut refs = Vec::new();
         for target in targets {
-            match index.lookup(base, *target).filter(|s| nested_identity(reference, s)) {
+            match index.lookup(base, *target).filter(|s| pairs(reference, s)) {
                 Some(source) => match source["value"].as_f64() {
                     Some(value) => {
                         values.push(value);
@@ -875,16 +896,16 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
     formed
 }
 
-/// Review r2 P2: every row of an admitted mechanics combination, subtraction or
-/// envelope with a combination operand is re-derived from its operands' rows (a load
-/// case's rows, or the operand combination's published rows) with `factors` (the
-/// model's, or the derivation record's), as the producer forms it, and compared bit for
-/// bit: each published row must be a derived row and each derived row published; every
+/// Review r2 P2: every row of an admitted absolute sum or SRSS, and of a mechanics
+/// combination, subtraction or envelope with a combination operand, is re-derived from
+/// its operands' rows (a load case's rows, or the operand combination's published rows)
+/// with `factors` (the model's, or the derivation record's), as the producer forms it,
+/// and compared bit for bit: each published row must be a derived row and each derived row published; every
 /// row it does not publish must be named by the producer's withholding diagnostics, and
 /// no other withholding stated. `solved_state_plus_increments` is decision OQ-1's
 /// admission in a nonlinear model (its sign convention).
 #[allow(clippy::too_many_arguments)]
-fn nested_rows(index: &RowIndex<'_>, source: &Value, id: &str, basis: &str, operands: &[Operand<'_>], factors: &[f64], mode: Option<&str>, solved_state_plus_increments: bool) -> Check {
+fn derived_rows(index: &RowIndex<'_>, source: &Value, id: &str, basis: &str, operands: &[Operand<'_>], factors: &[f64], mode: Option<&str>, solved_state_plus_increments: bool) -> Check {
     let expression = Expression::new(basis, operands, factors, mode).ok_or_else(|| format!("SOURCE_PREVIEW_PHYSICS_COMBINATION_{NESTED_ROW}"))?;
     let sign = expression.sign_convention(solved_state_plus_increments);
     let formed = form(index, id, &expression, operands, &sign);

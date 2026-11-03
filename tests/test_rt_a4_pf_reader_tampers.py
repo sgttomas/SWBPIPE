@@ -370,3 +370,59 @@ def test_nested_withholdings_are_re_derived(solve):
         unstated["diagnostics"] = [d for d in unstated["diagnostics"] if d["id"] != first]
         for given in (None, model):
             both(unstated, given, NESTED_WITHHELD)
+
+
+UNSIGNED = [c for c in LINEAR if c["id"] != "sus+srss"]  # no row of srss-w or abs-d is cited by a dependant
+
+
+def test_unsigned_combination_rows_are_read_whole(solve):
+    """Review r2 P2 follow-up: both readers read every row of a flat (srss-w) and a nested (abs-d) unsigned combination
+    whole, flat operands paired by the flat rules. Before the extension a value changed by one ulp was already refused
+    (..._UNSIGNED_VALUE); every other tamper below was admitted with and without the model."""
+    model = linear_cantilever(UNSIGNED)
+    source = solve(model)
+    for given in (None, model):
+        both(source, given, None)
+    for cid in ("srss-w", "abs-d"):
+        value = copy.deepcopy(source)
+        ulp_up(nonzero_row(value, cid, "element_local_bending_moment_z"))
+        for given in (None, model):
+            both(value, given, VALUE)
+        for kind in ("displacement_magnitude", "support_reaction_force_magnitude_v2"):
+            magnitude = copy.deepcopy(source)
+            ulp_up(nonzero_row(magnitude, cid, kind))
+            for given in (None, model):
+                both(magnitude, given, NESTED_ROW)
+        extra = copy.deepcopy(source)
+        copied = copy.deepcopy(nonzero_row(extra, cid, "element_local_shear_force_y"))
+        copied["id"] = f"result:combination:{cid}:invented"
+        extra["results"].append(copied)
+        missing = copy.deepcopy(source)
+        gone = nonzero_row(missing, cid, "element_local_bending_moment_z")["id"]
+        missing["results"] = [r for r in missing["results"] if r["id"] != gone]
+        for tampered in (extra, missing):
+            for given in (None, model):
+                both(tampered, given, NESTED_ROW)
+
+
+def test_unsigned_withholdings_are_read_whole(solve):
+    """A flat absolute sum with a large factor withholds its overflowing rows and the anchor's group; a nested SRSS over it
+    and a load case omits the matching rows and withholds the group. Either withholding removed is refused."""
+    model = linear_cantilever([terms("huge", "absolute_sum", [("case", "W1", 1.0e306)]),
+                               terms("srss-huge", "srss", [("case", "W2", 1.0), ("comb", "huge", 1.0)])])
+    source = solve(model)
+    for given in (None, model):
+        both(source, given, None)
+
+    def named(code, cid):
+        return [d["id"] for d in source["diagnostics"] if d["code"] == code and d["affected_refs"][:1] == [cid]]
+    assert len(named("LOAD_COMBINATION_ROW_WITHHELD", "huge")) == 1
+    assert len(named("LOAD_COMBINATION_ROW_WITHHELD", "srss-huge")) == 1
+    assert named("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "srss-huge")
+    for code, cid in (("LOAD_COMBINATION_ROW_WITHHELD", "huge"), ("LOAD_COMBINATION_ROW_WITHHELD", "srss-huge"),
+                      ("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "srss-huge")):
+        unstated = copy.deepcopy(source)
+        first = named(code, cid)[0]
+        unstated["diagnostics"] = [d for d in unstated["diagnostics"] if d["id"] != first]
+        for given in (None, model):
+            both(unstated, given, NESTED_WITHHELD)

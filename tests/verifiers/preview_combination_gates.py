@@ -15,10 +15,12 @@ received document and, when it is supplied, from its model.
   the model's evaluation order after S1's interim removal, re-derived as the producer forms it, and every unsigned row
   stating its basis and sign convention and, when formed from operand rows, equal to A or R of the model's factors, bit
   for bit.
-- Nested rows (review r2 P2; both readings): every row of an admitted recorded combination that is not unsigned and has
-  a combination operand (mechanics, subtraction, envelope) is re-derived from its operands' rows with the model's or the
-  record's factors, as the producer forms it, and the published rows and withholdings must be exactly the derived ones
-  (``..._NESTED_ROW``, ``..._NESTED_WITHHELD``). Flat combinations' signed values are not re-derived (as before RT-A4).
+- Whole rows (review r2 P2; both readings): every row of an admitted absolute sum or SRSS (flat or nested), and of an
+  admitted mechanics combination, subtraction or envelope with a combination operand, is re-derived from its operands'
+  rows with the model's or the record's factors, as the producer forms it (nested pairing with a combination operand,
+  flat pairing otherwise), and the published rows and withholdings must be exactly the derived ones (``..._NESTED_ROW``,
+  ``..._NESTED_WITHHELD``, so named for the nested case they were introduced for). Flat mechanics, subtractions and
+  envelopes keep their pre-RT-A4 reading (signed values not re-derived).
 
 Independence: standard-library imports only, and its siblings ``combination_graph``, ``exact_combinations`` (``norm3``)
 and ``units``.
@@ -261,10 +263,10 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             if derived is None and reason is None:
                 if basis in UNSIGNED_BASES:
                     _unsigned_rows(rows, by_id, cid, basis, terms)
-                elif any(o[0] == "combination" for o in operands):
-                    # Review r2 P2: from its operands' rows and the record's factors.
+                if basis in UNSIGNED_BASES or any(o[0] == "combination" for o in operands):
+                    # Review r2 P2: whole, from its operands' rows and the record's factors.
                     index = index or _RowIndex(rows)
-                    _nested_rows(index, source, cid, basis, operands, [f for _, f in terms], record["mode"], derivation["nonlinear"] and oq1)
+                    _derived_rows(index, source, cid, basis, operands, [f for _, f in terms], record["mode"], derivation["nonlinear"] and oq1)
     # Every unsigned row and every row citing an operand combination's row has its record.
     for row in rows:
         cid = _combination_of(row)
@@ -389,12 +391,13 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
                  "GATE_DERIVATION")
         if derived is not None:
             withheld.add(cid)
-        elif basis in UNSIGNED_BASES:
-            _unsigned_rows(rows, by_id, cid, basis, terms)
-        elif any(o[0] == "combination" for o in operands):
-            # Review r2 P2: from its operands' rows and the model's factors.
-            index = index or _RowIndex(rows)
-            _nested_rows(index, source, cid, basis, operands, [f for _, f in terms], combination.get("mode"), nonlinear and oq1)
+        else:
+            if basis in UNSIGNED_BASES:
+                _unsigned_rows(rows, by_id, cid, basis, terms)
+            if basis in UNSIGNED_BASES or any(o[0] == "combination" for o in operands):
+                # Review r2 P2: whole, from its operands' rows and the model's factors.
+                index = index or _RowIndex(rows)
+                _derived_rows(index, source, cid, basis, operands, [f for _, f in terms], combination.get("mode"), nonlinear and oq1)
     bases = {c.get("id"): c.get("basis") for c in kept}
     for row in rows:
         cid, claim = _combination_of(row), _unsigned_claim(row)
@@ -402,7 +405,7 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
             _require(claim[1] and bases.get(cid) == claim[0], "UNSIGNED_ROW")
 
 
-# ----------------------------------------------------------------------------- nested rows (review r2 P2)
+# ----------------------------------------------------------------------------- whole rows (review r2 P2)
 
 SOURCE_MISSING = "LOAD_COMBINATION_SOURCE_RESULT_MISSING"
 ROW_WITHHELD = "LOAD_COMBINATION_ROW_WITHHELD"
@@ -464,6 +467,13 @@ def _nested_identity(reference: Mapping[str, Any], candidate: Mapping[str, Any])
     if a is None or b is None:
         return a is None and b is None
     return all(_field(a, k) == _field(b, k) for k in ("component", "coordinate_system", "location")) and section(a) == section(b)
+
+
+def _flat_identity(reference: Mapping[str, Any], candidate: Mapping[str, Any]) -> bool:
+    """A flat combination's pairing (producer ``combination_source_identity_matches``): kind, unit, entity and the whole
+    metadata, basis and sign_convention included."""
+    return (reference.get("kind") == candidate.get("kind") and reference.get("unit") == candidate.get("unit")
+            and reference.get("entity_ref") == candidate.get("entity_ref") and reference.get("metadata") == candidate.get("metadata"))
 
 
 def _row_id(cid: str, base: str) -> str:
@@ -533,8 +543,9 @@ def _value(row: Any) -> float | None:
 
 
 def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: list, sign: str) -> tuple[list, int, set]:
-    """The rows, withheld-row count and naming diagnostics' ids of one admitted combination with a combination operand
-    (producer ``append_combination_results``, nested pairing)."""
+    """The rows, withheld-row count and naming diagnostics' ids of one admitted combination (producer
+    ``append_combination_results``): nested pairing with a combination operand, flat pairing otherwise."""
+    pairs = _nested_identity if any(t[0] == "combination" for t in targets) else _flat_identity
     rows: list = []
     withheld = 0
     named: set[str] = set()
@@ -589,7 +600,7 @@ def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: lis
             withheld += 1
             continue
         sources = [index.lookup(base, t) for t in targets]
-        sources = [s if s is not None and _nested_identity(reference, s) and _value(s) is not None else None for s in sources]
+        sources = [s if s is not None and pairs(reference, s) and _value(s) is not None else None for s in sources]
         if any(s is None for s in sources):
             named.add(missing)
             continue
@@ -662,10 +673,10 @@ def _support_group(index: _RowIndex, cid: str, expression: graph.Expression, tar
     return rows
 
 
-def _nested_rows(index: _RowIndex, source: Mapping[str, Any], cid: str, basis: Any, operands: list, factors: list, mode: Any,
+def _derived_rows(index: _RowIndex, source: Mapping[str, Any], cid: str, basis: Any, operands: list, factors: list, mode: Any,
                  solved_state_plus_increments: bool) -> None:
-    """Review r2 P2: every row of an admitted mechanics combination, subtraction or envelope with a combination operand,
-    re-derived from its operands' rows (a load case's, or the operand combination's published rows) with ``factors``
+    """Review r2 P2: every row of an admitted absolute sum or SRSS, and of a mechanics combination, subtraction or envelope
+    with a combination operand, re-derived from its operands' rows (a load case's, or the operand combination's published rows) with ``factors``
     (the model's or the derivation record's), as the producer forms it, and compared bit for bit: each published row a
     derived row and each derived row published; every row it does not publish named by the producer's withholding
     diagnostics, and no other withholding stated."""
