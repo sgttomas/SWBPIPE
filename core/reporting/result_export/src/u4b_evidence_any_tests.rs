@@ -217,13 +217,89 @@ fn the_readers_and_dispatch_refuse_an_ambiguous_source_by_name() {
             assert_eq!(d["standing"]["eligible"], false);
             let findings = d["standing"]["findings"].as_array().unwrap();
             assert!(findings.len() == 1 && findings[0].as_str().unwrap().ends_with(code), "{d}");
-            assert_ne!(d["standing"]["token"], clean["standing"]["token"]);
+            assert_eq!(clean["standing"]["token"], "numerically_eligible");
+            // The token an evidence reader's refusal states, beside the not-eligible status.
+            assert_eq!((&d["standing"]["token"], &d["standing"]["status"]), (&json!("unsupported"), &json!("needs_recompute")), "{d}");
             for _ in 0..8 {
                 assert_eq!(dispatch(&bad, Some(model), None), d);
             }
             let same = with_variant(source, 0.0, first);
             assert_eq!(validate(&same), Ok(()));
             assert_eq!(dispatch(&same, Some(model), None)["standing"], clean["standing"]);
+        }
+    }
+}
+
+/// Review F1 (#104): the slot's fields as `Index::new` reads them. A non-string location
+/// or component, a non-object metadata and a missing key read as ""; a basis is read only
+/// from a string (a trailing `; section_basis=` names the empty basis). Each pair below
+/// is one slot, refused with different values in both orders and accepted with equal
+/// ones. A row without a string case, entity or kind is no row of the index, so it never
+/// pairs with one. `tests/test_u4b_review_tampers.py` binds the verifier to these slots.
+#[test]
+fn malformed_slot_fields_read_as_rust_reads_them() {
+    let shear = |location: Option<Value>, basis: Option<Value>, value: f64| {
+        let mut r = shear_y("", json!(value));
+        let md = r["metadata"].as_object_mut().unwrap();
+        md.remove("component");
+        for (key, field) in [("location", location), ("basis", basis)] {
+            match field {
+                Some(v) => md.insert(key.into(), v),
+                None => md.remove(key),
+            };
+        }
+        r
+    };
+    let token = json!("recovered_from_local_element_stiffness");
+    let pairs: [[(Option<Value>, Option<Value>); 2]; 6] = [
+        [(Some(json!(null)), None), (Some(json!("")), None)],
+        [(Some(json!(5)), None), (None, None)],
+        [(Some(json!({"at": "midspan"})), None), (Some(json!([])), None)],
+        [(Some(json!("")), Some(json!(7))), (Some(json!("")), None)],
+        [(Some(json!("")), Some(json!({"b": 1}))), (Some(json!("")), Some(token.clone()))],
+        [(Some(json!("")), Some(json!(null))), (Some(json!("")), Some(json!("token; section_basis=")))],
+    ];
+    let no_metadata = |value: f64| {
+        let mut r = shear_y("", json!(value));
+        r["metadata"] = json!(["location", ""]);
+        r
+    };
+    let mut sets: Vec<[Value; 2]> = pairs.iter().map(|[a, b]| [0, 1].map(|i| {
+        let (l, b2) = if i == 0 { a.clone() } else { b.clone() };
+        shear(l, b2, 2.0 + i as f64)
+    })).collect();
+    sets.push([no_metadata(2.0), shear(Some(json!("")), None, 3.0)]);
+    for [a, b] in &sets {
+        for order in [[a, b], [b, a]] {
+            let rows: Vec<Value> = order.iter().map(|r| (*r).clone()).collect();
+            for route in [Route::Exact, Route::Preview] {
+                assert_eq!(Index::new(&rows, route).err(), Some(ambiguous(route)), "{rows:?}");
+            }
+            let mut equal = rows.clone();
+            equal[1]["value"] = equal[0]["value"].clone();
+            let index = Index::new(&equal, Route::Preview).unwrap();
+            assert_eq!(index.operands.len(), 1);
+            assert_eq!(index.any("case:a", "pipe:p", SHEAR_Y, "", ""), equal[0]["value"].as_f64());
+        }
+    }
+    // A sectioned basis is another slot.
+    let other = [shear(Some(json!("")), None, 2.0), shear(Some(json!("")), Some(json!("t; section_basis=nominal_section")), 3.0)];
+    assert_eq!(Index::new(&other, Route::Preview).unwrap().operands.len(), 2);
+    // No string case, entity or kind: not slotted, so not paired.
+    let skipped: [fn(&mut Value); 5] = [
+        |r| r["entity_ref"] = json!(7),
+        |r| r["kind"] = json!(null),
+        |r| r["basis_ref"]["ref_id"] = json!(3),
+        |r| r["basis_ref"]["ref_type"] = json!("load_combination"),
+        |r| { r.as_object_mut().unwrap().remove("basis_ref"); },
+    ];
+    for skip in skipped {
+        let mut second = shear(Some(json!("")), None, 3.0);
+        skip(&mut second);
+        for rows in [vec![shear(Some(json!("")), None, 2.0), second.clone()], vec![second.clone(), shear(Some(json!("")), None, 2.0)]] {
+            let index = Index::new(&rows, Route::Preview).unwrap();
+            assert_eq!(index.operands.len(), 1);
+            assert_eq!(index.any("case:a", "pipe:p", SHEAR_Y, "", ""), Some(2.0));
         }
     }
 }
