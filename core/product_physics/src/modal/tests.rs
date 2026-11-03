@@ -240,16 +240,32 @@ fn context_refuses_a_tampered_authored_prefix() {
     let mut tampered = lowered(&model);
     tampered.load_cases[ope].primitive_loads[0].provenance = Some("edited".into());
     refused(context.bind_state_case(&tampered), "differs in its provenance");
-    // Another member of the case.
-    let mut tampered = lowered(&model);
-    tampered.load_cases[ope].provenance = Some("edited".into());
-    refused(context.bind_state_case(&tampered), "other than its primitive loads");
     // The field-wise comparison itself.
     let load = &model.load_cases[ope].primitive_loads[0];
     let mut other = load.clone();
     assert_eq!(primitive_load_difference(load, &other), None);
     other.magnitude.value = -0.0 * load.magnitude.value.signum();
     assert_eq!(primitive_load_difference(load, &other), Some("magnitude.value"));
+}
+
+#[test]
+fn the_binder_runs_only_on_preparations_own_lowering() {
+    // §8.43 decision A: the rest of the case is not compared, so the binder's
+    // premise is its provenance: exactly one call, on prepare_modal's own clone,
+    // directly after the one lowering and before any stage rewrites the model.
+    let text = include_str!("prepare.rs");
+    assert_eq!(text.matches("bind_state_case(").count(), 1);
+    let lower = text.find("operating_conditions::lower(&mut model, &mut diagnostics);").unwrap();
+    let bind = text.find("context.bind_state_case(&model)").unwrap();
+    let clone = text.find("let mut model = req.model.clone();").unwrap();
+    assert!(clone < lower && lower < bind);
+    for later in ["validate_profile(", "normalize_model_units(", "resolve_shared_sections(", "withhold_interim_combinations("] {
+        assert!(text.find(later).unwrap() > bind, "{later} runs after the binding's evidence");
+    }
+    assert!(!text[lower..bind].contains("model."), "nothing edits the model between the lowering and the binding");
+    let context = include_str!("context.rs");
+    assert!(context.contains("pub(super) fn bind_state_case("));
+    assert!(!context.contains("fn rest_of_case"));
 }
 
 #[test]
@@ -442,8 +458,10 @@ fn a_static_refusal_of_the_state_case_refuses_it_by_name() {
     let last = found.last().unwrap();
     assert_eq!(last.code, MODAL_STATE_CASE_UNAVAILABLE, "{found:#?}");
     assert!(last.message.contains("static path's own admission"), "{}", last.message);
-    let carried = &found[found.len() - 2];
-    assert!(carried.severity == "blocking" && last.message.contains(&carried.code), "{found:#?}");
+    // The static diagnostics are returned with it, unchanged; the message counts them.
+    let carried: Vec<_> = found[..found.len() - 1].iter().filter(|d| d.severity == "blocking" && d.affected_refs.iter().any(|r| r == "case:hot")).collect();
+    assert!(!carried.is_empty(), "{found:#?}");
+    assert!(last.message.contains(&format!("({} blocking diagnostic(s), returned with this one)", carried.len())), "{}", last.message);
 }
 
 #[test]
@@ -457,7 +475,7 @@ fn a_contents_density_state_case_is_refused_upstream() {
     let found = prepare_modal(&modal(request)).err().unwrap();
     assert!(codes(&found).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{found:#?}");
     assert_eq!(found.last().unwrap().code, MODAL_STATE_CASE_UNAVAILABLE);
-    assert!(found.last().unwrap().message.contains("LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"));
+    assert!(found.last().unwrap().message.contains("blocking diagnostic(s), returned with this one"));
 }
 
 #[test]
@@ -935,27 +953,15 @@ fn inspection_is_pure_and_its_scratch_id_is_unique() {
 #[test]
 fn inspection_is_unreachable_before_preparation_passes() {
     // The one call site is the weight-basis check, which takes a `Prepared`;
-    // a `Prepared` has no constructor outside `prepare_modal`.
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let mut sites = Vec::new();
-    let mut stack = vec![root.clone()];
-    while let Some(dir) = stack.pop() {
-        for entry in std::fs::read_dir(&dir).unwrap() {
-            let path = entry.unwrap().path();
-            if path.is_dir() {
-                stack.push(path);
-            } else if path.extension().is_some_and(|e| e == "rs") && !path.ends_with("modal/tests.rs") {
-                let text = std::fs::read_to_string(&path).unwrap();
-                for (n, line) in text.lines().enumerate() {
-                    if line.contains("inspect_generated_self_weight(") && !line.contains("fn inspect_generated_self_weight(") {
-                        sites.push(format!("{}:{}", path.strip_prefix(&root).unwrap().display(), n + 1));
-                    }
-                }
-            }
-        }
+    // a `Prepared` has no constructor outside `prepare_modal`. Crate-wide
+    // caller exclusivity (no other source calls the inspection) is checked on
+    // the full source by `tools/retained_pricing/tests/test_dynamics_i2a_d3.py`;
+    // here, the modal sources' own call sites, read at compile time.
+    let calls = |text: &str| text.lines().filter(|l| l.contains("inspect_generated_self_weight(")).count();
+    assert_eq!(calls(include_str!("weight_basis.rs")), 1);
+    for text in [include_str!("../modal.rs"), include_str!("context.rs"), include_str!("mass.rs"), include_str!("prepare.rs"), include_str!("request.rs")] {
+        assert_eq!(calls(text), 0);
     }
-    assert_eq!(sites.len(), 1, "{sites:?}");
-    assert!(sites[0].starts_with("modal/weight_basis.rs"), "{sites:?}");
     let prepare_text = include_str!("prepare.rs");
     assert_eq!(prepare_text.matches("Admitted(())").count(), 2, "constructed only in `prepare_modal`");
     assert!(include_str!("weight_basis.rs").contains("pub(crate) fn check_weight_basis(prepared: &Prepared"));

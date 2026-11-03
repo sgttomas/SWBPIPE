@@ -360,6 +360,8 @@ fn preflight_operation(value: &Value) -> Result<(), String> {
             | "Constraint"
             | "EquipmentInterface"
             | "RulePackRef"
+            // Model document 0.9.0 S3a: the condition-set records.
+            | "ConditionSet"
     ) {
         return Err("Unsupported target object_type".into());
     }

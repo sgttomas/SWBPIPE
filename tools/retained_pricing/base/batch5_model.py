@@ -101,7 +101,10 @@ PINS = {
 # (no allocation), its loops run zero times and nothing is pushed. No carrier, child or staging changes.
 # RT-A3 reducer 2a: the added classifier returns an empty vector on D1.5 empty regions; no new carrier,
 # child or staging. The normalized geometry check precedes pressure assembly and is empty on D1.
-PRESSURE_PREFIX_PIN = "e3ffa42e0bf164793423b7f1de09c73fb3259aadf4172d7fc4afd23b215a7cf3"
+# RT-A3 reducer 2b (§8.41): refuse_reducers_outside_step adds the W-15c branch (pressure_step_run_evidence and the
+# pass-through sign test), and step_end_is_collinear's direction helper is extracted (step_end_directions); all run
+# only per reducers_in_regions entry, empty on D1 (D1.4, D1.5). No new carrier, child or staging.
+PRESSURE_PREFIX_PIN = "0ba7ea7e316079b6ead7fb4ba5643a4de7eba4a49e7111b4c63b5ecba16b3ab4"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

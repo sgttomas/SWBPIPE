@@ -440,13 +440,56 @@ source readers still decline condition sets, references and uses by name; the
 ordinary solve publishes. `design`, `peak`, `snow_ice`, `wave` and
 `contents_density` are carried but not used by the solve in 0.9.0.
 
-**Editing.** Condition sets and uses are entered in the model document (JSON)
-today. The engine provides a read-only preview of the resolution (the generated
-records, the resolved wind-exposed pipes and the refusals, computed exactly as
-the solve computes them), which the desktop does not show yet. The
-condition-set manager, the pipe field, the load manager's Conditions control
-and the applier operations are later slices; until then, authoring a case's `condition_use` through the
-desktop's operations is refused by name (`LOAD_CASE_CONDITION_USE_UNSUPPORTED`).
+**Editing through the operations (S3a).** The engine's structured operations
+author condition sets, pipe assignments and case uses, one record or one member
+at a time, alone or in an atomic batch (all applied, or nothing). The desktop's
+condition-set manager, pipe field and load-manager Conditions control are a
+later slice (S3b); until then these operations are reached through the
+operation seam.
+
+- `create_condition_set`, `update_condition_set` and `delete_condition_set` write
+  one whole set as you entered it. A set's shape, units, temperature range,
+  provenance and key uniqueness are checked when the operation is proposed, with
+  the solve's own codes and messages. A set that any pipe still names is not
+  deleted (`OP-CONDITION-SET-IN-USE`, naming each pipe); clear or change those
+  pipes first.
+- `assign_condition_set` sets a pipe's `condition_set_ref`, or clears it. A name
+  that is no set is refused (`OPERATING_CONDITION_SET_UNRESOLVED`).
+  `connect_pipe_run` does not take a set; assign it as its own step.
+- `set_load_case_condition_use` and `clear_load_case_condition_use` state or
+  remove a case's use, and `create_load_case` may carry one. On a pressure-free
+  document `temperature`, `added_weight: true` and `wind_exposure: true` are
+  admitted. `contents_density` (`LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`) and
+  `pressure` (`LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`) are
+  refused, and so is every use on a document with a pressure contract
+  (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`).
+
+You may state a case's use before every pipe has its set. After each of these
+operations the engine runs the solve's own resolution on the result and reports
+what the solve would refuse. A pipe without a set, a missing key, value or
+installation temperature, a case that also carries a thermal primitive or its own
+exposed pipes, a wind-exposure use without `equivalent_static.wind`, and a wind
+exposure that resolves to no pipe are shown as warnings, with the solve's code
+and message. The edit is applied, and the solve still refuses that case by name
+until you supply the input.
+
+Anything else the solve refuses blocks the edit, with one exception: a refusal
+the document already had before the edit, and that the edit cannot affect. A
+snubber or a skewed support elsewhere in the model, for example, does not stop
+you from creating a set, assigning one or stating a case's use. Such a refusal
+is shown as information, with the solve's code and message and a note that the
+document already carried it, and the edit is applied. It still blocks when the
+edit reaches it: when you edit that case itself, when it is a case that uses
+conditions and you change any set or a pipe's assignment, or when the edit
+makes the refusal appear more often. A refusal the edit introduces, one that
+names no particular member, and a use the route refuses always block. The solve
+still refuses the document by name until the member is resolved; an applied edit
+never means the model solves.
+
+Nothing is defaulted at any step: no set is created or suggested, no pipe is
+given a set it was not assigned, and no temperature, weight, exposure or wind
+input is filled in. A hydrostatic `test_condition`, a support `direction` and
+the combination members stay refused at authoring.
 These are mechanics inputs only: no code operating, design or occasional load
 definition is implied, and the results carry no code-compliance claim.
 

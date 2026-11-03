@@ -54,7 +54,8 @@ use b1_sq_inputs as inputs;
 // §8.33: +38,891,800 B in both modes from 6,559,878,321 and 6,619,009,665.
 // §8.36 owner-approved proposal: reviewed native W1 values, without reserved stack R.
 // §8.40: unchanged registered coefficients, actual 680 B PreviewLoadCase (+24 B).
-const W1_PHASE_BYTES: [u64; 2] = [6_602_964_678, 6_662_096_022];
+// §8.41: +286 B. §8.42: -3,989,660 B (the regenerated block drops the kept TAV allowance).
+const W1_PHASE_BYTES: [u64; 2] = [6_598_975_304, 6_658_106_648];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -75,7 +76,8 @@ const W1_PHASE_BYTES: [u64; 2] = [6_602_964_678, 6_662_096_022];
 // §8.33: +38,891,800 B in both modes from 8,856,055,542 and 8,915,186,886.
 // §8.36 owner-approved proposal: reviewed native W3 maximum, without reserved stack R.
 // §8.40: unchanged registered coefficients, actual 680 B PreviewLoadCase (+24 B).
-const MAX_PHASE_BYTES: [u64; 2] = [8_899_142_475, 8_958_273_819];
+// §8.41: +286 B. §8.42: -3,989,660 B (W3 stays the maximum; W4 rises but stays below it).
+const MAX_PHASE_BYTES: [u64; 2] = [8_895_153_101, 8_954_284_445];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

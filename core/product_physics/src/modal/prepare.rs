@@ -47,24 +47,39 @@ fn modal_stop(mut diagnostics: Vec<Diagnostic>, state_case: Option<&str>, from: 
     // A static refusal of the state case refuses the modal request by name,
     // carrying the static diagnostics that refused it.
     if let Some(case) = state_case {
-        let carried: Vec<String> = diagnostics[from..]
+        let carried = diagnostics[from..]
             .iter()
             .filter(|d| d.severity == "blocking" && d.affected_refs.iter().any(|r| r == case))
-            .map(|d| format!("{} ({})", d.code, d.message))
-            .collect();
-        if !carried.is_empty() {
-            diagnostics.push(state_case_unavailable(case, &carried));
+            .count();
+        if carried > 0 {
+            diagnostics.push(state_case_unavailable(case, carried));
         }
     }
     diagnostics
 }
 
-fn state_case_unavailable(case: &str, carried: &[String]) -> Diagnostic {
+/// The modal refusal of a state case the static path refused. The static
+/// diagnostics themselves are returned with it, unchanged; this message counts
+/// them rather than repeating their texts (DEL-04-08 §8.43: a repeated static
+/// message has no source-bound TEXT size).
+fn state_case_unavailable(case: &str, carried: usize) -> Diagnostic {
     diag(
         &format!("diagnostic:modal:state-case:{}:static-refusal", stable_suffix(case)),
         MODAL_STATE_CASE_UNAVAILABLE,
         "blocking",
-        format!("state case `{case}` is refused by the static path's own admission, so it defines no modal model: {}", carried.join("; ")),
+        format!("state case `{case}` is refused by the static path's own admission ({carried} blocking diagnostic(s), returned with this one), so it defines no modal model"),
+        vec!["state_case".to_string(), case.to_string()],
+    )
+}
+
+/// The modal refusal of a state case whose binding cannot be applied, for a
+/// fixed reason.
+fn state_case_unbound(case: &str, reason: &'static str) -> Diagnostic {
+    diag(
+        &format!("diagnostic:modal:state-case:{}:unbound", stable_suffix(case)),
+        MODAL_STATE_CASE_UNAVAILABLE,
+        "blocking",
+        format!("state case `{case}` defines no modal model: {reason}"),
         vec!["state_case".to_string(), case.to_string()],
     )
 }
@@ -212,7 +227,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     let bound_case = match (state_case, binding) {
         (None, _) => None,
         (Some(case), None) => {
-            diagnostics.push(state_case_unavailable(case, &["no binding evidence was taken from the lowered model".to_string()]));
+            diagnostics.push(state_case_unbound(case, "no binding evidence was taken from the lowered model"));
             return Err(diagnostics);
         }
         (Some(_), Some(Err(refusal))) => {
@@ -226,7 +241,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
                 lowered.id == bound.case_id && lowered.primitive_loads.len() == bound.generated_added_weights.end
             });
             if !kept {
-                diagnostics.push(state_case_unavailable(case, &["the case's place changed after it was bound".to_string()]));
+                diagnostics.push(state_case_unbound(case, "the case's place changed after it was bound"));
                 return Err(diagnostics);
             }
             Some(bound)
@@ -367,13 +382,9 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
 /// diagnostic of the step is carried.
 fn stop_resolution(mut diagnostics: Vec<Diagnostic>, state_case: Option<&str>, from: usize) -> Vec<Diagnostic> {
     if let Some(case) = state_case {
-        let carried: Vec<String> = diagnostics[from..]
-            .iter()
-            .filter(|d| d.severity == "blocking")
-            .map(|d| format!("{} ({})", d.code, d.message))
-            .collect();
-        if !carried.is_empty() {
-            diagnostics.push(state_case_unavailable(case, &carried));
+        let carried = diagnostics[from..].iter().filter(|d| d.severity == "blocking").count();
+        if carried > 0 {
+            diagnostics.push(state_case_unavailable(case, carried));
         }
     }
     diagnostics
