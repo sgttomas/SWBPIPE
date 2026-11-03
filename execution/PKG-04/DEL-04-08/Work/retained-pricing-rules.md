@@ -3133,10 +3133,11 @@ above; it shares that registration only because no coefficient moves.
   `bounding_box_diagonal` (`min`, `max` on `f64` coordinates).
 - *MODAL-ID* adds site-specific bounds for the 23 format arguments no existing class covers in `eigen.rs`, `integrity.rs`, `outcome.rs` and the `#[cfg(test)]`
   `tests_eigen.rs`, under a guard keyed on `modal_sturm_count`, so an I2a head adds nothing. Mode numbers and counts
-  are usize decimals (20 B). Each set of static reasons is read from the pinned function, and a second guard counts
-  every instance of the construct that supplies one, literal or computed (the match arms, every
-  `reformation_refusal` call in its file, the domain tuples), so a new or longer literal re-prices and a computed one
-  stops. Debug and Display renderings are bounded at their longest variant with payloads
+  are usize decimals (20 B). Each set of static reasons is read from the pinned function, and a second guard matches
+  the construct that supplies them in its exact all-literal shape: the two reason matches whole, every mention of the
+  private `reformation_refusal` in its file, the checked-value table with a literal domain closing every tuple, and
+  each of `modal_parameter_refusals`' five calls with its literal or fixed-format domain. A new or longer literal
+  re-prices; a computed reason, an extra arm, call or tuple, or a use of the function as a value stops the run. Debug and Display renderings are bounded at their longest variant with payloads
   at class bounds: `FiniteCensus` 162 B, `ShiftDecision` 143 B (`OutOfRange` with `ShiftTimesMass`; the widest
   `FactorizationRejected` is 136 B), a pencil DOF label 131 B, `PencilRangeUnsupported` 170 B, and the axis
   shortfall join of at most three entries 226 B.
@@ -3155,26 +3156,40 @@ above; it shares that registration only because no coefficient moves.
   module `modal/tests.rs`; every other product source, every manifest and the modal_eigen crate are byte-equal. Its debug lib-test binary
   (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256 `75d4c1f0…4251`, same toolchain) was compared with
   the witnessed binary (`56c4444a…2d72`) from their disassemblies:
-  - *Allocation forms.* Each function's whole body was scanned for every instruction that writes `sp`: immediate
-    `sub`/`add` (including `lsl #12`), pre-index writebacks, post-index restores, `mov sp`, register adjustments and
-    stack-probe calls. Neither binary has a `mov sp`, a register adjustment, a probe call or a probe loop; every
-    allocation is an immediate.
-  - *Name-free comparison.* Each function was labelled by its `sp` signature and indirect-call count, refined over its
-    direct callees' labels until stable (23 rounds). Equal labels mean equal unfolded direct-call trees, frame for
-    frame, whatever the symbol names, so neither name normalization nor duplicate generic copies can conflate
-    distinct functions or substitute one called copy for another. All 119 witness-root functions have the same
-    label multisets in both binaries, and all 78,477 functions in their direct-call closure carry labels the witnessed
-    binary has. The witnesses' direct-call stack depth is therefore unchanged.
-  - *Changed frames.* Only five functions anywhere in the binary have an `sp` signature the witnessed binary lacks.
-    All are test-only and outside the witness closure: `self_weight::tests::intensity` (a private helper of four
-    self-weight tests), the `#[test]` bodies `f1b_tests::f1b_an_in_range_reaction_…` and
-    `fallback_transport_tests::pressure_fallback_…`, and the modal test fixtures `reference_request` and
-    `applied_request`, each moving by 16 B. They show that identical source alone does not fix a debug frame.
-  - *Residual.* Indirect calls (331 sites in the closure, many of them in-function jump tables; the rest `dyn`,
-    closure and formatting dispatch) are not resolved statically. Their call sites are unchanged source, so they build
-    the same vtables and function pointers. The only names whose duplicate copies differ in frame and whose copy
-    count changed are `core::ptr::swap_nonoverlapping_bytes` (copies 144 B apart), `alloc::boxed::box_new_uninit`
-    (80 B) and `<usize as core::fmt::Debug>::fmt` (16 B).
+  - *Allocation forms.* Each function's whole body was read in program order, recording every instruction whose
+    destination is `sp` (any opcode, including the `and sp` of an aligned allocation), every pre-index writeback and
+    post-index restore, every `sub xN, sp, …` (the below-sp bound an aligned or probed allocation computes), and every
+    call, tail call and indirect branch with its numeric target. Neither binary has a stack-probe call or probe loop.
+    Two functions per binary align `sp` (`sub x9, sp, #N` then `and sp, x9, #mask`); the one inside the witness
+    closure, `Mask<i8, 16>::to_bitmask`, is identical in both.
+  - *Identity.* Functions are keyed by start address, not name (no two share one), and every call or tail-call target
+    resolves to a function start or to a dylib stub named through the indirect-symbol table; none is unresolved. A
+    branch inside a function is not an edge.
+  - *Name-free comparison.* Each function's label is its ordered event sequence, and refinement replaces every call or
+    tail-call target, in place, by that target's label until the partition is stable (23 rounds). Equal labels mean
+    equal ordered unfoldings: the same `sp` operations in the same order relative to each call, and the same callees
+    at the same points, whatever the symbol names, so duplicate names or generic copies cannot conflate distinct
+    functions or substitute one called copy for another. All 119 witness-root functions (the six `::sparse` and
+    `::dense` entries and their generated helpers) have the same label multisets in both binaries, and all 78,481
+    functions in their call closure carry labels the witnessed binary has. The witnesses' statically visible stack
+    behaviour is therefore unchanged: every direct and tail-call path, with the stack state at each call.
+  - *Changed functions.* Functions with a label the witnessed binary lacks are the modal additions, the five test-only
+    functions whose own frames move by 16 B (`self_weight::tests::intensity`, a private helper of four self-weight
+    tests; the `#[test]` bodies `f1b_tests::f1b_an_in_range_reaction_…` and `fallback_transport_tests::pressure_fallback_…`;
+    the modal fixtures `reference_request` and `applied_request`), their callers, and functions that call new generic
+    copies. None is in the witness closure. The moved frames show that identical source alone does not fix a debug
+    frame.
+  - *Premises and residual.* The comparison is static. It covers direct calls, tail calls and stub calls, each with
+    its stack state, and it rests on two premises:
+    - each label fixes the function's own `sp` arithmetic, its immediates included;
+    - the witnesses' runtime path follows the compared code.
+    Two things are not resolved:
+    - indirect branches (335 in the closure: jump tables inside a function, plus `dyn`, closure and formatting
+      dispatch). Their call sites are unchanged source, so they build the same vtables and function pointers;
+    - the bodies of dylib functions behind stubs (system libraries, compared only by name).
+    Across the binary, only three names whose copy count changed have copies whose frames differ:
+    `core::ptr::swap_nonoverlapping_bytes` (copies 144 B apart), `alloc::boxed::box_new_uninit` (80 B) and
+    `<usize as core::fmt::Debug>::fmt` (16 B).
 
 ## 9. Memory-profile gates and registration
 

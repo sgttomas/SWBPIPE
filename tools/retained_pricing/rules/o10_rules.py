@@ -4298,12 +4298,13 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                             "`global_dof={usize}` (31 B), or pencil_range_text's `free DOF {usize}` (29 B)")
         _M_DECISION = 143   # ShiftDecision Debug: OutOfRange(RangeViolation {..}) at two usize and one f64 Debug
         def _m_static(fn, f, rx, count, why, every):
-            # `rx` reads the static reasons; `every` = (regex, scope) counts every instance of the construct that
-            # supplies one, literal or computed, over the function ("fn") or the whole file ("file"), so a computed
-            # reason added beside the literals changes that count and stops the run instead of escaping the bound.
+            # `rx` reads the static reasons; `every` = (regex, scope, n) matches the construct that supplies them in
+            # its exact all-literal shape (a match block whose every arm is a literal, or every mention of a private
+            # function), over the function ("fn") or the whole file ("file"). A computed reason breaks that shape, so
+            # the run stops instead of the reason escaping the bound.
             _text = _fn_text(fn, _MODAL + f)
             _lits = _re.findall(rx, _text)
-            _all = len(_re.findall(every[0], _text if every[1] == "fn" else _text_of(_MODAL + f)))
+            _all = len(_re.findall(every[0], _text if every[1] == "fn" else _text_of(_MODAL + f), _re.S))
             if len(_lits) != count or _all != every[2]:
                 raise SystemExit(f"MODAL-ID: {f}:{fn}'s static reasons changed ({len(_lits)}, {_all}); re-review (§8.43)")
             return _md(max(len(_l.encode()) for _l in _lits), why)
@@ -4312,21 +4313,31 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                                   (r'let why = match set\.stopped_by \{\s*StoppingBound::\w+ => "[^"]*",\s*_ => "[^"]*",\s*\}', "fn", 1))
         _m_why_sturm = _m_static("modal_sturm_count", "eigen.rs", r'SturmRefusal::\w+ => \(MODAL_\w+, "([^"]*)"\)', 4,
                                  "the longest of the four static Sturm refusal reasons",
-                                 (r'SturmRefusal::\w+\s*=>', "fn", 4))
-        # reformation_refusal is private to integrity.rs (no child module): its definition and four calls are every
-        # occurrence in the file.
+                                 (r'let \(code, why\) = match reason \{(?:\s*SturmRefusal::\w+ => \(MODAL_\w+, "[^"]*"\),){4}\s*\};', "fn", 1))
+        # reformation_refusal is private to integrity.rs (no child module): its definition and four literal calls are
+        # every mention in the file, so a computed call, a fifth call or a use as a function value stops.
         _m_why_reform = _m_static("modal_reformation_operands", "integrity.rs", r'reformation_refusal\([^,]+, "([^"]*)"\.into\(\)\)', 4,
                                   "the longest static reason of reformation_refusal's four callers (its only callers, all here)",
-                                  (r'\breformation_refusal\s*\(', "file", 5))
-        if _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs").count("parameter_refusal(") != 5 \
-                or "&format!(\"a list of dyadic fractions in (0, 1) of level at most {MAX_GAP_POSITION_LEVEL}\")" \
-                not in _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs"):
-            raise SystemExit("MODAL-ID: modal_parameter_refusals' domains changed; re-review (§8.43)")
-        # Every domain: the 15 tuples of the checked-value table, the two `at least 1` calls and the non-empty list;
-        # a sixteenth tuple, literal or computed, changes the tuple count.
+                                  (r'\breformation_refusal\b', "file", 5))
+        # Every domain modal_parameter_refusals supplies, each in its all-literal shape: the checked-value table,
+        # whose every tuple ends in a literal domain (a computed one adds an opening without a literal close), and the
+        # five calls, each matched with its literal or fixed-format domain. Any other shape stops the run.
+        _pr = _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs")
+        _tbl = _re.findall(r'for \(name, value, ok, domain\) in \[(.*?)\]\s*\{', _pr, _re.S)
+        _calls = [
+            len(_re.findall(r'parameter_refusal\(name, format!\("\{value:e\}"\), domain\)', _pr)),
+            len(_re.findall(r'parameter_refusal\(\s*"[a-z_]+",\s*"0"\.into\(\),\s*"at least 1"\)', _pr)),
+            len(_re.findall(r'"sturm_gap_log_positions",.*?&format!\("a list of dyadic fractions in \(0, 1\) of level at most '
+                            r'\{MAX_GAP_POSITION_LEVEL\}"\),?\s*\)\);', _pr, _re.S)),
+            len(_re.findall(r'"sturm_whole_spectrum_offsets",.*?"a non-empty list of finite positive offsets",?\s*\)\);', _pr, _re.S)),
+        ]
+        if len(_tbl) != 1 or len(_re.findall(r'\(\s*"[a-z_.]+",', _tbl[0])) != 15 \
+                or len(_re.findall(r',\s*"[^"]*",?\s*\),?', _tbl[0])) != 15 \
+                or _calls != [1, 2, 1, 1] or _pr.count("parameter_refusal(") != 5:
+            raise SystemExit(f"MODAL-ID: modal_parameter_refusals' domains changed ({len(_tbl)}, {_calls}); re-review (§8.43)")
         _m_domain = _m_static("modal_parameter_refusals", "integrity.rs", r'"(finite[^"]*|at least 1|a non-empty[^"]*)"', 18,
                               "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)",
-                              (r'\(\s*"[a-z_.]+",\s*self\.', "fn", 15))
+                              (r'parameter_refusal\(', "fn", 5))
         _m_domain["bytes"] = max(_m_domain["bytes"], 54 + 10)
         O10_ID_AUDIT += [
             (site("complete_reported_set", _MODAL + "eigen.rs", "{why}, so the set would end", full=True),
