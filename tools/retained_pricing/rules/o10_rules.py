@@ -4211,7 +4211,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
     import hashlib as _modal_hashlib
     # MODAL-FB (CG_RULES, exact target subtractions; the KD5C5/CD-ID pattern): the name-based graph links these modal
     # functions' method calls to certified_publication's private FallbackError add/mul/max/min, entering KD5C6's
-    # private cutset. Their receivers are open_pipe_stress_modal_eigen::dd::Dd (add, mul) and f64 (max, min);
+    # private cutset. Their receivers are open_pipe_stress_modal_eigen::dd::Dd (add, mul) and f64 or usize (max, min);
     # FallbackError is private to certified_publication with no trait, public-return, function-pointer or macro escape
     # (KD5C5). Only those candidates are subtracted; each caller's body is pinned, so an edit re-opens this rule.
     _MODAL_FB = [
@@ -4223,6 +4223,9 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         ("identity_scales", "weight_basis.rs", ("max",), "0057b556c0d6e3fa32b33e56ccf47f08a325b8ad7bfc5847c1a78e01d9be395f"),
         ("largest_difference", "weight_basis.rs", ("max",), "1e88b0f40e93ff68abb97c1108c3da5d01ef067f48b067b5fab6b278ed862acc"),
         ("bounding_diagonal", "weight_basis.rs", ("min", "max"), "cab8c9dbaae3e9440ee030532f766599051375fb98184259cdd73570b2860c1d"),
+        # I2b-1 (#96): `reported.max(1)` on a usize; the bounding box on [f64; 3] coordinates.
+        ("modal_sturm_count", "eigen.rs", ("max",), "cbb35dc0019efe629a21e73f05f844cf61bc365e98f3eebe4b542ccba9175233"),
+        ("bounding_box_diagonal", "outcome.rs", ("min", "max"), "1ae2c9375f2aadf0106a9c79ba7681ddb61f48ff6b2fd806bc00b80a258038ec"),
     ]
     for _fn, _f, _methods, _digest in _MODAL_FB:
         _body = _fn_text(_fn, _MODAL + _f)
@@ -4234,7 +4237,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 raise SystemExit(f"MODAL-FB: certified_publication's {_m} is not unique; re-review (§8.43)")
             CG_RULES += [{"caller": Resolved(_MODAL + _f + ":" + fnkey(_fn, _MODAL + _f).split(":", 1)[1]), "name": _m,
                           "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "MODAL-FB",
-                          "evidence": "modal receivers are Dd (add, mul) and f64 (max, min); private FallbackError is not nameable here (KD5C5); body pinned (§8.43)"}]
+                          "evidence": "modal receivers are Dd (add, mul) and f64 or usize (max, min); private FallbackError is not nameable here (KD5C5); body pinned (§8.43)"}]
     # MODAL-ID (ID_AUDIT, site-specific; the TIM-ID/S2-ID pattern): arguments of modal format sites that no existing
     # class covers. Each site is at multiplicity zero (no retained root reaches modal; the chain classifies every format
     # row before its multiplicity applies). Bounds are read from the pinned source or the D1 domain.
