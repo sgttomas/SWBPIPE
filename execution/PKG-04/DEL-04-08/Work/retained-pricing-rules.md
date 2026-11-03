@@ -3147,19 +3147,32 @@ above; it shares that registration only because no coefficient moves.
   lines): **no coefficient moves**.
 - *Routing.* The five I2b-1 files join the three source-scan declarations, and the product_physics tree digest
   follows.
-- *AC-004 (analysis, not a new run).* I2b-1 compiles new code into the witnessed lib-test binary, so I2a's run is
-  not exact-binary evidence for it. Relative to I2a's witnessed head `b85a5b131`, I2b-1 changes only `modal.rs`'s
-  module declarations and new modal files; every other product source, every manifest and the modal_eigen crate are
-  byte-equal. Its debug lib-test binary (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256
-  `75d4c1f0…4251`, same toolchain) was compared with the witnessed one, function by function. The prologue stack
-  reservation of each function was taken from the disassembly over v0 names with crate disambiguators and
-  back-references normalized: 127,233 common names, all equal except three test-only functions that move by
-  16 B (`self_weight::tests::intensity`, a private helper; two `#[test]` bodies in `fallback_transport_tests` and
-  `f1b_tests`), none reachable from the witnesses; the 18 names present only in the witnessed binary are duplicate
-  generic copies with equal-frame counterparts; neither binary lowers `sp` by a register. Since an opt-level-0 call
-  graph follows the unchanged source, every witness path's frames and depth are equal, and the six witnesses'
-  outcome carries over. The three moved test frames show that identical source alone does not fix a debug frame,
-  so the comparison, not the source argument, is the evidence.
+- *AC-004: analytical transfer of #94's witness evidence, not an executed #96 witness run and not a source-only
+  argument* (Agent 0). I2b-1 compiles new code into the witnessed lib-test binary. Relative to I2a's witnessed head
+  `b85a5b131`, it changes only `modal.rs`'s module declarations and new modal files; every other product source,
+  every manifest and the modal_eigen crate are byte-equal. Its debug lib-test binary
+  (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256 `75d4c1f0…4251`, same toolchain) was compared with
+  the witnessed binary (`56c4444a…2d72`) from their disassemblies:
+  - *Allocation forms.* Each function's whole body was scanned for every instruction that writes `sp`: immediate
+    `sub`/`add` (including `lsl #12`), pre-index writebacks, post-index restores, `mov sp`, register adjustments and
+    stack-probe calls. Neither binary has a `mov sp`, a register adjustment, a probe call or a probe loop; every
+    allocation is an immediate.
+  - *Name-free comparison.* Each function was labelled by its `sp` signature and indirect-call count, refined over its
+    direct callees' labels until stable (23 rounds). Equal labels mean equal unfolded direct-call trees, frame for
+    frame, whatever the symbol names, so neither name normalization nor duplicate generic copies can conflate
+    distinct functions or substitute one called copy for another. All 119 witness-root functions have the same
+    label multisets in both binaries, and all 78,477 functions in their direct-call closure carry labels the witnessed
+    binary has. The witnesses' direct-call stack depth is therefore unchanged.
+  - *Changed frames.* Only five functions anywhere in the binary have an `sp` signature the witnessed binary lacks.
+    All are test-only and outside the witness closure: `self_weight::tests::intensity` (a private helper of four
+    self-weight tests), the `#[test]` bodies `f1b_tests::f1b_an_in_range_reaction_…` and
+    `fallback_transport_tests::pressure_fallback_…`, and the modal test fixtures `reference_request` and
+    `applied_request`, each moving by 16 B. They show that identical source alone does not fix a debug frame.
+  - *Residual.* Indirect calls (331 sites in the closure, many of them in-function jump tables; the rest `dyn`,
+    closure and formatting dispatch) are not resolved statically. Their call sites are unchanged source, so they build
+    the same vtables and function pointers. The only names whose duplicate copies differ in frame and whose copy
+    count changed are `core::ptr::swap_nonoverlapping_bytes` (copies 144 B apart), `alloc::boxed::box_new_uninit`
+    (80 B) and `<usize as core::fmt::Debug>::fmt` (16 B).
 
 ## 9. Memory-profile gates and registration
 
