@@ -315,15 +315,26 @@ tolerance is 1e-9·max(|ref|, the largest |ref| in its group).
 
 ## Combinations
 
-A `mechanics` combination of a model with any nonlinear support is withheld as
-`NONLINEAR_COMBINATION_REQUIRES_SOLVE`. This is the PF rule
-(`pf-nonlinear-operand-standing.md`). S5 lifts it onto EX, where
-`exact-combinations.md` §4 says it "cannot arise" today. It is a model
-condition, independent of factors, states and pressure.
+In a model with any nonlinear support, a `mechanics` combination is withheld as
+`NONLINEAR_COMBINATION_REQUIRES_SOLVE` (the PF rule,
+`pf-nonlinear-operand-standing.md`; S5 lifts it onto EX, where
+`exact-combinations.md` §4 says it "cannot arise" today), with one adopted
+exception. Decision OQ-1 (Agent 0, 2026-10-31; DEL-05-02
+`Work/absolute-sum-srss-combinations.md` §5.2) admits it exactly when one term
+names a solved load case with factor exactly 1, it has at least one other term,
+and every other term names a combination whose κ is exactly 0 (a difference, an
+absolute sum or an SRSS of κ-zero operands, or a combination of those; an
+undefined κ does not qualify). Such a combination is formed from rows with
+operand standing and reads "a solved state plus derived differences or bounds;
+not an equilibrium state". For example, with D = result_state_subtraction(O1-CONTACT,
+O1-LIFT) and E = srss(D), mechanics(1·O1-CONTACT + 1·E) is admitted. Outside
+that shape the withholding is a model condition, independent of factors,
+states and pressure. These references give no values for an OQ-1 combination.
 
 Withheld:
-- every flat mechanics combination over the G, F or O models, including the
-  singleton mechanics(1·G1);
+- every flat mechanics combination over the G, F or O models (all terms name
+  load cases), including the singleton mechanics(1·G1), which OQ-1 excludes
+  because it has no other term;
 - unit-sum combinations, such as 0.3·O1-LIFT + 0.7·O1-CONTACT;
 - combinations whose operands share a state;
 - absolute-sum/SRSS forms outside OQ-1's admitted shape

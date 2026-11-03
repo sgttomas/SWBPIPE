@@ -1906,13 +1906,22 @@ def build_reference():
     for key, (comb, solved) in mid.items():
         chk.true(f"combination illustration: 0.5*F1-SLIDE + 0.5*F1-STICK != solved F1-MID ({key})", comb != solved)
     combinations = {
-        "rule": ("A mechanics combination of a model with any nonlinear support is withheld by name, "
+        "rule": ("In a model with any nonlinear support a mechanics combination is withheld by name, "
                  "NONLINEAR_COMBINATION_REQUIRES_SOLVE (pf-nonlinear-operand-standing.md; exact-combinations.md §4, "
-                 "to be lifted onto EX in S5 by R-4 §3.5). It is a model condition: the factors, the operands' states and "
-                 "the pressure do not matter. result_state_subtraction and range_envelope are formed from the operand "
-                 "cases' published rows, as derived results with operand standing, never an equilibrium state."),
+                 "to be lifted onto EX in S5 by R-4 §3.5), except as admitted by decision OQ-1 "
+                 "(absolute-sum-srss-combinations.md §5.2): one term names a solved load case with factor exactly 1, "
+                 "there is at least one other term, and every other term names a combination with kappa exactly 0 "
+                 "(a difference, absolute sum or SRSS of kappa-zero operands, or a combination of those; undefined "
+                 "kappa does not qualify); such a combination is formed from rows with operand standing, not an "
+                 "equilibrium state, and these references give no values for it. Outside that shape the withholding "
+                 "is a model condition: the factors, the operands' states and the pressure do not matter. "
+                 "result_state_subtraction and range_envelope are formed from the operand cases' published rows, as "
+                 "derived results with operand standing, never an equilibrium state."),
+        "admitted_by_oq1_example": ("mechanics(1.0*O1-CONTACT + 1.0*E) with E = srss(D) and "
+                                    "D = result_state_subtraction(O1-CONTACT, O1-LIFT)"),
         "withheld": [
-            "every flat mechanics combination over the G, F or O models, e.g. mechanics(1.0*G1) (singleton), "
+            "every flat mechanics combination over the G, F or O models (all terms name load cases; OQ-1 does not "
+            "apply), e.g. mechanics(1.0*G1) (singleton: no other term), "
             "mechanics(0.5*G1 + 0.5*G1-P0), mechanics(1.0*F1-SLIDE + 1.0*F1-P0-SLIDELOAD), "
             "mechanics(0.3*O1-LIFT + 0.7*O1-CONTACT) (unit factor sum: still withheld)",
             "the same combinations with gap-bearing operands (G models); their operands are also unqualified",
