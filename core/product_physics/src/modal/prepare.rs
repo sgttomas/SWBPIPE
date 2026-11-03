@@ -72,6 +72,18 @@ fn state_case_unavailable(case: &str, carried: usize) -> Diagnostic {
     )
 }
 
+/// The modal refusal of a state case whose binding cannot be applied, for a
+/// fixed reason.
+fn state_case_unbound(case: &str, reason: &'static str) -> Diagnostic {
+    diag(
+        &format!("diagnostic:modal:state-case:{}:unbound", stable_suffix(case)),
+        MODAL_STATE_CASE_UNAVAILABLE,
+        "blocking",
+        format!("state case `{case}` defines no modal model: {reason}"),
+        vec!["state_case".to_string(), case.to_string()],
+    )
+}
+
 /// The id of [`request_basis_case`]'s internal case. It never leaves this
 /// module: [`attribute_request_basis`] renames it in every diagnostic the static
 /// resolver emits for it.
@@ -215,7 +227,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     let bound_case = match (state_case, binding) {
         (None, _) => None,
         (Some(case), None) => {
-            diagnostics.push(state_case_unavailable(case, &["no binding evidence was taken from the lowered model".to_string()]));
+            diagnostics.push(state_case_unbound(case, "no binding evidence was taken from the lowered model"));
             return Err(diagnostics);
         }
         (Some(_), Some(Err(refusal))) => {
@@ -229,7 +241,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
                 lowered.id == bound.case_id && lowered.primitive_loads.len() == bound.generated_added_weights.end
             });
             if !kept {
-                diagnostics.push(state_case_unavailable(case, &["the case's place changed after it was bound".to_string()]));
+                diagnostics.push(state_case_unbound(case, "the case's place changed after it was bound"));
                 return Err(diagnostics);
             }
             Some(bound)

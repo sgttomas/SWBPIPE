@@ -4232,7 +4232,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             _target = fnkey(_m, _CP)
             if not _target:
                 raise SystemExit(f"MODAL-FB: certified_publication's {_m} is not unique; re-review (§8.43)")
-            CG_RULES += [{"caller": fnkey(_fn, _MODAL + _f), "name": _m,
+            CG_RULES += [{"caller": Resolved(_MODAL + _f + ":" + fnkey(_fn, _MODAL + _f).split(":", 1)[1]), "name": _m,
                           "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "MODAL-FB",
                           "evidence": "modal receivers are Dd (add, mul) and f64 (max, min); private FallbackError is not nameable here (KD5C5); body pinned (§8.43)"}]
     # MODAL-ID (ID_AUDIT, site-specific; the TIM-ID/S2-ID pattern): arguments of modal format sites that no existing
@@ -4260,6 +4260,8 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
          {'nonlinear.join(",")': _M_EMPTY}),
         (site("state_case_requirement", _MODAL + "request.rs", 'reasons.push(format!("the model has nonlinear supports ({})"', full=True),
          {'nonlinear.join(",")': _M_EMPTY}),
+        (site("state_case_unbound", _MODAL + "prepare.rs", "defines no modal model: {reason}", full=True),
+         {"reason": _md(52, "one of state_case_unbound's two static reasons, the longer 52 B")}),
         (site("validate_modal_request", _MODAL + "request.rs", "is {hz} Hz; a frequency cut-off is positive", full=True), {"hz": _M_F64}),
         (site("validate_modal_request", _MODAL + "request.rs", "names its state_case because {why}", full=True),
          {"why": _md(86, "state_case_requirement's static reasons joined by ` and ` (46 + 5 + 35 B), the nonlinear list empty on D1")}),
