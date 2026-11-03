@@ -52,7 +52,10 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # RT-A3 increment 1 D3 (§8.33): solve_prepared_load_case appends a straight exact member's branch-connection rows
 # (u4b_rows::append_branch_intensified; none on D1, D1.4); its consumption of the fallback attempts and every
 # first-return alternative are unchanged.
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+# DEL-04-09 I2b-2 D3 (§8.43, decision B): solve_prepared_load_case sets LoadCaseSolve.nonlinear_state to None at its
+# early returns and stores capture_nonlinear_state_evidence's result (a converged nonlinear solve only; none on D1,
+# D1.6); its consumption of the fallback attempts and every first-return alternative are unchanged.
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '877bc621ed8f9b144f70df10231a39dd60ac916a8a2a0e949ad276898cc73aac', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")
