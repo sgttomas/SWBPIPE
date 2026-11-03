@@ -140,12 +140,15 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # RT-A3 increment 1 D3 (§8.33): junction_closure_warnings, its per-case helper and their own `warn` helper (no call
     # of `problem`) precede check_suffixes; the later parents move +88 with unchanged text.
     '646:check_suffixes', '660:normalize_region_units', '733:assemble_pressure_case', '1217:add_joint_terms',
-    '1467:finish_source_groups', '1615:traverse_region', '1864:refuse_reducers_outside_step', '1917:collinear_run')]
+    '1467:finish_source_groups', '1615:traverse_region', '1882:refuse_reducers_outside_step', '1959:collinear_run')]
 # RT-A3 reducer 2a (§8.38): the new problem parent is inside the loop over reducers_in_regions.
 # D1.4 admits no components and D1.5 has empty E regions, so that classifier returns an empty Vec
 # (no push/table initialization), the loop has no iteration and problem receives no new message/ref owner.
 # The full-file source pins and batch5 production-prefix pin bind those producer premises. Existing
 # callers above retain unchanged text and ownership; only their verified line keys move.
+# RT-A3 reducer 2b (§8.41): refuse_reducers_outside_step's W-15c branch adds 18 lines before it and the extracted
+# step_end_passes_through/step_end_directions 24 more before collinear_run (1864 -> 1882, 1917 -> 1959, unchanged
+# text). The problem call stays inside the loop over reducers_in_regions, empty on D1; no new parent or owner.
 # U5B-JV (T4-U5b): joint.rs `hardware`'s match binding `Err(Some(problem)) => problems.push(problem)` gives the
 # by-name value scan one more graph parent of `problem`, which hardware never calls; o10_rules.py zeroes that edge, and
 # the owner's message/ref bounds are unchanged (hardware passes neither).

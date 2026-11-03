@@ -49,6 +49,9 @@ def test_a_snapshot_without_the_owners_adds_nothing(tmp_path):
     (MODEL["RP"], "let mut out_of_domain=self.adapter.reserve::<Option<f64>>(self.members.len())?;",
      "let mut out_of_domain=self.adapter.reserve::<Option<f64>>(2*self.members.len())?;"),
     (MODEL["EVID"], "        let mut map = HashMap::new();\n", "        let mut map = HashMap::with_capacity(rows.len() * 2);\n"),
+    # RT-U4: `any`'s component-free map is push-grown from empty and holds <= rows entries.
+    (MODEL["EVID"], "            let mut first = HashMap::new();\n",
+     "            let mut first = HashMap::with_capacity(self.rows.len() * 2);\n"),
     (MODEL["ROWS"], "            input_result_ids: inputs.iter().map(|r| r.id.clone()).collect(),\n",
      "            input_result_ids: inputs.iter().chain(inputs.iter()).map(|r| r.id.clone()).collect(),\n"),
     # U5B-CG (T4-S6): a third group push, or a cloned group vector, is not the reviewed owner.
@@ -94,3 +97,14 @@ def test_u4b_w1_grows_the_exact_clone_by_doubling():
 def test_u5b_cg_charges_one_group_vector_per_evidence():
     assert MODEL["contribution_groups"](32, 32) == {"1": 512}
     assert MODEL["contribution_groups"](1, 0) == {"1": 32}
+
+
+def test_u4b_rd_charges_each_index_its_row_table_and_any_map():
+    """RT-U4: each of the three priced Indexes (preview base read, route E base read, preview_model_checks) holds the
+    row table (its previous table freed inside `new`) and `any`'s map at the row stride with its previous table."""
+    from g3lib import buckets
+    for rows in (1, 7, 1_000, 14_000):
+        b = buckets(rows)
+        prev = b // 2 if b > 4 else 0
+        form = MODEL["reader_working_sets"](rows, 3, 32, MODEL["X"]())
+        assert form["s(U4bSlotEntry)"] == 3 * (2 * b + prev)
