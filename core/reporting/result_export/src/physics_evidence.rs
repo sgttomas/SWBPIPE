@@ -399,10 +399,13 @@ fn validate_direct_pressure_evidence(source: &Value) -> Check {
         .get("load_reference_states")
         .is_some()
     {
-        crate::load_reference::validate_pressure_load_reference_evidence(source)
+        crate::load_reference::validate_pressure_load_reference_evidence(source)?;
     } else {
-        validate_physics_evidence_in(source, false, PressureContract::PressureV3)
+        validate_physics_evidence_in(source, false, PressureContract::PressureV3)?;
     }
+    // RT-A3 increment 4 (R-4 §2.4): the nonlinear support results, their laws
+    // and standing (`nonlinear_support_evidence`); a no-op without them.
+    crate::nonlinear_support_evidence::check(source)
 }
 /// The physics checks under an explicitly selected exact pressure contract.
 /// A v3 source composite reads its received 0.4 resolved state directly.

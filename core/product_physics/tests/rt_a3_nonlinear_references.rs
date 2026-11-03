@@ -46,9 +46,10 @@
 //! explicit primitive load and refuses it by name (`LOAD_INPUT_MISSING`); the
 //! binding pins that refusal and invents no load. The other 20 cases bind.
 //!
-//! The pressure reader reads the nonlinear row kinds but does not check their
-//! laws or standings (R-4 §2.4, pending), so the forged controls are refused
-//! by this binding; the reader's verdict on each is printed, not asserted.
+//! The pressure reader binds the nonlinear rows, their DEC-067 laws and their
+//! standings (R-4 §2.4; `result_export::nonlinear_support_evidence`): every
+//! forged control is refused by this binding and by the reader, with and
+//! without the model, by the code named in the test.
 //!
 //! Combinations: the EX gate `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and OQ-1
 //! are the load-case lane's (RT-A4). On this base EX has no such gate; the
@@ -768,24 +769,101 @@ fn documents_are_plain_v3_with_the_packet_inputs() {
     }
 }
 
+/// The pressure reader's refusal of a forged envelope: `(without, with)` the
+/// model, each the refusal code or `None` for an admission.
+fn reader_codes(envelope: &Value, document: &Value) -> (Option<String>, Option<String>) {
+    let code = |model: Option<&Value>| {
+        let found = reader_verdict::validate("pressure", envelope, model, None);
+        (found["ok"] != true).then(|| found["error"]["code"].as_str().unwrap().to_string())
+    };
+    (code(None), code(Some(&document["model"])))
+}
+
+fn set_rows(envelope: &mut Value, kind: &str, entity: &str, f: &dyn Fn(&mut Value)) {
+    let mut hit = 0;
+    for r in envelope["results"].as_array_mut().unwrap() {
+        if r["kind"] == kind && r["entity_ref"] == entity {
+            f(r);
+            hit += 1;
+        }
+    }
+    assert!(hit > 0, "{kind} {entity}");
+}
+
+/// Scale a support's final reaction and its slot component (`component`) by
+/// `factor`; with `magnitude`, its force magnitude row too.
+fn scale_support(envelope: &mut Value, support: &str, component: &str, factor: f64, magnitude: bool) {
+    for kind in ["nonlinear_support_final_reaction", "support_reaction_component_v2", "support_reaction_force_magnitude_v2"] {
+        if kind == "support_reaction_force_magnitude_v2" && !magnitude {
+            continue;
+        }
+        set_rows(envelope, kind, support, &|r| {
+            if r["kind"] != "support_reaction_component_v2" || r["metadata"]["component"] == component {
+                r["value"] = json!(factor * r["value"].as_f64().unwrap());
+            }
+        });
+    }
+}
+
+/// Restate a support's final state on its rows and, with `review`, on its
+/// `NONLINEAR_SUPPORT_STATE_REVIEW` diagnostic.
+fn restate(envelope: &mut Value, support: &str, from: &str, to: &str, code: f64, review: bool) {
+    for kind in ["nonlinear_support_active_set_state_code", "nonlinear_support_final_reaction", "nonlinear_support_final_displacement"] {
+        set_rows(envelope, kind, support, &|r| {
+            if r["kind"] == "nonlinear_support_active_set_state_code" {
+                r["value"] = json!(code);
+            }
+            let basis = r["metadata"]["basis"].as_str().unwrap().replace(&format!("final_state={from}"), &format!("final_state={to}"));
+            r["metadata"]["basis"] = json!(basis);
+        });
+    }
+    if review {
+        for d in envelope["diagnostics"].as_array_mut().unwrap() {
+            if d["code"] == "NONLINEAR_SUPPORT_STATE_REVIEW" && d["affected_refs"][0] == support {
+                d["message"] = json!(d["message"].as_str().unwrap().replace(&format!(" in {from} state"), &format!(" in {to} state")));
+            }
+        }
+    }
+}
+
+/// Relabel the case's integrity code `from` as Passed; with `quality`, its
+/// `numerical_quality` record and aggregate too, and with `line`, kd5 §3.3's
+/// evidence line appended to its message.
+fn relabel_passed(envelope: &mut Value, from: &str, quality: bool, line: bool) {
+    for d in envelope["diagnostics"].as_array_mut().unwrap() {
+        if d["code"] == from {
+            d["code"] = json!(PASSED);
+            d["severity"] = json!("info");
+            if line {
+                d["message"] = json!(format!("{} Converged support state: established at 128-bit precision by one formation-checked solve; (forged)", d["message"].as_str().unwrap()));
+            }
+        }
+    }
+    if quality {
+        let q = &mut envelope["numerical_quality"];
+        q["status"] = json!("checks_passed");
+        for case in q["cases"].as_array_mut().unwrap() {
+            case["solve_quality"] = json!("checks_passed");
+            case["structural_status"] = json!("passive_model_basis");
+            case["model_matrix_fidelity"] = json!("represented_equations_retained");
+            case["accuracy_evidence"] = json!("not_claimed");
+        }
+    }
+}
+
 /// Forged rows: a gap contact, a support state, a friction force above μN and
-/// a wrong standing. The binding refuses each; the reader's verdict on each is
-/// printed (on this base it accepts all five; R-4 §2.4's reader work).
+/// a wrong standing. The binding refuses each, and so does the pressure reader
+/// (`result_export::nonlinear_support_evidence`), with and without the model,
+/// by the code named. Deeper variants that keep the cheaper evidence
+/// consistent reach the reader's later rules; the Python mirror
+/// (`tests/test_rt_a3_nonlinear_reader.py`) refuses the same envelopes by the
+/// same codes.
 #[test]
 fn forged_contacts_states_friction_and_standings_are_refused() {
     let references = references();
     let mode = PreviewSolverMode::DenseScrutiny;
-    let set_row = |envelope: &mut Value, kind: &str, entity: &str, f: &dyn Fn(&mut Value)| {
-        let mut hit = 0;
-        for r in envelope["results"].as_array_mut().unwrap() {
-            if r["kind"] == kind && r["entity_ref"] == entity {
-                f(r);
-                hit += 1;
-            }
-        }
-        assert!(hit > 0, "{kind} {entity}");
-    };
-    let mut verdicts = Vec::new();
+    let both = |code: &str| (Some(format!("SOURCE_PHYSICS_NONLINEAR_{code}")), Some(format!("SOURCE_PHYSICS_NONLINEAR_{code}")));
+    let model_only = |code: &str| (None, Some(format!("SOURCE_PHYSICS_NONLINEAR_{code}")));
 
     // 1. A forged contact: G1's gap reaction halved in its loop row and its
     //    support action row (so the two agree).
@@ -793,13 +871,7 @@ fn forged_contacts_states_friction_and_standings_are_refused() {
     let document_g1 = document(&references, g1);
     let clean = solved(&document_g1, mode, "G1");
     let mut forged = clean.clone();
-    for kind in ["nonlinear_support_final_reaction", "support_reaction_component_v2"] {
-        set_row(&mut forged, kind, "support:GAP", &|r| {
-            if r["kind"] == "nonlinear_support_final_reaction" || r["metadata"]["component"] == "Fx" {
-                r["value"] = json!(0.5 * r["value"].as_f64().unwrap());
-            }
-        });
-    }
+    scale_support(&mut forged, "support:GAP", "Fx", 0.5, false);
     let want = expected(g1);
     let got = observed(g1, &forged);
     // A halved contact is still lawful, so the reference comparison refuses it.
@@ -808,66 +880,74 @@ fn forged_contacts_states_friction_and_standings_are_refused() {
         let expected = want[key].0;
         assert!((got[key] - expected).abs() > 1e-9 * expected.abs().max(floor), "{key}: the binding refuses the forged contact");
     }
-    verdicts.push(("G1 contact halved", reader(&forged, Some(&document_g1))));
+    // The reader: the support's magnitude no longer follows its components.
+    assert_eq!(reader_codes(&forged, &document_g1), both("MAGNITUDE"), "G1 contact halved");
+    // Limit: halved with its magnitude too, the contact is lawful and
+    // self-consistent; only the references (or an equilibrium binding the
+    // reader does not have) refuse it.
+    let mut forged = clean.clone();
+    scale_support(&mut forged, "support:GAP", "Fx", 0.5, true);
+    assert_eq!(reader_codes(&forged, &document_g1), (None, None), "G1 contact and magnitude halved: the reader's limit");
 
     // 2. A forged state: G1's closed gap published inactive with its contact.
     let mut forged = clean.clone();
-    set_row(&mut forged, "nonlinear_support_active_set_state_code", "support:GAP", &|r| {
-        r["value"] = json!(0.0);
-        let basis = r["metadata"]["basis"].as_str().unwrap().replace("final_state=active", "final_state=inactive");
-        r["metadata"]["basis"] = json!(basis);
-    });
-    for kind in ["nonlinear_support_final_reaction", "nonlinear_support_final_displacement"] {
-        set_row(&mut forged, kind, "support:GAP", &|r| {
-            let basis = r["metadata"]["basis"].as_str().unwrap().replace("final_state=active", "final_state=inactive");
-            r["metadata"]["basis"] = json!(basis);
-        });
-    }
+    restate(&mut forged, "support:GAP", "active", "inactive", 0.0, false);
     assert!(law_violations(&references, g1, &forged).iter().any(|v| v.contains("state inactive")), "the binding refuses the forged state");
-    verdicts.push(("G1 closed gap stated inactive", reader(&forged, Some(&document_g1))));
+    assert_eq!(reader_codes(&forged, &document_g1), both("STATE_REVIEW"), "G1 closed gap stated inactive");
+    // With its state diagnostic restated too: an inactive support carries no force.
+    restate(&mut forged, "support:GAP", "active", "inactive", 0.0, true);
+    assert_eq!(reader_codes(&forged, &document_g1), both("INACTIVE_REACTION"), "G1 inactive with its contact");
+    // An open gap (G2) stated active: closed only at its clearance (model).
+    let g2 = case(&references, "G2");
+    let document_g2 = document(&references, g2);
+    let mut forged = solved(&document_g2, mode, "G2");
+    restate(&mut forged, "support:GAP", "inactive", "active", 1.0, true);
+    assert_eq!(reader_codes(&forged, &document_g2), model_only("MODEL_COMPLEMENTARITY"), "G2 open gap stated active");
 
     // 3. Friction above μN: F1-SLIDE's sliding force set to 1.1·μN.
     let f1 = case(&references, "F1-SLIDE");
     let document_f1 = document(&references, f1);
     let clean_f1 = solved(&document_f1, mode, "F1-SLIDE");
     let mut forged = clean_f1.clone();
-    for kind in ["nonlinear_support_final_reaction", "support_reaction_component_v2"] {
-        set_row(&mut forged, kind, "support:FRICTION", &|r| {
-            if r["kind"] == "nonlinear_support_final_reaction" || r["metadata"]["component"] == "Fz" {
-                r["value"] = json!(1.1 * r["value"].as_f64().unwrap());
-            }
-        });
-    }
+    scale_support(&mut forged, "support:FRICTION", "Fz", 1.1, false);
     assert!(law_violations(&references, f1, &forged).iter().any(|v| v.contains("above muN")), "the binding refuses friction above muN");
-    verdicts.push(("F1-SLIDE friction 1.1 muN", reader(&forged, Some(&document_f1))));
+    assert_eq!(reader_codes(&forged, &document_f1), both("MAGNITUDE"), "F1-SLIDE friction 1.1 muN");
+    // With its magnitude too: μ is an input, so the model refuses it.
+    let mut forged = clean_f1.clone();
+    scale_support(&mut forged, "support:FRICTION", "Fz", 1.1, true);
+    assert_eq!(reader_codes(&forged, &document_f1), model_only("MODEL_FRICTION_CAPACITY"), "F1-SLIDE friction and magnitude 1.1 muN");
+    // The sliding force turned with the slip (its magnitude unchanged).
+    let mut forged = clean_f1.clone();
+    scale_support(&mut forged, "support:FRICTION", "Fz", -1.0, false);
+    assert_eq!(reader_codes(&forged, &document_f1), both("SLIP"), "F1-SLIDE force along the slip");
+    // The derived normal no longer its source's published reaction.
+    let mut forged = clean_f1.clone();
+    set_rows(&mut forged, "nonlinear_support_friction_normal_reaction_derived", "support:FRICTION", &|r| r["value"] = json!(2.0 * r["value"].as_f64().unwrap()));
+    assert_eq!(reader_codes(&forged, &document_f1), both("NORMAL"), "F1-SLIDE derived normal doubled");
 
     // 4. A wrong standing: G1's unqualified label replaced by Passed.
     let mut forged = clean.clone();
-    for d in forged["diagnostics"].as_array_mut().unwrap() {
-        if d["code"] == UNQUALIFIED {
-            d["code"] = json!(PASSED);
-            d["severity"] = json!("info");
-        }
-    }
+    relabel_passed(&mut forged, UNQUALIFIED, false, false);
     assert!(standing_violation(g1, &forged).is_some(), "the binding refuses the wrong standing");
-    verdicts.push(("G1 standing forged Passed", reader(&forged, Some(&document_g1))));
+    assert_eq!(reader_codes(&forged, &document_g1), both("STANDING"), "G1 standing forged Passed");
+    // With its quality record too: a gap-bearing case is never Passed (R1).
+    let mut forged = clean.clone();
+    relabel_passed(&mut forged, UNQUALIFIED, true, true);
+    assert_eq!(reader_codes(&forged, &document_g1), both("GAP_STANDING"), "G1 standing and quality forged Passed");
 
     // 5. A wrong standing: F1-P0-SLIDELOAD's Sensitive replaced by Passed.
     let p0 = case(&references, "F1-P0-SLIDELOAD");
     let document_p0 = document(&references, p0);
-    let mut forged = solved(&document_p0, mode, "F1-P0-SLIDELOAD");
-    for d in forged["diagnostics"].as_array_mut().unwrap() {
-        if d["code"] == SENSITIVE {
-            d["code"] = json!(PASSED);
-            d["severity"] = json!("info");
-        }
-    }
+    let clean_p0 = solved(&document_p0, mode, "F1-P0-SLIDELOAD");
+    let mut forged = clean_p0.clone();
+    relabel_passed(&mut forged, SENSITIVE, false, false);
     assert!(standing_violation(p0, &forged).is_some(), "the binding refuses the wrong standing");
-    verdicts.push(("F1-P0 standing forged Passed", reader(&forged, Some(&document_p0))));
-
-    for (what, verdict) in &verdicts {
-        println!("reader on {what}: {}", verdict.as_deref().unwrap_or("ACCEPTED"));
-    }
+    assert_eq!(reader_codes(&forged, &document_p0), both("STANDING"), "F1-P0 standing forged Passed");
+    // With its quality record and the evidence line: a derived normal that is
+    // not established fails closed (kd5 §2.2), never Passed.
+    let mut forged = clean_p0.clone();
+    relabel_passed(&mut forged, SENSITIVE, true, true);
+    assert_eq!(reader_codes(&forged, &document_p0), both("FRICTION_NORMAL_STANDING"), "F1-P0 standing, quality and line forged Passed");
 }
 
 /// The admission seam: a nonlinear support on a load/reference-state document
@@ -952,3 +1032,4 @@ fn observe_flat_mechanics_combinations_on_this_base() {
         println!("{GATE_CODE} diagnostics: {}", gated.len());
     }
 }
+

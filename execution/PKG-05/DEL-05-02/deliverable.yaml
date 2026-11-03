@@ -259,6 +259,10 @@ code_paths:
 - core/reporting/result_export/tests/exact_combination_contract.rs
 - tests/test_exact_combination_verifier.py
 - validation/references/w16_exact_combinations/**
+# RT-A3 increment 4 (DEL-04-07 route-unification-r4.md §2.4): the pressure-2 reader's binding of the
+# nonlinear support results, its Python mirror (tests/verifiers/) and their parity test.
+- core/reporting/result_export/src/nonlinear_support_evidence.rs
+- tests/test_rt_a3_nonlinear_reader.py
 checks:
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
 - core/product_physics/tests/preview_physics_runtime.rs
@@ -293,6 +297,7 @@ checks:
 - tests/test_semantic_contract_tables.py
 - tests/test_u4b_review_tampers.py
 - tests/test_exact_combination_verifier.py
+- tests/test_rt_a3_nonlinear_reader.py
 # Desktop (desktop-test).
 - apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
 - apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts

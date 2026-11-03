@@ -58,7 +58,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import component_body, exact_combinations, global_end, section_basis as sb, u4b
+from . import component_body, exact_combinations, global_end, nonlinear_support_evidence, section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -213,11 +213,14 @@ def _validate_direct_pressure_evidence(source: Mapping[str, Any]) -> None:
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
     if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
         _load_state_evidence(source)
-        return
-    try:
-        _physics(source)
-    except (TypeError, KeyError, AttributeError, OverflowError) as error:
-        raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    else:
+        try:
+            _physics(source)
+        except (TypeError, KeyError, AttributeError, OverflowError) as error:
+            raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+    # RT-A3 increment 4 (R-4 §2.4): the nonlinear support results, their laws and standing (Rust
+    # `nonlinear_support_evidence::check`); a no-op without them.
+    nonlinear_support_evidence.check(source)
 
 
 def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:

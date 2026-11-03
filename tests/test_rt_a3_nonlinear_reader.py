@@ -1,0 +1,296 @@
+"""RT-A3 increment 4 (DEL-04-07 Design ``route-unification-r4.md`` §2.4 and §3.5 S5; ``pressure-contract.md``,
+"Nonlinear supports on EX (RT-A3 increment 4)"): the test-only Python pressure-2 reader
+(``tests/verifiers/pressure_2.py`` with ``nonlinear_support_evidence.py``) and the Rust product reader
+(``openpipestress-runner read pressure``) take the same verdict on the exact route's nonlinear support results.
+
+Each case of the frozen references (``validation/references/rt_a3_nonlinear/``, 20 of 21; G1-P0 has no load and is
+refused by the product) is authored as the Rust binding authors it (``core/product_physics/tests/
+rt_a3_nonlinear_references.rs``, ``document``) and solved by the runner in both modes. Both readers admit all 40
+envelopes with and without their model, and refuse the binding's forged envelopes by the same code (its negative
+controls, mirrored here), with one pinned limit: a contact scaled consistently, magnitude included, is lawful and
+self-consistent and is refused only by the references.
+
+Needs ``OPENPIPESTRESS_RUNNER_BIN`` (``tests/conftest.py`` builds it unless ``OPENPIPESTRESS_NO_CARGO_BUILD`` is
+set); skipped without it.
+"""
+from __future__ import annotations
+
+from copy import deepcopy
+import json
+import math
+import os
+from pathlib import Path
+import subprocess
+
+import pytest
+
+from tests.verifiers import reader_verdict as rv
+
+ROOT = Path(__file__).resolve().parents[1]
+REFERENCES = json.loads((ROOT / "validation/references/rt_a3_nonlinear/references.json").read_text(encoding="utf-8"))
+PROVENANCE = "invented_rt_a3_nonlinear_reference"
+MATERIAL = "material:rt-a3-nl"
+MODEL_SCHEMA_VERSION = "0.9.0"
+MODES = ("sparse_interactive", "dense_scrutiny")
+INEXPRESSIBLE = ("G1-P0",)
+PASSED = "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+SENSITIVE = "NUMERICAL_INTEGRITY_SENSITIVE"
+UNQUALIFIED = "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"
+
+
+# -- the documents (the Rust binding's `document`) --------------------------------------------------------------------
+def ratio(text: str) -> float:
+    a, sep, b = text.partition("/")
+    return float(a) / float(b) if sep else float(text)
+
+
+def quantity(value: float, unit: str) -> dict:
+    return {"value": value, "unit": unit}
+
+
+def node_id(name: str) -> str:
+    return f"node:{name}"
+
+
+def document(case: dict) -> dict:
+    model, m = REFERENCES["model"], case["model"]
+    section = model["section"]
+    nodes = [{"id": node_id(name), "position": dict(zip("xyz", map(ratio, xyz))), "provenance": PROVENANCE}
+             for name, xyz in m["nodes_m"].items()]
+    components, pipes = [], []
+    for member in m["members"]:
+        if member["kind"] == "straight":
+            y_reference = {"x": 0.0, "y": 1.0, "z": 0.0}
+        else:
+            assert member["kind"] == "realized_arc" and member["angle"] == "pi/2"
+            a, b = ([ratio(v) for v in m["nodes_m"][member[end]]] for end in ("from", "to"))
+            c = [ratio(v) for v in member["center_m"]]
+            toward = [0.5 * (a[k] + b[k]) - c[k] for k in range(3)]
+            components.append({"id": f"component:{member['id']}", "kind": "bend", "node": node_id(member["from"]),
+                               "geometry": {"bend_pipe_ref": member["id"], "bend_radius": quantity(ratio(member["radius_m"]), "m"),
+                                            "bend_angle": quantity(math.pi / 2, "rad"),
+                                            "bend_plane_orientation": "plane of the span chord and the pipe y_reference; the arc bows toward +y_reference"},
+                               "modifiers": {"flexibility_factor_user_value": quantity(ratio(member["flexibility_factor_k"]), "none")},
+                               "mechanics_interface": {"solver_consumption": "curved_bend_macro_element"}, "provenance": PROVENANCE})
+            y_reference = dict(zip("xyz", toward))
+        pipes.append({"id": member["id"], "from": node_id(member["from"]), "to": node_id(member["to"]),
+                      "section": {"outside_diameter": quantity(ratio(section["D_m"]), "m"), "wall_thickness": quantity(ratio(section["t_m"]), "m"),
+                                  "mill_tolerance": quantity(ratio(section["c_m_m"]), "m"), "corrosion_allowance": quantity(ratio(section["c_a_m"]), "m")},
+                      "material": MATERIAL, "y_reference": y_reference, "provenance": PROVENANCE})
+    anchor = m["anchor"]
+    supports = [{"id": anchor["id"], "node": node_id(anchor["node"]), "family": "anchor",
+                 "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": PROVENANCE}]
+    supports += [{"id": r["id"], "node": node_id(r["node"]), "family": "line_stop", "restraints": [r["dof"]], "provenance": PROVENANCE}
+                 for r in m["linear_restraints"]]
+    sign = {"+": "positive", "-": "negative"}
+    for s in m["nonlinear_supports"]:
+        if s["kind"] == "gap":
+            nonlinear = {"behavior": "gap", "dof": s["dof"], "initial_state": "inactive",
+                         "closes_when": f"{sign[s['closes']]}_displacement", "gap": quantity(ratio(s["clearance_m"]), "m")}
+        elif s["kind"] == "one_way":
+            nonlinear = {"behavior": "one_way", "dof": s["dof"], "initial_state": "active", "active_when": f"{sign[s['sense']]}_reaction"}
+        else:
+            assert s["kind"] == "friction"
+            nonlinear = {"behavior": "friction", "dof": s["dof"], "initial_state": "sticking", "friction_coefficient": quantity(ratio(s["mu"]), "1")}
+            normal = s["normal"]
+            if normal["kind"] == "explicit":
+                nonlinear["normal_reaction"] = quantity(ratio(normal["value_N"]), "N")
+            else:
+                source = next(r for r in m["linear_restraints"] if r["node"] == normal["source_node"] and r["dof"] == normal["source_dof"])
+                nonlinear["normal_reaction_source"] = {"support_ref": source["id"], "dof": normal["source_dof"]}
+        supports.append({"id": s["id"], "node": node_id(s["node"]), "family": "nonlinear", "restraints": [],
+                         "nonlinear": nonlinear, "provenance": PROVENANCE})
+    lc = case["load_case"]
+    p = ratio(lc["p_Pa"])
+    if lc["regions"] == "one region over every member":
+        r = m["region"]
+        regions = [{"id": "region:all", "member_pipe_ids": r["members"], "pressure_basis": "internal_differential_zero_external_v1",
+                    "pressure": quantity(p, "Pa"),
+                    "terminals": [{"node_ref": node_id(n), "closure_transfer": t, "provenance": PROVENANCE} for n, t in r["terminals"].items()],
+                    "provenance": PROVENANCE}]
+    else:
+        assert p == 0.0
+        regions = []
+    directions = {"FX": "global_x", "FY": "global_y", "FZ": "global_z"}
+    loads = [{"id": f"load:{n}:{c}", "category": "concentrated_force", "target": {"type": "node", "node": node_id(n)},
+              "direction": directions[c], "magnitude": quantity(ratio(v), "N"), "dimension": "force", "provenance": PROVENANCE}
+             for n, by in lc["nodal_loads"].items() for c, v in by.items()]
+    shear = {"euler_bernoulli": "euler_bernoulli", "timoshenko": "timoshenko_annulus_energy_v1"}[m["shear_model"]]
+    return {"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
+                      "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear},
+                      "project": {"id": "project:rt-a3-nonlinear", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+                      "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+                      "nodes": nodes, "pipe_segments": pipes,
+                      "materials": [{"id": MATERIAL, "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+                                     "elastic_modulus": quantity(ratio(model["material"]["E_Pa"]), "Pa"), "poisson_ratio": quantity(0.3, "1"), "provenance": PROVENANCE}],
+                      "supports": supports, "components": components,
+                      "load_cases": [{"id": "case:main", "primitive_loads": loads, "pressure_regions": regions, "provenance": PROVENANCE}],
+                      "combinations": []},
+            "materials": []}
+
+
+# -- the runner ------------------------------------------------------------------------------------------------------
+def runner() -> str:
+    path = os.environ.get("OPENPIPESTRESS_RUNNER_BIN")
+    if not path or not Path(path).is_file():
+        pytest.skip("OPENPIPESTRESS_RUNNER_BIN is not set")
+    return path
+
+
+def runner_request() -> dict:
+    return {
+        "request_id": "rt-a3-nonlinear-reader", "operation": "solve",
+        "operation_ref": {"ref_type": "api_operation", "ref_id": "solve"},
+        "project_ref": {"ref_type": "project", "ref_id": "project:rt-a3-nonlinear"},
+        "model_ref": {"ref_type": "model", "ref_id": "rt-a3-nonlinear"},
+        "unit_system_ref": {"ref_type": "unit_system", "ref_id": "invented-si"},
+        "load_basis_refs": [{"ref_type": "load_case", "ref_id": "case:main"}],
+        "input_manifest_ref": {"ref_type": "audit_manifest", "ref_id": "rt-a3-nonlinear-reader"},
+        "requested_outputs": ["result_envelope", "audit_manifest", "diagnostics"],
+        "privacy": {"local_only": True, "telemetry_allowed": False, "private_payload_redacted": True, "classification": "public_metadata"},
+        "provenance": {"source_name": "invented RT-A3 nonlinear references", "source_location": "validation/references/rt_a3_nonlinear/references.json",
+                       "source_license": "project invented", "contributor": "OpenPipeStress",
+                       "contributor_certification": "invented non-engineering example",
+                       "redistribution_status": "invented_non_engineering_example", "review_status": "pending"},
+        "professional_boundary": {"human_review_required": True, "software_makes_compliance_claim": False,
+                                  "software_makes_certification_claim": False, "software_makes_sealing_claim": False,
+                                  "software_makes_approval_claim": False, "software_makes_authentication_claim": False},
+        "tbd_decisions": {"final_cli_command_syntax": "SETTLED_DEC_065", "package_scripts": "SETTLED_DEC_065",
+                          "process_invocation": "SETTLED_DEC_065", "network_access": "SETTLED_DEC_065",
+                          "filesystem_mutation_policy": "SETTLED_DEC_065", "ci_provider": "TBD", "release_matrix": "TBD",
+                          "public_transport_protocol": "TBD", "external_adapter_formats": "TBD", "physical_project_container": "TBD"},
+    }
+
+
+def solve(doc: dict, mode: str) -> dict:
+    body = {"request": runner_request(), "solve": {"preview_model": doc}}
+    completed = subprocess.run([runner(), "solve", "--explicit-local-private-intent", "--solver-mode", mode, "--input", "-"],
+                               input=json.dumps(body), capture_output=True, text=True, check=False)
+    assert completed.stdout, completed.stderr
+    envelope = json.loads(completed.stdout)["payload"]["mechanics_envelope"]
+    assert envelope["status"]["mechanics"] == "MECHANICS_SOLVED", envelope["diagnostics"]
+    assert envelope["formulation_basis"]["profile_id"] == "exact_pressure_v3"
+    return envelope
+
+
+def rust_code(envelope: dict, model: dict | None) -> str | None:
+    completed = subprocess.run([runner(), "read", "pressure", "--input", "-"],
+                               input=json.dumps({"source": envelope, "model": model}), capture_output=True, text=True, check=False)
+    outcome = json.loads(completed.stdout)["outcome"]
+    return None if outcome["ok"] else outcome["error"]["code"]
+
+
+def python_code(envelope: dict, model: dict | None) -> str | None:
+    outcome = rv.validate("pressure", envelope, model)
+    return None if outcome["ok"] else outcome["error"]["code"]
+
+
+def codes(envelope: dict, doc: dict) -> dict:
+    """Both readers' codes, without and with the model; the two readers must agree."""
+    python = (python_code(envelope, None), python_code(envelope, doc["model"]))
+    rust = (rust_code(envelope, None), rust_code(envelope, doc["model"]))
+    assert python == rust, (python, rust)
+    return python
+
+
+@pytest.fixture(scope="module")
+def solved() -> dict:
+    out = {}
+    for case in REFERENCES["cases"]:
+        if case["id"] in INEXPRESSIBLE:
+            continue
+        doc = document(case)
+        for mode in MODES:
+            out[(case["id"], mode)] = (doc, solve(doc, mode))
+    assert len(out) == 2 * (21 - len(INEXPRESSIBLE))
+    return out
+
+
+def test_every_reference_envelope_is_admitted_by_both_readers_with_and_without_its_model(solved):
+    for (cid, mode), (doc, envelope) in solved.items():
+        assert codes(envelope, doc) == (None, None), (cid, mode)
+
+
+# -- the forgeries (the Rust binding's negative controls) -------------------------------------------------------------
+def set_rows(envelope: dict, kind: str, entity: str, edit) -> None:
+    hit = 0
+    for row in envelope["results"]:
+        if row["kind"] == kind and row["entity_ref"] == entity:
+            edit(row)
+            hit += 1
+    assert hit, (kind, entity)
+
+
+def scale_support(envelope: dict, support: str, component: str, factor: float, magnitude: bool) -> None:
+    kinds = ["nonlinear_support_final_reaction", "support_reaction_component_v2"] + (["support_reaction_force_magnitude_v2"] if magnitude else [])
+    for kind in kinds:
+        def edit(row):
+            if row["kind"] != "support_reaction_component_v2" or row["metadata"]["component"] == component:
+                row["value"] = factor * row["value"]
+        set_rows(envelope, kind, support, edit)
+
+
+def restate(envelope: dict, support: str, old: str, new: str, code: float, review: bool) -> None:
+    for kind in ("nonlinear_support_active_set_state_code", "nonlinear_support_final_reaction", "nonlinear_support_final_displacement"):
+        def edit(row):
+            if row["kind"] == "nonlinear_support_active_set_state_code":
+                row["value"] = code
+            row["metadata"]["basis"] = row["metadata"]["basis"].replace(f"final_state={old}", f"final_state={new}")
+        set_rows(envelope, kind, support, edit)
+    if review:
+        for d in envelope["diagnostics"]:
+            if d["code"] == "NONLINEAR_SUPPORT_STATE_REVIEW" and d["affected_refs"][0] == support:
+                d["message"] = d["message"].replace(f" in {old} state", f" in {new} state")
+
+
+def relabel_passed(envelope: dict, old: str, quality: bool, line: bool) -> None:
+    for d in envelope["diagnostics"]:
+        if d["code"] == old:
+            d["code"], d["severity"] = PASSED, "info"
+            if line:
+                d["message"] += " Converged support state: established at 128-bit precision by one formation-checked solve; (forged)"
+    if quality:
+        q = envelope["numerical_quality"]
+        q["status"] = "checks_passed"
+        for case in q["cases"]:
+            case.update(solve_quality="checks_passed", structural_status="passive_model_basis",
+                        model_matrix_fidelity="represented_equations_retained", accuracy_evidence="not_claimed")
+
+
+def both(code: str) -> tuple:
+    return (f"SOURCE_PHYSICS_NONLINEAR_{code}",) * 2
+
+
+def model_only(code: str) -> tuple:
+    return (None, f"SOURCE_PHYSICS_NONLINEAR_{code}")
+
+
+def forged(solved, cid: str, edit) -> tuple:
+    doc, envelope = solved[(cid, "dense_scrutiny")]
+    envelope = deepcopy(envelope)
+    edit(envelope)
+    return codes(envelope, doc)
+
+
+def test_forged_contacts_states_friction_and_standings_are_refused_by_both_readers(solved):
+    # 1. G1's contact halved (reaction and slot), and with its magnitude too (the pinned limit).
+    assert forged(solved, "G1", lambda e: scale_support(e, "support:GAP", "Fx", 0.5, False)) == both("MAGNITUDE")
+    assert forged(solved, "G1", lambda e: scale_support(e, "support:GAP", "Fx", 0.5, True)) == (None, None)
+    # 2. G1's closed gap stated inactive; with its state diagnostic too; G2's open gap stated active.
+    assert forged(solved, "G1", lambda e: restate(e, "support:GAP", "active", "inactive", 0.0, False)) == both("STATE_REVIEW")
+    assert forged(solved, "G1", lambda e: restate(e, "support:GAP", "active", "inactive", 0.0, True)) == both("INACTIVE_REACTION")
+    assert forged(solved, "G2", lambda e: restate(e, "support:GAP", "inactive", "active", 1.0, True)) == model_only("MODEL_COMPLEMENTARITY")
+    # 3. F1-SLIDE's friction at 1.1 muN; with its magnitude; turned along the slip; its derived normal doubled.
+    assert forged(solved, "F1-SLIDE", lambda e: scale_support(e, "support:FRICTION", "Fz", 1.1, False)) == both("MAGNITUDE")
+    assert forged(solved, "F1-SLIDE", lambda e: scale_support(e, "support:FRICTION", "Fz", 1.1, True)) == model_only("MODEL_FRICTION_CAPACITY")
+    assert forged(solved, "F1-SLIDE", lambda e: scale_support(e, "support:FRICTION", "Fz", -1.0, False)) == both("SLIP")
+
+    def double_normal(e):
+        set_rows(e, "nonlinear_support_friction_normal_reaction_derived", "support:FRICTION", lambda r: r.update(value=2.0 * r["value"]))
+    assert forged(solved, "F1-SLIDE", double_normal) == both("NORMAL")
+    # 4. G1 relabelled Passed; with its quality record and the evidence line.
+    assert forged(solved, "G1", lambda e: relabel_passed(e, UNQUALIFIED, False, False)) == both("STANDING")
+    assert forged(solved, "G1", lambda e: relabel_passed(e, UNQUALIFIED, True, True)) == both("GAP_STANDING")
+    # 5. F1-P0-SLIDELOAD relabelled Passed; with its quality record and the evidence line.
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: relabel_passed(e, SENSITIVE, False, False)) == both("STANDING")
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: relabel_passed(e, SENSITIVE, True, True)) == both("FRICTION_NORMAL_STANDING")
