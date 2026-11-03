@@ -10,7 +10,7 @@ import hashlib
 import os
 import re
 
-from g3lib import X, B, s, Xc, V, HashMov, buckets, pushcap, tree_nodes, ASSUMED
+from g3lib import X, B, s, Xc, V, HashMov, HashReq, buckets, pushcap, tree_nodes, ASSUMED
 
 LIB = "core/product_physics/src/lib.rs"
 U4B = "core/product_physics/src/u4b_rows.rs"
@@ -53,8 +53,9 @@ BODY_PINS = {
 }
 # U5B-AB: FK structural.rs from `pub(crate) struct ElementAbsorption<'g> {` to `fn contribution_differences(`.
 ABSORPTION_PIN = "2acbe81068e36d74474cb2f7014f9dcbf65c0bdde660c783af7ced048534e5f4"
-# U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`.
-INDEX_PIN = "b0d3074db1d4f7adc515b17a054b843e5079cd6fce0bad16fc629a95cef7d85b"
+# U4B-RD: u4b_evidence.rs from `type Slot<'a>` to `/// What a reader states about one member`. RT-U4 (`Index::any`):
+# the Index also holds `first`, the component-free map `any` builds on first use instead of scanning `rows`.
+INDEX_PIN = "334a2213434c931f0ec15f0d57f2c62e8447bb890df12cd4721c993749c9e064"
 # RTA3B-PS/RTA3B-MR (RT-A3 increment 1b, retained-pricing-rules.md §8.37): u4b_rows.rs from
 # `pub(crate) struct PublishedScope {` to `/// §2.3: σ_N of one station` (the scope, its entity hash, `begin`,
 # MemberRows and `published`).
@@ -340,8 +341,16 @@ def reader_working_sets(rows, cases, m, raw_tree):
     case's material index and pressurized arcs (<= m); member_stations' per-member cover map (<= 2 bases) and the
     facts' small vectors. preview_model_checks clones a model array per lookup (`as_array().cloned()`) while the found
     case, pipe, material and point are held: at most two copies of the captured model (raw_tree each), plus its
-    member set and exemption set."""
-    index = HashMov("U4bSlotEntry", rows)
+    member set and exemption set.
+
+    RT-U4: each Index also holds `first`, the map `any` builds on first use (member_stations, preview_model_checks)
+    and keeps until the Index drops: one entry per distinct component-free slot of `rows`, so <= rows entries, grown
+    by insertion from HashMap::new with its previous table live during its last resize (HashMov). Its entry (five
+    &str and a &Value) is no larger than the row index's (six &str and a &Value), so it is charged at that stride.
+    `first` is built only after `new` returns, when the row index's own previous table is already freed, so the
+    Index's peak is the row index's table plus `first`'s HashMov, or `new`'s, the row index's HashMov, whichever is
+    larger; both are within HashReq + HashMov at <= rows entries."""
+    index = HashReq("U4bSlotEntry", rows) + HashMov("U4bSlotEntry", rows)
     cover_values = B(8 * pushcap(STATIONS))
     preview = (index + HashMov("&str", m) + HashMov("(&str,Vec<f64>)", m) + cover_values * m
                + HashMov("(String,Vec<f64>)", BASES) + (B(16) + cover_values) * BASES + B(32 + 16))

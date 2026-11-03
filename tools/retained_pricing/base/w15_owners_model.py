@@ -37,17 +37,30 @@ PP = "core/product_physics/src/"
 RE = "core/reporting/result_export/src/"
 RC = PP + "rigid_component.rs"
 CB = RE + "component_body.rs"
+# RT-A3 reducer 2b (§8.41): rigid_component.rs extracts member_mappings (Topology::of's mapping loop, unchanged) and
+# judge_reducer/body_ends (judge_all's per-reducer body, now collected), and adds reducer_body_members and
+# pressure_step_run_evidence for the pressure step; W15C-NO and P2 still empty every component path on D1.
 # §8.33 (RT-A3 increment 1): rigid_component.rs's STRESS_KINDS gains branch_intensified_bending_stress_v1 (18 kinds), a
 # static array read only by annotate_component_bodies' `contains` scan of existing rows; no owner, statement or reader
 # call changes, and D1 has no component body (P2).
-PINS = {RC: "90f4ea351e84932a509c388079c4ae050b590baf989762a6394cb9a967a4b2b2",
+PINS = {RC: "e8095fe56cdd9adc73e35ba234825300eafd6b7b1639668e3d65a2dec378ef90",
         CB: "ace48d130d710eae3412c1b850962f78673ba03e143044c0fbc5d48f2265b514"}
 
 # (file, statement, count): each owning statement the formulas price or the premise empties.
 STATEMENTS = (
     (RC, "model.pipe_segments.iter().map(|pipe| (pipe.id.as_str(), pipe)).collect()", 1),
     (RC, "let pipes = pipe_map(model);", 3),
-    (RC, "let topology = Topology::of(model);", 1),
+    # RT-A3 reducer 2b (§8.41): the second Topology::of is pressure_step_run_evidence's; member_mappings now builds
+    # Topology::of's mapping table (moved, same statement) and reducer_body_members' set. Both new entries are called
+    # only inside reducers_in_regions' loop over model.components (P2) behind D1.5's absent/empty regions, so nothing
+    # of them is live on D1; the call sites below bind that premise.
+    (RC, "let topology = Topology::of(model);", 2),
+    (RC, "let mut mapping: HashMap<&str, Mapping> = HashMap::new();", 1),
+    (RC, "member_mappings(model)", 2),
+    (RC, "let mut oriented = Vec::with_capacity(axes.len());", 1),
+    (PP + "pressure_runtime.rs", "for reducer in exact_admission::reducers_in_regions(model, case) {", 1),
+    (PP + "pressure_runtime.rs", "super::rigid_component::pressure_step_run_evidence(model, reducer.component)", 1),
+    (PP + "exact_admission.rs", ".get_or_insert_with(|| super::rigid_component::reducer_body_members(model))", 1),
     (RC, "let conflicted = conflicts(model).into_iter().map(|(member, _)| member).collect::<HashSet<_>>();", 1),
     (RC, "for component in model.components.iter().filter(|component| is_rigid_family(component)) {", 1),
     (RC, "let mut by_member: BTreeMap<&str, Vec<&str>> = BTreeMap::new();", 1),
@@ -69,6 +82,17 @@ STATEMENTS = (
     (RE + "section_basis.rs", "crate::component_body::coverage_without_bodies(", 1),
     (RE + "u4b_evidence.rs", "crate::component_body::model_checks(", 2),
 )
+# RT-A3 reducer 2b (§8.41): (file, calling function, its D1-empty loop header, the one call after it).
+PRESSURE_STEP_PREMISES = (
+    (PP + "exact_admission.rs", "reducers_in_regions",
+     "for component in model.components.iter().filter(|component| component_family(component) == ExactFamily::Reducer) {",
+     "super::rigid_component::reducer_body_members(model)"),
+    (PP + "pressure_runtime.rs", "refuse_reducers_outside_step",
+     "for reducer in exact_admission::reducers_in_regions(model, case) {",
+     "super::rigid_component::pressure_step_run_evidence(model, reducer.component)"),
+)
+# Each is called exactly once in product_physics' sources (test modules included, conservatively).
+PRESSURE_STEP_ENTRIES = ("pressure_step_run_evidence", "reducer_body_members")
 # The preview extremum (ordinary_caps PREVIEW): <= 15 entries, three static strings <= 120 B, the pipe id (IN128) and
 # the result id (<= 1024 B), keys <= 40 B each.
 PREVIEW_EXTREMUM = {"arr": 0, "obj": 1, "ent": 15, "strb": 128 + 1024 + 3 * 120, "keyb": 15 * 40}
@@ -96,6 +120,27 @@ def inspect(snapshot):
     found = [(texts[rel] or "").count(needle) for rel, needle, _ in STATEMENTS]
     if found != [count for *_, count in STATEMENTS]:
         raise SystemExit(f"W15 owners: an owning statement or reader call changed; re-review W15-PM/W15-RB: {found}")
+    # RT-A3 reducer 2b (§8.41, RTA3R2B-NZ): check listed spellings, counts and header-before-call order, not loop
+    # containment. Full-file pins and source review establish that these entries sit inside D1-empty loops in the
+    # selected source (reducers_in_regions' component loop and the loop over its result in refuse_reducers_outside_step).
+    callers = {}
+    for root, _, names in os.walk(os.path.join(snapshot, PP)):
+        for name in names:
+            if name.endswith(".rs"):
+                with open(os.path.join(root, name), encoding="utf-8") as stream:
+                    body = stream.read()
+                for entry in PRESSURE_STEP_ENTRIES:
+                    callers[entry] = callers.get(entry, 0) + body.count(entry + "(") - body.count("fn " + entry + "(")
+    if callers != {entry: 1 for entry in PRESSURE_STEP_ENTRIES}:
+        raise SystemExit(f"W15 owners: a pressure-step entry gained or lost a caller; re-review its zero multiplicity: {callers}")
+    for rel, fn, header, call in PRESSURE_STEP_PREMISES:
+        text = texts.get(rel) or _read(snapshot, rel) or ""
+        start = text.find(f"fn {fn}")
+        ends = [text.find(n, start + 1) for n in ("\nfn ", "\npub(crate) fn ", "\npub fn ")] if start >= 0 else []
+        end = min([e for e in ends if e >= 0] or [len(text)])
+        at_header, at_call = text.find(header, start, end), text.find(call, start, end)
+        if not (0 <= start < at_header < at_call) or text.count(call) != 1:
+            raise SystemExit(f"W15 owners: the pressure-step premise changed ({fn}); re-review its zero multiplicity")
     return True
 
 

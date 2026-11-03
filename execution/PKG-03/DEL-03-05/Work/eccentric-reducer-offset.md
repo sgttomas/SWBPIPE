@@ -340,7 +340,7 @@ The `..._REALIZED` info states:
 | Self-weight | The member's distributed self-weight acts over ‖D‖ (§9, P5). Slice b replaces it when the component's weight is generated (W-15 §3). |
 | Component weight | Slice b's wrench at the component's node, with the R10 centre of gravity. It is independent of the offset. |
 | Thermal | The body's free growth is αΔT·D, offset included, at every scale (§9, P10). |
-| Pressure | PF: none. EX: RT-A3 2a admits the bounded own-region concentric step; authored nonzero offsets and other unverified in-region forms remain `EXACT_PRESSURE_REDUCER_IN_REGION` pending follow-on work. Outside every region admission is unchanged (W-15 §2.7; DEL-04-07 pressure-contract). |
+| Pressure | PF: none. EX: in the bounded own-region step topology, RT-A3 2a's legacy concentric step (unchanged) or RT-A3 2b's W-15c branch admits the body: this section's whole run-evidence and offset method, plus the run passing through the body. A read offset that fails is refused by this section's own diagnostic. An absent or unread offset is not checked and implies no concentricity, but the run evidence must still pass. The caps at the actual nodes carry the eccentric force and moment; no p·A·e term is added. Other in-region forms remain `EXACT_PRESSURE_REDUCER_IN_REGION`. Outside every region admission is unchanged (W-15 §2.7; DEL-04-07 pressure-contract, "Eccentric reducer pressure step"). |
 | Other element loads | As authored on the body member, over ‖D‖ |
 | Displacements, reactions | Unchanged meaning. Node motions are the centerline motions. |
 | Stress rows | Rows of the mapped pipe section along the chord. A scaled body's rows carry slice d's `component_body` record and are excluded from the headline (W-15 §2.4, §5). An unscaled reducer's rows are ordinary pipe rows, and the reference-section meaning is disclosed in the info, the UI and the report (§4, §9, P11). |
@@ -363,14 +363,38 @@ vitest), and §7.5 holds the convention-dependent benchmark rows.
 The exact route forms the same member in the same function, with
 Euler–Bernoulli or `timoshenko_annulus_energy_v1` (PP `pressure_runtime.rs`
 ~49). Under Timoshenko the body's shear adds its shear compliance, and §7's
-generator includes it. RT-A3 2a adds only the bounded concentric pressure-step
+generator includes it. RT-A3 2a adds the bounded concentric pressure-step
 exception (DEL-04-07 `Work/pressure-contract.md`). It checks actual collinear
-geometry and keeps an authored nonzero offset outside its initial pressure
-domain, including an offset on a marker; this is an admission restriction,
-not a use of that offset to reform the member. The ordinary offset-consistency
-and node-governs-mechanics meanings above are preserved. Eccentric pressure
-transformation/formation/recovery is increment 2b. The retained and source
-sub-routes still refuse every component (W-15 §2.7).
+geometry and keeps an authored nonzero offset, including an offset on a
+marker, outside its own branch. This is an admission restriction, not a use
+of that offset to reform the member.
+
+RT-A3 2b adds a second, separate branch for the same bounded topology
+(pressure-contract.md, “Eccentric reducer pressure step”). There, this
+section's method decides the body whole, through the same functions as the
+pressure-free check (`rigid_component::pressure_step_run_evidence`, sharing
+`judge_reducer`, `body_ends` and the member mapping with
+`append_eccentric_offset_refusals`):
+- **Read offset:** it must be realized.
+- **Absent or unread offset:** nothing is compared, but the run evidence and
+  D·t > 0 must hold.
+- **Pass-through:** the run must also pass through the body.
+
+The legacy concentric branch is not run evidence here, and a failed W-15c
+verdict never falls back to it. The ordinary offset-consistency and
+node-governs-mechanics meanings above are unchanged. The pressure caps stay at
+the actual nodes and members, and their resultant is the eccentric wrench.
+The retained and source sub-routes still refuse every component (W-15 §2.7).
+
+On the full reference system (candidate,
+`core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs`), RS-R1 is
+overlaid in the test only, with W regenerated. W-15c realizes its declared
+offset in every case, and the body is formed along the chord with s·K. Its
+free thermal growth uses the case modulus, and slice b's 300 N wrench replaces
+the body's distributed weight. Independent local recovery and equilibrium
+checks confirm this. DEL-04-07 `Work/pressure-contract.md`, "Eccentric reducer
+pressure step", states the proof and its limits. The maintained fixture and
+its ledger are not changed.
 
 ### 3.8 Not done in slice c
 

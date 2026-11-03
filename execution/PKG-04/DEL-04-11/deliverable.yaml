@@ -122,6 +122,7 @@ code_paths:
 - core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
+- apps/desktop/src/features/results/hangerSizing*
 # Checks: the crate's cargo tests run in hosted piping-numerical, which discovers the crate; no local
 # registration is needed for slice 1a. Later increments register checks where a local selector needs them.
 checks: []

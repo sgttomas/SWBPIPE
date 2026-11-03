@@ -433,9 +433,11 @@ fn values(envelope: &Value) -> BTreeMap<String, u64> {
 
 /// Absent and explicit zero offsets (signed zeros included) declare the same
 /// concentric body: admitted with identical numbers; the zero offset keeps
-/// W-15c's realized check. A nonzero offset is refused even where W-15c would
-/// realize it, and so is the same slanted (RS-like eccentric) geometry with
-/// the slot absent, on the built coordinates.
+/// W-15c's realized check. RT-A3 2b: the slanted (RS-like eccentric) body is
+/// admitted by the W-15c branch when its declared offset is realized, and
+/// with the slot absent when W-15c's run evidence holds (no offset is
+/// checked); a nonzero offset on collinear geometry is W-15c's mismatch. The
+/// 2b eccentric bindings are in `rt_a3_reducer_2b_references.rs`.
 #[test]
 fn offsets_and_slanted_bodies() {
     let references = references();
@@ -460,29 +462,33 @@ fn offsets_and_slanted_bodies() {
     }
     let mut declared = slanted.clone();
     reducer_mut(&mut declared)["geometry"]["eccentric_offset"] = json!({"x": 0.0, "y": 0.0, "z": 25.0, "unit": "mm"});
-    assert_reducer_refused(&declared, "region:body", "declared eccentric offset");
-    assert_reducer_refused(&slanted, "region:body", "slanted body, slot absent");
-    // A nonzero offset on collinear geometry is refused by the step rule too.
+    for envelope in assert_solved_without_refusal(&declared, "declared eccentric offset (2b W-15c branch)") {
+        assert_eq!(with_code(&envelope, "RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED").len(), 1);
+    }
+    for envelope in assert_solved_without_refusal(&slanted, "slanted body, slot absent (2b W-15c run evidence)") {
+        assert!(with_code(&envelope, "RIGID_COMPONENT_ECCENTRIC_OFFSET_REALIZED").is_empty());
+    }
+    // A nonzero offset on collinear geometry: W-15c's own mismatch refusal,
+    // before any pressure case is assembled.
     let mut collinear = base.clone();
     reducer_mut(&mut collinear)["geometry"]["eccentric_offset"] = json!({"x": 0.0, "y": 0.0, "z": 25.0, "unit": "mm"});
     for mode in MODES {
         let envelope = solve(&collinear, mode);
-        assert!(with_code(&envelope, REDUCER_IN_REGION).iter().any(|d| d["severity"] == "blocking"), "{mode:?}");
+        assert_ne!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+        assert!(with_code(&envelope, "RIGID_COMPONENT_ECCENTRIC_OFFSET_MISMATCH").iter().any(|d| d["severity"] == "blocking"), "{mode:?}");
     }
-    // The 64*epsilon representation guard on the unit directions: a 1e-16 m
-    // rise over the 0.5 m body (cross norm about 2e-16) is admitted, a 1e-12 m
-    // rise (about 2e-12) is refused. These coordinates are entered directly as binary64
-    // metre values, so normalization applies the identity conversion.
-    for (rise, admitted) in [(1.0e-16, true), (1.0e-12, false)] {
+    // A 1e-16 m rise over the 0.5 m body (cross norm about 2e-16) is within
+    // the 64*epsilon representation guard; a 1e-12 m rise (about 2e-12) fails
+    // it and is admitted by the 2b W-15c branch instead (absent offset, run
+    // evidence holds). The guard's own boundary, where W-15c cannot admit, is
+    // `rt_a3_reducer_2b_references.rs`. These coordinates are entered directly
+    // as binary64 metre values, so normalization applies the identity conversion.
+    for rise in [1.0e-16, 1.0e-12] {
         let mut document = base.clone();
         for node in ["node:F", "node:Q"] {
             position_mut(&mut document, node)["z"] = json!(rise);
         }
-        if admitted {
-            assert_solved_without_refusal(&document, &format!("rise {rise:e}"));
-        } else {
-            assert_reducer_refused(&document, "region:body", &format!("rise {rise:e}"));
-        }
+        assert_solved_without_refusal(&document, &format!("rise {rise:e}"));
     }
 }
 
@@ -779,10 +785,11 @@ fn reversing_only_the_body_keeps_the_reference_response() {
     }
 }
 
-/// Record the initial absolute guard's fail-safe behavior on a rounded skew
-/// run, without asserting that the rejection establishes physical slant.
+/// The initial absolute guard can fail on a rounded skew run far from the
+/// origin without establishing physical slant; RT-A3 2b's W-15c branch admits
+/// it from its run evidence (absent offset, no offset checked).
 #[test]
-fn a_short_skew_step_far_from_the_origin_can_fail_representation_agreement() {
+fn a_short_skew_step_far_from_the_origin_is_admitted_by_w15c_run_evidence() {
     let references = references();
     let mut document = document(&references, case(&references, "R2A-HELD-S2"), SHEAR_MODELS[0]);
     for node in model_array(&mut document, "nodes") {
@@ -792,7 +799,7 @@ fn a_short_skew_step_far_from_the_origin_can_fail_representation_agreement() {
     for pipe in model_array(&mut document, "pipe_segments") {
         pipe["y_reference"] = json!({"x": 0.0, "y": 0.0, "z": 1.0});
     }
-    assert_reducer_refused(&document, "region:body", "far-origin rounded skew run");
+    assert_solved_without_refusal(&document, "far-origin rounded skew run");
 }
 
 #[test]
