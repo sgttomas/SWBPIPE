@@ -2,13 +2,12 @@
 ``preview_combination_gates.rs``. Re-derives preview-physics-2's combination gates and unsigned rows from what the
 received document allows and, when it is supplied, from its model.
 
-- Model-free: ``NONLINEAR_COMBINATION_REQUIRES_SOLVE`` needs a published nonlinear support state row;
-  ``LOAD_COMBINATION_OPERAND_WITHHELD`` needs its diagnostic naming at least one combination withheld earlier in the gate
+- Model-free: ``LOAD_COMBINATION_OPERAND_WITHHELD`` needs its diagnostic naming at least one combination withheld earlier in the gate
   order; ``CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`` and ``CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`` turn on an
   expression and kappa that the document never states for a withheld combination, so they are refused as unverifiable.
   An absolute sum's or SRSS's rows are re-derived bit for bit from their source rows and the factors of the
   combination's ``combination_operands`` record (a model with nonlinear supports publishes one); with no record they
-  are refused as unverifiable. The flat gates keep the model-free reading they had.
+  are refused as unverifiable. The flat gates (nonlinear, unit factor sum, modulus) keep the model-free reading they had.
 - With the model: every gate, in the model's evaluation order after S1's interim removal, re-derived as the producer
   forms it, and every unsigned row stating its basis and sign convention and, when formed from operand rows, equal to A
   or R of the model's factors, bit for bit.
@@ -123,16 +122,13 @@ def check(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> 
 
 
 def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict) -> None:
-    nonlinear = any(r.get("kind") == STATE_CODE for r in rows)
     diagnostics = [d for d in _items(source.get("diagnostics")) if isinstance(d, Mapping)]
     withheld: set[str] = set()
     for gate in gates:
         cid, reason = gate.get("combination_id"), gate.get("reason")
         if reason is None:
             continue
-        if reason == NONLINEAR:
-            _require(nonlinear, "GATE_DERIVATION")
-        elif reason == graph.OPERAND_WITHHELD:
+        if reason == graph.OPERAND_WITHHELD:
             named = [d for d in diagnostics if d.get("code") == graph.OPERAND_WITHHELD and _items(d.get("affected_refs"))[:1] == [cid]]
             _require(len(named) == 1, "GATE_DERIVATION")
             operands = _items(named[0].get("affected_refs"))[1:]

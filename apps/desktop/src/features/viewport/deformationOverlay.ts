@@ -88,7 +88,7 @@ export function buildDeformationOverlay(
   // component separately, so its rows are not one solved state), nor an absolute sum's, an SRSS's
   // or a solved state plus derived bounds (RT-A4: unsigned or bounded, not one solved state).
   const drawn = (row: ResultRow) => basisKey === null ||
-    (rowBasisKey(row) === basisKey && isOneSolvedState(row));
+    (rowBasisKey(row) === basisKey && isOneSolvedState(row, result.results));
   const nodeIds = new Set(model.nodes.map((node) => node.id));
   const nodeValues = new Map<string, { value: number; unit: string; basisKey: string }>();
   for (const row of result.results) {
@@ -396,7 +396,7 @@ export function buildRotationOverlay(
     const axis = ROTATION_COMPONENT_AXES[row.kind];
     if (!axis || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
     if (row.dimension !== undefined && row.dimension !== "angle") continue;
-    if (!isOneSolvedState(row)) continue;
+    if (!isOneSolvedState(row, result.results)) continue;
     if (basisKey !== null && rowBasisKey(row) !== basisKey) continue;
     const perBasis = triples.get(row.entity_ref) ?? new Map<string, Triple>();
     const triple = perBasis.get(rowBasisKey(row)) ?? {};
@@ -475,7 +475,7 @@ function governingDisplacementBases(nodeIds: ReadonlySet<string>, result: Mechan
   const governing = new Map<string, { value: number; basisKey: string }>();
   for (const row of result.results) {
     if (row.kind !== "displacement_magnitude" || !nodeIds.has(row.entity_ref) || !Number.isFinite(row.value)) continue;
-    if (basisKey !== null && (rowBasisKey(row) !== basisKey || !isOneSolvedState(row))) continue;
+    if (basisKey !== null && (rowBasisKey(row) !== basisKey || !isOneSolvedState(row, result.results))) continue;
     const current = governing.get(row.entity_ref);
     if (!current || Math.abs(row.value) > Math.abs(current.value)) {
       governing.set(row.entity_ref, { value: row.value, basisKey: rowBasisKey(row) });

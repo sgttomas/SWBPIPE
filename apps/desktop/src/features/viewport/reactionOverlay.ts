@@ -121,7 +121,7 @@ export function buildReactionOverlay(input: {
   let heldRowCount = 0;
   for (const row of result.results) {
     if (row.kind !== REACTION_COMPONENT_KIND && row.kind !== REACTION_FORCE_MAGNITUDE_KIND && row.kind !== REACTION_MOMENT_MAGNITUDE_KIND) continue;
-    if (!supportNodes.has(row.entity_ref) || basisKey(row.basis_ref) !== overlayCase.key || !isOneSolvedState(row)) continue;
+    if (!supportNodes.has(row.entity_ref) || basisKey(row.basis_ref) !== overlayCase.key || !isOneSolvedState(row, result.results)) continue;
     if (!Number.isFinite(row.value)) continue;
     withRows.add(row.entity_ref);
     if (!overlayMayShowRow(standing, row)) {

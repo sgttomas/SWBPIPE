@@ -185,7 +185,8 @@ export function supportLoadCases(model: PreviewModel, result: MechanicsResult): 
     const basis = row.basis_ref;
     if (!basis || (basis.ref_type !== "load_case" && basis.ref_type !== "combination") || !Number.isFinite(row.value)) continue;
     const key = basisKey(basis)!;
-    const entry = seen.get(key) ?? { basis: Object.freeze({ ref_type: basis.ref_type, ref_id: basis.ref_id }), envelope: false };
+    const entry: { basis: ResultBasisRef; envelope: boolean; note?: string } =
+      seen.get(key) ?? { basis: Object.freeze({ ref_type: basis.ref_type, ref_id: basis.ref_id }), envelope: false };
     const note = derivedRowNote(row);
     if (note !== null) entry.envelope = true;
     if (note !== null && note !== "range envelope" && entry.note === undefined) entry.note = note;

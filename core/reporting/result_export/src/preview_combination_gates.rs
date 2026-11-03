@@ -3,10 +3,8 @@
 //! the received document allows and, when it is supplied, from its model. The Python
 //! mirror is `tests/verifiers/preview_combination_gates.py`.
 //!
-//! - **Model-free** (`check(source, None)`). A gate stating
-//!   `NONLINEAR_COMBINATION_REQUIRES_SOLVE` needs a published nonlinear support state
-//!   row; `LOAD_COMBINATION_OPERAND_WITHHELD` needs its diagnostic naming at least one
-//!   combination withheld earlier in the gate order.
+//! - **Model-free** (`check(source, None)`). `LOAD_COMBINATION_OPERAND_WITHHELD` needs
+//!   its diagnostic naming at least one combination withheld earlier in the gate order.
 //!   `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND` and
 //!   `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` turn on a combination's expression and
 //!   on κ, which the document never states for a withheld combination, so they are
@@ -15,8 +13,10 @@
 //!   the combination's `combination_operands` record, which a model with nonlinear
 //!   supports publishes; with no record (a linear model) they cannot be verified
 //!   without the model and are refused (`..._COMBINATION_UNSIGNED_UNVERIFIED`). The
-//!   flat gates (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`,
-//!   `COMBINATION_MODULUS_BASIS_MIXED`) keep the model-free reading they had.
+//!   flat gates (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`,
+//!   `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`, `COMBINATION_MODULUS_BASIS_MIXED`) keep
+//!   the model-free reading they had (the shared retained corpus's `t_gate_ok` states a
+//!   nonlinear gate on a document with no nonlinear row and must pass).
 //! - **With the model** (`check(source, Some(model))`). Every gate, in the model's
 //!   evaluation order after S1's interim removal, is re-derived as the producer forms
 //!   it (`preview_physics.rs` `gate_reason`): a withheld operand combination; then, for
@@ -149,14 +149,12 @@ pub(crate) fn check(source: &Value, model: Option<&Value>) -> Check {
 }
 
 fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&str, &Value>) -> Check {
-    let nonlinear = rows.iter().any(|r| r["kind"] == STATE_CODE);
     let diagnostics = items(&source["diagnostics"]);
     let mut withheld: HashSet<&str> = HashSet::new();
     for gate in gates {
         let id = gate["combination_id"].as_str().unwrap_or_default();
         let Some(reason) = gate["reason"].as_str() else { continue };
         match reason {
-            NONLINEAR => require(nonlinear, "GATE_DERIVATION")?,
             graph::OPERAND_WITHHELD => {
                 // Its diagnostic names this combination and the withheld operands.
                 let named: Vec<&Value> = diagnostics
