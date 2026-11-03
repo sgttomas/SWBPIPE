@@ -1549,10 +1549,51 @@ finding it gives deliberately, never by blanket downgrade:
   document-level code (structure, schema, references, quantities, range,
   provenance), every route and admission code (the interim refusals above), and
   any code not on the staged list, including codes added later until this list
-  admits them.
+  admits them, except a permitted carried refusal (below).
+- **Permitted carried refusals, reported as info** (SWBPIPE Agent 0,
+  2026-11-02, option (b)). A non-staged blocking finding F of the candidate's
+  judgement is reported as non-blocking only if all of these hold:
+  1. *Unchanged.* The judgement of the document before the edit (the same
+     judgement) gives a finding with the same code, message and affected refs,
+     compared as multisets: occurrences beyond the before-document's count are
+     worsened and block.
+  2. *Attributable.* F has at least one affected ref and each names an existing
+     entity id of the before-document: not `model`, not a document-level or
+     collection-level ref, and not the parse refusal
+     (`OP-CONDITION-JUDGEMENT-REFUSED`).
+  3. *Outside the edit's transitive dependency scope.* No affected ref of F is in
+     the scope S, computed on the union of the before and candidate documents:
+     - set operations (create, update or delete of set X): X; every pipe whose
+       `condition_set_ref` is X in either document; and every load case with a
+       `condition_use` in either document (condition resolution reads every
+       pipe's set for any case that uses conditions, so these are the effective
+       cases fed by any set);
+     - `assign_condition_set` on pipe P from set X0 to X1 (either may be
+       absent): P, X0 and X1; every pipe referencing X0 or X1; and every case
+       with a `condition_use`;
+     - `set_load_case_condition_use` and `clear_load_case_condition_use` on
+       case L, and `create_load_case` of L carrying a use: L; every pipe that
+       carries a set; and every set referenced by any pipe;
+     - in every case, the operation's target ref and every entity its diff row
+       names.
 
-The solve still refuses a case with a staged finding by name until it is
-resolved; the applier computes no ΔT of its own.
+  Everything else blocks, whatever it is: new, worsened, touched,
+  unattributable or global findings, and every route or admission code
+  (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`,
+  `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`,
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`). Staged findings keep their
+  classification. A permitted carried refusal has severity `info`, the solve's
+  code, and a message that starts with the solve's message and then states that
+  the document already carried this refusal before the edit, that it lies
+  outside this edit's dependency scope, and that the solve still refuses it by
+  name. So a document holding a snubber or a skewed support can still author
+  condition sets, while an edit of a hydrostatic test case, or of any set
+  feeding a case that uses conditions, blocks with the case's refusal.
+
+The solve still refuses a case with a staged finding, and every carried
+refusal, by name until it is resolved; authoring never implies the document
+solves, and nothing in the outcome or the applied document claims or records
+solvability. The applier computes no ΔT of its own.
 
 **Inverses.** create ↔ delete, update ↔ update with the before record, set ↔
 clear or set; the desktop undoes through its session checkpoint, which restores
@@ -1619,29 +1660,60 @@ only.
   unknown-field refusal of the candidate is `OP-CONDITION-JUDGEMENT-REFUSED`,
   blocking. Every other diagnostic blocks, whatever its severity, including
   `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`, `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` and
-  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`. The judgement reads the whole document, so
-  these block a condition operation on any document that carries such a member,
-  even when the operation does not touch it. (A rule that skipped findings the
-  document already carried was tried and withdrawn after the persistence review
-  showed it let an edit of the refused case itself through; whether unrelated
-  carried refusals should block is put to Agent 0.) Operations outside this
-  module are not judged.
-- **Tests.** `tests/condition_set_authoring.rs` (14) has: each operation with its
+  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`, unless it is a permitted carried refusal
+  (§11, Agent 0's option (b); a first rule that skipped every carried finding
+  was withdrawn after the persistence review showed it let an edit of the
+  refused case itself through). `report_judgement` takes the document before
+  the edit and the operation's change kind and target; the two `lib.rs` call
+  sites pass `model` and the dispatch block's `change_kind` and `target_ref`,
+  or `create_load_case`'s `target_ref` with `CREATE_LOAD_CASE`. `edit_scope`
+  computes S exactly as §11 states; each of the six operations' diff rows names
+  its target as `entity_ref`, and an assignment's row names X0 and X1, so the
+  diff-row entities are already in S. A change kind the module does not know
+  scopes every entity of both documents, so nothing is carried past it.
+  `permit_carried` matches the before-document's blocking findings by (code,
+  message, refs) as a multiset; it takes the before-document's entity ids as
+  every `id` at any depth under a top-level array (so `project.id`,
+  `analysis_status`, collection names and condition keys are not entities), and
+  never carries the three route and admission codes or
+  `OP-CONDITION-JUDGEMENT-REFUSED`. The before-document's judgement is computed
+  only when the candidate has a blocking finding; a before-document the
+  validator blocks has an empty judgement, so nothing is carried from it. The
+  info message is the solve's message followed by "(The document already
+  carried this refusal before this edit, and it lies outside this edit's
+  dependency scope, so it does not block the edit. The solve still refuses it by
+  name.)". Operations outside this module are not judged.
+- **Tests.** `tests/condition_set_authoring.rs` (17) has: each operation with its
   inverse; the record, assignment and use refusals; delete while referenced;
   `create_load_case`'s use; the contents, pressure-free pressure and exact-route
   refusals; every S1 authoring refusal kept (`connect_pipe_run`'s
   `condition_set_ref`, `test_condition`, skewed and axis `direction`, the four
   combination members); the staged warnings equal to the preview's and the
   solve's findings, code and message, on the same candidate (all seven judgement
-  codes at once); non-staged findings blocking beside staged ones; the empty wind
-  exposure named against the solve's own finding; atomic batches with
+  codes at once); an unrelated snubber and an unrelated skewed support carried
+  as info through a set create, an assignment, a case's use and a created case,
+  with the solve still refusing them and no solvability recorded; an edit of
+  the hydrostatic case blocking; every set and assignment edit blocking while
+  that case uses conditions; a refusal new to the judgement blocking; the empty
+  wind exposure named against the solve's own finding; atomic batches with
   `create_node` and `connect_pipe_run` equal to the operations in turn, and
   refused at the end, in the middle or on a stale step; undo by inverse; and save
-  and reopen byte for byte. All 14 fail on the pre-S3a source. Three unit tests in
-  the module pin the list and the blocking of unlisted, warning-severity and
-  future codes. `fixtures/model_operations/condition_set_contract_corpus.json`
-  (18 cases, the `contract_corpus/` case format; case 18 keeps `create_load_case`'s `test_condition` refusal in the corpus) runs in `tests/contract_corpus.rs`
-  under the same comparison rules (bless with `CONDITION_SET_CORPUS_BLESS=1`). It
+  and reopen byte for byte. The 13 tests kept from the first build fail on the
+  pre-S3a source; its blanket-blocking test is replaced by the four
+  carried-refusal tests, which fail on the source before option (b).
+  Six unit tests in the module pin the list, the blocking of unlisted,
+  warning-severity and future codes, the carried classification (one carried
+  occurrence info, a worsened, in-scope, re-referenced, route or new finding
+  blocking), the blocking of unattributable and global findings, and the scope
+  of each operation family. `fixtures/model_operations/condition_set_contract_corpus.json`
+  (20 cases, the `contract_corpus/` case format; case 18 keeps `create_load_case`'s `test_condition` refusal in the corpus) runs in `tests/contract_corpus.rs`
+  under the same comparison rules (bless with `CONDITION_SET_CORPUS_BLESS=1`).
+  Under option (b), case 15 (`s3a_15_carried_refusal_outside_scope_is_info`, a
+  set create on a document whose hydrostatic case HT uses no conditions, where
+  no case uses conditions and no pipe references the new set) applies with HT's
+  refusal as info, where it blocked before; case 19 carries an unrelated snubber
+  through an assignment as info; case 20 blocks a use edit of HT itself. The
+  corpus test also requires both carried codes to appear as info. It
   sits outside `contract_corpus/` because the browser lane counts that directory
   and runs it against the committed wasm engine, which has no S3a operations
   until the desktop engine is rebuilt (S3b).
