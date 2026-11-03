@@ -37,6 +37,14 @@
 //!
 //! Boundary: all corpus data is invented (PUBLIC_DOMAIN_OR_ORIGINAL); no
 //! protected standards content; no compliance/certification/approval claims.
+//!
+//! Model document 0.9.0 S3a (DEL-02-01 Work `model-document-0.9.0.md` §11): the
+//! condition-set operations' cases are one file in the same case format,
+//! `fixtures/model_operations/condition_set_contract_corpus.json`, run here under
+//! the same comparison rules (bless with `CONDITION_SET_CORPUS_BLESS=1`). It sits
+//! outside `contract_corpus/` because the browser lane counts that directory's
+//! files and runs them against the committed wasm engine, which does not carry
+//! these operations until the desktop engine is rebuilt (S3b).
 
 use open_pipe_stress_operation_applier::{
     apply_operation, canonical_json, sha256_hex, validate_operation, OperationOutcome,
@@ -258,16 +266,7 @@ fn contract_corpus_cases_match_the_rust_contract_reference() {
             .as_str()
             .unwrap_or_else(|| panic!("case file {} must carry case_id", path.display()))
             .to_string();
-        let outcome = run_case(&case, &case_id);
-        let projected = semantic_outcome(&outcome);
-        let applied_hash = outcome.applied_model.as_ref().map(engine_canonical_hash);
-
-        if bless {
-            case["expected"] = json!({
-                "outcome": projected,
-                "applied_model": outcome.applied_model.clone(),
-                "applied_model_canonical_sha256": applied_hash,
-            });
+        if check_or_bless(&mut case, &case_id, bless) {
             let serialized =
                 serde_json::to_string_pretty(&case).expect("case must re-encode as JSON");
             fs::write(&path, serialized + "\n").unwrap_or_else(|error| {
@@ -276,51 +275,69 @@ fn contract_corpus_cases_match_the_rust_contract_reference() {
                     path.display()
                 )
             });
-            continue;
-        }
-
-        let expected = &case["expected"];
-        assert!(
-            !expected.is_null(),
-            "case {case_id}: expected outcome missing — regenerate with CORPUS_BLESS=1 cargo test and review the diff"
-        );
-        assert_eq!(
-            projected, expected["outcome"],
-            "case {case_id}: semantic outcome does not match the recorded contract expectation"
-        );
-        match &outcome.applied_model {
-            Some(applied) => {
-                assert!(
-                    json_semantically_equal(applied, &expected["applied_model"]),
-                    "case {case_id}: applied model document does not deep-equal the expected applied document"
-                );
-                assert_eq!(
-                    applied_hash.as_deref(),
-                    expected["applied_model_canonical_sha256"].as_str(),
-                    "case {case_id}: engine canonical hash of the applied model does not match the recorded hash"
-                );
-                assert_eq!(
-                    outcome.applied_model_backend_hash.as_deref(),
-                    expected["applied_model_canonical_sha256"].as_str(),
-                    "case {case_id}: the engine's applied_model_backend_hash must byte-equal the blessed canonical hash in every lane (H5 full byte-equality)"
-                );
-            }
-            None => {
-                assert!(
-                    expected["applied_model"].is_null(),
-                    "case {case_id}: engine blocked the apply but the expectation records an applied model"
-                );
-                assert!(
-                    expected["applied_model_canonical_sha256"].is_null(),
-                    "case {case_id}: blocked applies must not record an applied-model hash"
-                );
-                assert!(
-                    outcome.applied_model_backend_hash.is_none(),
-                    "case {case_id}: blocked applies must not carry an applied-model backend hash"
-                );
-            }
         }
     }
+}
+
+/// Run one case and compare it with its recorded expectation, or, in bless
+/// mode, record the outcome as the expectation and return true (the caller
+/// writes the file). The comparison rules are the module header's.
+fn check_or_bless(case: &mut Value, case_id: &str, bless: bool) -> bool {
+    let outcome = run_case(case, case_id);
+    let projected = semantic_outcome(&outcome);
+    let applied_hash = outcome.applied_model.as_ref().map(engine_canonical_hash);
+
+    if bless {
+        case["expected"] = json!({
+            "outcome": projected,
+            "applied_model": outcome.applied_model.clone(),
+            "applied_model_canonical_sha256": applied_hash,
+        });
+        return true;
+    }
+
+    let expected = &case["expected"];
+    assert!(
+        !expected.is_null(),
+        "case {case_id}: expected outcome missing — regenerate with CORPUS_BLESS=1 cargo test and review the diff"
+    );
+    assert_eq!(
+        projected, expected["outcome"],
+        "case {case_id}: semantic outcome does not match the recorded contract expectation"
+    );
+    match &outcome.applied_model {
+        Some(applied) => {
+            assert!(
+                json_semantically_equal(applied, &expected["applied_model"]),
+                "case {case_id}: applied model document does not deep-equal the expected applied document"
+            );
+            assert_eq!(
+                applied_hash.as_deref(),
+                expected["applied_model_canonical_sha256"].as_str(),
+                "case {case_id}: engine canonical hash of the applied model does not match the recorded hash"
+            );
+            assert_eq!(
+                outcome.applied_model_backend_hash.as_deref(),
+                expected["applied_model_canonical_sha256"].as_str(),
+                "case {case_id}: the engine's applied_model_backend_hash must byte-equal the blessed canonical hash in every lane (H5 full byte-equality)"
+            );
+        }
+        None => {
+            assert!(
+                expected["applied_model"].is_null(),
+                "case {case_id}: engine blocked the apply but the expectation records an applied model"
+            );
+            assert!(
+                expected["applied_model_canonical_sha256"].is_null(),
+                "case {case_id}: blocked applies must not record an applied-model hash"
+            );
+            assert!(
+                outcome.applied_model_backend_hash.is_none(),
+                "case {case_id}: blocked applies must not carry an applied-model backend hash"
+            );
+        }
+    }
+    false
 }
 
 #[test]
@@ -412,5 +429,72 @@ fn contract_corpus_covers_the_required_kinds_and_block_classes() {
             blocked_dynamic_paths.contains(dynamic_path),
             "coverage floor violated: no blocked corpus case targets dynamic path `{dynamic_path}`"
         );
+    }
+}
+
+const CONDITION_SET_CORPUS: &str = "../../../fixtures/model_operations/condition_set_contract_corpus.json";
+const EXPECTED_CONDITION_SET_CASES: usize = 17;
+const CONDITION_SET_KINDS: [&str; 7] = [
+    "create_condition_set",
+    "update_condition_set",
+    "delete_condition_set",
+    "assign_condition_set",
+    "set_load_case_condition_use",
+    "clear_load_case_condition_use",
+    "create_load_case",
+];
+const CONDITION_SET_BLOCK_CODES: [&str; 8] = [
+    "OP-CONDITION-SET-IN-USE",
+    "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED",
+    "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT",
+    "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
+    "OP-STALE-BEFORE-VALUE",
+    "OP-DATA-UNCHANGED",
+    "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+    "OP-CONNECT-PIPE-PAYLOAD-INVALID",
+];
+
+/// S3a's corpus file: every case matches the Rust contract reference, every
+/// operation is accepted at least once, every refusal class blocks, and the
+/// staged findings appear as warnings.
+#[test]
+fn condition_set_corpus_cases_match_the_rust_contract_reference() {
+    let bless = std::env::var("CONDITION_SET_CORPUS_BLESS").is_ok();
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(CONDITION_SET_CORPUS);
+    let mut corpus = load_case(&path);
+    let cases = corpus["cases"].as_array_mut().expect("the corpus file carries a cases array");
+    assert_eq!(cases.len(), EXPECTED_CONDITION_SET_CASES, "condition-set corpus completeness drifted");
+    let mut accepted: BTreeSet<String> = BTreeSet::new();
+    let mut blocked: BTreeSet<String> = BTreeSet::new();
+    let mut warned: BTreeSet<String> = BTreeSet::new();
+    for case in cases.iter_mut() {
+        let case_id = case["case_id"].as_str().expect("case_id").to_string();
+        check_or_bless(case, &case_id, bless);
+        let outcome = &case["expected"]["outcome"];
+        if outcome["validation"]["application_status"] == "applied_to_session_model" {
+            accepted.insert(case["intent"]["change"]["change_kind"].as_str().unwrap_or_default().to_string());
+        }
+        for item in outcome["diagnostics"].as_array().into_iter().flatten() {
+            let code = item["code"].as_str().unwrap_or_default().to_string();
+            if item["blocking"] == true {
+                blocked.insert(code);
+            } else {
+                warned.insert(code);
+            }
+        }
+    }
+    if bless {
+        let serialized = serde_json::to_string_pretty(&corpus).expect("corpus must re-encode as JSON");
+        fs::write(&path, serialized + "\n").expect("corpus file must be writable in bless mode");
+        return;
+    }
+    for kind in CONDITION_SET_KINDS {
+        assert!(accepted.contains(kind), "no accepted condition-set corpus case for `{kind}`");
+    }
+    for code in CONDITION_SET_BLOCK_CODES {
+        assert!(blocked.contains(code), "no condition-set corpus case blocks with `{code}`");
+    }
+    for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING"] {
+        assert!(warned.contains(code) && !blocked.contains(code), "`{code}` is a staged warning in the corpus");
     }
 }
