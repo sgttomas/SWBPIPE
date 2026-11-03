@@ -1444,3 +1444,21 @@ def test_model_0_9_0_g8_declines_condition_sets_spectra_and_set_references(chang
     with pytest.raises(rp.RetainedPrecisionError) as refused:
         rp._g8(body, {"model_ref": "p", "retained_precision": {"body": body}}, invocation)
     assert (refused.value.gate, refused.value.code) == ("G8", "RETAINED_PRECISION_" + code)
+
+
+def test_rv120_canonical_input_pins_are_the_python_materialization():
+    """The eight RV120/N2b pins of `retained_precision_contract.rs` (sha256 of the canonical JSON of
+    `[source, invocation]`) are the canonical digests of this file's independent materialization of the same shapes
+    from the committed bases (`rv120_input`), in the Rust order: N2b, RV120 N2, RV120 F2. A carrier or producer
+    change that moves an input must move these pins the same way (RT-A3 increment 3 review; DEL-04-08 §8.44)."""
+    import re
+    from tests.verifiers.canonical_json import canonical_sha256
+    text = (ROOT / "core/reporting/result_export/tests/retained_precision_contract.rs").read_text()
+    pins = []
+    for name, close in (("REPAIR03_N2B_INPUTS", r"\];"), ("RV120_N2_INPUTS", r"\];"), ("RV120_FORGERY_INPUTS", r"\n\];")):
+        pins += re.findall(r"[0-9a-f]{64}", re.search(r"const %s[^=]*= \[(.*?)%s" % (name, close), text, re.S).group(1))
+    order = [s for s in RV120["shapes"] if s["name"].startswith("N2b: ")]
+    order += [s for s in RV120["shapes"] if s["name"].startswith("X G8: an exact_cases entry")]
+    order += [s for s in RV120["shapes"] if s["name"].startswith("forge ")]
+    assert len(pins) == len(order) == 8
+    assert [canonical_sha256(list(rv120_input(shape))) for shape in order] == pins
