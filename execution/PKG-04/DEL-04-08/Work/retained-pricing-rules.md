@@ -3122,6 +3122,82 @@ ended 06:19:32Z (the wrapper returned at 06:19:32Z: 9 s including teardown; the 
 2.50 s, **all pass**. Afterwards `exclusive.pending` is absent, no harness, wrapper or test process remains, and
 the binary's hash is unchanged. No isolated challenge was requested.
 
+**#96 (I2b-1: the dense eigen path).** A separate pricing check on the I2b-1 head, against the I2a registration
+above; it shares that registration only because no coefficient moves.
+
+- *Source change for pricing.* `modal_parameter_refusals` printed the caller's whole `sturm_gap_log_positions` and
+  `sturm_whole_spectrum_offsets` lists with Debug. Nothing in the source or D1 bounds their length, so no truthful
+  per-site bound existed. Each refusal now names the first offending entry and its index (or `empty`), the
+  decision-A count precedent; a lib test checks a 1,000-entry list yields a short message.
+- *MODAL-FB* adds I2b-1's two callers, each body-pinned: `modal_sturm_count` (`max` on a usize) and
+  `bounding_box_diagonal` (`min`, `max` on `f64` coordinates).
+- *MODAL-ID* adds site-specific bounds for the 23 format arguments no existing class covers in `eigen.rs`, `integrity.rs`, `outcome.rs` and the `#[cfg(test)]`
+  `tests_eigen.rs`, under a guard keyed on `modal_sturm_count`, so an I2a head adds nothing. Mode numbers and counts
+  are usize decimals (20 B). Each set of static reasons is read from the pinned function, and a second guard matches
+  the construct that supplies them in its exact all-literal shape: the two reason matches whole, every mention of the
+  private `reformation_refusal` and of the private `parameter_refusal` in their file, the checked-value table parsed
+  into its 15 top-level tuples, each of four elements ending in a lone string literal, and each of
+  `modal_parameter_refusals`' five calls with its literal or fixed-format domain. A new or longer literal re-prices; a
+  computed reason, an extra arm, call or tuple, or a use of either function as a value stops the run. Debug and Display renderings are bounded at their longest variant with payloads
+  at class bounds: `FiniteCensus` 162 B, `ShiftDecision` 143 B (`OutOfRange` with `ShiftTimesMass`; the widest
+  `FactorizationRejected` is 136 B), a pencil DOF label 131 B, `PencilRangeUnsupported` 170 B, and the axis
+  shortfall join of at most three entries 226 B.
+- *Pins.* I2b-1 changes no pinned file: `lib.rs`, `self_weight.rs` and every `Cargo.lock` are byte-equal to the I2a
+  head, so no reviewed input, `REVIEWED` entry or pin moves.
+- *Run and comparison.* The tool priced `9fa740050` with exit 0 on all four points, no unmapped header or
+  unclassified argument, both O-10 checks at zero and byte-equal to the I2a run's. D is unchanged at every point.
+  `compare` against the I2a run's tree: identical but for the basis revision, structure equal, all 1,602
+  coefficients equal. `generate --check` against `retained_memory.rs` with §8.42's basis line is **equal** (1,712
+  lines): **no coefficient moves**.
+- *Routing.* The five I2b-1 files join the three source-scan declarations, and the product_physics tree digest
+  follows.
+- *AC-004: the six witnesses pass on #96's selected binary (Agent 0's fallback); the analytical transfer of #94's
+  witness evidence was not established.* Agent 0 allowed #96 to
+  carry #94's six-witness outcome by analysis if independent scrutiny confirmed that the exact binaries'
+  witness-path frames and depth are unchanged, with the short six-witness run as the fallback. I2b-1 compiles new
+  code into the witnessed lib-test binary. Relative to I2a's witnessed head `b85a5b131` it changes only modal files
+  (`modal.rs`'s module declarations, the new modules and the existing test module `modal/tests.rs`). Its debug
+  lib-test binary (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256 `75d4c1f0…4251`, same toolchain) was
+  compared with the witnessed one (`56c4444a…2d72`) statically, from the disassembly.
+  - *What the comparison establishes.* Functions are keyed by start address; every call or tail-call target
+    resolves to a function start or a named dylib stub. Each function's label is its ordered sequence of `sp`
+    writes (any opcode, including the `and sp` of an aligned allocation; pre- and post-index writebacks; `sub xN,
+    sp, …`), calls, tail calls and indirect branches, refined over its targets' labels to a stable partition. All 119
+    witness-root functions (the six `::sparse`/`::dense` entries and their helpers) have equal label multisets, and
+    all 78,481 functions in their direct and tail-call closure carry labels the witnessed binary has. The functions
+    whose own frames move (16 B each: `self_weight::tests::intensity`, two `#[test]` bodies, two modal fixtures) are
+    outside that closure.
+  - *Why it is not enough* (independent review). Intra-function control flow is not modelled: a conditional branch
+    that skipped an `sp` restoration before a call would leave every label unchanged while changing the stack state
+    at that call. Indirect dispatch (335 sites in the closure) is unresolved, so a vtable or function pointer could
+    select a different-frame generic copy. Three copy-count-changed names have copies of different frame (up to
+    144 B apart). Dylib bodies are compared by stub name only. So the comparison is supporting evidence; it does not
+    show the witness paths' runtime stack depth is unchanged, and exclusion of the changed functions is shown for the
+    static closure only.
+  - *The fallback run.* Agent 0 cleared one run on the exact clean head `08f22d6ff1f4803ac797fb87c0bfa6704362e2a3`.
+    Preflight, recorded before queueing:
+    - lib-test binary `open_pipe_stress_product_physics-9cc9ce96e7b85850`, built outside the window under the normal
+      wrapper and fresh at that head, SHA-256 `75d4c1f0ff112a6d5918e92c64b7436d47dbb3f6b1ed3c53b494d98117da4251`;
+    - `retained_memory.rs` `0465eef31859a4c51afd8a66858f509d50e0b88936b50cd6990961a489050022`;
+    - `core/product_physics/Cargo.lock` `6d8af2367c31353985bdbe8133a2771204e62ed359a4940c54bbf6689c18cd85`;
+    - rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin, LLVM 22.1.6, debug), equal to
+      the registered identity;
+    - the binary's two Registered-only w15b tests pass.
+
+    One `t3_exclusive.sh` run with memguard. It was queued at 07:22:22Z and started at 07:22:56Z (a 34 s queue
+    wait). Its first step re-verified the head and the binary hash. It ended at 07:23:06Z, rc 0: 10 s including
+    teardown against 60 s; the internal harness took 9.25 s against its 55 s deadline. Each witness ran once, in its
+    own process, from that binary, with `--exact --ignored --test-threads=1`, with no compile and no retry, and
+    **all pass**:
+
+    | Witness | Sparse | Dense |
+    |---|---|---|
+    | `witness_headroom_w1_at_one_mebibyte` | 0.68 s | 0.68 s |
+    | `witness_w2_deep_milestone_publishes` | 1.38 s | 1.35 s |
+    | `witness_w_c2_publishes` | 2.57 s | 2.58 s |
+
+    Afterwards `exclusive.pending` is absent, no harness, wrapper or test process of this run remains, and the
+    binary's hash is unchanged. No isolated challenge was requested.
 ### §8.45 Static and report literal classes: a Rust lexer replaces quote pairing (tool method repair)
 
 **Status.** Tool-only method repair, Agent 0's option B, on main `db3151708` (#94). §8.44 is reserved for RT-A3's
