@@ -328,7 +328,8 @@ fn twins() -> Vec<(String, Standing, Value, Value, Value, Value, &'static str)> 
 #[test]
 fn every_kd5_control_keeps_its_states_counts_and_standing_on_its_exact_twin() {
     let mut summary = Vec::new();
-    for (at, expected, original, twin, _, ex_case, case) in twins() {
+    for (at, expected, original, twin, pf_case, ex_case, case) in twins() {
+        k1_history_premises(&at, &original, &twin, &pf_case, &ex_case, case);
         let (a, b) = (loop_results(&original), loop_results(&twin));
         assert_eq!(a.iter().map(|r| &r.0).collect::<Vec<_>>(), b.iter().map(|r| &r.0).collect::<Vec<_>>(), "{at}: the same loop rows");
         assert!(a.iter().any(|(key, _)| key.starts_with("nonlinear_support_active_set_state_code")), "{at}");
@@ -485,7 +486,9 @@ type Row = (String, f64, String);
 
 /// The amended K-1 constants, per family: (family, canonical unit, a_f, log2 r_f). a_f = 0 throughout: a family's
 /// scale is zero only when the case has no load, no applied friction and no gap, and then both routes publish
-/// exact zeros. r_f is the next power of two at or above twice the basis' largest enclosure / S_f.
+/// exact zeros. r_f is the next power of two at or above twice the basis' largest enclosure / S_f: the final states'
+/// for value and residual rows, and for an iterate-delta row the final iterate's and its derived preceding iterate's
+/// (the note's §3, "Iterate deltas", under [`k1_history_premises`]).
 const K1_FAMILIES: [(&str, &str, f64, i32); 11] = [
     ("translation", "m", 0.0, -32),
     ("rotation", "rad", 0.0, -31),
@@ -494,11 +497,59 @@ const K1_FAMILIES: [(&str, &str, f64, i32); 11] = [
     ("residual_force", "N", 0.0, -36),
     ("residual_moment", "N*m", 0.0, -38),
     ("work", "N*m", 0.0, -40),
-    ("translation_delta", "m", 0.0, -27),
-    ("rotation_delta", "rad", 0.0, -25),
-    ("force_delta", "N", 0.0, -20),
-    ("moment_delta", "N*m", 0.0, -24),
+    ("translation_delta", "m", 0.0, -32),
+    ("rotation_delta", "rad", 0.0, -31),
+    ("force_delta", "N", 0.0, -27),
+    ("moment_delta", "N*m", 0.0, -29),
 ];
+
+/// The loop's iteration count per case (`k1_twin_bound.py`'s `ITERATIONS`), a discrete premise of the iterate-delta
+/// basis: with one iterate no delta row is published; with two, the preceding iterate is the first; with three, it is
+/// the second, whose input the basis derives from the first.
+const K1_ITERATIONS: [(&str, &str, f64); 17] = [
+    ("F-1 (derived normal)", "load:SLIDE-POS", 2.0),
+    ("F-1 (derived normal)", "load:SLIDE-NEG", 2.0),
+    ("F-1 (derived normal)", "load:STICK", 3.0),
+    ("F-1 (derived normal)", "load:BOUNDARY", 3.0),
+    ("F-1 explicit normal", "load:SLIDE", 2.0),
+    ("F-1 explicit normal", "load:STICK", 3.0),
+    ("F-1 mu = 0", "load:FREE", 2.0),
+    ("F-2", "load:SLIDE", 2.0),
+    ("U-1", "load:PRESSED", 1.0),
+    ("U-1", "load:LIFTED", 2.0),
+    ("U-1", "load:IN-PLANE", 2.0),
+    ("U-1 parallel spring", "load:PRESSED", 1.0),
+    ("U-1 parallel spring", "load:LIFTED", 2.0),
+    ("U-1 rotational (RX)", "load:PRESSED", 1.0),
+    ("U-1 rotational (RX)", "load:LIFTED", 2.0),
+    ("G-1 gap containment (U-1 as a gap)", "load:PRESSED", 2.0),
+    ("G-1 gap containment (U-1 as a gap)", "load:LIFTED", 1.0),
+];
+
+/// The iterate-history premises of the K-1 delta basis that the product publishes (the note's §3, "Iterate
+/// deltas"). The envelope publishes no per-iteration state, slip direction, derived-normal branch or applied
+/// friction force; it publishes the iteration count, the final states and the loop's solver diagnostics. On both
+/// routes:
+/// - the iteration count is the basis' (`K1_ITERATIONS`);
+/// - the first iterate's states are the authored seeds: the twin keeps the PF request's supports, seeds included,
+///   and neither route reports the first-iterate all-active seed recovery (`SOLVER_SINGULAR_SYSTEM`, "recovered by
+///   one all-active trial"). A sliding seed has no previous iterate, so it carries no applied force;
+/// - from these, the basis derives the second iterate's input (kept sliding, the slip direction and the derived-
+///   normal branch, each the sign of a first-iterate quantity whose margin exceeds its enclosure on both routes).
+///   That derivation, not this test, establishes the matched preceding iterate of a three-iterate case.
+fn k1_history_premises(at: &str, original: &Value, twin: &Value, pf_case: &Value, ex_case: &Value, case: &str) {
+    let label = at.split(" load:").next().unwrap();
+    let expected = K1_ITERATIONS.iter().find(|(l, c, _)| *l == label && *c == case).unwrap_or_else(|| panic!("{at}: no premise")).2;
+    for (route, envelope) in [("PF", original), ("EX", twin)] {
+        let count = envelope["results"].as_array().unwrap().iter()
+            .filter(|r| r["kind"] == "nonlinear_support_active_set_iteration_count").map(|r| r["value"].as_f64().unwrap()).collect::<Vec<_>>();
+        assert_eq!(count, [expected], "{at} {route}: the iteration count premise");
+        let recovered = envelope["diagnostics"].as_array().unwrap().iter()
+            .any(|d| d["code"] == "SOLVER_SINGULAR_SYSTEM" && d["message"].as_str().unwrap_or("").contains("recovered by one all-active trial"));
+        assert!(!recovered, "{at} {route}: the first iterate used the authored seeds");
+    }
+    assert_eq!(pf_case["model"]["supports"], ex_case["model"]["supports"], "{at}: the same supports and seeds");
+}
 
 /// The rows whose bits K-1 requires exactly: the state codes, the loop's counts and its converged flag.
 const K1_EXACT: [&str; 4] = [
@@ -672,7 +723,8 @@ fn discrete(original: &Value, twin: &Value, case: &str) -> (Vec<(String, String)
 #[test]
 #[ignore = "held: the K-1 amendment (option (a), k1-twin-bound.md) awaits independent review"]
 fn every_kd5_control_twin_is_within_the_k1_bound() {
-    for (at, _, original, twin, pf_case, _, case) in twins() {
+    for (at, _, original, twin, pf_case, ex_case, case) in twins() {
+        k1_history_premises(&at, &original, &twin, &pf_case, &ex_case, case);
         let (a, b, pf_standing, ex_standing) = discrete(&original, &twin, case);
         assert_eq!(a, b, "{at}: states and loop counts");
         assert_eq!(pf_standing, ex_standing, "{at}: the standing");

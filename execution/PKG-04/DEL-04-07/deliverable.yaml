@@ -303,6 +303,10 @@ needs:
     over evaluate_original_residual). Second, the independent kd5 reference formation
     (validation/references/kd5_nonlinear/reference.py and its oracles' normalized sections). A
     change to either re-runs Work/k1_twin_bound.py before the bound's constants are asserted again.
+    Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the
+    authored seeds, no friction force on the first iterate, the deferred first iterate, and the slip
+    direction and normal branch taken from the previous iterate) and on the published iteration
+    counts; a change to those re-runs the script likewise.
   gating: true
   when: Asserting the amended K-1 bound on the kd5 twin corpus.
   evidence: core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs

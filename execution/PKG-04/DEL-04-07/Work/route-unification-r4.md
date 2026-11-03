@@ -683,18 +683,23 @@ stated).
     only:
     - each support's state code, the loop's iteration count, final residual count and converged
       flag, and the standing are identical. The standing is the integrity code, the
-      `numerical_quality` record, and kd5's evidence line or its named §2.4 reason;
+      `numerical_quality` record, and kd5's evidence line or its named §2.4 reason. Each case's
+      iteration count is the basis' (one to three), and neither route reports the first-iterate
+      all-active seed recovery;
     - every other loop row is finite on both routes and satisfies |x_EX − x_PF| ≤ a_f + r_f·S_f
       in its family's canonical unit. These rows are the nodal displacements and rotations, the
       support action components and magnitudes, the nonlinear support displacements, reactions
       and friction normals, and the loop's free-row residual, residual-work and iterate-delta
       observations. The families, the fixed a_f and r_f, the scales S_f formed from the case's
       inputs, and the zero-scale rule are those of `k1-twin-bound.md`. A non-finite value fails.
+      An iterate-delta row's bound is for the preceding iterate the basis derives from the
+      authored seeds and the first iterate; the product publishes no per-iteration state.
 
     Each route keeps its established section formation, so bit identity is not required. This
     is a bounded comparison on the named corpus. It does not claim identical results elsewhere,
     nor near active-set transitions beyond the corpus's two weakly decided cases (F-1 BOUNDARY,
-    U-1 IN-PLANE), whose equal states are observations.
+    U-1 IN-PLANE). Their equal final states, the iteration counts and the absence of the seed
+    recovery are observed discrete premises, not consequences of the bound.
 
 **Size: L.**
 
