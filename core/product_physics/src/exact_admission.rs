@@ -29,8 +29,14 @@
 //! load/reference-state documents: the shared `case_force_ledger` applies its
 //! constant nodal force in every solved case and state, and a mechanics
 //! combination over a model with a consuming one is gated by the unit
-//! factor-sum rule (`exact_combinations`). Other families retain their named
-//! refusals. Admission
+//! factor-sum rule (`exact_combinations`). RT-A3 increment 4 (R-4 §3.5 S5;
+//! DEL-04-07 `pressure-contract.md`, "Nonlinear supports on EX (RT-A3
+//! increment 4)") admits gap, one-way, lift-off and friction supports on plain
+//! v3 documents through PF's shared active-set loop and K-D5 confirmation,
+//! with the pressure groups in the loop's fixed force; on a load/reference-state
+//! document or beside an objective connector (S6) the family keeps its named
+//! refusal ([`nonlinear_support_admission`]). Other families retain their
+//! named refusals. Admission
 //! of another family must supply those consumers together; lifting a refusal
 //! alone cannot establish mechanics.
 
@@ -309,15 +315,17 @@ impl ExactFamily {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
     /// The extension point: T4-U3 admits the objective connector; T4-U2 the
-    /// realized bend; W-15 the rigid family; RT-A3 the branch connection and
-    /// (increment 3) the constant-effort support.
+    /// realized bend; W-15 the rigid family; RT-A3 the branch connection,
+    /// (increment 3) the constant-effort support and (increment 4) the
+    /// nonlinear support on plain documents ([`nonlinear_support_admission`]).
     Admitted,
     /// A refusal's code and text, both static (no text is composed here).
     Refused { code: &'static str, message: &'static str },
 }
 
 /// The current admission table: the objective connector, the realized bend,
-/// the rigid family, the branch connection, the constant-effort support,
+/// the rigid family, the branch connection, the constant-effort support, the
+/// nonlinear support (on plain documents only, [`nonlinear_support_admission`]),
 /// equivalent-static generation and load combinations are admitted with their
 /// integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
@@ -368,6 +376,14 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // gated by the unit factor-sum rule (`exact_combinations`). Held or
         // locked devices belong to hydrotest (R-4 §4.9) and are not built here.
         (ExactContract::PressureV3, ExactFamily::ConstantEffortSupport) => Admission::Admitted,
+        // RT-A3 increment 4 (R-4 §3.5 S5): gap, one-way, lift-off and friction
+        // supports (explicit normal, or one derived from a linear restraint)
+        // through PF's active-set loop and K-D5 confirmation, called from the
+        // shared `solve_prepared_load_case`, whose fixed force carries the
+        // case's pressure groups (R-4 §2.1-§2.2). Gap cases take R1's
+        // unqualified branch until R-3. The table admits the family; the
+        // document context (S6) is judged by [`nonlinear_support_admission`].
+        (ExactContract::PressureV3, ExactFamily::NonlinearSupport) => Admission::Admitted,
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
@@ -606,6 +622,22 @@ fn step_topology<'a>(
     Some(ReducerStep { ends: [end(body.from.as_str())?, end(body.to.as_str())?], legacy_offset })
 }
 
+/// RT-A3 increment 4 (R-4 §3.5 S5 and §3.7 S6): a nonlinear support's
+/// admission on one document. S5 admits it on a plain v3 document only. On a
+/// load/reference-state document (any authored group key, the detector
+/// `case_state::carries_fields` that equivalent-static generation uses) or in a
+/// model with an objective connector, stage S6 has not been built, so the
+/// family keeps its existing named refusal, code and static text unchanged.
+pub(crate) fn nonlinear_support_admission(contract: ExactContract, load_state: bool, connectors: bool) -> Admission {
+    match (contract, load_state || connectors) {
+        (ExactContract::PressureV3, false) => admission(contract, ExactFamily::NonlinearSupport),
+        (ExactContract::PressureV3, true) => Admission::Refused {
+            code: FAMILY_NOT_ADMITTED,
+            message: ExactFamily::NonlinearSupport.v3_refusal(),
+        },
+    }
+}
+
 /// The family of a support outside the straight base, or `None` for a linear
 /// restraint or spring (admitted by every exact contract).
 pub(crate) fn support_family(support: &PreviewSupport) -> Option<ExactFamily> {
@@ -641,14 +673,14 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_constant_effort_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_constant_effort_nonlinear_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
                     if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
                         | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
                         | ExactFamily::RigidComponent | ExactFamily::Branch
-                        | ExactFamily::ConstantEffortSupport
+                        | ExactFamily::ConstantEffortSupport | ExactFamily::NonlinearSupport
                         | ExactFamily::EquivalentStatic | ExactFamily::Combination) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.
@@ -675,6 +707,28 @@ mod tests {
                     );
                 }
                 Admission::Admitted => panic!("{family:?} admitted before its unit"),
+            }
+        }
+    }
+
+    /// RT-A3 increment 4: S5 admits the nonlinear support on a plain document;
+    /// a load/reference-state document or an objective connector (S6) keeps
+    /// the family's own code and static text, byte for byte.
+    #[test]
+    fn a_nonlinear_support_is_admitted_only_on_a_plain_document_without_connectors() {
+        let contract = ExactContract::PressureV3;
+        assert_eq!(nonlinear_support_admission(contract, false, false), Admission::Admitted);
+        for (load_state, connectors) in [(true, false), (false, true), (true, true)] {
+            match nonlinear_support_admission(contract, load_state, connectors) {
+                Admission::Refused { code, message } => {
+                    assert_eq!(code, FAMILY_NOT_ADMITTED);
+                    assert_eq!(
+                        message,
+                        "nonlinear support is not yet admitted under 3.0.0/exact_pressure_v3; the exact route refuses it rather than analyse it as straight pipe"
+                    );
+                    assert!(message.starts_with(ExactFamily::NonlinearSupport.name()));
+                }
+                Admission::Admitted => panic!("S6 context admitted: load_state={load_state} connectors={connectors}"),
             }
         }
     }

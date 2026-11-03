@@ -887,3 +887,125 @@ yet state D-2. Those texts, their copies (`exactReportLimitations.ts`,
 pressure-2 table's `combination_policy.mechanics_gates` (which lists gates
 1–3) are held until another change integrates. They are updated together
 afterwards.
+
+## Nonlinear supports on EX (RT-A3 increment 4)
+
+**Basis.** R-4 stage S5 ([route-unification-r4.md](route-unification-r4.md)
+§3.5, with §00 and §2.1–§2.4); DEL-04-01 `kd5-nonlinear-active-set.md`.
+This increment is stacked on the reviewed constant-effort candidate
+`9282fc52f` (increment 3, above) and binds the frozen references
+`validation/references/rt_a3_nonlinear/` committed at `324462348`.
+
+**Admitted.** On a plain `3.0.0/exact_pressure_v3` document, gap, one-way,
+lift-off and friction supports (explicit normal, or a normal derived from a
+linear restraint) are admitted (`exact_admission::admission`, family
+`NonlinearSupport`). They solve through PF's active-set loop and K-D5
+confirmation, called from the shared `solve_prepared_load_case`. The loop's
+fixed force is the case ledger's `AssembledForce`, which already carries the
+pressure groups: Poisson pairs, terminal caps and each realized arc's
+K_b·u_free − c_b (§2.1). Confirmation receives the same force and manifest
+(§2.2). No change to the shared loop, `LoadCaseSolve` or
+`nonlinear_integration` was needed. The EX publication path (§2.4) publishes
+the loop's existing rows unchanged, and the wall force, membrane stress and
+Lamé rows are recovered from the final displacement, as in a linear case.
+The references exercise straight Euler–Bernoulli and Timoshenko members and
+one realized bend (O-1).
+
+**Still refused.**
+- *By name, with the family's code and text unchanged*
+  (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`; `exact_admission::nonlinear_support_admission`,
+  called from `pressure_runtime::validate_profile`):
+  - a nonlinear support on a load/reference-state document. Any authored group
+    key counts, the `case_state::carries_fields` detector that
+    equivalent-static generation also uses.
+  - a nonlinear support in a model with an objective connector. Both belong to
+    S6 (§3.7).
+- *By the shared routes' existing refusals:*
+  - a nonlinear support as a friction normal source (S7);
+  - rotational gaps and rotational friction;
+  - a linear restraint or spring on a nonlinear DOF;
+  - a repeated active boundary DOF;
+  - the loop's own connector refusal.
+- *The retained sub-route:* source recovery stays ineligible for nonlinear
+  cases (§2.4, D1 unchanged).
+- *`difference_basis` on EX:* stays refused. Its S5 lift belongs to the
+  combination seam (below).
+
+**Standings.** Each is published identically in both solver modes.
+- Gap-bearing cases take R1's unqualified branch:
+  `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`, with no confirmation until
+  R-3.
+- A derived-normal friction support that ends Inactive (the p = 0 F-1
+  controls) fails closed. It is published `NUMERICAL_INTEGRITY_SENSITIVE` with
+  "support support:FRICTION: friction normal not established" (kd5 §2.4
+  item 7). Its rows are the loop's binary64 values: the dense-mode inactive
+  friction row is −2.9e-11 N, not R4's exact +0, which applies only to a
+  confirmed state.
+- Every other reference case is confirmed and published
+  `NUMERICAL_INTEGRITY_CHECKS_PASSED` with the certified rows. These are the
+  F-1 slide/stick (k = 1 Stage A), F1E, F1-T (Timoshenko), O-1 and their
+  p = 0 twins. In those cases the inactive rows are exact +0.
+
+**Binding.** `core/product_physics/tests/rt_a3_nonlinear_references.rs`
+authors each case as a plain v3 document from its stated inputs and solves it
+through the public entry in both solver modes. Twenty of the packet's 21
+cases bind at 1e-9 relative with per-family floors. The comparisons cover:
+- every displacement and rotation;
+- every reaction, including the nonlinear and linear supports;
+- all six global wall end actions at both ends of every member, the arc
+  included;
+- N_w and S;
+- the axial wall stress on both bases;
+- the Lamé rows;
+- each support's state, deciding displacement and reaction, its separation
+  and contact, and for friction N, μN, the source reaction and the stick
+  margin;
+- the slip sense and the derived-normal sign β.
+
+The DEC-067 laws and strict complementarity are checked on the published rows
+independently of the references. Every envelope passes the pressure reader
+with and without its model, and the Python mirror
+(`tests/verifiers/pressure_2.py`) accepts the same 40 envelopes. The binding
+refuses each of these forged controls:
+- a halved contact;
+- a closed gap stated inactive;
+- a friction force at 1.1·μN;
+- a gap case relabelled Passed;
+- a derived inactive case relabelled Passed.
+
+The pressure reader accepts all five, because it reads the nonlinear row
+kinds the pressure-2 table registers without checking their laws or
+standings. That reader knowledge is §2.4 work and is listed below.
+
+G1-P0 is not expressible as the packet states it. It has no load of any kind,
+and the product refuses a document without a primitive load
+(`LOAD_INPUT_MISSING`). The binding pins that refusal and invents no zero
+load.
+
+**Pending.**
+- *The v3 identity and limitation texts* (held for sequenced integration):
+  - the "Admitted families" sentence;
+  - the support-attribution sentence ("linear restraints, springs and
+    nonlinear supports");
+  - the gap-standing sentence.
+
+  Their copies and the pressure-2 table move with them.
+- *Combinations, OQ-1 and κ:* the load-case lane's RT-A4 implements EX's
+  `NONLINEAR_COMBINATION_REQUIRES_SOLVE` gate and OQ-1 with both readers. On
+  this base EX still forms every flat mechanics combination of a nonlinear
+  model, singleton included (`withheld: false`). This increment must
+  therefore not integrate ahead of that gate. The binding holds the
+  withholding assertion `#[ignore]`d until RT-A4 lands.
+- *Shared-loop hunks:* none were needed. No `LoadCaseSolve` construction or
+  early return was added.
+- *Pressure-reader nonlinear checks* (§2.4): states, complementarity, μN and
+  standings.
+- *Pricing* of the changed static chain (`pressure_runtime.rs`,
+  `exact_admission.rs`), held in the serial pricing order.
+- *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
+  its interim linear forms (`rack_model.py`, `release_runner.py`).
+- *K-1:* the kd5 controls on EX twins. This is the product binding's, not
+  part of this packet.
+- *§2.2's explicit member-bound integration test.* The confirmed cases'
+  certified rows match the references, but the wall-bound derivation is not
+  separately pinned.
