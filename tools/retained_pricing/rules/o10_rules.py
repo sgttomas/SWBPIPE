@@ -1583,6 +1583,52 @@ if _D5:
              {"source": {"bytes": _j4b("let source = if selected {", 2), "source": O10 + "U6-J4: the longer of the two static source literals"}}),
         ]
 
+# SL-LIM (§8.45): the static class is the four-file literal measure (composite_text), which two limitation
+# constants exceed. Each is copied once, by `.to_string()` at one site; that site is audited at the constant's
+# own runtime length, lexed (base/rust_literals.py) from its defining file at the snapshot. Stops if the
+# declaration is not exactly one `const NAME: &str = "<one literal>";`, if the name is used anywhere else in
+# the pricing scope's code, or if the site's text moves out of its function.
+_sll_rl = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "rust_literals.py"))
+_sll_dirs = open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "crate_dirs.txt"), encoding="utf-8").read().split()
+
+
+def _sll_code_hits(f, name):
+    """Offsets of `name` in the code (not literals or comments) of file f at the snapshot."""
+    text = _text_of(f)
+    toks, comments = _sll_rl["scan"](text, f)
+    spans = [(x["start"], x["end"]) for x in toks] + list(comments)
+    return [m.start() for m in _re.finditer(r"\b" + _re.escape(name) + r"\b", text)
+            if not any(a <= m.start() < b for a, b in spans)], text, toks
+
+
+def _sll_const_bytes(f, name):
+    hits, text, toks = _sll_code_hits(f, name)
+    decl = [m for m in _re.finditer(r"\bconst\s+" + _re.escape(name) + r"\s*:\s*&\s*(?:'static\s+)?str\s*=\s*", text)
+            if m.start() + text[m.start():].index(name) in hits]
+    lit = [x for x in toks if decl and x["start"] == decl[0].end() and x["kind"] == "str"]
+    if len(decl) != 1 or len(lit) != 1 or not _re.match(r"\s*;", text[lit[0]["end"]:]):
+        raise SystemExit(f"SL-LIM: {name} in {f} is not one `const {name}: &str = \"...\";`; re-review its copies")
+    return lit[0]["nbytes"]
+
+
+for _sll_name, _sll_def, _sll_fn, _sll_file, _sll_text, _sll_recv in (
+        ("CONNECTOR_LIMITATION", PP_ + "joint.rs", "pressure_v3_formulation_basis_with_source", PP_ + "exact_admission.rs",
+         "limitations.push(super::joint::CONNECTOR_LIMITATION.to_string());", "super::joint::CONNECTOR_LIMITATION"),
+        ("BEND_LIMITATION", PP_ + "bend_pressure.rs", "formulation_basis_for_model_with_source", PP_ + "lib.rs",
+         "basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());", "bend_pressure::BEND_LIMITATION")):
+    if not _os.path.exists(_os.path.join(_SNAP, _sll_def)) or not _re.search(r"\bconst\s+" + _sll_name + r"\b", _text_of(_sll_def)):
+        continue    # absent: the disposition check (composite_text) stops if its literal remains elsewhere
+    _sll_bytes = _sll_const_bytes(_sll_def, _sll_name)
+    _sll_uses = [(f, len(_sll_code_hits(f, _sll_name)[0])) for f in _sll_rl["scope_files"](_SNAP, _sll_dirs)]
+    _sll_uses = [(f, n) for f, n in _sll_uses if n]
+    if sorted(_sll_uses) != sorted([(_sll_def, 1), (_sll_file, 1)]):
+        raise SystemExit(f"SL-LIM: {_sll_name} is used outside its declaration and its one audited copy: {_sll_uses}")
+    _sll_site = site(_sll_fn, _sll_file, _sll_text, full=True) if fnkey(_sll_fn, _sll_file) else None
+    if not _sll_site:
+        raise SystemExit(f"SL-LIM: {_sll_name}'s copy is no longer in {_sll_file} {_sll_fn}; re-review")
+    O10_ID_AUDIT += [(_sll_site, {_sll_recv: {"bytes": _sll_bytes, "source": O10 + f"SL-LIM (§8.45): the &'static str const "
+        f"{_sll_name}, its runtime length lexed from {_sll_def.split('/src/')[-1]} at the snapshot"}})]
+
 # U6-RB/W1-L5: the guarded row index has one insertion and one reader. The
 # reduced cohort binds the production `combining` expression, both guards and
 # its cfg(test)-only byte-comparison shadow. Route E has no preview; route L
