@@ -15,8 +15,13 @@ received document and, when it is supplied, from its model.
   the model's evaluation order after S1's interim removal, re-derived as the producer forms it, and every unsigned row
   stating its basis and sign convention and, when formed from operand rows, equal to A or R of the model's factors, bit
   for bit.
+- Nested rows (review r2 P2; both readings): every row of an admitted recorded combination that is not unsigned and has
+  a combination operand (mechanics, subtraction, envelope) is re-derived from its operands' rows with the model's or the
+  record's factors, as the producer forms it, and the published rows and withholdings must be exactly the derived ones
+  (``..._NESTED_ROW``, ``..._NESTED_WITHHELD``). Flat combinations' signed values are not re-derived (as before RT-A4).
 
-Independence: standard-library imports only, and its siblings ``combination_graph`` and ``units``.
+Independence: standard-library imports only, and its siblings ``combination_graph``, ``exact_combinations`` (``norm3``)
+and ``units``.
 """
 from __future__ import annotations
 
@@ -25,6 +30,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import combination_graph as graph
+from .exact_combinations import norm3
 from .units import to_canonical
 
 NONLINEAR = "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
@@ -172,7 +178,7 @@ def _derivation(source: Mapping[str, Any], gates: list) -> dict | None:
             check(all(ids))
             terms, operands = [], [graph.resolve(i, cases) for i in ids]
         elif basis == "range_envelope":
-            check(isinstance(expression, Mapping) and set(expression) == {"operand_ids", "mode"} and isinstance(expression["mode"], str)
+            check(isinstance(expression, Mapping) and set(expression) == {"operand_ids", "mode"} and expression["mode"] in graph.RANGE_MODES
                   and isinstance(expression["operand_ids"], list) and expression["operand_ids"])
             ids = [_non_empty(i) for i in expression["operand_ids"]]
             check(all(ids))
@@ -181,7 +187,8 @@ def _derivation(source: Mapping[str, Any], gates: list) -> dict | None:
             raise _fail("DERIVATION_EVIDENCE")
         for kind, oid in operands:
             check(oid in cases if kind == "case" else any(r["id"] == oid for r in records))
-        records.append({"id": cid, "basis": basis, "operands": operands, "terms": terms})
+        records.append({"id": cid, "basis": basis, "operands": operands, "terms": terms,
+                        "mode": expression.get("mode") if basis == "range_envelope" else None})
     for i, record in enumerate(records):
         subject = record["basis"] in UNSIGNED_BASES or any(o[0] == "combination" for o in record["operands"])
         check(subject or any(("combination", record["id"]) in later["operands"] for later in records[i + 1:]))
@@ -239,6 +246,7 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
         withheld.add(cid)
     # Section 10.3: each recorded combination's gate, up to its modulus gate, from the records.
     if derivation is not None:
+        index = None
         combination_graph = graph.Graph()
         stated = {g.get("combination_id"): g.get("reason") for g in gates if isinstance(g, Mapping)}
         for record in derivation["records"]:
@@ -250,8 +258,13 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             derived = _gate_before_modulus(basis, operand_withheld, derivation["nonlinear"], oq1, derivation["consuming"], own, operand_kappa)
             reason = stated.get(cid)
             _require(reason == derived if derived is not None else reason in (None, MODULUS_MIXED), "GATE_DERIVATION")
-            if derived is None and reason is None and basis in UNSIGNED_BASES:
-                _unsigned_rows(rows, by_id, cid, basis, terms)
+            if derived is None and reason is None:
+                if basis in UNSIGNED_BASES:
+                    _unsigned_rows(rows, by_id, cid, basis, terms)
+                elif any(o[0] == "combination" for o in operands):
+                    # Review r2 P2: from its operands' rows and the record's factors.
+                    index = index or _RowIndex(rows)
+                    _nested_rows(index, source, cid, basis, operands, [f for _, f in terms], record["mode"], derivation["nonlinear"] and oq1)
     # Every unsigned row and every row citing an operand combination's row has its record.
     for row in rows:
         cid = _combination_of(row)
@@ -358,8 +371,9 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         _require(expected is None, "DERIVATION_EVIDENCE")
     combination_graph = graph.Graph()
     withheld: set[str] = set()
-    for gate, index in zip(gates, order):
-        combination = kept[index]
+    index = None
+    for gate, at in zip(gates, order):
+        combination = kept[at]
         cid, basis = combination.get("id"), combination.get("basis")
         operands = graph.model_operands(combination, cases)
         terms = _model_terms(combination) if basis in graph.TERM_BASES else []
@@ -377,8 +391,306 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
             withheld.add(cid)
         elif basis in UNSIGNED_BASES:
             _unsigned_rows(rows, by_id, cid, basis, terms)
+        elif any(o[0] == "combination" for o in operands):
+            # Review r2 P2: from its operands' rows and the model's factors.
+            index = index or _RowIndex(rows)
+            _nested_rows(index, source, cid, basis, operands, [f for _, f in terms], combination.get("mode"), nonlinear and oq1)
     bases = {c.get("id"): c.get("basis") for c in kept}
     for row in rows:
         cid, claim = _combination_of(row), _unsigned_claim(row)
         if cid is not None and claim is not None:
             _require(claim[1] and bases.get(cid) == claim[0], "UNSIGNED_ROW")
+
+
+# ----------------------------------------------------------------------------- nested rows (review r2 P2)
+
+SOURCE_MISSING = "LOAD_COMBINATION_SOURCE_RESULT_MISSING"
+ROW_WITHHELD = "LOAD_COMBINATION_ROW_WITHHELD"
+VECTOR_MISSING = "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING"
+VECTOR_INVALID = "LOAD_COMBINATION_VECTOR_INVALID"
+SUPPORT_COMPONENTS = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
+DISPLACEMENT_AXES = (("ux", "global_nodal_displacement_x"), ("uy", "global_nodal_displacement_y"), ("uz", "global_nodal_displacement_z"))
+# The producer's LINEAR_STATE_KINDS: with displacement_magnitude, the kinds a combination combines, except _v2 kinds.
+LINEAR_STATE_KINDS = frozenset({
+    "global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z",
+    "global_nodal_rotation_x", "global_nodal_rotation_y", "global_nodal_rotation_z",
+    "element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "element_local_torsional_moment",
+    "element_local_bending_moment_y", "element_local_bending_moment_z", "element_local_axial_normal_stress",
+    "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress",
+    "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "support_reaction_component_v2",
+    "constant_effort_support_applied_load", "element_global_end_force_v1", "element_global_end_moment_v1"})
+DIMENSIONS = {"mm": "displacement", "m": "displacement", "rad": "rotation", "N": "force", "N*m": "moment", "MPa": "pressure", "Pa": "pressure"}
+SECTION = "; section_basis="
+
+
+def _suffix(value: str) -> str:
+    return value.replace(":", "-")
+
+
+def _tail(value: str) -> str:
+    return value[len("result:"):] if value.startswith("result:") else value
+
+
+def _identity(parts: list[str]) -> str:
+    return "".join(f"{len(part.encode('utf-8'))}:{part}" for part in parts)
+
+
+def _kind(row: Any) -> str:
+    kind = row.get("kind") if isinstance(row, Mapping) else None
+    return kind if isinstance(kind, str) else ""
+
+
+def _combined_kind(kind: str) -> bool:
+    return not kind.endswith("_v2") and (kind in LINEAR_STATE_KINDS or kind == "displacement_magnitude")
+
+
+def _field(metadata: Any, key: str) -> Any:
+    return metadata.get(key) if isinstance(metadata, Mapping) else None
+
+
+def _nested_identity(reference: Mapping[str, Any], candidate: Mapping[str, Any]) -> bool:
+    """Section 4 (r1 F4): pairing by kind, unit, entity and every metadata field except basis and sign_convention, the
+    section-basis suffix within basis still compared; a displacement_magnitude row by kind, unit and node."""
+    def section(m: Any) -> str | None:
+        basis = _field(m, "basis")
+        basis = basis if isinstance(basis, str) else ""
+        return basis.split(SECTION, 1)[1] if SECTION in basis else None
+    if not (reference.get("kind") == candidate.get("kind") and reference.get("unit") == candidate.get("unit")
+            and reference.get("entity_ref") == candidate.get("entity_ref")):
+        return False
+    if reference.get("kind") == "displacement_magnitude":
+        return True
+    a, b = reference.get("metadata"), candidate.get("metadata")
+    if a is None or b is None:
+        return a is None and b is None
+    return all(_field(a, k) == _field(b, k) for k in ("component", "coordinate_system", "location")) and section(a) == section(b)
+
+
+def _row_id(cid: str, base: str) -> str:
+    return f"result:combination:{_suffix(cid)}:{_tail(base)}"
+
+
+class _RowIndex:
+    """The document's rows as the producer reads them when it forms a combination: each load case's rows by base id,
+    and each combination's published rows by base id (ordinary rows and displacement magnitudes) and whole."""
+
+    def __init__(self, rows: list) -> None:
+        tails: dict[str, list] = {}
+        self.case_rows: list = []
+        published: dict[str, dict] = {}
+        self.published_rows: dict[str, list] = {}
+        for row in rows:
+            rid, basis = row.get("id"), row.get("basis_ref")
+            if not isinstance(rid, str) or not isinstance(basis, Mapping) or not isinstance(basis.get("ref_id"), str):
+                continue
+            owner = basis["ref_id"]
+            if basis.get("ref_type") == "load_case":
+                self.case_rows.append(row)
+                qualified = f"result:loadcase:{_suffix(owner)}:"
+                tail, base = (rid[len(qualified):], None) if rid.startswith(qualified) else (_tail(rid), rid)
+                entry = tails.setdefault(tail, [f"result:{tail}", {}])
+                if base is not None:
+                    entry[0] = base
+                entry[1][owner] = row
+            elif basis.get("ref_type") == "combination" and _kind(row) != MODULUS_RECORD:
+                self.published_rows.setdefault(owner, []).append(row)
+                prefix = f"result:combination:{_suffix(owner)}:"
+                if not _kind(row).startswith("support_reaction_") and rid.startswith(prefix):
+                    published.setdefault(owner, {})[rid[len(prefix):]] = row
+        self.cases: dict[str, dict] = {}
+        by_tail: dict[str, str] = {}
+        for tail in sorted(tails):
+            base, case_rows = tails[tail]
+            by_tail[tail] = base
+            self.cases[base] = case_rows
+        self.published = {o: {by_tail[t]: r for t, r in rs.items() if t in by_tail} for o, rs in published.items()}
+
+    def lookup(self, base: str, operand: tuple[str, str]) -> Any:
+        if operand[0] == "case":
+            return self.cases.get(base, {}).get(operand[1])
+        return self.published.get(operand[1], {}).get(base)
+
+    def support_row(self, operand: tuple[str, str], support: str, component: str) -> Any:
+        def hit(r: Mapping[str, Any]) -> bool:
+            return (r.get("entity_ref") == support and r.get("metadata") is not None and _field(r["metadata"], "component") == component
+                    and _kind(r).startswith("support_reaction_"))
+        if operand[0] == "case":
+            return next((r for r in self.case_rows if hit(r) and r["basis_ref"].get("ref_id") == operand[1]), None)
+        return next((r for r in self.published_rows.get(operand[1], []) if hit(r)), None)
+
+
+def _combination_row(reference: Mapping[str, Any], cid: str, row_id: str, value: float, refs: list, basis: str, sign: str) -> dict:
+    row = dict(reference)
+    row.update({"id": row_id, "value": value, "basis_ref": {"ref_type": "combination", "ref_id": cid}, "source_result_refs": refs})
+    if isinstance(row.get("metadata"), Mapping):
+        row["metadata"] = {**row["metadata"], "basis": basis, "sign_convention": sign}
+    return row
+
+
+def _value(row: Any) -> float | None:
+    value = row.get("value") if isinstance(row, Mapping) else None
+    return float(value) if type(value) in (int, float) else None
+
+
+def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: list, sign: str) -> tuple[list, int, set]:
+    """The rows, withheld-row count and naming diagnostics' ids of one admitted combination with a combination operand
+    (producer ``append_combination_results``, nested pairing)."""
+    rows: list = []
+    withheld = 0
+    named: set[str] = set()
+    basis = expression.metadata_basis()
+    range_ = expression.is_range()
+    for base in sorted(index.cases):
+        missing = f"diagnostic:preview-physics:combination-source-missing:{_identity([cid, base])}"
+        reference = index.lookup(base, targets[0])
+        if reference is None:
+            first = next((r for r in (index.lookup(base, t) for t in targets) if r is not None), None)
+            if first is not None and _combined_kind(_kind(first)):
+                named.add(missing)
+            continue
+        if not _combined_kind(_kind(reference)):
+            continue
+        if _kind(reference) == "displacement_magnitude" and not range_:
+            vector, refs, formed = [0.0, 0.0, 0.0], [], True
+            for axis, (suffix, axis_kind) in enumerate(DISPLACEMENT_AXES):
+                component = f"{base}:{suffix}"
+                values = []
+                for target in targets:
+                    row = index.lookup(component, target)
+                    value = None
+                    if (row is not None and row.get("entity_ref") == reference.get("entity_ref") and row.get("unit") == reference.get("unit")
+                            and row.get("kind") == axis_kind):
+                        value = _value(row)
+                    if value is None or not math.isfinite(value):
+                        named.add(f"diagnostic:combination:{_suffix(cid)}:{_suffix(base)}:{_suffix(VECTOR_MISSING)}")
+                        formed = False
+                        break
+                    values.append(value)
+                if not formed:
+                    break
+                value = expression.value(values)
+                if value is None:
+                    named.add(f"diagnostic:combination:{_suffix(cid)}:{_suffix(base)}:{_suffix(VECTOR_INVALID)}")
+                    formed = False
+                    break
+                vector[axis] = value
+                refs.append(_row_id(cid, component))
+            if not formed:
+                continue
+            value = norm3(*vector)
+            if expression.is_unsigned() and not math.isfinite(value):
+                withheld += 1
+                continue
+            row = _combination_row(reference, cid, _row_id(cid, base), value, refs, basis, sign)
+            row["metadata"] = graph.derived_magnitude_metadata(basis, sign)
+            rows.append(row)
+            continue
+        if not isinstance(reference.get("unit"), str) or reference["unit"] not in DIMENSIONS:
+            withheld += 1
+            continue
+        sources = [index.lookup(base, t) for t in targets]
+        sources = [s if s is not None and _nested_identity(reference, s) and _value(s) is not None else None for s in sources]
+        if any(s is None for s in sources):
+            named.add(missing)
+            continue
+        value = expression.value([_value(s) for s in sources])
+        if value is None:
+            withheld += 1
+        else:
+            rows.append(_combination_row(reference, cid, _row_id(cid, base), value, [s.get("id") if isinstance(s.get("id"), str) else "" for s in sources], basis, sign))
+    # Signed support actions by (support, component), each support's group whole or not at all, then its magnitudes.
+    supports: list[str] = []
+    for target in targets:
+        candidates = ([r for r in index.case_rows if r["basis_ref"].get("ref_id") == target[1]] if target[0] == "case"
+                      else index.published_rows.get(target[1], []))
+        for row in candidates:
+            support = row.get("entity_ref")
+            if isinstance(support, str) and support not in supports and index.support_row(target, support, "Fx") is not None:
+                supports.append(support)
+    for support in supports:
+        group = _support_group(index, cid, expression, targets, support, basis, sign)
+        if group is None:
+            withheld += 1
+        else:
+            rows.extend(group)
+    # A range-selected magnitude whose source is a load case's carries no metadata.
+    for row in rows:
+        if row.get("kind") == "displacement_magnitude" and row.get("metadata") is None:
+            row["metadata"] = graph.derived_magnitude_metadata(basis, sign)
+    return rows, withheld, named
+
+
+def _support_group(index: _RowIndex, cid: str, expression: graph.Expression, targets: list, support: str, basis: str, sign: str) -> list | None:
+    def base(component: str) -> str:
+        return f"support-action:{len(support.encode('utf-8'))}:{support}:{component}"
+
+    def every(component: str) -> list | None:
+        found = [index.support_row(t, support, component) for t in targets]
+        return None if any(r is None for r in found) else found
+
+    def ids(found: list) -> list:
+        return [r.get("id") if isinstance(r.get("id"), str) else "" for r in found]
+
+    rows, combined = [], []
+    for slot, component in enumerate(SUPPORT_COMPONENTS):
+        sources = every(component)
+        if sources is None or any(_value(s) is None for s in sources):
+            return None
+        value = expression.value([_value(s) for s in sources])
+        if value is None:
+            return None
+        combined.append(value)
+        rows.append(_combination_row(sources[0], cid, _row_id(cid, base(component)), value, ids(sources), basis, sign))
+    range_ = expression.is_range()
+    for component, norm in (("force_magnitude", norm3(*combined[:3])), ("moment_magnitude", norm3(*combined[3:]))):
+        if not range_ and expression.is_unsigned() and not math.isfinite(norm):
+            return None
+        if range_:
+            sources = every(component)
+            if sources is None or any(_value(s) is None for s in sources):
+                return None
+            value = expression.value([_value(s) for s in sources])
+            if value is None:
+                return None
+            refs = ids(sources)
+        else:
+            sources = [r for r in (index.support_row(t, support, component) for t in targets) if r is not None]
+            if not sources:
+                return None
+            value, refs = norm, [_row_id(cid, base(c)) for c in SUPPORT_COMPONENTS]
+        rows.append(_combination_row(sources[0], cid, _row_id(cid, base(component)), value, refs, basis, sign))
+    return rows
+
+
+def _nested_rows(index: _RowIndex, source: Mapping[str, Any], cid: str, basis: Any, operands: list, factors: list, mode: Any,
+                 solved_state_plus_increments: bool) -> None:
+    """Review r2 P2: every row of an admitted mechanics combination, subtraction or envelope with a combination operand,
+    re-derived from its operands' rows (a load case's, or the operand combination's published rows) with ``factors``
+    (the model's or the derivation record's), as the producer forms it, and compared bit for bit: each published row a
+    derived row and each derived row published; every row it does not publish named by the producer's withholding
+    diagnostics, and no other withholding stated."""
+    expression = graph.Expression.new(basis, operands, factors, mode)
+    _require(expression is not None, "NESTED_ROW")
+    sign = expression.sign_convention(solved_state_plus_increments)
+    rows, withheld, named = _form(index, cid, expression, operands, sign)
+    expected: dict[str, dict] = {}
+    for row in rows:
+        _require(row["id"] not in expected, "NESTED_ROW")
+        expected[row["id"]] = row
+    seen: set[str] = set()
+    for row in index.published_rows.get(cid, []):
+        rid = row.get("id") if isinstance(row.get("id"), str) else ""
+        _require(rid not in seen and rid in expected and _same(row, expected[rid]), "NESTED_ROW")
+        seen.add(rid)
+    _require(len(seen) == len(expected), "NESTED_ROW")
+    diagnostics = [d for d in _items(source.get("diagnostics")) if isinstance(d, Mapping)]
+
+    def names(d: Mapping[str, Any]) -> bool:
+        return _items(d.get("affected_refs"))[:1] == [cid]
+    stated = {d["id"] for d in diagnostics if d.get("code") in (SOURCE_MISSING, VECTOR_MISSING, VECTOR_INVALID) and names(d) and isinstance(d.get("id"), str)}
+    _require(stated == named, "NESTED_WITHHELD")
+    held = [d for d in diagnostics if d.get("code") == ROW_WITHHELD and names(d)]
+    prefix = f"combination {cid} withholds {withheld} combined row(s) that could not be formed: "
+    _require(not held if withheld == 0 else (
+        len(held) == 1 and held[0].get("id") == f"diagnostic:preview-physics:combination-row-withheld:{_identity([cid])}"
+        and isinstance(held[0].get("message"), str) and held[0]["message"].startswith(prefix)), "NESTED_WITHHELD")

@@ -27,10 +27,18 @@
 //!   constant-effort support applies, and the modulus bases of every load case reached.
 //!   Every row of an absolute sum or SRSS states its basis and sign convention, and each
 //!   row formed from operand rows is A or R of the model's factors, bit for bit.
-use crate::combination_graph::{self as graph, Graph, Operand};
+//! - **Nested rows** (review r2 P2; both readings). Every row of an admitted recorded
+//!   combination that is not unsigned and has a combination operand (mechanics,
+//!   subtraction, envelope) is re-derived from its operands' rows with the model's or the
+//!   record's factors, as the producer forms it (`form`), and the published rows and
+//!   withholdings must be exactly the derived ones (`..._NESTED_ROW`, `..._NESTED_WITHHELD`).
+//!   Flat combinations' signed values are not re-derived here (as before RT-A4).
+use crate::combination_graph::{self as graph, Expression, Graph, Operand};
+use open_pipe_stress_correct_norm::norm3;
+use open_pipe_stress_load_case_algebra::AlgebraDimension as LoadDimension;
 use open_pipe_stress_load_case_algebra::{mechanics_fixed_load_gate, unsigned_fixed_load_gate, FixedLoadCount, FixedLoadWithholding};
-use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use serde_json::{json, Value};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 type Check = Result<(), String>;
 
@@ -167,6 +175,8 @@ struct Record<'a> {
     basis: &'a str,
     operands: Vec<Operand<'a>>,
     terms: Terms<'a>,
+    /// An envelope's mode.
+    mode: Option<&'a str>,
 }
 
 /// The `combination_derivation` member, read and checked (§10.3).
@@ -212,6 +222,7 @@ fn derivation<'a>(source: &'a Value, gates: &'a [Value]) -> Result<Option<Deriva
         check(last.is_none_or(|l| at > l))?;
         last = Some(at);
         let expression = &record["expression"];
+        let mode = expression["mode"].as_str();
         let (operands, terms) = match basis {
             "mechanics" | "absolute_sum" | "srss" => {
                 check(exact_keys(expression, &["terms"]))?;
@@ -226,7 +237,7 @@ fn derivation<'a>(source: &'a Value, gates: &'a [Value]) -> Result<Option<Deriva
                 (vec![resolve(minuend), resolve(subtrahend)], Vec::new())
             }
             "range_envelope" => {
-                check(exact_keys(expression, &["operand_ids", "mode"]) && expression["mode"].is_string())?;
+                check(exact_keys(expression, &["operand_ids", "mode"]) && mode.and_then(open_pipe_stress_load_case_algebra::RangeMode::parse_token).is_some())?;
                 let mut ids: Vec<&str> = items(&expression["operand_ids"]).iter().map(non_empty).collect::<Option<_>>().ok_or_else(fail)?;
                 check(!ids.is_empty())?;
                 ids.sort_unstable();
@@ -240,7 +251,7 @@ fn derivation<'a>(source: &'a Value, gates: &'a [Value]) -> Result<Option<Deriva
                 Operand::Combination(c) => records.iter().any(|r| r.id == *c),
             })?;
         }
-        records.push(Record { id, basis, operands, terms });
+        records.push(Record { id, basis, operands, terms, mode });
     }
     for (i, record) in records.iter().enumerate() {
         let subject = matches!(record.basis, "absolute_sum" | "srss") || record.operands.iter().any(|o| matches!(o, Operand::Combination(_)));
@@ -303,6 +314,7 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
     }
     // §10.3: each recorded combination's gate, up to its modulus gate, from the records.
     if let Some(derivation) = &derivation {
+        let mut index: Option<RowIndex<'_>> = None;
         let mut combination_graph = Graph::default();
         for record in &derivation.records {
             let factors: Vec<f64> = record.terms.iter().map(|(_, f)| *f).collect();
@@ -319,8 +331,15 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
                 },
                 "GATE_DERIVATION",
             )?;
-            if derived.is_none() && stated.is_none() && matches!(record.basis, "absolute_sum" | "srss") {
-                unsigned_rows(rows, by_id, record.id, record.basis, &record.terms)?;
+            if derived.is_none() && stated.is_none() {
+                if matches!(record.basis, "absolute_sum" | "srss") {
+                    unsigned_rows(rows, by_id, record.id, record.basis, &record.terms)?;
+                } else if record.operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
+                    // Review r2 P2: a mechanics, subtraction or envelope with a combination
+                    // operand, from its operands' rows and the record's factors.
+                    let index = index.get_or_insert_with(|| RowIndex::new(rows));
+                    nested_rows(index, source, record.id, record.basis, &record.operands, &factors, record.mode, derivation.nonlinear && oq1)?;
+                }
             }
         }
     }
@@ -469,8 +488,9 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
 
     let mut combination_graph = Graph::default();
     let mut withheld: HashSet<String> = HashSet::new();
-    for (gate, &index) in gates.iter().zip(&order) {
-        let combination = &kept[index];
+    let mut index: Option<RowIndex<'_>> = None;
+    for (gate, &at) in gates.iter().zip(&order) {
+        let combination = &kept[at];
         let id = combination["id"].as_str().unwrap_or_default();
         let basis = combination["basis"].as_str().unwrap_or_default();
         let operands = graph::model_operands(combination, &cases);
@@ -496,6 +516,10 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
             withheld.insert(id.to_string());
         } else if matches!(basis, "absolute_sum" | "srss") {
             unsigned_rows(rows, by_id, id, basis, &terms)?;
+        } else if operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
+            // Review r2 P2: from its operands' rows and the model's factors.
+            let index = index.get_or_insert_with(|| RowIndex::new(rows));
+            nested_rows(index, source, id, basis, &operands, &factors, combination["mode"].as_str(), nonlinear && oq1)?;
         }
     }
     // No row claims an unsigned basis its model combination does not have.
@@ -506,4 +530,395 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         }
     }
     Ok(())
+}
+
+// ------------------------------------------------------------------ nested rows (review r2 P2)
+const NESTED_ROW: &str = "NESTED_ROW";
+const NESTED_WITHHELD: &str = "NESTED_WITHHELD";
+const SOURCE_MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
+const ROW_WITHHELD: &str = "LOAD_COMBINATION_ROW_WITHHELD";
+const VECTOR_MISSING: &str = "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING";
+const VECTOR_INVALID: &str = "LOAD_COMBINATION_VECTOR_INVALID";
+const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
+const DISPLACEMENT_AXES: [(&str, &str); 3] = [("ux", "global_nodal_displacement_x"), ("uy", "global_nodal_displacement_y"), ("uz", "global_nodal_displacement_z")];
+/// The producer's `LINEAR_STATE_KINDS` (`preview_physics.rs`): with
+/// `displacement_magnitude`, the kinds a combination combines, except `_v2` kinds.
+const LINEAR_STATE_KINDS: [&str; 22] = [
+    "global_nodal_displacement_x",
+    "global_nodal_displacement_y",
+    "global_nodal_displacement_z",
+    "global_nodal_rotation_x",
+    "global_nodal_rotation_y",
+    "global_nodal_rotation_z",
+    "element_local_axial_force",
+    "element_local_shear_force_y",
+    "element_local_shear_force_z",
+    "element_local_torsional_moment",
+    "element_local_bending_moment_y",
+    "element_local_bending_moment_z",
+    "element_local_axial_normal_stress",
+    "element_local_bending_normal_stress_y",
+    "element_local_bending_normal_stress_z",
+    "element_local_torsional_shear_stress",
+    "pipe_section_pressure_hoop_stress",
+    "pipe_section_pressure_longitudinal_stress",
+    "support_reaction_component_v2",
+    "constant_effort_support_applied_load",
+    "element_global_end_force_v1",
+    "element_global_end_moment_v1",
+];
+
+fn stable_suffix(id: &str) -> String {
+    id.replace(':', "-")
+}
+fn result_tail(id: &str) -> &str {
+    id.strip_prefix("result:").unwrap_or(id)
+}
+fn identity(parts: &[&str]) -> String {
+    parts.iter().map(|p| format!("{}:{p}", p.len())).collect()
+}
+fn kind(row: &Value) -> &str {
+    row["kind"].as_str().unwrap_or_default()
+}
+fn combined_kind(kind: &str) -> bool {
+    !kind.ends_with("_v2") && (LINEAR_STATE_KINDS.contains(&kind) || kind == "displacement_magnitude")
+}
+/// The producer's `algebra_dimension`.
+fn dimension(row: &Value) -> Option<LoadDimension> {
+    match row["unit"].as_str()? {
+        "mm" | "m" => Some(LoadDimension::Displacement),
+        "rad" => Some(LoadDimension::Rotation),
+        "N" => Some(LoadDimension::Force),
+        "N*m" => Some(LoadDimension::Moment),
+        "MPa" | "Pa" => Some(LoadDimension::Pressure),
+        _ => None,
+    }
+}
+fn metadata(row: &Value) -> Option<&Value> {
+    row.get("metadata").filter(|m| !m.is_null())
+}
+/// §4 (r1 F4): with a combination operand, rows pair by kind, unit, entity and every
+/// metadata field except `basis` and `sign_convention`, the section-basis suffix within
+/// `basis` still compared; a `displacement_magnitude` row by kind, unit and node
+/// (producer `nested_source_identity_matches`).
+fn nested_identity(reference: &Value, candidate: &Value) -> bool {
+    const SECTION: &str = "; section_basis=";
+    let section = |m: &Value| m["basis"].as_str().unwrap_or_default().split_once(SECTION).map(|(_, s)| s.to_string());
+    reference["kind"] == candidate["kind"]
+        && reference["unit"] == candidate["unit"]
+        && reference["entity_ref"] == candidate["entity_ref"]
+        && (reference["kind"] == "displacement_magnitude"
+            || match (metadata(reference), metadata(candidate)) {
+                (None, None) => true,
+                (Some(a), Some(b)) => {
+                    a["component"] == b["component"] && a["coordinate_system"] == b["coordinate_system"] && a["location"] == b["location"] && section(a) == section(b)
+                }
+                _ => false,
+            })
+}
+fn combination_row_id(id: &str, base: &str) -> String {
+    format!("result:combination:{}:{}", stable_suffix(id), result_tail(base))
+}
+
+/// The document's rows as the producer reads them when it forms a combination: each
+/// load case's rows by base id, and each combination's published rows, by base id
+/// (ordinary rows and displacement magnitudes) and whole (for its support groups).
+struct RowIndex<'a> {
+    /// Base id → load case → row.
+    cases: BTreeMap<String, HashMap<&'a str, &'a Value>>,
+    case_rows: Vec<&'a Value>,
+    /// Combination → base id → row.
+    published: HashMap<&'a str, HashMap<String, &'a Value>>,
+    /// Combination → its rows, in order (its modulus-basis records excluded).
+    published_rows: HashMap<&'a str, Vec<&'a Value>>,
+}
+
+impl<'a> RowIndex<'a> {
+    /// A load case's row id is its base id (the first case's, and a `_v2` row's) or
+    /// `result:loadcase:<case>:<tail>`; a combination's is `result:combination:<id>:<tail>`
+    /// (producer `qualified_*_result_id`). A base id is recovered as the unqualified
+    /// id where a case row has it, and as `result:<tail>` otherwise.
+    fn new(rows: &'a [Value]) -> Self {
+        let mut tails: BTreeMap<String, (String, HashMap<&'a str, &'a Value>)> = BTreeMap::new();
+        let mut case_rows = Vec::new();
+        let mut published: HashMap<&'a str, HashMap<String, &'a Value>> = HashMap::new();
+        let mut published_rows: HashMap<&'a str, Vec<&'a Value>> = HashMap::new();
+        for row in rows {
+            let Some(id) = row["id"].as_str() else { continue };
+            let basis = &row["basis_ref"];
+            let Some(owner) = basis["ref_id"].as_str() else { continue };
+            match basis["ref_type"].as_str() {
+                Some("load_case") => {
+                    case_rows.push(row);
+                    let qualified = format!("result:loadcase:{}:", stable_suffix(owner));
+                    let (tail, base) = match id.strip_prefix(&qualified) {
+                        Some(tail) => (tail.to_string(), None),
+                        None => (result_tail(id).to_string(), Some(id.to_string())),
+                    };
+                    let entry = tails.entry(tail.clone()).or_insert_with(|| (format!("result:{tail}"), HashMap::new()));
+                    if let Some(base) = base {
+                        entry.0 = base;
+                    }
+                    entry.1.insert(owner, row);
+                }
+                Some("combination") if kind(row) != MODULUS_RECORD => {
+                    published_rows.entry(owner).or_default().push(row);
+                    if !kind(row).starts_with("support_reaction_") {
+                        if let Some(tail) = id.strip_prefix(&format!("result:combination:{}:", stable_suffix(owner))) {
+                            published.entry(owner).or_default().insert(tail.to_string(), row);
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        // Keyed by base id, so the producer's sorted base-id order is kept.
+        let mut cases = BTreeMap::new();
+        let mut by_tail: HashMap<String, String> = HashMap::new();
+        for (tail, (base, rows)) in tails {
+            by_tail.insert(tail, base.clone());
+            cases.insert(base, rows);
+        }
+        let published = published
+            .into_iter()
+            .map(|(owner, rows)| (owner, rows.into_iter().filter_map(|(tail, row)| by_tail.get(&tail).map(|base| (base.clone(), row))).collect()))
+            .collect();
+        RowIndex { cases, case_rows, published, published_rows }
+    }
+
+    fn lookup(&self, base: &str, operand: Operand<'_>) -> Option<&'a Value> {
+        match operand {
+            Operand::Case(case) => self.cases.get(base)?.get(case).copied(),
+            Operand::Combination(id) => self.published.get(id)?.get(base).copied(),
+        }
+    }
+
+    /// An operand's support row of `component` for `support` (producer `find`).
+    fn support_row(&self, operand: Operand<'_>, support: &str, component: &str) -> Option<&'a Value> {
+        let hit = |r: &&&'a Value| r["entity_ref"] == support && metadata(r).is_some_and(|m| m["component"] == component) && kind(r).starts_with("support_reaction_");
+        match operand {
+            Operand::Case(case) => self.case_rows.iter().find(|r| hit(r) && r["basis_ref"]["ref_id"] == case).copied(),
+            Operand::Combination(id) => self.published_rows.get(id)?.iter().find(hit).copied(),
+        }
+    }
+}
+
+/// What a combination publishes, as the producer forms it.
+#[derive(Default)]
+struct Formed {
+    rows: Vec<Value>,
+    /// The rows withheld into its one `LOAD_COMBINATION_ROW_WITHHELD`.
+    withheld: usize,
+    /// The ids of the diagnostics naming a missing source row or vector component.
+    named: HashSet<String>,
+}
+
+#[allow(clippy::too_many_arguments)]
+fn combination_row(reference: &Value, id: &str, row_id: String, value: f64, refs: Vec<String>, basis: &str, sign: &str) -> Value {
+    let mut row = reference.clone();
+    row["id"] = json!(row_id);
+    row["value"] = json!(value);
+    row["basis_ref"] = json!({"ref_type": "combination", "ref_id": id});
+    row["source_result_refs"] = json!(refs);
+    if let Some(metadata) = row.get_mut("metadata").filter(|m| m.is_object()) {
+        metadata["basis"] = json!(basis);
+        metadata["sign_convention"] = json!(sign);
+    }
+    row
+}
+
+/// The rows, withholdings and diagnostics of one admitted combination with a
+/// combination operand (producer `append_combination_results`, nested pairing).
+fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[Operand<'_>], sign: &str) -> Formed {
+    let mut formed = Formed::default();
+    let basis = expression.metadata_basis();
+    let range = expression.is_range();
+    let row_id = |base: &str| combination_row_id(id, base);
+    'bases: for base in index.cases.keys() {
+        let missing = || format!("diagnostic:preview-physics:combination-source-missing:{}", identity(&[id, base]));
+        let Some(reference) = index.lookup(base, targets[0]) else {
+            if targets.iter().filter_map(|t| index.lookup(base, *t)).next().is_some_and(|r| combined_kind(kind(r))) {
+                formed.named.insert(missing());
+            }
+            continue;
+        };
+        if !combined_kind(kind(reference)) {
+            continue;
+        }
+        if kind(reference) == "displacement_magnitude" && !range {
+            // The norm of the combined signed components (`append_combined_vector_magnitude`).
+            let vector_diag = |code: &str| format!("diagnostic:combination:{}:{}:{}", stable_suffix(id), stable_suffix(base), stable_suffix(code));
+            let mut vector = [0.0; 3];
+            let mut refs = Vec::new();
+            for (axis, (suffix, axis_kind)) in DISPLACEMENT_AXES.iter().enumerate() {
+                let component = format!("{base}:{suffix}");
+                let mut values = Vec::new();
+                for target in targets {
+                    let value = index
+                        .lookup(&component, *target)
+                        .filter(|r| r["entity_ref"] == reference["entity_ref"] && r["unit"] == reference["unit"] && r["kind"] == *axis_kind)
+                        .and_then(|r| r["value"].as_f64())
+                        .filter(|v| v.is_finite());
+                    match value {
+                        Some(value) => values.push(value),
+                        None => {
+                            formed.named.insert(vector_diag(VECTOR_MISSING));
+                            continue 'bases;
+                        }
+                    }
+                }
+                let Some(value) = expression.value(&values, LoadDimension::Displacement) else {
+                    formed.named.insert(vector_diag(VECTOR_INVALID));
+                    continue 'bases;
+                };
+                vector[axis] = value;
+                refs.push(row_id(&component));
+            }
+            let value = norm3(vector[0], vector[1], vector[2]);
+            if expression.is_unsigned() && !value.is_finite() {
+                formed.withheld += 1;
+                continue;
+            }
+            let mut row = combination_row(reference, id, row_id(base), value, refs, basis, sign);
+            row["metadata"] = graph::derived_magnitude_metadata(basis, sign);
+            formed.rows.push(row);
+            continue;
+        }
+        let Some(dimension) = dimension(reference) else {
+            formed.withheld += 1;
+            continue;
+        };
+        let mut values = Vec::new();
+        let mut refs = Vec::new();
+        for target in targets {
+            match index.lookup(base, *target).filter(|s| nested_identity(reference, s)) {
+                Some(source) => match source["value"].as_f64() {
+                    Some(value) => {
+                        values.push(value);
+                        refs.push(source["id"].as_str().unwrap_or_default().to_string());
+                    }
+                    None => {
+                        formed.named.insert(missing());
+                        continue 'bases;
+                    }
+                },
+                None => {
+                    formed.named.insert(missing());
+                    continue 'bases;
+                }
+            }
+        }
+        match expression.value(&values, dimension) {
+            Some(value) => formed.rows.push(combination_row(reference, id, row_id(base), value, refs, basis, sign)),
+            None => formed.withheld += 1,
+        }
+    }
+    // Signed support actions by (support, component), each support's group whole or
+    // not at all, then its magnitudes.
+    let mut supports: Vec<&str> = Vec::new();
+    for target in targets {
+        let candidates: Vec<&Value> = match target {
+            Operand::Case(case) => index.case_rows.iter().filter(|r| r["basis_ref"]["ref_id"] == *case).copied().collect(),
+            Operand::Combination(c) => index.published_rows.get(c).cloned().unwrap_or_default(),
+        };
+        for row in candidates {
+            if let Some(support) = row["entity_ref"].as_str() {
+                if !supports.contains(&support) && index.support_row(*target, support, "Fx").is_some() {
+                    supports.push(support);
+                }
+            }
+        }
+    }
+    for support in supports {
+        let base = |component: &str| format!("support-action:{}:{support}:{component}", support.len());
+        let all = |component: &str| -> Option<Vec<&Value>> { targets.iter().map(|t| index.support_row(*t, support, component)).collect() };
+        let group = || -> Option<Vec<Value>> {
+            let mut rows = Vec::new();
+            let mut combined = [0.0; 6];
+            for (slot, component) in SUPPORT_COMPONENTS.iter().enumerate() {
+                let sources = all(component)?;
+                let dimension = if slot < 3 { LoadDimension::Force } else { LoadDimension::Moment };
+                let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>()?;
+                let value = expression.value(&values, dimension)?;
+                combined[slot] = value;
+                let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
+                rows.push(combination_row(sources[0], id, row_id(&base(component)), value, refs, basis, sign));
+            }
+            for (component, norm, dimension) in [
+                ("force_magnitude", norm3(combined[0], combined[1], combined[2]), LoadDimension::Force),
+                ("moment_magnitude", norm3(combined[3], combined[4], combined[5]), LoadDimension::Moment),
+            ] {
+                if !range && expression.is_unsigned() && !norm.is_finite() {
+                    return None;
+                }
+                let sources: Vec<&Value> = if range { all(component)? } else { targets.iter().filter_map(|t| index.support_row(*t, support, component)).collect() };
+                let first = *sources.first()?;
+                let (value, refs) = if range {
+                    let values: Vec<f64> = sources.iter().map(|s| s["value"].as_f64()).collect::<Option<_>>()?;
+                    (expression.value(&values, dimension)?, sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect())
+                } else {
+                    (norm, SUPPORT_COMPONENTS.iter().map(|c| row_id(&base(c))).collect())
+                };
+                rows.push(combination_row(first, id, row_id(&base(component)), value, refs, basis, sign));
+            }
+            Some(rows)
+        };
+        match group() {
+            Some(rows) => formed.rows.extend(rows),
+            None => formed.withheld += 1,
+        }
+    }
+    // A range-selected magnitude whose source is a load case's carries no metadata.
+    for row in formed.rows.iter_mut().filter(|r| r["kind"] == "displacement_magnitude" && metadata(r).is_none()) {
+        row["metadata"] = graph::derived_magnitude_metadata(basis, sign);
+    }
+    formed
+}
+
+/// Review r2 P2: every row of an admitted mechanics combination, subtraction or
+/// envelope with a combination operand is re-derived from its operands' rows (a load
+/// case's rows, or the operand combination's published rows) with `factors` (the
+/// model's, or the derivation record's), as the producer forms it, and compared bit for
+/// bit: each published row must be a derived row and each derived row published; every
+/// row it does not publish must be named by the producer's withholding diagnostics, and
+/// no other withholding stated. `solved_state_plus_increments` is decision OQ-1's
+/// admission in a nonlinear model (its sign convention).
+#[allow(clippy::too_many_arguments)]
+fn nested_rows(index: &RowIndex<'_>, source: &Value, id: &str, basis: &str, operands: &[Operand<'_>], factors: &[f64], mode: Option<&str>, solved_state_plus_increments: bool) -> Check {
+    let expression = Expression::new(basis, operands, factors, mode).ok_or_else(|| format!("SOURCE_PREVIEW_PHYSICS_COMBINATION_{NESTED_ROW}"))?;
+    let sign = expression.sign_convention(solved_state_plus_increments);
+    let formed = form(index, id, &expression, operands, &sign);
+    let published = index.published_rows.get(id).map(Vec::as_slice).unwrap_or(&[]);
+    let mut expected: HashMap<&str, &Value> = HashMap::new();
+    for row in &formed.rows {
+        require(expected.insert(row["id"].as_str().unwrap_or_default(), row).is_none(), NESTED_ROW)?;
+    }
+    let mut seen: HashSet<&str> = HashSet::new();
+    for row in published {
+        let row_id = row["id"].as_str().unwrap_or_default();
+        require(seen.insert(row_id) && expected.get(row_id).is_some_and(|e| same(row, e)), NESTED_ROW)?;
+    }
+    require(seen.len() == expected.len(), NESTED_ROW)?;
+    // The withholdings: exactly the derived ones.
+    let diagnostics = items(&source["diagnostics"]);
+    let names = |d: &&Value| items(&d["affected_refs"]).first().is_some_and(|r| r == id);
+    let stated: HashSet<&str> = diagnostics
+        .iter()
+        .filter(|d| matches!(d["code"].as_str(), Some(SOURCE_MISSING | VECTOR_MISSING | VECTOR_INVALID)))
+        .filter(names)
+        .filter_map(|d| d["id"].as_str())
+        .collect();
+    require(stated.len() == formed.named.len() && formed.named.iter().all(|n| stated.contains(n.as_str())), NESTED_WITHHELD)?;
+    let withheld: Vec<&Value> = diagnostics.iter().filter(|d| d["code"] == ROW_WITHHELD).filter(names).collect();
+    let prefix = format!("combination {id} withholds {} combined row(s) that could not be formed: ", formed.withheld);
+    require(
+        if formed.withheld == 0 {
+            withheld.is_empty()
+        } else {
+            withheld.len() == 1
+                && withheld[0]["id"] == format!("diagnostic:preview-physics:combination-row-withheld:{}", identity(&[id]))
+                && withheld[0]["message"].as_str().is_some_and(|m| m.starts_with(&prefix))
+        },
+        NESTED_WITHHELD,
+    )
 }

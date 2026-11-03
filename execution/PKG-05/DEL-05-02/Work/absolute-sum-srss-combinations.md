@@ -595,6 +595,24 @@ and `minuend_final` stay withheld.
   tables take it with §10.2. The desktop recognizes an unsigned, OQ-1 or envelope row by
   its sign convention on a combination `basis_ref`, and a row stating no derivation takes
   its combination's (`combinationNotes`).
+- **Nested rows (r2 repair, P2).** Both PF readers (RE `preview_combination_gates.rs`,
+  Python mirror) now re-derive every row of an admitted recorded combination that is not
+  unsigned and has a combination operand (mechanics, `result_state_subtraction`,
+  `range_envelope`): from its operands' rows (a load case's rows, or the operand
+  combination's published rows), with the model's factors (with the model) or the
+  `combination_derivation` record's (without it), as the producer forms them, with the
+  kernel's own functions: nested pairing (§4, r1 F4), the recomputed magnitudes, a missing
+  operand row omitting the row, support groups whole or not at all, and withheld rows.
+  Each published row must equal a derived row bit for bit (value, identity, metadata,
+  `source_result_refs`) and each derived row must be published; the
+  `LOAD_COMBINATION_SOURCE_RESULT_MISSING`, `..._VECTOR_COMPONENT_MISSING`,
+  `..._VECTOR_INVALID` and `LOAD_COMBINATION_ROW_WITHHELD` statements naming it must be
+  exactly the derived ones (`SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_ROW`,
+  `..._NESTED_WITHHELD`). A recorded envelope's mode must be a kernel mode. Flat
+  combinations (load-case operands only) keep the reading they had before RT-A4: their
+  gates and magnitude consistency are checked, their signed values are not re-derived by
+  the PF readers (a pre-existing limit, unchanged here); a nested row is verified against
+  its operand combination's published rows as they stand.
 
 ### 10.2 Policy texts (old → new)
 

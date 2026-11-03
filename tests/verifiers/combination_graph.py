@@ -296,3 +296,84 @@ def unsigned_value(srss: bool, factors: list[float], values: list[float]) -> flo
             return None
         squares += Fraction(z) * Fraction(z)
     return _sqrt_rounded(squares)
+
+
+# ----------------------------------------------------------------------------- combined values (review r2 P2)
+
+LINEAR_SIGN = "positive value follows explicit user linear combination of matching source result sign conventions"
+SUBTRACTION_SIGN = ("positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching "
+                    "source result sign conventions; a signed difference of solved states, not an equilibrium state")
+RANGE_MODES = ("min", "max", "min_abs", "max_abs")
+
+
+def _linear_value(factors: list[float], values: list[float]) -> float:
+    """The kernel's linear combination: the exact sum of the exact products, rounded once; +0.0 for an exact zero; a
+    net beyond the binary64 range is the matching signed infinity."""
+    total = sum((Fraction(f) * Fraction(v) for f, v in zip(factors, values)), Fraction(0))
+    if total == 0:
+        return 0.0
+    try:
+        return total.numerator / total.denominator
+    except OverflowError:
+        return math.inf if total > 0 else -math.inf
+
+
+class Expression:
+    """Mirror of RE ``combination_graph::Expression``: a combination's expression over its operands' row values, as the
+    producer evaluates it. ``new`` returns ``None`` for any other shape."""
+
+    def __init__(self, basis: str, operands: list[tuple[str, str]], factors: list[float], mode: str | None):
+        self.basis, self.ids, self.factors, self.mode = basis, [o[1] for o in operands], list(factors), mode
+
+    @classmethod
+    def new(cls, basis: Any, operands: list[tuple[str, str]], factors: list[float], mode: Any) -> "Expression | None":
+        if basis in TERM_BASES:
+            return cls(basis, operands, factors, None) if factors and len(factors) == len(operands) else None
+        if basis == "result_state_subtraction":
+            return cls(basis, operands, [], None) if len(operands) == 2 else None
+        if basis == "range_envelope":
+            return cls(basis, operands, [], mode) if mode in RANGE_MODES and operands else None
+        return None
+
+    def is_unsigned(self) -> bool:
+        return self.basis in ("absolute_sum", "srss")
+
+    def is_range(self) -> bool:
+        return self.basis == "range_envelope"
+
+    def metadata_basis(self) -> str:
+        return {"absolute_sum": ABSOLUTE_SUM_BASIS, "srss": SRSS_BASIS, "mechanics": "explicit_user_linear_combination",
+                "result_state_subtraction": "explicit_user_result_state_subtraction"}.get(self.basis, "explicit_user_range_envelope")
+
+    def sign_convention(self, solved_state_plus_increments: bool) -> str:
+        if self.basis == "absolute_sum":
+            return ABSOLUTE_SUM_SIGN
+        if self.basis == "srss":
+            return SRSS_SIGN
+        if self.basis == "mechanics":
+            return SOLVED_STATE_PLUS_INCREMENTS_SIGN if solved_state_plus_increments else LINEAR_SIGN
+        if self.basis == "result_state_subtraction":
+            return SUBTRACTION_SIGN
+        return (f"value is the {self.mode} mode-selected source result across explicit user range-envelope operands and keeps "
+                "that source result sign convention")
+
+    def value(self, values: list[Any]) -> float | None:
+        """One combined value from the operands' values, in operand order; ``None`` where the kernel refuses it."""
+        expected = len(self.factors) if self.basis in TERM_BASES else len(self.ids)
+        if len(values) != expected or not all(type(v) in (int, float) and math.isfinite(v) for v in values):
+            return None
+        values = [float(v) for v in values]
+        if self.basis in ("absolute_sum", "srss"):
+            return unsigned_value(self.basis == "srss", self.factors, values)
+        if self.basis == "mechanics":
+            kept = [(f, v) for f, v in zip(self.factors, values) if math.isfinite(f)]
+            return _linear_value([f for f, _ in kept], [v for _, v in kept]) if kept else None
+        if len(set(self.ids)) != len(self.ids):
+            return None  # the kernel's duplicate operand
+        if self.basis == "result_state_subtraction":
+            return values[0] - values[1]
+        best = values[0]  # ids are sorted and distinct: a tie keeps the earlier operand
+        for value in values[1:]:
+            if {"min": value < best, "max": value > best, "min_abs": abs(value) < abs(best), "max_abs": abs(value) > abs(best)}[self.mode]:
+                best = value
+        return best

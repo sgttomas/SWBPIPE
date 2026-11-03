@@ -8,8 +8,9 @@
 //! (`load_case_algebra`): the readers re-derive what the producer publishes from
 //! the same exact rules, never from a producer result.
 use open_pipe_stress_load_case_algebra::{
-    evaluate_absolute_sum, evaluate_srss, solved_state_plus_increments, AlgebraOperand, AlgebraQuantity, AnalysisStatus,
-    CombinationTerm, FixedLoadCount, FixedLoadCountUndefined,
+    evaluate_absolute_sum, evaluate_linear_combination, evaluate_range_envelope, evaluate_result_state_subtraction, evaluate_srss,
+    solved_state_plus_increments, AlgebraOperand, AlgebraQuantity, AnalysisStatus, CombinationTerm, FixedLoadCount,
+    FixedLoadCountUndefined, RangeMode,
 };
 use open_pipe_stress_load_case_algebra::AlgebraDimension as LoadDimension;
 use serde_json::Value;
@@ -214,6 +215,113 @@ pub(crate) fn unsigned_value(srss: bool, factors: &[f64], values: &[f64]) -> Opt
         return None;
     }
     result.quantity.map(|q| q.value)
+}
+
+pub(crate) const LINEAR_SIGN: &str = "positive value follows explicit user linear combination of matching source result sign conventions";
+pub(crate) const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
+
+/// Review r2 P2: a combination's expression over its operands' row values, as the
+/// producer evaluates it (`CombinationExpression::evaluate_values`, with the kernel's
+/// own functions). A term is keyed by its position; a subtraction's and an envelope's
+/// operands by their ids, in the operand order (envelope: sorted), which keeps the
+/// envelope's tie order by id.
+pub(crate) enum Expression<'a> {
+    Terms { basis: &'a str, factors: Vec<f64> },
+    Subtraction { minuend: &'a str, subtrahend: &'a str },
+    Range { ids: Vec<&'a str>, mode: RangeMode },
+}
+
+impl<'a> Expression<'a> {
+    /// The expression of `basis` over `operands` (evaluation order), `factors` (term
+    /// bases) and `mode` (an envelope). `None` for any other shape.
+    pub(crate) fn new(basis: &'a str, operands: &[Operand<'a>], factors: &[f64], mode: Option<&str>) -> Option<Self> {
+        match basis {
+            "mechanics" | "absolute_sum" | "srss" => (factors.len() == operands.len() && !factors.is_empty()).then(|| Self::Terms { basis, factors: factors.to_vec() }),
+            "result_state_subtraction" => match operands {
+                [minuend, subtrahend] => Some(Self::Subtraction { minuend: minuend.id(), subtrahend: subtrahend.id() }),
+                _ => None,
+            },
+            "range_envelope" => {
+                let mode = RangeMode::parse_token(mode?)?;
+                (!operands.is_empty()).then(|| Self::Range { ids: operands.iter().map(Operand::id).collect(), mode })
+            }
+            _ => None,
+        }
+    }
+
+    pub(crate) fn is_unsigned(&self) -> bool {
+        matches!(self, Self::Terms { basis: "absolute_sum" | "srss", .. })
+    }
+
+    pub(crate) fn is_range(&self) -> bool {
+        matches!(self, Self::Range { .. })
+    }
+
+    /// The `metadata.basis` of a combined row.
+    pub(crate) fn metadata_basis(&self) -> &'static str {
+        match self {
+            Self::Terms { basis: "absolute_sum", .. } => ABSOLUTE_SUM_BASIS,
+            Self::Terms { basis: "srss", .. } => SRSS_BASIS,
+            Self::Terms { .. } => "explicit_user_linear_combination",
+            Self::Subtraction { .. } => "explicit_user_result_state_subtraction",
+            Self::Range { .. } => "explicit_user_range_envelope",
+        }
+    }
+
+    /// The sign convention of a combined row; `solved_state_plus_increments` is
+    /// decision OQ-1's admission of a mechanics combination in a nonlinear model.
+    pub(crate) fn sign_convention(&self, solved_state_plus_increments: bool) -> String {
+        match self {
+            Self::Terms { basis: "absolute_sum", .. } => ABSOLUTE_SUM_SIGN.to_string(),
+            Self::Terms { basis: "srss", .. } => SRSS_SIGN.to_string(),
+            Self::Terms { .. } if solved_state_plus_increments => SOLVED_STATE_PLUS_INCREMENTS_SIGN.to_string(),
+            Self::Terms { .. } => LINEAR_SIGN.to_string(),
+            Self::Subtraction { .. } => SUBTRACTION_SIGN.to_string(),
+            Self::Range { mode, .. } => format!(
+                "value is the {} mode-selected source result across explicit user range-envelope operands and keeps that source result sign convention",
+                mode.token()
+            ),
+        }
+    }
+
+    /// One combined value from the operands' values, in operand order; `None` when
+    /// the kernel refuses it (the producer then withholds the row).
+    pub(crate) fn value(&self, values: &[f64], dimension: LoadDimension) -> Option<f64> {
+        let tokens: Vec<String> = match self {
+            Self::Subtraction { minuend, subtrahend } => vec![minuend.to_string(), subtrahend.to_string()],
+            Self::Range { ids, .. } => ids.iter().map(|id| id.to_string()).collect(),
+            Self::Terms { .. } => (0..values.len()).map(|i| i.to_string()).collect(),
+        };
+        if tokens.len() != values.len() {
+            return None;
+        }
+        let operands = tokens
+            .iter()
+            .zip(values)
+            .map(|(token, value)| {
+                AlgebraQuantity::new(*value, dimension)
+                    .ok()
+                    .map(|q| AlgebraOperand::new(token.clone(), token.clone(), q, vec![AnalysisStatus::MechanicsSolved, AnalysisStatus::HumanReviewRequired]))
+            })
+            .collect::<Option<Vec<_>>>()?;
+        let by_id: HashMap<&str, &AlgebraOperand> = operands.iter().map(|o| (o.operand_id.as_str(), o)).collect();
+        let result = match self {
+            Self::Terms { basis, factors } => {
+                let terms: Vec<CombinationTerm> = tokens.iter().zip(factors).filter_map(|(t, f)| CombinationTerm::new(t.clone(), *f).ok()).collect();
+                match *basis {
+                    "absolute_sum" => evaluate_absolute_sum(&by_id, &terms),
+                    "srss" => evaluate_srss(&by_id, &terms),
+                    _ => evaluate_linear_combination(&by_id, &terms),
+                }
+            }
+            Self::Subtraction { minuend, subtrahend } => evaluate_result_state_subtraction(&by_id, minuend, subtrahend),
+            Self::Range { mode, .. } => evaluate_range_envelope(&by_id, &tokens, *mode),
+        };
+        if result.is_blocked() {
+            return None;
+        }
+        result.quantity.map(|q| q.value)
+    }
 }
 
 #[cfg(test)]

@@ -270,3 +270,103 @@ def test_a_flat_document_publishes_no_derivation(solve):
         {"combination_id": "d1", "basis": "result_state_subtraction", "expression": {"minuend_id": "W1", "subtrahend_id": "W2"}}]}
     both(stated, None, EVIDENCE)  # no record is an unsigned or nested combination's
     both(stated, model, EVIDENCE)
+
+
+# ----------------------------------------------------------------------------- nested rows (review r2 P2)
+NESTED_ROW = "SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_ROW"
+NESTED_WITHHELD = "SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_WITHHELD"
+
+
+def envelope(cid, operands):
+    return {"id": cid, "basis": "range_envelope", "operand_ids": operands, "mode": "max_abs", "provenance": PROV}
+
+
+def _of(row, cid):
+    return row.get("basis_ref") == {"ref_type": "combination", "ref_id": cid} and row["kind"] != "combination_modulus_basis_record"
+
+
+def nonzero_row(source, cid, kind):
+    return next(r for r in source["results"] if _of(r, cid) and r["kind"] == kind and r["value"] != 0.0)
+
+
+def ulp_up(row):
+    import struct
+    row["value"] = struct.unpack("<d", struct.pack("<Q", struct.unpack("<Q", struct.pack("<d", float(row["value"])))[0] + 1))[0]
+
+
+def test_nested_combination_rows_are_re_derived(solve):
+    """Review r2 P2: both readers re-derive every row of a mechanics combination, subtraction or envelope with a
+    combination operand from its operand rows, with the model's or the derivation record's factors, bit for bit. Before
+    the repair both readers admitted every tamper below, with and without the model, except (b) with it."""
+    model = linear_cantilever(LINEAR + [sub("dn", "sus+srss", "W2"), envelope("en", ["srss-w", "W1"])])
+    source = solve(model)
+    for given in (None, model):
+        both(source, given, None)
+    # (a) A mechanics row with a combination operand restated.
+    a = copy.deepcopy(source)
+    set_row(a, "sus+srss", "element_local_shear_force_y", "midspan", 500.0, 123456.0)
+    for given in (None, model):
+        both(a, given, NESTED_ROW)
+    # (b) Its derivation record's factor on srss-w restated, the rows unchanged.
+    b = copy.deepcopy(source)
+    derivation_record(b, "sus+srss")["expression"]["terms"][1]["factor"] = 99.0
+    both(b, None, NESTED_ROW)
+    both(b, model, EVIDENCE)
+    # (c) A subtraction's, an envelope's and recomputed magnitudes' rows restated by one ulp.
+    for cid, kind in (("dn", "element_local_bending_moment_z"), ("en", "element_local_bending_moment_z"), ("dn", "displacement_magnitude"),
+                      ("sus+srss", "support_reaction_force_magnitude_v2"), ("en", "support_reaction_component_v2")):
+        c = copy.deepcopy(source)
+        ulp_up(nonzero_row(c, cid, kind))
+        for given in (None, model):
+            both(c, given, NESTED_ROW)
+    # (d) A row with no derivable counterpart; a derivable row and a support group's magnitude missing without a stated
+    # withholding; a source reference moved.
+    extra = copy.deepcopy(source)
+    copied = copy.deepcopy(nonzero_row(extra, "dn", "element_local_shear_force_y"))
+    copied["id"] = "result:combination:dn:invented"
+    extra["results"].append(copied)
+    missing = copy.deepcopy(source)
+    gone = nonzero_row(missing, "en", "element_local_bending_moment_z")["id"]
+    missing["results"] = [r for r in missing["results"] if r["id"] != gone]
+    group = copy.deepcopy(source)
+    group["results"] = [r for r in group["results"] if not (_of(r, "dn") and r["kind"] == "support_reaction_moment_magnitude_v2")]
+    moved = copy.deepcopy(source)
+    refs = nonzero_row(moved, "sus+srss", "element_local_bending_moment_z")["source_result_refs"]
+    refs[0], refs[1] = refs[1], refs[0]
+    for tampered in (extra, missing, group, moved):
+        for given in (None, model):
+            both(tampered, given, NESTED_ROW)
+    # (e) A withholding stated where every row is derivable.
+    stated = copy.deepcopy(source)
+    stated["diagnostics"].append({"id": "diagnostic:preview-physics:combination-row-withheld:2:dn", "code": "LOAD_COMBINATION_ROW_WITHHELD",
+                                  "severity": "warning", "message": "combination dn withholds 1 combined row(s) that could not be formed: invented",
+                                  "source": "core/product_physics", "affected_refs": ["dn"]})
+    for given in (None, model):
+        both(stated, given, NESTED_WITHHELD)
+
+
+def test_nested_withholdings_are_re_derived(solve):
+    """An absolute sum with a large factor withholds its overflowing rows and the anchor's support group; a dependant
+    mechanics combination omits the matching rows (LOAD_COMBINATION_SOURCE_RESULT_MISSING) and withholds the group, and
+    an envelope over it omits them too. Both readers admit it, with and without the model; either withholding removed is
+    refused."""
+    model = linear_cantilever([terms("huge", "absolute_sum", [("case", "W1", 1.0e306)]),
+                               terms("sus+huge", "mechanics", [("case", "W2", 1.0), ("comb", "huge", 1.0)]),
+                               envelope("env-huge", ["huge", "W1"])])
+    source = solve(model)
+    for given in (None, model):
+        both(source, given, None)
+
+    def named(code, cid):
+        return [d for d in source["diagnostics"] if d["code"] == code and d["affected_refs"][:1] == [cid]]
+    assert len(named("LOAD_COMBINATION_ROW_WITHHELD", "huge")) == 1
+    assert len(named("LOAD_COMBINATION_ROW_WITHHELD", "sus+huge")) == 1
+    assert named("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "sus+huge")
+    assert named("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "env-huge")
+    for code, cid in (("LOAD_COMBINATION_ROW_WITHHELD", "sus+huge"), ("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "sus+huge"),
+                      ("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "env-huge")):
+        unstated = copy.deepcopy(source)
+        first = named(code, cid)[0]["id"]
+        unstated["diagnostics"] = [d for d in unstated["diagnostics"] if d["id"] != first]
+        for given in (None, model):
+            both(unstated, given, NESTED_WITHHELD)

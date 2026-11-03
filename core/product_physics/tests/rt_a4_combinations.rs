@@ -1199,6 +1199,119 @@ fn pf_model_free_readers_verify_from_the_published_derivation() {
     assert_refused(&missing, Some(&wire["model"]), EVIDENCE, "missing (constant effort)");
 }
 
+// ------------------------------------------------------------------ nested rows (review r2 P2)
+const NESTED_ROW: &str = "SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_ROW";
+const NESTED_WITHHELD: &str = "SOURCE_PREVIEW_PHYSICS_COMBINATION_NESTED_WITHHELD";
+fn is_of(row: &Value, id: &str) -> bool {
+    row["basis_ref"] == json!({"ref_type": "combination", "ref_id": id}) && row["kind"] != "combination_modulus_basis_record"
+}
+/// The first row of combination `id` of `kind` with a nonzero value.
+fn nonzero_row<'a>(out: &'a mut Value, id: &str, kind: &str) -> &'a mut Value {
+    out["results"].as_array_mut().unwrap().iter_mut().find(|r| is_of(r, id) && r["kind"] == kind && r["value"] != 0.0)
+        .unwrap_or_else(|| panic!("no nonzero {kind} row of {id}"))
+}
+/// One unit in the last place up: below the readers' former 64ε magnitude guard.
+fn ulp_up(row: &mut Value) {
+    let value = row["value"].as_f64().unwrap();
+    row["value"] = json!(f64::from_bits(value.to_bits() + 1));
+}
+
+/// Review r2 P2: both readers re-derive every row of a recorded combination with a
+/// combination operand (mechanics, subtraction, range envelope) from its operand rows,
+/// with the model's factors or the derivation record's, bit for bit, and refuse a row
+/// with no derivable counterpart and a derivable row missing without its withholding.
+/// Before the repair both readers admitted tampers (a)-(c) with and without the model
+/// and (b) without it.
+#[test]
+fn pf_readers_re_derive_nested_combination_rows() {
+    let mut combinations = linear_combinations().as_array().unwrap().clone();
+    combinations.push(sub("dn", "sus+srss", "W2"));
+    combinations.push(range("en", &["srss-w", "W1"]));
+    let wire = pf_cantilever(false, pf_cases(), Value::Array(combinations));
+    let model = Some(&wire["model"]);
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "nested rows base");
+    for id in ["sus+srss", "dn", "en"] {
+        assert_eq!(gate(&out, id), admitted(), "{id}");
+        assert!(!combination_rows(&out, id).is_empty(), "{id}");
+    }
+    // (a) A mechanics row with a combination operand restated.
+    let mut a = out.clone();
+    set_row(&mut a, "sus+srss", "element_local_shear_force_y", "midspan", 500.0, 123456.0);
+    for given in [None, model] {
+        assert_refused(&a, given, NESTED_ROW, "(a) sus+srss value");
+    }
+    // (b) Its derivation record's factor on srss-w restated, the rows unchanged.
+    let mut b = out.clone();
+    derivation_record(&mut b, "sus+srss")["expression"]["terms"][1]["factor"] = json!(99.0);
+    assert_refused(&b, None, NESTED_ROW, "(b) sus+srss factor");
+    assert_refused(&b, model, EVIDENCE, "(b) sus+srss factor");
+    // (c) A subtraction and a range envelope with a combination operand, restated by one ulp.
+    for (id, kind) in [("dn", "element_local_bending_moment_z"), ("en", "element_local_bending_moment_z"), ("dn", "displacement_magnitude"),
+        ("sus+srss", "displacement_magnitude"), ("sus+srss", "support_reaction_force_magnitude_v2"), ("en", "support_reaction_component_v2")] {
+        let mut c = out.clone();
+        ulp_up(nonzero_row(&mut c, id, kind));
+        for given in [None, model] {
+            assert_refused(&c, given, NESTED_ROW, &format!("(c) {id} {kind} + 1 ulp"));
+        }
+    }
+    // (d) A row with no derivable counterpart; a derivable row, and a whole support
+    // group's magnitude, missing without a stated withholding; a source reference moved.
+    let mut extra = out.clone();
+    let mut copied = nonzero_row(&mut extra, "dn", "element_local_shear_force_y").clone();
+    copied["id"] = json!("result:combination:dn:invented");
+    extra["results"].as_array_mut().unwrap().push(copied);
+    let mut missing = out.clone();
+    let gone = nonzero_row(&mut missing, "en", "element_local_bending_moment_z")["id"].clone();
+    missing["results"].as_array_mut().unwrap().retain(|r| r["id"] != gone);
+    let mut group = out.clone();
+    group["results"].as_array_mut().unwrap().retain(|r| !(is_of(r, "dn") && r["kind"] == "support_reaction_moment_magnitude_v2"));
+    let mut moved = out.clone();
+    let row = nonzero_row(&mut moved, "sus+srss", "element_local_bending_moment_z");
+    let refs = row["source_result_refs"].as_array_mut().unwrap();
+    refs.swap(0, 1);
+    for (tampered, what) in [(&extra, "extra row"), (&missing, "missing row"), (&group, "partial support group"), (&moved, "source refs")] {
+        for given in [None, model] {
+            assert_refused(tampered, given, NESTED_ROW, what);
+        }
+    }
+    // (e) A withholding stated where every row is derivable.
+    let mut stated = out.clone();
+    stated["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:preview-physics:combination-row-withheld:2:dn", "code": "LOAD_COMBINATION_ROW_WITHHELD",
+        "severity": "warning", "message": "combination dn withholds 1 combined row(s) that could not be formed: invented", "source": "core/product_physics", "affected_refs": ["dn"]}));
+    for given in [None, model] {
+        assert_refused(&stated, given, NESTED_WITHHELD, "(e) stated withholding");
+    }
+
+    // Positive control with withholdings: an operand's support group withheld whole
+    // withholds the dependant's group by name; an operand row missing omits the
+    // dependant's row with its LOAD_COMBINATION_SOURCE_RESULT_MISSING. Both readers
+    // admit it; either withholding removed is refused.
+    let probe = solved_typed(&overflow_model(false, json!([])), PreviewSolverMode::SparseInteractive, "overflow probe");
+    let tip = |kind: &str| case_rows(&probe, "B").iter().find(|r| r["kind"] == kind && r["entity_ref"] == "node:tip").unwrap()["value"].as_f64().unwrap().abs();
+    let f = f64::MAX / tip("global_nodal_displacement_x").max(tip("global_nodal_displacement_y")).max(tip("global_nodal_displacement_z")) / (1.0 + 2f64.powi(-8));
+    let wire = overflow_model(false, json!([
+        terms("support", "absolute_sum", &[("case", "A", 1.4e308)]),
+        terms("tip", "absolute_sum", &[("case", "B", f)]),
+        terms("sup-n", "mechanics", &[("case", "A", 1.0), ("comb", "support", 1.0)]),
+        range("env-n", &["tip", "B"]),
+    ]));
+    let model = Some(&wire["model"]);
+    let out = solved_typed(&wire, PreviewSolverMode::SparseInteractive, "nested withholdings");
+    let named = |code: &str, id: &str| with_code(&out, code).into_iter().filter(|d| d["affected_refs"][0] == id).count();
+    assert_eq!(named("LOAD_COMBINATION_ROW_WITHHELD", "sup-n"), 1);
+    assert!(!combination_rows(&out, "sup-n").iter().any(|r| r["entity_ref"] == "support:root"));
+    assert!(named("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "env-n") >= 1);
+    assert!(!combination_rows(&out, "env-n").iter().any(|r| r["kind"] == "displacement_magnitude" && r["entity_ref"] == "node:tip"));
+    for (code, id) in [("LOAD_COMBINATION_ROW_WITHHELD", "sup-n"), ("LOAD_COMBINATION_SOURCE_RESULT_MISSING", "env-n")] {
+        let mut unstated = out.clone();
+        let first = with_code(&out, code).into_iter().find(|d| d["affected_refs"][0] == id).unwrap()["id"].clone();
+        unstated["diagnostics"].as_array_mut().unwrap().retain(|d| d["id"] != first);
+        for given in [None, model] {
+            assert_refused(&unstated, given, NESTED_WITHHELD, &format!("{id} without its {code}"));
+        }
+    }
+}
+
 /// §10.3, V-8: a document with flat combinations only publishes no derivation, and
 /// one stated on it is refused.
 #[test]
