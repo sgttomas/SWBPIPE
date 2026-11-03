@@ -3638,6 +3638,21 @@ review input, not a permanent dependency.
 Run evidence for the repair is in `/private/tmp/rt-a3-ce-fix/` (`pricing/`, the
 writers' logs, `proof/`); it is review input, not a permanent dependency.
 
+**AC-004.** The six stack-headroom witnesses passed **6/6 at `f8b1e7461`**
+(source `5238d0244` plus guard-test and Work-text commits only; no `core/` file
+changed, and cargo reported the binary fresh). Binary SHA-256 `eff63857…87e8d2`,
+profile `retained_memory.rs` `440c1eaa…203a`, rustc 1.97.1. This was one Agent
+0-cleared run of `python3 tools/release/check_release_readiness.py --profile
+stack-witnesses --execute` under `t3_exclusive.sh` with memguard, after RT-U4's
+C1 run had closed (verified 12:46:39Z). Queued and acquired 2026-11-03T12:59:47Z,
+hard deadline 13:00:47Z, ended and released 12:59:58Z (11 s with teardown). One
+process per test at `--test-threads=1`; nothing compiled inside; no retry.
+Sparse and dense: `witness_headroom_w1_at_one_mebibyte` ok (0.68 s) and ok
+(0.67 s), `witness_w2_deep_milestone_publishes` ok (1.33 s) and ok (1.33 s),
+`witness_w_c2_publishes` ok (2.50 s) and ok (2.49 s). No owned process, lock
+holder or `exclusive.pending` remained. This is test evidence, not an
+acceptance.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
