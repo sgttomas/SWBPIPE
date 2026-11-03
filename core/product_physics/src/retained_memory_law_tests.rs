@@ -1997,9 +1997,11 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.44: RT-A3 increment 3's regenerated block (two pressure-2 limitations and gate 4 in
 // STATICS, the identity's constant-effort clause and the D-2 sentence in TAV): +5,610 B in
 // every phase and mode, from maintained eval at the in-build atoms, without R.
+// §8.44 review repair: S7 restated (+67 B, six TAV copies): +402 B in every phase and mode
+// (+6,012 B against #96), from maintained eval at the same 328 in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_980_914, 6_940_975_475, 8_895_158_711, 8_688_480_167, 7_761_347_077, 8_607_725_870, 7_339_119_556, 7_012_409_432],
-    [6_658_112_258, 7_000_106_819, 8_954_290_055, 8_747_611_511, 7_820_478_421, 8_666_857_214, 7_398_250_900, 7_071_540_776],
+    [6_598_981_316, 6_940_975_877, 8_895_159_113, 8_688_480_569, 7_761_347_479, 8_607_726_272, 7_339_119_958, 7_012_409_834],
+    [6_658_112_660, 7_000_107_221, 8_954_290_457, 8_747_611_913, 7_820_478_823, 8_666_857_616, 7_398_251_302, 7_071_541_178],
 ];
 
 #[test]
