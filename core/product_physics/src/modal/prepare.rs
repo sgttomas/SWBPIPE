@@ -13,7 +13,7 @@
 //! case's place is checked again on the normalized model.
 use super::context::{BoundCase, ModalCaseContext};
 use super::request::{ModalPreviewRequest, RequestInputs};
-use super::{MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED, MODAL_STATE_CASE_UNAVAILABLE, MODAL_TIMOSHENKO_MASS_UNSUPPORTED};
+use super::{MODAL_STATE_CASE_UNAVAILABLE, MODAL_TIMOSHENKO_MASS_UNSUPPORTED};
 use crate::*;
 use open_pipe_stress_linear_supports::BoundaryPreparation;
 
@@ -35,6 +35,12 @@ pub(crate) struct Prepared<'a> {
     pub(crate) built: BuiltModel,
     pub(crate) boundary: BoundaryPreparation,
     pub(crate) bound_case: Option<BoundCase>,
+    /// The state case's resolved case on a load/reference-state document,
+    /// which the static entry passes to that case's solve (`load_state`).
+    pub(crate) state_resolution: Option<case_state::resolve::ResolvedCase>,
+    /// The state case's modulus-basis record on a plain document, which the
+    /// static entry passes to that case's solve (`modulus_basis_record`).
+    pub(crate) state_basis_record: Option<String>,
     /// Whether the model is on the exact route (its mass basis is then
     /// `EXACT_MASS_METHOD`).
     pub(crate) exact: bool,
@@ -244,20 +250,8 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
         ));
         return Err(diagnostics);
     }
-    let nonlinear: Vec<String> =
-        model.supports.iter().filter(|support| support.nonlinear.is_some()).map(|support| support.id.clone()).collect();
-    if !nonlinear.is_empty() {
-        let mut refs = nonlinear.clone();
-        refs.extend(state_case.map(str::to_string));
-        diagnostics.push(diag(
-            "diagnostic:modal:nonlinear-support-interim",
-            MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED,
-            "blocking",
-            format!("the model has nonlinear supports ({}); their linearization at the named state case's same-run solved state is not built yet, so nothing is formed", nonlinear.join(", ")),
-            refs,
-        ));
-        return Err(diagnostics);
-    }
+    // Nonlinear supports are not refused here: the state case's same-run
+    // solve linearizes them after preparation (I2b-2, `state`).
 
     // The materials and member pairs the build takes: the state case's
     // resolved pairs on a load/reference-state document; otherwise the named
@@ -270,10 +264,16 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     if has_blocking(&diagnostics) {
         return Err(diagnostics);
     }
+    let mut state_basis_record = None;
     if let Some(case) = &basis_case {
         let before = diagnostics.len();
         let resolved = if modulus_basis_key(case, &mut diagnostics).is_some() {
-            materials_for_modulus_basis(&model, &materials, case, &mut diagnostics).map(|(basis, _record)| basis)
+            materials_for_modulus_basis(&model, &materials, case, &mut diagnostics).map(|(basis, record)| {
+                if bound_case.is_some() {
+                    state_basis_record = Some(record);
+                }
+                basis
+            })
         } else {
             Some(materials.clone())
         };
@@ -295,6 +295,11 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
     }
     let Some(built) = built else {
         return Err(diagnostics);
+    };
+    // The state case's resolution, moved out once the build has read its pairs.
+    let state_resolution = match (resolved_cases, &bound_case) {
+        (Some(mut resolved), Some(bound)) => Some(resolved.swap_remove(bound.case_index)),
+        _ => None,
     };
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
@@ -356,6 +361,8 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
         built,
         boundary,
         bound_case,
+        state_resolution,
+        state_basis_record,
         exact,
         diagnostics,
         _admitted: Admitted(()),

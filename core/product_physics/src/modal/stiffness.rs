@@ -10,7 +10,9 @@
 //!   error is refused as the static entry refuses it.
 //! - **The partition** is the static reduction's: the free DOFs and their
 //!   positions come from `reduce_assembled_sparse_system` on the formed
-//!   stiffness with the prepared restrained DOFs and a zero force, and K_ff
+//!   stiffness with the restrained DOFs the caller passes (the prepared ones,
+//!   or with nonlinear supports the state case's linearized set, `state`)
+//!   and a zero force, and K_ff
 //!   and M_ff are the free rows and columns read through that partition; no
 //!   reduction arithmetic is copied. Restrained DOFs, imposed-motion (W-16)
 //!   DOFs included, stay restrained, and no motion value enters. Constant-
@@ -123,8 +125,15 @@ fn singular_refusal(prepared: &Prepared, error: &StructuralError) -> Vec<Diagnos
 }
 
 /// The modal pencil of a prepared model and its formed mass (module docs).
-/// `max_candidates` is s_max, recorded in the operation estimate only.
-pub(crate) fn form_modal_pencil(prepared: &Prepared, mass: &ModalMass, max_candidates: usize) -> Result<ModalPencil, Vec<Diagnostic>> {
+/// `restrained` is the restrained set the partition is formed on (ascending,
+/// without repeats); `max_candidates` is s_max, recorded in the operation
+/// estimate only.
+pub(crate) fn form_modal_pencil(
+    prepared: &Prepared,
+    mass: &ModalMass,
+    restrained: &[usize],
+    max_candidates: usize,
+) -> Result<ModalPencil, Vec<Diagnostic>> {
     let built = &prepared.built;
     let global_dimension = built.nodes.len() * DOF_PER_NODE;
     let ceiling_bytes = dense_scrutiny_ceiling_bytes();
@@ -147,7 +156,6 @@ pub(crate) fn form_modal_pencil(prepared: &Prepared, mass: &ModalMass, max_candi
     let zero = LoadLedger::new()
         .finish(global_dimension)
         .map_err(|error| blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED", format!("{error:?}")))?;
-    let restrained = &prepared.boundary.restrained_dofs;
     let reduced = reduce_assembled_sparse_system(&formed, &zero, restrained, None)
         .map_err(|error| blocked("diagnostic:physics:solver", "SOLVER_SYSTEM_BLOCKED", error.to_string()))?;
     let free_dofs = reduced.free_dofs.clone();

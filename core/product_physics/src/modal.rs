@@ -3,11 +3,13 @@
 //! modal request and its refusals (§1.4), the state case's post-lowering
 //! binding (Agent 0 decision D-L), the preparation that mirrors the static
 //! entry's pre-formation sequence, the mass on the self-weight basis (§2.2 to
-//! §2.4) and the weight-basis identity (§2.5).
+//! §2.4) and the weight-basis identity (§2.5); increment I2b-1 the dense
+//! path to an in-crate `ModalOutcome`; increment I2b-2 nonlinear supports at
+//! the named state case (`state`, on lib.rs's typed `LoadCaseSolve` seam).
 //!
 //! Nothing here is public or reachable from any entry: there is no product,
-//! native, headless, schema or publication entry, and no eigen solve (I2b).
-//! It never enters the retained Direct entry or D1. The identity's tolerance
+//! native, headless, schema or publication entry. It never enters the
+//! retained Direct entry or D1. The identity's tolerance
 //! is not pinned (D-TOL); only tests supply one.
 //!
 //! Function names here are chosen so that none is also a call token elsewhere
@@ -26,12 +28,15 @@ mod mass;
 mod outcome;
 mod prepare;
 mod request;
+mod state;
 mod stiffness;
 mod weight_basis;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod tests_eigen;
+#[cfg(test)]
+mod tests_state;
 
 /// The request names neither `mode_count` nor `frequency_cutoff` (§1.4).
 pub(crate) const MODAL_EXTRACTION_BOUND_REQUIRED: &str = "MODAL_EXTRACTION_BOUND_REQUIRED";
@@ -41,8 +46,9 @@ pub(crate) const MODAL_EXTRACTION_BOUND_INVALID: &str = "MODAL_EXTRACTION_BOUND_
 /// §1.4 requires a state case (a load/reference-state document, or a model
 /// with a nonlinear support) and the request names none.
 pub(crate) const MODAL_STATE_CASE_REQUIRED: &str = "MODAL_STATE_CASE_REQUIRED";
-/// The state case names no single case, its static admission refuses it, or
-/// its binding to the lowered model fails.
+/// The state case names no single case, its static admission refuses it, its
+/// binding to the lowered model fails, or its same-run solve does not give a
+/// converged, qualified and confirmed support state (I2b-2, `state`).
 pub(crate) const MODAL_STATE_CASE_UNAVAILABLE: &str = "MODAL_STATE_CASE_UNAVAILABLE";
 /// A request modulus basis together with a state case.
 pub(crate) const MODAL_MODULUS_BASIS_CONFLICT: &str = "MODAL_MODULUS_BASIS_CONFLICT";
@@ -60,6 +66,3 @@ pub(crate) const MODAL_COMPONENT_MASS_OUT_OF_RANGE: &str = "MODAL_COMPONENT_MASS
 pub(crate) const MODAL_MASS_WEIGHT_BASIS_MISMATCH: &str = "MODAL_MASS_WEIGHT_BASIS_MISMATCH";
 /// Timoshenko straight members, on either route, until M4 (§1.2).
 pub(crate) const MODAL_TIMOSHENKO_MASS_UNSUPPORTED: &str = "MODAL_TIMOSHENKO_MASS_UNSUPPORTED";
-/// Interim (I2a, until I2b): a model with a nonlinear support, whose
-/// linearization at the state case's solved state is not built yet.
-pub(crate) const MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED: &str = "MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED";

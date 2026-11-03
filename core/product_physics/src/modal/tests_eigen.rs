@@ -14,7 +14,7 @@ use super::stiffness::{DenseGuardRecord, ModalPencil};
 use super::tests::{
     arc_request, codes, ex_request_with_density, modal, number, pf_request, q, reference_request, with, PROV, TEST_LOCAL_IDENTITY_BOUND,
 };
-use super::{MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED, MODAL_TIMOSHENKO_MASS_UNSUPPORTED};
+use super::{MODAL_STATE_CASE_UNAVAILABLE, MODAL_TIMOSHENKO_MASS_UNSUPPORTED};
 use crate::Diagnostic;
 use open_pipe_stress_modal_eigen::clusters::StoppingBound;
 use open_pipe_stress_modal_eigen::modal_quantities::{cumulative_effective_mass_fractions, Dof, FreeDof, NormalizationCase};
@@ -34,7 +34,7 @@ const FE_CONVERGENCE: &str = include_str!("../../../../validation/references/f1_
 /// with I1's positions and offsets; the identity bound is I2a's. τ_r has no
 /// I1 value: 10⁻¹⁰ here is test-local only, above the design's "τ_r lies
 /// above 10⁻¹²".
-fn test_local_parameters() -> ModalIntegrityParameters {
+pub(super) fn test_local_parameters() -> ModalIntegrityParameters {
     ModalIntegrityParameters {
         infinite_mu_relative_threshold: 1e-12,
         mass_pivot_relative_threshold: 1e-12,
@@ -555,8 +555,10 @@ fn every_integrity_parameter_is_required_finite_and_in_domain() {
 #[test]
 fn timoshenko_and_nonlinear_models_keep_i2as_refusals() {
     let params = test_local_parameters();
+    // I2b-2: a gap model's state case is never confirmed by the static path,
+    // so it is refused at the state case (D2), not by the retired interim code.
     let found = refusal_codes(with(arc_request(true), json!({"mode_count": 1, "state_case": "case:z"})), &params);
-    assert_eq!(found.last().unwrap(), MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED);
+    assert_eq!(found.last().unwrap(), MODAL_STATE_CASE_UNAVAILABLE);
     let mut timoshenko = pf_request(false);
     timoshenko["model"]["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
     timoshenko["model"]["materials"][0]["poisson_ratio"] = q(0.25, "1");
