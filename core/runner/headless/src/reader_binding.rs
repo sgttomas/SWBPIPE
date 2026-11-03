@@ -251,7 +251,9 @@ pub fn read(reader: &str, input: &str) -> Result<(u8, Value), String> {
             "{reader} input has an unsupported member {unknown}"
         ));
     }
-    let outcome = (entry.read)(&members);
+    // RT-A4 §10.4: the command is an outermost entry, so it reads with no recorded table
+    // selection left over (`recorded_tables::entry_scope`); a recorded reader selects its own.
+    let outcome = open_pipe_stress_result_export::recorded_tables::entry_scope(|| (entry.read)(&members));
     let code = if outcome["ok"] == true {
         EXIT_PASS
     } else {

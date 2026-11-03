@@ -8,7 +8,7 @@
     },
     {
       "path": "schemas/analysis_run.v0.3.schema.json",
-      "sha256": "3d2776bb443ebec0627926314056e5a48daa0683b3709c11504f12162d1c4b03"
+      "sha256": "d30507f1f667b1a26f2cb6e008fb227e5f16e5ac8f57e5bb82fe1cf9c58e0941"
     },
     {
       "path": "schemas/caepipe_external_run.schema.json",

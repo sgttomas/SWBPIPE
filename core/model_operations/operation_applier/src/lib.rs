@@ -1100,9 +1100,15 @@ fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
 /// `openpipestress.desktop.wasm_engine_input_error`) instead of trapping —
 /// the shim surfaces it as an explicit diagnostic, never a silent fallback.
 /// Native builds and tests do not compile this module.
+///
+/// RT-A4 §10.4: every export runs inside `recorded_tables::entry_scope`. The wasm32 target
+/// aborts on panic, so a recorded read that traps skips its guard and leaves its table
+/// selection set in this instance; each export clears it before it reads anything.
+/// (`wasm_exports_run_as_outermost_entries` checks that none is missed.)
 #[cfg(feature = "wasm")]
 mod wasm_api {
     use super::{apply_operation, validate_operation};
+    use open_pipe_stress_product_physics::result_export::recorded_tables::entry_scope;
     use serde_json::{json, Value};
     use wasm_bindgen::prelude::wasm_bindgen;
     use wasm_bindgen::JsError;
@@ -1136,7 +1142,9 @@ mod wasm_api {
         batch_json_input: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        batch_json(model_json, batch_json_input, claimed_model_hash_json, false)
+        entry_scope(|| {
+            batch_json(model_json, batch_json_input, claimed_model_hash_json, false)
+        })
     }
     #[wasm_bindgen]
     pub fn apply_operation_batch_json(
@@ -1144,7 +1152,9 @@ mod wasm_api {
         batch_json_input: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
+        entry_scope(|| {
+            batch_json(model_json, batch_json_input, claimed_model_hash_json, true)
+        })
     }
 
     /// W-13 §5.3: the one model-document validator, for the webview open
@@ -1152,10 +1162,12 @@ mod wasm_api {
     /// as JSON text, or the input-error envelope when the text is not JSON.
     #[wasm_bindgen]
     pub fn validate_model_document_json(model_json: &str) -> String {
-        match parse_input("model", model_json) {
-            Ok(model) => super::document_validator::validation_report(&model).to_string(),
-            Err(error) => error,
-        }
+        entry_scope(|| {
+            match parse_input("model", model_json) {
+                Ok(model) => super::document_validator::validation_report(&model).to_string(),
+                Err(error) => error,
+            }
+        })
     }
 
     /// B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
@@ -1165,10 +1177,12 @@ mod wasm_api {
     /// returns the input-error envelope.
     #[wasm_bindgen]
     pub fn model_checks_json(model_json: &str) -> String {
-        match super::model_checks_text(model_json) {
-            Ok(report) => report.to_string(),
-            Err(error) => input_error("model", error.to_string()),
-        }
+        entry_scope(|| {
+            match super::model_checks_text(model_json) {
+                Ok(report) => report.to_string(),
+                Err(error) => input_error("model", error.to_string()),
+            }
+        })
     }
 
     /// Model document 0.9.0, S2 (DEL-02-01 Design `model-document-0.9.0.md` §4.2,
@@ -1179,19 +1193,23 @@ mod wasm_api {
     /// written to the model.
     #[wasm_bindgen]
     pub fn preview_operating_conditions_json(model_json: &str) -> String {
-        match parse_input("model", model_json) {
-            Ok(model) => open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&model).to_string(),
-            Err(error) => error,
-        }
+        entry_scope(|| {
+            match parse_input("model", model_json) {
+                Ok(model) => open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&model).to_string(),
+                Err(error) => error,
+            }
+        })
     }
 
     /// Display-only numeric conversion through the one accepted unit catalog.
     #[wasm_bindgen]
     pub fn convert_display_quantities_json(input_json: &str) -> String {
-        match parse_input("display_quantities", input_json) {
-            Ok(input) => super::convert_display_quantities(&input).to_string(),
-            Err(error) => error,
-        }
+        entry_scope(|| {
+            match parse_input("display_quantities", input_json) {
+                Ok(input) => super::convert_display_quantities(&input).to_string(),
+                Err(error) => error,
+            }
+        })
     }
 
     fn input_error(input_label: &str, detail: String) -> String {
@@ -1254,7 +1272,9 @@ mod wasm_api {
         intent_json: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        run_json(model_json, intent_json, claimed_model_hash_json, false)
+        entry_scope(|| {
+            run_json(model_json, intent_json, claimed_model_hash_json, false)
+        })
     }
 
     /// Validate and, when no blocking finding exists, apply the single change
@@ -1266,7 +1286,9 @@ mod wasm_api {
         intent_json: &str,
         claimed_model_hash_json: &str,
     ) -> String {
-        run_json(model_json, intent_json, claimed_model_hash_json, true)
+        entry_scope(|| {
+            run_json(model_json, intent_json, claimed_model_hash_json, true)
+        })
     }
 
     fn parse_value(value_json: &str) -> Result<Value, JsError> {
@@ -1281,10 +1303,12 @@ mod wasm_api {
     /// as `{"value": <G in Pa>, "unit": "Pa"}`, or `{"error": …}`.
     #[wasm_bindgen]
     pub fn derived_shear_modulus_json(elastic_modulus: f64, unit: &str, poisson_ratio: f64) -> String {
-        match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
-            Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
-            Err(error) => json!({"error": error}).to_string(),
-        }
+        entry_scope(|| {
+            match super::derived_shear_modulus_pa(elastic_modulus, unit, poisson_ratio) {
+                Ok(value) => json!({"value": value, "unit": "Pa"}).to_string(),
+                Err(error) => json!({"error": error}).to_string(),
+            }
+        })
     }
 
     /// Canonicalize a JSON document with the engine's canonical form —
@@ -1293,31 +1317,39 @@ mod wasm_api {
     /// frontend has no canonicalization of its own.
     #[wasm_bindgen]
     pub fn canonical_json_string(value_json: &str) -> Result<String, JsError> {
-        Ok(super::canonical_json(&parse_value(value_json)?))
+        entry_scope(|| {
+            Ok(super::canonical_json(&parse_value(value_json)?))
+        })
     }
 
     /// Lowercase-hex SHA-256 of the canonical form of a JSON document.
     /// H1 / F-5a hash seam companion to [`canonical_json_string`].
     #[wasm_bindgen]
     pub fn canonical_sha256_hex(value_json: &str) -> Result<String, JsError> {
-        Ok(super::sha256_hex(&super::canonical_json(&parse_value(
-            value_json,
-        )?)))
+        entry_scope(|| {
+            Ok(super::sha256_hex(&super::canonical_json(&parse_value(
+                value_json,
+            )?)))
+        })
     }
 
     /// Checked I-JSON/JCS profile used only by versioned 0.2 result records.
     #[wasm_bindgen]
     pub fn canonical_json_checked_v1(value_json: &str) -> Result<String, JsError> {
-        open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// SHA-256 companion for the checked 0.2 result-record profile.
     #[wasm_bindgen]
     pub fn canonical_sha256_hex_checked_v1(value_json: &str) -> Result<String, JsError> {
-        let canonical = open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
-            .map_err(|error| JsError::new(&error))?;
-        Ok(super::sha256_hex(&canonical))
+        entry_scope(|| {
+            let canonical = open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
+                .map_err(|error| JsError::new(&error))?;
+            Ok(super::sha256_hex(&canonical))
+        })
     }
 
     /// The retained-precision reader on these source bytes, bound to the
@@ -1328,15 +1360,19 @@ mod wasm_api {
         source_json: &str,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::retained_precision_outcome_json(source_json, invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::retained_precision_outcome_json(source_json, invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// The reader's metadata-only transport checks on these source bytes.
     #[wasm_bindgen]
     pub fn validate_retained_precision_transport_json(source_json: &str) -> Result<String, JsError> {
-        super::retained_precision_transport_outcome_json(source_json)
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::retained_precision_transport_outcome_json(source_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: standing and classification over the registration's accepted verdict.
@@ -1344,8 +1380,10 @@ mod wasm_api {
     pub fn retained_precision_semantics_json(
         source_json: &str, validation_json: &str, requested_json: &str,
     ) -> Result<String, JsError> {
-        super::retained_precision_semantics_json(source_json, validation_json, requested_json)
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::retained_precision_semantics_json(source_json, validation_json, requested_json)
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: the base readers' dispatch verdict (route, binding, refusal, standing).
@@ -1355,8 +1393,10 @@ mod wasm_api {
         model_json: Option<String>,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::reader_dispatch_json(source_json, model_json.as_deref(), invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_dispatch_json(source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: one named base reader's raw validation.
@@ -1367,14 +1407,18 @@ mod wasm_api {
         model_json: Option<String>,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::reader_validate_json(reader, source_json, model_json.as_deref(), invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_validate_json(reader, source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: one named base reader's transport checks.
     #[wasm_bindgen]
     pub fn reader_transport_json(reader: &str, source_json: &str) -> Result<String, JsError> {
-        super::reader_transport_json(reader, source_json).map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_transport_json(reader, source_json).map_err(|error| JsError::new(&error))
+        })
     }
 
     /// RT-A4 §10.4: a recorded-run read entry under the record's binding.
@@ -1386,22 +1430,28 @@ mod wasm_api {
         model_json: Option<String>,
         invocation_json: Option<String>,
     ) -> Result<String, JsError> {
-        super::reader_recorded_json(entry, binding_json, source_json, model_json.as_deref(), invocation_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_recorded_json(entry, binding_json, source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// R2: one result row's semantics under its source's table.
     #[wasm_bindgen]
     pub fn reader_row_semantics_json(row_json: &str, source_json: Option<String>) -> Result<String, JsError> {
-        super::reader_row_semantics_json(row_json, source_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_row_semantics_json(row_json, source_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// The row semantics of each row of a JSON array, the source read once.
     #[wasm_bindgen]
     pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<String>) -> Result<String, JsError> {
-        super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 
     /// DEL-07-05 numerical health: the per-case presentation projection of the
@@ -1409,8 +1459,10 @@ mod wasm_api {
     /// findings when given. Presentation only; never admission or standing.
     #[wasm_bindgen]
     pub fn numerical_health_json(source_json: &str, reader_findings_json: Option<String>) -> Result<String, JsError> {
-        super::numerical_health_json(source_json, reader_findings_json.as_deref())
-            .map_err(|error| JsError::new(&error))
+        entry_scope(|| {
+            super::numerical_health_json(source_json, reader_findings_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
     }
 }
 

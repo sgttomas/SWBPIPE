@@ -1,7 +1,7 @@
 import { isRetainedRoute } from "./numericalResultQuality";
 import { recordedReaderDispatch, sourceContract } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
-import { recordedPreRtA4RecordBinding } from "../../services/recordedPreRtA4";
+import { recordedPreRtA4RecordBinding, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
@@ -27,9 +27,69 @@ export type HistoricalRunContext = {
   modelHash: ModelHashEvidence | null;
   envelopeHash: ProjectEnvelopeHashEvidence | null;
   envelopePayloadHash: string | null;
+  /** The reopen's ordinary findings, displayed as this reopen's: every check's finding (corruption,
+   * binding, evidence and read failures, the record validator's refusal), and the current standing's
+   * findings of a run read under the current tables. */
   findings: string[];
+  /** The findings of the reopen's checks alone: every entry of `findings` but the current
+   * standing's. A recorded run with any is not compared (`recordedRunBindingFindings`). */
+  checkFindings: string[];
+  /** RT-A4 §10.4 display rule: the registry variant a run recorded before RT-A4 was read under
+   * (`{id, sha256}`), or null for a run read under the current tables. */
+  recordedTableRead: RecordedBinding | null;
+  /** The findings the historical reader computed under `recordedTableRead` (the standing of the
+   * statement as it read when recorded): displayed as recorded under that table, never as a
+   * current standing, and never merged into `findings`. A refused recorded read is a check's
+   * finding instead. Empty when `recordedTableRead` is null. */
+  historicalReaderFindings: string[];
   runId: string;
 };
+
+/** A reopen's findings in their scopes (RT-A4 §10.4 display rule). */
+function reopenFindings(initial: string[] = []) {
+  const findings = [...initial], checks = [...initial], historical: string[] = [];
+  return {
+    findings, checks, historical,
+    /** A check's finding: always an ordinary finding. `once` adds a code already found once only. */
+    fail(code: string, once = false) {
+      if (once && checks.includes(code)) return;
+      checks.push(code);
+      if (!(once && findings.includes(code))) findings.push(code);
+    },
+    scoped(binding: RecordedBinding | null) {
+      return { findings, checkFindings: checks, recordedTableRead: binding ? { id: binding.id, sha256: binding.sha256 } : null, historicalReaderFindings: binding ? historical : [] };
+    }
+  };
+}
+
+/** The statement's standing findings in their scope. Under the current tables they are ordinary
+ * findings. Under a registry variant (RT-A4 §10.4) they are the historical reader's own, kept apart
+ * with the table they were read under; a refused recorded dispatch (a binding refusal, a table
+ * hash, a malformed statement) is a read failure and is a check's finding. */
+function readStanding(found: ReturnType<typeof reopenFindings>, result: MechanicsResult, model: Parameters<typeof numericalResultStanding>[1], binding: RecordedBinding | null): void {
+  if (!binding) {
+    found.findings.push(...numericalResultStanding(result, model).findings);
+    return;
+  }
+  const dispatch = recordedReaderDispatch(result, binding);
+  const refusal = dispatch.ok ? null : dispatch.error?.code ?? "RESULT_READER_UNAVAILABLE";
+  if (refusal) found.fail(refusal);
+  found.historical.push(...recordedResultStanding(result, binding, model).findings.filter((finding) => finding !== refusal));
+}
+
+/** The label of the historical reader's findings: the table they were read under. */
+export function recordedTableLabel(table: RecordedBinding): string {
+  return `As recorded under ${table.id} (sha256 ${table.sha256}); historical evidence only, not a current standing`;
+}
+
+/** The historical reader's findings under their table, or nothing for a run read under the current tables. */
+export function HistoricalReaderFindings({ context, testId }: { context: Pick<HistoricalRunContext, "recordedTableRead" | "historicalReaderFindings">; testId: string }) {
+  if (!context.recordedTableRead) return null;
+  return <div data-testid={testId}>
+    <p>{recordedTableLabel(context.recordedTableRead)}:</p>
+    {context.historicalReaderFindings.length ? <ul>{context.historicalReaderFindings.map((finding) => <li key={finding}>{finding}</li>)}</ul> : <p>no standing finding.</p>}
+  </div>;
+}
 
 const RESULT_DIMENSIONS = new Set([
   "dimensionless", "length", "angle", "force", "moment", "stress", "area", "section_modulus",
@@ -97,54 +157,56 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   const evidenceResult = isHistoricalMechanicsEvidence(rawMechanicsResult) ? rawMechanicsResult : null;
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
   const analysisRun = rawAnalysisRun as AnalysisRunEnvelope | null;
-  const findings = ["HISTORICAL_INPUT_MANIFEST_MISSING"];
+  const found = reopenFindings(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
   // RT-A4 §10.4: a run recorded before RT-A4 binds a registry variant; it is read (its standing
   // findings, its successor receipt and its record) as it read when recorded, and stays historical.
+  // Its standing findings are the historical reader's, displayed as recorded under that table
+  // (`historicalReaderFindings`); every check's failure stays an ordinary finding.
   const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
-  if (mechanicsResult) findings.push(...(recordedBinding ? recordedResultStanding(mechanicsResult, recordedBinding, opened.model) : numericalResultStanding(mechanicsResult, opened.model)).findings);
-  if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+  if (mechanicsResult) readStanding(found, mechanicsResult, opened.model, recordedBinding);
+  if (hasReceivedMechanics && !mechanicsResult) found.fail("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
-  if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
+  if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) found.fail("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
   // U6d reopen: a saved successor is revalidated by the accepted reader without an
   // invocation (its first code is a finding), and the AnalysisRun's copy must equal
   // its receipt. Nothing registers here, so standing stays needs_recompute.
   if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
-    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { findings.push((error as Error).message); }
-    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
+    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { found.fail((error as Error).message); }
+    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) found.fail(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
-  if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
+  if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) found.fail("HISTORICAL_MODEL_REF_MISMATCH");
   const expectedStateRef = `state:${opened.model.project.id}:preview`;
-  if (record && record.model_state_ref?.ref !== expectedStateRef) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");
-  if (!evidenceResult || !record) findings.push("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
-  if (evidenceResult && record && evidenceResult.run_id !== record.run_id) findings.push("HISTORICAL_RUN_REF_MISMATCH");
+  if (record && record.model_state_ref?.ref !== expectedStateRef) found.fail("HISTORICAL_MODEL_STATE_REF_MISMATCH");
+  if (!evidenceResult || !record) found.fail("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
+  if (evidenceResult && record && evidenceResult.run_id !== record.run_id) found.fail("HISTORICAL_RUN_REF_MISMATCH");
   const modelHash = opened.model_hash ?? null;
-  if (!modelHash) findings.push("HISTORICAL_MODEL_HASH_MISSING");
-  if (!opened.project_envelope_hash) findings.push("HISTORICAL_ENVELOPE_HASH_MISSING");
+  if (!modelHash) found.fail("HISTORICAL_MODEL_HASH_MISSING");
+  if (!opened.project_envelope_hash) found.fail("HISTORICAL_ENVELOPE_HASH_MISSING");
   let envelopePayloadHash: string | null = null;
   // One current analysis-run version: a saved 0.1.0 or 0.2.0 record is refused by
   // name and not verified (re-run the analysis to record a current run).
   const savedVersion = analysisRun?.schema_version;
   const currentRecord = savedVersion === ANALYSIS_RUN_V03;
-  if (analysisRun && ["0.1.0", "0.2.0"].includes(savedVersion as string)) findings.push(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
-  else if (analysisRun && record && !currentRecord) findings.push("HISTORICAL_ANALYSIS_SCHEMA_VERSION_UNSUPPORTED");
+  if (analysisRun && ["0.1.0", "0.2.0"].includes(savedVersion as string)) found.fail(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
+  else if (analysisRun && record && !currentRecord) found.fail("HISTORICAL_ANALYSIS_SCHEMA_VERSION_UNSUPPORTED");
   try {
     const recomputedModel = await computeModelHash(opened.model);
-    if (modelHash && (modelHash.value !== recomputedModel?.value || modelHash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_MODEL_HASH_MISMATCH");
+    if (modelHash && (modelHash.value !== recomputedModel?.value || modelHash.payload_ref !== opened.model.project.id)) found.fail("HISTORICAL_MODEL_HASH_MISMATCH");
     const recomputedEnvelope = await computeProjectEnvelopeHash({ model: opened.model, editor_intents: opened.editor_intents ?? [], proposal: opened.proposal ?? null, selected_review_target: opened.selected_review_target ?? null, mechanics_result: rawMechanicsResult as MechanicsResult | null, analysis_run: rawAnalysisRun as AnalysisRunEnvelope | null, model_hash: modelHash });
     envelopePayloadHash = recomputedEnvelope?.value ?? null;
-    if (opened.project_envelope_hash && (opened.project_envelope_hash.value !== recomputedEnvelope?.value || opened.project_envelope_hash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_ENVELOPE_HASH_MISMATCH");
+    if (opened.project_envelope_hash && (opened.project_envelope_hash.value !== recomputedEnvelope?.value || opened.project_envelope_hash.payload_ref !== opened.model.project.id)) found.fail("HISTORICAL_ENVELOPE_HASH_MISMATCH");
     if (evidenceResult && (currentRecord || !analysisRun)) {
       const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === "received_result") : null;
-      if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
-      else if ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
+      if (!storedResultHash) found.fail("HISTORICAL_RESULT_HASH_MISSING");
+      else if ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`) found.fail("HISTORICAL_RESULT_HASH_MISMATCH");
     }
     if (currentRecord) {
       const verification = await verifyAnalysisRunRecord(analysisRun!);
-      if (verification === "mismatch") findings.push("HISTORICAL_ANALYSIS_HASH_MISMATCH");
-      if (verification === "unverifiable") findings.push("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
+      if (verification === "mismatch") found.fail("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+      if (verification === "unverifiable") found.fail("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
     }
   } catch {
-    findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
+    found.fail("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
   }
   // B7b: a current (0.3.0) record is read against its saved source by the record
   // validator, as on the record's own path (its table, embedded namespaces, receipt and
@@ -162,10 +224,10 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
       // record read where the validator does not guard it) is one named finding, never
       // the runtime's own text.
       const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
-      if (!findings.includes(finding)) findings.push(finding);
+      found.fail(finding, true);
     }
   }
-  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, findings, runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
+  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(recordedBinding), runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
 }
 
 /** A recorded run read from the store (W-12 S2), checked as a saved run is, with
@@ -176,9 +238,9 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
  * validator's recorded form). Any other mismatch is still flagged. Reading it
  * establishes nothing: no standing, overlay, rule check or report readiness. */
 export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<HistoricalRunContext> {
-  const findings: string[] = [];
+  const found = reopenFindings();
   const parse = (text: string, finding: string): unknown => {
-    try { return JSON.parse(text); } catch { findings.push(finding); return null; }
+    try { return JSON.parse(text); } catch { found.fail(finding); return null; }
   };
   const rawMechanicsResult = parse(read.result_json, "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const manifest = parse(read.input_manifest_canonical, "RECORDED_RUN_INPUT_MANIFEST_MALFORMED") as CurrentSessionInputManifest | null;
@@ -186,47 +248,47 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
   const analysisRun = read.record ?? null;
   const evidenceResult = isHistoricalMechanicsEvidence(rawMechanicsResult) ? rawMechanicsResult : null;
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
-  if (rawMechanicsResult !== null && !mechanicsResult && !findings.includes("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED")) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+  if (rawMechanicsResult !== null && !mechanicsResult) found.fail("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED", true);
   const model = manifest?.model_basis?.model_payload ?? null;
   // RT-A4 §10.4: a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
   const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
-  if (mechanicsResult && model) findings.push(...(recordedBinding ? recordedResultStanding(mechanicsResult, recordedBinding, model) : numericalResultStanding(mechanicsResult, model)).findings);
+  if (mechanicsResult && model) readStanding(found, mechanicsResult, model, recordedBinding);
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
-  if (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string") findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
+  if (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string") found.fail("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
   if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
-    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { findings.push((error as Error).message); }
-    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
+    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { found.fail((error as Error).message); }
+    if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) found.fail(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
   // The state ref names the stored state this run was read with, and nothing else.
   const stateRef = record?.model_state_ref;
-  if (!stateRef || stateRef.object_type !== "ModelState" || stateRef.ref !== read.state.state_id || read.run.state_id !== read.state.state_id) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");
-  if (evidenceResult && evidenceResult.model_ref !== read.state.project_id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
-  if (!evidenceResult || !record) findings.push("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
-  if (evidenceResult && record && (evidenceResult.run_id !== record.run_id || read.run.producer_run_id !== record.run_id)) findings.push("HISTORICAL_RUN_REF_MISMATCH");
+  if (!stateRef || stateRef.object_type !== "ModelState" || stateRef.ref !== read.state.state_id || read.run.state_id !== read.state.state_id) found.fail("HISTORICAL_MODEL_STATE_REF_MISMATCH");
+  if (evidenceResult && evidenceResult.model_ref !== read.state.project_id) found.fail("HISTORICAL_MODEL_REF_MISMATCH");
+  if (!evidenceResult || !record) found.fail("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
+  if (evidenceResult && record && (evidenceResult.run_id !== record.run_id || read.run.producer_run_id !== record.run_id)) found.fail("HISTORICAL_RUN_REF_MISMATCH");
   const savedVersion = analysisRun?.schema_version;
   const currentRecord = savedVersion === ANALYSIS_RUN_V03;
-  if (analysisRun && ["0.1.0", "0.2.0"].includes(savedVersion as string)) findings.push(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
-  else if (analysisRun && record && !currentRecord) findings.push("HISTORICAL_ANALYSIS_SCHEMA_VERSION_UNSUPPORTED");
+  if (analysisRun && ["0.1.0", "0.2.0"].includes(savedVersion as string)) found.fail(ANALYSIS_RUN_SCHEMA_VERSION_RETIRED);
+  else if (analysisRun && record && !currentRecord) found.fail("HISTORICAL_ANALYSIS_SCHEMA_VERSION_UNSUPPORTED");
   let modelHash: ModelHashEvidence | null = null;
   try {
     if (model) {
       modelHash = await computeModelHash(model);
-      if (modelHash?.value !== read.state.model_hash) findings.push("RECORDED_RUN_MODEL_STATE_HASH_MISMATCH");
+      if (modelHash?.value !== read.state.model_hash) found.fail("RECORDED_RUN_MODEL_STATE_HASH_MISMATCH");
     }
-    if (manifest && record && record.reproducibility?.input_manifest_hashes?.[0]?.value !== await canonicalSha256Hex(manifest)) findings.push("RECORDED_RUN_INPUT_MANIFEST_HASH_MISMATCH");
+    if (manifest && record && record.reproducibility?.input_manifest_hashes?.[0]?.value !== await canonicalSha256Hex(manifest)) found.fail("RECORDED_RUN_INPUT_MANIFEST_HASH_MISMATCH");
     if (evidenceResult && currentRecord) {
       const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === "received_result") : null;
-      if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
-      else if (storedResultHash.value !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
+      if (!storedResultHash) found.fail("HISTORICAL_RESULT_HASH_MISSING");
+      else if (storedResultHash.value !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`) found.fail("HISTORICAL_RESULT_HASH_MISMATCH");
     }
     if (currentRecord) {
       const verification = await verifyAnalysisRunRecord(analysisRun!);
-      if (verification === "mismatch") findings.push("HISTORICAL_ANALYSIS_HASH_MISMATCH");
-      if (verification === "unverifiable") findings.push("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
-      if (verification === "match" && record && !record.hashes.some((hash) => hash.payload_scope === "analysis_run_record" && hash.value === read.run.run_record_hash)) findings.push("RECORDED_RUN_RECORD_HASH_MISMATCH");
+      if (verification === "mismatch") found.fail("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+      if (verification === "unverifiable") found.fail("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
+      if (verification === "match" && record && !record.hashes.some((hash) => hash.payload_scope === "analysis_run_record" && hash.value === read.run.run_record_hash)) found.fail("RECORDED_RUN_RECORD_HASH_MISMATCH");
     }
   } catch {
-    findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
+    found.fail("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
   }
   // The record validator's recorded form: the state ref, the manifest's hash and
   // project, its model payload against the state's model hash, and every member the
@@ -237,19 +299,22 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
     try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }, { recordedRead: true }); }
     catch (error) {
       const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
-      if (!findings.includes(finding)) findings.push(finding);
+      found.fail(finding, true);
     }
   }
   return {
     designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
-    envelopeHash: null, envelopePayloadHash: null, findings,
+    envelopeHash: null, envelopePayloadHash: null, ...found.scoped(recordedBinding),
     runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run")
   };
 }
 
-/** The findings of a recorded run that concern its record and its binding (not its numerical standing). */
+/** The findings of a recorded run that concern its record, its binding and its read (not its
+ * numerical standing): every check's finding, so a failed reopen validation (the record
+ * validator's refusal whatever its code, a refused recorded read, a retained receipt) is never
+ * masked by a favourable standing, current or as recorded (RT-A4 §10.4). */
 export function recordedRunBindingFindings(context: HistoricalRunContext): string[] {
-  return context.findings.filter((finding) => /^(HISTORICAL_|RECORDED_RUN_|ANALYSIS[_-])/.test(finding));
+  return [...context.checkFindings];
 }
 
 /** A bundled example has its own model context and no current run evidence. */
@@ -261,6 +326,8 @@ export function buildBundledReferenceContext(reference: BundledMechanicsReferenc
     rawAnalysisRun: null, analysisRun: null, modelHash: null,
     envelopeHash: null, envelopePayloadHash: null,
     findings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
+    checkFindings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
+    recordedTableRead: null, historicalReaderFindings: [],
     runId: reference.source.run_id,
   };
 }
@@ -277,6 +344,7 @@ export function HistoricalRunPanel({ context }: { context: HistoricalRunContext 
     </> : <p>Saved evidence for {context.runId}; mechanics={context.mechanicsResult?.status.mechanics ?? "missing"}. Run a fresh solve to establish current results.</p>}
     <p>{isReference ? "Bundled reference" : "Historical"} results cannot drive current overlays, rule checks, comparisons or report readiness.</p>
     <ul>{context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul>
+    <HistoricalReaderFindings context={context} testId="historical-run-recorded-reader" />
     <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} />
   </section>;
 }

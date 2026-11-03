@@ -291,3 +291,52 @@ describe("bundled reference inspection", () => {
     expect(JSON.stringify(reference)).toBe(before);
   });
 });
+
+// RT-A4 §10.4 display rule: a project saved before RT-A4 reopens with its standing as recorded under
+// its table, shown apart from the reopen's own findings; a failed reopen check stays an ordinary
+// finding beside it.
+describe("a project saved before RT-A4 (historical read)", () => {
+  const dir = "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2";
+  async function opened(edit: (run: Json) => void = () => undefined): Promise<LocalProjectEnvelope> {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const text = (name: string) => readFileSync(resolve(__dirname, dir, name), "utf8");
+    const transient = JSON.parse(text("transient_run_input.json"));
+    const model = JSON.parse(transient.input_manifest_canonical).model_basis.model_payload as PreviewModel;
+    const analysis_run = structuredClone(transient.run_record) as Json;
+    edit(analysis_run);
+    const claim = analysis_run.analysis_run.hashes.find((hash: Json) => hash.payload_scope === "analysis_run_record");
+    claim.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(analysis_run));
+    const payload = { model, mechanics_result: JSON.parse(text("preview_physics_connected_sparse.json")), analysis_run, model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
+    return { ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope;
+  }
+  const TABLE = { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2" };
+
+  it("shows the historical reader's findings as recorded under the table, apart from the reopen's", async () => {
+    const context = (await buildHistoricalRunContext(await opened()))!;
+    expect(context.recordedTableRead).toEqual(TABLE);
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
+    render(<HistoricalRunPanel context={context} />);
+    const recorded = screen.getByTestId("historical-run-recorded-reader");
+    expect(recorded).toHaveTextContent(`As recorded under ${TABLE.id} (sha256 ${TABLE.sha256}); historical evidence only, not a current standing`);
+    for (const finding of context.historicalReaderFindings) expect(recorded).toHaveTextContent(finding);
+  });
+
+  it("a failed reopen validation is an ordinary finding, never folded into the as-recorded read", async () => {
+    const context = (await buildHistoricalRunContext(await opened((run) => { run.analysis_run.source_block_recovery = { forged: true }; })))!;
+    expect(context.findings).toContain("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    expect(context.checkFindings).toContain("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    expect(context.historicalReaderFindings).not.toContain("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId("historical-run-recorded-reader")).not.toHaveTextContent("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+    expect(screen.getByText("SOURCE_RECOVERY_METADATA_CONTRADICTION")).toBeInTheDocument();
+  });
+
+  it("a run read under the current tables has no historical reader scope", async () => {
+    const context = (await buildHistoricalRunContext(await savedEnvelope()))!;
+    expect(context.recordedTableRead).toBeNull();
+    expect(context.historicalReaderFindings).toStrictEqual([]);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.queryByTestId("historical-run-recorded-reader")).toBeNull();
+  });
+});
