@@ -826,3 +826,8 @@ mod d5_face_area_tests {
             Err("SOURCE_PHYSICS_CONNECTOR_PRESSURE_NUMBER".into()));
     }
 }
+
+// RT-U4 (order): `validate`'s coverage loop over two connector records.
+#[cfg(test)]
+#[path = "connector_order_tests.rs"]
+mod record_order_tests;
