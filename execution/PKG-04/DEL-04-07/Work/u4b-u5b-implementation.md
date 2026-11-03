@@ -1155,6 +1155,23 @@ on its route, independently of the producer. The verifier shares no code with it
     contract. Valid producers never publish such a slot. No committed corpus or fixture has
     one, so no stored valid result reads differently. A stored result that does carry one now
     reopens with the named refusal.
+- **Connector scan order and row selection** (RT-U4, 2026-11-03). The connector reader
+  (`connector_evidence.rs` `validate` and `validate_pressure`) and the verifier
+  (`tests/verifiers/pressure_2.py` `_validate_connectors`) walk only source arrays: rows in
+  `results` order, cases in `exact_cases` order, records in `connector` order. The coverage
+  loop takes cases, then records; the pressure-binding loop takes records, then cases. Each
+  check and its precedence within one iteration are unchanged. The first refusal is therefore
+  the same in every process, hash seed and pass for the same source. A reordered source may
+  report a different defect first.
+  - The `s_x`, `pe_x` and `gt_x` lookups and the tie-rod lookup each match at most one row.
+    The row loop has already refused a second row in the slot (case, entity, kind, component,
+    location, rod) as `ROW_DUPLICATE`, whether or not it equals the first. The three local
+    kinds publish only at `connector_local`. A rod row ID matches one rod's tail at most, and
+    its two ID forms share the slot. No refusal is added.
+  - *Repaired defect.* The reader walked its row-ID `HashMap` and case `HashSet`, and the
+    verifier walked a case `set`. On a source with two defects of different codes, the code
+    reported first depended on the seed, and could differ between `dispatch`'s two evidence
+    passes. Pass or refuse did not depend on the seed.
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
   rows' coverage. `physics_evidence` stops refusing the formerly withheld kinds on arcs.

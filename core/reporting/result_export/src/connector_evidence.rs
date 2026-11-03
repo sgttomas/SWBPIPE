@@ -288,15 +288,32 @@ fn connector_record(r: &Value) -> Result<(&str, &str), String> {
     Ok((component.unwrap(), span.unwrap()))
 }
 
+/// The source's case IDs in its `exact_cases` array order. The caller's
+/// `indexed` pass has refused a missing, empty or duplicate ID, so this is
+/// each member of `cases` exactly once.
+fn case_order(exact_cases: &[Value]) -> impl Iterator<Item = &str> {
+    exact_cases.iter().filter_map(|case| case["load_case_id"].as_str())
+}
+
 /// The connector records and rows of one envelope. `admitted` is true only
 /// under `pressure-2`; `members` are the published case members (pipe IDs of
-/// any case); `cases` the exact case IDs; `solved` the mechanics status.
+/// any case); `cases` the exact case IDs and `exact_cases` their source array;
+/// `published` the source's `results` (the caller's `indexed` pass has refused
+/// a duplicate row ID); `solved` the mechanics status.
+///
+/// RT-U4 (order): every scan here runs in a source array order (`results`,
+/// `exact_cases`, `connector` and the regions' own arrays), as
+/// physics_evidence's N2b loops do, so the first refusal (the code) is the
+/// same in every process and pass for the same source. The sets only detect
+/// duplicates and answer membership.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn validate(
     evidence: &Value,
     regions: &Value,
-    rows: &HashMap<&str, &Value>,
+    published: &[Value],
     members: &HashSet<&str>,
     cases: &HashSet<&str>,
+    exact_cases: &[Value],
     solved: bool,
     admitted: bool,
 ) -> Check {
@@ -313,7 +330,7 @@ pub(crate) fn validate(
     }
     let mut slots = HashSet::new();
     let mut counts: HashMap<(&str, &str), usize> = HashMap::new();
-    for row in rows.values() {
+    for row in published {
         let entity = row["entity_ref"].as_str().unwrap_or_default();
         require_connector(!replaced.contains(entity), "REPLACED_SPAN_PUBLISHED")?;
         let kind = row["kind"].as_str().unwrap_or_default();
@@ -362,23 +379,25 @@ pub(crate) fn validate(
         *counts.entry((case, entity)).or_default() += 1;
     }
     if solved {
-        for case in cases {
-            for component in spans.keys() {
-                let record = records.iter().find(|record| record["component_id"] == *component).unwrap();
+        // `records` all passed `connector_record` and RECORD_DUPLICATE above:
+        // each is one key of `spans`, in the source's record order.
+        for case in case_order(exact_cases) {
+            for record in records {
+                let component = text(&record["component_id"]).unwrap();
                 let constant = record["pressure_model"] == "constant_effective_area_reference_v1";
                 let rods = record["tie_rods"].as_array().map_or(0, Vec::len);
                 // A rod record without its rows is refused by name (§5.1).
                 for rod in record["tie_rods"].as_array().into_iter().flatten().filter_map(|r| r["id"].as_str()) {
-                    require_connector(slots.contains(&(*case, *component, TIE_ROD_KIND, "t_r", TIE_ROD_LOCATION, rod)), "TIE_ROD_ROWS")?;
+                    require_connector(slots.contains(&(case, component, TIE_ROD_KIND, "t_r", TIE_ROD_LOCATION, rod)), "TIE_ROD_ROWS")?;
                 }
                 // 24 elastic rows, pe_x on a constant-effective-area joint, s_x
                 // there and on every connector with rods, one row per rod.
                 let expected = ROWS_PER_CASE + usize::from(constant) + usize::from(constant || rods > 0) + rods;
-                require_connector(counts.get(&(*case, *component)) == Some(&expected), "ROW_COVERAGE")?;
+                require_connector(counts.get(&(case, component)) == Some(&expected), "ROW_COVERAGE")?;
             }
         }
     }
-    validate_pressure(records, regions, rows, cases, solved)?;
+    validate_pressure(records, regions, published, exact_cases, solved)?;
     Ok(())
 }
 
@@ -399,7 +418,7 @@ fn equal(value: f64, expected: f64, magnitudes: [f64; 2], projection_reserve: f6
     value.is_finite() && expected.is_finite() && tolerance.is_finite()
         && (value - expected).abs() <= tolerance
 }
-fn validate_pressure(records: &[Value], regions: &Value, rows: &HashMap<&str,&Value>, cases: &HashSet<&str>, solved: bool) -> Check {
+fn validate_pressure(records: &[Value], regions: &Value, published: &[Value], exact_cases: &[Value], solved: bool) -> Check {
     let mut participating = HashMap::new();
     for region in regions.as_array().ok_or("SOURCE_PHYSICS_ARRAY_INVALID")? {
         let has_joint = region.get("joint_edges").is_some() || region.get("member_connector_ids").is_some();
@@ -450,8 +469,13 @@ fn validate_pressure(records: &[Value], regions: &Value, rows: &HashMap<&str,&Va
         for record in records {
             let id = text(&record["component_id"]).unwrap();
             let rods = if record["hardware"] == RODS_KIND { tie_rods(record)? } else { Vec::new() };
-            for case in cases {
-                let row = |kind,component| rows.values().find(|row| row["entity_ref"]==id && row["kind"]==kind && row["metadata"]["component"]==component && row["basis_ref"]["ref_id"]==*case).copied();
+            for case in case_order(exact_cases) {
+                // RT-U4 (selection): at most one row matches. Every connector-kind
+                // row has passed `validate`'s row loop, whose ROW_SEMANTICS puts
+                // these three kinds at `connector_local` only and whose slot
+                // (case, entity, kind, component, location) refuses a second row
+                // as ROW_DUPLICATE, equal or not. The scan is in `results` order.
+                let row = |kind,component| published.iter().find(|row| row["entity_ref"]==id && row["kind"]==kind && row["metadata"]["component"]==component && row["basis_ref"]["ref_id"]==case);
                 let pe_row = row("connector_pressure_force_v1","pe_x");
                 let s_row = row("connector_effective_axial_force_v1","s_x");
                 let pe = if record["pressure_model"] == "unpressurized" {
@@ -461,7 +485,7 @@ fn validate_pressure(records: &[Value], regions: &Value, rows: &HashMap<&str,&Va
                     if rods.is_empty() { continue; }
                     0.0
                 } else {
-                    let pe = participating.get(&(*case,id)).map_or(Ok(0.0),|edge| number(&edge["joint_pressure_force_n"]))?;
+                    let pe = participating.get(&(case,id)).map_or(Ok(0.0),|edge| number(&edge["joint_pressure_force_n"]))?;
                     let observed = number(&pe_row.ok_or("SOURCE_PHYSICS_CONNECTOR_PRESSURE_ROW_MISSING")?["value"])?;
                     require_connector(observed == pe, "PRESSURE_ROW_BINDING")?;
                     pe
@@ -470,9 +494,14 @@ fn validate_pressure(records: &[Value], regions: &Value, rows: &HashMap<&str,&Va
                 let s = number(&s_row.ok_or("SOURCE_PHYSICS_CONNECTOR_PRESSURE_ROW_MISSING")?["value"])?;
                 let mut terms = Vec::with_capacity(rods.len());
                 for rod in &rods {
+                    // RT-U4 (selection): at most one row matches. A row ID matches
+                    // at most one rod's tail (the rods' encoded IDs are unique,
+                    // TIE_ROD_DUPLICATE), and both ID forms of one rod's row in a
+                    // case share `validate`'s slot (case, entity, kind, t_r,
+                    // tie_rod, rod), so a second row is ROW_DUPLICATE there.
                     let tail = tie_rod_row_tail(id, rod.id);
-                    let t = rows.values().find(|row| row["kind"] == TIE_ROD_KIND && row["entity_ref"] == id
-                        && row["basis_ref"]["ref_id"] == *case && is_tie_rod_row_id(row["id"].as_str().unwrap_or_default(), case, &tail))
+                    let t = published.iter().find(|row| row["kind"] == TIE_ROD_KIND && row["entity_ref"] == id
+                        && row["basis_ref"]["ref_id"] == case && is_tie_rod_row_id(row["id"].as_str().unwrap_or_default(), case, &tail))
                         .ok_or("SOURCE_PHYSICS_CONNECTOR_TIE_ROD_ROWS")?;
                     terms.push((number(&t["value"])?, rod.axial_share));
                 }
@@ -718,7 +747,6 @@ mod d5_face_area_tests {
     //! allowance puts the pressure bore off the nominal bore).
     use super::validate_pressure;
     use serde_json::{json, Value};
-    use std::collections::{HashMap, HashSet};
     use std::f64::consts::PI;
 
     const P: f64 = 2.0e6;
@@ -767,7 +795,7 @@ mod d5_face_area_tests {
             "pressure_basis": "internal_differential_zero_external_v1",
             "end_i_offset_local_m": [0.0, 0.0, 0.0], "end_j_offset_local_m": [0.0, 0.0, 0.0],
             "connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]});
-        validate_pressure(&[record], regions, &HashMap::new(), &HashSet::new(), false)
+        validate_pressure(&[record], regions, &[], &[], false)
     }
 
     #[test]
