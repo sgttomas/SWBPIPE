@@ -1223,7 +1223,59 @@ def _text_of(f):
 
 
 def _production(f):
-    return _text_of(f).split("#[cfg(test)]", 1)[0]
+    """f's text without its `#[cfg(test)]` items. RT-A4 D3 (§8.46, RT-A4-PR): this was the text before the first
+    `#[cfg(test)]`, which equals the item-wise removal only while a file's first test item is its trailing test module.
+    RT-A4 puts a `#[cfg(test)] fn unit_factor_sum` mid-file in RE exact_combination_evidence.rs, so truncation would
+    drop every production line after it (RTA3CE-ID's field counts and W16BC-ID's constant scan). Each exact
+    `#[cfg(test)]` in code (the §8.45 lexer masks literals and comments) now removes its own item: through any further
+    attributes, to the first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
+    text = _text_of(f)
+    if "#[cfg(test)]" not in text:
+        return text
+    _rl = _production_lexer()
+    toks, comments = _rl["scan"](text, f)
+    mask = _rl["_masks"](text, toks, comments)
+    out, at = [], 0
+    for m in _re.finditer(r"#\[cfg\(test\)\]", text):
+        if m.start() < at or mask[m.start()]:
+            continue
+        i, nest, opened = m.end(), 0, False
+        while i < len(text):
+            ch = text[i]
+            if not mask[i]:
+                if ch in "([":
+                    nest += 1
+                elif ch in ")]":
+                    nest -= 1
+                elif ch == "{":
+                    nest += 1
+                    opened = True
+                elif ch == "}":
+                    nest -= 1
+                    if opened and nest == 0:
+                        i += 1
+                        break
+                elif ch == ";" and nest == 0 and not opened:
+                    i += 1
+                    break
+            i += 1
+        else:
+            raise SystemExit(f"_production: {f}: unterminated #[cfg(test)] item at offset {m.start()}")
+        out.append(text[at:m.start()])
+        out.append("\n" * text.count("\n", m.start(), i))
+        at = i
+    out.append(text[at:])
+    return "".join(out)
+
+
+_PRODUCTION_LEXER = []
+
+
+def _production_lexer():
+    if not _PRODUCTION_LEXER:
+        _PRODUCTION_LEXER.append(__import__("runpy").run_path(
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "rust_literals.py")))
+    return _PRODUCTION_LEXER[0]
 
 
 def _fn_text(name, f):
@@ -3741,7 +3793,7 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
     # Model document 0.9.0 D3 (§8.36): preview_physics.rs changes one test literal's version token only.
-    _op1a_pins = {'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/preview_combination_operands.rs': 'ba74ebe99e42c932506f0c8dfb4329b3bd0dccdd43ba241e1e7d5922dfc5b3e5', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3'}
+    _op1a_pins = {'core/product_physics/src/preview_physics.rs': 'ecd14d758bd07dc297105ec0e67059cba2fd53f0b312da553c2caccdddd3eb05', 'core/reporting/result_export/src/preview_combination_operands.rs': '8444069d3a1d9c402e8e6d45174305766822b59690fbf7bf548085f9df7d3327', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/reporting/result_export/src/reader_verdict.rs': 'd6f88225df1c6b5eca57ff2f3c9026bba1c7bdae8474923a940ccf046077e132'}
     for _f, _digest in _op1a_pins.items():
         if __import__("hashlib").sha256(_text_of(_f).encode()).hexdigest() != _digest:
             raise SystemExit("OP1A-PF/RD: reviewed source changed: " + _f)
@@ -3759,9 +3811,11 @@ if fnkey("append_operand_standing", _OP1A_PP):
     # Nested headers are still inventoried even under a zero ancestor.
     O10_LOOPS_LAST += [(h, b, _OP1A_RD + "; nested in the zero record loop", ["preview_combination_operands.rs:check"]) for h, b in (
         ("for row in rows.iter().filter(|r| combination_of(r) == Some(id))", "Pall"),
-        ("for (operand, case) in operands.iter().zip(&order)", "3"),
+        # RT-A4 D3 (§8.46): the two operand loops' bindings are renamed (`case` -> `target`, `case` -> `operand`): an
+        # operand is a load case or a combination (combination_graph::Operand); bounds and premise unchanged.
+        ("for (operand, target) in operands.iter().zip(&order)", "3"),
         ("for (reference, (component_kind, component)) in refs.iter().zip(components)", "6"),
-        ("for (reference, case) in refs.iter().zip(&order)", "3"))]
+        ("for (reference, operand) in refs.iter().zip(&order)", "3"))]
     # The name-only scanner mistakes patterns/local bindings for calls to these
     # private helpers. Rust visibility rules exclude all four edges.
     for _n, _f, _callee in (("publish", _LIB, "notice"), ("identity_match", _W16_RM, "text"),
@@ -3801,7 +3855,7 @@ if fnkey("selects", _TIM):
     # §8.35 (RT-U4 reader bundle): reader_verdict.rs's ordinary_findings keeps its emitted ids in a hashed IdSet, and
     # row_semantics_each reads several rows with one table selection; both are reached only from standing/dispatch
     # and the wasm and runner entries, outside the retained roots. validate is unchanged.
-    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'f3d933138f471f38bbd0e8db109e03066cbd13242292bc25d46706d55c5b9de3', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'a9cca373d01efcd4823ea622974958a677ee4dabe9b3fd0c460fb980740dfbba', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
+    _TIM_PINS = {'core/product_physics/src/pf_timoshenko.rs': '0546472cfba9ca61bff68838cb5add237c70485411c124f5fc14f9aa90217f45', 'core/product_physics/src/model_settings.rs': 'd2f9d52db54bd97b19708c5a8580d484282f97649f08df408f6e0b206a999d8b', 'core/reporting/result_export/src/reader_verdict.rs': 'd6f88225df1c6b5eca57ff2f3c9026bba1c7bdae8474923a940ccf046077e132', 'core/reporting/result_export/src/preview_physics_evidence.rs': 'ef560ae70b7d1973853aa908cfd7355e0c564c5c4ccc2dcbac62056cea56a353', 'core/product_physics/src/case_state/temperature.rs': 'eed9dc272dd37c669cc090d3f4c9c30293a0793e0d0b770ddd25fdd5d08ed9b2', 'core/product_physics/src/case_state/temperature/canonical_decimal.rs': '431ac3204d98ed3420ead918cc2733f77ac3a8258d28625b210a8bc69962b1e2'}
     _TIM_PINS[FK_ + "shear.rs"] = "12b854db0252398a8d61a643eba4fe7162f81e228a1c6239860433fd3188d2c3"
     for _file, _pin in _TIM_PINS.items():
         if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _file), "rb").read()).hexdigest() != _pin:
@@ -3945,7 +3999,7 @@ _S1_DM, _S1_OC, _S1_SP = PP_ + "document_members.rs", PP_ + "operating_condition
 if fnkey("withhold_interim_combinations", _S1_DM):
     import hashlib as _hashlib
     # S1-PIN: the three modules' complete bytes, read before these rules were written; a change stops the run.
-    _S1_PINS = {_S1_DM: "6ada6a00c3f8300747dfa3420fd920df595e2e3b1f88d5a4cb0bc8c32e463910",
+    _S1_PINS = {_S1_DM: "a2bc924c6a2e857f4e8f9ebbfc3d8aef7c4af5b67a19e22f5e4ea707e3b5f6b3",
                 _S1_OC: "e3ddf5bdf79698f3cbd555c9bd3ed125227030e60737760479c6c9fd7cadfa38",
                 _S1_SP: "b1ed575817c3d9ffd4edd16fcfefc1f8e9029c13c2985c9219e868d3e3f69060"}
     for _f, _h in _S1_PINS.items():
@@ -4055,9 +4109,10 @@ if fnkey("withhold_interim_combinations", _S1_DM):
             "is a combination; a declared operating comparison names load cases only.")]
         + [(_s1_at("combinations_findings", _S1_DM, "vec![view.id.to_string(), id.to_string()]", 2), _S1_D14 + " (the declared comparison's refs)")]
         + [(_s1_at("operand_refs", _S1_DM, 'refs.push((format!("{at}.terms[{j}].combination"), id, operands.combination(id)));'), _S1_ZR + "a term's combination operand (D1.4)")]
-        + [(_s1_at("interim_reasons", _S1_DM, t), _S1_ZR + "a difference basis, a minuend_final subtrahend or an unsigned basis (D1.4)") for t in (
-            "declares a difference basis (operating minus sustained)", "solves its subtrahend at the minuend's final support status",
-            "unsigned combinations are not built yet")]
+        # RT-A4 D3 (§8.46): interim_reasons' unsigned-basis and nested-operand pushes are deleted (the wiring evaluates
+        # both); the two remaining pushes keep their zeros.
+        + [(_s1_at("interim_reasons", _S1_DM, t), _S1_ZR + "a difference basis or a minuend_final subtrahend (D1.4)") for t in (
+            "declares a difference basis (operating minus sustained)", "solves its subtrahend at the minuend's final support status")]
         + [(_s1_at("findings", _S1_OC, t), _S1_D13) for t in (
             'let path = format!("pipe_segments[{index}].condition_set_ref");', "of pipe `{pipe}` names no condition set.",
             "vec![pipe.to_string(), reference.to_string()]")]
@@ -4143,7 +4198,6 @@ if fnkey("withhold_interim_combinations", _S1_DM):
         ("combinations_findings", _S1_DM, "members.iter().map(|&member| views[member].id.to_string()).collect()", ("views[member].id",)),
         ("interim_reasons", _S1_DM, "declares a difference basis (operating minus sustained)", ("id",)),
         ("interim_reasons", _S1_DM, "solves its subtrahend at the minuend's final support status", ("id",)),
-        ("interim_reasons", _S1_DM, "takes a combination as an operand;", ("id",)),
         ("withhold_interim_combinations", _S1_DM, '&format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), code.to_ascii_lowercase()),',
          ("crate::stable_suffix(&combination.id)", "code.to_ascii_lowercase()")),
         ("withhold_interim_combinations", _S1_DM, "vec![combination.id.clone()],", ("combination.id",)),
@@ -4488,3 +4542,273 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             # No audit: modal_parameter_refusals' `{:?}` of sturm_gap_log_positions and sturm_whole_spectrum_offsets
             # (Vec<f64>, caller-supplied, with no length cap in the source or D1); the run reports them unclassified.
         ]
+
+# ---- RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md §10; retained-pricing-rules.md §8.46): absolute sums, SRSS
+# and nested combinations on both routes. D1.4 (retained_memory.rs family_clauses) refuses on both routes every absolute_sum
+# and srss basis and every term naming a combination (F::CombinationMember), route E every combination, and every
+# difference basis and subtrahend support state; D1.6 refuses nonlinear supports and every constant-effort support.
+# What RT-A4 adds to D1 is route L's combination plan (evaluation order, κ, reached cases) at every z, nested
+# subtractions and envelopes (an id naming a combination: admitted by D1.4 since S1, evaluated since RT-A4) at z = 2,
+# and the model-free preview reader's gate check. RT-A4-PIN binds the new modules' bytes (the existing full-file pins
+# bind lib.rs, preview_physics.rs, document_members.rs and the readers that call them).
+_A4_PLAN = PP_ + "combination_plan.rs"
+_A4_PP = PP_ + "preview_physics.rs"
+_A4_DM = PP_ + "document_members.rs"
+_A4_GATES = RE_ + "preview_combination_gates.rs"
+_A4_GRAPH = RE_ + "combination_graph.rs"
+_A4_PEV = RE_ + "preview_physics_evidence.rs"
+_A4_FLC = "core/loads/load_case_algebra/src/fixed_load_count.rs"
+_A4_UNS = "core/loads/load_case_algebra/src/unsigned.rs"
+if fnkey("solved_state_plus_increments", _A4_PLAN):
+    _A4_PINS = {_A4_PLAN: "86e8d1c0686b92579aeee96087e0b6e390ee6729d10a56568228f099e64b6cbb",
+                _A4_GATES: "918758e2a1a6c0fe91573619a6cc3e686179463efc96045ec282817cb9a78540",
+                _A4_GRAPH: "f3a3ca6b332896afd19412ee96e18750c271ae323ca34c46876e382c710eaef8",
+                _A4_FLC: "c234ca4cb3fb6a1360edd8d3f55bd9d6e9d9ecf6a8310d68379096167abb38bf",
+                _A4_UNS: "7bde94c46aa9aa15d19560d21b58fd9cddfae3f0d8073706214620c34179ad42"}
+    for _f, _h in _A4_PINS.items():
+        if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _f), "rb").read()).hexdigest() != _h:
+            raise SystemExit(f"RT-A4-PIN: {_f} changed; re-review §8.46's rules")
+    _A4_FAMILY = _fn_text("family_clauses", _W16_RM)
+    _A4_ACR = _fn_text("append_combination_results", _A4_PP)
+    _A4_WIC = _fn_text("withhold_interim_combinations", _A4_DM)
+    _A4_IR = _fn_text("interim_reasons", _A4_DM)
+    _A4_LIBP = _re.sub(r"//[^\n]*", "", _text_of(_LIB))
+    _A4_EV = _fn_text("evaluate_values", _LIB)
+    _A4_RV = _fn_text("resolve", _LIB)
+    # RT-A4-D14 (guard): D1.4's member clause, as the zeros below read it.
+    _a4_d14 = (
+        _A4_FAMILY.count("            || matches!(combination.basis.as_str(), \"absolute_sum\" | \"srss\")\n"
+                         "            || combination.terms.iter().any(|term| term.combination.is_some())\n") == 1,
+        _A4_FAMILY.count("        combination.difference_basis.is_some()\n            || combination.subtrahend_support_state.is_some()\n") == 1,
+        _A4_FAMILY.count("        return refuse(C::Invocation, F::CombinationMember);") == 1,
+        # The only producers of the unsigned expressions: resolve's two arms on the two refused bases.
+        _A4_RV.count('"absolute_sum" => Self::AbsoluteSum { terms },') == 1 and _A4_RV.count("_ => Self::Srss { terms },") == 1
+        and _A4_RV.count('"mechanics" | "absolute_sum" | "srss" => {') == 1,
+        # No other construction: the only arm results in lib.rs, and no qualified construction anywhere in PP.
+        _A4_LIBP.count("=> Self::AbsoluteSum {") == 1 and _A4_LIBP.count("=> Self::Srss {") == 1
+        and not any(_re.search(r"CombinationExpression::(AbsoluteSum|Srss)\s*\{", _re.sub(r"//[^\n]*", "", _text_of(PP_ + _pf)))
+                    for _pf in __import__("os").listdir(_os.path.join(_SNAP, PP_)) if _pf.endswith(".rs")),
+        _A4_EV.count("Self::AbsoluteSum { terms } => evaluate_absolute_sum(&by_id, &term_list(terms)),") == 1
+        and _A4_EV.count("Self::Srss { terms } => evaluate_srss(&by_id, &term_list(terms)),") == 1,
+        # interim_reasons pushes only for a difference basis or a minuend_final subtrahend.
+        _A4_IR.count("reasons.push((") == 2 and _A4_IR.count("if combination.difference_basis.is_some() {") == 1
+        and _A4_IR.count("combination.subtrahend_support_state") == 1,
+        _A4_WIC.count("    if withheld.is_empty() {\n        return;\n    }\n") == 1
+        and _A4_WIC.count("withheld.insert(index, code);") == 1 and _A4_WIC.count("withheld.insert(") == 2
+        and _A4_WIC.index("    if withheld.is_empty() {\n        return;\n    }\n") < _A4_WIC.index("let plan = crate::combination_plan::Plan::new(model);"),
+    )
+    if not all(_a4_d14):
+        raise SystemExit(f"RT-A4-D14: D1.4's member clause or the code it zeros changed; re-review §8.46: {_a4_d14}")
+    _A4_UZ = O10 + ("RT-A4-UZ: D1.4 refuses every absolute_sum and srss basis (F::CombinationMember), the only bases resolve "
+                    "maps to CombinationExpression::AbsoluteSum and ::Srss, so evaluate_values' unsigned arms and the unsigned "
+                    "non-finite withholdings never run on D1")
+    O10_EDGE_ZERO += [(fnkey("evaluate_values", _LIB), fnkey(_n, _A4_UNS), _A4_UZ) for _n in ("evaluate_absolute_sum", "evaluate_srss")]
+    O10_SITE_ZERO += [(site("append_combined_vector_magnitude", _LIB, 'withheld.push(format!("{base_id} (load-case algebra refused)"));'),
+                       _A4_UZ + " (expression.is_unsigned() is false)")]
+    # RT-A4-WZ: withhold_interim_combinations names a combination's interim reasons only for a difference basis or a
+    # minuend_final subtrahend (interim_reasons' two pushes), both refused by D1.4, so `withheld` stays empty and the pass
+    # returns before its plan and its dependants loop.
+    _A4_WZ = O10 + ("RT-A4-WZ: D1.4 refuses every difference basis and subtrahend support state, interim_reasons' only reasons, "
+                    "so withhold_interim_combinations returns at `withheld.is_empty()` before its plan and dependants loop")
+    O10_EDGE_ZERO += [(fnkey("withhold_interim_combinations", _A4_DM), Resolved(str(_fn_n("new", _A4_PLAN, 2, 2)).split("/src/")[-1]), _A4_WZ),
+                      (fnkey("withhold_interim_combinations", _A4_DM), fnkey("operand_withheld_message", _A4_PP), _A4_WZ)]
+    LOOP_TOTAL = list(globals().get("LOOP_TOTAL", [])) + [
+        (Resolved(fnkey("withhold_interim_combinations", _A4_DM)), r"^for\ \&index\ in\ \&plan\.order$", "0", _A4_WZ + " (the dependants loop)")]
+    # RT-A4-L1: the new loops, each in its own functions. z: plan.order holds each combination index at most once
+    # (Kahn's order with a done flag), and a derivation's records and a reader's gates are at most the model's
+    # combinations (D1.9: z <= 2); 3: one combination's operands, terms or targets (D1.9: <= 3 terms, <= 3 range
+    # operands, or a subtraction's two); P+8*g: one combination's rows (one per base row of its reference operand, within a
+    # case's P_final, and eight per support group), as EDGE_PER_CALL's z*(P+8*g); 64: a normalized κ significand's limbs
+    # (<= 4,096 bits, FIXED_LOAD_COUNT_MAX_BITS).
+    _A4_L = O10 + "RT-A4-L1: "
+    O10_LOOPS_LAST += [
+        ("for &index in &plan.order", "z", _A4_L + "the plan's evaluation order, each combination once",
+         ["preview_physics.rs:append_combination_results", "document_members.rs:withhold_interim_combinations"]),
+        ("for combination in plan.order.iter().map(|&index| &model.combinations[index])", "z", _A4_L + "the plan's evaluation order",
+         ["lib.rs:append_combination_modulus_basis_records"]),
+        ("for &index in &order", "z", _A4_L + "Plan::new's evaluation order (κ and reached cases)", ["combination_plan.rs:new"]),
+        ("for (row, base) in out.iter().zip(&out_bases)", "P+8*g", _A4_L + "one combination's rows", ["preview_physics.rs:append_combination_results"]),
+        ('for row in out.iter_mut().filter(|r| r.kind == " " && r.metadata.is_none())', "P+8*g", _A4_L + "one combination's rows",
+         ["preview_physics.rs:append_combination_results"]),
+        ("for target in &targets", "3", _A4_L + "one combination's targets", ["preview_physics.rs:append_combination_results"]),
+        ("for target in targets", "3", _A4_L + "one combination's targets", ["lib.rs:append_combined_vector_magnitude"]),
+        ("iter:withheld_operands(&targets, &withheld_combinations).iter().map", "3", _A4_L + "one combination's withheld operands",
+         ["preview_physics.rs:append_combination_results"]),
+        ("iter:e.targets(&resolver) .iter().filter_map", "3", _A4_L + "one combination's targets", ["preview_physics.rs:combination_derivation"]),
+        ('iter:ordered .iter() .filter(|c| matches!(c.basis.as_str(), " " | " ") || !operands(c).is_empty()).map', "z",
+         _A4_L + "the combinations in gate order", ["preview_physics.rs:combination_derivation"]),
+        ("iter:expression .targets(&plan.resolver) .iter().filter_map", "3", _A4_L + "one combination's targets (unreached: RT-A4-WZ)",
+         ["document_members.rs:withhold_interim_combinations"]),
+        ("iter:named.iter().map", "3", _A4_L + "one combination's withheld operands (unreached: RT-A4-WZ)",
+         ["document_members.rs:withhold_interim_combinations"]),
+        ("iter:> (0..values.len()).map", "3", _A4_L + "one value per target", ["lib.rs:evaluate_values"]),
+        ("iter:tokens .iter() .zip(values).map", "3", _A4_L + "one token per target", ["lib.rs:evaluate_values"]),
+        ("iter:terms.iter().zip(&tokens).filter_map", "3", _A4_L + "one combination's terms", ["lib.rs:evaluate_values"]),
+        ("for &limb in limbs", "64", _A4_L + "a normalized significand's limbs (<= 4,096 bits)", ["fixed_load_count.rs:shift_left"]),
+        ("for &index in &graph::model_order(combinations, &cases)", "z", _A4_L + "the model's combinations (unreached: RT-A4-RM)",
+         ["preview_combination_gates.rs:model_check"]),
+        ("for (gate, &at) in gates.iter().zip(&order)", "z", _A4_L + "the model's kept combinations (unreached: RT-A4-RM)",
+         ["preview_combination_gates.rs:model_check"]),
+        ("for record in &derivation.records", "z", _A4_L + "the derivation's records, at strictly increasing gate positions",
+         ["preview_combination_gates.rs:free_check"]),
+        ("for record in list", "z", _A4_L + "the derivation's records: each names a gate at a position later than the last, so at "
+         "most the gates (<= z; the reader reads the producer's own successor)", ["preview_combination_gates.rs:derivation"]),
+        ("iter:combinations .iter().map", "z", _A4_L + "the model's combinations", ["combination_graph.rs:model_order"]),
+        ('iter:> combination[" "].as_array().into_iter().flatten().filter_map', "3", _A4_L + "one combination's range operands",
+         ["combination_graph.rs:model_operands"]),
+        ("iter:graph::model_operands(c, cases).iter().filter_map", "3", _A4_L + "one combination's operands (unreached: RT-A4-RM)",
+         ["preview_combination_gates.rs:model_derivation"]),
+    ]
+    # RT-A4-RM: preview_combination_gates::check reads the model only when called with one: from reader_verdict's
+    # model-bound preview dispatch (outside every retained root, §8.35/§8.44). The retained graph reaches it only through
+    # validate_preview_physics_evidence -> validate_with(source, None) -> `None => check(source, None)` (G7's for_source).
+    _A4_CHECK = _fn_text("check", _A4_GATES)
+    _A4_VW = _fn_text("validate_with", _A4_PEV)
+    _a4_rm = (
+        _A4_CHECK.count("        Some(model) => model_check(source, model, gates, rows, &by_id),\n"
+                        "        None => free_check(source, gates, rows, &by_id),\n") == 1,
+        _re.sub(r"//[^\n]*", "", "\n".join(_text_of(_f) for _f in (_A4_PEV, RE_ + "reader_verdict.rs"))).count("preview_combination_gates::check(") == 2,
+        _A4_VW.count("        None => crate::preview_combination_gates::check(source, None),\n        Some(_) => Ok(()),\n") == 1,
+        _fn_text("validate_preview_physics_evidence", _A4_PEV).count("validate_with(source, None)") == 1,
+        _text_of(_A4_PEV).count("validate_with(source, model)") == 1
+        and _re.sub(r"//[^\n]*", "", _text_of(RE_ + "reader_verdict.rs")).count("validate_preview_physics_evidence_with_model(") == 1,
+    )
+    if not all(_a4_rm):
+        raise SystemExit(f"RT-A4-RM: the gate reader's model dispatch changed; re-review its zero: {_a4_rm}")
+    O10_EDGE_ZERO += [(fnkey("check", _A4_GATES), fnkey("model_check", _A4_GATES), O10 + "RT-A4-RM: on the retained graph "
+                       "check is called with model None (validate_with's None arm); its Some arm is reader_verdict's, outside "
+                       "every retained root")]
+    # RT-A4-ER: require allocates only on Err and every caller propagates it (`?`, a `return require(..)` or a tail), so
+    # one check call returns at most one; the code is one of the module's static suffixes.
+    _a4_codes = _re.findall(r'require\([^;]*?,\s*"([A-Z_]+)"\s*,?\s*\)', _production(_A4_GATES), _re.S) + \
+        _re.findall(r'const [A-Z_]+: &str = "([A-Z_]+)";', _production(_A4_GATES))
+    O10_SITE_FROM += [(site("require", _A4_GATES, 'Err(format!'),
+                       {"from": [fnkey("check", _A4_GATES)], "per": "1",
+                        "why": O10 + "RT-A4-ER: require allocates only on Err; every call propagates it, at most one per check"})]
+    O10_ID_AUDIT += [(site("require", _A4_GATES, 'Err(format!', full=True),
+                      {"code": {"bytes": max(len(_c) for _c in _a4_codes),
+                                "source": O10 + "RT-A4-ID: a static code suffix of the module (the longest)"}})]
+    # RT-A4-ID: the remaining new format sites' arguments (the chain classifies every row before its multiplicity).
+    O10_ID_AUDIT += [
+        (site("modulus_key", _A4_GATES, 'Some(r), None) => Some(format!("exact:{r}"))', full=True), {"r": IN}),
+        (site("form", _A4_GATES, 'let component = format!("{base}:{suffix}");', full=True),
+         {"base": RS_, "suffix": {"bytes": 2, "source": O10 + "RT-A4-ID: one of DISPLACEMENT_AXES' two-byte suffixes"}}),
+        (site("derived_rows", _A4_GATES, "combination {id} withholds {} combined row(s) that could not be formed: ", full=True),
+         {"id": IN, "formed.withheld": NUM_}),
+        (site("withhold_interim_combinations", _A4_DM, "LOAD_COMBINATION_OPERAND_WITHHELD.to_ascii_lowercase()", full=True),
+         {"crate::stable_suffix(&combination.id)": IN, "LOAD_COMBINATION_OPERAND_WITHHELD.to_ascii_lowercase()": ST}),
+        (site("evaluate_values", _LIB, "Self::ResultStateSubtraction { minuend_id, subtrahend_id } => vec![minuend_id.to_string(), subtrahend_id.to_string()],", full=True),
+         {"minuend_id": IN, "subtrahend_id": IN}),
+        (site("evaluate_values", _LIB, "Self::RangeEnvelope { ordered_operand_ids, .. } => ordered_operand_ids.clone(),", full=True),
+         {"ordered_operand_ids": {"bytes": 3 * 128, "source": "IN128: a clone of <= 3 range operand ids (D1.9)"}}),
+        (site("derived_magnitude_metadata", _LIB, "basis: basis.to_string(),", full=True),
+         {"basis": {"bytes": max(len(_b) for _b in _re.findall(r'=> "(explicit_user_[a-z_]+)"', _fn_text("result_metadata_basis", _LIB))),
+                    "source": O10 + "RT-A4-ID: the longest metadata basis literal of result_metadata_basis"}}),
+        (site("derived_magnitude_metadata", _LIB, "sign_convention: sign_convention.to_string(),", full=True),
+         {"sign_convention": {"bytes": max(len(_c.encode()) for _c in _re.findall(r'pub\(crate\) const [A-Z_]+_SIGN: &str =\s*"((?:[^"\\]|\\.)*)";', _A4_LIBP)
+                                           + _re.findall(r'(?:pub\(crate\) )?const SUBTRACTION_SIGN: &str =\s*"((?:[^"\\]|\\.)*)";', _text_of(_A4_PP))),
+                              "source": O10 + "RT-A4-ID: the longest combination sign-convention literal (lib.rs *_SIGN, preview SUBTRACTION_SIGN)"}}),
+        (site("append_combined_vector_magnitude", _LIB, 'withheld.push(format!("{base_id} (load-case algebra refused)"));', full=True),
+         {"base_id": RS_}),
+    ]
+    # The unsigned kernel's sites (unreached: RT-A4-UZ) keep their classes: `name` is the static operation name its two
+    # callers pass ("absolute sum", "SRSS"), an operand id is IN128.
+    _a4_names = _re.findall(r'"(absolute sum|srss|SRSS|absolute_sum)"', _text_of(_A4_UNS))
+    if not _a4_names:
+        raise SystemExit("RT-A4-ID: the unsigned kernel's operation names changed; re-review")
+    _A4_NAME = {"bytes": max(len(_n) for _n in _a4_names), "source": O10 + "RT-A4-ID: the unsigned kernel's static operation name"}
+    for _t in ('format!("{name} requires at least one term")', 'format!("{name} accepts at most 2^32 terms")',
+               'format!("{name} contains a duplicate operand")', 'format!("{name} operand is missing")',
+               'format!("{name} operand value is not finite")', 'format!("{name} is not representable: {error}")'):
+        _fn = "gather" if "error" not in _t else "evaluate_unsigned"
+        O10_ID_AUDIT += [(site(_fn, _A4_UNS, _t, full=True), {"name": _A4_NAME} if "error" not in _t else
+                          {"name": _A4_NAME, "error": {"bytes": 128, "source": O10 + "RT-A4-ID: SumError Display, a static message"}})]
+    O10_ID_AUDIT += [(site("gather", _A4_UNS, "gathered.source_operand_ids.push(operand.operand_id.clone());", full=True),
+                      {"operand.operand_id": IN})]
+    # RT-A4-L1 (cont.): the loops the nested re-derivation and the κ/kernel helpers reach.
+    O10_LOOPS_LAST += [
+        ("for (axis, (suffix, axis_kind)) in DISPLACEMENT_AXES.iter().enumerate()", "3", _A4_L + "the three displacement axes",
+         ["preview_combination_gates.rs:form"]),
+        ("for (factor, operand) in terms", "3", _A4_L + "one mechanics combination's terms", ["fixed_load_count.rs:mechanics"]),
+        ("for (reference, (operand, _)) in refs.iter().zip(terms)", "3", _A4_L + "one unsigned row's terms (unreached: RT-A4-UZ)",
+         ["preview_combination_gates.rs:unsigned_rows"]),
+        ("for base in index.cases.keys()", "P", _A4_L + "the case rows' base ids, one per row of a case's universe (P_final), as the "
+         "producer's base_ids (EDGE_PER_CALL's z*(P+8*g))", ["preview_combination_gates.rs:form"]),
+        ('for d in diagnostics.iter().filter(|d| matches!(d[" "].as_str(), Some(SOURCE_MISSING | VECTOR_MISSING | VECTOR_INVALID))).filter(names)', "D",
+         _A4_L + "the envelope's diagnostics", ["preview_combination_gates.rs:derived_rows"]),
+        ("for row in &formed.rows", "P+8*g", _A4_L + "one combination's derived rows", ["preview_combination_gates.rs:derived_rows"]),
+        ("for row in published", "P+8*g", _A4_L + "one combination's published rows", ["preview_combination_gates.rs:derived_rows"]),
+        ("iter:(0..values.len()).map", "3", _A4_L + "one value per term (unreached: RT-A4-UZ)", ["combination_graph.rs:unsigned_value"]),
+        ("iter:> ids.iter().map", "3", _A4_L + "one combination's operand ids", ["combination_graph.rs:value"]),
+        ("iter:operands.iter().map", "3", _A4_L + "one combination's withheld operands", ["preview_physics.rs:operand_withheld_message"]),
+        ("iter:parts.iter().map", "2", _A4_L + "identity's parts: [id] or [id, base] at every call", ["preview_combination_gates.rs:identity"]),
+        ("iter:|basis: &str| basis.split_once(SECTION).map", "1", _A4_L + "an Option's map", ["preview_physics.rs:nested_source_identity_matches"]),
+        ('iter:|m: &Value| m[" "].as_str().unwrap_or_default().split_once(SECTION).map', "1", _A4_L + "an Option's map",
+         ["preview_combination_gates.rs:nested_identity"]),
+    ]
+    # RT-A4-NR: the reader re-derives rows only for an admitted record that is unsigned (none on D1: RT-A4-UZ) or names a
+    # combination; on D1 that is a subtraction or envelope naming an earlier combination, so at most z - 1 records (the
+    # first in gate order names none). The row index is built once, on the first such record (get_or_insert_with).
+    _A4_FC = _fn_text("free_check", _A4_GATES)
+    _a4_nr = (_A4_FC.count("                if unsigned {\n                    unsigned_rows(rows, by_id, record.id, record.basis, &record.terms)?;\n") == 1,
+              _A4_FC.count("let index = index.get_or_insert_with(|| RowIndex::new(rows));") == 1,
+              _A4_FC.count("derived_rows(") == 1 and _A4_FC.count("RowIndex::new(") == 1 and _A4_FC.count("unsigned_rows(") == 1)
+    if not all(_a4_nr):
+        raise SystemExit(f"RT-A4-NR: the reader's re-derivation calls changed; re-review: {_a4_nr}")
+    O10_EDGE_ZERO += [(fnkey("free_check", _A4_GATES), fnkey("unsigned_rows", _A4_GATES), _A4_UZ + " (no unsigned record)")]
+    _A4_GNEW = Resolved(str(_fn_n("new", _A4_GATES, 1, 1)).split("/src/")[-1])
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [
+        (fnkey("free_check", _A4_GATES), fnkey("derived_rows", _A4_GATES), "max(0,z-1)",
+         O10 + "RT-A4-NR: one call per admitted record naming a combination, at most z - 1 on D1"),
+        (fnkey("free_check", _A4_GATES), _A4_GNEW, "min(1,max(0,z-1))",
+         O10 + "RT-A4-NR: the row index is built once, on the first record re-derived")]
+    _A4_SIGN = {"bytes": max(len(_c.encode()) for _c in _re.findall(r'pub\(crate\) const [A-Z_]+_SIGN: &str =\s*"((?:[^"\\]|\\.)*)";', _A4_LIBP)
+                             + _re.findall(r'(?:pub\(crate\) )?const SUBTRACTION_SIGN: &str =\s*"((?:[^"\\]|\\.)*)";', _text_of(_A4_PP))),
+                "source": O10 + "RT-A4-ID: the longest combination sign-convention literal (lib.rs *_SIGN, preview SUBTRACTION_SIGN)"}
+    _A4_CODE = {"bytes": max(len(_c) for _c in _re.findall(r'"([A-Z][A-Z_]+)"', _fn_text("gate_reason", _A4_PP))
+                             + _re.findall(r'pub\(crate\) const [A-Z_]+: &str = "([A-Z_]+)";', _text_of(_A4_PP))),
+                "source": O10 + "RT-A4-ID: a static gate code (the longest of preview_physics.rs's)"}
+    O10_ID_AUDIT += [
+        (site("fixed_load_count_message", _A4_PP, 'format!("combination {id}: its fixed-load count', full=True), {"id": IN}),
+        (site("operand_withheld_message", _A4_PP, 'format!("{id} ({code})")', full=True), {"id": IN, "code": _A4_CODE}),
+        (site("combination_row", _A4_PP, "metadata.sign_convention = sign_convention.to_string();", full=True), {"sign_convention": _A4_SIGN}),
+        (site("append_combination_results", _A4_PP, '&format!("diagnostic:preview-physics:combination-fixed-load-count:{}", identity(&[&combination.id])),', full=True),
+         {"identity(&[&combination.id])": CP}),
+        (site_after("append_combination_results", _A4_PP, "FIXED_LOAD_COUNT_UNREPRESENTABLE,", "vec![combination.id.clone()],", within=4),
+         {"combination.id": IN}),
+        (site("append_combination_results", _A4_PP, "refs.extend(withheld_operands(&targets, &withheld_combinations).iter().map(|(id, _)| id.to_string()));", full=True),
+         {"id": IN}),
+        (site("append_combination_results", _A4_PP, "withheld_combinations.insert(combination.id.clone(), code);", full=True), {"combination.id": IN}),
+        (site_is("append_combination_results", _A4_PP, "out_bases.push(Some(base_id.clone()));", 1, 2), {"base_id": RS_}),
+        (site_is("append_combination_results", _A4_PP, "out_bases.push(Some(base_id.clone()));", 2, 2), {"base_id": RS_}),
+        (site("append_combination_results", _A4_PP, "published_by_base.entry(base.clone()).or_default().insert(combination.id.clone(), row.clone());", full=True),
+         {"combination.id": IN}),
+        (site("append_combination_results", _A4_PP, "published_rows.insert(combination.id.clone(), out.clone());", full=True), {"combination.id": IN}),
+        (site("combination_derivation", _A4_PP, "combination_plan::Target::Combination(id) => Some(id.to_string()),", full=True), {"id": IN}),
+        (site("combination_derivation", _A4_PP, ".map(|c| c.id.clone())", full=True), {"c.id": IN}),
+        (site("stable_suffix", _A4_GATES, "id.replace(':', \"-\")", full=True), {"id": RS_}),
+        (site("combination_row_id", _A4_GATES, 'format!("result:combination:{}:{}", stable_suffix(id), result_tail(base))', full=True), {"stable_suffix(id)": IN, "result_tail(base)": RS_}),
+        (site("new", _A4_GATES, 'let qualified = format!("result:loadcase:{}:", stable_suffix(owner));', full=True), {"stable_suffix(owner)": IN}),
+        (site("new", _A4_GATES, "None => (result_tail(id).to_string(), Some(id.to_string())),", full=True), {"result_tail(id)": RS_, "id": RS_}),
+        (site("new", _A4_GATES, 'if let Some(tail) = id.strip_prefix(&format!("result:combination:{}:", stable_suffix(owner))) {', full=True),
+         {"stable_suffix(owner)": IN}),
+        (site("form", _A4_GATES, 'let base = |component: &str| format!("support-action:{}:{support}:{component}", support.len());', full=True),
+         {"support": IN, "component": ST, "support.len()": NUM_}),
+        (site("derived_rows", _A4_GATES, 'format!("diagnostic:preview-physics:combination-row-withheld:{}", identity(&[id]))', full=True),
+         {"identity(&[id])": CP}),
+    ]
+    LEX_SITE_SIZE = list(globals().get("LEX_SITE_SIZE", [])) + [
+        (site("form", _A4_GATES, _t), {"class": 1024, "why": O10 + "RT-A4-ID: a source row's id (RES)"}) for _t in (
+            'refs.push(source["id"].as_str().unwrap_or_default().to_string());',
+            'let refs = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();',
+            '(expression.value(&values, dimension)?, sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect())')] + [
+        (site("value", _A4_GRAPH, "Self::Subtraction { minuend, subtrahend } => vec![minuend.to_string(), subtrahend.to_string()],"),
+         {"class": 128, "why": O10 + "RT-A4-ID: a subtraction's operand id (IN128)"})]
+    _A4_ID2 = {"bytes": 1200, "source": O10 + "RT-A4-ID: identity of a combination id and a base id (128 + 1024 and two length prefixes)"}
+    O10_ID_AUDIT += [
+        (site("value", _A4_GRAPH, "Self::Range { ids, .. } => ids.iter().map(|id| id.to_string()).collect(),", full=True), {"id": IN}),
+        (site("form", _A4_GATES, 'let missing = || format!("diagnostic:preview-physics:combination-source-missing:{}", identity(&[id, base]));', full=True),
+         {"identity(&[id,base])": _A4_ID2}),
+        (site("form", _A4_GATES, 'let vector_diag = |code: &str| format!("diagnostic:combination:{}:{}:{}", stable_suffix(id), stable_suffix(base), stable_suffix(code));', full=True),
+         {"stable_suffix(id)": IN, "stable_suffix(base)": RS_, "stable_suffix(code)": ST}),
+    ]
