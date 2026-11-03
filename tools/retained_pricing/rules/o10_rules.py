@@ -4297,23 +4297,75 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _M_LABEL = _md(131, "a pencil label: integrity_dof_label's `{IN128 node id}:{UX..RZ}` (131 B) or "
                             "`global_dof={usize}` (31 B), or pencil_range_text's `free DOF {usize}` (29 B)")
         _M_DECISION = 143   # ShiftDecision Debug: OutOfRange(RangeViolation {..}) at two usize and one f64 Debug
-        def _m_static(fn, f, rx, count, why):
-            _lits = _re.findall(rx, _fn_text(fn, _MODAL + f))
-            if len(_lits) != count:
-                raise SystemExit(f"MODAL-ID: {f}:{fn}'s static reasons changed ({len(_lits)}); re-review (§8.43)")
+        def _m_static(fn, f, rx, count, why, every):
+            # `rx` reads the static reasons; `every` = (regex, scope, n) matches the construct that supplies them in
+            # its exact all-literal shape (a match block whose every arm is a literal, or every mention of a private
+            # function), over the function ("fn") or the whole file ("file"). A computed reason breaks that shape, so
+            # the run stops instead of the reason escaping the bound.
+            _text = _fn_text(fn, _MODAL + f)
+            _lits = _re.findall(rx, _text)
+            _all = len(_re.findall(every[0], _text if every[1] == "fn" else _text_of(_MODAL + f), _re.S))
+            if len(_lits) != count or _all != every[2]:
+                raise SystemExit(f"MODAL-ID: {f}:{fn}'s static reasons changed ({len(_lits)}, {_all}); re-review (§8.43)")
             return _md(max(len(_l.encode()) for _l in _lits), why)
         _m_why_census = _m_static("complete_reported_set", "eigen.rs", r'=> "([^"]*)",', 2,
-                                  "the longer of complete_reported_set's two static reasons")
+                                  "the longer of complete_reported_set's two static reasons",
+                                  (r'let why = match set\.stopped_by \{\s*StoppingBound::\w+ => "[^"]*",\s*_ => "[^"]*",\s*\}', "fn", 1))
         _m_why_sturm = _m_static("modal_sturm_count", "eigen.rs", r'SturmRefusal::\w+ => \(MODAL_\w+, "([^"]*)"\)', 4,
-                                 "the longest of the four static Sturm refusal reasons")
+                                 "the longest of the four static Sturm refusal reasons",
+                                 (r'let \(code, why\) = match reason \{(?:\s*SturmRefusal::\w+ => \(MODAL_\w+, "[^"]*"\),){4}\s*\};', "fn", 1))
+        # reformation_refusal is private to integrity.rs (no child module): its definition and four literal calls are
+        # every mention in the file, so a computed call, a fifth call or a use as a function value stops.
         _m_why_reform = _m_static("modal_reformation_operands", "integrity.rs", r'reformation_refusal\([^,]+, "([^"]*)"\.into\(\)\)', 4,
-                                  "the longest static reason of reformation_refusal's four callers (its only callers, all here)")
-        if _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs").count("parameter_refusal(") != 5 \
-                or "&format!(\"a list of dyadic fractions in (0, 1) of level at most {MAX_GAP_POSITION_LEVEL}\")" \
-                not in _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs"):
-            raise SystemExit("MODAL-ID: modal_parameter_refusals' domains changed; re-review (§8.43)")
+                                  "the longest static reason of reformation_refusal's four callers (its only callers, all here)",
+                                  (r'\breformation_refusal\b', "file", 5))
+        # Every domain modal_parameter_refusals supplies, each in its all-literal shape: the checked-value table,
+        # whose 15 tuples each have four top-level elements ending in a lone string literal, and the five calls, each
+        # matched with its literal or fixed-format domain. parameter_refusal is private to integrity.rs, so its
+        # definition and those five calls are every mention in the file; a use as a function value adds one. Any
+        # other shape stops the run.
+        _pr = _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs")
+        _tbl = _re.findall(r'for \(name, value, ok, domain\) in \[(.*?)\]\s*\{', _pr, _re.S)
+        _calls = [
+            len(_re.findall(r'parameter_refusal\(name, format!\("\{value:e\}"\), domain\)', _pr)),
+            len(_re.findall(r'parameter_refusal\(\s*"[a-z_]+",\s*"0"\.into\(\),\s*"at least 1"\)', _pr)),
+            len(_re.findall(r'"sturm_gap_log_positions",.*?&format!\("a list of dyadic fractions in \(0, 1\) of level at most '
+                            r'\{MAX_GAP_POSITION_LEVEL\}"\),?\s*\)\);', _pr, _re.S)),
+            len(_re.findall(r'"sturm_whole_spectrum_offsets",.*?"a non-empty list of finite positive offsets",?\s*\)\);', _pr, _re.S)),
+        ]
+        def _m_tuples(block):
+            # The top-level tuples of the table, each split into its top-level elements (string literals skipped
+            # whole, so a parenthesis or comma inside one does not count).
+            out, depth, cur, elems, i = [], 0, "", [], 0
+            while i < len(block):
+                ch = block[i]
+                if ch == '"':
+                    j = i + 1
+                    while block[j] != '"':
+                        j += 2 if block[j] == "\\" else 1
+                    if depth >= 1: cur += block[i:j + 1]
+                    i = j + 1
+                    continue
+                if ch in "([{":
+                    depth += 1
+                    if depth == 1: cur, elems = "", []; i += 1; continue
+                elif ch in ")]}":
+                    depth -= 1
+                    if depth == 0: elems.append(cur.strip()); out.append([e for e in elems if e]); i += 1; continue
+                elif ch == "," and depth == 1:
+                    elems.append(cur.strip()); cur = ""; i += 1; continue
+                if depth >= 1: cur += ch
+                i += 1
+            return out
+        _tuples = _m_tuples(_tbl[0]) if len(_tbl) == 1 else []
+        if len(_tbl) != 1 or len(_tuples) != 15 \
+                or any(len(t) != 4 or not _re.fullmatch(r'"[^"\\]*"', t[3]) for t in _tuples) \
+                or _calls != [1, 2, 1, 1] or _pr.count("parameter_refusal(") != 5 \
+                or len(_re.findall(r'\bparameter_refusal\b', _text_of(_MODAL + "integrity.rs"))) != 6:
+            raise SystemExit(f"MODAL-ID: modal_parameter_refusals' domains changed ({len(_tbl)}, {_calls}); re-review (§8.43)")
         _m_domain = _m_static("modal_parameter_refusals", "integrity.rs", r'"(finite[^"]*|at least 1|a non-empty[^"]*)"', 18,
-                              "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)")
+                              "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)",
+                              (r'parameter_refusal\(', "fn", 5))
         _m_domain["bytes"] = max(_m_domain["bytes"], 54 + 10)
         O10_ID_AUDIT += [
             (site("complete_reported_set", _MODAL + "eigen.rs", "{why}, so the set would end", full=True),
@@ -4327,7 +4379,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
              {"sides": _M_SIDES, "reported": _M_INT}),
             (site("modal_sturm_count", _MODAL + "eigen.rs", "; last candidate σ = {:e}: {:?}", full=True),
              {"c.decision|?": _md(_M_DECISION, "ShiftDecision Debug, the longest `OutOfRange(RangeViolation { row, col, operation: "
-                                  "ShiftTimesMass, value })` (99 B, two usize and one f64 Debug); FactorizationRejected's "
+                                  "ShiftTimesMass, value })` (79 B, two usize and one f64 Debug); FactorizationRejected's "
                                   "SparseDirectError Debug is at most 136 B")}),
             (site("modal_sturm_count", _MODAL + "eigen.rs", "the final shift between {sides} cannot be placed", full=True),
              {"sides": _M_SIDES, "why": _m_why_sturm,
@@ -4347,7 +4399,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             (site("modal_orthogonality", _MODAL + "integrity.rs", 'vec![format!("mode:{}", mode + 1)]', full=True), {"mode+1": _M_INT}),
             (site("pencil_range_text", _MODAL + "integrity.rs", 'format!("{range} (at {} / {})"', full=True),
              {"range": _md(170, "PencilRangeUnsupported Display: MODAL_PENCIL_RANGE_UNSUPPORTED, `: stiffness entry (r, c) = "
-                                "v is outside the admitted magnitudes [2^-300, 2^300]` (126 B), two usize and one f64 exponent form"),
+                                "v is outside the admitted magnitudes [2^-300, 2^300]` (106 B), two usize and one f64 exponent form"),
               "at(range.row)": _M_LABEL, "at(range.col)": _M_LABEL}),
             (site("run_modal_dense", _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row="format!("),
              {"i+1": _M_INT}),
