@@ -301,3 +301,31 @@ def test_a_pressure_2_run_recorded_before_a_disclosure_restatement_reads_as_befo
     changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
     with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
         c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
+
+
+# RT-A3 increment 3 (DEL-04-07 Design pressure-contract.md, "Constant-effort supports (RT-A3 increment 3)"): the
+# pressure-2 table restates two limitations and appends gate 4, so its digest moves (a2db16a5… -> current). A
+# pressure-2 run recorded on main before the increment, main's record at 3983f51cf verbatim with its source and request
+# (fixtures/persistence/recorded_model_0_9_0_pre_ce, outside semantic_contract_tables.py repin's reach), binds the
+# pre-increment table and keeps its existing read; any other digest stays refused.
+_RECORDED_PRE_CE = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_9_0_pre_ce"
+
+
+def test_a_pressure_2_run_recorded_before_constant_effort_reads_as_before():
+    from core.analysis_runs import compatibility as c
+    envelope = json.loads((_RECORDED_PRE_CE / "pressure_plain_connected_sparse.analysis_run.json").read_text())
+    source = json.loads((_RECORDED_PRE_CE / "pressure_connected_mechanics_sparse.json").read_text())
+    model = json.loads((_RECORDED_PRE_CE / "exact_pressure_connected_request.json").read_text())["model"]
+    assert model["schema_version"] == "0.9.0"
+    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("a2db16a5")
+    assert c.PRESSURE_CONTRACT_SHA256 != envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"]
+    assert c.verify_analysis_run_record(envelope) == "match"
+    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
+    changed = json.loads(json.dumps(envelope))
+    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
+        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
+    mixed = json.loads(json.dumps(envelope))
+    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
+    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
+        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])

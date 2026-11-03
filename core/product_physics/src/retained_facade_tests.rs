@@ -2601,10 +2601,13 @@ fn b3b_witness_inputs_and_routes() {
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
+/// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
+/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "8111a4e741b7c29a26d6e50af7fb7ce9b3334c246ddb01ca574e96687cf4c938", "250f949df1efa6390857f899d69987268a2b2dbe00f222f766c828e6f64de227", "87bc4072054abd9f4ab83ee75ca2131a08fbba3bf50ae9ea1a6543897ef85ff7"),
-    ("dense_scrutiny", "d1612fb675093ba29bea5d3986451b4b7dd089df5308e2b1fdc927e5ff0508d7", "dd71913981f49d04fe4f8092506bb3385191fd394285dba6e33dc42e06825c22", "ff97d96d20fdc9f6b88b1e530a8ead9274a5fd34dcb838e00aa31ad682ada7d5"),
+    ("sparse_interactive", "f31760066b8991d68f1319e870ae1cc4344ce951f33a68cb491f98352d0e4b9e", "4965734c1d7736a5d8f1fc18b1021c3d046bf11394b02070bd3f4c52c578e039", "4d3fa2c743d8addc26a7dedb00084cb8454ace6ee21e066a83a3152d015403e3"),
+    ("dense_scrutiny", "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89", "c085c3047a51f76769ffa7f0dd80a56ef815089ae8db18c81e8f5bfe1b0516a6", "7384cbb8d81ff2804f672a06acc83772e0529ffbf3f5e1e6fb426978f5c44bbd"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2621,7 +2624,10 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "976d5a20bfc4267f290c967f72bf1ea7c1b78e184a811ef94916c46e02bbbc41", "035cfb44ae747e63259758cc50e2b262566c86f39c319851a9e6725cc18a0767"),("dense_scrutiny", "8ca8b23a2579562dc3ff27edb465578aecb5956b7c5aeca2b0f2ad7fc360fff6", "27e53b4816b49a8a5e0ae306b18c7fd9f84b31deecf578e84de4276dc0d408f3")];
+/// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
+/// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
+/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "bbd4e16d0cd35b7e4d94aaf1c1f1741f8a1f7781fa4aca89c261e3cb454a9faf", "40b4ac1adde4cc016b1a57aae4e20d4e6438ccafc3819d12c902e2c9e9273d15"),("dense_scrutiny", "de9a3dcb13514f01e8ecac65ba101c288f2df45a61876081ebd7dedbe14d5b4a", "474879f658492250000105803a54d1392d09d1f8b905cc11c4a664d48bdf51f9")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3658,11 +3664,14 @@ fn two_member_exact(reversed: bool) -> Value {
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
+/// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
+/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "cf82eafb95b972028720a1b40be8e0673885f6eae654cbd08b5619050429466c"),
-    (false, "dense_scrutiny", "0cad1215b4cea9e19af425ae170785a270aecd951daff7da7a1cba241d413151"),
-    (true, "sparse_interactive", "bcabfac74de4c10e2d8f4d571c3361e353ceda6221240d2749d37068ea965f32"),
-    (true, "dense_scrutiny", "f530d8e6c848da088dd1215c1b1a09dc208ed50b7025f7a4f073ab73bf048edb")];
+    (false, "sparse_interactive", "5166af31724d77c9a297f068f7a0085b8b77cb6e2fe7ccd50056d994f3dc84f4"),
+    (false, "dense_scrutiny", "a95fd59c1947dae89acb0961757af0ebbb2f757226c9b31c61badee7f56fd33c"),
+    (true, "sparse_interactive", "d032e3fa162a672c1a46cf8ecaef1b53d342dcbd5c2c5bcbd8afeb727da8baad"),
+    (true, "dense_scrutiny", "85d8c6fd7cba69833271bdb6ba2dc04f033db7989b8effd552385496ddc8bae7")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3715,8 +3724,11 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "f1b260859885fc5b7008a3eb4ba9ee51bbb0655f507face542b2d59031df63bc"),
-    ("dense_scrutiny", "c228e12815eb98d4d487b2dbced93bfce4557d3af52b1be834aa1944546e3ddb")];
+/// RT-A3 increment 3 (identity and, after review, S7): read from the producer; independently, restating the
+/// two texts back and resealing with the Python 07e rule reproduces #96's pins byte for byte (DEL-04-08
+/// `retained-pricing-rules.md` §8.44, "Preservation of the in-memory successors").
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "8464b417744038450ba1c805fef83019e0114daba0b5c1ed4ec58830beade4b8"),
+    ("dense_scrutiny", "1c69a5cfabff59428268f96e89dc4ac35412887e8d147b5534acb012f851b035")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

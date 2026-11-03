@@ -657,8 +657,10 @@ fn support_ids_anywhere(value: &Value, found: &mut Vec<String>) {
 /// assembly (`lib.rs`) puts no constant-effort support there. `prepare_sources`
 /// also declines any model holding one before that: first at its dimension
 /// closure (`built.supports` is then shorter than the model's supports), and
-/// again by name (`non-nodal load producer present`). The exact route also
-/// refuses the family at admission (`pressure_runtime.rs`).
+/// again by name (`non-nodal load producer present`). The exact route admits
+/// the family since RT-A3 increment 3, so these documents now solve on the
+/// ordinary route with the method declined
+/// (`tests/rt_a3_constant_effort_source_receipt.rs`).
 /// Each declaration, by family, by explicit type, padded as `str::trim`
 /// removes (the padded types are accepted by the solver's validation; the
 /// padded families are refused as tokens), is added to the exact n05 control:

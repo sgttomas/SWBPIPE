@@ -60,12 +60,19 @@ import runpy
 # Model document 0.9.0 D3 (§8.36): retained_wire.rs moves DEF-E's hash; RE retained_precision.rs's current-version gates
 # read 0.9.0 (same length), its table hash follows physics-retained-1, and G8 adds four allocation-free need sites
 # (condition_use, condition sets, spectra, set references) and a test module. No owner this model prices changes.
+# RT-A3 increment 3 D3 (§8.44): exact_admission.rs admits ExactFamily::ConstantEffortSupport (one match arm; the
+# family is met only for a support whose hanger type or family is constant_effort_support, which D1.6 refuses: any
+# hanger, and families other than anchor/guide/line_stop/vertical_support/spring), restates the pressure-2 identity
+# (the constant-effort clause, priced by U6-J4) and the shared load/reference-state support limitation (D-2; reached
+# only with is_load_state, false on D1 by B7b-LS). semantic_contract.rs and retained_precision.rs change only their
+# table-hash constants (resource-only; the tables' bytes are priced separately). No owner, lifetime or reachable
+# text other than the identity is added.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c',
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "76c2e7c71c30f2d35c8ca11cb3a8044df675c199a112a9e24f41f28c1e89db55",
-    "core/reporting/result_export/src/retained_precision.rs": "da8b0fb9643826a2b4e6028342a24463a08e766453f111757a5e4ebc723fd84a",
+    "core/reporting/result_export/src/retained_precision.rs": "040a91dad7c24bb5ceb69a53d1cda8c454fce534855e4bd0800db44fd15edc29",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

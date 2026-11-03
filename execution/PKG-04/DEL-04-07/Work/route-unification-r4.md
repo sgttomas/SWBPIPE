@@ -525,6 +525,13 @@ junction" helper).
 
 ### 3.2 S2: constant-effort supports on EX (S)
 
+**Status (RT-A3 increment 3, 2026-11-02):** implemented as isolated source work, with
+D-2 decided by Agent 0 as a device action of the active support in every state. The
+references are `validation/references/rt_a3_constant_effort/`, the binding is
+`core/product_physics/tests/rt_a3_constant_effort_references.rs`, and the record is
+`pressure-contract.md`, "Constant-effort supports (RT-A3 increment 3)". The v3 identity and
+load-state limitation texts are pending.
+
 **Basis.**
 - **Force.** DEC-049's constant nodal force is a plain input term in the ledger
   (`lib.rs:14132-14143`). K-D5 closes input terms with radius 0 and needs no manifest, so
@@ -548,9 +555,12 @@ junction" helper).
 the consumption warnings (`:14105-14126`) join the pressure reader.
 
 **References.**
-- **CE-1.** A vertical cantilever of the S1 header section, capped and pressurized, with a
-  constant-effort support on UZ at the tip carrying a weight W. The pressure axial result is
-  unchanged. The tip deflection is (F_ce − W)·L³/(3EI) and the reaction rows superpose.
+- **CE-1.** A horizontal cantilever of the S1 header section (along +X), capped and
+  pressurized, with a constant-effort support on UZ at the tip carrying a weight W. The
+  pressure axial result is unchanged. The tip deflection is (F_ce − W)·L³/(3EI) and the
+  reaction rows superpose. (Corrected from "vertical": that formula is a transverse
+  deflection, and a UZ force on a vertical member would be axial; the references use the
+  horizontal cantilever.)
 - **CE-2.** The same model in combinations 0.3 + 0.7 (admitted) and 2·case (withheld).
 
 **Size: S.** Risks: the load-state semantics choice.

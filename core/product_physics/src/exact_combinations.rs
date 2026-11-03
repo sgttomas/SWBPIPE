@@ -16,9 +16,11 @@
 //!   N divided once by the basis's published area leaf. Every recovered value
 //!   is a witness in the evidence. Any other absence is a missing source.
 //! - **Gates (§4, mechanics only, in precedence order):** mixed modulus basis
-//!   (as on PF), mixed resolved member stiffness, and a nonzero installed
+//!   (as on PF), mixed resolved member stiffness, a nonzero installed
 //!   connector or tie-rod reference with factors that fail the shared unit
-//!   factor-sum rule (`load_case_algebra::factor_sum_within_unit_tolerance`).
+//!   factor-sum rule (`load_case_algebra::factor_sum_within_unit_tolerance`),
+//!   and (RT-A3 increment 3) a consuming constant-effort support with factors
+//!   that fail the same rule ([`CONSTANT_EFFORT`], PF's reason and text).
 //! - **Standing (§5).** Combination rows are derived from case results; they
 //!   have no numerical check of their own and never enter headlines, maxima or
 //!   numerical eligibility. The evidence states each operand's standing.
@@ -42,6 +44,18 @@ pub(crate) const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
 pub(crate) const RESOLVED_STIFFNESS_MIXED: &str = "COMBINATION_RESOLVED_STIFFNESS_MIXED";
 /// §4 gate 3.
 pub(crate) const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE";
+/// §4 gate 4 (RT-A3 increment 3; DEL-04-07 `pressure-contract.md`,
+/// "Constant-effort supports (RT-A3 increment 3)"): PF's reason, on EX.
+///
+/// Order: last. The stiffness gates (1, 2) decide whether the operands are
+/// states of one system at all, which no choice of factors repairs; the two
+/// factor-sum gates (3, 4) presuppose one system and decide whether a fixed
+/// load is counted once. Gate 4 shares gate 3's predicate and follows it, so
+/// every reason published before this increment is unchanged and the pressure
+/// table's gate list is extended by appending. PF has no stiffness or
+/// connector gates and orders this reason before its modulus gate; where both
+/// hold the two routes name different reasons for the same withholding.
+pub(crate) const CONSTANT_EFFORT: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
 /// §5: the product text of a published combination.
 pub(crate) const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
 /// §7: the user-facing statement of the source-recovery exclusion.
@@ -331,6 +345,16 @@ fn gate_reason(model: &PreviewModel, combination: &PreviewCombination, facts: &F
     {
         return Some(INSTALLED_REFERENCE);
     }
+    // Gate 4: a consuming constant-effort support (DEC-049: exactly one
+    // translational restraint DOF and a finite positive constant load, no
+    // nonlinear field) is in every case state, so the combination counts its
+    // force sum(f) times; the same rule decides.
+    if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok())
+        && !open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance(combination.terms.iter().map(|t| t.factor))
+            .unwrap_or(false)
+    {
+        return Some(CONSTANT_EFFORT);
+    }
     None
 }
 
@@ -338,6 +362,7 @@ fn gate_message(code: &str) -> &'static str {
     match code {
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
 }
@@ -949,7 +974,8 @@ mod tests {
         assert_eq!(listed("linear_state_kinds"), SIGNED_LINEAR_KINDS.to_vec());
         assert_eq!(listed("recomputed_magnitude_kinds"), RECOMPUTED_KINDS.to_vec());
         let gates: Vec<&str> = policy["mechanics_gates"].as_array().unwrap().iter().map(|g| g["code"].as_str().unwrap()).collect();
-        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE]);
+        // RT-A3 increment 3's gate 4 (CONSTANT_EFFORT) follows these three.
+        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE, CONSTANT_EFFORT]);
     }
 
     #[test]

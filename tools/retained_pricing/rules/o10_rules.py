@@ -3600,6 +3600,24 @@ if fnkey("validate", _W16B_EV):
     ]
 if fnkey("append", _W16B_EC):
     O10_ID_AUDIT += [(site("append", _W16B_EC, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3})]
+# RTA3CE-ID (RT-A3 increment 3, §8.44): the pressure-2 reader's model binding of constant-effort applied-load rows
+# (`ConstantEffortSupport::applied_load_row`, called only by `model_checks` after `consuming_constant_effort`) is reached
+# only through reader_verdict's model-bound pressure dispatch, outside the retained route's graph, so its sites keep
+# multiplicity 0 on every point. Its basis format keeps its arguments' classes: each hanger reference is the captured
+# model's entered text borrowed verbatim (IN128) or one of three static `..._missing` literals (at most 34 B). Guard: the
+# three references are read by `reference(..)` from the hanger record and nothing else feeds the two fields.
+if fnkey("applied_load_row", _W16B_EV):
+    _CE_CC = _fn_text("consuming_constant_effort", _W16B_EV)
+    _ce_id = (
+        _CE_CC.count('manufacturer: reference(support, "manufacturer_reference", "manufacturer_reference_missing")?,') == 1,
+        _CE_CC.count('load_side_review: reference(support, "load_side_review_reference", "load_side_review_reference_missing")?,') == 1,
+        _CE_CC.count('Value::String(text) => Some(if text.trim().is_empty() { missing } else { text.as_str() }),') == 1,
+        _production(_W16B_EV).count("manufacturer:") == 2 and _production(_W16B_EV).count("load_side_review:") == 2,
+    )
+    if not all(_ce_id):
+        raise SystemExit(f"RTA3CE-ID: the hanger references' source changed; re-review their classes: {_ce_id}")
+    O10_ID_AUDIT += [(site("applied_load_row", _W16B_EV, "load_side_review={};mechanics_consumption", full=True, row="format!("),
+                      {"self.manufacturer": IN, "self.load_side_review": IN})]
 
 # ---- §8.30: the three corrections (shared-terminal junction refusal, nonlinear dense memory guard, hanger-load warning;
 # DEL-04-07 Design pressure-contract.md and memory-budget-decision.md) and W-16t (partial-span wind on Timoshenko members,
