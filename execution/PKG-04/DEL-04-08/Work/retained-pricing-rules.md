@@ -2997,18 +2997,32 @@ upward-rounded 5 % TEXT reserve) is unchanged and the law tests pass on it.
   old scan with `any` on the same Index across 64 hash orders; a last-wins
   map fails it.
 
-**AC-004 status.** Not run in this turn. The six stack witnesses must be
-re-run, because the coefficients and the pinned phases move. They need an
-Agent 0-cleared exclusive window (`t3_exclusive.sh` with memguard), no
-concurrent builds and no compilation inside the window, one process per test:
-`python3 tools/release/check_release_readiness.py --profile stack-witnesses --execute`,
-which runs, for `<w>` in `witness_headroom_w1_at_one_mebibyte`,
-`witness_w2_deep_milestone_publishes` and `witness_w_c2_publishes` and `<mode>`
-in `sparse` and `dense`:
-`cargo test --offline --manifest-path core/product_physics/Cargo.toml --lib -- retained_memory::witness_tests::<w>::<mode> --exact --ignored --test-threads=1`.
-§8.40's isolated challenge process
-(`retained_memory_challenge`'s `retained_direct_peak_is_within_the_profiles_bounds`)
-passed in an ordinary run at this head; it was not run in isolation.
+**AC-004 exclusive evidence (2026-11-03).** The coefficients and pinned phases
+move, so the six stack witnesses were re-run. Agent 0 cleared exactly six
+prebuilt witnesses and one isolated challenge process in one window, with
+55 seconds internally and 60 externally, no builds and no retries, for clean
+`bfff92de7bb7dcca26f3308049a024f6b04209f8` (this registration merged with main
+`6757b2341`; production source unchanged from `92a6f81ff`). Both test binaries
+were built beforehand in an ordinary slot at the registered build identity
+(debug, opt-level 0): `open_pipe_stress_product_physics-09388a5f32dfec59`,
+SHA-256 `f7834e34da3c0a578fe038ce2ecbdbb36aa6997c5d85e40a7358a9bdbfe0bdf8`, and
+`retained_memory_challenge-f1737a0bfaa973fc`, SHA-256
+`81a9aa6d761de6161940618c7f47138738ebf5e86a25bed5397fa8cab9bb63b2`. The library
+binary passed the 84 non-ignored `retained_memory` tests, including the profile
+and law tests. Immediately before running, the script verified the clean head,
+the profile file (`41ea88ce…`) and both binaries by full SHA-256, failing closed
+on any mismatch.
+
+`t3_exclusive.sh` held all four slots under memguard. Queue and acquisition were
+both **04:14:47 UTC** (zero-second queue wait); the script ran
+04:14:47.264–04:15:01.166 UTC (**13.902 s**), and END-EXCLUSIVE rc 0 was logged at
+**04:15:01 UTC**. Each test ran in its own process with
+`--exact --test-threads=1` (the witnesses with `--ignored`): W1 1-MiB headroom
+sparse/dense **0.734/0.683 s**, W2 deep sparse/dense **1.344/1.366 s**, W-C2
+sparse/dense **2.582/2.877 s**, and the isolated
+`retained_direct_peak_is_within_the_profiles_bounds` **4.127 s**. All seven
+passed. Afterwards no test or script process remained, no lock slot had a
+holder and `exclusive.pending` was absent.
 
 **Maintained tests.** `tools/retained_pricing/tests/test_u4b_u5b_owners_model.py`:
 the owners model stops on a pre-sized `first`, and U4B-RD charges each of its
