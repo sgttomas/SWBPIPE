@@ -140,6 +140,10 @@ _o4 = bool(_snapshot) and _o4_model.inspect(_snapshot)
 if _o4:
     _o4_ev = _o4_model.beam_theory_evidence(m)
     PREVIEW = PREVIEW + value_tree(0, 0, _o4_ev["ent"], 0, _o4_ev["keyb"])
+# RT-A4 D3 (§8.46, RT-A4-DV): the combination_derivation member in the envelope evidence at z >= 2 (a nested record).
+import rta4_owners_model as _rta4_pv
+if _snapshot and _rta4_pv.inspect(_snapshot) and which == "caps":
+    PREVIEW = PREVIEW + value_tree(*_rta4_pv.derivation_value(__import__("g3lib").g4_caps().get("z", 0)))
 T = {}   # text atoms (values from TEXT.md)
 def tx(name):
     return atom("Text(" + name + ")")
@@ -562,6 +566,20 @@ if _snapshot and _sd_model.inspect(_snapshot):
         add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
     add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
     add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
+# RT-A4 D3 (retained-pricing-rules.md §8.46): the combination plan of the modulus-basis records (RT-A4-PL, every z, both
+# routes), and on route L with combinations the callee's plan and buffers (RT-A4-CB) and the derivation's transient
+# (RT-A4-DV), priced positively where the reviewed source exists (rta4_owners_model binds it).
+import rta4_owners_model as _rta4_model
+if _snapshot and _rta4_model.inspect(_snapshot):
+    for _k, _v in _rta4_model.ASSUMED.items():
+        ASSUMED.setdefault(_k, _v)
+    _a4_z = _mc.get("z", 0) if which == "caps" else 0
+    _a4_c = _mc.get("lc", CC) if which == "caps" else 1
+    add("Combination plan of the modulus-basis records (RT-A4-PL)", "AggregationSuffix", _rta4_model.plan(_a4_c, _a4_z))
+    if _a4_z:
+        add("Combination callee plan, buffers and published operand rows (RT-A4-CB)", "AggregationSuffix",
+            _rta4_model.callee(_a4_c, _a4_z, P, g))
+        add("Combination derivation evidence transient (RT-A4-DV)", "AggregationSuffix", _rta4_model.derivation(_a4_c, _a4_z))
 # Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the lowering's views, findings and operand resolution
 # (S1-VW) and the withholding pass (S1-WH), once per ordinary run, priced positively where the reviewed modules exist
 # (s1_owners_model binds their bytes and the two calls).

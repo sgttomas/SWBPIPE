@@ -1834,7 +1834,10 @@ if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
         ('for row in rows.iter().filter(|r| r[" "] == SHEAR_MAX && case_of(r) == Some(case_id) && r[" "] == pipe_id)', "Pall",
          _U4L + "one pass over the projected envelope's rows (<= C·P_final = Pall)", ["u4b_evidence.rs:preview_model_checks"]),
         ("for &(case, pipe, basis, record, row) in arc_extrema", "2*cases*m", _U4L + "arc extrema: at most one per case, member and basis", ["physics_evidence.rs:u4b_cases"]),
-        ("for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id)", "cases*m", _U4L + "preview arc extrema: at most one per case and member", ["preview_physics_evidence.rs:validate_preview_physics_evidence"]),
+        ("for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id)", "cases*m", _U4L + "preview arc extrema: at most one per case and member", ["preview_physics_evidence.rs:validate_preview_physics_evidence",
+         # RT-A4 D3 (§8.46): the reader's body moved unchanged into validate_with (validate_preview_physics_evidence
+         # now calls validate_with(source, None)); the loop and its bound move with it.
+         "preview_physics_evidence.rs:validate_with"]),
         ('for row in results.iter().filter(|r| r[" "][" "] == case_id)', "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:u4b_cases"]),
         ("for (position, row) in published.iter().enumerate()", "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:validate_physics_evidence_in"]),
         ("for r in view.case_rows()", "P", O10 + "U4B-W1: one case's rows (<= P_final)", ["retained_product.rs:prepared_not_covered"]),
@@ -3838,11 +3841,12 @@ if fnkey("append_operand_standing", _OP1A_PP):
         (_OP1A_PP, "state_operand_standing", 'format!("{case} ({quality})")', {"case": IN, "quality": {"bytes": 128, "source": "OP1A-ID: literal solve quality"}}),
         (_OP1A_RE, "standing_notice", 'format!("{case} ({quality})")', {"case": IN, "quality": {"bytes": 128, "source": "OP1A-ID: literal solve quality"}})):
         O10_ID_AUDIT += [(site(_fn, _file, _needle, full=True), _args)]
+    # RT-A4 D3 (§8.46): the V5 line now ends in RT-A4-RD's `_RTA4_RD`; the patch's anchor carries it (mechanical carry).
     # OP1A-OWN: admitted Vec<&str> is push-collected from <=z gates, with
     # old backing during growth. expected/stated are empty on D1. The full
     # requested+moving sum beside V5 is conservative; native &str is witnessed.
-    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB,',
-                          ' + _W7_RD + _W15_RB + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
+    O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + [("g4_caps.py", ' + _W7_RD + _W15_RB + _RTA4_RD,',
+                          ' + _W7_RD + _W15_RB + _RTA4_RD + s("&str") * (pushcap(CAPS.get("z", 0)) + pushcap(CAPS.get("z", 0)) // 2),',
                           O10 + "OP1A-OWN: V5 also holds admitted's <=z borrowed str entries and previous push backing; all other new Vecs are empty on D1")]
 
 # §8.32 combined D3: PF Timoshenko declines D1 before charged work.
@@ -4631,7 +4635,8 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
         ('for row in out.iter_mut().filter(|r| r.kind == " " && r.metadata.is_none())', "P+8*g", _A4_L + "one combination's rows",
          ["preview_physics.rs:append_combination_results"]),
         ("for target in &targets", "3", _A4_L + "one combination's targets", ["preview_physics.rs:append_combination_results"]),
-        ("for target in targets", "3", _A4_L + "one combination's targets", ["lib.rs:append_combined_vector_magnitude"]),
+        ("for target in targets", "3", _A4_L + "one combination's targets (producer and the reader's re-derivation)",
+         ["lib.rs:append_combined_vector_magnitude", "preview_combination_gates.rs:form"]),
         ("iter:withheld_operands(&targets, &withheld_combinations).iter().map", "3", _A4_L + "one combination's withheld operands",
          ["preview_physics.rs:append_combination_results"]),
         ("iter:e.targets(&resolver) .iter().filter_map", "3", _A4_L + "one combination's targets", ["preview_physics.rs:combination_derivation"]),
@@ -4641,7 +4646,8 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
          ["document_members.rs:withhold_interim_combinations"]),
         ("iter:named.iter().map", "3", _A4_L + "one combination's withheld operands (unreached: RT-A4-WZ)",
          ["document_members.rs:withhold_interim_combinations"]),
-        ("iter:> (0..values.len()).map", "3", _A4_L + "one value per target", ["lib.rs:evaluate_values"]),
+        ("iter:> (0..values.len()).map", "3", _A4_L + "one value per target (producer and the reader's Expression::value)",
+         ["lib.rs:evaluate_values", "combination_graph.rs:value"]),
         ("iter:tokens .iter() .zip(values).map", "3", _A4_L + "one token per target", ["lib.rs:evaluate_values"]),
         ("iter:terms.iter().zip(&tokens).filter_map", "3", _A4_L + "one combination's terms", ["lib.rs:evaluate_values"]),
         ("for &limb in limbs", "64", _A4_L + "a normalized significand's limbs (<= 4,096 bits)", ["fixed_load_count.rs:shift_left"]),
@@ -4824,13 +4830,17 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
 _A4_RT = RE_ + "recorded_tables.rs"
 if fnkey("read_recorded", _A4_RT):
     if __import__("hashlib").sha256(open(_os.path.join(_SNAP, _A4_RT), "rb").read()).hexdigest() != \
-            "9f7574fdc3ba3fcfa1529ae364dae7a7ee642910cb05cb10901593e1423942b2":
+            "cfab776dd8e136ff2fa24dfe1ca9c4ff22f9d2d2d1fe5490d081d098e8fec46b":
         raise SystemExit("RT-A4-HS: recorded_tables.rs changed; re-review §8.46's rules")
     _a4_rt = _production(_A4_RT)
     _a4_re_prod = "\n".join(_re.sub(r"//[^\n]*", "", _production(RE_ + _f)) for _f in __import__("os").listdir(_os.path.join(_SNAP, RE_))
                             if _f.endswith(".rs"))
     _a4_hs = (
-        _a4_rt.count("SELECTED.with(|s| s.set(") == 2 and _a4_rt.count("SELECTED.with(") == 3
+        # RT-A4 §10.4 review r5 (91329e840): read_recorded's current-binding branch also clears the selection under a
+        # Restore guard, so the writes are read_recorded's two and Restore::drop's one.
+        _a4_rt.count("SELECTED.with(|s| s.set(") == 3 and _a4_rt.count("SELECTED.with(") == 4
+        and _fn_text("read_recorded", _A4_RT).count("SELECTED.with(|s| s.set(") == 2
+        and _fn_text("drop", _A4_RT).count("SELECTED.with(|s| s.set(self.0));") == 1
         and "static SELECTED: Cell<Option<&'static RecordedVariant>> = const { Cell::new(None) };" in _a4_rt,
         _a4_re_prod.count("read_recorded(") == 1 and _a4_re_prod.count("fn read_recorded<R>(") == 1,   # reader_verdict's `recorded` only
         _fn_text("recorded", RE_ + "reader_verdict.rs").count("crate::recorded_tables::read_recorded(") == 1,
@@ -4854,3 +4864,49 @@ if fnkey("read_recorded", _A4_RT):
         raise SystemExit("RT-A4-HS: exact_combination_evidence's Key::with is no longer a private method; re-review")
     O10_EDGE_ZERO += [(fnkey(_n, _A4_RT), _a4_with, O10 + "RT-A4-HS: `SELECTED.with(..)` is LocalKey::with, not "
                        "exact_combination_evidence's private Key::with") for _n in ("selected", "drop", "read_recorded")]
+
+# RT-A4-RE (route E only; sq2_decisions_E.py appends it): RT-A4-RD's reader working sets are the preview-physics reader's
+# (preview_combination_gates::check, preview_combination_operands::check), which route E's precommit reader, pressure-2's
+# validate_pressure_evidence, never calls (R1, B7b-R1).
+RTA4_E_PATCHES = [("g4_caps.py", "_RTA4_ROUTE_L = True   #", "_RTA4_ROUTE_L = False   #",
+                   O10 + "RT-A4-RE: route E's precommit reader is pressure-2's; the preview reader's RT-A4 sets are route L's")]
+
+# RT-A4-EV: Rendered::evidence's one new text site, `DERIVATION_MEMBER.to_string()`, runs only when its caller passes a
+# derivation: run_linear_static_preview_observed_inner's one `rendered.evidence(preview_gates, preview_derivation)`,
+# whose derivation is combination_derivation's, None unless a combination is unsigned (D1.4: none) or names a
+# combination (on D1 at most z - 1, so none below z = 2). Every other by-name caller holds another type's `evidence`.
+if fnkey("combination_derivation", _A4_PP):
+    _a4_ev = (
+        _re.sub(r"//[^\n]*", "", _text_of(_LIB)).count("rendered.evidence(preview_gates, preview_derivation)") == 1,
+        _re.sub(r"//[^\n]*", "", _text_of(_LIB)).count("preview_physics::combination_derivation(") == 1,
+        _fn_text("evidence", _A4_PP).count("if let (Some(derivation), Some(object)) = (derivation, evidence.as_object_mut()) {\n"
+                                           "            object.insert(DERIVATION_MEMBER.to_string(), derivation);") == 1,
+        _fn_text("combination_derivation", _A4_PP).count("    if recorded.is_empty() {\n        return None;\n    }\n") == 1,
+    )
+    if not all(_a4_ev):
+        raise SystemExit(f"RT-A4-EV: the derivation member's call or guard changed; re-review: {_a4_ev}")
+    O10_SITE_FROM += [(site("evidence", _A4_PP, "object.insert(DERIVATION_MEMBER.to_string(), derivation);"),
+                       {"from": [fnkey("run_linear_static_preview_observed_inner", _LIB)], "per": "min(1,max(0,z-1))",
+                        "why": O10 + "RT-A4-EV: the member's key, once per run with a derivation (z >= 2 on D1)"})]
+# RT-A4-HS (cont.): `variant.table()` and `.map(RecordedVariant::table)` call RecordedVariant::table; physics_evidence's
+# private `fn table(self)` (a PressureV3 method) is another function the by-name call graph also names.
+if fnkey("read_recorded", _A4_RT):
+    _a4_pt = fnkey("table", RE_ + "physics_evidence.rs")
+    if not _re.match(r"\s*fn table\(self\)", _text_of(RE_ + "physics_evidence.rs").split("\n")[int(_a4_pt.split(":")[1]) - 1]):
+        raise SystemExit("RT-A4-HS: physics_evidence's table is no longer a private method; re-review")
+    O10_EDGE_ZERO += [(_c, _a4_pt, O10 + "RT-A4-HS: a RecordedVariant::table call, not physics_evidence's private table")
+                      for _c in (fnkey("selected_table", _A4_RT), fnkey("g0_with", RE_ + "retained_precision.rs"))]
+
+# RT-A4-DC: run_linear_static_preview_observed_inner calls combination_derivation once, and only `if combining`:
+# `preview.is_some() && !model.combinations.is_empty()` (the W1-L5 test-only shadow, l5_tests::former_aggregation, is
+# false in production; w1_reductions_model binds it), so never at z = 0 (route E has no preview and D1.4 refuses its
+# combinations). Its closure-borrowed resolve and id copies are otherwise priced at the caller's multiplicity.
+if fnkey("combination_derivation", _A4_PP):
+    _a4_run = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    if (_a4_run.count("Some(rendered) if combining => preview_physics::combination_derivation(&model, rendered, &preview_gates),") != 1
+            or _a4_run.count("let combining = preview.is_some() && !model.combinations.is_empty();") != 1
+            or _a4_run.count("let combining = combining || (l5_tests::former_aggregation() && preview.is_some());") != 1
+            or _a4_run.count("combination_derivation(") != 1):
+        raise SystemExit("RT-A4-DC: the derivation call or its `combining` guard changed; re-review")
+    EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("run_linear_static_preview_observed_inner", _LIB), fnkey("combination_derivation", _A4_PP),
+        "min(1,z)", O10 + "RT-A4-DC: once per run with a combination (`if combining`), never at z = 0")]
