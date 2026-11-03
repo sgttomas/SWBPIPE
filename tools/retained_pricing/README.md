@@ -86,6 +86,12 @@ All outputs go to `--out`.
    Chirality identity), then write its SWBPIPE source tree without `execution/`
    from the raw committed blobs (`ls-tree -r`, `cat-file --batch`); no attribute
    or git setting changes a byte. Both standalone and original monorepo layouts are supported.
+1a. **MODAL-UNR (method proposal, §8.43).** On the full snapshot, B7a's `modal_unreachable` checks that the product
+   modal module (`core/product_physics/src/modal.rs` and `modal/`) is isolated (one private declaration; no other
+   source names, re-exports, aliases, includes or path-attributes it; no macro, exported or static-init item and no
+   impl on a non-modal type in it) and that its bytes equal `MODAL_TREE_PIN`; then exactly those paths are removed
+   from the snapshot (`summary.json` `modal_excluded`). Any failure stops the run with exit 4; nothing else is
+   ever excluded.
 2. Carry the base chain's line-keyed rules (`base/*.g4.json`, `base/sens.py`, `base/premise_pins.json`) from the basis to the revision with `lib/linemap_rules.py --prune-deleted`.
    - **Keymap.** `lib/linemap_lib.py` maps each key in order:
      1. **Offset:** by the cumulative offset, checked.
