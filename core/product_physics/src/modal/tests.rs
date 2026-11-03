@@ -24,12 +24,12 @@ mod current_model;
 /// tolerance, Design §2.5) is experimental and unpinned: this pair exists only
 /// for these tests' assertions. It is not an admission tolerance, it pins
 /// nothing, and no production path reads it.
-const TEST_LOCAL_IDENTITY_BOUND: IdentityTolerance = IdentityTolerance { relative: 1e-12, absolute: 0.0 };
+pub(super) const TEST_LOCAL_IDENTITY_BOUND: IdentityTolerance = IdentityTolerance { relative: 1e-12, absolute: 0.0 };
 /// **TEST-LOCAL, NON-PRODUCTION bound** for the product mass against the
 /// frozen mass references (normwise, relative to the largest reference entry).
 const TEST_LOCAL_MASS_BOUND: f64 = 1e-13;
 
-const PROV: &str = "invented DEL-04-09 I2a test input";
+pub(super) const PROV: &str = "invented DEL-04-09 I2a test input";
 const MASS_REFERENCES: &str = include_str!("../../../../validation/references/f1_modal/mass_discrete/mass_references.json");
 const U3_REFERENCES: &str = include_str!("../../../../validation/references/t4_i12/u3_reference_cases.json");
 const PF_DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
@@ -42,34 +42,34 @@ const HASH: &str = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 // Builders
 // ---------------------------------------------------------------------------
 
-fn q(value: f64, unit: &str) -> Value {
+pub(super) fn q(value: f64, unit: &str) -> Value {
     json!({"value": value, "unit": unit})
 }
 
-fn codes(found: &[Diagnostic]) -> Vec<&str> {
+pub(super) fn codes(found: &[Diagnostic]) -> Vec<&str> {
     found.iter().map(|d| d.code.as_str()).collect()
 }
 
-fn modal(value: Value) -> ModalPreviewRequest {
+pub(super) fn modal(value: Value) -> ModalPreviewRequest {
     ModalPreviewRequest::parse_modal_request(value).unwrap_or_else(|refusal| panic!("{refusal}"))
 }
 
 /// `request` with the modal members `members` added.
-fn with(mut request: Value, members: Value) -> Value {
+pub(super) fn with(mut request: Value, members: Value) -> Value {
     for (key, value) in members.as_object().unwrap() {
         request[key] = value.clone();
     }
     request
 }
 
-fn section() -> Value {
+pub(super) fn section() -> Value {
     json!({"outside_diameter": q(0.2, "m"), "wall_thickness": q(0.01, "m"), "material_density": q(7850.0, "kg/m^3"),
         "contents_density": q(1000.0, "kg/m^3")})
 }
 
 /// a(0) – b(1) – c(2) along X, anchored at a, a load on c; with `valve`, a
 /// valve at c maps body:v (W = 500 N, r = (−0.5, 0.25, 0) m).
-fn pf_model(valve: bool) -> Value {
+pub(super) fn pf_model(valve: bool) -> Value {
     let node = |id: &str, x: f64| json!({"id": id, "position": {"x": x, "y": 0, "z": 0}, "provenance": PROV});
     let pipe = |id: &str, from: &str, to: &str| json!({"id": id, "from": from, "to": to, "section": section(), "material": "m",
         "y_reference": {"x": 0, "y": 1, "z": 0}, "provenance": PROV});
@@ -93,13 +93,13 @@ fn pf_model(valve: bool) -> Value {
         "combinations": []})
 }
 
-fn pf_request(valve: bool) -> Value {
+pub(super) fn pf_request(valve: bool) -> Value {
     json!({"model": pf_model(valve), "materials": []})
 }
 
 /// K5's arc model shape: a – b straight, b – c a realized 90° bend of radius
 /// 0.25 m, c – d straight; densities added; `gap` adds an open gap support.
-fn arc_request(gap: bool) -> Value {
+pub(super) fn arc_request(gap: bool) -> Value {
     let node = |id: &str, x: f64, y: f64| json!({"id": id, "position": {"x": x, "y": y, "z": 0.0}, "provenance": PROV});
     let pipe = |id: &str, from: &str, to: &str, y: [f64; 3]| json!({"id": id, "from": from, "to": to, "section": section(),
         "material": "m", "y_reference": {"x": y[0], "y": y[1], "z": y[2]}, "provenance": PROV});
@@ -483,14 +483,14 @@ fn reference_case(id: &str) -> Value {
     references()["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone()
 }
 
-fn number(value: &Value) -> f64 {
+pub(super) fn number(value: &Value) -> f64 {
     value.as_f64().unwrap_or_else(|| value.as_str().unwrap().parse().unwrap())
 }
 
 /// A frozen neutral mass-reference model as a product request on `basis`
 /// (`PF` or `EX`), with the request's acceleration; `None` when it holds a
 /// family this converter does not author (connectors, tie rods).
-fn reference_request(case: &Value, basis: &str) -> Option<Value> {
+pub(super) fn reference_request(case: &Value, basis: &str) -> Option<Value> {
     let m = &case["model"];
     let exact = basis == "EX";
     let material = m["materials"].as_object().unwrap().iter().next().unwrap();
@@ -550,7 +550,7 @@ fn reference_request(case: &Value, basis: &str) -> Option<Value> {
         let restraints: Vec<String> = s["restrained"].as_array().unwrap().iter().map(|r| r.as_str().unwrap().to_uppercase()).collect();
         json!({"id": format!("support:{i}"), "node": s["node"], "family": "anchor", "restraints": restraints, "provenance": PROV})
     }).collect();
-    let free = m["nodes"].as_array().unwrap().iter().map(|n| n["id"].as_str().unwrap()).find(|n| !supported.contains(*n)).unwrap();
+    let free = m["nodes"].as_array().unwrap().iter().map(|n| n["id"].as_str().unwrap()).find(|n| !supported.contains(*n)).or_else(|| m["nodes"].as_array().unwrap().last().and_then(|n| n["id"].as_str())).unwrap();
     let mut load_case = json!({"id": "case:f", "primitive_loads": [{"id": "load:f", "category": "concentrated_force", "target": {"type": "node", "node": free},
         "direction": "global_y", "magnitude": q(1000.0, "N"), "dimension": "force", "provenance": PROV}], "provenance": PROV});
     let materials = if exact {
@@ -695,7 +695,7 @@ fn d_tol_measurement_table() {
 // The weight-basis identity
 // ---------------------------------------------------------------------------
 
-fn ex_request_with_density() -> Value {
+pub(super) fn ex_request_with_density() -> Value {
     let mut request: Value = serde_json::from_str(EX_REQUEST).unwrap();
     for pipe in request["model"]["pipe_segments"].as_array_mut().unwrap() {
         pipe["section"]["material_density"] = q(7850.0, "kg/m^3");
@@ -706,7 +706,7 @@ fn ex_request_with_density() -> Value {
 
 /// T4-I12's frozen connector demo (re-authored to the current document), with
 /// densities on every pipe section.
-fn connector_request() -> Value {
+pub(super) fn connector_request() -> Value {
     let references: Value = serde_json::from_str(U3_REFERENCES).unwrap();
     let mut request = current_model::reauthor_request(references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"].clone());
     for pipe in request["model"]["pipe_segments"].as_array_mut().unwrap() {
