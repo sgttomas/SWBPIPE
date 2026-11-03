@@ -217,6 +217,84 @@ fn every_table_row_maps_as_stated() {
     );
     assert_eq!(set, restrained.to_vec());
     assert_eq!(states.iter().map(|s| s.behavior).collect::<Vec<_>>(), vec!["gap", "lift_off", "friction"]);
+    // Friction inactive (its normal does not bear): free, with no force frozen
+    // (O-14 (b), released by Agent 0).
+    let (states, set) =
+        linearize_modal_supports(&supports, &restrained, &record([ActiveSetState::Active, ActiveSetState::Active, ActiveSetState::Inactive])).unwrap();
+    assert_eq!(
+        states.iter().map(|s| s.treatment).collect::<Vec<_>>(),
+        vec![ModalSupportTreatment::Restrained, ModalSupportTreatment::Restrained, ModalSupportTreatment::Free]
+    );
+    assert_eq!(set, vec![0, 1, 2, 3, 4, 5, 6, 7]);
+}
+
+/// `request` with friction support `support:NL-F`'s normal replaced by an
+/// explicit value (a derived source, if any, is removed).
+fn with_explicit_friction_normal(request: &Value, newtons: f64) -> Value {
+    let mut out = request.clone();
+    let nonlinear = &mut support_mut(&mut out, "support:NL-F")["nonlinear"];
+    nonlinear.as_object_mut().unwrap().remove("normal_reaction_source");
+    nonlinear["normal_reaction"] = q(newtons, "N");
+    out
+}
+
+#[test]
+fn friction_whose_normal_does_not_bear_is_free_confirmed_and_matches_its_linear_twin() {
+    // O-14 (b): a genuinely solved friction-inactive state. The classifier
+    // returns inactive when the normal is not positive, and the static
+    // confirmation establishes an explicit-normal inactive state exactly when
+    // its normal is not positive, so a zero or tensile explicit normal comes
+    // out converged, qualified and confirmed, through the real modal path.
+    let f1_explicit = kd5(F1_EXPLICIT);
+    // F-1 with an explicit normal beside its linear guide S-N (UY at B): the
+    // guide is its own support, restrained in every state.
+    let f1_guided = kd5(F1);
+    let guide_uy = 6 + 1;
+    for (request, case, guided) in [
+        (with_explicit_friction_normal(&f1_explicit, 0.0), "load:SLIDE", false),
+        (with_explicit_friction_normal(&f1_explicit, 0.0), "load:STICK", false),
+        (with_explicit_friction_normal(&f1_explicit, -70.0), "load:SLIDE", false),
+        (with_explicit_friction_normal(&f1_guided, 0.0), "load:SLIDE-POS", true),
+        (with_explicit_friction_normal(&f1_guided, 0.0), "load:STICK", true),
+    ] {
+        // The static standing, from the same solve the modal path runs.
+        let modal_request = modal(state_request(&request, case));
+        let (solve, diagnostics) = static_state_solve(&prepare_modal(&modal_request).unwrap(), PreviewSolverMode::DenseScrutiny);
+        let evidence = solve.nonlinear_state.as_deref().expect("a converged, qualified case carries its evidence");
+        assert_eq!((evidence.converged, evidence.qualification), (true, NonlinearQualification::Qualified), "{case}");
+        assert!(matches!(evidence.standing, NonlinearStateStanding::Confirmed), "{case}: {:?}", evidence.standing);
+        assert_eq!(evidence.final_states, vec![SupportStateRecord::new("support:NL-F", ActiveSetState::Inactive)], "{case}");
+        assert!(diagnostics.iter().all(|d| d.severity != "blocking"), "{case}: {diagnostics:#?}");
+        // The modal model equals its hand-built twin: the friction tangent free.
+        let outcome = matches_twin(&request, case, "support:NL-F", ActiveSetState::Inactive, ModalSupportTreatment::Free);
+        let state = outcome.nonlinear_state.as_ref().unwrap();
+        assert!(!state.restrained_dofs.contains(&6), "{case}: the tangent (UX at B) is free");
+        assert_eq!(state.restrained_dofs.contains(&guide_uy), guided, "{case}: the normal guide keeps its own state");
+        assert!(outcome.disclosures.iter().any(|d| d.contains("`support:NL-F` is inactive") && d.contains("tangential DOF is free")), "{case}");
+        assert!(!outcome.disclosures.iter().any(|d| d.contains("frozen")), "{case}: no friction force is frozen");
+    }
+}
+
+#[test]
+fn friction_whose_derived_normal_does_not_bear_stays_refused() {
+    // A derived normal is |R| of its linear source (classifier: inactive at
+    // zero), and the static confirmation never establishes a derived-normal
+    // inactive friction ("friction normal not established"), so this state is
+    // NotEstablished and refused through the unchanged admission.
+    let mut f1 = kd5(F1);
+    f1["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": "load:TANGENT-ONLY", "provenance": PROV,
+        "primitive_loads": [{"id": "load:TANGENT-ONLY-0", "category": "occasional", "target": {"type": "node", "node": "node:B"},
+            "direction": "global_x", "magnitude": q(30.0, "N"), "dimension": "force", "provenance": PROV}]}));
+    let modal_request = modal(state_request(&f1, "load:TANGENT-ONLY"));
+    let (solve, _) = static_state_solve(&prepare_modal(&modal_request).unwrap(), PreviewSolverMode::DenseScrutiny);
+    let evidence = solve.nonlinear_state.as_deref().unwrap();
+    assert_eq!(evidence.final_states, vec![SupportStateRecord::new("support:NL-F", ActiveSetState::Inactive)]);
+    assert_eq!(evidence.qualification, NonlinearQualification::Qualified);
+    assert!(matches!(&evidence.standing, NonlinearStateStanding::NotEstablished { reason } if reason.contains("friction normal not established")));
+    let found = state_modal_run(state_request(&f1, "load:TANGENT-ONLY")).err().unwrap();
+    let last = found.last().unwrap();
+    assert_eq!(last.code, MODAL_STATE_CASE_UNAVAILABLE, "{found:#?}");
+    assert!(last.message.contains("its converged support state is not confirmed") && last.message.contains("friction normal not established"), "{}", last.message);
 }
 
 // ---------------------------------------------------------------------------
@@ -302,7 +380,6 @@ fn linearization_refuses_missing_duplicate_unexpected_ids_and_invalid_pairs() {
         (one_way.clone(), ActiveSetState::Sliding),
         (gap.clone(), ActiveSetState::Sliding),
         (friction.clone(), ActiveSetState::Active),
-        (friction.clone(), ActiveSetState::Inactive),
     ] {
         let id = support.support_id.clone();
         let found = refused(&[support], &[r(&id, state)]);

@@ -26,12 +26,15 @@
 //! nonlinear support, by support id (a missing, duplicate or unexpected id
 //! refuses), and only the table's behaviour and state pairs: one-way,
 //! lift-off and gap are active (rigid) or inactive (free); friction is
-//! sticking (rigid) or sliding (free, the friction force frozen, disclosed).
-//! The DOF is the built support's (node index × 6 + DOF index). A rigid
-//! state adds its DOF to the restrained set with no imposed or gap value; a
-//! DOF a linear support already restrains stays restrained and is recorded.
-//! A friction support's normal is its own support (or an explicit value),
-//! which keeps its own state.
+//! sticking (rigid), sliding (free, the friction force frozen, disclosed) or
+//! inactive (free: its normal does not bear, and the static path prescribes
+//! no displacement for an inactive state, `prescribed_displacement_for_state`
+//! in `nonlinear_integration`; Agent 0's release of O-14 (b)). A friction
+//! support is never active. The DOF is the built support's (node index × 6 +
+//! DOF index). A rigid state adds its DOF to the restrained set with no
+//! imposed or gap value; a DOF a linear support already restrains stays
+//! restrained and is recorded. A friction support's normal is its own
+//! support (or an explicit value), which keeps its own state.
 use super::prepare::Prepared;
 use super::MODAL_STATE_CASE_UNAVAILABLE;
 use crate::{
@@ -55,7 +58,8 @@ pub(crate) enum ModalSupportTreatment {
     /// Active or sticking on a DOF a linear support already restrains: it
     /// stays restrained and nothing is added.
     AlreadyRestrained,
-    /// Inactive one-way, lift-off or gap: its DOF is free.
+    /// Inactive one-way, lift-off, gap or friction (its normal does not
+    /// bear): its DOF is free.
     Free,
     /// Sliding friction: its tangential DOF is free and the friction force is
     /// frozen, so it contributes no stiffness (a disclosed approximation).
@@ -226,8 +230,8 @@ fn behavior_name(behavior: NonlinearSupportBehavior) -> &'static str {
 fn state_is_rigid(behavior: NonlinearSupportBehavior, state: ActiveSetState) -> Option<bool> {
     match (behavior, state) {
         (NonlinearSupportBehavior::Friction, ActiveSetState::Sticking) => Some(true),
-        (NonlinearSupportBehavior::Friction, ActiveSetState::Sliding) => Some(false),
-        (NonlinearSupportBehavior::Friction, _) => None,
+        (NonlinearSupportBehavior::Friction, ActiveSetState::Sliding | ActiveSetState::Inactive) => Some(false),
+        (NonlinearSupportBehavior::Friction, ActiveSetState::Active) => None,
         (_, ActiveSetState::Active) => Some(true),
         (_, ActiveSetState::Inactive) => Some(false),
         (_, ActiveSetState::Sticking | ActiveSetState::Sliding) => None,
@@ -270,7 +274,7 @@ pub(crate) fn linearize_modal_supports(
                 augmented.insert(global_dof);
                 ModalSupportTreatment::Restrained
             }
-            (false, NonlinearSupportBehavior::Friction) => ModalSupportTreatment::FreeFrozenFriction,
+            (false, NonlinearSupportBehavior::Friction) if state == ActiveSetState::Sliding => ModalSupportTreatment::FreeFrozenFriction,
             (false, _) => ModalSupportTreatment::Free,
         };
         treated.push(ModalSupportState { support_id: support.support_id.clone(), behavior, global_dof, state, treatment });
@@ -299,6 +303,10 @@ fn modal_state_disclosures(case: &str, mode: PreviewSolverMode, supports: &[Moda
                 "nonlinear support `{}` is {} on a DOF a linear support already restrains; it stays restrained",
                 support.support_id,
                 support.state.as_str()
+            )),
+            ModalSupportTreatment::Free if support.behavior == "friction" => out.push(format!(
+                "friction support `{}` is inactive at the state case (its normal does not bear): its tangential DOF is free and it carries no friction force",
+                support.support_id
             )),
             ModalSupportTreatment::Restrained | ModalSupportTreatment::Free => {}
         }
