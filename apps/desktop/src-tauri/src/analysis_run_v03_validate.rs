@@ -738,18 +738,36 @@ pub(crate) fn validate_v03(record: &Value, source: &mut Value, expected_basis: O
     Ok(())
 }
 
+/// Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.2; owner ruling
+/// "0.8.0 a2": recorded runs keep their existing read and compare behaviour, with no
+/// model-document-version gate). pressure-2's table changed only the model version token of
+/// its admitted-families sentence (0.7.0 -> 0.8.0); every row, and so every row reading, is the
+/// same. A run recorded under the 0.7.0-era table binds that table's exact digest, which is
+/// read as the recorded basis of exactly this current table. Only the record validator reads
+/// it: the record builder and the export bind the current table, and any other digest, or a
+/// record binding the two tables at once, is refused as before. Model document 0.9.0 (Design
+/// `model-document-0.9.0.md` §3.2) edits the same sentence's token again (0.8.0 -> 0.9.0), so a
+/// run recorded under the 0.8.0-era table is read the same way. RT-A3 reducer 2a (#73) and 2b
+/// (#80) each restated only the table's admitted-families disclosure
+/// (`supported_profile_limitations[1]`; every row is the same), so runs recorded under the 0.9.0
+/// registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too.
+/// The native mirror of `analysisRunCompatibility.ts` `RECORDED_RUN_TABLE_BASES` (id,
+/// recorded, current), row for row and in order; Python's twin is `compatibility.py`
+/// `RECORDED_RUN_TABLE_BASES`. `stored_custody_tests.rs` requires all three to be equal.
+pub(crate) const RECORDED_RUN_TABLE_BASES: [(&str, &str, &str); 4] = [
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
+];
+
 /// `recordedRunSemanticBinding(recorded, sourceSemanticBinding(source))`: the
-/// current table's binding, or the exact recorded basis
-/// (`RECORDED_RUN_TABLE_BASES`, owned by the record validator; S1's current
-/// pressure-2 digest and its 0.7- and 0.8-era recorded bases).
+/// current table's binding, or the exact recorded basis the record names when
+/// it is one of [`RECORDED_RUN_TABLE_BASES`] for that current table.
 fn recorded_run_semantic_binding(recorded: Option<&Value>, route: &Route) -> Value {
-    const BASES: [(&str, &str, &str); 2] = [
-        ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
-        ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
-    ];
     let named = recorded.and_then(Value::as_object).filter(|map| map.len() == 2);
     let basis = named.and_then(|named| {
-        BASES.iter().find(|(id, recorded, current)| {
+        RECORDED_RUN_TABLE_BASES.iter().find(|(id, recorded, current)| {
             *id == route.binding_id && *current == route.binding_sha256 && named.get("id").and_then(Value::as_str) == Some(id) && named.get("sha256").and_then(Value::as_str) == Some(recorded)
         })
     });

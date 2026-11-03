@@ -12,6 +12,12 @@
  *   retained): altered rows, checksums, versions, references, shapes and numbers, and the
  *   pressure-2 record bound to its 0.8-era recorded table basis. Recorded runs are the preview
  *   cases' records as recorded revisions of an invented state, with their variants.
+ * - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one per recorded basis of
+ *   `RECORDED_RUN_TABLE_BASES` (`RECORDED_BASIS_FIXTURES`: each a record, its source and its
+ *   request model, never rewritten), each as a saved project's run and as a recorded revision
+ *   built as `recordedRunModel080.test.ts` and `recordedRunModel090Disclosure.test.ts` build it.
+ *   The cases name the fixture directory instead of copying it; the recorded revision is the
+ *   verbatim record with its patches (`record_patches`), and the native leg reads the same files.
  * - **As the old open read them.** Each value is what the webview received from the store
  *   (parsed from JSON, no received text kept), so the readers read a re-serialization, as they
  *   did for a reopened run. No received text, registration or capture is involved: saved and
@@ -20,7 +26,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope } from "../types";
 import { buildHistoricalRunContext, buildRecordedRunContext } from "../features/results/HistoricalRunContext";
-import { analysisRecordProjection, recordedAnalysisRunRevision } from "../services/analysisRunCompatibility";
+import { analysisRecordProjection, manifestFixedMembers, recordedAnalysisRunRevision } from "../services/analysisRunCompatibility";
+import { buildCurrentSessionInputManifest } from "../services/inputManifestService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../services/hashService";
 import type { AnalysisRunRead } from "../services/analysisRunService";
 import { heldText, type AnalysisRunV03Case } from "./analysisRunV03Cases";
@@ -30,14 +37,28 @@ const ROOT = resolve(__dirname, "../../../../");
 
 export const HISTORICAL_REOPEN_CASES = "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json";
 const BUILDER_CASES = "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json";
+/** main's verbatim recorded pressure-2 runs, one per recorded table basis of
+ * `RECORDED_RUN_TABLE_BASES`, in its order (the native leg names the same directories). */
+export const RECORDED_BASIS_FIXTURES = [
+  "fixtures/persistence/recorded_model_0_7_0",
+  "fixtures/persistence/recorded_model_0_8_0",
+  "fixtures/persistence/recorded_model_0_9_0_pre_2a",
+  "fixtures/persistence/recorded_model_0_9_0_pre_2b",
+] as const;
+const FIXTURE_RECORD = "pressure_plain_connected_sparse.analysis_run.json";
+const FIXTURE_SOURCE = "pressure_connected_mechanics_sparse.json";
+const FIXTURE_REQUEST = "exact_pressure_connected_request.json";
 
 type Project = { model: Json; editor_intents: Json; proposal: Json; selected_review_target: Json; model_hash: Json; project_envelope_hash: Json };
 type Expected = { findings: string[]; run_id: string; envelope_payload_hash: string | null; model_hash: Json } | { absent: true };
 /** A saved case's run: embedded, or (`base`) the builder corpus case whose held text and record it is. */
-export type SavedCase = { id: string; kind: "saved"; project: Project; project_text?: string; base?: string; patches?: Patch[]; reseal?: boolean; mechanics_result?: Json; analysis_run?: Json; expected: Expected };
+export type SavedCase = { id: string; kind: "saved"; project: Project; project_text?: string; base?: string; fixture?: string; patches?: Patch[]; reseal?: boolean; mechanics_result?: Json; analysis_run?: Json; expected: Expected };
+type RecordedRead = { run: { state_id: string; producer_run_id: string; run_record_hash: string }; state: { state_id: string; project_id: string; model_hash: string }; record: Json; result_json: string; input_manifest_canonical: string };
+/** A recorded case's read: embedded, or (`fixture`) a recorded-basis fixture's source text and its
+ * record with `record_patches` applied. */
 export type RecordedCase = {
   id: string; kind: "recorded";
-  read: { run: { state_id: string; producer_run_id: string; run_record_hash: string }; state: { state_id: string; project_id: string; model_hash: string }; record: Json; result_json: string; input_manifest_canonical: string };
+  read: RecordedRead | (Omit<RecordedRead, "record" | "result_json"> & { fixture: string; record_patches: Patch[] });
   expected: Expected;
 };
 export type ReopenCase = SavedCase | RecordedCase;
@@ -180,7 +201,7 @@ async function savedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; rec
   return out;
 }
 
-async function recordedExpected(read: RecordedCase["read"]): Promise<Expected> {
+async function recordedExpected(read: RecordedRead): Promise<Expected> {
   const context = await buildRecordedRunContext({ run: clone(read.run), state: clone(read.state), record: clone(read.record), result_json: read.result_json, input_manifest_canonical: read.input_manifest_canonical } as unknown as AnalysisRunRead);
   return { findings: context.findings, run_id: context.runId, envelope_payload_hash: null, model_hash: context.modelHash };
 }
@@ -197,8 +218,8 @@ async function recordedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; 
     const revision = await recordedAnalysisRunRevision(record as AnalysisRunEnvelope, { stateId, createdAt: "2026-11-01T00:00:00.000Z", inputManifest: manifest });
     const modelHash = `sha256:${await canonicalSha256Hex(manifest.model_basis.model_payload)}`;
     const runHash = revision.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!.value;
-    const make = async (name: string, edit: (read: RecordedCase["read"]) => void = () => {}) => {
-      const read: RecordedCase["read"] = {
+    const make = async (name: string, edit: (read: RecordedRead) => void = () => {}) => {
+      const read: RecordedRead = {
         run: { state_id: stateId, producer_run_id: revision.analysis_run.run_id, run_record_hash: runHash },
         state: { state_id: stateId, project_id: source.model_ref, model_hash: modelHash },
         record: clone(revision), result_json: JSON.stringify(source), input_manifest_canonical: manifestText,
@@ -221,13 +242,68 @@ async function recordedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; 
   return out;
 }
 
+/** The patches that turn `before` into `after` (`applyPatches` on the record). */
+function recordPatches(before: Json, after: Json, path: Array<string | number> = []): Patch[] {
+  if (JSON.stringify(before) === JSON.stringify(after)) return [];
+  const isObject = (value: Json) => value !== null && typeof value === "object" && !Array.isArray(value);
+  if (Array.isArray(before) && Array.isArray(after) && before.length === after.length) {
+    return before.flatMap((item: Json, index: number) => recordPatches(item, after[index], [...path, index]));
+  }
+  if (isObject(before) && isObject(after)) {
+    const out: Patch[] = Object.keys(before).filter(key => !(key in after)).map(key => ({ on: "record", path: [...path, key], op: "delete" }) as Patch);
+    for (const key of Object.keys(after)) {
+      if (key in before) out.push(...recordPatches(before[key], after[key], [...path, key]));
+      else out.push({ on: "record", path: [...path, key], op: "set", value: clone(after[key]) });
+    }
+    return out;
+  }
+  return [{ on: "record", path, op: "set", value: clone(after) }];
+}
+
+/** Each recorded-basis fixture, verbatim, as a saved project's run and as a recorded revision. */
+async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
+  const saved: SavedCase[] = [], recorded: RecordedCase[] = [];
+  for (const fixture of RECORDED_BASIS_FIXTURES) {
+    const text = (name: string) => readFileSync(resolve(ROOT, fixture, name), "utf8");
+    const name = fixture.slice(fixture.lastIndexOf("/") + 1);
+    const record = JSON.parse(text(FIXTURE_RECORD)), sourceText = text(FIXTURE_SOURCE), source = JSON.parse(sourceText);
+    const model = JSON.parse(text(FIXTURE_REQUEST)).model;
+    // As a saved project: the request's model, the verbatim source and record.
+    const p = await project(clone(model), source, record);
+    saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected: await savedExpected(p, source, record) });
+    // As a recorded revision of an invented state, built as the webview tests build it.
+    const authored = clone(model);
+    for (const c of authored.load_cases) { c.kind ||= "sustained"; c.status ||= "ready_for_preview_diagnostics"; c.provenance ||= "invented review input"; }
+    const manifest = await buildCurrentSessionInputManifest({ model: authored, solver: { solver_name: source.producer.component_name, solver_version: source.producer.component_version, solver_build_ref: record.analysis_run.solver_version.build_ref.ref, solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
+    const run = clone(record);
+    for (const { member, expected } of await manifestFixedMembers(manifest.manifest)) {
+      if (member === "input_manifest_refs" || member === "input_manifest_hashes") run.analysis_run.reproducibility[member] = expected; else run.analysis_run[member] = expected;
+    }
+    const stateId = `state:recorded-basis:${name}`;
+    const revision = await recordedAnalysisRunRevision(run as AnalysisRunEnvelope, { stateId, createdAt: "2026-11-01T00:00:00.000Z", inputManifest: manifest.manifest });
+    const runHash = revision.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!.value;
+    const read: RecordedRead = {
+      run: { state_id: stateId, producer_run_id: source.run_id, run_record_hash: runHash },
+      state: { state_id: stateId, project_id: model.project.id, model_hash: `sha256:${await canonicalSha256Hex(manifest.manifest.model_basis.model_payload)}` },
+      record: revision, result_json: sourceText, input_manifest_canonical: manifest.canonical_bytes,
+    };
+    const record_patches = recordPatches(record, revision);
+    const patched = applyPatches({ record: clone(record) } as Record<string, Json>, record_patches).record;
+    if (await canonicalSha256Hex(patched) !== await canonicalSha256Hex(revision)) throw new Error(`${fixture}: the record patches do not give the recorded revision`);
+    const { record: _record, result_json: _result, ...rest } = read;
+    recorded.push({ id: `recorded-basis:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected: await recordedExpected(read) });
+  }
+  return { saved, recorded };
+}
+
 export type HistoricalReopenCases = Readonly<{ document_kind: string; version: number; note: string; cases: ReopenCase[] }>;
 
 /** Every case, in a fixed order, with the TypeScript contexts' findings. */
 export async function historicalReopenCases(): Promise<HistoricalReopenCases> {
   const builder = JSON.parse(readFileSync(resolve(ROOT, BUILDER_CASES), "utf8")) as { cases: AnalysisRunV03Case[] };
   const base = builder.cases.filter(c => "record" in c.expected).map(c => ({ c, source: JSON.parse(heldText(c.source)), record: (c.expected as { record: Json }).record }));
-  const cases: ReopenCase[] = [...(await savedCases(base)), ...(await recordedCases(base))];
+  const basis = await recordedBasisCases();
+  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...(await recordedCases(base)), ...basis.recorded];
   const ids = new Set(cases.map(c => c.id));
   if (ids.size !== cases.length) throw new Error("duplicate case ids");
   return {

@@ -8,13 +8,29 @@
 //!   rows; `historicalReopenParity.test.ts` regenerates and compares it) must
 //!   give the same findings, in order, the same run name, and the same
 //!   envelope payload hash or model hash, natively from the stored values.
+//! - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one
+//!   per row of `RECORDED_RUN_TABLE_BASES` (`RECORDED_BASIS_FIXTURES`), are
+//!   cases of that file read from the fixture files themselves; the native
+//!   table must equal its TypeScript and Python twins, and each run saved
+//!   into a store must reopen natively with the webview's findings.
 use super::*;
-use crate::analysis_run_v03_validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation};
+use crate::analysis_run_v03_validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation, RECORDED_RUN_TABLE_BASES};
 use serde_json::{json, Value};
 pub(crate) use crate::native_verdict::tests::gate as command_gate;
 
 const REOPEN_CASES: &str = "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json";
 const BUILDER_CASES: &str = "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json";
+/// `RECORDED_BASIS_FIXTURES` of `historicalReopenCases.ts`: main's verbatim recorded pressure-2
+/// runs (a record, its source and its request model), one per row of
+/// `RECORDED_RUN_TABLE_BASES` in its order. Read, never rewritten.
+const RECORDED_BASIS_FIXTURES: [&str; 4] = [
+    "fixtures/persistence/recorded_model_0_7_0",
+    "fixtures/persistence/recorded_model_0_8_0",
+    "fixtures/persistence/recorded_model_0_9_0_pre_2a",
+    "fixtures/persistence/recorded_model_0_9_0_pre_2b",
+];
+const FIXTURE_RECORD: &str = "pressure_plain_connected_sparse.analysis_run.json";
+const FIXTURE_SOURCE: &str = "pressure_connected_mechanics_sparse.json";
 
 /// Hold more actual command futures than the async runtime has workers at
 /// the first proportional operation. Another async task must still run.
@@ -134,20 +150,43 @@ fn reseal(record: &mut Value) {
     }
 }
 
+/// A recorded-basis fixture's file, named by a case's `fixture`.
+fn fixture_text(fixture: &Value, name: &str) -> String {
+    let dir = RECORDED_BASIS_FIXTURES.iter().find(|dir| fixture.as_str() == Some(**dir)).unwrap_or_else(|| panic!("{fixture} is no recorded-basis fixture"));
+    read_text(&format!("{dir}/{name}"))
+}
+
 /// A saved case's stored result and record (the values the store parses from what it stored).
 pub(crate) fn saved_run(case: &Value, builder: &std::collections::HashMap<String, Value>) -> (Value, Value) {
-    let (mut result, mut record) = match case["base"].as_str() {
-        Some(base) => {
+    let (mut result, mut record) = match (case["base"].as_str(), case.get("fixture")) {
+        (Some(base), _) => {
             let base = &builder[base];
             (serde_json::from_str::<Value>(&source_text(&base["source"])).unwrap(), base["expected"]["record"].clone())
         }
-        None => (case["mechanics_result"].clone(), case["analysis_run"].clone()),
+        (None, Some(fixture)) => (
+            serde_json::from_str::<Value>(&fixture_text(fixture, FIXTURE_SOURCE)).unwrap(),
+            serde_json::from_str::<Value>(&fixture_text(fixture, FIXTURE_RECORD)).unwrap(),
+        ),
+        (None, None) => (case["mechanics_result"].clone(), case["analysis_run"].clone()),
     };
     apply_patches(&mut result, &mut record, case.get("patches").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]));
     if case["reseal"] == true {
         reseal(&mut record);
     }
     (result, record)
+}
+
+/// A recorded case's stored result text and record: embedded, or a recorded-basis fixture's
+/// source text and its record with `record_patches` applied.
+fn recorded_run(read: &Value) -> (String, Value) {
+    match read.get("fixture") {
+        None => (read["result_json"].as_str().unwrap().to_string(), read["record"].clone()),
+        Some(fixture) => {
+            let mut record: Value = serde_json::from_str(&fixture_text(fixture, FIXTURE_RECORD)).unwrap();
+            apply_patches(&mut Value::Null, &mut record, read["record_patches"].as_array().unwrap());
+            (fixture_text(fixture, FIXTURE_SOURCE), record)
+        }
+    }
 }
 
 /// A raw project preserves stored integer digits that JavaScript's oracle rounds.
@@ -165,51 +204,164 @@ fn the_native_findings_are_the_typescript_contexts() {
     for case in &cases {
         let id = case["id"].as_str().unwrap();
         let expected = &case["expected"];
-        let actual = match case["kind"].as_str().unwrap() {
-            "saved" => {
-                let (mut result, record) = saved_run(case, &builder);
-                let project = saved_project(case);
-                let saved = SavedProject {
-                    model: &project["model"],
-                    editor_intents: &project["editor_intents"],
-                    proposal: &project["proposal"],
-                    selected_review_target: &project["selected_review_target"],
-                    model_hash: &project["model_hash"],
-                    project_envelope_hash: &project["project_envelope_hash"],
-                };
-                match saved_run_findings(&saved, &mut result, &record) {
-                    None => json!({"absent": true}),
-                    Some(mut found) => {
-                        saved_run_validation(&mut found, &mut result, &record);
-                        json!({"findings": found.findings, "run_id": found.run_id, "envelope_payload_hash": found.envelope_payload_hash, "model_hash": null})
-                    }
-                }
-            }
-            _ => {
-                let read = &case["read"];
-                let context = RecordedRead {
-                    state_id: read["state"]["state_id"].as_str().unwrap(),
-                    state_project_id: read["state"]["project_id"].as_str().unwrap(),
-                    state_model_hash: read["state"]["model_hash"].as_str().unwrap(),
-                    run_state_id: read["run"]["state_id"].as_str().unwrap(),
-                    producer_run_id: read["run"]["producer_run_id"].as_str().unwrap(),
-                    run_record_hash: read["run"]["run_record_hash"].as_str().unwrap(),
-                };
-                let mut result = serde_json::from_str::<Value>(read["result_json"].as_str().unwrap()).ok();
-                let manifest = serde_json::from_str::<Value>(read["input_manifest_canonical"].as_str().unwrap()).ok();
-                let record = &read["record"];
-                let mut found = recorded_run_findings(&context, result.as_mut(), manifest.as_ref(), record);
-                if let Some(result) = result.as_mut() {
-                    recorded_run_validation(&mut found, &context, result, manifest.as_ref(), record);
-                }
-                json!({"findings": found.findings, "run_id": found.run_id, "envelope_payload_hash": null, "model_hash": found.model_hash})
-            }
-        };
+        let actual = native_findings(case, &builder);
         if &actual != expected {
             failures.push(format!("{id}:\n  expected {expected}\n  actual   {actual}"));
         }
     }
     assert!(failures.is_empty(), "{} of {} cases differ:\n{}", failures.len(), cases.len(), failures.join("\n"));
+}
+
+/// A case's findings, natively from its stored values, in the form of its `expected`.
+fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Value>) -> Value {
+    match case["kind"].as_str().unwrap() {
+        "saved" => {
+            let (mut result, record) = saved_run(case, builder);
+            let project = saved_project(case);
+            let saved = SavedProject {
+                model: &project["model"],
+                editor_intents: &project["editor_intents"],
+                proposal: &project["proposal"],
+                selected_review_target: &project["selected_review_target"],
+                model_hash: &project["model_hash"],
+                project_envelope_hash: &project["project_envelope_hash"],
+            };
+            match saved_run_findings(&saved, &mut result, &record) {
+                None => json!({"absent": true}),
+                Some(mut found) => {
+                    saved_run_validation(&mut found, &mut result, &record);
+                    json!({"findings": found.findings, "run_id": found.run_id, "envelope_payload_hash": found.envelope_payload_hash, "model_hash": null})
+                }
+            }
+        }
+        _ => {
+            let read = &case["read"];
+            let context = RecordedRead {
+                state_id: read["state"]["state_id"].as_str().unwrap(),
+                state_project_id: read["state"]["project_id"].as_str().unwrap(),
+                state_model_hash: read["state"]["model_hash"].as_str().unwrap(),
+                run_state_id: read["run"]["state_id"].as_str().unwrap(),
+                producer_run_id: read["run"]["producer_run_id"].as_str().unwrap(),
+                run_record_hash: read["run"]["run_record_hash"].as_str().unwrap(),
+            };
+            let (result_json, record) = recorded_run(read);
+            let mut result = serde_json::from_str::<Value>(&result_json).ok();
+            let manifest = serde_json::from_str::<Value>(read["input_manifest_canonical"].as_str().unwrap()).ok();
+            let mut found = recorded_run_findings(&context, result.as_mut(), manifest.as_ref(), &record);
+            if let Some(result) = result.as_mut() {
+                recorded_run_validation(&mut found, &context, result, manifest.as_ref(), &record);
+            }
+            json!({"findings": found.findings, "run_id": found.run_id, "envelope_payload_hash": null, "model_hash": found.model_hash})
+        }
+    }
+}
+
+/// The rows of a frozen table in its source text, from `start` to the first `end`.
+fn table_text<'a>(text: &'a str, start: &str, end: &str) -> &'a str {
+    let at = text.find(start).unwrap_or_else(|| panic!("{start} not found"));
+    let rest = &text[at + start.len()..];
+    &rest[..rest.find(end).unwrap_or_else(|| panic!("{start}: no {end}"))]
+}
+
+/// The native `RECORDED_RUN_TABLE_BASES` (`analysis_run_v03_validate.rs`) is the record
+/// validator's table in both its twins, row for row and in order: `analysisRunCompatibility.ts`
+/// and `compatibility.py`.
+#[test]
+fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
+    let native: Vec<[String; 3]> = RECORDED_RUN_TABLE_BASES.iter().map(|(id, recorded, current)| [id.to_string(), recorded.to_string(), current.to_string()]).collect();
+    let quoted = |text: &str| -> Vec<String> { text.split('"').skip(1).step_by(2).map(str::to_string).collect() };
+    // TypeScript: `{ id: "…", recorded: "…", current: "…" }` rows of the frozen array.
+    let ts = read_text("apps/desktop/src/services/analysisRunCompatibility.ts");
+    let declared = &ts[ts.find("const RECORDED_RUN_TABLE_BASES").unwrap()..];
+    let typescript: Vec<[String; 3]> = table_text(declared, "Object.freeze([", "]);").split("{ id:").skip(1).map(|row| {
+        let value = |from: usize| quoted(&row[from..])[0].clone();
+        [value(0), value(row.find("recorded:").unwrap()), value(row.find("current:").unwrap())]
+    }).collect();
+    // Python: `(NAME_OR_LITERAL, NAME_OR_LITERAL, NAME_OR_LITERAL),` rows; names are the module's string constants.
+    let py = read_text("core/analysis_runs/compatibility.py");
+    let constant = |item: &str| -> String {
+        let item = item.trim();
+        if item.starts_with('"') { return item.trim_matches('"').to_string(); }
+        let line = py.lines().find(|line| line.starts_with(&format!("{item} = \""))).unwrap_or_else(|| panic!("{item}: no string constant"));
+        quoted(line)[0].clone()
+    };
+    let python: Vec<[String; 3]> = table_text(&py, "RECORDED_RUN_TABLE_BASES = (", "\n)\n").lines().map(str::trim).filter(|line| !line.is_empty()).map(|line| {
+        let items: Vec<&str> = line.trim_start_matches('(').trim_end_matches(',').trim_end_matches(')').split(',').collect();
+        assert_eq!(items.len(), 3, "{line}");
+        [constant(items[0]), constant(items[1]), constant(items[2])]
+    }).collect();
+    assert_eq!(native.len(), 4, "{native:?}");
+    assert_eq!(typescript, native, "the TypeScript table");
+    assert_eq!(python, native, "the Python table");
+}
+
+/// RT-A3 #99: main's verbatim pressure-2 runs recorded under each recorded table basis
+/// (`RECORDED_BASIS_FIXTURES`: the 0.7.0- and 0.8.0-era tables, the 0.9.0 registration's
+/// `d46e1963…` and reducer 2a's `032e861f…`) reopen natively with the webview's findings and
+/// none of them is refused as `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`: each as a recorded revision
+/// read by the native reader's findings, and each as a saved project's run. Saved into a store,
+/// the 0.9.0 runs are opened by the native open with those findings; a project of a retired
+/// model document (0.7.0, 0.8.0) is refused for editing by the native open exactly as by the
+/// legacy open (recorded runs keep their own format, saved projects do not).
+#[test]
+fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
+    let host = ScriptedHost::normal();
+    let (registry, _gate) = gated(&host);
+    let dir = scratch("reopen-recorded-basis");
+    let cases = reopen_cases();
+    let builder = std::collections::HashMap::new();
+    for (fixture, (_, basis, _)) in RECORDED_BASIS_FIXTURES.iter().zip(RECORDED_RUN_TABLE_BASES.iter()) {
+        let name = fixture.rsplit('/').next().unwrap();
+        let verbatim: Value = serde_json::from_str(&read_text(&format!("{fixture}/{FIXTURE_RECORD}"))).unwrap();
+        assert_eq!(verbatim["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"], json!(basis), "{fixture} binds this recorded basis");
+        let case = |id: String| cases.iter().find(|case| case["id"] == json!(id)).unwrap_or_else(|| panic!("no case {id}"));
+        let (saved, recorded) = (case(format!("saved-recorded-basis:{name}")), case(format!("recorded-basis:{name}")));
+        assert_eq!((&saved["fixture"], &recorded["read"]["fixture"]), (&json!(fixture), &json!(fixture)));
+        for case in [saved, recorded] {
+            assert_eq!(native_findings(case, &builder), case["expected"], "{}", case["id"]);
+            let findings = case["expected"]["findings"].as_array().unwrap();
+            assert!(!findings.iter().any(|finding| finding.as_str().unwrap().contains("MISMATCH")), "{}: {findings:?}", case["id"]);
+        }
+        // The saved run is the fixture's record and source, verbatim, stored and reopened natively.
+        let (result, record) = saved_run(saved, &builder);
+        assert_eq!(record, verbatim);
+        let project = saved_project(saved);
+        let path = dir.join(format!("{name}.sqlite"));
+        let project_id = crate::project_id_from_model(&project["model"]);
+        {
+            let (mut connection, _) = crate::open_project_store(&path).unwrap();
+            crate::upsert_project(
+                &mut connection,
+                &project_id,
+                &crate::project_name_from_model(&project["model"]),
+                &project["model"],
+                &project["editor_intents"],
+                &project["proposal"],
+                &project["selected_review_target"],
+                &result,
+                &record,
+                &project["model_hash"],
+                &project["project_envelope_hash"],
+            )
+            .unwrap();
+        }
+        let opened = match native_open(&registry, &path, Some(&project_id)) {
+            Ok(opened) => opened,
+            Err(native) => {
+                assert_ne!(project["model"]["schema_version"], json!("0.9.0"), "{fixture}: {native}");
+                assert!(native.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{fixture}: {native}");
+                let legacy = crate::open_project_in_store(path.clone(), Some(&project_id)).err();
+                assert_eq!(Some(native), legacy, "{fixture}: refused as the legacy open refuses");
+                continue;
+            }
+        };
+        let run = &opened["stored_run"];
+        assert_eq!(run["state"], "restored", "{fixture}: {run}");
+        assert_eq!(run["findings"]["findings"], saved["expected"]["findings"], "{fixture}: the native open's findings are the webview's");
+        assert!(registry.dispose_result(run["handle"].as_str().unwrap()).unwrap().released);
+    }
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
 }
 
 // ---------------------------------------------------------------------------
