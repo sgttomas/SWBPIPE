@@ -310,18 +310,12 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
     let dir = scratch("reopen-recorded-basis");
     let cases = reopen_cases();
     let builder = std::collections::HashMap::new();
-    for (fixture, (_, basis, _)) in RECORDED_BASIS_FIXTURES.iter().zip(RECORDED_RUN_TABLE_BASES.iter()) {
+    for (index, fixture) in RECORDED_BASIS_FIXTURES.iter().enumerate() {
         let name = fixture.rsplit('/').next().unwrap();
         let verbatim: Value = serde_json::from_str(&read_text(&format!("{fixture}/{FIXTURE_RECORD}"))).unwrap();
-        assert_eq!(verbatim["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"], json!(basis), "{fixture} binds this recorded basis");
         let case = |id: String| cases.iter().find(|case| case["id"] == json!(id)).unwrap_or_else(|| panic!("no case {id}"));
         let (saved, recorded) = (case(format!("saved-recorded-basis:{name}")), case(format!("recorded-basis:{name}")));
         assert_eq!((&saved["fixture"], &recorded["read"]["fixture"]), (&json!(fixture), &json!(fixture)));
-        for case in [saved, recorded] {
-            assert_eq!(native_findings(case, &builder), case["expected"], "{}", case["id"]);
-            let findings = case["expected"]["findings"].as_array().unwrap();
-            assert!(!findings.iter().any(|finding| finding.as_str().unwrap().contains("MISMATCH")), "{}: {findings:?}", case["id"]);
-        }
         // The saved run is the fixture's record and source, verbatim, stored and reopened natively.
         let (result, record) = saved_run(saved, &builder);
         assert_eq!(record, verbatim);
@@ -345,20 +339,29 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
             )
             .unwrap();
         }
-        let opened = match native_open(&registry, &path, Some(&project_id)) {
-            Ok(opened) => opened,
+        match native_open(&registry, &path, Some(&project_id)) {
+            Ok(opened) => {
+                let run = &opened["stored_run"];
+                assert_eq!(run["state"], "restored", "{fixture}: {run}");
+                assert_eq!(run["findings"]["findings"], saved["expected"]["findings"], "{fixture}: the native open's findings are the webview's");
+                assert!(registry.dispose_result(run["handle"].as_str().unwrap()).unwrap().released);
+            }
             Err(native) => {
                 assert_ne!(project["model"]["schema_version"], json!("0.9.0"), "{fixture}: {native}");
                 assert!(native.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{fixture}: {native}");
                 let legacy = crate::open_project_in_store(path.clone(), Some(&project_id)).err();
                 assert_eq!(Some(native), legacy, "{fixture}: refused as the legacy open refuses");
-                continue;
             }
-        };
-        let run = &opened["stored_run"];
-        assert_eq!(run["state"], "restored", "{fixture}: {run}");
-        assert_eq!(run["findings"]["findings"], saved["expected"]["findings"], "{fixture}: the native open's findings are the webview's");
-        assert!(registry.dispose_result(run["handle"].as_str().unwrap()).unwrap().released);
+        }
+        // Both forms' findings, natively from the stored values, are the webview's, and none refuses the basis.
+        for case in [saved, recorded] {
+            assert_eq!(native_findings(case, &builder), case["expected"], "{}", case["id"]);
+            let findings = case["expected"]["findings"].as_array().unwrap();
+            assert!(!findings.iter().any(|finding| finding.as_str().unwrap().contains("MISMATCH")), "{}: {findings:?}", case["id"]);
+        }
+        // Each fixture binds its own row's recorded basis, in the table's order.
+        let basis = RECORDED_RUN_TABLE_BASES.get(index).map(|(id, recorded, _)| json!({"id": id, "sha256": recorded}));
+        assert_eq!(Some(&verbatim["analysis_run"]["reproducibility"]["semantic_contract"]), basis.as_ref(), "{fixture} binds row {index}'s recorded basis");
     }
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
