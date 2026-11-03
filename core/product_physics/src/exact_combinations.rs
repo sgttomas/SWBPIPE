@@ -1102,13 +1102,21 @@ mod tests {
         }
         assert!(SIGNED_LINEAR_KINDS.iter().chain(&RECOMPUTED_KINDS).all(|k| by_kind.contains_key(k)));
         let policy = &table["combination_policy"];
-        assert_eq!(policy["policy_id"], "PRESSURE-2-COMBINATION-v1");
+        assert_eq!(policy["policy_id"], "PRESSURE-2-COMBINATION-v2");
         let listed = |key: &str| policy[key].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect::<Vec<_>>();
         assert_eq!(listed("linear_state_kinds"), SIGNED_LINEAR_KINDS.to_vec());
         assert_eq!(listed("recomputed_magnitude_kinds"), RECOMPUTED_KINDS.to_vec());
-        let gates: Vec<&str> = policy["mechanics_gates"].as_array().unwrap().iter().map(|g| g["code"].as_str().unwrap()).collect();
-        // RT-A3 increment 3's gate 4 (CONSTANT_EFFORT) follows these three.
-        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE, CONSTANT_EFFORT]);
+        let codes = |key: &str| policy[key].as_array().unwrap().iter().map(|g| g["code"].as_str().unwrap()).collect::<Vec<_>>();
+        // RT-A4 (absolute-sum-srss §10.2): `gate_reason`'s order. The operand gate comes first; then,
+        // for a mechanics combination, the nonlinear gate (reached once the route admits nonlinear
+        // supports) before gates 1 to 3 and gate 4's two codes, and for an absolute sum or SRSS the
+        // unsigned list.
+        assert_eq!(policy["operand_gate"]["code"], preview_physics::OPERAND_WITHHELD);
+        assert_eq!(codes("mechanics_gates"), [NONLINEAR, MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE,
+            CONSTANT_EFFORT_OPERAND_MIXED, CONSTANT_EFFORT]);
+        assert_eq!(codes("unsigned_gates"), [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE_UNSIGNED,
+            CONSTANT_EFFORT_UNSIGNED]);
+        assert_eq!(policy["gated_forms"], json!(["mechanics", "absolute_sum", "srss"]));
     }
 
     #[test]

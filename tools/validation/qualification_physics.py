@@ -36,7 +36,7 @@ MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U5b's tie-rod force
 # and T4-U4b's (§2.2) per-basis kinds (129 signatures, 66 kinds).
-TABLE_SHA256 = 'be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f'
+TABLE_SHA256 = '10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);

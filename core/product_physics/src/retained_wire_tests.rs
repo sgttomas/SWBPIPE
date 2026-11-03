@@ -37,8 +37,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// companions preserve every physical row and are still equal under capture.
 /// W-7 global end rows added (12 element_global_end rows on the one member); no other byte moved.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 86484, "ac3bde77f91d0a9d595b08799cae5907c8fbef78c6c4c94761514ff6967b2e0d"),
-    ("dense_scrutiny", 86510, "6da64fa02c206a88e670c75ff6b74364263c94e1ac8722a963f603ddf01ac7db"),
+    ("sparse_interactive", 87170, "d9d2a845381a2785e885b2f9befbb6c4f1d1e7780310732f58edfc7d7809f82e"),
+    ("dense_scrutiny", 87196, "a34cfcf2c4783aec57592228d418db07490516e0ce776e19cb88adb3a0f806ed"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).

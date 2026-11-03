@@ -492,7 +492,7 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 # pressure-2: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f"
+PRESSURE_CONTRACT_SHA256 = "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 # Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling "0.8.0 a2": recorded runs keep
 # their existing read and compare behaviour). pressure-2's table changed only the model version token of its
@@ -505,6 +505,9 @@ _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json
 # 0.9.0 registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too. RT-A3 increment 3
 # (DEL-04-07 Design pressure-contract.md, "Constant-effort supports") restates two limitations and appends a
 # combination gate, rows unchanged, so a run recorded under the pre-increment table (a2db16a5…) is read the same way.
+# RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2) restates the combination policy (v2: combination
+# operands, absolute sums and SRSS) and adds three vocabulary tokens, rows unchanged, so a run recorded under the
+# constant-effort table (be29fabc…) is read the same way.
 # The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
 RECORDED_RUN_TABLE_BASES = (
     (PRESSURE_CONTRACT_ID, "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", PRESSURE_CONTRACT_SHA256),
@@ -512,6 +515,7 @@ RECORDED_RUN_TABLE_BASES = (
     (PRESSURE_CONTRACT_ID, "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", PRESSURE_CONTRACT_SHA256),
     (PRESSURE_CONTRACT_ID, "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", PRESSURE_CONTRACT_SHA256),
     (PRESSURE_CONTRACT_ID, "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", PRESSURE_CONTRACT_SHA256),
+    (PRESSURE_CONTRACT_ID, "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f", PRESSURE_CONTRACT_SHA256),
 )
 
 
@@ -525,24 +529,24 @@ def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash
 
 
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # DEL-05-03 Design pf-timoshenko.md §4: the pressure-free Timoshenko identity, beside preview-physics-2 on the
 # preview-physics route. Its own table and hash; preview-physics-2's are unchanged, so existing records stay compatible.
 PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1"
-PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"
+PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_SHA256 = "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"
 _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}

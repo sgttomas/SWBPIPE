@@ -44,6 +44,11 @@ it rests on the writer's regeneration and staleness check
 at the endpoint (a stale carrier fails), except the named hash-only carriers
 (`HASH_ONLY`), which state none; and every JSON file that stated one there is
 listed or named.
+
+RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2) restates the
+pressure-2 combination policy and the preview-physics limitation and regenerates
+carriers again. This proof keeps this stage's endpoint: 92708b3e4 (RT-A4's
+wiring over RT-A3's final candidate 01e05a486, before §10.2 was applied).
 """
 from collections import defaultdict
 from functools import cache
@@ -64,6 +69,8 @@ from tests.test_rt_a3_reducer_2b_text_only_envelope_diff import (
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "3983f51cfcef6af26a7846bd63f267425379cfd3"
+# This stage's endpoint, frozen when RT-A4 applied its policy texts (§10.2).
+END = "92708b3e42e3760969aa0e2e1df818c9f3f7581c"
 
 TEE_TAIL = "and a realized arc it names carries none"
 CE_CLAUSE = (
@@ -490,7 +497,7 @@ def _forward(pairs, what):
 
 
 def current(name):
-    return (ROOT / name).read_text()
+    return _at(END, name)
 
 
 @cache
@@ -607,7 +614,7 @@ def _restore_report_statements(value, patterns, path=()):
 def check(name, after=None):
     """Compare one carrier with the endpoint; return (restated count, moved digests)."""
     before = _at(BASE, name)
-    after = (ROOT / name).read_text() if after is None else after
+    after = _at(END, name) if after is None else after
     moves = []
     if name == READER_OUTCOMES:
         # Input hashes there bind result statements plus invocations; keys, readings and verdict summaries
@@ -616,7 +623,7 @@ def check(name, after=None):
         assert before != after, "reader outcomes still state the predecessor bindings"
         # Only an entry's input digest and its readings' outcome digests move; the eight RV120/N2b inputs move as
         # their pins in retained_precision_contract.rs do (which the Python materialization derives).
-        pins = dict(zip(rv120_jcs_pins(_at(BASE, RC_TESTS)), rv120_jcs_pins((ROOT / RC_TESTS).read_text())))
+        pins = dict(zip(rv120_jcs_pins(_at(BASE, RC_TESTS)), rv120_jcs_pins(_at(END, RC_TESTS))))
         assert len(pins) == 8
         for path, old, new in moves:
             if old in pins:
@@ -625,7 +632,7 @@ def check(name, after=None):
         return 0, []
     rv120 = name == RV120
     if rv120:
-        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE)
+        check_rv120_output_digests(json.loads(before), json.loads(after), base=BASE, end=END)
     if name in REPORT_PATHS:
         restored, moved = _restore_report_statements(load(after), REPORT_PATHS[name])
         moved += compare(load(before), restored, moves=moves)
@@ -674,7 +681,7 @@ def test_constant_effort_retained_carriers_move_only_the_texts_and_derived_bindi
 
 
 def test_constant_effort_j7_moves_only_whole_envelope_digests():
-    check_j7_envelope_digests_only(load(_at(BASE, J7)), load((ROOT / J7).read_text()))
+    check_j7_envelope_digests_only(load(_at(BASE, J7)), load(_at(END, J7)))
 
 
 def unmaterialized_moves(read=None):
@@ -700,7 +707,7 @@ def test_the_unmaterialized_digests_are_exactly_the_named_occurrences_and_move_o
 
 def test_the_table_digests_are_the_table_files():
     for name, (old, new) in TABLES.items():
-        assert _sha(_at(BASE, name)) == old and hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == new, name
+        assert _sha(_at(BASE, name)) == old and _sha(_at(END, name)) == new, name
 
 
 # ---------------------------------------------------------------- completeness
@@ -731,7 +738,7 @@ def test_every_json_file_stating_an_old_text_is_compared_or_named():
     """Completeness, outside frozen references, design records and recorded runs; none states an old text now."""
     listed = set(ORDINARY) | set(RETAINED) | {J7} | NOT_COMPARED
     check_completeness(listed, HASH_ONLY, _stating(BASE), lambda n: _at(BASE, n))
-    assert _stating(None) == set(), "a JSON file still states an endpoint text"
+    assert _stating(END) == set(), "a JSON file still states an endpoint text"
 
 
 def test_completeness_rejects_a_silent_list_entry_and_an_unlisted_carrier():
@@ -894,7 +901,7 @@ def test_a_restated_seal_is_derived_and_a_forged_one_is_not():
     from tests.test_retained_precision_b3 import reseal
     from tests.verifiers.retained_precision import EXACT_DEFINITION_HASH
     name = "fixtures/results/retained_precision_exact_successor_sparse_interactive.json"
-    document = json.loads((ROOT / name).read_text())
+    document = json.loads(_at(END, name))
     source, invocation = document["source"], document["invocation"]
     old = json.loads(json.dumps(source))
     old["formulation_basis"]["limitations"] = [OLD_S7 if t == NEW_S7 else t for t in old["formulation_basis"]["limitations"]]
@@ -920,7 +927,7 @@ def test_constant_effort_report_paths_are_exact():
 
 
 def test_constant_effort_texts_are_the_producers():
-    source = (ROOT / "core/product_physics/src/exact_admission.rs").read_text()
+    source = _at(END, "core/product_physics/src/exact_admission.rs")
     base = _at(BASE, "core/product_physics/src/exact_admission.rs")
     for old, new in (*PAIRS.items(), (OLD_ES, NEW_ES)):
         assert source.count(json.dumps(new, ensure_ascii=False)) == 1

@@ -222,6 +222,17 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // RT-A3 increment 1: the branch intensified rows' token on both section bases.
     extend(&mut vocabulary, "basis", &["user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=nominal_section",
         "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section"]);
+    // RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the absolute-sum and
+    // SRSS bases follow the range envelope's, and the displacement-magnitude component (the
+    // derivation metadata of a nested or unsigned combination's magnitude row) follows the
+    // moment magnitude, as in the result schema.
+    let insert_after = |v: &mut Value, key: &str, anchor: &str, extra: &[&str]| {
+        let list = v[key]["enum"].as_array_mut().unwrap();
+        let at = list.iter().position(|x| x == anchor).unwrap() + 1;
+        list.splice(at..at, extra.iter().map(|x| json!(x)));
+    };
+    insert_after(&mut vocabulary, "basis", "explicit_user_range_envelope", &["explicit_user_absolute_sum", "explicit_user_srss"]);
+    insert_after(&mut vocabulary, "component", "moment_magnitude", &["displacement_magnitude"]);
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_2.v0.3.schema.json"

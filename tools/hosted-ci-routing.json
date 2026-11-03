@@ -214,15 +214,15 @@
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
       "core/model_operations/operation_applier/Cargo.toml": "8de2d2adc3bee6eb608373de3e6975f60e3b03d289594970ca186929f3f9a03a",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
-      "core/product_physics/Cargo.toml": "f4a7b19b057326143d74cf3506b2ed437776d417e03054c59c0a1ee3e822ff5a",
+      "core/product_physics/Cargo.toml": "b49d151b698845f620360546f4d807423ce8ec24bb259207756331c344ca9ea9",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
       "core/reporting/pdf_emitter/Cargo.toml": "bdac876fe00cde0e3ba33a557dafe3e76e96dd462f4a710b63012dada23fca50",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
-      "core/reporting/report_package/Cargo.toml": "4763094f697b2201e8f5cdc7745e5cd284941be1bc0b70f48388e3df67459a21",
+      "core/reporting/report_package/Cargo.toml": "744d802476fdc552d6d50130f0af8e286cd76cb8aa37a7bd6c61146d8c94bd96",
       "core/reporting/report_renderer/Cargo.toml": "e16d788aa9def79409f139ca48b73f03bde62ce9ff898456aaac697dc00bcb0e",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
-      "core/reporting/result_export/Cargo.toml": "e1fe7d3d1ef83694f572dc87f231be837bf8b750f11e780025fd9a6567a3ec9e",
+      "core/reporting/result_export/Cargo.toml": "33a067b34670cac7b20c695ba8feeb717f709a3ccf8cd7e1f3d5c8f92b3d6fc4",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
       "core/rules/expression_evaluator/Cargo.toml": "7018210dadfb7c2b855298730f5f8cddedbe09f7f03b05421b81c3694f873b18",
       "core/rules/rule_check_runner/Cargo.toml": "88971098b7a02b7cd79ee97788e76d31425865b98a0e51dbdd7d6e8711fb9dc1",
@@ -4938,6 +4938,9 @@
               "fixtures/persistence/recorded_model_0_9_0_pre_ce/exact_pressure_connected_request.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_ce/pressure_connected_mechanics_sparse.json",
               "fixtures/persistence/recorded_model_0_9_0_pre_ce/pressure_plain_connected_sparse.analysis_run.json",
+              "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4/exact_pressure_connected_request.json",
+              "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4/pressure_connected_mechanics_sparse.json",
+              "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4/pressure_plain_connected_sparse.analysis_run.json",
               "fixtures/persistence/recorded_run_witness.json",
               "fixtures/persistence/recorded_run_witness_rule_packs.json",
               "fixtures/persistence/s2_unresolved_rule_pack_run.json",
@@ -5680,7 +5683,7 @@
             ]
           }
         ],
-        "sha256": "c8e6e6b9c072c93b4554dcaa48a486d6acda5bfab3a1aaef1af10a47a9281635",
+        "sha256": "bc86592b8642e663fea24022c0d0b52033bad95a4d6f607a60706b06cdb04194",
         "source_trees": [
           "core/reporting/report_package/Cargo.toml"
         ]

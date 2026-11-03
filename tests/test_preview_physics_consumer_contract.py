@@ -1169,7 +1169,10 @@ def test_factor_sum_bound_is_closed_and_the_next_dyadic_is_refused():
 def test_contract_tables_state_the_unit_factor_sum_rule(table):
     policy = json.loads((PROJECT / f"fixtures/results/semantic_contract_v0_3_{table}.json").read_text(encoding="utf-8"))["combination_policy"]
     (gate,) = [g for g in policy["mechanics_gates"] if g["code"] == "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"]
+    # RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the rule reads the combination's
+    # fixed-load count κ, which over load cases is the exact sum of the binary64 factors.
     assert gate["condition"] == (
-        "the model has a consuming constant-effort support and a factor is not finite or |sum(factors) - 1| > 64*epsilon, "
-        "with sum(factors) the exact sum of the binary64 factors, compared exactly and not scaled by sum(|factors|)"
+        "the model has a consuming constant-effort support and the combination's own \u03ba is undefined or "
+        "|\u03ba - 1| > 64*epsilon, compared exactly and not scaled by sum(|factors|); over load cases \u03ba is the "
+        "exact sum of the binary64 factors, and a non-finite factor leaves it undefined"
     )
