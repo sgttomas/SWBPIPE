@@ -961,6 +961,18 @@ separately authorized measurement. Review and checks establish no memory fit or 
 
 ### Slice 7: measurement and the PR
 
+**Integrated-main executable prepared; no run authorized (2026-11-03).** After the
+route-header run, main `3983f51cf` was merged (`9df2d8abb`; reconciliation `4d0bb1858`,
+slice 5's "On main at `3983f51cf`"). The maintained recipe bound clean `4d0bb1858` into a
+separate `app-c1-main-4d0bb1858/` without launching it: App/worker SHA-256
+`2edc74f73e55403de3f0deaf27610e869bf024387456f1557603cfcfba494fc2`, 48,855,840 B, frontend
+`sha256:df95f9bfe9d1d858ac408e5a4a70c81d5e1999883c0ea1ec4c689f542e35b58a`, now with three
+Wasm engines. Its runtime includes #95's `Index::any` map inside the compulsory readers. The
+four earlier candidates and 30 closure-hashed packet files are unchanged. The proposal gives
+the one-500 command with fresh `evidence/n0500-c1-main1` under unchanged limits, and the
+journal observations that would show whether registration's `validate` now exits or which
+later phase stays pending. It promises no speed or fit; every gate stays compulsory.
+
 **Approved metadata-only header implementation.** Agent0 selected the distinct
 route_header contract for C1 native/frontend surfaces only. The first await now
 requests metadata via unchanged public rv route/binding/error APIs; old full

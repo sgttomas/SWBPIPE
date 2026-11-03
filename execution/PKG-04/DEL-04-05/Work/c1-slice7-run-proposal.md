@@ -9,9 +9,227 @@ the repaired A500 timed out at the coarse reader-start mark; the reader-phase
 diagnostic at clean `cf8129cd1` timed out with the first header's native
 `validate` pending; the route-header run at clean `ee7a7f13b` completed the
 metadata header in 5.1 s and timed out with compulsory registration's native
-`validate` pending. All four grants are consumed. **No retry, B1000 or further
+`validate` pending. All four grants are consumed. A fifth candidate, built from
+the branch with main `3983f51cf` merged (`app-c1-main-4d0bb1858`), is prepared
+offline below; it has not been launched. **No run of it, retry, B1000 or further
 native interval is authorized.** Exact selected identities and all raw packets
 remain preserved.
+
+## Integrated-main executable (prepared; no run authorized)
+
+**Source.** `origin/main` at `3983f51cfcef6af26a7846bd63f267425379cfd3` was merged
+with `--no-ff` at `9df2d8abb` (no textual conflicts). Reconciliation commit
+`4d0bb18583fc08490464cba75d00dd73cc01e611` rebinds C1's native mirror of
+`RECORDED_RUN_TABLE_BASES` to RT-A3 2b's current pressure-2 digest and regenerates
+the C1 corpora from their generators. The plan's slice 5 "On main at `3983f51cf`"
+entry records the details and the interaction review. Relative to the
+route-header candidate, the runtime now includes:
+
+- #95's `Index::any` component-free map inside the compulsory readers (registered
+  at DEL-04-08 §8.42);
+- RT-A3 2a/2b admission and pressure-2's rebound digest;
+- S2's operating-condition resolution;
+- the MBF export module and its third Wasm engine;
+- the hanger sizing runner pieces.
+
+No C1 gate, limit, journal boundary or harness byte changed. The perf scripts and
+plan are byte-identical to the route-header bindings.
+
+The maintained recipe ran through `t3_slot.sh` from clean `4d0bb1858`. It finished
+at **2026-11-03T06:33:59.954Z** without launching the App, worker, sampler or large
+result. The binding records `source_dirty:false`.
+
+| Selected item | Identity |
+| --- | --- |
+| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-4d0bb1858` |
+| App / same-executable worker | `openpipestress-desktop`, 48,855,840 B, SHA-256 `2edc74f73e55403de3f0deaf27610e869bf024387456f1557603cfcfba494fc2` |
+| `perf-binding.json` | SHA-256 `58959ac4cc98f1d441cc664c22b46d008b1c1311a190001e54ee81dccb745d44` |
+| Embedded frontend `dist_digest` | `sha256:df95f9bfe9d1d858ac408e5a4a70c81d5e1999883c0ea1ec4c689f542e35b58a` (recomputed from `dist/` after the build: equal) |
+| Operation-applier Wasm source stamp | `sha256:78f50fdfd1843b1d8bc370100b616c6272287e788bfd7a10b878bbf6526c205f` |
+| Self-weight Wasm source stamp | `sha256:d10aeeabe52576381a536ac62f55b4bb034a10ac4e6f1c3e35dd4129dbe18cd6` |
+| MBF Wasm source stamp (new on main) | `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` |
+| Engine binaries and glue | every file's SHA-256 in the preparation record (`engines_sha256`) |
+| External `perf.mjs` | SHA-256 `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5` (unchanged) |
+| External `perf-driver.js` | SHA-256 `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` (unchanged) |
+| External `perf-sampler.py` | SHA-256 `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` (unchanged) |
+| `perf-plan-c1.json` | SHA-256 `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` (unchanged) |
+| Maintained rack generator | SHA-256 `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` (main `9f182ca9b` changed only its pending-family ledger text) |
+
+The rack generator's ledger is printed only by its ledger mode and is not
+written into a model. The merged generator regenerated `linear-ex-n0500.json`
+byte for byte to a temporary path, which was then removed. The selected file is
+unchanged: **1,828,475 B**, 500 nodes / 499 members, raw SHA-256
+`42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb`, JCS SHA-256
+`0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c`. The JCS
+digest was recomputed with `openpipestress_jcs_ijson` built from `4d0bb1858`.
+The corpus depth and actual-record reopening limits below remain.
+
+Python resolves as `/usr/bin/python3`, Xcode **3.9.6**, real executable
+SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`
+(unchanged). The preparing shell resolves `python3` to a newer interpreter first
+on PATH, as at the route-header launch. A run must again launch with that
+directory removed from PATH, or otherwise resolve to the bound interpreter.
+
+The private `scratch/rt-perf-c1-slice7/c1-main-4d0bb1858-preparation.json` sits
+beside the unmodified `route-header-preparation.json`. It binds:
+
+- the binding and the frontend;
+- all engine files, the scripts and the generator;
+- both models and Python;
+- the four earlier candidates;
+- the old preparation record's digest;
+- the four closure-hashed packets;
+- the build log `c1-main-4d0bb1858-release-build.log` (warnings only, no error).
+
+All four earlier bound copies (`app`, `app-p3`, `app-reader-phases`,
+`app-route-header`) keep their binary and binding digests. All **30 packet
+files** named by the four closure hash maps verified unchanged: 25 before, plus
+the route-header packet's 5. The proposed output
+`evidence/n0500-c1-main1` does not exist.
+
+Build recipe as run (do not rerun over the preserved candidate; the destination
+was checked absent first):
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
+/Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-4d0bb1858" --target-dir "$RT_C1_TARGET"
+node apps/desktop/native-smoke/perf.mjs --plan --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500
+```
+
+The engines were rebuilt first because the stamps from `c21ec1048` were stale
+against the merged source. `perf.mjs --build` refuses stale engines. The plan
+check lists one run, `native-linear-ex-n0500`, with a 720 s timeout inside an
+840 s budget.
+
+**Checks on this source.** None used the large workload.
+
+- Desktop Rust crate: `cargo test --locked`, **1,139 passed / 13 ignored**. This
+  includes the user-release and native-smoke reach scans, the native verdict,
+  route-header, solve-job, memory-pool and command-ingress tests.
+- Desktop vitest: **7,476 passed / 1 todo**, with zero unanswered native replay
+  requests (this includes `baseReaderWasmEquivalence.test.ts`). One
+  `App.test.tsx` case timed out at 30 s while the Rust suite shared the host. It
+  passed alone: 223 passed / 1 todo.
+- `tsc -b`, `build:desktop`, and 85 native-smoke node tests.
+- Hosted-CI routing: 116 tests.
+- `tools.deliverables check`: 0 errors.
+- The merge diff's other selected checks, without the full piping-pytest suite:
+  - modal-eigen: 121 passed;
+  - retained-pricing tool: 879 passed;
+  - model-version literals: 8 passed;
+  - benchmark references: 23 passed;
+  - the agent catalog and offline agent tests: 180 passed.
+
+After the build, the offline connecting checks passed:
+**29 tests** in `nativeResult.connect.test.ts` and
+`exactSessionSolve.session.test.tsx`, **4 native route-header tests** and **17
+native-verdict tests** (1 ignored). Logs are kept beside the preparation record.
+The native replay set was rebuilt from empty on this tree (**426** requests,
+answered by the real Rust commands). Main regenerated the pressure source fixtures
+whose digests key the earlier requests, so the c21ec1048 claim that 419 old
+outcomes were invariant is not carried over. No launch test of this binary is
+claimed.
+
+**One proposed run, pending a new owner decision and resource clearance:**
+
+```sh
+cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
+RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-4d0bb1858" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-main1"
+```
+
+Before launch, verify:
+
+- the submitting source is clean, and its runtime is unchanged from the selected
+  `4d0bb1858`;
+- every table, model, binding, engine and interpreter hash above;
+- the four earlier candidates and the 30 packet files;
+- the output is still absent.
+
+Static preparation grants no host admission.
+
+The same resource conditions apply as before:
+
+- normal queue, drain and memguard;
+- all four exclusive locks, with actual acquisition and closure (or a held
+  exception) announced promptly;
+- no nested slot or build inside the interval.
+
+The limits are unchanged:
+
+- **900 s** maximum including teardown;
+- supervisor **840 s**;
+- child **810 s**, with the **30 s** post-run reserve;
+- single-run timeout **720 s**;
+- first paint **300,000 ms**;
+- the fixed **256-boundary** scalar, fsynced journal;
+- all existing interaction timeouts.
+
+Any pre-App refusal, timeout, journal overflow, invalid journal, journal write
+failure or other failure consumes the attempt. There is no automatic retry, and
+no B1000 or 2,000-node attempt. The 12 GiB product limit, fresh host admission,
+fresh-unknown stopping rules, process attribution, owned teardown and closure
+checks in "Resource limits, cancellation and cleanup" apply in full. Partial
+journals, samples and records are preserved on failure.
+
+**What the journal can discriminate.** In the route-header attempt, call 1
+(`route_header`) finished all of its native phases in 5.1 s. Call 2 (the
+compulsory registration) then ran:
+
+- `args_admit`: 2,064,276-byte body;
+- `source_prescan`;
+- `inputs_admit`;
+- `source_admit`;
+- `source_parse`;
+- `inputs_parse`.
+
+It entered its full `validate` at native monotonic 8,800.54 ms and had no exit.
+By the journal's receipt clock, `validate` had been pending about **219 s** when
+the supervisor window ended: entry at epoch `…316,027` ms, window end about
+`…535,500` ms. The figure "about 292 s" subtracts a native-clock value from the
+web first-paint wait, which run on different origins. #95 replaced `Index::any`'s
+linear scan, O(rows) per lookup, with a map built once per `Index`. That scan is
+called per station by `member_stations` inside these readers. Agent 0's brief
+reports native `validate` at 250 nodes falling from 79.8 s to 11.8 s. That figure
+is not recorded in this tree and was not reproduced here.
+
+The same fixed IDs separate the outcomes. These are possible observations, not
+predictions.
+
+1. **The repair removed this stall.** Call 2 `validate` emits `exit ok`, followed
+   by call 2 `serialize` and `source_drop`, then web `registration exit ok`.
+   Next, web `standing` enters, with a native call for the model-bound full
+   standing (its own prescan, admission, parse and `validate` enter/exit). Then
+   web `summary` enters, with `summary_health` / `summary_build` enter/exit. Then
+   the actual full-verdict agreement (which may reuse the exact-input full-verdict
+   cache) and first paint. Only after first paint do the unchanged paged UI,
+   CSV, Record/Save, reopen and P3 steps run.
+2. **The stall moved later.** The journal's terminal `incomplete` list names the
+   first pending pair. Each pending phase means:
+   - `standing` with its native `validate` pending: the model-bound full standing
+     is now the slow reader;
+   - `summary` with `summary_health` or `summary_build` pending: health or summary
+     construction;
+   - a pending `source_parse` or `source_drop` in any call: repeated full-source
+     materialization or release;
+   - all four web phases exited but first paint missing: the delay is after the
+     reader awaits, such as result construction or the later session gates.
+3. **The repair was not enough here.** Call 2 `validate` is again entered with no
+   exit, and the same pair is incomplete. The 500-node full validation is then
+   still beyond the window on this build. The journal still cannot name an inner
+   validator, CPU use or allocations.
+
+An exit `ok` only means a call returned. Each successful phase grants nothing
+beyond its own gate. Registration, model-bound standing, health and actual
+full-verdict agreement all stay compulsory, and a restored result stays
+historical. No speed, memory fit, first-paint pass, usable size or C1 completion
+is promised. Nothing earlier is relabelled as qualified. #59 remains draft;
+shared core, clone and pricing writes stay held. ScopeOfWork and dependency
+conditions are unchanged: this section reconciles artifact identity and the
+combined source only.
 
 ## Separate route-header executable: offline ready, no run authorized
 
