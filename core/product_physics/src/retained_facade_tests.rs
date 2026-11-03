@@ -2603,8 +2603,8 @@ fn b3b_witness_inputs_and_routes() {
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: re-pinned for the pressure-2 identity limitation and the hashes binding it.
-    ("sparse_interactive", "8111a4e741b7c29a26d6e50af7fb7ce9b3334c246ddb01ca574e96687cf4c938", "250f949df1efa6390857f899d69987268a2b2dbe00f222f766c828e6f64de227", "87bc4072054abd9f4ab83ee75ca2131a08fbba3bf50ae9ea1a6543897ef85ff7"),
-    ("dense_scrutiny", "d1612fb675093ba29bea5d3986451b4b7dd089df5308e2b1fdc927e5ff0508d7", "dd71913981f49d04fe4f8092506bb3385191fd394285dba6e33dc42e06825c22", "ff97d96d20fdc9f6b88b1e530a8ead9274a5fd34dcb838e00aa31ad682ada7d5"),
+    ("sparse_interactive", "47e3d7b0a347dfd41d1d8c0b70212606b97fdcca67fc8f4cfc9c20093549af44", "6c07491ea19bcefb2e839929c5208bd8f275b3816da4f50a04f9d43d350b40b5", "88dc9fa15ccd83f9b35edf4c550c025dd7813fa5614038f46d65ae705dd332a3"),
+    ("dense_scrutiny", "237fbc5fb0a4a4a0d9db10f8869e0a652c1000fb48a240e984454717c08c33bf", "cec805ba50c6f1fb0c10cca6339c0d6a1a3a6916418ca47d87eff17c87d9c1c2", "a8ed4679f945a963355f21f962b5b6806b2659e51ce2b285464e9ecd898c62b3"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2621,7 +2621,7 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "976d5a20bfc4267f290c967f72bf1ea7c1b78e184a811ef94916c46e02bbbc41", "035cfb44ae747e63259758cc50e2b262566c86f39c319851a9e6725cc18a0767"),("dense_scrutiny", "8ca8b23a2579562dc3ff27edb465578aecb5956b7c5aeca2b0f2ad7fc360fff6", "27e53b4816b49a8a5e0ae306b18c7fd9f84b31deecf578e84de4276dc0d408f3")];
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "eda858d8c3cd5cfbfe5c044495e518afe2407f8c3d012146289117ce914a88c0", "4bea4d5eeacc8a2cc69833c94a2f9e68eabfcfd925610a5a5631d36bfed827a3"),("dense_scrutiny", "dfa90df7ceba3baaaa4ed88838302268aa2e35edf71bc48e7d10a13f74b771d7", "6cc7f3002d986782ffc7cbf2de7061a59aaa597bb9c2c81f5411206222269a25")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3659,10 +3659,10 @@ fn two_member_exact(reversed: bool) -> Value {
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "cf82eafb95b972028720a1b40be8e0673885f6eae654cbd08b5619050429466c"),
-    (false, "dense_scrutiny", "0cad1215b4cea9e19af425ae170785a270aecd951daff7da7a1cba241d413151"),
-    (true, "sparse_interactive", "bcabfac74de4c10e2d8f4d571c3361e353ceda6221240d2749d37068ea965f32"),
-    (true, "dense_scrutiny", "f530d8e6c848da088dd1215c1b1a09dc208ed50b7025f7a4f073ab73bf048edb")];
+    (false, "sparse_interactive", "c60baf78ecd0c561f085a5f54b6e5b0c8b97deb42f185bddf7863375b0e2b495"),
+    (false, "dense_scrutiny", "960619221154e00d2b48d17a79d986fc9ef4bbbc8bfa661fb8b39c6bb3b2da65"),
+    (true, "sparse_interactive", "7f13fe49c287705134acc930edff1badeacfdd273a98285255bc4c4fe65e16c4"),
+    (true, "dense_scrutiny", "25e87e412a38352936fc1277e2ae8e821f74ef786125f5c40e23447cb4dfe18a")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3715,8 +3715,8 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "f1b260859885fc5b7008a3eb4ba9ee51bbb0655f507face542b2d59031df63bc"),
-    ("dense_scrutiny", "c228e12815eb98d4d487b2dbced93bfce4557d3af52b1be834aa1944546e3ddb")];
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "e17ab0e95c163aabddbea27d8d7f41567c1db506631f126b345072454f5407e2"),
+    ("dense_scrutiny", "e794aca11b4a697f03a252f8e6790120eb020815ea1af537f2e994a930a5aade")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

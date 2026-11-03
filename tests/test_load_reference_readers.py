@@ -54,11 +54,13 @@ FROZEN = {
     # and every other field are bound by test_rt_a3_reducer_text_only_envelope_diff.
     # RT-A3 reducer 2b: again the identity sentence only, bound by
     # test_rt_a3_reducer_2b_text_only_envelope_diff.
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "fb6fe9ef256d361a0037670bfb1733237c4826c564be374988218ce094efc0ef",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "6b347f8632bd05b8389f9f0b417722a1e4e39af00c6ad40cac95237f0c218c33",
+    # RT-A3 increment 3: the identity and the D-2 support sentence only, bound by
+    # test_rt_a3_constant_effort_text_only_envelope_diff.
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "9e1534e5b47c516a1539c4b7fb6496a9772b3aa27be3e30a1e73d96c400f1f97",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "09406d9c0e0a4af59cc437e7227c597b667e87cbbd9485c7206147582cd3b73f",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "36f2b657c948fb9cb3af87d1626b9b1fe0304861e47d64f8bd2a27625247c0d7",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "100ba08a25c3fc7844cd8cfbffddb18d4a302b1284f32cd734f4a26fe75c767e",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "d0a243754bd40ffdfd8d77d146ea167649a2e6c3c2c87c471a35f7aa0bc58952",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "839020735dc260887753183b32f383680c66fb2ff93e0474e156464edfdae74d",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "ce8f7457c6449d2370b9572d6a3550b7732ad42ce71b9320b48c32441e0fd50b",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }

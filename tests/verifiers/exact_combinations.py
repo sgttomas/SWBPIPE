@@ -8,7 +8,9 @@ record's complete expression, the operand rows and the case evidence, and compar
 coverage: the published combination rows in order (every field and value bit), the operand
 sources and the ``pressure_free_operand_recovery`` witnesses, the gate, the operands' standing,
 the missing sources and withheld rows, and the diagnostics that state them. ``model_checks``
-binds each record to the captured model (G2).
+binds each record to the captured model (G2) and binds gate 4's input (RT-A3 increment 3: a consuming
+constant-effort support) to the model's DEC-049 conditions, each case's applied-load rows the producer's whole rows
+for the model's consuming supports (their nodes and acting DOFs included).
 
 Independence: standard-library imports only, and its sibling ``section_basis`` (bit equality).
 Its algebra is its own and exact: a linear combination is the exact rational sum of the
@@ -43,6 +45,9 @@ SOURCE_RECOVERY_EXCLUSION = ("excluded: a document with a load combination attem
 MODULUS_BASIS_MIXED = "COMBINATION_MODULUS_BASIS_MIXED"
 RESOLVED_STIFFNESS_MIXED = "COMBINATION_RESOLVED_STIFFNESS_MIXED"
 INSTALLED_REFERENCE = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE"
+# Gate 4 (RT-A3 increment 3), after gate 3: PF's reason on EX.
+CONSTANT_EFFORT = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"
+APPLIED_LOAD = "constant_effort_support_applied_load"
 DERIVED = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS"
 SOURCE_RECOVERY_EXCLUDED = "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED"
 SOURCE_MISSING = "LOAD_COMBINATION_SOURCE_RESULT_MISSING"
@@ -64,8 +69,13 @@ GATE_MESSAGES = {
     "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND": ("Combination withheld: a connector or tie rod has a nonzero installed reference, which "
                                                          "acts in every case state; an absolute sum or SRSS of operands whose fixed-load count "
                                                          "is not exactly 0 would count it once per term with its sign discarded."),
+    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": ("Combination withheld: a constant-effort support's force acts in every case state; an "
+                                                     "absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it "
+                                                     "once per term with its sign discarded."),
 }
 INSTALLED_REFERENCE_UNSIGNED = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND"
+CONSTANT_EFFORT_UNSIGNED = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND"
 NONLINEAR = "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
 GATE_MESSAGES[NONLINEAR] = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state."
 STATE_CODE = "nonlinear_support_active_set_state_code"
@@ -408,10 +418,121 @@ def _modulus_key(operand: Mapping[str, Any]) -> str | None:
     return f"temperature_kelvin_bits:{struct_bits(float(value)):016x}"
 
 
+# The characters Rust's `str::trim` removes (Unicode White_Space, Rust `char::is_whitespace`); Python's `str.strip()`
+# also removes U+001C-U+001F, which Rust keeps. Transcribed from `source_blocks.py` (this module imports no sibling
+# but `section_basis` and `units`).
+_RUST_WHITESPACE = frozenset(map(chr, [*range(0x09, 0x0E), 0x20, 0x85, 0xA0, 0x1680, *range(0x2000, 0x200B),
+                                       0x2028, 0x2029, 0x202F, 0x205F, 0x3000]))
+_TRANSLATIONAL = {"UX", "Ux", "ux", "UY", "Uy", "uy", "UZ", "Uz", "uz"}
+_ROTATIONAL = {"RX", "Rx", "rx", "RY", "Ry", "ry", "RZ", "Rz", "rz"}
+
+
+def _rust_trim(value: str) -> str:
+    start, end = 0, len(value)
+    while start < end and value[start] in _RUST_WHITESPACE:
+        start += 1
+    while end > start and value[end - 1] in _RUST_WHITESPACE:
+        end -= 1
+    return value[start:end]
+
+
+def _constant_effort_support(support: Mapping[str, Any]) -> bool:
+    """The solver's `is_constant_effort_support`: the trimmed explicit `hanger.hanger_type` when non-empty, otherwise
+    the trimmed family, is `constant_effort_support`."""
+    hanger = support.get("hanger")
+    explicit = hanger.get("hanger_type") if isinstance(hanger, Mapping) else None
+    reading = _rust_trim(explicit) if isinstance(explicit, str) else ""
+    if not reading:
+        family = support.get("family")
+        reading = _rust_trim(family) if isinstance(family, str) else None
+    return reading == "constant_effort_support"
+
+
+# The producer's applied-load sign convention (PP `CONSTANT_EFFORT_APPLIED_SIGN_CONVENTION`), re-derived whole.
+APPLIED_LOAD_SIGN_CONVENTION = (
+    "positive value is the user-entered constant support force applied along the positive axis of the single declared "
+    "translational restraint DOF in every solved load case; the ideal constant-effort element contributes zero stiffness "
+    "and adds no solve restraint row; no gravity coupling, catalog/default value, or inferred direction is supplied")
+_ACTING_DOF = {"UX": "UX", "Ux": "UX", "ux": "UX", "UY": "UY", "Uy": "UY", "uy": "UY", "UZ": "UZ", "Uz": "UZ", "uz": "UZ"}
+
+
+def _hanger_reference(hanger: Mapping[str, Any], field: str, missing: str) -> str | None:
+    """The producer's hanger reference as the applied-load row states it: entered text verbatim, or its stated absence
+    when missing or blank (Rust `trim`)."""
+    value = hanger.get(field)
+    if value is None:
+        return missing
+    if not isinstance(value, str):
+        return None
+    return missing if not _rust_trim(value) else value
+
+
+def consuming_constant_effort(model: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Gate 4's model condition (DEC-049), as the producer's `classify_constant_effort_consumption` reads its
+    normalized model: a constant-effort support with no `nonlinear` field whose `hanger.constant_load` normalizes to a
+    finite positive force, whose every declared restraint is a frame DOF with exactly one translational entry, and whose
+    node is a model node. Each consuming support resolved, in model order: its id, node, normalized acting DOF, force in
+    newtons and hanger references as the applied-load row states them."""
+    nodes = {n.get("id") for n in _items(model.get("nodes")) if isinstance(n, Mapping)}
+    consuming = []
+    for support in _items(model.get("supports")):
+        if not isinstance(support, Mapping) or not _constant_effort_support(support) or support.get("nonlinear") is not None:
+            continue
+        hanger = support.get("hanger")
+        load = hanger.get("constant_load") if isinstance(hanger, Mapping) else None
+        if not isinstance(load, Mapping):
+            continue
+        try:
+            force = to_canonical(load.get("value"), load.get("unit"), "force")
+        except (ValueError, TypeError, AttributeError):
+            continue
+        if not (math.isfinite(force) and force > 0):
+            continue
+        dofs = _items(support.get("restraints"))
+        if not all(isinstance(d, str) and (d in _TRANSLATIONAL or d in _ROTATIONAL) for d in dofs):
+            continue
+        acting = [_ACTING_DOF[d] for d in dofs if d in _TRANSLATIONAL]
+        node = support.get("node")
+        if len(acting) != 1 or not isinstance(node, str) or node not in nodes or not isinstance(support.get("id"), str):
+            continue
+        references = [_hanger_reference(hanger, field, f"{field}_missing")
+                      for field in ("source_reference", "manufacturer_reference", "load_side_review_reference")]
+        if any(r is None for r in references):
+            continue
+        consuming.append({"id": support["id"], "node": node, "dof": acting[0], "force": force, "source": references[0],
+                          "manufacturer": references[1], "load_side_review": references[2]})
+    return consuming
+
+
+def applied_load_row(support: Mapping[str, Any], case: str, position: int) -> dict[str, Any]:
+    """The producer's applied-load row for a consuming support in the solved case at `position` of `exact_cases` (PP
+    `append_constant_effort_support_results`): every field, the id the first case keeps and every later case qualifies
+    under `result:loadcase:{case}:` (`qualified_load_case_result_id`)."""
+    tail = f"constant-effort-support:{_stable_suffix(support['id'])}:applied-load"
+    return {
+        "id": f"result:{tail}" if position == 0 else f"result:loadcase:{_stable_suffix(case)}:{tail}",
+        "kind": APPLIED_LOAD,
+        "value": support["force"],
+        "unit": "N",
+        "entity_ref": support["id"],
+        "basis_ref": {"ref_type": "load_case", "ref_id": case},
+        "metadata": {
+            "component": APPLIED_LOAD,
+            "coordinate_system": "global",
+            "location": f"{support['node']}:{support['dof']} applied load",
+            "basis": (f"support_family=constant_effort_support;consumed_dof={support['dof']};source={support['source']};"
+                      f"manufacturer={support['manufacturer']};load_side_review={support['load_side_review']};"
+                      "mechanics_consumption=assembled_solve;dec_ref=DEC-049"),
+            "sign_convention": APPLIED_LOAD_SIGN_CONVENTION,
+        },
+    }
+
+
 def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, withheld: list[tuple[str, str]],
-          evidence: Mapping[str, Any], nonlinear: bool = False) -> tuple[str, str, list[str]] | None:
+          evidence: Mapping[str, Any], nonlinear: bool = False,
+          constant_effort: bool = False) -> tuple[str, str, list[str]] | None:
     """The gates (section 4; absolute-sum-srss section 5): a withheld operand combination; then, for the term bases,
-    gates 1 and 2 over every load case the combination reaches and gate 3 on kappa."""
+    gates 1 and 2 over every load case the combination reaches, and gates 3 and 4 on kappa."""
     named: list[tuple[str, str]] = []
     for kind, oid in expression.operands:
         code = next((c for w, c in withheld if w == oid), None) if kind == "combination" else None
@@ -439,13 +560,18 @@ def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, wit
         first = _stiffness(facts[0], pipe)
         if any(not _value_eq(_stiffness(f, pipe), first) for f in facts[1:]):
             return gated(RESOLVED_STIFFNESS_MIXED)
-    if _installed_reference(evidence.get("connector")):
+    # Gates 3 and 4 (absolute-sum-srss section 5.1): one kappa rule per fixed-load source, each under its own codes,
+    # gate 3 first where both sources hold.
+    def fixed_load_withheld() -> bool:
         kappas = [g.kappa_of(o) for o in expression.operands]
         if expression.basis == "mechanics":
-            if graph.mechanics_gate(g.kappa[cid], kappas) is not None:
-                return gated(INSTALLED_REFERENCE)
-        elif graph.unsigned_gate(kappas):
-            return gated(INSTALLED_REFERENCE_UNSIGNED)
+            return graph.mechanics_gate(g.kappa[cid], kappas) is not None
+        return bool(graph.unsigned_gate(kappas))
+    mechanics = expression.basis == "mechanics"
+    if _installed_reference(evidence.get("connector")) and fixed_load_withheld():
+        return gated(INSTALLED_REFERENCE if mechanics else INSTALLED_REFERENCE_UNSIGNED)
+    if constant_effort and fixed_load_withheld():
+        return gated(CONSTANT_EFFORT if mechanics else CONSTANT_EFFORT_UNSIGNED)
     return None
 
 
@@ -701,6 +827,9 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
     case_ids = {c.get("load_case_id") for c in _items(evidence.get("exact_cases")) if isinstance(c, Mapping)}
     has_maximum = any(_case_of(r) is not None and r.get("kind") in MAXIMUM_KINDS for r in results)
     has_intensified = any(_case_of(r) is not None and r.get("kind") in INTENSIFIED_KINDS for r in results)
+    # Gate 4's input: a consuming constant-effort support publishes its applied-load row in every solved case;
+    # `model_checks` binds those rows case by case to the model's DEC-049 decision.
+    constant_effort = any(_case_of(r) is not None and r.get("kind") == APPLIED_LOAD for r in results)
     expected_rows, modulus_rows, expected_diagnostics, ids = [], [], [], []
     # absolute-sum-srss sections 2-5: the records in evaluation order, kappa and the reached load cases of each, the
     # modulus key of every load-case operand stated so far, and the combinations withheld whole with their codes.
@@ -737,7 +866,7 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
             expected_diagnostics.append({"id": f"{PREFIX}fixed-load-count:{identity([cid])}", "code": graph.FIXED_LOAD_COUNT_UNREPRESENTABLE,
                                          "severity": "info", "message": graph.fixed_load_count_message(cid), "source": DIAGNOSTIC_SOURCE,
                                          "affected_refs": [cid]})
-        reason = _gate(cid, expression, g, modulus, withheld, evidence, nonlinear)
+        reason = _gate(cid, expression, g, modulus, withheld, evidence, nonlinear, constant_effort)
         _require(bit_equal(record["gate"], {"withheld": reason is not None, "reason": reason[0] if reason else None}), "GATE")
         if basis not in graph.TERM_BASES:
             # DEC-068 item 1: each load-case operand's solve basis, in authored order (an operand combination records none).
@@ -827,3 +956,18 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                 temperature = {"value": kelvin, "unit": "K"}
             _require(bit_equal(operand.get("modulus_basis_ref"), case.get("modulus_basis_ref"))
                      and bit_equal(operand.get("modulus_basis_temperature"), temperature), "MODEL_OPERAND")
+    # Gate 4's input decided from the model: every solved case publishes exactly the consuming constant-effort
+    # supports' applied-load rows, in model order, each the producer's whole row (id, value bits, unit, entity, basis,
+    # location naming the support's node and normalized acting DOF, consumed-DOF basis, hanger references and sign
+    # convention), and nothing else of that kind. A row whose node or DOF is not the model's is refused (review of
+    # deafe7153).
+    consuming = consuming_constant_effort(model)
+    results = _items(source.get("results"))
+    for position, case in enumerate(_items((source.get("contract_evidence") or {}).get("exact_cases"))):
+        cid = case.get("load_case_id") if isinstance(case, Mapping) else None
+        _require(isinstance(cid, str), "MODEL_CONSTANT_EFFORT")
+        published = [r for r in results if isinstance(r, Mapping) and r.get("kind") == APPLIED_LOAD and isinstance(r.get("basis_ref"), Mapping)
+                     and r["basis_ref"].get("ref_type") == "load_case" and r["basis_ref"].get("ref_id") == cid]
+        _require(len(published) == len(consuming), "MODEL_CONSTANT_EFFORT")
+        for row, support in zip(published, consuming):
+            _require(bit_equal(row, applied_load_row(support, cid, position)), "MODEL_CONSTANT_EFFORT")

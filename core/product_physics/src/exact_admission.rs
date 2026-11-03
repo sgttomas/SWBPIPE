@@ -23,7 +23,13 @@
 //! `pressure-contract.md`, "Tees and pressure junctions") admits the branch
 //! connection (tee) as the metadata record it is on the pressure-free route,
 //! with its user SIFs as intensified rows on both section bases
-//! (`u4b_rows::append_branch_intensified`). Other families retain their named
+//! (`u4b_rows::append_branch_intensified`). RT-A3 increment 3 (DEL-04-07
+//! `pressure-contract.md`, "Constant-effort supports (RT-A3 increment 3)")
+//! admits the ideal constant-effort support of DEC-049 on plain and
+//! load/reference-state documents: the shared `case_force_ledger` applies its
+//! constant nodal force in every solved case and state, and a mechanics
+//! combination over a model with a consuming one is gated by the unit
+//! factor-sum rule (`exact_combinations`). Other families retain their named
 //! refusals. Admission
 //! of another family must supply those consumers together; lifting a refusal
 //! alone cannot establish mechanics.
@@ -137,7 +143,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     let identity = if selected {
         "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response uses the contract's shear model and publishes its stress rows on both section bases. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     } else {
-        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none. Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state; valve, flange, rigid and specialty components are admitted as their mapped straight member with the user's DEC-045 stiffness scale, an equivalent pipe of the mapped section whose stress rows are those of that reference section (marked component_body), not a body stress, and reducers when their mapped member lies outside every pressure region or forms a pressure step, the only member of its own region between single straight members of other regions with transfers_to_wall at both ends, either concentric and collinear or eccentric or slanted with W-15c's run evidence and any read offset accepted, whose junction caps at the actual nodes along each member's own axis carry the step's pressure force and moment (EXACT_PRESSURE_REDUCER_IN_REGION otherwise); a branch connection (tee) is a record at its node, whose members meet as a rigid joint with no branch flexibility; a tee consumed as mechanics_geometry_only gives its user-entered header and branch SIFs as intensified rows at the ends of its named straight members on each section basis, not a code stress, and a realized arc it names carries none; a constant-effort support (DEC-049) declaring exactly one translational DOF and a finite positive constant load is consumed: it has zero stiffness and applies that load as a constant nodal force along the DOF's positive global axis in every solved case, and a mechanics combination over a model with one is withheld (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE) when a factor is not finite or the exact factor sum is not within 64 epsilon of 1; a record that is not consumed applies nothing and warns (SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED). Pressure regions meeting at a node where every terminal transfers to the wall form a junction, whose caps sum to the fitting's pressure load. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component or support family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     };
     let source = if selected {
         "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. Other cases keep their ordinary recovery and standing. No code compliance or professional acceptance is produced, and actual numerical admission remains separate."
@@ -158,7 +164,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
         limitations.extend([
             "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently.".to_string(),
             "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.".to_string(),
-            "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.".to_string(),
+            "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. A consumed constant-effort support's constant force is a device action of the active support in every state. Spring base motion, device preload/reference, inactive or locked supports are not provided.".to_string(),
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided. Generated equivalent-static (seismic or wind) loads have no ledger class and are refused by name (EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED).".to_string(),
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.".to_string(),
         ]);
@@ -303,15 +309,17 @@ impl ExactFamily {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
     /// The extension point: T4-U3 admits the objective connector; T4-U2 the
-    /// realized bend; W-15 the rigid family; RT-A3 the branch connection.
+    /// realized bend; W-15 the rigid family; RT-A3 the branch connection and
+    /// (increment 3) the constant-effort support.
     Admitted,
     /// A refusal's code and text, both static (no text is composed here).
     Refused { code: &'static str, message: &'static str },
 }
 
 /// The current admission table: the objective connector, the realized bend,
-/// the rigid family, the branch connection, equivalent-static generation and
-/// load combinations are admitted with their integrated mechanics.
+/// the rigid family, the branch connection, the constant-effort support,
+/// equivalent-static generation and load combinations are admitted with their
+/// integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
@@ -349,6 +357,17 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // through regions that end at its node (a region's internal node may
         // not touch an outside pipe), where the terminal caps form the junction.
         (ExactContract::PressureV3, ExactFamily::Branch) => Admission::Admitted,
+        // RT-A3 increment 3 (R-4 §3.2 S2; D-2 by Agent 0): the ideal
+        // constant-effort support (DEC-049) on plain and load/reference-state
+        // documents. A consuming record's constant force is a ledger input term
+        // in every solved case, and on a load-state document a device action of
+        // the active support in every state (`add_constant_effort_support_loads`
+        // in the shared `case_force_ledger`); it has zero stiffness and adds no
+        // restraint row. A non-consuming record applies nothing and warns
+        // (`SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED`). Mechanics combinations are
+        // gated by the unit factor-sum rule (`exact_combinations`). Held or
+        // locked devices belong to hydrotest (R-4 §4.9) and are not built here.
+        (ExactContract::PressureV3, ExactFamily::ConstantEffortSupport) => Admission::Admitted,
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
@@ -622,13 +641,14 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_constant_effort_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
                     if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
                         | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
                         | ExactFamily::RigidComponent | ExactFamily::Branch
+                        | ExactFamily::ConstantEffortSupport
                         | ExactFamily::EquivalentStatic | ExactFamily::Combination) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.

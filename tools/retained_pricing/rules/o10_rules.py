@@ -3554,6 +3554,24 @@ if fnkey("validate", _W16B_EV):
     ]
 if fnkey("append", _W16B_EC):
     O10_ID_AUDIT += [(site("append", _W16B_EC, "is missing in operand case {cases}", full=True), {"cases": _W16_JOIN3})]
+# RTA3CE-ID (RT-A3 increment 3, §8.44): the pressure-2 reader's model binding of constant-effort applied-load rows
+# (`ConstantEffortSupport::applied_load_row`, called only by `model_checks` after `consuming_constant_effort`) is reached
+# only through reader_verdict's model-bound pressure dispatch, outside the retained route's graph, so its sites keep
+# multiplicity 0 on every point. Its basis format keeps its arguments' classes: each hanger reference is the captured
+# model's entered text borrowed verbatim (IN128) or one of three static `..._missing` literals (at most 34 B). Guard: the
+# three references are read by `reference(..)` from the hanger record and nothing else feeds the two fields.
+if fnkey("applied_load_row", _W16B_EV):
+    _CE_CC = _fn_text("consuming_constant_effort", _W16B_EV)
+    _ce_id = (
+        _CE_CC.count('manufacturer: reference(support, "manufacturer_reference", "manufacturer_reference_missing")?,') == 1,
+        _CE_CC.count('load_side_review: reference(support, "load_side_review_reference", "load_side_review_reference_missing")?,') == 1,
+        _CE_CC.count('Value::String(text) => Some(if text.trim().is_empty() { missing } else { text.as_str() }),') == 1,
+        _production(_W16B_EV).count("manufacturer:") == 2 and _production(_W16B_EV).count("load_side_review:") == 2,
+    )
+    if not all(_ce_id):
+        raise SystemExit(f"RTA3CE-ID: the hanger references' source changed; re-review their classes: {_ce_id}")
+    O10_ID_AUDIT += [(site("applied_load_row", _W16B_EV, "load_side_review={};mechanics_consumption", full=True, row="format!("),
+                      {"self.manufacturer": IN, "self.load_side_review": IN})]
 
 # ---- §8.30: the three corrections (shared-terminal junction refusal, nonlinear dense memory guard, hanger-load warning;
 # DEL-04-07 Design pressure-contract.md and memory-budget-decision.md) and W-16t (partial-span wind on Timoshenko members,
@@ -4202,3 +4220,225 @@ if fnkey("plan", _S2_RES):
          {"what": {"bytes": max(len(_w) for _w in _s2_whats), "source": O10 + "S2-ID: the longest static temperature suffix"},
           "crate::stable_suffix(pipe_id)": IN}),
     ]
+
+# §8.43 (DEL-04-09 I2a): the product modal module (core/product_physics/src/modal.rs and modal/) is reached from no
+# retained root: no lib.rs function calls into it and no modal node is reachable on the run's graph. Two whole-crate
+# gates still read it, by the existing method (no exclusion, no method change):
+_MODAL = PP_ + "modal/"
+if fnkey("prepare_modal", _MODAL + "prepare.rs"):
+    import hashlib as _modal_hashlib
+    # MODAL-FB (CG_RULES, exact target subtractions; the KD5C5/CD-ID pattern): the name-based graph links these modal
+    # functions' method calls to certified_publication's private FallbackError add/mul/max/min, entering KD5C6's
+    # private cutset. Their receivers are open_pipe_stress_modal_eigen::dd::Dd (add, mul) and f64 or usize (max, min);
+    # FallbackError is private to certified_publication with no trait, public-return, function-pointer or macro escape
+    # (KD5C5). Only those candidates are subtracted; each caller's body is pinned, so an edit re-opens this rule.
+    _MODAL_FB = [
+        ("add_block", "mass.rs", ("add",), "ae750082f8becd88c44548bd4997e12b6b6cba9aabc51f79a00813539a519178"),
+        ("symmetric_apply", "mass.rs", ("add",), "6a3d73fdb789f1b3bc22977688671f249012f9f24d639cca7ca443914867a4e3"),
+        ("apply_mass", "mass.rs", ("add",), "e77fe629a614642aea509843a20f091092bff4e1fa2310162adb4356d1302389"),
+        ("nodal_resultant", "mass.rs", ("add", "mul"), "82a740b27d9174e8add9a9e775b46a694c1674c265c373bd6b279edb67a58134"),
+        ("largest_discrepancy", "weight_basis.rs", ("max",), "27f148781b9b576fbb6ca3a83bece0632520954a17d10d5a99380b5e8f17f0c2"),
+        ("identity_scales", "weight_basis.rs", ("max",), "0057b556c0d6e3fa32b33e56ccf47f08a325b8ad7bfc5847c1a78e01d9be395f"),
+        ("largest_difference", "weight_basis.rs", ("max",), "1e88b0f40e93ff68abb97c1108c3da5d01ef067f48b067b5fab6b278ed862acc"),
+        ("bounding_diagonal", "weight_basis.rs", ("min", "max"), "cab8c9dbaae3e9440ee030532f766599051375fb98184259cdd73570b2860c1d"),
+        # I2b-1 (#96): `reported.max(1)` on a usize; the bounding box on [f64; 3] coordinates.
+        ("modal_sturm_count", "eigen.rs", ("max",), "cbb35dc0019efe629a21e73f05f844cf61bc365e98f3eebe4b542ccba9175233"),
+        ("bounding_box_diagonal", "outcome.rs", ("min", "max"), "1ae2c9375f2aadf0106a9c79ba7681ddb61f48ff6b2fd806bc00b80a258038ec"),
+    ]
+    for _fn, _f, _methods, _digest in _MODAL_FB:
+        _body = _fn_text(_fn, _MODAL + _f)
+        if _modal_hashlib.sha256(_body.encode()).hexdigest() != _digest or "FallbackError" in _body:
+            raise SystemExit(f"MODAL-FB: {_f}:{_fn} changed; re-review its receivers and re-pin (§8.43)")
+        for _m in _methods:
+            _target = fnkey(_m, _CP)
+            if not _target:
+                raise SystemExit(f"MODAL-FB: certified_publication's {_m} is not unique; re-review (§8.43)")
+            CG_RULES += [{"caller": Resolved(_MODAL + _f + ":" + fnkey(_fn, _MODAL + _f).split(":", 1)[1]), "name": _m,
+                          "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "MODAL-FB",
+                          "evidence": "modal receivers are Dd (add, mul) and f64 or usize (max, min); private FallbackError is not nameable here (KD5C5); body pinned (§8.43)"}]
+    # MODAL-ID (ID_AUDIT, site-specific; the TIM-ID/S2-ID pattern): arguments of modal format sites that no existing
+    # class covers. Each site is at multiplicity zero (no retained root reaches modal; the chain classifies every format
+    # row before its multiplicity applies). Bounds are read from the pinned source or the D1 domain.
+    _md = lambda n, why: {"bytes": n, "source": O10 + "MODAL-ID: " + why}
+    _M_INT = _md(20, "a usize decimal")
+    _M_F64 = _md(327, "f64 Display")
+    _M_AX = _md(8, "one of AXES' three static tokens (global_x/y/z)")
+    _M_EMPTY = _md(0, "D1 refuses every nonlinear support (retained_memory.rs F::Nonlinear), so the joined list is empty")
+    O10_ID_AUDIT += [
+        (site("set_of", _MODAL + "context.rs", "the case uses {uses} and pipe", full=True),
+         {"uses": _md(13, "one of set_of's three static uses (temperature, added_weight, wind_exposure)")}),
+        (site("set_of", _MODAL + "context.rs", "refers to condition set `{reference}`", full=True), {"reference": IN}),
+        (site("bind_state_case", _MODAL + "context.rs", "fewer than its {authored} authored ones", full=True), {"authored": _M_INT}),
+        (site("bind_state_case", _MODAL + "context.rs", "authored + offset,", full=True, row="format!("), {"authored+offset": _M_INT}),
+        (site("bind_state_case", _MODAL + "context.rs", "the lowered wind exposure is not the expected {wind:?}", full=True),
+         {"wind|?": _md(8, "D1 refuses every equivalent_static case (F::EquivalentStatic), so the expected presence is Absent or Unstated")}),
+        (site("range_diag", _MODAL + "mass.rs", "cannot be formed: {what}", full=True),
+         {"what": _md(152, "a static reason (<= 59 B), a GeometryError Display (<= 73 B) or `component {IN128} names no node` (152 B)")}),
+        (site("assemble_mass", _MODAL + "mass.rs", "the body mass W/a of component {}", full=True),
+         {"weight.weight": _M_F64, "a": _M_F64, "weight.cog|?": _md(78, "[f64; 3] Debug: three f64 Debug (24) and four bracket/separator bytes"),
+          "operand": _md(23, "ComponentRangeOperand Display, the longest static name `spatial block m*r_i*r_j`")}),
+        (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
+         {'nonlinear.join(",")': _M_EMPTY}),
+        (site("state_case_requirement", _MODAL + "request.rs", 'reasons.push(format!("the model has nonlinear supports ({})"', full=True),
+         {'nonlinear.join(",")': _M_EMPTY}),
+        (site("state_case_unavailable", _MODAL + "prepare.rs", "({carried} blocking diagnostic(s), returned with this one)", full=True),
+         {"carried": _M_INT}),
+        (site("state_case_unbound", _MODAL + "prepare.rs", "defines no modal model: {reason}", full=True),
+         {"reason": _md(52, "one of state_case_unbound's two static reasons, the longer 52 B")}),
+        (site("validate_modal_request", _MODAL + "request.rs", "is {hz} Hz; a frequency cut-off is positive", full=True), {"hz": _M_F64}),
+        (site("validate_modal_request", _MODAL + "request.rs", "names its state_case because {why}", full=True),
+         {"why": _md(86, "state_case_requirement's static reasons joined by ` and ` (46 + 5 + 35 B), the nonlinear list empty on D1")}),
+        (site("validate_modal_request", _MODAL + "request.rs", "{why}; the modal model is defined by exactly one named case", full=True),
+         {"why": _md(31, "one of two static reasons, the longer `names no load case of the model`")}),
+        (site("validate_modal_request", _MODAL + "request.rs", "is {a} m/s^2; it is a positive acceleration", full=True), {"a": _M_F64}),
+        (site("weight_basis_mismatch", _MODAL + "weight_basis.rs", "diagnostic:modal:weight-basis:{}:{}", full=True), {"AXES[axis]": _M_AX}),
+        (site("acceleration_agreement", _MODAL + "weight_basis.rs", "and takes no part in the comparison", full=True),
+         {"status.state|?": _md(14, "AppliedSelfWeightState Debug, the longest variant `ManualOverride`")}),
+        (site("acceleration_agreement", _MODAL + "weight_basis.rs", '"load case {} applies component weight primitive', full=True, row="format!("),
+         {'recorded.map_or("unrecorded".to_string(),|g|format!("{g:e}"))': _md(24, "`unrecorded` (10 B) or one f64 exponent form (24 B)"),
+          'a.map_or("absent".to_string(),|a|format!("{a:e}m/s^2"))': _md(30, "`absent` (6 B) or one f64 exponent form and ` m/s^2` (30 B)")}),
+        (site("check_weight_basis", _MODAL + "weight_basis.rs", "the self-weight generator refused its inspection along {}", full=True), {"AXES[k]": _M_AX}),
+        (site("check_weight_basis", _MODAL + "weight_basis.rs", "of straight member {} differs from its consistent", full=True), {"AXES[k]": _M_AX}),
+        (site("compare_resultant", _MODAL + "weight_basis.rs", '"the resultant of a·M·r_k for {subject} along {}', full=True, row="format!("), {"AXES[k]": _M_AX}),
+    ]
+    if fnkey("modal_sturm_count", _MODAL + "eigen.rs"):
+        # MODAL-ID, I2b-1 (#96): the dense solve's files (eigen.rs, integrity.rs, outcome.rs; tests_eigen.rs is the
+        # #[cfg(test)] module). Mode numbers and counts are usize decimals. Each set of static reasons is read here
+        # from the pinned source, so an added or longer reason re-prices or stops. Debug and Display bounds are the
+        # longest rendering of the type, payloads at their class bounds (usize 20, f64 Debug or exponent form 24).
+        _E, _I = 24, 20
+        _M_SIDES = _md(93, "one of modal_sturm_count's three gap texts, the longest `mode {reported} (the top of the "
+                           "established finite spectrum) and the shift above it` (73 B and one usize)")
+        _M_CENSUS = _md(162, "FiniteCensus Debug, the longer `Unresolved { structurally_massless, nonpositive_mu, "
+                             "rejected_mu, mass_block_established: false }` (102 B and three usize)")
+        _M_PAIR = _md(50, "Option<(usize, usize)> Debug: `Some((a, b))`, 10 B and two usize")
+        _M_LABEL = _md(131, "a pencil label: integrity_dof_label's `{IN128 node id}:{UX..RZ}` (131 B) or "
+                            "`global_dof={usize}` (31 B), or pencil_range_text's `free DOF {usize}` (29 B)")
+        _M_DECISION = 143   # ShiftDecision Debug: OutOfRange(RangeViolation {..}) at two usize and one f64 Debug
+        def _m_static(fn, f, rx, count, why, every):
+            # `rx` reads the static reasons; `every` = (regex, scope, n) matches the construct that supplies them in
+            # its exact all-literal shape (a match block whose every arm is a literal, or every mention of a private
+            # function), over the function ("fn") or the whole file ("file"). A computed reason breaks that shape, so
+            # the run stops instead of the reason escaping the bound.
+            _text = _fn_text(fn, _MODAL + f)
+            _lits = _re.findall(rx, _text)
+            _all = len(_re.findall(every[0], _text if every[1] == "fn" else _text_of(_MODAL + f), _re.S))
+            if len(_lits) != count or _all != every[2]:
+                raise SystemExit(f"MODAL-ID: {f}:{fn}'s static reasons changed ({len(_lits)}, {_all}); re-review (§8.43)")
+            return _md(max(len(_l.encode()) for _l in _lits), why)
+        _m_why_census = _m_static("complete_reported_set", "eigen.rs", r'=> "([^"]*)",', 2,
+                                  "the longer of complete_reported_set's two static reasons",
+                                  (r'let why = match set\.stopped_by \{\s*StoppingBound::\w+ => "[^"]*",\s*_ => "[^"]*",\s*\}', "fn", 1))
+        _m_why_sturm = _m_static("modal_sturm_count", "eigen.rs", r'SturmRefusal::\w+ => \(MODAL_\w+, "([^"]*)"\)', 4,
+                                 "the longest of the four static Sturm refusal reasons",
+                                 (r'let \(code, why\) = match reason \{(?:\s*SturmRefusal::\w+ => \(MODAL_\w+, "[^"]*"\),){4}\s*\};', "fn", 1))
+        # reformation_refusal is private to integrity.rs (no child module): its definition and four literal calls are
+        # every mention in the file, so a computed call, a fifth call or a use as a function value stops.
+        _m_why_reform = _m_static("modal_reformation_operands", "integrity.rs", r'reformation_refusal\([^,]+, "([^"]*)"\.into\(\)\)', 4,
+                                  "the longest static reason of reformation_refusal's four callers (its only callers, all here)",
+                                  (r'\breformation_refusal\b', "file", 5))
+        # Every domain modal_parameter_refusals supplies, each in its all-literal shape: the checked-value table,
+        # whose 15 tuples each have four top-level elements ending in a lone string literal, and the five calls, each
+        # matched with its literal or fixed-format domain. parameter_refusal is private to integrity.rs, so its
+        # definition and those five calls are every mention in the file; a use as a function value adds one. Any
+        # other shape stops the run.
+        _pr = _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs")
+        _tbl = _re.findall(r'for \(name, value, ok, domain\) in \[(.*?)\]\s*\{', _pr, _re.S)
+        _calls = [
+            len(_re.findall(r'parameter_refusal\(name, format!\("\{value:e\}"\), domain\)', _pr)),
+            len(_re.findall(r'parameter_refusal\(\s*"[a-z_]+",\s*"0"\.into\(\),\s*"at least 1"\)', _pr)),
+            len(_re.findall(r'"sturm_gap_log_positions",.*?&format!\("a list of dyadic fractions in \(0, 1\) of level at most '
+                            r'\{MAX_GAP_POSITION_LEVEL\}"\),?\s*\)\);', _pr, _re.S)),
+            len(_re.findall(r'"sturm_whole_spectrum_offsets",.*?"a non-empty list of finite positive offsets",?\s*\)\);', _pr, _re.S)),
+        ]
+        def _m_tuples(block):
+            # The top-level tuples of the table, each split into its top-level elements (string literals skipped
+            # whole, so a parenthesis or comma inside one does not count).
+            out, depth, cur, elems, i = [], 0, "", [], 0
+            while i < len(block):
+                ch = block[i]
+                if ch == '"':
+                    j = i + 1
+                    while block[j] != '"':
+                        j += 2 if block[j] == "\\" else 1
+                    if depth >= 1: cur += block[i:j + 1]
+                    i = j + 1
+                    continue
+                if ch in "([{":
+                    depth += 1
+                    if depth == 1: cur, elems = "", []; i += 1; continue
+                elif ch in ")]}":
+                    depth -= 1
+                    if depth == 0: elems.append(cur.strip()); out.append([e for e in elems if e]); i += 1; continue
+                elif ch == "," and depth == 1:
+                    elems.append(cur.strip()); cur = ""; i += 1; continue
+                if depth >= 1: cur += ch
+                i += 1
+            return out
+        _tuples = _m_tuples(_tbl[0]) if len(_tbl) == 1 else []
+        if len(_tbl) != 1 or len(_tuples) != 15 \
+                or any(len(t) != 4 or not _re.fullmatch(r'"[^"\\]*"', t[3]) for t in _tuples) \
+                or _calls != [1, 2, 1, 1] or _pr.count("parameter_refusal(") != 5 \
+                or len(_re.findall(r'\bparameter_refusal\b', _text_of(_MODAL + "integrity.rs"))) != 6:
+            raise SystemExit(f"MODAL-ID: modal_parameter_refusals' domains changed ({len(_tbl)}, {_calls}); re-review (§8.43)")
+        _m_domain = _m_static("modal_parameter_refusals", "integrity.rs", r'"(finite[^"]*|at least 1|a non-empty[^"]*)"', 18,
+                              "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)",
+                              (r'parameter_refusal\(', "fn", 5))
+        _m_domain["bytes"] = max(_m_domain["bytes"], 54 + 10)
+        O10_ID_AUDIT += [
+            (site("complete_reported_set", _MODAL + "eigen.rs", "{why}, so the set would end", full=True),
+             {"why": _m_why_census, "census|?": _M_CENSUS}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", 'format!("modes {reported} and {}", next_mode + 1)', full=True),
+             {"reported": _M_INT, "next_mode+1": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "(the top of the established finite spectrum)", full=True), {"reported": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", 'format!("mode:{}", reported.max(1))', full=True), {"reported.max(1)": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "no final shift can be placed between {sides}", full=True), {"sides": _M_SIDES}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "the Sturm count at the final shift", full=True),
+             {"sides": _M_SIDES, "reported": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "; last candidate σ = {:e}: {:?}", full=True),
+             {"c.decision|?": _md(_M_DECISION, "ShiftDecision Debug, the longest `OutOfRange(RangeViolation { row, col, operation: "
+                                  "ShiftTimesMass, value })` (79 B, two usize and one f64 Debug); FactorizationRejected's "
+                                  "SparseDirectError Debug is at most 136 B")}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "the final shift between {sides} cannot be placed", full=True),
+             {"sides": _M_SIDES, "why": _m_why_sturm,
+              "evidence.largest_growth()|?": _md(30, "Option<f64> Debug: `Some(..)` and one f64 Debug"),
+              "furthest": _md(55 + 3 * _E + _M_DECISION, "empty, or the `; last candidate ..` text: 55 B, three f64 exponent "
+                              "forms and one ShiftDecision Debug")}),
+            (site("quantity_refusal", _MODAL + "eigen.rs", 'format!("mode:{}", m + 1)', full=True), {"m+1": _M_INT}),
+            (site("parameter_refusal", _MODAL + "integrity.rs", "modal integrity parameter `{name}` is {value}", full=True),
+             {"domain": _m_domain}),
+            (site("reformation_refusal", _MODAL + "integrity.rs", "cannot be re-formed from its leaves ({why})", full=True),
+             {"why": _m_why_reform}),
+            (site("modal_residual", _MODAL + "integrity.rs", 'format!("residual:mode-{}", mode + 1)', full=True), {"mode+1": _M_INT}),
+            (site("modal_residual", _MODAL + "integrity.rs", "the residual check of computed mode {}", full=True), {"mode+1": _M_INT}),
+            (site("modal_residual", _MODAL + "integrity.rs", 'vec![format!("mode:{}", mode + 1)]', full=True), {"mode+1": _M_INT}),
+            (site("modal_orthogonality", _MODAL + "integrity.rs", 'format!("mode:{}", pair.0 + 1)', full=True),
+             {"pair.0+1": _M_INT, "pair.1+1": _M_INT}),
+            (site("modal_orthogonality", _MODAL + "integrity.rs", 'vec![format!("mode:{}", mode + 1)]', full=True), {"mode+1": _M_INT}),
+            (site("pencil_range_text", _MODAL + "integrity.rs", 'format!("{range} (at {} / {})"', full=True),
+             {"range": _md(170, "PencilRangeUnsupported Display: MODAL_PENCIL_RANGE_UNSUPPORTED, `: stiffness entry (r, c) = "
+                                "v is outside the admitted magnitudes [2^-300, 2^300]` (106 B), two usize and one f64 exponent form"),
+              "at(range.row)": _M_LABEL, "at(range.col)": _M_LABEL}),
+            (site("run_modal_dense", _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row="format!("),
+             {"i+1": _M_INT}),
+            (site("run_modal_dense", _MODAL + "outcome.rs", "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),", full=True, row="format!("),
+             {"orthogonality.pair.map(|(a,b)|(a+1,b+1))|?": _M_PAIR}),
+            (site("run_modal_dense", _MODAL + "outcome.rs", "has a first-order eigenvalue error estimate", full=True, row="format!("),
+             {"i+1": _M_INT}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", '["X", "Y", "Z"][k]', full=True),
+             {'["X","Y","Z"][k]': _md(1, "one of three static one-byte axis names")}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", 'shortfall.join("; ")', full=True),
+             {'shortfall.join(";")': _md(3 * (25 + 1 + 2 * _E) + 2 * 2, "at most three entries (k in 0..3), each 25 B, one axis "
+                                          "byte and two f64 exponent forms (74 B), and two `; ` separators")}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", "formed stiffness positions differ between triangles", full=True),
+             {"pencil.stiffness_asymmetric_entries": _M_INT}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", "the finite-mode count is not established ({census:?})", full=True),
+             {"census|?": _M_CENSUS}),
+            # tests_eigen.rs (#[cfg(test)]): element counts and node numbers are usize decimals.
+            (site("sec_a_cantilever", _MODAL + "tests_eigen.rs", 'format!("n{}", i + 1)', full=True), {"i+1": _M_INT}),
+            (site("sec_a_cantilever", _MODAL + "tests_eigen.rs", 'format!("n{elements}")', full=True), {"elements": _M_INT}),
+            (site("class_b_rayleigh_cantilever_converges_through_the_product_path", _MODAL + "tests_eigen.rs",
+                  'format!("SEC-A cantilever N = {elements}")', full=True), {"elements": _M_INT}),
+            # No audit: modal_parameter_refusals' `{:?}` of sturm_gap_log_positions and sturm_whole_spectrum_offsets
+            # (Vec<f64>, caller-supplied, with no length cap in the source or D1); the run reports them unclassified.
+        ]

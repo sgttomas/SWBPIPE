@@ -12,7 +12,11 @@
 //! recovery witnesses, the gate, the operands' standing, the missing sources and
 //! withheld rows, and the diagnostics that state them. Any difference is a
 //! forgery and is refused. [`model_checks`] binds each record's expression and
-//! operand modulus selections to the captured model (G2).
+//! operand modulus selections to the captured model (G2), and binds gate 4's
+//! input (RT-A3 increment 3: whether the model has a consuming constant-effort
+//! support) to the model's DEC-049 conditions ([`consuming_constant_effort`]),
+//! each case's applied-load rows the producer's whole rows for the model's
+//! consuming supports (their nodes and acting DOFs included).
 //!
 //! The algebra is this reader's own: a linear combination is the exact sum of
 //! the exact products of the represented binary64 factors and operand values,
@@ -46,6 +50,11 @@ pub(crate) const SOURCE_RECOVERY_EXCLUSION: &str = "excluded: a document with a 
 const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
 const RESOLVED_STIFFNESS_MIXED: &str = "COMBINATION_RESOLVED_STIFFNESS_MIXED";
 const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE";
+/// Gate 4 (RT-A3 increment 3): PF's reason, after gate 3 (the producer's
+/// `exact_combinations::CONSTANT_EFFORT` states the order).
+const CONSTANT_EFFORT: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
+/// The producer's per-case row of a consuming constant-effort support.
+const APPLIED_LOAD: &str = "constant_effort_support_applied_load";
 const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
 const SOURCE_RECOVERY_EXCLUDED: &str = "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED";
 const SOURCE_MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
@@ -73,6 +82,8 @@ const LINEAR_SIGN: &str = "positive value follows explicit user linear combinati
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is recorded explicitly";
 const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
+/// absolute-sum-srss §5.1: gate 4 on an absolute sum or SRSS (PF's code and text).
+const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
 const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
 /// A published nonlinear support state row marks a model with nonlinear supports.
 const STATE_CODE: &str = "nonlinear_support_active_set_state_code";
@@ -305,8 +316,8 @@ impl ExactProducts {
     }
 }
 
-/// §4 gate 3's rule over flat factors: the exact sum of the factors is within 2^-46
-/// of 1, compared exactly and inclusively. Gate 3 reads κ (absolute-sum-srss §5.1),
+/// §4 gates 3 and 4's rule over flat factors: the exact sum of the factors is within 2^-46
+/// of 1, compared exactly and inclusively. Gates 3 and 4 read κ (absolute-sum-srss §5.1),
 /// which equals this sum for a flat combination; the test below pins the rule.
 #[cfg(test)]
 fn unit_factor_sum(factors: &[f64]) -> bool {
@@ -632,9 +643,114 @@ fn modulus_key(operand: &Value) -> Result<Option<String>, String> {
     }
 }
 
+/// The producer's applied-load sign convention
+/// (PP `CONSTANT_EFFORT_APPLIED_SIGN_CONVENTION`), re-derived whole.
+const APPLIED_LOAD_SIGN_CONVENTION: &str = "positive value is the user-entered constant support force applied along the positive axis of the single declared translational restraint DOF in every solved load case; the ideal constant-effort element contributes zero stiffness and adds no solve restraint row; no gravity coupling, catalog/default value, or inferred direction is supplied";
+
+/// One consuming constant-effort support as the producer resolves it: its id,
+/// its model node, the normalized name of its one translational DOF (the
+/// acting DOF), its force in newtons and its hanger references as the
+/// applied-load row states them.
+#[derive(Debug, PartialEq)]
+struct ConstantEffortSupport<'a> {
+    id: &'a str,
+    node: &'a str,
+    dof: &'static str,
+    force: f64,
+    source: &'a str,
+    manufacturer: &'a str,
+    load_side_review: &'a str,
+}
+
+impl ConstantEffortSupport<'_> {
+    /// The applied-load row the producer publishes for this support in the
+    /// solved case at `position` of `exact_cases` (PP
+    /// `append_constant_effort_support_results`): every field, with the id the
+    /// first case keeps and every later case qualifies under
+    /// `result:loadcase:{case}:` (`qualified_load_case_result_id`).
+    fn applied_load_row(&self, case: &str, position: usize) -> Value {
+        let tail = format!("constant-effort-support:{}:applied-load", stable_suffix(self.id));
+        let id = if position == 0 { format!("result:{tail}") } else { format!("result:loadcase:{}:{tail}", stable_suffix(case)) };
+        json!({
+            "id": id,
+            "kind": APPLIED_LOAD,
+            "value": self.force,
+            "unit": "N",
+            "entity_ref": self.id,
+            "basis_ref": {"ref_type": "load_case", "ref_id": case},
+            "metadata": {
+                "component": APPLIED_LOAD,
+                "coordinate_system": "global",
+                "location": format!("{}:{} applied load", self.node, self.dof),
+                "basis": format!(
+                    "support_family=constant_effort_support;consumed_dof={};source={};manufacturer={};load_side_review={};mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+                    self.dof, self.source, self.manufacturer, self.load_side_review
+                ),
+                "sign_convention": APPLIED_LOAD_SIGN_CONVENTION,
+            },
+        })
+    }
+}
+
+/// Gate 4's model condition, read from the captured model as the producer's
+/// `classify_constant_effort_consumption` reads its normalized model (DEC-049,
+/// `validation/hand_calcs/mechanics/constant_effort_support_applied_load.md`):
+/// a support the solver reads as constant effort
+/// ([`crate::source_blocks::solver_constant_effort_support`]) with no
+/// `nonlinear` field, whose `hanger.constant_load` normalizes (by the units
+/// authority the producer uses) to a finite positive force, whose every
+/// declared restraint is a frame DOF with exactly one translational entry, and
+/// whose node is a model node. Returns each consuming support resolved (its
+/// node and normalized acting DOF retained), in model order; any other record
+/// applies nothing.
+fn consuming_constant_effort(model: &Value) -> Vec<ConstantEffortSupport<'_>> {
+    let nodes: HashSet<&str> = items(&model["nodes"]).iter().filter_map(|n| n["id"].as_str()).collect();
+    // The producer's hanger reference, or its stated absence when missing or blank.
+    fn reference<'a>(support: &'a Value, field: &str, missing: &'static str) -> Option<&'a str> {
+        match &support["hanger"][field] {
+            Value::Null => Some(missing),
+            Value::String(text) => Some(if text.trim().is_empty() { missing } else { text.as_str() }),
+            _ => None,
+        }
+    }
+    items(&model["supports"])
+        .iter()
+        .filter(|support| crate::source_blocks::solver_constant_effort_support(support) && support["nonlinear"].is_null())
+        .filter_map(|support| {
+            let load = &support["hanger"]["constant_load"];
+            if load.is_null() {
+                return None;
+            }
+            let force = crate::physics_source::normalized_quantity(load, Dimension::Force).ok().filter(|f| f.is_finite() && *f > 0.0)?;
+            let mut translational = Vec::new();
+            for dof in items(&support["restraints"]) {
+                match dof.as_str()? {
+                    "UX" | "Ux" | "ux" => translational.push("UX"),
+                    "UY" | "Uy" | "uy" => translational.push("UY"),
+                    "UZ" | "Uz" | "uz" => translational.push("UZ"),
+                    "RX" | "Rx" | "rx" | "RY" | "Ry" | "ry" | "RZ" | "Rz" | "rz" => {}
+                    _ => return None,
+                }
+            }
+            let [dof] = translational[..] else { return None };
+            let id = support["id"].as_str()?;
+            let node = support["node"].as_str().filter(|n| nodes.contains(n))?;
+            Some(ConstantEffortSupport {
+                id,
+                node,
+                dof,
+                force,
+                source: reference(support, "source_reference", "source_reference_missing")?,
+                manufacturer: reference(support, "manufacturer_reference", "manufacturer_reference_missing")?,
+                load_side_review: reference(support, "load_side_review_reference", "load_side_review_reference_missing")?,
+            })
+        })
+        .collect()
+}
+
 /// The gates (§4; absolute-sum-srss §5) of the combination `id`, read after every
 /// earlier record: a withheld operand combination; then, for the term bases, gates 1
-/// and 2 over every load case the combination reaches and gate 3 on κ.
+/// and 2 over every load case the combination reaches, and gates 3 and 4 on κ.
 #[allow(clippy::too_many_arguments)]
 fn gate(
     id: &str,
@@ -645,6 +761,7 @@ fn gate(
     withheld: &[(&str, &str)],
     evidence: &Value,
     nonlinear: bool,
+    constant_effort: bool,
 ) -> Result<Option<(&'static str, String, Vec<String>)>, String> {
     let mut named: Vec<(&str, &str)> = Vec::new();
     for operand in operands {
@@ -696,15 +813,21 @@ fn gate(
             return gated(RESOLVED_STIFFNESS_MIXED);
         }
     }
-    if installed_reference(&evidence["connector"]) {
+    // Gates 3 and 4 (absolute-sum-srss §5.1): one κ rule per fixed-load source,
+    // each under its own codes, gate 3 first where both sources hold.
+    let fixed_load_withheld = || {
         let kappas: Vec<_> = operands.iter().map(|o| graph.kappa_of(o)).collect();
         if basis == "mechanics" {
-            if open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&graph.kappa_of(&Operand::Combination(id)), kappas.iter()).is_some() {
-                return gated(INSTALLED_REFERENCE);
-            }
-        } else if open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(kappas.iter()).is_some() {
-            return gated(INSTALLED_REFERENCE_UNSIGNED);
+            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&graph.kappa_of(&Operand::Combination(id)), kappas.iter()).is_some()
+        } else {
+            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(kappas.iter()).is_some()
         }
+    };
+    if installed_reference(&evidence["connector"]) && fixed_load_withheld() {
+        return gated(if basis == "mechanics" { INSTALLED_REFERENCE } else { INSTALLED_REFERENCE_UNSIGNED });
+    }
+    if constant_effort && fixed_load_withheld() {
+        return gated(if basis == "mechanics" { CONSTANT_EFFORT } else { CONSTANT_EFFORT_UNSIGNED });
     }
     Ok(None)
 }
@@ -1063,6 +1186,11 @@ pub(crate) fn validate(source: &Value) -> Check {
     let case_ids: HashSet<&str> = items(&evidence["exact_cases"]).iter().filter_map(|c| c["load_case_id"].as_str()).collect();
     let case_rows_present = |kinds: &[&str]| results.iter().any(|r| case_of(r).is_some() && kinds.iter().any(|k| r["kind"] == *k));
     let (has_maximum, has_intensified) = (case_rows_present(&MAXIMUM_KINDS), case_rows_present(&INTENSIFIED_KINDS));
+    // Gate 4's input on the received document: a consuming constant-effort
+    // support publishes its applied-load row in every solved case.
+    // `model_checks` binds those rows, case by case, to the model's DEC-049
+    // decision, so with the captured model the gate is decided by the model.
+    let constant_effort = case_rows_present(&[APPLIED_LOAD]);
 
     let mut expected_rows: Vec<Value> = Vec::new();
     // Each expected diagnostic whole (id, code, severity, message, source and
@@ -1121,7 +1249,7 @@ pub(crate) fn validate(source: &Value) -> Check {
                 "source": DIAGNOSTIC_SOURCE, "affected_refs": [id],
             }));
         }
-        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence, nonlinear)?;
+        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence, nonlinear, constant_effort)?;
         require(bit_equal(&record["gate"], &json!({"withheld": reason.is_some(), "reason": reason.as_ref().map(|r| r.0)})), "GATE")?;
         if !graph::term_basis(expression.basis()) {
             // DEC-068 item 1: each load-case operand's solve basis, in authored order
@@ -1225,6 +1353,8 @@ fn gate_message(code: &str) -> &'static str {
         NONLINEAR => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+        CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
@@ -1267,6 +1397,26 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
                 None => Value::Null,
             };
             require(bit_equal(&operand["modulus_basis_ref"], &reference) && bit_equal(&operand["modulus_basis_temperature"], &temperature), "MODEL_OPERAND")?;
+        }
+    }
+    // Gate 4's input decided from the model (RT-A3 increment 3): every solved
+    // case publishes exactly the model's consuming constant-effort supports'
+    // applied-load rows, in model order, each the producer's whole row (id,
+    // value bits, unit, entity, basis, location naming the support's node and
+    // its normalized acting DOF, consumed-DOF basis, hanger references and
+    // sign convention), and nothing else of that kind. A record dropped from a
+    // case or state, one added for a non-consuming record, a changed force, or
+    // a row whose node or DOF is not the model's (review of deafe7153: the
+    // model's DOF changed, or the row relocated) is refused, so the received
+    // document's consumption fact is the model's.
+    let consuming = consuming_constant_effort(model);
+    let results = items(&source["results"]);
+    for (position, case) in items(&source["contract_evidence"]["exact_cases"]).iter().enumerate() {
+        let id = case["load_case_id"].as_str().ok_or_else(|| fail("MODEL_CONSTANT_EFFORT"))?;
+        let published: Vec<&Value> = results.iter().filter(|r| r["kind"] == APPLIED_LOAD && r["basis_ref"]["ref_type"] == "load_case" && r["basis_ref"]["ref_id"] == id).collect();
+        require(published.len() == consuming.len(), "MODEL_CONSTANT_EFFORT")?;
+        for (row, support) in published.iter().zip(&consuming) {
+            require(bit_equal(row, &support.applied_load_row(id, position)), "MODEL_CONSTANT_EFFORT")?;
         }
     }
     Ok(())
@@ -1377,6 +1527,145 @@ mod tests {
             vec![1.0, -p46, -2f64.powi(-100)], vec![f64::MAX, f64::MAX], vec![f64::NAN], vec![]] {
             assert!(!unit_factor_sum(&factors), "{factors:?}");
         }
+    }
+
+    /// Gate 4's model condition mirrors the producer's DEC-049 classification:
+    /// the hanger-type reading, no nonlinear field, a finite positive force in
+    /// newtons by the units authority, recognized DOFs with exactly one
+    /// translational entry (case spellings counted as entered), a model node.
+    #[test]
+    fn constant_effort_consumption_is_decided_from_the_model() {
+        let support = |patch: &dyn Fn(&mut Value)| {
+            let mut s = json!({"id": "support:ce", "node": "node:b", "family": "constant_effort_support", "restraints": ["UZ"],
+                "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 8.0, "unit": "kN"}}});
+            patch(&mut s);
+            json!({"nodes": [{"id": "node:a"}, {"id": "node:b"}], "supports": [{"id": "support:a", "node": "node:a", "family": "anchor", "restraints": ["UX"]}, s]})
+        };
+        let resolved = |patch: &dyn Fn(&mut Value)| {
+            let model = support(patch);
+            consuming_constant_effort(&model).iter().map(|s| (s.id.to_string(), s.node.to_string(), s.dof, s.force, s.source.to_string(), s.manufacturer.to_string(), s.load_side_review.to_string())).collect::<Vec<_>>()
+        };
+        let missing = |id: &str, node: &str, dof: &'static str| (id.to_string(), node.to_string(), dof, 8000.0, "source_reference_missing".to_string(), "manufacturer_reference_missing".to_string(), "load_side_review_reference_missing".to_string());
+        assert_eq!(resolved(&|_| {}), [missing("support:ce", "node:b", "UZ")]);
+        // The node and the normalized acting DOF are retained (a lower-case
+        // spelling resolves to the producer's name).
+        assert_eq!(resolved(&|s: &mut Value| s["restraints"] = json!(["ux", "RZ"])), [missing("support:ce", "node:b", "UX")]);
+        assert_eq!(resolved(&|s: &mut Value| s["restraints"] = json!(["Uy"])), [missing("support:ce", "node:b", "UY")]);
+        // The hanger references as the row states them: entered text kept
+        // verbatim, blank text stated missing.
+        let entered = resolved(&|s: &mut Value| {
+            s["hanger"]["source_reference"] = json!(" catalog p. 4 ");
+            s["hanger"]["manufacturer_reference"] = json!(" ");
+            s["hanger"]["load_side_review_reference"] = json!("LSR-1");
+        });
+        assert_eq!((entered[0].4.as_str(), entered[0].5.as_str(), entered[0].6.as_str()), (" catalog p. 4 ", "manufacturer_reference_missing", "LSR-1"));
+        let model = support(&|_| {});
+        let row = consuming_constant_effort(&model)[0].applied_load_row("case:b", 1);
+        assert_eq!(row["id"], "result:loadcase:case-b:constant-effort-support:support-ce:applied-load");
+        assert_eq!(row["metadata"]["location"], "node:b:UZ applied load");
+        assert_eq!(consuming_constant_effort(&model)[0].applied_load_row("case:a", 0)["id"], "result:constant-effort-support:support-ce:applied-load");
+        // Consumed: a rotation beside the one translation; the type read from the family; a null nonlinear field.
+        for patch in [
+            &(|s: &mut Value| s["restraints"] = json!(["uz", "RX"])) as &dyn Fn(&mut Value),
+            &|s: &mut Value| s["hanger"]["hanger_type"] = json!(" "),
+            &|s: &mut Value| s["nonlinear"] = Value::Null,
+        ] {
+            assert_eq!(consuming_constant_effort(&support(patch)).len(), 1);
+        }
+        // Not consumed.
+        for patch in [
+            &(|s: &mut Value| s["restraints"] = json!(["UY", "UZ"])) as &dyn Fn(&mut Value),
+            &|s: &mut Value| s["restraints"] = json!(["UZ", "uz"]),
+            &|s: &mut Value| s["restraints"] = json!(["RX"]),
+            &|s: &mut Value| s["restraints"] = json!(["UZ", "TX"]),
+            &|s: &mut Value| s["hanger"]["constant_load"] = json!({"value": 0.0, "unit": "N"}),
+            &|s: &mut Value| s["hanger"]["constant_load"] = json!({"value": -1.0, "unit": "N"}),
+            &|s: &mut Value| s["hanger"]["constant_load"] = Value::Null,
+            &|s: &mut Value| s["hanger"]["constant_load"] = json!({"value": 1.0, "unit": "m"}),
+            &|s: &mut Value| s["nonlinear"] = json!({"behavior": "gap"}),
+            &|s: &mut Value| s["node"] = json!("node:z"),
+            &|s: &mut Value| s["hanger"]["hanger_type"] = json!("variable_spring_hanger"),
+        ] {
+            assert!(consuming_constant_effort(&support(patch)).is_empty());
+        }
+    }
+
+    /// Review of deafe7153 (finding 1): the binding compares each case's
+    /// applied-load rows with the producer's whole rows, written out here as
+    /// PP publishes them for a two-case document. Forgery (a): the model's
+    /// support acting along UX; forgery (b): a row relocated to another node
+    /// and DOF; then one control per bound field, including those the
+    /// direct-case pass refuses first on a full document. The Python mirror's
+    /// test states the same controls.
+    #[test]
+    fn the_model_binding_binds_every_field_of_the_applied_load_rows() {
+        const REFUSED: &str = "SOURCE_PHYSICS_COMBINATION_MODEL_CONSTANT_EFFORT";
+        let model = |patch: &dyn Fn(&mut Value)| {
+            let mut s = json!({"id": "support:ce", "node": "node:b", "family": "constant_effort_support", "restraints": ["UZ"],
+                "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 8.0, "unit": "kN"}}});
+            patch(&mut s);
+            json!({"nodes": [{"id": "node:a"}, {"id": "node:b"}], "supports": [{"id": "support:a", "node": "node:a", "family": "anchor", "restraints": ["UX"]}, s]})
+        };
+        let row = |case: &str, id: &str| json!({"id": id, "kind": APPLIED_LOAD, "value": 8000.0, "unit": "N", "entity_ref": "support:ce",
+            "basis_ref": {"ref_type": "load_case", "ref_id": case},
+            "metadata": {"component": APPLIED_LOAD, "coordinate_system": "global", "location": "node:b:UZ applied load",
+                "basis": "support_family=constant_effort_support;consumed_dof=UZ;source=source_reference_missing;manufacturer=manufacturer_reference_missing;load_side_review=load_side_review_reference_missing;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+                "sign_convention": "positive value is the user-entered constant support force applied along the positive axis of the single declared translational restraint DOF in every solved load case; the ideal constant-effort element contributes zero stiffness and adds no solve restraint row; no gravity coupling, catalog/default value, or inferred direction is supplied"}});
+        let source = || json!({"results": [row("case:A", "result:constant-effort-support:support-ce:applied-load"),
+                row("case:B", "result:loadcase:case-B:constant-effort-support:support-ce:applied-load")],
+            "contract_evidence": {"exact_cases": [{"load_case_id": "case:A"}, {"load_case_id": "case:B"}], "exact_combinations": []}});
+        let base = model(&|_| {});
+        assert_eq!(model_checks(&source(), &base), Ok(()));
+        assert_eq!(model_checks(&source(), &model(&|s: &mut Value| s["restraints"] = json!(["uz"]))), Ok(()));
+        // (a) The model's support changed to UX; the model's support moved
+        // to another model node; its source reference entered.
+        for patch in [
+            &(|s: &mut Value| s["restraints"] = json!(["UX"])) as &dyn Fn(&mut Value),
+            &|s: &mut Value| s["node"] = json!("node:a"),
+            &|s: &mut Value| s["hanger"]["source_reference"] = json!("catalog"),
+        ] {
+            assert_eq!(model_checks(&source(), &model(patch)), Err(REFUSED.to_string()));
+        }
+        // (b) and one control per bound row field.
+        let basis = row("case:A", "")["metadata"]["basis"].as_str().unwrap().to_string();
+        for (pointer, value) in [
+            ("/metadata/location", json!("node:A:UX applied load")),
+            ("/metadata/location", json!("node:b:UX applied load")),
+            ("/metadata/location", json!("node:a:UZ applied load")),
+            ("/id", json!("result:forged")),
+            ("/id", json!("result:loadcase:case-A:constant-effort-support:support-ce:applied-load")),
+            ("/value", json!(8000.000000000001)),
+            ("/unit", json!("kN")),
+            ("/entity_ref", json!("support:a")),
+            ("/metadata/component", json!("support_reaction_component_v2")),
+            ("/metadata/coordinate_system", json!("local")),
+            ("/metadata/basis", json!(basis.replace("consumed_dof=UZ", "consumed_dof=UX"))),
+            ("/metadata/basis", json!(basis.replace("source=source_reference_missing", "source=catalog"))),
+            ("/metadata/sign_convention", json!("negative value is the support force")),
+        ] {
+            let mut forged = source();
+            *forged.pointer_mut(&format!("/results/0{pointer}")).unwrap() = value.clone();
+            assert_eq!(model_checks(&forged, &base), Err(REFUSED.to_string()), "{pointer} {value}");
+        }
+        for key in ["source_result_refs", "component_body"] {
+            let mut forged = source();
+            forged["results"][0][key] = json!(["result:forged"]);
+            assert_eq!(model_checks(&forged, &base), Err(REFUSED.to_string()), "{key}");
+        }
+        // The second case's id unqualified; a field removed; a row dropped; a row added.
+        let mut forged = source();
+        forged["results"][1]["id"] = json!("result:constant-effort-support:support-ce:applied-load");
+        assert_eq!(model_checks(&forged, &base), Err(REFUSED.to_string()));
+        let mut forged = source();
+        forged["results"][1]["metadata"].as_object_mut().unwrap().remove("sign_convention");
+        assert_eq!(model_checks(&forged, &base), Err(REFUSED.to_string()));
+        let mut forged = source();
+        forged["results"].as_array_mut().unwrap().remove(1);
+        assert_eq!(model_checks(&forged, &base), Err(REFUSED.to_string()));
+        let mut forged = source();
+        let extra = forged["results"][0].clone();
+        forged["results"].as_array_mut().unwrap().push(extra);
+        assert_eq!(model_checks(&forged, &base), Err(REFUSED.to_string()));
     }
 
     #[test]

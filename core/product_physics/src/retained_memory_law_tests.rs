@@ -871,8 +871,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #8, #10 and #11 (the tables' six global end signatures, carried to the inheriting tables and
     // the pressure-2 result schema's closed basis enum), counted from 0; W-7's D3 registration
     // records these bytes.
+    // DEL-04-09 I2a (retained-pricing-rules.md §8.43) moves #0 (Cargo.lock: the local path package
+    // open_pipe_stress_modal_eigen and product_physics' edge to it, no registry change); its D3
+    // registration records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
-        "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
+        "6d8af2367c31353985bdbe8133a2771204e62ed359a4940c54bbf6689c18cd85",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
@@ -880,10 +883,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd",
+        "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
-        "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
+        "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -1991,9 +1994,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.41: proposal A, +286 B per phase. §8.42: the regenerated source-derived block
 // (Index::any's map; the kept TAV allowance is dropped): W4 +1,171,369 B and every
 // other phase -3,989,660 B in both modes, from the in-build record, without R.
+// §8.44: RT-A3 increment 3's regenerated block (two pressure-2 limitations and gate 4 in
+// STATICS, the identity's constant-effort clause and the D-2 sentence in TAV): +5,610 B in
+// every phase and mode, from maintained eval at the in-build atoms, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_975_304, 6_940_969_865, 8_895_153_101, 8_688_474_557, 7_761_341_467, 8_607_720_260, 7_339_113_946, 7_012_403_822],
-    [6_658_106_648, 7_000_101_209, 8_954_284_445, 8_747_605_901, 7_820_472_811, 8_666_851_604, 7_398_245_290, 7_071_535_166],
+    [6_598_980_914, 6_940_975_475, 8_895_158_711, 8_688_480_167, 7_761_347_077, 8_607_725_870, 7_339_119_556, 7_012_409_432],
+    [6_658_112_258, 7_000_106_819, 8_954_290_055, 8_747_611_511, 7_820_478_421, 8_666_857_214, 7_398_250_900, 7_071_540_776],
 ];
 
 #[test]

@@ -75,7 +75,10 @@ missing-marker, wrong-candidate and empty/unknown-selection controls are explici
 Hosted native x64 `windows-2025`, Rust 1.97.1 MSVC, builds the unchanged existing
 `core/runner/headless` stable CLI with default features, `--locked --release`
 and a fresh target. The checked runner lock SHA256 is
-`49aabbef93419085d70d8c83011b94768645558a46e18f90a1b77137623e3cc0`. PR #83
+`e4f9efd3f297d07086dbb6ff18386797167c61b891f675fb28b6000277a2988a`. PR #94
+(DEL-04-09) refreshed it from `49aabbef93419085d70d8c83011b94768645558a46e18f90a1b77137623e3cc0`; that change added only the local path
+package `open_pipe_stress_modal_eigen` and product_physics' edge to it, with no registry
+version or checksum change. Before that, PR #83
 (DEL-04-11) refreshed it from
 `14397ed0733124d4dd8ac34ea14ec15b0274b30a0a0c2a65f2955e57b9e35e2c`. That change
 added only path entries: the local `open_pipe_stress_hanger_sizing` and

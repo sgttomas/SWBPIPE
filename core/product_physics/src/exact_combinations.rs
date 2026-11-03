@@ -16,9 +16,11 @@
 //!   N divided once by the basis's published area leaf. Every recovered value
 //!   is a witness in the evidence. Any other absence is a missing source.
 //! - **Gates (§4, mechanics only, in precedence order):** mixed modulus basis
-//!   (as on PF), mixed resolved member stiffness, and a nonzero installed
+//!   (as on PF), mixed resolved member stiffness, a nonzero installed
 //!   connector or tie-rod reference with factors that fail the shared unit
-//!   factor-sum rule (`load_case_algebra::factor_sum_within_unit_tolerance`).
+//!   factor-sum rule (`load_case_algebra::factor_sum_within_unit_tolerance`),
+//!   and (RT-A3 increment 3) a consuming constant-effort support with factors
+//!   that fail the same rule ([`CONSTANT_EFFORT`], PF's reason and text).
 //! - **Standing (§5).** Combination rows are derived from case results; they
 //!   have no numerical check of their own and never enter headlines, maxima or
 //!   numerical eligibility. The evidence states each operand's standing.
@@ -48,6 +50,21 @@ pub(crate) const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_RE
 /// absolute-sum-srss §5.1: gate 3 for an absolute sum or SRSS whose operands' κ is
 /// not exactly 0.
 pub(crate) const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
+/// §4 gate 4 (RT-A3 increment 3; DEL-04-07 `pressure-contract.md`,
+/// "Constant-effort supports (RT-A3 increment 3)"): PF's reason, on EX.
+///
+/// Order: last. The stiffness gates (1, 2) decide whether the operands are
+/// states of one system at all, which no choice of factors repairs; the two
+/// factor-sum gates (3, 4) presuppose one system and decide whether a fixed
+/// load is counted once. Gate 4 shares gate 3's predicate and follows it, so
+/// every reason published before this increment is unchanged and the pressure
+/// table's gate list is extended by appending. PF has no stiffness or
+/// connector gates and orders this reason before its modulus gate; where both
+/// hold the two routes name different reasons for the same withholding.
+pub(crate) const CONSTANT_EFFORT: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
+/// absolute-sum-srss §5.1: gate 4 for an absolute sum or SRSS whose operands' κ is
+/// not exactly 0, in a model with a consuming constant-effort support (PF's code).
+pub(crate) const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
 /// §5: the product text of a published combination.
 pub(crate) const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
 /// §7: the user-facing statement of the source-recovery exclusion.
@@ -371,15 +388,26 @@ fn gate_reason(
     // factor-sum rule. A non-finite factor (refused before the solve by
     // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes. A
     // mechanics operand with an undefined κ withholds under this gate's own code.
-    if installed_reference(facts.connector) {
+    let fixed_load_withheld = || {
         let operand_kappa: Vec<_> = targets.iter().map(|target| plan.kappa_of(target)).collect();
         if basis == "mechanics" {
-            if open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter()).is_some() {
-                return gated(INSTALLED_REFERENCE);
-            }
-        } else if open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(operand_kappa.iter()).is_some() {
-            return gated(INSTALLED_REFERENCE_UNSIGNED);
+            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter()).is_some()
+        } else {
+            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(operand_kappa.iter()).is_some()
         }
+    };
+    if installed_reference(facts.connector) && fixed_load_withheld() {
+        return gated(if basis == "mechanics" { INSTALLED_REFERENCE } else { INSTALLED_REFERENCE_UNSIGNED });
+    }
+    // Gate 4: a consuming constant-effort support (DEC-049: exactly one
+    // translational restraint DOF and a finite positive constant load, no
+    // nonlinear field) is in every case state, so a combination counts its
+    // force κ times. It is one more fixed-load source for the same κ rule as
+    // gate 3 (flat, the unit factor-sum rule), under its own codes, and follows
+    // gate 3, which wins where both hold. As for gate 3, a mechanics operand
+    // with an undefined κ withholds under this gate's own code.
+    if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok()) && fixed_load_withheld() {
+        return gated(if basis == "mechanics" { CONSTANT_EFFORT } else { CONSTANT_EFFORT_UNSIGNED });
     }
     None
 }
@@ -395,6 +423,8 @@ fn gate_message(code: &str) -> &'static str {
         NONLINEAR => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+        CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
@@ -1062,7 +1092,8 @@ mod tests {
         assert_eq!(listed("linear_state_kinds"), SIGNED_LINEAR_KINDS.to_vec());
         assert_eq!(listed("recomputed_magnitude_kinds"), RECOMPUTED_KINDS.to_vec());
         let gates: Vec<&str> = policy["mechanics_gates"].as_array().unwrap().iter().map(|g| g["code"].as_str().unwrap()).collect();
-        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE]);
+        // RT-A3 increment 3's gate 4 (CONSTANT_EFFORT) follows these three.
+        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE, CONSTANT_EFFORT]);
     }
 
     #[test]
