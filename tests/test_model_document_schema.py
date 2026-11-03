@@ -257,10 +257,19 @@ def is_frozen_input(relative: str) -> bool:
 # (fixtures/persistence/recorded_model_*): a request document, not a saved project. At the current version it is
 # validated against the format schema only; a retired one is an explicit refusal control above.
 RECORDED_RUN_MODEL_PREFIX = "fixtures/persistence/recorded_model_"
+RECORDED_RUN_REQUEST_NAME = "exact_pressure_connected_request.json"
+
+
+def is_recorded_run_request(relative: str) -> bool:
+    """Exactly a recorded run's request model: fixtures/persistence/recorded_model_<x>/<request name>."""
+    if not relative.startswith(RECORDED_RUN_MODEL_PREFIX):
+        return False
+    parts = relative[len(RECORDED_RUN_MODEL_PREFIX):].split("/")
+    return len(parts) == 2 and parts[0] != "" and parts[1] == RECORDED_RUN_REQUEST_NAME
 
 
 def is_desktop_profile(relative: str) -> bool:
-    if relative.startswith(RECORDED_RUN_MODEL_PREFIX):
+    if is_recorded_run_request(relative):
         return False
     return relative in {BUNDLED_DEMO, DESKTOP_EMISSION_GOLDEN} or relative.startswith(DESKTOP_PROFILE_PREFIXES)
 
@@ -638,3 +647,15 @@ def test_an_unlisted_non_frozen_0_7_0_document_fails_classification(monkeypatch,
     assert [bucket for bucket, *_ in classify()] == ["unclassified"]
     with pytest.raises(AssertionError):
         test_every_committed_model_document_is_classified_by_rule()
+
+
+def test_only_a_recorded_runs_request_model_leaves_the_desktop_profile():
+    # A saved project placed beside a recorded run, or deeper under the prefix, stays a desktop-profile document.
+    assert is_recorded_run_request("fixtures/persistence/recorded_model_0_9_0_pre_2a/exact_pressure_connected_request.json")
+    assert not is_desktop_profile("fixtures/persistence/recorded_model_0_9_0_pre_2a/exact_pressure_connected_request.json")
+    for other in ("fixtures/persistence/recorded_model_0_9_0_pre_2a/saved_project.json",
+                  "fixtures/persistence/recorded_model_0_9_0_pre_2a/nested/exact_pressure_connected_request.json",
+                  "fixtures/persistence/recorded_model_/exact_pressure_connected_request.json",
+                  "fixtures/persistence/invented_persisted_preview_project.json"):
+        assert not is_recorded_run_request(other), other
+        assert is_desktop_profile(other), other

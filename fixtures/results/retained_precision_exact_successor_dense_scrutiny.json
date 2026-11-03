@@ -459,7 +459,7 @@
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
         "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-        "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+        "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
         "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
         "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
         "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -5830,7 +5830,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "db0d0aa8bafefcf3e9c8d939d1c866c6f1818cbbcfbe0a45e3dd6978826b5942",
+        "publication_sha256": "59afba7d3e304811beb488a066d27f6d73db54c18ce68e67ec90f7c4cbf4f5bb",
         "receipt_version": 1,
         "sources": [
           {
@@ -6810,7 +6810,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "237fbc5fb0a4a4a0d9db10f8869e0a652c1000fb48a240e984454717c08c33bf"
+      "receipt_sha256": "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

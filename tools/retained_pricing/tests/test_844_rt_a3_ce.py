@@ -69,3 +69,49 @@ def test_d1_refuses_every_hanger_and_every_other_support_family():
     assert text.count('if !matches!(family.as_str(), "anchor" | "guide" | "line_stop" | "vertical_support" | "spring") {') == 1
     lib = (SOURCE / "core/product_physics/src/lib.rs").read_text(encoding="utf-8")
     assert lib.count('.or_else(|| support.family.as_deref().map(str::trim))') == 1
+
+
+# §8.44 on the §8.45 lexer: CE lengthens only literals below the static class (S7, the D-2 load/reference-state
+# limitation, the equivalent-static refusal text) and the pressure-2 `identity`, whose own-bound disposition
+# (audited from source by U6-J4) carries. No new long literal, no disposition without its literal.
+def _long_literals():
+    import sys
+    sys.path.insert(0, str(PRICING / "base"))
+    import rust_literals as rl
+    files = ["core/solver/frame_kernel/src/structural.rs", "core/solver/frame_kernel/src/lib.rs",
+             "core/solver/frame_kernel/src/structural/exact_boundary.rs", "core/product_physics/src/lib.rs"]
+    static = rl.measure(SOURCE, files)["max_bytes"]
+    dirs = (PRICING / "base/crate_dirs.txt").read_text(encoding="utf-8").split()
+    entries = runpy.run_path(str(PRICING / "base/static_literal_dispositions.py"))["ENTRIES"]
+    return static, rl.long_literal_check(SOURCE, dirs, max(512, static), entries)
+
+
+def test_the_constant_effort_literals_keep_their_dispositions():
+    static, (matched, problems) = _long_literals()
+    assert problems == []
+    by_head = {m["head"]: m["bytes"] for m in matched}
+    assert by_head["3.0.0/exact_pressure_v3 under pressure-2 semantics"] == 3007
+    assert by_head["3.0.0/exact_pressure_v3 under pressure-source-1 semantics"] == 1262
+    source = (SOURCE / "core/product_physics/src/exact_admission.rs").read_text(encoding="utf-8")
+    for head in ("Signed support actions are attributed only for admitted linear restraints and springs and, as its",
+                 "Global rigid support translations/rotations are prescribed absolute boundary values",
+                 "equivalent_static generation is not provided on a load/reference-state document"):
+        assert head in source and all(not m["head"].startswith(head[:30]) for m in matched), head
+    # The pressure-2 identity's copy site is still the one `identity.to_string()` U6-J4 audits.
+    assert source.count("identity.to_string()") == 1
+    assert source.count("super::joint::CONNECTOR_LIMITATION.to_string()") == 1
+
+
+def test_a_constant_effort_literal_over_the_class_stops(tmp_path, monkeypatch):
+    """Negative control: S7 lengthened past the static class has no disposition, so the whole-scope check names it."""
+    import sys
+    sys.path.insert(0, str(PRICING / "base"))
+    import rust_literals as rl
+    snap = snapshot_with(tmp_path, "core/product_physics/src/exact_admission.rs",
+                         "for a consumed constant-effort support; ambiguous",
+                         "for a consumed constant-effort support" + " x" * 600 + "; ambiguous")
+    shutil.copytree(SOURCE / "tools", tmp_path / "tools", ignore=shutil.ignore_patterns("__pycache__"))
+    dirs = (PRICING / "base/crate_dirs.txt").read_text(encoding="utf-8").split()
+    entries = runpy.run_path(str(PRICING / "base/static_literal_dispositions.py"))["ENTRIES"]
+    _, problems = rl.long_literal_check(snap, dirs, 964, entries)
+    assert any("exact_admission.rs" in p and "0 disposition entries" in p for p in problems), problems

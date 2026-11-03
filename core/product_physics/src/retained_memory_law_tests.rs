@@ -811,7 +811,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2");
+    assert_eq!(schema_hash, "b5476cba24c7b1b4b8da971920aaacd402ca920f5baaea05864cc23eb3ef49f9");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -885,7 +885,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
         "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
+        "b5476cba24c7b1b4b8da971920aaacd402ca920f5baaea05864cc23eb3ef49f9",
         "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
@@ -1658,7 +1658,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // Model document 0.8.0's shear-model member at 642e9737e4 (§8.26): +10,392 B, validate_model_settings'
     // second blocking refusal (SM-MS: 2,048 + 8,192 + 152 B per validation call, as NP-MS's), on 274,404,624.
     // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 274_415_304, "current text closure at C_eq = 3, maximum over routes");
+    // §8.44 on §8.45's lexer: -1,223,704 B, the static/report literal classes measured by the Rust lexer (§8.45);
+    // main 6c3cb46d3's tree priced by its own tool gives the same 273,191,600 B, so RT-A3 increment 3 moves none of it.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_191_600, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1997,9 +1999,14 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.44: RT-A3 increment 3's regenerated block (two pressure-2 limitations and gate 4 in
 // STATICS, the identity's constant-effort clause and the D-2 sentence in TAV): +5,610 B in
 // every phase and mode, from maintained eval at the in-build atoms, without R.
+// §8.44 review repair: S7 restated (+67 B, six TAV copies): +402 B in every phase and mode
+// (+6,012 B against #96), from maintained eval at the same 328 in-build atoms, without R.
+// §8.44 on the §8.45 lexer (main 6c3cb46d3): the block is regenerated on the corrected tool;
+// against main's corrected source-derived tree +6,012 B in every phase and mode, from maintained
+// eval at the in-build atoms (Text(recovery_finding) 14,444,434 B from the regenerated block), without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_980_914, 6_940_975_475, 8_895_158_711, 8_688_480_167, 7_761_347_077, 8_607_725_870, 7_339_119_556, 7_012_409_432],
-    [6_658_112_258, 7_000_106_819, 8_954_290_055, 8_747_611_511, 7_820_478_421, 8_666_857_214, 7_398_250_900, 7_071_540_776],
+    [6_449_859_418, 6_791_853_979, 8_743_589_807, 8_536_911_263, 7_611_001_877, 8_526_216_134, 7_258_833_524, 6_932_123_400],
+    [6_508_990_762, 6_850_985_323, 8_802_721_151, 8_596_042_607, 7_670_133_221, 8_585_347_478, 7_317_964_868, 6_991_254_744],
 ];
 
 #[test]

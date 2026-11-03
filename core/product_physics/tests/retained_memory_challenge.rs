@@ -56,7 +56,9 @@ use b1_sq_inputs as inputs;
 // §8.40: unchanged registered coefficients, actual 680 B PreviewLoadCase (+24 B).
 // §8.41: +286 B. §8.42: -3,989,660 B (the regenerated block drops the kept TAV allowance).
 // §8.44: +5,610 B (RT-A3 increment 3: restated pressure-2 table and identity).
-const W1_PHASE_BYTES: [u64; 2] = [6_598_980_914, 6_658_112_258];
+// §8.44 review repair: +402 B (S7 restated; +6,012 B against #96).
+// §8.44 on the §8.45 lexer: the regenerated block's value (+6,012 B against main's corrected tree).
+const W1_PHASE_BYTES: [u64; 2] = [6_449_859_418, 6_508_990_762];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
 /// 34e96d6b17 (retained-pricing-rules.md §8.16): +219,136 B in both modes from the pre-0.4
@@ -79,7 +81,9 @@ const W1_PHASE_BYTES: [u64; 2] = [6_598_980_914, 6_658_112_258];
 // §8.40: unchanged registered coefficients, actual 680 B PreviewLoadCase (+24 B).
 // §8.41: +286 B. §8.42: -3,989,660 B (W3 stays the maximum; W4 rises but stays below it).
 // §8.44: +5,610 B (RT-A3 increment 3: restated pressure-2 table and identity).
-const MAX_PHASE_BYTES: [u64; 2] = [8_895_158_711, 8_954_290_055];
+// §8.44 review repair: +402 B (S7 restated; +6,012 B against #96).
+// §8.44 on the §8.45 lexer: the regenerated block's value (+6,012 B against main's corrected tree).
+const MAX_PHASE_BYTES: [u64; 2] = [8_743_589_807, 8_802_721_151];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.

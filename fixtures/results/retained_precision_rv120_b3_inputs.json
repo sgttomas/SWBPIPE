@@ -13,7 +13,7 @@
    ],
    "name": "X G5b control: case 0's evidence As_m2 one ulp [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "cd511c6967169f230b58103c413ad6e6534fdb9ade034f16410a7d141d94fca5",
+   "input_sha256": "262092288897c636b1469e24406c37974bf6a96bae0e0bdac74f9c40cb6b6e82",
    "edits": [
     {
      "op": "remove",
@@ -406,7 +406,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -5773,7 +5773,7 @@
    ],
    "name": "X G5b control: case 1's body_scales force one ulp [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "ce4f657642da1af6af1854573f9991fa59fead634c32309c40f90e0e4042cd85",
+   "input_sha256": "ec1bff3a80ece3d3ff80f9c953d83289da5bb046bfc83e4f28e9133781b23615",
    "edits": [
     {
      "op": "remove",
@@ -6166,7 +6166,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -11547,7 +11547,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's body_scales force [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "1b052a230391d39f31c0e0e6ee8c3a09f07047b8cc1ef63ead7edbf3e51400b2",
+   "input_sha256": "7a1f120a1f3d3f2fd941f2956900c8679238fc04ebbf90401d942ee836973ece",
    "edits": [
     {
      "op": "remove",
@@ -11940,7 +11940,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -17321,7 +17321,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's section term area [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "c5affe31c9a47c0c527be1a421d005f6c520d3642ca53b44bf9701c643d22e32",
+   "input_sha256": "019b43c984da0dbb92600ab64c16a9e96009fea29c3413ea3d469ca2e9682b90",
    "edits": [
     {
      "op": "remove",
@@ -17714,7 +17714,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -23095,7 +23095,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "1bc71ede525cf000c10180fd0ddbbdd1fb7e23b9343cd5bdbe622a53e41fb457",
+   "input_sha256": "9c434dbd3b4f18b9a294f10f91eb0804f7a7090b9ad2733a5f434c7c52d33046",
    "edits": [
     {
      "op": "remove",
@@ -23318,7 +23318,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -26102,7 +26102,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "0935fcc730cce15aac668c84e207f841484620fdd11fb0a6499a47aebe983f10",
+   "input_sha256": "1adefa724929581dd7326f6bd2efa6a003b285acf683ca243442aaf5fafbc019",
    "edits": [
     {
      "op": "remove",
@@ -26325,7 +26325,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -29109,7 +29109,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "226fef0c76bd17924e9b301934dfc0b33fe25f0954591d5dd700ed90614bfb68",
+   "input_sha256": "e91c5a3c5ef663ed79463ac6f7dc14a1aab93f147ce594b8a731a8825e722dc2",
    "edits": [
     {
      "op": "set",
@@ -29294,7 +29294,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "28669cd21e6ad5322c8abb86320d6570b127bb8a566498c03b8c7192b94c236b",
+   "input_sha256": "774ee501e49aefba2a50a10614bfa6834f14a37b19440f08c7c56d8bfb0a2772",
    "edits": [
     {
      "op": "set",
@@ -29491,7 +29491,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [ordinary_prepared_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "a35dd466112724741533c5331983c8e98f201508b5783a6fc8911672b4edab0c",
+   "input_sha256": "b49d0041b45b5a661e59506c2319ff123bbf6b1edbeb9dda9fc85db6501c19c5",
    "edits": [
     {
      "op": "remove",
@@ -29884,7 +29884,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -32506,7 +32506,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "5bdb7bb10c4625775626e05062f84e47d77ef9caa546c42417b55ee222727bcd",
+   "input_sha256": "742ce1d7a79261f54a0a56239e79bec696e2fbafa56d86c8c6343dd948a6a977",
    "edits": [
     {
      "op": "set",
@@ -32867,7 +32867,7 @@
    ],
    "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "aa785dcabfa3601290dfff330bdae5a603e0fba2d1214fbd042f1049c8ebfc71",
+   "input_sha256": "ec0a77589066644afd8c2ce5f4e97cbb7a34c2d1810a76683d6df971181bc3bc",
    "edits": [
     {
      "op": "remove",
@@ -33260,7 +33260,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -38627,7 +38627,7 @@
    ],
    "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "d852a32848aab465e06b69930f71b5753c0372b0e2b2dcc720dd7447c1238e7f",
+   "input_sha256": "1145822d357c140b66a67851f8b56879ba5663ef159f708ac951e9536aebf069",
    "edits": [
     {
      "op": "remove",
@@ -39020,7 +39020,7 @@
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
-      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
       "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
