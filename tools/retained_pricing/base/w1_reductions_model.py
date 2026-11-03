@@ -91,7 +91,9 @@ REDUCED_PINS = {
     # DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; no reduction's owner or lifetime changes.
     # DEL-04-09 I2b-2 D3 (§8.43): the decision-B seam (LoadCaseSolve.nonlinear_state, the qualification element,
     # capture_nonlinear_state_evidence) changes no reduction's owner or lifetime; the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "c991dca132dac2ca20d40057ed3123129c06c5c50afea9f20f071c06da79c577",
+    # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for block-wrapped
+    # arms and trailing commas); no reduction's owner or lifetime changes, the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "1e9e5896eee8634c6ee9a696847fe85c3047c14ed387f66dc15d8bb2b369231d",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",

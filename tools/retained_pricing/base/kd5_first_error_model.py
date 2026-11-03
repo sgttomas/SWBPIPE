@@ -55,7 +55,10 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # DEL-04-09 I2b-2 D3 (§8.43, decision B): solve_prepared_load_case sets LoadCaseSolve.nonlinear_state to None at its
 # early returns and stores capture_nonlinear_state_evidence's result (a converged nonlinear solve only; none on D1,
 # D1.6); its consumption of the fallback attempts and every first-return alternative are unchanged.
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '877bc621ed8f9b144f70df10231a39dd60ac916a8a2a0e949ad276898cc73aac', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+# DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0): the seam's hunks in ordinary layout (one field or statement
+# per line, the qualification let broken after `=`), token-equal but for block-wrapped arms and trailing commas;
+# the fallback attempts' consumption and every first-return alternative are unchanged.
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'b957a124af56c315ccc23c60b7259d2a482dfec48ead8fccdaec261a5dad642d', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")

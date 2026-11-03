@@ -4523,21 +4523,24 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         # built.nonlinear_supports is empty and append_nonlinear_support_loop_results returns None at its first
         # statement (base fn_zero, G4 R-1). selected_nonlinear is then None and capture_nonlinear_state_evidence
         # returns None at its first statement, before its text, Box or final-state clone. The shapes that carry the
-        # premise are checked here; the capture's body is pinned.
+        # premise are checked here; the capture's body is pinned. Shapes and pin re-read in ordinary layout (cc160d28d).
         _seam = _fn_text("capture_nonlinear_state_evidence", _LIB)
         _loop = _fn_text("append_nonlinear_support_loop_results", _LIB)
         _case = _fn_text("solve_prepared_load_case", _LIB)
         _lib_text = _text_of(_LIB)
         if (_modal_hashlib.sha256(_seam.encode()).hexdigest()
-                != "714858644cbafb684e239e7b5b03974f66a55d11c2c16a477bd3b30f31f47b63"
+                != "7fb71ea14f4d8c5d7f51bd487e9b8b59933c8f79476b23d729c47153a8e2ca71"
                 or not _re.search(r"\) -> Option<Box<NonlinearStateEvidence>> \{\n    let solve = solve\.filter\(\|solve\| solve\.converged\)\?;\n", _seam)
                 or not _re.search(r"\{\n    if built\.nonlinear_supports\.is_empty\(\) \{\n        return None;\n    \}\n", _loop)
-                or _case.count("capture_nonlinear_state_evidence(&load_case.id, solver_mode, selected_nonlinear.as_ref(),") != 1
-                or _case.count("let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) = match "
-                               "append_nonlinear_support_loop_results(") != 1
+                or _case.count("capture_nonlinear_state_evidence(\n        &load_case.id,\n        solver_mode,\n"
+                               "        selected_nonlinear.as_ref(),\n") != 1
+                or _case.count("let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) =\n"
+                               "        match append_nonlinear_support_loop_results(") != 1
                 or _re.search(r"\bselected_nonlinear\s*=[^=]", _case)
-                or _case.count("Some((solve, nonlinear, qualification)) => (Some(solve), Some(nonlinear), qualification),\n"
-                               "        None => (None, None, None),") != 1
+                or _case.count("Some((solve, nonlinear, qualification)) => {\n"
+                               "                (Some(solve), Some(nonlinear), qualification)\n"
+                               "            }\n"
+                               "            None => (None, None, None),") != 1
                 or len(_re.findall(r"\bcapture_nonlinear_state_evidence\b", _lib_text)) != 2):
             raise SystemExit("MODAL-SEAM: the capture, its call or the nonlinear loop's early return changed; re-review (§8.43)")
         O10_EDGE_ZERO += [(fnkey("solve_prepared_load_case", _LIB), fnkey("capture_nonlinear_state_evidence", _LIB),

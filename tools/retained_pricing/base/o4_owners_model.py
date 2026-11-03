@@ -91,7 +91,9 @@ BODY_PINS = {
     # DEL-04-09 I2b-2 D3 (§8.43, decision B): LoadCaseSolve.nonlinear_state (None at every early return) and the
     # capture of a converged nonlinear solve's evidence (none on D1, D1.6); O4-ID/O4-SR's Timoshenko blocks and
     # maxima are unchanged.
-    (LIB, "solve_prepared_load_case"): "16d478349c3c8174436729a91b3770a6afb38d126fc6a0c796480303b0f7f9e4",
+    # I2b-2 layout (§8.43, cc160d28d; Agent 0): ordinary layout of the same hunks (token-equal but for block-wrapped
+    # arms and trailing commas); O4-ID/O4-SR's blocks and maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "faeb168f1a8ec8e6f72fc73f6f6e3030770e002c1e099e871111396e923f4022",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",
