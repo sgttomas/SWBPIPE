@@ -28,6 +28,7 @@
 //! the combined components, except in a range envelope, which selects it.
 
 use super::*;
+use combination_plan::Target;
 use serde_json::{json, Value};
 
 /// `exact_combinations[].standing` (§5).
@@ -42,6 +43,9 @@ pub(crate) const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
 pub(crate) const RESOLVED_STIFFNESS_MIXED: &str = "COMBINATION_RESOLVED_STIFFNESS_MIXED";
 /// §4 gate 3.
 pub(crate) const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE";
+/// absolute-sum-srss §5.1: gate 3 for an absolute sum or SRSS whose operands' κ is
+/// not exactly 0.
+pub(crate) const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
 /// §5: the product text of a published combination.
 pub(crate) const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
 /// §7: the user-facing statement of the source-recovery exclusion.
@@ -188,17 +192,27 @@ fn support_kind(kind: &str) -> bool {
     matches!(kind, SUPPORT_COMPONENT | SUPPORT_FORCE | SUPPORT_MOMENT)
 }
 
-/// One operand value of a combined row.
+/// One operand value of a combined row: an operand's row (a load case's, or a
+/// combination's own published row, absolute-sum-srss §4), or a load case's
+/// recovered value.
 #[derive(Debug, Clone)]
 enum Source<'a> {
-    Row { case: &'a str, id: &'a str },
+    Row { target: Target<'a>, id: &'a str },
     Recovered { case: &'a str, index: usize },
+}
+
+/// The evidence of an operand's source row.
+fn row_source(target: &Target<'_>, id: &str) -> Value {
+    match target {
+        Target::Case(case) => json!({"load_case_id": case, "result_id": id}),
+        Target::Combination(combination) => json!({"combination_id": combination, "result_id": id}),
+    }
 }
 
 impl Source<'_> {
     fn evidence(&self) -> Value {
         match self {
-            Source::Row { case, id } => json!({"load_case_id": case, "result_id": id}),
+            Source::Row { target, id } => row_source(target, id),
             Source::Recovered { case, index } => json!({"load_case_id": case, "recovery_index": index}),
         }
     }
@@ -294,21 +308,40 @@ fn installed_reference(connector: &Value) -> bool {
     })
 }
 
-fn gate_reason(model: &PreviewModel, combination: &PreviewCombination, facts: &Facts<'_>, operands: &[&str]) -> Option<&'static str> {
-    if combination.basis != "mechanics" {
+/// The gates (§4; absolute-sum-srss §5), in precedence order: a withheld operand
+/// combination; then, for `mechanics`, `absolute_sum` and `srss`, gates 1 and 2
+/// over every load case the combination reaches through its operands, and gate 3
+/// on the fixed-load count κ. Subtractions and envelopes are ungated otherwise. A
+/// flat combination meets today's gates exactly.
+fn gate_reason(
+    model: &PreviewModel,
+    plan: &combination_plan::Plan<'_>,
+    index: usize,
+    facts: &Facts<'_>,
+    targets: &[Target<'_>],
+    withheld: &HashMap<String, &'static str>,
+) -> Option<(&'static str, String)> {
+    let combination = &model.combinations[index];
+    let operands = preview_physics::withheld_operands(targets, withheld);
+    if !operands.is_empty() {
+        return Some((preview_physics::OPERAND_WITHHELD, preview_physics::operand_withheld_message(&operands)));
+    }
+    let gated = |code: &'static str| Some((code, gate_message(code).to_string()));
+    let basis = combination.basis.as_str();
+    if !matches!(basis, "mechanics" | "absolute_sum" | "srss") {
         return None;
     }
+    let reached = &plan.reached[index];
     let mut scratch = Vec::new();
-    let keys: HashSet<Option<String>> = combination
-        .terms
+    let keys: HashSet<Option<String>> = reached
         .iter()
-        .filter_map(|term| model.load_cases.iter().find(|c| c.id == term.load_case))
+        .filter_map(|case| model.load_cases.iter().find(|c| c.id == *case))
         .map(|case| modulus_basis_key(case, &mut scratch))
         .collect();
     if keys.len() > 1 {
-        return Some(MODULUS_BASIS_MIXED);
+        return gated(MODULUS_BASIS_MIXED);
     }
-    let cases: Vec<CaseFacts<'_>> = operands.iter().map(|case| case_facts(facts, case)).collect();
+    let cases: Vec<CaseFacts<'_>> = reached.iter().map(|case| case_facts(facts, case)).collect();
     let mut members: Vec<&str> = Vec::new();
     for case in &cases {
         for pipe in case.materials.keys().chain(case.sections.keys()) {
@@ -320,16 +353,22 @@ fn gate_reason(model: &PreviewModel, combination: &PreviewCombination, facts: &F
     for pipe in members {
         let first = stiffness(&cases[0], pipe);
         if cases[1..].iter().any(|case| stiffness(case, pipe) != first) {
-            return Some(RESOLVED_STIFFNESS_MIXED);
+            return gated(RESOLVED_STIFFNESS_MIXED);
         }
     }
-    // The shared unit factor-sum rule; a non-finite factor (refused before the
-    // solve by LOAD_COMBINATION_FACTOR_INVALID) never establishes a unit sum.
-    if installed_reference(facts.connector)
-        && !open_pipe_stress_load_case_algebra::factor_sum_within_unit_tolerance(combination.terms.iter().map(|t| t.factor))
-            .unwrap_or(false)
-    {
-        return Some(INSTALLED_REFERENCE);
+    // Gate 3 reads κ (absolute-sum-srss §5.1); flat, it is the shared unit
+    // factor-sum rule. A non-finite factor (refused before the solve by
+    // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes. A
+    // mechanics operand with an undefined κ withholds under this gate's own code.
+    if installed_reference(facts.connector) {
+        let operand_kappa: Vec<_> = targets.iter().map(|target| plan.kappa_of(target)).collect();
+        if basis == "mechanics" {
+            if open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter()).is_some() {
+                return gated(INSTALLED_REFERENCE);
+            }
+        } else if open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(operand_kappa.iter()).is_some() {
+            return gated(INSTALLED_REFERENCE_UNSIGNED);
+        }
     }
     None
 }
@@ -338,30 +377,9 @@ fn gate_message(code: &str) -> &'static str {
     match code {
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
-}
-
-fn algebra_value(expression: &CombinationExpression<'_>, values: &[(&str, f64)], dimension: LoadDimension) -> Option<f64> {
-    let operands = values
-        .iter()
-        .map(|(case, value)| {
-            AlgebraQuantity::new(*value, dimension).ok().map(|quantity| {
-                AlgebraOperand::new(
-                    case.to_string(),
-                    case.to_string(),
-                    quantity,
-                    vec![AlgebraAnalysisStatus::MechanicsSolved, AlgebraAnalysisStatus::HumanReviewRequired],
-                )
-            })
-        })
-        .collect::<Option<Vec<_>>>()?;
-    let by_id: HashMap<&str, &AlgebraOperand> = operands.iter().map(|o| (o.operand_id.as_str(), o)).collect();
-    let algebra = expression.evaluate(&by_id);
-    if algebra.is_blocked() {
-        return None;
-    }
-    algebra.quantity.map(|q| q.value)
 }
 
 /// The rows of one operand case, by key, in publication order.
@@ -385,10 +403,11 @@ impl<'r> CaseRows<'r> {
     }
 }
 
-fn case_rows<'r>(results: &'r [ResultItem], case: &str) -> CaseRows<'r> {
+/// The rows of one operand: a load case's, or a combination's own published rows.
+fn case_rows<'r>(results: &'r [ResultItem], target: &Target<'_>) -> CaseRows<'r> {
     let mut by_key: HashMap<Key<'r>, KeyRows<'r>> = HashMap::new();
     let mut order = Vec::new();
-    for row in results.iter().filter(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case)) {
+    for row in results.iter().filter(|r| target.owns(r)) {
         order.push(row);
         if let Some(key) = Key::of(row) {
             match by_key.entry(key) {
@@ -466,6 +485,7 @@ struct Built {
 }
 
 fn combined_row(combination: &PreviewCombination, expression: &CombinationExpression<'_>, template: &ResultItem, key: &Key<'_>, value: f64, refs: Vec<String>) -> ResultItem {
+    // No nonlinear support reaches this route, so decision OQ-1 never applies here.
     let mut row = template.clone();
     row.id = key.combined_id(&combination.id);
     row.value = value;
@@ -482,7 +502,7 @@ fn combined_row(combination: &PreviewCombination, expression: &CombinationExpres
         }
         metadata.sign_convention = match expression {
             CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
-            _ => expression.result_sign_convention(),
+            _ => expression.result_sign_convention(false),
         };
     }
     row
@@ -499,10 +519,18 @@ fn source_refs(sources: &[Source], recoveries: &[Value]) -> Vec<String> {
         .collect()
 }
 
-fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_>, operands: &[&str], results: &[ResultItem], facts: &Facts<'_>) -> Built {
+fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpression<'_>, operands: &'r [Target<'r>], results: &'r [ResultItem], facts: &'r Facts<'r>) -> Built {
     let range = matches!(expression, CombinationExpression::RangeEnvelope { .. });
-    let rows: Vec<CaseRows<'_>> = operands.iter().map(|case| case_rows(results, case)).collect();
-    let case_facts: Vec<CaseFacts<'_>> = operands.iter().map(|case| case_facts(facts, case)).collect();
+    let rows: Vec<CaseRows<'_>> = operands.iter().map(|target| case_rows(results, target)).collect();
+    // A combination operand publishes every row it forms; only a load case's
+    // pressure-family value is ever recovered (§3).
+    let case_facts: Vec<Option<CaseFacts<'_>>> = operands
+        .iter()
+        .map(|target| match target {
+            Target::Case(case) => Some(case_facts(facts, case)),
+            Target::Combination(_) => None,
+        })
+        .collect();
     let mut built = Built { rows: Vec::new(), row_evidence: Vec::new(), recoveries: Vec::new(), missing: Vec::new(), withheld: Vec::new(), withheld_evidence: Vec::new() };
     let withhold = |built: &mut Built, name: String, reason: &'static str| {
         if !built.withheld_evidence.iter().any(|w| w["name"] == name.as_str()) {
@@ -558,16 +586,19 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
         let mut sources = Vec::new();
         let mut values = Vec::new();
         let mut missing = Vec::new();
-        for (index, case) in operands.iter().enumerate() {
+        for (index, target) in operands.iter().enumerate() {
             if let Some(found) = rows[index].keyed(key) {
-                values.push((*case, found[0].value));
-                sources.push(Source::Row { case, id: &found[0].id });
-            } else if let Some((value, witness)) = recover(key, case, &rows[index], &case_facts[index]) {
+                values.push(found[0].value);
+                sources.push(Source::Row { target: *target, id: &found[0].id });
+            } else if let Some((case, (value, witness))) = case_facts[index]
+                .as_ref()
+                .and_then(|facts| recover(key, target.id(), &rows[index], facts).map(|recovered| (target.id(), recovered)))
+            {
                 built.recoveries.push(witness);
-                values.push((*case, value));
+                values.push(value);
                 sources.push(Source::Recovered { case, index: built.recoveries.len() - 1 });
             } else {
-                missing.push(case.to_string());
+                missing.push(target.id().to_string());
             }
         }
         if !missing.is_empty() {
@@ -584,7 +615,7 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             outcomes[place] = Some(Outcome::Withheld);
             continue;
         };
-        match algebra_value(expression, &values, dimension) {
+        match expression.evaluate_values(&values, dimension) {
             Some(value) => {
                 outcomes[place] = Some(Outcome::Row { value, sources });
             }
@@ -604,6 +635,8 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
     // load case publishes every node's `displacement_magnitude` before any
     // displacement component (`solve_prepared_load_case`), and `order` follows
     // operand publication order. A component taken first would read as missing.
+    // A combination operand publishes in its own key order, so it keeps the
+    // invariant for its dependants (absolute-sum-srss §4).
     for (place, (key, template)) in order.iter().enumerate() {
         if recomputed(key.kind) && !range {
             let components: Vec<Key<'_>> = DISPLACEMENT_COMPONENTS
@@ -621,7 +654,7 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
                         // A component no operand publishes is missing in every operand.
                         let cases: Vec<String> = match other {
                             Some(Outcome::Missing(cases)) => cases.clone(),
-                            _ => operands.iter().map(|c| c.to_string()).collect(),
+                            _ => operands.iter().map(|c| c.id().to_string()).collect(),
                         };
                         for case in cases {
                             if !missing.contains(&case) {
@@ -681,13 +714,13 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
             for (slot, component) in SUPPORT_COMPONENTS.iter().enumerate() {
                 let sources: Vec<&ResultItem> = (0..operands.len()).map(|i| find(i, SUPPORT_COMPONENT, component)).collect::<Option<_>>().ok_or(SUPPORT_SOURCE_MISSING)?;
                 let dimension = if slot < 3 { LoadDimension::Force } else { LoadDimension::Moment };
-                let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
-                let value = algebra_value(expression, &values, dimension).ok_or(ALGEBRA_REFUSED)?;
+                let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+                let value = expression.evaluate_values(&values, dimension).ok_or(ALGEBRA_REFUSED)?;
                 combined[slot] = value;
                 let key = Key::of(sources[0]).ok_or(SUPPORT_SOURCE_MISSING)?;
                 let row = combined_row(combination, expression, sources[0], &key, value, sources.iter().map(|s| s.id.clone()).collect());
                 component_ids.push(row.id.clone());
-                let evidence = json!({"result_id": row.id, "sources": operands.iter().zip(&sources).map(|(case, s)| json!({"load_case_id": case, "result_id": s.id})).collect::<Vec<_>>()});
+                let evidence = json!({"result_id": row.id, "sources": operands.iter().zip(&sources).map(|(target, s)| row_source(target, &s.id)).collect::<Vec<_>>()});
                 out.push((row, evidence));
             }
             for (kind, component, slots) in [(SUPPORT_FORCE, "force_magnitude", 0..3), (SUPPORT_MOMENT, "moment_magnitude", 3..6)] {
@@ -699,10 +732,10 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
                         return Err(SUPPORT_SOURCE_MISSING);
                     }
                     let dimension = if component == "force_magnitude" { LoadDimension::Force } else { LoadDimension::Moment };
-                    let values: Vec<(&str, f64)> = operands.iter().copied().zip(sources.iter().map(|s| s.value)).collect();
-                    let value = algebra_value(expression, &values, dimension).ok_or(ALGEBRA_REFUSED)?;
+                    let values: Vec<f64> = sources.iter().map(|s| s.value).collect();
+                    let value = expression.evaluate_values(&values, dimension).ok_or(ALGEBRA_REFUSED)?;
                     (value, sources.iter().map(|s| s.id.clone()).collect::<Vec<_>>(),
-                        operands.iter().zip(&sources).map(|(case, s)| json!({"load_case_id": case, "result_id": s.id})).collect::<Vec<_>>())
+                        operands.iter().zip(&sources).map(|(target, s)| row_source(target, &s.id)).collect::<Vec<_>>())
                 } else {
                     let c = &combined[slots.clone()];
                     (norm3(c[0], c[1], c[2]), component_ids[slots].to_vec(), Vec::new())
@@ -726,15 +759,26 @@ fn build(combination: &PreviewCombination, expression: &CombinationExpression<'_
     built
 }
 
+/// The complete expression as authored. A term names its operand by kind:
+/// `{load_case_id, factor}` or `{combination_id, factor}` (absolute-sum-srss §2).
 pub(crate) fn expression_evidence(combination: &PreviewCombination) -> Value {
     match combination.basis.as_str() {
-        "mechanics" => json!({"terms": combination.terms.iter().map(|t| json!({"load_case_id": t.load_case, "factor": t.factor})).collect::<Vec<_>>()}),
+        "mechanics" | "absolute_sum" | "srss" => json!({"terms": combination.terms.iter().map(|t| match &t.combination {
+            Some(id) => json!({"combination_id": id, "factor": t.factor}),
+            None => json!({"load_case_id": t.load_case, "factor": t.factor}),
+        }).collect::<Vec<_>>()}),
         "result_state_subtraction" => json!({"minuend_id": combination.minuend_id, "subtrahend_id": combination.subtrahend_id}),
         _ => json!({"operand_ids": combination.operand_ids, "mode": combination.mode}),
     }
 }
 
-pub(crate) fn operand_evidence(model: &PreviewModel, case: &str) -> Value {
+/// One operand's record: a load case's modulus selection and standing, or the
+/// combination it names, whose own record states its operands (§4).
+pub(crate) fn operand_evidence(model: &PreviewModel, target: &Target<'_>) -> Value {
+    let case = match target {
+        Target::Case(case) => *case,
+        Target::Combination(id) => return json!({"combination_id": id}),
+    };
     let load_case = model.load_cases.iter().find(|c| c.id == case);
     json!({
         "load_case_id": case,
@@ -758,36 +802,52 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
     let has_intensified = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
         && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND | u4b_rows::BRANCH_KIND));
     let mut records = Vec::new();
-    // The load cases' rows: each combination's rows are appended after them, and
-    // a combination reads only its operands' case rows, so it reads this prefix.
-    let case_rows_end = results.len();
-    for combination in &model.combinations {
+    // Every combination in evaluation order (absolute-sum-srss §2): an operand
+    // combination's rows are appended before its dependants read them.
+    let plan = combination_plan::Plan::new(model);
+    let mut withheld_combinations: HashMap<String, &'static str> = HashMap::new();
+    for &index in &plan.order {
+        let combination = &model.combinations[index];
         // Validation refuses every unresolvable shape before the solve.
         let Some(expression) = CombinationExpression::resolve(combination) else { continue };
-        let operands = expression.operand_ids();
+        let operands = expression.targets(&plan.resolver);
         let mut record = json!({
             "combination_id": combination.id,
             "basis": combination.basis,
             "expression": expression_evidence(combination),
-            "operands": operands.iter().map(|case| operand_evidence(model, case)).collect::<Vec<_>>(),
+            "operands": operands.iter().map(|target| operand_evidence(model, target)).collect::<Vec<_>>(),
             "gate": {"withheld": false, "reason": null},
             "rows": [], "recoveries": [], "missing_sources": [], "withheld": [],
             "standing": STANDING,
             "source_recovery": SOURCE_RECOVERY_EXCLUSION,
         });
-        if let Some(code) = gate_reason(model, combination, &facts, &operands) {
+        if plan.kappa[index].is_unrepresentable() {
+            diagnostics.push(diag(
+                &format!("diagnostic:exact-combination:fixed-load-count:{}", identity(&[&combination.id])),
+                preview_physics::FIXED_LOAD_COUNT_UNREPRESENTABLE,
+                "info",
+                preview_physics::fixed_load_count_message(&combination.id),
+                vec![combination.id.clone()],
+            ));
+        }
+        if let Some((code, message)) = gate_reason(model, &plan, index, &facts, &operands, &withheld_combinations) {
+            let mut refs = vec![combination.id.clone()];
+            if code == preview_physics::OPERAND_WITHHELD {
+                refs.extend(preview_physics::withheld_operands(&operands, &withheld_combinations).iter().map(|(id, _)| id.to_string()));
+            }
             diagnostics.push(diag(
                 &format!("diagnostic:exact-combination:gate:{}", identity(&[&combination.id])),
                 code,
                 "warning",
-                gate_message(code),
-                vec![combination.id.clone()],
+                message,
+                refs,
             ));
             record["gate"] = json!({"withheld": true, "reason": code});
             records.push(record);
+            withheld_combinations.insert(combination.id.clone(), code);
             continue;
         }
-        let built = build(combination, &expression, &operands, &results[..case_rows_end], &facts);
+        let built = build(combination, &expression, &operands, results.as_slice(), &facts);
         for missing in &built.missing {
             let source = missing["source_result_id"].as_str().unwrap_or_default();
             let cases = missing["missing_load_case_ids"].as_array().map(|c| c.iter().filter_map(Value::as_str).collect::<Vec<_>>().join(", ")).unwrap_or_default();
@@ -839,8 +899,8 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
             ));
         }
         // The evidence moves into the record, held at its length as a copy would be;
-        // the rows go straight to the envelope, after every earlier combination's (a
-        // later combination reads its operands' load-case rows only).
+        // the rows go straight to the envelope, after every earlier combination's,
+        // where a later combination naming this one reads them.
         let array = |mut items: Vec<Value>| {
             items.shrink_to_fit();
             Value::Array(items)
@@ -871,7 +931,8 @@ pub(crate) fn state_operand_standing(records: &mut [Value], quality: &NumericalQ
     let cases = serde_json::to_value(&quality.cases).unwrap_or(Value::Null);
     for record in records {
         if let Some(operands) = record["operands"].as_array_mut() {
-            for operand in operands {
+            // A combination operand states its standing in its own record (§4).
+            for operand in operands.iter_mut().filter(|o| o.get("load_case_id").is_some()) {
                 let case = operand["load_case_id"].clone();
                 operand["numerical_quality"] = cases
                     .as_array()
@@ -951,7 +1012,7 @@ mod tests {
     fn recovery_requires_a_published_member_outside_every_region_and_its_force_row() {
         let section = json!({"nominal_section": {"As_m2": 0.5}, "reduced_section": {"As_m2": 0.25}});
         let published = [row(AXIAL_FORCE, "pipe:p", "end_i", "axial_force", -8.0), row(AXIAL_FORCE, "pipe:p", "midspan", "axial_force", 8.0)];
-        let rows = case_rows(&published, "case:b");
+        let rows = case_rows(&published, &Target::Case("case:b"));
         let facts = |sections: bool, region: bool| CaseFacts {
             sections: if sections { HashMap::from([("pipe:p", &section)]) } else { HashMap::new() },
             materials: HashMap::new(), material_basis: &Value::Null,

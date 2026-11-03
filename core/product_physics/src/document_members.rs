@@ -66,15 +66,18 @@ pub const LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED: &str = "LOAD_COMB
 pub const LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN: &str = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNKNOWN";
 /// Interim: a `minuend_final` combination is withheld.
 pub const LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED: &str = "LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED";
-/// Interim (until the RT-A4 wiring slice): an `absolute_sum` or `srss` combination is withheld.
+/// Interim until the RT-A4 wiring slice, which removed it from the solve; the
+/// applier keeps the code for its own refusals' history and no longer emits it.
 pub const LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED: &str = "LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED";
-/// Interim: a combination with a combination operand is withheld.
+/// Interim until the RT-A4 wiring slice, which removed it from the solve and the applier.
 pub const LOAD_COMBINATION_NESTED_UNSUPPORTED: &str = "LOAD_COMBINATION_NESTED_UNSUPPORTED";
 /// An operand id names neither a load case nor a combination (a term's `load_case` keeps
 /// `LOAD_COMBINATION_LOAD_CASE_UNKNOWN`).
 pub const LOAD_COMBINATION_OPERAND_UNKNOWN: &str = "LOAD_COMBINATION_OPERAND_UNKNOWN";
 /// Combinations that name each other in a cycle.
 pub const LOAD_COMBINATION_OPERAND_CYCLE: &str = "LOAD_COMBINATION_OPERAND_CYCLE";
+/// absolute-sum-srss §4: a combination naming a withheld combination is withheld whole.
+pub const LOAD_COMBINATION_OPERAND_WITHHELD: &str = "LOAD_COMBINATION_OPERAND_WITHHELD";
 
 /// `difference_basis`'s one token.
 pub const OPERATING_MINUS_SUSTAINED: &str = "operating_minus_sustained";
@@ -818,7 +821,7 @@ pub(crate) fn lower_axis_aligned_directions(model: &mut PreviewModel) {
 }
 
 /// The interim withholding codes of one combination, in the order they are stated.
-fn interim_reasons(combination: &crate::PreviewCombination, operands: &Operands<'_>) -> Vec<(&'static str, String)> {
+fn interim_reasons(combination: &crate::PreviewCombination) -> Vec<(&'static str, String)> {
     let mut reasons = Vec::new();
     let id = &combination.id;
     if combination.difference_basis.is_some() {
@@ -829,29 +832,20 @@ fn interim_reasons(combination: &crate::PreviewCombination, operands: &Operands<
         reasons.push((LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_UNSUPPORTED,
             format!("combination `{id}` solves its subtrahend at the minuend's final support status; that solve is not built yet, so the combination is withheld")));
     }
-    if matches!(combination.basis.as_str(), "absolute_sum" | "srss") {
-        reasons.push((LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED,
-            format!("combination `{id}` has basis `{}`; unsigned combinations are not built yet, so the combination is withheld", combination.basis)));
-    }
-    let view = combination_view(combination);
-    let nested = operand_refs(&view, "", operands).iter().any(|(_, _, operand)| matches!(operand, Operand::Combination(_)));
-    if nested {
-        reasons.push((LOAD_COMBINATION_NESTED_UNSUPPORTED,
-            format!("combination `{id}` takes a combination as an operand; combinations of combinations are not built yet, so the combination is withheld")));
-    }
     reasons
 }
 
-/// S1's withholding (§2.2, §2.4; absolute-sum-srss §2): a combination with a
-/// difference basis, a `minuend_final` subtrahend, an unsigned basis or a
-/// combination operand is withheld with a warning, and so is each combination
-/// that names one (it has a combination operand). The cases and the other
-/// combinations publish. Runs after validation, which judged every combination.
+/// S1's withholding (§2.2, §2.4) as the RT-A4 wiring leaves it: a combination with a
+/// difference basis or a `minuend_final` subtrahend is withheld with a warning, and
+/// so is each combination that names one, directly or through others
+/// (`LOAD_COMBINATION_OPERAND_WITHHELD`, absolute-sum-srss §4, naming the operand and
+/// its own code). The unsigned bases and combination operands are evaluated. The
+/// cases and the other combinations publish. Runs after validation, which judged
+/// every combination (so no cycle remains).
 pub(crate) fn withhold_interim_combinations(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
-    let operands = Operands::new(model.load_cases.iter().map(|case| case.id.as_str()), model.combinations.iter().map(|c| c.id.as_str()));
-    let mut withheld = HashSet::new();
+    let mut withheld: HashMap<usize, &'static str> = HashMap::new();
     for (index, combination) in model.combinations.iter().enumerate() {
-        let reasons = interim_reasons(combination, &operands);
+        let reasons = interim_reasons(combination);
         for (code, message) in &reasons {
             diagnostics.push(crate::diag(
                 &format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), code.to_ascii_lowercase()),
@@ -861,16 +855,52 @@ pub(crate) fn withhold_interim_combinations(model: &mut PreviewModel, diagnostic
                 vec![combination.id.clone()],
             ));
         }
-        if !reasons.is_empty() {
-            withheld.insert(index);
+        if let Some((code, _)) = reasons.first() {
+            withheld.insert(index, code);
         }
     }
     if withheld.is_empty() {
         return;
     }
+    // Dependants, in evaluation order, so that each names its own withheld operands.
+    let plan = crate::combination_plan::Plan::new(model);
+    for &index in &plan.order {
+        if withheld.contains_key(&index) {
+            continue;
+        }
+        let combination = &model.combinations[index];
+        let Some(expression) = crate::CombinationExpression::resolve(combination) else { continue };
+        let named: Vec<(String, &'static str)> = expression
+            .targets(&plan.resolver)
+            .iter()
+            .filter_map(|target| match target {
+                crate::combination_plan::Target::Combination(id) => plan.index(id).and_then(|at| withheld.get(&at)).map(|code| (id.to_string(), *code)),
+                crate::combination_plan::Target::Case(_) => None,
+            })
+            .fold(Vec::new(), |mut out, (id, code)| {
+                if !out.iter().any(|(named, _)| *named == id) {
+                    out.push((id, code));
+                }
+                out
+            });
+        if named.is_empty() {
+            continue;
+        }
+        let pairs: Vec<(&str, &str)> = named.iter().map(|(id, code)| (id.as_str(), *code)).collect();
+        let mut refs = vec![combination.id.clone()];
+        refs.extend(named.iter().map(|(id, _)| id.clone()));
+        diagnostics.push(crate::diag(
+            &format!("diagnostic:combination:{}:{}", crate::stable_suffix(&combination.id), LOAD_COMBINATION_OPERAND_WITHHELD.to_ascii_lowercase()),
+            LOAD_COMBINATION_OPERAND_WITHHELD,
+            "warning",
+            crate::preview_physics::operand_withheld_message(&pairs),
+            refs,
+        ));
+        withheld.insert(index, LOAD_COMBINATION_OPERAND_WITHHELD);
+    }
     let mut index = 0;
     model.combinations.retain(|_| {
-        let keep = !withheld.contains(&index);
+        let keep = !withheld.contains_key(&index);
         index += 1;
         keep
     });
