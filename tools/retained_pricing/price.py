@@ -19,7 +19,7 @@ if __name__ == "__main__" and not sys.flags.utf8_mode:
     sys.exit(subprocess.run([sys.executable, "-X", "utf8", os.path.abspath(__file__), *sys.argv[1:]]).returncode)
 from lib import pinned_git
 from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
-from base.b7a_domain_model import prepare as prepare_b7a_domain
+from base.b7a_domain_model import prepare as prepare_b7a_domain, modal_unreachable
 from base.b7a_formation_model import prepare as prepare_b7a_formation
 from base.loopscan import off_build_files
 from lib.source_history import resolve_revision, project_prefix
@@ -102,6 +102,26 @@ def snapshot(repo, rev, dst):
         if kind == "commit":                          # a submodule: an empty directory, as git archive wrote it
             os.makedirs(os.path.join(dst, path), exist_ok=True)
     return os.path.join(dst, prefix)
+
+
+MODAL_PATHS = ("core/product_physics/src/modal.rs", "core/product_physics/src/modal")
+
+
+def exclude_unreachable_modal(W):
+    """MODAL-UNR: drop the product modal module from the snapshot after B7a's guard holds on the full tree. Returns
+    the removed paths, or [] when the snapshot has no modal module."""
+    if not modal_unreachable(W):
+        return []
+    removed = []
+    for rel in MODAL_PATHS:
+        path = os.path.join(W, rel)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+            removed.append(rel + "/")
+        elif os.path.exists(path):
+            os.remove(path)
+            removed.append(rel)
+    return removed
 
 
 CORRECT_NORM = ("core/numerics/correct_norm", "open_pipe_stress_correct_norm")
@@ -229,6 +249,13 @@ def cmd_run(a):
     report = {"rev": rev, "basis": BASIS, "resolved_basis": basis_revision}
     # 1. the snapshot
     W = snapshot(repo, rev, os.path.join(out, "snap"))
+    # 1a. MODAL-UNR (DEL-04-08 §8.43): once B7a's guard proves on the full snapshot that the product modal module is
+    # declared once, privately, and named by no other product_physics source, no retained root can reach it, so it is
+    # dropped from the scanned tree, as modal_eigen is outside crate_dirs. A failing guard stops the run.
+    try:
+        report["modal_excluded"] = exclude_unreachable_modal(W)
+    except ValueError as error:
+        stop(4, str(error))
     # 2. the base chain's line-keyed rules, basis -> rev (stops on any key it cannot carry)
     try:
         prepared, retirement_report = prepare_b7a_retired_carry(W, BASE, os.path.join(out, "prepared_rules", "retired"))
