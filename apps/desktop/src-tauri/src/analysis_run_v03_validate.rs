@@ -744,8 +744,8 @@ pub(crate) fn validate_v03(record: &Value, source: &mut Value, expected_basis: O
 /// pressure-2 digest and its 0.7- and 0.8-era recorded bases).
 fn recorded_run_semantic_binding(recorded: Option<&Value>, route: &Route) -> Value {
     const BASES: [(&str, &str, &str); 2] = [
-        ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"),
-        ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"),
+        ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
+        ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
     ];
     let named = recorded.and_then(Value::as_object).filter(|map| map.len() == 2);
     let basis = named.and_then(|named| {

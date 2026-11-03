@@ -745,6 +745,26 @@ restored and browser-preview results):
   S1's `snubber` (`result_summary_tables.rs`, as `displacementExtremes.ts`), pinned by a snubber
   support in the summary corpus. No S1 source fixture, schema, core or pricing test was edited;
   historical 0.8 controls and the recorded-run table compatibility are S1's, unchanged.
+- **On main at `3983f51cf` (S2, RT-A3 2a/2b, hangers, MBF export, modal I1, `Index::any`;
+  merged at `9df2d8abb`).** RT-A3 2b rebound the pressure-2 table's current digest
+  (`d46e1963…` to `a2db16a5…`; rows, signatures and numbers unchanged) in its pin consumers.
+  C1's native mirror of `RECORDED_RUN_TABLE_BASES` (`analysis_run_v03_validate.rs`
+  `recorded_run_semantic_binding`) is one such consumer, written on this branch, so its
+  `current` column takes the same digest as `analysisRunCompatibility.ts` and
+  `compatibility.py`; without it a 0.7- or 0.8-era recorded run would bind differently natively
+  than in the webview. The C1 corpora were regenerated from their generators, each after the
+  one it reads: builder corpus, persistence forms, historical reopen cases (expected findings
+  unchanged; only derived hashes), summary outcomes (the regenerated pressure sources'
+  limitation text only), native replay requests (rebuilt from empty, 426 requests, the stale
+  pre-2b pressure keys gone) and outcomes, persistence replies, reopen requests (rebuilt from
+  empty, same seven commands) and replies. The reach-scan pins are the union of both sides
+  (main's `open_pipe_stress_caepipe_mbf` shell dependency, `hanger_sizing` runner dependency and
+  `size_hangers_cli` target; C1's handlers); `app_invoke_handler`'s digest is unchanged because
+  main added `mod mbf_export` but no handler. No CI routing digest was stale. The new families
+  do not reach C1 custody: the MBF export and hanger view are not on the session's result path,
+  modal I1 is a separate crate, and S2/RT-A3 publish through the same pressure-2 identity the
+  native verdict reads from the core contract. `Index::any`'s map is inside the compulsory
+  readers C1 calls; no C1 gate changed.
 - **Remaining:** the independent persistence, permissions and numerical review of this increment;
   the C2 interim for comparisons with the current run and reference-inspection retention of a fresh
   result; slice 7's measurement. (Saved-result native reopening: slice 6 status.)
