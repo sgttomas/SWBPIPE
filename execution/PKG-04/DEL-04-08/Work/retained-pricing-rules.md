@@ -3136,8 +3136,8 @@ literal such as `'"'`, or a backslash-newline continuation (the regex `.` does n
 pairing, so code between literals is measured as a literal and a real literal can be split. At `db3151708` the
 regex leaves the true token sequence 17 times in the four static files (FK `structural.rs` 3, FK `lib.rs` 2, PP
 `lib.rs` 12), and the "longest literal" was PP `lib.rs:24572–24610`, 1,568 B of test code (desynchronized by the
-continuation string at `lib.rs:24434–24439`). On PR #97's head (`0c7c279f6`) the same method gives 3,272 B (`lib.rs:25328–25403`). The method
-can also undercount: a quote in a comment before a long literal hides it.
+continuation string at `lib.rs:24434–24439`). On PR #97's head (`0c7c279f6`) the same method gives 3,272 B
+(`lib.rs:25328–25403`). The method can also undercount: a quote in a comment before a long literal hides it.
 
 **Method.** `base/rust_literals.py` lexes each file once: line and nested block comments (doc forms included); char
 literals against lifetimes and labels by rustc's rule (`'x'`/`'\…'` is a char, `'ident` not closed by `'` is a
@@ -3148,14 +3148,14 @@ raw C strings; raw identifiers (`r#name`). A literal's size is the runtime UTF-8
 comment; an unknown escape; an out-of-range `\x`/`\u`; any unknown prefix (`ident"`, `ident'`, `ident#` other than
 `r b c br cr` and `r#ident`); a lifetime, raw identifier or number immediately followed by a quote or `#`; an empty or
 unescaped-quote char literal; and any carriage return (CRLF normalization is not modelled). The class inventory is
-unchanged: every double-quoted literal token (str, raw, byte, C) in the same files; char literals are not strings
-and were never meant to count. The Debug premise count (`static_literals_with_escapes`) is computed on the lexed
-values: a literal counts when its value is not printable ASCII free of `"` and `\` (non-ASCII counts conservatively;
-str Debug leaves `'` unescaped). The report class's `2 + 2·L_rep` relies on every value's Debug being at most twice its
-bytes, which fails for `\u{…}` escapes; `composite_text` now stops if any report literal holds a char outside printable
-ASCII and `\t \r \n \0` (none do). Lexing all 242 `.rs` files under `crate_dirs.txt` completes with no stop.
+unchanged: every double-quoted literal token (str, raw, byte, C) in the same four files; char literals are not
+strings and were never meant to count. The Debug premise count (`static_literals_with_escapes`) is computed on the
+lexed values: a literal counts when its value is not printable ASCII free of `"` and `\` (non-ASCII counts
+conservatively; str Debug leaves `'` unescaped); as before it is reported, not enforced. The report class's
+`2 + 2·L_rep` relies on every value's Debug being at most twice its bytes, which fails for `\u{…}` escapes;
+`composite_text` now stops if any report literal holds a char outside printable ASCII and `\t \r \n \0` (none do).
 
-**Values at `db3151708`.**
+**Values at `db3151708`** (the run output, `composite_text.caps.json`; no test pins them).
 
 | Output | Old (regex) | New (lexer) |
 |---|---|---|
@@ -3169,82 +3169,112 @@ ASCII and `\t \r \n \0` (none do). Lexing all 242 `.rs` files under `crate_dirs.
 PR #97's head gives the same 964 B at `lib.rs:1459`. The 222 → 9 drop is mis-paired code spans (newlines inside) no
 longer counted, and continuation or `\'` escapes no longer flagging printable values. The nine: two test strings with
 `\n` (PP `lib.rs:15645`, `15646`), one `\t\n` (`17946`), and six holding printable non-ASCII (Δ at
-`exact_boundary.rs:664`; ᵀ, é ×2 and — ×2 in PP `lib.rs`), counted conservatively. As before, this count is reported, not enforced. The report scanner had the
-same defect (8 desynchronizations in its four files) but its longest literal is unchanged. The same regex is used in
-`kd5_text_model.py` on hash-pinned function bodies, where it and the lexer give identical literals, and in
-`text_lexicon.py`, `loopscan.py` and `callgraph_g5.py`, which this entry does not assess.
+`exact_boundary.rs:664`; ᵀ, é ×2 and — ×2 in PP `lib.rs`). The report scanner had the same defect (8
+desynchronizations in its four files) but its longest literal is unchanged.
 
 **What can feed the fields.** In the four files there is no `concat!`, `stringify!` or `macro_rules!` outside tests;
 every `include_str!` is in a `#[cfg(test)]` module. `env!("CARGO_PKG_NAME")`/`env!("CARGO_PKG_VERSION")` (PP
 `lib.rs:15511/15517`) feed `component_name`/`component_version` (`&'static str`, `lib.rs:15527–15528`) with
-`open_pipe_stress_product_physics` (32 B) and `0.2.0` (5 B), below both old and new values. PP `build.rs` emits only
-the identity and reviewed-input environment values, read with `option_env!` in `retained_memory.rs` and compared, not
-copied. Neither method measured these non-literal values.
+`open_pipe_stress_product_physics` (32 B) and `0.2.0` (5 B). PP `build.rs` emits only the identity and reviewed-input
+environment values, read with `option_env!` in `retained_memory.rs` and compared, not copied.
+
+**Where the class is used.** `text_budget.py` takes `classes` from `composite_text.caps.json` (`TB_COMPOSITE`), so
+`static` is the size of every text argument a rule classes `"max": "static"`. Those rules (`text_args.g4.json`, SQ2
+decisions) apply across the snapshot, not only to the four files; their stated grounds are "≤ 426 B, the longest
+literal on the reached graph", "≤ 512" or "static (512)". Main's 1,568 B covered every such site, but only through the
+mis-paired measurement. With the class at 964 B, two sites copy a longer constant: `exact_admission.rs`
+`pressure_v3_formulation_basis_with_source`'s `super::joint::CONNECTOR_LIMITATION.to_string()` (1,422 B) and PP
+`lib.rs` `formulation_basis_for_model_with_source`'s `bend_pressure::BEND_LIMITATION.to_string()` (1,255 B), each at
+multiplicity 3 on every point. The class stays the four-file measure; those two sites are bound at their own sizes.
+
+| Rule | Bound | Premise and guard |
+|---|---|---|
+| **SL-LIM** (`O10_ID_AUDIT`, both routes) | The two copies above, each at its constant's runtime length lexed from its defining file at the snapshot (`joint.rs`, `bend_pressure.rs`): 1,422 and 1,255 B at `db3151708`. | **Guard:** each declaration is exactly one `const NAME: &str = "<one literal>";`; the name occurs in the pricing scope's code (all `crate_dirs.txt` files, literals and comments excluded) only at its declaration and its one copy; the copy's text is in its function (`site()`). Any change stops the run. |
+
+**Whole-scope disposition check** (`composite_text.py`, every point). The pricing scope's production literals are
+lexed: every `.rs` file under `crate_dirs.txt` (242 at `db3151708`), less test-only code, which is a file declared
+only by `#[cfg(test)] mod name;` (Rust's module path rules, `#[path]` included) or by a test-only file, recursively,
+and the body of a `#[cfg(test)] mod name { … }`. Anything not resolved with certainty (a nested or computed path, any
+other `cfg`) stays in scope. Every production literal longer than the class must match exactly one entry of
+`base/static_literal_dispositions.py` (file and the start of its value), and every entry exactly one literal; an
+unlisted, ambiguous or stale entry stops the run. The run output lists the matches (`static_long_literals`). At
+`db3151708`, 96 files are test-only, and the six production literals over 964 B are:
+
+| Literal | Bytes | Disposition |
+|---|---|---|
+| `joint.rs:164` `CONNECTOR_LIMITATION` | 1,422 | per-site: SL-LIM |
+| `bend_pressure.rs:35` `BEND_LIMITATION` | 1,255 | per-site: SL-LIM |
+| `exact_admission.rs:140` the `identity` literal (pressure-2) | 2,467 | own bound: U6-J4 audits `identity.to_string()` at the longer identity literal |
+| `exact_admission.rs:138` the `identity` literal (pressure-source-1) | 1,262 | own bound: U6-J4 |
+| `exact_admission.rs:53` `REDUCER_IN_REGION_TEXT` | 1,745 | own bound: passed only as `pressure_runtime.rs problem`'s `message`, priced at `error_display` (8,192 B) |
+| `retained_memory.rs:1385` `REGISTERED_PROFILES` `reviewed_inputs` | 1,641 | never copied: read only by `bindings_hold`, which compares it |
+
+The seventh literal over 964 B in the scope, `source_receipt/pressure_source_context_tests.rs:169` (2,467 B), is
+test-only (`#[cfg(test)] #[path = …] mod pressure_source_context_tests;` in `source_receipt.rs`).
+
+**Residual premise (predates §8.45).** The check covers literals. A value that reaches a `static`-class site through
+computation (`format!`, concatenation, a runtime `String`, a `&'static str` chosen at run time from non-literal data)
+is not covered by it; those sites rest on their rules' own grounds, as before.
 
 **Consumers.**
-- `text_budget.py` takes `classes` from `composite_text.caps.json` (`TB_COMPOSITE`), so `static` = max(512, STATIC) is
-  the size of every text argument a rule classes `"max": "static"`. Those rules (`text_args.g4.json`, SQ2 decisions)
-  apply across the snapshot, not only to the four files; their stated grounds are "≤ 426 B, the longest literal on
-  the reached graph", "≤ 512" or "static (512)". 282 site rows in 54 files move (the four points' main text budgets).
 - `t08_closure.py`: hard-coded `STATIC = 426`; reads `report_literal_max_bytes` (unchanged) and `message_int`, which
-  enters `Text(recovery_finding)` four times (−4 × 604 = −2,416 B, below). `g4_caps.py`: `L_PUB = max(message_int,
-  largest site)` = 6,139,118 B (unchanged; the site term dominates) and hard-coded `L_ROW = 2173`. `t25_g4.py`:
-  the same `L_PUB = max(message_int, largest site)` (unchanged) and `L_ROW = 2173`; its T25 forms move only through
-  the text atoms.
-  `sens.py` and `b7a_phase_model.py` run `composite_text` and pass its classes on.
+  enters `Text(recovery_finding)` four times (−4 × 604 = −2,416 B). `g4_caps.py` and `t25_g4.py`:
+  `L_PUB = max(message_int, largest site)` = 6,139,118 B (unchanged) and hard-coded `L_ROW = 2173`; T25 forms move only
+  through the text atoms. `sens.py` and `b7a_phase_model.py` run `composite_text` and pass its classes on.
 - The hard-coded 2,173 B (`g4_caps.py`, `t25_g4.py`, `text_args.g4.json`, `b7a_scoped_text_model.py`,
   `b7a_owner_choices.py`) does not derive from `composite_text`; it exceeds the old 1,568 and the new 964, but not PR
   #97's mis-paired 3,272. None is changed.
+- The same regex elsewhere: `loopscan.blank` and `callgraph_g5.strip` use it only under `CG_LEXER=regex` (G3
+  baseline reproduction), which the tool never sets; their default is `loopscan.blank_rust`, a lexer handling the
+  same forms (G4 R-1). `text_lexicon.py` matches it on spans whose quote positions come from `blank_rust`'s output,
+  so it cannot mis-pair; it measures source width, never less than the runtime bytes, and stops (`literal measure
+  failed`) on a continuation. `kd5_text_model.py` applies it to hash-pinned bodies, where it and the lexer agree. No
+  result in this candidate depends on them.
 
 **Re-pricing.** Main's tool at `db3151708` (exit 0, O-10 clear) reproduces the registered block with §8.42's basis line
-(`generate --check` equal, 1,712 lines). The candidate tool at `d0726dd9e` (same product source) prices exit 0, O-10
-clear, the same structure. `compare candidate main`: `a_le_b` true, `a_ge_b` false; 1,569 coefficients equal, 33
-lower, none higher. All moved coefficients are form constants or text atoms:
+(`generate --check` equal, 1,712 lines). The candidate tool at `36d183b0b` (same product source; the lexer, SL-LIM
+and the disposition check) prices exit 0, O-10 clear, the same structure, and the disposition check passes on every
+point. `compare candidate main`: `a_le_b` true, `a_ge_b` false; 1,569 coefficients equal, 33 lower, **none higher**:
 - `FAILED_MANIFEST_COPY`, `STAGED`, `SUCC`, `T16_P1`, `T16_P3`, `T16_P4`, `T17_V5`, `T17_V6`, `T25_I2`, `T25_I3`:
   −1,223,704 B each (the `Text(diag_env)` drop);
 - `T16_P2`, `T25_I1`: −1,226,120 B each (with `Text(recovery_finding)`);
-- `TAV_W` 5,102,860,464 → 4,954,965,024 (−147,895,440); `TAV_X` 5,516,288,982 → 5,437,229,006 (−79,059,976);
+- `TAV_W` 5,102,860,464 → 4,954,969,518 (−147,890,946); `TAV_X` 5,516,288,982 → 5,437,233,500 (−79,055,482);
 - each of these 14 forms' `success__` copy by the same amount (28 form coefficients);
-- text atoms: `TAV_text_requested` 7,436,604,980 → 7,229,029,508 (−207,575,472); `TAV_text_moving` 7,439,205,680 →
-  7,231,629,604 (−207,576,076); `Text(diag_env)` 274,415,304 → 273,191,600 (−1,223,704); `Text(diag_total)`
+- text atoms: `TAV_text_requested` 7,436,604,980 → 7,229,034,002 (−207,570,978); `TAV_text_moving` 7,439,205,680 →
+  7,231,634,098 (−207,571,582); `Text(diag_env)` 274,415,304 → 273,191,600 (−1,223,704); `Text(diag_total)`
   449,832,066 → 447,571,898 (−2,260,168); `Text(recovery_finding)` 14,446,850 → 14,444,434 (−2,416).
 
-Every phase falls in both modes: W1/W2 −149,126,392 B, W3/W4 −151,573,800 B, W5 −150,350,096 B, X1 −81,514,632 B,
-X2/X3 −80,290,928 B. The checked maximum (W3) is 8,744,976,026 → 8,593,402,226 B (sparse) and 8,804,107,370 →
-8,652,533,570 B (dense). The approved allowances and every non-text coefficient are unchanged. `generate --check` of
-the candidate tree against main's `retained_memory.rs` with §8.42's basis line differs (exit 6), as expected for a
-lower tree; the block was not regenerated.
+Against the lexer-only candidate (`d0726dd9e`), SL-LIM raises `TAV_W`, `TAV_X`, their `success__` copies and both TAV
+text atoms by 4,494 B each (2 · 3 · (458 + 291)), the two sites' rows reading 1,422 and 1,255 B on all four points.
+Every phase falls against main in both modes (only form constants move, so the deltas are atom-independent): W1/W2
+−149,121,898 B, W3/W4 −151,569,306 B, W5 −150,345,602 B, X1 −81,510,138 B, X2/X3 −80,286,434 B. The checked maximum
+(W3) is 8,744,976,026 → 8,593,406,720 B (sparse) and 8,804,107,370 → 8,652,538,064 B (dense). The approved allowances
+and every non-text coefficient are unchanged. `generate --check` of the candidate tree against main's
+`retained_memory.rs` with §8.42's basis line differs (exit 6), as expected for a lower tree; nothing was regenerated.
 
-**Unsound in the candidate tree as generated.** The lowered class reaches two sites whose literal is longer than
-964 B and outside the four-file inventory: `exact_admission.rs:167` `joint::CONNECTOR_LIMITATION.to_string()`
-(1,422 B, `joint.rs:164`) and PP `lib.rs:1451` `bend_pressure::BEND_LIMITATION.to_string()` (1,255 B,
-`bend_pressure.rs:35`), each charged 964 B at multiplicity 3 on every point. Main's 1,568 B covered them only by the
-mis-paired measurement, not by the classes' stated grounds. Of the seven production literals over 964 B in the pricing
-scope, the other five are bound otherwise (the exact identity at `exact_admission.rs:148` by its own 2,467 B row,
-`REDUCER_IN_REGION_TEXT` through `pressure_runtime.rs problem`'s unchanged `diag` row, and `REGISTERED_PROFILES`'
-identity strings, which are compared, not copied). A line-level scan of all 282 moved rows finds no other direct
-reference to a constant over 964 B; a value reaching a `static`-class site through a parameter was traced only for
-these seven literals. A sound adoption of the lower derivation needs these two sites bound at their own sizes (or the
-class inventory decided); this entry decides neither.
-
-**Domination.** The registered block on main is coefficient-wise an upper bound for the candidate tree (`a_le_b`). It
-stays one if the two sites above are repaired to their true sizes, since main charges each at 1,568 B ≥ 1,422 and
-1,255 B and nothing else rises. That is a finding, not a decision to carry.
+**Domination.** With the two sites bound, main's registered block is coefficient-wise an upper bound for the
+candidate's derivation (`a_le_b`, none higher). That is a finding, not a decision to carry.
 
 **What the contract permits.** No CI job or law test regenerates the block from the tool or requires equality: the
 `profile_` law tests check the committed block against its own pinned record and atoms, and hosted CI runs the
-tool's Python tests; nothing in `.github/` or `tools/ci/` invokes `generate`. The README's comparison rule ("`a_le_b` true … means the registered block still bounds the
-head, so nothing needs re-registering") and §8.40's conservative carry permit keeping a dominating, non-equal block;
-`generate --check` then holds only against the predecessor's reproduced tree. One consequence: the committed tool no
-longer reproduces the registered block from `db3151708` (§10); main's tool at `db3151708` still does.
+tool's Python tests; nothing in `.github/` or `tools/ci/` invokes `generate`. The README's comparison rule ("`a_le_b`
+true … means the registered block still bounds the head, so nothing needs re-registering") and §8.40's conservative
+carry permit keeping a dominating, non-equal block; `generate --check` then holds only against the predecessor's
+reproduced tree. **§10 reproduction:** once this tool lands, the committed tool no longer reproduces the registered
+block from `db3151708` (its tree is the lower one above); main's tool cohort at `db3151708` still does, and §10's
+"one current value" statement would need that qualification if the block is carried.
 
-**Tests.** `tests/test_845_rust_literal_lexer.py` (45 cases): quotes in line, nested block and doc comments, `'"'`,
+**Tests.** `tests/test_845_rust_literal_lexer.py` (51 cases): quotes in line, nested block and doc comments, `'"'`,
 `'\''` and lifetimes beside quotes (overcount); a long literal with `\"`, `//`, `/*` and `'`, raw strings with inner
 quotes and hashes, multi-line strings, continuations, a literal hidden by a comment's odd quote, and `\u{…}`/non-ASCII
-counted as UTF-8 bytes (undercount); twenty fail-closed constructs and the error's file:line; the corpus at the head
-(composite_text's own file lists; 964 B at PP `lib.rs:1459`, 185 B at `structural_adapter.rs:2854`, nine escapes),
-an independent one-token check of each longest line, and a check that every quote in the seven files lies in a lexed
-literal or comment. The corpus assertions follow the head: a change that moves those lines must update them.
+counted as UTF-8 bytes (undercount); twenty fail-closed constructs and the error's file:line. At the head, with no
+pinned value or line: both inventories (composite_text's own file lists) lex completely, the class equals the runtime
+bytes of the reported token, which an independent check confirms is one plain literal, and every quote in the seven
+files lies in a lexed literal or comment; and the whole-scope disposition check passes with every entry matched once.
+On synthetic trees: test-only exclusion (`#[cfg(test)] mod x;`, `#[path]`, a test file's children, an inline test
+module's body), over-inclusion of unresolved declarations and of `cfg(any(test, …))`, and the check's stops on an
+unlisted, ambiguous or stale entry. SL-LIM's guard was exercised on mutated snapshot copies (a second use, a non-literal
+declaration, a moved copy): each stops the run.
 
 ## 9. Memory-profile gates and registration
 
@@ -3359,4 +3389,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-A3 reducer 2b: the W-15c pressure step", "§8.41" (2B-PIN, 2B-KEY, RTA3R2B-NZ) | §8.41 |
 | "RT-U4 `u4b_evidence::Index::any`: the component-free station lookup", "§8.42" (U4B-RD) | §8.42 |
 | "DEL-04-09 I2a: the product modal module and its self-weight seam", "§8.43" (MODAL-FB, MODAL-ID) | §8.43 |
-| "Static and report literal classes: a Rust lexer replaces quote pairing", "§8.45" | §8.45 |
+| "Static and report literal classes: a Rust lexer replaces quote pairing", "§8.45" (SL-LIM) | §8.45 |
