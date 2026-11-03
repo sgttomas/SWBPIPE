@@ -486,6 +486,29 @@ fn the_exact_route_and_contents_refusals() {
     }
 }
 
+/// Review r1 (#93): on the exact route a declared operating comparison is
+/// refused, and that refusal is never carried as info. Combination C compares
+/// case L, which carries the only condition use; clearing L's use removes L's
+/// route refusal, but C's unchanged refusal still blocks (route code, and C is
+/// in the edit's scope as a combination naming L).
+#[test]
+fn an_exact_route_comparison_refusal_is_never_carried() {
+    let mut exact = with_refs(with_sets(&[set_a()]), &[("P1", "cs:a"), ("P2", "cs:a"), ("P3", "cs:a")]);
+    exact["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+    let mut cases = exact["load_cases"].as_array().unwrap().clone();
+    cases.push(json!({"id": "L", "label": "Operating", "kind": "operating", "status": "draft", "primitive_loads": [], "provenance": PROV, "condition_use": {"temperature": "OPE1"}}));
+    exact["load_cases"] = json!(cases);
+    exact["combinations"] = json!([{"id": "C", "basis": "result_state_subtraction", "minuend_id": "L", "subtrahend_id": "SUS", "difference_basis": "operating_minus_sustained", "provenance": PROV}]);
+    for pipe in exact["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = q(0.0, "m");
+    }
+    for case in exact["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    let outcome = refused(&exact, &clear_use(&exact, "L"), "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
+    assert!(!outcome.diagnostics.iter().any(|d| d.code == "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED" && d.severity == "info"), "{:?}", records(&outcome));
+}
+
 // ------------------------------------------------------------------ S1 refusals kept
 
 #[test]

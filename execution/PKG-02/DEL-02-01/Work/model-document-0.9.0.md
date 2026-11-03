@@ -1575,13 +1575,18 @@ finding it gives deliberately, never by blanket downgrade:
        case L, and `create_load_case` of L carrying a use: L; every pipe that
        carries a set; and every set referenced by any pipe;
      - in every case, the operation's target ref and every entity its diff row
-       names.
+       names;
+     - then every combination naming an entity in S, directly or through
+       another combination, in either document, to a fixed point (persistence
+       review r1 of #93).
 
   Everything else blocks, whatever it is: new, worsened, touched,
   unattributable or global findings, and every route or admission code
   (`LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED`,
   `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`,
-  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`). Staged findings keep their
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED`,
+  `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`, and any other
+  exact-route refusal, `*_EXACT_UNSUPPORTED`). Staged findings keep their
   classification. A permitted carried refusal has severity `info`, the solve's
   code, and a message that starts with the solve's message and then states that
   the document already carried this refusal before the edit, that it lies
@@ -1670,13 +1675,20 @@ only.
   computes S exactly as §11 states; each of the six operations' diff rows names
   its target as `entity_ref`, and an assignment's row names X0 and X1, so the
   diff-row entities are already in S. A change kind the module does not know
-  scopes every entity of both documents, so nothing is carried past it.
+  scopes every entity of both documents, so nothing is carried past it. S then
+  closes over downstream combinations (`combination_operands`: terms'
+  `load_case` and `combination`, `minuend_id`, `subtrahend_id`,
+  `operand_ids`) to a fixed point (review r1 of #93).
   `permit_carried` matches the before-document's blocking findings by (code,
   message, refs) as a multiset; it takes the before-document's entity ids as
   every `id` at any depth under a top-level array (so `project.id`,
   `analysis_status`, collection names and condition keys are not entities), and
-  never carries the three route and admission codes or
-  `OP-CONDITION-JUDGEMENT-REFUSED`. The before-document's judgement is computed
+  never carries a route or admission code (`is_route_or_admission`: the four
+  listed in §11 and any `*_EXACT_UNSUPPORTED`) or
+  `OP-CONDITION-JUDGEMENT-REFUSED`. Regression: on the exact route, clearing the
+  use of the case a declared operating comparison names still blocks with the
+  comparison's `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`
+  (`an_exact_route_comparison_refusal_is_never_carried`, failing before the fix). The before-document's judgement is computed
   only when the candidate has a blocking finding; a before-document the
   validator blocks has an empty judgement, so nothing is carried from it. The
   info message is the solve's message followed by "(The document already

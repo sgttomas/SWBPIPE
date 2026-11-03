@@ -316,11 +316,35 @@ pub(crate) const CREATE_LOAD_CASE: &str = "create_load_case";
 
 /// The route and admission refusals of a case's use (§11): never a permitted
 /// carried refusal, wherever they appear.
-const ROUTE_ADMISSION_CODES: [&str; 3] = [
+const ROUTE_ADMISSION_CODES: [&str; 4] = [
     pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
     pp_resolution::LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT,
     pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
+    // The exact route's refusal of a declared operating comparison (review r1).
+    "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED",
 ];
+
+/// A route or admission refusal is never carried: one of
+/// [`ROUTE_ADMISSION_CODES`], or any exact-route refusal (`*_EXACT_UNSUPPORTED`).
+fn is_route_or_admission(code: &str) -> bool {
+    ROUTE_ADMISSION_CODES.contains(&code) || code.ends_with("_EXACT_UNSUPPORTED")
+}
+
+/// The operand ids a combination names: its terms' `load_case` and
+/// `combination`, its `minuend_id`, `subtrahend_id` and `operand_ids`.
+fn combination_operands(combination: &Value) -> Vec<&str> {
+    let mut found = Vec::new();
+    for term in combination.get("terms").and_then(Value::as_array).into_iter().flatten() {
+        for key in ["load_case", "combination"] {
+            found.extend(term.get(key).and_then(Value::as_str));
+        }
+    }
+    for key in ["minuend_id", "subtrahend_id"] {
+        found.extend(combination.get(key).and_then(Value::as_str));
+    }
+    found.extend(combination.get("operand_ids").and_then(Value::as_array).into_iter().flatten().filter_map(Value::as_str));
+    found
+}
 
 fn records<'a>(model: &'a Value, collection: &str) -> impl Iterator<Item = &'a Value> {
     model.get(collection).and_then(Value::as_array).into_iter().flatten()
@@ -413,6 +437,23 @@ pub(crate) fn edit_scope(before: &Value, candidate: &Value, change_kind: &str, t
             scope.extend(entity_ids(candidate));
         }
     }
+    // Downstream combinations (review r1): every combination naming an entity
+    // in scope, directly or through another combination, in either document,
+    // is in scope too, to a fixed point.
+    loop {
+        let added: Vec<String> = documents
+            .into_iter()
+            .flat_map(|model| records(model, "combinations"))
+            .filter(|combination| combination_operands(combination).iter().any(|operand| scope.contains(*operand)))
+            .filter_map(id_of)
+            .filter(|id| !scope.contains(*id))
+            .map(str::to_string)
+            .collect();
+        if added.is_empty() {
+            break;
+        }
+        scope.extend(added);
+    }
     scope
 }
 
@@ -462,7 +503,7 @@ pub(crate) fn permit_carried(
                 None => false,
             };
             let permitted = unchanged
-                && !ROUTE_ADMISSION_CODES.contains(&finding.code.as_str())
+                && !is_route_or_admission(&finding.code)
                 && attributable(&finding, before, &before_ids)
                 && finding.affected_refs.iter().all(|reference| !scope.contains(reference));
             if permitted {
@@ -1024,6 +1065,25 @@ mod tests {
     }
 
     /// The scope of each operation family, on the union of both documents.
+    #[test]
+    fn downstream_combinations_join_the_scope_and_exact_route_codes_never_carry() {
+        let model = json!({
+            "load_cases": [{"id": "L"}, {"id": "SUS"}],
+            "pipe_segments": [],
+            "combinations": [
+                {"id": "C", "basis": "result_state_subtraction", "minuend_id": "L", "subtrahend_id": "SUS"},
+                {"id": "D", "basis": "srss", "terms": [{"combination": "C", "factor": 1.0}]},
+                {"id": "E", "basis": "range_envelope", "operand_ids": ["SUS"]}
+            ]
+        });
+        let scope = edit_scope(&model, &model, SET_USE, "L");
+        assert!(scope.contains("C") && scope.contains("D"), "{scope:?}");
+        assert!(!scope.contains("E"), "a combination naming only cases outside the scope stays outside: {scope:?}");
+        assert!(is_route_or_admission("LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED"));
+        assert!(is_route_or_admission("SOME_FUTURE_EXACT_UNSUPPORTED"));
+        assert!(!is_route_or_admission("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"));
+    }
+
     #[test]
     fn the_edit_scope_follows_the_rule() {
         let doc = |pipes: Value, cases: Value| json!({"pipe_segments": pipes, "load_cases": cases, "condition_sets": [{"id": "X"}, {"id": "Y"}, {"id": "Z"}], "supports": [{"id": "snub"}]});
