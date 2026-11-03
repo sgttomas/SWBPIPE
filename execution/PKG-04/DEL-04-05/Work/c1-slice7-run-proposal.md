@@ -3,24 +3,76 @@
 Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepared
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
-**Execution status:** four separately owner-authorized 500-node attempts
+**Execution status:** five separately owner-authorized 500-node attempts
 have executed and closed:
 - the initial attempt stopped on uninitialized telemetry;
 - the repaired A500 timed out at the coarse reader-start mark;
 - the reader-phase diagnostic at clean `cf8129cd1` timed out with the first header's
   native `validate` pending;
 - the route-header run at clean `ee7a7f13b` completed the metadata header in 5.1 s and
-  timed out with compulsory registration's native `validate` pending.
+  timed out with compulsory registration's native `validate` pending;
+- the integrated-main run of `app-c1-main-2470f0108` at clean `01b2655d5` completed
+  compulsory registration (native `validate` 103.3 s) and timed out with model-bound
+  standing's native `validate` pending (below).
 
-All four grants are consumed. The candidate built after main `3983f51cf`
-(`app-c1-main-4d0bb1858`) was never launched. It is **superseded, not qualified**: its
-compiled native table lacked RT-A3 #99's recorded pressure-2 bases. Its record is kept as
-history. A new candidate, built from the branch with main `5e12ca44e` merged and the native
-mirror of #99 (`app-c1-main-2470f0108`), is prepared offline below. It has not been
-launched. **No run of it, retry, B1000 or further native interval is authorized.** Exact
-selected identities and all raw packets remain preserved.
+All five grants are consumed. `app-c1-main-4d0bb1858` was never launched and is
+**superseded, not qualified** (its compiled native table lacked RT-A3 #99's recorded
+pressure-2 bases); its record is kept as history. **No retry, B1000 or further native
+interval is authorized.** Exact selected identities and all raw packets remain preserved.
 
-## Integrated-main executable (prepared; no run authorized)
+## Integrated-main run result and closure (2026-11-03)
+
+The owner approved exactly this run ("I approve this single run."), and Agent0 delivered
+fresh App resource concurrence. A pre-launch check at **12:31:41Z** passed: clean head
+`01b2655d5` (only test and documentation files changed since build source `2470f0108`),
+binary `bc8e18fc…e134` and binding `58338b55…8b4c` by full SHA-256, frontend, engines,
+harness, rack generator and model hashes, Python `/usr/bin/python3` (`b971331a…`) under the
+run's own `RT_C1_PATH`, all five earlier candidates and the 30 closure-hashed packet files,
+fresh output, no prior attempt, no App process and memguard. App packaging's notarytool
+upload (network and local artifact only) was disclosed as possibly overlapping.
+
+`WAIT-EXCLUSIVE` **12:32:03 UTC**; `START-EXCLUSIVE` **12:41:15 UTC** after an RT-A4 slot job
+drained (9 min 12 s queue, outside the budget); `END-EXCLUSIVE rc=1` **12:46:18 UTC**:
+**303 s** from one-second wrapper timestamps, supervisor **302,188 ms**. No overrun or held
+exception. Afterwards no App, worker, sampler or runner process remained, all four lock
+slots had no holder and `exclusive.pending` was absent; nothing unrelated was signalled.
+
+The worker published 918,639,329 B at **61,010 ms** from solve request (lifetime footprint
+3,653,995,856 B, peak grant 6,375,342,080 B). Host readings stayed known-normal, available
+54–60%, pressure 1, no unknown host samples. The 300,000 ms first-paint gate failed
+(observed wait 300,474 ms). Cancellation was requested with success_claimed=false.
+
+The fsynced journal has **50 boundary records plus its terminal summary**, no overflow.
+Completed native intervals (instrumented monotonic, not CPU or allocation):
+
+| Call | Boundary | Elapsed |
+| --- | --- | ---: |
+| 1 (`route_header`) | source_prescan / source_parse | 1,530.1 / 2,327.9 ms |
+| 1 | validate (metadata only) / source_drop | 435.6 / 1,052.6 ms |
+| 2 (registration) | source_prescan / source_parse | 1,657.6 / 2,039.7 ms |
+| 2 | **validate (full)** | **103,322.7 ms** |
+| 2 | serialize / source_drop | 12.0 / 1,919.1 ms |
+| 3 (model-bound standing) | source_prescan / source_parse | 1,883.3 / 1,973.6 ms |
+
+Web `header` returned at 66,867 ms, web `registration` at 176,096 ms, and web `standing`
+entered at 176,121 ms. Native call 3 entered its full `validate` at native 118,510.6 ms and
+had been pending about **121 s** on the journal's receipt clock when the run ended; it
+never emitted an exit. No summary/health, full-verdict agreement, first paint or later gate
+ran. In the terms of the proposal's discriminating observations, **the stall moved**:
+compulsory registration, still pending at about 219 s in the route-header attempt (binary
+without #95's `Index::any` repair), now completes, and model-bound standing is the observed
+delay. This journal does not locate an inner validator in call 3, prove CPU use or establish
+that it never terminates.
+
+Partial physical observations, separately labelled: App peak footprint 9,177,456,272 B;
+aligned sampled App+WebContent maximum 9,659,835,176 B with worker absence inferred zero
+after `job_done`, **27 unknown aligned sums**; sequential PID reads, not atomic maxima. The
+store passed `quick_check`, with no saved project or run. Records:
+`evidence/a500-c1-main1-{launch-check,admission,console,wrapper,summary,closure}` and the
+five-file packet `evidence/n0500-c1-main1/`. No usable-size, memory-fit, C1 completion,
+base-machine, 1,000/2,000-node or acceptance claim.
+
+## Integrated-main executable (prepared; its one approved run is closed above)
 
 **Source.** `origin/main` at `5e12ca44e6ff8ee1ab94e9edce21214c7fa78ccc` was merged with
 `--no-ff` at `4cc0e117d` (no textual conflicts), after the earlier `3983f51cf` merge
