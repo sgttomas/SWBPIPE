@@ -257,34 +257,130 @@ def leaf_seam(text):
     return True
 
 
-# DEL-04-09 I2a D3 (§8.43), MODAL-UNR: the product modal module (core/product_physics/src/modal.rs and modal/) is
-# declared by exactly one private `mod modal;` in lib.rs, and no other product_physics source names it (`modal::`)
-# or its kernel (`open_pipe_stress_modal_eigen`). So no lib.rs function, and no retained root, reaches modal's
-# callers of stable_mass_per_length, component_weights, inspect_generated_self_weight or inspect_applied_self_weight;
-# those functions' retained reach is unchanged (validate_applied_self_weight stays the module's only retained entry).
-MODAL_DECLARATION = "\nmod modal;\n"
-MODAL_NAME = re.compile(r"\bmodal::|open_pipe_stress_modal_eigen|\bpub(?:\([^)]*\))?\s+mod\s+modal\b|\buse\b[^;]*\bmodal\b")
+# DEL-04-09 I2a D3 (§8.43), MODAL-UNR (method proposal): the product modal module (core/product_physics/src/modal.rs
+# and modal/) is isolated from every other product_physics source, so no retained root can reach it and the pricing
+# snapshot may omit it (price.py exclude_unreachable_modal), as modal_eigen sits outside crate_dirs. The guard runs on
+# the FULL unfiltered source and fails closed. On comment- and string-blanked code (loopscan.blank_rust):
+#  - lib.rs declares `mod modal;` exactly once, privately (no pub, no #[path]), and no other file declares a `modal`
+#    module;
+#  - no non-modal source names the module in any path, use, re-export, alias or glob form (`modal ::`, `use … modal`,
+#    `r#modal`), names its kernel crate, or reaches its files by #[path] or include!/include_str!/include_bytes!;
+#  - modal defines no macro (macro_rules!, #[macro_export]), no exported or linker-visible item (#[no_mangle],
+#    #[export_name], #[used], #[link_section], extern blocks or fns, #[global_allocator]) and no static
+#    initialization hook;
+#  - every impl block in modal has a self type defined in modal (no inherent or trait impl on a non-modal type, no
+#    blanket impl over a type parameter), so no method or trait effect on a type that priced code uses lives in
+#    modal.
+# A crossing form the guard cannot classify stops the run. MODAL_TREE_PIN binds the excluded bytes (sorted path and
+# raw-content digests) and MODAL_UNR_VERSION the guard, so a later modal change re-opens the review.
+MODAL_UNR_VERSION = "MODAL-UNR v1"
+MODAL_TREE_PIN = "3e458e7f875964ccff7902d06c2cd8d40aec8decb1208be92d396706c0e6b827"  # I2a modal bytes as reviewed at 305b42b57
+MODAL_ROOT = "core/product_physics/src"
+MODAL_DECL = re.compile(r"(?m)^mod modal;$")
+MODAL_ANY_DECL = re.compile(r"\bmod\s+(?:r#)?modal\b")
+MODAL_NAMED = re.compile(r"(?:\br#)?\bmodal\s*::|\buse\b[^;]*\bmodal\b|open_pipe_stress_modal_eigen|\bmodal_eigen\b")
+MODAL_FILE_REF = re.compile(r"#\s*\[\s*path\s*=\s*\"[^\"]*modal|include(?:_str|_bytes)?\s*!\s*\(\s*[^)]*modal")
+MODAL_FORBIDDEN = re.compile(r"\bmacro_rules\s*!|#\s*\[\s*macro_export|#\s*\[\s*no_mangle|#\s*\[\s*export_name|"
+                             r"#\s*\[\s*used\b|#\s*\[\s*link_section|\bextern\s+\"|\bextern\s+crate\b|"
+                             r"#\s*\[\s*global_allocator|\bctor\b|\binventory\s*::")
+MODAL_TYPE_DEF = re.compile(r"\b(?:struct|enum|union|type|trait)\s+([A-Za-z_][A-Za-z0-9_]*)")
+# An impl ITEM starts a line (after optional `unsafe`/`default`); `impl Trait` in a type position does not. An `impl`
+# token elsewhere that is not in a type position (after `:`, `->`, `(`, `,`, `<`, `&`, `=`, `dyn`) stops the run.
+MODAL_IMPL = re.compile(r"(?m)^[ \t]*(?:(?:unsafe|default)\s+)*impl\b")
+MODAL_IMPL_ANY = re.compile(r"\bimpl\b")
+MODAL_IMPL_TYPE_POS = re.compile(r"(?:[:(,<&=]|->|\bdyn)\s*$")
+
+
+def _modal_files(root):
+    out = []
+    for directory, _, files in os.walk(root):
+        for name in files:
+            path = os.path.join(directory, name)
+            out.append((os.path.relpath(path, root).replace(os.sep, "/"), path))
+    return sorted(out)
+
+
+def _is_modal(relative):
+    return relative == "modal.rs" or relative.startswith("modal/")
+
+
+def modal_tree_digest(snapshot):
+    """SHA-256 over the guard version and every modal file's path and raw-content digest, in path order."""
+    root = os.path.join(snapshot, MODAL_ROOT)
+    h = hashlib.sha256(MODAL_UNR_VERSION.encode())
+    for relative, path in _modal_files(root):
+        if _is_modal(relative):
+            with open(path, "rb") as stream:
+                h.update(b"\0" + relative.encode() + b"\0" + hashlib.sha256(stream.read()).hexdigest().encode())
+    return h.hexdigest()
+
+
+def _impl_self_types(code):
+    """(self type head, impl generics) of each impl header in blanked code; raises on a header it cannot read."""
+    out = []
+    for m in MODAL_IMPL.finditer(code):
+        j, depth, generics = m.end(), 0, ""
+        rest = code[j:]
+        g = re.match(r"\s*<", rest)
+        if g:
+            k, depth = g.end(), 1
+            while k < len(rest) and depth:
+                depth += {"<": 1, ">": -1}.get(rest[k], 0)
+                k += 1
+            generics, rest = rest[g.end():k - 1], rest[k:]
+        header = rest[:rest.find("{")] if "{" in rest else None
+        if header is None:
+            raise ValueError("B7a modal isolation: unreadable impl header; re-review")
+        header = re.split(r"\bwhere\b", header)[0]
+        target = re.split(r"\bfor\b", header)[-1] if re.search(r"\bfor\b", header) else header
+        head = re.match(r"\s*(?:&\s*(?:'[a-z_]+\s*)?(?:mut\s+)?)?(?:dyn\s+)?([A-Za-z_][A-Za-z0-9_]*)", target)
+        if not head:
+            raise ValueError("B7a modal isolation: unreadable impl self type; re-review")
+        params = set(re.findall(r"(?:^|,)\s*([A-Z][A-Za-z0-9_]*)", generics))
+        out.append((head.group(1), params))
+    return out
 
 
 def modal_unreachable(snapshot):
-    """True when modal is declared once, privately, and named by no other product_physics source; False before I2a."""
-    root = os.path.join(snapshot, "core/product_physics/src")
-    with open(os.path.join(root, "lib.rs"), "rb") as stream:
-        lib = stream.read().decode("utf-8")
-    if lib.count(MODAL_DECLARATION) == 0 and not os.path.exists(os.path.join(root, "modal.rs")):
-        return False
-    if lib.count(MODAL_DECLARATION) != 1 or len(re.findall(r"\bmod\s+modal\b", lib)) != 1:
-        raise ValueError("B7a modal declaration changed: modal must be declared once, privately; re-review")
-    for directory, _, files in os.walk(root):
-        for name in sorted(files):
-            path = os.path.join(directory, name)
-            relative = os.path.relpath(path, root).replace(os.sep, "/")
-            if not name.endswith(".rs") or relative == "modal.rs" or relative.startswith("modal/"):
-                continue
+    """True when the modal module is isolated (above); False when the snapshot has no modal module. Raises otherwise."""
+    loopscan = runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "loopscan.py"))
+    blank = loopscan["blank_rust"]
+    root = os.path.join(snapshot, MODAL_ROOT)
+    files = _modal_files(root)
+    raw = {}
+    for relative, path in files:
+        if relative.endswith(".rs"):
             with open(path, "rb") as stream:
-                text = stream.read().decode("utf-8")
-            if MODAL_NAME.search(text):
-                raise ValueError("B7a modal reach changed: " + relative + " names the modal module; re-review")
+                raw[relative] = stream.read().decode("utf-8")
+    lib = blank(raw.get("lib.rs", ""))
+    modal_present = any(_is_modal(r) for r, _ in files)
+    if not MODAL_DECL.search(lib) and not modal_present:
+        return False
+    if len(MODAL_DECL.findall(lib)) != 1 or len(MODAL_ANY_DECL.findall(lib)) != 1:
+        raise ValueError("B7a modal isolation: modal must be declared once, privately, in lib.rs; re-review")
+    declared_at = MODAL_DECL.search(lib).start()
+    attrs = lib[max(0, declared_at - 200):declared_at]
+    if re.search(r"#\s*\[[^\]]*\]\s*$", attrs):
+        raise ValueError("B7a modal isolation: attributes on the modal declaration; re-review")
+    defined, impls = set(), []
+    for relative, text in sorted(raw.items()):
+        code = blank(text)
+        if _is_modal(relative):
+            if MODAL_FORBIDDEN.search(code):
+                raise ValueError("B7a modal isolation: " + relative + " defines a macro, exported or static-init item; re-review")
+            defined.update(MODAL_TYPE_DEF.findall(code))
+            impls.extend((relative, head, params) for head, params in _impl_self_types(code))
+            items = {m.end() for m in MODAL_IMPL.finditer(code)}
+            for m in MODAL_IMPL_ANY.finditer(code):
+                if m.end() not in items and not MODAL_IMPL_TYPE_POS.search(code[max(0, m.start() - 40):m.start()]):
+                    raise ValueError("B7a modal isolation: " + relative + " has an impl the guard cannot classify; re-review")
+            continue
+        scrubbed = MODAL_DECL.sub("", code) if relative == "lib.rs" else code
+        if MODAL_NAMED.search(scrubbed) or MODAL_ANY_DECL.search(scrubbed) or MODAL_FILE_REF.search(text):
+            raise ValueError("B7a modal reach changed: " + relative + " names the modal module; re-review")
+    for relative, head, params in impls:
+        if head in params or head not in defined:
+            raise ValueError("B7a modal isolation: " + relative + " implements on " + head + ", not a modal type; re-review")
     return True
 
 

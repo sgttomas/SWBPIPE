@@ -19,7 +19,7 @@ if __name__ == "__main__" and not sys.flags.utf8_mode:
     sys.exit(subprocess.run([sys.executable, "-X", "utf8", os.path.abspath(__file__), *sys.argv[1:]]).returncode)
 from lib import pinned_git
 from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
-from base.b7a_domain_model import prepare as prepare_b7a_domain, modal_unreachable
+from base.b7a_domain_model import prepare as prepare_b7a_domain, modal_unreachable, modal_tree_digest, MODAL_TREE_PIN, MODAL_UNR_VERSION
 from base.b7a_formation_model import prepare as prepare_b7a_formation
 from base.loopscan import off_build_files
 from lib.source_history import resolve_revision, project_prefix
@@ -108,10 +108,14 @@ MODAL_PATHS = ("core/product_physics/src/modal.rs", "core/product_physics/src/mo
 
 
 def exclude_unreachable_modal(W):
-    """MODAL-UNR: drop the product modal module from the snapshot after B7a's guard holds on the full tree. Returns
-    the removed paths, or [] when the snapshot has no modal module."""
+    """MODAL-UNR (method proposal): drop exactly modal.rs and modal/ from the snapshot after B7a's isolation guard holds
+    on the full tree and the excluded bytes match MODAL_TREE_PIN. Any failure raises (the run stops); nothing else is
+    ever excluded."""
     if not modal_unreachable(W):
-        return []
+        return {"removed": []}
+    digest = modal_tree_digest(W)
+    if digest != MODAL_TREE_PIN:
+        raise ValueError("MODAL-UNR: the excluded modal bytes changed (" + digest + "); re-review the isolation and re-pin MODAL_TREE_PIN")
     removed = []
     for rel in MODAL_PATHS:
         path = os.path.join(W, rel)
@@ -121,7 +125,7 @@ def exclude_unreachable_modal(W):
         elif os.path.exists(path):
             os.remove(path)
             removed.append(rel)
-    return removed
+    return {"removed": removed, "guard": MODAL_UNR_VERSION, "modal_tree_sha256": digest}
 
 
 CORRECT_NORM = ("core/numerics/correct_norm", "open_pipe_stress_correct_norm")
