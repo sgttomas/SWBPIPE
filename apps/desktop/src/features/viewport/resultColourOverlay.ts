@@ -124,6 +124,28 @@ export const RESULT_COLOUR_QUANTITIES: readonly ResultColourQuantity[] = Object.
 /** Range-envelope rows pick each value separately; they are never one solved state, so neither
  * overlay draws them (as the rotation glyphs do not). */
 export const RANGE_ENVELOPE_BASIS = "explicit_user_range_envelope";
+/** RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §4): an absolute sum or SRSS is an
+ * unsigned value over its terms, and decision OQ-1's mechanics rows are a solved state plus derived
+ * differences or bounds; neither is one solved state either. */
+export const ABSOLUTE_SUM_BASIS = "explicit_user_absolute_sum";
+export const SRSS_BASIS = "explicit_user_srss";
+export const SOLVED_STATE_PLUS_INCREMENTS_SIGN =
+  "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state";
+
+/** What a row is when it is not one solved state, as its own metadata states it, or null. */
+export function derivedRowNote(row: Pick<ResultRow, "metadata">): "range envelope" | "absolute sum, unsigned" | "SRSS, unsigned" | "solved state plus derived bounds" | null {
+  const basis = row.metadata?.basis;
+  if (basis === RANGE_ENVELOPE_BASIS) return "range envelope";
+  if (basis === ABSOLUTE_SUM_BASIS) return "absolute sum, unsigned";
+  if (basis === SRSS_BASIS) return "SRSS, unsigned";
+  if (row.metadata?.sign_convention === SOLVED_STATE_PLUS_INCREMENTS_SIGN) return "solved state plus derived bounds";
+  return null;
+}
+
+/** Whether a row may be drawn as one solved state (see `derivedRowNote`). */
+export function isOneSolvedState(row: Pick<ResultRow, "metadata">): boolean {
+  return derivedRowNote(row) === null;
+}
 
 export type ResultOverlayCase = Readonly<{ key: string; basis: ResultBasisRef; label: string }>;
 
@@ -132,7 +154,7 @@ export function basisKey(basis: ResultBasisRef | undefined): string | null {
 }
 
 function isDrawableRow(row: ResultRow): boolean {
-  return Number.isFinite(row.value) && row.metadata?.basis !== RANGE_ENVELOPE_BASIS && basisKey(row.basis_ref) !== null;
+  return Number.isFinite(row.value) && isOneSolvedState(row) && basisKey(row.basis_ref) !== null;
 }
 
 /** The load cases and combinations the result's rows are stated for, in the order they first
@@ -344,7 +366,7 @@ function rowContributions(
   const contributions: Contribution[] = [];
   let heldRowCount = 0;
   for (const row of result.results) {
-    if (row.kind !== quantity.kind || row.metadata?.basis === RANGE_ENVELOPE_BASIS || basisKey(row.basis_ref) !== overlayCase.key) continue;
+    if (row.kind !== quantity.kind || !isOneSolvedState(row) || basisKey(row.basis_ref) !== overlayCase.key) continue;
     const finite = Number.isFinite(row.value);
     // One value per member reads finite rows only, as it always has; along members a non-finite
     // row at a stated station leaves that station without a value.

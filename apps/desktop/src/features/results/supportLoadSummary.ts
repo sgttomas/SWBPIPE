@@ -23,7 +23,7 @@ import {
   REACTION_MOMENT_MAGNITUDE_KIND,
   withheldSupportAttributions
 } from "../viewport/reactionOverlay";
-import { RANGE_ENVELOPE_BASIS, basisKey } from "../viewport/resultColourOverlay";
+import { basisKey, derivedRowNote } from "../viewport/resultColourOverlay";
 import { overlayMayShowRow, rowHealthState, type ResultOverlayStanding } from "./numericalHealth";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 
@@ -79,8 +79,12 @@ export type SupportLoadCase = Readonly<{
   key: string;
   basis: ResultBasisRef;
   label: string;
-  /** A range-envelope combination: each value is selected separately from its operands. */
+  /** Not one solved state: a range-envelope combination (each value is selected separately from
+   * its operands) or, with `note`, an absolute sum or SRSS (unsigned) or a solved state plus derived
+   * bounds (RT-A4). Such a case stays out of the maximum and minimum. */
   envelope: boolean;
+  /** RT-A4: what the case is when it is not a range envelope but not one solved state either. */
+  note?: string;
 }>;
 
 /** One emitted value: the stored value and unit, unchanged, and the row it comes from. */
@@ -176,18 +180,23 @@ function columnOf(row: ResultRow): SupportLoadColumn | null {
 export function supportLoadCases(model: PreviewModel, result: MechanicsResult): SupportLoadCase[] {
   const caseLabels = new Map(model.load_cases.map((item) => [item.id, item.label] as const));
   const combinationLabels = new Map((model.combinations ?? []).map((item) => [item.id, item.label] as const));
-  const seen = new Map<string, { basis: ResultBasisRef; envelope: boolean }>();
+  const seen = new Map<string, { basis: ResultBasisRef; envelope: boolean; note?: string }>();
   for (const row of result.results) {
     const basis = row.basis_ref;
     if (!basis || (basis.ref_type !== "load_case" && basis.ref_type !== "combination") || !Number.isFinite(row.value)) continue;
     const key = basisKey(basis)!;
     const entry = seen.get(key) ?? { basis: Object.freeze({ ref_type: basis.ref_type, ref_id: basis.ref_id }), envelope: false };
-    if (row.metadata?.basis === RANGE_ENVELOPE_BASIS) entry.envelope = true;
+    const note = derivedRowNote(row);
+    if (note !== null) entry.envelope = true;
+    if (note !== null && note !== "range envelope" && entry.note === undefined) entry.note = note;
     seen.set(key, entry);
   }
   const cases = [...seen].map(([key, entry]) => {
     const own = entry.basis.ref_type === "load_case" ? caseLabels.get(entry.basis.ref_id) : combinationLabels.get(entry.basis.ref_id);
-    return Object.freeze({ key, basis: entry.basis, label: own ? `${own} (${entry.basis.ref_id})` : entry.basis.ref_id, envelope: entry.envelope });
+    return Object.freeze({
+      key, basis: entry.basis, label: own ? `${own} (${entry.basis.ref_id})` : entry.basis.ref_id, envelope: entry.envelope,
+      ...(entry.note ? { note: entry.note } : {})
+    });
   });
   return [...cases.filter((item) => item.basis.ref_type === "load_case"), ...cases.filter((item) => item.basis.ref_type === "combination")];
 }

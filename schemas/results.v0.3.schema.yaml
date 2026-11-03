@@ -723,6 +723,8 @@
             "explicit_user_linear_combination",
             "explicit_user_result_state_subtraction",
             "explicit_user_range_envelope",
+            "explicit_user_absolute_sum",
+            "explicit_user_srss",
             "stress_recovery_summary",
             "rule_pack_evaluation",
             "TBD",
@@ -3894,7 +3896,10 @@
                   null,
                   "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
                   "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-                  "COMBINATION_MODULUS_BASIS_MIXED"
+                  "COMBINATION_MODULUS_BASIS_MIXED",
+                  "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+                  "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+                  "LOAD_COMBINATION_OPERAND_WITHHELD"
                 ]
               }
             },
@@ -3918,7 +3923,10 @@
                     "enum": [
                       "NONLINEAR_COMBINATION_REQUIRES_SOLVE",
                       "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
-                      "COMBINATION_MODULUS_BASIS_MIXED"
+                      "COMBINATION_MODULUS_BASIS_MIXED",
+                      "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+                      "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+                      "LOAD_COMBINATION_OPERAND_WITHHELD"
                     ]
                   }
                 }
@@ -3929,7 +3937,7 @@
         "combination_operands": {
           "type": "array",
           "minItems": 1,
-          "description": "Operating-case slice 1a (DEL-05-02 Design pf-nonlinear-operand-standing.md): one record per admitted combination of a model with nonlinear supports, in model order; present only when there is one. States each operand's numerical standing (its numerical_quality case record, verbatim); the combination's rows stay derived inspection results without their own numerical enclosure.",
+          "description": "Operating-case slice 1a (DEL-05-02 Design pf-nonlinear-operand-standing.md): one record per admitted combination of a model with nonlinear supports, in evaluation order (RT-A4: a subtraction, a range envelope, an absolute sum or SRSS, or a mechanics combination admitted by decision OQ-1; a combination operand is {combination_id}); present only when there is one. States each operand's numerical standing (its numerical_quality case record, verbatim); the combination's rows stay derived inspection results without their own numerical enclosure.",
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -3948,11 +3956,65 @@
               "basis": {
                 "enum": [
                   "result_state_subtraction",
-                  "range_envelope"
+                  "range_envelope",
+                  "mechanics",
+                  "absolute_sum",
+                  "srss"
                 ]
               },
               "expression": {
                 "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "terms"
+                    ],
+                    "properties": {
+                      "terms": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "load_case_id",
+                                "factor"
+                              ],
+                              "properties": {
+                                "load_case_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "factor": {
+                                  "type": "number"
+                                }
+                              }
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "combination_id",
+                                "factor"
+                              ],
+                              "properties": {
+                                "combination_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "factor": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
                   {
                     "type": "object",
                     "additionalProperties": false,
@@ -4003,125 +4065,142 @@
                 "type": "array",
                 "minItems": 1,
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "load_case_id",
-                    "modulus_basis_ref",
-                    "modulus_basis_temperature",
-                    "numerical_quality"
-                  ],
-                  "properties": {
-                    "load_case_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "modulus_basis_ref": {
-                      "oneOf": [
-                        {
-                          "type": "string",
-                          "minLength": 1
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "modulus_basis_temperature": {
-                      "oneOf": [
-                        {
-                          "type": "object",
-                          "additionalProperties": false,
-                          "required": [
-                            "value",
-                            "unit"
-                          ],
-                          "properties": {
-                            "value": {
-                              "type": "number"
-                            },
-                            "unit": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          }
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "numerical_quality": {
+                  "oneOf": [
+                    {
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
-                        "basis_ref",
-                        "structural_status",
-                        "solve_quality",
-                        "model_matrix_fidelity",
-                        "accuracy_evidence",
-                        "evidence_refs"
+                        "load_case_id",
+                        "modulus_basis_ref",
+                        "modulus_basis_temperature",
+                        "numerical_quality"
                       ],
                       "properties": {
-                        "basis_ref": {
+                        "load_case_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "modulus_basis_ref": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "modulus_basis_temperature": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "value",
+                                "unit"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "numerical_quality": {
                           "type": "object",
                           "additionalProperties": false,
                           "required": [
-                            "ref_type",
-                            "ref_id"
+                            "basis_ref",
+                            "structural_status",
+                            "solve_quality",
+                            "model_matrix_fidelity",
+                            "accuracy_evidence",
+                            "evidence_refs"
                           ],
                           "properties": {
-                            "ref_type": {
-                              "const": "load_case"
+                            "basis_ref": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "ref_type",
+                                "ref_id"
+                              ],
+                              "properties": {
+                                "ref_type": {
+                                  "const": "load_case"
+                                },
+                                "ref_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
                             },
-                            "ref_id": {
-                              "type": "string",
-                              "minLength": 1
+                            "structural_status": {
+                              "enum": [
+                                "passive_model_basis",
+                                "physical_mechanism_witnessed",
+                                "negative_energy_witnessed",
+                                "numerically_unresolved"
+                              ]
+                            },
+                            "solve_quality": {
+                              "enum": [
+                                "not_assessed",
+                                "checks_passed",
+                                "sensitive",
+                                "unresolved",
+                                "failed"
+                              ]
+                            },
+                            "model_matrix_fidelity": {
+                              "enum": [
+                                "represented_equations_retained",
+                                "assembly_loss_detected",
+                                "assembly_uncertainty",
+                                "not_assessed"
+                              ]
+                            },
+                            "accuracy_evidence": {
+                              "enum": [
+                                "not_claimed",
+                                "reference_verified",
+                                "unresolved"
+                              ]
+                            },
+                            "evidence_refs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
                             }
-                          }
-                        },
-                        "structural_status": {
-                          "enum": [
-                            "passive_model_basis",
-                            "physical_mechanism_witnessed",
-                            "negative_energy_witnessed",
-                            "numerically_unresolved"
-                          ]
-                        },
-                        "solve_quality": {
-                          "enum": [
-                            "not_assessed",
-                            "checks_passed",
-                            "sensitive",
-                            "unresolved",
-                            "failed"
-                          ]
-                        },
-                        "model_matrix_fidelity": {
-                          "enum": [
-                            "represented_equations_retained",
-                            "assembly_loss_detected",
-                            "assembly_uncertainty",
-                            "not_assessed"
-                          ]
-                        },
-                        "accuracy_evidence": {
-                          "enum": [
-                            "not_claimed",
-                            "reference_verified",
-                            "unresolved"
-                          ]
-                        },
-                        "evidence_refs": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "minLength": 1
                           }
                         }
                       }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "combination_id"
+                      ],
+                      "properties": {
+                        "combination_id": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               },
               "standing": {
@@ -4355,6 +4434,8 @@
             "explicit_user_linear_combination",
             "explicit_user_result_state_subtraction",
             "explicit_user_range_envelope",
+            "explicit_user_absolute_sum",
+            "explicit_user_srss",
             "stress_recovery_summary",
             "rule_pack_evaluation",
             "TBD",

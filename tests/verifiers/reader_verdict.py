@@ -368,6 +368,8 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # Operating-case slice 1a (§3): the operand records bound to the model's combinations.
                 from . import preview_combination_operands
                 preview_combination_operands.model_checks(source, model)
+                # RT-A4: the absolute sums and SRSS, re-derived with the model's factors.
+                preview_physics_evidence.unsigned_model_checks(source, model)
             return {"ok": True}
         if reader == "pressure":
             pressure_2.validate_pressure_evidence(source)

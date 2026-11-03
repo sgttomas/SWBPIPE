@@ -18,6 +18,10 @@ envelope selects by mode, ties to the smallest operand id; a recomputed magnitud
 correctly rounded square root of the exact sum of squares; gate 3's unit factor-sum rule is
 decided on the exact rational sum. Internal source consistency only: never producer origin,
 solver accuracy or numerical eligibility (combination rows never enter it).
+
+RT-A4 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 2-6): absolute sums and SRSS, combination operands
+(a combination's own published rows), the records in evaluation order, kappa for gate 3 and the withheld-operand
+rule, all re-derived independently in ``combination_graph``.
 """
 from __future__ import annotations
 
@@ -28,6 +32,7 @@ import math
 import sys
 from typing import Any
 
+from . import combination_graph as graph
 from .section_basis import bit_equal
 from .units import to_canonical
 
@@ -56,7 +61,11 @@ GATE_MESSAGES = {
     "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE": ("Combination withheld: a connector or tie rod has a nonzero installed reference, which "
                                                        "superposition counts by the sum of the factors instead of once, and the factors do not "
                                                        "sum to 1 within 64 epsilon."),
+    "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND": ("Combination withheld: a connector or tie rod has a nonzero installed reference, which "
+                                                         "acts in every case state; an absolute sum or SRSS of operands whose fixed-load count "
+                                                         "is not exactly 0 would count it once per term with its sign discarded."),
 }
+INSTALLED_REFERENCE_UNSIGNED = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND"
 DERIVED_TEXT = ("publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical "
                 "eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the "
                 "headlines and stress maxima cover the load cases only")
@@ -73,7 +82,7 @@ RECORD_KEYS = {"combination_id", "basis", "expression", "operands", "gate", "row
 OPERAND_KEYS = {"load_case_id", "modulus_basis_ref", "modulus_basis_temperature", "numerical_quality"}
 SEPARATOR = "; section_basis="
 BASES = {"mechanics": "explicit_user_linear_combination", "result_state_subtraction": "explicit_user_result_state_subtraction",
-         "range_envelope": "explicit_user_range_envelope"}
+         "range_envelope": "explicit_user_range_envelope", "absolute_sum": graph.ABSOLUTE_SUM_BASIS, "srss": graph.SRSS_BASIS}
 LINEAR_SIGN = "positive value follows explicit user linear combination of matching source result sign conventions"
 SUBTRACTION_SIGN = ("positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source "
                     "result sign conventions; a signed difference of solved states, not an equilibrium state")
@@ -223,26 +232,27 @@ def unit_factor_sum(factors: list[float]) -> bool:
 
 
 class Expression:
-    def __init__(self, basis: str, value: Any):
+    def __init__(self, basis: str, value: Any, cases: set[str] | frozenset[str] = frozenset()):
         self.basis = basis
-        if basis == "mechanics":
+        if basis in graph.TERM_BASES:
             _require(_keys(value, {"terms"}) and isinstance(value["terms"], list) and value["terms"], "EXPRESSION_SHAPE")
             self.terms = []
             for term in value["terms"]:
-                _require(_keys(term, {"load_case_id", "factor"}), "EXPRESSION_SHAPE")
-                factor = term["factor"]
-                if not (type(factor) in (int, float) and math.isfinite(factor)):
-                    raise _fail("EXPRESSION_FACTOR")
-                case = _text(term["load_case_id"], "EXPRESSION_SHAPE")
-                _require(all(c != case for c, _ in self.terms), "EXPRESSION_DUPLICATE")
-                self.terms.append((case, float(factor)))
-            self.operands = [c for c, _ in self.terms]
+                parsed = graph.evidence_term(term)
+                if parsed is None:
+                    factor = term.get("factor") if isinstance(term, Mapping) else None
+                    raise _fail("EXPRESSION_FACTOR" if type(factor) is float and not math.isfinite(factor) else "EXPRESSION_SHAPE")
+                _require(all(o != parsed[0] for o, _ in self.terms), "EXPRESSION_DUPLICATE")
+                self.terms.append(parsed)
+            self.operands = [o for o, _ in self.terms]
+            self.factors = [f for _, f in self.terms]
         elif basis == "result_state_subtraction":
             _require(_keys(value, {"minuend_id", "subtrahend_id"}), "EXPRESSION_SHAPE")
             m, s = _text(value["minuend_id"], "EXPRESSION_SHAPE"), _text(value["subtrahend_id"], "EXPRESSION_SHAPE")
             _require(m != s, "EXPRESSION_DUPLICATE")
-            self.operands = [m, s]
+            self.operands = [graph.resolve(m, cases), graph.resolve(s, cases)]
             self.authored = [m, s]
+            self.factors = []
         elif basis == "range_envelope":
             _require(_keys(value, {"operand_ids", "mode"}) and isinstance(value["operand_ids"], list), "EXPRESSION_SHAPE")
             authored: list[str] = []
@@ -254,7 +264,8 @@ class Expression:
             _require(value["mode"] in MODES, "EXPRESSION_MODE")
             self.mode = value["mode"]
             self.authored = authored
-            self.operands = sorted(authored)
+            self.operands = [graph.resolve(i, cases) for i in sorted(authored)]
+            self.factors = []
         else:
             raise _fail("BASIS")
 
@@ -265,6 +276,10 @@ class Expression:
     def sign(self) -> str:
         if self.basis == "mechanics":
             return LINEAR_SIGN
+        if self.basis == "absolute_sum":
+            return graph.ABSOLUTE_SUM_SIGN
+        if self.basis == "srss":
+            return graph.SRSS_SIGN
         if self.basis == "result_state_subtraction":
             return SUBTRACTION_SIGN
         return (f"value is the {self.mode} mode-selected source result across explicit user range-envelope operands and keeps that "
@@ -272,7 +287,9 @@ class Expression:
 
     def evaluate(self, values: list[float]) -> float | None:
         if self.basis == "mechanics":
-            return _round(sum((Fraction(f) * Fraction(v) for (_, f), v in zip(self.terms, values)), Fraction(0)))
+            return _round(sum((Fraction(f) * Fraction(v) for f, v in zip(self.factors, values)), Fraction(0)))
+        if self.basis in ("absolute_sum", "srss"):
+            return graph.unsigned_value(self.basis == "srss", self.factors, values)
         if self.basis == "result_state_subtraction":
             return values[0] - values[1]
         best = values[0]
@@ -308,9 +325,9 @@ def combined_id(combination: str, key: tuple) -> str:
     return "result:combination:" + identity([combination, *key])
 
 
-def _case_rows(results: list[Any], case: str) -> tuple[dict, list]:
+def _case_rows(results: list[Any], operand: tuple[str, str]) -> tuple[dict, list]:
     by_key: dict = {}
-    order = [r for r in results if _case_of(r) == case]
+    order = [r for r in results if graph.owns(operand, r)]
     for row in order:
         key = key_of(row)
         if key is not None:
@@ -384,11 +401,25 @@ def _modulus_key(operand: Mapping[str, Any]) -> str | None:
     return f"temperature_kelvin_bits:{struct_bits(float(value)):016x}"
 
 
-def _gate(expression: Expression, operands: list[Mapping[str, Any]], facts: list[dict], connector: Any) -> str | None:
-    if expression.basis != "mechanics":
+def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, withheld: list[tuple[str, str]],
+          evidence: Mapping[str, Any]) -> tuple[str, str, list[str]] | None:
+    """The gates (section 4; absolute-sum-srss section 5): a withheld operand combination; then, for the term bases,
+    gates 1 and 2 over every load case the combination reaches and gate 3 on kappa."""
+    named: list[tuple[str, str]] = []
+    for kind, oid in expression.operands:
+        code = next((c for w, c in withheld if w == oid), None) if kind == "combination" else None
+        if code is not None and all(n != oid for n, _ in named):
+            named.append((oid, code))
+    if named:
+        return graph.OPERAND_WITHHELD, graph.operand_withheld_message(named), [cid, *[n for n, _ in named]]
+    if expression.basis not in graph.TERM_BASES:
         return None
-    if len({_modulus_key(o) for o in operands}) > 1:
-        return MODULUS_BASIS_MIXED
+    reached = g.reached[cid]
+    _require(all(case in modulus for case in reached), "OPERAND_UNRESOLVED")
+    gated = lambda code: (code, GATE_MESSAGES[code], [cid])  # noqa: E731
+    if len({modulus[case] for case in reached}) > 1:
+        return gated(MODULUS_BASIS_MIXED)
+    facts = [_case_facts(evidence, case) for case in reached]
     members: list[str] = []
     for f in facts:
         for pipe in f["members"]:
@@ -397,9 +428,14 @@ def _gate(expression: Expression, operands: list[Mapping[str, Any]], facts: list
     for pipe in members:
         first = _stiffness(facts[0], pipe)
         if any(not _value_eq(_stiffness(f, pipe), first) for f in facts[1:]):
-            return RESOLVED_STIFFNESS_MIXED
-    if _installed_reference(connector) and not unit_factor_sum([f for _, f in expression.terms]):
-        return INSTALLED_REFERENCE
+            return gated(RESOLVED_STIFFNESS_MIXED)
+    if _installed_reference(evidence.get("connector")):
+        kappas = [g.kappa_of(o) for o in expression.operands]
+        if expression.basis == "mechanics":
+            if graph.mechanics_gate(g.kappa[cid], kappas) is not None:
+                return gated(INSTALLED_REFERENCE)
+        elif graph.unsigned_gate(kappas):
+            return gated(INSTALLED_REFERENCE_UNSIGNED)
     return None
 
 
@@ -457,8 +493,9 @@ def _combined_row(combination: str, expression: Expression, template: Mapping[st
 def _derive(combination: str, expression: Expression, results: list[Any], evidence: Mapping[str, Any],
             linear: list[str], recomputed: list[str]) -> dict[str, list]:
     operands = expression.operands
-    cases = [_case_rows(results, c) for c in operands]
-    facts = [_case_facts(evidence, c) for c in operands]
+    cases = [_case_rows(results, o) for o in operands]
+    # Only a load case's pressure-family value is recovered; a combination operand publishes every row it forms.
+    facts = [_case_facts(evidence, o[1]) if o[0] == "case" else None for o in operands]
     built: dict[str, list] = {"rows": [], "row_evidence": [], "recoveries": [], "missing": [], "withheld": []}
 
     def withhold(name: str, reason: str) -> None:
@@ -495,14 +532,15 @@ def _derive(combination: str, expression: Expression, results: list[Any], eviden
             outcomes[key] = ("withheld",)
             continue
         sources, refs, values, missing, witnesses = [], [], [], [], []
-        for (by_key, _), fact, case in zip(cases, facts, operands):
+        for (by_key, _), fact, operand in zip(cases, facts, operands):
+            case = operand[1]
             found = by_key.get(key)
             if found:
                 values.append(float(found[0]["value"]))
-                sources.append({"load_case_id": case, "result_id": found[0]["id"]})
+                sources.append(graph.row_source(operand, found[0]["id"]))
                 refs.append(found[0]["id"])
                 continue
-            recovered = _recover(key, case, by_key, fact)
+            recovered = _recover(key, case, by_key, fact) if fact is not None else None
             if recovered is None:
                 missing.append(case)
                 continue
@@ -537,7 +575,7 @@ def _derive(combination: str, expression: Expression, results: list[Any], eviden
                 elif outcome is not None and outcome[0] == "withheld":
                     refused = True
                 else:
-                    for case in (outcome[1] if outcome is not None else operands):
+                    for case in (outcome[1] if outcome is not None else [o[1] for o in operands]):
                         if case not in missing:
                             missing.append(case)
             if missing:
@@ -601,7 +639,7 @@ def _support_group(combination, expression, operands, find):
         refs = [s["id"] for s in sources]
         row = _combined_row(combination, expression, sources[0], key, value, refs)
         component_ids.append(row["id"])
-        out.append((row, {"result_id": row["id"], "sources": [{"load_case_id": c, "result_id": r} for c, r in zip(operands, refs)]}))
+        out.append((row, {"result_id": row["id"], "sources": [graph.row_source(o, r) for o, r in zip(operands, refs)]}))
     for kind, component, slots in ((SUPPORT_FORCE, "force_magnitude", slice(0, 3)), (SUPPORT_MOMENT, "moment_magnitude", slice(3, 6))):
         sources = [s for s in (find(i, kind, component) for i in range(len(operands))) if s is not None]
         if not sources:
@@ -616,7 +654,7 @@ def _support_group(combination, expression, operands, find):
             if value is None:
                 raise _Withheld(ALGEBRA_REFUSED)
             refs = [s["id"] for s in sources]
-            row_sources = [{"load_case_id": c, "result_id": r} for c, r in zip(operands, refs)]
+            row_sources = [graph.row_source(o, r) for o, r in zip(operands, refs)]
         else:
             value, refs, row_sources = norm3(*combined[slots]), component_ids[slots], []
         row = _combined_row(combination, expression, sources[0], key, value, refs)
@@ -642,28 +680,45 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
     has_maximum = any(_case_of(r) is not None and r.get("kind") in MAXIMUM_KINDS for r in results)
     has_intensified = any(_case_of(r) is not None and r.get("kind") in INTENSIFIED_KINDS for r in results)
     expected_rows, modulus_rows, expected_diagnostics, ids = [], [], [], []
+    # absolute-sum-srss sections 2-5: the records in evaluation order, kappa and the reached load cases of each, the
+    # modulus key of every load-case operand stated so far, and the combinations withheld whole with their codes.
+    g = graph.Graph()
+    modulus: dict[str, Any] = {}
+    withheld: list[tuple[str, str]] = []
     for record in records:
         _require(_keys(record, RECORD_KEYS), "RECORD_SHAPE")
         cid = _text(record["combination_id"], "RECORD_SHAPE")
-        _require(cid not in ids and cid not in case_ids, "ID_DUPLICATE")
+        # Ids are unique per entity kind: a combination may share a load case's id.
+        _require(cid not in ids, "ID_DUPLICATE")
         ids.append(cid)
         basis = _text(record["basis"], "BASIS")
-        expression = Expression(basis, record["expression"])
-        _require(all(c in case_ids for c in expression.operands), "OPERAND_UNRESOLVED")
+        expression = Expression(basis, record["expression"], case_ids)
+        for kind, oid in expression.operands:
+            _require(oid in case_ids if kind == "case" else g.knows(oid), "OPERAND_UNRESOLVED")
         operands = record["operands"]
         _require(isinstance(operands, list) and len(operands) == len(expression.operands), "OPERAND_SHAPE")
-        for operand, case in zip(operands, expression.operands):
+        for operand, (kind, case) in zip(operands, expression.operands):
+            if kind == "combination":
+                _require(bit_equal(operand, {"combination_id": case}), "OPERAND_SHAPE")
+                continue
             _require(_keys(operand, OPERAND_KEYS) and operand["load_case_id"] == case, "OPERAND_SHAPE")
-            _modulus_key(operand)
+            key = _modulus_key(operand)
+            _require(case not in modulus or modulus[case] == key, "OPERAND_SHAPE")
+            modulus[case] = key
             stated = next((q for q in quality if isinstance(q, Mapping) and q.get("basis_ref") == {"ref_type": "load_case", "ref_id": case}), None)
             _require(stated is not None and bit_equal(stated, operand["numerical_quality"]), "OPERAND_STANDING")
         _require(record["standing"] == STANDING, "STANDING")
         _require(record["source_recovery"] == SOURCE_RECOVERY_EXCLUSION, "SOURCE_RECOVERY")
-        facts = [_case_facts(evidence, c) for c in expression.operands]
-        reason = _gate(expression, operands, facts, evidence.get("connector"))
-        _require(bit_equal(record["gate"], {"withheld": reason is not None, "reason": reason}), "GATE")
-        if basis != "mechanics":
-            for case in expression.authored:
+        kappa = g.add(cid, basis, expression.operands, expression.factors)
+        if kappa == graph.UNREPRESENTABLE:
+            expected_diagnostics.append({"id": f"{PREFIX}fixed-load-count:{identity([cid])}", "code": graph.FIXED_LOAD_COUNT_UNREPRESENTABLE,
+                                         "severity": "info", "message": graph.fixed_load_count_message(cid), "source": DIAGNOSTIC_SOURCE,
+                                         "affected_refs": [cid]})
+        reason = _gate(cid, expression, g, modulus, withheld, evidence)
+        _require(bit_equal(record["gate"], {"withheld": reason is not None, "reason": reason[0] if reason else None}), "GATE")
+        if basis not in graph.TERM_BASES:
+            # DEC-068 item 1: each load-case operand's solve basis, in authored order (an operand combination records none).
+            for case in (c for c in expression.authored if c in case_ids):
                 label = next((r["metadata"]["basis"] for r in reversed(results) if r.get("kind") == "modulus_basis_record"
                               and r.get("entity_ref") == case and _case_of(r) is not None), "material_base_values")
                 modulus_rows.append({"id": f"result:combination:{_stable_suffix(cid)}:modulus-basis:{_stable_suffix(case)}",
@@ -674,7 +729,10 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
         if reason is not None:
             for member in ("rows", "recoveries", "missing_sources", "withheld"):
                 _require(record[member] == [], "GATED_RECORD")
-            expected_diagnostics.append(_diagnostic(f"{PREFIX}gate:{identity([cid])}", reason, "warning", GATE_MESSAGES[reason], cid))
+            code, message, refs = reason
+            expected_diagnostics.append({"id": f"{PREFIX}gate:{identity([cid])}", "code": code, "severity": "warning", "message": message,
+                                         "source": DIAGNOSTIC_SOURCE, "affected_refs": refs})
+            withheld.append((cid, code))
             continue
         built = _derive(cid, expression, results, evidence, linear, recomputed)
         _require(bit_equal(record["rows"], built["row_evidence"]), "ROW_EVIDENCE")
@@ -713,25 +771,24 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
 
 
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
-    """G2: one record per model combination, in model order, with the model's expression and operand selections. A
-    supplied model is complete: an absent or null `combinations` is the input's default, none, so the document then
-    states no combination record."""
+    """G2: one record per model combination, in the model's evaluation order (absolute-sum-srss section 2), with the
+    model's expression and operand selections. A supplied model is complete: an absent or null `combinations` is the
+    input's default, none, so the document then states no combination record."""
     combinations = model.get("combinations")
     combinations = [] if combinations is None else combinations
     _require(isinstance(combinations, list), "MODEL_COVERAGE")
     records = _items((source.get("contract_evidence") or {}).get("exact_combinations"))
-    _require(len(records) == len(combinations), "MODEL_COVERAGE")
     cases = _items(model.get("load_cases"))
-    for record, combination in zip(records, combinations):
+    case_ids = {c.get("id") for c in cases if isinstance(c, Mapping) and isinstance(c.get("id"), str)}
+    order = graph.model_order(combinations, case_ids)
+    _require(len(records) == len(combinations) == len(order), "MODEL_COVERAGE")
+    for record, index in zip(records, order):
+        combination = combinations[index]
         _require(record.get("combination_id") == combination.get("id") and record.get("basis") == combination.get("basis"), "MODEL_EXPRESSION")
-        if combination.get("basis") == "mechanics":
-            expression = {"terms": [{"load_case_id": t.get("load_case"), "factor": t.get("factor")} for t in _items(combination.get("terms"))]}
-        elif combination.get("basis") == "result_state_subtraction":
-            expression = {"minuend_id": combination.get("minuend_id"), "subtrahend_id": combination.get("subtrahend_id")}
-        else:
-            expression = {"operand_ids": combination.get("operand_ids"), "mode": combination.get("mode")}
-        _require(bit_equal(record.get("expression"), expression), "MODEL_EXPRESSION")
+        _require(bit_equal(record.get("expression"), graph.evidence_expression(combination)), "MODEL_EXPRESSION")
         for operand in _items(record.get("operands")):
+            if isinstance(operand, Mapping) and "combination_id" in operand:
+                continue
             case = next((c for c in cases if isinstance(c, Mapping) and c.get("id") == operand.get("load_case_id")), None)
             _require(case is not None, "MODEL_OPERAND")
             # The producer records the selection temperature in kelvin, normalized by the units authority; the

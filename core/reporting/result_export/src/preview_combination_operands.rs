@@ -233,6 +233,21 @@ pub(crate) fn check(source: &Value, solved: bool) -> Check {
     let quality = items(&source["numerical_quality"]["cases"]);
     let cases: HashSet<&str> = quality.iter().filter(|q| q["basis_ref"]["ref_type"] == "load_case").filter_map(|q| q["basis_ref"]["ref_id"].as_str()).collect();
     let mut recorded = Graph::default();
+    // In a solved nonlinear document a linear-combination row belongs to a recorded mechanics
+    // combination, which decision OQ-1 admitted (checked on its record below).
+    if solved && nonlinear {
+        let mechanics: Vec<&str> = member
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter(|r| r["basis"] == "mechanics")
+            .filter_map(|r| r["combination_id"].as_str())
+            .collect();
+        require(
+            !rows.iter().any(|r| combination_of(r).is_some_and(|c| !mechanics.contains(&c)) && r["metadata"]["basis"] == LINEAR_BASIS),
+            "MECHANICS_ADMITTED",
+        )?;
+    }
     if let Some(member) = member {
         let records = member.as_array().ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_OPERANDS_SHAPE".to_string())?;
         require(records.len() == admitted.len(), "PRESENCE")?;

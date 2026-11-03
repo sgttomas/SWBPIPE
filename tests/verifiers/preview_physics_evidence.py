@@ -19,6 +19,7 @@ from pathlib import Path
 import sys
 from typing import Any
 
+from . import combination_graph as graph
 from . import component_body
 
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
@@ -75,7 +76,10 @@ WITHHELD_DIAGNOSTIC_PREFIX = {
     "SUPPORT_ACTION_ATTRIBUTION_WITHHELD": "diagnostic:preview-physics:attribution:",
     "CONSTANT_EFFORT_NOT_CONSUMED": "diagnostic:preview-physics:constant-effort-not-consumed:",
 }
-GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED")
+GATE_REASONS = ("NONLINEAR_COMBINATION_REQUIRES_SOLVE", "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", "COMBINATION_MODULUS_BASIS_MIXED",
+                # RT-A4 (DEL-05-02 absolute-sum-srss section 6).
+                "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND", "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED",
+                "LOAD_COMBINATION_OPERAND_WITHHELD")
 RANGE_BASIS = "explicit_user_range_envelope"
 PER_SUPPORT_NONLINEAR_KINDS = ("nonlinear_support_final_reaction", "nonlinear_support_final_displacement",
                                "nonlinear_support_final_relative_displacement", "nonlinear_support_active_set_state_code")
@@ -400,6 +404,12 @@ def _validate(source: Mapping[str, Any]) -> None:
             _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND} | u4b.KINDS, "never-combined row for a combination")
             refs = row.get("source_result_refs", [])
             _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows for ref in refs), "combination source reference")
+            # RT-A4 (absolute-sum-srss section 4): an unsigned row states its unsigned meaning and is nonnegative, never -0.0.
+            unsigned_sign = {graph.ABSOLUTE_SUM_BASIS: graph.ABSOLUTE_SUM_SIGN, graph.SRSS_BASIS: graph.SRSS_SIGN}.get((row.get("metadata") or {}).get("basis"))
+            if unsigned_sign is not None:
+                value = row.get("value")
+                _require(row["metadata"].get("sign_convention") == unsigned_sign and type(value) in (int, float) and math.isfinite(value)
+                         and math.copysign(1.0, value) > 0, "combination unsigned row")
             if row["kind"] in SUPPORT_KINDS:
                 # A2 4: only basis and sign_convention follow the combination.
                 metadata = row.get("metadata") or {}
@@ -579,3 +589,40 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
         _gates(evidence)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
+
+
+def unsigned_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
+    """RT-A4 (DEL-05-02 absolute-sum-srss sections 3-4), with a supplied model: every published row of an absolute sum
+    or SRSS that is formed from operand rows (not a recomputed magnitude) names one source row per term, each the term's
+    operand's own row of the same quantity, and its value is A or R of the model's factors times those source values,
+    re-derived exactly (``combination_graph``), bit for bit."""
+    rows = [r for r in source.get("results") or [] if isinstance(r, Mapping)]
+    by_id = {r["id"]: r for r in rows if isinstance(r.get("id"), str)}
+    skip = {"displacement_magnitude", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2",
+            "combination_modulus_basis_record"}
+    for combination in model.get("combinations") or []:
+        if not isinstance(combination, Mapping) or combination.get("basis") not in ("absolute_sum", "srss"):
+            continue
+        cid = combination.get("id")
+        terms = []
+        for term in combination.get("terms") or []:
+            operand = ("combination", term["combination"]) if "combination" in term else ("case", term.get("load_case"))
+            terms.append((operand, float(term.get("factor"))))
+        for row in rows:
+            if row.get("basis_ref") != {"ref_type": "combination", "ref_id": cid} or row.get("kind") in skip:
+                continue
+            refs = row.get("source_result_refs")
+            _require(isinstance(refs, list) and len(refs) == len(terms), "combination unsigned sources")
+            values = []
+            for ref, (operand, _) in zip(refs, terms):
+                src = by_id.get(ref)
+                metadata, smeta = row.get("metadata") or {}, (src or {}).get("metadata") or {}
+                _require(src is not None and graph.owns(operand, src) and src.get("kind") == row.get("kind")
+                         and src.get("entity_ref") == row.get("entity_ref") and src.get("unit") == row.get("unit")
+                         and smeta.get("component") == metadata.get("component") and smeta.get("location") == metadata.get("location"),
+                         "combination unsigned sources")
+                values.append(float(src["value"]))
+            expected = graph.unsigned_value(combination["basis"] == "srss", [f for _, f in terms], values)
+            _require(expected is not None and isinstance(row.get("value"), (int, float))
+                     and math.copysign(1.0, row["value"]) == math.copysign(1.0, expected) and float(row["value"]) == expected,
+                     "combination unsigned value")
