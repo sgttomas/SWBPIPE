@@ -49,7 +49,9 @@
 //! The pressure reader binds the nonlinear rows, their DEC-067 laws and their
 //! standings (R-4 §2.4; `result_export::nonlinear_support_evidence`): every
 //! forged control is refused by this binding and by the reader, with and
-//! without the model, by the code named in the test.
+//! without the model, by the code named in the test, except the readers'
+//! limits pinned there (a consistently scaled contact; a non-Passed inactive
+//! reaction's magnitude, which no published record bounds).
 //!
 //! Combinations: the EX gate `NONLINEAR_COMBINATION_REQUIRES_SOLVE` and OQ-1
 //! are the load-case lane's (RT-A4). On this base EX has no such gate; the
@@ -61,6 +63,9 @@ use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
 const REFERENCES: &str = include_str!("../../../validation/references/rt_a3_nonlinear/references.json");
+/// The RT-A3 increment 4 review's (nl3) loaded B1 counterexample, byte for
+/// byte: untouched sparse producer output and its model (`{source, model}`).
+const B1_LOADED: &str = include_str!("fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const PROVENANCE: &str = "invented_rt_a3_nonlinear_reference";
 const MATERIAL: &str = "material:rt-a3-nl";
@@ -894,9 +899,12 @@ fn forged_contacts_states_friction_and_standings_are_refused() {
     restate(&mut forged, "support:GAP", "active", "inactive", 0.0, false);
     assert!(law_violations(&references, g1, &forged).iter().any(|v| v.contains("state inactive")), "the binding refuses the forged state");
     assert_eq!(reader_codes(&forged, &document_g1), both("STATE_REVIEW"), "G1 closed gap stated inactive");
-    // With its state diagnostic restated too: an inactive support carries no force.
+    // With its state diagnostic restated too. A non-Passed inactive reaction
+    // is inspection evidence with no published bound (the nl3 review's B1), so
+    // the readers admit its contact force; the binding's law check above
+    // refuses it. Limit, pinned.
     restate(&mut forged, "support:GAP", "active", "inactive", 0.0, true);
-    assert_eq!(reader_codes(&forged, &document_g1), both("INACTIVE_REACTION"), "G1 inactive with its contact");
+    assert_eq!(reader_codes(&forged, &document_g1), (None, None), "G1 inactive with its contact: the readers' limit");
     // An open gap (G2) stated active: closed only at its clearance (model).
     let g2 = case(&references, "G2");
     let document_g2 = document(&references, g2);
@@ -994,8 +1002,9 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
 
     // B1. The untouched producer output, both modes: an inactive gap's reaction
     // is its free row's binary64 residual (here far above 1e-9 of the largest
-    // support component in dense mode), inspection evidence bound to the
-    // producer's own free-row evaluation, which it does not exceed.
+    // support component in dense mode), admitted as inspection evidence beside
+    // the producer's own compliant free-row evaluation record. No magnitude
+    // relation between the two is required (next block).
     let inclined = inclined_gap_document(&references);
     let mut dense = Value::Null;
     for m in MODES {
@@ -1004,8 +1013,6 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
         assert_eq!(state_token(&envelope, "support:GAP"), "inactive", "{label}");
         assert_eq!(standing(&envelope).0, UNQUALIFIED, "{label}");
         let reaction = one_value(&envelope, "nonlinear_support_final_reaction", "support:GAP");
-        let evaluated = one_value(&envelope, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports");
-        assert!(reaction.abs() <= evaluated, "{label}: {reaction} against {evaluated}");
         assert_reader_ok(&envelope, &inclined, &label);
         if m == mode {
             let largest = envelope["results"].as_array().unwrap().iter()
@@ -1015,12 +1022,68 @@ fn reader_binds_inactive_residuals_support_nodes_and_standings() {
             dense = envelope;
         }
     }
-    // A forged force: the inactive reaction doubled with its slot and
-    // magnitude (self-consistent), above the producer's evaluated residual.
+    // The nl3 review's loaded counterexample, untouched sparse output with its
+    // model: the inactive reaction (−3.24e-13 N) exceeds the free-row residual
+    // record (2.10e-13 N, compliant). Recovery (a row dot product, then the
+    // load subtracted) and the residual evaluation (the negative load, then
+    // normalized products) are different evaluations, and neither row's
+    // denominator is published, so the record bounds nothing. Admitted.
+    let fixture: Value = serde_json::from_str(B1_LOADED).unwrap();
+    let loaded = json!({"model": fixture["model"].clone(), "materials": []});
+    let source = &fixture["source"];
+    assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
+    assert_eq!(standing(source).0, UNQUALIFIED, "the loaded fixture's standing");
+    assert_eq!(state_token(source, "support:GAP"), "inactive", "the loaded fixture's state");
+    let reaction = one_value(source, "nonlinear_support_final_reaction", "support:GAP");
+    let record = one_value(source, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports");
+    assert_eq!(reaction.to_bits(), (-3.2445904686942417e-13_f64).to_bits(), "the fixture's reaction is untouched");
+    assert_eq!(record.to_bits(), 2.0991282984831466e-13_f64.to_bits(), "the fixture's record is untouched");
+    assert!(reaction.abs() > record, "the regime the nl3 review's B1 concerned ({reaction} against {record})");
+    assert_reader_ok(source, &loaded, "the nl3 loaded B1 fixture");
+    // Its model solved now, sparse: the producer's current output is admitted too.
+    let regenerated = solved(&loaded, PreviewSolverMode::SparseInteractive, "the nl3 loaded B1 model");
+    assert_eq!(state_token(&regenerated, "support:GAP"), "inactive", "the nl3 loaded B1 model");
+    assert_reader_ok(&regenerated, &loaded, "the nl3 loaded B1 model");
+
+    // Forged-force controls under the revised rule. Limit, pinned: the inactive
+    // reaction doubled with its slot and magnitude (self-consistent) is admitted;
+    // no published bound relates a non-Passed inactive reaction's magnitude to
+    // any record, so only the references or an equilibrium binding refuse it.
     let mut forged = dense.clone();
     scale_support(&mut forged, "support:GAP", "Fx", 2.0, true);
-    assert_eq!(reader_codes(&forged, &inclined), both("INACTIVE_REACTION"), "inactive force forged above the evaluated residual");
-    // The evaluation it is bound to: its verdict non-compliant, or the record absent.
+    assert_eq!(reader_codes(&forged, &inclined), (None, None), "inactive force doubled: the readers' limit");
+    // A non-numeric inactive reaction (and its slot): the outer number rules
+    // refuse it before this module.
+    let mut forged = dense.clone();
+    set_rows(&mut forged, "nonlinear_support_final_reaction", "support:GAP", &|r| r["value"] = Value::Null);
+    set_rows(&mut forged, "support_reaction_component_v2", "support:GAP", &|r| {
+        if r["metadata"]["component"] == "Fx" {
+            r["value"] = Value::Null;
+        }
+    });
+    let outer = Some("SOURCE_PHYSICS_NUMBER_INVALID".to_string());
+    assert_eq!(reader_codes(&forged, &inclined), (outer.clone(), outer), "inactive reaction not a number");
+    // The inactive reaction in the wrong family (moment units).
+    let mut forged = dense.clone();
+    set_rows(&mut forged, "nonlinear_support_final_reaction", "support:GAP", &|r| r["unit"] = json!("N*m"));
+    assert_eq!(reader_codes(&forged, &inclined), both("UNIT"), "inactive reaction in moment units");
+    // The required record: in the wrong family, negative, or duplicated. The
+    // family is the outer validators' before this module: the force record in
+    // N·m is a unit contradiction.
+    let mut forged = dense.clone();
+    set_rows(&mut forged, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports", &|r| r["unit"] = json!("N*m"));
+    let outer = Some("SOURCE_UNIT_CONTRADICTION".to_string());
+    assert_eq!(reader_codes(&forged, &inclined), (outer.clone(), outer), "free-row force record in moment units");
+    let mut forged = dense.clone();
+    set_rows(&mut forged, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports", &|r| r["value"] = json!(-1.0));
+    assert_eq!(reader_codes(&forged, &inclined), both("RESIDUAL"), "free-row force record negative");
+    let mut forged = dense.clone();
+    let mut duplicate = forged["results"].as_array().unwrap().iter()
+        .find(|r| r["kind"] == "nonlinear_support_observed_free_dof_force_residual").unwrap().clone();
+    duplicate["id"] = json!(format!("{}-duplicate", duplicate["id"].as_str().unwrap()));
+    forged["results"].as_array_mut().unwrap().push(duplicate);
+    assert_eq!(reader_codes(&forged, &inclined), both("RESIDUAL"), "free-row force record duplicated");
+    // The evaluation record: its verdict non-compliant, or the record absent.
     let mut forged = dense.clone();
     set_rows(&mut forged, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports", &|r| {
         r["metadata"]["basis"] = json!(r["metadata"]["basis"].as_str().unwrap().replace("observed_compliance=true", "observed_compliance=false"));

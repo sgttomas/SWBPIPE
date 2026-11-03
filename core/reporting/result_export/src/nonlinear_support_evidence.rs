@@ -22,10 +22,12 @@
 //! - no relative-displacement row: S5 admits nonlinear supports on plain v3
 //!   documents only, and EX refuses a support-targeted primitive by name, so
 //!   no case moves a nonlinear support's ground (W-16 R-b's row is PF's);
-//! - the final displacement restates a node's published displacement or
-//!   rotation row at the support DOF, bit for bit (the producer's
-//!   `restate_nonlinear_support_displacements`: the node's published SI value
-//!   in the row's unit, mm or rad); [`model_checks`] names the node;
+//! - the final displacement equals, bit for bit, some node's published
+//!   displacement or rotation row at the support DOF in the row's unit, mm or
+//!   rad (the producer's `restate_nonlinear_support_displacements` restates
+//!   the support node's row). Without the model this is association with some
+//!   published node row, not proof that the row is the support node's: a value
+//!   equal to another node's row is admitted. [`model_checks`] names the node;
 //! - the final reaction is the support's published action component at its
 //!   DOF, bit for bit, and the support's magnitudes follow its components;
 //! - a derived friction normal is the absolute value of its named source's
@@ -45,14 +47,23 @@
 //!   producer stated (kd5 §2.4: the confirmation did not run or failed);
 //! - an inactive support in a non-Passed case keeps the loop's reported
 //!   reaction, the binary64 residual of its free row (kd5 §0, §1.2): inspection
-//!   evidence, never a claim of zero. It is bound to the producer's own
-//!   original-equation evaluation of the final linearized solve's free rows
-//!   (`append_nonlinear_residual_observation_results`): the case publishes that
-//!   evaluation's largest free-row |residual| in the support's family once
-//!   (N or N·m) with `observed_compliance=true` (every free row met
-//!   64·γ(n) of its own denominator, cancellation and the evaluation allowance
-//!   included), and |R| does not exceed it. No scale is taken from the support
-//!   components.
+//!   evidence, never a claim of zero, and finite (a backstop: the outer number
+//!   rules, `SLOT` and `MAGNITUDE` refuse a non-finite value first). The
+//!   case must also publish the
+//!   producer's own original-equation evaluation of the final linearized solve's
+//!   free rows (`append_nonlinear_residual_observation_results`) once in the
+//!   support's family (N or N·m), finite, ≥ 0 and with `observed_compliance=true`
+//!   (every free row met 64·γ(n) of its own denominator). That record is
+//!   required evidence, not a rounding allowance for the reaction: the reaction
+//!   is recovered by a different evaluation (a row dot product, then the load
+//!   subtracted; `nonlinear_integration::solve_linearized_system_evidence`)
+//!   from the residual's (the negative load, then normalized products
+//!   accumulated; `frame_kernel` `structural::evaluate_original_residual_bound`),
+//!   and the envelope publishes neither row's
+//!   denominator, so no published bound relates the two values. Consequently
+//!   neither reader can refuse a forged non-Passed inactive reaction magnitude
+//!   that keeps its slot and magnitude rows consistent; only the references or
+//!   an equilibrium binding the readers do not have refuse it.
 //!
 //! [`model_checks`] binds the same rows to the model's nonlinear supports
 //! (coverage, kinds, DOFs, nodes, normals): the final displacement is the
@@ -62,8 +73,9 @@
 //! reaction R:
 //! - gap closing in σ with clearance g: s = g − σδ, c = −σR;
 //! - one-way or lift-off with sense σ: s = σδ, c = σR;
-//! - s ≥ 0; active ⇒ s = 0 and c ≥ 0 (an inactive support's force is the
-//!   model-free rule above, so their product is zero);
+//! - s ≥ 0; active ⇒ s = 0 and c ≥ 0. An inactive support's force is the
+//!   model-free rule above, inspection evidence whose sign and magnitude state
+//!   nothing, so s·c is not checked for it;
 //! - friction, not inactive: |R| ≤ μN; sticking ⇒ δ = 0; sliding ⇒ |R| = μN,
 //!   opposite to a nonzero slip when μN > 0, and in a Passed case with an
 //!   explicit normal R = −sign(δ)·fl(μN) bit for bit (kd5 §3.1).
@@ -252,7 +264,7 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         let stated = |r: &Value| segment(basis(r), "final_state") == Some(state) && r["metadata"]["location"] == DOFS[dof];
         require(stated(row) && stated(displacement[0]) && stated(reaction[0]), "STATE_BASIS")?;
         require(row["unit"] == "state_code" && displacement[0]["unit"] == length && reaction[0]["unit"] == force, "UNIT")?;
-        // The producer restates a node's published row (module docs).
+        // Some node's published row (association, not ownership; module docs).
         let restated = in_case.iter().any(|r| kind(r) == NODAL[dof] && r["unit"] == length && same_bits(value(r), value(displacement[0])));
         require(restated, "DISPLACEMENT")?;
         let (mut normal, mut source) = (None, None);
@@ -377,11 +389,13 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
             }
         }
     } else {
-        // A non-Passed inactive support: the loop's free-row residual, bound
-        // to the producer's own original-equation evaluation (module docs).
+        // A non-Passed inactive support: the loop's free-row residual as
+        // inspection evidence, with the producer's own compliant evaluation
+        // record in its family; no magnitude relation between the two
+        // (different evaluations; module docs).
         for s in supports.iter().filter(|s| s.state == "inactive") {
-            let evaluated = free_row_residual(&nonlinear, s.dof < 3)?;
-            require(s.reaction.abs() <= evaluated, "INACTIVE_REACTION")?;
+            require(s.reaction.is_finite(), "INACTIVE_REACTION")?;
+            free_row_residual(&nonlinear, s.dof < 3)?;
         }
     }
     Ok(Case { id: case, classes, supports, code })
@@ -391,8 +405,9 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
 /// free rows in one family (`append_nonlinear_residual_observation_results`,
 /// over `product_equilibrium::evaluate`): its largest |residual| in N
 /// (translational rows) or N·m (rotational rows), published once on the loop
-/// with that evaluation's verdict, which must be compliant.
-fn free_row_residual(nonlinear: &[&Value], translational: bool) -> Result<f64, String> {
+/// with that evaluation's verdict, which must be compliant. Required evidence;
+/// its value bounds no other evaluation.
+fn free_row_residual(nonlinear: &[&Value], translational: bool) -> Check {
     let (wanted, unit) = if translational { (FORCE_RESIDUAL, "N") } else { (MOMENT_RESIDUAL, "N*m") };
     let found: Vec<&&Value> = nonlinear.iter().filter(|r| kind(r) == wanted).collect();
     let [row] = found[..] else {
@@ -407,8 +422,7 @@ fn free_row_residual(nonlinear: &[&Value], translational: bool) -> Result<f64, S
             && segment(b, "residual_basis") == Some("free_dof_force_moment_equilibrium")
             && segment(b, "observed_compliance") == Some("true"),
         "RESIDUAL",
-    )?;
-    Ok(evaluated)
+    )
 }
 
 /// The model-free checks (module docs), per load case with nonlinear rows in
@@ -597,9 +611,9 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
                 let length_tolerance = RELATIVE_TOLERANCE * motion_scale.max(input.clearance_mm.abs());
                 let force_tolerance = RELATIVE_TOLERANCE * force_scale;
                 require(separation >= -length_tolerance, "MODEL_COMPLEMENTARITY")?;
-                // Their product zero: an active support is closed and pushes;
-                // an inactive one's force is the model-free rule (a residual,
-                // whose sign states nothing).
+                // An active support is closed and pushes; an inactive one's
+                // force is the model-free rule (a residual whose sign and
+                // magnitude state nothing), so s·c is not checked for it.
                 if s.state == "active" {
                     require(separation.abs() <= length_tolerance && contact >= -force_tolerance, "MODEL_COMPLEMENTARITY")?;
                 }

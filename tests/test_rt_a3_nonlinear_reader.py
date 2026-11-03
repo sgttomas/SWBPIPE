@@ -7,8 +7,9 @@ Each case of the frozen references (``validation/references/rt_a3_nonlinear/``, 
 refused by the product) is authored as the Rust binding authors it (``core/product_physics/tests/
 rt_a3_nonlinear_references.rs``, ``document``) and solved by the runner in both modes. Both readers admit all 40
 envelopes with and without their model, and refuse the binding's forged envelopes by the same code (its negative
-controls, mirrored here), with one pinned limit: a contact scaled consistently, magnitude included, is lawful and
-self-consistent and is refused only by the references.
+controls, mirrored here), with pinned limits: a contact scaled consistently, magnitude included, is lawful and
+self-consistent and is refused only by the references; and a non-Passed inactive reaction is inspection evidence with
+no published bound, so a consistently forged magnitude is admitted (the nl3 review's B1).
 
 Needs ``OPENPIPESTRESS_RUNNER_BIN`` (``tests/conftest.py`` builds it unless ``OPENPIPESTRESS_NO_CARGO_BUILD`` is
 set); skipped without it.
@@ -24,10 +25,13 @@ import subprocess
 
 import pytest
 
+from tests.verifiers import nonlinear_support_evidence as nse
 from tests.verifiers import reader_verdict as rv
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = json.loads((ROOT / "validation/references/rt_a3_nonlinear/references.json").read_text(encoding="utf-8"))
+# The RT-A3 increment 4 review's (nl3) loaded B1 counterexample: untouched sparse producer output and its model.
+B1_LOADED = ROOT / "core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json"
 PROVENANCE = "invented_rt_a3_nonlinear_reference"
 MATERIAL = "material:rt-a3-nl"
 MODEL_SCHEMA_VERSION = "0.9.0"
@@ -278,7 +282,8 @@ def test_forged_contacts_states_friction_and_standings_are_refused_by_both_reade
     assert forged(solved, "G1", lambda e: scale_support(e, "support:GAP", "Fx", 0.5, True)) == (None, None)
     # 2. G1's closed gap stated inactive; with its state diagnostic too; G2's open gap stated active.
     assert forged(solved, "G1", lambda e: restate(e, "support:GAP", "active", "inactive", 0.0, False)) == both("STATE_REVIEW")
-    assert forged(solved, "G1", lambda e: restate(e, "support:GAP", "active", "inactive", 0.0, True)) == both("INACTIVE_REACTION")
+    # Limit: with its state diagnostic too, a non-Passed inactive force is inspection evidence with no published bound.
+    assert forged(solved, "G1", lambda e: restate(e, "support:GAP", "active", "inactive", 0.0, True)) == (None, None)
     assert forged(solved, "G2", lambda e: restate(e, "support:GAP", "inactive", "active", 1.0, True)) == model_only("MODEL_COMPLEMENTARITY")
     # 3. F1-SLIDE's friction at 1.1 muN; with its magnitude; turned along the slip; its derived normal doubled.
     assert forged(solved, "F1-SLIDE", lambda e: scale_support(e, "support:FRICTION", "Fz", 1.1, False)) == both("MAGNITUDE")
@@ -334,15 +339,13 @@ def set_quality(envelope: dict, tokens: tuple) -> None:
 
 
 def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_readers(solved):
-    # B1. The untouched producer output, both modes: admitted, its inactive reaction within the producer's own
-    # free-row evaluation (dense: far above 1e-9 of the largest support component).
+    # B1. The untouched producer output, both modes: admitted as inspection evidence beside the producer's own compliant
+    # free-row evaluation record (dense: far above 1e-9 of the largest support component).
     doc = inclined_gap_document()
     dense = None
     for mode in MODES:
         envelope = solve(doc, mode)
         reaction = one_value(envelope, "nonlinear_support_final_reaction", "support:GAP")
-        evaluated = one_value(envelope, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports")
-        assert abs(reaction) <= evaluated, (mode, reaction, evaluated)
         assert codes(envelope, doc) == (None, None), mode
         if mode == "dense_scrutiny":
             largest = max(abs(r["value"]) for r in envelope["results"]
@@ -355,7 +358,45 @@ def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_reader
         edit(envelope)
         return codes(envelope, doc)
 
-    assert inclined(lambda e: scale_support(e, "support:GAP", "Fx", 2.0, True)) == both("INACTIVE_REACTION")
+    # The nl3 review's loaded counterexample, untouched: |R| above the compliant record (different evaluations, no
+    # published denominator), admitted with and without its model; and its model solved now, sparse.
+    loaded = json.loads(B1_LOADED.read_text(encoding="utf-8"))
+    source, loaded_doc = loaded["source"], {"model": loaded["model"], "materials": []}
+    reaction = one_value(source, "nonlinear_support_final_reaction", "support:GAP")
+    record = one_value(source, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports")
+    assert (reaction, record) == (-3.2445904686942417e-13, 2.0991282984831466e-13) and abs(reaction) > record
+    assert codes(source, loaded_doc) == (None, None)
+    assert codes(solve(loaded_doc, "sparse_interactive"), loaded_doc) == (None, None)
+
+    # Forged-force controls under the revised rule. A non-numeric inactive reaction and slot: refused by the outer
+    # number rules on both readers (their outer codes differ, outside the parity claim), and inside the module by
+    # MAGNITUDE before the finiteness backstop.
+    not_a_number = deepcopy(dense)
+    set_rows(not_a_number, "nonlinear_support_final_reaction", "support:GAP", lambda r: r.update(value=None))
+    set_rows(not_a_number, "support_reaction_component_v2", "support:GAP",
+             lambda r: r.update(value=None) if r["metadata"]["component"] == "Fx" else None)
+    assert rust_code(not_a_number, None) == rust_code(not_a_number, doc["model"]) == "SOURCE_PHYSICS_NUMBER_INVALID"
+    assert python_code(not_a_number, None) == python_code(not_a_number, doc["model"]) == "SOURCE_PHYSICS_EVIDENCE_INVALID"
+    with pytest.raises(ValueError, match="SOURCE_PHYSICS_NONLINEAR_MAGNITUDE"):
+        nse.check(not_a_number)
+    # Limit: the inactive force doubled with slot and magnitude.
+    assert inclined(lambda e: scale_support(e, "support:GAP", "Fx", 2.0, True)) == (None, None)
+    assert inclined(lambda e: set_rows(e, "nonlinear_support_final_reaction", "support:GAP",
+                                       lambda r: r.update(unit="N*m"))) == both("UNIT")
+    # The record in the wrong family: refused by the outer validators before this module (Rust
+    # SOURCE_UNIT_CONTRADICTION; outer codes are outside the parity claim).
+    wrong_family = deepcopy(dense)
+    set_rows(wrong_family, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports",
+             lambda r: r.update(unit="N*m"))
+    assert rust_code(wrong_family, None) == rust_code(wrong_family, doc["model"]) == "SOURCE_UNIT_CONTRADICTION"
+    assert python_code(wrong_family, None) is not None and python_code(wrong_family, doc["model"]) is not None
+    assert inclined(lambda e: set_rows(e, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports",
+                                       lambda r: r.update(value=-1.0))) == both("RESIDUAL")
+    def duplicate_record(e):
+        row = deepcopy(next(r for r in e["results"] if r["kind"] == "nonlinear_support_observed_free_dof_force_residual"))
+        row["id"] += "-duplicate"
+        e["results"].append(row)
+    assert inclined(duplicate_record) == both("RESIDUAL")
 
     def non_compliant(e):
         set_rows(e, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports",

@@ -999,11 +999,13 @@ following checks are new.
   primitive by name, so no case moves a nonlinear support's ground. W-16
   R-b's row is PF's. A later lift of ground motion on EX must bind the row's
   presence and value to the resolved ground and the absolute displacement;
-- the final displacement restates a node's published displacement or
-  rotation row at the support DOF, bit for bit (`DISPLACEMENT`). This is the
-  producer's `restate_nonlinear_support_displacements`: the node's published
-  SI value in the row's unit, ×1000 for mm and unscaled for rad. The model
-  names the node (below);
+- the final displacement equals, bit for bit, some node's published
+  displacement or rotation row at the support DOF in the row's unit
+  (`DISPLACEMENT`). The producer's `restate_nonlinear_support_displacements`
+  restates the support node's published SI value, ×1000 for mm and unscaled
+  for rad. Without the model this is association with some published node
+  row, not proof that the row is the support node's: a value equal to another
+  node's row is admitted. The model names the node (below);
 - the final reaction is the support's published action component, bit for
   bit, and the support's magnitudes follow its components;
 - a derived friction normal is the absolute value of its named source's
@@ -1035,30 +1037,30 @@ following checks are new.
     non-Passed code is admitted outside the gap and derived-inactive rules;
 - an inactive support in a non-Passed case keeps the loop's reported
   reaction. That is the binary64 residual of its free row (kd5 §0, §1.2):
-  inspection evidence, with no claim that it is zero. It is bound to the
-  producer's own original-equation evaluation of the final linearized solve's
-  free rows (`append_nonlinear_residual_observation_results` over
-  `product_equilibrium::evaluate`). The case publishes that evaluation's
-  largest free-row |residual| in the support's family once:
+  inspection evidence, with no claim that it is zero. The reader requires it
+  finite (`INACTIVE_REACTION`, a backstop behind the outer number rules and
+  `SLOT`/`MAGNITUDE`) in the support's family (`UNIT`). The case must
+  also publish the producer's own original-equation evaluation of the final
+  linearized solve's free rows (`append_nonlinear_residual_observation_results`
+  over `product_equilibrium::evaluate`) once in the support's family:
   `nonlinear_support_observed_free_dof_force_residual` (N) or
-  `…_moment_residual` (N·m), on the loop, with
+  `…_moment_residual` (N·m), on the loop, finite and ≥ 0, with
   `residual_basis=free_dof_force_moment_equilibrium` and
   `observed_compliance=true` (`RESIDUAL`). The verdict states that every free
-  row met 64·γ(n) of its own denominator Σ|K_ij·u_j| + |f_i|, cancellation and
-  the evaluation allowance included. The reader requires |R| ≤ that record
-  (`INACTIVE_REACTION`). No scale is taken from the support components. The
-  review's B1 showed the former rule, 1e-9 of the case's largest support
-  component, refusing untouched dense output.
+  row met 64·γ(n) of its own denominator Σ|K_ij·u_j| + |f_i|.
 
-  When the free row carries no applied load term, R (`fl(K·u) − f`) and the
-  evaluation's row residual are the same binary64 sum, so |R| ≤ the record
-  holds by construction. With a load on the support DOF, or a selected exact-gap
-  projection, the two evaluations of the row round at different points. They
-  then differ by at most about γ(n) of the row denominator, which the envelope
-  does not publish. Every corpus and probe case observes |R| ≤ the record,
-  mostly with equality: the 40 reference envelopes, the 34 K-1 twins, and the
-  review's 21 noise, length and inclined-gap probes, including F1-P0's
-  loaded −2.9e-11 N row.
+  That record is required evidence, not a rounding allowance for the
+  reaction, and the reader imposes no magnitude relation between them.
+  Recovery forms the reaction as a row dot product and then subtracts the load
+  (`nonlinear_integration::solve_linearized_system_evidence`). The residual
+  evaluation starts from the negative load and accumulates normalized products
+  (`frame_kernel` `structural::evaluate_original_residual_bound`). These are
+  different evaluations, and the envelope publishes neither row's denominator,
+  so no published bound relates the two values. The first review's B1 showed
+  the 1e-9 rule refusing untouched dense output. The second review's B1 showed
+  the |R| ≤ record rule refusing untouched sparse output: a loaded inactive gap
+  with R = −3.24e-13 N against a compliant record of 2.10e-13 N
+  (`core/product_physics/tests/fixtures/rt_a3_nonlinear/b1_loaded_inactive_reaction.json`).
 
 *With the model:*
 - every solved case publishes exactly the model's nonlinear supports, with
@@ -1066,13 +1068,14 @@ following checks are new.
   support and DOF);
 - each support's final displacement is its own node's published row at the
   support DOF, bit for bit (`MODEL_DISPLACEMENT`; the model input keeps
-  `support.node`);
+  `support.node`). This, not the model-free rule, binds the row to the
+  support's node;
 - the DEC-067 laws that need μ, the clearance g or the sense σ, on that
   deciding δ:
   - gap: s = g − σδ, c = −σR; one-way and lift-off: s = σδ, c = σR;
   - s ≥ 0. An active support is closed (s = 0) and pushes (c ≥ 0). An inactive
-    support's force is the model-free rule above, a residual whose sign states
-    nothing, so their product is zero;
+    support's force is the model-free rule above, a residual whose sign and
+    magnitude state nothing, so s·c is not checked for it;
   - friction, unless inactive: |R| ≤ μN. Sticking has δ = 0. Sliding has
     |R| = μN, opposite to a nonzero slip when μN > 0;
   - a Passed explicit-normal slide is −sign(δ)·fl(μN), bit for bit (kd5 §3.1).
@@ -1095,7 +1098,7 @@ Deeper variants keep the cheaper evidence consistent and reach the later rules:
 
 | Variant | Without the model | With the model |
 |---|---|---|
-| Stated inactive, with its state diagnostic | `INACTIVE_REACTION` | `INACTIVE_REACTION` |
+| Stated inactive, with its state diagnostic (limit) | admitted | admitted |
 | G2's open gap stated active | admitted | `MODEL_COMPLEMENTARITY` |
 | 1.1·μN with its magnitude | admitted | `MODEL_FRICTION_CAPACITY` |
 | Force turned along the slip | `SLIP` | `SLIP` |
@@ -1111,8 +1114,11 @@ repaired with these regressions and controls
 | Case | Without the model | With the model |
 |---|---|---|
 | B1: the review's inclined gap, untouched, both modes; dense R = −3.3e-15 N against 1e-6 N | admitted | admitted |
-| Its inactive force doubled, slot and magnitude consistent | `INACTIVE_REACTION` | `INACTIVE_REACTION` |
-| Its free-row evaluation stated non-compliant, or absent | `RESIDUAL` | `RESIDUAL` |
+| B1 (second review): the loaded inactive gap fixture, untouched sparse output, R = −3.24e-13 N above its 2.10e-13 N record; and its model solved now | admitted | admitted |
+| The inclined gap's inactive force doubled, slot and magnitude consistent (limit) | admitted | admitted |
+| Its inactive reaction stated in N·m | `UNIT` | `UNIT` |
+| Its free-row evaluation stated non-compliant, absent, negative or duplicated | `RESIDUAL` | `RESIDUAL` |
+| Its free-row force record stated in N·m | refused before this module | refused before this module |
 | O1-LIFT (Passed) inactive reaction published −0 | `PASSED_ZERO` | `PASSED_ZERO` |
 | B2: G2 stated active at a 1 mm (clearance) displacement | `DISPLACEMENT` | `DISPLACEMENT` |
 | G2 stated active with an invented ground row at the clearance | `RELATIVE_DISPLACEMENT` | `RELATIVE_DISPLACEMENT` |
@@ -1141,15 +1147,30 @@ member end actions and the pressure ledger, which no reader has on either
 route.
 
 *Further limits:*
-- *Forging the producer's own evaluation.* A non-Passed inactive force forged
-  together with a free-row residual record raised to cover it is
-  self-consistent. Only an equilibrium binding refuses it.
+- *A non-Passed inactive reaction's magnitude.* Since the second review's B1
+  repair, nothing in either reader bounds it. A forged magnitude with
+  consistent slot and magnitude rows is admitted, including a closed gap's
+  contact force restated inactive with its state diagnostic (the table's
+  limit rows). What still refuses a forged inactive force: a non-finite or
+  non-numeric value (the outer number rules first, Rust
+  `SOURCE_PHYSICS_NUMBER_INVALID`, Python `SOURCE_PHYSICS_EVIDENCE_INVALID`;
+  within this module `SLOT` or `MAGNITUDE` precede the backstop
+  `INACTIVE_REACTION`, which no current envelope reaches),
+  the wrong family (`UNIT`), a missing or non-compliant evaluation record
+  (`RESIDUAL`), a magnitude row not following the components (`MAGNITUDE`),
+  and in a Passed case anything but exact +0 (`PASSED_ZERO`). Only the
+  references, or an equilibrium binding no reader has, refuse the magnitude
+  itself.
 - *A consistent non-Passed relabel.* A non-gap case relabelled to another
   mapped non-Passed code with its quality tokens is admitted. kd5 §2.4
   preserves earlier non-Passed reasons, and the reader cannot tell which
   reason applied.
 - *The model-free displacement rule.* It requires some node's published row
-  to carry the same bits; only the model names which node.
+  to carry the same bits. That is association with some published node row,
+  not proof of ownership: a fabricated value equal to another node's row
+  passes without the model (G2's gap displacement set to the anchor's +0).
+  Only the model, or an independently bound support-to-node map, names the
+  node.
 - *Parity of outer refusals.* Malformed numbers that the outer validators
   refuse before this module are refused by both readers, with different
   codes: Rust gives `SOURCE_PHYSICS_NUMBER_INVALID` (`physics_evidence.rs`)
@@ -1212,15 +1233,19 @@ basis in [k1-twin-bound.md](k1-twin-bound.md)) asserts on the named corpus:
 - every value row, finite on both routes, within |x_EX − x_PF| ≤ a_f + r_f·S_f
   per family. S_f comes from the case's inputs and a_f = 0, so a zero scale
   admits equality only. r_f ranges from 2^-40 (work) through 2^-32
-  (translation) and 2^-26 (force) to 2^-20 (force deltas).
+  (translation and translation deltas) to 2^-26 (force).
 
 The constants come from independent exact-rational forward-error enclosures
 ([k1_twin_bound.py](k1_twin_bound.py), on kd5's reference formation). They
 enclose the exact section-difference response and each route's
-residual-certified solve. The recovery cancellation, the coupled friction
-denominator 1 + c·g, the gap's prescribed terms and every state the loop could
-visit are included. They are not set from the observed differences, which are
-at most 1.3e-3 of their enclosures.
+residual-certified solve. The recovery cancellation and its row's formation,
+an applied force's own error, the coupled friction denominator 1 + c·g and the
+gap's prescribed terms are included. A delta row's preceding iterate is derived
+from the authored seeds and the first iterate's strictly decided signs, under
+the published iteration counts and the absence of the seed recovery, which the
+test pins; the product publishes no per-iteration state. The constants are not
+set from the observed differences, which are at most 1.5e-3 of their
+enclosures.
 
 The assertion (`every_kd5_control_twin_is_within_the_k1_bound`) passes all 34
 case-modes when run explicitly, and is held `#[ignore]`d until the amendment
@@ -1233,8 +1258,9 @@ is independently reviewed. Its controls run un-held
 - NaN and ±infinity.
 
 The bound's resolution limits are recorded in the note: a 1e-6 section
-perturbation is invisible on U-1 PRESSED, the delta families are looser, and
-the two weakly decided cases' equal states are observations.
+perturbation is invisible on U-1 PRESSED, the delta families hold only for the
+derived matched history, and the two weakly decided cases' equal final states
+are observations.
 
 *Not formable:* kd5's eight committed case-modes solve the two committed demo
 models (`fixtures/product_preview/invented_demo_model.json` and

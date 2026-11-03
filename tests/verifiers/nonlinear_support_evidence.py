@@ -217,7 +217,7 @@ def _read_case(source: Mapping, case: str) -> _Case:
         _require(stated(row) and stated(displacement[0]) and stated(reaction[0]), "STATE_BASIS")
         _require(_get(row, "unit") == "state_code" and _get(displacement[0], "unit") == length
                  and _get(reaction[0], "unit") == force, "UNIT")
-        # The producer restates a node's published row.
+        # Some node's published row (association, not ownership; Rust module docs).
         _require(any(_kind(r) == NODAL[dof] and _get(r, "unit") == length and _bits(_value(r)) == _bits(_value(displacement[0]))
                      for r in in_case), "DISPLACEMENT")
         normal = source_ref = None
@@ -307,16 +307,20 @@ def _read_case(source: Mapping, case: str) -> _Case:
             if s.state == "inactive":
                 _require(_bits(s.reaction) == _bits(0.0), "PASSED_ZERO")
     else:
-        # A non-Passed inactive support: the loop's free-row residual, bound to the producer's own evaluation.
+        # A non-Passed inactive support: the loop's free-row residual as inspection evidence (finite), with the
+        # producer's own compliant evaluation record in its family; no magnitude relation between the two (the reaction
+        # and the record are different evaluations, and neither row's denominator is published).
         for s in supports:
             if s.state == "inactive":
-                _require(abs(s.reaction) <= _free_row_residual(nonlinear, s.dof < 3), "INACTIVE_REACTION")
+                _require(math.isfinite(s.reaction), "INACTIVE_REACTION")
+                _free_row_residual(nonlinear, s.dof < 3)
     return _Case(case, classes, supports, code)
 
 
-def _free_row_residual(nonlinear: list, translational: bool) -> float:
+def _free_row_residual(nonlinear: list, translational: bool) -> None:
     """Rust ``free_row_residual``: the producer's original-equation evaluation of the final linearized solve's free
-    rows in one family, its largest |residual| (N or N*m), published once on the loop with a compliant verdict."""
+    rows in one family, its largest |residual| (N or N*m), published once on the loop with a compliant verdict.
+    Required evidence; its value bounds no other evaluation."""
     wanted, unit = (FORCE_RESIDUAL, "N") if translational else (MOMENT_RESIDUAL, "N*m")
     found = [r for r in nonlinear if _kind(r) == wanted]
     _require(len(found) == 1, "RESIDUAL")
@@ -325,7 +329,6 @@ def _free_row_residual(nonlinear: list, translational: bool) -> float:
     _require(_get(row, "entity_ref") == LOOP_ENTITY and _get(row, "unit") == unit and math.isfinite(evaluated)
              and evaluated >= 0.0 and _segment(basis, "residual_basis") == "free_dof_force_moment_equilibrium"
              and _segment(basis, "observed_compliance") == "true", "RESIDUAL")
-    return evaluated
 
 
 def _read(source: Mapping) -> list[_Case]:
