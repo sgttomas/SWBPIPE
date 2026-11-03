@@ -1058,6 +1058,19 @@ pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<&str>
     Ok(rv::row_semantics_each(&rows, source.as_ref()).to_string())
 }
 
+/// RT-A4 §10.4: [`reader_row_semantics_each_json`] of a recorded statement under its record's
+/// binding (`reader_verdict::row_semantics_each_recorded`): a registry variant's rows read
+/// under that variant's table, for the recorded-run display and compare paths only.
+pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let binding = parse_reader_input("binding", binding_json)?;
+    let Value::Array(rows) = parse_reader_input("rows", rows_json)? else {
+        return Err("WASM-ENGINE-INPUT-JSON-INVALID: rows is not a JSON array".into());
+    };
+    let source = parse_reader_input("source", source_json)?;
+    Ok(rv::row_semantics_each_recorded(&rows, &source, &binding).to_string())
+}
+
 /// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from
 /// before RT-A4"): the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
 /// text, under the record's binding `{id, sha256}`: `dispatch`, `preview-physics`,
@@ -1432,6 +1445,15 @@ mod wasm_api {
     ) -> Result<String, JsError> {
         entry_scope(|| {
             super::reader_recorded_json(entry, binding_json, source_json, model_json.as_deref(), invocation_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
+    }
+
+    /// RT-A4 §10.4: each row's semantics of a recorded statement under the record's binding.
+    #[wasm_bindgen]
+    pub fn reader_recorded_row_semantics_each_json(binding_json: &str, rows_json: &str, source_json: &str) -> Result<String, JsError> {
+        entry_scope(|| {
+            super::reader_recorded_row_semantics_each_json(binding_json, rows_json, source_json)
                 .map_err(|error| JsError::new(&error))
         })
     }

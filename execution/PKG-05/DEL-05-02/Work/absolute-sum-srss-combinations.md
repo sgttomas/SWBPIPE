@@ -973,6 +973,16 @@ standing of the same statement stays `unsupported`. Four rules govern the displa
   current reader only, so a run read correctly under its table still said "Unsupported numerical
   contract; historical values only. Needs recompute."; `HistoricalRunContext.test.tsx` "the
   results panel states the run as read under its recorded table, as recorded" fails without it.
+  The same holds for row semantics: the panel's row labels (`semanticLabels`) and the
+  comparison's rows and semantic identity (`flattenRunResult`, `resultSemanticIdentity`, given
+  the side's `recordedTableRead`) read under the recorded table through the wasm export
+  `reader_recorded_row_semantics_each_json` (Rust `row_semantics_each_recorded`) and the
+  recorded dispatch (focused fix confirmation r7: a retained milestone row showed
+  `integrity_failure` and compared rows lost family and dimension). A historical side's
+  identity is its table's binding, so it compares with runs recorded under the same table and
+  a pair with a current run is refused as `semantic_identity_differs`; the retained standing
+  restriction (needs recompute) is unchanged. `HistoricalRunContext.test.tsx` "rows read under
+  the recorded table: panel categories and comparison rows" fails without it.
 
 Python has no display surface for these runs: `validate_analysis_run_v0_3(...,
 recorded_read=True)` raises its refusal, and no product path turns it into standing.

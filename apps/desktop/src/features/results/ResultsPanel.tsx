@@ -146,7 +146,7 @@ export function ResultsPanel({
   const [requestedKind, setKindFilter] = useState<{ runId: string; kind: string; withheld: Readonly<Record<string, string>> } | null>(null);
   const kindFilter = requestedKind && requestedKind.runId === (result?.run_id ?? null) ? requestedKind : null;
   // One reading of the source's row semantics per result, for every row.
-  const labels = useMemo(() => (result ? semanticLabels(result) : null), [result]);
+  const labels = useMemo(() => (result ? semanticLabels(result, recordedTableRead) : null), [result, recordedTableRead]);
   const familyCounts = useMemo(
     () => (result && labels ? countResultFamilies(result.results, labels) : EMPTY_RESULT_FAMILY_COUNTS),
     [result, labels]

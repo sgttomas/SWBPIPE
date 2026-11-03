@@ -363,6 +363,36 @@ describe("a project saved before RT-A4 (historical read)", () => {
     }
   });
 
+  // Focused fix confirmation r7 (#98): the panel's row categories and the comparison's rows read
+  // row semantics with the current reader only, so a retained milestone row read correctly
+  // under its table showed "integrity_failure" and compared rows lost family and dimension.
+  it("rows read under the recorded table: panel categories and comparison rows", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const { flattenRunResult, resultSemanticIdentity } = await import("../comparison/runComparison");
+    const { semanticLabels } = await import("./resultSemantics");
+    const text = (file: string) => readFileSync(resolve(__dirname, "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_retained_1", file), "utf8");
+    const name = "retained_precision_milestone_successor_sparse_interactive";
+    const document = JSON.parse(text(`${name}.json`));
+    const source = document.source as MechanicsResult;
+    const model = document.invocation.request.model as PreviewModel;
+    const payload = { model, mechanics_result: source, analysis_run: JSON.parse(text(`${name}.analysis_run.json`)), model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
+    const context = (await buildHistoricalRunContext({ ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope))!;
+    const table = context.recordedTableRead!;
+    expect(table.sha256.startsWith("b001070e")).toBe(true);
+    const row = source.results.find((r) => r.kind === "global_nodal_displacement_x")!;
+    // The current reader refuses the statement; the recorded table reads its rows.
+    expect(semanticLabels(source).category(row)).toBe("integrity_failure");
+    expect(semanticLabels(source, table).category(row)).toBe("physical_quantity");
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByTestId(`result-row-${row.id}`)).not.toHaveTextContent("integrity_failure");
+    const flat = flattenRunResult(source, table).find((r) => r.identity.result_id === row.id)!;
+    expect(flat.identity.family).not.toBeNull();
+    expect(flat.identity.dimension).not.toBeNull();
+    expect(flattenRunResult(source).find((r) => r.identity.result_id === row.id)!.identity.family).toBeNull();
+    expect(resultSemanticIdentity(source, table)).toEqual({ route: "retained_preview_physics", contract_id: table.id, contract_sha256: table.sha256 });
+  });
+
   it("a run read under the current tables has no historical reader scope", async () => {
     const context = (await buildHistoricalRunContext(await savedEnvelope()))!;
     expect(context.recordedTableRead).toBeNull();

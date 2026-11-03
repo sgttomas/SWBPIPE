@@ -265,6 +265,48 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
   };
 }
 
+/** RT-A4 §10.4: the row semantics of a recorded statement under its record's binding (Rust's
+ * `row_semantics_each_recorded`): a registry variant's rows read under that variant's table.
+ * For the recorded-run display and compare paths only; no current path calls it. It throws
+ * the reader's refusal (a refused binding refuses every row). */
+export function recordedReaderRowSemantics(source: MechanicsResult, binding: ContractBinding): (row: SourceRow) => RowSemantics {
+  let sourceJson: string, failure: ResultReaderError | null = null;
+  try { sourceJson = readerSourceText(source); }
+  catch (error) { if (!(error instanceof ResultReaderError)) throw error; failure = new ResultReaderError("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"); sourceJson = ""; }
+  const bindingJson = writtenText(binding);
+  const read = (texts: string[]): unknown => {
+    unavailable();
+    return JSON.parse(engine()!.readerRecordedRowSemanticsEachJson(bindingJson, `[${texts.join(",")}]`, sourceJson));
+  };
+  const key = (text: string) => `recorded-row\u0000${bindingJson}\u0000${text}`;
+  const store = (texts: string[], outcomes: unknown): void => {
+    // A refused binding is one refusal object, not an array: every row takes it.
+    texts.forEach((text, i) => cached(sourceJson, key(text), () => freeze(Array.isArray(outcomes) ? outcomes[i] : outcomes) as Outcome<RowSemantics>));
+  };
+  if (!failure) {
+    cached(sourceJson, `recorded-rows\u0000${bindingJson}`, () => {
+      const texts = new Set<string>();
+      for (const row of Array.isArray(source.results) ? source.results : []) {
+        try { texts.add(rowText(row)); } catch { /* read per row */ }
+      }
+      const rows = [...texts];
+      try { store(rows, read(rows)); } catch { /* read per row */ }
+      return true;
+    });
+  }
+  return row => {
+    if (failure) throw failure;
+    let text: string;
+    try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
+    const outcome = cached(sourceJson, key(text), () => {
+      const outcomes = read([text]);
+      return freeze(Array.isArray(outcomes) ? outcomes[0] : outcomes) as Outcome<RowSemantics>;
+    });
+    if (!outcome.ok) refuse(outcome);
+    return { signature: outcome.signature, complete_metadata: outcome.complete_metadata, canonical_metadata: outcome.canonical_metadata };
+  };
+}
+
 /* -------------------------------------------------------------------------- *
  * The route, presented
  * -------------------------------------------------------------------------- */

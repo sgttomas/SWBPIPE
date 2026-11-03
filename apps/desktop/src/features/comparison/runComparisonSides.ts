@@ -83,11 +83,11 @@ function standingOf(result: MechanicsResult, model: unknown, record?: unknown): 
   }
 }
 
-function sideInput(result: MechanicsResult, manifest: CurrentSessionInputManifest, record: Parameters<typeof runDiagnostics>[0], standing: NumericalStanding): RunComparisonInput {
+function sideInput(result: MechanicsResult, manifest: CurrentSessionInputManifest, record: Parameters<typeof runDiagnostics>[0], standing: NumericalStanding, recordedTableRead: RecordedBinding | null = null): RunComparisonInput {
   return {
-    rows: flattenRunResult(result),
+    rows: flattenRunResult(result, recordedTableRead),
     standing,
-    semantic_identity: resultSemanticIdentity(result),
+    semantic_identity: resultSemanticIdentity(result, recordedTableRead),
     context: runContext(manifest),
     diagnostics: runDiagnostics(record)
   };
@@ -123,7 +123,7 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     state: `"${read.state.state_name}" (${read.state.state_id})`,
     standing,
     recordedTableRead: context.recordedTableRead,
-    input: sideInput(result, manifest, read.record, standing),
+    input: sideInput(result, manifest, read.record, standing, context.recordedTableRead),
     csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) }
   };
 }
