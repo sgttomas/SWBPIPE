@@ -348,7 +348,7 @@ gated combination.
 | `LOAD_COMBINATION_DIFFERENCE_BASIS_OPERAND_NOT_LOAD_CASE` | validator, solve | blocking |
 | `LOAD_COMBINATION_OPERAND_CYCLE` | validator, solve | blocking |
 | `LOAD_COMBINATION_OPERAND_UNKNOWN` | validator, solve | blocking |
-| `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED`, `LOAD_COMBINATION_NESTED_UNSUPPORTED` | solve, interim until wiring; the applier refuses authoring | warning, withholds |
+| `LOAD_COMBINATION_UNSIGNED_BASIS_UNSUPPORTED`, `LOAD_COMBINATION_NESTED_UNSUPPORTED` | solve, interim until wiring (removed by it, §10); the applier refused authoring | warning, withholds |
 | `LOAD_COMBINATION_OPERAND_WITHHELD` | solve | warning |
 | `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` | solve | info |
 | `CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`, `INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND`, `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` | solve | warning |
@@ -429,3 +429,85 @@ rows with the same definitions in the wiring slice.
 Response-spectrum modal and directional combination (RT-A8, DEL-04-09) also
 needs an n-term SRSS. The kernel's `srss` is offered for reuse; its contract is
 §3. Whether DEL-04-09 adopts it is that lane's choice.
+
+## 10. As built (wiring)
+
+Slice W lands on branch `claude/rt-a4-wiring` from main `a8299f918`. It implements
+§2-§6 and removes S1's interim unsigned and nested withholding; `difference_basis`
+and `minuend_final` stay withheld.
+
+- **κ (§5.1).** LCA `src/fixed_load_count.rs`: `Dyadic` (sign, odd significand of
+  at most 4,096 bits, `i64` exponent; exact products, sums and comparisons),
+  `FixedLoadCount` with the tree rules, `mechanics_fixed_load_gate` (|κ − 1| ≤ 2⁻⁴⁶
+  exactly; an undefined own κ or operand never passes),
+  `unsigned_fixed_load_gate` (exact zero) and `solved_state_plus_increments`
+  (OQ-1). Each caller maps the withholding to its own source's code. The flat
+  decisions equal `factor_sum_within_unit_tolerance` (named sets and a 4,000-case
+  sample).
+- **Plan.** PP `src/combination_plan.rs` resolves operands (a term by kind; an id
+  to the load case first), orders evaluation (Kahn, earliest ready in the array),
+  and computes every combination's κ and the load cases it reaches.
+  `CombinationExpression` gains `AbsoluteSum` and `Srss` and evaluates term bases
+  positionally, so a load case and a combination may share an id.
+- **Rows (§4).** Both routes evaluate in that order and read a combination
+  operand's own published rows (PF: by base id, kept only while a later
+  combination names it; EX: by structural key). Gates, EX records, rows, the
+  combinations' modulus-basis records and the source-recovery exclusion's refs
+  follow the evaluation order; a flat document's is its array order, so its bytes
+  are unchanged.
+- **Gates (§5).** Precedence: a withheld operand combination
+  (`LOAD_COMBINATION_OPERAND_WITHHELD`, naming each withheld operand and its code);
+  then PF: nonlinear (except OQ-1), κ on a consuming constant effort, modulus over
+  every reached case; EX: modulus and resolved stiffness over every reached case,
+  then gate 3 on κ. `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` (info) names
+  every combination whose own κ overflows, gated or not, with ids
+  `diagnostic:preview-physics:combination-fixed-load-count:<identity>` and
+  `diagnostic:exact-combination:fixed-load-count:<identity>`.
+- **Choices this slice made where §2-§6 are silent** (reported to Agent 0; each is
+  the narrowest reading):
+  - On EX, a `mechanics` operand with an undefined κ, where an installed reference
+    applies, is withheld under `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`:
+    §6 names `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` only, whose source cannot
+    arise on EX, and an undefined κ never passes (§5.1).
+  - Evidence shapes: a term `{combination_id, factor}`; an operand
+    `{combination_id}` (its own record, earlier in order, states its standing); a
+    row source `{combination_id, result_id}`; `missing_load_case_ids` may name a
+    combination operand. PF's operand-standing notices read load-case operands only.
+  - Sign conventions: §4's two example texts verbatim; an OQ-1 row's is the linear
+    text followed by "; a solved state plus derived differences or bounds; not an
+    equilibrium state".
+  - A dependant of an interim-withheld combination (`difference_basis`,
+    `minuend_final`) is removed at the solve, as S1 removes the withheld one, with
+    `LOAD_COMBINATION_OPERAND_WITHHELD`.
+- **Not changed (reserved).** PF's published limitation "Mechanics combinations are
+  withheld for nonlinear supports …" and the preview-physics-2 and pressure-2
+  tables' `combination_policy` texts are bound into every published document of
+  their contract (directly or by table digest), so amending them moves every
+  existing result's bytes. They are left as they are for Agent 0; the OQ-1
+  exception and the unsigned bases are stated here, in the user guide §6.2 and in
+  `docs/theory/load_combinations.md`.
+- **Applier.** `absolute_sum` and `srss` join the closed basis set (create and basis
+  edit); terms and subtraction/envelope operands may name combinations; the
+  document validator refuses cycles and unknown operands as before.
+- **Readers.** RE `combination_graph.rs` (a new dependency on LCA, whose kernel
+  re-derives A, R and κ), `exact_combination_evidence.rs`,
+  `preview_combination_operands.rs`, `preview_physics_evidence.rs` (gate codes;
+  unsigned rows' texts and sign bit; with the model, A and R bit for bit) and
+  `global_end_evidence.rs`. Python: `tests/verifiers/combination_graph.py` (an
+  independent exact implementation: Fractions and an integer square root; it
+  reproduces every V-1 row) and the three mirrors; `qualification_exact_pressure.py`
+  binds the evaluation order. The desktop labels unsigned and OQ-1 rows, keeps them
+  out of maxima and minima, and never draws them as one state.
+- **Schemas.** `results.v0.3`, `results_pressure_2.v0.3` and
+  `stress_neutral_export.v0.3` take the two basis tokens, the new gate codes and the
+  shapes above; no version changes.
+- **Verification.** LCA: κ tests (flat decisions, V-6, V-9, V-10 at the kernel).
+  PP `tests/rt_a4_combinations.rs`: V-5 on both routes and both solver modes
+  against `validation/references/rt_a4_combinations/v5/` (a cantilever along
+  (3, 4, 0)/5 so the X and Y cases share components), V-6, V-7, V-9, V-10 and a
+  non-representable row, every envelope read by the product reader with and
+  without its model. V-8: the existing byte-identity suites
+  (`pressure_free_byte_identity`, the w16 and op1a corpora, the retained
+  successors) are unchanged.
+- **Retained routes.** They keep declining the members
+  (`FamilyFact::CombinationMember`); admitting them is a later slice with its D3.
