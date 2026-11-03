@@ -54,9 +54,12 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// rows, the receipt figures counted over the rows, and the hashes binding them moved.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f", "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377"),
-    ("dense_scrutiny", "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa", "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301"),
+    ("sparse_interactive", "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567", "8ce5b023d43eeb764bb779e44cc088d11616e14332d0e9f2898c9acd9b665137"),
+    ("dense_scrutiny", "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11", "c20407e71fd6d9b4d2089123351ea949deb7ffcf2b14df61a451355f888d445a"),
 ];
 
 fn sha(bytes: &[u8]) -> String {

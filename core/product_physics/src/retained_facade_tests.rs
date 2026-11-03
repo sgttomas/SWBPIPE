@@ -51,9 +51,12 @@ fn write_exact_pin_input(kind: &str, raw: &Value, mode: PreviewSolverMode, succe
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "c4aca00852fd4d6157fe8f80ae709a6bf2ad4b61f8e911e15a414902c99b5a8f", "2361e82ea1f2555d1fd5191096faf4dcd64e7ccea0d2e17890f4a513c105a377"),
-    ("dense_scrutiny", "da3dafab793aa0d43c056f1057987d1feb06d9c0069396e68d5a86e5dc694daa", "7ae592eb5601c1b8dac379be8b60af7044cc49fd85f94d7394e5bdc116f0e301"),
+    ("sparse_interactive", "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567", "8ce5b023d43eeb764bb779e44cc088d11616e14332d0e9f2898c9acd9b665137"),
+    ("dense_scrutiny", "d1c8edd1efcaf0986d2625714d76dbca81275e2fa32acaf9f4ade798dba48b11", "c20407e71fd6d9b4d2089123351ea949deb7ffcf2b14df61a451355f888d445a"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -1052,11 +1055,14 @@ fn u8_real_input_fallbacks_append_one_notice() {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "13d6e229f156d09190daa2211a587eda3ebc947a40e817acc18031b605827ad3", "dc93343aa592077aa34071ee5b91a0a48a27faa663388bd4553a9f61598c26a1",
-        "1dcd53e814a0e3daeb3481de6b9543080a20c80297a011f02854c1a5df37796f"),
-    ("dense_scrutiny", "de5d0a9bd282db08f46ba38e3b4a3ab6de35dadfb002326e2a48540fbe7ea310", "1b596b40f13b42df703626579d6773f743313a335734d470631460bacb7200c9",
-        "7ab71cdfcb01e767653da6adea4e80013599c708b2ee87e775a7af9112bbfd59"),
+    ("sparse_interactive", "c51f7d8d537cba2d5858b24575e41f6dbb3cea13443d2b0bf3116b1dc61ae701", "604f906008087adabe0c20fa5de5a8c26c893dff7b6c179212fc1fa1ed0c0515",
+        "6ce12b5f61583302dbdb9901cd84ea381beafbefc368b1edcdea955477e700ac"),
+    ("dense_scrutiny", "dad8f1a23aa9c7e9854299316b2b63da8e44d946f0f1891064ee873dd49626f4", "22ac20311b775a686d9ca8f359b245b7f3e58ad976cbf5753053245329d2a9e0",
+        "ccab6239bb1d1e4e5cbc93cec92091e7e8365f58c5985d69fc49e87b9b8b581d"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
 const U8_MILESTONE_DOCUMENTS: [&str; 2] = [
@@ -1963,9 +1969,12 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// W-8 topology warning added; no number moved.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "5516371daa450d255858faf2ceb8f749c7a03134c18b3d2d1029ee892f278036", "59f5507c51fa942786b73f31c2cb2321f3d81c1fe544f698cead922060bad682", "9abff91df12f297134b8ca1ed0515620479cdc9caf968fce9c5953bf629e387a"),
-    ("dense_scrutiny", "e414484c02e1367532fb0a4a9eecd4a0b9f1e755965f899dedcf3c37900213c6", "74c8dbb8480fd49b18530aee1507d456824540966e9416b1a476aa76ed39f30c", "2bce2579396ab42f8a3e15d8681adde1917303f205f384a77ffb5da7636b3d91"),
+    ("sparse_interactive", "083feb1b4f1f4af1dbf69bd264c66e33068ef650667dbe4b8c1fddbf93988e55", "439b06eeb65e475bb1f7de5885e5accd300299c332dcfb89e2f4db43a87f103b", "7f223a10cf09d67f2ac0047669fea56648174eec28a95c5b6eaa954b73500ae3"),
+    ("dense_scrutiny", "f783ddf4ed4af2e30600cb320db004caa44907949a7357eae9446468f8d6b194", "bb155a2605521346b3f21a1119a7862228e79dbc174070cdc817294444b8018b", "d2e7d80966adf122ea9322b38a76d1d312fdbce20cab9f954ddb9f599df8c026"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2314,10 +2323,13 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// W-8 topology warning added; no number moved.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "52923ab1a6570d5e7b4ef008735868a51dd91a878f7d0e7da1fa5c8280dafd43", "d5484e6f0c5fc931b4c7ce249685827623fe5f17ecec32b63d7c6c1f9092c3ea"),
+    ("sparse_interactive", "502d4519d1bd3f3ec881cd3a03f8183818e41db17efa0398686454c4aee16db2", "ede2b2eea05666a013089573ec665e9a2bd2fe10cbb49c26ae48664fa94c313d"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "8886be15c03d1e7d61aff204b3427fdc4f751822d4901109d6718530108cda54", "8b973828cc325b9dc6ec526d2e697ffb80d07b01cbcd6b90da760d7be1b1c5fc"),
+    ("dense_scrutiny", "dc8ab16458d05e00a802308765068e8c6cb64a709a708c500cc007e12f6b6327", "306398a2ff5a4a57aac62c1a813daf7d2694fbed1244b51ef35bfa733f03ef79"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
@@ -2327,9 +2339,12 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
 /// W-8 topology warning added; no number moved.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "1faa75c853c9fae83c9e0d3c8112c9732ad7ecaadf5d631935e2708bb98c8fd8", "ddfa8590ce5b13b586a4ba126e6105fbfbfa8bbfa3146d01f99a6d9e844c8dd5"),
-    ("dense_scrutiny", "15bb74bfd597d93f9bc35392710e1f0071c392abad94172207b655b9d2a244cd", "b5396711f61f0de00a81dd4af33de69017e90e2ba868f6ef23df38035a1bde55"),
+    ("sparse_interactive", "67059290c0fd5478739287a3160a9c6a5a5c8dc99193a2b0d205a87b2e073366", "38bfdd570f1c591a092ca64cd0756e40327736007f2ad7bfd541a66745006f5a"),
+    ("dense_scrutiny", "8da9830f76370801ee64f0acae5f1e20fc8ba5303269ebd6e9da59a7908cce91", "b9c1dd50fc93cc23490a0ecefd66be08db4ddc675f8817c18b0ef28c813b4ae5"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2430,9 +2445,12 @@ fn milestone_reversed() -> Value {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "7ae223b5e6b1125ca6b0ac6490c2ad95e3346397ae375bead62ed050d4d8f611", "8b2c8f121d3f33ddc566586f46f758da1a4cb55cacb874afd1089da7bf20fdd8"),
-    ("dense_scrutiny", "0a3f59ec415d49a41c349aca1493a0b73510f5e984fe2fb430c46c27d22868b9", "81b06e66e01ce814dd4d9eaa51a64e549695df2cf486aac7757e03b311decb5d"),
+    ("sparse_interactive", "841af08c4c72fdff5e1e167a49b78451a165261ec14194fb2ce98b00b54edecb", "cf9a587e9f51708495fbec1f02043e71d03d125b6042781d03ff8c3307fdcba2"),
+    ("dense_scrutiny", "5b9c3477a592e335c4a9397553c6abed3cc0816b7347b9eb1eb06567fcf0bcca", "d7a0e2dd9e40f0b39dc4a706ceed31aa554d16608aabd0485721a942a2b010f6"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -4416,47 +4434,50 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// their four rows moved with the request-bound hashes only (scratch structural proof).
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): only `formulation_basis.limitations[6]` (§10.2's sentence) and the publication
+/// and receipt seals binding it moved; restated to the former sentence and resealed by the Python 07e rule, each
+/// regenerated document reproduces its former pins byte for byte.
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "b2e77b6b7859c56b60306452b7f8907ecc645a4695cec30fd6c3ca290fbb18c1",
-        "80e2d885c6f8eba5e3ebb6858a2a10def1dae8802ae48df6755b118d47174d12"),
-    ("w_cb1", "dense_scrutiny", "65268a7bd358f112c665bed3c641daa2f68ea88159186f9f0c4e373f6c594c82",
-        "251fbfb50c6940c51387cf6140c886e1febc5b7a18d7382c915efbf80a89d3aa"),
-    ("w_cb1z", "sparse_interactive", "22bfc18068a1c32d402cc9e4e685ef9837128b04c559100c12ea70b5eb7cfba7",
-        "a8ad936c18f5735510f702e43307fd221adef2ccefbbd00e6035110b478277c7"),
-    ("w_cb1z", "dense_scrutiny", "be5a6ab8ab4aaa5658c74cb8b4dab7e0f40183cd54dd19e20f9dbcb08ffae167",
-        "762dd0ddaec56cab082e7c50d8ea60d0a727c55fa98c8f3d98af869ba38b447d"),
-    ("w_cb2", "sparse_interactive", "f5a0e3faedbf048e65a8284a1f580a690e45fa340aac6850082c81f2c9e6b302",
-        "0c5d67835334ef467c86ee61bce546ac3119f12c0767510b5f8180c527b57e04"),
-    ("w_cb2", "dense_scrutiny", "e25c82dfcf7c69eb3cc1b768f559bf69927789c67e007124da1112d76a7c18b0",
-        "8b27a91f3976cd3b854f58a965fb8914c301c4c9f1124590fa86fc00a18eb9c9"),
-    ("w_cb3", "sparse_interactive", "a4b8e0ae9ca28ff631080b80def3aa5a6e6bb36ef1d3a2d179ae18088f173618",
-        "9fa7e9b60dc5b038b040ea2d944849904b0d53c7164d786908f2aab30db2744c"),
-    ("w_cb3", "dense_scrutiny", "ba6cd57e186c733cc7b8e89d1415ec72befa492f9f15a59d5a363cfbeff971f0",
-        "b05a41566523ab608302a862da6f68e1287749ecb19926bb88dcfc3cf062b6d1"),
-    ("w_cb4a", "sparse_interactive", "d15dddd8eb8320c4b7ca5016bbb28e3c60bbe90ce0b53bb3d758f80ba7a65b2a",
-        "ebbdfa34c4533bdbf00400a3b48f48cad70e0398952c63e1f68396315235bcb8"),
-    ("w_cb4a", "dense_scrutiny", "471badc6124d017ebf279e8e640d6166f0712fa55d2b8a2fa256036ef1ed7936",
-        "46608813be17cfca602fb42fc081eb6c2ac86c74bdf53cf4fdce2015e2fa4c61"),
-    ("w_cb4b", "sparse_interactive", "0f216b1d40a22687677ba28cde75f1abf4c8f21a6aa13ddc4e03839d8dc97828",
-        "5c13ea5c69884bd24f1b1771f633c22113e97642b0bdcfe68f4e35766768444e"),
-    ("w_cb4b", "dense_scrutiny", "13422535fdbfaa117db28b321bfae01ac464abab98a5b79fdcdc32c31170366c",
-        "e65ecbd2fb9a87aef4f913c7c706ff360166f96135b24a25c4563ddf758a41e1"),
-    ("w_cb5", "sparse_interactive", "beeec280babf0fe72fceb4b0add228f0324aa87efe604178e9b3bbe9707c7dc8",
-        "83d1842e6955143ca07f8a2daa9771aa8530c9c8823cde4f7a8c347c38de6ee8"),
-    ("w_cb5", "dense_scrutiny", "dc003c6c842f934fcfe576a189b443226862d26ce450935c9189135c1ef6975c",
-        "3582d1ae54cb19bddde59b8a761e53470f9c63e80ca6aaeeba8126af928edeb5"),
-    ("c1_range_mechanics", "sparse_interactive", "e7d8ba300cfc4c0926ae27162a5f9911ad952b2896b296b0f6d690d8f11590ec",
-        "3efc1abd9374b4c66ea111f1c10b759b0e532f70773bff6dd915492e3cc47835"),
-    ("c1_range_mechanics", "dense_scrutiny", "42a3295f9e32a70fddc70596bc5a43798bbcfa2016f74207c5d3a461a8d4c3ab",
-        "cd175682ea2b2376e0dca11211aca7c6f64fcbafdc2fd73c9de5a6cfc6532c45"),
-    ("rv123_w_cb3_ba", "sparse_interactive", "b501db0266c25905e7f0538f3adc66306ee82b92e7052041dbb7a9246c5e08a9",
-        "e7b7e09585dcdba10bf8dd50c264ba13c51339a7a3ae84cfc8e6e88e3c1e2cd3"),
-    ("rv123_w_cb3_ba", "dense_scrutiny", "6b52f30576dd3c9eeb4fb726b6c94114a3474fa7cfa09e5a04780eb6cdf502fa",
-        "9752b8271af4ea72f2c53e83eca3c2d41ac900194bd526fbaf3e05a25e252aa3"),
-    ("rv123_c1_two_mechanics", "sparse_interactive", "62d19e8c8a4b0abba97448efe4e15aa8e2ed6fba13fe64e6c15a62b9a1869092",
-        "727b174c628e869afc4bdb27acb3eb7817d0866a1b432b23bdf9908f33cc03de"),
-    ("rv123_c1_two_mechanics", "dense_scrutiny", "3e1f3bddc7177ffafe29f7c2bfebc68b1c237da2d551092bf4eafb94c9d3fd2f",
-        "916d3425a5f7d362d75fbf0c52d373913e337d97356f24d2260b752c99b628ea"),
+    ("w_cb1", "sparse_interactive", "16d237488f2c436c1b43b3ca867da55838c46ce5134ddccd4632397e4d05bb88",
+        "a81b0801d47850de8fcd7ccd6b030587bd6389789db11ce765ff841ed66a4647"),
+    ("w_cb1", "dense_scrutiny", "7d49d40bc439377ba03a9191f00bb79c28745cd7adfaa97513c0afea3c52368c",
+        "6c2ecdcf40d9dc5bb85d504b975bef6fe6ed9ef6bcee35c8bb8b9ee68daaf1d8"),
+    ("w_cb1z", "sparse_interactive", "eb14d44eac288fc11c57f0a272447400f132c40da2419e566e7b43700421f0f4",
+        "7a5213346a41b496838db518031aa8da3301d9beb69b904092705bb38cc33fe6"),
+    ("w_cb1z", "dense_scrutiny", "e73c8b9cd9cf62064b080c42b3cfa4467986563739220d160f4f64c14f223998",
+        "f511f655ef18d893264d9b9337d4bd0edd8f5bacc8897f199fe6f79475d0b2b6"),
+    ("w_cb2", "sparse_interactive", "4949e2eceab3031ed263cf71da37434dfc492fdb32153d593b4c4b9ef39dae1e",
+        "715693d0b6ea49a1e20f46f999f88751635bb2f04fef1a42560c427dd9afc631"),
+    ("w_cb2", "dense_scrutiny", "21ca13cb2a9753f7e319b82fc81488a5e19f9db6ee2c42f30d9244e89b25d091",
+        "e5b458ece70147d01e10f18bb934623981b34dd24908dbb23ec566688c9ef600"),
+    ("w_cb3", "sparse_interactive", "d1e1cbaa86470b2c143530137c79453a90d25efdc68950b1280edceaaac7d686",
+        "be7bbc9649fdb2780aeaac6212d114d64ccf2384cd58655aa6e3707b6705917b"),
+    ("w_cb3", "dense_scrutiny", "46760f4488f6d2d62f9ddc6fa31d21a2f2c2101fb5a14f67741462aaa8b873fc",
+        "8ba72bbcabecbf5b33196926c14bb15df1aaef43b6f4698fc67d7e6e1efcb519"),
+    ("w_cb4a", "sparse_interactive", "57e8519ef02b96c9196a46d8a3b37b7cbe32b39b98ef7054ed802a6165a0df0c",
+        "aeccfadfc404b918b05a795c2d40460532c3788ba74690ccbc6e0bf6b24b9566"),
+    ("w_cb4a", "dense_scrutiny", "9a6439d4b57606668eda61584600d4c2fad2a694454780acea45c6f4c2c13528",
+        "b47641bbfc58e5a1401833a2f4516ce4b7d009b7fa44037d1ea629a97c0bf4eb"),
+    ("w_cb4b", "sparse_interactive", "f31683a9354975f9d910781db257ba1ae0c2879b7abb92dec7ac77a730f7900a",
+        "d777c9dcb97004854ad498cf8c29fe8b203a625ef19c89204ad10bbe9951876e"),
+    ("w_cb4b", "dense_scrutiny", "ae6cafbf9aa47bd0d46b24e7fa1a659a494578c3487d9e462cd011dff6146440",
+        "200c7ba677df9a37c356fd65fdb6327a61a3e0e9677b17a7a5ca83ad4456a074"),
+    ("w_cb5", "sparse_interactive", "63a0f6a318517f3c090a2eed426e4de6f9c5a86441c1a4ff723d92b99b00043f",
+        "01445f283c545f25dcc8d1b06f2ff8af1b668c185e0273ebf3704b388c09faab"),
+    ("w_cb5", "dense_scrutiny", "b29ca5daafa49dfa513f4c08f288ab530c71038474b00281c14b6ed68347477e",
+        "c6e2c8ad7832baf0dcb3f7f46462a899b4e72461e499d2b9dfb8c391acaa249a"),
+    ("c1_range_mechanics", "sparse_interactive", "50729ada48718357bab7a3662d7a2f0efaeed0b6a9294dc63ea3102aa4c550c3",
+        "5e6d0b85a9489de85801adc9487676ba967d15aca7e577dafae78192cb66e128"),
+    ("c1_range_mechanics", "dense_scrutiny", "c3ebfaa2845303d5481155f4df821e4767dc6976c5ebfcec37793095140b3d5a",
+        "4a11d76d94aaa1dec0b282614a035239a312bc3180478360d0998a3f48a27d76"),
+    ("rv123_w_cb3_ba", "sparse_interactive", "9e13f815fbc6f181b1f9ba9940cbf8c762e1b3c27bee4db8f93a9ba07e1edc13",
+        "08775c776251c59329499d43254562a908a5b17f75ca61058688b862713d87c8"),
+    ("rv123_w_cb3_ba", "dense_scrutiny", "43b5d21339235457ae334754652f3e22194689f1b40d504f649425864089a280",
+        "b16872ee34db94ee53f925f4f051aced50e3d635ccf7a2f575dc8423b1adca05"),
+    ("rv123_c1_two_mechanics", "sparse_interactive", "ccddb0e5bc471366f67115e8a56a880792db9a4852f69e84b4bcdc950128172d",
+        "d097fef986eed2b6b172d4a94d64e7c314025909324cbe3ce61eae51f73afcd5"),
+    ("rv123_c1_two_mechanics", "dense_scrutiny", "97884e225da193a5aacfba44ed0beac074f2568762d5ea3a5271b1e58bca2ad8",
+        "fb7de312b655fb579552b14cd89b6b4423e8b28f6792418ff7e3c42587015b1d"),
 ];
 /// B2-P's small witnesses: (name, request).
 fn b2p_witnesses() -> Vec<(&'static str, Value)> {
