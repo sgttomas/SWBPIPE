@@ -935,27 +935,16 @@ fn inspection_is_pure_and_its_scratch_id_is_unique() {
 #[test]
 fn inspection_is_unreachable_before_preparation_passes() {
     // The one call site is the weight-basis check, which takes a `Prepared`;
-    // a `Prepared` has no constructor outside `prepare_modal`.
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let mut sites = Vec::new();
-    let mut stack = vec![root.clone()];
-    while let Some(dir) = stack.pop() {
-        for entry in std::fs::read_dir(&dir).unwrap() {
-            let path = entry.unwrap().path();
-            if path.is_dir() {
-                stack.push(path);
-            } else if path.extension().is_some_and(|e| e == "rs") && !path.ends_with("modal/tests.rs") {
-                let text = std::fs::read_to_string(&path).unwrap();
-                for (n, line) in text.lines().enumerate() {
-                    if line.contains("inspect_generated_self_weight(") && !line.contains("fn inspect_generated_self_weight(") {
-                        sites.push(format!("{}:{}", path.strip_prefix(&root).unwrap().display(), n + 1));
-                    }
-                }
-            }
-        }
+    // a `Prepared` has no constructor outside `prepare_modal`. Crate-wide
+    // caller exclusivity (no other source calls the inspection) is checked on
+    // the full source by the retained-pricing MODAL-UNR guard
+    // (`tools/retained_pricing/base/b7a_domain_model.py`); here, the modal
+    // sources' own call sites, read at compile time.
+    let calls = |text: &str| text.lines().filter(|l| l.contains("inspect_generated_self_weight(")).count();
+    assert_eq!(calls(include_str!("weight_basis.rs")), 1);
+    for text in [include_str!("../modal.rs"), include_str!("context.rs"), include_str!("mass.rs"), include_str!("prepare.rs"), include_str!("request.rs")] {
+        assert_eq!(calls(text), 0);
     }
-    assert_eq!(sites.len(), 1, "{sites:?}");
-    assert!(sites[0].starts_with("modal/weight_basis.rs"), "{sites:?}");
     let prepare_text = include_str!("prepare.rs");
     assert_eq!(prepare_text.matches("Admitted(())").count(), 2, "constructed only in `prepare_modal`");
     assert!(include_str!("weight_basis.rs").contains("pub(crate) fn check_weight_basis(prepared: &Prepared"));

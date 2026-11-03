@@ -268,13 +268,14 @@ def leaf_seam(text):
 #  - modal defines no macro (macro_rules!, #[macro_export]), no exported or linker-visible item (#[no_mangle],
 #    #[export_name], #[used], #[link_section], extern blocks or fns, #[global_allocator]) and no static
 #    initialization hook;
+#  - no non-modal source calls self_weight's inspect_generated_self_weight (D-SW: only modal does);
 #  - every impl block in modal has a self type defined in modal (no inherent or trait impl on a non-modal type, no
 #    blanket impl over a type parameter), so no method or trait effect on a type that priced code uses lives in
 #    modal.
 # A crossing form the guard cannot classify stops the run. MODAL_TREE_PIN binds the excluded bytes (sorted path and
 # raw-content digests) and MODAL_UNR_VERSION the guard, so a later modal change re-opens the review.
 MODAL_UNR_VERSION = "MODAL-UNR v1"
-MODAL_TREE_PIN = "3e458e7f875964ccff7902d06c2cd8d40aec8decb1208be92d396706c0e6b827"  # I2a modal bytes as reviewed at 305b42b57
+MODAL_TREE_PIN = "ea8ba515a9da53bb56409b9c7a28d65f28fc8bf57291943732263d82064af3ab"  # I2a modal bytes: reviewed at 305b42b57, plus the §8.43 test-only change to modal/tests.rs
 MODAL_ROOT = "core/product_physics/src"
 MODAL_DECL = re.compile(r"(?m)^mod modal;$")
 MODAL_ANY_DECL = re.compile(r"\bmod\s+(?:r#)?modal\b")
@@ -283,6 +284,8 @@ MODAL_FILE_REF = re.compile(r"#\s*\[\s*path\s*=\s*\"[^\"]*modal|include(?:_str|_
 MODAL_FORBIDDEN = re.compile(r"\bmacro_rules\s*!|#\s*\[\s*macro_export|#\s*\[\s*no_mangle|#\s*\[\s*export_name|"
                              r"#\s*\[\s*used\b|#\s*\[\s*link_section|\bextern\s+\"|\bextern\s+crate\b|"
                              r"#\s*\[\s*global_allocator|\bctor\b|\binventory\s*::")
+MODAL_INSPECTION = re.compile(r"\binspect_generated_self_weight\b")
+MODAL_INSPECTION_DEF = re.compile(r"\bfn\s+inspect_generated_self_weight\s*\(")
 MODAL_TYPE_DEF = re.compile(r"\b(?:struct|enum|union|type|trait)\s+([A-Za-z_][A-Za-z0-9_]*)")
 # An impl ITEM starts a line (after optional `unsafe`/`default`); `impl Trait` in a type position does not. An `impl`
 # token elsewhere that is not in a type position (after `:`, `->`, `(`, `,`, `<`, `&`, `=`, `dyn`) stops the run.
@@ -378,6 +381,10 @@ def modal_unreachable(snapshot):
         scrubbed = MODAL_DECL.sub("", code) if relative == "lib.rs" else code
         if MODAL_NAMED.search(scrubbed) or MODAL_ANY_DECL.search(scrubbed) or MODAL_FILE_REF.search(text):
             raise ValueError("B7a modal reach changed: " + relative + " names the modal module; re-review")
+        # D-SW: the self-weight inspection's only callers are modal's (its definition is self_weight.rs's).
+        calls = MODAL_INSPECTION.findall(code)
+        if len(calls) != (1 if relative == "self_weight.rs" else 0) or (calls and not MODAL_INSPECTION_DEF.search(code)):
+            raise ValueError("B7a modal isolation: " + relative + " calls or redefines inspect_generated_self_weight; re-review")
     for relative, head, params in impls:
         if head in params or head not in defined:
             raise ValueError("B7a modal isolation: " + relative + " implements on " + head + ", not a modal type; re-review")

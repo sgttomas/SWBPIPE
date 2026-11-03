@@ -77,6 +77,7 @@ def test_a_changed_declaration_stops(tmp_path, new):
     ("lib.rs", "\n#[path = \"modal/mass.rs\"]\nmod other_mass;\n"),
     ("lib.rs", "\nconst X: &str = include_str!(\"modal/mass.rs\");\n"),
     ("operating_conditions.rs", "\nmod inner { mod modal {} }\n"),
+    ("lib.rs", "\nfn reach(m: &PreviewModel) { let _ = self_weight::inspect_generated_self_weight; let _ = m; }\n"),
 ])
 def test_another_source_reaching_modal_stops(tmp_path, file, extra):
     root = snapshot(tmp_path)

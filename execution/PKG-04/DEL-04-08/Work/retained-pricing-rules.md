@@ -3071,13 +3071,15 @@ is no fallback exclusion. On comment- and string-blanked code (`loopscan.blank_r
 - modal defines no macro (`macro_rules!`, `#[macro_export]`), no exported or linker-visible item (`#[no_mangle]`,
   `#[export_name]`, `#[used]`, `#[link_section]`, extern blocks or fns, `#[global_allocator]`) and no static
   initialization hook;
+- no non-modal source calls or redefines `self_weight::inspect_generated_self_weight` (D-SW: only modal calls it);
 - every impl item in modal has a self type defined in modal (no inherent or trait impl on a non-modal type, no
   blanket impl over a type parameter), so no method or trait effect on a type priced code uses lives in modal; an
   `impl` token the guard cannot classify (neither an item nor a type position) stops the run.
 Without a name, a re-export or a modal impl on a priced type, priced code has no route to modal code: a function
 pointer, callback or trait object of modal origin exists only while modal runs. `MODAL_TREE_PIN` is a SHA-256 over
-`MODAL_UNR_VERSION` and each modal file's path and content digest (`3e458e7f…b827`, the modal bytes reviewed at
-`305b42b57`), so any later modal change, including #96's and #97's, re-opens this review; `lib.rs` and
+`MODAL_UNR_VERSION` and each modal file's path and content digest (`ea8ba515…f3ab`: the modal bytes reviewed at
+`305b42b57`, plus one test-only change: `modal/tests.rs` no longer walks `src/` at run time, which CI's runtime-read
+declarations would have had to enumerate file by file; crate-wide caller exclusivity of the inspection moved into the guard), so any later modal change, including #96's and #97's, re-opens this review; `lib.rs` and
 `self_weight.rs` stay priced and pinned, and #97's lib.rs seam is priced in full. The run records
 `modal_excluded` (the removed paths, the guard version and the digest).
 
