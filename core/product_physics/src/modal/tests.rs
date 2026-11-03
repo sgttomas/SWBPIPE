@@ -955,9 +955,8 @@ fn inspection_is_unreachable_before_preparation_passes() {
     // The one call site is the weight-basis check, which takes a `Prepared`;
     // a `Prepared` has no constructor outside `prepare_modal`. Crate-wide
     // caller exclusivity (no other source calls the inspection) is checked on
-    // the full source by the retained-pricing MODAL-UNR guard
-    // (`tools/retained_pricing/base/b7a_domain_model.py`); here, the modal
-    // sources' own call sites, read at compile time.
+    // the full source by `tools/retained_pricing/tests/test_dynamics_i2a_d3.py`;
+    // here, the modal sources' own call sites, read at compile time.
     let calls = |text: &str| text.lines().filter(|l| l.contains("inspect_generated_self_weight(")).count();
     assert_eq!(calls(include_str!("weight_basis.rs")), 1);
     for text in [include_str!("../modal.rs"), include_str!("context.rs"), include_str!("mass.rs"), include_str!("prepare.rs"), include_str!("request.rs")] {

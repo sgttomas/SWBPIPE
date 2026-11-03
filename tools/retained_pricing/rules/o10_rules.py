@@ -4268,7 +4268,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         (site("validate_modal_request", _MODAL + "request.rs", "names its state_case because {why}", full=True),
          {"why": _md(86, "state_case_requirement's static reasons joined by ` and ` (46 + 5 + 35 B), the nonlinear list empty on D1")}),
         (site("validate_modal_request", _MODAL + "request.rs", "{why}; the modal model is defined by exactly one named case", full=True),
-         {"why": _md(29, "one of two static reasons, the longer `names more than one load case`")}),
+         {"why": _md(31, "one of two static reasons, the longer `names no load case of the model`")}),
         (site("validate_modal_request", _MODAL + "request.rs", "is {a} m/s^2; it is a positive acceleration", full=True), {"a": _M_F64}),
         (site("weight_basis_mismatch", _MODAL + "weight_basis.rs", "diagnostic:modal:weight-basis:{}:{}", full=True), {"AXES[axis]": _M_AX}),
         (site("acceleration_agreement", _MODAL + "weight_basis.rs", "and takes no part in the comparison", full=True),

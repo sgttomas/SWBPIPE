@@ -3060,7 +3060,7 @@ so the proposal is **withdrawn** and nothing is excluded: modal is priced by the
 - **Decision A (Agent 0).** `context.rs`'s Debug-text comparison of the state case's remainder before and after
   lowering (`rest_of_case`, `format!("{rest:?}")`) is removed. Its rendering is an unboundable TEXT row, and it was
   redundant: the binder (now `pub(super)`) runs once, on `prepare_modal`'s own clone of the request model, directly
-  after the one lowering and before any stage edits the model (tested), and that lowering's case edits are pinned in
+  after the one lowering and before any stage edits the model (tested as an ordering check over `prepare.rs`'s text: one call, after the clone and the lowering, before the later stages; it is not a complete guard against a future edit inserted between them, which review must catch), and that lowering's case edits are pinned in
   source (S2-PIN: `ResolutionPlan::apply` appends primitive loads and sets the wind exposure list and flag; `lower`
   clears `condition_use`). The value-equal authored prefix, the exact generated suffix, the wind presence, the single
   resolution and the fail-closed refusals are unchanged.
