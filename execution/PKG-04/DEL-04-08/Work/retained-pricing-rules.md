@@ -3032,6 +3032,173 @@ reproduced proposal-A tree, comparisons, native-atom logs and evaluations) is
 in `scratch/rt-perf-index2/` outside the checkout. It is review input, not a
 permanent dependency.
 
+### §8.43 DEL-04-09 I2a: the product modal module and its self-weight seam (actual-source D3)
+
+**Status.** Proposed registration on main `3983f51cf` (#95 merged; §8.42's registration), Agent 0's D3 assignment for
+#94, under the owner's removal of explicit owner approval for coefficient movement; source-derived pricing,
+independent scrutiny and preservation of the registered state remain required. This records no acceptance. An
+earlier candidate of this entry proposed a snapshot exclusion of the modal module behind a lexical isolation guard
+(MODAL-UNR); independent scrutiny found macro, dependency-alias, `cfg_attr`/escaped `#[path]` and `include!` bypasses,
+so the proposal is **withdrawn** and nothing is excluded: modal is priced by the existing method, per site.
+
+**Priced source.** Against main:
+- PP `lib.rs`: one appended line, `mod modal;`, after its last item (`9488c504…` → `ff00e3da…`); no earlier line
+  moves, so no snapshot key moves; no lib.rs function names the module.
+- PP `self_weight.rs` (Agent 0 decision D-SW; `858a0c51…` → `5b097d7d…`): `stable_mass_per_length`,
+  `ComponentWeight` (and its five fields) and `component_weights` become `pub(crate)` on unchanged lines, with
+  unchanged bodies and calls; `inspect_generated_self_weight` is appended after line 1510, after every snapshot
+  key, and calls `generate_operations(…, true)` unchanged. Its only caller is modal's weight-basis check
+  (`tests/test_dynamics_i2a_d3.py`).
+- `core/product_physics/Cargo.lock` (reviewed input #0, `e27b28f7…` → `6d8af236…`) and every consumer lock gain only
+  the local path package `open_pipe_stress_modal_eigen` and product_physics' edge to it; no registry version or
+  checksum changes. The kd5_timoshenko and m3_judge reference runners' `SHA256SUMS` lines follow, and the Windows
+  startup probe's runner-lock pin (`49aabbef…` → `e4f9efd3…`), as PR #83 refreshed it.
+- New: `core/product_physics/src/modal.rs` and `modal/` (DEL-04-09 I2a). No retained root reaches them: no modal
+  node is reachable from `run_linear_static_preview_value_with_retained_direct` on the run's graph.
+
+**Modal source since its review (`305b42b57`).** Three changes, each targeted for re-check:
+- **Decision A (Agent 0).** `context.rs`'s Debug-text comparison of the state case's remainder before and after
+  lowering (`rest_of_case`, `format!("{rest:?}")`) is removed. Its rendering is an unboundable TEXT row, and it was
+  redundant: the binder (now `pub(super)`) runs once, on `prepare_modal`'s own clone of the request model, directly
+  after the one lowering and before any stage edits the model (tested as an ordering check over `prepare.rs`'s text: one call, after the clone and the lowering, before the later stages; it is not a complete guard against a future edit inserted between them, which review must catch), and that lowering's case edits are pinned in
+  source (S2-PIN: `ResolutionPlan::apply` appends primitive loads and sets the wind exposure list and flag; `lower`
+  clears `condition_use`). The value-equal authored prefix, the exact generated suffix, the wind presence, the single
+  resolution and the fail-closed refusals are unchanged.
+- **Carried static diagnostics.** The modal refusal of a state case the static path refused now states how many
+  static blocking diagnostics are returned with it, instead of repeating their `code (message)` texts, which have no
+  source-bound size. The static diagnostics are returned unchanged. Two fixed-reason refusals use their own helper
+  (`state_case_unbound`, id `…:unbound`).
+- `modal/tests.rs` no longer walks `src/` at run time (CI's runtime-read declarations would have had to enumerate it).
+
+**Rules added (`rules/o10_rules.py`, guarded by `prepare_modal`'s presence).**
+- **MODAL-FB** (CG_RULES, exact target subtractions; the KD5C5/CD-ID pattern): the name-based graph linked eight
+  modal functions' method calls (`add_block`, `symmetric_apply`, `apply_mass`, `nodal_resultant`;
+  `largest_discrepancy`, `identity_scales`, `largest_difference`, `bounding_diagonal`) to certified_publication's
+  private `FallbackError` `add`/`mul`/`max`/`min`, entering KD5C6's private cutset. Their receivers are
+  `open_pipe_stress_modal_eigen::dd::Dd` and `f64`; `FallbackError` is private with no escape (KD5C5). Only those
+  candidates are subtracted; each caller's body is pinned (SHA-256), so an edit stops the run.
+- **MODAL-ID** (ID_AUDIT, site-specific; the TIM-ID/S2-ID pattern): bounds for the modal format arguments no
+  existing class covers, at multiplicity zero, read from the pinned source or the D1 domain: axis tokens 8 B; `f64`
+  Display 327 B; usize 20 B; IN128 ids; static reasons and enum names at their longest literal; `[f64; 3]` Debug 78 B;
+  the joined nonlinear-support names empty (D1 refuses every nonlinear support, `F::Nonlinear`); the expected wind
+  presence Absent or Unstated (D1 refuses every equivalent_static case, `F::EquivalentStatic`).
+
+**Pins.** Every changed span was read before re-pinning. Full-file pins: `lib.rs` in `b7a_domain_model.py`,
+`kd5_text_model.py` (`B7A_PRIMITIVE_LIB_SOURCE_PIN`; no `.min(`/`.max(` call added) and `w1_reductions_model.py`;
+`self_weight.rs` in `b7a_formation_model.py`. The 17 self-weight `fn_zero` rows' warrant that
+`validate_applied_self_weight` is the module's only external entry still holds for the retained route: the new
+callers are modal's, which no retained root reaches.
+
+**Run and comparison.** This branch's tool prices the registration head, with the modal module in the snapshot, with exit 0 on all
+four points, no unmapped header or unclassified argument, both O-10 checks at zero; D is unchanged (L(3,0) 43,783,
+L(2,1) 39,370, L(1,2) 35,237, E 76,356). The line map is §8.42's entry for entry (880 carried keys, 37 prunes, seven
+resolutions). `generate --check` of the run's tree against main's `retained_memory.rs` with §8.42's basis line is
+**equal** (1,712 lines, an empty diff): **no coefficient moves**, so the block is not regenerated and no phase,
+`PINNED_RECORD` or challenge value moves.
+
+**Registration.** `REGISTERED_PROFILES`'s reviewed input #0 (`Cargo.lock`) moves `e27b28f7…` → `6d8af236…`, with
+`retained_memory_law_tests.rs`'s `REVIEWED[0]`; the build identity, the other twelve reviewed inputs, the reader
+layouts, the threshold and the generated block are unchanged. The fixture generation records'
+`core/product_physics/Cargo.lock` entries stay: they record the inputs of an earlier generation, and those fixtures
+are not regenerated. `tools/hosted-ci-routing.json`: the product_physics tree digest follows, and the three
+project-wide source-scan declarations list the seven modal files.
+
+**Tests.** The `profile_`, `retained_facade_tests::w15b` and `modal::` lib tests pass, the two w15b tests now
+Registered; `retained_memory_challenge` passes (one test; 43 ignored are the exclusive witnesses);
+`tools/retained_pricing/tests/test_dynamics_i2a_d3.py` checks the inspection's single caller and lib.rs's one
+private declaration.
+
+**AC-004 status.** No coefficient, phase or pinned record moves, and no retained-reachable function body changes.
+Agent 0 accepted that as analytical evidence but asked for one actual run of the six stack witnesses on the
+selected binary, for the new path dependency and compiled module. Preflight, recorded before queueing: head
+`b85a5b131` (clean); the lib-test binary `open_pipe_stress_product_physics-22656e9e3e8247bc`, built outside the
+window under the normal wrapper, SHA-256 `56c4444a…2d72`; `retained_memory.rs` `0465eef3…0022`; `Cargo.lock`
+`6d8af236…cd85`; rustc 1.97.1 (`8bab26f4f68e`, aarch64-apple-darwin, debug), the registered identity; the binary's two
+Registered-only w15b tests pass. One `t3_exclusive.sh` run with memguard: queued 06:18:18Z, acquired 06:19:23Z,
+ended 06:19:32Z (the wrapper returned at 06:19:32Z: 9 s including teardown; the internal harness 9.04 s against its
+55 s deadline). Each witness ran once, in its own process, from that binary, with `--exact --ignored
+--test-threads=1`; no compile or retry: `witness_headroom_w1_at_one_mebibyte` sparse 0.70 s, dense 0.67 s;
+`witness_w2_deep_milestone_publishes` sparse 1.33 s, dense 1.33 s; `witness_w_c2_publishes` sparse 2.50 s, dense
+2.50 s, **all pass**. Afterwards `exclusive.pending` is absent, no harness, wrapper or test process remains, and
+the binary's hash is unchanged. No isolated challenge was requested.
+
+**#96 (I2b-1: the dense eigen path).** A separate pricing check on the I2b-1 head, against the I2a registration
+above; it shares that registration only because no coefficient moves.
+
+- *Source change for pricing.* `modal_parameter_refusals` printed the caller's whole `sturm_gap_log_positions` and
+  `sturm_whole_spectrum_offsets` lists with Debug. Nothing in the source or D1 bounds their length, so no truthful
+  per-site bound existed. Each refusal now names the first offending entry and its index (or `empty`), the
+  decision-A count precedent; a lib test checks a 1,000-entry list yields a short message.
+- *MODAL-FB* adds I2b-1's two callers, each body-pinned: `modal_sturm_count` (`max` on a usize) and
+  `bounding_box_diagonal` (`min`, `max` on `f64` coordinates).
+- *MODAL-ID* adds site-specific bounds for the 23 format arguments no existing class covers in `eigen.rs`, `integrity.rs`, `outcome.rs` and the `#[cfg(test)]`
+  `tests_eigen.rs`, under a guard keyed on `modal_sturm_count`, so an I2a head adds nothing. Mode numbers and counts
+  are usize decimals (20 B). Each set of static reasons is read from the pinned function, and a second guard matches
+  the construct that supplies them in its exact all-literal shape: the two reason matches whole, every mention of the
+  private `reformation_refusal` and of the private `parameter_refusal` in their file, the checked-value table parsed
+  into its 15 top-level tuples, each of four elements ending in a lone string literal, and each of
+  `modal_parameter_refusals`' five calls with its literal or fixed-format domain. A new or longer literal re-prices; a
+  computed reason, an extra arm, call or tuple, or a use of either function as a value stops the run. Debug and Display renderings are bounded at their longest variant with payloads
+  at class bounds: `FiniteCensus` 162 B, `ShiftDecision` 143 B (`OutOfRange` with `ShiftTimesMass`; the widest
+  `FactorizationRejected` is 136 B), a pencil DOF label 131 B, `PencilRangeUnsupported` 170 B, and the axis
+  shortfall join of at most three entries 226 B.
+- *Pins.* I2b-1 changes no pinned file: `lib.rs`, `self_weight.rs` and every `Cargo.lock` are byte-equal to the I2a
+  head, so no reviewed input, `REVIEWED` entry or pin moves.
+- *Run and comparison.* The tool priced `9fa740050` with exit 0 on all four points, no unmapped header or
+  unclassified argument, both O-10 checks at zero and byte-equal to the I2a run's. D is unchanged at every point.
+  `compare` against the I2a run's tree: identical but for the basis revision, structure equal, all 1,602
+  coefficients equal. `generate --check` against `retained_memory.rs` with §8.42's basis line is **equal** (1,712
+  lines): **no coefficient moves**.
+- *Routing.* The five I2b-1 files join the three source-scan declarations, and the product_physics tree digest
+  follows.
+- *AC-004: the six witnesses pass on #96's selected binary (Agent 0's fallback); the analytical transfer of #94's
+  witness evidence was not established.* Agent 0 allowed #96 to
+  carry #94's six-witness outcome by analysis if independent scrutiny confirmed that the exact binaries'
+  witness-path frames and depth are unchanged, with the short six-witness run as the fallback. I2b-1 compiles new
+  code into the witnessed lib-test binary. Relative to I2a's witnessed head `b85a5b131` it changes only modal files
+  (`modal.rs`'s module declarations, the new modules and the existing test module `modal/tests.rs`). Its debug
+  lib-test binary (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256 `75d4c1f0…4251`, same toolchain) was
+  compared with the witnessed one (`56c4444a…2d72`) statically, from the disassembly.
+  - *What the comparison establishes.* Functions are keyed by start address; every call or tail-call target
+    resolves to a function start or a named dylib stub. Each function's label is its ordered sequence of `sp`
+    writes (any opcode, including the `and sp` of an aligned allocation; pre- and post-index writebacks; `sub xN,
+    sp, …`), calls, tail calls and indirect branches, refined over its targets' labels to a stable partition. All 119
+    witness-root functions (the six `::sparse`/`::dense` entries and their helpers) have equal label multisets, and
+    all 78,481 functions in their direct and tail-call closure carry labels the witnessed binary has. The functions
+    whose own frames move (16 B each: `self_weight::tests::intensity`, two `#[test]` bodies, two modal fixtures) are
+    outside that closure.
+  - *Why it is not enough* (independent review). Intra-function control flow is not modelled: a conditional branch
+    that skipped an `sp` restoration before a call would leave every label unchanged while changing the stack state
+    at that call. Indirect dispatch (335 sites in the closure) is unresolved, so a vtable or function pointer could
+    select a different-frame generic copy. Three copy-count-changed names have copies of different frame (up to
+    144 B apart). Dylib bodies are compared by stub name only. So the comparison is supporting evidence; it does not
+    show the witness paths' runtime stack depth is unchanged, and exclusion of the changed functions is shown for the
+    static closure only.
+  - *The fallback run.* Agent 0 cleared one run on the exact clean head `08f22d6ff1f4803ac797fb87c0bfa6704362e2a3`.
+    Preflight, recorded before queueing:
+    - lib-test binary `open_pipe_stress_product_physics-9cc9ce96e7b85850`, built outside the window under the normal
+      wrapper and fresh at that head, SHA-256 `75d4c1f0ff112a6d5918e92c64b7436d47dbb3f6b1ed3c53b494d98117da4251`;
+    - `retained_memory.rs` `0465eef31859a4c51afd8a66858f509d50e0b88936b50cd6990961a489050022`;
+    - `core/product_physics/Cargo.lock` `6d8af2367c31353985bdbe8133a2771204e62ed359a4940c54bbf6689c18cd85`;
+    - rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin, LLVM 22.1.6, debug), equal to
+      the registered identity;
+    - the binary's two Registered-only w15b tests pass.
+
+    One `t3_exclusive.sh` run with memguard. It was queued at 07:22:22Z and started at 07:22:56Z (a 34 s queue
+    wait). Its first step re-verified the head and the binary hash. It ended at 07:23:06Z, rc 0: 10 s including
+    teardown against 60 s; the internal harness took 9.25 s against its 55 s deadline. Each witness ran once, in its
+    own process, from that binary, with `--exact --ignored --test-threads=1`, with no compile and no retry, and
+    **all pass**:
+
+    | Witness | Sparse | Dense |
+    |---|---|---|
+    | `witness_headroom_w1_at_one_mebibyte` | 0.68 s | 0.68 s |
+    | `witness_w2_deep_milestone_publishes` | 1.38 s | 1.35 s |
+    | `witness_w_c2_publishes` | 2.57 s | 2.58 s |
+
+    Afterwards `exclusive.pending` is absent, no harness, wrapper or test process of this run remains, and the
+    binary's hash is unchanged. No isolated challenge was requested.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -3144,3 +3311,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |
 | "RT-A3 reducer 2b: the W-15c pressure step", "§8.41" (2B-PIN, 2B-KEY, RTA3R2B-NZ) | §8.41 |
 | "RT-U4 `u4b_evidence::Index::any`: the component-free station lookup", "§8.42" (U4B-RD) | §8.42 |
+| "DEL-04-09 I2a: the product modal module and its self-weight seam", "§8.43" (MODAL-FB, MODAL-ID) | §8.43 |

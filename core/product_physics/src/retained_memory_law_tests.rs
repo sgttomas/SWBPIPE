@@ -871,8 +871,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #8, #10 and #11 (the tables' six global end signatures, carried to the inheriting tables and
     // the pressure-2 result schema's closed basis enum), counted from 0; W-7's D3 registration
     // records these bytes.
+    // DEL-04-09 I2a (retained-pricing-rules.md §8.43) moves #0 (Cargo.lock: the local path package
+    // open_pipe_stress_modal_eigen and product_physics' edge to it, no registry change); its D3
+    // registration records these bytes.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
-        "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
+        "6d8af2367c31353985bdbe8133a2771204e62ed359a4940c54bbf6689c18cd85",
         "ae45b97742fd463866d8f231004f2053834d5bd413a1430e766f24516d3569ac",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",

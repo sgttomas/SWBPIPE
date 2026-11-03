@@ -281,3 +281,23 @@ def test_a_pressure_2_run_recorded_at_model_0_8_0_reads_as_before():
     changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
     with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
         c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
+
+
+# RT-A3 reducer 2a (#73) and 2b (#80) each restated only pressure-2's admitted-families disclosure
+# (supported_profile_limitations[1]; every row is the same). Runs recorded at model 0.9.0 before each, main's records
+# verbatim (pre_2a at 5175048e7 binds d46e1963…, pre_2b at 2b743781a binds 032e861f…), keep their existing read.
+@pytest.mark.parametrize("name,prefix", [("recorded_model_0_9_0_pre_2a", "d46e1963"), ("recorded_model_0_9_0_pre_2b", "032e861f")])
+def test_a_pressure_2_run_recorded_before_a_disclosure_restatement_reads_as_before(name, prefix):
+    from core.analysis_runs import compatibility as c
+    root = Path(__file__).resolve().parents[1] / "fixtures/persistence" / name
+    envelope = json.loads((root / "pressure_plain_connected_sparse.analysis_run.json").read_text())
+    source = json.loads((root / "pressure_connected_mechanics_sparse.json").read_text())
+    model = json.loads((root / "exact_pressure_connected_request.json").read_text())["model"]
+    assert model["schema_version"] == "0.9.0"
+    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith(prefix)
+    assert c.verify_analysis_run_record(envelope) == "match"
+    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
+    changed = json.loads(json.dumps(envelope))
+    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
+        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
