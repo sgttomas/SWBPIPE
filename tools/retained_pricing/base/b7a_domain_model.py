@@ -490,26 +490,28 @@ def text_decisions(snapshot, resolved):
         # Model document 0.9.0 D3 (§8.36): every key below moved with unchanged text: lib.rs +73 before the lowering
         # call, +80 after it, +83 after the snubber token; model_format.rs +2 (its module comment);
         # retained_precision.rs +9 (G8's condition-member declines).
-        (pp + "lib.rs:12251", {"load_case_id": inp}),
-        (pp + "lib.rs:12265", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12272", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12277", {"load.load_id": inp}),
-        (pp + "lib.rs:12278", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12279", {"bend.component_id": inp}),
-        (pp + "lib.rs:12280", {"load_case_id": inp}),
-        (pp + "lib.rs:12339", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12346", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:12351", {"load.load_id": inp}),
-        (pp + "lib.rs:12352", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:12353", {"bend.component_id": inp}),
-        (pp + "lib.rs:12354", {"load_case_id": inp}),
-        (pp + "lib.rs:12393", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:12400", {"load.load_id": inp, "load_case_id": inp}),
+        # DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0's ordinary layout of the seam's hunks): every lib.rs key
+        # below 2669 stands; later keys move +2, +20 and +26 with unchanged text.
+        (pp + "lib.rs:12277", {"load_case_id": inp}),
+        (pp + "lib.rs:12291", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12298", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12303", {"load.load_id": inp}),
+        (pp + "lib.rs:12304", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12305", {"bend.component_id": inp}),
+        (pp + "lib.rs:12306", {"load_case_id": inp}),
+        (pp + "lib.rs:12365", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12372", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:12377", {"load.load_id": inp}),
+        (pp + "lib.rs:12378", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:12379", {"bend.component_id": inp}),
+        (pp + "lib.rs:12380", {"load_case_id": inp}),
+        (pp + "lib.rs:12419", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:12426", {"load.load_id": inp, "load_case_id": inp}),
         # W-16 slice c (§8.27): certified_loads' two generated-id prefix formats move into lib.rs'
         # is_generated_equivalent_static_load (the kind arm and the any-kind arm) with the same input id; both are
         # reached only from an admitted equivalent-static case (W16C-ES: none on D1).
-        (pp + "lib.rs:10817", {"load_case.id": inp}),
-        (pp + "lib.rs:10818", {"load_case.id": inp}),
+        (pp + "lib.rs:10843", {"load_case.id": inp}),
+        (pp + "lib.rs:10844", {"load_case.id": inp}),
         (pp + 'retained_product.rs:4773', {"stable_suffix(id)": inp}),
         (pp + 'retained_product.rs:4774', {"id": inp}),
         (pp + 'retained_product.rs:4782', {"id": inp, "id.len()": inp, "component": static}),
@@ -520,9 +522,9 @@ def text_decisions(snapshot, resolved):
         (pp + 'retained_product.rs:4850', {"ordinary.document_kind": static}),
         (pp + 'retained_product.rs:4851', {"ordinary.model_ref": inp}),
         (pp + "lib.rs:1421", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3658", {"context.semantic_id()": static}),
-        (pp + "lib.rs:6227", {"support.id": inp}),
-        (pp + "lib.rs:6976", {"pipe.element_id": inp}),
+        (pp + "lib.rs:3660", {"context.semantic_id()": static}),
+        (pp + "lib.rs:6247", {"support.id": inp}),
+        (pp + "lib.rs:6996", {"pipe.element_id": inp}),
         (pp + "model_format.rs:30", {"version": static}),  # model document 0.8.0 (§8.26): +2 (the module comment), same text
         # ccb19ba0bf: +17 lines (section_allowances), same text.
         # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.

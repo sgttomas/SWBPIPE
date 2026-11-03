@@ -59,7 +59,9 @@ ROWS_ERROR_LINE = 2803          # the one error site owned by bind_rows_subject 
 # 15351/15352 -> 15434/15435).
 # §8.30 D3: the helpers move with unchanged text (14820/14821 -> 14822/14823, 15292/15293 -> 15294/15295).
 # W-16 stage 2 D3 (§8.29): the helpers move with unchanged text (14765/14766 -> 14820/14821, 15186/15187 -> 15292/15293).
-HELPER_FNS = (PP + "lib.rs:15014:qualified_load_case_result_id", PP + "lib.rs:15487:stable_suffix")
+# DEL-04-09 I2b-2 layout (§8.43, cc160d28d; Agent 0's ordinary layout of the seam's hunks): the helpers move
+# with unchanged text (15014/15015 -> 15040/15041, 15487/15488 -> 15513/15514).
+HELPER_FNS = (PP + "lib.rs:15040:qualified_load_case_result_id", PP + "lib.rs:15513:stable_suffix")
 ERROR_OWNER = PP+'retained_product.rs:2553:bind_rows_subject'
 ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_rows_subject; full owner M/content/capacity and independent errors/detail copies retained"
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
@@ -350,17 +352,17 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
 # diagnostics and the case solve's branch rows precede them), unchanged text.
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 15015,
+                  'line': 15041,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:15014:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:15040:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 15488,
+                  'line': 15514,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:15487:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:15513:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
@@ -372,11 +374,11 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1240:audit_load_fidelity',
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
                 'core/product_physics/src/retained_product.rs:3546': None,
-                'core/product_physics/src/lib.rs:15015': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/lib.rs:15041': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:15488': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/lib.rs:15514': {'id': {'bytes': 128, 'source': 'IN128'}},
                 'core/product_physics/src/retained_product.rs:2803': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
                 'core/product_physics/src/retained_product.rs:3366': {'row.id': {'bytes': 1024,
