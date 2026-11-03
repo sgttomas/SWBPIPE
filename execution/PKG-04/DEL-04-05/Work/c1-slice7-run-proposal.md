@@ -4,65 +4,76 @@ Serves RT-U4 / criterion 9 and the C1 plan's slice 7. This is an offline-prepare
 proposal, not a window grant, measurement, acceptance or memory-fit result.
 
 **Execution status:** four separately owner-authorized 500-node attempts
-have executed and closed. The initial attempt stopped on uninitialized telemetry;
-the repaired A500 timed out at the coarse reader-start mark; the reader-phase
-diagnostic at clean `cf8129cd1` timed out with the first header's native
-`validate` pending; the route-header run at clean `ee7a7f13b` completed the
-metadata header in 5.1 s and timed out with compulsory registration's native
-`validate` pending. All four grants are consumed. A fifth candidate, built from
-the branch with main `3983f51cf` merged (`app-c1-main-4d0bb1858`), is prepared
-offline below; it has not been launched. **No run of it, retry, B1000 or further
-native interval is authorized.** Exact selected identities and all raw packets
-remain preserved.
+have executed and closed:
+- the initial attempt stopped on uninitialized telemetry;
+- the repaired A500 timed out at the coarse reader-start mark;
+- the reader-phase diagnostic at clean `cf8129cd1` timed out with the first header's
+  native `validate` pending;
+- the route-header run at clean `ee7a7f13b` completed the metadata header in 5.1 s and
+  timed out with compulsory registration's native `validate` pending.
+
+All four grants are consumed. The candidate built after main `3983f51cf`
+(`app-c1-main-4d0bb1858`) was never launched. It is **superseded, not qualified**: its
+compiled native table lacked RT-A3 #99's recorded pressure-2 bases. Its record is kept as
+history. A new candidate, built from the branch with main `5e12ca44e` merged and the native
+mirror of #99 (`app-c1-main-2470f0108`), is prepared offline below. It has not been
+launched. **No run of it, retry, B1000 or further native interval is authorized.** Exact
+selected identities and all raw packets remain preserved.
 
 ## Integrated-main executable (prepared; no run authorized)
 
-**Source.** `origin/main` at `3983f51cfcef6af26a7846bd63f267425379cfd3` was merged
-with `--no-ff` at `9df2d8abb` (no textual conflicts). Reconciliation commit
-`4d0bb18583fc08490464cba75d00dd73cc01e611` rebinds C1's native mirror of
-`RECORDED_RUN_TABLE_BASES` to RT-A3 2b's current pressure-2 digest and regenerates
-the C1 corpora from their generators. The plan's slice 5 "On main at `3983f51cf`"
-entry records the details and the interaction review. Relative to the
-route-header candidate, the runtime now includes:
+**Source.** `origin/main` at `5e12ca44e6ff8ee1ab94e9edce21214c7fa78ccc` was merged with
+`--no-ff` at `4cc0e117d` (no textual conflicts), after the earlier `3983f51cf` merge
+(`9df2d8abb`, reconciliation `4d0bb1858`). The independent review of that integration
+blocked on a persistence gap. RT-A3 2a/2b moved pressure-2's table digest twice without
+keeping a recorded basis, and main's #99 repaired the TypeScript and Python tables. The code
+head `2470f0108273f88458bad357d5bb98308a287414` mirrors #99 natively:
+- `RECORDED_RUN_TABLE_BASES` gains `d46e1963…` and `032e861f…`, and a test requires it to
+  equal both twins;
+- main's four verbatim recorded-basis fixtures reopen natively with the webview's findings.
 
-- #95's `Index::any` component-free map inside the compulsory readers (registered
-  at DEL-04-08 §8.42);
-- RT-A3 2a/2b admission and pressure-2's rebound digest;
-- S2's operating-condition resolution;
-- the MBF export module and its third Wasm engine;
-- the hanger sizing runner pieces.
+The plan's slice 5 "On main at `5e12ca44e`" entry records the mirror, the regression, its
+failure without the rows and the corpora. Relative to `app-c1-main-4d0bb1858`, the runtime
+adds:
+- the two recorded bases (record-validator reading only);
+- main's dynamics I2a/I2b modal module in `product_physics` (a separate crate the desktop
+  does not call on the session's result path);
+- its `self_weight.rs` change, compiled into the rebuilt self-weight Wasm engine.
 
-No C1 gate, limit, journal boundary or harness byte changed. The perf scripts and
-plan are byte-identical to the route-header bindings.
+Everything else carries over from `4d0bb1858`: #95's `Index::any` map inside the compulsory
+readers, RT-A3 2a/2b, S2, the MBF export and the hanger pieces. No C1 gate, limit, journal
+boundary or harness byte changed. The perf scripts, plan and rack generator are
+byte-identical to the `4d0bb1858` bindings.
 
-The maintained recipe ran through `t3_slot.sh` from clean `4d0bb1858`. It finished
-at **2026-11-03T06:33:59.954Z** without launching the App, worker, sampler or large
-result. The binding records `source_dirty:false`.
+The maintained recipe ran through `t3_slot.sh` from clean `2470f0108`, after
+`build:wasm:desktop` had rebuilt the two engines that were stale against the merged source
+(operation-applier and self-weight; the MBF engine was current). It finished at
+**2026-11-03T11:47:51.036Z** without launching the App, worker, sampler or large result.
+The binding records `source_dirty:false`.
 
 | Selected item | Identity |
 | --- | --- |
-| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-4d0bb1858` |
-| App / same-executable worker | `openpipestress-desktop`, 48,855,840 B, SHA-256 `2edc74f73e55403de3f0deaf27610e869bf024387456f1557603cfcfba494fc2` |
-| `perf-binding.json` | SHA-256 `58959ac4cc98f1d441cc664c22b46d008b1c1311a190001e54ee81dccb745d44` |
-| Embedded frontend `dist_digest` | `sha256:df95f9bfe9d1d858ac408e5a4a70c81d5e1999883c0ea1ec4c689f542e35b58a` (recomputed from `dist/` after the build: equal) |
-| Operation-applier Wasm source stamp | `sha256:78f50fdfd1843b1d8bc370100b616c6272287e788bfd7a10b878bbf6526c205f` |
-| Self-weight Wasm source stamp | `sha256:d10aeeabe52576381a536ac62f55b4bb034a10ac4e6f1c3e35dd4129dbe18cd6` |
-| MBF Wasm source stamp (new on main) | `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` |
+| App directory | `/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7/app-c1-main-2470f0108` |
+| App / same-executable worker | `openpipestress-desktop`, 48,854,176 B, SHA-256 `bc8e18fc15def4a42b59d7f7819ae1b90fa831d5c9edd607b97f34d045a0e134` |
+| `perf-binding.json` | SHA-256 `58338b553abfce3778e5db18784a9c7e0635b7c8071a19fe55ee87c5474e8b4c` |
+| Embedded frontend `dist_digest` | `sha256:41739f12d9511ee688b060aff66c37ac8b5b6043a374a237e27b81459d4c154f` (recomputed from `dist/` after the build: equal) |
+| Operation-applier Wasm source stamp | `sha256:9c38b9a631c7f5556234950820ceb7e03919ede0912fd043002a451a5caa5d3a` (rebuilt) |
+| Self-weight Wasm source stamp | `sha256:c877840927c00871d56a539e26116655a02217f67327d74cd3f48dd97682f30c` (rebuilt) |
+| MBF Wasm source stamp | `sha256:83ec9a7f0eb50f69db89f8fbef8a30b90a432d01993e4fc65c6724f7377aec46` (unchanged) |
 | Engine binaries and glue | every file's SHA-256 in the preparation record (`engines_sha256`) |
 | External `perf.mjs` | SHA-256 `7329cca1c7c4de7a8758f3457c54dc00c8f5de9dbbe61db65e13f331844be8a5` (unchanged) |
 | External `perf-driver.js` | SHA-256 `e53468ab84d333a83df2305c76e26fc9d33d97f52215e4086fc27b69c14dfff1` (unchanged) |
 | External `perf-sampler.py` | SHA-256 `846f5493cc9cc309140cced0b6ff40ec9b92468db10a4f63e85fe654f9e03d3b` (unchanged) |
 | `perf-plan-c1.json` | SHA-256 `25e8a62b828c6251ac36836d11f8b5448fc3138dbd4903e99ef453a732966435` (unchanged) |
-| Maintained rack generator | SHA-256 `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` (main `9f182ca9b` changed only its pending-family ledger text) |
+| Maintained rack generator | SHA-256 `1d8155885f2fa60f481943e989268bef77bc2543860a27291fb9c46685ef314c` (unchanged since `4d0bb1858`) |
 
-The rack generator's ledger is printed only by its ledger mode and is not
-written into a model. The merged generator regenerated `linear-ex-n0500.json`
-byte for byte to a temporary path, which was then removed. The selected file is
-unchanged: **1,828,475 B**, 500 nodes / 499 members, raw SHA-256
+The selected model is unchanged: `linear-ex-n0500.json`, **1,828,475 B**, 500 nodes / 499
+members, raw SHA-256
 `42567114a27415b7b042bb9a91d49c8dc640d534953616e5b7efb66b2a2025eb`, JCS SHA-256
-`0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c`. The JCS
-digest was recomputed with `openpipestress_jcs_ijson` built from `4d0bb1858`.
-The corpus depth and actual-record reopening limits below remain.
+`0d45797d8aacada487ef418ce0a776239f6fd9801ed315c1a0f6e1ca2e25466c`. The JCS digest was
+recomputed at preparation with `openpipestress_jcs_ijson`, whose sources are unchanged and
+which the slot build at `2470f0108` reported current. The corpus depth and actual-record
+reopening limits below remain.
 
 Python resolves as `/usr/bin/python3`, Xcode **3.9.6**, real executable
 SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`
@@ -70,21 +81,23 @@ SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`
 on PATH, as at the route-header launch. A run must again launch with that
 directory removed from PATH, or otherwise resolve to the bound interpreter.
 
-The private `scratch/rt-perf-c1-slice7/c1-main-4d0bb1858-preparation.json` sits
-beside the unmodified `route-header-preparation.json`. It binds:
+The private `scratch/rt-perf-c1-slice7/c1-main-2470f0108-preparation.json` (SHA-256
+`994111c6a04e31ac743017df03b2f6c23c85682002837639ca1d451c0bdf2f42`) sits beside the
+unmodified `c1-main-4d0bb1858-preparation.json` and `route-header-preparation.json`. It
+binds:
 
 - the binding and the frontend;
 - all engine files, the scripts and the generator;
 - both models and Python;
-- the four earlier candidates;
-- the old preparation record's digest;
+- the five earlier candidates, `app-c1-main-4d0bb1858` marked superseded;
+- both older preparation records' digests;
 - the four closure-hashed packets;
-- the build log `c1-main-4d0bb1858-release-build.log` (warnings only, no error).
+- the build log `c1-main-2470f0108-release-build.log` (warnings only, no error) and the
+  engine rebuild log.
 
-All four earlier bound copies (`app`, `app-p3`, `app-reader-phases`,
-`app-route-header`) keep their binary and binding digests. All **30 packet
-files** named by the four closure hash maps verified unchanged: 25 before, plus
-the route-header packet's 5. The proposed output
+All five earlier bound copies (`app`, `app-p3`, `app-reader-phases`, `app-route-header`,
+`app-c1-main-4d0bb1858`) keep their binary and binding digests. All **30 packet files**
+named by the four closure hash maps verified unchanged. The proposed output
 `evidence/n0500-c1-main1` does not exist.
 
 Build recipe as run (do not rerun over the preserved candidate; the destination
@@ -94,59 +107,64 @@ was checked absent first):
 cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
 RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
 RT_C1_TARGET=/Users/ryan/dev/chirality-t3/targets/rt-perf-c1
-/Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop
-env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-4d0bb1858" --target-dir "$RT_C1_TARGET"
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh npm run build:wasm:desktop
+env CARGO_TARGET_DIR="$RT_C1_TARGET" /Users/ryan/dev/chirality-t3/tools/t3_slot.sh node apps/desktop/native-smoke/perf.mjs --build --app-dir "$RT_C1_KIT/app-c1-main-2470f0108" --target-dir "$RT_C1_TARGET"
 node apps/desktop/native-smoke/perf.mjs --plan --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500
 ```
 
-The engines were rebuilt first because the stamps from `c21ec1048` were stale
-against the merged source. `perf.mjs --build` refuses stale engines. The plan
-check lists one run, `native-linear-ex-n0500`, with a 720 s timeout inside an
-840 s budget.
+`perf.mjs --build` refuses stale engines. The plan check lists one run,
+`native-linear-ex-n0500`, with a 720 s timeout inside an 840 s budget. Its output is byte
+for byte the `4d0bb1858` plan log.
 
 **Checks on this source.** None used the large workload.
 
-- Desktop Rust crate: `cargo test --locked`, **1,139 passed / 13 ignored**. This
-  includes the user-release and native-smoke reach scans, the native verdict,
-  route-header, solve-job, memory-pool and command-ingress tests.
-- Desktop vitest: **7,476 passed / 1 todo**, with zero unanswered native replay
-  requests (this includes `baseReaderWasmEquivalence.test.ts`). One
-  `App.test.tsx` case timed out at 30 s while the Rust suite shared the host. It
-  passed alone: 223 passed / 1 todo.
+- Desktop Rust crate, `cargo test --locked`: **1,140 passed / 13 ignored / 1 failed** of
+  1,154. This includes the user-release and native-smoke reach scans, the native verdict,
+  route-header, reopen, persistence, solve-job, memory-pool and command-ingress tests.
+  - The failure is
+    `native_persistence::tests::the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_body`
+    (`STORE-SQL-ERROR: SQLite DatabaseBusy`): runtime-workers × 2 + 2 concurrent Record Runs
+    on one store against the 5 s busy timeout, under full-suite host load.
+  - The test passes alone (3 of 3). It failed the same way at the merge commit `4cc0e117d`,
+    which has none of this change, in one of two full runs.
+  - With the three corpus-reading reopen tests skipped, HEAD passes 1,138 / 0 failed. It is
+    load-sensitive and pre-existing, not repaired here, and listed as remaining.
+- Desktop vitest after the engine rebuild: **7,485 passed / 1 todo** (386 files), with zero
+  unanswered native replay or reopen requests. This includes the base-reader and
+  retained-precision Wasm equivalence tests.
 - `tsc -b`, `build:desktop`, and 85 native-smoke node tests.
-- Hosted-CI routing: 116 tests.
+- CI routing (`test_ci_numerical.py`, `test_hosted_ci.py`): 77 passed (120 subtests).
 - `tools.deliverables check`: 0 errors.
-- The merge diff's other selected checks, without the full piping-pytest suite:
-  - modal-eigen: 121 passed;
-  - retained-pricing tool: 879 passed;
+- The diff's other selected checks against `e33f73d33`, without the full piping-pytest
+  suite, each pytest with the five pinned binaries:
+  - retained-pricing tool: 881 passed;
   - model-version literals: 8 passed;
   - benchmark references: 23 passed;
-  - the agent catalog and offline agent tests: 180 passed.
+  - analysis-run compatibility and model-document schema: 56 passed.
 
 After the build, the offline connecting checks passed:
-**29 tests** in `nativeResult.connect.test.ts` and
-`exactSessionSolve.session.test.tsx`, **4 native route-header tests** and **17
-native-verdict tests** (1 ignored). Logs are kept beside the preparation record.
-The native replay set was rebuilt from empty on this tree (**426** requests,
-answered by the real Rust commands). Main regenerated the pressure source fixtures
-whose digests key the earlier requests, so the c21ec1048 claim that 419 old
-outcomes were invariant is not carried over. No launch test of this binary is
-claimed.
+- **29 tests** in `nativeResult.connect.test.ts` and `exactSessionSolve.session.test.tsx`;
+- **4 native route-header tests**;
+- **17 native-verdict tests** (1 ignored).
+
+Logs are kept beside the preparation record. The native replay requests were rebuilt from
+empty on this tree (**426**, byte-identical) and answered by the real Rust commands. No
+launch test of this binary is claimed.
 
 **One proposed run, pending a new owner decision and resource clearance:**
 
 ```sh
 cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
 RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
-/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-4d0bb1858" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-main1"
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-2470f0108" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-main1"
 ```
 
 Before launch, verify:
 
 - the submitting source is clean, and its runtime is unchanged from the selected
-  `4d0bb1858`;
+  `2470f0108`;
 - every table, model, binding, engine and interpreter hash above;
-- the four earlier candidates and the 30 packet files;
+- the five earlier candidates and the 30 packet files;
 - the output is still absent.
 
 Static preparation grants no host admission.

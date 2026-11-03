@@ -772,6 +772,63 @@ restored and browser-preview results):
   modal I1 is a separate crate, and S2/RT-A3 publish through the same pressure-2 identity the
   native verdict reads from the core contract. `Index::any`'s map is inside the compulsory
   readers C1 calls; no C1 gate changed.
+- **On main at `5e12ca44e` (RT-A3 #99's recorded pressure-2 bases, dynamics I2a/I2b; merged
+  at `4cc0e117d`).** The independent review of the `3983f51cf` integration blocked on a
+  persistence gap. RT-A3 2a (#73) and 2b (#80) each moved pressure-2's table digest
+  (`d46e1963…` to `032e861f…` to `a2db16a5…`) without keeping the older digest as a
+  recorded basis, so runs recorded under the first two were refused with
+  `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`. #99 adds both as recorded bases of the current table
+  in `analysisRunCompatibility.ts` and `compatibility.py`. It also adds their verbatim
+  fixtures, `fixtures/persistence/recorded_model_0_9_0_pre_2a` and `…_pre_2b`, each holding a
+  record, its source and its request model.
+  - **Mirror.** The native `RECORDED_RUN_TABLE_BASES` (`analysis_run_v03_validate.rs`)
+    gains the same two rows with the same id and current digest. It is now module-level,
+    and `recorded_run_semantic_binding` reads it. Its doc comment is the TypeScript
+    twin's. `the_recorded_table_bases_are_the_typescript_and_python_tables`
+    (`stored_custody_tests.rs`) parses both twins' source text and requires all three
+    tables to be equal, row for row and in order (four rows). No such test existed for the
+    0.7/0.8 rows.
+  - **Regression on the verbatim fixtures.** Before this step, the 0.7.0/0.8.0 recorded-basis
+    fixtures had no native path. The native reopen saw only the synthetic
+    `saved-variant:pressure:recorded-0.8-table-basis` case.
+    `historicalReopenCases.ts` now adds main's four verbatim recorded-basis fixtures
+    (`RECORDED_BASIS_FIXTURES`: 0.7.0, 0.8.0, pre-2a, pre-2b) to
+    `historical_reopen_cases.json`:
+    - each as a recorded revision, built as `recordedRunModel080.test.ts` and
+      `recordedRunModel090Disclosure.test.ts` build it;
+    - the two of a current model document also as a saved project's run. A project of a
+      retired model document is refused for editing before its run is read.
+
+    A case names its fixture directory instead of copying it. A recorded revision is the
+    verbatim record plus `record_patches`, which the generator checks reproduce it. The
+    native leg reads the same files, and the fixtures are never rewritten. The six new cases
+    therefore reach native reopen three ways:
+    - `the_native_findings_are_the_typescript_contexts`, in process (195 cases);
+    - `historical_cases_are_resaved_with_their_findings_unchanged`, stored, reopened and
+      re-saved;
+    - `recorded_basis_fixtures_reopen_natively_with_the_webviews_findings`. It stores each
+      fixture in a real SQLite store and opens it with the native open: the 0.9.0 runs are
+      restored with the webview's findings, and the 0.7.0/0.8.0 projects are refused
+      exactly as the legacy open refuses them.
+
+    Expected findings: each recorded revision has none, and each saved run has
+    `HISTORICAL_INPUT_MANIFEST_MISSING` (the saved project carries no input manifest).
+    Neither form has a contract mismatch.
+  - **Discrimination.** With the two native rows removed (a temporary edit, reverted), all
+    four tests fail. The two #99 fixtures gain `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH` in the
+    store's native open, the in-process findings (4 of 195 cases differ) and the re-save,
+    and the table test finds 2 rows against 4.
+  - **Corpora.** Each was regenerated from its generator, after the one it reads. Only
+    `historical_reopen_cases.json` changed: 6 cases were added, and the 189 existing cases
+    are unchanged in content and order. The other corpora are byte-identical:
+    - builder corpus, persistence forms and summary outcomes;
+    - the native replay requests, rebuilt from empty (426 requests) with their outcomes;
+    - the persistence replies;
+    - the reopen requests (rebuilt from empty, 7 requests) and replies.
+
+    No fixture, registration, pricing tool or TypeScript/Python table was edited. The
+    operation-applier and self-weight Wasm engines were rebuilt (stale against the merged
+    source). No CI routing digest was stale.
 - **Remaining:** the independent persistence, permissions and numerical review of this increment;
   the C2 interim for comparisons with the current run and reference-inspection retention of a fresh
   result; slice 7's measurement. (Saved-result native reopening: slice 6 status.)
@@ -973,12 +1030,24 @@ route-header run, main `3983f51cf` was merged (`9df2d8abb`; reconciliation `4d0b
 slice 5's "On main at `3983f51cf`"). The maintained recipe bound clean `4d0bb1858` into a
 separate `app-c1-main-4d0bb1858/` without launching it: App/worker SHA-256
 `2edc74f73e55403de3f0deaf27610e869bf024387456f1557603cfcfba494fc2`, 48,855,840 B, frontend
-`sha256:df95f9bfe9d1d858ac408e5a4a70c81d5e1999883c0ea1ec4c689f542e35b58a`, now with three
-Wasm engines. Its runtime includes #95's `Index::any` map inside the compulsory readers. The
-four earlier candidates and 30 closure-hashed packet files are unchanged. The proposal gives
-the one-500 command with fresh `evidence/n0500-c1-main1` under unchanged limits, and the
-journal observations that would show whether registration's `validate` now exits or which
-later phase stays pending. It promises no speed or fit; every gate stays compulsory.
+`sha256:df95f9bfe9d1d858ac408e5a4a70c81d5e1999883c0ea1ec4c689f542e35b58a`.
+
+**That candidate is superseded, not qualified.** Its compiled native table lacked #99's
+recorded bases, so it was never run. Main `5e12ca44e` was then merged at `4cc0e117d`, and the
+native mirror and verbatim-fixture regression followed (slice 5's "On main at `5e12ca44e`").
+The maintained recipe bound clean code head `2470f0108` into a new
+`app-c1-main-2470f0108/` without launching it:
+- App/worker SHA-256
+  `bc8e18fc15def4a42b59d7f7819ae1b90fa831d5c9edd607b97f34d045a0e134`, 48,854,176 B;
+- frontend `sha256:41739f12d9511ee688b060aff66c37ac8b5b6043a374a237e27b81459d4c154f`;
+- three Wasm engines, two of them rebuilt for the merged source.
+
+Its runtime includes #95's `Index::any` map inside the compulsory readers. The five earlier
+candidates (the superseded one kept as history) and the 30 closure-hashed packet files are
+unchanged. The proposal gives the one-500 command with fresh `evidence/n0500-c1-main1`
+under unchanged limits. It also gives the journal observations that would show whether
+registration's `validate` now exits, or which later phase stays pending. It promises no
+speed or fit; every gate stays compulsory.
 
 **Approved metadata-only header implementation.** Agent0 selected the distinct
 route_header contract for C1 native/frontend surfaces only. The first await now
