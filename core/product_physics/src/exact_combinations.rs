@@ -41,6 +41,8 @@ pub(crate) const SOURCE_RECOVERY_EXCLUSION: &str = "excluded: a document with a 
 pub(crate) const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
 /// §4 gate 2.
 pub(crate) const RESOLVED_STIFFNESS_MIXED: &str = "COMBINATION_RESOLVED_STIFFNESS_MIXED";
+/// absolute-sum-srss §5.2 on this route.
+pub(crate) const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
 /// §4 gate 3.
 pub(crate) const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE";
 /// absolute-sum-srss §5.1: gate 3 for an absolute sum or SRSS whose operands' κ is
@@ -331,6 +333,12 @@ fn gate_reason(
     if !matches!(basis, "mechanics" | "absolute_sum" | "srss") {
         return None;
     }
+    // absolute-sum-srss §5.2, as on PF: in a model with nonlinear supports a mechanics
+    // combination is withheld unless decision OQ-1's predicate admits it. EX refuses
+    // nonlinear supports today (RT-A3 increment 4 makes this reachable).
+    if basis == "mechanics" && has_nonlinear_support(model) && !plan.solved_state_plus_increments(combination) {
+        return gated(NONLINEAR);
+    }
     let reached = &plan.reached[index];
     let mut scratch = Vec::new();
     let keys: HashSet<Option<String>> = reached
@@ -373,8 +381,15 @@ fn gate_reason(
     None
 }
 
+/// Whether the model has a nonlinear support record (the model condition of PF's
+/// `NONLINEAR_COMBINATION_REQUIRES_SOLVE`).
+fn has_nonlinear_support(model: &PreviewModel) -> bool {
+    model.supports.iter().any(|support| support.nonlinear.is_some())
+}
+
 fn gate_message(code: &str) -> &'static str {
     match code {
+        NONLINEAR => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
@@ -484,8 +499,10 @@ struct Built {
     withheld_evidence: Vec<Value>,
 }
 
-fn combined_row(combination: &PreviewCombination, expression: &CombinationExpression<'_>, template: &ResultItem, key: &Key<'_>, value: f64, refs: Vec<String>) -> ResultItem {
-    // No nonlinear support reaches this route, so decision OQ-1 never applies here.
+/// A combined row; `solved_state_plus_increments` is decision OQ-1's admission in a
+/// model with nonlinear supports, which states its own sign convention.
+#[allow(clippy::too_many_arguments)]
+fn combined_row_with(combination: &PreviewCombination, expression: &CombinationExpression<'_>, solved_state_plus_increments: bool, template: &ResultItem, key: &Key<'_>, value: f64, refs: Vec<String>) -> ResultItem {
     let mut row = template.clone();
     row.id = key.combined_id(&combination.id);
     row.value = value;
@@ -502,7 +519,7 @@ fn combined_row(combination: &PreviewCombination, expression: &CombinationExpres
         }
         metadata.sign_convention = match expression {
             CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
-            _ => expression.result_sign_convention(false),
+            _ => expression.result_sign_convention(solved_state_plus_increments),
         };
     }
     row
@@ -519,7 +536,8 @@ fn source_refs(sources: &[Source], recoveries: &[Value]) -> Vec<String> {
         .collect()
 }
 
-fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpression<'_>, operands: &'r [Target<'r>], results: &'r [ResultItem], facts: &'r Facts<'r>) -> Built {
+#[allow(clippy::too_many_arguments)]
+fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpression<'_>, oq1: bool, operands: &'r [Target<'r>], results: &'r [ResultItem], facts: &'r Facts<'r>) -> Built {
     let range = matches!(expression, CombinationExpression::RangeEnvelope { .. });
     let rows: Vec<CaseRows<'_>> = operands.iter().map(|target| case_rows(results, target)).collect();
     // A combination operand publishes every row it forms; only a load case's
@@ -673,7 +691,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
                 continue;
             }
             let refs = components.iter().map(|c| c.combined_id(&combination.id)).collect();
-            let row = combined_row(combination, expression, template, key, norm3(vector[0], vector[1], vector[2]), refs);
+            let row = combined_row_with(combination, expression, oq1, template, key, norm3(vector[0], vector[1], vector[2]), refs);
             built.row_evidence.push(json!({"result_id": row.id, "sources": []}));
             built.rows.push(row);
             continue;
@@ -681,7 +699,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
         match outcomes[place].take() {
             Some(Outcome::Row { value, sources }) => {
                 let refs = source_refs(&sources, &built.recoveries);
-                let row = combined_row(combination, expression, template, key, value, refs);
+                let row = combined_row_with(combination, expression, oq1, template, key, value, refs);
                 built.row_evidence.push(json!({"result_id": row.id, "sources": sources.iter().map(Source::evidence).collect::<Vec<_>>()}));
                 built.rows.push(row);
             }
@@ -718,7 +736,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
                 let value = expression.evaluate_values(&values, dimension).ok_or(ALGEBRA_REFUSED)?;
                 combined[slot] = value;
                 let key = Key::of(sources[0]).ok_or(SUPPORT_SOURCE_MISSING)?;
-                let row = combined_row(combination, expression, sources[0], &key, value, sources.iter().map(|s| s.id.clone()).collect());
+                let row = combined_row_with(combination, expression, oq1, sources[0], &key, value, sources.iter().map(|s| s.id.clone()).collect());
                 component_ids.push(row.id.clone());
                 let evidence = json!({"result_id": row.id, "sources": operands.iter().zip(&sources).map(|(target, s)| row_source(target, &s.id)).collect::<Vec<_>>()});
                 out.push((row, evidence));
@@ -740,7 +758,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
                     let c = &combined[slots.clone()];
                     (norm3(c[0], c[1], c[2]), component_ids[slots].to_vec(), Vec::new())
                 };
-                let row = combined_row(combination, expression, template, &key, value, refs);
+                let row = combined_row_with(combination, expression, oq1, template, &key, value, refs);
                 let evidence = json!({"result_id": row.id, "sources": evidence_sources});
                 out.push((row, evidence));
             }
@@ -847,7 +865,9 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
             withheld_combinations.insert(combination.id.clone(), code);
             continue;
         }
-        let built = build(combination, &expression, &operands, results.as_slice(), &facts);
+        // Decision OQ-1's rows state their own sign convention (§5.2).
+        let oq1 = has_nonlinear_support(model) && plan.solved_state_plus_increments(combination);
+        let built = build(combination, &expression, oq1, &operands, results.as_slice(), &facts);
         for missing in &built.missing {
             let source = missing["source_result_id"].as_str().unwrap_or_default();
             let cases = missing["missing_load_case_ids"].as_array().map(|c| c.iter().filter_map(Value::as_str).collect::<Vec<_>>().join(", ")).unwrap_or_default();
@@ -1061,5 +1081,62 @@ mod tests {
         let stated = &records[0]["operands"][0]["numerical_quality"];
         assert_eq!(stated["basis_ref"], json!({"ref_type": "load_case", "ref_id": "case:S"}));
         assert_eq!(stated, &serde_json::to_value(&quality.cases[1]).unwrap());
+    }
+
+    /// absolute-sum-srss §5.2 on EX, at the gate (no EX solve reaches a nonlinear model
+    /// before RT-A3 increment 4): decision OQ-1's predicate, RT-A3's reference shape
+    /// `mechanics(1·A + 1·srss(result_state_subtraction(A, B)))` admitted, and the
+    /// singleton, two load cases, a factor other than 1, an undefined κ and a nonzero κ
+    /// withheld with NONLINEAR_COMBINATION_REQUIRES_SOLVE; without a nonlinear support
+    /// none of them is withheld by it.
+    #[test]
+    fn the_nonlinear_gate_admits_exactly_decision_oq1() {
+        let model = |nonlinear: bool| -> PreviewModel {
+            let mut supports = vec![json!({"id": "s:a", "node": "n:a", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]})];
+            if nonlinear {
+                supports.push(json!({"id": "s:gap", "node": "n:b", "family": "nonlinear", "restraints": [],
+                    "nonlinear": {"behavior": "gap", "closes_when": "positive_displacement", "dof": "UX", "gap": {"value": 0.001, "unit": "m"}, "initial_state": "inactive"}}));
+            }
+            let term = |kind: &str, id: &str, factor: f64| if kind == "case" { json!({"load_case": id, "factor": factor}) } else { json!({"combination": id, "factor": factor}) };
+            serde_json::from_value(json!({
+                "schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
+                "project": {"id": "p", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+                "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+                "nodes": [], "pipe_segments": [], "supports": supports, "components": [], "materials": [],
+                "load_cases": [{"id": "A", "primitive_loads": []}, {"id": "B", "primitive_loads": []}],
+                "combinations": [
+                    {"id": "D", "basis": "result_state_subtraction", "minuend_id": "A", "subtrahend_id": "B"},
+                    {"id": "E", "basis": "srss", "terms": [term("comb", "D", 1.0)]},
+                    {"id": "ref", "basis": "mechanics", "terms": [term("case", "A", 1.0), term("comb", "E", 1.0)]},
+                    {"id": "singleton", "basis": "mechanics", "terms": [term("case", "A", 1.0)]},
+                    {"id": "two-cases", "basis": "mechanics", "terms": [term("case", "A", 1.0), term("case", "B", 1.0), term("comb", "E", 1.0)]},
+                    {"id": "factor", "basis": "mechanics", "terms": [term("case", "A", 1.5), term("comb", "E", 1.0)]},
+                    {"id": "S", "basis": "srss", "terms": [term("case", "A", 1.0)]},
+                    {"id": "undefined", "basis": "mechanics", "terms": [term("case", "B", 1.0), term("comb", "S", 1.0)]},
+                    {"id": "R", "basis": "range_envelope", "operand_ids": ["A", "B"], "mode": "max"},
+                    {"id": "nonzero", "basis": "mechanics", "terms": [term("case", "B", 1.0), term("comb", "R", 1.0)]}
+                ]
+            })).unwrap()
+        };
+        let connector = json!([]);
+        let facts = Facts { exact_cases: &[], pressure: &[], load_reference_states: &[], connector: &connector };
+        for nonlinear in [true, false] {
+            let m = model(nonlinear);
+            let plan = combination_plan::Plan::new(&m);
+            let gate = |id: &str| {
+                let index = m.combinations.iter().position(|c| c.id == id).unwrap();
+                let expression = CombinationExpression::resolve(&m.combinations[index]).unwrap();
+                let targets = expression.targets(&plan.resolver);
+                gate_reason(&m, &plan, index, &facts, &targets, &HashMap::new()).map(|(code, _)| code)
+            };
+            assert!(plan.kappa[0].is_exact_zero(), "κ(subtraction) = 0");
+            for id in ["D", "E", "ref", "S", "R"] {
+                assert_eq!(gate(id), None, "nonlinear={nonlinear} {id}");
+            }
+            for id in ["singleton", "two-cases", "factor", "undefined", "nonzero"] {
+                assert_eq!(gate(id), nonlinear.then_some(NONLINEAR), "nonlinear={nonlinear} {id}");
+            }
+            assert!(plan.solved_state_plus_increments(&m.combinations[2]));
+        }
     }
 }

@@ -66,6 +66,9 @@ GATE_MESSAGES = {
                                                          "is not exactly 0 would count it once per term with its sign discarded."),
 }
 INSTALLED_REFERENCE_UNSIGNED = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND"
+NONLINEAR = "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
+GATE_MESSAGES[NONLINEAR] = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state."
+STATE_CODE = "nonlinear_support_active_set_state_code"
 DERIVED_TEXT = ("publishes rows derived from case results: they carry no numerical check of their own and never count towards numerical "
                 "eligibility; each operand's standing and numerical findings are stated in contract_evidence.exact_combinations, and the "
                 "headlines and stress maxima cover the load cases only")
@@ -268,14 +271,16 @@ class Expression:
             self.factors = []
         else:
             raise _fail("BASIS")
+        # Decision OQ-1's admission in a model with nonlinear supports (set by the pass).
+        self.oq1 = False
 
     @property
     def range(self) -> bool:
         return self.basis == "range_envelope"
 
-    def sign(self) -> str:
+    def sign(self, solved_state_plus_increments: bool = False) -> str:
         if self.basis == "mechanics":
-            return LINEAR_SIGN
+            return graph.SOLVED_STATE_PLUS_INCREMENTS_SIGN if solved_state_plus_increments else LINEAR_SIGN
         if self.basis == "absolute_sum":
             return graph.ABSOLUTE_SUM_SIGN
         if self.basis == "srss":
@@ -402,7 +407,7 @@ def _modulus_key(operand: Mapping[str, Any]) -> str | None:
 
 
 def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, withheld: list[tuple[str, str]],
-          evidence: Mapping[str, Any]) -> tuple[str, str, list[str]] | None:
+          evidence: Mapping[str, Any], nonlinear: bool = False) -> tuple[str, str, list[str]] | None:
     """The gates (section 4; absolute-sum-srss section 5): a withheld operand combination; then, for the term bases,
     gates 1 and 2 over every load case the combination reaches and gate 3 on kappa."""
     named: list[tuple[str, str]] = []
@@ -414,6 +419,9 @@ def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, wit
         return graph.OPERAND_WITHHELD, graph.operand_withheld_message(named), [cid, *[n for n, _ in named]]
     if expression.basis not in graph.TERM_BASES:
         return None
+    # absolute-sum-srss section 5.2: with nonlinear supports, a mechanics combination outside decision OQ-1 is withheld.
+    if expression.basis == "mechanics" and nonlinear and not g.solved_state_plus_increments(expression.terms):
+        return NONLINEAR, GATE_MESSAGES[NONLINEAR], [cid]
     reached = g.reached[cid]
     _require(all(case in modulus for case in reached), "OPERAND_UNRESOLVED")
     gated = lambda code: (code, GATE_MESSAGES[code], [cid])  # noqa: E731
@@ -486,7 +494,7 @@ def _combined_row(combination: str, expression: Expression, template: Mapping[st
         row["metadata"] = dict(row["metadata"])
         if not key[6]:
             row["metadata"]["basis"] = BASES[expression.basis]
-        row["metadata"]["sign_convention"] = expression.sign()
+        row["metadata"]["sign_convention"] = expression.sign(expression.oq1)
     return row
 
 
@@ -683,6 +691,7 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
     # absolute-sum-srss sections 2-5: the records in evaluation order, kappa and the reached load cases of each, the
     # modulus key of every load-case operand stated so far, and the combinations withheld whole with their codes.
     g = graph.Graph()
+    nonlinear = any(_case_of(r) is not None and r.get("kind") == STATE_CODE for r in results)
     modulus: dict[str, Any] = {}
     withheld: list[tuple[str, str]] = []
     for record in records:
@@ -714,7 +723,7 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
             expected_diagnostics.append({"id": f"{PREFIX}fixed-load-count:{identity([cid])}", "code": graph.FIXED_LOAD_COUNT_UNREPRESENTABLE,
                                          "severity": "info", "message": graph.fixed_load_count_message(cid), "source": DIAGNOSTIC_SOURCE,
                                          "affected_refs": [cid]})
-        reason = _gate(cid, expression, g, modulus, withheld, evidence)
+        reason = _gate(cid, expression, g, modulus, withheld, evidence, nonlinear)
         _require(bit_equal(record["gate"], {"withheld": reason is not None, "reason": reason[0] if reason else None}), "GATE")
         if basis not in graph.TERM_BASES:
             # DEC-068 item 1: each load-case operand's solve basis, in authored order (an operand combination records none).
@@ -734,6 +743,8 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
                                          "source": DIAGNOSTIC_SOURCE, "affected_refs": refs})
             withheld.append((cid, code))
             continue
+        # Decision OQ-1's rows state their own sign convention (section 5.2).
+        expression.oq1 = nonlinear and basis == "mechanics" and g.solved_state_plus_increments(expression.terms)
         built = _derive(cid, expression, results, evidence, linear, recomputed)
         _require(bit_equal(record["rows"], built["row_evidence"]), "ROW_EVIDENCE")
         _require(bit_equal(record["recoveries"], built["recoveries"]), "RECOVERY")

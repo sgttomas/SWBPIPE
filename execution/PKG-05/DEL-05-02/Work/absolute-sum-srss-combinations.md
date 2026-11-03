@@ -459,7 +459,17 @@ and `minuend_final` stay withheld.
   (`LOAD_COMBINATION_OPERAND_WITHHELD`, naming each withheld operand and its code);
   then PF: nonlinear (except OQ-1), κ on a consuming constant effort, modulus over
   every reached case; EX: modulus and resolved stiffness over every reached case,
-  then gate 3 on κ. `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` (info) names
+  then gate 3 on κ. Decision OQ-1 is one pure predicate over the operand tree and κ
+  (LCA `solved_state_plus_increments`, read through `Plan::solved_state_plus_increments`),
+  used by both routes: on EX, a model with nonlinear supports withholds a `mechanics`
+  combination outside it with `NONLINEAR_COMBINATION_REQUIRES_SOLVE` (after the
+  withheld-operand rule, before gates 1-3) and admits one inside it, formed from rows
+  with its operands' standing and the OQ-1 sign convention. EX cannot reach a
+  nonlinear model before RT-A3 increment 4, so that path is tested at the gate and
+  predicate (RT-A3's reference shape `mechanics(1·A + 1·srss(A − B))` admitted; a
+  singleton, two load cases, a factor other than 1, an undefined κ and a nonzero κ
+  withheld), and both EX readers mirror it, taking a published nonlinear support state
+  row as the model condition. `COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE` (info) names
   every combination whose own κ overflows, gated or not, with ids
   `diagnostic:preview-physics:combination-fixed-load-count:<identity>` and
   `diagnostic:exact-combination:fixed-load-count:<identity>`.

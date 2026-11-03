@@ -1835,7 +1835,8 @@
                     "COMBINATION_RESOLVED_STIFFNESS_MIXED",
                     "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE",
                     "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND",
-                    "LOAD_COMBINATION_OPERAND_WITHHELD"
+                    "LOAD_COMBINATION_OPERAND_WITHHELD",
+                    "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
                   ]
                 }
               }

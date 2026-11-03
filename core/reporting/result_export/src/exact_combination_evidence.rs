@@ -73,6 +73,9 @@ const LINEAR_SIGN: &str = "positive value follows explicit user linear combinati
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is recorded explicitly";
 const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
+const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
+/// A published nonlinear support state row marks a model with nonlinear supports.
+const STATE_CODE: &str = "nonlinear_support_active_set_state_code";
 const TIE_ROD_KIND: &str = "connector_tie_rod_force_v1";
 const SUPPORT_COMPONENT: &str = "support_reaction_component_v2";
 const SUPPORT_FORCE: &str = "support_reaction_force_magnitude_v2";
@@ -420,8 +423,10 @@ impl<'a> Expression<'a> {
             Expression::Envelope { .. } => RANGE_BASIS,
         }
     }
-    fn sign(&self) -> String {
+    /// The sign convention; `solved_state_plus_increments` is decision OQ-1's admission.
+    fn sign(&self, solved_state_plus_increments: bool) -> String {
         match self {
+            Expression::Terms("mechanics", _) if solved_state_plus_increments => graph::SOLVED_STATE_PLUS_INCREMENTS_SIGN.to_string(),
             Expression::Terms("absolute_sum", _) => graph::ABSOLUTE_SUM_SIGN.to_string(),
             Expression::Terms("srss", _) => graph::SRSS_SIGN.to_string(),
             Expression::Terms(..) => LINEAR_SIGN.to_string(),
@@ -634,6 +639,7 @@ fn gate(
     modulus: &HashMap<&str, Option<String>>,
     withheld: &[(&str, &str)],
     evidence: &Value,
+    nonlinear: bool,
 ) -> Result<Option<(&'static str, String, Vec<String>)>, String> {
     let mut named: Vec<(&str, &str)> = Vec::new();
     for operand in operands {
@@ -654,6 +660,13 @@ fn gate(
     let basis = expression.basis();
     if !graph::term_basis(basis) {
         return Ok(None);
+    }
+    // absolute-sum-srss §5.2: with nonlinear supports, a mechanics combination outside
+    // decision OQ-1 is withheld.
+    if let Expression::Terms("mechanics", terms) = expression {
+        if nonlinear && !graph.solved_state_plus_increments(terms) {
+            return gated(NONLINEAR);
+        }
     }
     let reached = graph.reached(id);
     let mut keys = HashSet::new();
@@ -767,7 +780,7 @@ impl Built {
     }
 }
 
-fn combined_row(combination: &str, expression: &Expression<'_>, template: &Value, key: &Key, value: f64, refs: Vec<String>) -> Value {
+fn combined_row(combination: &str, expression: &Expression<'_>, oq1: bool, template: &Value, key: &Key, value: f64, refs: Vec<String>) -> Value {
     let mut row = template.clone();
     row["id"] = json!(key.combined_id(combination));
     row["value"] = json!(value);
@@ -784,12 +797,13 @@ fn combined_row(combination: &str, expression: &Expression<'_>, template: &Value
         if key.section.is_empty() {
             row["metadata"]["basis"] = json!(expression.metadata_basis());
         }
-        row["metadata"]["sign_convention"] = json!(expression.sign());
+        row["metadata"]["sign_convention"] = json!(expression.sign(oq1));
     }
     row
 }
 
-fn derive(combination: &str, expression: &Expression<'_>, operands: &[Operand<'_>], results: &[Value], evidence: &Value, linear: &[&str], recomputed: &[&str]) -> Built {
+#[allow(clippy::too_many_arguments)]
+fn derive(combination: &str, expression: &Expression<'_>, oq1: bool, operands: &[Operand<'_>], results: &[Value], evidence: &Value, linear: &[&str], recomputed: &[&str]) -> Built {
     let range = expression.range();
     let rows: Vec<CaseRows<'_>> = operands.iter().map(|operand| case_rows(results, operand)).collect();
     // Only a load case's pressure-family value is recovered; a combination operand
@@ -923,14 +937,14 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[Operand<'_
                 continue;
             }
             let refs = components.iter().map(|c| c.combined_id(combination)).collect();
-            let row = combined_row(combination, expression, template, key, norm3(vector[0], vector[1], vector[2]), refs);
+            let row = combined_row(combination, expression, oq1, template, key, norm3(vector[0], vector[1], vector[2]), refs);
             built.row_evidence.push(json!({"result_id": row["id"], "sources": []}));
             built.rows.push(row);
             continue;
         }
         match outcomes.remove(key) {
             Some(Outcome::Row { value, sources, refs }) => {
-                let row = combined_row(combination, expression, template, key, value, refs);
+                let row = combined_row(combination, expression, oq1, template, key, value, refs);
                 built.row_evidence.push(json!({"result_id": row["id"], "sources": sources}));
                 built.rows.push(row);
             }
@@ -968,7 +982,7 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[Operand<'_
                 combined[slot] = value;
                 let key = Key::of(sources[0]).ok_or(SUPPORT_SOURCE_MISSING)?;
                 let refs: Vec<String> = sources.iter().map(|s| s["id"].as_str().unwrap_or_default().to_string()).collect();
-                let row = combined_row(combination, expression, sources[0], &key, value, refs.clone());
+                let row = combined_row(combination, expression, oq1, sources[0], &key, value, refs.clone());
                 component_ids.push(row["id"].as_str().unwrap_or_default().to_string());
                 let evidence = json!({"result_id": row["id"], "sources": operands.iter().zip(&refs).map(|(operand, id)| row_source(operand, id)).collect::<Vec<_>>()});
                 out.push((row, evidence));
@@ -990,7 +1004,7 @@ fn derive(combination: &str, expression: &Expression<'_>, operands: &[Operand<'_
                     let c = &combined[slots.clone()];
                     (norm3(c[0], c[1], c[2]), component_ids[slots].to_vec(), Vec::new())
                 };
-                let row = combined_row(combination, expression, template, &key, value, refs);
+                let row = combined_row(combination, expression, oq1, template, &key, value, refs);
                 let evidence = json!({"result_id": row["id"], "sources": evidence_sources});
                 out.push((row, evidence));
             }
@@ -1038,6 +1052,7 @@ pub(crate) fn validate(source: &Value) -> Check {
     // cases of each, the modulus key of every load-case operand stated so far, and
     // the combinations withheld whole with their codes.
     let mut combination_graph = Graph::default();
+    let nonlinear = results.iter().any(|r| case_of(r).is_some() && r["kind"] == STATE_CODE);
     let mut modulus: HashMap<&str, Option<String>> = HashMap::new();
     let mut withheld_combinations: Vec<(&str, &str)> = Vec::new();
     for record in records {
@@ -1084,7 +1099,7 @@ pub(crate) fn validate(source: &Value) -> Check {
                 "source": DIAGNOSTIC_SOURCE, "affected_refs": [id],
             }));
         }
-        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence)?;
+        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence, nonlinear)?;
         require(bit_equal(&record["gate"], &json!({"withheld": reason.is_some(), "reason": reason.as_ref().map(|r| r.0)})), "GATE")?;
         if !graph::term_basis(expression.basis()) {
             // DEC-068 item 1: each load-case operand's solve basis, in authored order
@@ -1119,7 +1134,12 @@ pub(crate) fn validate(source: &Value) -> Check {
             withheld_combinations.push((id, code));
             continue;
         }
-        let built = derive(id, &expression, &operand_ids, results, evidence, &linear, &recomputed);
+        // Decision OQ-1's rows state their own sign convention (§5.2).
+        let oq1 = nonlinear && match &expression {
+            Expression::Terms("mechanics", terms) => combination_graph.solved_state_plus_increments(terms),
+            _ => false,
+        };
+        let built = derive(id, &expression, oq1, &operand_ids, results, evidence, &linear, &recomputed);
         require(bit_equal(&record["rows"], &json!(built.row_evidence)), "ROW_EVIDENCE")?;
         require(bit_equal(&record["recoveries"], &json!(built.recoveries)), "RECOVERY")?;
         require(bit_equal(&record["missing_sources"], &json!(built.missing)), "MISSING_SOURCES")?;
@@ -1180,6 +1200,7 @@ fn diagnostic(id: String, code: &str, severity: &str, message: String, combinati
 
 fn gate_message(code: &str) -> &'static str {
     match code {
+        NONLINEAR => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",

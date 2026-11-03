@@ -231,5 +231,19 @@ mod tests {
         assert!(graph.solved_state_plus_increments(&[(Operand::Case("B"), 1.0), (Operand::Combination("E"), 1.0)]));
         assert!(!graph.solved_state_plus_increments(&[(Operand::Case("B"), 1.0)]));
         assert_eq!(graph.reached("E"), ["A", "B"]);
+        // RT-A3's reference shape mechanics(1·A + 1·srss(A − B)) is admitted; a singleton,
+        // two load cases, a factor other than 1, an undefined κ and a nonzero κ are not.
+        assert!(graph.solved_state_plus_increments(&[(Operand::Case("A"), 1.0), (Operand::Combination("E"), 1.0)]));
+        graph.add("S", "srss", &[Operand::Case("A")], &[1.0]);
+        graph.add("R", "range_envelope", &[Operand::Case("A"), Operand::Case("B")], &[]);
+        for terms in [
+            vec![(Operand::Case("A"), 1.0)],
+            vec![(Operand::Case("A"), 1.0), (Operand::Case("B"), 1.0), (Operand::Combination("E"), 1.0)],
+            vec![(Operand::Case("A"), 1.5), (Operand::Combination("E"), 1.0)],
+            vec![(Operand::Case("B"), 1.0), (Operand::Combination("S"), 1.0)],
+            vec![(Operand::Case("B"), 1.0), (Operand::Combination("R"), 1.0)],
+        ] {
+            assert!(!graph.solved_state_plus_increments(&terms), "{terms:?}");
+        }
     }
 }
