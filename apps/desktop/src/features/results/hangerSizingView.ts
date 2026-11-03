@@ -399,7 +399,11 @@ export type HangerSizingStandingStatus = "passed" | "failed" | "not_checked";
 type ReaderStanding = { readonly status: HangerSizingStandingStatus; readonly difference: string | null };
 
 /** The readers' verdict (the shape of the Rust reader's `Verdict::to_json`), with the checked
- * sha256 of the exact document text it was computed on. */
+ * canonical sha256 (`openpipestress_jcs_ijson_v1`) of the document it was computed on. The hash is
+ * of the canonical parsed value, so whitespace, member order and equivalent number spellings do
+ * not distinguish documents. This binds evidence to a document; it does not authenticate the
+ * evidence. The caller is responsible for supplying the reader's actual output, and an object
+ * built to this shape with the right hash is displayed as supplied. */
 export type HangerSizingReaderEvidence = {
   readonly document_sha256: string;
   readonly verdict: {

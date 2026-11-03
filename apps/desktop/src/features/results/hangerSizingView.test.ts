@@ -311,7 +311,52 @@ describe("hangerSizingView: library detail gate", () => {
   });
 });
 
+describe("hangerSizingView: record guards after a hash-bound library", () => {
+  type Selected = { result: { candidates: { selected: { record_sha256: string; hanger_id: string } }[] }; inputs: { library: { sha256: string } } };
+  const selectedRecord = (lib: Record<string, unknown>) =>
+    (lib.hanger_records as Record<string, unknown>[]).find((record) => record.hanger_id === "VS-200-L") as Record<string, unknown>;
+
+  it("names record_ambiguous when the bound library repeats the selected hanger_id", async () => {
+    const lib = library();
+    (lib.hanger_records as unknown[]).push(clone(selectedRecord(lib)));
+    const document = twoSpan() as unknown as Selected;
+    document.inputs.library.sha256 = await canonicalSha256HexCheckedV1(lib);
+    const view = await sized(document as unknown as HangerSizingDocument, null, lib);
+    expect(view.library.state).toBe("bound");
+    expect(view.rows[0].record).toEqual({ state: "not_shown", hangerId: "VS-200-L", reason: "record_ambiguous" });
+  });
+
+  it("names record_not_readable when a hash-bound selected record lacks a required detail", async () => {
+    for (const damage of [
+      (record: Record<string, unknown>) => { record.name = 5; },
+      (record: Record<string, unknown>) => { delete (record.hanger as Record<string, unknown>).travel_range; },
+      (record: Record<string, unknown>) => { delete (record.hanger as Record<string, unknown>).stiffness; }
+    ]) {
+      const lib = library();
+      const record = selectedRecord(lib);
+      damage(record);
+      const document = twoSpan() as unknown as Selected;
+      document.inputs.library.sha256 = await canonicalSha256HexCheckedV1(lib);
+      document.result.candidates[0].selected.record_sha256 = await canonicalSha256HexCheckedV1(record);
+      const view = await sized(document as unknown as HangerSizingDocument, null, lib);
+      expect(view.library.state).toBe("bound");
+      expect(view.rows[0].record).toEqual({ state: "not_shown", hangerId: "VS-200-L", reason: "record_not_readable" });
+    }
+  });
+});
+
 describe("hangerSizingView: reader standings as bound evidence", () => {
+  it("shows every standing as not_checked when the document itself cannot be hashed", async () => {
+    const hash = await canonicalSha256HexCheckedV1(twoSpan());
+    const document = twoSpan() as unknown as { result: { candidates: { w_n: number }[] } };
+    document.result.candidates[0].w_n = Number.NaN;
+    const view = await sized(document as unknown as HangerSizingDocument, { document_sha256: hash, verdict: verdict() });
+    expect(view.readerStandings).toEqual({
+      binding: { state: "unbound", reason: "document_not_hashable" },
+      standings: HANGER_SIZING_STANDING_NAMES.map((name) => ({ name, status: "not_checked", difference: null }))
+    });
+  });
+
   it("shows supplied standings only when their document hash is this document's checked hash", async () => {
     const document = twoSpan();
     const hash = await canonicalSha256HexCheckedV1(document);
