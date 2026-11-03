@@ -624,7 +624,9 @@ fn sha256_hex(bytes: &[u8]) -> String {
 /// the 20B/60B thresholds. A G0 field that is absent or of the wrong type
 /// fails G0; every other shape defect waits for G1.
 fn g0(source: &Value) -> VResult {
-    g0_with(source, table())
+    // RT-A4 §10.4: inside a recorded-run read under a successor variant, that variant's
+    // table (its bytes checked when the registry first read them).
+    g0_with(source, crate::recorded_tables::selected_table(CONTRACT_ID).unwrap_or_else(table))
 }
 /// G0 on the preview route (B2-C §8, rows 1-9, in order), with the table as a
 /// parameter: production passes the packaged PTABLE, and the reader-local unit
@@ -668,11 +670,14 @@ fn g0_with(source: &Value, t: &Value) -> VResult {
         "G0",
         "FORMATION_MISMATCH",
     )?;
-    // 5. The table's bytes and its inherited hash.
-    unsupported(
-        sha256_hex(TABLE_BYTES) == TABLE_HASH
-            && t["inherited_semantic_contract_sha256"] == sha256_hex(INHERITED_TABLE_BYTES),
-    )?;
+    // 5. The table's bytes and its inherited hash. RT-A4 §10.4: a recorded successor
+    // variant's bytes are the registry's (checked when first read) and it inherits its
+    // base variant, which the projection's base read below reads.
+    let (bytes_bound, inherited) = match crate::recorded_tables::selected().filter(|v| v.id == CONTRACT_ID) {
+        Some(variant) => (std::ptr::eq(t, variant.table()), variant.base().map_or_else(String::new, |b| b.sha256.to_string())),
+        None => (sha256_hex(TABLE_BYTES) == TABLE_HASH, sha256_hex(INHERITED_TABLE_BYTES)),
+    };
+    unsupported(bytes_bound && t["inherited_semantic_contract_sha256"] == inherited.as_str())?;
     // 6. N-12's cross-check: the table against the reader's constants.
     unsupported(table_binds_reader_constants(t))?;
     let b = &source["retained_precision"]["body"];

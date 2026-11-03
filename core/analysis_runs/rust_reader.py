@@ -143,14 +143,15 @@ def read(reader: str, payload: Mapping[str, Any]) -> dict[str, Any]:
     return outcome["validation"]
 
 
-def retained_precision(source: Mapping[str, Any], invocation: Any = None) -> dict[str, Any]:
-    """`retained_precision::validate`: G0-G8 on a successor, bound to `invocation` when one is given."""
-    return read(RETAINED_PRECISION, {"source": source, "invocation": invocation})
+def retained_precision(source: Mapping[str, Any], invocation: Any = None, *, recorded_binding: Any = None) -> dict[str, Any]:
+    """`retained_precision::validate`: G0-G8 on a successor, bound to `invocation` when one is given. RT-A4 §10.4:
+    `recorded_binding`, the recorded-run read's record binding (`reader_verdict::retained_recorded`)."""
+    return read(RETAINED_PRECISION, _optional({"source": source, "invocation": invocation}, recorded_binding=recorded_binding))
 
 
-def retained_precision_transport(source: Mapping[str, Any]) -> dict[str, Any]:
+def retained_precision_transport(source: Mapping[str, Any], *, recorded_binding: Any = None) -> dict[str, Any]:
     """`retained_precision::validate_transport_metadata`: a transported successor's checks; never eligible."""
-    return read(RETAINED_PRECISION_TRANSPORT, {"source": source})
+    return read(RETAINED_PRECISION_TRANSPORT, _optional({"source": source}, recorded_binding=recorded_binding))
 
 
 def _optional(payload: dict[str, Any], **members: Any) -> dict[str, Any]:
@@ -158,11 +159,12 @@ def _optional(payload: dict[str, Any], **members: Any) -> dict[str, Any]:
     return payload
 
 
-def dispatch(source: Any, model: Any = None, invocation: Any = None) -> dict[str, Any]:
+def dispatch(source: Any, model: Any = None, invocation: Any = None, *, recorded_binding: Any = None) -> dict[str, Any]:
     """`reader_verdict::dispatch`: `{ok, route, binding, error, standing}`. A header the
     dispatch refuses is returned too (`ok` false, route unsupported, `error` {code, detail}),
-    since its standing is still the reader's; it does not raise."""
-    passed, outcome = _run(DISPATCH, _optional({"source": source}, model=model, invocation=invocation))
+    since its standing is still the reader's; it does not raise. RT-A4 §10.4: `recorded_binding`, the recorded-run
+    read's record binding (`reader_verdict::dispatch_recorded`), whose binding the outcome then names."""
+    passed, outcome = _run(DISPATCH, _optional({"source": source}, model=model, invocation=invocation, recorded_binding=recorded_binding))
     binding, error, standing = outcome.get("binding"), outcome.get("error"), outcome.get("standing")
     if (set(outcome) != {"ok", "route", "binding", "error", "standing"}
             or outcome["route"] not in (ROUTES if passed else {UNSUPPORTED})
@@ -181,12 +183,12 @@ def dispatch(source: Any, model: Any = None, invocation: Any = None) -> dict[str
     return outcome
 
 
-def validate(reader: str, source: Any, *, model: Any = None, invocation: Any = None) -> dict[str, Any]:
+def validate(reader: str, source: Any, *, model: Any = None, invocation: Any = None, recorded_binding: Any = None) -> dict[str, Any]:
     """`reader_verdict::validate`: one base reader's raw validation; `{ok, eligible?, findings?}` or its refusal raised."""
     if reader not in ROUTE_READERS.values():
         raise ValueError(f"RUST-READER-UNKNOWN: {reader}")
     members = {"preview-physics": set(), "pressure": set(), "pressure-source": {"eligible", "findings"}}[reader]
-    outcome = _base(reader, _optional({"source": source}, model=model, invocation=invocation), members)
+    outcome = _base(reader, _optional({"source": source}, model=model, invocation=invocation, recorded_binding=recorded_binding), members)
     if "eligible" in members and not isinstance(outcome["eligible"], bool):
         raise _invalid(reader)
     if "findings" in members and (not isinstance(outcome["findings"], list) or not all(isinstance(item, str) for item in outcome["findings"])):
@@ -194,11 +196,11 @@ def validate(reader: str, source: Any, *, model: Any = None, invocation: Any = N
     return outcome
 
 
-def transport(reader: str, source: Any) -> None:
+def transport(reader: str, source: Any, *, recorded_binding: Any = None) -> None:
     """`<reader>-transport`: a transported statement's metadata checks; never eligible. A refusal raises."""
     if reader not in ROUTE_READERS.values():
         raise ValueError(f"RUST-READER-UNKNOWN: {reader}")
-    _base(f"{reader}-transport", {"source": source}, set())
+    _base(f"{reader}-transport", _optional({"source": source}, recorded_binding=recorded_binding), set())
 
 
 def standing(source: Any, requested_basis_refs: Any, invocation: Any = None) -> dict[str, Any]:

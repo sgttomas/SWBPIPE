@@ -85,6 +85,17 @@ export async function validateRetainedPrecision(source: unknown, invocation?: un
   return validateRetainedPrecisionBytes(sourceJson, invocation);
 }
 
+/** RT-A4 §10.4: the reader (G0-G7, no invocation) on a recorded successor under its record's
+ * binding (`reader_verdict::retained_recorded`): a registry variant of the successor's identity
+ * is read under its own tables; any binding but the current one or such a variant is refused at
+ * G0 by name. Only the recorded-run read and compare paths call it. */
+export async function validateRetainedPrecisionRecorded(source: unknown, binding: Readonly<{ id: string; sha256: string }>): Promise<RetainedPrecisionValidation> {
+  let sourceJson: string, bindingJson: string;
+  try { sourceJson = retainedJsonText(source); bindingJson = retainedJsonText(binding); } catch { throw unreadable(); }
+  const engine = await loadWasmEngine();
+  return run(() => engine.readerRecordedJson("retained-precision", bindingJson, sourceJson));
+}
+
 /** The reader's metadata-only transport checks (G0-G2 and the base's transport metadata
  * at G7): omitted raw rows are never reconstructed or verified, and the result is never
  * numerically eligible. */

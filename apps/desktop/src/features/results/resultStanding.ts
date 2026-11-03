@@ -11,7 +11,7 @@
  * registered source is Rust's with that invocation. A copy, a header, a hash or a saved
  * record never registers, and any later byte change voids it. G3 (the caller's model is
  * the dispatched one) is previewService's capture check. */
-import { readerDispatch, readerSourceText, readerValidate, ResultReaderError, type ReaderStanding, type ReaderValidation } from "./resultReader";
+import { readerDispatch, readerSourceText, recordedReaderDispatch, readerValidate, ResultReaderError, type ReaderStanding, type ReaderValidation } from "./resultReader";
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
 import { isRetainedRoute, RETAINED_STANDING_STATUS, type SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -106,6 +106,16 @@ function presented(standing: ReaderStanding): NumericalStanding {
 /** The numerical standing of a statement for the current model: Rust's, with the
  * registered invocation for a source route (G4). A successor's standing is R1's
  * registered reader validation with the live native capture. */
+/** RT-A4 §10.4: the standing a run recorded before RT-A4 read with, for its display as a recorded
+ * (historical) run: under the record's registry variant `binding` the ordinary routes take Rust's
+ * recorded dispatch (the statement as it read when recorded); a successor's standing is its
+ * registration's, as for any saved successor (a saved statement never registers). It is display
+ * evidence of a historical run only: no caller treats it as a current solve's standing. */
+export function recordedResultStanding(source: MechanicsResult, binding: Readonly<{ id: string; sha256: string }>, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
+  const route = recordedReaderDispatch(source, binding).route;
+  if (route === "pressure_source" || isRetainedRoute(route)) return numericalResultStanding(source, model);
+  return presented(recordedReaderDispatch(source, binding, model).standing);
+}
 export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
   const route = readerDispatch(source).route;
   if (route === "pressure_source") {
