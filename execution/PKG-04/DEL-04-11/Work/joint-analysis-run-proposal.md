@@ -1,5 +1,7 @@
 # Joint analysis-run publication for hanger sizing (1d-β) and modal (O-8): design proposal
 
+The owner's decisions are condensed in `task-record-owner-decisions.md`.
+
 **Status: a proposal, not adopted.**
 - Agent 0 approved the joint analysis-run design for design only (P2, 2026-11-02).
 - This document adopts no format, name, status vocabulary, store migration or shared
