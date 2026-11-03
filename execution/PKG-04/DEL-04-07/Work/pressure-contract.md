@@ -725,3 +725,165 @@ extrapolation follows. The following remain refused or future work:
 The RS-R1 ledger row stays pending until that adoption. The full-system
 cases keep the unmodified fixture's `sensitive` integrity screen, and no
 accuracy is claimed. No reference-system, nonlinear or release readiness follows.
+
+## Constant-effort supports (RT-A3 increment 3)
+
+**Admission.** `exact_admission::admission` admits the constant-effort
+support family on `3.0.0/exact_pressure_v3`, on plain and on
+load/reference-state documents ([route-unification-r4.md](route-unification-r4.md)
+§3.2, S2). A record carrying a `nonlinear` field stays in the nonlinear
+family and keeps its refusal; the record's existing validation still
+requires its travel metadata (`CONSTANT_EFFORT_TRAVEL_MISSING`).
+
+**Semantics (DEC-049; `validation/hand_calcs/mechanics/constant_effort_support_applied_load.md`).**
+The ideal constant-effort element is the one the pressure-free route already
+assembles, through the same functions:
+- A record is consumed when it declares exactly one translational restraint
+  DOF (rotations beside it do not count; every entry must be a frame DOF) and
+  a finite positive `hanger.constant_load`. Nothing is defaulted, inferred or
+  read from a catalog.
+- A consumed record applies its load as a constant nodal force along the
+  **positive** global axis of that DOF in every solved case: one plain input
+  term in the shared `case_force_ledger` (`add_constant_effort_support_loads`),
+  so the dense, sparse and active-set paths consume it identically and K-D5
+  closes it with radius 0. It has zero stiffness and adds no restraint row.
+- Each solved case publishes one `constant_effort_support_applied_load` row
+  per consumed record (`append_constant_effort_support_results`, with the
+  user-limit comparison warning), and the record's support-action rows state
+  the same force on its axis (support on pipe) and zero elsewhere.
+- A record that is not consumed applies no force and no restraint, publishes
+  no applied-load row (its support actions are zero) and carries one
+  `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning naming the unmet condition
+  (`append_constant_effort_consumption_diagnostics`). Its review rows remain.
+
+**D-2: load/reference-state documents (Agent 0, under its engineering-judgment
+delegation).** On a load/reference-state document the constant force is a
+device action of the active support in every state, not an ordinary primitive
+of the case's declared source ledger. The record's support state is
+`active_model_device`, the only participation the resolver admits (inactive
+and locked states are refused by `LOAD_STATE_SUPPORT_PARTICIPATION_UNSUPPORTED`,
+and boundary motion or a device reference on it by the existing state rules),
+and the shared ledger applies the force in each state's case. Its force
+therefore cancels exactly in O − S (R-4 §3.2, "Interactions"). Held or locked
+devices belong to hydrotest (R-4 §4.9, `locked_equivalent_support`) in the
+load-case lane and are not built here.
+
+**Combination gate.** A `mechanics` combination over a model with a consumed
+record counts the force Σf times. EX now withholds it, as PF does, when the
+factors fail the unit factor-sum rule ("Constant-effort combinations: the
+unit factor-sum rule" above), with PF's reason
+`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` and PF's message
+(`exact_combinations::CONSTANT_EFFORT`). Subtractions and range envelopes are
+not gated.
+- **Order: gate 4, after `COMBINATION_MODULUS_BASIS_MIXED`,
+  `COMBINATION_RESOLVED_STIFFNESS_MIXED` and
+  `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`.** The two stiffness gates
+  decide whether the operands are states of one system at all, which no
+  choice of factors repairs; the two factor-sum gates presuppose one system
+  and decide whether a fixed load is counted once. The constant-effort gate
+  shares the installed-reference gate's predicate and follows it, so every
+  reason published before this increment is unchanged and the pressure
+  table's gate list is extended by appending. PF has no stiffness or
+  connector gate and orders this reason before its modulus gate; where both
+  hold, the two routes name different reasons for the same withholding.
+- **Readers.** The pressure-2 combination pass recomputes the gate
+  (`exact_combination_evidence.rs` `gate`, and the Python mirror
+  `tests/verifiers/exact_combinations.py`). On the received document the
+  gate's input is whether a primitive case publishes an applied-load row.
+  With the captured model, `model_checks` decides consumption from the model
+  by the DEC-049 conditions (`consuming_constant_effort`, reusing
+  `source_blocks::solver_constant_effort_support` for the hanger-type reading)
+  and requires every solved case to publish exactly those records' rows, in
+  model order and nothing else of that kind
+  (`SOURCE_PHYSICS_COMBINATION_MODEL_CONSTANT_EFFORT`). Each consuming record
+  is resolved as the producer resolves it, keeping its model node and the
+  normalized name of its one translational DOF (`UX`, `UY` or `UZ`, whatever
+  accepted spelling the model uses), and each row must equal, field for field
+  (`bit_equal`, no field missing or added), the row
+  `append_constant_effort_support_results` writes:
+  - `id`: `result:constant-effort-support:{support}:applied-load` in the
+    first solved case of `exact_cases`, and under
+    `result:loadcase:{case}:` in every later case
+    (`qualified_load_case_result_id`; `:` written `-` in both parts);
+  - `kind` and `metadata.component`: `constant_effort_support_applied_load`;
+  - `value`: the normalized constant load in newtons, bit for bit; `unit`:
+    `N`;
+  - `entity_ref`: the support id; `basis_ref`: the case;
+  - `metadata.coordinate_system`: `global`;
+  - `metadata.location`: `{node}:{DOF} applied load`;
+  - `metadata.basis`: the producer's string, with `consumed_dof={DOF}` and
+    the hanger's `source_reference`, `manufacturer_reference` and
+    `load_side_review_reference` (entered text verbatim; missing or blank
+    stated as `…_missing`);
+  - `metadata.sign_convention`: the producer's text
+    (`CONSTANT_EFFORT_APPLIED_SIGN_CONVENTION`), whole.
+
+  A row dropped from a case or state, a changed force, a forged consumption,
+  a row whose node, DOF or any other field is not the model's, or a model
+  whose support acts along another axis or at another node is refused, so the
+  gate and the applied loads are decided by the model. On a full document a
+  changed `unit`, `metadata.component` or `source_result_refs`, or a duplicated
+  id, is refused first by the direct-case pass; the binding refuses each too.
+- **Review finding (deafe7153) and repair.** The first binding compared only
+  (support id, force bits), so two forgeries passed both readers: (a) CE1-EB
+  solved with its UZ support, checked against the model with that support
+  changed to UX; (b) the applied-load row's location changed to
+  `node:A:UX applied load`. Now the resolved node and DOF are retained and the
+  whole row is bound, as above, in the Rust reader and its Python mirror. Both
+  forgeries are refused with `SOURCE_PHYSICS_COMBINATION_MODEL_CONSTANT_EFFORT`
+  (`rt_a3_constant_effort_references.rs`
+  `applied_load_rows_are_bound_to_the_models_node_and_dof` in both solver
+  modes; the reader's unit test
+  `the_model_binding_binds_every_field_of_the_applied_load_rows`; and the
+  Python `test_the_model_binding_binds_every_field_of_the_applied_load_rows`),
+  with one control for each bound field. The same review found that CE-2's
+  combined applied-load assertion passed vacuously when no row was found. It
+  now asserts the row count and the support and location first.
+
+**Retained source.** The retained-source replay forms the case force from the
+nodal loads plus eigen loads only (`source_receipt.rs`, the load-state replay
+included), so source recovery declines any model holding a constant-effort
+record (`source_recovery.rs` `prepare_sources`) and the reader refuses a plan
+naming one (`source_blocks.rs`, `CONSTANT_EFFORT_SUPPORT`). Where the ordinary
+checks pass, the ordinary route publishes. Where the case needed the retained
+response, the method is declined by name (`SOURCE_BLOCK_RECOVERY_UNAVAILABLE`;
+on a load-state document `LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED`,
+`retained_source_attempt=unavailable`) and the ordinary route's own finding
+stands; there is never a pressure-source-1 publication with a mismatched
+replay (`tests/rt_a3_constant_effort_source_receipt.rs`).
+
+**References and binding.** The frozen independent references are
+`validation/references/rt_a3_constant_effort/` (CE-1, CE-1n, CE-2, CE-3 and
+their mutation controls; two exact formulations). The product binding,
+`core/product_physics/tests/rt_a3_constant_effort_references.rs`, authors
+each case from its stated inputs and solves it in both solver modes at 1e-9
+relative with per-family zero floors. It checks:
+- motions, reactions, global end actions, N_w and S, axial stress per basis,
+  the bending resultant `hypot(σ_y, σ_z)` and torsion per basis and end, the
+  elastic maximum per basis and the Lamé rows;
+- the applied-load rows (+F per case) and the record's support actions;
+- CE-1's with − without = F-only, under both shear models, unpressurized and
+  capped; CE-1n's non-consumption (no force, the warning, every mechanics row
+  bit-identical to the model without the record);
+- CE-2's five admitted combinations (exact factor sums of the case values,
+  one combined applied-load row per consuming support, its support and
+  location asserted, at Σf·F) and three withheld ones, and the 2⁵³ pair
+  (refused by the value entry, withheld at the gate on the typed entry);
+- CE-3's states S and O on load/reference-state documents with absolute
+  temperatures (293.15 K installation, 393.15 K operating), O − S against the
+  thermal-only solution, with − without = F-only in both states, and O − S
+  independent of the force; per-state pressure regions are admitted, so
+  CE3-EB-P and CE3-T-P are exercised.
+
+Every envelope passes the pressure reader with and without its model. The
+sign, double-count and O-omission mutants are distinguished, and forged
+reasons, forged factor sums, dropped terms and applied-load rows not bound to
+the model's node and DOF are refused.
+
+**Pending (held).** The v3 formulation identity text still says every other
+support family is refused, and the load-state limitation sentences do not
+yet state D-2. Those texts, their copies (`exactReportLimitations.ts`,
+`schemas/results.v0.3.schema.yaml`, the source-receipt test copy) and the
+pressure-2 table's `combination_policy.mechanics_gates` (which lists gates
+1–3) are held until another change integrates. They are updated together
+afterwards.

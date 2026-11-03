@@ -431,7 +431,9 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                 (document, vec![id], name)
             })
             .collect::<Vec<_>>();
-        for (support, name) in [(gap(base), "nonlinear support"), (constant_effort(base), "constant-effort support")] {
+        // RT-A3 increment 3 admits the constant-effort support (see the test
+        // below); the nonlinear support remains the refused support family.
+        for (support, name) in [(gap(base), "nonlinear support")] {
             let id = support["id"].as_str().unwrap().to_string();
             let mut document = base.current();
             push(&mut document, "supports", support);
@@ -454,6 +456,35 @@ fn each_family_not_yet_admitted_is_refused_by_name_on_v3() {
                     assert!(message.contains("is not yet admitted under 3.0.0/exact_pressure_v3"), "{message}");
                 }
             }
+        }
+    }
+}
+
+/// RT-A3 increment 3 (DEL-04-07 `pressure-contract.md`, "Constant-effort
+/// supports (RT-A3 increment 3)"): the seam admits a constant-effort support
+/// on the plain document and on the load/reference-state document (D-2: a
+/// device action of the active support in every state), so the family
+/// refusal never names it. The consuming record (one translational DOF, a
+/// positive constant load) publishes one applied-load row per solved case;
+/// the frozen references bind the numbers (`rt_a3_constant_effort_references.rs`).
+#[test]
+fn a_constant_effort_support_is_admitted_at_the_seam() {
+    for base in [Base::X0, Base::Y0] {
+        let support = constant_effort(base);
+        let id = support["id"].as_str().unwrap().to_string();
+        let mut document = base.current();
+        push(&mut document, "supports", support);
+        declare_support_state(&mut document, &id);
+        let cases = document["model"]["load_cases"].as_array().unwrap().len();
+        for envelope in run_all(&document) {
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{base:?}: {:#?}", envelope["diagnostics"]);
+            assert!(!has_code(&envelope, FAMILY), "{:#?}", envelope["diagnostics"]);
+            assert!(!has_code(&envelope, "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED"), "{base:?}");
+            let applied = envelope["results"].as_array().unwrap().iter()
+                .filter(|r| r["kind"] == "constant_effort_support_applied_load" && r["entity_ref"] == id.as_str())
+                .collect::<Vec<_>>();
+            assert_eq!(applied.len(), cases, "{base:?}");
+            assert!(applied.iter().all(|r| r["value"] == 375.0), "{base:?}");
         }
     }
 }
