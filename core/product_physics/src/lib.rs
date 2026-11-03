@@ -2666,7 +2666,7 @@ struct LoadCaseSolve {
     /// of each certified member whose open-formula (L1) summary row is
     /// withheld. Preview-physics retires every summary row, so these apply
     /// only when it does not render (`withhold_certified_summaries`).
-    withheld_summaries: Vec<Diagnostic>,
+    withheld_summaries: Vec<Diagnostic>, nonlinear_state: Option<Box<NonlinearStateEvidence>>, // DEL-04-09 I2b-2 (decision B)
 }
 
 #[derive(Debug, Clone)]
@@ -5297,7 +5297,7 @@ fn solve_prepared_load_case(
             max_stress_reduced: None,
             component_stress_modifier_count: 0,
             preview: None,
-            withheld_summaries: Vec::new(),
+            withheld_summaries: Vec::new(), nonlinear_state: None,
         });
     }
 
@@ -5333,7 +5333,7 @@ fn solve_prepared_load_case(
                 max_stress_reduced: None,
                 component_stress_modifier_count: 0,
                 preview: None,
-                withheld_summaries: Vec::new(),
+                withheld_summaries: Vec::new(), nonlinear_state: None,
             });
         }
         None => build_thermal_element_loads(
@@ -5440,7 +5440,7 @@ fn solve_prepared_load_case(
             max_stress_reduced: None,
             component_stress_modifier_count: 0,
             preview: None,
-            withheld_summaries: Vec::new(),
+            withheld_summaries: Vec::new(), nonlinear_state: None,
         });
     }
     // Every restrained DOF is prescribed: explicit zero unless the resolved case
@@ -5480,7 +5480,7 @@ fn solve_prepared_load_case(
                 max_stress_reduced: None,
                 component_stress_modifier_count: 0,
                 preview: None,
-                withheld_summaries: Vec::new(),
+                withheld_summaries: Vec::new(), nonlinear_state: None,
             });
         }
     }
@@ -5746,7 +5746,7 @@ fn solve_prepared_load_case(
                 max_stress_reduced: None,
                 component_stress_modifier_count: 0,
                 preview: None,
-                withheld_summaries: Vec::new(),
+                withheld_summaries: Vec::new(), nonlinear_state: None,
             });
                     }
                 },
@@ -5778,7 +5778,7 @@ fn solve_prepared_load_case(
                 max_stress_reduced: None,
                 component_stress_modifier_count: 0,
                 preview: None,
-                withheld_summaries: Vec::new(),
+                withheld_summaries: Vec::new(), nonlinear_state: None,
             });
                 }
             }
@@ -5831,7 +5831,7 @@ fn solve_prepared_load_case(
             vec![load_case.id.clone()],
         ));
     }
-    let (selected_nonlinear, nonlinear_standing) = match append_nonlinear_support_loop_results(
+    let (selected_nonlinear, nonlinear_standing, nonlinear_qualification) = match append_nonlinear_support_loop_results(
         &mut results,
         diagnostics,
         model,
@@ -5845,8 +5845,8 @@ fn solve_prepared_load_case(
         spring_entries,
         load_row_finding.is_none(),
     ) {
-        Some((solve, nonlinear)) => (Some(solve), Some(nonlinear)),
-        None => (None, None),
+        Some((solve, nonlinear, qualification)) => (Some(solve), Some(nonlinear), qualification),
+        None => (None, None, None),
     };
     if !built.nonlinear_supports.is_empty() {
         match &selected_nonlinear {
@@ -5872,7 +5872,7 @@ fn solve_prepared_load_case(
                     max_stress_reduced: None,
                     component_stress_modifier_count: 0,
                     preview: None,
-                    withheld_summaries: Vec::new(),
+                    withheld_summaries: Vec::new(), nonlinear_state: None,
                 });
             }
         }
@@ -5955,7 +5955,7 @@ fn solve_prepared_load_case(
         Some(NonlinearStanding::NotEstablished(sentence)) => (None, Some(sentence)),
         None => (None, None),
     };
-    let confirmed = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
+    let confirmed = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty()); let nonlinear_state = capture_nonlinear_state_evidence(&load_case.id, solver_mode, selected_nonlinear.as_ref(), nonlinear_qualification, confirmed.is_some(), nonlinear_sentence.as_deref());
     let member_bound = member_bound.or(confirmed.map(|state| &state.member_bound));
     // U4a's test-only demotion exercises pressure-2's ordinary binary64
     // publication, which cannot naturally admit nonlinear supports yet.
@@ -7350,7 +7350,7 @@ fn solve_prepared_load_case(
         max_stress_reduced,
         component_stress_modifier_count,
         preview: preview_record,
-        withheld_summaries,
+        withheld_summaries, nonlinear_state,
     })
 }
 
@@ -7423,7 +7423,7 @@ fn append_nonlinear_support_loop_results(
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
     confirm: bool,
-) -> Option<(NonlinearFrameSolveResult, NonlinearStanding)> {
+) -> Option<(NonlinearFrameSolveResult, NonlinearStanding, Option<NonlinearQualification>)> {
     if built.nonlinear_supports.is_empty() {
         return None;
     }
@@ -7498,12 +7498,12 @@ fn append_nonlinear_support_loop_results(
         &springs,
     ) {
         Ok(solve) => {
-            let mut confirmation = None;
+            let mut confirmation = None; let mut qualification = None;
             if solve.converged {
                 match open_pipe_stress_nonlinear_integration::product_selected_state_is_qualified(
                     &input, &springs, &solve,
                 ) {
-                    Ok(true) => {
+                    Ok(true) => { qualification = Some(NonlinearQualification::Qualified);
                         // DEL-04-01 kd5-nonlinear-active-set.md §2.4 item 1: the
                         // confirmation runs on a qualified non-gap state whose
                         // last report is Passed and that has no load-row finding.
@@ -7541,7 +7541,7 @@ fn append_nonlinear_support_loop_results(
                                 &input, &springs, &solve,
                             ),
                             Ok(true)
-                        ) => {}
+                        ) => qualification = Some(NonlinearQualification::InspectableUnqualifiedGap),
                     outcome => {
                         let error=StructuralError::NumericallyUnresolved{reason:"M03 product final same-state equilibrium/contact qualification failed",global_dof:None};
                         append_integrity_failure(diagnostics, &load_case.id, &error, model);
@@ -7772,7 +7772,7 @@ fn append_nonlinear_support_loop_results(
                     "confirmation attempt: not run",
                 )),
             };
-            Some((solve, standing))
+            Some((solve, standing, qualification))
         }
         Err(error) => {
             if let NonlinearIntegrationError::Structural(structural) = &error {
@@ -15619,7 +15619,7 @@ mod kd5_withheld_summary_tests {
                 )]
             } else {
                 Vec::new()
-            },
+            }, nonlinear_state: None,
         }
     }
 
@@ -25344,3 +25344,71 @@ mod tests {
 /// crate so that neither its own nor this crate's dependency set changes.
 pub use open_pipe_stress_result_export as result_export;
 mod modal;
+
+/// DEL-04-09 I2b-2, Agent 0's decision B: which branch of the existing
+/// qualification call admitted a converged nonlinear state, recorded where
+/// `append_nonlinear_support_loop_results` takes it (never re-run).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum NonlinearQualification {
+    /// `product_selected_state_is_qualified` returned `Ok(true)`.
+    Qualified,
+    /// It returned `Ok(false)` and `product_unsupported_gap_state_is_inspectable`
+    /// returned `Ok(true)`: converged, unqualified, inspectable only.
+    InspectableUnqualifiedGap,
+}
+
+/// Decision B: the standing the case's own publication used.
+#[derive(Debug, Clone, PartialEq)]
+enum NonlinearStateStanding {
+    /// The confirmed state the case published from (`confirmed` was `Some`).
+    Confirmed,
+    /// Not established: the case's own fail-closed sentence, carried as text.
+    NotEstablished { reason: String },
+}
+
+/// Decision B: the typed internal seam. What one completed case solve
+/// decided about its nonlinear support states, bound to that case. It is
+/// `Some` only on the completed `LoadCaseSolve` of a case whose active-set
+/// solve converged and passed qualification (either branch); every blocked,
+/// early-return and linear construction carries `None`. It changes no
+/// result, diagnostic or envelope byte: nothing in the static path reads it.
+#[derive(Debug, Clone, PartialEq)]
+struct NonlinearStateEvidence {
+    case_id: String,
+    solver_mode: PreviewSolverMode,
+    converged: bool,
+    qualification: NonlinearQualification,
+    standing: NonlinearStateStanding,
+    final_states: Vec<SupportStateRecord>,
+}
+
+/// Decision B: the evidence of a completed case (see `NonlinearStateEvidence`),
+/// from values the case solve already holds; a separate frame so that the case
+/// solve's own frame grows by its one pointer.
+#[inline(never)]
+fn capture_nonlinear_state_evidence(
+    case_id: &str,
+    solver_mode: PreviewSolverMode,
+    solve: Option<&NonlinearFrameSolveResult>,
+    qualification: Option<NonlinearQualification>,
+    confirmed: bool,
+    sentence: Option<&str>,
+) -> Option<Box<NonlinearStateEvidence>> {
+    let solve = solve.filter(|solve| solve.converged)?;
+    let qualification = qualification?;
+    let standing = if confirmed {
+        NonlinearStateStanding::Confirmed
+    } else {
+        NonlinearStateStanding::NotEstablished {
+            reason: sentence.map_or_else(|| "the confirmed state was not admitted by the case's own publication guard".to_string(), str::to_string),
+        }
+    };
+    Some(Box::new(NonlinearStateEvidence {
+        case_id: case_id.to_string(),
+        solver_mode,
+        converged: solve.converged,
+        qualification,
+        standing,
+        final_states: solve.final_states.clone(),
+    }))
+}
