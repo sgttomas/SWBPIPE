@@ -4202,3 +4202,77 @@ if fnkey("plan", _S2_RES):
          {"what": {"bytes": max(len(_w) for _w in _s2_whats), "source": O10 + "S2-ID: the longest static temperature suffix"},
           "crate::stable_suffix(pipe_id)": IN}),
     ]
+
+# §8.43 (DEL-04-09 I2a): the product modal module (core/product_physics/src/modal.rs and modal/) is reached from no
+# retained root: no lib.rs function calls into it and no modal node is reachable on the run's graph. Two whole-crate
+# gates still read it, by the existing method (no exclusion, no method change):
+_MODAL = PP_ + "modal/"
+if fnkey("prepare_modal", _MODAL + "prepare.rs"):
+    import hashlib as _modal_hashlib
+    # MODAL-FB (CG_RULES, exact target subtractions; the KD5C5/CD-ID pattern): the name-based graph links these modal
+    # functions' method calls to certified_publication's private FallbackError add/mul/max/min, entering KD5C6's
+    # private cutset. Their receivers are open_pipe_stress_modal_eigen::dd::Dd (add, mul) and f64 (max, min);
+    # FallbackError is private to certified_publication with no trait, public-return, function-pointer or macro escape
+    # (KD5C5). Only those candidates are subtracted; each caller's body is pinned, so an edit re-opens this rule.
+    _MODAL_FB = [
+        ("add_block", "mass.rs", ("add",), "ae750082f8becd88c44548bd4997e12b6b6cba9aabc51f79a00813539a519178"),
+        ("symmetric_apply", "mass.rs", ("add",), "6a3d73fdb789f1b3bc22977688671f249012f9f24d639cca7ca443914867a4e3"),
+        ("apply_mass", "mass.rs", ("add",), "e77fe629a614642aea509843a20f091092bff4e1fa2310162adb4356d1302389"),
+        ("nodal_resultant", "mass.rs", ("add", "mul"), "82a740b27d9174e8add9a9e775b46a694c1674c265c373bd6b279edb67a58134"),
+        ("largest_discrepancy", "weight_basis.rs", ("max",), "27f148781b9b576fbb6ca3a83bece0632520954a17d10d5a99380b5e8f17f0c2"),
+        ("identity_scales", "weight_basis.rs", ("max",), "0057b556c0d6e3fa32b33e56ccf47f08a325b8ad7bfc5847c1a78e01d9be395f"),
+        ("largest_difference", "weight_basis.rs", ("max",), "1e88b0f40e93ff68abb97c1108c3da5d01ef067f48b067b5fab6b278ed862acc"),
+        ("bounding_diagonal", "weight_basis.rs", ("min", "max"), "cab8c9dbaae3e9440ee030532f766599051375fb98184259cdd73570b2860c1d"),
+    ]
+    for _fn, _f, _methods, _digest in _MODAL_FB:
+        _body = _fn_text(_fn, _MODAL + _f)
+        if _modal_hashlib.sha256(_body.encode()).hexdigest() != _digest or "FallbackError" in _body:
+            raise SystemExit(f"MODAL-FB: {_f}:{_fn} changed; re-review its receivers and re-pin (§8.43)")
+        for _m in _methods:
+            _target = fnkey(_m, _CP)
+            if not _target:
+                raise SystemExit(f"MODAL-FB: certified_publication's {_m} is not unique; re-review (§8.43)")
+            CG_RULES += [{"caller": fnkey(_fn, _MODAL + _f), "name": _m,
+                          "exclude_targets": [Resolved(_CP + ":" + _target.split(":", 1)[1])], "added": "MODAL-FB",
+                          "evidence": "modal receivers are Dd (add, mul) and f64 (max, min); private FallbackError is not nameable here (KD5C5); body pinned (§8.43)"}]
+    # MODAL-ID (ID_AUDIT, site-specific; the TIM-ID/S2-ID pattern): arguments of modal format sites that no existing
+    # class covers. Each site is at multiplicity zero (no retained root reaches modal; the chain classifies every format
+    # row before its multiplicity applies). Bounds are read from the pinned source or the D1 domain.
+    _md = lambda n, why: {"bytes": n, "source": O10 + "MODAL-ID: " + why}
+    _M_INT = _md(20, "a usize decimal")
+    _M_F64 = _md(327, "f64 Display")
+    _M_AX = _md(8, "one of AXES' three static tokens (global_x/y/z)")
+    _M_EMPTY = _md(0, "D1 refuses every nonlinear support (retained_memory.rs F::Nonlinear), so the joined list is empty")
+    O10_ID_AUDIT += [
+        (site("set_of", _MODAL + "context.rs", "the case uses {uses} and pipe", full=True),
+         {"uses": _md(13, "one of set_of's three static uses (temperature, added_weight, wind_exposure)")}),
+        (site("set_of", _MODAL + "context.rs", "refers to condition set `{reference}`", full=True), {"reference": IN}),
+        (site("bind_state_case", _MODAL + "context.rs", "fewer than its {authored} authored ones", full=True), {"authored": _M_INT}),
+        (site("bind_state_case", _MODAL + "context.rs", "authored + offset,", full=True, row="format!("), {"authored+offset": _M_INT}),
+        (site("bind_state_case", _MODAL + "context.rs", "the lowered wind exposure is not the expected {wind:?}", full=True),
+         {"wind|?": _md(8, "D1 refuses every equivalent_static case (F::EquivalentStatic), so the expected presence is Absent or Unstated")}),
+        (site("range_diag", _MODAL + "mass.rs", "cannot be formed: {what}", full=True),
+         {"what": _md(152, "a static reason (<= 59 B), a GeometryError Display (<= 73 B) or `component {IN128} names no node` (152 B)")}),
+        (site("assemble_mass", _MODAL + "mass.rs", "the body mass W/a of component {}", full=True),
+         {"weight.weight": _M_F64, "a": _M_F64, "weight.cog|?": _md(78, "[f64; 3] Debug: three f64 Debug (24) and four bracket/separator bytes"),
+          "operand": _md(23, "ComponentRangeOperand Display, the longest static name `spatial block m*r_i*r_j`")}),
+        (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
+         {'nonlinear.join(",")': _M_EMPTY}),
+        (site("state_case_requirement", _MODAL + "request.rs", 'reasons.push(format!("the model has nonlinear supports ({})"', full=True),
+         {'nonlinear.join(",")': _M_EMPTY}),
+        (site("validate_modal_request", _MODAL + "request.rs", "is {hz} Hz; a frequency cut-off is positive", full=True), {"hz": _M_F64}),
+        (site("validate_modal_request", _MODAL + "request.rs", "names its state_case because {why}", full=True),
+         {"why": _md(86, "state_case_requirement's static reasons joined by ` and ` (46 + 5 + 35 B), the nonlinear list empty on D1")}),
+        (site("validate_modal_request", _MODAL + "request.rs", "{why}; the modal model is defined by exactly one named case", full=True),
+         {"why": _md(29, "one of two static reasons, the longer `names more than one load case`")}),
+        (site("validate_modal_request", _MODAL + "request.rs", "is {a} m/s^2; it is a positive acceleration", full=True), {"a": _M_F64}),
+        (site("weight_basis_mismatch", _MODAL + "weight_basis.rs", "diagnostic:modal:weight-basis:{}:{}", full=True), {"AXES[axis]": _M_AX}),
+        (site("acceleration_agreement", _MODAL + "weight_basis.rs", "and takes no part in the comparison", full=True),
+         {"status.state|?": _md(14, "AppliedSelfWeightState Debug, the longest variant `ManualOverride`")}),
+        (site("acceleration_agreement", _MODAL + "weight_basis.rs", '"load case {} applies component weight primitive', full=True, row="format!("),
+         {'recorded.map_or("unrecorded".to_string(),|g|format!("{g:e}"))': _md(24, "`unrecorded` (10 B) or one f64 exponent form (24 B)"),
+          'a.map_or("absent".to_string(),|a|format!("{a:e}m/s^2"))': _md(30, "`absent` (6 B) or one f64 exponent form and ` m/s^2` (30 B)")}),
+        (site("check_weight_basis", _MODAL + "weight_basis.rs", "the self-weight generator refused its inspection along {}", full=True), {"AXES[k]": _M_AX}),
+        (site("check_weight_basis", _MODAL + "weight_basis.rs", "of straight member {} differs from its consistent", full=True), {"AXES[k]": _M_AX}),
+        (site("compare_resultant", _MODAL + "weight_basis.rs", '"the resultant of a·M·r_k for {subject} along {}', full=True, row="format!("), {"AXES[k]": _M_AX}),
+    ]

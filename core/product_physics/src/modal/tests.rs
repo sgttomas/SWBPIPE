@@ -240,16 +240,32 @@ fn context_refuses_a_tampered_authored_prefix() {
     let mut tampered = lowered(&model);
     tampered.load_cases[ope].primitive_loads[0].provenance = Some("edited".into());
     refused(context.bind_state_case(&tampered), "differs in its provenance");
-    // Another member of the case.
-    let mut tampered = lowered(&model);
-    tampered.load_cases[ope].provenance = Some("edited".into());
-    refused(context.bind_state_case(&tampered), "other than its primitive loads");
     // The field-wise comparison itself.
     let load = &model.load_cases[ope].primitive_loads[0];
     let mut other = load.clone();
     assert_eq!(primitive_load_difference(load, &other), None);
     other.magnitude.value = -0.0 * load.magnitude.value.signum();
     assert_eq!(primitive_load_difference(load, &other), Some("magnitude.value"));
+}
+
+#[test]
+fn the_binder_runs_only_on_preparations_own_lowering() {
+    // §8.43 decision A: the rest of the case is not compared, so the binder's
+    // premise is its provenance: exactly one call, on prepare_modal's own clone,
+    // directly after the one lowering and before any stage rewrites the model.
+    let text = include_str!("prepare.rs");
+    assert_eq!(text.matches("bind_state_case(").count(), 1);
+    let lower = text.find("operating_conditions::lower(&mut model, &mut diagnostics);").unwrap();
+    let bind = text.find("context.bind_state_case(&model)").unwrap();
+    let clone = text.find("let mut model = req.model.clone();").unwrap();
+    assert!(clone < lower && lower < bind);
+    for later in ["validate_profile(", "normalize_model_units(", "resolve_shared_sections(", "withhold_interim_combinations("] {
+        assert!(text.find(later).unwrap() > bind, "{later} runs after the binding's evidence");
+    }
+    assert!(!text[lower..bind].contains("model."), "nothing edits the model between the lowering and the binding");
+    let context = include_str!("context.rs");
+    assert!(context.contains("pub(super) fn bind_state_case("));
+    assert!(!context.contains("fn rest_of_case"));
 }
 
 #[test]
@@ -442,8 +458,10 @@ fn a_static_refusal_of_the_state_case_refuses_it_by_name() {
     let last = found.last().unwrap();
     assert_eq!(last.code, MODAL_STATE_CASE_UNAVAILABLE, "{found:#?}");
     assert!(last.message.contains("static path's own admission"), "{}", last.message);
-    let carried = &found[found.len() - 2];
-    assert!(carried.severity == "blocking" && last.message.contains(&carried.code), "{found:#?}");
+    // The static diagnostics are returned with it, unchanged; the message counts them.
+    let carried: Vec<_> = found[..found.len() - 1].iter().filter(|d| d.severity == "blocking" && d.affected_refs.iter().any(|r| r == "case:hot")).collect();
+    assert!(!carried.is_empty(), "{found:#?}");
+    assert!(last.message.contains(&format!("({} blocking diagnostic(s), returned with this one)", carried.len())), "{}", last.message);
 }
 
 #[test]
@@ -457,7 +475,7 @@ fn a_contents_density_state_case_is_refused_upstream() {
     let found = prepare_modal(&modal(request)).err().unwrap();
     assert!(codes(&found).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{found:#?}");
     assert_eq!(found.last().unwrap().code, MODAL_STATE_CASE_UNAVAILABLE);
-    assert!(found.last().unwrap().message.contains("LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"));
+    assert!(found.last().unwrap().message.contains("blocking diagnostic(s), returned with this one"));
 }
 
 #[test]

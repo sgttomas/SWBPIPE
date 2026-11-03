@@ -166,9 +166,8 @@ import runpy
 # is assessed separately in DEL-04-08 §8.39. No heap owner,
 # error path, TEXT site or lifetime is added. element_reformation's wide leaves (LiftedFrame, LiftedCurved) are
 # instantiated only by its own reform_* entries, which no retained root reaches (modal_eigen is outside crate_dirs).
-# DEL-04-09 I2a D3 (§8.43, read 0fcb87a3b..I2a): lib.rs's only hunk appends `mod modal;` after its last item (no
-# earlier line moves). The modal module's functions are reached from no lib.rs function and no retained root (MODAL-UNR
-# below); no owner this model prices changes.
+# DEL-04-09 I2a D3 (§8.43, read 3983f51cf..I2a): lib.rs's only hunk appends `mod modal;` after its last item (no
+# earlier line moves). No lib.rs function names the modal module; no owner this model prices changes.
 SOURCE_FILES = {'core/product_physics/src/lib.rs': 'ff00e3daae3406108f12307bd2677779887e5e43bb5fd9dee06a37b62120031d', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/retained_precision.rs': 'da8b0fb9643826a2b4e6028342a24463a08e766453f111757a5e4ebc723fd84a', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': '59774c3e3b58021945297f5ba15367b33962c1cd3bff5a1e3f1cc5de55d6dd07', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '35122b23c075ce4ec35486f9423a3aa51054d80c0aeb2b1fd4ec9c76432df142', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': 'd5b41586efc8bcb68873f167f6e94366d21bc66adf847cde8fcf40cfe791ba7f', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
@@ -257,140 +256,6 @@ def leaf_seam(text):
     return True
 
 
-# DEL-04-09 I2a D3 (§8.43), MODAL-UNR (method proposal): the product modal module (core/product_physics/src/modal.rs
-# and modal/) is isolated from every other product_physics source, so no retained root can reach it and the pricing
-# snapshot may omit it (price.py exclude_unreachable_modal), as modal_eigen sits outside crate_dirs. The guard runs on
-# the FULL unfiltered source and fails closed. On comment- and string-blanked code (loopscan.blank_rust):
-#  - lib.rs declares `mod modal;` exactly once, privately (no pub, no #[path]), and no other file declares a `modal`
-#    module;
-#  - no non-modal source names the module in any path, use, re-export, alias or glob form (`modal ::`, `use … modal`,
-#    `r#modal`), names its kernel crate, or reaches its files by #[path] or include!/include_str!/include_bytes!;
-#  - modal defines no macro (macro_rules!, #[macro_export]), no exported or linker-visible item (#[no_mangle],
-#    #[export_name], #[used], #[link_section], extern blocks or fns, #[global_allocator]) and no static
-#    initialization hook;
-#  - no non-modal source calls self_weight's inspect_generated_self_weight (D-SW: only modal does);
-#  - every impl block in modal has a self type defined in modal (no inherent or trait impl on a non-modal type, no
-#    blanket impl over a type parameter), so no method or trait effect on a type that priced code uses lives in
-#    modal.
-# A crossing form the guard cannot classify stops the run. MODAL_TREE_PIN binds the excluded bytes (sorted path and
-# raw-content digests) and MODAL_UNR_VERSION the guard, so a later modal change re-opens the review.
-MODAL_UNR_VERSION = "MODAL-UNR v1"
-MODAL_TREE_PIN = "ea8ba515a9da53bb56409b9c7a28d65f28fc8bf57291943732263d82064af3ab"  # I2a modal bytes: reviewed at 305b42b57, plus the §8.43 test-only change to modal/tests.rs
-MODAL_ROOT = "core/product_physics/src"
-MODAL_DECL = re.compile(r"(?m)^mod modal;$")
-MODAL_ANY_DECL = re.compile(r"\bmod\s+(?:r#)?modal\b")
-MODAL_NAMED = re.compile(r"(?:\br#)?\bmodal\s*::|\buse\b[^;]*\bmodal\b|open_pipe_stress_modal_eigen|\bmodal_eigen\b")
-MODAL_FILE_REF = re.compile(r"#\s*\[\s*path\s*=\s*\"[^\"]*modal|include(?:_str|_bytes)?\s*!\s*\(\s*[^)]*modal")
-MODAL_FORBIDDEN = re.compile(r"\bmacro_rules\s*!|#\s*\[\s*macro_export|#\s*\[\s*no_mangle|#\s*\[\s*export_name|"
-                             r"#\s*\[\s*used\b|#\s*\[\s*link_section|\bextern\s+\"|\bextern\s+crate\b|"
-                             r"#\s*\[\s*global_allocator|\bctor\b|\binventory\s*::")
-MODAL_INSPECTION = re.compile(r"\binspect_generated_self_weight\b")
-MODAL_INSPECTION_DEF = re.compile(r"\bfn\s+inspect_generated_self_weight\s*\(")
-MODAL_TYPE_DEF = re.compile(r"\b(?:struct|enum|union|type|trait)\s+([A-Za-z_][A-Za-z0-9_]*)")
-# An impl ITEM starts a line (after optional `unsafe`/`default`); `impl Trait` in a type position does not. An `impl`
-# token elsewhere that is not in a type position (after `:`, `->`, `(`, `,`, `<`, `&`, `=`, `dyn`) stops the run.
-MODAL_IMPL = re.compile(r"(?m)^[ \t]*(?:(?:unsafe|default)\s+)*impl\b")
-MODAL_IMPL_ANY = re.compile(r"\bimpl\b")
-MODAL_IMPL_TYPE_POS = re.compile(r"(?:[:(,<&=]|->|\bdyn)\s*$")
-
-
-def _modal_files(root):
-    out = []
-    for directory, _, files in os.walk(root):
-        for name in files:
-            path = os.path.join(directory, name)
-            out.append((os.path.relpath(path, root).replace(os.sep, "/"), path))
-    return sorted(out)
-
-
-def _is_modal(relative):
-    return relative == "modal.rs" or relative.startswith("modal/")
-
-
-def modal_tree_digest(snapshot):
-    """SHA-256 over the guard version and every modal file's path and raw-content digest, in path order."""
-    root = os.path.join(snapshot, MODAL_ROOT)
-    h = hashlib.sha256(MODAL_UNR_VERSION.encode())
-    for relative, path in _modal_files(root):
-        if _is_modal(relative):
-            with open(path, "rb") as stream:
-                h.update(b"\0" + relative.encode() + b"\0" + hashlib.sha256(stream.read()).hexdigest().encode())
-    return h.hexdigest()
-
-
-def _impl_self_types(code):
-    """(self type head, impl generics) of each impl header in blanked code; raises on a header it cannot read."""
-    out = []
-    for m in MODAL_IMPL.finditer(code):
-        j, depth, generics = m.end(), 0, ""
-        rest = code[j:]
-        g = re.match(r"\s*<", rest)
-        if g:
-            k, depth = g.end(), 1
-            while k < len(rest) and depth:
-                depth += {"<": 1, ">": -1}.get(rest[k], 0)
-                k += 1
-            generics, rest = rest[g.end():k - 1], rest[k:]
-        header = rest[:rest.find("{")] if "{" in rest else None
-        if header is None:
-            raise ValueError("B7a modal isolation: unreadable impl header; re-review")
-        header = re.split(r"\bwhere\b", header)[0]
-        target = re.split(r"\bfor\b", header)[-1] if re.search(r"\bfor\b", header) else header
-        head = re.match(r"\s*(?:&\s*(?:'[a-z_]+\s*)?(?:mut\s+)?)?(?:dyn\s+)?([A-Za-z_][A-Za-z0-9_]*)", target)
-        if not head:
-            raise ValueError("B7a modal isolation: unreadable impl self type; re-review")
-        params = set(re.findall(r"(?:^|,)\s*([A-Z][A-Za-z0-9_]*)", generics))
-        out.append((head.group(1), params))
-    return out
-
-
-def modal_unreachable(snapshot):
-    """True when the modal module is isolated (above); False when the snapshot has no modal module. Raises otherwise."""
-    loopscan = runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "loopscan.py"))
-    blank = loopscan["blank_rust"]
-    root = os.path.join(snapshot, MODAL_ROOT)
-    files = _modal_files(root)
-    raw = {}
-    for relative, path in files:
-        if relative.endswith(".rs"):
-            with open(path, "rb") as stream:
-                raw[relative] = stream.read().decode("utf-8")
-    lib = blank(raw.get("lib.rs", ""))
-    modal_present = any(_is_modal(r) for r, _ in files)
-    if not MODAL_DECL.search(lib) and not modal_present:
-        return False
-    if len(MODAL_DECL.findall(lib)) != 1 or len(MODAL_ANY_DECL.findall(lib)) != 1:
-        raise ValueError("B7a modal isolation: modal must be declared once, privately, in lib.rs; re-review")
-    declared_at = MODAL_DECL.search(lib).start()
-    attrs = lib[max(0, declared_at - 200):declared_at]
-    if re.search(r"#\s*\[[^\]]*\]\s*$", attrs):
-        raise ValueError("B7a modal isolation: attributes on the modal declaration; re-review")
-    defined, impls = set(), []
-    for relative, text in sorted(raw.items()):
-        code = blank(text)
-        if _is_modal(relative):
-            if MODAL_FORBIDDEN.search(code):
-                raise ValueError("B7a modal isolation: " + relative + " defines a macro, exported or static-init item; re-review")
-            defined.update(MODAL_TYPE_DEF.findall(code))
-            impls.extend((relative, head, params) for head, params in _impl_self_types(code))
-            items = {m.end() for m in MODAL_IMPL.finditer(code)}
-            for m in MODAL_IMPL_ANY.finditer(code):
-                if m.end() not in items and not MODAL_IMPL_TYPE_POS.search(code[max(0, m.start() - 40):m.start()]):
-                    raise ValueError("B7a modal isolation: " + relative + " has an impl the guard cannot classify; re-review")
-            continue
-        scrubbed = MODAL_DECL.sub("", code) if relative == "lib.rs" else code
-        if MODAL_NAMED.search(scrubbed) or MODAL_ANY_DECL.search(scrubbed) or MODAL_FILE_REF.search(text):
-            raise ValueError("B7a modal reach changed: " + relative + " names the modal module; re-review")
-        # D-SW: the self-weight inspection's only callers are modal's (its definition is self_weight.rs's).
-        calls = MODAL_INSPECTION.findall(code)
-        if len(calls) != (1 if relative == "self_weight.rs" else 0) or (calls and not MODAL_INSPECTION_DEF.search(code)):
-            raise ValueError("B7a modal isolation: " + relative + " calls or redefines inspect_generated_self_weight; re-review")
-    for relative, head, params in impls:
-        if head in params or head not in defined:
-            raise ValueError("B7a modal isolation: " + relative + " implements on " + head + ", not a modal type; re-review")
-    return True
-
-
 def inspect(snapshot):
     fingerprints = {}
     for file, expected in SOURCE_FILES.items():
@@ -420,11 +285,10 @@ def inspect(snapshot):
         raise ValueError("B7a positive-domain family clauses changed")
     with open(os.path.join(snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs"), "rb") as stream:
         seam = leaf_seam(stream.read().decode("utf-8"))
-    modal = modal_unreachable(snapshot)
     return {"full_raw_source_fingerprints": fingerprints,
             "admission_caps_sha256": CAPS_PIN, "family_clauses_sha256": FAMILY_PIN,
             "admission_prefix_sha256": ADMISSION_PREFIX_PIN, "admission_late_sha256": ADMISSION_LATE_PINS,
-            "formation_leaf_seam": seam, "modal_unreachable": modal,
+            "formation_leaf_seam": seam,
             "model_sha256": hashlib.sha256(open(__file__, "rb").read()).hexdigest(),
             "formed_terms_per_input": 12, "manifest_operand_words": OPERAND_WORDS,
             "basis_material_count": MATERIALS, "named_basis_count": 3,
