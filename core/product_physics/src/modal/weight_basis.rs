@@ -15,7 +15,7 @@
 //!   model on the resultant.
 //!
 //! **Tolerance (D-TOL): not pinned.** The identity tolerance is `TBD` in the
-//! design until it is measured and pinned under DEC-026. [`check`] therefore
+//! design until it is measured and pinned under DEC-026. [`check_weight_basis`] therefore
 //! takes the tolerance as an explicit argument with no default and no
 //! production value; it reports every measured discrepancy so the measurement
 //! can be recorded. A discrepancy beyond the supplied tolerance refuses with
@@ -25,7 +25,7 @@
 //! never applied, serialized into a result, stored or given any publication or
 //! authority meaning, and neither its scratch case id nor its empty source
 //! hash appears in anything returned here.
-use super::mass::{node_centroid, resultant, rigid, symmetric_apply, MemberKind, ModalMass};
+use super::mass::{node_centroid, nodal_resultant, rigid_translation, symmetric_apply, MemberKind, ModalMass};
 use super::prepare::Prepared;
 use super::{MODAL_MASS_WEIGHT_BASIS_MISMATCH, MODAL_WEIGHT_ACCELERATION_MISMATCH};
 use crate::self_weight::{
@@ -86,12 +86,12 @@ pub(crate) struct IdentityReport {
 
 impl IdentityReport {
     /// The largest discrepancy of `kind` (absolute, relative).
-    pub(crate) fn largest(&self, kind: &str) -> (f64, f64) {
+    pub(crate) fn largest_discrepancy(&self, kind: &str) -> (f64, f64) {
         self.discrepancies.iter().filter(|d| d.kind == kind).fold((0.0, 0.0), |(a, r), d| (a.max(d.absolute), r.max(d.relative)))
     }
 }
 
-fn mismatch(subject: &str, axis: usize, message: String) -> Diagnostic {
+fn weight_basis_mismatch(subject: &str, axis: usize, message: String) -> Diagnostic {
     diag(
         &format!("diagnostic:modal:weight-basis:{}:{}", stable_suffix(subject), AXES[axis]),
         MODAL_MASS_WEIGHT_BASIS_MISMATCH,
@@ -155,7 +155,7 @@ fn acceleration_agreement(prepared: &Prepared, a: Option<f64>, disclosures: &mut
 /// magnitude and the force scale times `length` (the compared body's size), so
 /// that a moment that is zero in exact arithmetic is judged against the
 /// moments its forces make, not against its own rounding.
-fn scales(reference: &[f64], length: f64) -> [f64; 2] {
+fn identity_scales(reference: &[f64], length: f64) -> [f64; 2] {
     let mut scale = [0.0f64; 2];
     for (i, r) in reference.iter().enumerate() {
         scale[(i % 6) / 3] = scale[(i % 6) / 3].max(r.abs());
@@ -169,7 +169,7 @@ fn scales(reference: &[f64], length: f64) -> [f64; 2] {
 
 /// (largest |difference|, largest |difference| relative to its kind's scale).
 fn largest_difference(formed: &[Dd], reference: &[f64], length: f64) -> (f64, f64) {
-    let scale = scales(reference, length);
+    let scale = identity_scales(reference, length);
     let (mut abs, mut rel) = (0.0f64, 0.0f64);
     for (i, (f, r)) in formed.iter().zip(reference).enumerate() {
         let d = f.sub(Dd::from_f64(*r)).abs().to_f64();
@@ -180,8 +180,8 @@ fn largest_difference(formed: &[Dd], reference: &[f64], length: f64) -> (f64, f6
     (abs, rel)
 }
 
-fn exceeds(formed: &[Dd], reference: &[f64], length: f64, tolerance: IdentityTolerance) -> bool {
-    let scale = scales(reference, length);
+fn identity_exceeds(formed: &[Dd], reference: &[f64], length: f64, tolerance: IdentityTolerance) -> bool {
+    let scale = identity_scales(reference, length);
     formed.iter().zip(reference).enumerate().any(|(i, (f, r))| {
         let d = f.sub(Dd::from_f64(*r)).abs().to_f64();
         !(d <= tolerance.absolute + tolerance.relative * scale[(i % 6) / 3])
@@ -238,7 +238,7 @@ fn generated_rows(plan: &self_weight::SelfWeightOperationPlan) -> Option<Generat
 /// model and its formed mass (module docs). Only a [`Prepared`] reaches the
 /// inspection, so it runs only after every validation the static solve
 /// requires has passed.
-pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTolerance) -> Result<IdentityReport, Vec<Diagnostic>> {
+pub(crate) fn check_weight_basis(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTolerance) -> Result<IdentityReport, Vec<Diagnostic>> {
     let mut disclosures = Vec::new();
     acceleration_agreement(prepared, mass.acceleration, &mut disclosures)?;
     let a = if mass.bodies.is_empty() { 1.0 } else { mass.acceleration.expect("a component body enters only with a") };
@@ -252,22 +252,22 @@ pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTo
     for k in 0..3 {
         let gravity = SelfWeightGravity { value: a, unit: "m/s^2".into(), axis: AXES[k].into() };
         let plan = self_weight::inspect_generated_self_weight(prepared.original, &members, &gravity).map_err(|mut found| {
-            found.push(mismatch("model", k, format!("the self-weight generator refused its inspection along {}, so the weight basis cannot be compared", AXES[k])));
+            found.push(weight_basis_mismatch("model", k, format!("the self-weight generator refused its inspection along {}, so the weight basis cannot be compared", AXES[k])));
             found
         })?;
         let Some(generated) = generated_rows(&plan) else {
-            return Err(vec![mismatch("model", k, "the self-weight inspection returned a row this check does not read".into())]);
+            return Err(vec![weight_basis_mismatch("model", k, "the self-weight inspection returned a row this check does not read".into())]);
         };
         // The same members on both sides.
         let formed_pipes: BTreeSet<&str> = mass.members.iter().map(|m| m.pipe.as_str()).collect();
         let generated_pipes: BTreeSet<&str> = generated.intensities.keys().map(String::as_str).collect();
         for pipe in formed_pipes.symmetric_difference(&generated_pipes) {
-            refusals.push(mismatch(pipe, k, format!("member {pipe} carries distributed mass on one basis only (the modal mass and the self-weight generator disagree on it)")));
+            refusals.push(weight_basis_mismatch(pipe, k, format!("member {pipe} carries distributed mass on one basis only (the modal mass and the self-weight generator disagree on it)")));
         }
         let formed_bodies: BTreeSet<&str> = mass.bodies.iter().map(|b| b.component_id.as_str()).collect();
         let generated_bodies: BTreeSet<&str> = generated.wrenches.keys().map(String::as_str).collect();
         for component in formed_bodies.symmetric_difference(&generated_bodies) {
-            refusals.push(mismatch(component, k, format!("component {component} is a body on one basis only")));
+            refusals.push(weight_basis_mismatch(component, k, format!("component {component} is a body on one basis only")));
         }
         let mut reference_loads: Vec<(usize, [Dd; 6])> = Vec::new();
         for member in &mass.members {
@@ -277,7 +277,7 @@ pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTo
             match &member.kind {
                 MemberKind::Straight(element) => {
                     let Some(pipe) = prepared.built.pipes.iter().find(|p| p.element_id == member.pipe) else {
-                        refusals.push(mismatch(&member.pipe, k, format!("member {} has no built straight element", member.pipe)));
+                        refusals.push(weight_basis_mismatch(&member.pipe, k, format!("member {} has no built straight element", member.pipe)));
                         continue;
                     };
                     let reference = GlobalUniformLoad::new(intensity)
@@ -285,16 +285,16 @@ pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTo
                     let reference = match reference {
                         Ok(reference) => reference,
                         Err(error) => {
-                            refusals.push(mismatch(&member.pipe, k, format!("the uniform-load vector of member {} is not formed: {error}", member.pipe)));
+                            refusals.push(weight_basis_mismatch(&member.pipe, k, format!("the uniform-load vector of member {} is not formed: {error}", member.pipe)));
                             continue;
                         }
                     };
-                    let formed: Vec<Dd> = symmetric_apply(element, &rigid::<12>(k)).iter().map(|v| v.mul_f64(a)).collect();
+                    let formed: Vec<Dd> = symmetric_apply(element, &rigid_translation::<12>(k)).iter().map(|v| v.mul_f64(a)).collect();
                     let length = bounding_diagonal(&[positions[member.node_i], positions[member.node_j]]);
                     let (abs, rel) = largest_difference(&formed, &reference, length);
                     discrepancies.push(Discrepancy { subject: member.pipe.clone(), axis: k, kind: "nodal", absolute: abs, relative: rel });
-                    if exceeds(&formed, &reference, length, tolerance) {
-                        refusals.push(mismatch(&member.pipe, k, format!("a·M·r_k of straight member {} differs from its consistent uniform-load vector along {} by {abs:e} ({rel:e} relative)", member.pipe, AXES[k])));
+                    if identity_exceeds(&formed, &reference, length, tolerance) {
+                        refusals.push(weight_basis_mismatch(&member.pipe, k, format!("a·M·r_k of straight member {} differs from its consistent uniform-load vector along {} by {abs:e} ({rel:e} relative)", member.pipe, AXES[k])));
                     }
                     reference_loads.push((member.node_i, std::array::from_fn(|i| Dd::from_f64(reference[i]))));
                     reference_loads.push((member.node_j, std::array::from_fn(|i| Dd::from_f64(reference[6 + i]))));
@@ -303,7 +303,7 @@ pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTo
                     let reference = match prepared.built.curved_bend_elements[*bend].macro_element.consistent_uniform_nodal_loads(intensity) {
                         Ok(reference) => reference,
                         Err(error) => {
-                            refusals.push(mismatch(&member.pipe, k, format!("the arc's consistent load vector of member {} is not formed: {error}", member.pipe)));
+                            refusals.push(weight_basis_mismatch(&member.pipe, k, format!("the arc's consistent load vector of member {} is not formed: {error}", member.pipe)));
                             continue;
                         }
                     };
@@ -312,8 +312,8 @@ pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTo
                         (member.node_j, std::array::from_fn(|i| Dd::from_f64(reference[6 + i]))),
                     ];
                     let formed = [
-                        (member.node_i, symmetric_apply(&lumps[0], &rigid::<6>(k)).map(|v| v.mul_f64(a))),
-                        (member.node_j, symmetric_apply(&lumps[1], &rigid::<6>(k)).map(|v| v.mul_f64(a))),
+                        (member.node_i, symmetric_apply(&lumps[0], &rigid_translation::<6>(k)).map(|v| v.mul_f64(a))),
+                        (member.node_j, symmetric_apply(&lumps[1], &rigid_translation::<6>(k)).map(|v| v.mul_f64(a))),
                     ];
                     compare_resultant(&member.pipe, k, &formed, &arc_reference, &positions, point, tolerance, &mut discrepancies, &mut refusals);
                     reference_loads.extend(arc_reference);
@@ -323,11 +323,11 @@ pub(crate) fn check(prepared: &Prepared, mass: &ModalMass, tolerance: IdentityTo
         for body in &mass.bodies {
             let Some((node, force, moment)) = generated.wrenches.get(&body.component_id) else { continue };
             let Some(&node) = node_index.get(node.as_str()) else {
-                refusals.push(mismatch(&body.component_id, k, format!("component {}'s generated wrench names no node", body.component_id)));
+                refusals.push(weight_basis_mismatch(&body.component_id, k, format!("component {}'s generated wrench names no node", body.component_id)));
                 continue;
             };
             let wrench = [(node, [force[0], force[1], force[2], moment[0], moment[1], moment[2]].map(Dd::from_f64))];
-            let formed = [(body.node, symmetric_apply(&body.block, &rigid::<6>(k)).map(|v| v.mul_f64(a)))];
+            let formed = [(body.node, symmetric_apply(&body.block, &rigid_translation::<6>(k)).map(|v| v.mul_f64(a)))];
             compare_resultant(&body.component_id, k, &formed, &wrench, &positions, point, tolerance, &mut discrepancies, &mut refusals);
             reference_loads.extend(wrench);
         }
@@ -356,8 +356,8 @@ fn compare_resultant(
     discrepancies: &mut Vec<Discrepancy>,
     refusals: &mut Vec<Diagnostic>,
 ) {
-    let f = resultant(formed.iter().copied(), positions, point);
-    let r = resultant(reference.iter().copied(), positions, point);
+    let f = nodal_resultant(formed.iter().copied(), positions, point);
+    let r = nodal_resultant(reference.iter().copied(), positions, point);
     let reference_values = to_f64s(&r);
     // The size of what is compared: its nodes and the fixed point.
     let mut extent: Vec<[f64; 3]> = formed.iter().chain(reference).map(|(n, _)| positions[*n]).collect();
@@ -365,8 +365,8 @@ fn compare_resultant(
     let length = bounding_diagonal(&extent);
     let (abs, rel) = largest_difference(&f, &reference_values, length);
     discrepancies.push(Discrepancy { subject: subject.to_string(), axis: k, kind: "resultant", absolute: abs, relative: rel });
-    if exceeds(&f, &reference_values, length, tolerance) {
-        refusals.push(mismatch(subject, k, format!(
+    if identity_exceeds(&f, &reference_values, length, tolerance) {
+        refusals.push(weight_basis_mismatch(subject, k, format!(
             "the resultant of a·M·r_k for {subject} along {} differs from the self-weight resultant about the node centroid by {abs:e} ({rel:e} relative)",
             AXES[k]
         )));
@@ -475,9 +475,9 @@ fn applied_case_rows(
         let product = mass.rigid_product(k);
         let formed: Vec<(usize, [Dd; 6])> =
             (0..mass.node_count).map(|n| (n, std::array::from_fn(|i| product[6 * n + i].mul_f64(g)))).collect();
-        let f = resultant(formed, positions, point);
-        let r = resultant(loads, positions, point);
-        let scale = scales(&to_f64s(&r), bounding_diagonal(positions));
+        let f = nodal_resultant(formed, positions, point);
+        let r = nodal_resultant(loads, positions, point);
+        let scale = identity_scales(&to_f64s(&r), bounding_diagonal(positions));
         let relative = |range: std::ops::Range<usize>, scale: f64| {
             let d = range.map(|i| f[i].sub(r[i]).abs().to_f64()).fold(0.0, f64::max);
             if d == 0.0 { 0.0 } else if scale == 0.0 { f64::INFINITY } else { d / scale }

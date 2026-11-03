@@ -9,6 +9,14 @@
 //! native, headless, schema or publication entry, and no eigen solve (I2b).
 //! It never enters the retained Direct entry or D1. The identity's tolerance
 //! is not pinned (D-TOL); only tests supply one.
+//!
+//! Function names here are chosen so that none is also a call token elsewhere
+//! in the priced crate sources (`tools/retained_pricing/base/crate_dirs.txt`):
+//! the retained-pricing call graph resolves calls by name, so a shared name
+//! (`get`, `check`, `validate`, ...) would add over-approximate edges from
+//! retained-reachable code into this module. The request has no hand-written
+//! `Deserialize` implementation for the same reason (serde entry points reach
+//! every custom one).
 #![allow(dead_code)] // No entry consumes this module until I2b; its tests do.
 
 mod context;

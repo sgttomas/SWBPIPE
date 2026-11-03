@@ -3,8 +3,8 @@
 //!
 //! The modal entry lowers the model once, through the solve's own
 //! `operating_conditions::lower`; it never plans, judges or resolves a second
-//! time. [`ModalCaseContext::capture`] keeps access to the named case as it
-//! was authored, before lowering. [`ModalCaseContext::bind`] then proves, from
+//! time. [`ModalCaseContext::capture_state_case`] keeps access to the named case as it
+//! was authored, before lowering. [`ModalCaseContext::bind_state_case`] then proves, from
 //! the lowered model and authored facts alone, that the lowered case is that
 //! case with exactly S2's documented output appended
 //! (`operating_conditions::resolution`):
@@ -76,7 +76,7 @@ pub(crate) struct ModalCaseContext<'a> {
     authored_wind: WindPresence,
 }
 
-fn unavailable(case: &str, reason: String) -> Diagnostic {
+fn state_case_binding_refusal(case: &str, reason: String) -> Diagnostic {
     diag(
         &format!("diagnostic:modal:state-case:{}:binding", stable_suffix(case)),
         MODAL_STATE_CASE_UNAVAILABLE,
@@ -167,7 +167,7 @@ struct Expected<'a> {
     copied: Option<&'a Quantity>,
 }
 
-fn axis_token(axis: GlobalAxis) -> &'static str {
+fn condition_axis_token(axis: GlobalAxis) -> &'static str {
     match axis {
         GlobalAxis::GlobalX => "global_x",
         GlobalAxis::GlobalY => "global_y",
@@ -199,10 +199,10 @@ fn expected_difference(load: &PreviewPrimitiveLoad, expected: &Expected) -> Opti
 
 impl<'a> ModalCaseContext<'a> {
     /// Captures the authored case named `state_case`, before lowering.
-    pub(crate) fn capture(original: &'a PreviewModel, state_case: &str) -> Result<Self, Diagnostic> {
+    pub(crate) fn capture_state_case(original: &'a PreviewModel, state_case: &str) -> Result<Self, Diagnostic> {
         let mut matching = original.load_cases.iter().enumerate().filter(|(_, case)| case.id == state_case);
         let (Some((case_index, case)), None) = (matching.next(), matching.next()) else {
-            return Err(unavailable(state_case, "it does not name exactly one load case of the authored model".into()));
+            return Err(state_case_binding_refusal(state_case, "it does not name exactly one load case of the authored model".into()));
         };
         Ok(Self {
             original,
@@ -212,7 +212,7 @@ impl<'a> ModalCaseContext<'a> {
         })
     }
 
-    fn case(&self) -> &'a PreviewLoadCase {
+    fn authored_case(&self) -> &'a PreviewLoadCase {
         &self.original.load_cases[self.case_index]
     }
 
@@ -235,7 +235,7 @@ impl<'a> ModalCaseContext<'a> {
         let Some(using) = self.condition_use.as_ref() else {
             return Ok((temperatures, added_weights));
         };
-        let case = self.case().id.as_str();
+        let case = self.authored_case().id.as_str();
         if let Some(key) = &using.pressure {
             return Err(format!("the case uses condition `{key}` for pressure, which the pressure-free resolution refuses"));
         }
@@ -267,7 +267,7 @@ impl<'a> ModalCaseContext<'a> {
                         id: added_weight_load_id(case, &pipe.id),
                         category: "weight",
                         pipe: &pipe.id,
-                        direction: axis_token(weight.direction),
+                        direction: condition_axis_token(weight.direction),
                         dimension: "force_per_length",
                         provenance: added_weight_provenance(&set.id),
                         unit: None,
@@ -302,10 +302,10 @@ impl<'a> ModalCaseContext<'a> {
     /// (module docs). `lowered` must not yet have passed a stage that rewrites
     /// a primitive load (unit normalization does), so the prefix compares bit
     /// for bit.
-    pub(crate) fn bind(&self, lowered: &PreviewModel) -> Result<BoundCase, Diagnostic> {
-        let original = self.case();
+    pub(crate) fn bind_state_case(&self, lowered: &PreviewModel) -> Result<BoundCase, Diagnostic> {
+        let original = self.authored_case();
         let id = original.id.as_str();
-        let refuse = |reason: String| unavailable(id, reason);
+        let refuse = |reason: String| state_case_binding_refusal(id, reason);
         // Evidence that the one lowering ran, and that it kept the case's place.
         if lowered.load_cases.len() != self.original.load_cases.len() {
             return Err(refuse(format!("the lowered model has {} load cases, the authored one {}", lowered.load_cases.len(), self.original.load_cases.len())));

@@ -31,7 +31,8 @@ pub(crate) struct ModalPreviewRequest {
 
 /// Closed wire form: an undeclared request member refuses by name, and each
 /// material record is read as the static request reads it, so a request-level
-/// `expansion_laws` key is recorded rather than dropped.
+/// `expansion_laws` key is recorded rather than dropped (in
+/// `parse_modal_request`).
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct ModalPreviewRequestWire {
@@ -52,31 +53,6 @@ struct ModalPreviewRequestWire {
     weight_to_mass_acceleration: Option<Quantity>,
     #[serde(default)]
     include_dynamic_only_restraints: Option<bool>,
-}
-
-impl<'de> Deserialize<'de> for ModalPreviewRequest {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let wire = ModalPreviewRequestWire::deserialize(deserializer)?;
-        let mut model = wire.model;
-        let mut materials = Vec::with_capacity(wire.materials.len());
-        for (index, record) in wire.materials.into_iter().enumerate() {
-            if record.expansion_laws.is_authored() {
-                model.request_material_expansion_laws.push(index);
-            }
-            materials.push(record.material);
-        }
-        Ok(Self {
-            model,
-            materials,
-            mode_count: wire.mode_count,
-            frequency_cutoff: wire.frequency_cutoff,
-            state_case: wire.state_case,
-            modulus_basis_ref: wire.modulus_basis_ref,
-            modulus_basis_temperature: wire.modulus_basis_temperature,
-            weight_to_mass_acceleration: wire.weight_to_mass_acceleration,
-            include_dynamic_only_restraints: wire.include_dynamic_only_restraints,
-        })
-    }
 }
 
 /// The request's validated inputs, normalized through the unit catalog.
@@ -112,7 +88,7 @@ fn request_diag(field: &str, code: &str, message: String, refs: Vec<String>) -> 
 /// The quantity in the catalog's canonical unit of `dimension`, or the reason
 /// it is not one (unit outside the catalog or of another dimension, a
 /// non-finite value or one that does not convert).
-fn normalized(quantity: &Quantity, dimension: Dimension) -> Result<f64, String> {
+fn normalized_request_quantity(quantity: &Quantity, dimension: Dimension) -> Result<f64, String> {
     if !quantity.value.is_finite() {
         return Err(format!("its value {} is not finite", quantity.value));
     }
@@ -137,16 +113,38 @@ impl ModalPreviewRequest {
     /// Parses the request value as the static value entry does: the model's
     /// closed records first (an undeclared model member refuses by name), then
     /// the closed request.
-    pub(crate) fn from_value(actual_request: serde_json::Value) -> Result<Self, String> {
+    /// The request is read through its derived closed wire form and converted
+    /// here, with no hand-written `Deserialize` implementation.
+    pub(crate) fn parse_modal_request(actual_request: serde_json::Value) -> Result<Self, String> {
         if let Some(refusal) = crate::model_fields::unknown_field_refusal(&actual_request) {
             return Err(refusal);
         }
-        serde_json::from_value(actual_request).map_err(|error| format!("modal request does not parse: {error}"))
+        let wire: ModalPreviewRequestWire =
+            serde_json::from_value(actual_request).map_err(|error| format!("modal request does not parse: {error}"))?;
+        let mut model = wire.model;
+        let mut materials = Vec::with_capacity(wire.materials.len());
+        for (index, record) in wire.materials.into_iter().enumerate() {
+            if record.expansion_laws.is_authored() {
+                model.request_material_expansion_laws.push(index);
+            }
+            materials.push(record.material);
+        }
+        Ok(Self {
+            model,
+            materials,
+            mode_count: wire.mode_count,
+            frequency_cutoff: wire.frequency_cutoff,
+            state_case: wire.state_case,
+            modulus_basis_ref: wire.modulus_basis_ref,
+            modulus_basis_temperature: wire.modulus_basis_temperature,
+            weight_to_mass_acceleration: wire.weight_to_mass_acceleration,
+            include_dynamic_only_restraints: wire.include_dynamic_only_restraints,
+        })
     }
 
     /// The request-level refusals of Design §1.4, all of them, in a fixed
     /// order; or the validated inputs.
-    pub(crate) fn validate(&self) -> Result<RequestInputs, Vec<Diagnostic>> {
+    pub(crate) fn validate_modal_request(&self) -> Result<RequestInputs, Vec<Diagnostic>> {
         let mut found = Vec::new();
         if self.mode_count.is_none() && self.frequency_cutoff.is_none() {
             found.push(request_diag(
@@ -166,7 +164,7 @@ impl ModalPreviewRequest {
         }
         let mut frequency_cutoff_hz = None;
         if let Some(cutoff) = &self.frequency_cutoff {
-            match normalized(cutoff, Dimension::Frequency) {
+            match normalized_request_quantity(cutoff, Dimension::Frequency) {
                 Ok(hz) if hz > 0.0 => frequency_cutoff_hz = Some(hz),
                 Ok(hz) => found.push(request_diag(
                     "frequency-cutoff",
@@ -219,7 +217,7 @@ impl ModalPreviewRequest {
         }
         let mut weight_to_mass_acceleration = None;
         if let Some(acceleration) = &self.weight_to_mass_acceleration {
-            match normalized(acceleration, Dimension::Acceleration) {
+            match normalized_request_quantity(acceleration, Dimension::Acceleration) {
                 Ok(a) if a > 0.0 => weight_to_mass_acceleration = Some(a),
                 Ok(a) => found.push(request_diag(
                     "weight-to-mass-acceleration",

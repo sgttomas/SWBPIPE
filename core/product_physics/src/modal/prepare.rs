@@ -17,7 +17,7 @@ use super::{MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED, MODAL_STATE_CASE_UNAVAI
 use crate::*;
 use open_pipe_stress_linear_supports::BoundaryPreparation;
 
-/// Proof that a [`Prepared`] came from [`prepare`]: it has no constructor
+/// Proof that a [`Prepared`] came from [`prepare_modal`]: it has no constructor
 /// outside this module, so nothing that takes a `Prepared` (mass assembly, the
 /// weight-basis inspection) is reachable before preparation has passed.
 #[derive(Debug)]
@@ -43,7 +43,7 @@ pub(crate) struct Prepared<'a> {
     _admitted: Admitted,
 }
 
-fn stop(mut diagnostics: Vec<Diagnostic>, state_case: Option<&str>, from: usize) -> Vec<Diagnostic> {
+fn modal_stop(mut diagnostics: Vec<Diagnostic>, state_case: Option<&str>, from: usize) -> Vec<Diagnostic> {
     // A static refusal of the state case refuses the modal request by name,
     // carrying the static diagnostics that refused it.
     if let Some(case) = state_case {
@@ -94,11 +94,11 @@ fn request_basis_case(req: &ModalPreviewRequest, diagnostics: &mut Vec<Diagnosti
 }
 
 /// The static entry's pre-formation sequence on the request (module docs).
-pub(crate) fn prepare(req: &ModalPreviewRequest) -> Result<Prepared<'_>, Vec<Diagnostic>> {
-    let inputs = req.validate()?;
+pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, Vec<Diagnostic>> {
+    let inputs = req.validate_modal_request()?;
     let state_case = inputs.state_case.as_deref();
     let context = match state_case {
-        Some(case) => Some(ModalCaseContext::capture(&req.model, case).map_err(|d| vec![d])?),
+        Some(case) => Some(ModalCaseContext::capture_state_case(&req.model, case).map_err(|d| vec![d])?),
         None => None,
     };
     let mut model = req.model.clone();
@@ -111,14 +111,14 @@ pub(crate) fn prepare(req: &ModalPreviewRequest) -> Result<Prepared<'_>, Vec<Dia
     // magnitude (module docs). A refused lowering stops below with its own
     // diagnostics, so no evidence is taken from it.
     let binding = match &context {
-        Some(context) if !has_blocking(&diagnostics) => Some(context.bind(&model)),
+        Some(context) if !has_blocking(&diagnostics) => Some(context.bind_state_case(&model)),
         _ => None,
     };
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
     case_state::resolve::validate_document(&model, request_materials_supplied, &mut diagnostics);
     if imposed_motion::validate(&model, &mut diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     validate_model_inputs(&model, &materials, &mut diagnostics);
     validate_support_family_tokens(&model, &mut diagnostics);
@@ -142,31 +142,31 @@ pub(crate) fn prepare(req: &ModalPreviewRequest) -> Result<Prepared<'_>, Vec<Dia
         ));
     }
     if has_blocking(&diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
     self_weight::validate_applied_self_weight(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     normalize_model_units(&mut model, &mut materials, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     let load_state = case_state::is_load_state(&model);
     if !load_state {
         pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
     }
     if has_blocking(&diagnostics) {
-        return Err(stop(diagnostics, state_case, 0));
+        return Err(modal_stop(diagnostics, state_case, 0));
     }
     let resolution_start = diagnostics.len();
     let resolved_cases = if load_state {
@@ -255,11 +255,11 @@ pub(crate) fn prepare(req: &ModalPreviewRequest) -> Result<Prepared<'_>, Vec<Dia
         if modulus_basis_key(case, &mut diagnostics).is_some() {
             match materials_for_modulus_basis(&model, &materials, case, &mut diagnostics) {
                 Some((basis_materials, _record)) => materials = basis_materials,
-                None => return Err(stop(diagnostics, state_case, before)),
+                None => return Err(modal_stop(diagnostics, state_case, before)),
             }
         }
         if has_blocking(&diagnostics) {
-            return Err(stop(diagnostics, state_case, before));
+            return Err(modal_stop(diagnostics, state_case, before));
         }
     }
     let pairs = match (&resolved_cases, &bound_case) {

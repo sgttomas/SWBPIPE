@@ -123,7 +123,7 @@ pub(crate) fn symmetric_apply<const N: usize>(block: &[[Dd; N]; N], x: &[f64; N]
 }
 
 /// The rigid unit translation along k on a block of `nodes` nodes.
-pub(crate) fn rigid<const N: usize>(k: usize) -> [f64; N] {
+pub(crate) fn rigid_translation<const N: usize>(k: usize) -> [f64; N] {
     let mut x = [0.0; N];
     for node in 0..N / 6 {
         x[6 * node + k] = 1.0;
@@ -133,7 +133,7 @@ pub(crate) fn rigid<const N: usize>(k: usize) -> [f64; N] {
 
 impl ModalMass {
     /// M[row][col] over the 6N global DOFs (node-major, ux uy uz rx ry rz).
-    pub(crate) fn get(&self, row: usize, col: usize) -> f64 {
+    pub(crate) fn mass_entry(&self, row: usize, col: usize) -> f64 {
         let (r, c) = if row <= col { (row, col) } else { (col, row) };
         self.blocks.get(&(r / 6, c / 6)).map_or(0.0, |block| block[r % 6][c % 6].to_f64())
     }
@@ -144,7 +144,7 @@ impl ModalMass {
     }
 
     /// M·x over the full DOF set, accumulated in double-double.
-    pub(crate) fn apply(&self, x: &[f64]) -> Vec<Dd> {
+    pub(crate) fn apply_mass(&self, x: &[f64]) -> Vec<Dd> {
         let mut y = vec![Dd::ZERO; 6 * self.node_count];
         for (&(i, j), block) in &self.blocks {
             for a in 0..6 {
@@ -173,7 +173,7 @@ impl ModalMass {
         for node in 0..self.node_count {
             x[6 * node + k] = 1.0;
         }
-        self.apply(&x)
+        self.apply_mass(&x)
     }
 
     /// M as a dense symmetric matrix, formed on demand only.
@@ -363,7 +363,7 @@ pub(crate) fn assemble_mass(prepared: &Prepared, acceleration: Option<f64>) -> R
         warnings,
         summary: MassSummary { total_by_direction: [0.0; 3], center_of_gravity: None },
     };
-    mass.summary = summarize(&mass, &built.nodes.iter().map(|n| n.coordinates).collect::<Vec<_>>());
+    mass.summary = summarize_mass(&mass, &built.nodes.iter().map(|n| n.coordinates).collect::<Vec<_>>());
     Ok(mass)
 }
 
@@ -380,7 +380,7 @@ pub(crate) fn node_centroid(positions: &[[f64; 3]]) -> [f64; 3] {
 }
 
 /// Force and moment about `point` of nodal 6-vectors `loads[n]` at `positions[n]`.
-pub(crate) fn resultant(loads: impl IntoIterator<Item = (usize, [Dd; 6])>, positions: &[[f64; 3]], point: [f64; 3]) -> [Dd; 6] {
+pub(crate) fn nodal_resultant(loads: impl IntoIterator<Item = (usize, [Dd; 6])>, positions: &[[f64; 3]], point: [f64; 3]) -> [Dd; 6] {
     let mut out = [Dd::ZERO; 6];
     for (node, load) in loads {
         let d = [0, 1, 2].map(|k| Dd::from_f64(positions[node][k]).sub(Dd::from_f64(point[k])));
@@ -398,14 +398,14 @@ pub(crate) fn resultant(loads: impl IntoIterator<Item = (usize, [Dd; 6])>, posit
     out
 }
 
-fn summarize(mass: &ModalMass, positions: &[[f64; 3]]) -> MassSummary {
+fn summarize_mass(mass: &ModalMass, positions: &[[f64; 3]]) -> MassSummary {
     let point = node_centroid(positions);
     let mut totals = [0.0; 3];
     let mut moments = [[Dd::ZERO; 6]; 3];
     for k in 0..3 {
         let product = mass.rigid_product(k);
         let loads = (0..mass.node_count).map(|n| (n, [0, 1, 2, 3, 4, 5].map(|i| product[6 * n + i])));
-        moments[k] = resultant(loads, positions, point);
+        moments[k] = nodal_resultant(loads, positions, point);
         totals[k] = moments[k][k].to_f64();
     }
     // With F = T·e_k at the centre c: moment about p = T·(c − p) × e_k.

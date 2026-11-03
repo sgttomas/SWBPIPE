@@ -5,9 +5,9 @@
 //! range premise and the self-weight inspection seam. All models are invented.
 use super::context::{primitive_load_difference, BoundCase, ModalCaseContext, WindPresence};
 use super::mass::{assemble_mass, mass_bearing_members, ModalMass};
-use super::prepare::{prepare, Prepared};
+use super::prepare::{prepare_modal, Prepared};
 use super::request::ModalPreviewRequest;
-use super::weight_basis::{check, IdentityReport, IdentityTolerance};
+use super::weight_basis::{check_weight_basis, IdentityReport, IdentityTolerance};
 use super::*;
 use crate::self_weight::{
     generate_self_weight_operations, inspect_generated_self_weight, SelfWeightGravity, SelfWeightRequest,
@@ -51,7 +51,7 @@ fn codes(found: &[Diagnostic]) -> Vec<&str> {
 }
 
 fn modal(value: Value) -> ModalPreviewRequest {
-    ModalPreviewRequest::from_value(value).unwrap_or_else(|refusal| panic!("{refusal}"))
+    ModalPreviewRequest::parse_modal_request(value).unwrap_or_else(|refusal| panic!("{refusal}"))
 }
 
 /// `request` with the modal members `members` added.
@@ -132,7 +132,7 @@ fn arc_request(gap: bool) -> Value {
 }
 
 fn prepared(request: &ModalPreviewRequest) -> Prepared<'_> {
-    prepare(request).unwrap_or_else(|found| panic!("prepare refused: {found:#?}"))
+    prepare_modal(request).unwrap_or_else(|found| panic!("prepare refused: {found:#?}"))
 }
 
 /// Prepare, form the mass and run the identity with the test-local bound.
@@ -140,7 +140,7 @@ fn identity(request: &ModalPreviewRequest) -> (ModalMass, IdentityReport) {
     let prepared = prepared(request);
     let mass = assemble_mass(&prepared, prepared.inputs.weight_to_mass_acceleration)
         .unwrap_or_else(|found| panic!("mass refused: {found:#?}"));
-    let report = check(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_or_else(|found| panic!("identity refused: {found:#?}"));
+    let report = check_weight_basis(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_or_else(|found| panic!("identity refused: {found:#?}"));
     (mass, report)
 }
 
@@ -161,7 +161,7 @@ fn lowered(model: &PreviewModel) -> PreviewModel {
 }
 
 fn bind(model: &PreviewModel, case: &str) -> Result<BoundCase, Diagnostic> {
-    ModalCaseContext::capture(model, case).unwrap().bind(&lowered(model))
+    ModalCaseContext::capture_state_case(model, case).unwrap().bind_state_case(&lowered(model))
 }
 
 fn index(model: &PreviewModel, case: &str) -> usize {
@@ -229,21 +229,21 @@ fn context_distinguishes_every_wind_presence() {
 #[test]
 fn context_refuses_a_tampered_authored_prefix() {
     let model = twin_model();
-    let context = ModalCaseContext::capture(&model, "OPE").unwrap();
+    let context = ModalCaseContext::capture_state_case(&model, "OPE").unwrap();
     let ope = index(&model, "OPE");
     // One bit of an authored magnitude.
     let mut tampered = lowered(&model);
     let value = &mut tampered.load_cases[ope].primitive_loads[2].magnitude.value;
     *value = f64::from_bits(value.to_bits() + 1);
-    refused(context.bind(&tampered), "differs in its magnitude.value");
+    refused(context.bind_state_case(&tampered), "differs in its magnitude.value");
     // An authored provenance.
     let mut tampered = lowered(&model);
     tampered.load_cases[ope].primitive_loads[0].provenance = Some("edited".into());
-    refused(context.bind(&tampered), "differs in its provenance");
+    refused(context.bind_state_case(&tampered), "differs in its provenance");
     // Another member of the case.
     let mut tampered = lowered(&model);
     tampered.load_cases[ope].provenance = Some("edited".into());
-    refused(context.bind(&tampered), "other than its primitive loads");
+    refused(context.bind_state_case(&tampered), "other than its primitive loads");
     // The field-wise comparison itself.
     let load = &model.load_cases[ope].primitive_loads[0];
     let mut other = load.clone();
@@ -255,12 +255,12 @@ fn context_refuses_a_tampered_authored_prefix() {
 #[test]
 fn context_refuses_any_generated_suffix_but_s2s_exact_output() {
     let model = twin_model();
-    let context = ModalCaseContext::capture(&model, "OPE").unwrap();
+    let context = ModalCaseContext::capture_state_case(&model, "OPE").unwrap();
     let ope = index(&model, "OPE");
     let tamper = |edit: &dyn Fn(&mut Vec<crate::PreviewPrimitiveLoad>)| {
         let mut tampered = lowered(&model);
         edit(&mut tampered.load_cases[ope].primitive_loads);
-        context.bind(&tampered)
+        context.bind_state_case(&tampered)
     };
     refused(tamper(&|loads| loads.push(loads[7].clone())), "appends 6 records");
     refused(tamper(&|loads| { loads.pop(); }), "appends 4 records");
@@ -278,28 +278,28 @@ fn context_refuses_any_generated_suffix_but_s2s_exact_output() {
 #[test]
 fn context_refuses_missing_or_contradictory_evidence() {
     let model = twin_model();
-    let context = ModalCaseContext::capture(&model, "OPE").unwrap();
+    let context = ModalCaseContext::capture_state_case(&model, "OPE").unwrap();
     // An unlowered model is no evidence that the lowering ran.
-    refused(context.bind(&model), "the lowering has not run");
+    refused(context.bind_state_case(&model), "the lowering has not run");
     // A model with another case at the state case's place.
     let mut moved = lowered(&model);
     moved.load_cases.swap(0, 1);
-    refused(context.bind(&moved), "not the state case");
+    refused(context.bind_state_case(&moved), "not the state case");
     let mut fewer = lowered(&model);
     fewer.load_cases.pop();
-    refused(context.bind(&fewer), "load cases");
+    refused(context.bind_state_case(&fewer), "load cases");
     // Reordered pipes.
     let mut pipes = lowered(&model);
     pipes.pipe_segments.swap(0, 1);
-    refused(context.bind(&pipes), "pipe segments");
+    refused(context.bind_state_case(&pipes), "pipe segments");
     // A wind exposure other than the resolved one.
-    let wind = ModalCaseContext::capture(&model, "WIND").unwrap();
+    let wind = ModalCaseContext::capture_state_case(&model, "WIND").unwrap();
     let mut tampered = lowered(&model);
     let at = index(&model, "WIND");
     tampered.load_cases[at].equivalent_static.as_mut().unwrap().wind.as_mut().unwrap().exposed_pipe_refs.reverse();
-    refused(wind.bind(&tampered), "wind exposure");
+    refused(wind.bind_state_case(&tampered), "wind exposure");
     // No such case.
-    assert_eq!(ModalCaseContext::capture(&model, "NONE").unwrap_err().code, MODAL_STATE_CASE_UNAVAILABLE);
+    assert_eq!(ModalCaseContext::capture_state_case(&model, "NONE").unwrap_err().code, MODAL_STATE_CASE_UNAVAILABLE);
 }
 
 // ---------------------------------------------------------------------------
@@ -307,7 +307,7 @@ fn context_refuses_missing_or_contradictory_evidence() {
 // ---------------------------------------------------------------------------
 
 fn request_codes(members: Value) -> Vec<String> {
-    match modal(with(pf_request(false), members)).validate() {
+    match modal(with(pf_request(false), members)).validate_modal_request() {
         Ok(_) => vec![],
         Err(found) => found.into_iter().map(|d| d.code).collect(),
     }
@@ -322,12 +322,12 @@ fn request_requires_a_positive_extraction_bound() {
     assert_eq!(request_codes(json!({"frequency_cutoff": q(5.0, "m")})), [MODAL_EXTRACTION_BOUND_INVALID]);
     // Angular frequency is another dimension of the catalog.
     assert_eq!(request_codes(json!({"frequency_cutoff": q(5.0, "rad/s")})), [MODAL_EXTRACTION_BOUND_INVALID]);
-    let found = modal(with(pf_request(false), json!({"frequency_cutoff": q(5.0, "m")}))).validate().unwrap_err();
+    let found = modal(with(pf_request(false), json!({"frequency_cutoff": q(5.0, "m")}))).validate_modal_request().unwrap_err();
     assert!(found[0].message.contains("`m`") && found[0].message.contains("frequency"), "{}", found[0].message);
     // A negative count is not a count: the closed request refuses it.
-    assert!(ModalPreviewRequest::from_value(with(pf_request(false), json!({"mode_count": -1}))).is_err());
-    assert!(ModalPreviewRequest::from_value(with(pf_request(false), json!({"mode_count": 1, "solver": "x"}))).is_err());
-    let inputs = modal(with(pf_request(false), json!({"mode_count": 3, "frequency_cutoff": q(40.0, "Hz")}))).validate().unwrap();
+    assert!(ModalPreviewRequest::parse_modal_request(with(pf_request(false), json!({"mode_count": -1}))).is_err());
+    assert!(ModalPreviewRequest::parse_modal_request(with(pf_request(false), json!({"mode_count": 1, "solver": "x"}))).is_err());
+    let inputs = modal(with(pf_request(false), json!({"mode_count": 3, "frequency_cutoff": q(40.0, "Hz")}))).validate_modal_request().unwrap();
     assert_eq!((inputs.mode_count, inputs.frequency_cutoff_hz), (Some(3), Some(40.0)));
 }
 
@@ -336,7 +336,7 @@ fn request_weight_to_mass_acceleration_is_a_positive_acceleration() {
     for bad in [q(0.0, "m/s^2"), q(-9.8125, "m/s^2"), q(9.8125, "m")] {
         assert_eq!(request_codes(json!({"mode_count": 1, "weight_to_mass_acceleration": bad})), [MODAL_WEIGHT_ACCELERATION_INVALID]);
     }
-    let inputs = modal(with(pf_request(false), json!({"mode_count": 1, "weight_to_mass_acceleration": q(9.8125, "m/s^2")}))).validate().unwrap();
+    let inputs = modal(with(pf_request(false), json!({"mode_count": 1, "weight_to_mass_acceleration": q(9.8125, "m/s^2")}))).validate_modal_request().unwrap();
     assert_eq!(inputs.weight_to_mass_acceleration, Some(9.8125));
 }
 
@@ -344,12 +344,12 @@ fn request_weight_to_mass_acceleration_is_a_positive_acceleration() {
 fn request_state_case_is_required_where_section_1_4_requires_it() {
     // A load/reference-state document.
     let load_state: Value = serde_json::from_str(LOAD_STATE_REQUEST).unwrap();
-    let found = modal(with(load_state.clone(), json!({"mode_count": 1}))).validate().unwrap_err();
+    let found = modal(with(load_state.clone(), json!({"mode_count": 1}))).validate_modal_request().unwrap_err();
     assert_eq!(codes(&found), [MODAL_STATE_CASE_REQUIRED]);
     assert!(found[0].message.contains("load/reference-state document"), "{}", found[0].message);
-    assert!(modal(with(load_state.clone(), json!({"mode_count": 1, "state_case": "case:cold"}))).validate().is_ok());
+    assert!(modal(with(load_state.clone(), json!({"mode_count": 1, "state_case": "case:cold"}))).validate_modal_request().is_ok());
     // A model with a nonlinear support.
-    let found = modal(with(arc_request(true), json!({"mode_count": 1}))).validate().unwrap_err();
+    let found = modal(with(arc_request(true), json!({"mode_count": 1}))).validate_modal_request().unwrap_err();
     assert_eq!(codes(&found), [MODAL_STATE_CASE_REQUIRED]);
     assert!(found[0].message.contains("nonlinear supports (support:gap)"), "{}", found[0].message);
     // Optional on a plain document; a name that is not a case is unavailable.
@@ -366,7 +366,7 @@ fn request_modulus_basis_conflicts_with_a_state_case() {
         [MODAL_MODULUS_BASIS_CONFLICT]
     );
     // Without a state case the request's basis is resolved by the static resolver.
-    let found = prepare(&modal(with(pf_request(false), json!({"mode_count": 1, "modulus_basis_ref": "point:none"})))).err().unwrap();
+    let found = prepare_modal(&modal(with(pf_request(false), json!({"mode_count": 1, "modulus_basis_ref": "point:none"})))).err().unwrap();
     assert!(codes(&found).iter().any(|c| c.starts_with("MODULUS_BASIS")), "{found:#?}");
 }
 
@@ -377,7 +377,7 @@ fn request_modulus_basis_conflicts_with_a_state_case() {
 fn parity(request: Value, members: Value) {
     let static_found = LinearStaticPreviewRequest::pre_formation_checks_value(request.clone()).unwrap();
     let modal_request = modal(with(request, members));
-    let modal_found = match prepare(&modal_request) {
+    let modal_found = match prepare_modal(&modal_request) {
         Ok(prepared) => prepared.diagnostics,
         Err(found) => found,
     };
@@ -419,7 +419,7 @@ fn a_static_refusal_of_the_state_case_refuses_it_by_name() {
     for state in load_state["model"]["load_cases"][1]["analysis_state"]["element_states"].as_array_mut().unwrap() {
         state["material_selection"]["point_ref"] = json!("point:none");
     }
-    let found = prepare(&modal(with(load_state, json!({"mode_count": 1, "state_case": "case:hot"})))).err().unwrap();
+    let found = prepare_modal(&modal(with(load_state, json!({"mode_count": 1, "state_case": "case:hot"})))).err().unwrap();
     let last = found.last().unwrap();
     assert_eq!(last.code, MODAL_STATE_CASE_UNAVAILABLE, "{found:#?}");
     assert!(last.message.contains("static path's own admission"), "{}", last.message);
@@ -435,7 +435,7 @@ fn a_contents_density_state_case_is_refused_upstream() {
     document["condition_sets"][0]["conditions"][0]["contents_density"] = q(1000.0, "kg/m^3");
     document["load_cases"][1]["condition_use"] = json!({"contents_density": "OPE1"});
     let request = json!({"model": document, "materials": [], "mode_count": 1, "state_case": "SUS"});
-    let found = prepare(&modal(request)).err().unwrap();
+    let found = prepare_modal(&modal(request)).err().unwrap();
     assert!(codes(&found).contains(&"LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"), "{found:#?}");
     assert_eq!(found.last().unwrap().code, MODAL_STATE_CASE_UNAVAILABLE);
     assert!(found.last().unwrap().message.contains("LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"));
@@ -443,12 +443,12 @@ fn a_contents_density_state_case_is_refused_upstream() {
 
 #[test]
 fn interim_refusals_are_by_name() {
-    let found = prepare(&modal(with(arc_request(true), json!({"mode_count": 1, "state_case": "case:z"})))).err().unwrap();
+    let found = prepare_modal(&modal(with(arc_request(true), json!({"mode_count": 1, "state_case": "case:z"})))).err().unwrap();
     assert_eq!(found.last().unwrap().code, MODAL_NONLINEAR_SUPPORT_INTERIM_UNSUPPORTED, "{found:#?}");
     let mut timoshenko = pf_request(false);
     timoshenko["model"]["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
     timoshenko["model"]["materials"][0]["poisson_ratio"] = q(0.25, "1");
-    let found = prepare(&modal(with(timoshenko, json!({"mode_count": 1})))).err().unwrap();
+    let found = prepare_modal(&modal(with(timoshenko, json!({"mode_count": 1})))).err().unwrap();
     assert_eq!(found.last().unwrap().code, MODAL_TIMOSHENKO_MASS_UNSUPPORTED, "{found:#?}");
 }
 
@@ -577,7 +577,7 @@ fn compare_with_reference(case: &Value, basis: &str, mass: &ModalMass, model: &P
     let mut error = 0.0f64;
     for r in 0..n {
         for c in 0..n {
-            error = error.max((mass.get(dofs[r], dofs[c]) - expected[r * n + c]).abs());
+            error = error.max((mass.mass_entry(dofs[r], dofs[c]) - expected[r * n + c]).abs());
         }
     }
     let mut total_error = 0.0f64;
@@ -597,7 +597,7 @@ struct Row {
 }
 
 fn row(model: &str, mass: Option<(f64, f64)>, report: &IdentityReport) -> Row {
-    Row { model: model.to_string(), mass, nodal: report.largest("nodal"), resultant: report.largest("resultant") }
+    Row { model: model.to_string(), mass, nodal: report.largest_discrepancy("nodal"), resultant: report.largest_discrepancy("resultant") }
 }
 
 /// The reference cases this converter authors, on each basis the product
@@ -611,7 +611,7 @@ fn reference_rows(rows: &mut Vec<Row>, refused: &mut Vec<String>) {
                 continue;
             };
             let request = modal(request);
-            let prepared = match prepare(&request) {
+            let prepared = match prepare_modal(&request) {
                 Ok(prepared) => prepared,
                 Err(found) => {
                     refused.push(format!("{id}/{basis}: prepare refused {:?}", codes(&found)));
@@ -626,7 +626,7 @@ fn reference_rows(rows: &mut Vec<Row>, refused: &mut Vec<String>) {
                 }
             }
             let compared = compare_with_reference(case, basis, &mass, &prepared.model);
-            let report = check(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_or_else(|f| panic!("{id}/{basis}: {f:#?}"));
+            let report = check_weight_basis(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_or_else(|f| panic!("{id}/{basis}: {f:#?}"));
             rows.push(row(&format!("{id}/{basis}"), Some(compared), &report));
         }
     }
@@ -714,7 +714,7 @@ fn identity_holds_on_pf_and_ex_straights() {
     corrupted.pipe_segments[0].section.material_density.as_mut().unwrap().value *= 1.0 + 1e-9;
     let scaled = super::prepare::tests_support::with_model(prepared, corrupted);
     let mass = assemble_mass(&scaled, None).unwrap();
-    let found = check(&scaled, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_err();
+    let found = check_weight_basis(&scaled, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_err();
     assert!(codes(&found).iter().all(|c| *c == MODAL_MASS_WEIGHT_BASIS_MISMATCH), "{found:#?}");
     assert!(found.iter().any(|d| d.affected_refs.contains(&"pipe:p1".to_string())), "{found:#?}");
 }
@@ -766,7 +766,7 @@ fn a_replaced_span_carries_no_mass_and_no_weight() {
     assert!(!mass_bearing_members(&prepared.model).contains(span));
     let mass = assemble_mass(&prepared, None).unwrap();
     assert!(mass.members.iter().all(|m| &m.pipe != span));
-    let report = check(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap();
+    let report = check_weight_basis(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap();
     assert!(report.discrepancies.iter().all(|d| &d.subject != span));
 }
 
@@ -801,7 +801,7 @@ fn acceleration_agreement_with_the_applied_weight_case() {
     let request = modal(with(applied_request(-9.8125), json!({"mode_count": 1, "weight_to_mass_acceleration": q(9.8, "m/s^2")})));
     let prepared = prepared(&request);
     let mass = assemble_mass(&prepared, prepared.inputs.weight_to_mass_acceleration).unwrap();
-    let found = check(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_err();
+    let found = check_weight_basis(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_err();
     assert!(codes(&found).iter().all(|c| *c == MODAL_WEIGHT_ACCELERATION_MISMATCH), "{found:#?}");
     assert!(found[0].message.contains("case:w") && found[0].message.contains("9.8125e0") && found[0].message.contains("9.8e0"), "{}", found[0].message);
     // A partial-scope applied case is disclosed, not compared.
@@ -842,7 +842,7 @@ fn range_premise_witnesses_refuse_by_operand() {
         }
         let a = number(&witness["a_m_per_s2"]);
         let request = modal(with(request, json!({"mode_count": 1, "weight_to_mass_acceleration": q(a, "m/s^2")})));
-        let prepared = match prepare(&request) {
+        let prepared = match prepare_modal(&request) {
             Ok(prepared) => prepared,
             Err(found) => panic!("{witness}: prepare refused {found:#?}"),
         };
@@ -880,7 +880,7 @@ fn inspection_is_pure_and_its_scratch_id_is_unique() {
 #[test]
 fn inspection_is_unreachable_before_preparation_passes() {
     // The one call site is the weight-basis check, which takes a `Prepared`;
-    // a `Prepared` has no constructor outside `prepare`.
+    // a `Prepared` has no constructor outside `prepare_modal`.
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     let mut sites = Vec::new();
     let mut stack = vec![root.clone()];
@@ -902,12 +902,12 @@ fn inspection_is_unreachable_before_preparation_passes() {
     assert_eq!(sites.len(), 1, "{sites:?}");
     assert!(sites[0].starts_with("modal/weight_basis.rs"), "{sites:?}");
     let prepare_text = include_str!("prepare.rs");
-    assert_eq!(prepare_text.matches("Admitted(())").count(), 2, "constructed only in `prepare`");
-    assert!(include_str!("weight_basis.rs").contains("pub(crate) fn check(prepared: &Prepared"));
+    assert_eq!(prepare_text.matches("Admitted(())").count(), 2, "constructed only in `prepare_modal`");
+    assert!(include_str!("weight_basis.rs").contains("pub(crate) fn check_weight_basis(prepared: &Prepared"));
     // A request that fails validation never yields a `Prepared`.
     let mut invalid = pf_request(false);
     invalid["model"]["pipe_segments"][0]["material"] = json!("missing");
-    assert!(prepare(&modal(with(invalid, json!({"mode_count": 1})))).is_err());
+    assert!(prepare_modal(&modal(with(invalid, json!({"mode_count": 1})))).is_err());
 }
 
 #[test]
