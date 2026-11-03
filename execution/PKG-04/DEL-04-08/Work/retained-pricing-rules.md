@@ -3192,10 +3192,13 @@ multiplicity 3 on every point. The class stays the four-file measure; those two 
 | **SL-LIM** (`O10_ID_AUDIT`, both routes) | The two copies above, each at its constant's runtime length lexed from its defining file at the snapshot (`joint.rs`, `bend_pressure.rs`): 1,422 and 1,255 B at `db3151708`. | **Guard:** each declaration is exactly one `const NAME: &str = "<one literal>";`; the name occurs in the pricing scope's code (all `crate_dirs.txt` files, literals and comments excluded) only at its declaration and its one copy; the copy's text is in its function (`site()`). Any change stops the run. |
 
 **Whole-scope disposition check** (`composite_text.py`, every point). The pricing scope's production literals are
-lexed: every `.rs` file under `crate_dirs.txt` (242 at `db3151708`), less test-only code, which is a file declared
-only by `#[cfg(test)] mod name;` (Rust's module path rules, `#[path]` included) or by a test-only file, recursively,
-and the body of a `#[cfg(test)] mod name { … }`. Anything not resolved with certainty (a nested or computed path, any
-other `cfg`) stays in scope. Every production literal longer than the class must match exactly one entry of
+lexed: every `.rs` file under `crate_dirs.txt` (242 at `db3151708`), less test-only code. A file is test-only exactly
+when production cannot reach it: production starts at every file no `mod name;` resolves to (Rust's module path
+rules, `#[path]` included) and follows every resolved declaration that is not under an exact `#[cfg(test)]` and not
+inside a `#[cfg(test)] mod name { … }` body, whose own literals are excluded. So a file a test module also declares
+stays in scope whenever production reaches it. Module items are found wherever they sit on a line. A production
+declaration not resolved with certainty (inside an inline module, any other `cfg`) keeps every file it could name in
+scope, and one with an unparsed `#[path]` stops the run. Every production literal longer than the class must match exactly one entry of
 `base/static_literal_dispositions.py` (file and the start of its value), and every entry exactly one literal; an
 unlisted, ambiguous or stale entry stops the run. The run output lists the matches (`static_long_literals`). At
 `db3151708`, 96 files are test-only, and the six production literals over 964 B are:
@@ -3233,7 +3236,8 @@ is not covered by it; those sites rest on their rules' own grounds, as before.
 
 **Re-pricing.** Main's tool at `db3151708` (exit 0, O-10 clear) reproduces the registered block with §8.42's basis line
 (`generate --check` equal, 1,712 lines). The candidate tool at `36d183b0b` (same product source; the lexer, SL-LIM
-and the disposition check) prices exit 0, O-10 clear, the same structure, and the disposition check passes on every
+and the disposition check) and, after the review repairs below, at `ca4ffeea3` (the exact head priced; every
+coefficient identical to `36d183b0b`'s) prices exit 0, O-10 clear, the same structure, and the disposition check passes on every
 point. `compare candidate main`: `a_le_b` true, `a_ge_b` false; 1,569 coefficients equal, 33 lower, **none higher**:
 - `FAILED_MANIFEST_COPY`, `STAGED`, `SUCC`, `T16_P1`, `T16_P3`, `T16_P4`, `T17_V5`, `T17_V6`, `T25_I2`, `T25_I3`:
   −1,223,704 B each (the `Text(diag_env)` drop);
@@ -3250,7 +3254,8 @@ Every phase falls against main in both modes (only form constants move, so the d
 −149,121,898 B, W3/W4 −151,569,306 B, W5 −150,345,602 B, X1 −81,510,138 B, X2/X3 −80,286,434 B. The checked maximum
 (W3) is 8,744,976,026 → 8,593,406,720 B (sparse) and 8,804,107,370 → 8,652,538,064 B (dense). The approved allowances
 and every non-text coefficient are unchanged. `generate --check` of the candidate tree against main's
-`retained_memory.rs` with §8.42's basis line differs (exit 6), as expected for a lower tree; nothing was regenerated.
+`retained_memory.rs` with §8.42's basis line differs (exit 6, run on `ca4ffeea3`'s tree), as expected for a lower
+tree; nothing was regenerated.
 
 **Domination.** With the two sites bound, main's registered block is coefficient-wise an upper bound for the
 candidate's derivation (`a_le_b`, none higher). That is a finding, not a decision to carry.
@@ -3261,10 +3266,10 @@ tool's Python tests; nothing in `.github/` or `tools/ci/` invokes `generate`. Th
 true … means the registered block still bounds the head, so nothing needs re-registering") and §8.40's conservative
 carry permit keeping a dominating, non-equal block; `generate --check` then holds only against the predecessor's
 reproduced tree. **§10 reproduction:** once this tool lands, the committed tool no longer reproduces the registered
-block from `db3151708` (its tree is the lower one above); main's tool cohort at `db3151708` still does, and §10's
-"one current value" statement would need that qualification if the block is carried.
+block from `db3151708` (its tree is the lower one above); main's tool cohort at `db3151708` still does. §10 now says
+so and names that cohort for reproducing the registered block.
 
-**Tests.** `tests/test_845_rust_literal_lexer.py` (51 cases): quotes in line, nested block and doc comments, `'"'`,
+**Tests.** `tests/test_845_rust_literal_lexer.py` (63 cases): quotes in line, nested block and doc comments, `'"'`,
 `'\''` and lifetimes beside quotes (overcount); a long literal with `\"`, `//`, `/*` and `'`, raw strings with inner
 quotes and hashes, multi-line strings, continuations, a literal hidden by a comment's odd quote, and `\u{…}`/non-ASCII
 counted as UTF-8 bytes (undercount); twenty fail-closed constructs and the error's file:line. At the head, with no
@@ -3272,7 +3277,10 @@ pinned value or line: both inventories (composite_text's own file lists) lex com
 bytes of the reported token, which an independent check confirms is one plain literal, and every quote in the seven
 files lies in a lexed literal or comment; and the whole-scope disposition check passes with every entry matched once.
 On synthetic trees: test-only exclusion (`#[cfg(test)] mod x;`, `#[path]`, a test file's children, an inline test
-module's body), over-inclusion of unresolved declarations and of `cfg(any(test, …))`, and the check's stops on an
+module's body), a file a test module also declares staying in scope with its descendants whenever production reaches
+it, module items found wherever they sit on a line, an unresolved production declaration keeping every candidate and an
+unparsed production `#[path]` stopping the run, `#! [attr]` and `#!/* c */[attr]` read as inner attributes (not
+shebangs) while a real shebang line is skipped, over-inclusion of unresolved declarations and of `cfg(any(test, …))`, and the check's stops on an
 unlisted, ambiguous or stale entry. SL-LIM's guard was exercised on mutated snapshot copies (a second use, a non-literal
 declaration, a moved copy): each stops the run.
 
@@ -3299,7 +3307,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.42's priced source, `92a6f81ff`; §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.42's priced source, `92a6f81ff`; §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). **Since §8.45 the committed tool does not reproduce the registered block itself.** It measures the `static` and report classes with the Rust literal lexer, and its tree is coefficient-wise no higher than the block (33 coefficients lower, none higher), which is carried as a dominating conservative block. To reproduce the registered block, use main `db3151708`'s complete tool cohort, recovered through Git, on its own source; `generate --check` of that tree with §8.42's basis line matches the block. The current tool's tree is reproduced by the current tool. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
