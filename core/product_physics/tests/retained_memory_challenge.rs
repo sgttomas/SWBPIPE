@@ -55,7 +55,7 @@ use b1_sq_inputs as inputs;
 // §8.36 owner-approved proposal: reviewed native W1 values, without reserved stack R.
 // §8.40: unchanged registered coefficients, actual 680 B PreviewLoadCase (+24 B).
 // §8.41: +286 B. §8.42: -3,989,660 B (the regenerated block drops the kept TAV allowance).
-// §8.43: +5,610 B (RT-A3 increment 3: restated pressure-2 table and identity).
+// §8.44: +5,610 B (RT-A3 increment 3: restated pressure-2 table and identity).
 const W1_PHASE_BYTES: [u64; 2] = [6_598_980_914, 6_658_112_258];
 /// The profile's in-build maximum over every phase (E_mov,max, without R; W3 in both modes),
 /// the bound once a run has done W1 work (a registered build, G6). W-8 topology warnings D3 at
@@ -78,7 +78,7 @@ const W1_PHASE_BYTES: [u64; 2] = [6_598_980_914, 6_658_112_258];
 // §8.36 owner-approved proposal: reviewed native W3 maximum, without reserved stack R.
 // §8.40: unchanged registered coefficients, actual 680 B PreviewLoadCase (+24 B).
 // §8.41: +286 B. §8.42: -3,989,660 B (W3 stays the maximum; W4 rises but stays below it).
-// §8.43: +5,610 B (RT-A3 increment 3: restated pressure-2 table and identity).
+// §8.44: +5,610 B (RT-A3 increment 3: restated pressure-2 table and identity).
 const MAX_PHASE_BYTES: [u64; 2] = [8_895_158_711, 8_954_290_055];
 /// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;

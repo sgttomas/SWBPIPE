@@ -221,7 +221,8 @@ def inspect_directed_helpers(snapshot):
 # records, OP1A-RD retains the reader scans and OP1A-OWN prices its borrowed gate vector.
 # Model document 0.9.0 D3 (§8.36): lib.rs's new members, term wire, lowering/withholding calls and snubber token add or
 # remove no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = '9488c5040051aebfb386765068ffc5f5e2c893dde5ee8dbea981cfead1c3b867'
+# DEL-04-09 I2a D3 (§8.43): lib.rs only appends `mod modal;`; it adds or removes no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = 'ff00e3daae3406108f12307bd2677779887e5e43bb5fd9dee06a37b62120031d'
 
 
 def primitive_lib_minmax_callers(snapshot):

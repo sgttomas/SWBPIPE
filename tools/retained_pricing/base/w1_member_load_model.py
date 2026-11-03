@@ -60,7 +60,7 @@ import runpy
 # Model document 0.9.0 D3 (§8.36): retained_wire.rs moves DEF-E's hash; RE retained_precision.rs's current-version gates
 # read 0.9.0 (same length), its table hash follows physics-retained-1, and G8 adds four allocation-free need sites
 # (condition_use, condition sets, spectra, set references) and a test module. No owner this model prices changes.
-# RT-A3 increment 3 D3 (§8.43): exact_admission.rs admits ExactFamily::ConstantEffortSupport (one match arm; the
+# RT-A3 increment 3 D3 (§8.44): exact_admission.rs admits ExactFamily::ConstantEffortSupport (one match arm; the
 # family is met only for a support whose hanger type or family is constant_effort_support, which D1.6 refuses: any
 # hanger, and families other than anchor/guide/line_stop/vertical_support/spring), restates the pressure-2 identity
 # (the constant-effort clause, priced by U6-J4) and the shared load/reference-state support limitation (D-2; reached
