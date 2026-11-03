@@ -1,7 +1,9 @@
 """Resolve original Chirality revisions through the explicit extraction map.
 
 Original identities remain documentary facts. These helpers select equivalent
-local Git inputs; they never fetch objects or substitute another revision.
+local Git inputs; they never fetch objects or substitute another revision. The
+lookup of a revision that may be an original identity runs with
+--no-lazy-fetch, so a partial clone does not ask its promisor remote for it.
 """
 from pathlib import Path
 import re
@@ -14,10 +16,17 @@ def resolve_revision(repo, revision, *, env=None, git_options=()):
     explicit = revision.startswith('source:')
     source = revision.removeprefix('source:')
     if not explicit:
-        result = subprocess.run(['git', *git_options, '-C', str(repo), 'rev-parse', '--verify',
+        # An original identity is usually absent here. In a partial (promisor) clone git would try to fetch the
+        # missing object from the promisor remote on every call (hosted CI checks out with filter: blob:none);
+        # --no-lazy-fetch (Git 2.44 or later) keeps the lookup local. Only "not found" (128) falls through to the
+        # extraction map; any other failure, including a git that rejects the option, is refused, not mapped.
+        result = subprocess.run(['git', *git_options, '--no-lazy-fetch', '-C', str(repo), 'rev-parse', '--verify',
                                  revision + '^{commit}'], capture_output=True, text=True, env=env)
         if result.returncode == 0:
             return result.stdout.strip()
+        if result.returncode != 128:
+            raise ValueError('Offline revision lookup failed (git exit %d; --no-lazy-fetch needs Git 2.44 or later): %s'
+                             % (result.returncode, result.stderr.strip()))
     if not re.fullmatch('[0-9a-fA-F]{7,40}', source):
         raise ValueError('Unknown source revision: ' + source)
     path = Path(repo) / 'reference/migration/commit-map.txt'
