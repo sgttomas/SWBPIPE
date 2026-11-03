@@ -779,7 +779,10 @@ not gated. With RT-A4's nested and unsigned combinations (DEL-05-02
 count κ as gate 3 does: `mechanics` by |κ − 1| ≤ 2⁻⁴⁶ (flat, the unit
 factor-sum rule, so the decisions above are unchanged), and an absolute sum or
 SRSS whose operands' κ is not exactly 0 is withheld with
-`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`.
+`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`. A `mechanics` combination
+naming an operand whose κ is undefined is withheld with
+`CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED`, as on PF; where an installed
+reference also applies, gate 3 is checked first and names it.
 - **Order: gate 4, after `COMBINATION_MODULUS_BASIS_MIXED`,
   `COMBINATION_RESOLVED_STIFFNESS_MIXED` and
   `COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE`.** The two stiffness gates

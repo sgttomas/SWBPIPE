@@ -65,6 +65,10 @@ pub(crate) const CONSTANT_EFFORT: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_S
 /// absolute-sum-srss §5.1: gate 4 for an absolute sum or SRSS whose operands' κ is
 /// not exactly 0, in a model with a consuming constant-effort support (PF's code).
 pub(crate) const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
+/// absolute-sum-srss §5.1: gate 4 for a `mechanics` combination naming an operand
+/// whose κ is undefined, in a model with a consuming constant-effort support (PF's
+/// code and text).
+pub(crate) const CONSTANT_EFFORT_OPERAND_MIXED: &str = preview_physics::CONSTANT_EFFORT_OPERAND_MIXED;
 /// §5: the product text of a published combination.
 pub(crate) const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
 /// §7: the user-facing statement of the source-recovery exclusion.
@@ -386,28 +390,38 @@ fn gate_reason(
     }
     // Gate 3 reads κ (absolute-sum-srss §5.1); flat, it is the shared unit
     // factor-sum rule. A non-finite factor (refused before the solve by
-    // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes. A
-    // mechanics operand with an undefined κ withholds under this gate's own code.
-    let fixed_load_withheld = || {
+    // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes. §5.1
+    // names no operand-mixed code for this source, so a mechanics operand with an
+    // undefined κ withholds under gate 3's own code (§10).
+    let fixed_load_withholding = || {
         let operand_kappa: Vec<_> = targets.iter().map(|target| plan.kappa_of(target)).collect();
         if basis == "mechanics" {
-            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter()).is_some()
+            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter())
         } else {
-            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(operand_kappa.iter()).is_some()
+            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(operand_kappa.iter())
         }
     };
-    if installed_reference(facts.connector) && fixed_load_withheld() {
+    if installed_reference(facts.connector) && fixed_load_withholding().is_some() {
         return gated(if basis == "mechanics" { INSTALLED_REFERENCE } else { INSTALLED_REFERENCE_UNSIGNED });
     }
     // Gate 4: a consuming constant-effort support (DEC-049: exactly one
     // translational restraint DOF and a finite positive constant load, no
     // nonlinear field) is in every case state, so a combination counts its
     // force κ times. It is one more fixed-load source for the same κ rule as
-    // gate 3 (flat, the unit factor-sum rule), under its own codes, and follows
-    // gate 3, which wins where both hold. As for gate 3, a mechanics operand
-    // with an undefined κ withholds under this gate's own code.
-    if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok()) && fixed_load_withheld() {
-        return gated(if basis == "mechanics" { CONSTANT_EFFORT } else { CONSTANT_EFFORT_UNSIGNED });
+    // gate 3 (flat, the unit factor-sum rule), under PF's codes, and follows
+    // gate 3, which wins where both hold. As on PF, a mechanics operand with an
+    // undefined κ withholds as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED; a
+    // mechanics combination whose own κ is undefined, its operands' defined, as
+    // CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE (§5.1).
+    if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok()) {
+        if let Some(withholding) = fixed_load_withholding() {
+            use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
+            return gated(match withholding {
+                W::UnitFactorSum => CONSTANT_EFFORT,
+                W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
+                W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED,
+            });
+        }
     }
     None
 }
@@ -425,6 +439,7 @@ fn gate_message(code: &str) -> &'static str {
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
         CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
         CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }

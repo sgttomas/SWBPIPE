@@ -496,10 +496,12 @@ fn connector_ce_model(q_ref_x: f64, ce: bool, combinations: Value) -> Value {
 
 /// The RT-A3/RT-A4 seam: EX gate 4 (a consuming constant-effort support) is one more
 /// fixed-load source of the κ rule. Nested, a `mechanics` combination reads |κ − 1| ≤ 2⁻⁴⁶
-/// under `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`, and an absolute sum or SRSS needs every
-/// operand's κ exactly 0 (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`); flat, the decisions
-/// are CE's unit factor-sum rule. Where an installed reference also applies, gate 3 names the
-/// reason. Every envelope is admitted by the pressure reader with and without its model.
+/// under `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`, one naming an operand with an undefined
+/// κ is withheld as `CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED` (as on PF), and an absolute sum
+/// or SRSS needs every operand's κ exactly 0 (`CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND`);
+/// flat, the decisions are CE's unit factor-sum rule. Where an installed reference also
+/// applies, gate 3 names the reason. Every envelope is admitted by the pressure reader with and
+/// without its model.
 #[test]
 fn v6_gate_4_joins_the_fixed_load_count_on_the_exact_route() {
     let bound = 2f64.powi(-46);
@@ -549,7 +551,7 @@ fn v6_gate_4_joins_the_fixed_load_count_on_the_exact_route() {
         ("srss-cases", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
         ("abs-cases", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
         ("env-mixed", admitted(), admitted()),
-        ("mech-env", withheld(CE), withheld(IR)),
+        ("mech-env", withheld(CE_MIXED), withheld(IR)),
         ("srss-env", withheld(CE_UNSIGNED), withheld(IR_UNSIGNED)),
         ("dep", withheld(WITHHELD_OPERAND), withheld(WITHHELD_OPERAND)),
     ];
@@ -608,6 +610,113 @@ fn v6_gate_4_forgeries_are_refused_on_the_exact_route() {
             let verdict = reader_verdict::validate("pressure", &forged, model, None);
             assert_eq!(verdict["ok"], false, "{id} {reason:?} model {}: {verdict}", model.is_some());
             assert_eq!(verdict["error"]["code"], "SOURCE_PHYSICS_COMBINATION_GATE", "{id} {reason:?} model {}: {verdict}", model.is_some());
+        }
+    }
+}
+
+/// The fixed-load withholdings that §5.1 distinguishes, by EX source: an operand with an
+/// undefined κ (`mech-env`) and a combination whose own κ is undefined although its operands'
+/// are defined (`M3`, `Q`: V-10's chain, κ(M3) = 1 + t⁴ needs more than 4,096 bits).
+const GATE_TEXTS: [(&str, &str); 3] = [
+    (CE, "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once."),
+    (CE_MIXED, "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided."),
+    (IR, "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon."),
+];
+fn gate_text(code: &str) -> &'static str {
+    GATE_TEXTS.iter().find(|(c, _)| *c == code).unwrap().1
+}
+fn undefined_kappa_combinations() -> Value {
+    json!([
+        sub("d", "case:1", "case:2"),
+        range("env-mixed", &["case:1", "d"]),
+        terms("mech-env", "mechanics", &[("comb", "env-mixed", 1.0)]),
+        terms("M0", "mechanics", &[("case", "case:1", 1.0), ("case", "case:2", T)]),
+        sub("D0", "M0", "case:1"),
+        terms("M1", "mechanics", &[("case", "case:1", 1.0), ("comb", "D0", T)]),
+        sub("D1", "M1", "case:1"),
+        terms("M2", "mechanics", &[("case", "case:1", 1.0), ("comb", "D1", T)]),
+        sub("D2", "M2", "case:1"),
+        terms("M3", "mechanics", &[("case", "case:1", 1.0), ("comb", "D2", T)]),
+        terms("Q", "mechanics", &[("case", "case:1", 2.0), ("comb", "D2", T)]),
+    ])
+}
+/// The four sources: (installed reference, constant effort) → (mech-env, M3 and Q).
+const UNDEFINED_KAPPA_SOURCES: [((f64, bool), Option<&str>, Option<&str>); 4] = [
+    // A constant-effort source alone: an undefined operand is PF's operand-mixed code;
+    // an undefined own κ is the source's code.
+    ((0.0, true), Some(CE_MIXED), Some(CE)),
+    // An installed reference alone: §5.1 names no operand-mixed code for it, so both
+    // are gate 3's code (§10).
+    ((0.001, false), Some(IR), Some(IR)),
+    // Both: gate 3 precedes gate 4, so gate 3's code names both.
+    ((0.001, true), Some(IR), Some(IR)),
+    ((0.0, false), None, None),
+];
+
+#[test]
+fn v6_undefined_kappa_withholdings_on_the_exact_route_by_source() {
+    for ((q_ref, ce), operand, own) in UNDEFINED_KAPPA_SOURCES {
+        let wire = connector_ce_model(q_ref, ce, undefined_kappa_combinations());
+        for mode in MODES {
+            let what = format!("q_ref {q_ref} ce {ce} {mode:?}");
+            let out = solved_typed(&wire, mode, &what);
+            for id in ["d", "env-mixed", "M0", "D0", "M1", "D1", "M2", "D2"] {
+                assert_eq!(gate(&out, id), admitted(), "{what} {id}");
+            }
+            let want = |code: Option<&str>| code.map_or_else(admitted, withheld);
+            assert_eq!(gate(&out, "mech-env"), want(operand), "{what} mech-env");
+            for id in ["M3", "Q"] {
+                assert_eq!(gate(&out, id), want(own), "{what} {id}");
+                assert_eq!(combination_rows(&out, id).is_empty(), own.is_some(), "{what} {id} rows");
+            }
+            let named: Vec<&str> = with_code(&out, UNREPRESENTABLE).iter().map(|d| d["affected_refs"][0].as_str().unwrap()).collect();
+            assert_eq!(named, ["M3", "Q"], "{what}");
+            // Each withholding's diagnostic: a warning with its code's text.
+            let gates: Vec<&Value> = diagnostics(&out).iter().filter(|d| d["id"].as_str().unwrap().starts_with("diagnostic:exact-combination:gate:")).collect();
+            let expected: Vec<(&str, &str)> = [("mech-env", operand), ("M3", own), ("Q", own)].iter().filter_map(|(id, code)| code.map(|c| (*id, c))).collect();
+            assert_eq!(gates.len(), expected.len(), "{what}");
+            for (id, code) in expected {
+                let d = gates.iter().find(|d| d["affected_refs"] == json!([id])).unwrap_or_else(|| panic!("{what}: no gate diagnostic for {id}"));
+                assert_eq!((d["code"].as_str().unwrap(), d["severity"].as_str().unwrap(), d["message"].as_str().unwrap()), (code, "warning", gate_text(code)), "{what} {id}");
+            }
+        }
+    }
+}
+
+/// A swapped undefined-κ code, in the record and its diagnostic together, is refused by the
+/// pressure reader with and without the model, under every source.
+#[test]
+fn v6_swapped_undefined_kappa_codes_are_refused_on_the_exact_route() {
+    for ((q_ref, ce), operand, own) in UNDEFINED_KAPPA_SOURCES {
+        let (Some(operand), Some(own)) = (operand, own) else { continue };
+        let wire = connector_ce_model(q_ref, ce, undefined_kappa_combinations());
+        let out = solved_typed(&wire, PreviewSolverMode::SparseInteractive, "swapped codes");
+        let swap = |id: &str, code: &str| {
+            let mut forged = out.clone();
+            let record = forged["contract_evidence"]["exact_combinations"].as_array_mut().unwrap().iter_mut().find(|r| r["combination_id"] == id).unwrap();
+            record["gate"]["reason"] = json!(code);
+            let d = forged["diagnostics"].as_array_mut().unwrap().iter_mut().find(|d| d["id"].as_str().unwrap().starts_with("diagnostic:exact-combination:gate:") && d["affected_refs"] == json!([id])).unwrap();
+            d["code"] = json!(code);
+            d["message"] = json!(gate_text(code));
+            forged
+        };
+        let mut swaps = Vec::new();
+        for code in [CE, CE_MIXED, IR] {
+            if code != operand {
+                swaps.push(("mech-env", code));
+            }
+            if code != own {
+                swaps.push(("M3", code));
+            }
+        }
+        for (id, code) in swaps {
+            let forged = swap(id, code);
+            for model in [Some(&wire["model"]), None] {
+                let verdict = reader_verdict::validate("pressure", &forged, model, None);
+                let what = format!("q_ref {q_ref} ce {ce} {id} as {code} model {}", model.is_some());
+                assert_eq!(verdict["ok"], false, "{what}: {verdict}");
+                assert_eq!(verdict["error"]["code"], "SOURCE_PHYSICS_COMBINATION_GATE", "{what}: {verdict}");
+            }
         }
     }
 }

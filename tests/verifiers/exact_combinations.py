@@ -73,9 +73,13 @@ GATE_MESSAGES = {
     "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": ("Combination withheld: a constant-effort support's force acts in every case state; an "
                                                      "absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it "
                                                      "once per term with its sign discarded."),
+    "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED": ("Combination withheld: an operand's fixed-load count is undefined, so the number of "
+                                                  "times this combination counts a constant-effort support's force cannot be decided."),
 }
 INSTALLED_REFERENCE_UNSIGNED = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND"
 CONSTANT_EFFORT_UNSIGNED = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND"
+# absolute-sum-srss section 5.1: gate 4 on a mechanics combination naming an operand whose kappa is undefined (PF's code).
+CONSTANT_EFFORT_OPERAND_MIXED = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED"
 NONLINEAR = "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
 GATE_MESSAGES[NONLINEAR] = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state."
 STATE_CODE = "nonlinear_support_active_set_state_code"
@@ -562,16 +566,19 @@ def _gate(cid: str, expression: Expression, g: "graph.Graph", modulus: dict, wit
             return gated(RESOLVED_STIFFNESS_MIXED)
     # Gates 3 and 4 (absolute-sum-srss section 5.1): one kappa rule per fixed-load source, each under its own codes,
     # gate 3 first where both sources hold.
-    def fixed_load_withheld() -> bool:
+    # Gate 3 names an undefined mechanics operand under its own code (section 10); gate 4, as on PF, as
+    # CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED.
+    def fixed_load_withholding() -> str | None:
         kappas = [g.kappa_of(o) for o in expression.operands]
         if expression.basis == "mechanics":
-            return graph.mechanics_gate(g.kappa[cid], kappas) is not None
-        return bool(graph.unsigned_gate(kappas))
+            return graph.mechanics_gate(g.kappa[cid], kappas)
+        return "unsigned" if graph.unsigned_gate(kappas) else None
     mechanics = expression.basis == "mechanics"
-    if _installed_reference(evidence.get("connector")) and fixed_load_withheld():
+    if _installed_reference(evidence.get("connector")) and fixed_load_withholding() is not None:
         return gated(INSTALLED_REFERENCE if mechanics else INSTALLED_REFERENCE_UNSIGNED)
-    if constant_effort and fixed_load_withheld():
-        return gated(CONSTANT_EFFORT if mechanics else CONSTANT_EFFORT_UNSIGNED)
+    if constant_effort and (withholding := fixed_load_withholding()) is not None:
+        return gated({"unit": CONSTANT_EFFORT, "operand": CONSTANT_EFFORT_OPERAND_MIXED,
+                      "unsigned": CONSTANT_EFFORT_UNSIGNED}[withholding])
     return None
 
 

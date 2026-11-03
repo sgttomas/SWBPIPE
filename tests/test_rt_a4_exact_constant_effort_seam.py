@@ -28,6 +28,7 @@ CONNECTOR = ROOT / "core/product_physics/tests/fixtures/silent_zero/stress_free_
 PROV = "rt-a4 invented seam input; not library, component, material-catalog or code data"
 CE = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE"
 CE_UNSIGNED = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND"
+CE_MIXED = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED"
 IR = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE"
 IR_UNSIGNED = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND"
 WITHHELD_OPERAND = "LOAD_COMBINATION_OPERAND_WITHHELD"
@@ -79,7 +80,7 @@ EXPECTED = {
     "flat-unit": (None, None), "flat-over": (CE, IR), "d": (None, None), "mech-d": (CE, IR), "sus+d": (None, None),
     "srss-d": (None, None), "sus+srss": (None, None), "m-near": (None, None), "d-near": (None, None),
     "mech-amplified": (None, None), "abs-amplified": (CE_UNSIGNED, IR_UNSIGNED), "srss-cases": (CE_UNSIGNED, IR_UNSIGNED),
-    "env-mixed": (None, None), "mech-env": (CE, IR), "dep": (WITHHELD_OPERAND, WITHHELD_OPERAND),
+    "env-mixed": (None, None), "mech-env": (CE_MIXED, IR), "dep": (WITHHELD_OPERAND, WITHHELD_OPERAND),
 }
 
 
@@ -92,6 +93,40 @@ def test_the_mirror_reads_gate_four_on_kappa_with_its_own_codes():
     assert combinations.GATE_MESSAGES[CE_UNSIGNED] == (
         "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands "
         "whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.")
+
+
+T = 2.0 ** -1074
+# Section 5.1's two undefined-kappa withholdings: an operand with an undefined kappa (mech-env) and a combination whose own
+# kappa is undefined although its operands' are defined (M3 and Q: V-10's chain, kappa(M3) = 1 + t^4 needs more than 4,096
+# bits).
+UNDEFINED_CHAIN = [
+    ("d", "result_state_subtraction", {"minuend_id": "case:A", "subtrahend_id": "case:B"}),
+    ("env-mixed", "range_envelope", {"operand_ids": ["case:A", "d"], "mode": "max_abs"}),
+    ("mech-env", "mechanics", _terms(("combination", "env-mixed", 1.0))),
+    ("M0", "mechanics", _terms(("case", "case:A", 1.0), ("case", "case:B", T))),
+    ("D0", "result_state_subtraction", {"minuend_id": "M0", "subtrahend_id": "case:A"}),
+    ("M1", "mechanics", _terms(("case", "case:A", 1.0), ("combination", "D0", T))),
+    ("D1", "result_state_subtraction", {"minuend_id": "M1", "subtrahend_id": "case:A"}),
+    ("M2", "mechanics", _terms(("case", "case:A", 1.0), ("combination", "D1", T))),
+    ("D2", "result_state_subtraction", {"minuend_id": "M2", "subtrahend_id": "case:A"}),
+    ("M3", "mechanics", _terms(("case", "case:A", 1.0), ("combination", "D2", T))),
+    ("Q", "mechanics", _terms(("case", "case:A", 2.0), ("combination", "D2", T))),
+]
+# (installed reference, constant effort) -> (mech-env, M3 and Q): a constant-effort source alone names an undefined
+# operand with PF's operand-mixed code and an undefined own kappa with its own code; an installed reference names both with
+# gate 3's code (section 5.1 names no operand-mixed code for it; section 10); with both, gate 3 precedes gate 4.
+UNDEFINED_SOURCES = [((0.0, True), CE_MIXED, CE), ((1e-3, False), IR, IR), ((1e-3, True), IR, IR), ((0.0, False), None, None)]
+
+
+@pytest.mark.parametrize("sources, operand, own", UNDEFINED_SOURCES)
+def test_the_mirror_names_undefined_kappa_withholdings_by_source(sources, operand, own):
+    q_ref_x, ce = sources
+    connector = [{"q_ref": [q_ref_x, 0.0, 0.0, 0.0, 0.0, 0.0]}] if q_ref_x else []
+    codes = _gate_codes(UNDEFINED_CHAIN, connector, ce)
+    assert codes == {cid: (operand if cid == "mech-env" else own if cid in ("M3", "Q") else None) for cid, _, _ in UNDEFINED_CHAIN}
+    assert combinations.GATE_MESSAGES[CE_MIXED] == (
+        "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a "
+        "constant-effort support's force cannot be decided.")
 
 
 # ----------------------------------------------------------------------------- end to end
@@ -188,3 +223,27 @@ def test_both_readers_refuse_forged_gate_four_reasons(solve):
         record["gate"] = {"withheld": reason is not None, "reason": reason}
         for given in (None, model):
             both(forged, given, GATE)
+
+
+@pytest.mark.parametrize("sources, operand, own", [case for case in UNDEFINED_SOURCES if case[1]])
+def test_both_readers_refuse_swapped_undefined_kappa_codes(solve, sources, operand, own):
+    """Each source's undefined-kappa withholdings, end to end; a code swapped in the record and its diagnostic together is
+    refused by both readers with and without the model."""
+    q_ref_x, ce = sources
+    model = _model(q_ref_x, ce, UNDEFINED_CHAIN)
+    model["project"]["id"] += "-undefined"
+    source = solve(model)
+    assert gates(source) == {cid: (operand if cid == "mech-env" else own if cid in ("M3", "Q") else None) for cid, _, _ in UNDEFINED_CHAIN}
+    for given in (None, model):
+        both(source, given, None)
+    for cid, held in (("mech-env", operand), ("M3", own)):
+        for code in (CE, CE_MIXED, IR):
+            if code == held:
+                continue
+            forged = copy.deepcopy(source)
+            next(r for r in forged["contract_evidence"]["exact_combinations"] if r["combination_id"] == cid)["gate"]["reason"] = code
+            diagnostic = next(d for d in forged["diagnostics"]
+                              if d["id"].startswith("diagnostic:exact-combination:gate:") and d["affected_refs"] == [cid])
+            diagnostic["code"], diagnostic["message"] = code, combinations.GATE_MESSAGES[code]
+            for given in (None, model):
+                both(forged, given, GATE)

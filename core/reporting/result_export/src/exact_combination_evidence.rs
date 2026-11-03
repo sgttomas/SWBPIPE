@@ -84,6 +84,9 @@ const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is
 const INSTALLED_REFERENCE_UNSIGNED: &str = "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND";
 /// absolute-sum-srss §5.1: gate 4 on an absolute sum or SRSS (PF's code and text).
 const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND";
+/// absolute-sum-srss §5.1: gate 4 on a `mechanics` combination naming an operand whose
+/// κ is undefined (PF's code and text).
+const CONSTANT_EFFORT_OPERAND_MIXED: &str = "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED";
 const NONLINEAR: &str = "NONLINEAR_COMBINATION_REQUIRES_SOLVE";
 /// A published nonlinear support state row marks a model with nonlinear supports.
 const STATE_CODE: &str = "nonlinear_support_active_set_state_code";
@@ -814,20 +817,29 @@ fn gate(
         }
     }
     // Gates 3 and 4 (absolute-sum-srss §5.1): one κ rule per fixed-load source,
-    // each under its own codes, gate 3 first where both sources hold.
-    let fixed_load_withheld = || {
+    // each under its own codes, gate 3 first where both sources hold. Gate 3 names
+    // an undefined mechanics operand under its own code (§10); gate 4, as on PF,
+    // as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED.
+    let fixed_load_withholding = || {
         let kappas: Vec<_> = operands.iter().map(|o| graph.kappa_of(o)).collect();
         if basis == "mechanics" {
-            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&graph.kappa_of(&Operand::Combination(id)), kappas.iter()).is_some()
+            open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&graph.kappa_of(&Operand::Combination(id)), kappas.iter())
         } else {
-            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(kappas.iter()).is_some()
+            open_pipe_stress_load_case_algebra::unsigned_fixed_load_gate(kappas.iter())
         }
     };
-    if installed_reference(&evidence["connector"]) && fixed_load_withheld() {
+    if installed_reference(&evidence["connector"]) && fixed_load_withholding().is_some() {
         return gated(if basis == "mechanics" { INSTALLED_REFERENCE } else { INSTALLED_REFERENCE_UNSIGNED });
     }
-    if constant_effort && fixed_load_withheld() {
-        return gated(if basis == "mechanics" { CONSTANT_EFFORT } else { CONSTANT_EFFORT_UNSIGNED });
+    if constant_effort {
+        if let Some(withholding) = fixed_load_withholding() {
+            use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
+            return gated(match withholding {
+                W::UnitFactorSum => CONSTANT_EFFORT,
+                W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
+                W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED,
+            });
+        }
     }
     Ok(None)
 }
@@ -1355,6 +1367,7 @@ fn gate_message(code: &str) -> &'static str {
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
         CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
         CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
