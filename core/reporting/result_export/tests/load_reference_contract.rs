@@ -288,22 +288,23 @@ fn current_inputs_table_and_schema_are_pinned() {
     // limitation[0] changed, as the strict fixture-preservation test verifies.
     // RT-A3 reducer 2b: again limitation[0] only (the 2b preservation test).
     // RT-A3 increment 3: limitation[0] and the D-2 load/reference-state support sentence only (the constant-effort preservation test).
+    // RT-A3 increment 3 review repair: again for the support-attribution limitation (S7) only (the same test).
     for (name, digest) in [
         (
             "connected-sparse",
-            "9e1534e5b47c516a1539c4b7fb6496a9772b3aa27be3e30a1e73d96c400f1f97",
+            "c4c8779d722f8a8173d0b559add4d92b5d8514f1ed6845c954c22898cde63d9a",
         ),
         (
             "connected-dense",
-            "09406d9c0e0a4af59cc437e7227c597b667e87cbbd9485c7206147582cd3b73f",
+            "dd479360ba924f29fc865d8dbf29262d78dcf4b7d16685e86313626a7409ab4f",
         ),
         (
             "pressure-sparse",
-            "839020735dc260887753183b32f383680c66fb2ff93e0474e156464edfdae74d",
+            "9e19e5f68d8b35de5aeaada2cf91c68a057bab539e70aac6a7bf897e1ee9fbec",
         ),
         (
             "pressure-dense",
-            "ce8f7457c6449d2370b9572d6a3550b7732ad42ce71b9320b48c32441e0fd50b",
+            "9d22b9ea7616e245696b7d4d7d6ea5eb63b0a9cc9a7f5a8391406a24265bb242",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

@@ -669,8 +669,8 @@ B3B_PASSES = {
 # and 3bb19d83.../aeb67070....
 # Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-EXACT_PINNED = {"sparse_interactive": ("88dc9fa15ccd83f9b35edf4c550c025dd7813fa5614038f46d65ae705dd332a3", "47e3d7b0a347dfd41d1d8c0b70212606b97fdcca67fc8f4cfc9c20093549af44"),
-                "dense_scrutiny": ("a8ed4679f945a963355f21f962b5b6806b2659e51ce2b285464e9ecd898c62b3", "237fbc5fb0a4a4a0d9db10f8869e0a652c1000fb48a240e984454717c08c33bf")}
+EXACT_PINNED = {"sparse_interactive": ("4d3fa2c743d8addc26a7dedb00084cb8454ace6ee21e066a83a3152d015403e3", "f31760066b8991d68f1319e870ae1cc4344ce951f33a68cb491f98352d0e4b9e"),
+                "dense_scrutiny": ("7384cbb8d81ff2804f672a06acc83772e0529ffbf3f5e1e6fb426978f5c44bbd", "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89")}
 KINDS = ("synthetic", "producer")
 
 

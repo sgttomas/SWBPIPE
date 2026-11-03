@@ -87,14 +87,14 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "88dc9fa15ccd83f9b35edf4c550c025dd7813fa5614038f46d65ae705dd332a3",
-        "47e3d7b0a347dfd41d1d8c0b70212606b97fdcca67fc8f4cfc9c20093549af44",
+        "4d3fa2c743d8addc26a7dedb00084cb8454ace6ee21e066a83a3152d015403e3",
+        "f31760066b8991d68f1319e870ae1cc4344ce951f33a68cb491f98352d0e4b9e",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "a8ed4679f945a963355f21f962b5b6806b2659e51ce2b285464e9ecd898c62b3",
-        "237fbc5fb0a4a4a0d9db10f8869e0a652c1000fb48a240e984454717c08c33bf",
+        "7384cbb8d81ff2804f672a06acc83772e0529ffbf3f5e1e6fb426978f5c44bbd",
+        "6dadf1ca7977218b7cfbced93cbc74923d7911946cc64ea42fbe56646f252e89",
     ),
 ];
 /// The committed exact goldens' file sha256.
@@ -104,8 +104,10 @@ const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.
     // W-16 slice b (DEL-05-02): and again (was 9c4756e9.../579878c8...).
     // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only) (was e15c27cd.../e0c14d0e...).
-    ("sparse_interactive", "3f80d565105422450a8a19f5355dcb74bbfd90f767613548e409105c3f497369"),
-    ("dense_scrutiny", "93616740b17947e6c07679e621e0b654c549f5283d704f996e34fabf85a2c559"),
+    // RT-A3 increment 3: the identity and the support-attribution limitation (S7) restated; the exact successors
+    // they derive from are proven by reseal-to-base (DEL-04-08 §8.44).
+    ("sparse_interactive", "4329c6060c5b5ee05509de8d6dfbce14654b16deb0f541cda10673b7952a185c"),
+    ("dense_scrutiny", "649b6c5455d342e816bdb455d6188d4004f14fc1d1100ffc1ae1118e90e57fdd"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21

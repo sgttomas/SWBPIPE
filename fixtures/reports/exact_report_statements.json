@@ -51,8 +51,8 @@
       "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
     },
     {
-      "producer_sha256": "d47820118782fbf0e16a105f01fa8cdc1506ee99cc3ec7e251c5e936598ee5fc",
-      "statement": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
+      "producer_sha256": "cf1cba4d5f2831dba1f007ee417539d0f7d6a85b859f37bb871dda95923dc8f1",
+      "statement": "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."
     },
     {
       "producer_sha256": "d67bef81dd0df58e72fe799467f916ff5c1d28c3fabadb64450d799fedc0bfa4",
