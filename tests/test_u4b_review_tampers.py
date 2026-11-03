@@ -284,6 +284,9 @@ def test_malformed_slot_fields_agree_with_the_rust_runner(fields, first):
             if refused:
                 assert rust_code == "SOURCE_PREVIEW_PHYSICS_SHEAR_OPERAND_AMBIGUOUS"
                 assert "shear operand rows of one station disagree" in _code(python), _code(python)
+            else:
+                # A control is accepted by both, not merely refused alike.
+                assert rust_ok and python["ok"], (_code(python), rust_code)
 
 
 @pytest.mark.parametrize("skip", [
