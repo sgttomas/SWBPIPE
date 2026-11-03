@@ -852,3 +852,121 @@ its model; `pf_model_free_readers_verify_from_the_published_derivation` covers t
 `pf_flat_documents_publish_no_derivation` checks that a flat document publishes none and that
 one stated on it is refused. `tests/test_rt_a4_pf_reader_tampers.py` runs the same through the
 runner CLI and the Python mirror.
+
+### 10.4 Recorded results from before RT-A4 (historical read)
+
+**Why.** §10.2's texts moved the preview-physics tables' digests. A preview-physics statement
+carries its table's limitation array (`formulation_basis.limitations`) and no table digest, and
+every reader requires that array to equal its table's (`preview_physics_evidence.rs`
+`FORMULATION_BASIS`; the retained reader's G7 base read and transport check), so a statement
+published before RT-A4 is refused by the current tables. A run recorded on main binds its
+table `{id, sha256}`. Agent 0 made reading those runs a merge condition of #98: they read as
+main read them, through a scoped historical path like pressure-2's recorded bases
+(`RECORDED_RUN_TABLE_BASES`), without widening current admission.
+
+**Registry (closed).** Each variant is the table's bytes as the main line held them, verbatim,
+under `fixtures/results/recorded_pre_rt_a4/`, its SHA-256 checked when it is first read
+(Rust `recorded_tables::VARIANTS`; Python `compatibility.RECORDED_PRE_RT_A4_TABLES`; desktop
+`recordedPreRtA4.ts`, read as raw text and hashed):
+
+| Identity | Recorded digest | Current digest | Origin | Read |
+|---|---|---|---|---|
+| preview-physics-2 | 1ccc9561… | e7b93f41… | main 6c3cb46d3 | under the variant's table |
+| preview-physics-timoshenko-1 | a7b83c37… | ce49ebe0… | main 6c3cb46d3 | under the variant's table |
+| preview-physics-retained-1 | b001070e… | 26dce9c2… | main 6c3cb46d3 | under the variant's table, its base under preview-physics-2 1ccc9561… (its inherited digest) |
+| physics-retained-1 | cf29fd5f… | 040ef9a6… | main 6c3cb46d3 | binding only |
+| physics-retained-1 | 045f6f0d… | 040ef9a6… | #101 01e05a486 (main once RT-A3 increment 3 lands first) | binding only |
+
+Every variant's rows are the current table's; only limitations, combination-policy text,
+vocabulary and inherited digests moved. The exact successor's statements still read under the
+current reader (its rows and receipt bindings are unchanged), so its variants change no reader
+table: they are recorded bindings, as pressure-2's bases are. pressure-2 itself needs no
+entry: its main digest (a2db16a5…) and #101's (be29fabc…) are already
+`RECORDED_RUN_TABLE_BASES`, and its statements carry no limitation the reader compares.
+
+**Selection rule.** A variant is selected only by a record's binding
+`analysis_run.reproducibility.semantic_contract` that is exactly `{id, sha256}` and equal to a
+registry member whose identity is the statement's `producer.semantic_contract_id`, and only on
+the recorded-run read, compare and re-save paths. There the readers run inside
+`recorded_tables::read_recorded`, which selects the variant for that read alone (a scoped
+thread-local, restored on return): the PF evidence reader, its transport check, the header's
+table, `binding_of`, and the retained reader's G0 table, inherited-digest check and G7 base read
+all take the variant's tables. The current binding on a recorded entry reads as the current
+entry does. Any other binding is refused by name: `SOURCE_RECORDED_BINDING_UNKNOWN`, or
+`SOURCE_RECORDED_BINDING_IDENTITY` for a variant of another identity (a successor under its
+base's variant, an exact successor under a preview successor's, and so on); a refused binding
+reads nothing.
+
+**Entries.** Rust `reader_verdict::{dispatch, validate, transport, row_semantics,
+row_semantics_each, retained, retained_transport}_recorded`; the runner's `read` admits a
+`recorded_binding` member on `dispatch`, `preview-physics`, `preview-physics-transport`,
+`retained-precision`, `retained-precision-transport` and `row-semantics` (no other reader
+admits it); the wasm engine's `reader_recorded_json(entry, binding, source, model?,
+invocation?)`. Python: `validate_analysis_run_v0_3(..., recorded_read=True)` reads a record
+binding a variant through those entries and interprets its rows under the variant's table.
+Desktop: `validateAnalysisRunV03(..., { recordedRead: true })`, called by
+`buildRecordedRunContext` and `buildHistoricalRunContext` (and so by the comparison's
+`recordedRunSide`); the route, the preview-physics validation, the successor validation, the
+binding and the row interpretation then all come from the recorded read.
+
+**What stays refused.** Every current path reads the current tables only and never selects a
+variant: the producer and its output checks, the record builders (Python `build_analysis_run`,
+desktop `buildAnalysisRunV03`), the record validator without `recorded_read` (the
+stress-neutral package, the result export and the export panels call it so), the header
+dispatch, `standing`, `numerical_use_standing` and rule binding. A statement carrying a
+variant's limitations is refused on all of them as at a4ff570dc
+(`SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS`; a preview successor's header is refused at the
+dispatch). Also refused on the recorded read: an unknown or altered digest, a record binding
+the current table over a statement published before RT-A4, a statement restated with the
+current limitations under a variant's binding, mixed record and row bindings
+(`ANALYSIS_ROW_SOURCE_BINDING_MISMATCH`), a binding with any third member, a variant table whose
+bytes differ from its digest (`SOURCE_RECORDED_TABLE_HASH`), and tampered record or statement
+bytes (their checksums, as before).
+
+**Standing.** A recorded or reopened run stays historical. The standing findings a recorded
+run displays, and a recorded comparison side's standing, are those its statement read with
+when recorded (Rust's recorded dispatch; a successor's is its registration's, and a saved
+successor never registers). They are display evidence of a historical run: nothing makes a
+reopened run Current, sets the solve stage, drives an overlay or rule check, or readies a
+report. The current standing of the same statement stays `unsupported`.
+
+**Bytes and re-save.** Nothing is migrated or resealed. Reading changes no byte. The record
+path and the store read hashes and bytes, never a table, so a re-saved run keeps its recorded
+binding, its received-result checksum and its statement's bytes: the store records main's
+transient record into main's witness byte for byte, and Python's and the desktop's recorded
+revision of it is main's witness in canonical form.
+
+**Consumers.** Rust result_export (`recorded_tables`, `semantic_contract`, `retained_precision`,
+`reader_verdict`): changed. Headless runner `read` (`reader_binding.rs`): changed. Python
+`core/analysis_runs/compatibility.py` and `rust_reader.py`: changed (the `_TABLES` lookup is
+unchanged; a recorded read returns the variant's table only when the reader's binding is the
+record's). `tests/verifiers` mirrors the current reader and is unchanged; the historical test
+substitutes the variant's limitations into it as an independent check. Desktop
+`resultReader.ts`, `retainedPrecisionReader.ts`, `resultStanding.ts`,
+`analysisRunCompatibility.ts`, `HistoricalRunContext.tsx`, `runComparisonSides.ts`,
+`loadWasmEngine.ts` and the wasm export (`operation_applier`): changed. Native src-tauri
+(`analysis_runs.rs`, the store): not applicable; it reads hashes and bytes only, and a test
+pins that it stores and reads main's run as main wrote it. The performance lane's C1 native
+custody (DEL-04-05 `result-volume-design.md` §C1, branch `claude/rt-perf-c1-custody`) ports the
+record validator and the reopen findings natively and must mirror this: in
+`analysis_run_v03_validate.rs`, `validate_v03` takes the recorded-read option, which
+`saved_run_validation` and `recorded_run_validation` pass and nothing else does; under it a
+record binding `recorded_tables::variant_of` reads through `rv::validate_recorded`,
+`rv::retained_recorded` and `rv::dispatch_recorded`, binds the variant (in place of
+`recorded_run_semantic_binding`'s current binding) and interprets rows under the variant's
+`table()`; `standing` for `saved_run_findings` / `recorded_run_findings` and the native
+comparison side takes `rv::dispatch_recorded(...)["standing"]` (a successor keeps its
+registration standing); `result_detail.rs` may use `rv::row_semantics_each_recorded` (rows are
+identical, so its output is the same). Its parity corpus gains `fixtures/persistence/
+recorded_pre_rt_a4_pf`.
+
+**Tests.** Rust `result_export/tests/recorded_pre_rt_a4.rs` and `recorded_tables` unit tests;
+runner `reader_binding` (`a_recorded_binding_runs_the_recorded_entry`, and the unusable
+inputs); wasm export `operation_applier/tests/reader_verdict_binding.rs`
+(`the_recorded_entry_returns_the_recorded_verdicts`); native `analysis_runs_tests.rs`
+(`a_run_recorded_before_rt_a4_is_stored_and_read_back_as_main_wrote_it`); Python
+`tests/test_recorded_pre_rt_a4_pf.py`; desktop `src/services/recordedPreRtA4.test.ts`. Fixtures:
+`fixtures/persistence/recorded_pre_rt_a4_pf/` (README there: main's preview-physics-2 records
+verbatim; main has no recorded Timoshenko or successor run, so those records were built by
+main's own record builder from main's verbatim statements). Repin never edits either
+directory.

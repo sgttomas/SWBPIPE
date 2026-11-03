@@ -428,13 +428,13 @@ async function validateRecordedBinding(record: AnalysisRunEnvelope, source: Mech
 /** RT-A4 §10.4: the recorded-run read of a record whose binding names a registry variant
  * (`recordedPreRtA4.ts`): its statement read by Rust's recorded entries under that binding, and
  * its rows interpreted under the variant's table. */
-type RecordedRead = { binding: RecordedBinding; table: RecordTable };
+type RecordedRead = { binding: RecordedBinding; table: RecordTable; route: V03Route | "unsupported" };
 async function recordedRead(record: AnalysisRunEnvelope, source: MechanicsResult): Promise<RecordedRead | null> {
   const binding = recordedPreRtA4RecordBinding(record);
   if (!binding) return null;
   const dispatch = recordedReaderDispatch(source, binding);
   if (!dispatch.ok) throw new ResultReaderError(dispatch.error!.code, dispatch.error!.detail);
-  return { binding, table: await recordedPreRtA4Table(binding) as RecordTable };
+  return { binding, table: await recordedPreRtA4Table(binding) as RecordTable, route: dispatch.route as V03Route };
 }
 
 /** Source interpretation validation is distinct from checksum verification and producer authentication.
@@ -450,13 +450,16 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
   };
   const recorded = options?.recordedRead ? await recordedRead(record, source) : null;
+  // The route the record is read on: the recorded dispatch's under a variant (a successor's
+  // header reads only under its variant), else the current dispatch's.
+  const route = recorded ? recorded.route : sourceContract(source);
   if (!(recorded || hasCurrentSourceContract(source)) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-  if (sourceContract(source) === "preview_physics") {
+  if (route === "preview_physics") {
     if (recorded) recordedReaderValidate(source, recorded.binding);
     else readerValidate("preview-physics", source);
   }
   // B7b: a pressure-2 record is read as Python's validator reads it, after the route's reader.
-  if (sourceContract(source) === "pressure") readerValidate("pressure", source);
+  if (route === "pressure") readerValidate("pressure", source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
   // The recorded form (W-12 S2): every member the stored manifest fixes is checked first,
@@ -467,16 +470,16 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     if (expectedBasisRefs !== undefined && !structurallyEqual(expectedBasisRefs, manifestBasis)) throw new Error("ANALYSIS_RECORDED_LOAD_BASIS_MISMATCH");
     expectedBasisRefs = manifestBasis;
   }
-  if (sourceContract(source) === "pressure_source") {
+  if (route === "pressure_source") {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
   } else if (Object.hasOwn(run, "source_block_recovery")) throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  if (sourceContract(source) === "pressure_source") {
+  if (route === "pressure_source") {
     if (!same(run.contract_evidence, source.contract_evidence)) throw new Error("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH");
   } else if (Object.hasOwn(run, "contract_evidence")) throw new Error("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN");
   // U6d: the successor's record carries its complete receipt, equal to the source's
   // (which the accepted reader verifies); no other record carries one.
-  if (isRetainedRoute(sourceContract(source))) {
+  if (isRetainedRoute(route)) {
     if (recorded) await validateRetainedPrecisionRecorded(source, recorded.binding);
     else await validateRetainedPrecision(source);
     if (!same(run.retained_precision, source.retained_precision)) throw new Error(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);

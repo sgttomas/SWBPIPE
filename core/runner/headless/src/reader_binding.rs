@@ -287,7 +287,8 @@ mod tests {
             ("dispatch", r#"{"source":{},"extra":1}"#),
             ("pressure", r#"{"source":{},"invocation":null}"#),
             ("pressure-source", r#"{"source":{},"model":null}"#),
-            ("preview-physics", r#"{"source":{},"model":{}}"#),
+            // RT-A4 review r1: preview-physics admits the model; it takes no invocation.
+            ("preview-physics", r#"{"source":{},"invocation":null}"#),
             ("source-recovery", r#"{"source":{},"model":{}}"#),
             ("pressure-transport", r#"{"source":{},"model":{}}"#),
             ("pressure-source-transport", r#"{"source":{},"model":{}}"#),
@@ -305,6 +306,15 @@ mod tests {
             ("classification-summary", r#"{"source":{},"model":{}}"#),
             ("row-semantics", r#"{"source":{}}"#),
             ("row-semantics", r#"{"row":{},"invocation":null}"#),
+            // RT-A4 §10.4: only the recorded-run read's readers admit a recorded binding.
+            ("pressure", r#"{"source":{},"recorded_binding":{}}"#),
+            ("pressure-source", r#"{"source":{},"recorded_binding":{}}"#),
+            ("source-recovery", r#"{"source":{},"recorded_binding":{}}"#),
+            ("pressure-transport", r#"{"source":{},"recorded_binding":{}}"#),
+            ("pressure-source-transport", r#"{"source":{},"recorded_binding":{}}"#),
+            ("standing", r#"{"source":{},"requested_basis_refs":[],"recorded_binding":{}}"#),
+            ("classification-summary", r#"{"source":{},"recorded_binding":{}}"#),
+            ("rule-binding", r#"{"envelope":{},"row":{},"recorded_binding":{}}"#),
         ] {
             assert!(read(reader, input).is_err(), "{reader} {input}");
         }
@@ -375,6 +385,35 @@ mod tests {
                 "row-semantics", "standing", "classification-summary", "rule-binding",
             ]
         );
+    }
+
+    /// RT-A4 §10.4: with a recorded binding, each recorded-run reader is its
+    /// `reader_verdict::*_recorded` entry; a null binding reads as absent.
+    #[test]
+    fn a_recorded_binding_runs_the_recorded_entry() {
+        let pf: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json"
+        )).unwrap();
+        let recorded = json!({"id": sc::PREVIEW_PHYSICS_ID, "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"});
+        for (reader, input, outcome) in [
+            ("preview-physics", json!({"source": pf, "recorded_binding": recorded}), rv::validate_recorded("preview-physics", &pf, &recorded, None, None)),
+            ("preview-physics-transport", json!({"source": pf, "recorded_binding": recorded}), rv::transport_recorded("preview-physics", &pf, &recorded)),
+            ("dispatch", json!({"source": pf, "recorded_binding": recorded}), rv::dispatch_recorded(&pf, &recorded, None, None)),
+            ("row-semantics", json!({"row": pf["results"][0], "source": pf, "recorded_binding": recorded}), rv::row_semantics_recorded(&pf["results"][0], &pf, &recorded)),
+            ("retained-precision", json!({"source": pf, "recorded_binding": recorded}), rv::retained_recorded(&pf, &recorded, None)),
+            ("retained-precision-transport", json!({"source": pf, "recorded_binding": recorded}), rv::retained_transport_recorded(&pf, &recorded)),
+            ("preview-physics", json!({"source": pf, "recorded_binding": null}), rv::validate("preview-physics", &pf, None, None)),
+        ] {
+            let (code, output) = read(reader, &input.to_string()).unwrap();
+            assert_eq!(output["outcome"], outcome, "{reader}");
+            assert_eq!(code, if outcome["ok"] == true { EXIT_PASS } else { EXIT_REFUSED }, "{reader}");
+        }
+        let (code, _) = read("preview-physics", &json!({"source": pf, "recorded_binding": recorded}).to_string()).unwrap();
+        assert_eq!(code, EXIT_PASS);
+        let (code, output) = read("preview-physics", &json!({"source": pf}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_PREVIEW_PHYSICS_FORMULATION_BASIS")));
+        let (code, output) = read("row-semantics", &json!({"row": pf["results"][0], "recorded_binding": recorded}).to_string()).unwrap();
+        assert_eq!((code, &output["outcome"]["error"]["code"]), (EXIT_REFUSED, &json!("SOURCE_RECORDED_BINDING_UNKNOWN")));
     }
 
     #[test]

@@ -1,5 +1,5 @@
 import { isRetainedRoute } from "./numericalResultQuality";
-import { sourceContract } from "./resultReader";
+import { recordedReaderDispatch, sourceContract } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { recordedPreRtA4RecordBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
@@ -108,7 +108,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   // U6d reopen: a saved successor is revalidated by the accepted reader without an
   // invocation (its first code is a finding), and the AnalysisRun's copy must equal
   // its receipt. Nothing registers here, so standing stays needs_recompute.
-  if (mechanicsResult && isRetainedRoute(sourceContract(mechanicsResult))) {
+  if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
     try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { findings.push((error as Error).message); }
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
@@ -193,7 +193,7 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
   if (mechanicsResult && model) findings.push(...(recordedBinding ? recordedResultStanding(mechanicsResult, recordedBinding, model) : numericalResultStanding(mechanicsResult, model)).findings);
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string") findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
-  if (mechanicsResult && isRetainedRoute(sourceContract(mechanicsResult))) {
+  if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
     try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { findings.push((error as Error).message); }
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }

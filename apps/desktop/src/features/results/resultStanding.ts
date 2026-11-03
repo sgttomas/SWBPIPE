@@ -113,7 +113,11 @@ function presented(standing: ReaderStanding): NumericalStanding {
  * evidence of a historical run only: no caller treats it as a current solve's standing. */
 export function recordedResultStanding(source: MechanicsResult, binding: Readonly<{ id: string; sha256: string }>, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
   const route = recordedReaderDispatch(source, binding).route;
-  if (route === "pressure_source" || isRetainedRoute(route)) return numericalResultStanding(source, model);
+  if (isRetainedRoute(route)) {
+    const standing = retainedPrecisionStanding(source, model);
+    return { contract: route, status: RETAINED_STANDING_STATUS[standing.standing], eligible: standing.eligible, findings: standing.findings };
+  }
+  if (route === "pressure_source") return numericalResultStanding(source, model);
   return presented(recordedReaderDispatch(source, binding, model).standing);
 }
 export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
