@@ -9,7 +9,8 @@ coverage: the published combination rows in order (every field and value bit), t
 sources and the ``pressure_free_operand_recovery`` witnesses, the gate, the operands' standing,
 the missing sources and withheld rows, and the diagnostics that state them. ``model_checks``
 binds each record to the captured model (G2) and binds gate 4's input (RT-A3 increment 3: a consuming
-constant-effort support) to the model's DEC-049 conditions.
+constant-effort support) to the model's DEC-049 conditions, each case's applied-load rows the producer's whole rows
+for the model's consuming supports (their nodes and acting DOFs included).
 
 Independence: standard-library imports only, and its sibling ``section_basis`` (bit equality).
 Its algebra is its own and exact: a linear combination is the exact rational sum of the
@@ -419,11 +420,31 @@ def _constant_effort_support(support: Mapping[str, Any]) -> bool:
     return reading == "constant_effort_support"
 
 
-def consuming_constant_effort(model: Mapping[str, Any]) -> list[tuple[str, float]]:
+# The producer's applied-load sign convention (PP `CONSTANT_EFFORT_APPLIED_SIGN_CONVENTION`), re-derived whole.
+APPLIED_LOAD_SIGN_CONVENTION = (
+    "positive value is the user-entered constant support force applied along the positive axis of the single declared "
+    "translational restraint DOF in every solved load case; the ideal constant-effort element contributes zero stiffness "
+    "and adds no solve restraint row; no gravity coupling, catalog/default value, or inferred direction is supplied")
+_ACTING_DOF = {"UX": "UX", "Ux": "UX", "ux": "UX", "UY": "UY", "Uy": "UY", "uy": "UY", "UZ": "UZ", "Uz": "UZ", "uz": "UZ"}
+
+
+def _hanger_reference(hanger: Mapping[str, Any], field: str, missing: str) -> str | None:
+    """The producer's hanger reference as the applied-load row states it: entered text verbatim, or its stated absence
+    when missing or blank (Rust `trim`)."""
+    value = hanger.get(field)
+    if value is None:
+        return missing
+    if not isinstance(value, str):
+        return None
+    return missing if not _rust_trim(value) else value
+
+
+def consuming_constant_effort(model: Mapping[str, Any]) -> list[dict[str, Any]]:
     """Gate 4's model condition (DEC-049), as the producer's `classify_constant_effort_consumption` reads its
     normalized model: a constant-effort support with no `nonlinear` field whose `hanger.constant_load` normalizes to a
     finite positive force, whose every declared restraint is a frame DOF with exactly one translational entry, and whose
-    node is a model node. Each consuming support's id and force in newtons, in model order."""
+    node is a model node. Each consuming support resolved, in model order: its id, node, normalized acting DOF, force in
+    newtons and hanger references as the applied-load row states them."""
     nodes = {n.get("id") for n in _items(model.get("nodes")) if isinstance(n, Mapping)}
     consuming = []
     for support in _items(model.get("supports")):
@@ -442,10 +463,41 @@ def consuming_constant_effort(model: Mapping[str, Any]) -> list[tuple[str, float
         dofs = _items(support.get("restraints"))
         if not all(isinstance(d, str) and (d in _TRANSLATIONAL or d in _ROTATIONAL) for d in dofs):
             continue
-        if sum(d in _TRANSLATIONAL for d in dofs) != 1 or support.get("node") not in nodes or not isinstance(support.get("id"), str):
+        acting = [_ACTING_DOF[d] for d in dofs if d in _TRANSLATIONAL]
+        node = support.get("node")
+        if len(acting) != 1 or not isinstance(node, str) or node not in nodes or not isinstance(support.get("id"), str):
             continue
-        consuming.append((support["id"], force))
+        references = [_hanger_reference(hanger, field, f"{field}_missing")
+                      for field in ("source_reference", "manufacturer_reference", "load_side_review_reference")]
+        if any(r is None for r in references):
+            continue
+        consuming.append({"id": support["id"], "node": node, "dof": acting[0], "force": force, "source": references[0],
+                          "manufacturer": references[1], "load_side_review": references[2]})
     return consuming
+
+
+def applied_load_row(support: Mapping[str, Any], case: str, position: int) -> dict[str, Any]:
+    """The producer's applied-load row for a consuming support in the solved case at `position` of `exact_cases` (PP
+    `append_constant_effort_support_results`): every field, the id the first case keeps and every later case qualifies
+    under `result:loadcase:{case}:` (`qualified_load_case_result_id`)."""
+    tail = f"constant-effort-support:{_stable_suffix(support['id'])}:applied-load"
+    return {
+        "id": f"result:{tail}" if position == 0 else f"result:loadcase:{_stable_suffix(case)}:{tail}",
+        "kind": APPLIED_LOAD,
+        "value": support["force"],
+        "unit": "N",
+        "entity_ref": support["id"],
+        "basis_ref": {"ref_type": "load_case", "ref_id": case},
+        "metadata": {
+            "component": APPLIED_LOAD,
+            "coordinate_system": "global",
+            "location": f"{support['node']}:{support['dof']} applied load",
+            "basis": (f"support_family=constant_effort_support;consumed_dof={support['dof']};source={support['source']};"
+                      f"manufacturer={support['manufacturer']};load_side_review={support['load_side_review']};"
+                      "mechanics_consumption=assembled_solve;dec_ref=DEC-049"),
+            "sign_convention": APPLIED_LOAD_SIGN_CONVENTION,
+        },
+    }
 
 
 def _gate(expression: Expression, operands: list[Mapping[str, Any]], facts: list[dict], connector: Any, constant_effort: bool) -> str | None:
@@ -815,17 +867,17 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
             _require(bit_equal(operand.get("modulus_basis_ref"), case.get("modulus_basis_ref"))
                      and bit_equal(operand.get("modulus_basis_temperature"), temperature), "MODEL_OPERAND")
     # Gate 4's input decided from the model: every solved case publishes exactly the consuming constant-effort
-    # supports' applied-load rows, in model order, each its normalized constant load bit for bit, and nothing else of
-    # that kind.
-    expected = [(support, struct_bits(force)) for support, force in consuming_constant_effort(model)]
+    # supports' applied-load rows, in model order, each the producer's whole row (id, value bits, unit, entity, basis,
+    # location naming the support's node and normalized acting DOF, consumed-DOF basis, hanger references and sign
+    # convention), and nothing else of that kind. A row whose node or DOF is not the model's is refused (review of
+    # deafe7153).
+    consuming = consuming_constant_effort(model)
     results = _items(source.get("results"))
-    for case in _items((source.get("contract_evidence") or {}).get("exact_cases")):
+    for position, case in enumerate(_items((source.get("contract_evidence") or {}).get("exact_cases"))):
         cid = case.get("load_case_id") if isinstance(case, Mapping) else None
         _require(isinstance(cid, str), "MODEL_CONSTANT_EFFORT")
-        published = []
-        for r in results:
-            if isinstance(r, Mapping) and r.get("kind") == APPLIED_LOAD and r.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}:
-                value = r.get("value")
-                _require(isinstance(r.get("entity_ref"), str) and type(value) in (int, float), "MODEL_CONSTANT_EFFORT")
-                published.append((r["entity_ref"], struct_bits(float(value))))
-        _require(published == expected, "MODEL_CONSTANT_EFFORT")
+        published = [r for r in results if isinstance(r, Mapping) and r.get("kind") == APPLIED_LOAD and isinstance(r.get("basis_ref"), Mapping)
+                     and r["basis_ref"].get("ref_type") == "load_case" and r["basis_ref"].get("ref_id") == cid]
+        _require(len(published) == len(consuming), "MODEL_CONSTANT_EFFORT")
+        for row, support in zip(published, consuming):
+            _require(bit_equal(row, applied_load_row(support, cid, position)), "MODEL_CONSTANT_EFFORT")

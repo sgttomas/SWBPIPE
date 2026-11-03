@@ -278,7 +278,19 @@ def _ce_model(**patch):
 
 def test_constant_effort_consumption_is_decided_from_the_model():
     """The mirror of the Rust reader's `consuming_constant_effort` (DEC-049, as the producer classifies)."""
-    assert combinations.consuming_constant_effort(_ce_model()) == [("support:ce", 8000.0)]
+    def resolved(model):
+        return [(s["id"], s["node"], s["dof"], s["force"]) for s in combinations.consuming_constant_effort(model)]
+
+    assert resolved(_ce_model()) == [("support:ce", "node:b", "UZ", 8000.0)]
+    # The node and the normalized acting DOF are retained (a lower-case spelling resolves to the producer's name).
+    assert resolved(_ce_model(restraints=["ux", "RZ"])) == [("support:ce", "node:b", "UX", 8000.0)]
+    assert resolved(_ce_model(restraints=["Uy"])) == [("support:ce", "node:b", "UY", 8000.0)]
+    # The hanger references as the row states them: entered text verbatim, blank text stated missing.
+    model = _ce_model()
+    model["supports"][-1]["hanger"].update(source_reference=" catalog p. 4 ", manufacturer_reference=" ", load_side_review_reference="LSR-1")
+    stated = combinations.consuming_constant_effort(model)[0]
+    assert (stated["source"], stated["manufacturer"], stated["load_side_review"]) == (" catalog p. 4 ", "manufacturer_reference_missing", "LSR-1")
+    assert combinations.consuming_constant_effort(_ce_model())[0]["source"] == "source_reference_missing"
     for patch in ({"restraints": ["uz", "RX"]}, {"hanger_type": " "}, {"nonlinear": None}):
         assert len(combinations.consuming_constant_effort(_ce_model(**patch))) == 1, patch
     for patch in ({"restraints": ["UY", "UZ"]}, {"restraints": ["UZ", "uz"]}, {"restraints": ["RX"]}, {"restraints": ["UZ", "TX"]},
@@ -323,3 +335,94 @@ def test_the_model_binding_refuses_applied_load_rows_the_model_does_not_consume(
     idle = deepcopy(consuming)
     idle["supports"][-1]["restraints"] = ["UY", "UZ"]
     assert code(source, idle) is None
+
+
+# The producer's applied-load rows for `_ce_model()` solved in two cases, written out as PP
+# `append_constant_effort_support_results` publishes them (the second case's id qualified under `result:loadcase:`).
+_CE_SIGN = ("positive value is the user-entered constant support force applied along the positive axis of the single declared "
+            "translational restraint DOF in every solved load case; the ideal constant-effort element contributes zero stiffness "
+            "and adds no solve restraint row; no gravity coupling, catalog/default value, or inferred direction is supplied")
+
+
+def _ce_row(case, row_id):
+    return {"id": row_id, "kind": "constant_effort_support_applied_load", "value": 8000.0, "unit": "N", "entity_ref": "support:ce",
+            "basis_ref": {"ref_type": "load_case", "ref_id": case},
+            "metadata": {"component": "constant_effort_support_applied_load", "coordinate_system": "global",
+                         "location": "node:b:UZ applied load",
+                         "basis": ("support_family=constant_effort_support;consumed_dof=UZ;source=source_reference_missing;"
+                                   "manufacturer=manufacturer_reference_missing;load_side_review=load_side_review_reference_missing;"
+                                   "mechanics_consumption=assembled_solve;dec_ref=DEC-049"),
+                         "sign_convention": _CE_SIGN}}
+
+
+def _ce_source():
+    return {"results": [_ce_row("case:A", "result:constant-effort-support:support-ce:applied-load"),
+                        _ce_row("case:B", "result:loadcase:case-B:constant-effort-support:support-ce:applied-load")],
+            "contract_evidence": {"exact_cases": [{"load_case_id": "case:A"}, {"load_case_id": "case:B"}], "exact_combinations": []}}
+
+
+def _model_code(source, model):
+    try:
+        combinations.model_checks(source, model)
+    except ValueError as exc:  # the verifier's refusal: its code
+        return str(exc)
+    return None
+
+
+def test_the_model_binding_binds_every_field_of_the_applied_load_rows():
+    """Review of deafe7153 (finding 1): the applied-load binding retains the support's node and normalized acting DOF
+    and binds every field the producer writes. Forgery (a): the received rows against a model whose support acts along
+    another axis; forgery (b): a row relocated to another node and DOF. One control per bound field."""
+    refused = "SOURCE_PHYSICS_COMBINATION_MODEL_CONSTANT_EFFORT"
+    model = _ce_model()
+    assert _model_code(_ce_source(), model) is None
+    # The same received rows against an equal model: the lower-case spelling consumes the same DOF.
+    assert _model_code(_ce_source(), _ce_model(restraints=["uz"])) is None
+    # (a) The model's support changed to UX.
+    assert refused in _model_code(_ce_source(), _ce_model(restraints=["UX"]))
+    # (b) The row's location changed to another node and DOF.
+    forged = _ce_source()
+    forged["results"][0]["metadata"]["location"] = "node:A:UX applied load"
+    assert refused in _model_code(forged, model)
+    # The model's support moved to another model node.
+    assert refused in _model_code(_ce_source(), _ce_model(node="node:a"))
+    # The model's hanger reference entered.
+    entered = _ce_model()
+    entered["supports"][-1]["hanger"]["source_reference"] = "catalog"
+    assert refused in _model_code(_ce_source(), entered)
+    for path, value in [
+        (("id",), "result:forged"),
+        (("id",), "result:loadcase:case-A:constant-effort-support:support-ce:applied-load"),
+        (("value",), 8000.000000000001),
+        (("unit",), "kN"),
+        (("entity_ref",), "support:a"),
+        (("metadata", "component"), "support_reaction_component_v2"),
+        (("metadata", "coordinate_system"), "local"),
+        (("metadata", "location"), "node:b:UX applied load"),
+        (("metadata", "location"), "node:a:UZ applied load"),
+        (("metadata", "basis"), _ce_row("case:A", "")["metadata"]["basis"].replace("consumed_dof=UZ", "consumed_dof=UX")),
+        (("metadata", "basis"), _ce_row("case:A", "")["metadata"]["basis"].replace("source=source_reference_missing", "source=catalog")),
+        (("metadata", "sign_convention"), "negative value is the support force"),
+        (("source_result_refs",), ["result:forged"]),
+        (("metadata", "extra"), "x"),
+    ]:
+        forged = _ce_source()
+        target = forged["results"][0]
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+        assert refused in _model_code(forged, model), (path, value)
+    # The second case's id is qualified: unqualified, it is refused.
+    forged = _ce_source()
+    forged["results"][1]["id"] = "result:constant-effort-support:support-ce:applied-load"
+    assert refused in _model_code(forged, model)
+    # A field removed, a row dropped from one case, a row added to one case.
+    forged = _ce_source()
+    del forged["results"][1]["metadata"]["sign_convention"]
+    assert refused in _model_code(forged, model)
+    forged = _ce_source()
+    del forged["results"][1]
+    assert refused in _model_code(forged, model)
+    forged = _ce_source()
+    forged["results"].append(deepcopy(forged["results"][0]))
+    assert refused in _model_code(forged, model)

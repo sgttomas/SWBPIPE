@@ -800,10 +800,18 @@ fn ce2_combinations_bind_under_the_unit_factor_sum_rule() {
                 let combined = &combination["combined"];
                 let at = At { ref_type: "combination", ref_id: &id };
                 compare_linear(&linear_values(case, &envelope, at, &[]), &expected_linear(case, combined), s, &label);
-                // The constant force is counted sum(f) times: a combined
-                // applied-load row, where the product emits one, is that count times F.
-                for (_, _, applied) in applied_rows(&envelope, at) {
-                    close(applied, value(&combined["constant_force_in_combined_state"]), 0.0, &format!("{label} applied"));
+                // The constant force is counted sum(f) times: the combination
+                // publishes one combined applied-load row per consuming support
+                // (review of deafe7153: the count and identity are asserted
+                // first, so no row cannot pass), each that count times F.
+                let observed = applied_rows(&envelope, at);
+                let consuming = results["case_A"]["constant_effort_applied_load"].as_array().unwrap();
+                assert!(!consuming.is_empty(), "{label}");
+                assert_eq!(observed.len(), consuming.len(), "{label}: {observed:?}");
+                for ((support, location, applied), want) in observed.iter().zip(consuming) {
+                    assert_eq!(support, want["support"].as_str().unwrap(), "{label}");
+                    assert_eq!(location, &format!("{}:{} applied load", node_id(want["node"].as_str().unwrap()), want["acting_dof"].as_str().unwrap()), "{label}");
+                    close(*applied, value(&combined["constant_force_in_combined_state"]), 0.0, &format!("{label} applied"));
                 }
                 admitted += 1;
             } else {
@@ -942,6 +950,116 @@ fn forged_reasons_factor_sums_and_dropped_terms_are_refused() {
     let mut forged = envelope.clone();
     forged["results"].as_array_mut().unwrap().push(consumed["results"].as_array().unwrap().iter().find(|r| r["kind"] == APPLIED).unwrap().clone());
     assert!(refusal(&forged, Some(&document)).contains("MODEL_CONSTANT_EFFORT"), "forged consumption");
+}
+
+fn constant_effort_record(document: &mut Value) -> &mut Value {
+    document["model"]["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["family"] == "constant_effort_support").unwrap()
+}
+
+/// The refusal code of a forgery checked against its model.
+fn refusal_code(envelope: &Value, document: &Value) -> String {
+    let found = reader_verdict::validate("pressure", envelope, Some(&document["model"]), None);
+    assert_eq!(found["ok"], false, "a forgery passed the reader");
+    found["error"]["code"].as_str().unwrap().to_string()
+}
+
+/// Review of deafe7153 (finding 1): the model binding retains each consuming
+/// support's node and normalized acting DOF and binds every field of its
+/// applied-load rows. Forgery (a): CE1-EB solved with its UZ support, checked
+/// against the model with that support changed to UX; forgery (b): the row's
+/// location changed to `node:A:UX applied load`. Then one control per bound
+/// field, and on CE3-EB the second state's qualified id.
+#[test]
+fn applied_load_rows_are_bound_to_the_models_node_and_dof() {
+    const REFUSED: &str = "SOURCE_PHYSICS_COMBINATION_MODEL_CONSTANT_EFFORT";
+    let references = references();
+    let document = plain_document(&references, case(&references, "CE1-EB"), true);
+    for mode in MODES {
+        let what = format!("CE1-EB {mode:?}");
+        let envelope = solved(&document, mode, &what);
+        let i = envelope["results"].as_array().unwrap().iter().position(|r| r["kind"] == APPLIED).unwrap();
+        assert_eq!(envelope["results"][i]["metadata"]["location"], "node:B:UZ applied load", "{what}");
+        // (a) The unchanged envelope against the model whose support acts along UX.
+        let mut model = document.clone();
+        constant_effort_record(&mut model)["restraints"] = json!(["UX"]);
+        let code = refusal_code(&envelope, &model);
+        println!("{what} forgery (a) model support UZ->UX: {code}");
+        assert_eq!(code, REFUSED, "{what} (a)");
+        // The same DOF under another accepted spelling is the same consumption.
+        let mut model = document.clone();
+        constant_effort_record(&mut model)["restraints"] = json!(["uz"]);
+        assert_eq!(reader_verdict::validate("pressure", &envelope, Some(&model["model"]), None)["ok"], true, "{what} uz");
+        // (b) The row relocated to node A along UX.
+        let mut forged = envelope.clone();
+        forged["results"][i]["metadata"]["location"] = json!("node:A:UX applied load");
+        let code = refusal_code(&forged, &document);
+        println!("{what} forgery (b) location node:A:UX: {code}");
+        assert_eq!(code, REFUSED, "{what} (b)");
+        // The model's support moved to node A, or its source reference entered.
+        for (field, forged_value) in [("node", json!(node_id("A"))), ("source_reference", json!("catalog"))] {
+            let mut model = document.clone();
+            let record = constant_effort_record(&mut model);
+            if field == "node" { record[field] = forged_value } else { record["hanger"][field] = forged_value }
+            let code = refusal_code(&envelope, &model);
+            println!("{what} model {field}: {code}");
+            assert_eq!(code, REFUSED, "{what} model {field}");
+        }
+        // One control per bound row field.
+        let basis = envelope["results"][i]["metadata"]["basis"].as_str().unwrap().to_string();
+        assert!(basis.contains("consumed_dof=UZ;"), "{what}");
+        for (field, forged_value) in [
+            ("id", json!("result:constant-effort-support:support-A:applied-load")),
+            ("unit", json!("kN")),
+            ("entity_ref", json!("support:A")),
+            ("component", json!("support_reaction_component_v2")),
+            ("coordinate_system", json!("local")),
+            ("location", json!("node:B:UX applied load")),
+            ("basis", json!(basis.replace("consumed_dof=UZ;", "consumed_dof=UX;"))),
+            ("basis", json!(basis.replace(";source=", ";source=forged "))),
+            ("sign_convention", json!("negative value is the support force")),
+            ("source_result_refs", json!(["result:forged"])),
+            ("extra", json!("x")),
+        ] {
+            let mut forged = envelope.clone();
+            let row = forged["results"][i].as_object_mut().unwrap();
+            if row.contains_key(field) || field == "source_result_refs" {
+                row.insert(field.to_string(), forged_value.clone());
+            } else {
+                row["metadata"].as_object_mut().unwrap().insert(field.to_string(), forged_value.clone());
+            }
+            let code = refusal_code(&forged, &document);
+            println!("{what} row {field} = {forged_value}: {code}");
+            // A changed unit, component or source reference is refused first
+            // by the direct-case pass, before the binding (the reader's unit
+            // test shows the binding refuses each as well).
+            let expected = match field {
+                "unit" => "SOURCE_UNIT_CONTRADICTION",
+                "component" => "SOURCE_COMPONENT_CONTRADICTION",
+                "source_result_refs" => "SOURCE_PHYSICS_DERIVED_ROWS_UNSUPPORTED",
+                _ => REFUSED,
+            };
+            assert_eq!(code, expected, "{what} row {field}");
+        }
+    }
+    // CE3-EB: the first solved state (O) keeps the base id; the second (S)
+    // is qualified under its case.
+    let state = state_document(&references, case(&references, "CE3-EB"), true);
+    let envelope = solved(&state, PreviewSolverMode::SparseInteractive, "CE3-EB");
+    let first = envelope["contract_evidence"]["exact_cases"][0]["load_case_id"].as_str().unwrap().to_string();
+    let ids = envelope["results"].as_array().unwrap().iter().filter(|r| r["kind"] == APPLIED && r["basis_ref"]["ref_type"] == "load_case")
+        .map(|r| (r["basis_ref"]["ref_id"].as_str().unwrap().to_string(), r["id"].as_str().unwrap().to_string())).collect::<Vec<_>>();
+    assert_eq!(first, "case:O");
+    assert_eq!(ids, [("case:O".to_string(), "result:constant-effort-support:support-CE3:applied-load".to_string()),
+        ("case:S".to_string(), "result:loadcase:case-S:constant-effort-support:support-CE3:applied-load".to_string())], "{ids:?}");
+    let mut forged = envelope.clone();
+    for r in forged["results"].as_array_mut().unwrap() {
+        if r["kind"] == APPLIED && r["basis_ref"]["ref_id"] == "case:S" {
+            r["id"] = json!("result:constant-effort-support:support-CE3:applied-load");
+        }
+    }
+    // The duplicated id is refused first by the load/reference-state pass
+    // (the reader's unit test shows the binding refuses it as well).
+    assert_eq!(refusal_code(&forged, &state), "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE", "CE3-EB unqualified state S id");
 }
 
 // ----------------------------------------------------------------- CE-3
