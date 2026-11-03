@@ -277,3 +277,75 @@ def test_long_literal_check_matches_each_listed_literal_once(tmp_path):
     entry = {"file": "src/lib.rs", "head": "xxx", "disposition": "never-copied", "cite": "c"}
     matched, problems = R["long_literal_check"](tmp_path, dirs, 10, [entry])
     assert problems == [] and [(m["at"], m["bytes"]) for m in matched] == [("src/lib.rs:1", 40)]
+
+
+# ---- review follow-up: exclusive test reachability, and rustc's shebang rule --------------------
+def test_a_file_also_declared_by_production_is_never_test_only(tmp_path):
+    # A test module that reaches a production file (by #[path] or by name) must not hide it, nor its
+    # descendants: test-only means unreachable from production.
+    tree(tmp_path, {
+        "src/lib.rs": ('mod shared;\n#[cfg(test)]\n#[path = "shared.rs"]\nmod test_shared;\n'
+                       '#[cfg(test)]\nmod only_test;\n'),
+        "src/shared.rs": f'const LONG: &str = "{"s" * 2000}";\nmod child;\n',
+        "src/shared/child.rs": 'const C: &str = "child";\n',
+        "src/only_test.rs": 'const T: &str = "test";\n',
+    })
+    values, test_files = prod(tmp_path)
+    assert ("src/shared.rs", "s" * 2000) in values and ("src/shared/child.rs", "child") in values
+    assert test_files == ["src/only_test.rs"]
+
+
+def test_a_test_files_own_children_stay_test_only_unless_production_reaches_them(tmp_path):
+    tree(tmp_path, {
+        "src/lib.rs": '#[cfg(test)]\nmod t;\nmod common;\n',
+        "src/t.rs": 'mod helper;\n#[path = "../common.rs"]\nmod again;\n',
+        "src/t/helper.rs": 'const H: &str = "helper";\n',
+        "src/common.rs": 'const K: &str = "common";\n',
+    })
+    values, test_files = prod(tmp_path)
+    assert ("src/common.rs", "common") in values
+    assert test_files == ["src/t.rs", "src/t/helper.rs"]
+
+
+def test_an_unresolved_production_declaration_keeps_its_candidates(tmp_path):
+    # `mod z;` inside an inline module is not resolved by this pass: every file it could name stays in.
+    tree(tmp_path, {"src/lib.rs": '#[cfg(test)]\nmod z;\nmod y { mod z; }\n',
+                    "src/z.rs": 'const Z: &str = "z";\n', "src/y/z.rs": 'const Y: &str = "yz";\n'})
+    values, test_files = prod(tmp_path)
+    assert test_files == [] and sorted(v for f, v in values if f != "src/lib.rs") == ["yz", "z"]
+
+
+def test_an_unparsed_path_on_a_production_declaration_stops(tmp_path):
+    tree(tmp_path, {"src/lib.rs": '#[path = concat!("x", ".rs")]\nmod x;\n', "src/x.rs": 'const X: &str = "x";\n'})
+    with pytest.raises(LexError, match="unparsed #\\[path\\]"):
+        prod(tmp_path)
+
+
+@pytest.mark.parametrize("head", ["#! [allow(dead_code)]", "#!/* c */[allow(dead_code)]", "#!\n[allow(dead_code)]",
+                                  "#! // c\n[allow(dead_code)]", "#!/* /* nested */ */ [allow(dead_code)]"])
+def test_an_inner_attribute_with_space_or_comments_is_not_a_shebang(head):
+    src = f'{head} const LONG: &str = "{"q" * 2000}";\n'
+    assert longest(src) == 2000
+
+
+def test_a_real_shebang_line_is_skipped():
+    assert values('#!/usr/bin/env run-cargo-script "x"\nconst A: &str = "a";\n') == ["a"]
+    assert values('#!  /bin/sh\nconst A: &str = "a";\n') == ["a"]
+
+
+def test_an_unterminated_comment_after_a_leading_shebang_marker_stops():
+    with pytest.raises(LexError, match="unterminated block comment"):
+        string_literals('#!/* never closed\nconst A: &str = "a";\n')
+
+
+def test_module_items_are_found_wherever_they_sit_on_a_line(tmp_path):
+    # A same-line attribute, and a production declaration inside an inline module that a test #[path]
+    # also reaches: the first is test-only, the second must stay in scope.
+    tree(tmp_path, {
+        "src/lib.rs": ('#[cfg(test)] mod t;\npub mod y { pub(crate) mod z; }\n'
+                       '#[cfg(test)] #[path = "y/z.rs"] mod tz;\n'),
+        "src/t.rs": 'const T: &str = "test";\n',
+        "src/y/z.rs": 'const Z: &str = "prod-z";\n',
+    })
+    values, test_files = prod(tmp_path)
+    assert ("src/y/z.rs", "prod-z") in values and test_files == ["src/t.rs"]

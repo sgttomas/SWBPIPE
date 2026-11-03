@@ -178,13 +178,40 @@ class _Lexer:
             self.fail(start, f"unterminated {kind} literal")
         return v, j + 1
 
+    def _is_shebang(self):
+        """rustc's rule: a leading `#!` is a shebang line unless the next token, after whitespace and
+        comments (block comments nest), is `[`, which makes it an inner attribute (`#! [allow(x)]`,
+        `#!/* c */[x]`). An unterminated block comment there stops the run."""
+        t, n, i = self.t, self.n, 2
+        while i < n:
+            if t[i].isspace():
+                i += 1
+            elif t.startswith("//", i):
+                j = t.find("\n", i)
+                i = n if j < 0 else j + 1
+            elif t.startswith("/*", i):
+                depth, j = 1, i + 2
+                while j < n and depth:
+                    if t.startswith("/*", j):
+                        depth, j = depth + 1, j + 2
+                    elif t.startswith("*/", j):
+                        depth, j = depth - 1, j + 2
+                    else:
+                        j += 1
+                if depth:
+                    self.fail(i, "unterminated block comment after a leading `#!`")
+                i = j
+            else:
+                return t[i] != "["
+        return True
+
     # -- the walk ------------------------------------------------------------------------------
     def run(self):
         t, n = self.t, self.n
         if "\r" in t:
             self.fail(t.index("\r"), "carriage return in source (CRLF normalization is not modelled)")
         out, i = [], 0
-        if t.startswith("#!") and not t.startswith("#!["):
+        if t.startswith("#!") and self._is_shebang():
             i = t.find("\n") if "\n" in t else n
 
         def emit(kind, s, e, value):
@@ -368,11 +395,13 @@ def _module_decls(path, text):
         mm = _MOD.match(text, start)
         if mask[start] or not mm:
             continue
-        k = text.rfind("\n", 0, start) + 1
-        prefix = text[k:start].strip()
-        if prefix and not _VIS.fullmatch(prefix + " "):
-            continue                                         # `mod` not at an item start on its line
-        # collect preceding attributes: repeatedly skip back over ws/comments and one `#[...]`
+        # `mod` is a reserved keyword, so every code `mod NAME` followed by `;` or `{` is a module item,
+        # wherever it sits on its line (after an attribute, inside an inline module or a macro body).
+        # Step back over a visibility qualifier, then collect the attributes that precede the item.
+        k = start
+        vm = _re.search(r"pub(\s*\(\s*(crate|super|self|in\s+[\w:]+)\s*\))?\s*$", text[max(0, start - 80):start])
+        if vm and not any(mask[max(0, start - 80) + vm.start():start]):
+            k = max(0, start - 80) + vm.start()
         attrs, p = [], k
         while True:
             q = p
@@ -441,38 +470,53 @@ def scope_files(root, crate_dirs):
 
 
 def production_literals(root, files):
-    """The double-quoted literals of `files` outside test-only code: a file declared only by a
-    `#[cfg(test)] mod name;` (resolved by Rust's module path rules, `#[path]` included; any file
-    declared by a test-only file, recursively), and the body of a `#[cfg(test)] mod name { … }`.
-    Anything it cannot resolve with certainty stays in scope (over-inclusion is the safe side)."""
+    """The double-quoted literals of `files` outside test-only code. A file is test-only exactly when it is
+    not reachable from production: production starts at every file no `mod name;` resolves to (crate roots,
+    binaries, build scripts, and files reached only through declarations this pass cannot resolve), and
+    follows every resolved file declaration that is not test-only (not under an exact `#[cfg(test)]`, and
+    not inside a `#[cfg(test)] mod name { … }` body). A file a test module also declares, or reaches
+    through `#[path]`, therefore stays in scope whenever any production declaration reaches it. A
+    production declaration this pass cannot resolve keeps every file it could name in scope (each file
+    whose stem, or `mod.rs` directory, matches the name), and one with an unparsed `#[path]` stops the run.
+    The bodies of inline `#[cfg(test)]` modules are excluded. Over-inclusion is the safe side."""
     texts = {f: open(_os.path.join(root, f), encoding="utf-8").read() for f in files}
     decls = {f: _module_decls(f, t) for f, t in texts.items()}
-    test_files, frontier = set(), []
+    children, referenced, unresolved = {}, set(), set()
     for f, ds in decls.items():
+        tspans = [d["span"] for d in ds if d["cfg_test"] and d["kind"] == "{"]
         for d in ds:
-            if d["cfg_test"] and d["kind"] == ";":
-                c = _child_file(root, f, d)
-                if c in texts:
-                    frontier.append(c)
+            if d["kind"] != ";":
+                continue
+            is_test = d["cfg_test"] or any(s < d["span"][0] < e for s, e in tspans)
+            c = _child_file(root, f, d)
+            if c in texts:
+                referenced.add(c)
+                children.setdefault(f, []).append((c, is_test))
+            elif not is_test:
+                if d["path"] is False:
+                    raise LexError(f"{f}: production `mod {d['name']};` has an unparsed #[path]; its file is "
+                                   "unknown, so test-only exclusion cannot be decided")
+                unresolved.add(_os.path.splitext(_os.path.basename(d["path"]))[0] if d["path"] else d["name"])
+    seeds = {f for f in texts if f not in referenced}
+    seeds |= {f for f in texts for u in unresolved
+              if _os.path.basename(f) == u + ".rs" or f.endswith(_os.sep + u + _os.sep + "mod.rs")}
+    production, frontier = set(), sorted(seeds)
     while frontier:
         f = frontier.pop()
-        if f in test_files:
+        if f in production:
             continue
-        test_files.add(f)
-        for d in decls[f]:
-            if d["kind"] == ";":
-                c = _child_file(root, f, d)
-                if c in texts:
-                    frontier.append(c)
+        production.add(f)
+        frontier += [c for c, is_test in children.get(f, []) if not is_test]
+    test_files = sorted(set(texts) - production)
     out = []
     for f in files:
-        if f in test_files:
+        if f not in production:
             continue
         spans = [d["span"] for d in decls[f] if d["cfg_test"] and d["kind"] == "{"]
         for x in string_literals(texts[f], f):
             if not any(s <= x["start"] < e for s, e in spans):
                 out.append(dict(x, file=f))
-    return out, sorted(test_files)
+    return out, test_files
 
 
 def long_literal_check(root, crate_dirs, threshold, entries):
