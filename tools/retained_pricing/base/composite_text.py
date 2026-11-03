@@ -8,8 +8,9 @@ Derived Debug output length is computed structurally (std `#[derive(Debug)]`):
 Primitive maxima (installed core 1.97.1, core/fmt/float.rs and integer formatting):
   usize/u64 20, i32 11, bool 5, f64 Debug/LowerExp 24, f64 Display 327.
   String Debug of b input bytes <= 2 + 10*b (each char is >= 1 byte; the longest escape
-  is the 10-char `\\u{10ffff}`); static source literals are measured from source and
-  checked to be printable ASCII without quotes/backslashes, so their Debug is 2 + len.
+  is the 10-char `\\u{10ffff}`); static source literals are measured from source (a Rust
+  lexer, rust_literals.py, §8.45); those that are not printable ASCII without quotes/backslashes,
+  whose Debug is not 2 + len, are counted (static_literals_with_escapes), not refused.
 Field lists are transcribed from the cited definitions.
 Usage: python3 composite_text.py <P root> <caps|milestone>
 """
