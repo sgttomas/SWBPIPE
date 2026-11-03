@@ -471,7 +471,20 @@ installation temperature, a case that also carries a thermal primitive or its ow
 exposed pipes, a wind-exposure use without `equivalent_static.wind`, and a wind
 exposure that resolves to no pipe are shown as warnings, with the solve's code
 and message. The edit is applied, and the solve still refuses that case by name
-until you supply the input. Anything else the solve refuses blocks the edit.
+until you supply the input.
+
+Anything else the solve refuses blocks the edit, with one exception: a refusal
+the document already had before the edit, and that the edit cannot affect. A
+snubber or a skewed support elsewhere in the model, for example, does not stop
+you from creating a set, assigning one or stating a case's use. Such a refusal
+is shown as information, with the solve's code and message and a note that the
+document already carried it, and the edit is applied. It still blocks when the
+edit reaches it: when you edit that case itself, when it is a case that uses
+conditions and you change any set or a pipe's assignment, or when the edit
+makes the refusal appear more often. A refusal the edit introduces, one that
+names no particular member, and a use the route refuses always block. The solve
+still refuses the document by name until the member is resolved; an applied edit
+never means the model solves.
 
 Nothing is defaulted at any step: no set is created or suggested, no pipe is
 given a set it was not assigned, and no temperature, weight, exposure or wind

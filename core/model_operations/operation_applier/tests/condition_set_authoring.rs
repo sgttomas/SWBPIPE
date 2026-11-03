@@ -486,6 +486,29 @@ fn the_exact_route_and_contents_refusals() {
     }
 }
 
+/// Review r1 (#93): on the exact route a declared operating comparison is
+/// refused, and that refusal is never carried as info. Combination C compares
+/// case L, which carries the only condition use; clearing L's use removes L's
+/// route refusal, but C's unchanged refusal still blocks (route code, and C is
+/// in the edit's scope as a combination naming L).
+#[test]
+fn an_exact_route_comparison_refusal_is_never_carried() {
+    let mut exact = with_refs(with_sets(&[set_a()]), &[("P1", "cs:a"), ("P2", "cs:a"), ("P3", "cs:a")]);
+    exact["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+    let mut cases = exact["load_cases"].as_array().unwrap().clone();
+    cases.push(json!({"id": "L", "label": "Operating", "kind": "operating", "status": "draft", "primitive_loads": [], "provenance": PROV, "condition_use": {"temperature": "OPE1"}}));
+    exact["load_cases"] = json!(cases);
+    exact["combinations"] = json!([{"id": "C", "basis": "result_state_subtraction", "minuend_id": "L", "subtrahend_id": "SUS", "difference_basis": "operating_minus_sustained", "provenance": PROV}]);
+    for pipe in exact["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = q(0.0, "m");
+    }
+    for case in exact["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    let outcome = refused(&exact, &clear_use(&exact, "L"), "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
+    assert!(!outcome.diagnostics.iter().any(|d| d.code == "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED" && d.severity == "info"), "{:?}", records(&outcome));
+}
+
 // ------------------------------------------------------------------ S1 refusals kept
 
 #[test]
@@ -583,27 +606,125 @@ fn the_staged_warnings_equal_the_solves_findings_on_the_same_candidate() {
     assert_eq!(preview["resolved"], json!(false));
 }
 
-/// A finding not on the staged list blocks the operation, even beside staged
-/// ones: here the interim refusals of a hydrostatic test case and of a skewed
-/// support direction, which documents may carry and the solve refuses.
-#[test]
-fn a_finding_not_on_the_staged_list_blocks() {
-    let mut model = with_sets(&[set_a()]);
+fn with_case(mut model: Value, case: Value) -> Value {
     let mut cases = model["load_cases"].as_array().unwrap().clone();
-    cases.push(json!({"id": "HT", "primitive_loads": [], "provenance": PROV, "test_condition": {"kind": "hydrostatic", "held_supports": "none"}}));
+    cases.push(case);
     model["load_cases"] = json!(cases);
-    assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
-    let outcome = refused(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
-    // Editing the refused case itself blocks too (review r1, P1/P2 scenario).
-    refused(&model, &set_use(&model, "HT", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
-    assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn beside it");
-    refused(&model, &create_set(&set_b()), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
-    refused(&model, &create_case("OPE", json!({"condition_use": {"temperature": "OPE1"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    model
+}
 
+fn hydrostatic(extra: Value) -> Value {
+    let mut case = json!({"id": "HT", "primitive_loads": [], "provenance": PROV, "test_condition": {"kind": "hydrostatic", "held_supports": "none"}});
+    for (key, value) in extra.as_object().unwrap() {
+        case[key] = value.clone();
+    }
+    case
+}
+
+/// The one diagnostic with `code`, which must be the permitted carried refusal:
+/// severity `info`, the solve's message leading, the carried statement after it.
+fn carried_info<'a>(outcome: &'a OperationOutcome, code: &str, solved: &Value) -> &'a open_pipe_stress_operation_applier::OutcomeDiagnostic {
+    let found: Vec<_> = outcome.diagnostics.iter().filter(|d| d.code == code).collect();
+    assert_eq!(found.len(), 1, "{:?}", records(outcome));
+    assert_eq!(found[0].severity, "info", "{:?}", records(outcome));
+    let message = solved["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == code).unwrap()["message"].as_str().unwrap();
+    assert!(found[0].message.starts_with(message), "the solve's message leads: {}", found[0].message);
+    let said = &found[0].message[message.len()..];
+    assert!(said.contains("already carried this refusal before this edit"), "{said}");
+    assert!(said.contains("outside this edit's dependency scope"), "{said}");
+    assert!(said.contains("The solve still refuses it by name"), "{said}");
+    found[0]
+}
+
+/// An unrelated carried refusal (a snubber; a skewed support direction) does
+/// not block a set create, a pipe assignment or a case's use: each applies, the
+/// refusal is reported as `info` with the solve's code and message, the solve
+/// still refuses the applied document by name, and nothing in the outcome or
+/// the applied document claims or records that the document solves.
+#[test]
+fn an_unrelated_carried_refusal_is_reported_and_does_not_block() {
+    let mut snubbed = with_sets(&[set_a()]);
+    snubbed["supports"][1] = json!({"id": "snub", "node": "N1", "family": "snubber", "restraints": ["UY"],
+        "stiffness": {"dof": "UY", "value": q(1.0e7, "N/m")}, "provenance": PROV});
+    let mut skewed = with_sets(&[set_a()]);
+    skewed["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
+    for (model, code, support) in [(snubbed, "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", "snub"), (skewed, "SUPPORT_DIRECTION_SKEW_UNSUPPORTED", "spring")] {
+        assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
+        assert!(solve(&model).to_string().contains(code), "the solve refuses the carried member");
+        for intent in [
+            create_set(&set_b()),
+            assign(&model, "P1", Some("cs:a")),
+            set_use(&model, "SUS", &json!({"temperature": "OPE1"})),
+            create_case("OPE", json!({"condition_use": {"temperature": "OPE1"}})),
+        ] {
+            let (next, outcome) = applied(&model, &intent);
+            let solved = solve(&next);
+            let found = carried_info(&outcome, code, &solved);
+            assert_eq!(found.affected_refs, [support]);
+            assert!(solved["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == code && d["severity"] == "blocking"), "the solve still refuses it");
+            assert_eq!(preview_operating_conditions(&next)["resolved"], json!(false));
+            let outcome_text = serde_json::to_string(&outcome).unwrap().to_lowercase();
+            for claim in ["solvable", "solves", "\"resolved\":true", "\"resolved\": true"] {
+                assert!(!outcome_text.contains(claim), "the outcome claims {claim}");
+                assert!(!bytes(&next).to_lowercase().contains(claim), "the applied document records {claim}");
+            }
+        }
+    }
+}
+
+/// Editing the hydrostatic test case itself blocks: HT is the edit's target.
+/// An edit of another case's use leaves HT outside its scope (HT uses no
+/// conditions), so there the refusal is carried.
+#[test]
+fn an_edit_of_the_hydrostatic_case_blocks() {
+    let model = with_case(with_sets(&[set_a()]), hydrostatic(json!({})));
+    assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
+    let outcome = refused(&model, &set_use(&model, "HT", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn beside it");
+    let (next, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})));
+    carried_info(&outcome, "LOAD_CASE_TEST_CONDITION_UNSUPPORTED", &solve(&next));
+}
+
+/// HT uses conditions (temperature) and its pipes use set `cs:a`, so HT is an
+/// effective case of every set: an update of `cs:a`, an assignment moving a
+/// pipe to or from it, a set create and the delete of an unreferenced set all
+/// block with HT's refusal. A use edit of another case does not reach HT.
+#[test]
+fn an_edit_of_a_set_feeding_the_hydrostatic_case_blocks() {
+    let set_c = json!({"id": "cs:c", "provenance": PROV});
+    let model = with_case(
+        with_refs(with_sets(&[set_a(), set_b(), set_c]), &[("P1", "cs:a"), ("P2", "cs:a"), ("P3", "cs:b")]),
+        hydrostatic(json!({"condition_use": {"temperature": "OPE1"}})),
+    );
+    assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
+    let code = "LOAD_CASE_TEST_CONDITION_UNSUPPORTED";
+    let mut relabelled = set_a();
+    relabelled["label"] = json!("Line A, relabelled");
+    refused(&model, &update_set(&model, &relabelled), code);
+    refused(&model, &assign(&model, "P1", Some("cs:b")), code);
+    refused(&model, &assign(&model, "P1", None), code);
+    refused(&model, &assign(&model, "P3", Some("cs:a")), code);
+    refused(&model, &create_set(&json!({"id": "cs:d", "provenance": PROV})), code);
+    refused(&model, &delete_set(&model, "cs:c"), code);
+    let (next, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})));
+    carried_info(&outcome, code, &solve(&next));
+}
+
+/// A refusal the before-document's judgement does not give blocks, even on a
+/// member the edit does not touch: here the before-document fails the document
+/// validator (a pipe names a set that does not exist), so its judgement gives
+/// nothing, and the create that repairs it meets the skewed support as new.
+#[test]
+fn a_refusal_new_to_the_judgement_blocks() {
+    let mut model = with_refs(with_sets(&[set_a()]), &[("P1", "cs:z")]);
+    model["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
+    assert!(validate_model_document(&model).iter().any(|d| d.is_blocking()), "the before-document does not validate");
+    refused(&model, &create_set(&json!({"id": "cs:z", "provenance": PROV})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED");
+    // The same create on the valid document meets the skew as carried.
     let mut skew = with_sets(&[set_a()]);
     skew["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
-    assert!(!validate_model_document(&skew).iter().any(|d| d.is_blocking()));
-    refused(&skew, &assign(&skew, "P1", Some("cs:a")), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED");
+    let (next, outcome) = applied(&skew, &create_set(&json!({"id": "cs:z", "provenance": PROV})));
+    carried_info(&outcome, "SUPPORT_DIRECTION_SKEW_UNSUPPORTED", &solve(&next));
     // Operations outside this slice are not judged: the same document still edits.
     let rename = op("modify", "set_field", "Node", "N1", "label", "N1", "Midspan");
     let outcome = apply_operation(&skew, &rename, Some(&claim(&skew)));

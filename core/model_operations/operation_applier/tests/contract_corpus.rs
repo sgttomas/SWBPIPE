@@ -433,7 +433,7 @@ fn contract_corpus_covers_the_required_kinds_and_block_classes() {
 }
 
 const CONDITION_SET_CORPUS: &str = "../../../fixtures/model_operations/condition_set_contract_corpus.json";
-const EXPECTED_CONDITION_SET_CASES: usize = 18;
+const EXPECTED_CONDITION_SET_CASES: usize = 20;
 const CONDITION_SET_KINDS: [&str; 7] = [
     "create_condition_set",
     "update_condition_set",
@@ -455,8 +455,9 @@ const CONDITION_SET_BLOCK_CODES: [&str; 8] = [
 ];
 
 /// S3a's corpus file: every case matches the Rust contract reference, every
-/// operation is accepted at least once, every refusal class blocks, and the
-/// staged findings appear as warnings.
+/// operation is accepted at least once, every refusal class blocks, the
+/// staged findings appear as warnings, and carried refusals outside an edit's
+/// scope appear as info.
 #[test]
 fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     let bless = std::env::var("CONDITION_SET_CORPUS_BLESS").is_ok();
@@ -467,6 +468,7 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     let mut accepted: BTreeSet<String> = BTreeSet::new();
     let mut blocked: BTreeSet<String> = BTreeSet::new();
     let mut warned: BTreeSet<String> = BTreeSet::new();
+    let mut carried: BTreeSet<String> = BTreeSet::new();
     for case in cases.iter_mut() {
         let case_id = case["case_id"].as_str().expect("case_id").to_string();
         check_or_bless(case, &case_id, bless);
@@ -478,6 +480,8 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
             let code = item["code"].as_str().unwrap_or_default().to_string();
             if item["blocking"] == true {
                 blocked.insert(code);
+            } else if item["severity"] == "info" {
+                carried.insert(code);
             } else {
                 warned.insert(code);
             }
@@ -496,5 +500,8 @@ fn condition_set_corpus_cases_match_the_rust_contract_reference() {
     }
     for code in ["OPERATING_CONDITION_SET_MISSING", "EQUIVALENT_STATIC_INPUT_MISSING"] {
         assert!(warned.contains(code) && !blocked.contains(code), "`{code}` is a staged warning in the corpus");
+    }
+    for code in ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"] {
+        assert!(carried.contains(code), "no condition-set corpus case reports `{code}` as a carried refusal (info)");
     }
 }
