@@ -514,4 +514,8 @@ map and every function multiplicity equal #96's, and 12 coefficients rise
 (the restated pressure-2 table in STATICS, +788 B with one node and six values;
 the identity's constant-effort clause and the D-2 sentence in TAV, +3,894 B).
 The block is regenerated; reviewed inputs #8 and #11 rebind; every phase rises
-by 5,610 B. See the governing rules' §8.44 and `tests/test_844_rt_a3_ce.py`.
+by 5,610 B. After review, S7 restates a consumed constant-effort support's signed
+support action (+67 B, six TAV copies): re-derived on main `5e12ca44e`, the same
+twelve coefficients rise, every phase by 6,012 B against #96, and reviewed input
+#10 rebinds the pressure-2 result schema (gate 4 in its enum). See the governing
+rules' §8.44 and `tests/test_844_rt_a3_ce.py`.

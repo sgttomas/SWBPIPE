@@ -906,7 +906,28 @@ stated together:
   combinations limitation names the gate, and
   `combination_policy.mechanics_gates` appends gate 4.
 
-Copies follow the producer: `exactReportLimitations.ts` (S1, S13),
+- after independent review of `ac7fea603`, the support-attribution
+  limitation S7, shared by both publications, names the constant-effort
+  support's action: "Signed support actions are attributed only for admitted
+  linear restraints and springs and, as its constant force, for a consumed
+  constant-effort support; ambiguous coincident rigid attribution is refused."
+  (it read "… only for admitted linear restraints and springs; ambiguous …",
+  which a consumed record's published support action contradicted). The
+  equivalent-static refusal on a load/reference-state document
+  (`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`) now reads "a case's
+  ordinary applied loads there are exactly its declared source ledger (a
+  consumed constant-effort support's force is a device action of the active
+  support)" where it read "a case's applied loads there are exactly its
+  declared source ledger", consistent with D-2 and S14; the refusal itself is
+  unchanged;
+- the pressure-2 result schema's `exact_combinations` gate-reason enum admits
+  `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` (it was missing, so a
+  gate-4-withheld envelope failed the schema;
+  `tests/test_rt_a3_constant_effort_schema.py` validates the producer's CE-2
+  2·A envelope, `fixtures/results/rt_a3_ce2_withheld_sparse.json`, with a
+  negative control without the entry).
+
+Copies follow the producer: `exactReportLimitations.ts` (S1, S7, S13),
 `schemas/results.v0.3.schema.yaml`, the source-receipt test copy, DEL-05-03's
 and DEL-08-01's quoted statements, and every carrier through its writer
 (`tests/test_rt_a3_constant_effort_text_only_envelope_diff.py` proves they

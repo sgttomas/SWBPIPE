@@ -3202,7 +3202,9 @@ above; it shares that registration only because no coefficient moves.
 ### §8.44 RT-A3 increment 3: constant-effort supports on the exact route (actual-source D3)
 
 **Status.** Proposed registration (the RT-A3 manager's D3 release for increment 3,
-2026-11-03; derived on frozen #96), under the owner's removal of explicit owner approval for
+2026-11-03; derived on frozen #96 and, after independent review, re-derived on main
+`5e12ca44e`: "Review repair" below supersedes the block, record and challenge values
+stated before it), under the owner's removal of explicit owner approval for
 coefficient movement; source-derived pricing, independent scrutiny and
 preservation of the registered state remain required. This records no
 acceptance, and the AC-004 stack witnesses have not been run for it.
@@ -3347,6 +3349,102 @@ reference source stops RTA3CE-ID, and D1.6's hanger and family refusals. Run
 evidence is in `/private/tmp/rt-a3-ce-d3/` (the `run-main`, `run-head`, `run-i2b`
 and `run-merged` outputs, the comparisons, the law-test atom log and the evaluations); it is
 review input, not a permanent dependency.
+
+**Review repair (independent review of `ac7fea603`).**
+*Provisional pricing.* The run, comparison, block, records and evaluations below were
+derived with the committed scanner before Dynamics' `composite_text.py` lexer repair
+(#100). They are kept as provisional evidence; the registration is to be re-derived once,
+on main merged with #100, and this paragraph replaced by that derivation.
+- **Texts.** S7, the support-attribution limitation of every pressure-2 and
+  pressure-source-1 list, was false: the producer publishes a consumed
+  constant-effort support's signed support action (`certified_publication.rs`).
+  Old: "Signed support actions are attributed only for admitted linear restraints
+  and springs; ambiguous coincident rigid attribution is refused." New: "Signed
+  support actions are attributed only for admitted linear restraints and springs
+  and, as its constant force, for a consumed constant-effort support; ambiguous
+  coincident rigid attribution is refused." (+67 B; conditional, so the
+  pressure-source-1 lists, whose family declines constant effort, restate it
+  too). `EQUIVALENT_STATIC_LOAD_STATE_TEXT` now says "a case's ordinary applied
+  loads there are exactly its declared source ledger (a consumed constant-effort
+  support's force is a device action of the active support)" (+95 B), consistent
+  with D-2. The pressure-2 result schema's combination gate-reason enum gains
+  `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE` (a gate-4-withheld EX envelope
+  failed it), so reviewed input #10 is rebound (`258f1840…` → `b5476cba…`).
+- **Premises.** S7 is a static literal of the formulation basis, priced with the
+  identity by U6-J4 (six copies per point); the refusal text is a
+  load/reference-state diagnostic, which D1 does not admit (B7b-LS); the schema
+  is nonresident. CE-PIN re-reads `exact_admission.rs`
+  (`45da65ca…` → `96d3a5bf…`; only the two texts move).
+- **Run and comparison.** The committed tool prices `903bafc853` (this branch
+  merged with main `5e12ca44e`) with exit 0 on all four points, no unmapped header
+  or unclassified argument, O-10 clear; D is unchanged. Against #96/main's
+  registered tree (`8647e3cb7`, whose tree equals the priced `19f0dbd91`, so
+  `run-i2b` is reused): **1,590 coefficients equal, 12 higher, none lower**, the
+  same twelve as above; STATICS are unchanged from the first derivation, and
+  TAV_W[1], TAV_X[1], their success copies and the two TAV text atoms rise by a
+  further 402 B (6 × 67): TAV_W[1] 5,102,864,760, TAV_X[1] 5,516,293,278,
+  `TAV_text_requested` 7,436,609,276, `TAV_text_moving` 7,439,209,976.
+  `PYTHON_CHECK` (the merged check) is sparse 8,677,867,162 → 8,677,873,174 and
+  dense 8,736,998,506 → 8,737,004,518: **+6,012 B in each mode** against #96
+  (+402 B against the first derivation).
+- **Profile and records.** Maintained `generate` with basis
+  `, re-run as RT-A3 increment 3 at 903bafc853 (§8.44, review repair): …`
+  (1,712 lines; `--check` equal). The in-build collector's 328 atoms are
+  unchanged (#96's tree evaluated at them gives the #96 row above). Maintained
+  `eval` less R gives `PINNED_RECORD`, +402 B in every entry: sparse
+  6,598,981,316 · 6,940,975,877 · 8,895,159,113 · 8,688,480,569 · 7,761,347,479 ·
+  8,607,726,272 · 7,339,119,958 · 7,012,409,834; dense 6,658,112,660 ·
+  7,000,107,221 · 8,954,290,457 · 8,747,611,913 · 7,820,478,823 · 8,666,857,616 ·
+  7,398,251,302 · 7,071,541,178. Challenge `W1_PHASE_BYTES`
+  [6,598,981,316, 6,658,112,660], `MAX_PHASE_BYTES` [8,895,159,113,
+  8,954,290,457]. Merged W3 E + R is 8,962,267,977 B sparse and 9,021,399,321 B
+  dense, 2,575,012,378 B below ⌊0.9M⌋ before the TEXT reserve. `profile_` 8
+  passed; the default `retained_memory_challenge` 1 passed.
+- **Unmerged combination points.** The review closed the gap left above using
+  §8.41's documented z ≥ 1 supplement (Node(String,BTreeMap) 648,
+  CombinationView 120, TermView 16, Finding 112, (String,&str,Operand) 56,
+  (&str,String) 40 B; no type definition changed since: the only production
+  Rust change after `ac7fea603` is the two texts). With it, maintained `eval` at
+  the in-build atoms gives every point at or below the merged tree in every
+  phase and mode; W3 E + R dense: E(3) 8,935,448,520, L(3,0) 8,416,594,455,
+  L(2,1) 7,787,773,630 and L(1,2) 6,884,119,742 B (each +402 B on the review's
+  values).
+- **Preservation of the in-memory successors.** The sixteen in-memory pins of
+  `retained_facade_tests.rs` (EXACT receipt/bytes/document in two modes, MIX
+  receipt/bytes in two, TWO_MEMBER four, UNAVAILABLE two) were previously read
+  from the producer. Following §8.41's prospective verification: the
+  maintained `RTA3_RETAINED_PIN_OUT` writer captured the ten in-memory
+  successors on the registered build (the exact one by an uncommitted,
+  test-only call of the same writer, with the pin assertions suspended only in
+  that uncommitted capture). For each, its bytes hash to the new pin and its
+  publication and receipt digests are reproduced by the Python 07e rule; then
+  restating the identity and S7 back to #96's texts (no successor states the D-2
+  sentence) and resealing changes only `publication_sha256` and
+  `receipt_sha256`, and substituting those texts and the two digests in the
+  successor's bytes reproduces #96's pin exactly (so every other byte is #96's
+  byte); for EXACT and MIX the resealed receipt is #96's receipt pin, and for
+  EXACT the same substitution on the regenerated document reproduces #96's
+  committed fixture bytes and document pin. **All ten successors and all 16 old
+  pins are restored.** The eight RV120/N2b JCS pins of
+  `retained_precision_contract.rs` are the canonical digests of the Python
+  materialization (`rv120_input`) of the same shapes from the guarded bases;
+  the same derivation at #96 reproduces #96's eight pins. That equality is now
+  maintained (`test_retained_precision_b3.py`
+  `test_rv120_canonical_input_pins_are_the_python_materialization`); the
+  capture and reseal script is scratch evidence, not a maintained check.
+- **Carriers.** Every carrier restating S7 was regenerated by its writer
+  (pressure-source-1 physics publications included: +67 B each; the
+  pressure-source join's 24 publication lengths/digests follow). The CE text-only
+  guard now admits S7 and refuses a digest that moves anywhere but a named
+  output-binding field, or that is not derived from the restated texts: of 7,364
+  moved digests in 130 carriers, 5,088 are the recomputed table pairs, 1,890
+  seals recomputed by the Python rule, 198 recomputed file/embedded/document
+  digests and 188 named binding digests whose subject no carrier materializes
+  (package and manifest checksums, run-record and derivative hashes, report
+  checksums), which move one-to-one across the scope.
+
+Run evidence for the repair is in `/private/tmp/rt-a3-ce-fix/` (`pricing/`, the
+writers' logs, `proof/`); it is review input, not a permanent dependency.
 
 ## 9. Memory-profile gates and registration
 
