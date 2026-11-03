@@ -930,5 +930,9 @@ stated together:
 Copies follow the producer: `exactReportLimitations.ts` (S1, S7, S13),
 `schemas/results.v0.3.schema.yaml`, the source-receipt test copy, DEL-05-03's
 and DEL-08-01's quoted statements, and every carrier through its writer
-(`tests/test_rt_a3_constant_effort_text_only_envelope_diff.py` proves they
-move only those texts and the hashes binding them).
+(`tests/test_rt_a3_constant_effort_text_only_envelope_diff.py` checks that
+they move only those texts and the hashes binding them: every moved table pair,
+seal and content digest is recomputed from its subject, except 18 enumerated
+occurrences of six AnalysisRun-record digests that no carrier holds, which are
+explicitly limited consistency evidence bound to their writer, not a derivation
+proof).
