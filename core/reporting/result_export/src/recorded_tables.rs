@@ -184,6 +184,10 @@ pub fn read_recorded<R>(binding: &Value, source: &Value, current: Option<(&str, 
         binding.as_object().is_some_and(|o| o.len() == 2) && binding["id"] == id && binding["sha256"] == sha
     });
     if is_current {
+        // The current binding reads the current table even inside another recorded read
+        // (review r5): the enclosing selection is cleared for `read` and restored after.
+        let _restore = Restore(selected());
+        SELECTED.with(|s| s.set(None));
         return Ok(read());
     }
     let variant = variant_of(binding).ok_or_else(|| SOURCE_RECORDED_BINDING_UNKNOWN.to_string())?;
@@ -219,6 +223,22 @@ mod tests {
         assert_eq!(VARIANTS[3].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert_eq!(VARIANTS[4].table()["rows"], crate::semantic_contract::physics_retained_contract()["rows"]);
         assert!(VARIANTS[0].table()["supported_profile_limitations"] != crate::semantic_contract::preview_physics_contract()["supported_profile_limitations"]);
+    }
+
+    #[test]
+    fn a_current_binding_nested_in_a_recorded_read_reads_the_current_table() {
+        let source = json!({"producer": {"semantic_contract_id": PREVIEW}});
+        let old = json!({"id": PREVIEW, "sha256": VARIANTS[0].sha256});
+        let sha = crate::reader_verdict::current_binding(PREVIEW).expect("a current identity");
+        let current = json!({"id": PREVIEW, "sha256": sha});
+        let (outer, inner, after) = read_recorded(&old, &source, Some((PREVIEW, sha)), || {
+            let outer = selected().map(|v| v.sha256);
+            let inner = read_recorded(&current, &source, Some((PREVIEW, sha)), || selected().map(|v| v.sha256)).unwrap();
+            (outer, inner, selected().map(|v| v.sha256))
+        })
+        .unwrap();
+        assert_eq!((outer, inner, after), (Some(VARIANTS[0].sha256), None, Some(VARIANTS[0].sha256)));
+        assert!(selected().is_none());
     }
 
     #[test]
