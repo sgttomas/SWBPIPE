@@ -212,3 +212,116 @@ def test_an_ambiguous_shear_slot_is_refused_by_the_readers(entry, first):
         assert refused["ok"] is False and "shear operand rows of one station disagree" in _code(refused), _code(refused)
         same = rv.validate(reader, variant(0.0), with_model)
         assert same["ok"] is True, _code(same)
+
+
+# Review F1 (#104): the verifier's slot is Rust `Index::new`'s, field by field: a non-string location or component
+# falls back to "", a basis is read only from a string, and a row with a non-string case, entity or kind is skipped.
+# Two component-free shear rows whose fields Rust maps to one slot, with different values, are refused by both, and
+# with equal values read as the source does; the verifier and the Rust runner agree on each envelope, in both
+# insertion orders. Rust: `u4b_evidence_any_tests.rs`.
+_MISSING = object()
+_SAME_SLOT = [  # (location, basis) of the two rows
+    ((None, _MISSING), ("", _MISSING)),
+    ((5, _MISSING), (_MISSING, _MISSING)),
+    (({"at": "midspan"}, _MISSING), ([], _MISSING)),
+    (("", 7), ("", _MISSING)),
+    (("", {"b": 1}), ("", "recovered_from_local_element_stiffness")),
+    (("", None), ("", "token; section_basis=")),
+]
+_OTHER_SLOT = [  # Rust skips the second row, or reads it at another slot
+    (("", _MISSING), ("", "token; section_basis=nominal_section")),
+]
+
+
+def _malformed(doc, fields, values, first, skip=None):
+    changed = copy.deepcopy(doc)
+    original = next(r for r in changed["results"] if r.get("kind") == "element_local_shear_force_y")
+    rows = []
+    for i, ((location, basis), value) in enumerate(zip(fields, values)):
+        row = copy.deepcopy(original)
+        row["id"] = f"{original['id']}:malformed-{i}"
+        row["value"] = value
+        metadata = row["metadata"]
+        del metadata["component"]
+        for key, field in (("location", location), ("basis", basis)):
+            if field is _MISSING:
+                metadata.pop(key, None)
+            else:
+                metadata[key] = field
+        rows.append(row)
+    if skip is not None:
+        skip(rows[1])
+    for row in rows:
+        changed["results"].insert(0 if first else len(changed["results"]), row)
+    return changed
+
+
+def _verdicts(source, model=None):
+    """The verifier's verdict, and the Rust runner's: its preview-physics reader without the model, and with it the
+    dispatch standing (the runner's model-bound read; the clean fixture is eligible)."""
+    from core.analysis_runs import rust_reader
+    python = rv.validate("preview-physics", source, model)
+    if model is not None:
+        standing = rust_reader.dispatch(source, model)["standing"]
+        return python, (standing["eligible"], (standing["findings"] or [None])[0])
+    try:
+        rust_reader.validate("preview-physics", source)
+        return python, (True, None)
+    except rust_reader.ReaderRefusal as refusal:
+        return python, (False, refusal.code)
+
+
+@pytest.mark.parametrize("first", [True, False], ids=["first", "last"])
+@pytest.mark.parametrize("fields", _SAME_SLOT + _OTHER_SLOT, ids=[f"slot{i}" for i in range(len(_SAME_SLOT))] + ["other-basis"])
+def test_malformed_slot_fields_agree_with_the_rust_runner(fields, first):
+    doc, model, _, _ = _load(PREVIEW)
+    same = fields in _SAME_SLOT
+    for values, refused in (((2.0, 3.0), same), ((2.0, 2.0), False)):
+        source = _malformed(doc, fields, values, first)
+        for with_model in (None, model):
+            python, (rust_ok, rust_code) = _verdicts(source, with_model)
+            assert python["ok"] is rust_ok, (_code(python), rust_code)
+            if refused:
+                assert rust_code == "SOURCE_PREVIEW_PHYSICS_SHEAR_OPERAND_AMBIGUOUS"
+                assert "shear operand rows of one station disagree" in _code(python), _code(python)
+
+
+@pytest.mark.parametrize("skip", [
+    lambda row: row.__setitem__("entity_ref", 7),
+    lambda row: row.__setitem__("kind", None),
+    lambda row: row["basis_ref"].__setitem__("ref_id", 3),
+    lambda row: row["basis_ref"].__setitem__("ref_type", "load_combination"),
+], ids=["entity", "kind", "case", "scope"])
+def test_a_row_rust_cannot_slot_is_skipped_by_both(skip):
+    doc, model, _, _ = _load(PREVIEW)
+    source = _malformed(doc, (("", _MISSING), ("", _MISSING)), (2.0, 3.0), False, skip)
+    for with_model in (None, model):
+        python, (rust_ok, rust_code) = _verdicts(source, with_model)
+        assert python["ok"] is rust_ok, (_code(python), rust_code)
+        assert rust_code != "SOURCE_PREVIEW_PHYSICS_SHEAR_OPERAND_AMBIGUOUS"
+
+
+def test_malformed_slot_fields_index_as_rust_indexes_them():
+    """The verifier's index on Rust's `malformed_slot_fields_read_as_rust_reads_them` pairs, plus a non-object metadata,
+    in both orders: one slot each, refused with different values and one operand with equal ones."""
+    def shear(location, basis, value, metadata=_MISSING):
+        row = _shear("", value, location="")
+        del row["metadata"]["component"]
+        for key, field in (("location", location), ("basis", basis)):
+            if field is _MISSING:
+                row["metadata"].pop(key, None)
+            else:
+                row["metadata"][key] = field
+        if metadata is not _MISSING:
+            row["metadata"] = metadata
+        return row
+    pairs = [[shear(*a, 2.0), shear(*b, 3.0)] for a, b in _SAME_SLOT]
+    pairs.append([shear("", _MISSING, 2.0, ["location", ""]), shear("", _MISSING, 3.0)])
+    for pair in pairs:
+        for order in (pair, pair[::-1]):
+            with pytest.raises(ValueError, match="shear operand rows of one station disagree"):
+                u4b.Rows(copy.deepcopy(order))
+            equal = copy.deepcopy(order)
+            equal[1]["value"] = equal[0]["value"]
+            rows = u4b.Rows(equal)
+            assert len(rows.operands) == 1 and rows.any("case:a", "pipe:p", "element_local_shear_force_y", "") == equal[0]["value"]

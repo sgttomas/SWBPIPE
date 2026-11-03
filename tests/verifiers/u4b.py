@@ -171,19 +171,42 @@ def pa_upward(mpa: float) -> float:
     return 0.0 if pa == 0 else math.nextafter(pa, math.inf)
 
 
-def _case(row: Mapping[str, Any]) -> str | None:
-    basis = row.get("basis_ref")
-    return basis.get("ref_id") if isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" else None
+# Slot fields as Rust's `serde_json::Value` reads them (`u4b_evidence.rs`): indexing a missing key or a non-object
+# gives null, and `as_str()` admits only a string.
+def _text(value: Any) -> str | None:
+    return value if isinstance(value, str) else None
 
 
-def _basis(row: Mapping[str, Any]) -> str:
-    text = (row.get("metadata") or {}).get("basis") or ""
+def _metadata(row: Any, key: str) -> Any:
+    """``row["metadata"][key]``, None where Rust reads null."""
+    metadata = row.get("metadata") if isinstance(row, Mapping) else None
+    return metadata.get(key) if isinstance(metadata, Mapping) else None
+
+
+def _case(row: Any) -> str | None:
+    """Rust ``case_of``: the string ``ref_id`` of a ``load_case`` basis reference."""
+    basis = row.get("basis_ref") if isinstance(row, Mapping) else None
+    return _text(basis.get("ref_id")) if isinstance(basis, Mapping) and basis.get("ref_type") == "load_case" else None
+
+
+def _basis(row: Any) -> str:
+    text = _text(_metadata(row, "basis")) or ""
     return text.rsplit(SEPARATOR, 1)[1] if SEPARATOR in text else ""
 
 
-def _token(row: Mapping[str, Any]) -> str:
-    text = (row.get("metadata") or {}).get("basis") or ""
+def _token(row: Any) -> str:
+    text = _text(_metadata(row, "basis")) or ""
     return text.rsplit(SEPARATOR, 1)[0] if SEPARATOR in text else text
+
+
+def _slot(row: Any) -> tuple | None:
+    """Rust ``Index::new``'s slot: (case, entity, kind, component, location, basis), None for a row it skips (no
+    load-case scope, or a non-string entity or kind). Component and location fall back to "" unless strings."""
+    case = _case(row)
+    entity, kind = (_text(row.get("entity_ref")), _text(row.get("kind"))) if case is not None else (None, None)
+    if entity is None or kind is None:
+        return None
+    return (case, entity, kind, _text(_metadata(row, "component")) or "", _text(_metadata(row, "location")) or "", _basis(row))
 
 
 SHEAR_OPERANDS = ("element_local_shear_force_y", "element_local_shear_force_z")
@@ -199,24 +222,19 @@ class Rows:
     def __init__(self, results: list[Mapping[str, Any]], fail: Any = None, operands: bool = True) -> None:
         self.slots: dict[tuple, Mapping[str, Any]] = {}
         for row in results:
-            case = _case(row)
-            if case is None:
-                continue
-            metadata = row.get("metadata") or {}
-            if row.get("kind") == BRANCH:
-                continue  # RT-A3: bound by its record's id (two tees may name one pipe end), never looked up by slot
-            key = (case, row.get("entity_ref"), row.get("kind"), metadata.get("component", ""), metadata.get("location", ""), _basis(row))
-            _require(not (key in self.slots and row.get("kind") in KINDS), "duplicate row slot")
+            key = _slot(row)
+            if key is None or key[2] == BRANCH:
+                continue  # RT-A3: a branch row is bound by its record's id (two tees may name one pipe end), never by slot
+            _require(not (key in self.slots and key[2] in KINDS), "duplicate row slot")
             self.slots[key] = row
         self.operands: dict[tuple, float | None] = {}
         agree = True
         for row in results if operands else []:
-            case = _case(row)
-            if case is None or row.get("kind") not in SHEAR_OPERANDS or not isinstance(row.get("entity_ref"), str):
+            key = _slot(row)
+            if key is None or key[2] not in SHEAR_OPERANDS:
                 continue
             value = float(row["value"]) if _number(row.get("value")) else None
-            key = (case, row.get("entity_ref"), row.get("kind"), (row.get("metadata") or {}).get("location", ""), _basis(row))
-            held = self.operands.setdefault(key, value)
+            held = self.operands.setdefault(key[:3] + key[4:], value)
             agree = agree and (None if held is None else bits(held)) == (None if value is None else bits(value))
         if not agree and fail is not None:
             fail(False, "SHEAR_OPERAND_AMBIGUOUS")
@@ -224,7 +242,7 @@ class Rows:
 
     def value(self, case: str, entity: str, kind: str, component: str, location: str, basis: str) -> float | None:
         row = self.slots.get((case, entity, kind, component, location, basis))
-        return None if row is None else row["value"]
+        return float(row["value"]) if row is not None and _number(row.get("value")) else None  # Rust `as_f64`
 
     def any(self, case: str, entity: str, kind: str, location: str) -> float | None:
         return self.operands.get((case, entity, kind, location, ""))
