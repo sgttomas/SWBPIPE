@@ -623,7 +623,7 @@ and `minuend_final` stay withheld.
 ### 10.2 Policy texts (old → new)
 
 Agent 0's option (a): the texts state exactly what is built; no numeric output moves.
-**Prepared, not applied.** The PF limitation sentence is `preview_physics.rs`
+**Applied at 56b7b0012.** The PF limitation sentence is `preview_physics.rs`
 `LIMITATIONS[6]`, published in every PF document's `formulation_basis`, the retained
 successors included. Those, and the tables (reviewed inputs #4, #5, #8, #11 and #12 of the
 registered retained-memory profile), move only in this order: an independent contract
