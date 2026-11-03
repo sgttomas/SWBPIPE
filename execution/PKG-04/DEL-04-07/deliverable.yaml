@@ -295,6 +295,17 @@ needs:
   gating: true
   when: Running the RT-A3 reducer 2b full-reference-system connecting-path check.
   evidence: core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
+- from: DEL-04-01
+  condition: >-
+    The RT-A3 increment 4 K-1 bound (Work/k1-twin-bound.md, option (a)) rests on two DEL-04-01
+    sources. First, every structural solve returns only when each free row's original-equation
+    residual meets 64*gamma(n) of its row denominator (frame_kernel structural finish_structural
+    over evaluate_original_residual). Second, the independent kd5 reference formation
+    (validation/references/kd5_nonlinear/reference.py and its oracles' normalized sections). A
+    change to either re-runs Work/k1_twin_bound.py before the bound's constants are asserted again.
+  gating: true
+  when: Asserting the amended K-1 bound on the kd5 twin corpus.
+  evidence: core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs
 code_paths:
 # The product solve crate, including the retained method's producer whose contracts
 # DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.

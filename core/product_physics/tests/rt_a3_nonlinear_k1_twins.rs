@@ -39,10 +39,22 @@
 //!   observations (noise of the final iterate) differ;
 //! - [`kd5_twin_section_constants_differ_from_pf_in_the_last_place`] pins the
 //!   cause;
-//! - [`every_kd5_control_twin_is_bit_identical`] is K-1's full assertion
-//!   (every nodal displacement and rotation, every support action row and every
-//!   `nonlinear_support_*` row bit for bit), held `#[ignore]`d until EX and PF
-//!   form the same section constants, a choice outside this increment.
+//! - [`every_kd5_control_twin_is_bit_identical`] is K-1's assertion as first
+//!   worded (every nodal displacement and rotation, every support action row
+//!   and every `nonlinear_support_*` row bit for bit). Agent 0 chose option (a),
+//!   keeping each route's established section formation, so it stays held as
+//!   the superseded wording;
+//! - [`every_kd5_control_twin_is_within_the_k1_bound`] is K-1 as amended
+//!   (DEL-04-07 `k1-twin-bound.md`, basis `k1_twin_bound.py`). On this named
+//!   corpus the states, the loop's counts, convergence and the standing are
+//!   exact. Every value row satisfies |x_EX − x_PF| ≤ a_f + r_f·S_f in its
+//!   family's canonical unit, with S_f formed from the case's inputs and every
+//!   value required finite. It is held `#[ignore]`d until the amendment is
+//!   independently reviewed;
+//! - [`the_k1_bound_refuses_its_controls`] runs: the comparison refuses the U-1
+//!   lifted twin without its parallel spring, a 1e-6 relative EX-only section
+//!   perturbation that keeps the discrete evidence, a one-ulp offset at zero
+//!   scale, and NaN and ±infinity.
 //!
 //! Every twin envelope passes the pressure reader with and without its model,
 //! so these controls also exercise the reader's nonlinear binding
@@ -285,8 +297,10 @@ fn ulps(a: &str, b: &str) -> u64 {
     ordered(a).abs_diff(ordered(b))
 }
 
-/// Every control's twin, every case alone, both modes: `(label, original, twin, twin request)`.
-fn twins() -> Vec<(String, Standing, Value, Value, Value, &'static str)> {
+/// Every control's twin, every case alone, both modes:
+/// `(label, standing, original, twin, PF request, twin request, case)`.
+#[allow(clippy::type_complexity)]
+fn twins() -> Vec<(String, Standing, Value, Value, Value, Value, &'static str)> {
     let mut out = Vec::new();
     for control in &CONTROLS {
         let pf = pf_request(control);
@@ -301,7 +315,7 @@ fn twins() -> Vec<(String, Standing, Value, Value, Value, &'static str)> {
                 assert_eq!(twin["status"]["mechanics"], "MECHANICS_SOLVED", "{at} EX: {:#?}", twin["diagnostics"]);
                 assert_eq!(twin["formulation_basis"]["profile_id"], "exact_pressure_v3", "{at}");
                 assert!(twin["contract_evidence"]["pressure"].as_array().unwrap().is_empty(), "{at}: no pressure region");
-                out.push((at, expected, original, twin, ex_case.clone(), case));
+                out.push((at, expected, original, twin, pf_case.clone(), ex_case.clone(), case));
             }
         }
     }
@@ -314,7 +328,7 @@ fn twins() -> Vec<(String, Standing, Value, Value, Value, &'static str)> {
 #[test]
 fn every_kd5_control_keeps_its_states_counts_and_standing_on_its_exact_twin() {
     let mut summary = Vec::new();
-    for (at, expected, original, twin, ex_case, case) in twins() {
+    for (at, expected, original, twin, _, ex_case, case) in twins() {
         let (a, b) = (loop_results(&original), loop_results(&twin));
         assert_eq!(a.iter().map(|r| &r.0).collect::<Vec<_>>(), b.iter().map(|r| &r.0).collect::<Vec<_>>(), "{at}: the same loop rows");
         assert!(a.iter().any(|(key, _)| key.starts_with("nonlinear_support_active_set_state_code")), "{at}");
@@ -372,11 +386,11 @@ fn every_kd5_control_keeps_its_states_counts_and_standing_on_its_exact_twin() {
     println!("{}", summary.join("\n"));
 }
 
-/// K-1's full assertion (module docs), held: every loop row bit for bit.
+/// K-1 as first worded (module docs), superseded by option (a): every loop row bit for bit.
 #[test]
-#[ignore = "held: EX's D-5 section constants differ from PF's in the last place (kd5_twin_section_constants_differ_from_pf_in_the_last_place); a section-formation choice outside RT-A3 increment 4"]
+#[ignore = "superseded: K-1 as first worded; EX's D-5 section constants differ from PF's in the last place (kd5_twin_section_constants_differ_from_pf_in_the_last_place), and option (a) keeps both formations (every_kd5_control_twin_is_within_the_k1_bound)"]
 fn every_kd5_control_twin_is_bit_identical() {
-    for (at, _, original, twin, _, _) in twins() {
+    for (at, _, original, twin, _, _, _) in twins() {
         assert_eq!(loop_results(&original), loop_results(&twin), "{at}: the loop results differ");
     }
 }
@@ -458,4 +472,297 @@ fn controls_without_a_twin_are_refused_by_name_not_forced() {
             assert_eq!(named, refused.iter().map(|c| ("EXACT_PRESSURE_FAMILY_NOT_ADMITTED", json!([c]))).collect::<Vec<_>>(), "{label} {mode:?}: {reason}");
         }
     }
+}
+
+// ------------------------------------------------------------------ K-1 as amended (option (a))
+//
+// R-4 §3.5 K-1, amended (DEL-04-07 `k1-twin-bound.md`; basis `k1_twin_bound.py`): on the named corpus the states,
+// the loop's counts, convergence and the standing are exact, and every value row satisfies
+// |x_EX − x_PF| ≤ a_f + r_f·S_f in its family's canonical unit, with S_f formed from the case's inputs only.
+
+/// One published loop row: its key, value and unit.
+type Row = (String, f64, String);
+
+/// The amended K-1 constants, per family: (family, canonical unit, a_f, log2 r_f). a_f = 0 throughout: a family's
+/// scale is zero only when the case has no load, no applied friction and no gap, and then both routes publish
+/// exact zeros. r_f is the next power of two at or above twice the basis' largest enclosure / S_f.
+const K1_FAMILIES: [(&str, &str, f64, i32); 11] = [
+    ("translation", "m", 0.0, -32),
+    ("rotation", "rad", 0.0, -31),
+    ("force", "N", 0.0, -26),
+    ("moment", "N*m", 0.0, -29),
+    ("residual_force", "N", 0.0, -36),
+    ("residual_moment", "N*m", 0.0, -38),
+    ("work", "N*m", 0.0, -40),
+    ("translation_delta", "m", 0.0, -27),
+    ("rotation_delta", "rad", 0.0, -25),
+    ("force_delta", "N", 0.0, -20),
+    ("moment_delta", "N*m", 0.0, -24),
+];
+
+/// The rows whose bits K-1 requires exactly: the state codes, the loop's counts and its converged flag.
+const K1_EXACT: [&str; 4] = [
+    "nonlinear_support_active_set_state_code",
+    "nonlinear_support_active_set_iteration_count",
+    "nonlinear_support_active_set_final_residual_count",
+    "nonlinear_support_active_set_converged_flag",
+];
+
+fn loop_values(envelope: &Value) -> Vec<Row> {
+    envelope["results"].as_array().unwrap().iter()
+        .filter(|r| {
+            let kind = r["kind"].as_str().unwrap();
+            r["basis_ref"]["ref_type"] == "load_case"
+                && (DISPLACEMENT_KINDS.contains(&kind) || SUPPORT_KINDS.contains(&kind) || kind.starts_with("nonlinear_support_"))
+        })
+        .map(|r| (format!("{} {} {} {}", r["kind"].as_str().unwrap(), r["entity_ref"].as_str().unwrap(),
+            r["metadata"]["component"].as_str().unwrap_or(""), r["metadata"]["location"].as_str().unwrap_or("")),
+            r["value"].as_f64().unwrap(), r["unit"].as_str().unwrap().to_string()))
+        .collect()
+}
+
+/// The authored annulus' A, I and J in binary64 (an input scale, formed as `k1_twin_bound.py`'s `section`).
+fn k1_section(od: f64, t: f64) -> (f64, f64, f64) {
+    let d = od - 2.0 * t;
+    let (od2, d2) = (od * od, d * d);
+    let area = std::f64::consts::PI / 4.0 * (od2 - d2);
+    let inertia = std::f64::consts::PI / 64.0 * (od2 * od2 - d2 * d2);
+    (area, inertia, 2.0 * inertia)
+}
+
+/// S_f of one case from its PF request's inputs only (`k1_twin_bound.py`'s `scales`, by the same operations):
+/// the load and explicit friction force F, the members' total and shortest lengths, the authored section, E, G,
+/// the spring stiffness and the gap clearance.
+fn k1_scales(request: &Value, case: &str) -> std::collections::BTreeMap<&'static str, f64> {
+    let m = &request["model"];
+    let position = |id: &Value| {
+        let node = m["nodes"].as_array().unwrap().iter().find(|n| n["id"] == *id).unwrap();
+        ["x", "y", "z"].map(|a| node["position"][a].as_f64().unwrap())
+    };
+    let (mut lengths, mut areas, mut inertias, mut polars, mut e_mod, mut g_mod) = (vec![], vec![], vec![], vec![], 0.0, 0.0);
+    for pipe in m["pipe_segments"].as_array().unwrap() {
+        let (a, b) = (position(&pipe["from"]), position(&pipe["to"]));
+        let (dx, dy, dz) = (b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+        lengths.push((dx * dx + dy * dy + dz * dz).sqrt());
+        let (area, inertia, polar) = k1_section(pipe["section"]["outside_diameter"]["value"].as_f64().unwrap(),
+            pipe["section"]["wall_thickness"]["value"].as_f64().unwrap());
+        areas.push(area);
+        inertias.push(inertia);
+        polars.push(polar);
+        let material = m["materials"].as_array().unwrap().iter().find(|x| x["id"] == pipe["material"]).unwrap();
+        e_mod = material["elastic_modulus"]["value"].as_f64().unwrap();
+        g_mod = material["shear_modulus"]["value"].as_f64().unwrap();
+    }
+    let min = |v: &[f64]| v.iter().copied().fold(f64::INFINITY, f64::min);
+    let max = |v: &[f64]| v.iter().copied().fold(0.0, f64::max);
+    let total = lengths.iter().sum::<f64>();
+    let shortest = min(&lengths);
+    let load_case = m["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == case).unwrap();
+    let mut force = load_case["primitive_loads"].as_array().unwrap().iter().map(|l| l["magnitude"]["value"].as_f64().unwrap().abs()).sum::<f64>();
+    let (mut clearance, mut springs) = (0.0, 0.0);
+    for s in m["supports"].as_array().unwrap() {
+        let nl = &s["nonlinear"];
+        if nl["behavior"] == "friction" && nl.get("normal_reaction").is_some() {
+            force += nl["friction_coefficient"]["value"].as_f64().unwrap().abs() * nl["normal_reaction"]["value"].as_f64().unwrap().abs();
+        }
+        if nl["behavior"] == "gap" {
+            clearance += nl["gap"]["value"].as_f64().unwrap().abs();
+        }
+        if let Some(k) = s["hanger"]["stiffness"]["value"]["value"].as_f64() {
+            springs += k.abs();
+        }
+    }
+    let (cube, square) = (total * total * total, total * total);
+    let compliance_t = total / (e_mod * min(&areas)) + cube / (e_mod * min(&inertias)) + cube / (g_mod * min(&polars));
+    let compliance_r = square / (e_mod * min(&inertias)) + square / (g_mod * min(&polars));
+    let stiffness = e_mod * max(&areas) / shortest + 12.0 * e_mod * max(&inertias) / (shortest * shortest * shortest) + springs;
+    let s_force = force + clearance * stiffness;
+    let s_moment = s_force * total;
+    let s_translation = s_force * compliance_t + clearance;
+    let s_rotation = s_force * compliance_r + clearance / shortest;
+    [
+        ("translation", s_translation), ("rotation", s_rotation), ("force", s_force), ("moment", s_moment),
+        ("residual_force", s_force), ("residual_moment", s_moment), ("work", s_force * s_translation + s_moment * s_rotation),
+        ("translation_delta", s_translation), ("rotation_delta", s_rotation), ("force_delta", s_force), ("moment_delta", s_moment),
+    ]
+    .into_iter()
+    .collect()
+}
+
+/// A loop row's K-1 family and the factor from the family's canonical unit to the row's unit (mm rows: 1000).
+fn k1_family(key: &str, unit: &str) -> Option<(&'static str, f64)> {
+    let kind = key.split(' ').next().unwrap();
+    let component = key.split(' ').nth(2).unwrap_or("");
+    let family = match kind {
+        k if k.starts_with("global_nodal_displacement_") => "translation",
+        k if k.starts_with("global_nodal_rotation_") => "rotation",
+        "support_reaction_component_v2" if component.starts_with('F') => "force",
+        "support_reaction_component_v2" if component.starts_with('M') => "moment",
+        "support_reaction_force_magnitude_v2" => "force",
+        "support_reaction_moment_magnitude_v2" => "moment",
+        "nonlinear_support_final_displacement" if unit == "mm" => "translation",
+        "nonlinear_support_final_displacement" if unit == "rad" => "rotation",
+        "nonlinear_support_final_reaction" if unit == "N" => "force",
+        "nonlinear_support_final_reaction" if unit == "N*m" => "moment",
+        "nonlinear_support_friction_normal_reaction_input" | "nonlinear_support_friction_normal_reaction_derived" => "force",
+        "nonlinear_support_observed_free_dof_force_residual" => "residual_force",
+        "nonlinear_support_observed_free_dof_moment_residual" => "residual_moment",
+        "nonlinear_support_free_dof_work_residual" => "work",
+        "nonlinear_support_observed_max_translation_delta" => "translation_delta",
+        "nonlinear_support_observed_max_rotation_delta" => "rotation_delta",
+        "nonlinear_support_observed_max_force_reaction_delta" => "force_delta",
+        "nonlinear_support_observed_max_moment_reaction_delta" => "moment_delta",
+        _ => return None,
+    };
+    let canonical = K1_FAMILIES.iter().find(|f| f.0 == family).unwrap().1;
+    let factor = match (canonical, unit) {
+        ("m", "mm") => 1000.0,
+        (c, u) if c == u => 1.0,
+        _ => return None,
+    };
+    Some((family, factor))
+}
+
+/// The amended K-1 value comparison of one case-mode: every violation, empty when it holds. The routes must publish
+/// the same rows (key and unit, in order); the exact rows must agree bit for bit; every value must be finite on both
+/// routes; and each value row must satisfy |x_EX − x_PF| ≤ (a_f + r_f·S_f)·(unit factor). A row with no family fails
+/// closed. Rows present on both routes are compared even when the row sets differ.
+fn k1_violations(pf: &[Row], ex: &[Row], scales: &std::collections::BTreeMap<&'static str, f64>) -> Vec<String> {
+    let mut out = Vec::new();
+    if pf.iter().map(|r| (&r.0, &r.2)).collect::<Vec<_>>() != ex.iter().map(|r| (&r.0, &r.2)).collect::<Vec<_>>() {
+        out.push("the routes publish different loop rows".into());
+    }
+    let paired = pf.iter().filter_map(|a| {
+        let found = ex.iter().filter(|b| b.0 == a.0 && b.2 == a.2).collect::<Vec<_>>();
+        (found.len() == 1).then(|| (a, found[0]))
+    });
+    for ((key, a, unit), (_, b, _)) in paired {
+        if !a.is_finite() || !b.is_finite() {
+            out.push(format!("{key}: not finite (PF {a}, EX {b})"));
+            continue;
+        }
+        if K1_EXACT.iter().any(|k| key.starts_with(&format!("{k} "))) {
+            if a.to_bits() != b.to_bits() {
+                out.push(format!("{key}: exact row differs (PF {a}, EX {b})"));
+            }
+            continue;
+        }
+        let Some((family, factor)) = k1_family(key, unit) else {
+            out.push(format!("{key} [{unit}]: no K-1 family"));
+            continue;
+        };
+        let (_, _, a_f, log2_r) = K1_FAMILIES.iter().find(|f| f.0 == family).unwrap();
+        let scale = scales[family];
+        let bound = (a_f + 2f64.powi(*log2_r) * scale) * factor;
+        if !scale.is_finite() || !bound.is_finite() || (a - b).abs() > bound {
+            out.push(format!("{key}: |EX − PF| = {:e} {unit} above {bound:e} ({family}, S_f {scale:e})", (a - b).abs()));
+        }
+    }
+    out
+}
+
+/// The discrete K-1 evidence of a pair: the states, counts and flag (bit for bit) and the standing.
+fn discrete(original: &Value, twin: &Value, case: &str) -> (Vec<(String, String)>, Vec<(String, String)>, (String, Value, String), (String, Value, String)) {
+    let rows = |e: &Value| loop_results(e).into_iter().filter(|(k, _)| invariant(k)).collect::<Vec<_>>();
+    (rows(original), rows(twin), standing(original, case), standing(twin, case))
+}
+
+/// K-1 as amended (option (a)), held until its amendment is independently reviewed: on the named corpus the
+/// discrete evidence is exact and every value row is within its family's bound.
+#[test]
+#[ignore = "held: the K-1 amendment (option (a), k1-twin-bound.md) awaits independent review"]
+fn every_kd5_control_twin_is_within_the_k1_bound() {
+    for (at, _, original, twin, pf_case, _, case) in twins() {
+        let (a, b, pf_standing, ex_standing) = discrete(&original, &twin, case);
+        assert_eq!(a, b, "{at}: states and loop counts");
+        assert_eq!(pf_standing, ex_standing, "{at}: the standing");
+        let violations = k1_violations(&loop_values(&original), &loop_values(&twin), &k1_scales(&pf_case, case));
+        assert!(violations.is_empty(), "{at}: {violations:#?}");
+    }
+}
+
+/// The amended K-1's controls: each must fail the bound. A real route discrepancy with the same support state
+/// (the U-1 lifted twin without its parallel spring's stiffness); a 1e-6 relative EX-only section perturbation that
+/// keeps the discrete evidence; a zero-scale family with a finite offset above a_f; and NaN and ±infinity. These
+/// test the comparison itself and run while the corpus assertion is held.
+#[test]
+fn the_k1_bound_refuses_its_controls() {
+    let solved_pair = |control: usize, case: &str, edit: &dyn Fn(&mut Value), mode: PreviewSolverMode| {
+        let pf = single_case(&pf_request(&CONTROLS[control]), case);
+        let mut ex = exact_twin(&pf);
+        edit(&mut ex);
+        let (original, twin) = (solve(&pf, mode), solve(&ex, mode));
+        assert_eq!(twin["status"]["mechanics"], "MECHANICS_SOLVED", "{case}: {:#?}", twin["diagnostics"]);
+        (pf, original, twin)
+    };
+    for mode in MODES {
+        // 1. U-1 parallel spring, lifted: the EX twin without the spring's stiffness.
+        let (pf, original, twin) = solved_pair(5, "load:LIFTED", &|ex| {
+            ex["model"]["supports"].as_array_mut().unwrap().retain(|s| s["id"] != "support:SH-C");
+        }, mode);
+        let (a, b, pf_standing, ex_standing) = discrete(&original, &twin, "load:LIFTED");
+        assert_eq!((&a, &pf_standing.0), (&b, &ex_standing.0), "{mode:?}: the spring control keeps the state, counts and standing");
+        let v = k1_violations(&loop_values(&original), &loop_values(&twin), &k1_scales(&pf, "load:LIFTED"));
+        assert!(v.iter().any(|x| x == "the routes publish different loop rows"), "{mode:?}: the spring's own rows are gone");
+        assert!(v.iter().any(|x| x.contains("(translation,")), "{mode:?}: the spring omitted must fail the value bound: {v:#?}");
+
+        // 2. A 1e-6 relative EX-only section perturbation (every wall), on U-1 lifted and F-2's coupled slide.
+        //    A near-uniform section change moves displacements by about 1e-6·|u| and leaves statically fixed
+        //    forces alone, so it is visible where |u| is large against S_f (the note's resolution table); on
+        //    U-1 pressed every displacement row is zero and it is not.
+        for (control, case) in [(4, "load:LIFTED"), (3, "load:SLIDE")] {
+            let (pf, original, twin) = solved_pair(control, case, &|ex| {
+                for pipe in ex["model"]["pipe_segments"].as_array_mut().unwrap() {
+                    let t = pipe["section"]["wall_thickness"]["value"].as_f64().unwrap();
+                    pipe["section"]["wall_thickness"]["value"] = json!(t * (1.0 + 1e-6));
+                }
+            }, mode);
+            let (a, b, pf_standing, ex_standing) = discrete(&original, &twin, case);
+            assert_eq!((&a, &pf_standing), (&b, &ex_standing), "{case} {mode:?}: the perturbation keeps the discrete evidence");
+            let v = k1_violations(&loop_values(&original), &loop_values(&twin), &k1_scales(&pf, case));
+            assert!(v.iter().any(|x| x.contains("(translation,")), "{case} {mode:?}: a 1e-6 section perturbation must fail the bound: {v:#?}");
+        }
+    }
+
+    // 2b. A 1e-6 relative EX-only response perturbation (every value row), on every twin case-mode.
+    for (at, _, original, twin, pf_case, _, case) in twins() {
+        let mut perturbed = loop_values(&twin);
+        for row in perturbed.iter_mut().filter(|r| !K1_EXACT.iter().any(|k| r.0.starts_with(&format!("{k} ")))) {
+            row.1 *= 1.0 + 1e-6;
+        }
+        let v = k1_violations(&loop_values(&original), &perturbed, &k1_scales(&pf_case, case));
+        assert!(!v.is_empty() && v.iter().all(|x| x.contains("|EX − PF|")), "{at}: a 1e-6 response perturbation must fail the value bound: {v:#?}");
+    }
+
+    // 3. Zero scale: U-1 pressed under a 0 N load has every S_f = 0 (no load, applied friction, gap or
+    //    spring). Both routes publish exact zeros, which hold at a_f = 0; one unit in the last place above zero,
+    //    a finite offset above a_f, fails.
+    let mut unloaded = single_case(&pf_request(&CONTROLS[4]), "load:PRESSED");
+    unloaded["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = json!(0.0);
+    let zero = k1_scales(&unloaded, "load:PRESSED");
+    assert!(zero.values().all(|s| *s == 0.0), "{zero:?}");
+    let (pf_zero, ex_zero) = (loop_values(&solve(&unloaded, PreviewSolverMode::DenseScrutiny)),
+        loop_values(&solve(&exact_twin(&unloaded), PreviewSolverMode::DenseScrutiny)));
+    assert!(k1_violations(&pf_zero, &ex_zero, &zero).is_empty(), "the unloaded twin holds at zero scale");
+    let at = ex_zero.iter().position(|r| r.0.starts_with("global_nodal_rotation_y node:C")).unwrap();
+    assert_eq!(ex_zero[at].1, 0.0);
+    let mut offset = ex_zero.clone();
+    offset[at].1 = f64::from_bits(1);
+    let v = k1_violations(&pf_zero, &offset, &zero);
+    assert!(v.len() == 1 && v[0].contains("(rotation, S_f 0e0)"), "{v:#?}");
+
+    // 4. NaN and ±infinity are refused on either route.
+    let pf = single_case(&pf_request(&CONTROLS[4]), "load:PRESSED");
+    let rows = loop_values(&solve(&pf, PreviewSolverMode::DenseScrutiny));
+    let rotation = rows.iter().position(|r| r.0.starts_with("global_nodal_rotation_y node:C")).unwrap();
+    let scales = k1_scales(&pf, "load:PRESSED");
+    for bad in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        for side in 0..2 {
+            let mut broken = rows.clone();
+            broken[rotation].1 = bad;
+            let v = if side == 0 { k1_violations(&broken, &rows, &scales) } else { k1_violations(&rows, &broken, &scales) };
+            assert!(v.len() == 1 && v[0].contains("not finite"), "{bad} on side {side}: {v:#?}");
+        }
+    }
+    assert!(k1_violations(&rows, &rows, &scales).is_empty(), "the unbroken rows hold");
 }

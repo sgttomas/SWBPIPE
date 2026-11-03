@@ -1201,11 +1201,40 @@ rows too.
 The other loop rows differ by at most 4.5e-15 of their family's case scale.
 The exception is U-1 IN-PLANE dense, whose moment family is wholly binary64
 noise of order 1e-16 N·m and changes sign. The loop's residual observations
-differ as noise of the final iterate. K-1's full assertion
-(`every_kd5_control_twin_is_bit_identical`) is kept and held `#[ignore]`d. The
-cause is pinned (`kd5_twin_section_constants_differ_from_pf_in_the_last_place`).
-Bit identity needs EX and PF to form the same section constants. That is a
-section-formation choice outside this increment; no tolerance was substituted.
+differ as noise of the final iterate. The cause is pinned
+(`kd5_twin_section_constants_differ_from_pf_in_the_last_place`). K-1's first
+wording (`every_kd5_control_twin_is_bit_identical`) stays held as superseded.
+
+*The K-1 amendment (option (a)).* Agent 0 chose to keep each route's
+established section formation. The amended K-1 (R-4 §3.5, wording, bound and
+basis in [k1-twin-bound.md](k1-twin-bound.md)) asserts on the named corpus:
+- the states, the loop's counts, convergence and the standing, exactly;
+- every value row, finite on both routes, within |x_EX − x_PF| ≤ a_f + r_f·S_f
+  per family. S_f comes from the case's inputs and a_f = 0, so a zero scale
+  admits equality only. r_f ranges from 2^-40 (work) through 2^-32
+  (translation) and 2^-26 (force) to 2^-20 (force deltas).
+
+The constants come from independent exact-rational forward-error enclosures
+([k1_twin_bound.py](k1_twin_bound.py), on kd5's reference formation). They
+enclose the exact section-difference response and each route's
+residual-certified solve. The recovery cancellation, the coupled friction
+denominator 1 + c·g, the gap's prescribed terms and every state the loop could
+visit are included. They are not set from the observed differences, which are
+at most 1.3e-3 of their enclosures.
+
+The assertion (`every_kd5_control_twin_is_within_the_k1_bound`) passes all 34
+case-modes when run explicitly, and is held `#[ignore]`d until the amendment
+is independently reviewed. Its controls run un-held
+(`the_k1_bound_refuses_its_controls`). They are:
+- the U-1 lifted twin without its parallel spring;
+- a 1e-6 EX-only section perturbation (U-1 LIFTED and F-2 SLIDE), and a 1e-6
+  response perturbation (every twin);
+- a one-ulp offset at zero scale;
+- NaN and ±infinity.
+
+The bound's resolution limits are recorded in the note: a 1e-6 section
+perturbation is invisible on U-1 PRESSED, the delta families are looser, and
+the two weakly decided cases' equal states are observations.
 
 *Not formable:* kd5's eight committed case-modes solve the two committed demo
 models (`fixtures/product_preview/invented_demo_model.json` and
@@ -1234,7 +1263,8 @@ geometry-only bend `component:C-110` (D-2; S6's inventory) and the terminal
   `exact_admission.rs`), held in the serial pricing order.
 - *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
   its interim linear forms (`rack_model.py`, `release_runner.py`).
-- *K-1's bit identity* (above): held, a section-formation choice.
+- *K-1* (above): the option-(a) amendment awaits independent review; its
+  assertion is held until then.
 - *The reader's equilibrium limit* and the further limits (above).
 - *§2.2's explicit member-bound integration test.* The confirmed cases'
   certified rows match the references, but the wall-bound derivation is not

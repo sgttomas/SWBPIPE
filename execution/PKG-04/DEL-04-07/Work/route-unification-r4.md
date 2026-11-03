@@ -670,6 +670,31 @@ stated).
 - **K-1, controls.** Every PF K-D5 nonlinear control (`kd5_nonlinear_tests.rs`, the
   `references/kd5_nonlinear` set) is run on EX twins with explicitly empty regions, and
   must give bit-identical loop results and the same standing.
+- **K-1 amendment (option (a), Agent 0; drafted in RT-A3 increment 4, pending independent
+  review).** EX's D-5 section constants differ from PF's by 1–3 units in the last place, and
+  each route keeps its established section formation. Once reviewed, this replaces the bullet
+  above. The basis, the per-family constants and the controls are in
+  [k1-twin-bound.md](k1-twin-bound.md); the assertion stays held until then.
+  - **K-1, controls (option (a)).** Every PF K-D5 nonlinear control that forms an exact twin is
+    run on its EX twin with explicitly empty regions, in both solver modes. The named corpus is
+    the seven `validation/references/kd5_nonlinear/` requests with the load cases
+    `kd5_nonlinear_tests.rs` solves, plus the U-1 gap containment control (17 cases, 34
+    case-modes). Controls with no exact twin are refused by name, not adapted. On this corpus
+    only:
+    - each support's state code, the loop's iteration count, final residual count and converged
+      flag, and the standing are identical. The standing is the integrity code, the
+      `numerical_quality` record, and kd5's evidence line or its named §2.4 reason;
+    - every other loop row is finite on both routes and satisfies |x_EX − x_PF| ≤ a_f + r_f·S_f
+      in its family's canonical unit. These rows are the nodal displacements and rotations, the
+      support action components and magnitudes, the nonlinear support displacements, reactions
+      and friction normals, and the loop's free-row residual, residual-work and iterate-delta
+      observations. The families, the fixed a_f and r_f, the scales S_f formed from the case's
+      inputs, and the zero-scale rule are those of `k1-twin-bound.md`. A non-finite value fails.
+
+    Each route keeps its established section formation, so bit identity is not required. This
+    is a bounded comparison on the named corpus. It does not claim identical results elsewhere,
+    nor near active-set transitions beyond the corpus's two weakly decided cases (F-1 BOUNDARY,
+    U-1 IN-PLANE), whose equal states are observations.
 
 **Size: L.**
 
