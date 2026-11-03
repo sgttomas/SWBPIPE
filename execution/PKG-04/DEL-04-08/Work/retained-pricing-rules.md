@@ -2836,8 +2836,17 @@ binary was available for a delta; no whole-chain claim): entered on D1,
 `pressure_step_run_evidence` 3,056, `member_mappings` 1,008,
 `reducer_body_members` 240 + 160, `judge_reducer` 864, `body_ends` 64,
 `judge_all` 448, `step_end_directions` 416, `step_end_passes_through` 304 and
-`step_end_is_collinear` 208 B. The six source-bound witnesses are to be
-requested on the rebuilt adopted head; none was run here.
+`step_end_is_collinear` 208 B. The six AC-004 stack-headroom witnesses
+passed **6/6 at `c8b04254b`** (binary SHA-256 `b935bfae…11f9`, profile
+`75510823…c6d1`, rustc 1.97.1), in one Agent 0-cleared exclusive run of
+`python3 tools/release/check_release_readiness.py --profile stack-witnesses --execute`
+under `t3_exclusive.sh` with memguard: queued 2026-11-03T02:35:20Z, acquired
+02:35:53Z, ended and released 02:36:03Z (10 s with teardown), one process per
+test at `--test-threads=1`, nothing compiled inside. Sparse and dense:
+`witness_headroom_w1_at_one_mebibyte` ok (0.67 s) and ok (0.66 s),
+`witness_w2_deep_milestone_publishes` ok (1.32 s) and ok (1.32 s),
+`witness_w_c2_publishes` ok (2.48 s) and ok (2.47 s). This is test evidence,
+not an acceptance.
 
 **Maintained tests.** `tools/retained_pricing/tests/test_841_rt_a3_reducer_2b.py`;
 the I1 seam and S2 mutation warrants (`test_dynamics_d3.py`, `test_840_rt_g5_s2.py`)
