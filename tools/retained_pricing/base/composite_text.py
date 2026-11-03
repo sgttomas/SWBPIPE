@@ -39,30 +39,28 @@ def sdebug(b):
     return 2 + 10 * b
 
 # static literals actually used as &'static str fields: measure the longest literal in the
-# source files that define them, and check the Debug premise (printable ASCII, no quote/backslash)
+# source files that define them, and check the Debug premise (printable ASCII, no quote/backslash).
+# §8.45: every double-quoted literal token (str, raw, byte, C) found by a Rust lexer that skips
+# comments and char literals; its length is the runtime UTF-8 byte length of the unescaped value.
+# The lexer stops on any construct it cannot lex with certainty (rust_literals.LexError).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from rust_literals import measure as _measure_literals
 lit_files = ["core/solver/frame_kernel/src/structural.rs", "core/solver/frame_kernel/src/lib.rs",
              "core/solver/frame_kernel/src/structural/exact_boundary.rs", "core/product_physics/src/lib.rs"]
-L_static, bad = 0, 0
-for f in lit_files:
-    t = open(os.path.join(proot, f), encoding="utf-8").read()
-    for m in re.finditer(r'"((?:\\.|[^"\\])*)"', t):
-        s = m.group(1)
-        L_static = max(L_static, len(s.encode()))
-        if "\\" in s or any(ord(ch) < 32 or ord(ch) > 126 for ch in s):
-            bad += 1
+_lit = _measure_literals(proot, lit_files)
+L_static, L_static_at, bad = _lit["max_bytes"], _lit["at"], _lit["with_escapes"]
 STATIC = L_static
 # Report fields (&'static str) take literals defined in FK structural.rs / structural/*.rs; the
 # symmetry basis String is a copy of a literal from nonlinear_integration structural_adapter.rs.
 rep_files = ["core/solver/frame_kernel/src/structural.rs", "core/solver/frame_kernel/src/structural/sparse.rs",
              "core/solver/frame_kernel/src/structural/formation_check.rs",
              "core/solver/nonlinear_integration/src/structural_adapter.rs"]
-L_rep, rep_escaped = 0, 0
-for f in rep_files:
-    t = open(os.path.join(proot, f), encoding="utf-8").read()
-    for m in re.finditer(r'"((?:\\.|[^"\\])*)"', t):
-        L_rep = max(L_rep, len(m.group(1).encode()))
-        if "\\" in m.group(1): rep_escaped += 1
-# Debug of a printable literal is 2 + len; escapes (\n, \", \\) at most double a char
+_rep = _measure_literals(proot, rep_files)
+L_rep, L_rep_at, rep_escaped, rep_unsafe = _rep["max_bytes"], _rep["at"], _rep["with_escapes"], _rep["not_doubling_safe"]
+# Debug of a printable literal is 2 + len; escapes (\n, \", \\) at most double a char. That premise
+# fails for \u{..} escapes (control or non-ASCII non-printable chars), so stop on any such value.
+if rep_unsafe:
+    sys.exit(f"composite_text: report literal(s) outside the Debug doubling premise: {rep_unsafe}")
 STATIC_DEBUG = 2 + 2 * L_rep
 
 ident = c["ident"]
@@ -152,6 +150,7 @@ joined = {
 }
 out = {
     "which": which, "static_literal_max_bytes": L_static, "report_literal_max_bytes": L_rep, "static_literals_with_escapes": bad,
+    "static_literal_max_at": L_static_at, "report_literal_max_at": L_rep_at, "report_literals_with_escapes": rep_escaped,
     "classes": {
         "struct_report_debug": report, "dof_map_debug": dof_map, "message_int": message_int,
         "recovery_summary_debug": summary, "sources_debug": sources_all,
