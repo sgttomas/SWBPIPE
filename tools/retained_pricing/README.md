@@ -48,7 +48,7 @@ the original basis `2243be380b` to its equivalent extracted commit; a shallow cl
 
 **Revision.** Any revision whose code the rules cover.
 
-**Tools.** Python 3.9 or later, `git` and `tar`. The chain's scripts call `python3`; the driver puts its own interpreter first on `PATH`.
+**Tools.** Python 3.9 or later and `git`. The chain's scripts call `python3`; the driver puts its own interpreter first on `PATH`, and the driver and the chain run in Python's UTF-8 mode.
 
 **Optional environment.**
 - `RP_OUT`: the default for `--out`.
@@ -83,14 +83,17 @@ All outputs go to `--out`.
 ## Pipeline
 
 1. Resolve the revision (use `source:<original-sha>` for an explicit original
-   Chirality identity), then `git archive` its SWBPIPE source tree without
-   `execution/`. Both standalone and original monorepo layouts are supported.
+   Chirality identity), then write its SWBPIPE source tree without `execution/`
+   from the raw committed blobs (`ls-tree -r`, `cat-file --batch`); no attribute
+   or git setting changes a byte. Both standalone and original monorepo layouts are supported.
 2. Carry the base chain's line-keyed rules (`base/*.g4.json`, `base/sens.py`, `base/premise_pins.json`) from the basis to the revision with `lib/linemap_rules.py --prune-deleted`.
    - **Keymap.** `lib/linemap_lib.py` maps each key in order:
      1. **Offset:** by the cumulative offset, checked.
      2. **Function:** by the same ordinal `fn` definition.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
+
+     The hunks come from `git diff -U0` with the histogram algorithm and every other output-affecting setting pinned on the command line. Every git read runs through `lib/pinned_git.py`, with no global or system configuration, no output-changing `GIT_*` variable and strict UTF-8 decoding, so the user's git setup cannot change a carry (retained-pricing-rules.md §1.2).
    - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported. Dictionary rules are discarded by their original key identity before insertion at mapped keys, so a deleted old key cannot overwrite or prune an unrelated live rule remapped to that spelling.
    - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
      - `{"as": "deleted", "why": …}` prunes it;
@@ -143,6 +146,7 @@ All outputs go to `--out`.
 - **Atom values.** Values come from the in-build law test. The tree's ASSUMED strides are only the chain's own check.
 - **Runtime and CI.** A full run takes about one minute of CPU on one core. The full run is not in CI. `tests/test_retained_pricing_tool.py` runs for any change under this directory and covers:
   - the key carry, the prune, and the `fewer_definitions` stop and its resolutions, on two-commit fixture repositories;
+  - the same carry, with and without a rename, under adverse repository-local configuration, attributes and replace refs, `GIT_*` variables and global configuration and attributes; UTF-8 reading in the carry, the driver and a chain step under an ASCII locale; the snapshot's raw bytes under adverse attributes and replace refs;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
   - the generator's basis line.
@@ -408,3 +412,90 @@ Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual
 registration additionally requires native atoms, all 80 budget evaluations,
 reviewed inputs/layouts and independent source/pricing scrutiny.
+
+### §8.37: RT-A3 increment 1b published-row lookup index
+
+`base/u4b_u5b_owners_model.py` binds the case-level `PublishedScope` and the
+member-level `MemberRows`. RTA3B-PS prices the entity hash table against the
+existing guarded P_final row cap, including resize overlap; removals do not
+require a grow-only premise. RTA3B-MR prices the thirty station/kind vectors
+against the guarded per-member row allowance. Both owners are charged per case
+beside U4B-ST in `ordinary_caps.py`. Partial or changed index ownership fails
+closed; `tests/test_837_rt_a3_1b.py` exercises the charges and guards. The
+combined-source registration follows model document 0.9.0's §8.36; the old
+pre-S1 1b draft is not a registration basis.
+
+### §8.38: RT-A3 reducer 2a bounded concentric pressure-bore steps
+
+The combined source's full-file/prefix pins and scoped `problem` caller keys
+follow the reducer guard. On D1, empty components/regions leave its new
+classification and geometry paths unentered. Existing U6-J4 reads the longer
+identity; resident pressure-table limitation text raises STATICS. The proposed
+profile raises each native merged phase by 1,751 B; all 80 native evaluations
+fit the unchanged M/margin and upward-rounded TEXT-reserve policy. The protected
+profile is owner-approved (2026-11-02, item 1) after clear focused scrutiny. See the
+governing rules' §8.38 for the exact source, proposal and remaining checks.
+
+### Modal leaf seam (DEL-04-09 I1, §8.39)
+
+The retained binary64 frame leaves are bound by B7a `LEAF_SEAM` as exact lifts,
+with the straight/curved wrapper delegations and single retained implementations
+checked alongside the full source pins. W1 reduction owners/lifetimes stay
+unchanged; live structural owner keys move by the module declaration's two lines.
+The four-point source run at `8e91c3941`, on integrated reducer2a `393a11ee7`,
+keeps all 1,602 coefficients and the registered generated block unchanged.
+Extra debug wrapper/accessor stack depth is assessed separately through AC-004;
+heap coefficient identity alone does not settle that check. See the governed
+§8.39 proof and `tests/test_dynamics_d3.py` for mutation refusals.
+
+### §8.40: model document 0.9.0 S2 pressure-free resolution (conservative carry)
+
+On D1, D1.3 and D1.5 leave `resolution::plan` with an empty set map, and every
+`resolve_case` returns `Ok(None)` at its first statement. `rules/o10_rules.py`
+adds:
+- S2-PIN: `resolution.rs`'s bytes and premise checks.
+- S2-ZR: zeroes the heap-pricing edge `plan` → `resolve_case`; the call/frame remains live.
+- S2-BN: `plan`'s `as_str` has no crate target.
+- S2-ID: the resolution's unreached format arguments.
+- S2-RK: re-keys the S1 rules that moved from `lower` into `judge`.
+
+`base/s1_owners_model.py` prices S2-JD: `judge`'s exact-size `Vec<Diagnostic>`
+for a document its findings refuse (≤ 4z, route L with combinations). PP
+`lib.rs` keys move +49 with unchanged text (the closed wind wire precedes them).
+
+Against main `4cf32bfd4`, six TAV coefficients fall by 3,990,536 B, because
+§8.36's short-key over-bound is no longer met. No coefficient rises. The native
+atom `s(PreviewLoadCase)` grows 672 → 680 B, so the in-build record moves +24/+48 B
+at actual native types. Law/challenge expectations derive from the kept block
+and those types; the generated block and registered identity/inputs/layouts
+remain unchanged. See the governed §8.40 proof and
+`tests/test_840_rt_g5_s2.py`.
+
+S2 keeps the registered coefficients under the `a_le_b` carry rule. Reproduce
+the kept block using the committed predecessor `4cf32bfd4` tool/source and adopted
+§8.38 basis; compare the current source-derived tree against that result, then
+evaluate both with actual native atoms. The six-lower S2 generated proposal is
+comparison evidence, not the kept block; `generate --check` of that proposal
+against the kept block is not an equality claim. See §8.40 for native-layout
+changes, the independent review and remaining qualification.
+
+### §8.41: RT-A3 reducer 2b (candidate; profile disposition reserved)
+
+2b's pressure-step branch adds no owner on D1: `pressure_step_run_evidence`,
+`reducer_body_members` and the extracted helpers are reached only behind
+D1-empty loops. `base/w15_owners_model.py` binds that premise (RTA3R2B-NZ: one
+caller each, after the D1-empty loop header), alongside re-read full-file pins,
+batch 5's prefix and the scoped `problem` keys (1882, 1959). The run is complete
+and O-10 clear, the line map equals main's, and no function multiplicity
+changes.
+
+The restated pressure-2 limitation raises `STATICS[1]` by 286 B and the longer
+identity raises TEXT by 876 B. Against the kept block, two coefficients are
+higher and six lower, so the `a_le_b` carry does not hold. Proposal A, made
+with `lib/merge_trees.py` from the kept and candidate trees, keeps every kept
+coefficient except +286 B on `STATICS[1]` and its success copy. Proposal B, the
+source-derived block, is comparison only. Both rebind only reviewed inputs #8
+and #11. All 80 native candidate evaluations fit and lie under the kept merged
+phases. Adoption, the law records and the stack witnesses wait for the owner's
+disposition. See the governing rules' §8.41 and
+`tests/test_841_rt_a3_reducer_2b.py`.

@@ -54,6 +54,10 @@ import time
 from types import SimpleNamespace
 from typing import Any, Callable, Mapping
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only the
+# CAEPIPE exchange folder's caepipe_out, outside the project.
+CI_READS = ()
+
 
 ENV_VAR = "SWBPIPE_CAEPIPE_EXCHANGE"
 CONFIG_NAME = "harness_config.json"

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/hanger.schema.yaml",
   "title": "User supplied hanger library",
-  "description": "Explicit imported values only; import validity does not establish solve readiness. Duplicate hanger_id values are rejected by the import boundary.",
+  "description": "Explicit imported values only; import validity does not establish solve readiness. Duplicate hanger_id values are rejected by the import boundary. Format 1.1.0 adds an optional per-record working_load_range; the import boundary refuses that member in a 1.0.0 document as an unknown field and refuses a range whose minimum is not below its maximum or whose ends differ in unit.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -13,7 +13,10 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0.0"
+      "enum": [
+        "1.0.0",
+        "1.1.0"
+      ]
     },
     "hanger_library": {
       "$ref": "#/$defs/LibraryMetadata"
@@ -166,6 +169,22 @@
         }
       }
     },
+    "LoadRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum",
+        "maximum"
+      ],
+      "properties": {
+        "minimum": {
+          "$ref": "#/$defs/ForceQuantity"
+        },
+        "maximum": {
+          "$ref": "#/$defs/ForceQuantity"
+        }
+      }
+    },
     "LengthQuantity": {
       "type": "object",
       "additionalProperties": false,
@@ -291,6 +310,9 @@
         },
         "constant_load": {
           "$ref": "#/$defs/ForceQuantity"
+        },
+        "working_load_range": {
+          "$ref": "#/$defs/LoadRange"
         },
         "travel_range": {
           "$ref": "#/$defs/LengthQuantity"

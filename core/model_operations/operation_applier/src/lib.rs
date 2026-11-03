@@ -22,6 +22,7 @@ use sha2::{Digest, Sha256};
 mod atomic_batch;
 mod bend_authoring;
 mod boundary_association;
+mod condition_set_authoring;
 mod display_units;
 pub mod document_validator;
 mod geometry_operations;
@@ -944,6 +945,8 @@ fn collection_for(object_type: &str) -> Option<&'static str> {
         // records are found by each family's id key
         // (`model_data_authoring::target`); `Project` is a singleton target
         // for project tags and notes and has no collection.
+        // Model document 0.9.0 S3a: the condition sets.
+        condition_set_authoring::OBJECT_TYPE => Some(condition_set_authoring::COLLECTION),
         other => model_data_authoring::collection_for(other),
     }
 }
@@ -1136,6 +1139,20 @@ mod wasm_api {
         match super::model_checks_text(model_json) {
             Ok(report) => report.to_string(),
             Err(error) => input_error("model", error.to_string()),
+        }
+    }
+
+    /// Model document 0.9.0, S2 (DEL-02-01 Design `model-document-0.9.0.md` §4.2,
+    /// §10): the read-only preview of a document's operating-condition
+    /// resolution, `operating_conditions::preview_operating_conditions` (the
+    /// solve's own parse, document checks, refusals and resolution plan), as
+    /// JSON text; the input-error envelope when the text is not JSON. Nothing is
+    /// written to the model.
+    #[wasm_bindgen]
+    pub fn preview_operating_conditions_json(model_json: &str) -> String {
+        match parse_input("model", model_json) {
+            Ok(model) => open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&model).to_string(),
+            Err(error) => error,
         }
     }
 
@@ -1650,6 +1667,36 @@ fn run_with_context(
                     "Enter a finite length greater than zero in a length unit of the units catalog, or reset the setting to its default.",
                     error.affected_refs,
                 );
+            }
+        }
+    }
+
+    // Model document 0.9.0 S3a (DEL-02-01 Work `model-document-0.9.0.md` §11):
+    // condition sets, pipe assignment and case condition use. The solve's
+    // judgement of the candidate is classified (staged findings warn, all else
+    // blocks) in validate and apply mode alike.
+    if condition_set_authoring::is_change_kind(&change_kind) && !checker.schema_blocked {
+        match condition_set_authoring::resolve(model, intent) {
+            Ok(edit) => {
+                checker.reference_state = "passed";
+                checker.unit_state = "passed";
+                checker.before_state = "passed";
+                condition_set_authoring::report_judgement(&mut checker, model, &change_kind, &target_ref, &edit.model);
+                geometry_edit = Some(edit);
+            }
+            Err(errors) => {
+                for error in errors {
+                    if error.code == "OP-STALE-BEFORE-VALUE" {
+                        checker.before_state = "blocked_stale";
+                    }
+                    checker.push(
+                        error.code,
+                        "blocking",
+                        error.message,
+                        "Refresh the record from the current model and correct the explicit payload; nothing is defaulted.",
+                        error.affected_refs,
+                    );
+                }
             }
         }
     }
@@ -2796,7 +2843,8 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
             | "apply_library_record"
     ) || model_data_authoring::operation_kind_for(change_kind).is_some()
         || model_settings_authoring::is_change_kind(change_kind)
-        || project_units_authoring::is_change_kind(change_kind);
+        || project_units_authoring::is_change_kind(change_kind)
+        || condition_set_authoring::is_change_kind(change_kind);
     if !supported_change {
         checker.schema_blocked = true;
         checker.push(
@@ -2835,6 +2883,7 @@ fn check_kinds(operation_kind: &str, change_kind: &str, operation_id: &str, chec
         "connect_pipe_run" => "connect",
         "insert_component_symbol" => "insert",
         other => model_data_authoring::operation_kind_for(other)
+            .or_else(|| condition_set_authoring::operation_kind_for(other))
             .expect("supported_change guarantees a known change kind"),
     };
     if operation_kind != expected_operation_kind {
@@ -5488,10 +5537,16 @@ fn resolve_create_load_case(
         );
         return None;
     };
-    if record.contains_key("condition_use") {
-        refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_CONDITION_USE_UNSUPPORTED,
-            "A load case's condition_use is not authored until the operating-condition operations are built.".into());
-        return None;
+    // Model document 0.9.0 S3a (§11): a pressure-free use is admitted by the
+    // condition-set operations' route admission and judged with them below.
+    if let Some(using) = record.get("condition_use") {
+        let refusals = condition_set_authoring::admit_case_use(model, target_ref, using);
+        if !refusals.is_empty() {
+            for refusal in refusals {
+                refuse_interim_member(checker, target_ref, refusal.code, refusal.message);
+            }
+            return None;
+        }
     }
     if record.contains_key("test_condition") {
         refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_TEST_CONDITION_UNSUPPORTED,
@@ -5546,14 +5601,22 @@ fn resolve_create_load_case(
         return None;
     }
 
-    Some(serde_json::json!({
+    let mut created = serde_json::json!({
         "id": id,
         "label": label,
         "kind": kind,
         "status": status,
         "provenance": provenance,
         "primitive_loads": []
-    }))
+    });
+    if let Some(using) = record.get("condition_use") {
+        created["condition_use"] = using.clone();
+        let mut candidate = model.clone();
+        if apply_created_load_case(&mut candidate, &created) {
+            condition_set_authoring::report_judgement(checker, model, condition_set_authoring::CREATE_LOAD_CASE, target_ref, &candidate);
+        }
+    }
+    Some(created)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -15730,7 +15793,7 @@ mod tests {
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Test", "kind": "hydrotest", "status": "draft",
                 "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
-                "provenance": "user", "primitive_loads": [], "condition_use": {"temperature": "OPE1"}})), "LOAD_CASE_CONDITION_USE_UNSUPPORTED"),
+                "provenance": "user", "primitive_loads": [], "condition_use": {"contents_density": "OPE1"}})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"),
             (create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Skew stop", "node": "node:N-2",
                 "family": "line_stop", "restraints": ["UY"], "direction": {"x": 0.0, "y": 3.0, "z": 4.0}, "provenance": "user"})), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED"),
             (create("Support", "support:S-2", "create_support", "supports", json!({"id": "support:S-2", "label": "Axis stop", "node": "node:N-2",

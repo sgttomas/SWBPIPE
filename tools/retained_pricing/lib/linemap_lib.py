@@ -1,5 +1,5 @@
 """O-10: one line map for the TEXT chain's keys, shared by the rule tables' carry (g7_linemap) and SQ2's decision
-tables (sq2_rules.py). Stdlib only; Git reads only (GIT_OPTIONAL_LOCKS=0).
+tables (sq2_rules.py). Stdlib only; Git reads only, through pinned_git (sanitized environment, strict UTF-8).
 
 A key is `file:line` (a site) or `file:line:fn` (a function), the file short (`lib.rs`, `structural/sparse.rs`) or
 full (`core/.../src/x.rs`). It maps from OLD to NEW in this order:
@@ -19,8 +19,15 @@ full (`core/.../src/x.rs`). It maps from OLD to NEW in this order:
 A key never maps silently: every key that is not left as written is reported with how it was mapped.
 """
 import gzip, json, os, re, subprocess
+import pinned_git
 from source_history import resolve_revision, project_prefix
 P = "projects/chirality-piping/"
+# The hunks decide every carried key, so no user, system or repository git setting may change them. The diffs pin
+# what the registered runs used: the histogram algorithm (their host's diff.algorithm; git's own default, myers, leaves
+# two basis keys unmapped at e1a483b6c), git's default indent heuristic, rename detection and rename limit, and no
+# hunk merging, external diff, textconv, binary guess, colour, relative paths or order file.
+DIFF_PIN = ("--diff-algorithm=histogram", "--indent-heuristic", "--inter-hunk-context=0", "--find-renames", "-l1000",
+            "--no-ext-diff", "--no-textconv", "--text", "--no-color", "--no-relative", "-O/dev/null")
 
 
 def load_rows(paths):
@@ -56,13 +63,12 @@ class Mapper:
         self.prefix = P = project_prefix(repo, old)
         if project_prefix(repo, new) != P:
             raise ValueError("Mixed project layouts in one pricing comparison")
-        self.env = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
-        changed = [f[len(P):] for f in self.git("diff", "--name-only", old, new, "--", P + "core").split("\n") if f.endswith(".rs")]
+        changed = [f[len(P):] for f in self.git("diff", *DIFF_PIN, "--name-only", old, new, "--", P + "core").split("\n") if f.endswith(".rs")]
         self.changed = [f for f in changed if "/tests/" not in f and not f.endswith("_tests.rs") and any(f.startswith(c + "/") for c in crates)]
         self.hunks, self._old, self._new, self._len = {}, {}, {}, {}
         for f in self.changed:
             hs = []
-            for line in self.git("diff", "-U0", old, new, "--", P + f).split("\n"):
+            for line in self.git("diff", *DIFF_PIN, "-U0", old, new, "--", P + f).split("\n"):
                 m = re.match(r"@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@", line)
                 if m:
                     hs.append((int(m.group(1)), int(m.group(2) or 1), int(m.group(3)), int(m.group(4) or 1)))
@@ -74,7 +80,7 @@ class Mapper:
         self.report, self.unmapped, self.resolved = [], [], []
 
     def git(self, *a):
-        return subprocess.run(["git", "-C", self.repo, *a], capture_output=True, text=True, env=self.env, check=True).stdout
+        return pinned_git.run(self.repo, *a)
 
     def text(self, rev, f):
         cache = self._old if rev == self.old else self._new

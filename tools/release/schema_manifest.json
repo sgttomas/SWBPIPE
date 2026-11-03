@@ -8,7 +8,7 @@
     },
     {
       "path": "schemas/analysis_run.v0.3.schema.json",
-      "sha256": "b92be5ba53791c4016be305cc23b78782b8995df3cd888e32a64440c46e77c00"
+      "sha256": "510424671f7df58c5dd3af461c8dc60850d60ff9f093e1e834653f6762d799c4"
     },
     {
       "path": "schemas/caepipe_external_run.schema.json",
@@ -45,6 +45,10 @@
     {
       "path": "schemas/handoff_package.schema.json",
       "sha256": "043a8d7dde56eacbaa0ddfd4f1f61fa75100d71ecfe404e558851ebeed28922e"
+    },
+    {
+      "path": "schemas/hanger_sizing_result.schema.json",
+      "sha256": "209706cd065516a8d71db5e605ee9d6b8fcbaf5281e173adfacba9166760e1e6"
     },
     {
       "path": "schemas/load_reference_state.schema.json",
@@ -96,7 +100,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "2ed4b0547e31a4f97943324f013719fb03d70930293f729ca53ef751822a55d2"
+      "sha256": "2523f3b1341375f74a87dbc28911c5ebd4415a1487db2774930ec09f1839e475"
     },
     {
       "path": "schemas/target_mapping.schema.json",

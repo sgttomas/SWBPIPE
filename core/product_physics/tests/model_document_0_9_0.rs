@@ -282,9 +282,19 @@ fn every_condition_set_document_code_refuses_at_the_solve() {
 }
 
 #[test]
-fn a_condition_use_is_refused_by_name_on_both_routes_and_a_present_null_is_not_absence() {
-    assert_refused_by(&mutated(|d| d["load_cases"][1]["condition_use"] = json!({"temperature": "OPE1"})),
-        "LOAD_CASE_CONDITION_USE_UNSUPPORTED", "load case `L2` uses operating conditions");
+fn the_interim_condition_uses_are_refused_by_name_on_both_routes_and_a_present_null_is_not_absence() {
+    // S2 resolves temperature, added weight and wind exposure on the pressure-free
+    // route (`model_document_0_9_0_s2.rs`); contents density and a pressure use stay
+    // refused by name there, and S1's blanket code is gone from the solve.
+    let contents = refused(&mutated(|d| d["load_cases"][1]["condition_use"] = json!({"contents_density": "OPE1"})));
+    assert!(contents.iter().any(|(c, s, m)| c == "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED" && s == "blocking"
+        && m.contains("load case `L2` uses condition `OPE1` for contents density")), "{contents:?}");
+    let pressure = refused(&mutated(|d| d["load_cases"][1]["condition_use"] = json!({"pressure": "OPE1"})));
+    assert!(pressure.iter().any(|(c, s, m)| c == "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT" && s == "blocking"
+        && m.contains("load case `L2` uses condition `OPE1` for pressure on a pressure-free document")), "{pressure:?}");
+    for found in [&contents, &pressure] {
+        assert!(!found.iter().any(|(code, _, _)| code == "LOAD_CASE_CONDITION_USE_UNSUPPORTED"), "{found:?}");
+    }
     let mut exact = with_unused_members(exact_model());
     exact["load_cases"][0]["condition_use"] = json!({"temperature": "OPE1"});
     let found = refused(&exact);

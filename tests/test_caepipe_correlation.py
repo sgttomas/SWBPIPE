@@ -24,6 +24,9 @@ import pytest
 from types import SimpleNamespace
 from typing import Callable
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). Its one project scan; `out.iterdir()` reads the solved case's tmp_path outputs.
+CI_READS = ("validation/caepipe_correlation/cases/*.json",)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:

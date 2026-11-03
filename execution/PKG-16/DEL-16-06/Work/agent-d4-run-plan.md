@@ -1,12 +1,23 @@
 # D4: one joined local-model W9-A witness
 
-Plan revision D4-4, 2026-10-31. This is the run specification for Agent 0 to
+Plan revision D4-5 (HC-1), 2026-11-01. This is the run specification for Agent 0 to
 present with the single-read credential request. It supersedes the earlier
 thread draft's 64k assumption, three-attempt estimate and anchor/corner result
 scope. No resource window is booked. Preparing or merging this plan authorizes
 no credential read, native launch, model/server start or provider request.
 
 ## Selected candidate
+
+**Native rebuild required.** HC-1 changes the production supplier configuration
+to disable the pinned supplier's default goal/user-input helpers. No corrected
+native executable has been built or launched for this amendment. The old
+executable hashes below remain historical stub14 selections and are stale for
+a corrected joined witness; do not run them as HC-1. A future selected build
+must bind its source revision, frontend/wasm inputs and actual executable hash
+(and deployed post-seal hash if applicable). No changed configuration is
+inferred into old bytes. The supplier-only capture reads the corrected source
+recipe through CaptureNative, so that proposed observation requires no desktop
+build or App launch. It still requires a new owner decision.
 
 The code selection is `5bc572386e45010a6a88abda03f38031e86b363c` in
 [PR #46](https://github.com/sgttomas/SWBPIPE/pull/46). This is the reviewed
@@ -40,11 +51,13 @@ The frontend set digest is SHA-256 of UTF-8 compact JSON, sorted keys, no
 trailing newline: an array sorted by relative POSIX path, each entry containing
 `path`, `bytes`, `sha256` for every regular file under `dist/`. This binds the
 selected generated assets for this named witness, not a permanent test input.
-The native executable embeds frontend assets. The build/source association is
+The native executable embeds frontend assets and the supplier configuration.
+The build/source association is
 the historical build record, not a new reproducible-build observation.
 The minimal selected executable and asset set is retained for the named D4
 consumer under this lane's `scratch/rt-e1/d4-candidate/`; build caches are not a
-run dependency. Agent 0 has the absolute host locator.
+run dependency. These are historical assets pending a corrected rebuild, not
+a runnable HC-1 candidate. Agent 0 has the absolute host locator.
 
 The historical stub14 used an ad-hoc-sealed private bundle copy; its executable
 hash was `c23a852d85fc4e07e50b7b982e75e72c430def174958fceba66dfd60c7d519a7`.

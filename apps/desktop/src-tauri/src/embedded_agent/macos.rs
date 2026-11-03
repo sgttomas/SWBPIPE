@@ -28,6 +28,7 @@ env_key = "SWBPIPE_AGENT_RELAY_CAPABILITY"
 [analytics]
 enabled = false
 [features]
+goals = false
 shell_tool = false
 shell_snapshot = false
 unified_exec = false
@@ -44,6 +45,8 @@ computer_use = false
 image_generation = false
 view_image = false
 skill_search = false
+[tools.experimental_request_user_input]
+enabled = false
 "#;
 
 /// JSON string escaping is a subset of TOML basic-string escaping for the

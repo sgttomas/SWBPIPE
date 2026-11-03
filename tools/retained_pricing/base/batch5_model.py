@@ -4,6 +4,9 @@ The domain is unchanged. In particular, no child backing is credited merely
 because the joint feature is dormant. Existing D1 component/region refusals
 establish the empty children; actual carrier layouts stay positively priced.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 import os
 import re
@@ -37,7 +40,7 @@ PINS = {
         # RT-A3 increment 1 D3 (§8.33): on the exact route a straight member's branch-connection rows
         # (u4b_rows::append_branch_intensified, records extended into directional_measures); D1.4 admits no component,
         # so no association, row or record. Carriers, staging and prepared-pressure calls unchanged.
-        "solve_prepared_load_case": "ad463fe666362a2b94252fc012fc19af2d5daf48eea6e09d85c47793d3bec323",
+        "solve_prepared_load_case": "0c19c5708e7608a07283561956d922ca2ae42c5852542072507ef443c8e7e34b",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -96,7 +99,12 @@ PINS = {
 # (scalar_string imported), called once per solve entry beside validate_profile. It returns at once without an exact
 # contract (L); on E every case's `pressure_regions` is `Some([])` (D1.5), so its node map and member set stay empty
 # (no allocation), its loops run zero times and nothing is pushed. No carrier, child or staging changes.
-PRESSURE_PREFIX_PIN = "d43a8a1aa904ba15099e35694f97b94b628f5139c1b3e2cf4627728e34125e0a"
+# RT-A3 reducer 2a: the added classifier returns an empty vector on D1.5 empty regions; no new carrier,
+# child or staging. The normalized geometry check precedes pressure assembly and is empty on D1.
+# RT-A3 reducer 2b (§8.41): refuse_reducers_outside_step adds the W-15c branch (pressure_step_run_evidence and the
+# pass-through sign test), and step_end_is_collinear's direction helper is extracted (step_end_directions); all run
+# only per reducers_in_regions entry, empty on D1 (D1.4, D1.5). No new carrier, child or staging.
+PRESSURE_PREFIX_PIN = "0ba7ea7e316079b6ead7fb4ba5643a4de7eba4a49e7111b4c63b5ecba16b3ab4"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

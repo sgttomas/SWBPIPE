@@ -1,6 +1,6 @@
 # D4 supplier-envelope capture: bounded authorization proposal
 
-Capture specification CAP-1, diagnostic amendment D1. This specifies the smallest later observation to
+Capture specification CAP-1, amendments D1 and HC-1. This specifies the smallest later observation to
 replace the reconstructed supplier envelope in D4-4. The maintained adapter is
 `tools/agent_supplier_capture.py`, with mock-only tests beside it. The exact
 reviewed/integrated revision is identified by its PR; `result.json` records the
@@ -217,6 +217,80 @@ inject all supplier/listener/clock effects; mock completion proves adapter
 behavior, not actual envelope bytes or real cleanup/termination.
 
 ## Recount and what still remains live
+
+### HC-1: supported recipe correction after exact-source trace
+
+An owner-authorized D1 attempt at `deed5855033fbace953fc221c644ec501d9328ea`
+refused `request_tools_count` after 0.709694125 seconds, with supplier exit 0,
+no cleanup failures/residents and no retained runtime/body. Its capped first
+eight entries were function objects, with four recognized IDs (summary, nodes,
+records, propose) and four unknown string names; `count_capped=true` proves at
+least nine total entries. It does not identify unknown names or the exact
+total, and the other IDs not seen in the sample need not be absent. No tool
+execution/reachability is proved by those declarations. Its untouched result
+at `/private/tmp/swbpipe-d4-envelope-toolsdiag-1/result.json` has SHA-256
+`f3f73e66c36824ffd637ff8ce2cc853dd3c9f5ff2a3f7084aa4bc4421c3ebd55`;
+config SHA-256 is `535c9af20dc2b13a0b62769731839b032779ef53e65c44fa763757fd5bdc9bb7`.
+Both prior attempt grants are consumed; HC-1 authorizes no new attempt.
+
+Public source was inspected only at the maintained supplier's exact
+`openai/codex` commit `a956835d020762cb2b570053af06f643a11c0ecc`.
+The annotated release tag and release metadata resolve to it, and the ARM
+archive digest matches the maintained supplier pin. This binds metadata and
+source selection, not an independently reproduced binary build.
+
+- [`core/src/tools/spec_plan.rs:150`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core/src/tools/spec_plan.rs#L150)
+  adds core/extension tools before dynamicTools; lines 1426–1437 register each
+  supplied function. Dynamic tools are additive, not an exclusive ceiling.
+- [`core/src/config/mod.rs:2705`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core/src/config/mod.rs#L2705)
+  defaults `experimental_request_user_input` on when the tools entry is absent;
+  spec_plan lines 1169–1175 register it independently of environments.
+- [`features/src/lib.rs:1702`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/features/src/lib.rs#L1702)
+  defaults `goals` on. App-server `extensions.rs:76–88` installs the goal
+  contributor when its backend exists and binds that feature. The goal
+  [`extension.rs:529`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/ext/goal/src/extension.rs#L529)
+  contributes get_goal/create_goal/update_goal;
+  [`runtime.rs:126`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/ext/goal/src/runtime.rs#L126)
+  gates visibility as well as availability on enabled. Ephemeral state can
+  refuse their execution while declarations remain visible.
+- [`config/src/config_toml.rs:672`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/config/src/config_toml.rs#L672)
+  defines the nested `experimental_request_user_input.enabled` control.
+  The goal feature and this tools control are supported configuration, not
+  guessed keys or a supplier patch.
+- [`core/src/client.rs:888`](https://github.com/openai/codex/blob/a956835d020762cb2b570053af06f643a11c0ecc/codex-rs/core/src/client.rs#L888)
+  carries the visible prompt.tools vector to Responses; `tools/src/tool_spec.rs`
+  serializes the full vector. Existing environment/shell/edit restrictions do
+  not filter session helpers out at this stage.
+
+The old selected product/capture recipe omitted both controls. With the normal
+goal backend and fallback metadata, source predicts eleven declarations:
+seven supplied tools plus the user-input helper and three goal helpers. That
+is a source-derived explanation consistent with the actual sample, not an
+observed eleven-entry packet or identification of its four unknown strings.
+These supplier-handled session/UI/state helpers are distinct from shell/edit/web
+execution. `update_plan` defaults off at this exact revision and is not the
+identified default-on source. No hidden-name assumption changes admission.
+
+HC-1 adds only `goals=false` to the existing production `[features]` and
+`[tools.experimental_request_user_input] enabled=false`. CaptureNative inherits
+that body without adapter/filter/allowlist changes. Tests parse both recipes,
+prove the controls' nested placement/false values, and compare every prior
+field unchanged, including relay credential custody and endpoint differences.
+The maintained source-read graph validates without changing an unrelated hash
+or inventory; the existing source-bound capture packet records the selected
+macos.rs digest at any future authorized run. Historical packet hashes and
+old executable identities are not repinned to these new bytes.
+
+**Concrete next capture proposal:** from the reviewed HC-1 integrated revision,
+use the same command and pinned supplier with a fresh output
+`/private/tmp/swbpipe-d4-envelope-helper-controls-1`, ordinary slot wrapper and
+memguard. Keep seven tools/two turns/six host calls/eight bodies, all previous
+size/time/isolation/owned-cleanup limits, and stop on any refusal without retry.
+No desktop build is needed for this source-derived supplier-only recipe.
+A later joined native witness must first rebuild/rebind its executable because
+the old one embeds the old recipe. No supplier, listener, App, model, server,
+monitor, credential or capture was launched to implement/test HC-1; a new
+capture/owner decision remains required, not requested or inferred here.
 
 Recount raw serialized instructions/input/tools through the pinned installed
 oMLX Responses conversion and strict Qwen template path, not the adapter's

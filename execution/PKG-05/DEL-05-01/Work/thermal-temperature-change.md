@@ -42,3 +42,17 @@ Make typed degF/degR interval conversion correctly rounded. It is not done now
 because it would move existing results; any effect on
 `apps/desktop/native-smoke/expected.json` or other frozen references is the
 owner's to decide.
+
+## 4. As built (S2; candidate, not yet integrated)
+
+The condition route is built on the pressure-free solve (DEL-02-01 Work
+`model-document-0.9.0.md` §10): `operating_conditions::resolution` forms each
+pipe's ΔT with the canonical decimal, the exact integer form and
+`round_kelvin_ratio`, and appends it as a `thermal` primitive in K. The typed
+route's code is unchanged. The disclosure rows of §2 are frozen in
+`validation/references/rt_g5_s2_conditions/references.json`
+(`fahrenheit_77_70`: condition route `400f1c71c71c71c7`, typed 7 degF interval
+`400f1c71c71c71c8`), and the product tests check both: the condition route's
+bits, and the units crate's interval conversion of a typed 7 degF. The user
+guide (§6.1) and the theory note (`docs/theory/centerline_analysis.md`,
+"Operating Conditions And Thermal Strain") carry the disclosure.

@@ -11,6 +11,10 @@ import sys
 
 import pytest
 
+# Recursive scans inspect generated snapshots of the temporary fixture repository,
+# not product inputs. The tool modules read by this test remain derived normally.
+CI_READS = ()
+
 TOOL = Path(__file__).resolve().parents[1] / "tools" / "retained_pricing"
 P = "projects/chirality-piping/"
 F = P + "core/x/src/lib.rs"
@@ -60,13 +64,14 @@ def repo(tmp_path):
     return r
 
 
-def carry(tmp_path, repo, old, new, rules, resolutions=None):
+def carry(tmp_path, repo, old, new, rules, resolutions=None, git_env=None):
     (tmp_path / "crates.txt").write_text("core/x/src\n")
     (tmp_path / "rules.json").write_text(json.dumps(rules))
     out = tmp_path / "out"
     r = subprocess.run([sys.executable, str(TOOL / "lib" / "linemap_rules.py"), "--prune-deleted", str(repo), old, new, str(out),
                         str(tmp_path / "rules.json")],
-                       env=dict(os.environ, LINEMAP_CRATES=str(tmp_path / "crates.txt"), LINEMAP_RESOLUTIONS=resolutions or ""),
+                       env={k: v for k, v in dict(os.environ, LINEMAP_CRATES=str(tmp_path / "crates.txt"),
+                                                    LINEMAP_RESOLUTIONS=resolutions or "", **(git_env or {})).items() if v is not None},
                        capture_output=True, text=True)
     report = json.loads((out / "g7_linemap.out.json").read_text())
     return r.returncode, json.loads((out / "rules.json").read_text()), report
@@ -102,6 +107,166 @@ def test_a_site_whose_text_changed_stops_the_carry(tmp_path, repo):
     assert rc == 1
     assert [u[1] for u in report["summary"]["unmapped"]] == ["lib.rs:2"]
     assert report["summary"]["unmapped"][0][3] == "replaced"
+
+
+# Two revisions whose -U0 hunks differ by diff algorithm (see the carry test below).
+ALGO_OLD = ("fn a() {\n    x();\n    y();\n}\n\nfn b() {\n    y();\n    x();\n}\n\n"
+            "fn c() {\n    let s = 1;\n    x();\n}\n\nfn d() {\n    let s = 1;\n    x();\n}\n\n")
+ALGO_NEW = ("fn a() {\n    x();\n    y();\n}\n\nfn b() {\n    y();\n    x();\n}\n\n"
+            "fn c() {\n    let s = 1;\n    x();\n    x();\n}\nfn g() {\n    x();\n    let s = 1;\n    x();\n}\n\n\n"
+            "fn d() {\n    let s = 1;\n    x();\nfn f() {\n    let s = 1;\n}\n\n}\n\n")
+# Every channel through which a user's or the host's git setup could reach the line map, each set to differ from the
+# pinned diff: repository-local configuration and attributes, which the pinned command line must override, and the
+# environment, global configuration and global attributes, which pinned_git removes.
+ADVERSE_CONFIG = "[diff]\n\talgorithm = myers\n\trenames = false\n"
+CHANNELS = {
+    **{f"local {k}={v}": {"config": [(k, v)]} for k, v in [
+        ("diff.algorithm", "myers"), ("diff.algorithm", "patience"), ("diff.algorithm", "minimal"),
+        ("diff.indentHeuristic", "false"), ("diff.interHunkContext", "10"), ("color.ui", "always"),
+        ("diff.renames", "false"), ("diff.external", "true")]},
+    "local attributes -diff": {"attributes": "*.rs -diff\n"},
+    "local driver algorithm": {"attributes": "*.rs diff=alt\n", "config": [("diff.alt.algorithm", "myers")]},
+    "local driver command": {"attributes": "*.rs diff=alt\n", "config": [("diff.alt.command", "true")]},
+    "GIT_DIFF_OPTS": {"env": {"GIT_DIFF_OPTS": "--unified=20"}},
+    "GIT_EXTERNAL_DIFF": {"env": {"GIT_EXTERNAL_DIFF": "true"}},
+    "GIT_CONFIG_COUNT": {"env": {"GIT_CONFIG_COUNT": "2", "GIT_CONFIG_KEY_0": "diff.algorithm", "GIT_CONFIG_VALUE_0": "myers",
+                                 "GIT_CONFIG_KEY_1": "diff.renames", "GIT_CONFIG_VALUE_1": "false"}},
+    "GIT_CONFIG_PARAMETERS": {"env": {"GIT_CONFIG_PARAMETERS": "'diff.algorithm'='myers' 'diff.renames'='false'"}},
+    "GIT_CONFIG_GLOBAL file": {"home": {"global.gitconfig": ADVERSE_CONFIG}, "env": {"GIT_CONFIG_GLOBAL": "{home}/global.gitconfig"}},
+    "~/.gitconfig": {"home": {".gitconfig": ADVERSE_CONFIG}},
+    "global attributes": {"home": {".config/git/attributes": "*.rs -diff\n"}},
+    "local refs/replace": {"replace": "refs/replace/"},
+    "GIT_REPLACE_REF_BASE": {"replace": "refs/review-replace/", "env": {"GIT_REPLACE_REF_BASE": "refs/review-replace/"}},
+}
+NEUTRAL = {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
+
+
+def adverse(tmp_path, repo, name):
+    """Apply one channel's repository-local settings; return its environment (None removes a variable)."""
+    c = CHANNELS[name]
+    for k, v in c.get("config", []):
+        git(repo, "config", "--local", k, v)
+    if "attributes" in c:
+        (repo / ".git" / "info").mkdir(exist_ok=True)
+        (repo / ".git" / "info" / "attributes").write_text(c["attributes"])
+    if "replace" in c:                                     # HEAD's root tree replaced by the empty tree
+        git(repo, "update-ref", c["replace"] + git(repo, "rev-parse", "HEAD^{tree}"),
+            git(repo, "hash-object", "-t", "tree", "-w", os.devnull))
+    env, home = {}, tmp_path / "home"
+    if "home" in c:
+        for rel, text in c["home"].items():
+            (home / rel).parent.mkdir(parents=True, exist_ok=True)
+            (home / rel).write_text(text)
+        env.update(HOME=str(home), XDG_CONFIG_HOME=None, GIT_CONFIG_GLOBAL=None, GIT_CONFIG_NOSYSTEM=None)
+    env.update({k: v.format(home=home) for k, v in c.get("env", {}).items()})
+    return env
+
+
+# Two revisions whose -U0 hunks differ by diff algorithm. Myers keeps fn d's two lines (old 17 and 18) in fn d (new 24,
+# 25); histogram matches them to the new fn g's equal lines (new 18, 19). The text check accepts either, so only the
+# diff algorithm decides. Histogram is what every registered run used: the expectation pins that, not the better match.
+@pytest.mark.parametrize("channel", CHANNELS)
+def test_the_carry_does_not_depend_on_the_git_setup(tmp_path, repo, channel):
+    old, new = commit(repo, ALGO_OLD), commit(repo, ALGO_NEW)
+    hunks = {a: git(repo, "diff", "-U0", f"--diff-algorithm={a}", old, new) for a in ("myers", "histogram")}
+    assert hunks["myers"] != hunks["histogram"]            # the fixture still tells the algorithms apart
+    rules = {"site_total": {"lib.rs:17": 1, "lib.rs:18": 2}}
+    (tmp_path / "neutral").mkdir()
+    (tmp_path / "adverse").mkdir()
+    expected = carry(tmp_path / "neutral", repo, old, new, rules, git_env=NEUTRAL)
+    assert expected[:2] == (0, {"site_total": {"lib.rs:18": 1, "lib.rs:19": 2}})
+    assert carry(tmp_path / "adverse", repo, old, new, rules, git_env=adverse(tmp_path, repo, channel)) == expected
+
+
+# An exact rename inside a chain crate (frame_kernel's correct_norm.rs moved this way). With rename detection, which
+# every registered run had, the old path is not a changed file and its keys stay as written; without it the old path is
+# a deleted file and its rules are pruned. The expectation pins the registered behaviour, not a judgment that a key
+# left at a path the head no longer has is right.
+@pytest.mark.parametrize("channel", CHANNELS)
+def test_a_renamed_file_carries_the_same_whatever_the_git_setup(tmp_path, repo, channel):
+    src = repo / P / "core/x/src"
+    src.mkdir(parents=True)
+    (src / "a.rs").write_text("fn f() {\n    let s = 1;\n}\n")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "v")
+    old = git(repo, "rev-parse", "HEAD")
+    git(repo, "mv", P + "core/x/src/a.rs", P + "core/x/src/b.rs")
+    git(repo, "commit", "-q", "-m", "v")
+    new = git(repo, "rev-parse", "HEAD")
+    assert git(repo, "diff", "--name-status", "-M", old, new).startswith("R100")
+    rules = {"fn_cap": {"a.rs:1:f": 1}}
+    (tmp_path / "neutral").mkdir()
+    (tmp_path / "adverse").mkdir()
+    expected = carry(tmp_path / "neutral", repo, old, new, rules, git_env=NEUTRAL)
+    assert expected[:2] == (0, rules) and expected[2]["summary"]["pruned_deleted"] == []
+    assert carry(tmp_path / "adverse", repo, old, new, rules, git_env=adverse(tmp_path, repo, channel)) == expected
+
+
+ASCII_LOCALE = {"LC_ALL": "C", "LANG": "C", "PYTHONUTF8": "0", "PYTHONIOENCODING": None}
+
+
+def test_the_carry_reads_source_as_utf8_whatever_the_locale(tmp_path, repo):
+    old = commit(repo, "// σ ≤ 1\nfn a() {\n    let s = 1;\n}\n")
+    new = commit(repo, "// one\n// σ ≤ 1\nfn a() {\n    let s = 1;\n}\n")
+    rc, rules, report = carry(tmp_path, repo, old, new, {"site_total": {"lib.rs:3": 1}}, git_env=ASCII_LOCALE)
+    assert (rc, rules) == (0, {"site_total": {"lib.rs:4": 1}}), report["summary"]
+
+
+def test_the_driver_reads_text_as_utf8_whatever_the_locale(tmp_path):
+    tree = {"forms": {}, "text_atoms": {}, "L": {}, "check": {"sparse": {"max": 1}, "dense": {"max": 1}}, "basis": "σ ≤ 1"}
+    (tmp_path / "t.json").write_text(json.dumps(tree, ensure_ascii=False), encoding="utf-8")
+    env = {k: v for k, v in dict(os.environ, **ASCII_LOCALE).items() if v is not None}
+    r = subprocess.run([sys.executable, str(TOOL / "price.py"), "compare", str(tmp_path / "t.json"), str(tmp_path / "t.json")],
+                       env=env, capture_output=True, text=True, encoding="utf-8")
+    assert r.returncode == 0 and json.loads(r.stdout)["identical"], r.stderr
+
+
+def test_chain_steps_read_text_as_utf8_whatever_the_locale(tmp_path, monkeypatch):
+    for k, v in ASCII_LOCALE.items():
+        monkeypatch.delenv(k, raising=False) if v is None else monkeypatch.setenv(k, v)
+    (tmp_path / "source.rs").write_bytes("// σ ≤ 1\n".encode("utf-8"))
+    (tmp_path / "step.py").write_text("import sys\nprint(open(sys.argv[1]).read(), end='')\n")
+    r = driver().py([str(tmp_path / "step.py"), str(tmp_path / "source.rs")])    # the driver's chain-step launcher
+    assert (r.returncode, r.stdout) == (0, "// σ ≤ 1\n"), r.stderr
+
+
+def driver():
+    import importlib.util
+    sys.path.insert(0, str(TOOL))
+    spec = importlib.util.spec_from_file_location("retained_pricing_driver_test", TOOL / "price.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize("replace", [None, "local refs/replace", "GIT_REPLACE_REF_BASE"])
+def test_the_snapshot_is_the_committed_bytes_whatever_the_attributes_or_environment(tmp_path, repo, monkeypatch, replace):
+    files = {P + "core/x/src/lib.rs": "fn a() {}\r\n// $Format:%H$ σ\n", P + "core/x/notes.txt": "$Format:%H$\n",
+             P + "execution/x.md": "not priced\n", P + ".gitattributes": "*.txt export-subst\n"}
+    for path, text in files.items():
+        (repo / path).parent.mkdir(parents=True, exist_ok=True)
+        (repo / path).write_bytes(text.encode("utf-8"))
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "v")
+    rev = git(repo, "rev-parse", "HEAD")
+    (repo / ".git" / "info").mkdir(exist_ok=True)
+    (repo / ".git" / "info" / "attributes").write_text("*.rs export-ignore\n*.rs export-subst\n* text eol=crlf\n")
+    git(repo, "config", "--local", "core.autocrlf", "true")
+    (tmp_path / "home" / ".config" / "git").mkdir(parents=True)
+    (tmp_path / "home" / ".config" / "git" / "attributes").write_text("* export-ignore\n")
+    for k, v in {"HOME": str(tmp_path / "home"), "GIT_ATTR_SOURCE": rev, "GIT_CONFIG_COUNT": "1",
+                 "GIT_CONFIG_KEY_0": "core.eol", "GIT_CONFIG_VALUE_0": "crlf"}.items():
+        monkeypatch.setenv(k, v)
+    for k in ("XDG_CONFIG_HOME", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_NOSYSTEM"):
+        monkeypatch.delenv(k, raising=False)
+    if replace:
+        for k, v in adverse(tmp_path, repo, replace).items():
+            monkeypatch.setenv(k, v)
+    root = Path(driver().snapshot(str(repo), rev, str(tmp_path / "snap")))
+    written = sorted(str(p.relative_to(root)) for p in root.rglob("*") if p.is_file())
+    assert written == [".gitattributes", "core/x/notes.txt", "core/x/src/lib.rs"]
+    for rel in written:
+        assert (root / rel).read_bytes() == files[P + rel].encode("utf-8"), rel
 
 
 # The review's case: two `fn f`; B::f deleted and A::f's signature edited in the same change. The count falls from 2 to

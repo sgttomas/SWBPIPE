@@ -38,6 +38,8 @@ A zero needs a premise, not an observation. For a site claimed at multiplicity 0
 
 Rules and decision keys written at the basis are carried to the revision by `lib/linemap_lib.py` (by offset, then by function, then by the line's text). A key that cannot be carried stops the run (exit 4). The prune drops a rule only when the revision deleted its line or its function, and reports it in `summary.json`'s `linemap.pruned`. Each pruned rule must belong to code the head really deleted.
 
+**Pinned git reads** (tool note; no coefficient, key or resolution moves). The map's hunks come from `git diff -U0`, so a git setting that changes those hunks changes which keys carry by offset and which fall to the function or text step. Until this note the diff took the caller's configuration and environment. The host of every registered run sets `diff.algorithm=histogram`, while git's default and hosted CI use myers. At main `e1a483b6c`, myers puts two basis keys inside changed hunks: `loop_bounds.g4.json` `edge_zero[20]`'s callee `pressure_exact/source_geometry.rs:166:surface_stresses` (one definition at the basis, two at the head) and the `text_args.g4.json` ID audit `lib.rs:5396` (its text is not unique at the head). The carry stops there, and `test_b7a_formation_model.py`'s real-carry test fails in a clean environment. Every git read of the tool now goes through `lib/pinned_git.py`, including the revision and layout lookups (`lib/source_history.py` calls `tools/repository_history.py` with its environment and options). It drops every `GIT_*` variable except those that locate the repository (so `GIT_DIFF_OPTS`, `GIT_EXTERNAL_DIFF`, `GIT_CONFIG_*`, `GIT_ATTR_SOURCE` and `GIT_REPLACE_REF_BASE` cannot reach it), reads no global or system configuration and no global attributes file, never substitutes a replace object (`--no-replace-objects`, also for repository-local `refs/replace/`), and decodes output as strict UTF-8. The repository's own configuration and `.git/info/attributes` still apply, so `lib/linemap_lib.py` also pins on the command line what the registered runs used: `--diff-algorithm=histogram`, git's default indent heuristic, rename detection (`--find-renames`, `-l1000`) and `--inter-hunk-context=0`, together with `--no-ext-diff`, `--no-textconv`, `--text`, `--no-color`, `--no-relative`, `-O/dev/null` and `core.quotePath=true`. Rename detection stays on because frame_kernel's `correct_norm.rs` moved by an exact rename, and without it the changed-file list differs. `price.py`'s snapshot no longer uses `git archive`, which applies attributes, including `.git/info/attributes` (`export-ignore`, `export-subst`, end-of-line conversion). It writes each committed blob's raw bytes from `ls-tree -r` and `cat-file --batch`, leaving out `execution/` as before. The committed attributes (`-text`, `-diff`, `-merge`, and `whitespace` under `execution/`) changed no priced file under the archive: the two snapshots are identical in every file, byte and executable bit at `7e7fef2d4`, `539392f96`, `e1a483b6c` and `c2fac7599`. Source text is read as UTF-8 whatever the locale: the driver re-runs itself in Python's UTF-8 mode, and every chain step and `eval` runs with `PYTHONUTF8=1`. On `2da8d6a5d` (main `c2fac7599`'s priced source), three runs give byte-identical carries, point trees and merged trees: the pinned tool under an empty configuration, main's tool on the registration host, and the pinned tool under `GIT_DIFF_OPTS=--unified=20`, `GIT_EXTERNAL_DIFF=true`, an environment `diff.algorithm=myers` and an ASCII locale. Its tree regenerates §8.33's block (kept by §8.34) under `generate --check` with its registered basis line. `tests/test_retained_pricing_tool.py` carries two fixtures under each of 20 adverse git setups (repository-local configuration, attributes and replace refs, environment variables, global configuration and attributes) and requires the registered carry every time. One fixture's myers and histogram hunks differ; the other has an exact rename. Further tests check locale-independent decoding in the carry, the driver and a chain step, and a snapshot under adverse local attributes, global attributes, environment and replace refs. Neither algorithm is the better match in general: the text check accepts either line when a line's text repeats, and the pin only fixes which line is taken. Likewise, rename detection leaves a renamed file's keys at the old path; no current key names such a file.
+
 **Orientation prune** (`rules/linemap_resolutions.json`, `lib.rs:675:orientation`, `as: deleted`; a section A ruling). The frame kernel's `lib.rs` defined `fn orientation` twice at the basis: in `impl FrameElement` (604) and in `impl UserStiffnessElement` (675). `a601e3706d` (T4-U3) deletes `UserStiffnessElement`, so where the definition count falls to 1 the definition left is `FrameElement`'s. The count alone does not say which definition went, so the prune of the `loop_bounds` `edge_zero` {caller `build_pressure_case_with_members`, callee `lib.rs:675:orientation`} happens only through this reviewed entry; without it the run stops. `FrameElement`'s own zero edge is kept. Route E's `EDGE_ZERO_REMOVE_CALLER` count for `build_pressure_case_with_members` (51 at the basis) is reduced by exactly the pruned edges, and the reduction is logged.
 
 **Replaced site in a deleted function** (`core/reporting/result_export/src/load_reference_source.rs:47`, `as: deleted`, `fn: code`). A line-keyed site whose hunk replaced its line stops the run. A reviewed entry prunes it only when `fn` names the key's enclosing function at the basis and the revision's file no longer defines that function; a moved function still stops. B7b reduced `load_reference_source.rs` to its 16-line pre-pass (`validate_pressure_source_evidence`) and deleted the private `fn code` with the v2-era readers, so this ID-audit site no longer exists.
@@ -613,7 +615,7 @@ Epoch 4 (model 0.6.0, the `-2` base pair, T4-U4b's derived stress rows, T4-U5b's
 - **U4B-ST.** One member's station quantities: the bases and their clone, the shear factors, the normal and directional witness lists (≤ 5 station pairs each) and one station's extremes.
 - **U5B-AB.** `ElementAbsorption`'s `vec![false; n]` (N bytes) in each of the three contribution-sum calls (contribution, load-fidelity and intended-action audits).
 - **U4B-W1.** `prepared_not_covered`'s operand table (m × `[[Option<usize>; 5]; 5]`, per attempted case, T14), and `failed_manifest`'s Poisson flags (m × `Option<f64>`) with its diagnostics clone grown by ≤ m warnings, per requested case. `ordinary.diagnostics.clone()` has exactly D_env slots (the staged copy's own capacity), so its first push reallocates to 2·D_env (Rust's amortized growth, `grown_from`); the grown backing is charged beside the staged copy. T4-S6 corrected the earlier pushcap(D_env + m) plus half of it, which is below 2·D_env whenever D_env + m stays under a power of two (route E: 49,152 against 57,598 slots, +3,648,672 B in every phase).
-- **U4B-RD.** In T17 V5 (G7), the base read's and route L's model checks' row `Index` (a growing hash table over the envelope rows, once per reader), the Poisson exemption sets, the station covers (route E: every case, member and basis), the material and pressurized-arc indices, and two copies of the captured model for `preview_model_checks`' per-lookup array clones.
+- **U4B-RD.** In T17 V5 (G7), the base read's and route L's model checks' row `Index` (a growing hash table over the envelope rows, once per reader), the Poisson exemption sets, the station covers (route E: every case, member and basis), the material and pressurized-arc indices, and two copies of the captured model for `preview_model_checks`' per-lookup array clones. RT-U4 (§8.42): each `Index` also holds the map `Index::any` builds on first use and keeps until the `Index` drops, one entry per component-free slot (≤ the row index's entries), push-grown from empty with its previous table during its last resize. Its entry (five `&str` and a `&Value`) is no larger than the row index's (six `&str` and a `&Value`), so it is charged at that stride. It is built after `Index::new` returns, when the row table's own previous table is already freed, so each `Index` is charged the row table (HashReq) plus the map (HashMov) at the envelope rows. INDEX_PIN binds the span.
 - **U4B-NQ.** `not_qualified_for`'s vector of ≤ 30m treatments with its previous backing (T25.3); their strings move into the ledger, which already pays them. Its two filtered loops (`not_qualified_for`'s pass over the case's rows and `bind_for`'s pass over its treatments) are bounded by 30m, not P_final (T4-S6): the filter admits only the U4b derived kinds, which only `u4b_rows` pushes (append_station_quantities and the failed-manifest placeholders, bodies pinned), at most σ⁺, σ⁻ and τ_v,max at five stations on two bases per member, with no realized arc (P2). **Guard:** each kind's literal occurs once in PP production code and only `u4b_rows.rs` passes the kinds to a row constructor (four sites); otherwise the run stops, and without the pinned bodies the loops keep P.
 - **U5B-CG** (T4-S6). Each AssemblyEvidence (dense and sparse) owns `contribution_groups`, a `Vec<usize>` push-built with one entry per frame or curved element and per ground spring (`structural_adapter.rs`; curved elements and connectors are absent on D1, P2 and P3): 8·pushcap(m + s) per evidence owner, charged in the typed core's evidence term, so three times per case with W2's two evaluations (4,608 B in O_base at the caps). **Guard:** the four allocating lines occur once and the move into the evidence twice.
 - **Failed Preview formulation** (T4-S6; `b7a_domain_model.formulation_content`). The failed Preview manifest's formulation text is read from the current literals as the larger of its two forms: `preview_physics::formulation_basis` (its profile id, the seven `LIMITATIONS` and two recovery sentences: 9 limitation strings, 3,138 B) and `preview_formulation_basis` with `formulation_basis_for_model_with_source`'s two appended sentences (2,288 B). Raw literal bytes bound the decoded text. This replaces the B7a basis's 2,035 B in the held failed-manifest envelope owner (+3,309 B in O_base at three cases) and raises the `retained_product.rs` formulation-content lexical class from 2,914 B to the same 3,138 B (+896 B of TEXT). A changed constructor structure stops the run.
@@ -2020,6 +2022,1016 @@ The census correction alone (`compare` of the candidate against the same run wit
 
 **Registration closeout.** The approved generated block and native law/challenge pins are applied; `REGISTERED_PROFILES` keeps its build identity and threshold and §3.7's already reviewed input bindings. The broad independent review and focused B1/B2 re-check cleared the pricing, boundary, census, persistence path and governing text before adoption. On the registered build the retained successors, the shared corpus (its 51 producer and hook bases from their writers, its 18 synthetic bases from theirs), the failed-ordinary fixtures, the derivative goldens, the reader outcomes and RV120's inputs are regenerated by their writers (`caf8566d2`): against `1af461895` no number, row, status or reader outcome moved, only version tokens and the digests binding them, and no memory-profile fact is carried by these fixtures. Both Wasm engines are rebuilt from this source by the maintained script. AC-004's six stack witnesses passed as recorded above; final exact-head hosted checks remain. No acceptance or release follows from this registration work.
 
+### 8.37 Published-row lookup index after S1 (RT-A3 increment 1b; owner-approved adoption)
+
+**Status: owner-approved profile adopted; native and stack verification complete.** The
+owner decided verbatim **"1A, 2A."** (2026-11-01), with item 1A approving
+RT-A3/#68's reviewed +172,554 B increase and exact proposed file
+`efad75d4001600d47d23ea7bbd23942c95aaef097a15590528fe16f31048aa3b`
+(1,712 generated lines). This approves that adoption, not a redesign, another
+coefficient change, a measurement window, acceptance or release. Model document 0.9.0 S1
+integrated first as `136f3e086`; its owner-approved §8.36 coefficients and
+retained-domain boundary remain the comparison basis. The pre-S1 1b draft also
+called §8.36 is historical unadopted evidence and is not transplanted here.
+The branch merged main without rebasing. The maintained generator now produces
+exactly the approved file; native law/challenge pins derive from its maintained
+tree evaluation. M, margin and reserve are unchanged. The subsequent #28
+integration changes CI declarations/tests; priced Rust and owner rules remain
+unchanged. The pricing driver adds only the explicit CI_READS metadata, with
+its executable calculation AST otherwise identical to the verified #58 source.
+
+**Source and comparison.** The maintained tool prices combined source
+`c0e79eea11` and replays the current tool bytes at `cc9b36ee79`, with all four points complete, no unmapped header or unclassified
+argument and both O-10 checks clear. Later proof-carry comments, documentation
+and routing changes preserve all priced Rust bytes and each pricing module's
+Python AST. The final replay has all 1,602 coefficients equal to the first
+combined tree, and `generate --check` reproduces the reviewed proposed-file
+SHA-256 `efad75d4001600d47d23ea7bbd23942c95aaef097a15590528fe16f31048aa3b`
+with its selected basis. Its 80 native evaluations reproduce the same minimum
+headroom. The source-priced comparison is S1's retained
+`/private/tmp/s1-review-fixed-price/tree_merged.json` (source `7e0c752bb1`),
+with its `summary.json`; these files are comparison evidence, while committed
+main remains the authority. The line map carries 880 keys, with 37 prunes and
+seven reviewed resolutions, unchanged from S1. Live source keys are re-derived
+against unchanged line text; historical preimages keep their original keys.
+
+**Pinned Git-reader integration (#58).** Main `74c23082e` merged without
+rebasing as `deb7e0117`. Its eight incoming files change the Git/locale reader,
+its tests and method text; core Rust and the owner rules remain byte-identical
+to the reviewed candidate. The new raw-blob snapshot has the same 984 core
+files as the preceding snapshot. All five carried rule/pin files and the
+line-map findings are identical; only the target-revision summary changes.
+The applicable tool/formation/index tests pass (141). The four-point run at
+`deb7e0117` completes with both O-10 checks clear and all **1,602 coefficients
+equal** to the preceding combined tree. All 80 native evaluations and the
+selected-basis `generate --check` reproduce the reviewed proposal and its
+minimum headroom. The proposed file SHA above is unchanged. No coefficient
+or owner-rule repair and no fourth broad review was needed for this delta;
+the subsequent owner decision adopts exactly that unchanged proposal.
+
+**Implementation and pins.** The case solve forms one `PublishedScope` before
+its per-member publication loop and calls `begin` at each member's start.
+`MemberRows` is local to the station-quantity block and is passed to its two
+consumers. No existing error path, record, label, TEXT, reduction lifetime or
+owner changes. The index's first-match semantics and its collision fallback
+were independently scrutinized at `8517ee24`; the combined case-solve body has
+the same digest, `0c19c570…` (KD5/batch-5) and `1e9343f4…` (O4). The combined
+full-file lib.rs digest is `940b83a0…`, re-derived from S1's `0a4d22f4…` for the
+domain, reduction and primitive-min/max bindings. The station-quantity body
+is `1865cd48…` and the index span is `1bca396b…`. Other S1 pins are preserved.
+
+**RTA3B-PS (OrdinaryRecovery, per case).** The hash set holds row-entity
+hashes, not copied ids. Its table and last-resize predecessor are priced
+against P_final: 55,342 B on L (P = 2,979) and 110,638 B on E (P = 4,131).
+The owner is bound by the index span and the checks for one scope, one begin,
+and one extend of the current case's rows. P_final comes from the existing
+pinned producer/row-cap cohort, not an unguarded independent row forecast.
+
+The earlier grow-only premise was false: both
+`bend_pressure::append_arc_pressure_results` and
+`append_exact_pressure_results` retain rows. On D1 the former is excluded by
+P2 (no realized arcs), the latter by D1.5 (empty pressure regions on E; no
+pressure on L). More generally removals shrink lengths; when `begin` runs,
+previously completed members' rows stay within their guarded P_final
+allowance, and a fallback marks the scope stale so the next begin rebuilds.
+The charge requires that bound, not monotonic growth. The misleading check
+that searched only the solve body's removal text is removed; full-file and
+callee cohort pins still stop changed producer premises. No permission to
+remove arbitrary published rows follows from this allocation argument.
+
+**RTA3B-MR (OrdinaryRecovery, one member live, charged per case).** Thirty
+empty vectors index six read kinds at five stations. A position is pushed
+only once, belongs to the current member and lies at or after its start.
+An earlier same-id row causes the allocation-free full-scan fallback. Each
+member contributes at most its guarded allowance r = 78 (L) or 114 (E).
+The exact split maximum over thirty vectors is 208 or 276 slots, plus one
+old backing during growth, giving 2,176 or 2,720 B. `ordinary_caps.py` derives
+r from P_final; its remainder check is only an arithmetic consistency check.
+The route L/E decisions patch the exact baseline text
+`P = 7 * n + 51 * m + 8 * g + 3`, so that source-bound patch and the
+producer cohort guard the form, not divisibility at equal n/m/g caps. The
+index source guard binds the one
+instance, empty construction, filtered incremental walk and one push. Inline
+headers remain stack locals and require combined-source stack evidence.
+
+**Adopted coefficient comparison.** The trees have equal structure:
+**1,598 coefficients equal, four higher, none lower**. Only O_base_dense and
+O_base_sparse constants and their success copies rise, by
+3 · (55,342 + 2,176) = **172,554 B** on the merged L maximum. E's charge is
+3 · (110,638 + 2,720) = 340,074 B and remains below that maximum. S1's
+owner-approved collision/string/shape coefficients do not move. The
+illustrative merged checks rise from 8,748,791,095 to 8,748,963,649 B sparse
+and 8,807,922,439 to 8,808,094,993 B dense; illustrative M is not qualification.
+
+**Native proposal evaluation.** The combined source's registered-identity
+`profile_` run (eight tests) supplies native atoms while the committed block
+still reproduces S1's laws. The first native-evaluation file covers the merged points only. Completing
+all 80 budget evaluations (five trees × two modes × eight phases), using
+S1 §8.36's accepted same-build supplement for the unchanged combination
+types (CombinationView 120 B, TermView 16 B, Finding 112 B,
+(String,&str,Operand) 56 B, (&str,String) 40 B) and §8.31's native
+Node(String,BTreeMap) 648 B, confirms
+that every separate point stays at or below the merged phase, using the
+merged W/X reserve conservatively for all points. Evaluating the proposed
+merged tree on those atoms gives
+merged W3 E + R = 8,966,249,564 B sparse and 9,025,380,908 B dense, each
+172,554 B above S1. TEXT atoms/reserve, M and its margin are unchanged; the
+tightest headroom including the existing reserve would be 2,315,688,350 B.
+These evaluations supply the adopted law values. Native law/challenge runs
+and the six combined-source stack witnesses still need final-candidate
+execution; the owner decision reserves no host window.
+
+**Adoption verification.** The maintained generator produces exactly the
+owner-approved full-file SHA-256 above; no bytes outside that selected file
+are substituted. At committed adoption source `6ece563f0`, all 71 registered
+native law tests pass with no identity skip; the default retained-memory
+challenge passes (one test, 43 explicitly ignored measurement cases). The post-adoption source-price run at `6ece563f0` completes on all four
+points with both O-10 checks clear and all 1,602 coefficients equal to the
+reviewed proposal. Its 80 evaluations using the adopted build's native atom
+log fit the same limits, and `generate --check` reproduces the approved file.
+The six combined-source stack witnesses require their separately cleared,
+exclusive interval; the owner decision by itself supplies no such interval.
+
+**AC-004 exclusive evidence (2026-11-01).** With App scheduling clearance
+relayed by Agent 0, the six prebuilt witnesses ran under `t3_exclusive.sh`
+with memguard active and no Cargo/build in the interval. Queue and acquisition
+were both **15:39:22 UTC** (zero-second queue wait); end/release was
+**15:39:31 UTC**, rc 0, with script elapsed **8.901 s**, below the cleared
+60-second total. Each test ran in its own process with
+`--exact --ignored --test-threads=1`: W1 1-MiB headroom dense/sparse
+**0.62/0.63 s**, W2 deep dense/sparse **1.30/1.27 s**, and W-C2 dense/sparse
+**2.38/2.40 s**; all six passed. The script used a 55-second internal budget
+including its hash preflight, leaving wrapper overhead within the cleared
+60 seconds. The selected native test binary was
+`core/product_physics/target/debug/deps/open_pipe_stress_product_physics-f0dc814215774b50`,
+SHA-256 `6bbba938f9a9df619e680b5dfd9530c052deb3ad83b0108076f253f3b23e26e4`,
+built from adopted source `6ece563f0`; the clean selected candidate
+`0dc214c11` changed governing text only and preserved its core bytes. The
+approved profile hash was verified before execution. Every test subprocess
+was reaped; the wrapper exited 0 and both lock-holding processes were closed,
+releasing its four locks. Agent 0 received immediate release confirmation
+for App scheduling. This is stack/test evidence, not a new performance
+measurement or acceptance/release act.
+
+**Verification and reconciliation.** The targeted owner/pin/mutation tests
+pass: the focused reviewer reran 375 tests on exact head `0f2698846`,
+including E13 and the other changed pin cohorts, after the retired-key
+correction. Earlier 162/132-test logs are superseded by that result. Routing
+checks pass (77 plus 120 subtests); product U4b tests pass (25), tee references
+pass (5) and shared-terminal regressions pass (6). The two
+repaired lookup regressions rejected deletion of stale rebuilding and of
+incremental rescan before original source was restored. DEL-04-07 Work
+`route-unification-r4.md` §5.4b preserves the original linear measurements
+and their limits. Combined-source identity comparison gives 956 identical outputs (662 solved,
+294 refused, no panics) for 478 common-byte documents; §5.4b records the single
+size exclusion and seven schema-token-only scratch adaptations. Changed-proof
+scrutiny is clear and owner adoption is recorded above. Native law/challenge checks and six stack witnesses are recorded above;
+exact-head hosted checks are recorded in PR #68 and required before integration. This changes publication lookup
+storage, not admitted families or ScopeOfWork/dependency conditions. No
+acceptance, release or base-machine performance qualification follows.
+
+### §8.38 RT-A3 reducer 2a: bounded concentric pressure-bore steps
+
+**Source and status.** The four-point run at `3c3e976075` extends the
+integrated §8.37 source (`2656dcb33`) with reducer 2a's bounded admission.
+All points are complete with zero unmapped or unclassified sites; both O-10
+checks are clear. The owner approved this exact profile on 2026-11-02
+(verbatim: "1. approved. 2. approved. 3. approved.", item 1). Eccentric 2b, CE and nonlinear
+admission are outside this registration.
+
+**Changed proof.** D1.4 excludes components and D1.5 gives route E explicitly
+empty pressure regions. Thus `reducers_in_regions` returns an empty Vec
+without backing allocation on D1 in both validation and assembly. Its
+`step_topology`, lazily built `non_straight_members` set, per-end pipe/node
+searches and geometric arithmetic are unreachable there. Ordinary EX now
+checks those paths before forming loads; the numerical review independently
+checked that all solve entries pass this guard. No retained-domain exclusion,
+row cap, layout or owner coefficient is relaxed. The runtime production-prefix
+and full-file source pins bind this proof. The scoped `problem` parent keys
+follow their original functions, including the new
+`refuse_reducers_outside_step` parent; it is inside the empty classified list,
+not an additional reachable diagnostic owner. The reducer refusal is now 1,173 B,
+above §8.4's 453 B `problem` message class; both reducer calls have multiplicity
+zero on D1, so that class does not bound either unreached message (as with
+C30-JR/C30-ID in §8.30). The fixed three-component
+dot/cross predicates were covered by the numerical review.
+
+**Carry and comparison.** The line map carries 880 keys, prunes 37 and applies
+seven reviewed resolutions. The original prune keys and resolutions equal
+§8.37's; the only prune-record difference is the surviving caller's line
+carry `build_pressure_case_with_members` 714 → 716, not another dropped bound.
+Tree structure is equal: **1,594 coefficients equal, eight higher, none lower**.
+The pressure-2 table's `supported_profile_limitations` grows by 437 serialized
+bytes (5,742 → 6,179), raising `STATICS[1]`
+and its success copy by 437 B. The inherited physics-retained table changes
+only its fixed-length parent digest. The longer ordinary pressure identity
+(2,102 → 2,321 bytes) is read by existing U6-J4's exact-literal rule; six
+charged copies raise `TAV_W[1]`, `TAV_X[1]` and their success copies by
+1,314 B. The remaining two increases are TAV requested/moving metadata;
+these are not additional form atoms. No other coefficient moves. Illustrative
+merged checks rise by 1,751 B to 8,748,965,400 B sparse and 8,808,096,744 B
+dense; illustrative M is not native qualification.
+
+**Native evaluation and adopted profile.** The current in-build collector
+(`profile_in_build_record`, one passing test) supplies all 328 merged atoms.
+The unchanged S1/§8.31 combination-type supplement is reused as in §8.37:
+Node(String,BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
+(String,&str,Operand) 56 and (&str,String) 40 B. Maintained `tree_eval` evaluates
+all 80 point/mode/phase combinations; every separate phase is no higher than
+the corresponding merged phase. The merged W3 E + R is 8,966,251,315 B sparse
+and 9,025,382,659 B dense. M remains 12,884,901,888 B, its 0.9 margin
+11,596,411,699 B and R 67,108,864 B. Upward-rounded W/X TEXT reserves are
+255,342,507 / 276,013,933 B, used conservatively for all separate points.
+The tightest headroom, dense W3 including reserve, is 2,315,686,533 B.
+
+The owner-approved full file is
+`/private/tmp/rt-a3-2a-proposed-retained_memory.rs`, SHA-256
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
+The generated block is maintained `generate` output with basis
+`, re-run as RT-A3 reducer 2a at 3c3e976075 (§8.38): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`.
+Only reviewed-input entries #8 and #11 take the new derived table hashes;
+identity, layouts and threshold stay unchanged. The four-point tree and
+summary are in `/private/tmp/rt-a3-2a-price/`; the complete native evaluations
+are `/private/tmp/rt-a3-2a-native-eval80.json`. These are named proposal/review
+inputs, not permanent test dependencies. Focused Claude Opus 5.5/high review
+of `648e424c5` found no blockers: it independently reproduced all 80 fits, the
+coefficient comparison, source pins, caller carry and generator output. Its
+two prose findings are corrected above; the final proposal only wraps the
+basis line and clarifies the registration comment relative to its reviewed
+file, with identical generated coefficients and input hashes. Adoption verified
+that production source/pricing logic still matches `3c3e976075` and every one
+of the thirteen reviewed-input hashes matches the selected candidate. The
+maintained generator reproduces the approved full file byte for byte. Native
+law and challenge phase records derive from the reviewed 80 native evaluations.
+The combined-source replay at `0d70dca9e` completes all four points with
+O-10 clear and reproduces all 1,602 coefficients unchanged and the approved
+generated block. The 71 native law tests and default native challenge pass
+on the approved profile. Retained producer/derivative/RV120 writers regenerate
+the current carriers; preservation covers the current carriers and the R1
+reader-outcomes record, including independent
+materialization of RV120's result-statement digests and unchanged invocations.
+Focused adoption/carrier scrutiny at `343bbe4b2` has no blockers. Its one
+nonblocking warrant limit for the three in-memory successor-pin groups was
+closed by the maintained `RTA3_RETAINED_PIN_OUT` hook: all eight actual
+successors reproduce their prior pinned byte hashes after restoring only
+the old identity sentence and dependent hashes. Every numerical token and
+other byte stays fixed. All structural/digest assertions remain active.
+The affected 22 native facade tests pass; the broader facade run
+passed 141 tests, with only those three stale-pin failures before repair.
+All 671 retained Python checks pass. The native reader run passed 84 tests;
+its four failures were the stale RV120 materialization digests and R1 output
+record, now regenerated and verified by targeted native checks. The R1 writer
+produces 938 ordered entries: 59 input-subject digests and 89 outcome digests
+change, while every reading summary, verdict, eligibility and row count stays
+unchanged. The 968 desktop retained-carrier/native-Wasm parity/report checks
+pass. Reducer references (13 tests) and shared-terminal regressions (6) pass.
+The exact head and remaining stack/hosted checks are recorded in the PR.
+The J7 census is regenerated through its maintained writer for the same
+identity-only change: all 322 entries preserve every field except 260
+`public.envelope_sha256` values. Replacing those digests restores the exact
+prior file bytes. Results/summary digests, public identities, first causes,
+counts, work and frozen-row verdicts are unchanged, under AC-002's existing
+product-text rule. The 23 native J7 checks pass with hosted test settings;
+182 preservation/input/history checks pass, including new negative controls
+for result/summary hashes, identity and charged work. Frozen T3 R1 reference
+and census-input bytes stay unchanged. The approved profile and O0
+stack-tested binary remain unchanged.
+M, its margin, R, reserve policy and layouts are unchanged; any additional
+coefficient movement requires separate disposition. Preservation/routing/pin
+checks pass (229 tests and 120 subtests); two shell-subprocess checks needed
+Python 3.13 on PATH, not the older host Python. No test or workflow was weakened.
+
+**AC-004 source-bound witnesses (2026-11-02).** After C1 and supplier actual
+closure and Agent 0's explicit six-witness clearance, queue/acquisition were
+02:49:58 UTC and end/release 02:50:07 UTC (request-to-script wait about 0.072 s).
+All six passed, separately invoked with `--exact --ignored --test-threads=1`:
+W1 at 1 MiB sparse/dense 0.685/0.679 s; W2 deep 1.277/1.331 s; W-C2
+2.384/2.471 s. Script elapsed was 8.964 s inside the cleared 60-second total.
+`t3_exclusive.sh` held all four slots, memguard was active, and no Cargo/build
+ran inside. The clean selected source was
+`5f72100baf6c4845486dbaa4fa118abfc552395c`; the prebuilt library test binary
+`core/product_physics/target/debug/deps/open_pipe_stress_product_physics-0f1d2c7f024eccac`
+had SHA-256 `bd4fd95b69be20d40bf99b2bd63b28c8b9322bd6e15f74d43fefc28b67ab14ff`.
+The approved profile hash was checked before execution. Every test process
+was reaped; the script and all five wrapper/lockf processes were verified
+absent after wrapper rc 0 and its END-EXCLUSIVE record. Agent 0 received
+immediate actual-closure confirmation. This is stack evidence, not a desktop
+or base-machine performance metric, acceptance or release. Required hosted
+checks including `harness` on the exact PR head remain the integration gate.
+
+### §8.39 Modal kernel read-only seams: actual-source D3 (DEL-04-09 I1)
+
+**Selected predecessor and changed proof.** This change takes integrated reducer
+2a `393a11ee7` (§8.38), including the MBF and G11 changes, as its predecessor.
+The merge is `0468d2ca2`; the proof-tool candidate is `8e91c3941`. The modal
+numerical source remains independently reviewed `0ba65b9d4`. Nothing in this
+D3 adopts S2 or later reducer 2b source, changes a commitment or grants acceptance.
+
+`sparse_direct` adds two borrowing observation iterators without changing its
+factor storage, solve or factorization. Their only new consumers are the modal
+Sturm premises; neither accessor is reached by the retained root. The frame
+kernel's `frame_matrix` and `curved_matrix` delegate to generic `*_with`
+formations with the same binary64 operands and arithmetic order. Retained leaf
+implementations lift `FrameSection` and `CurvedFormation` fields exactly;
+`LEAF_SEAM` checks the audited delegation, leaf bodies and listed lexical implementation/call forms. It is supplementary to full-file pins, not a Rust parser: an explicit generic caller uses another spelling, and restating a source pin requires a fresh audit.
+B7a's source pins and the W1 reduction pins bind the full changed files. The
+`FormationSource` Cow, load closure, evaluation, scaled-force children, Value
+moves, constructors, guards and reduction lifetimes are unchanged. The six live
+`structural.rs` owner-choice keys move by its two module-declaration lines;
+historical preimage identities remain unchanged. Mutation tests reject changed
+leaves, implementations, callers and delegations, including a restated file pin.
+
+The four modal-only `reform_*` entries, their element split and wide-operand
+lifting do not enter the retained graph. No product crate consumes `modal_eigen`,
+and it is outside the priced crate list. The name-based graph adds conservative
+accessor edges, including modal-only leaf methods with matching names; it loses
+no reachable function. Those incidental leaves allocate/format nothing. The
+formation bodies' existing loops and operations move with their helpers; this
+is not authority to drop a bound as a deleted function. No retained struct,
+enum, static, capacity, ownership or input carrier changes. All thirteen reviewed
+inputs, reader layouts, atoms, M, R and the reserve policy stay unchanged.
+
+**Run and registration standing.** The committed tool prices `8e91c3941` on all
+four points with exit 0, no unmapped header or unclassified argument, and both
+O-10 checks clear. Its line map carries 880 keys, prunes 37 and applies seven
+resolutions, identical entry for entry to the adopted §8.38 summary. The
+coefficient comparison against the actual predecessor gives **1,602 equal,
+none higher and none lower**, with equal tree structure. `generate --check`
+with the existing §8.38 basis reproduces the committed generated block. No
+coefficient adoption, generated block, registration, law expectation or schema
+hash is changed. The §8.38 registered profile therefore stands; this is a new
+actual-source proof, not a transplant of old source pins. The 859 maintained
+pricing tests pass, including 14 seam regressions and mutation refusals.
+
+Supporting comparison artifacts are the named adopted reducer-2a tree and
+summary, and the fresh runs `scratch/rt-dynamics-d3-8e91c3941/` and
+`scratch/rt-dynamics-d3-base393/` outside the checkout. They are run evidence,
+not permanent build/test inputs. Evaluation with predecessor native atoms
+reproduces merged W3 E+R 8,966,251,315 B sparse and 9,025,382,659 B dense;
+the four current-source native profile/law/layout tests also pass and their newly collected atoms reproduce the same merged phase evaluations.
+
+**Stack consequence.** No inlining is presumed for the registered debug build.
+Static prologue inspection at the predecessor and candidate, with default and
+single-codegen-unit builds agreeing, finds the straight formation unchanged at
+16,416 B plus its new 128 B wrapper and at most 80 B accessor; curved formation
+moves from 7,744 B to 7,760 B plus a 32 B wrapper and 32 B accessor. These give
+added depth of at most 208 B straight and 80 B curved on those paths. The return
+slot is passed through, without an extra 12×12 matrix copy; the straight wrapper
+copies only its three coordinate arrays. These observations establish no whole
+call-chain stack bound. Because the retained-reachable stack changed despite
+coefficient identity, the six source-bound headroom witnesses were run as below.
+
+**Independent scrutiny and AC-004 (2026-11-02).** GPT-6 Astra at medium effort
+reviewed exact source and governing text at `9410d8ae3`, independently reproduced
+the coefficient/atom/phase/generator and mapping checks, and found no blockers.
+Its nonblocking supplementary-guard coverage clarification is applied; no pricing
+or Rust logic changed after review. Native profile checks (eight tests selected
+by `profile_`) and 14 seam regressions passed in that review; the recorded
+859-test suite and complete pricing runs were reused explicitly.
+
+Agent 0 cleared exactly six prebuilt witnesses, each its own process with
+`--exact --ignored --test-threads=1`, under `t3_exclusive.sh` and memguard.
+The clean bound source was `9b47b63f6043450cdef13895a93975d7f80006ec`; the prebuilt
+library test binary was `core/product_physics/target/debug/deps/
+open_pipe_stress_product_physics-d5dc083ee24455b5` (one path, line wrapped), SHA-256
+`ca227662c8d1e35eaf7bc6521f14d043965f16c0d1869ba12baf57cecd4acd33`.
+The full approved profile SHA-256 remained
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`.
+Request was 06:19:17.496 UTC. The wrapper acquired all four slots at 06:28:31 UTC
+(binding event 06:28:31.959); execution ended 06:28:41.103 and wrapper release was
+06:28:41.112 UTC, rc 0. Queue wait (about 554.46 seconds) was separate from the
+9.306-second acquired execution, within 55 seconds internally and 60 seconds
+externally. No build ran inside. All six passed: W1 at 1 MiB sparse/dense
+0.68/0.66 s, W2 deep 1.32/1.32 s and W-C2 2.49/2.47 s. These test durations
+are evidence of completion, not performance qualification. Afterward the own
+runner/test/wrapper process group was absent, `exclusive.pending` was absent,
+all four lock files had no owner on inspection and the wrapper logged
+`END-EXCLUSIVE rc=0`. Actual closure was reported to Agent 0 promptly.
+
+The §8.38 registered block stands unchanged. Exact-head hosted checks and
+integration remain required; neither this proof nor these witnesses grant owner
+acceptance, release, native App qualification or adoption of the recorded modal
+consuming-slice limitations.
+
+### §8.40 Model document 0.9.0 S2 pressure-free resolution: actual-source D3 (conservative carry)
+
+**Selected predecessor and source.** The predecessor is integrated main
+`4cf32bfd4` (dynamics I1, §8.39, on reducer 2a, §8.38). Its own committed tool
+prices it with exit 0, O-10 clear, the same 880 carried keys, 37 prunes and seven
+resolutions as §8.39, and `generate --check` with §8.38's basis line matches the
+registered 1,712-line block. The entire unchanged 4,154-line `retained_memory.rs` file's SHA-256 is
+`8cd8fcf3bf4c3a6397086d839c1a292878b38e548a2221f958b059ae253026c5`. The
+candidate is `064dc8bb9`, S2's reviewed source (`d738d34d8`) merged normally
+with that main. Its S2 product files are byte-identical to the reviewed source.
+No §8.36–§8.38 source pin or profile is transplanted. The pins below are read
+from this source. Agent 0 directs keeping the registered coefficients and approved conservative
+allowance. No lower coefficient is adopted, and the generated block, registration
+identity, inputs, reader layouts, M and reserve policy remain unchanged. The
+native law/challenge expectations are re-derived below; this grants no acceptance.
+
+**Changed source and D1 premises.** S2 splits the lowering into a read-only
+`operating_conditions::judge`, which `lower` applies, and adds
+`operating_conditions/resolution.rs` (`plan`, `resolve_case`,
+`ResolutionPlan::apply`). It also adds a read-only preview and a closed wind wire
+record. The candidate's D1 clauses, family clauses and admission prefix are
+unchanged, and their pins hold. D1.3 declines a non-empty `condition_sets`
+(capacity 0) and any pipe's `condition_set_ref`, and D1.5 declines any case's
+`condition_use`. Therefore, on D1:
+- `plan`'s set map is collected from an empty slice, with no backing.
+- Every `resolve_case` returns `Ok(None)` at its first statement.
+- The plan holds no case, so `apply` appends nothing.
+- `judge`'s own diagnostic vector stays empty, with no allocation. D1.3–D1.6
+  leave no plan refusal, condition use, test condition, direction or snubber.
+- Route E has a contract, so `judge` does not call `plan`.
+- The preview is called only from the applier's wasm entry. That crate is not
+  priced, and no retained caller reaches it.
+
+`WindGenerationInput` now decodes through `WindGenerationWire` (serde `from`).
+The wire carries the same five members, and the closed-record scan's declared
+fields are the wire's. The two private presence booleans grow the type inline.
+D1.5 refuses every `equivalent_static`, so no admitted request owns wind
+children.
+
+`canonical_decimal.rs` changes by insertion only: U256 `bit`, `bit_len` and
+`div_rem_u128`, `KELVIN_DENOMINATOR_BITS`, `round_kelvin_ratio` and a test.
+Every pre-existing line, including `canonical_decimal` and `kelvin_numerator`,
+is byte-identical, and `temperature.rs` (`exact_kelvin`) is unchanged. The new
+helpers are reached only through `exact_temperature_difference` from
+`resolve_case`. In the heap-pricing abstraction they have no multiplicity. `bit_len`'s
+by-name `.find(` edge into `sparse.rs` therefore leads nowhere.
+
+**Rules, by label.**
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **S2-PIN** (guard) | `resolution.rs` complete bytes (`74e08bef…`). `operating_conditions.rs` (`e3ddf5bd…`) follows S1-PIN and `canonical_decimal.rs` (`431ac320…`) TIM's pins. PP `lib.rs` (`9488c504…`) is re-bound in the B7a domain, W1 reduction and KD5 primitive pins: its only production change is the wind type, impl and wire. Supplementary premise checks: `resolve_case` begins with its `condition_use` return; `plan` is its only caller, over `model.load_cases`, with the set map from `model.condition_sets`; `judge` calls `plan` only off the exact route; `lower` applies only `judge`'s plan. Mutation tests show that each premise stops the run even with a restated file pin. |
+| **S2-ZR** (`O10_EDGE_ZERO`) | `plan` → `resolve_case`. The callee is entered once per case but returns before any allocation, diagnostic, generated record or callee (D1.5). |
+| **S2-BN** (`CG_RULES`) | `plan`'s `set.id.as_str()` is `String::as_str`. Its by-name edges had reached every crate's `as_str`. |
+| **S2-RK** (re-key) | S1 rules for code that moved from `lower` into `judge`: the `is_empty` target, the two S1-ZR edges (support and exact-combination refusals), S1-ZS/S1-ID sites (the condition-use diagnostic, now split over lines 393–396, and the test condition's). The removed S1 interim message is dropped from those lists. S1-L1's `4*z` findings bound moves to `judge`'s `iter:diagnostics: found.into_vec().into_iter().map`, placed first. Bounds and premises are unchanged. |
+| **S2-ID** (`O10_ID_AUDIT`) | Unreached format arguments: a JCS id or key is ≤ 2 + 6·128 B; `what` is the longest of `resolve_case`'s four static suffixes (20 B). |
+| **S2-JD** (owner, `s1_owners_model.py`) | A document refused by its findings now converts them with a collect into `judge`'s own `Vec<Diagnostic>`, before `lower` extends its caller's vector. Diagnostic (144 B) is larger than Finding (112 B), so the collect cannot reuse the Finding backing. The exact-size backing of ≤ 4z Diagnostic (S1-L1) is charged in S1-VW at z ≥ 1, beside the findings. The caller's single exact reserve is no larger than S1's push growth. Bound to the module bytes and the exact conversion statement. |
+
+SD-L1's closed-record list adds `WindGenerationWire` (five members). The model
+root stays the largest record. Snapshot keys whose text is unchanged move with
+the wind block: PP `lib.rs` +49 after line 945 (B7a domain and scoped-TEXT keys,
+owner-choice helpers, phase/T25 callers, returning-error owners). The carried
+`_X` emitter's only change is `retained_w1`'s key 4044 → 4093
+(`d6c252a2…`). Historical preimage keys keep their historical lines.
+
+**Graph and comparison.** The candidate prices with exit 0 on all four points.
+No point has an unmapped header or an unclassified argument, and both O-10
+checks are clear. D is unchanged: L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237
+and E 76,356. The line map is the predecessor's entry for entry (880 keys, 37
+prunes, seven resolutions). In the normalized heap-pricing graph only `judge` and `plan`
+gain multiplicity (1 each). No existing function's multiplicity changes.
+`resolve_case` executes once per case, including `Option::as_ref`, then returns
+before heap work on D1. Its zero allocation-edge multiplicity does not mean the
+runtime call or stack frame is absent. The rounding helpers and preview are
+not called on this path.
+
+`compare <candidate> <predecessor>` gives equal structure: **1,596 coefficients
+equal, none higher and six lower**. The six are `TAV_W[1]`, `TAV_X[1]`, their
+`success__` copies and `TAV_text_requested`/`_moving`, each −3,990,536 B. This
+is §8.36's known short-key over-bound going away. The +49 carries PP `lib.rs`'s
+formation-report aggregate key from 1662 to 1711, so
+`primitive_loads/src/lib.rs:1662` is charged its own 764 B. PP's report keeps
+its 1,996,032 B per call. A short-key audit of every site, size, aggregate,
+lexical, total, from and audit key against all reached rows finds that
+collision on the predecessor and none on the candidate. The unmerged L(2,1) and
+L(1,2) also gain S2-JD's 4 and 8 `s(Diagnostic)`.
+
+**Native layout and evaluation.** S2 moves one in-build atom:
+`s(PreviewLoadCase)` 672 → 680 B (`WindGenerationInput`'s two `bool`s inside
+`Option<EquivalentStaticGenerationInput>`). The predecessor tree, evaluated at
+the candidate's 328 collected atoms with only that atom at 672, reproduces all
+16 `PINNED_RECORD` phases. With the registered block unchanged, the candidate's
+in-build record rises by +24 B (W1–W5, X2, X3) and +48 B (X1, two typed copies)
+in both modes. The two old expectations tied to that record failed at `bf59efa95`:
+`profile_in_build_record` and `challenge_bounds_are_the_profile`; the other 69
+retained-memory law tests passed. The re-derived `PINNED_RECORD` adds 24 B
+to every phase except X1, which adds 48 B. Challenge W1 is
+[6,602,964,678, 6,662,096,022] and MAX is [8,899,142,475, 8,958,273,819],
+all without R. At `34c25044e`, all 71 retained-memory law tests and all 17 S2
+integration tests pass on the selected native build, including the two amended
+expectations and the actual 680 B atom.
+
+The proposal, maintained `generate` output with basis
+`, re-run as RT-G5 S2 at 064dc8bb9 (§8.40): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`,
+is a scratch file with SHA-256
+`74a960dbc980186c75d9ba450754c92d960880391b5ddd95f8345ad6ee30e44f`. It has 328
+atoms, 100 forms and 26 SourceUpper. It differs from the registered file only in
+the basis, the two TAV text atoms, the four TAV form constants and
+`PYTHON_CHECK`. Identity, reviewed inputs, layouts and threshold are unchanged.
+
+All 80 native evaluations, using the S1/§8.31 combination supplement for z ≥ 1,
+fit at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and the
+upward-rounded 5 % TEXT reserve:
+- **Proposal.** Merged W3 E + R is 8,962,260,803 B sparse and 9,021,392,147 B
+  dense. The W/X reserves are 255,142,980 / 275,814,406 B, and the tightest
+  headroom is dense W3 at **+2,319,876,572 B**. Each point's tightest is dense
+  W3: L(3,0) +2,924,681,438, L(2,1) +3,553,502,263, L(1,2) +4,457,156,151 and
+  E +2,405,827,373 B.
+- **Registered block kept.** The tightest is +2,315,686,509 B, 24 B below
+  §8.38's.
+
+**Stack consequence.** The retained-reachable stack changes. In the registered
+debug configuration's library test binary, the frames are:
+
+| Frame | Size |
+|---|---:|
+| `lower` | 480 B |
+| `judge` | about 1,840 B |
+| `plan` | about 800 B |
+| `resolve_case` | 10,064 B (including 32 B saved-register prologue) |
+| `apply` | about 592 B |
+
+`resolve_case`'s frame is entered once per case on D1, sequentially. The
+observed live `lower`/`judge`/`plan`/`resolve_case` frames total 13,184 B before
+additional callees; their return slots and locals occupy those frames. `apply`
+runs later below `lower`, after the judge/plan/resolve frames return. These are
+current-binary frame observations, not an incremental predecessor comparison
+or a whole-chain bound. The six source-bound witnesses below establish the
+required observed stack outcomes, without turning these frame observations
+into a whole-chain bound.
+
+**Chosen standing and independent scrutiny.** Agent 0 directs conservative
+carry of the unchanged registered coefficients, including the approved
+3,990,536 B allowance. This follows the maintained README's `a_le_b` rule:
+the current source-derived tree is coefficient-wise bounded by the adopted
+block. All 80 candidate point/phase evaluations, including S2-JD's L21/L12
+owners, also lie below the corresponding kept merged phases at actual atoms.
+The kept W/X reserves are 255,342,507 / 276,013,933 B. The native layout increase
+is real: this carry is not a zero-memory-change claim.
+
+Reproduce the kept block with the exact predecessor `4cf32bfd4` tool cohort,
+its complete run and the adopted §8.38 basis, then `generate --check` against
+the unchanged registered file. Run the current source with this S2 tool and
+compare its merged tree against that reproduced predecessor tree (`a_le_b`
+true, equal structure); evaluate both at current native atoms, and confirm
+all 80 points are bounded by the kept merged phases/reserves. The lower
+proposal is only comparison evidence. Its generated output does not equal
+the kept block. No generated constant is manually selected or overwritten;
+all thirteen reviewed-input files and reader-layout declarations are unchanged.
+
+Independent GPT-6 Astra at medium effort reviewed exact `bf59efa95`, freshly
+reproduced all four candidate points and the comparison, checked the unchanged
+predecessor tool/generator binding and native integer evaluations, and found
+no omitted positive heap owner or method issue with this carry. It passed 25
+focused S2/modal tests and reused the reported broader suites explicitly. Its
+native-pin completion gap is addressed by the derived expectations above; its
+stack-frame and allocation-abstraction wording corrections are applied here.
+This scrutiny does not supply stack qualification or merge readiness.
+
+**AC-004 and isolated challenge (2026-11-02).** Agent 0 cleared exactly six
+prebuilt witnesses and one isolated challenge process in one bounded window,
+with 55 seconds internally and 60 externally, no builds and no retries. The
+clean candidate was `34c25044e58358dc4336d3f4d7ecb5db7ea2fdbd`; production source
+is unchanged from `064dc8bb9`. The prebuilt library test binary
+`open_pipe_stress_product_physics-fbca7a87862453fd` has SHA-256
+`73d1ca1298d9f202e1229aa5c2d667bef3a7bf8a8095d5032337994edc165c4c`;
+`retained_memory_challenge-b12eb53242e0f3d4` has SHA-256
+`4165cc77a5253223d5569e461f0a8f51d8d90167a884733aaf0e1c5f913a9778`.
+The candidate, both binaries and the unchanged entire profile file (`8cd8fcf3…`)
+were verified before execution. The amended native laws passed 71/71.
+
+`t3_exclusive.sh` held all four slots under memguard. Request was
+10:28:26.337145 UTC; the acquired script began at 10:28:26.410814 UTC, so the
+approximately 0.074-second queue interval is separate from execution. Execution
+ended at 10:28:40.701548 UTC after 14.291 seconds; the wrapper logged
+`END-EXCLUSIVE rc=0` at 10:28:40 UTC and released immediately. All seven child
+processes were reaped. At 10:28:55 UTC the pending marker was absent and all four
+lock files had no owner. No ordinary build ran during this acquired window.
+Each witness was its own exact ignored test process with one test thread:
+
+| Witness | Sparse | Dense |
+|---|---|---|
+| W1 at 1 MiB | passed | passed |
+| W2 deep (4 MiB and 1 MiB) | passed | passed |
+| W-C2 (4 MiB and 1 MiB) | passed | passed |
+
+The seventh process, `retained_direct_peak_is_within_the_profiles_bounds`, passed
+four allocator observations; it is one test process, not seven challenge cases:
+
+| Input | Mode | Peak requested bytes | Kept bound, without R |
+|---|---|---:|---:|
+| milestone | sparse | 3,807,283 | 8,899,142,475 |
+| milestone | dense | 2,144,036 | 8,958,273,819 |
+| W-C2 | sparse | 7,126,028 | 8,899,142,475 |
+| W-C2 | dense | 7,127,015 | 8,958,273,819 |
+
+All four published successors. The 16 GiB abort cap, M and reserve policy were
+unchanged. Durations establish completion within the cleared window, not
+performance qualification. These are local source-bound witnesses, not native
+App, acceptance or release evidence.
+
+**Integrated-main bindings (2026-11-02).** Between integrated main `4cf32bfd4`
+and candidate `34c25044e`, whose sources equal `9d8cf5820`'s, the frozen-input
+comparison found no difference in 876 comparisons (949 files, 438 requests,
+both modes). At `9d8cf5820` all three desktop engines were rebuilt from
+re-derived stamps, and the operation engine's preview equals the native preview
+on all 14 parity inputs (DEL-02-01 Work `model-document-0.9.0.md` §10). The
+CI-selected Python suite found no stale build-bound carrier, so none was
+regenerated.
+
+**Still open.** Exact-head hosted checks.
+
+Maintained tests: 870 pass, including `tests/test_840_rt_g5_s2.py`. The named
+proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:
+`proposal/retained_memory.rs`, `run-cand/`, `run-base4cf/` and
+`eval80-*.json`. They are review inputs, not permanent dependencies.
+
+### §8.41 RT-A3 reducer 2b: the W-15c pressure step (proposal A adopted)
+
+**Status.** Registered: proposal A (below) is adopted. Agent 0, 2026-11-02,
+under the owner's removal of explicit owner approval for coefficient movement
+(source-derived pricing, independent scrutiny and preservation remain
+required): "Approve exact proposal A SHA
+755108238ce1b94add0a76106df6b0fb7e12fb484ba5e964a91925861502c6d1 (+286
+STATICS, kept TAV allowance), based on reported independent review and
+prospective preservation; revalidate exact identity/current basis, apply with
+maintained generation, reproduce overlays and selected-head tests." The
+paragraphs from "Source" to "Prospective retained-output verification"
+record the proof that preceded the decision; "Adoption" records what was
+done on the selected head.
+
+**Source.** Reviewed reducer 2b (`49a71c41f`) merged normally with integrated
+main `2b743781a` (S2 on §8.39/§8.38) as `8ef5b1ef9`. Production changes are
+exactly 2b's `exact_admission.rs`, `pressure_runtime.rs` and
+`rigid_component.rs`; this change adds only the pressure-2 table's restated
+admitted-families limitation (+286 serialized bytes; rows, signatures, units
+and numbers unchanged), the inherited physics-retained table's parent digest,
+the two `result_export` hash constants and the carriers below. The priced
+revision is `0add60cac`.
+
+**D1 premises.** D1.4 admits no component (P2) and D1.5 leaves route E's
+regions `Some([])` and route L's absent. `reducers_in_regions` therefore
+returns before (L) or iterates no region (E); its component loop, the lazy
+reducer-body set and `step_topology` are not entered. `refuse_reducers_outside_step`
+is entered once per exact case, but the loop over that empty result runs
+zero times, so `pressure_step_run_evidence` (its `Topology::of`, `judge_reducer`
+and axis `Vec`) and the extracted `step_end_directions`/`step_end_passes_through`
+are not called. `judge_all` keeps W15C-NO's first-pass return; its body now
+collects `judge_reducer`'s outcomes (moved, unchanged) and `Topology::of` reads
+its mapping table from the extracted `member_mappings` (the same loop). No
+retained owner, lifetime, carrier, layout or reachable TEXT site is added. The
+identity grows 2,321 → 2,467 B and the reducer refusal text grows; the refusal
+keeps multiplicity zero (as in §8.38).
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **2B-PIN** (guard) | Full-file pins re-read after the diffs: B7a domain (`exact_admission.rs` `35122b23…`, `pressure_runtime.rs` `59774c3e…`, `semantic_contract.rs` `d5b41586…`, `retained_precision.rs` `da8b0fb9…`), W1 reductions (`retained_precision.rs`), W15 (`rigid_component.rs` `e8095fe5…`); batch 5's production prefix `0ba7ea7e…`. The two `result_export` files change only their table-hash constants. |
+| **2B-KEY** (re-key) | Scoped `problem` parents carry with unchanged text: `refuse_reducers_outside_step` 1864 → 1882 and `collinear_run` 1917 → 1959 (2b's W-15c branch and the extracted direction helpers precede them). |
+| **RTA3R2B-NZ** (owner guard, `w15_owners_model.py`) | W15's statements count the second `Topology::of`, `member_mappings`' two callers, its one mapping table and the axis `Vec`. `pressure_step_run_evidence` and `reducer_body_members` each have exactly one caller in product_physics' sources, after the D1-empty loop header in the one calling function (`for reducer in exact_admission::reducers_in_regions(model, case)`, `for component in model.components.iter().filter(…Reducer)`). The supplementary guard checks listed spellings, counts and header-before-call order; it does not establish loop containment. Full-file pins and source review establish the D1 exclusion. Mutation tests (`tests/test_841_rt_a3_reducer_2b.py`) reject the tested added calls or movement before the header, the renamed loop and the third `member_mappings` caller, including the test's restated module pin. |
+
+**Run and graph.** The committed tool prices `0add60cac` on all four points
+with exit 0, no unmapped header or unclassified argument and both O-10 checks
+clear. D is unchanged (L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237, E 76,356).
+The line map's outputs equal main `2b743781a`'s entry for entry (880 carried
+keys, 37 prunes, seven resolutions; no prune or resolution differs), so no
+bound is dropped for an extracted helper. The name graph gains exactly the
+seven new functions (`member_mappings`, `reducer_body_members`, `body_ends`,
+`judge_reducer`, `pressure_step_run_evidence`, `step_end_directions`,
+`step_end_passes_through`); every function multiplicity is unchanged and none
+of the seven has one. The five new `to_string` sites (W-15c's refusal details
+in `pressure_step_run_evidence`) have multiplicity zero; positive-multiplicity
+sites are unchanged at every point. TEXT rises by 876 B requested and moving
+at every point: six charged copies of the 146 B longer identity (U6-J4).
+
+**Comparison against both baselines.** Main `2b743781a` with the same tool
+reproduces the S2 source-only tree (1,602 equal). Against it the candidate has
+**1,594 equal, eight higher, none lower**: `STATICS[1]` and its success copy
++286 B (the table limitation), `TAV_W[1]`, `TAV_X[1]`, their success copies
+and `TAV_text_requested`/`_moving` +876 B. Against the kept registered bound
+(§8.38's block, reproduced by `generate --check` from the §8.40 predecessor
+tree with §8.38's basis) it has **1,594 equal, two higher, six lower**:
+`STATICS[1]` and its success copy +286 B; the six TAV coefficients are
+3,989,660 B below (the kept 3,990,536 B allowance less this identity's 876 B).
+`a_le_b` is false, so §8.40's conservative carry rule is not met and the
+registered block no longer bounds the head coefficient-wise.
+
+**Native atoms and evaluations.** The lib-test binary built after `fc7873bd8`
+(production sources equal to `0add60cac`; SHA-256 `ccebe566…`; rustc 1.97.1,
+debug, opt-level 0) passes all eight `profile_` law tests and
+collects 328 in-build atoms, equal to 2a's except S2's
+`s(PreviewLoadCase)` 680 B. The z ≥ 1 combination supplement (Node(String,
+BTreeMap) 648, CombinationView 120, TermView 16, Finding 112,
+(String,&str,Operand) 56, (&str,String) 40 B) is reused: the four type
+definitions are byte-identical to §8.36's measured source `867c63ec8` under the
+same rustc. Maintained `tree_eval` evaluates all 80 point/mode/phase
+combinations at M = 12,884,901,888 B, ⌊0.9M⌋ = 11,596,411,699 B, R = 64 MiB and
+the upward-rounded 5 % TEXT reserve:
+- **Candidate (source-derived).** All 80 fit. Merged W3 E + R is
+  8,962,261,965 B sparse and 9,021,393,309 B dense; W/X reserves
+  255,143,024 / 275,814,450 B; tightest dense W3 +2,319,875,366 B. Per point,
+  dense W3: L(3,0) +2,924,680,232, L(2,1) +3,553,501,057, L(1,2) +4,457,154,945,
+  E +2,405,826,167 B. Every one of the 80 lies at or below the kept block's
+  merged phase at the same atoms.
+- **Kept block.** Merged W3 E + R 8,966,251,339 / 9,025,382,683 B; reserves
+  255,342,507 / 276,013,933 B; tightest +2,315,686,509 B (as §8.40).
+- **Proposal A (below).** Every merged phase +286 B over the kept block;
+  W3 8,966,251,625 / 9,025,382,969 B; reserves unchanged; tightest
+  +2,315,686,223 B.
+
+**Proposals.** Both are maintained `generate` output
+on a copy of the unchanged registered file, outside the checkout, with only
+reviewed inputs #8 (physics-retained-1, `cf29fd5f…`) and #11 (pressure-2,
+`a2db16a5…`), counted from 0, rebound and a registration comment; identity,
+the other eleven inputs, layouts and threshold are unchanged.
+- **A, minimal conservative bound (recommended).** `lib/merge_trees.py` of the
+  kept tree and the candidate tree: the kept coefficients except `STATICS[1]`
+  and its success copy (+286 B), keeping the 3,990,536 B allowance's unused
+  3,989,660 B. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/A/retained_memory.rs`,
+  SHA-256 `755108238ce1b94add0a76106df6b0fb7e12fb484ba5e964a91925861502c6d1`.
+  Its comment and generated basis name the pointwise maximum explicitly;
+  proposal status lives here rather than in a comment that would become stale
+  immediately upon exact-byte adoption. This wording correction changes no
+  coefficient, input binding or evaluation.
+- **B, source-derived (comparison only).** The candidate tree itself: six TAV
+  coefficients 3,989,660 B lower, `STATICS[1]` +286 B. It drops the kept
+  allowance and is not recommended. File `/private/tmp/rt-a3-2b-d3-8ef/proposals/B/retained_memory.rs`,
+  SHA-256 `b30c3273bde3c0e58048f85d5a9b6d4da68121dc336e3ad48df3a3830e4e5f42`.
+- **Wording alternative.** The +286 B is entirely the restated table
+  limitation. A disclosure no longer than 2a's would leave every coefficient
+  bounded (`a_le_b`), so only the #8/#11 rebinding would remain; that wording
+  choice was not taken; proposal A was adopted (Status).
+
+Whichever is chosen, adoption changes `retained_memory.rs` and the derived law
+records (`PINNED_RECORD` and challenge W1/MAX: +286 B per phase under A) and
+needs a rebuild. Before adoption the selected branch was `Stale`; its retained writers
+cannot emit successors, and its AC-004 witnesses would exercise the declined
+route. That gate is not waived by the prospective verification below.
+
+**Prospective retained-output verification (not adoption).** A separate
+manager-owned source snapshot tests exact A on `330dde049`, with explicit
+test-only capture and prospective pin/law overlays. Both its pinned build
+identity and all thirteen input bindings match; its Direct entry reports
+`Registered` in both modes. Baseline `2b743781a` with the same test-only
+capture reproduces the old pins. There are ten in-memory successors, not
+eight: EXACT and MIX have two modes each, TWO_MEMBER has four entries
+including reversed order, and UNAVAILABLE has two. Independently resealing
+the reviewed identity back to 2a's text and reversing only the resulting
+publication/receipt digests restores every raw baseline byte and old pin.
+Invocations, number tokens, rows, order, diagnostics, metadata, selection and
+status are unchanged. Maintained writers regenerate the ten retained
+carriers in that snapshot; the guarded corpus, derivative and RV120 checks
+pass. The reader-outcomes fixture is also regenerated and now belongs to the
+2b retained preservation guard: keys, readings and verdict summaries remain
+unchanged. Of 938 entries, 59 change their input digests and 89 successful
+outcome-JSON hashes move. Independent Python materialization and validation
+reproduce the 118 endpoint input hashes and 178 changed successful
+outcome-JSON hashes. Unchanged native error readings are protected exactly;
+this does not assert Python/native error-detail parity. These conditional
+results establish the proposed output delta;
+they do not claim that the selected branch's declined route has passed.
+
+The raw source/overlay/binary provenance and comparisons are in
+`/private/tmp/rt-a3-2b-prospective-proof/`. The snapshot's prospective law
+records pass the 71 law tests. Retained facade, result-export and report
+checks pass with their preservation-derived pins. Comparing the original
+22 failure names with the rebuilt and prospective logs finds every one in
+the prospective passing results; the selected rebuilt source passes fourteen
+and its remaining eight still hit the unadopted-input gate. Vitest pin checks and the
+native allocation-challenge executable remain unrun in this experiment; no
+stack, timing, heap-peak or RSS qualification is claimed. The selected
+profile and law/challenge files were then unchanged; "Adoption" records the
+rebuilt selected head.
+
+**Adoption (`codex/rt-a3-reducer-2b`, on `4e1972698`).**
+- **Basis.** Main has not changed a priced path since this branch's merge base
+  `2b743781a` (no change under `core/product_physics`, `core/reporting`,
+  `core/solver`, `core/loads`, `core/numerics`, `tools/retained_pricing`,
+  `schemas` or `fixtures/results` through main `b921104d4`). The committed tool
+  prices `4e1972698` with exit 0 on all four points, O-10 clear; against
+  `run-final` (priced `0add60cac`) it has the same structure and all 1,602
+  coefficients equal (identical but the basis), the same prunes and
+  resolutions.
+- **Profile.** `retained_memory.rs` is proposal A byte for byte (SHA-256
+  `75510823…c6d1`). Maintained `generate` of the pointwise tree
+  (`proposals/tree_A_pointwise.json`) with A's basis text reproduces the
+  committed block (1,713 lines, empty diff). Against the head's re-priced
+  candidate tree, A is `a_ge_b`: 1,596 coefficients equal and six higher, which
+  are exactly the kept TAV allowance (TAV_W[1], TAV_X[1], their success copies
+  and the two TAV text atoms, each 3,989,660 B).
+- **Derived records.** `PINNED_RECORD` and the challenge's `W1_PHASE_BYTES`
+  [6,602,964,964, 6,662,096,308] and `MAX_PHASE_BYTES` [8,899,142,761,
+  8,958,274,105] equal maintained `tree_eval`'s proposal-A record at the 328
+  collected atoms (`proposals/derived_law_records_A.json`): +286 B in every
+  phase and mode.
+- **Overlay.** The prospective snapshot's pin, carrier and fixture overlay is
+  applied except its test-only capture test, which is not committed. With it:
+  `product_physics` lib tests 1,032 passed, 0 failed (the 22 queued failures
+  and the native law tests included); the retained Python and preservation
+  guards (`test_retained_precision_b3.py` and the three text-only envelope
+  guards) 845 passed; the desktop `retainedPrecisionResultExport.test.tsx`
+  22 passed, which the prospective experiment had left unrun; the default
+  `retained_memory_challenge` 1 passed; result_export's
+  `retained_precision_contract` 88 passed (the reader-outcome and RV120
+  carriers included) and `retained_precision_derivative_golden` 6 passed.
+
+**Stack.** Static prologues in the current lib-test binary (no predecessor
+binary was available for a delta; no whole-chain claim): entered on D1,
+`reducers_in_regions` 1,088 B, `reducer_region_refusals` 352 B and
+`refuse_reducers_outside_step` 704 B; `validate_profile` 3,872 B and
+`assemble_pressure_case` 7,280 B. Not entered on D1: `step_topology` 896,
+`pressure_step_run_evidence` 3,056, `member_mappings` 1,008,
+`reducer_body_members` 240 + 160, `judge_reducer` 864, `body_ends` 64,
+`judge_all` 448, `step_end_directions` 416, `step_end_passes_through` 304 and
+`step_end_is_collinear` 208 B. The six AC-004 stack-headroom witnesses
+passed **6/6 at `c8b04254b`** (binary SHA-256 `b935bfae…11f9`, profile
+`75510823…c6d1`, rustc 1.97.1), in one Agent 0-cleared exclusive run of
+`python3 tools/release/check_release_readiness.py --profile stack-witnesses --execute`
+under `t3_exclusive.sh` with memguard: queued 2026-11-03T02:35:20Z, acquired
+02:35:53Z, ended and released 02:36:03Z (10 s with teardown), one process per
+test at `--test-threads=1`, nothing compiled inside. Sparse and dense:
+`witness_headroom_w1_at_one_mebibyte` ok (0.67 s) and ok (0.66 s),
+`witness_w2_deep_milestone_publishes` ok (1.32 s) and ok (1.32 s),
+`witness_w_c2_publishes` ok (2.48 s) and ok (2.47 s). This is test evidence,
+not an acceptance.
+
+**Maintained tests.** `tools/retained_pricing/tests/test_841_rt_a3_reducer_2b.py`;
+the I1 seam and S2 mutation warrants (`test_dynamics_d3.py`, `test_840_rt_g5_s2.py`)
+are unchanged. Run evidence is under `/private/tmp/rt-a3-2b-d3-8ef/` (run-final,
+native atoms, `eval80-candidate-final.json`, proposals); it is review input, not a
+permanent dependency.
+
+### §8.42 RT-U4 `u4b_evidence::Index::any`: the component-free station lookup (actual-source D3)
+
+**Status.** Proposed registration (Agent 0's D3 release for #95, 2026-11-03),
+under the owner's removal of explicit owner approval for coefficient movement;
+source-derived pricing, independent scrutiny and preservation of the
+registered state remain required. This records no acceptance.
+
+**Priced source.** The candidate is `92a6f81ff`: #95's reader repair merged
+normally (`--no-ff`) with RT-A3's reviewed #80 candidate `ecca6e07d`
+(reducer 2b, §8.41, on main `2b743781a`). Against that predecessor the only
+priced source change is RE `u4b_evidence.rs`:
+- `Index` gains `first`, a `OnceCell` holding the map `Index::any` builds on
+  first use: per slot without its component, the first row of `rows` in that
+  map's own iteration order. That is the row the replaced linear scan returned,
+  because `rows` is not changed after `new`, so every lookup returns the same
+  row and value. `any` was O(rows) per lookup, O(rows × stations) per reader
+  pass.
+- Three test-module lines at the end of the file declare
+  `u4b_evidence_any_tests.rs` (the old scan against `any` on the same Index),
+  outside U4B-RD's pinned span.
+
+The other branch changes are the #49 follow-up's tests and invariant comments
+in `exact_combinations.rs` (no production line), routing digests, and this
+tool's U4B-RD rule. The registration commit changes only
+`retained_memory.rs`'s generated block and registration comment, the derived
+law records and this text. The tool's pins on `retained_memory.rs` (B7a's
+admission prefix and late bodies, batch 5's bodies) exclude those parts, and a
+`run` of the registration commit's source (the tool's snapshot omits
+`execution/`) gives the candidate's tree, identical but the basis (1,602
+coefficients equal).
+
+**Route and multiplicity.** `Index::any` is called by `member_stations` in the
+preview and route E base reads and by route L's `preview_model_checks`, the
+three Indexes U4B-RD prices (T17 V5, G7). `directional_model_checks` builds an
+Index but never calls `any` (and realized arcs are absent on D1, P2). The
+lazy map's loop runs once per Index, over `rows`, inside the closure; it adds
+no unmapped loop header, unclassified argument, TEXT site or call-graph rule.
+U4B-RD's owner text (§8.8, positive owners) states the new owner:
+- **Entries:** one per component-free slot, at most the row index's entries.
+- **Growth:** push-grown from `HashMap::new`, with its previous table live
+  during its last resize (HashMov).
+- **Stride:** its entry (five `&str` and a `&Value`) is no larger than the row
+  index's (six `&str` and a `&Value`), so it is charged at `s(U4bSlotEntry)`
+  with no new layout symbol.
+- **Lifetime:** held with the Index. Built after `new` returns, when the row
+  table's previous table is already freed.
+
+So each Index is charged `HashReq(U4bSlotEntry, rows) + HashMov(U4bSlotEntry,
+rows)` in place of `HashMov(U4bSlotEntry, rows)`. `INDEX_PIN` follows the span
+(`b0d3074d…` → `334a2213…`); the other U4B-RD body pins are unchanged. A
+`HashMov(…) * 2` bound would also hold, but it charges the row table's previous
+table, which is never live beside the map.
+
+**Comparison basis.** The predecessor is `ecca6e07d8e8ba09471d6cf5a53bbf69351c6838`.
+Its own committed tool (a scratch copy of its `tools/`, `run ecca6e07d --repo`)
+prices it with exit 0 on all four points, O-10 clear. Its registered block is
+§8.41's proposal A. `lib/merge_trees.py` of the kept §8.38 tree (reproduced
+from `4cf32bfd4` with that revision's tool cohort) and the predecessor's tree,
+with §8.41's basis line, gives a tree whose `generate --check` against
+`ecca6e07d`'s `retained_memory.rs` (SHA-256 `75510823…c6d1`) is equal
+(1,713 lines, an empty diff).
+
+**Run and comparison.**
+- **Run.** This branch's tool prices `92a6f81ff` with exit 0 on all four points,
+  no unmapped header or unclassified argument, both O-10 checks at zero.
+  D is unchanged: L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237, E 76,356.
+- **Line map.** The predecessor's entry for entry: 880 carried keys, 37 prunes,
+  seven resolutions; no prune or resolution differs.
+- **Against the predecessor's source-derived tree:** structure equal, 1,598
+  coefficients equal, **four higher, none lower**; the merged check is unchanged
+  (sparse 8,744,976,026 B, dense 8,804,107,370 B).
+- **Against the predecessor's registered tree (proposal A):** 1,592 equal, four
+  higher, six lower. `a_le_b` is false, so the registered block no longer
+  bounds the head and the block is regenerated (README "Reading a profile
+  change", step 3).
+
+**Moved coefficients.** At the D1 caps the envelope rows give buckets(rows) =
+16,384 slots, with a previous table of 8,192:
+
+| Coefficient | Predecessor | Candidate | Change | Source |
+|---|---:|---:|---:|---|
+| `T17_V5[s(U4bSlotEntry)]` | 73,728 | 122,880 | +49,152 | three Indexes × 16,384 slots of the map's final table (its previous table is already in each Index's HashMov) |
+| `T17_V5[1]` | 622,752,135 | 622,801,356 | +49,221 | three × (16,384 control bytes + 8 + 15) |
+| `success__T17_V5[s(U4bSlotEntry)]` | 73,728 | 122,880 | +49,152 | the same owner in the success copy |
+| `success__T17_V5[1]` | 622,752,135 | 622,801,356 | +49,221 | the same owner in the success copy |
+
+**Dropped allowance.** Plain `generate` of the candidate tree drops §8.40's
+kept 3,990,536 B allowance, of which §8.41's block still carried 3,989,660 B.
+Six coefficients fall by 3,989,660 B against the registered block:
+- `TAV_W[1]` 5,106,850,124 → 5,102,860,464 B, and the same change in its
+  success copy;
+- `TAV_X[1]` 5,520,278,642 → 5,516,288,982 B, and the same change in its
+  success copy;
+- `TAV_text_moving` 7,443,195,340 → 7,439,205,680 B;
+- `TAV_text_requested` 7,440,594,640 → 7,436,604,980 B.
+
+No generated constant is selected or overwritten by hand. `PYTHON_CHECK` is
+(8,677,867,162, 8,736,998,506).
+
+**Native atoms and evaluation.** The lib-test binary of `92a6f81ff`
+(rustc 1.97.1, debug, opt-level 0, no RUSTFLAGS) collects 328 `I65_G5_ATOM`s.
+`s(U4bSlotEntry)` is 104 B. Maintained `eval` at those atoms, with R, gives:
+
+| Tree | Mode | W3 (maximum) | W4 | Other phases |
+|---|---|---:|---:|---|
+| Predecessor registered | sparse | 8,966,251,625 | 8,754,412,052 | |
+| Predecessor registered | dense | 9,025,382,969 | 8,813,543,396 | |
+| Predecessor source tree | sparse | 8,962,261,965 | 8,750,422,392 | |
+| Candidate | sparse | 8,962,261,965 | 8,755,583,421 | as the source tree |
+| Candidate | dense | 9,021,393,309 | 8,814,714,765 | as the source tree |
+
+Only W4 moves: +5,161,029 B (49,221 + 49,152 × 104) in both modes over the
+predecessor's source tree. Against the registered block, W4 rises by
+1,171,369 B and every other phase falls by 3,989,660 B. W3 stays the maximum
+in both modes. The policy (M = 12,884,901,888 B, ⌊0.9M⌋, R = 64 MiB and the
+upward-rounded 5 % TEXT reserve) is unchanged and the law tests pass on it.
+
+**Profile and re-pins.**
+- **Block.** Maintained `generate` output with basis
+  `, re-run as RT-U4 Index::any at 92a6f81ff (§8.42): the maximum over routes L (C_eq <= 3, worst shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.`
+  (1,712 lines). `generate --check` against the candidate tree is equal.
+- **`REGISTERED_PROFILES`.** Only its registration comment changes. The build
+  identity, all thirteen reviewed inputs, the reader layouts and the threshold
+  are unchanged.
+- **Law records.** With the regenerated block, only `profile_in_build_record`
+  and `challenge_bounds_are_the_profile` fail (82 other `retained_memory` lib
+  tests pass). Their values are re-pinned from the in-build record (requested
+  + moving, without R), which equals maintained `eval` less R:
+  - `PINNED_RECORD` sparse: 6,598,975,304 · 6,940,969,865 · 8,895,153,101 ·
+    8,688,474,557 · 7,761,341,467 · 8,607,720,260 · 7,339,113,946 ·
+    7,012,403,822 (W1 … X3).
+  - `PINNED_RECORD` dense: 6,658,106,648 · 7,000,101,209 · 8,954,284,445 ·
+    8,747,605,901 · 7,820,472,811 · 8,666,851,604 · 7,398,245,290 ·
+    7,071,535,166 (W1 … X3).
+  - `tests/retained_memory_challenge.rs`: `W1_PHASE_BYTES` [6,598,975,304,
+    6,658,106,648] and `MAX_PHASE_BYTES` [8,895,153,101, 8,954,284,445].
+- **Identity evidence.** On the reader side, before the merge, the main and
+  head runners gave identical verdicts on all 4,672 fixture calls, and
+  identical dispatch, model-bound dispatch and validate bytes on the 82- and
+  250-node linear-ex rack results. `u4b_evidence_any_tests.rs` compares the
+  old scan with `any` on the same Index across 64 hash orders; a last-wins
+  map fails it.
+
+**AC-004 exclusive evidence (2026-11-03).** The coefficients and pinned phases
+move, so the six stack witnesses were re-run. Agent 0 cleared exactly six
+prebuilt witnesses and one isolated challenge process in one window, with
+55 seconds internally and 60 externally, no builds and no retries, for clean
+`bfff92de7bb7dcca26f3308049a024f6b04209f8` (this registration merged with main
+`6757b2341`; production source unchanged from `92a6f81ff`). Both test binaries
+were built beforehand in an ordinary slot at the registered build identity
+(debug, opt-level 0): `open_pipe_stress_product_physics-09388a5f32dfec59`,
+SHA-256 `f7834e34da3c0a578fe038ce2ecbdbb36aa6997c5d85e40a7358a9bdbfe0bdf8`, and
+`retained_memory_challenge-f1737a0bfaa973fc`, SHA-256
+`81a9aa6d761de6161940618c7f47138738ebf5e86a25bed5397fa8cab9bb63b2`. The library
+binary passed the 84 non-ignored `retained_memory` tests, including the profile
+and law tests. Immediately before running, the script verified the clean head,
+the profile file (`41ea88ce…`) and both binaries by full SHA-256, failing closed
+on any mismatch.
+
+`t3_exclusive.sh` held all four slots under memguard. Queue and acquisition were
+both **04:14:47 UTC** (zero-second queue wait); the script ran
+04:14:47.264–04:15:01.166 UTC (**13.902 s**), and END-EXCLUSIVE rc 0 was logged at
+**04:15:01 UTC**. Each test ran in its own process with
+`--exact --test-threads=1` (the witnesses with `--ignored`): W1 1-MiB headroom
+sparse/dense **0.734/0.683 s**, W2 deep sparse/dense **1.344/1.366 s**, W-C2
+sparse/dense **2.582/2.877 s**, and the isolated
+`retained_direct_peak_is_within_the_profiles_bounds` **4.127 s**. All seven
+passed. Afterwards no test or script process remained, no lock slot had a
+holder and `exclusive.pending` was absent.
+
+**Maintained tests.** `tools/retained_pricing/tests/test_u4b_u5b_owners_model.py`:
+the owners model stops on a pre-sized `first`, and U4B-RD charges each of its
+three Indexes 2·buckets + previous slots of the row stride. The run evidence
+(the `run` outputs of `ecca6e07d`, `92a6f81ff` and `4cf32bfd4`, the
+reproduced proposal-A tree, comparisons, native-atom logs and evaluations) is
+in `scratch/rt-perf-index2/` outside the checkout. It is review input, not a
+permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -2043,7 +3055,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.36's candidate source, `867c63ec8`; main `9b0f8f49c`, which prices coefficient-identically to §8.33's source, is reproduced with main's own tool cohort); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.42's priced source, `92a6f81ff`; §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -2127,3 +3139,8 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Bend warnings in `validate_components` re-pin", "§8.34" | §8.34 |
 | "RT-U4 reader bundle: `reader_verdict.rs` content re-pin", "§8.35" | §8.35 |
 | "Model document 0.9.0 actual-source D3", "§8.36" (S1-PIN, S1-BN, S1-NR, S1-RK, S1-HS, S1-L1, S1-ZR, S1-ZS, S1-ID, S1-MS, S1-VW, S1-WH, S1-TS) | §8.36 |
+| "Published-row lookup index after S1", "§8.37" (RTA3B-PS, RTA3B-MR) | §8.37 |
+| "RT-A3 reducer 2a bounded concentric steps", "§8.38" | §8.38 |
+| "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |
+| "RT-A3 reducer 2b: the W-15c pressure step", "§8.41" (2B-PIN, 2B-KEY, RTA3R2B-NZ) | §8.41 |
+| "RT-U4 `u4b_evidence::Index::any`: the component-free station lookup", "§8.42" (U4B-RD) | §8.42 |

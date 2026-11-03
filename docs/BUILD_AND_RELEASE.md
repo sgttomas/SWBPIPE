@@ -19,14 +19,16 @@ refs:
 
 This guide defines the provider-neutral build, packaging, and release-evidence
 skeleton for SWBPIPE. It gives maintainers a reproducible local path for
-collecting software-quality evidence under the ruled CI and v0.1 release
-postures. Publication and later signing decisions retain their own gates.
+collecting software-quality evidence. The current publication goal is the
+[v1.0 release target](RELEASE_TARGET_v1.0.md). Earlier v0.1 packaging decisions
+below retain their historical basis; they do not establish a published release.
+Publication and signing retain their owner-controlled gates.
 
 This guide is not a live CI workflow or a release publication authorization.
 
 ## 2. Current Authority Boundary
 
-Development uses the selected hosted checks aggregated by the required Root
+Development uses this repository's selected hosted checks aggregated by the required
 `harness` job. The blanket DEC-025 pre-push/fan-in sweep is retired. Do not
 repeat a full local suite already covered by hosted checks. Broad checks run
 on demand or for release-candidate assurance.
@@ -43,10 +45,11 @@ on demand or for release-candidate assurance.
   `DEC-025` sweep artifact + the §8 release artifact record still bind the
   artifact to its source revision;
 - no publication act occurs from this guide: packaging (§6) produces a local
-  zip + checksum + §8 record only; the ruled publication target (GitHub
-  Releases on the prospective public sanitized-export repository,
-  `DEC-057`/`DEC-059`) does not exist yet, and any publication is a separate
-  human release-authority act;
+  zip + checksum + §8 record only. The independent public repository
+  [sgttomas/SWBPIPE](https://github.com/sgttomas/SWBPIPE) replaced the prospective
+  sanitized-export route (owner, 2026-10-29; release target RT-V8). Before v1.0,
+  the owner-signed D-20/DEC-058 scan and the other release exit criteria remain
+  required. Publication is a separate human release-authority act;
 - DEC-027 records the sole human project authority as sole maintainer and
   release authority with quorum one; this does not approve a release;
 - no final numerical tolerance, coverage, or performance threshold is selected.
@@ -294,7 +297,7 @@ notarization and the remaining release gates still apply.
 
 ## 7. Hosted verification
 
-The Root `.github/workflows/governance-harness.yml` calls selected product
+This repository's `.github/workflows/governance-harness.yml` calls selected product
 workflows and produces the single required `harness` result. Piping selection
 is defined by `tools/hosted-ci-routing.json` and the numerical/Python selectors.
 Changed numerical crates and consumers get focused oracles; selected Python

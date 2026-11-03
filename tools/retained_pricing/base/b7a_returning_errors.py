@@ -3,6 +3,9 @@
 This table changes allocations per owner call only. It preserves the owner
 multiplicity, content/capacity, scans, numeric work and downstream copies.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import ast
 import hashlib
 import os
@@ -58,13 +61,13 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12053,
+    "line": 12106,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12011:exact_straight_summary_extrema",
-    "short": "lib.rs:12053",
-    "from": "lib.rs:12011:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12064:exact_straight_summary_extrema",
+    "short": "lib.rs:12106",
+    "from": "lib.rs:12064:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5209:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5258:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -72,13 +75,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12059,
+    "line": 12112,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12011:exact_straight_summary_extrema",
-    "short": "lib.rs:12059",
-    "from": "lib.rs:12011:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12064:exact_straight_summary_extrema",
+    "short": "lib.rs:12112",
+    "from": "lib.rs:12064:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5209:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5258:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -86,13 +89,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12722,
+    "line": 12775,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12703:recover_curved_bend_local_forces",
-    "short": "lib.rs:12722",
-    "from": "lib.rs:12703:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12756:recover_curved_bend_local_forces",
+    "short": "lib.rs:12775",
+    "from": "lib.rs:12756:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5209:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5258:solve_prepared_load_case"
     ]
   },
   {
@@ -183,7 +186,9 @@ MODE_SOURCE = {
            # §8.33: only retained_w1 moves 3957 -> 3964.
            "7d9ca35fb9447764ffb3076c5c1cda8525f2b120e4b4bbe863fe2d04f82287f1",
            # Model document 0.9.0 (§8.36): only retained_w1 moves 3964 -> 4044.
-           "05db53622d4f17055f36694281ba1c1096db5fcc6e675ad9f5fe661ac6b945fd"},
+           "05db53622d4f17055f36694281ba1c1096db5fcc6e675ad9f5fe661ac6b945fd",
+           # Model document 0.9.0 S2 (§8.40): only retained_w1 moves 4044 -> 4093 (the closed wind wire precedes it).
+           "d6c252a24716d822a1efc8b3f3cf123927cc1664550656e9634ae6c5f20398cc"},
 }
 
 

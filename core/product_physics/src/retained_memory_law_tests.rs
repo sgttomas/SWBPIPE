@@ -880,10 +880,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1",
+        "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
-        "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf",
+        "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -1983,9 +1983,17 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.36 S1: owner-approved source-derived profile, including the confirmed typed-string
 // correction and conservative short-key allowance; values are the reviewed native evaluation
 // minus reserved stack R. M, the margin and TEXT reserve policy are unchanged.
+// §8.37: owner decision "1A, 2A" approves the reviewed +172,554 B profile.
+// Values derive from maintained tree_eval native evaluations, excluding R.
+// §8.38: owner-approved reducer 2a adds 1,751 B per phase; input #8/#11 rebind.
+// §8.40: keep §8.38 coefficients under the a_le_b carry proof. Actual PreviewLoadCase
+// grows 672 -> 680 B: +24 B per phase, +48 B in X1 (two typed copies), without R.
+// §8.41: proposal A, +286 B per phase. §8.42: the regenerated source-derived block
+// (Index::any's map; the kept TAV allowance is dropped): W4 +1,171,369 B and every
+// other phase -3,989,660 B in both modes, from the in-build record, without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_790_349, 6_944_784_910, 8_898_968_146, 8_687_128_573, 7_765_156_512, 8_611_535_281, 7_342_928_991, 7_016_218_867],
-    [6_661_921_693, 7_003_916_254, 8_958_099_490, 8_746_259_917, 7_824_287_856, 8_670_666_625, 7_402_060_335, 7_075_350_211],
+    [6_598_975_304, 6_940_969_865, 8_895_153_101, 8_688_474_557, 7_761_341_467, 8_607_720_260, 7_339_113_946, 7_012_403_822],
+    [6_658_106_648, 7_000_101_209, 8_954_284_445, 8_747_605_901, 7_820_472_811, 8_666_851_604, 7_398_245_290, 7_071_535_166],
 ];
 
 #[test]

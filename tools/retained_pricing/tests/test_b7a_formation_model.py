@@ -180,7 +180,8 @@ def test_closed_o10_preimages_refuse_arbitrary_missing_or_changed_rule(change):
 
 
 @pytest.mark.parametrize("route", ["L", "E"])
-def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, route):
+def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, monkeypatch, route):
+    monkeypatch.syspath_prepend(str(PRICING / "lib"))  # linemap_lib imports its sibling source_history
     inherited = rules(tmp_path)
     prepared, _ = MODEL["prepare"](SOURCE, inherited, tmp_path / "formed")
     inherited.update(prepared)

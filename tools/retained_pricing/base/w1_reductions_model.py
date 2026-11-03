@@ -8,6 +8,9 @@ after the source diff and its allocation/lifetime consequences are reviewed.
 Stage2's member wire/diagnostic additions preserve the L3 get_mut Value moves;
 their separate positive owners are bound by w1_member_load_model.
 """
+# RT-A3 increment 1b D3 (§8.37), after S1: the four reviewed index call sites add no error path, record,
+# label, TEXT, reduction owner or lifetime. RTA3B-PS/MR price the new index storage. Live keys below follow
+# unchanged source text; historical preimages retain their original identities.
 import hashlib
 from pathlib import Path
 
@@ -79,13 +82,18 @@ RF_PINS = {
 # Model document 0.9.0 D3 (§8.36): lib.rs's new members, closed term wire, lowering and withholding calls, the snubber
 # token, retained_wire.rs's DEF-E hash and preview_physics.rs's test literal change no reduction's owner or lifetime;
 # the L5 guard, shadow, insert and call texts are unchanged.
+# DEL-04-09 dynamics D3 (read 393a11ee7..0468d2ca2): formation_check.rs's only hunks separate frame_matrix's and
+# curved_matrix's section leaves (frame_matrix_with/curved_matrix_with and the FrameLeaves/CurvedLeaves exact-lift
+# impls, B7a LEAF_SEAM). FormationSource.loads stays the Cow (L1a); load_closure, evaluate and the scaled-force
+# children are untouched (L1b, L1c); no Value move, constructor or guard changes (L2, L3, L5). No reduction's owner
+# or lifetime changes.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "0a4d22f4d81b20d68a8add8aca07140887d922b961504dca6295f0267bedd573",
+    "core/product_physics/src/lib.rs": "9488c5040051aebfb386765068ffc5f5e2c893dde5ee8dbea981cfead1c3b867",
     "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
     "core/product_physics/src/certified_publication.rs": "89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
     "core/product_physics/src/preview_physics.rs": "8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b",
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "ac56893815b552074dc4d3acc85ebe4b57579fecd311698729f2bbac225f954a",
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3",

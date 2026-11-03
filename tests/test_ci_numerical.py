@@ -630,6 +630,21 @@ class ReachabilitySafetyTests(unittest.TestCase):
 
     def test_actual_complete_desktop_pr_diffs_retain_every_reader_and_controls_select_all(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
+        # Each selection below is its named direct readers plus every crate that depends on
+        # product_physics, computed from the Cargo graph: a new caller of product_physics joins
+        # without an edited count, and an omitted reader or caller still fails.
+        manifests = ci.readiness.discover_cargo_manifests(ROOT)
+        dependencies = ci.cargo_dependencies(ROOT, manifests)
+        callers = {Path('core/product_physics/Cargo.toml')}
+        while True:
+            enlarged = callers | {m for m, deps in dependencies.items() if deps & callers}
+            if enlarged == callers:
+                break
+            callers = enlarged
+        def readers_and_product_callers(readers):
+            return sorted(set(readers) | {c.as_posix() for c in callers})
+        readers = ['core/product_physics/Cargo.toml', 'core/reporting/report_package/Cargo.toml',
+                   'core/reporting/result_export/Cargo.toml', 'validation/benchmarks/mechanics/Cargo.toml']
         for base, head in [('a467a1f03799f12ebd02df82a0145cfc958f9dcb','c986759b21605293e29383dd2b660ab5acb7c3fb'),
                            ('2844f2b32d4b9f30effc41b4b387a302417697dc','b137b9c46a0a848a9284e5147391641845c83815'),
                            ('e2055cb35fe71af03caae2c386bd8055fb0afd81','a9524745a3227ff229e22bf6aba9b307e0382701')]:
@@ -638,35 +653,39 @@ class ReachabilitySafetyTests(unittest.TestCase):
             plan = hosted_ci.make_plan(ROOT, profile, 'pull_request', mapping[base], mapping[head])
             selected = plan['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'reachability', selected['fallback_reasons'])
-            # #1246 also edits the desktop manifest read by VR's feature guard. Each count includes
-            # DEL-04-05's release timing driver (core/solver/release_timing), which depends on
-            # product_physics.
-            expected = 12 if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else 11
-            self.assertEqual(len(selected['manifests']), expected)
+            # #1246 also edits the desktop manifest read by VR's feature guard.
+            extra = ['validation/benchmarks/numerical_robustness/Cargo.toml'] if head == 'c986759b21605293e29383dd2b660ab5acb7c3fb' else []
+            self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers + extra))
             self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
         for path in ['fixtures/unknown-new-input.json','tools/unknown-new-input.py']:
             selected = hosted_ci.select_paths([ci.PROJECT + path], profile)['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'full-fallback')
-            # 43 discovered crates since DEL-04-05's release timing driver (core/solver/release_timing)
-            # joined the 42 of the MBF engine (core/handoff/caepipe_mbf_engine), which joined the 41 of
-            # the pressure-source join, which added core/numerics/correct_norm.
-            self.assertEqual(len(selected['manifests']), 43)
+            # Fallback must retain every actual crate, including newly added ones,
+            # with neither omissions nor duplicates.
+            discovered = ci.readiness.discover_cargo_manifests(ROOT)
+            self.assertEqual(sorted(selected['manifests']), sorted(m.as_posix() for m in discovered))
         # D8's one current corpus retains its exact reader reachability.
         selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
-        # Ten readers, and DEL-04-05's release timing driver through product_physics.
-        self.assertEqual(len(selected['manifests']), 11)
+        # Its readers, and every caller of product_physics, one of them.
+        self.assertEqual(sorted(selected['manifests']), readers_and_product_callers(readers))
         self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
         # The retired snapshot has no current reader edge; unknown reads stay full.
         retired = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
         self.assertEqual(retired['classification'], 'full-fallback')
-        self.assertEqual(len(retired['manifests']), 43)  # every discovered crate
+        self.assertEqual(sorted(retired['manifests']), sorted(m.as_posix() for m in discovered))
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]
-        for path, python in [('tests/test_persistence_schema.py', 'full'), ('apps/desktop/src/App.tsx', 'not-applicable')]:
+        # A path starts the Python job when a Python test reads it (tools/ci/python_test_reads.py). The derivation
+        # fails toward over-selection, and a test whose reads the code does not show reads every path, so every path
+        # starts it; none of them selects Cargo.
+        for path, piping, python in [('tests/test_persistence_schema.py', 'full', 'full'),
+                                     ('apps/desktop/src/App.tsx', 'full', 'full'),
+                                     ('docs/PRD.md', 'not-applicable', 'full'),
+                                     ('loop/LOOP_INIT.md', 'not-applicable', 'full')]:
             result = hosted_ci.select_paths([ci.PROJECT + path], profile)
-            self.assertEqual(result['modes']['piping'], 'full')
+            self.assertEqual(result['modes']['piping'], piping)
             self.assertEqual(result['modes']['piping-python'], python)
             self.assertEqual(result['modes']['piping-numerical'], 'not-applicable')
             self.assertEqual(result['piping_numerical_selection']['manifests'], [])

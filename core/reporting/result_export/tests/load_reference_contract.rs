@@ -284,22 +284,25 @@ fn current_inputs_table_and_schema_are_pinned() {
     // limitation (identity bytes only).
     // RT-A3 increment 1 (DEL-04-07 pressure-contract.md, "Tees and pressure junctions"): again for
     // the pressure-2 identity limitation (identity bytes only).
+    // RT-A3 reducer 2a: re-derived from the maintained producer outputs; only
+    // limitation[0] changed, as the strict fixture-preservation test verifies.
+    // RT-A3 reducer 2b: again limitation[0] only (the 2b preservation test).
     for (name, digest) in [
         (
             "connected-sparse",
-            "b5762e5f468136ee80b0d16bd043376e704d456249dc673ea1e09e9f9d6ed0cb",
+            "fb6fe9ef256d361a0037670bfb1733237c4826c564be374988218ce094efc0ef",
         ),
         (
             "connected-dense",
-            "ba81526fe2813eb9664661beecd4a05741b8183923e477ceee048b60be52a350",
+            "6b347f8632bd05b8389f9f0b417722a1e4e39af00c6ad40cac95237f0c218c33",
         ),
         (
             "pressure-sparse",
-            "3ef9c24af2602d055f68a473f27726f556ce4153f5595819e5da5dace509807c",
+            "100ba08a25c3fc7844cd8cfbffddb18d4a302b1284f32cd734f4a26fe75c767e",
         ),
         (
             "pressure-dense",
-            "2f9dea9f3006169c7cbf6c4c5ac93e5bc740fd156a8871ea4ab20f021e446921",
+            "d0a243754bd40ffdfd8d77d146ea167649a2e6c3c2c87c471a35f7aa0bc58952",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
