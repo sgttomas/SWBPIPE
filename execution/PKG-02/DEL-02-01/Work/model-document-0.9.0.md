@@ -1496,7 +1496,7 @@ model-data families' wire and codes (`model_data_authoring.rs`; DEL-02-01 Design
 |---|---|---|---|---|
 | `create_condition_set` | create | `not_present` | the whole `ConditionSet` record, JSON object text; its `id` equals `target.ref` | `OP-DATA-PAYLOAD-INVALID`, `OP-DATA-ID-MISMATCH`, `OP-DATA-ID-INVALID`, `OP-DATA-ID-COLLISION`, `OP-STALE-BEFORE-VALUE` |
 | `update_condition_set` | modify | the current record's canonical JSON | the whole replacement record; `id` unchanged | `OP-TARGET-NOT-FOUND`, `OP-STALE-BEFORE-VALUE`, `OP-DATA-ID-MISMATCH`, `OP-DATA-UNCHANGED` |
-| `delete_condition_set` | delete | the current record's canonical JSON | `not_present` | `OP-CONDITION-SET-IN-USE` (blocking) while any pipe's `condition_set_ref` names it, naming every such pipe; `OP-DELETE-AFTER-VALUE-INVALID` |
+| `delete_condition_set` | delete (its diff row's `field_path` is `condition_sets[<index>]`, the deleted index, so the row alone inverts it) | the current record's canonical JSON | `not_present` | `OP-CONDITION-SET-IN-USE` (blocking) while any pipe's `condition_set_ref` names it, naming every such pipe; `OP-DELETE-AFTER-VALUE-INVALID` |
 
 The product creates no set and suggests none; a record carries only what the
 person entered (§1.2: nothing defaulted, `null` refused). Deleting the last set
@@ -1550,14 +1550,6 @@ finding it gives deliberately, never by blanket downgrade:
   provenance), every route and admission code (the interim refusals above), and
   any code not on the staged list, including codes added later until this list
   admits them.
-- **Only what the operation introduces.** A blocking finding that the document
-  before the operation already gives, with the same code, message and
-  references (an interim member the operation does not touch: a hydrostatic
-  test case, a skewed support direction, a snubber), is not reported against
-  it, so an unrelated condition edit is not blocked; the solve still refuses
-  the document by name. Every blocking finding the operation introduces
-  blocks, and every staged finding is reported (manager's repair of the
-  as-built whole-document rule, before review).
 
 The solve still refuses a case with a staged finding by name until it is
 resolved; the applier computes no ΔT of its own.
@@ -1627,14 +1619,13 @@ only.
   unknown-field refusal of the candidate is `OP-CONDITION-JUDGEMENT-REFUSED`,
   blocking. Every other diagnostic blocks, whatever its severity, including
   `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`, `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` and
-  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` when the operation introduces them. A
-  blocking finding the document already gave before the operation, with the
-  same code, message and references, is not reported against it
-  (`introduced`), so a document carrying such a member still takes unrelated
-  condition edits and the solve still refuses the member by name. (The first
-  build blocked on the whole document; the manager repaired it before review,
-  and corpus case 15 was renamed and re-recorded for it.) Operations outside
-  this module are not judged.
+  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`. The judgement reads the whole document, so
+  these block a condition operation on any document that carries such a member,
+  even when the operation does not touch it. (A rule that skipped findings the
+  document already carried was tried and withdrawn after the persistence review
+  showed it let an edit of the refused case itself through; whether unrelated
+  carried refusals should block is put to Agent 0.) Operations outside this
+  module are not judged.
 - **Tests.** `tests/condition_set_authoring.rs` (14) has: each operation with its
   inverse; the record, assignment and use refusals; delete while referenced;
   `create_load_case`'s use; the contents, pressure-free pressure and exact-route

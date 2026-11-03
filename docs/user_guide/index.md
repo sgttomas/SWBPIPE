@@ -471,7 +471,7 @@ installation temperature, a case that also carries a thermal primitive or its ow
 exposed pipes, a wind-exposure use without `equivalent_static.wind`, and a wind
 exposure that resolves to no pipe are shown as warnings, with the solve's code
 and message. The edit is applied, and the solve still refuses that case by name
-until you supply the input. Anything else the solve would refuse because of the edit blocks it; a refusal the document already carried before the edit, from a member the edit does not touch (a hydrostatic test case, a skewed support direction, a snubber), does not block it, and the solve still refuses that member by name.
+until you supply the input. Anything else the solve refuses blocks the edit.
 
 Nothing is defaulted at any step: no set is created or suggested, no pipe is
 given a set it was not assigned, and no temperature, weight, exposure or wind

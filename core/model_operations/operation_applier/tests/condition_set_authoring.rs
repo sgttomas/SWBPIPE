@@ -266,6 +266,23 @@ fn create_update_and_delete_with_their_inverses() {
     let (back, _) = applied(&one, &create_set_at(&set_a(), 0));
     assert_eq!(bytes(&back), bytes(&two));
     refused(&one, &create_set_at(&set_a(), 2), "OP-DATA-INDEX-INVALID");
+
+    // The delete's own diff row is enough to invert it: the row names the
+    // deleted index, so [A, B] and [B, A] are told apart (review r1, P2).
+    let inverse_from_row = |outcome: &OperationOutcome| {
+        let row = &outcome.diff_preview[0];
+        assert_eq!(row.after, "not_present");
+        op("create", "create_condition_set", "ConditionSet", &row.entity_ref, &row.field_path, "not_present", &row.before)
+    };
+    for order in [[set_a(), set_b()], [set_b(), set_a()]] {
+        let start = with_sets(&order);
+        let (rest, outcome) = applied(&start, &delete_set(&start, "cs:a"));
+        assert_eq!(rest["condition_sets"], json!([set_b()]), "both orders leave the same document");
+        let index = order.iter().position(|record| record["id"] == "cs:a").unwrap();
+        assert_eq!(outcome.diff_preview[0].field_path, format!("condition_sets[{index}]"));
+        let (restored, _) = applied(&rest, &inverse_from_row(&outcome));
+        assert_eq!(bytes(&restored), bytes(&start), "the row alone restores the original order");
+    }
 }
 
 /// The record refusals of §11's table, and the validator's document-level codes
@@ -566,29 +583,31 @@ fn the_staged_warnings_equal_the_solves_findings_on_the_same_candidate() {
     assert_eq!(preview["resolved"], json!(false));
 }
 
-/// A blocking finding the document already carries, from an interim member the
-/// operation does not touch (a hydrostatic test case, a skewed support
-/// direction), is not this operation's: the condition edit applies, the
-/// carried refusal is not reported against it, and the solve still refuses the
-/// document by name. Staged findings the edit introduces still warn.
+/// A finding not on the staged list blocks the operation, even beside staged
+/// ones: here the interim refusals of a hydrostatic test case and of a skewed
+/// support direction, which documents may carry and the solve refuses.
 #[test]
-fn a_carried_refusal_does_not_block_an_unrelated_condition_edit() {
+fn a_finding_not_on_the_staged_list_blocks() {
     let mut model = with_sets(&[set_a()]);
     let mut cases = model["load_cases"].as_array().unwrap().clone();
     cases.push(json!({"id": "HT", "primitive_loads": [], "provenance": PROV, "test_condition": {"kind": "hydrostatic", "held_supports": "none"}}));
     model["load_cases"] = json!(cases);
     assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
-    assert!(solve(&model).to_string().contains("LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "the solve refuses the carried member");
-    let (_, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})));
-    assert!(!blocking(&outcome).iter().any(|code| code == "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "{:?}", records(&outcome));
-    assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn");
-    applied(&model, &create_set(&set_b()));
-    applied(&model, &create_case("OPE", json!({"condition_use": {"temperature": "OPE1"}})));
+    let outcome = refused(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    // Editing the refused case itself blocks too (review r1, P1/P2 scenario).
+    refused(&model, &set_use(&model, "HT", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn beside it");
+    refused(&model, &create_set(&set_b()), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    refused(&model, &create_case("OPE", json!({"condition_use": {"temperature": "OPE1"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
 
     let mut skew = with_sets(&[set_a()]);
     skew["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
     assert!(!validate_model_document(&skew).iter().any(|d| d.is_blocking()));
-    applied(&skew, &assign(&skew, "P1", Some("cs:a")));
+    refused(&skew, &assign(&skew, "P1", Some("cs:a")), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED");
+    // Operations outside this slice are not judged: the same document still edits.
+    let rename = op("modify", "set_field", "Node", "N1", "label", "N1", "Midspan");
+    let outcome = apply_operation(&skew, &rename, Some(&claim(&skew)));
+    assert!(outcome.applied_model.is_some(), "{:?}", records(&outcome));
 }
 
 /// Sets exist and none marks wind: the case's empty generated exposure is

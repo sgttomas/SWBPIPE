@@ -53,11 +53,7 @@
 //! message (authoring is not blocked, so a case's use can be stated before every
 //! pipe is assigned, OC-8); every other finding, a parse or unknown-field
 //! refusal of the candidate, and any code added later until the list admits it,
-//! blocks. A blocking finding the document already carried before the
-//! operation, with the same code, message and references, is not reported
-//! against it ([`introduced`]): an interim member the operation does not touch
-//! does not block an unrelated condition edit, and the solve still refuses it by
-//! name. The solve still refuses a case with a staged finding by name; the
+//! blocks. The solve still refuses a case with a staged finding by name; the
 //! applier computes no temperature difference of its own.
 //!
 //! Inverses: create and delete (at the deleted index), update and update with
@@ -307,42 +303,9 @@ pub(crate) fn judgement(candidate: &Value) -> Vec<JudgedFinding> {
     classify(candidate, &pp_conditions::preview_operating_conditions(candidate))
 }
 
-/// The findings of `candidate`'s judgement this operation introduces: every
-/// staged warning, and each blocking finding not already given, with the same
-/// code, message and references, by the judgement of the document before the
-/// operation. A refusal the document already carries (an interim member the
-/// operation does not touch, such as a hydrostatic test case, a skewed support
-/// direction or a snubber) is not this operation's: the solve still refuses the
-/// document by name, and an unrelated condition edit is not blocked by it. A
-/// blocking finding the operation introduces always blocks.
-pub(crate) fn introduced(before: Vec<JudgedFinding>, candidate: Vec<JudgedFinding>) -> Vec<JudgedFinding> {
-    let mut carried: Vec<(String, String, Vec<String>)> = before
-        .into_iter()
-        .filter(|finding| finding.severity == "blocking")
-        .map(|finding| (finding.code, finding.message, finding.affected_refs))
-        .collect();
-    candidate
-        .into_iter()
-        .filter(|finding| {
-            if finding.severity != "blocking" {
-                return true;
-            }
-            let key = (finding.code.clone(), finding.message.clone(), finding.affected_refs.clone());
-            match carried.iter().position(|item| *item == key) {
-                Some(index) => {
-                    carried.swap_remove(index);
-                    false
-                }
-                None => true,
-            }
-        })
-        .collect()
-}
-
-/// Push the findings of [`judgement`] this operation introduces ([`introduced`])
-/// onto the operation's diagnostics.
-pub(crate) fn report_judgement(checker: &mut crate::Checker, before: &Value, candidate: &Value) {
-    for finding in introduced(judgement(before), judgement(candidate)) {
+/// Push [`judgement`]'s findings onto the operation's diagnostics.
+pub(crate) fn report_judgement(checker: &mut crate::Checker, candidate: &Value) {
+    for finding in judgement(candidate) {
         let remediation = if finding.severity == "warning" {
             "Authoring is not blocked; the solve refuses the named case until the named input is stated."
         } else {
@@ -409,6 +372,7 @@ fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEdit, Geometr
     let before = text_at(intent, "/change/before");
     let after = text_at(intent, "/change/after");
     let refs = [target_ref.to_string()];
+    let mut row_path = field_path.to_string();
     // `condition_sets[<index>]` places a created record (a delete's inverse).
     let insert_at = field_path
         .strip_prefix(COLLECTION)
@@ -519,15 +483,18 @@ fn resolve_record(model: &Value, intent: &Value) -> Result<GeometryEdit, Geometr
                         affected_refs: std::iter::once(target_ref.to_string()).chain(pipes).collect(),
                     });
                 }
-                // An emptied collection stays an empty array (§11).
+                // An emptied collection stays an empty array (§11). The diff row
+                // names the deleted index, `condition_sets[<index>]`, so the
+                // inverse create restores the record at its place.
                 list.remove(index);
+                row_path = format!("{COLLECTION}[{index}]");
                 (current, "not_present".to_string())
             }
         }
     };
     Ok(GeometryEdit {
         model: candidate,
-        diff_preview: vec![row(target_ref, OBJECT_TYPE, field_path, row_before, row_after, change_kind)],
+        diff_preview: vec![row(target_ref, OBJECT_TYPE, &row_path, row_before, row_after, change_kind)],
     })
 }
 
@@ -703,36 +670,6 @@ mod tests {
 
     /// Exactly the eight staged findings are warnings; the list is the one
     /// constant and nothing else is downgraded.
-    #[test]
-    fn a_blocking_finding_blocks_unless_the_document_already_carried_it() {
-        let finding = |code: &str, severity: &'static str, refs: &[&str]| JudgedFinding {
-            code: code.to_string(),
-            severity,
-            message: format!("{code} message"),
-            affected_refs: refs.iter().map(|r| r.to_string()).collect(),
-        };
-        let before = vec![finding("CARRIED", "blocking", &["HT"]), finding("OPERATING_CONDITION_SET_MISSING", "warning", &["SUS"])];
-        let after = vec![
-            finding("CARRIED", "blocking", &["HT"]),
-            finding("CARRIED", "blocking", &["HT"]),
-            finding("CARRIED", "blocking", &["OTHER"]),
-            finding("INTRODUCED", "blocking", &["SUS"]),
-            finding("OPERATING_CONDITION_SET_MISSING", "warning", &["SUS"]),
-        ];
-        let kept: Vec<(String, &str, Vec<String>)> =
-            introduced(before, after).into_iter().map(|f| (f.code, f.severity, f.affected_refs)).collect();
-        assert_eq!(
-            kept,
-            vec![
-                ("CARRIED".to_string(), "blocking", vec!["HT".to_string()]),
-                ("CARRIED".to_string(), "blocking", vec!["OTHER".to_string()]),
-                ("INTRODUCED".to_string(), "blocking", vec!["SUS".to_string()]),
-                ("OPERATING_CONDITION_SET_MISSING".to_string(), "warning", vec!["SUS".to_string()]),
-            ],
-            "one carried occurrence is consumed; a second occurrence, other references and new codes block; warnings stay"
-        );
-    }
-
     #[test]
     fn the_staged_list_is_exactly_the_eight_findings() {
         let codes: Vec<&str> = STAGED_FINDINGS
