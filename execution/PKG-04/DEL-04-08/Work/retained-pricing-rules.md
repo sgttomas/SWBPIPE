@@ -3151,7 +3151,8 @@ above; it shares that registration only because no coefficient moves.
   lines): **no coefficient moves**.
 - *Routing.* The five I2b-1 files join the three source-scan declarations, and the product_physics tree digest
   follows.
-- *AC-004: open; the analytical transfer of #94's witness evidence is not established.* Agent 0 allowed #96 to
+- *AC-004: the six witnesses pass on #96's selected binary (Agent 0's fallback); the analytical transfer of #94's
+  witness evidence was not established.* Agent 0 allowed #96 to
   carry #94's six-witness outcome by analysis if independent scrutiny confirmed that the exact binaries'
   witness-path frames and depth are unchanged, with the short six-witness run as the fallback. I2b-1 compiles new
   code into the witnessed lib-test binary. Relative to I2a's witnessed head `b85a5b131` it changes only modal files
@@ -3173,8 +3174,30 @@ above; it shares that registration only because no coefficient moves.
     144 B apart). Dylib bodies are compared by stub name only. So the comparison is supporting evidence; it does not
     show the witness paths' runtime stack depth is unchanged, and exclusion of the changed functions is shown for the
     static closure only.
-  - *Disposition.* #96's AC-004 rests on the fallback: one short run of the six witnesses on #96's selected binary,
-    under the #94 protocol, once Agent 0 clears an exclusive window. No witness has run on this binary.
+  - *The fallback run.* Agent 0 cleared one run on the exact clean head `08f22d6ff1f4803ac797fb87c0bfa6704362e2a3`.
+    Preflight, recorded before queueing:
+    - lib-test binary `open_pipe_stress_product_physics-9cc9ce96e7b85850`, built outside the window under the normal
+      wrapper and fresh at that head, SHA-256 `75d4c1f0ff112a6d5918e92c64b7436d47dbb3f6b1ed3c53b494d98117da4251`;
+    - `retained_memory.rs` `0465eef31859a4c51afd8a66858f509d50e0b88936b50cd6990961a489050022`;
+    - `core/product_physics/Cargo.lock` `6d8af2367c31353985bdbe8133a2771204e62ed359a4940c54bbf6689c18cd85`;
+    - rustc 1.97.1 (`8bab26f4f68e0e26f0bb7960be334d5b520ea452`, aarch64-apple-darwin, LLVM 22.1.6, debug), equal to
+      the registered identity;
+    - the binary's two Registered-only w15b tests pass.
+
+    One `t3_exclusive.sh` run with memguard. It was queued at 07:22:22Z and started at 07:22:56Z (a 34 s queue
+    wait). Its first step re-verified the head and the binary hash. It ended at 07:23:06Z, rc 0: 10 s including
+    teardown against 60 s; the internal harness took 9.25 s against its 55 s deadline. Each witness ran once, in its
+    own process, from that binary, with `--exact --ignored --test-threads=1`, with no compile and no retry, and
+    **all pass**:
+
+    | Witness | Sparse | Dense |
+    |---|---|---|
+    | `witness_headroom_w1_at_one_mebibyte` | 0.68 s | 0.68 s |
+    | `witness_w2_deep_milestone_publishes` | 1.38 s | 1.35 s |
+    | `witness_w_c2_publishes` | 2.57 s | 2.58 s |
+
+    Afterwards `exclusive.pending` is absent, no harness, wrapper or test process of this run remains, and the
+    binary's hash is unchanged. No isolated challenge was requested.
 
 ## 9. Memory-profile gates and registration
 
