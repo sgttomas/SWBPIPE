@@ -597,3 +597,18 @@ fn the_state_module_reads_no_diagnostic_message() {
     assert!(!text.contains("message."));
     assert!(!text.contains("NonlinearStanding"), "it reads the typed evidence, not the publication's standing");
 }
+
+/// A refusal's blocking codes are stated by their count (D3: their number has
+/// no source bound), never repeated; the refusal keeps the codes themselves.
+#[test]
+fn a_refusals_blocking_codes_are_stated_by_count() {
+    let codes = vec![String::from("SOLVER_SYSTEM_BLOCKED"); 1000];
+    for refusal in [StateCaseRefusal::MissingEvidence(codes.clone()), StateCaseRefusal::Blocking(codes.clone())] {
+        let reason = refusal.modal_refusal_reason();
+        assert!(reason.contains("1000"), "{reason}");
+        assert!(!reason.contains("SOLVER_SYSTEM_BLOCKED"), "{reason}");
+        assert!(reason.len() < 160, "{} B: {reason}", reason.len());
+    }
+    assert!(StateCaseRefusal::MissingEvidence(Vec::new()).modal_refusal_reason().contains("(0 blocking diagnostic(s)"));
+    assert_eq!(StateCaseRefusal::Blocking(codes.clone()), StateCaseRefusal::Blocking(codes));
+}

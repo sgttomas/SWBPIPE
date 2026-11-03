@@ -122,15 +122,19 @@ pub(crate) enum StateCaseRefusal {
 }
 
 impl StateCaseRefusal {
+    /// The refusal's reason text. A list of blocking codes is stated by its
+    /// count, not repeated: nothing bounds how many a solve publishes, and the
+    /// diagnostics themselves are carried with the refusal.
     pub(crate) fn modal_refusal_reason(&self) -> String {
         match self {
             Self::NoBoundCase => "the model has nonlinear supports and the request binds no state case".into(),
             Self::ResourceGuard => "the static path's resource guard refuses the state solve".into(),
             Self::SolveFailed(error) => format!("its same-run solve failed ({error})"),
             Self::NotConverged => "its same-run active-set solve did not converge".into(),
-            Self::MissingEvidence(codes) => {
-                format!("its same-run solve completed with no nonlinear-state evidence (blocking: {})", modal_state_code_list(codes))
-            }
+            Self::MissingEvidence(codes) => format!(
+                "its same-run solve completed with no nonlinear-state evidence ({} blocking diagnostic(s), carried with this one)",
+                codes.len()
+            ),
             Self::CaseMismatch { expected, found } => format!("the solve's evidence is bound to case `{found}`, not `{expected}`"),
             Self::ModeMismatch { requested, solved } => {
                 format!("the solve's evidence records solver mode {}, not the requested {}", solved.as_str(), requested.as_str())
@@ -140,7 +144,9 @@ impl StateCaseRefusal {
                 "its converged gap state is unqualified (inspectable only), so no confirmed support state defines the modal model".into()
             }
             Self::NotEstablished(sentence) => format!("its converged support state is not confirmed: {sentence}"),
-            Self::Blocking(codes) => format!("its same-run solve published blocking diagnostics ({})", modal_state_code_list(codes)),
+            Self::Blocking(codes) => {
+                format!("its same-run solve published blocking diagnostics ({} of them, carried with this one)", codes.len())
+            }
             Self::SupportMissing(id) => format!("the solve's final states omit nonlinear support `{id}`"),
             Self::SupportDuplicate(id) => format!("the solve's final states name nonlinear support `{id}` more than once"),
             Self::SupportUnexpected(id) => format!("the solve's final states name `{id}`, which is not a built nonlinear support"),
@@ -149,14 +155,6 @@ impl StateCaseRefusal {
                 state.as_str()
             ),
         }
-    }
-}
-
-fn modal_state_code_list(codes: &[String]) -> String {
-    if codes.is_empty() {
-        "none".into()
-    } else {
-        codes.join(", ")
     }
 }
 
