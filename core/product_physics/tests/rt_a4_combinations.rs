@@ -81,13 +81,34 @@ fn with_code<'a>(out: &'a Value, code: &str) -> Vec<&'a Value> {
 fn blocking(out: &Value) -> Vec<String> {
     diagnostics(out).iter().filter(|d| d["severity"] == "blocking").map(|d| format!("{}: {}", d["code"], d["message"])).collect()
 }
-/// A solved envelope that the product reader admits with and without its model.
+/// What preview-physics-2's model-free reader cannot verify (review r1 P2): a gate whose
+/// reason turns on κ, or an absolute sum's or SRSS's rows with no `combination_operands`
+/// record stating their factors. Its refusal code, or None.
+fn pf_unverifiable(out: &Value) -> Option<&'static str> {
+    let gates = out["contract_evidence"]["combination_gates"].as_array()?;
+    if gates.iter().any(|g| g["reason"] == CE_UNSIGNED || g["reason"] == CE_MIXED) {
+        return Some("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED");
+    }
+    let recorded = |id: &Value| out["contract_evidence"]["combination_operands"].as_array().is_some_and(|r| r.iter().any(|r| r["combination_id"] == *id));
+    rows(out)
+        .iter()
+        .any(|r| r["basis_ref"]["ref_type"] == "combination" && (r["metadata"]["sign_convention"] == ABS_SIGN || r["metadata"]["sign_convention"] == SRSS_SIGN) && !recorded(&r["basis_ref"]["ref_id"]))
+        .then_some("SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_UNVERIFIED")
+}
+
+/// A solved envelope that the product reader admits with its model, and without it
+/// exactly when the document alone verifies its combinations (else it is refused by
+/// the named code).
 fn read_solved(out: Value, wire: &Value, what: &str) -> Value {
     assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:?}", blocking(&out));
-    let reader = if wire["model"].get("pressure_contract").is_some() { "pressure" } else { "preview-physics" };
-    for model in [None, Some(&wire["model"])] {
-        let verdict = reader_verdict::validate(reader, &out, model, None);
-        assert_eq!(verdict["ok"], true, "{what}: reader {verdict}");
+    let pressure = wire["model"].get("pressure_contract").is_some();
+    let reader = if pressure { "pressure" } else { "preview-physics" };
+    let verdict = reader_verdict::validate(reader, &out, Some(&wire["model"]), None);
+    assert_eq!(verdict["ok"], true, "{what}: reader with the model {verdict}");
+    let verdict = reader_verdict::validate(reader, &out, None, None);
+    match (pressure, pf_unverifiable(&out)) {
+        (false, Some(code)) => assert_eq!(verdict["error"]["code"], code, "{what}: model-free reader {verdict}"),
+        _ => assert_eq!(verdict["ok"], true, "{what}: model-free reader {verdict}"),
     }
     out
 }
@@ -269,13 +290,14 @@ fn v5_three_axis_static_seismic_on_both_routes() {
                 }
                 let (basis, sign) = if combination["basis"] == "srss" { ("explicit_user_srss", SRSS_SIGN) } else { ("explicit_user_absolute_sum", ABS_SIGN) };
                 for row in &published {
-                    if let Some(metadata) = row["metadata"].as_object() {
-                        // EX's combined stress rows keep their operand's whole basis (§4).
-                        if !metadata["basis"].as_str().unwrap().contains("; section_basis=") {
-                            assert_eq!(metadata["basis"], basis, "{what} {id}");
-                        }
-                        assert_eq!(metadata["sign_convention"], sign, "{what} {id}");
+                    // Every row of an unsigned combination states its derivation (review r1
+                    // P4): absent metadata fails.
+                    let metadata = row["metadata"].as_object().unwrap_or_else(|| panic!("{what} {id}: no metadata on {row}"));
+                    // EX's combined stress rows keep their operand's whole basis (§4).
+                    if !metadata["basis"].as_str().unwrap().contains("; section_basis=") {
+                        assert_eq!(metadata["basis"], basis, "{what} {id}");
                     }
+                    assert_eq!(metadata["sign_convention"], sign, "{what} {id}");
                     assert_eq!(row["basis_ref"], json!({"ref_type": "combination", "ref_id": id}));
                 }
                 // No row of these combinations is withheld or missing.
@@ -575,9 +597,22 @@ fn v7_sustained_plus_srss_pairs_every_row() {
         for code in ["LOAD_COMBINATION_SOURCE_RESULT_MISSING", "LOAD_COMBINATION_ROW_WITHHELD", "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING"] {
             assert!(with_code(&out, code).is_empty(), "{mode:?} {code}: {:?}", with_code(&out, code));
         }
-        let shape = |id: &str| combination_rows(&out, id).iter().map(|r| (r["kind"].clone(), r["entity_ref"].clone(), r["metadata"]["component"].clone(), r["metadata"]["location"].clone())).collect::<Vec<_>>();
+        // A magnitude row is identified by kind and node; its metadata states only its
+        // derivation, on a nested or unsigned combination, and is absent on a flat one (V-8).
+        let shape = |id: &str| combination_rows(&out, id).iter().map(|r| if r["kind"] == "displacement_magnitude" {
+            (r["kind"].clone(), r["entity_ref"].clone(), Value::Null, Value::Null)
+        } else {
+            (r["kind"].clone(), r["entity_ref"].clone(), r["metadata"]["component"].clone(), r["metadata"]["location"].clone())
+        }).collect::<Vec<_>>();
         assert_eq!(shape("occ"), shape("flat"), "{mode:?}");
         assert_eq!(shape("srss"), shape("flat"), "{mode:?}");
+        for (id, basis, sign) in [("occ", "explicit_user_linear_combination", "positive value follows explicit user linear combination of matching source result sign conventions"),
+            ("srss", "explicit_user_srss", SRSS_SIGN)] {
+            for row in combination_rows(&out, id).iter().filter(|r| r["kind"] == "displacement_magnitude") {
+                assert_eq!(row["metadata"], json!({"component": "displacement_magnitude", "coordinate_system": "global", "location": "node", "basis": basis, "sign_convention": sign}), "{mode:?} {id}");
+            }
+        }
+        assert!(combination_rows(&out, "flat").iter().filter(|r| r["kind"] == "displacement_magnitude").all(|r| r.get("metadata").is_none()), "{mode:?}");
         // Each occ row is the exact sum of its two source rows, rounded once.
         for row in combination_rows(&out, "occ") {
             let refs = row["source_result_refs"].as_array().unwrap();
@@ -628,6 +663,80 @@ fn a_non_representable_unsigned_row_is_withheld_by_name() {
         // A zero source row (|x| ≤ 1) still publishes, as +0.0 or a finite value.
         assert!(combination_rows(&out, "huge").iter().all(|r| r["value"].as_f64().unwrap().is_finite()));
         assert!(!combination_rows(&out, "huge").is_empty());
+    }
+}
+
+/// The V-5 cantilever with two cases: `A`, unit forces in global X and Y at the
+/// anchored root (finite reaction components, zero displacements and stresses), and
+/// `B`, a large tip force in global X (comparable tip displacements in X and Y).
+fn overflow_model(exact: bool, combinations: Value) -> Value {
+    let mut wire = v5_model(exact, json!([]));
+    let force = |id: &str, node: &str, direction: &str, value: f64| json!({"id": id, "category": "concentrated_force", "target": {"type": "node", "node": node},
+        "direction": direction, "magnitude": qv(value, "N"), "dimension": "force", "provenance": PROV});
+    let mut cases = vec![
+        json!({"id": "A", "provenance": PROV, "primitive_loads": [force("load:A:x", "node:root", "global_x", 1.0), force("load:A:y", "node:root", "global_y", 1.0)]}),
+        json!({"id": "B", "provenance": PROV, "primitive_loads": [force("load:B:x", "node:tip", "global_x", 1.0e9)]}),
+    ];
+    if exact {
+        for case in &mut cases {
+            case["pressure_regions"] = json!([]);
+        }
+    }
+    wire["model"]["load_cases"] = json!(cases);
+    wire["model"]["combinations"] = combinations;
+    wire
+}
+
+/// P2 r1 (absolute-sum-srss §3, §6): an unsigned combination whose recomputed
+/// magnitude leaves the binary64 range from finite combined components withholds
+/// that row, or its whole support group, as "load-case algebra refused", and every
+/// other result publishes. Before the fix the norm published as an infinity and the
+/// whole solve was refused.
+#[test]
+fn an_overflowing_unsigned_magnitude_is_withheld_and_the_rest_publishes() {
+    for exact in [false, true] {
+        for mode in MODES {
+            let what = format!("exact={exact} {mode:?}");
+            // The tip displacement components of B, in the published unit.
+            let probe = solved_typed(&overflow_model(exact, json!([])), mode, &what);
+            let tip = |kind: &str| case_rows(&probe, "B").iter().find(|r| r["kind"] == kind && r["entity_ref"] == "node:tip").unwrap()["value"].as_f64().unwrap().abs();
+            let (ux, uy, uz) = (tip("global_nodal_displacement_x"), tip("global_nodal_displacement_y"), tip("global_nodal_displacement_z"));
+            let largest = ux.max(uy).max(uz);
+            assert!(largest >= 1.0 && ux.min(uy) > 0.25 * largest, "{what}: {ux} {uy} {uz}");
+            // Every component of f·B at the tip stays finite; their norm does not.
+            let f = f64::MAX / largest / (1.0 + 2f64.powi(-8));
+            assert!((f * ux).is_finite() && (f * uy).is_finite() && (f * uz).is_finite() && !(f * ux).hypot(f * uy).is_finite(), "{what}");
+            let wire = overflow_model(exact, json!([
+                terms("support", "absolute_sum", &[("case", "A", 1.4e308)]),
+                terms("tip", "absolute_sum", &[("case", "B", f)]),
+                terms("srss-support", "srss", &[("case", "A", 1.4e308)]),
+            ]));
+            let out = solved_typed(&wire, mode, &what);
+            for id in ["support", "tip", "srss-support"] {
+                assert_eq!(gate(&out, id), admitted(), "{what} {id}");
+                let held: Vec<&Value> = with_code(&out, "LOAD_COMBINATION_ROW_WITHHELD").into_iter().filter(|d| d["affected_refs"][0] == id).collect();
+                assert_eq!(held.len(), 1, "{what} {id}");
+                let message = held[0]["message"].as_str().unwrap();
+                let published = combination_rows(&out, id);
+                assert!(published.iter().all(|r| r["value"].as_f64().unwrap().is_finite()), "{what} {id}");
+                if id == "tip" {
+                    assert!(message.contains("(load-case algebra refused)"), "{what}: {message}");
+                    assert!(!published.iter().any(|r| r["kind"] == "displacement_magnitude" && r["entity_ref"] == "node:tip"), "{what}");
+                    // The root's zero magnitude still publishes, with its derivation stated.
+                    let root = published.iter().find(|r| r["kind"] == "displacement_magnitude" && r["entity_ref"] == "node:root").unwrap();
+                    assert_eq!(root["metadata"]["basis"], "explicit_user_absolute_sum", "{what}");
+                } else {
+                    // The anchor's group is withheld whole: no component and no magnitude.
+                    assert!(message.contains("support-action:12:support:root (load-case algebra refused)"), "{what}: {message}");
+                    assert!(!published.iter().any(|r| r["entity_ref"] == "support:root"), "{what} {id}");
+                    // A's displacements are zero, so its node rows publish.
+                    assert!(published.iter().any(|r| r["kind"] == "displacement_magnitude"), "{what} {id}");
+                }
+            }
+            // The load cases publish whole.
+            assert_eq!(case_rows(&out, "A").len(), case_rows(&probe, "A").len(), "{what}");
+            assert_eq!(case_rows(&out, "B").len(), case_rows(&probe, "B").len(), "{what}");
+        }
     }
 }
 
@@ -688,10 +797,10 @@ fn v9_decision_oq1_admits_a_solved_state_plus_increments() {
         }
         for id in ["occ", "occ-minus"] {
             for row in combination_rows(&out, id) {
-                if let Some(metadata) = row["metadata"].as_object() {
-                    assert_eq!(metadata["sign_convention"], OQ1_SIGN, "{id}");
-                    assert_eq!(metadata["basis"], "explicit_user_linear_combination", "{id}");
-                }
+                // Every row states its derivation, the magnitudes included (review r1 P4).
+                let metadata = row["metadata"].as_object().unwrap_or_else(|| panic!("{id}: no metadata on {row}"));
+                assert_eq!(metadata["sign_convention"], OQ1_SIGN, "{id}");
+                assert_eq!(metadata["basis"], "explicit_user_linear_combination", "{id}");
             }
             assert!(!combination_rows(&out, id).is_empty());
         }
@@ -706,6 +815,89 @@ fn v9_decision_oq1_admits_a_solved_state_plus_increments() {
         assert_eq!(occ["operands"][0]["load_case_id"], "S");
         assert!(occ["operands"][0]["numerical_quality"].is_object());
     }
+}
+
+// ------------------------------------------------------------------ reader tampers (review r1 P2)
+fn pf_verdict(out: &Value, model: Option<&Value>) -> Value {
+    reader_verdict::validate("preview-physics", out, model, None)
+}
+fn assert_refused(out: &Value, model: Option<&Value>, code: &str, what: &str) {
+    let verdict = pf_verdict(out, model);
+    assert_eq!(verdict["error"]["code"], code, "{what} (model given: {}): {verdict}", model.is_some());
+}
+fn set_gate(out: &mut Value, id: &str, reason: Option<&str>) {
+    let gates = out["contract_evidence"]["combination_gates"].as_array_mut().unwrap();
+    let gate = gates.iter_mut().find(|g| g["combination_id"] == id).unwrap();
+    gate["withheld"] = json!(reason.is_some());
+    gate["reason"] = json!(reason);
+}
+/// Sets the value of one combination row of `kind` on `entity` at `location`, which
+/// must be `from` before the tamper.
+fn set_row(out: &mut Value, id: &str, kind: &str, location: &str, from: f64, to: f64) {
+    let row = out["results"].as_array_mut().unwrap().iter_mut()
+        .find(|r| r["basis_ref"] == json!({"ref_type": "combination", "ref_id": id}) && r["kind"] == kind && r["metadata"]["location"] == location)
+        .unwrap_or_else(|| panic!("no {kind} row of {id}"));
+    assert_eq!(row["value"].as_f64().unwrap(), from, "{id} {kind}");
+    row["value"] = json!(to);
+}
+
+/// preview-physics-2's readers re-derive the gates and the unsigned rows: with the
+/// model, exactly; without it, from what the document states, refusing what it cannot
+/// verify. Before review r1 P2 both readers admitted every tamper below.
+#[test]
+fn pf_readers_refuse_tampered_gates_and_unsigned_rows() {
+    // Reason swap, in a nonlinear model: the flat mechanics combination is withheld
+    // NONLINEAR, restated as an unsigned-operand κ withholding.
+    let wire = gap_bar(json!([
+        sub("D", "O", "S"),
+        terms("E", "srss", &[("comb", "D", 1.0)]),
+        terms("occ", "mechanics", &[("case", "S", 1.0), ("comb", "E", 1.0)]),
+        terms("flat", "mechanics", &[("case", "S", 1.0), ("case", "O", 1.0)]),
+    ]));
+    let model = Some(&wire["model"]);
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "tamper base (nonlinear)");
+    assert_eq!(pf_verdict(&out, None)["ok"], true, "the records state E's factors");
+    let mut swapped = out.clone();
+    set_gate(&mut swapped, "flat", Some(CE_UNSIGNED));
+    assert_refused(&swapped, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "reason swap");
+    assert_refused(&swapped, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION", "reason swap");
+    // Value change: E's SRSS of a bar's axial difference has a zero transverse shear
+    // row; restated as 123. The record states E's factor, so the model-free reader
+    // re-derives it too.
+    let mut changed = out.clone();
+    set_row(&mut changed, "E", "element_local_shear_force_y", "midspan", 0.0, 123.0);
+    assert_refused(&changed, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (nonlinear)");
+    assert_refused(&changed, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (nonlinear)");
+
+    // A linear model with a consuming constant-effort support: no record states an
+    // unsigned combination's factors, so the model-free reader cannot verify its rows.
+    let wire = pf_cantilever(true, pf_cases(), json!([
+        terms("srss-cases", "srss", &[("case", "W1", 1.0), ("case", "W2", 1.0)]),
+        sub("d1", "W1", "W2"),
+        terms("abs-d", "absolute_sum", &[("comb", "d1", 1.0)]),
+        terms("srss-d", "srss", &[("comb", "d1", 1.0)]),
+    ]));
+    let model = Some(&wire["model"]);
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "tamper base (constant effort)");
+    assert_eq!(gate(&out, "srss-cases"), withheld(CE_UNSIGNED));
+    assert_eq!(pf_verdict(&out, model)["ok"], true);
+    // Value change: the axial normal stress under transverse loads is zero.
+    let mut changed = out.clone();
+    set_row(&mut changed, "srss-d", "element_local_axial_normal_stress", "midspan", 0.0, 123.0);
+    assert_refused(&changed, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "value change (linear)");
+    assert_refused(&changed, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (linear)");
+    // κ-gate changes: the unsigned-operand withholding restated as the flat unit
+    // factor-sum code; withdrawn; and an admitted κ = 0 combination restated withheld.
+    for (id, reason) in [("srss-cases", Some(CE)), ("srss-cases", None), ("abs-d", Some(CE_UNSIGNED))] {
+        let mut gated = out.clone();
+        set_gate(&mut gated, id, reason);
+        gated["results"].as_array_mut().unwrap().retain(|r| !(reason.is_some() && r["basis_ref"] == json!({"ref_type": "combination", "ref_id": id})));
+        assert_refused(&gated, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION", &format!("κ gate {id} {reason:?}"));
+    }
+    let mut gated = out.clone();
+    set_gate(&mut gated, "abs-d", Some(CE_UNSIGNED));
+    gated["results"].as_array_mut().unwrap().retain(|r| r["basis_ref"] != json!({"ref_type": "combination", "ref_id": "abs-d"}));
+    assert_refused(&gated, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "κ gate abs-d");
 }
 
 // ------------------------------------------------------------------ V-10

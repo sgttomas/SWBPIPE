@@ -261,6 +261,18 @@ fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
 
 /// Every S1 section 9 check. A failure makes the source unsupported.
 pub fn validate_preview_physics_evidence(source: &Value) -> Check {
+    validate_with(source, None)
+}
+
+/// The reader with the document's model, when the caller has it: the combination
+/// gates and unsigned rows are then re-derived from the model
+/// (`preview_combination_gates`) instead of being refused where the document alone
+/// cannot verify them.
+pub(crate) fn validate_preview_physics_evidence_with_model(source: &Value, model: Option<&Value>) -> Check {
+    validate_with(source, model)
+}
+
+fn validate_with(source: &Value, model: Option<&Value>) -> Check {
     // pf-timoshenko.md §4: the source's identity selects one complete identity (table,
     // profile and limitation array together); a mixed array is FORMULATION_BASIS.
     let (table, profile) = crate::semantic_contract::preview_physics_identity_of(source);
@@ -815,7 +827,8 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         }
         combination_magnitudes(members)?;
     }
-    Ok(())
+    // RT-A4 (review r1 P2): the gates and the absolute sums and SRSS, re-derived.
+    crate::preview_combination_gates::check(source, model)
 }
 
 fn magnitudes(components: &HashMap<&str, &Value>) -> Check {
@@ -923,52 +936,3 @@ fn headline(value: &Value, rows: &[Value], kind: &str, allowed: bool, bodies: &s
 #[cfg(test)]
 #[path = "preview_magnitude_tests.rs"]
 mod magnitude_tests;
-
-/// RT-A4 (DEL-05-02 absolute-sum-srss §3-§4), with a supplied model: every published
-/// row of an absolute sum or SRSS that is formed from operand rows (not a recomputed
-/// magnitude) names one source row per term, each the term's operand's own row of
-/// the same quantity, and its value is the kernel's A or R of the model's factors
-/// times those source values, bit for bit.
-pub(crate) fn unsigned_model_checks(source: &Value, model: &Value) -> Check {
-    use crate::combination_graph::{unsigned_value, Operand};
-    let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
-    let by_id: HashMap<&str, &Value> = rows.iter().filter_map(|r| r["id"].as_str().map(|id| (id, r))).collect();
-    for combination in model["combinations"].as_array().into_iter().flatten() {
-        let srss = match combination["basis"].as_str() {
-            Some("absolute_sum") => false,
-            Some("srss") => true,
-            _ => continue,
-        };
-        let id = combination["id"].as_str().unwrap_or_default();
-        let terms: Vec<(Operand<'_>, f64)> = combination["terms"].as_array().into_iter().flatten().filter_map(|t| {
-            let factor = t["factor"].as_f64()?;
-            match (t["combination"].as_str(), t["load_case"].as_str()) {
-                (Some(c), _) => Some((Operand::Combination(c), factor)),
-                (None, Some(case)) => Some((Operand::Case(case), factor)),
-                _ => None,
-            }
-        }).collect();
-        let factors: Vec<f64> = terms.iter().map(|(_, f)| *f).collect();
-        for row in rows.iter().filter(|r| combination_of(r) == Some(id)) {
-            let kind = row["kind"].as_str().unwrap_or_default();
-            if kind == "displacement_magnitude" || kind == SUPPORT_FORCE || kind == SUPPORT_MOMENT || kind == "combination_modulus_basis_record" {
-                continue;
-            }
-            let refs = array(&row["source_result_refs"]).map_err(|_| "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_SOURCES".to_string())?;
-            require(refs.len() == terms.len(), "COMBINATION_UNSIGNED_SOURCES")?;
-            let mut values = Vec::new();
-            for (reference, (operand, _)) in refs.iter().zip(&terms) {
-                let source = reference.as_str().and_then(|r| by_id.get(r)).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_SOURCES".to_string())?;
-                require(
-                    operand.owns(source) && source["kind"] == row["kind"] && source["entity_ref"] == row["entity_ref"] && source["unit"] == row["unit"]
-                        && source["metadata"]["component"] == row["metadata"]["component"] && source["metadata"]["location"] == row["metadata"]["location"],
-                    "COMBINATION_UNSIGNED_SOURCES",
-                )?;
-                values.push(number(&source["value"])?);
-            }
-            let expected = unsigned_value(srss, &factors, &values).ok_or_else(|| "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE".to_string())?;
-            require(row["value"].as_f64().is_some_and(|v| v.to_bits() == expected.to_bits()), "COMBINATION_UNSIGNED_VALUE")?;
-        }
-    }
-    Ok(())
-}

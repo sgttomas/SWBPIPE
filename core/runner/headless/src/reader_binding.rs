@@ -146,7 +146,9 @@ pub const READERS: &[Reader] = &[
     // readers (physics, physics-source, load-reference, load-reference-source)
     // have no entry, and a statement under a retired identity is refused by name
     // at `dispatch`.
-    base!("preview-physics", &[]),
+    // RT-A4 (review r1 P2-P3): preview-physics admits the model, which re-derives its
+    // combination gates and unsigned rows.
+    base!("preview-physics", &["model"]),
     base!("pressure-source", &["invocation"]),
     base!("source-recovery", &[]),
     base!("pressure", &["model"]),

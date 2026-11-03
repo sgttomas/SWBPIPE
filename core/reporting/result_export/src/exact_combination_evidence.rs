@@ -414,6 +414,9 @@ impl<'a> Expression<'a> {
     fn range(&self) -> bool {
         matches!(self, Expression::Envelope { .. })
     }
+    fn unsigned(&self) -> bool {
+        matches!(self, Expression::Terms("absolute_sum" | "srss", _))
+    }
     fn metadata_basis(&self) -> &'static str {
         match self {
             Expression::Terms("absolute_sum", _) => graph::ABSOLUTE_SUM_BASIS,
@@ -500,13 +503,15 @@ impl Key {
     fn of(row: &Value) -> Option<Key> {
         let field = |v: &Value| v.as_str().map(str::to_string);
         let kind = field(&row["kind"])?;
+        // A magnitude is keyed by kind, unit and node: a load case's row carries no
+        // metadata, and an unsigned or nested combination's states only its derivation.
         let (location, component, frame, section) = match row.get("metadata") {
+            _ if kind == "displacement_magnitude" => Default::default(),
             Some(md) => {
                 let basis = md["basis"].as_str()?;
                 (field(&md["location"])?, field(&md["component"])?, field(&md["coordinate_system"])?,
                     basis.split_once(SECTION_SEPARATOR).map_or(String::new(), |(_, s)| s.to_string()))
             }
-            None if kind == "displacement_magnitude" => Default::default(),
             None => return None,
         };
         Some(Key { kind, unit: field(&row["unit"])?, entity: field(&row["entity_ref"])?, location, component, frame, section })
@@ -936,8 +941,14 @@ fn derive(combination: &str, expression: &Expression<'_>, oq1: bool, operands: &
                 built.withhold(template_id, ALGEBRA_REFUSED);
                 continue;
             }
+            // An unsigned magnitude outside the binary64 range is refused, never an infinity.
+            let value = norm3(vector[0], vector[1], vector[2]);
+            if expression.unsigned() && !value.is_finite() {
+                built.withhold(template_id, ALGEBRA_REFUSED);
+                continue;
+            }
             let refs = components.iter().map(|c| c.combined_id(combination)).collect();
-            let row = combined_row(combination, expression, oq1, template, key, norm3(vector[0], vector[1], vector[2]), refs);
+            let row = combined_row(combination, expression, oq1, template, key, value, refs);
             built.row_evidence.push(json!({"result_id": row["id"], "sources": []}));
             built.rows.push(row);
             continue;
@@ -1002,7 +1013,11 @@ fn derive(combination: &str, expression: &Expression<'_>, oq1: bool, operands: &
                     (value, refs, evidence)
                 } else {
                     let c = &combined[slots.clone()];
-                    (norm3(c[0], c[1], c[2]), component_ids[slots].to_vec(), Vec::new())
+                    let value = norm3(c[0], c[1], c[2]);
+                    if expression.unsigned() && !value.is_finite() {
+                        return Err(ALGEBRA_REFUSED);
+                    }
+                    (value, component_ids[slots].to_vec(), Vec::new())
                 };
                 let row = combined_row(combination, expression, oq1, template, &key, value, refs);
                 let evidence = json!({"result_id": row["id"], "sources": evidence_sources});
@@ -1018,6 +1033,13 @@ fn derive(combination: &str, expression: &Expression<'_>, oq1: bool, operands: &
                 }
             }
             Err(reason) => built.withhold(format!("support-action:{}:{}", support.len(), support), reason),
+        }
+    }
+    // A magnitude row of an unsigned or nested combination states its derivation; a
+    // flat combination's keeps the load case's absent metadata.
+    if expression.unsigned() || operands.iter().any(|o| matches!(o, Operand::Combination(_))) {
+        for row in built.rows.iter_mut().filter(|r| r["kind"] == "displacement_magnitude") {
+            row["metadata"] = graph::derived_magnitude_metadata(expression.metadata_basis(), &expression.sign(oq1));
         }
     }
     built

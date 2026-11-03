@@ -44,6 +44,12 @@ _TINY = Fraction(1, 2 ** 1074)
 UNREPRESENTABLE, MIXED, UNSIGNED_NONZERO, OPERAND = "unrepresentable", "envelope_mixed", "unsigned_nonzero", "operand"
 
 
+def derived_magnitude_metadata(basis: str, sign_convention: str) -> dict:
+    """The metadata of an unsigned or nested combination's displacement_magnitude row, which states its derivation only."""
+    return {"component": "displacement_magnitude", "coordinate_system": "global", "location": "node", "basis": basis,
+            "sign_convention": sign_convention}
+
+
 def fixed_load_count_message(cid: str) -> str:
     return (f"combination {cid}: its fixed-load count (the number of times it carries each fixed load) needs more than "
             "4,096 significand bits exactly, so it is undefined; a gated use never treats an undefined count as passing")

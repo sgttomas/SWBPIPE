@@ -1699,6 +1699,7 @@ mod physics_evidence;
 // reader's combination pass.
 mod exact_combination_evidence;
 mod combination_graph;
+mod preview_combination_gates;
 pub mod section_basis;
 mod preview_physics_evidence;
 mod preview_combination_operands;

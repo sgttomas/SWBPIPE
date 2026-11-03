@@ -310,15 +310,17 @@ class Expression:
 
 def key_of(row: Mapping[str, Any]) -> tuple | None:
     metadata = row.get("metadata")
-    if isinstance(metadata, Mapping):
+    # A magnitude is keyed by kind, unit and node: a load case's row carries no metadata, and an unsigned or nested
+    # combination's states only its derivation (absolute-sum-srss section 4).
+    if row.get("kind") == "displacement_magnitude":
+        location = component = frame = section = ""
+    elif isinstance(metadata, Mapping):
         basis = metadata.get("basis")
         fields = [metadata.get("location"), metadata.get("component"), metadata.get("coordinate_system")]
         if not isinstance(basis, str) or not all(isinstance(f, str) for f in fields):
             return None
         section = basis.split(SEPARATOR, 1)[1] if SEPARATOR in basis else ""
         location, component, frame = fields
-    elif row.get("kind") == "displacement_magnitude" and "metadata" not in row:
-        location = component = frame = section = ""
     else:
         return None
     if not all(isinstance(row.get(k), str) for k in ("kind", "unit", "entity_ref")):
@@ -592,7 +594,12 @@ def _derive(combination: str, expression: Expression, results: list[Any], eviden
             if refused:
                 withhold(template["id"], ALGEBRA_REFUSED)
                 continue
-            row = _combined_row(combination, expression, template, key, norm3(*vector), [combined_id(combination, c) for c in components])
+            value = norm3(*vector)
+            # An unsigned magnitude outside the binary64 range is refused, never an infinity.
+            if expression.basis in ("absolute_sum", "srss") and not math.isfinite(value):
+                withhold(template["id"], ALGEBRA_REFUSED)
+                continue
+            row = _combined_row(combination, expression, template, key, value, [combined_id(combination, c) for c in components])
             built["row_evidence"].append({"result_id": row["id"], "sources": []})
             built["rows"].append(row)
             continue
@@ -624,6 +631,11 @@ def _derive(combination: str, expression: Expression, results: list[Any], eviden
         for row, row_evidence in group:
             built["rows"].append(row)
             built["row_evidence"].append(row_evidence)
+    # A magnitude row of an unsigned or nested combination states its derivation; a flat combination's keeps none.
+    if expression.basis in ("absolute_sum", "srss") or any(o[0] == "combination" for o in operands):
+        for row in built["rows"]:
+            if row.get("kind") == "displacement_magnitude":
+                row["metadata"] = graph.derived_magnitude_metadata(BASES[expression.basis], expression.sign(expression.oq1))
     return built
 
 
@@ -665,6 +677,8 @@ def _support_group(combination, expression, operands, find):
             row_sources = [graph.row_source(o, r) for o, r in zip(operands, refs)]
         else:
             value, refs, row_sources = norm3(*combined[slots]), component_ids[slots], []
+            if expression.basis in ("absolute_sum", "srss") and not math.isfinite(value):
+                raise _Withheld(ALGEBRA_REFUSED)
         row = _combined_row(combination, expression, sources[0], key, value, refs)
         out.append((row, {"result_id": row["id"], "sources": row_sources}))
     return out

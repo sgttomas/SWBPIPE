@@ -934,13 +934,15 @@ fn combined_kind(kind: &str) -> bool {
 /// §4 (r1 F4): with a combination operand, rows pair by kind, unit, entity and
 /// every metadata field except `basis` and `sign_convention`, which describe a
 /// row's derivation; a section-basis suffix within `basis` is still compared.
+/// A `displacement_magnitude` row is identified by kind, unit and node alone: a load
+/// case's carries no metadata and a derived one's states only its derivation.
 fn nested_source_identity_matches(reference: &ResultItem, candidate: &ResultItem) -> bool {
     const SECTION: &str = "; section_basis=";
     let section = |basis: &str| basis.split_once(SECTION).map(|(_, s)| s.to_string());
     reference.kind == candidate.kind
         && reference.unit == candidate.unit
         && reference.entity_ref == candidate.entity_ref
-        && match (&reference.metadata, &candidate.metadata) {
+        && (reference.kind == "displacement_magnitude" || match (&reference.metadata, &candidate.metadata) {
             (None, None) => true,
             (Some(a), Some(b)) => {
                 a.component == b.component
@@ -949,7 +951,7 @@ fn nested_source_identity_matches(reference: &ResultItem, candidate: &ResultItem
                     && section(&a.basis) == section(&b.basis)
             }
             _ => false,
-        }
+        })
 }
 
 /// Combination rows for preview-physics-2 (S1 §7; absolute-sum-srss §2-§5).
@@ -1014,6 +1016,9 @@ pub(crate) fn append_combination_results(
         gates.push(serde_json::json!({"combination_id": combination.id, "withheld": false, "reason": null}));
         let range = matches!(expression, CombinationExpression::RangeEnvelope { .. });
         let nested = targets.iter().any(|t| matches!(t, Target::Combination(_)));
+        // §4: a magnitude row of an unsigned or nested combination states its
+        // derivation in its metadata; a flat combination's keeps none (V-8).
+        let derived = nested || expression.is_unsigned();
         let sign = match expression {
             CombinationExpression::ResultStateSubtraction { .. } => SUBTRACTION_SIGN.to_string(),
             _ => expression.result_sign_convention(rendered.nonlinear && plan.solved_state_plus_increments(combination)),
@@ -1067,7 +1072,7 @@ pub(crate) fn append_combination_results(
             }
             if kind == "displacement_magnitude" && !range {
                 let before = out.len();
-                append_combined_vector_magnitude(combination, &expression, &targets, base_id, reference, &lookup, &mut out, diagnostics);
+                append_combined_vector_magnitude(combination, &expression, &sign, derived, &targets, base_id, reference, &lookup, &mut out, &mut withheld, diagnostics);
                 if out.len() > before && keep {
                     out_bases.push(Some(base_id.clone()));
                 }
@@ -1140,6 +1145,11 @@ pub(crate) fn append_combination_results(
                     ("force_magnitude", norm3(combined[0], combined[1], combined[2])),
                     ("moment_magnitude", norm3(combined[3], combined[4], combined[5])),
                 ] {
+                    // §3, §6: an unsigned magnitude outside the binary64 range is
+                    // refused, never published as an infinity; the group is withheld.
+                    if !range && expression.is_unsigned() && !value.is_finite() {
+                        return Err("load-case algebra refused");
+                    }
                     // A linear magnitude is the norm of the combined components;
                     // its row identity is the first operand row that has it.
                     let sources = if range {
@@ -1175,6 +1185,13 @@ pub(crate) fn append_combination_results(
                     out.extend(rows);
                 }
                 Err(reason) => withheld.push(format!("support-action:{}:{} ({reason})", support.id.len(), support.id)),
+            }
+        }
+        if derived {
+            // A range-selected magnitude of a nested envelope whose source row is a
+            // load case's carries no metadata of its own.
+            for row in out.iter_mut().filter(|r| r.kind == "displacement_magnitude" && r.metadata.is_none()) {
+                row.metadata = Some(crate::derived_magnitude_metadata(expression.result_metadata_basis(), &sign));
             }
         }
         if !withheld.is_empty() {

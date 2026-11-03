@@ -23,6 +23,12 @@ pub(crate) const SRSS_SIGN: &str =
     "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state";
 pub(crate) const SOLVED_STATE_PLUS_INCREMENTS_SIGN: &str =
     "positive value follows explicit user linear combination of matching source result sign conventions; a solved state plus derived differences or bounds; not an equilibrium state";
+/// The metadata of an unsigned or nested combination's `displacement_magnitude` row,
+/// which states its derivation only (product `derived_magnitude_metadata`); a load
+/// case's and a flat combination's carry none.
+pub(crate) fn derived_magnitude_metadata(basis: &str, sign_convention: &str) -> Value {
+    serde_json::json!({"component": "displacement_magnitude", "coordinate_system": "global", "location": "node", "basis": basis, "sign_convention": sign_convention})
+}
 pub(crate) const OPERAND_WITHHELD: &str = "LOAD_COMBINATION_OPERAND_WITHHELD";
 pub(crate) const FIXED_LOAD_COUNT_UNREPRESENTABLE: &str = "COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE";
 

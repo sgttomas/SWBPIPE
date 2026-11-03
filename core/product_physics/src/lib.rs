@@ -14847,6 +14847,12 @@ impl<'a> CombinationExpression<'a> {
         algebra.quantity.map(|q| q.value)
     }
 
+    /// §3: an absolute sum or SRSS, whose results are unsigned and whose
+    /// non-representable values withhold their rows (never an infinity).
+    fn is_unsigned(&self) -> bool {
+        matches!(self, Self::AbsoluteSum { .. } | Self::Srss { .. })
+    }
+
     fn result_metadata_basis(&self) -> &'static str {
         match self {
             Self::Mechanics { .. } => "explicit_user_linear_combination",
@@ -14882,17 +14888,39 @@ impl<'a> CombinationExpression<'a> {
 /// combination's from the rows it published (§4, nested operands).
 type OperandRows<'r> = dyn Fn(&str, combination_plan::Target<'_>) -> Option<&'r ResultItem> + 'r;
 
+/// RT-A4 (absolute-sum-srss §4): the metadata of a combination's
+/// `displacement_magnitude` row where its derivation must be stated, on an unsigned
+/// basis or with a combination operand. A load case's row carries none, and so does
+/// a flat combination's, exactly as before (V-8). The physical identity of such a
+/// row is its kind, unit and node; these fields only state its derivation.
+pub(crate) fn derived_magnitude_metadata(basis: &str, sign_convention: &str) -> ResultMetadata {
+    ResultMetadata {
+        component: "displacement_magnitude".to_string(),
+        coordinate_system: "global".to_string(),
+        location: "node".to_string(),
+        basis: basis.to_string(),
+        sign_convention: sign_convention.to_string(),
+    }
+}
+
 /// A combination's `displacement_magnitude` row: the norm of the combined signed
-/// global displacement components (the only caller's reference kind).
+/// global displacement components (the only caller's reference kind). On an
+/// unsigned basis a norm outside the binary64 range is withheld into `withheld` as
+/// "load-case algebra refused" (absolute-sum-srss §3, §6), never published as an
+/// infinity; a linear combination keeps today's rule. `derived` states the row's
+/// derivation in its metadata (`derived_magnitude_metadata`).
 #[allow(clippy::too_many_arguments)]
 fn append_combined_vector_magnitude(
     combination: &PreviewCombination,
     expression: &CombinationExpression<'_>,
+    sign_convention: &str,
+    derived: bool,
     targets: &[combination_plan::Target<'_>],
     base_id: &str,
     reference: &ResultItem,
     rows: &OperandRows<'_>,
     results: &mut Vec<ResultItem>,
+    withheld: &mut Vec<String>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let mut vector = [0.0; 3];
@@ -14939,14 +14967,22 @@ fn append_combined_vector_magnitude(
             &component_id,
         ));
     }
+    let value = norm3(vector[0], vector[1], vector[2]);
+    if expression.is_unsigned() && !value.is_finite() {
+        withheld.push(format!("{base_id} (load-case algebra refused)"));
+        return;
+    }
     let mut combined = reference.clone();
     combined.id = qualified_combination_result_id(&combination.id, base_id);
-    combined.value = norm3(vector[0], vector[1], vector[2]);
+    combined.value = value;
     combined.basis_ref = Some(ResultBasisRef {
         ref_type: "combination".to_string(),
         ref_id: combination.id.clone(),
     });
     combined.source_result_refs = source_refs;
+    if derived {
+        combined.metadata = Some(derived_magnitude_metadata(expression.result_metadata_basis(), sign_convention));
+    }
     results.push(combined);
 }
 
@@ -24296,7 +24332,9 @@ mod tests {
         let run = |rows: &HashMap<String, HashMap<String, ResultItem>>| {
             let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
             let lookup = |base: &str, target: combination_plan::Target<'_>| rows.get(base).and_then(|cases| cases.get(target.id()));
-            append_combined_vector_magnitude(combination, &expression, &targets, base_id, &reference, &lookup, &mut results, &mut diagnostics);
+            let mut withheld = Vec::new();
+            append_combined_vector_magnitude(combination, &expression, MECHANICS_SIGN, false, &targets, base_id, &reference, &lookup, &mut results, &mut withheld, &mut diagnostics);
+            assert!(withheld.is_empty());
             (results, diagnostics)
         };
         // Control: complete components publish the magnitude (one factor-1 term reproduces the case's own value).

@@ -325,9 +325,13 @@ def _gates(evidence: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
     return gates
 
 
-def validate_preview_physics_evidence(source: Mapping[str, Any]) -> None:
+def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[str, Any] | None = None) -> None:
+    """The reader; with the document's ``model`` the combination gates and unsigned rows are re-derived from it instead
+    of being refused where the document alone cannot verify them (RT-A4 review r1 P2, ``preview_combination_gates``)."""
     try:
         _validate(source)
+        from . import preview_combination_gates
+        preview_combination_gates.check(source, model)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
@@ -590,39 +594,3 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
-
-def unsigned_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
-    """RT-A4 (DEL-05-02 absolute-sum-srss sections 3-4), with a supplied model: every published row of an absolute sum
-    or SRSS that is formed from operand rows (not a recomputed magnitude) names one source row per term, each the term's
-    operand's own row of the same quantity, and its value is A or R of the model's factors times those source values,
-    re-derived exactly (``combination_graph``), bit for bit."""
-    rows = [r for r in source.get("results") or [] if isinstance(r, Mapping)]
-    by_id = {r["id"]: r for r in rows if isinstance(r.get("id"), str)}
-    skip = {"displacement_magnitude", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2",
-            "combination_modulus_basis_record"}
-    for combination in model.get("combinations") or []:
-        if not isinstance(combination, Mapping) or combination.get("basis") not in ("absolute_sum", "srss"):
-            continue
-        cid = combination.get("id")
-        terms = []
-        for term in combination.get("terms") or []:
-            operand = ("combination", term["combination"]) if "combination" in term else ("case", term.get("load_case"))
-            terms.append((operand, float(term.get("factor"))))
-        for row in rows:
-            if row.get("basis_ref") != {"ref_type": "combination", "ref_id": cid} or row.get("kind") in skip:
-                continue
-            refs = row.get("source_result_refs")
-            _require(isinstance(refs, list) and len(refs) == len(terms), "combination unsigned sources")
-            values = []
-            for ref, (operand, _) in zip(refs, terms):
-                src = by_id.get(ref)
-                metadata, smeta = row.get("metadata") or {}, (src or {}).get("metadata") or {}
-                _require(src is not None and graph.owns(operand, src) and src.get("kind") == row.get("kind")
-                         and src.get("entity_ref") == row.get("entity_ref") and src.get("unit") == row.get("unit")
-                         and smeta.get("component") == metadata.get("component") and smeta.get("location") == metadata.get("location"),
-                         "combination unsigned sources")
-                values.append(float(src["value"]))
-            expected = graph.unsigned_value(combination["basis"] == "srss", [f for _, f in terms], values)
-            _require(expected is not None and isinstance(row.get("value"), (int, float))
-                     and math.copysign(1.0, row["value"]) == math.copysign(1.0, expected) and float(row["value"]) == expected,
-                     "combination unsigned value")
