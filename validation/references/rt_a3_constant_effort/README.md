@@ -30,9 +30,15 @@ The standard-library generator imports, reads and runs no product code, product
 output, fixture, result schema or generated envelope. All input numbers are
 invented. No value comes from a standard, catalog or vendor source.
 
-It solves every case by two exact formulations. They share only the input
-data, the section formulas and the consumption rule that turns a
-constant-effort record into a nodal force.
+It solves every case by two exact formulations. They share the input data,
+the section formulas, the consumption rule that turns a constant-effort record
+into a nodal force, the load formation in `resolve()` (pressure caps and the
+thermal and Poisson eigenstrains) and the exact rational elimination helper.
+Agreement of A and B therefore verifies the two solvers against each other,
+not the load formation: an error in `resolve()` (for example in `ALPHA*dT`)
+would change both identically. The load formation is checked separately by the
+closed forms below (R-4's (F_ce − W)L³/(3EI), N_w = pA_i, the thermal and
+pressure closed forms) and by the equilibrium and superposition checks.
 
 - **A: force method.** The first anchor is the root of the released tree, and
   every other anchor is released into six redundants. Section resultants come
@@ -97,7 +103,12 @@ restraint.
 carries only nodal loads, so its moment is linear and the ends are the
 extreme stations. Each end has:
 - axial σ = N_w/A_b;
-- bending |M_⊥|/Z_b, with √ when two planes are loaded;
+- bending |M_⊥|/Z_b, with √ when two planes are loaded. This is the resultant
+  `hypot(sigma_y, sigma_z)` of the product's two signed local bending rows at
+  the same member end and section basis, not either signed component, and it
+  does not change if either component's sign is reversed. Component signs are
+  therefore verified through the signed end actions in the declared local
+  frame, not through this magnitude;
 - torsion |T|·r_o/J_b.
 
 The member's elastic normal maximum per basis is |N_w|/A_b + |M_⊥|/Z_b at the
@@ -173,8 +184,10 @@ not fixed here; Σf·F is given for a reader.
    name recorded in `docs/validation_manual/headless_runner_reproduction.md`.
    It is not derived here.
    - A record declaring one translational plus one rotational DOF (e.g. UZ,
-     RX) has "exactly one translational DOF". Whether it is consumed is not
-     settled by the governing text, and no reference is given for it.
+     RX) has exactly one translational DOF, so by the governing rule it is
+     consumed (+F on UZ, zero stiffness, no restraint row); this generator's
+     `ce_consumed()` agrees. It is not covered by a case here: this is omitted
+     coverage, not an unresolved rule.
    - Non-positive `constant_load` is also outside these cases.
 5. **Pressure on load-state documents.** CE3-EB-P and CE3-T-P assume that EX
    load-state documents admit per-state pressure regions. If the product
