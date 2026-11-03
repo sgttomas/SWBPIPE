@@ -771,6 +771,47 @@ struct Topology<'a> {
     replaced: HashSet<String>,
 }
 
+/// How each member is mapped for run evidence (§3.3), by member ID. A reducer
+/// body outranks every other mapping of the member.
+fn member_mappings(model: &PreviewModel) -> HashMap<&str, Mapping<'_>> {
+    let mut mapping: HashMap<&str, Mapping> = HashMap::new();
+    for component in &model.components {
+        let Some(geometry) = component.geometry.as_ref() else { continue };
+        let refs = [
+            (geometry.rigid_pipe_ref.as_deref(), if component.kind == "reducer" { Mapping::ReducerBody } else { Mapping::ConcentricBody }),
+            (geometry.bend_pipe_ref.as_deref(), Mapping::Bend(component)),
+            (geometry.expansion_joint_pipe_ref.as_deref(), Mapping::ExpansionJoint),
+        ];
+        for (pipe_ref, kind) in refs {
+            let Some(pipe_ref) = pipe_ref.filter(|value| !value.trim().is_empty()) else { continue };
+            let applies = match kind {
+                Mapping::ReducerBody | Mapping::ConcentricBody => is_rigid_family(component),
+                Mapping::Bend(_) => crate::is_bend_component(component),
+                Mapping::ExpansionJoint => component.kind == "expansion_joint",
+            };
+            if !applies {
+                continue;
+            }
+            // A reducer body outranks every other mapping of the member.
+            let entry = mapping.entry(pipe_ref).or_insert(kind);
+            if matches!(kind, Mapping::ReducerBody) {
+                *entry = kind;
+            }
+        }
+    }
+    mapping
+}
+
+/// RT-A3 reducer 2b: the members §3.3 maps as another reducer's body, which
+/// are never run evidence (`Evidence::Unsupported`). The pressure step's
+/// unit-free topology reads this one rule rather than restating it.
+pub(crate) fn reducer_body_members(model: &PreviewModel) -> HashSet<&str> {
+    member_mappings(model)
+        .into_iter()
+        .filter_map(|(member, mapping)| matches!(mapping, Mapping::ReducerBody).then_some(member))
+        .collect()
+}
+
 impl<'a> Topology<'a> {
     fn of(model: &'a PreviewModel) -> Self {
         let positions = model.nodes.iter().map(|node| (node.id.as_str(), [node.position.x, node.position.y, node.position.z])).collect();
@@ -782,31 +823,7 @@ impl<'a> Topology<'a> {
                 at_node.entry(pipe.to.as_str()).or_default().push(pipe);
             }
         }
-        let mut mapping: HashMap<&str, Mapping> = HashMap::new();
-        for component in &model.components {
-            let Some(geometry) = component.geometry.as_ref() else { continue };
-            let refs = [
-                (geometry.rigid_pipe_ref.as_deref(), if component.kind == "reducer" { Mapping::ReducerBody } else { Mapping::ConcentricBody }),
-                (geometry.bend_pipe_ref.as_deref(), Mapping::Bend(component)),
-                (geometry.expansion_joint_pipe_ref.as_deref(), Mapping::ExpansionJoint),
-            ];
-            for (pipe_ref, kind) in refs {
-                let Some(pipe_ref) = pipe_ref.filter(|value| !value.trim().is_empty()) else { continue };
-                let applies = match kind {
-                    Mapping::ReducerBody | Mapping::ConcentricBody => is_rigid_family(component),
-                    Mapping::Bend(_) => crate::is_bend_component(component),
-                    Mapping::ExpansionJoint => component.kind == "expansion_joint",
-                };
-                if !applies {
-                    continue;
-                }
-                // A reducer body outranks every other mapping of the member.
-                let entry = mapping.entry(pipe_ref).or_insert(kind);
-                if matches!(kind, Mapping::ReducerBody) {
-                    *entry = kind;
-                }
-            }
-        }
+        let mapping = member_mappings(model);
         Topology { positions, pipes, at_node, mapping, realized: crate::curved_bend_realized_pipe_ids(model), replaced: crate::joint::replaced_span_ids(model) }
     }
 
@@ -863,30 +880,101 @@ fn offset_is_read(component: &PreviewComponent) -> bool {
         && component.mechanics_interface.as_ref().and_then(|i| i.solver_consumption.as_deref()) != Some("not_solver_consumed")
 }
 
+/// The body member, its R-c1 ends N and F and their positions, when the
+/// mapped member exists and ends at the component's node (§3.6).
+fn body_ends<'a>(topology: &Topology<'a>, component: &'a PreviewComponent) -> Option<(&'a PreviewPipe, &'a str, &'a str, V3, V3)> {
+    mapped_pipe_ref(component).and_then(|r| topology.pipes.get(r).copied()).and_then(|member| {
+        let (n, f) = eccentric_offset_ends(component, member)?;
+        Some((member, n, f, *topology.positions.get(n)?, *topology.positions.get(f)?))
+    })
+}
+
+const MAPPING_INVALID_DETAIL: &str = "the offset needs a mapped body member that exists and ends at the component's node";
+
+/// One reducer's read offset judged (§3.2-§3.3): finiteness, mapping, the two
+/// ends' run evidence decided into an axis, then the offset on that axis.
+fn judge_reducer(topology: &Topology, component: &PreviewComponent, tolerance: f64) -> OffsetOutcome {
+    let offset = eccentric_offset(component).expect("a read offset is present");
+    let e = [offset.x, offset.y, offset.z];
+    if !e.iter().all(|v| v.is_finite()) {
+        OffsetOutcome::Invalid("not_finite", "a component of the offset is not finite after conversion".to_string())
+    } else {
+        match body_ends(topology, component) {
+            None => OffsetOutcome::Invalid("mapping_invalid", MAPPING_INVALID_DETAIL.to_string()),
+            Some((member, n, f, x_n, x_f)) => match decide_axis(&topology.end_status(member, n), &topology.end_status(member, f)) {
+                Err((reason, detail)) => OffsetOutcome::Invalid(reason, detail),
+                Ok(axis) => judge_run(x_n, x_f, axis, e, tolerance),
+            },
+        }
+    }
+}
+
 /// Every reducer whose offset is read, with its outcome, in model order.
 fn judge_all<'a>(model: &'a PreviewModel, tolerance: f64) -> Vec<(&'a PreviewComponent, OffsetOutcome)> {
     let topology = Topology::of(model);
-    let mut out = Vec::new();
-    for component in model.components.iter().filter(|c| c.kind == "reducer" && offset_is_read(c)) {
-        let offset = eccentric_offset(component).expect("filtered on presence");
-        let e = [offset.x, offset.y, offset.z];
-        let outcome = if !e.iter().all(|v| v.is_finite()) {
-            OffsetOutcome::Invalid("not_finite", "a component of the offset is not finite after conversion".to_string())
-        } else {
-            match mapped_pipe_ref(component).and_then(|r| topology.pipes.get(r).copied()).and_then(|member| {
-                let (n, f) = eccentric_offset_ends(component, member)?;
-                Some((member, n, f, *topology.positions.get(n)?, *topology.positions.get(f)?))
-            }) {
-                None => OffsetOutcome::Invalid("mapping_invalid", "the offset needs a mapped body member that exists and ends at the component's node".to_string()),
-                Some((member, n, f, x_n, x_f)) => match decide_axis(&topology.end_status(member, n), &topology.end_status(member, f)) {
-                    Err((reason, detail)) => OffsetOutcome::Invalid(reason, detail),
-                    Ok(axis) => judge_run(x_n, x_f, axis, e, tolerance),
-                },
-            }
-        };
-        out.push((component, outcome));
+    model
+        .components
+        .iter()
+        .filter(|c| c.kind == "reducer" && offset_is_read(c))
+        .map(|component| (component, judge_reducer(&topology, component, tolerance)))
+        .collect()
+}
+
+/// RT-A3 reducer 2b (DEL-04-07 `pressure-contract.md`, "Eccentric reducer
+/// pressure step"; DEL-03-05 `eccentric-reducer-offset.md` §3.7): W-15c's
+/// verdict on a pressure-step body, on the normalized model, read whole and
+/// never relaxed.
+///
+/// - A read offset (present, not on a `not_solver_consumed` marker) is judged
+///   exactly as [`append_eccentric_offset_refusals`] judges it
+///   (`judge_reducer`: finiteness, mapping, ambiguous, unsupported and
+///   unresolvable evidence, the θ ≤ θ_base + β_N + β_F agreement, J2's
+///   better-resolved end, J3's split tie, D·t > 0, the precision and
+///   transversality allowances and rule B's placement), and only `Realized`
+///   accepts. A zero offset is judged as zero: a transverse separation beyond
+///   the placement allowance is a mismatch.
+/// - An absent or unread offset declares nothing, so no offset is compared
+///   and no concentricity is inferred; W-15c's run evidence is still required
+///   whole: the mapping, the two ends' evidence decided into an axis by the
+///   same `decide_axis`, and D·t > 0 on the governing axis (on each end's own
+///   axis for a J3 tie). No inclination limit is added.
+///
+/// On acceptance the governing run axis t is returned oriented by D = x_F −
+/// x_N (D·t > 0): one axis, or each end's own on a J3 tie, for the pressure
+/// step's own pass-through sense check (`pressure_runtime`). For a read
+/// offset the axes are decided again by the same deterministic
+/// `decide_axis`, so they are those its accepted judgment used.
+///
+/// The actual nodes govern: nothing here moves a node, forms a load or
+/// changes the solve. `Err` carries W-15c's reason and detail.
+pub(crate) fn pressure_step_run_evidence(model: &PreviewModel, component: &PreviewComponent) -> Result<Vec<V3>, (&'static str, String)> {
+    let topology = Topology::of(model);
+    if offset_is_read(component) {
+        let tolerance = model
+            .node_proximity_tolerance_m()
+            .map_err(|_| ("tolerance_unadmitted", "the node-proximity tolerance is not admitted".to_string()))?;
+        match judge_reducer(&topology, component, tolerance) {
+            OffsetOutcome::Realized(_) => {}
+            OffsetOutcome::Invalid(reason, detail) => return Err((reason, detail)),
+            OffsetOutcome::BelowPrecision(_) => return Err(("below_precision", "the declared offset is not above its transversality allowance".to_string())),
+            OffsetOutcome::NotTransverse(_) => return Err(("not_transverse", "the declared offset has an axial component above its allowance".to_string())),
+            OffsetOutcome::Mismatch(_) => return Err(("mismatch", "the end nodes' transverse separation differs from the declared offset beyond the placement allowance".to_string())),
+        }
     }
-    out
+    let (member, n, f, x_n, x_f) = body_ends(&topology, component).ok_or(("mapping_invalid", MAPPING_INVALID_DETAIL.to_string()))?;
+    let axes = match decide_axis(&topology.end_status(member, n), &topology.end_status(member, f))? {
+        RunAxis::One(u, beta) => vec![(u, beta)],
+        RunAxis::Tied(end_n, end_f) => vec![end_n, end_f],
+    };
+    let mut oriented = Vec::with_capacity(axes.len());
+    for axis in axes {
+        let measure = offset_measure(x_n, x_f, axis, [0.0; 3]);
+        if !(measure.axial_length > 0.0) {
+            return Err(("no_axial_length", no_axial_length_detail(measure.axial_length + 0.0)));
+        }
+        oriented.push(measure.axis);
+    }
+    Ok(oriented)
 }
 
 fn vec_text(v: V3) -> String {

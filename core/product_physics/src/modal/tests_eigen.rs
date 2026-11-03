@@ -538,6 +538,7 @@ fn every_integrity_parameter_is_required_finite_and_in_domain() {
         ("sturm_max_candidates", Box::new(|p| p.sturm_max_candidates = 0)),
         ("sturm_gap_log_positions", Box::new(|p| p.sturm_gap_log_positions = vec![0.3])),
         ("sturm_whole_spectrum_offsets", Box::new(|p| p.sturm_whole_spectrum_offsets = Vec::new())),
+        ("sturm_whole_spectrum_offsets", Box::new(|p| p.sturm_whole_spectrum_offsets = vec![1.0, f64::NAN])),
         ("identity_tolerance.relative", Box::new(|p| p.identity_tolerance.relative = f64::NAN)),
         ("identity_tolerance.absolute", Box::new(|p| p.identity_tolerance.absolute = -1.0)),
         ("max_ql_iterations_per_eigenvalue", Box::new(|p| p.max_ql_iterations_per_eigenvalue = 0)),
@@ -550,6 +551,18 @@ fn every_integrity_parameter_is_required_finite_and_in_domain() {
         assert_eq!(found[0].code, MODAL_INTEGRITY_PARAMETER_INVALID);
         assert_eq!(found[0].affected_refs, vec![name.to_string()]);
     }
+    // A list refusal names the offending entry and its index, never the
+    // caller's whole (unbounded) list.
+    let mut params = test_local_parameters();
+    params.sturm_gap_log_positions = vec![0.25; 1000];
+    params.sturm_gap_log_positions[700] = 0.3;
+    let found = modal_run_with(request(), &params).err().expect("a non-dyadic position must refuse");
+    assert!(found[0].message.contains("3e-1 at index 700"), "{}", found[0].message);
+    assert!(found[0].message.len() < 256, "{}", found[0].message);
+    let mut params = test_local_parameters();
+    params.sturm_whole_spectrum_offsets = vec![1.0, 2.0, f64::NAN];
+    let found = modal_run_with(request(), &params).err().expect("a non-finite offset must refuse");
+    assert!(found[0].message.contains("NaN at index 2"), "{}", found[0].message);
 }
 
 #[test]

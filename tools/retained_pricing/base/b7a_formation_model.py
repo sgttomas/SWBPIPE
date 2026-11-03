@@ -29,7 +29,12 @@ SOURCE_FILES = {
     # from an admitted equivalent-static case, none on D1). The formed-load and finding owners are unchanged.
     # Model document 0.9.0 (§8.36): the two evidence-reader PreviewPipe literals name `condition_set_ref: None` (no
     # allocation; the larger PreviewPipe is a native atom). No formed-load or finding owner changes.
-    "core/product_physics/src/self_weight.rs": "858a0c512acb65360c94b3692ed5d9cc4542065ec25889fa7ed176696dcf8353",
+    # DEL-04-09 I2a (§8.43, D-SW): stable_mass_per_length, ComponentWeight (and its fields) and component_weights
+    # become pub(crate) with unchanged lines, bodies and calls; inspect_generated_self_weight is appended after line
+    # 1510 (after every snapshot key) and calls generate_operations(…, true) unchanged. Their only new callers are in
+    # crate::modal, which no retained root reaches (no modal node is reachable on the run's graph; §8.43). No formed-load or
+    # finding owner changes.
+    "core/product_physics/src/self_weight.rs": "5b097d7dcb32ed5d176cfd1a407ff93620c0795a0db7926775f763cd9f9e609c",
     "core/product_physics/src/source_receipt/source.rs": "384140db918da65d5e76dd601cd0a2068ae2a098379b41c6907069cf99ced419",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.

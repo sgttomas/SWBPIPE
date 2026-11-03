@@ -175,17 +175,24 @@ impl ModalIntegrityParameters {
             found.push(parameter_refusal("sturm_max_candidates", "0".into(), "at least 1"));
         }
         let scale = (1u64 << MAX_GAP_POSITION_LEVEL) as f64;
-        if let Some(t) = self.sturm_gap_log_positions.iter().find(|&&t| !(t > 0.0 && t < 1.0 && (t * scale).fract() == 0.0)) {
+        // The caller's lists have no length bound, so a refusal names the
+        // first offending entry and its index rather than the whole list:
+        // the diagnostic text stays bounded (retained pricing, §8.43).
+        if let Some((index, t)) = self.sturm_gap_log_positions.iter().enumerate().find(|&(_, &t)| !(t > 0.0 && t < 1.0 && (t * scale).fract() == 0.0)) {
             found.push(parameter_refusal(
                 "sturm_gap_log_positions",
-                format!("{t:e} (in {:?})", self.sturm_gap_log_positions),
+                format!("{t:e} at index {index}"),
                 &format!("a list of dyadic fractions in (0, 1) of level at most {MAX_GAP_POSITION_LEVEL}"),
             ));
         }
-        if self.sturm_whole_spectrum_offsets.is_empty() || self.sturm_whole_spectrum_offsets.iter().any(|&r| !(r.is_finite() && r > 0.0)) {
+        let bad_offset = self.sturm_whole_spectrum_offsets.iter().enumerate().find(|&(_, &r)| !(r.is_finite() && r > 0.0));
+        if self.sturm_whole_spectrum_offsets.is_empty() || bad_offset.is_some() {
             found.push(parameter_refusal(
                 "sturm_whole_spectrum_offsets",
-                format!("{:?}", self.sturm_whole_spectrum_offsets),
+                match bad_offset {
+                    Some((index, r)) => format!("{r:e} at index {index}"),
+                    None => "empty".to_string(),
+                },
                 "a non-empty list of finite positive offsets",
             ));
         }

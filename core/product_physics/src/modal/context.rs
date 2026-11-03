@@ -10,10 +10,12 @@
 //! (`operating_conditions::resolution`):
 //! 1. the same case index and id;
 //! 2. the complete authored primitive-load prefix, equal by value (every
-//!    field, magnitudes by their bits), and every other member of the case
-//!    unchanged except the two lowering is documented to change: the cleared
-//!    `condition_use` (its authored presence and value are recorded here) and
-//!    the wind exposure `ResolutionPlan::apply` sets;
+//!    field, magnitudes by their bits). The other members of the case are not
+//!    compared (§8.43, decision A): the binder runs only on `prepare_modal`'s
+//!    own lowering of its own clone, whose case edits are pinned in source
+//!    (S2-PIN): `ResolutionPlan::apply` appends primitive loads and sets the
+//!    wind exposure list and flag, and `lower` clears `condition_use` (its
+//!    authored presence and value are recorded here);
 //! 3. the generated suffix: every temperature record, then every added-weight
 //!    record, each in `pipe_segments` order, each with S2's identity,
 //!    provenance, category, target, direction and dimension. Which pipes carry
@@ -131,24 +133,6 @@ pub(crate) fn primitive_load_difference(a: &PreviewPrimitiveLoad, b: &PreviewPri
     } else {
         None
     }
-}
-
-/// The case with the members lowering is documented to change neutralized:
-/// its primitive loads (compared separately), `condition_use` and the wind
-/// exposure list and its authored flag. Every remaining member is rendered by
-/// its complete `Debug` form, which distinguishes every two values of each
-/// member except NaN payloads (`f64`'s `Debug` is its shortest round-trip
-/// form, signed zeros included), so the rendering compares the rest of the
-/// case exactly without adding a derive to a shared type.
-fn rest_of_case(case: &PreviewLoadCase) -> String {
-    let mut rest = case.clone();
-    rest.primitive_loads.clear();
-    rest.condition_use = None;
-    if let Some(wind) = rest.equivalent_static.as_mut().and_then(|generation| generation.wind.as_mut()) {
-        wind.exposed_pipe_refs.clear();
-        wind.exposed_pipe_refs_authored = false;
-    }
-    format!("{rest:?}")
 }
 
 /// What S2 generates for one pipe, from authored facts only.
@@ -302,7 +286,11 @@ impl<'a> ModalCaseContext<'a> {
     /// (module docs). `lowered` must not yet have passed a stage that rewrites
     /// a primitive load (unit normalization does), so the prefix compares bit
     /// for bit.
-    pub(crate) fn bind_state_case(&self, lowered: &PreviewModel) -> Result<BoundCase, Diagnostic> {
+    /// Binds the case on the model that `prepare_modal` lowered from its own
+    /// clone of the request model with the one `operating_conditions::lower`.
+    /// It is not a validator of an arbitrary lowered model: its premise is that
+    /// controlled path (module docs), so it is visible to the modal module only.
+    pub(super) fn bind_state_case(&self, lowered: &PreviewModel) -> Result<BoundCase, Diagnostic> {
         let original = self.authored_case();
         let id = original.id.as_str();
         let refuse = |reason: String| state_case_binding_refusal(id, reason);
@@ -322,7 +310,12 @@ impl<'a> ModalCaseContext<'a> {
         if lowered_pipes != authored_pipes {
             return Err(refuse("the lowered model's pipe segments are not the authored ones in authored order".into()));
         }
-        // 2. The authored prefix, by value; the rest of the case unchanged.
+        // 2. The authored prefix, by value. The rest of the case is not compared
+        // (§8.43, Agent 0 decision A): this binder runs only on this same
+        // preparation's own lowering of its own clone of the request model, and
+        // that lowering's only case edits are pinned in source (S2-PIN):
+        // `ResolutionPlan::apply` appends primitive loads and sets the wind
+        // exposure list and its authored flag; `lower` clears `condition_use`.
         let authored = original.primitive_loads.len();
         if case.primitive_loads.len() < authored {
             return Err(refuse(format!("the lowered case has {} primitive loads, fewer than its {authored} authored ones", case.primitive_loads.len())));
@@ -331,9 +324,6 @@ impl<'a> ModalCaseContext<'a> {
             if let Some(field) = primitive_load_difference(a, b) {
                 return Err(refuse(format!("authored primitive load {index} (`{}`) differs in its {field} after lowering", a.id)));
             }
-        }
-        if rest_of_case(original) != rest_of_case(case) {
-            return Err(refuse("a member of the case other than its primitive loads, condition_use and wind exposure changed in lowering".into()));
         }
         // 3. The generated suffix, exactly.
         let (temperatures, added_weights) = self.expected_suffix().map_err(&refuse)?;
