@@ -720,8 +720,8 @@ policy). Members not listed are unchanged.
 - `canonical_metadata_vocabulary`: `basis` gains "explicit_user_absolute_sum" and
   "explicit_user_srss"; `component` gains "displacement_magnitude".
 
-**pressure-2 `combination_policy`** (and physics-retained-1, which inherits it). Members not
-listed are unchanged.
+**pressure-2 `combination_policy`**. Members not listed are unchanged. physics-retained-1 has
+no `combination_policy` of its own; its vocabulary and parent digest move by `derive`.
 - `policy_id`: old "PRESSURE-2-COMBINATION-v1"; new "PRESSURE-2-COMBINATION-v2".
 - `operands`: old "primitive load cases only; a combination is never an operand"; new "load
   cases or other combinations: a term names a load case or a combination by kind; a
@@ -731,8 +731,9 @@ listed are unchanged.
   own published rows under the same structural keys; a declared operating comparison
   (difference_basis) names load cases only".
 - `fixed_load_count`, `operand_gate`, `gate_precedence`, `gated_forms`, `absolute_sum`, `srss`:
-  as for preview-physics-2 (the `absolute_sum` and `srss` texts add "a combined stress row keeps
-  its operand rows' metadata basis").
+  as for preview-physics-2 (the `absolute_sum` and `srss` texts add the clause "a combined
+  stress row keeps its operand rows' metadata basis" immediately after the parenthetical
+  "(basis …; sign convention \"…\")", followed by "; ").
 - `mechanics_gates`: old `[COMBINATION_MODULUS_BASIS_MIXED: "the mechanics operands have
   different modulus-basis keys"; COMBINATION_RESOLVED_STIFFNESS_MIXED: "some member's resolved
   stiffness differs between the operands: its selected E/nu/G and material, its
