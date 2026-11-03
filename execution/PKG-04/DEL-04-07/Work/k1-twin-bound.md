@@ -1,11 +1,12 @@
 # K-1 on exact twins: the option-(a) amendment and its bound (RT-A3 increment 4)
 
-**Status.** Drafted for independent review; revised for the second review (nl3): the reaction enclosure's
-formation term and force-error closure, the iterate-delta basis on a derived history, and the element-formula
-source trace. Agent 0 chose option (a): each route keeps its established section
+**Status.** Adopted after independent review (the third review, nl4, at `7678bce3a`, found no blocking
+finding), replacing K-1's first wording in R-4 §3.5. It was revised for the second review (nl3): the reaction
+enclosure's formation term and force-error closure, the iterate-delta basis on a derived history, and the
+element-formula source trace. Agent 0 chose option (a): each route keeps its established section
 formation (EX's D-5 sequence, PF's own). K-1 is reworded below, and its assertion
 (`every_kd5_control_twin_is_within_the_k1_bound` in `core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs`) is
-implemented and held `#[ignore]`d until this amendment is independently reviewed. The basis is computed by
+implemented and runs. The basis is computed by
 [`k1_twin_bound.py`](k1_twin_bound.py), run as `python3 execution/PKG-04/DEL-04-07/Work/k1_twin_bound.py`
 (standard library only, no product code, about a second).
 
@@ -262,20 +263,25 @@ The source establishes it:
 - **Delta families** are bounded for the derived matched history only (§3, "Iterate deltas"), under the observed
   premises (iteration count, no seed recovery, equal final states). They do not cover arbitrary cross-branch
   preceding states, and a case outside the corpus needs its own history derivation.
+- **Loop-rule changes.** The history is derived from a source trace of the loop rules, not observed: the
+  product publishes no per-iteration state, and the script encodes those rules rather than reading them. Equal
+  iteration counts and final states do not detect every rule change (for example a changed second-iterate force),
+  and re-running the unchanged script returns the old history. A change to those rules therefore requires
+  re-checking the source trace, revising the derivation and script, and only then re-running the script and the
+  corpus before the constants are asserted again.
 - **Scope.** The scales and constants are this corpus's: axis-aligned, Euler–Bernoulli, p = 0 controls. They
   claim nothing for other models, for Timoshenko members or bends, or for pressure-loaded cases. Extending K-1
   needs the basis re-run for the extension.
 - **Discrete evidence.** States, counts, convergence and standing are asserted exactly on this corpus. Near an
   active-set transition (the two weak cases) their equality is an observation, not a consequence of the bound.
 
-## 5. Controls and the held assertion
+## 5. Controls and the assertion
 
 `core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs`:
 - `every_kd5_control_twin_is_within_the_k1_bound` is K-1 as amended. It asserts the discrete evidence exactly,
   the history premises (`k1_history_premises`, `K1_ITERATIONS`), and every value row within its family's bound
-  (`k1_violations`, `k1_scales`, `K1_FAMILIES`). It is held `#[ignore]`d. Run explicitly on this base, it passes
-  all 34 case-modes.
-- `the_k1_bound_refuses_its_controls` runs un-held. It tests the comparison, not the corpus. In both modes:
+  (`k1_violations`, `k1_scales`, `K1_FAMILIES`). It runs, and passes all 34 case-modes.
+- `the_k1_bound_refuses_its_controls` tests the comparison, not the corpus. In both modes:
   - the U-1 lifted twin without its parallel spring keeps its state, counts and standing. The comparison reports
     the missing spring rows and translation values outside the bound;
   - a 1e-6 relative EX-only wall-thickness perturbation keeps the discrete evidence and fails on translations, on

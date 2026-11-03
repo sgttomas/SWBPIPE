@@ -306,7 +306,9 @@ needs:
     Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the
     authored seeds, no friction force on the first iterate, the deferred first iterate, and the slip
     direction and normal branch taken from the previous iterate) and on the published iteration
-    counts; a change to those re-runs the script likewise.
+    counts. The script encodes those rules rather than reading them, and equal counts do not detect
+    every rule change, so a change to those rules requires re-checking the source trace and revising
+    the derivation and script before re-running it and the corpus.
   gating: true
   when: Asserting the amended K-1 bound on the kd5 twin corpus.
   evidence: core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs

@@ -25,7 +25,7 @@
 //! and I and J by 1 (A = 0.003540574920595697 m² on EX, 0.003540574920595698 m²
 //! on PF). The same
 //! twin without its nonlinear support, a linear case, differs in the same
-//! rows. K-1's full assertion is therefore held, not loosened:
+//! rows. K-1's bit-identical first wording is therefore held as superseded:
 //! - [`every_kd5_control_keeps_its_states_counts_and_standing_on_its_exact_twin`]
 //!   asserts bit for bit what a last-place stiffness difference does not move:
 //!   each support's state code, the loop's iteration count, final residual
@@ -49,8 +49,8 @@
 //!   corpus the states, the loop's counts, convergence and the standing are
 //!   exact. Every value row satisfies |x_EX − x_PF| ≤ a_f + r_f·S_f in its
 //!   family's canonical unit, with S_f formed from the case's inputs and every
-//!   value required finite. It is held `#[ignore]`d until the amendment is
-//!   independently reviewed;
+//!   value required finite. The amendment was adopted after independent
+//!   review, and the assertion runs;
 //! - [`the_k1_bound_refuses_its_controls`] runs: the comparison refuses the U-1
 //!   lifted twin without its parallel spring, a 1e-6 relative EX-only section
 //!   perturbation that keeps the discrete evidence, a one-ulp offset at zero
@@ -718,10 +718,9 @@ fn discrete(original: &Value, twin: &Value, case: &str) -> (Vec<(String, String)
     (rows(original), rows(twin), standing(original, case), standing(twin, case))
 }
 
-/// K-1 as amended (option (a)), held until its amendment is independently reviewed: on the named corpus the
+/// K-1 as amended (option (a), adopted after independent review): on the named corpus the
 /// discrete evidence is exact and every value row is within its family's bound.
 #[test]
-#[ignore = "held: the K-1 amendment (option (a), k1-twin-bound.md) awaits independent review"]
 fn every_kd5_control_twin_is_within_the_k1_bound() {
     for (at, _, original, twin, pf_case, ex_case, case) in twins() {
         k1_history_premises(&at, &original, &twin, &pf_case, &ex_case, case);
@@ -736,7 +735,7 @@ fn every_kd5_control_twin_is_within_the_k1_bound() {
 /// The amended K-1's controls: each must fail the bound. A real route discrepancy with the same support state
 /// (the U-1 lifted twin without its parallel spring's stiffness); a 1e-6 relative EX-only section perturbation that
 /// keeps the discrete evidence; a zero-scale family with a finite offset above a_f; and NaN and ±infinity. These
-/// test the comparison itself and run while the corpus assertion is held.
+/// test the comparison itself, independently of the corpus assertion.
 #[test]
 fn the_k1_bound_refuses_its_controls() {
     let solved_pair = |control: usize, case: &str, edit: &dyn Fn(&mut Value), mode: PreviewSolverMode| {

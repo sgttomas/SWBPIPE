@@ -1248,9 +1248,9 @@ set from the observed differences, which are at most 1.5e-3 of their
 enclosures.
 
 The assertion (`every_kd5_control_twin_is_within_the_k1_bound`) passes all 34
-case-modes when run explicitly, and is held `#[ignore]`d until the amendment
-is independently reviewed. Its controls run un-held
-(`the_k1_bound_refuses_its_controls`). They are:
+case-modes. The amendment was adopted after independent review and replaces
+K-1's first wording in R-4 §3.5. Its controls
+(`the_k1_bound_refuses_its_controls`) are:
 - the U-1 lifted twin without its parallel spring;
 - a 1e-6 EX-only section perturbation (U-1 LIFTED and F-2 SLIDE), and a 1e-6
   response perturbation (every twin);
@@ -1289,8 +1289,6 @@ geometry-only bend `component:C-110` (D-2; S6's inventory) and the terminal
   `exact_admission.rs`), held in the serial pricing order.
 - *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
   its interim linear forms (`rack_model.py`, `release_runner.py`).
-- *K-1* (above): the option-(a) amendment awaits independent review; its
-  assertion is held until then.
 - *The reader's equilibrium limit* and the further limits (above).
 - *§2.2's explicit member-bound integration test.* The confirmed cases'
   certified rows match the references, but the wall-bound derivation is not
