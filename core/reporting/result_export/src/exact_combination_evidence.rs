@@ -12,7 +12,9 @@
 //! recovery witnesses, the gate, the operands' standing, the missing sources and
 //! withheld rows, and the diagnostics that state them. Any difference is a
 //! forgery and is refused. [`model_checks`] binds each record's expression and
-//! operand modulus selections to the captured model (G2).
+//! operand modulus selections to the captured model (G2), and binds gate 4's
+//! input (RT-A3 increment 3: whether the model has a consuming constant-effort
+//! support) to the model's DEC-049 conditions ([`consuming_constant_effort`]).
 //!
 //! The algebra is this reader's own: a linear combination is the exact sum of
 //! the exact products of the represented binary64 factors and operand values,
@@ -39,6 +41,11 @@ pub(crate) const SOURCE_RECOVERY_EXCLUSION: &str = "excluded: a document with a 
 const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
 const RESOLVED_STIFFNESS_MIXED: &str = "COMBINATION_RESOLVED_STIFFNESS_MIXED";
 const INSTALLED_REFERENCE: &str = "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE";
+/// Gate 4 (RT-A3 increment 3): PF's reason, after gate 3 (the producer's
+/// `exact_combinations::CONSTANT_EFFORT` states the order).
+const CONSTANT_EFFORT: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
+/// The producer's per-case row of a consuming constant-effort support.
+const APPLIED_LOAD: &str = "constant_effort_support_applied_load";
 const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
 const SOURCE_RECOVERY_EXCLUDED: &str = "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED";
 const SOURCE_MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
@@ -583,7 +590,42 @@ fn modulus_key(operand: &Value) -> Result<Option<String>, String> {
     }
 }
 
-fn gate(expression: &Expression<'_>, operands: &[&Value], cases: &[CaseFacts<'_>], connector: &Value) -> Result<Option<&'static str>, String> {
+/// Gate 4's model condition, read from the captured model as the producer's
+/// `classify_constant_effort_consumption` reads its normalized model (DEC-049,
+/// `validation/hand_calcs/mechanics/constant_effort_support_applied_load.md`):
+/// a support the solver reads as constant effort
+/// ([`crate::source_blocks::solver_constant_effort_support`]) with no
+/// `nonlinear` field, whose `hanger.constant_load` normalizes (by the units
+/// authority the producer uses) to a finite positive force, whose every
+/// declared restraint is a frame DOF with exactly one translational entry, and
+/// whose node is a model node. Returns each consuming support's id and force
+/// in newtons, in model order; any other record applies nothing.
+fn consuming_constant_effort(model: &Value) -> Vec<(&str, f64)> {
+    let nodes: HashSet<&str> = items(&model["nodes"]).iter().filter_map(|n| n["id"].as_str()).collect();
+    items(&model["supports"])
+        .iter()
+        .filter(|support| crate::source_blocks::solver_constant_effort_support(support) && support["nonlinear"].is_null())
+        .filter_map(|support| {
+            let load = &support["hanger"]["constant_load"];
+            if load.is_null() {
+                return None;
+            }
+            let force = crate::physics_source::normalized_quantity(load, Dimension::Force).ok().filter(|f| f.is_finite() && *f > 0.0)?;
+            let mut translational = 0;
+            for dof in items(&support["restraints"]) {
+                match dof.as_str()? {
+                    "UX" | "Ux" | "ux" | "UY" | "Uy" | "uy" | "UZ" | "Uz" | "uz" => translational += 1,
+                    "RX" | "Rx" | "rx" | "RY" | "Ry" | "ry" | "RZ" | "Rz" | "rz" => {}
+                    _ => return None,
+                }
+            }
+            let id = support["id"].as_str()?;
+            (translational == 1 && support["node"].as_str().is_some_and(|n| nodes.contains(n))).then_some((id, force))
+        })
+        .collect()
+}
+
+fn gate(expression: &Expression<'_>, operands: &[&Value], cases: &[CaseFacts<'_>], connector: &Value, constant_effort: bool) -> Result<Option<&'static str>, String> {
     let Expression::Mechanics(terms) = expression else { return Ok(None) };
     let mut modulus = HashSet::new();
     for operand in operands {
@@ -609,6 +651,9 @@ fn gate(expression: &Expression<'_>, operands: &[&Value], cases: &[CaseFacts<'_>
     let factors: Vec<f64> = terms.iter().map(|(_, f)| *f).collect();
     if installed_reference(connector) && !unit_factor_sum(&factors) {
         return Ok(Some(INSTALLED_REFERENCE));
+    }
+    if constant_effort && !unit_factor_sum(&factors) {
+        return Ok(Some(CONSTANT_EFFORT));
     }
     Ok(None)
 }
@@ -943,6 +988,11 @@ pub(crate) fn validate(source: &Value) -> Check {
     let case_ids: HashSet<&str> = items(&evidence["exact_cases"]).iter().filter_map(|c| c["load_case_id"].as_str()).collect();
     let case_rows_present = |kinds: &[&str]| results.iter().any(|r| case_of(r).is_some() && kinds.iter().any(|k| r["kind"] == *k));
     let (has_maximum, has_intensified) = (case_rows_present(&MAXIMUM_KINDS), case_rows_present(&INTENSIFIED_KINDS));
+    // Gate 4's input on the received document: a consuming constant-effort
+    // support publishes its applied-load row in every solved case.
+    // `model_checks` binds those rows, case by case, to the model's DEC-049
+    // decision, so with the captured model the gate is decided by the model.
+    let constant_effort = case_rows_present(&[APPLIED_LOAD]);
 
     let mut expected_rows: Vec<Value> = Vec::new();
     // Each expected diagnostic whole (id, code, severity, message, source and
@@ -973,7 +1023,7 @@ pub(crate) fn validate(source: &Value) -> Check {
         require(record["standing"] == STANDING, "STANDING")?;
         require(record["source_recovery"] == SOURCE_RECOVERY_EXCLUSION, "SOURCE_RECOVERY")?;
         let facts: Vec<CaseFacts<'_>> = operand_ids.iter().map(|case| case_facts(evidence, case)).collect();
-        let reason = gate(&expression, &operand_records, &facts, &evidence["connector"])?;
+        let reason = gate(&expression, &operand_records, &facts, &evidence["connector"], constant_effort)?;
         require(bit_equal(&record["gate"], &json!({"withheld": reason.is_some(), "reason": reason})), "GATE")?;
         if !matches!(expression, Expression::Mechanics(_)) {
             // DEC-068 item 1: each operand's solve basis, in authored order.
@@ -1068,6 +1118,7 @@ fn gate_message(code: &str) -> &'static str {
     match code {
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
+        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
     }
 }
@@ -1108,6 +1159,24 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
             };
             require(bit_equal(&operand["modulus_basis_ref"], &reference) && bit_equal(&operand["modulus_basis_temperature"], &temperature), "MODEL_OPERAND")?;
         }
+    }
+    // Gate 4's input decided from the model (RT-A3 increment 3): every solved
+    // case publishes exactly the model's consuming constant-effort supports'
+    // applied-load rows, in model order, each its normalized constant load bit
+    // for bit, and nothing else of that kind. A record dropped from a case or
+    // state, one added for a non-consuming record, or a changed force is
+    // refused, so the received document's consumption fact is the model's.
+    let consuming = consuming_constant_effort(model);
+    let results = items(&source["results"]);
+    for case in items(&source["contract_evidence"]["exact_cases"]) {
+        let id = case["load_case_id"].as_str().ok_or_else(|| fail("MODEL_CONSTANT_EFFORT"))?;
+        let published: Vec<(&str, u64)> = results
+            .iter()
+            .filter(|r| r["kind"] == APPLIED_LOAD && r["basis_ref"]["ref_type"] == "load_case" && r["basis_ref"]["ref_id"] == id)
+            .map(|r| Ok((r["entity_ref"].as_str().ok_or_else(|| fail("MODEL_CONSTANT_EFFORT"))?, r["value"].as_f64().ok_or_else(|| fail("MODEL_CONSTANT_EFFORT"))?.to_bits())))
+            .collect::<Result<_, String>>()?;
+        let expected: Vec<(&str, u64)> = consuming.iter().map(|(support, force)| (*support, force.to_bits())).collect();
+        require(published == expected, "MODEL_CONSTANT_EFFORT")?;
     }
     Ok(())
 }
@@ -1216,6 +1285,45 @@ mod tests {
         for factors in [vec![2.0], vec![0.0], vec![2f64.powi(53), -2f64.powi(53)], vec![1.0, p46, 2f64.powi(-100)],
             vec![1.0, -p46, -2f64.powi(-100)], vec![f64::MAX, f64::MAX], vec![f64::NAN], vec![]] {
             assert!(!unit_factor_sum(&factors), "{factors:?}");
+        }
+    }
+
+    /// Gate 4's model condition mirrors the producer's DEC-049 classification:
+    /// the hanger-type reading, no nonlinear field, a finite positive force in
+    /// newtons by the units authority, recognized DOFs with exactly one
+    /// translational entry (case spellings counted as entered), a model node.
+    #[test]
+    fn constant_effort_consumption_is_decided_from_the_model() {
+        let support = |patch: &dyn Fn(&mut Value)| {
+            let mut s = json!({"id": "support:ce", "node": "node:b", "family": "constant_effort_support", "restraints": ["UZ"],
+                "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 8.0, "unit": "kN"}}});
+            patch(&mut s);
+            json!({"nodes": [{"id": "node:a"}, {"id": "node:b"}], "supports": [{"id": "support:a", "node": "node:a", "family": "anchor", "restraints": ["UX"]}, s]})
+        };
+        assert_eq!(consuming_constant_effort(&support(&|_| {})), [("support:ce", 8000.0)]);
+        // Consumed: a rotation beside the one translation; the type read from the family; a null nonlinear field.
+        for patch in [
+            &(|s: &mut Value| s["restraints"] = json!(["uz", "RX"])) as &dyn Fn(&mut Value),
+            &|s: &mut Value| s["hanger"]["hanger_type"] = json!(" "),
+            &|s: &mut Value| s["nonlinear"] = Value::Null,
+        ] {
+            assert_eq!(consuming_constant_effort(&support(patch)).len(), 1);
+        }
+        // Not consumed.
+        for patch in [
+            &(|s: &mut Value| s["restraints"] = json!(["UY", "UZ"])) as &dyn Fn(&mut Value),
+            &|s: &mut Value| s["restraints"] = json!(["UZ", "uz"]),
+            &|s: &mut Value| s["restraints"] = json!(["RX"]),
+            &|s: &mut Value| s["restraints"] = json!(["UZ", "TX"]),
+            &|s: &mut Value| s["hanger"]["constant_load"] = json!({"value": 0.0, "unit": "N"}),
+            &|s: &mut Value| s["hanger"]["constant_load"] = json!({"value": -1.0, "unit": "N"}),
+            &|s: &mut Value| s["hanger"]["constant_load"] = Value::Null,
+            &|s: &mut Value| s["hanger"]["constant_load"] = json!({"value": 1.0, "unit": "m"}),
+            &|s: &mut Value| s["nonlinear"] = json!({"behavior": "gap"}),
+            &|s: &mut Value| s["node"] = json!("node:z"),
+            &|s: &mut Value| s["hanger"]["hanger_type"] = json!("variable_spring_hanger"),
+        ] {
+            assert!(consuming_constant_effort(&support(patch)).is_empty());
         }
     }
 

@@ -258,3 +258,68 @@ def test_magnitudes_are_correctly_rounded_across_the_binary64_range():
     assert combinations.norm3(1e-160, 2e-160, 3e-160) == 3.7416573867739414e-160
     for x, y, z, r in NORM_VECTORS:
         assert _bits(combinations.norm3(_float(x), _float(y), _float(z))) == r, (hex(x), hex(y), hex(z))
+
+
+# ----------------------------------------------------------------------------- RT-A3 increment 3: gate 4
+
+def _ce_model(**patch):
+    support = {"id": "support:ce", "node": "node:b", "family": "constant_effort_support", "restraints": ["UZ"],
+               "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 8.0, "unit": "kN"}}}
+    for key, value in patch.items():
+        if key == "constant_load":
+            support["hanger"]["constant_load"] = value
+        elif key == "hanger_type":
+            support["hanger"]["hanger_type"] = value
+        else:
+            support[key] = value
+    return {"nodes": [{"id": "node:a"}, {"id": "node:b"}],
+            "supports": [{"id": "support:a", "node": "node:a", "family": "anchor", "restraints": ["UX"]}, support]}
+
+
+def test_constant_effort_consumption_is_decided_from_the_model():
+    """The mirror of the Rust reader's `consuming_constant_effort` (DEC-049, as the producer classifies)."""
+    assert combinations.consuming_constant_effort(_ce_model()) == [("support:ce", 8000.0)]
+    for patch in ({"restraints": ["uz", "RX"]}, {"hanger_type": " "}, {"nonlinear": None}):
+        assert len(combinations.consuming_constant_effort(_ce_model(**patch))) == 1, patch
+    for patch in ({"restraints": ["UY", "UZ"]}, {"restraints": ["UZ", "uz"]}, {"restraints": ["RX"]}, {"restraints": ["UZ", "TX"]},
+                  {"constant_load": {"value": 0.0, "unit": "N"}}, {"constant_load": {"value": -1.0, "unit": "N"}},
+                  {"constant_load": None}, {"constant_load": {"value": 1.0, "unit": "m"}}, {"nonlinear": {"behavior": "gap"}},
+                  {"node": "node:z"}, {"hanger_type": "variable_spring_hanger"}):
+        assert combinations.consuming_constant_effort(_ce_model(**patch)) == [], patch
+
+
+def test_gate_four_follows_gate_three_and_uses_the_unit_factor_sum():
+    operand = {"modulus_basis_ref": None, "modulus_basis_temperature": None}
+    facts = [{"members": []}, {"members": []}]
+    installed = [{"q_ref": [0.0, 0.0, 1e-3, 0.0, 0.0, 0.0]}]
+
+    def gate(factors, connector, constant_effort):
+        expression = combinations.Expression("mechanics", {"terms": [{"load_case_id": "case:A", "factor": factors[0]},
+                                                                       {"load_case_id": "case:B", "factor": factors[1]}]})
+        return combinations._gate(expression, [operand, operand], facts, connector, constant_effort)
+
+    assert gate((0.3, 0.7), [], True) is None
+    assert gate((1.0 + 2.0 ** -46, 0.0), [], True) is None
+    assert gate((2.0, 0.0), [], True) == combinations.CONSTANT_EFFORT
+    assert gate((1.0 + 2.0 ** -45, 0.0), [], True) == combinations.CONSTANT_EFFORT
+    assert gate((2.0 ** 52, -2.0 ** 52), [], True) == combinations.CONSTANT_EFFORT
+    assert gate((2.0, 0.0), [], False) is None
+    # Both factor-sum gates hold: gate 3 names the reason.
+    assert gate((2.0, 0.0), installed, True) == combinations.INSTALLED_REFERENCE
+    assert combinations.GATE_MESSAGES[combinations.CONSTANT_EFFORT] == (
+        "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.")
+
+
+def test_the_model_binding_refuses_applied_load_rows_the_model_does_not_consume():
+    source, model = entry("W16B line")
+    assert code(source, model) is None
+    node = model["nodes"][-1]["id"]
+    consuming = deepcopy(model)
+    consuming["supports"].append({"id": "support:ce", "node": node, "family": "constant_effort_support", "restraints": ["UZ"],
+                                  "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 375.0, "unit": "N"}}})
+    # The model consumes a record whose applied-load rows the document does not publish.
+    assert code(source, consuming) == "SOURCE_PHYSICS_COMBINATION_MODEL_CONSTANT_EFFORT"
+    # A record the model does not consume publishes nothing, as the document states.
+    idle = deepcopy(consuming)
+    idle["supports"][-1]["restraints"] = ["UY", "UZ"]
+    assert code(source, idle) is None

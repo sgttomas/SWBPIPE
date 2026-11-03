@@ -305,6 +305,7 @@ code_paths:
 - validation/references/t4_u4b/**
 - validation/references/rt_a3_tee/**
 - validation/references/rt_a3_reducer/**
+- validation/references/rt_a3_constant_effort/**
 - validation/references/t4_u5a/**
 - validation/references/t4_u5b/**
 - validation/qualification/fixtures/exact_pressure/**
@@ -337,6 +338,8 @@ checks:
 - core/product_physics/tests/rt_a3_tee_references.rs
 - core/product_physics/tests/rt_a3_reducer_references.rs
 - tests/test_rt_a3_reducer_text_only_envelope_diff.py
+- core/product_physics/tests/rt_a3_constant_effort_references.rs
+- core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs
 - core/product_physics/tests/shared_terminal_junction.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs

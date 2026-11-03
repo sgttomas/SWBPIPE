@@ -18,7 +18,13 @@
 //! `pressure-contract.md`, "Tees and pressure junctions") admits the branch
 //! connection (tee) as the metadata record it is on the pressure-free route,
 //! with its user SIFs as intensified rows on both section bases
-//! (`u4b_rows::append_branch_intensified`). Other families retain their named
+//! (`u4b_rows::append_branch_intensified`). RT-A3 increment 3 (DEL-04-07
+//! `pressure-contract.md`, "Constant-effort supports (RT-A3 increment 3)")
+//! admits the ideal constant-effort support of DEC-049 on plain and
+//! load/reference-state documents: the shared `case_force_ledger` applies its
+//! constant nodal force in every solved case and state, and a mechanics
+//! combination over a model with a consuming one is gated by the unit
+//! factor-sum rule (`exact_combinations`). Other families retain their named
 //! refusals. Admission
 //! of another family must supply those consumers together; lifting a refusal
 //! alone cannot establish mechanics.
@@ -297,15 +303,17 @@ impl ExactFamily {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Admission {
     /// The extension point: T4-U3 admits the objective connector; T4-U2 the
-    /// realized bend; W-15 the rigid family; RT-A3 the branch connection.
+    /// realized bend; W-15 the rigid family; RT-A3 the branch connection and
+    /// (increment 3) the constant-effort support.
     Admitted,
     /// A refusal's code and text, both static (no text is composed here).
     Refused { code: &'static str, message: &'static str },
 }
 
 /// The current admission table: the objective connector, the realized bend,
-/// the rigid family, the branch connection, equivalent-static generation and
-/// load combinations are admitted with their integrated mechanics.
+/// the rigid family, the branch connection, the constant-effort support,
+/// equivalent-static generation and load combinations are admitted with their
+/// integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // W-15 (DEL-03-05 Design `rigid-component-stiffness-scaling.md` §2.7):
@@ -343,6 +351,17 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // through regions that end at its node (a region's internal node may
         // not touch an outside pipe), where the terminal caps form the junction.
         (ExactContract::PressureV3, ExactFamily::Branch) => Admission::Admitted,
+        // RT-A3 increment 3 (R-4 §3.2 S2; D-2 by Agent 0): the ideal
+        // constant-effort support (DEC-049) on plain and load/reference-state
+        // documents. A consuming record's constant force is a ledger input term
+        // in every solved case, and on a load-state document a device action of
+        // the active support in every state (`add_constant_effort_support_loads`
+        // in the shared `case_force_ledger`); it has zero stiffness and adds no
+        // restraint row. A non-consuming record applies nothing and warns
+        // (`SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED`). Mechanics combinations are
+        // gated by the unit factor-sum rule (`exact_combinations`). Held or
+        // locked devices belong to hydrotest (R-4 §4.9) and are not built here.
+        (ExactContract::PressureV3, ExactFamily::ConstantEffortSupport) => Admission::Admitted,
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
@@ -583,13 +602,14 @@ mod tests {
     ];
 
     #[test]
-    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
+    fn only_the_connector_the_realized_bend_the_rigid_family_the_branch_constant_effort_equivalent_static_and_combinations_are_admitted_and_each_v3_refusal_names_its_family() {
         for family in ALL {
             match admission(ExactContract::PressureV3, family) {
                 Admission::Admitted
                     if matches!(family, ExactFamily::ObjectiveConnector | ExactFamily::RealizedBend
                         | ExactFamily::Valve | ExactFamily::Flange | ExactFamily::Reducer
                         | ExactFamily::RigidComponent | ExactFamily::Branch
+                        | ExactFamily::ConstantEffortSupport
                         | ExactFamily::EquivalentStatic | ExactFamily::Combination) => {}
                 // T4-U2 (D-2): a chord bend is never admitted; its text asks
                 // the user to realize the bend.
