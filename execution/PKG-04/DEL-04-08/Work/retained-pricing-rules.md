@@ -3653,6 +3653,158 @@ Sparse and dense: `witness_headroom_w1_at_one_mebibyte` ok (0.68 s) and ok
 holder or `exclusive.pending` remained. This is test evidence, not an
 acceptance.
 
+### §8.46 RT-A4: absolute sums, SRSS and nested combinations on both routes (actual-source D3)
+
+**Status.** Proposed registration for PR #98 (RT-A4 wiring; design: DEL-05-02 Work
+`absolute-sum-srss-combinations.md` §10, §10.2 policy texts, §10.4 historical read), under the owner's removal of
+explicit owner approval for coefficient movement; source-derived pricing, independent scrutiny and preservation of the
+registered state remain required. This records no acceptance, the threshold and M are unchanged, and the AC-004 stack
+witnesses have not been run for it.
+
+**Priced source.** `fbd0931d5`: `claude/rt-a4-wiring` (RT-A4 wiring, §10.2 applied at `56b7b0012`, on RT-A3's final CE
+candidate `01e05a486`), with the §10.4 historical read (`1b68b8401`, review fix `91329e840`, entry scope `26278a4ce`)
+merged normally. The comparison basis is §8.44's registered tree, which the preceding tool cohort (`01e05a486`'s
+`tools/`, run on `01e05a486`) reproduces: `generate --check` with §8.44's basis line is equal (1,712 lines). Product
+source between the two is exactly RT-A4 and §10.4: `e2dbc7b33..01e05a486` changes only `retained_memory.rs` and
+tests.
+
+**D1 premises.**
+- **D1.4** (`family_clauses`) refuses on both routes every `absolute_sum` and `srss` basis and every term naming a
+  combination (`F::CombinationMember`), on route E every combination, and every difference basis and subtrahend support
+  state; D1.6 refuses nonlinear supports and constant effort. So no unsigned expression, no OQ-1 row and no κ gate
+  is reached on D1, and S1's interim withholding never withholds.
+- **Nesting on route L.** A subtraction's or envelope's id may name a combination (admitted since S1, when interim
+  withholding removed it; evaluated since RT-A4). At z = 2 one combination can name the other (a cycle is refused
+  before the solve), so at most z − 1 combinations are named and at most z − 1 records are re-derived by the reader.
+- **κ.** A stored κ significand has at most 4,096 bits (64 limbs); `plus` refuses an alignment above 4,097 bits
+  before forming it, so a stored capacity is at most 130 limbs and an aligned operand's at most 256 (module doc of
+  `rta4_owners_model.py`). On D1 (f64 factors, depth ≤ 2) κ stays representable; the pricing uses the general bound.
+- **Historical read (§10.4).** `recorded_tables::SELECTED` is a `const`-initialized `Cell<Option<&'static _>>`;
+  `read_recorded` (selection, and its current-binding clear) and `entry_scope` (clear) are its only writers, besides
+  the `Restore` guard; `read_recorded`'s one production caller is reader_verdict's `recorded`, called only by the
+  `*_recorded` entries, and `entry_scope`'s callers are the operation applier's wasm exports. No retained root reaches
+  them, so `selected()` is None on the retained graph; the five recorded tables are `include_bytes!` statics (read-only
+  data, not heap) parsed into their `OnceLock` only when selected.
+
+**Carry (line map, pins, re-keys).**
+- The line map carries 875 keys with no unmapped key and the same 37 prunes as the baseline (identical keys): no rule
+  is pruned by RT-A4. Five fewer keys remap because five `text_args.g4.json` `site_zero` reasons for `lib.rs:13725`–
+  `13729` lost a stale prose range "(lib.rs:13218-13470)"; it never located `diag()` (13717 at the basis) and its line
+  is RT-A4-deleted code. The rules' keys and classes are unchanged.
+- Re-keys by name to the same semantic sites (unchanged audits and bounds): **RT-A4-RK1** (SD-RK re-anchor): the support
+  component row's call gains `&sign` before `sources[0]`; the anchor states the argument exactly when the source has
+  `let sign = match expression {` and must still match one line of `append_combination_results`. **RT-A4-RK2**: the
+  free `preview_physics.rs::evaluate_values` is deleted and its body is the method
+  `CombinationExpression::evaluate_values` in `lib.rs`; EDGE_PER_CALL's `z*(P+8*g)` moves to it. **RT-A4-RK3**:
+  `append_combined_vector_magnitude`'s component-missing refs name `target.id()` (IN128). **RT-A4-RK4**: the gate
+  diagnostic's refs are `let mut refs = vec![combination.id.clone()];`.
+- Head-keyed lines moved with unchanged text: `b7a_returning_errors` (+7/+10), the phase model's SOLVE and T25 caller
+  (+7, +1), the scoped TEXT model (+7, +79; `preview_physics.rs:636` → `642`), the owner choices' helpers (+79),
+  B7a domain audits (+1/+7/+10; `retained_precision.rs` +5 after §10.4), and the carried `tb` emitter digest (only
+  `retained_w1` 4093 → 4100). The arc-extrema loop rule and OP1A-RD's two operand loops follow
+  `validate_preview_physics_evidence`'s body into `validate_with` and their renamed bindings.
+- Full-file pins re-read: PP `lib.rs`, `preview_physics.rs`, `document_members.rs`; RE `lib.rs`,
+  `retained_precision.rs`, `semantic_contract.rs`, `reader_verdict.rs`, `preview_combination_operands.rs`,
+  `preview_physics_evidence.rs`, `recorded_tables.rs`; each with its review note beside it. S1-ZS and S1-ID drop the
+  two interim pushes RT-A4 deleted (unsigned basis, combination operand).
+- **RT-A4-PR** (tool repair): `o10_rules._production(f)` was the text before the first `#[cfg(test)]`. RT-A4 puts a
+  `#[cfg(test)] fn` mid-file in `exact_combination_evidence.rs`, which would have silently hidden every later
+  production line from RTA3CE-ID's field counts and W16BC-ID's constant scan. It now removes each `#[cfg(test)]` item
+  (lexer-masked brace matching). On every other file it reads it is equal to truncation or reads more production text
+  (straight_pipe `lib.rs`: two doc lines; `u4b_rows.rs`: production after a mid-file test item, so its literal maxima
+  can only rise); no value moved at the priced head.
+- **RT-A4-TK** (tool repair): `token` joins `text_lexicon`'s text names. `evaluate_values` copies each operand token with
+  `token.clone()` where the deleted preview function used `case.to_string()`; without it the three String copies per
+  operand (and the reader's `Expression::value`'s two) were read as data clones (−37.4 MB of priced TEXT at L(2,1)).
+  They are priced IN128.
+
+**New rules** (`rules/o10_rules.py`, RT-A4 block; each guarded by RT-A4-PIN, the new modules' complete bytes).
+
+| Rule | Premise, argument and guard |
+|---|---|
+| **RT-A4-D14** (guard) | D1.4's member clause, the only constructions of the unsigned expressions (resolve's two arms; no qualified construction in PP), evaluate_values' unsigned arms, interim_reasons' two pushes and the withholding's early return before its plan. |
+| **RT-A4-UZ** | Zero edges evaluate_values → `evaluate_absolute_sum`/`evaluate_srss`, free_check → unsigned_rows, and the magnitude's unsigned non-finite withholding site (D1.4). |
+| **RT-A4-WZ** | withhold_interim_combinations: LOOP_TOTAL 0 on its dependants loop, zero edges to its Plan::new and operand_withheld_message (no interim reason on D1, so it returns at `withheld.is_empty()`). |
+| **RT-A4-L1** | 36 loop bounds, each confined to its functions: z (plan order, records, gates), 3 (operands, terms, targets, axes), P+8g (one combination's rows), P (base ids), D (diagnostics), 64 (limbs), 2/1 (identity parts, Option maps). |
+| **RT-A4-RM** | Zero edge check → model_check: the retained graph calls `check(source, None)` (validate_with's None arm); the model arm is reader_verdict's. |
+| **RT-A4-NR** | free_check → derived_rows per call max(0, z − 1); → RowIndex::new min(1, max(0, z − 1)) (built once). |
+| **RT-A4-ER/ID** | require's Err format once per check (SITE_FROM); argument classes of every new format and copy site (IN128 ids, RES base ids, COMP identities, static codes and signs measured from source). |
+| **RT-A4-EV** | Rendered::evidence's `DERIVATION_MEMBER.to_string()` once per run with a derivation, min(1, max(0, z − 1)); its other by-name callers are other types' `evidence`. |
+| **RT-A4-DC** | observed_inner → combination_derivation per call min(1, z) (`if combining`). |
+| **RT-A4-HS** | Zero edges into `RecordedVariant::table`/`base` (selected_table, g0_with), the base digest copy site, and the by-name false edges `SELECTED.with` → exact_combination_evidence's private `Key::with` and `variant.table()` → physics_evidence's private `table`. |
+| **RT-A4-RE** | Route E typed patch: the preview reader's RT-A4-RD sets are route L's (E's precommit reader is pressure-2's). |
+| **RT-A4-TK** | The token copies' class (IN128). |
+
+**Owners** (`base/rta4_owners_model.py`, bound to the modules' bytes and the owning statements; native atoms added to
+`g5_profile.py`).
+
+| Owner | Where | Price | Points |
+|---|---|---|---|
+| RT-A4-PL Plan (resolver, index_of, order, named/done, targets, dependencies, κ stored ≤ 130 limbs each, reached, and one combination's κ transient ≤ 1,224 limbs) | AggregationSuffix: modulus-basis records (every z, both routes) and the callee (z ≥ 1) | `plan(c, z)`; at z = 0 the resolver set alone, HashReq(&str, c) | all |
+| RT-A4-CB targets, `out` (≤ P + 8g ResultItem, push-grown), withheld map; at z ≥ 2 `out_bases`, published_by_base (≤ P entries: base clone ≤ 1,024 B and a one-entry table with a ResultItem clone and its Text(row)), published_rows (the rows cloned with text) | AggregationSuffix, z ≥ 1 | `callee(c, z, P, g)` | L(2,1), L(1,2) |
+| RT-A4-DV derivation transient; the member Value in the envelope (z ≥ 2) | AggregationSuffix; PREVIEW and ENV_S | `derivation`, `derivation_value` | L(1,2) |
+| RT-A4-RD reader: check's row index by id (PA), the operand check's case set (c), withheld set (z); at z ≥ 2 the records, κ graph, RowIndex (tails and cases BTreeMaps, case rows, by_tail, published maps) and one `form`/`derived_rows` (≤ P + 8g row Value trees, named, expected, seen, stated) | T17 V5 (route L) | `reader(...)` | L |
+| RT-A4-HS selection | none on the retained graph (a `const` thread-local Cell; static table bytes) | 0 | — |
+
+Text of every new site is the chain's (TEXT inventory). S1-WH's former price is kept as an allowance: the RT-A4
+withholding allocates nothing on D1. SD-WH's group statement follows the rows into `out` (its own owners unchanged).
+
+**Run.** The committed tool prices `fbd0931d5` with exit 0 on all four points, no unmapped header or unclassified
+argument, O-10 clear on both routes; the §8.45 whole-scope static-literal check passes (class 964 B; `LIMITATIONS[6]`
+is 928 B, below it; no disposition entry was added or changed). D: L(3,0) 43,783 and E 76,356 unchanged; L(2,1)
+39,369 and L(1,2) 35,231 (the deleted interim nested-operand diagnostic).
+
+**Comparison** (against §8.44's registered tree): **1,580 coefficients equal, 22 higher, none lower** (`a_ge_b`):
+
+| Coefficient (and its `success__` copy) | §8.44 | RT-A4 | Change | Source |
+|---|---:|---:|---:|---|
+| `STATICS[1]` | 587,783 | 610,105 | +22,322 | the restated tables (#4, #5, #8, #11, #12; §10.2) |
+| `STATICS[Node(String,Value)]` | 7,807 | 7,846 | +39 | the same |
+| `STATICS[s(Value)]` | 30,930 | 31,224 | +294 | the same |
+| `O_base_{sparse,dense}[1]` | +2,085 | | | RT-A4-PL resolver (4 + 8 + 15 B) and `LIMITATIONS[6]` +686 B in three held failed-manifest copies |
+| `O_base_{sparse,dense}[s(&str)]` | 2,411 | 2,415 | +4 | RT-A4-PL resolver (four buckets) |
+| `T17_V5[s((&str,&Value))]` | 49,248 | 65,632 | +16,384 | RT-A4-RD row index (PA = 8,937 rows on route L) |
+| `T17_V5[s(&str)]` | 1,312 | 1,316 | +4 | RT-A4-RD case set |
+| `TAV_W[1]` | 4,954,973,814 | 4,954,976,558 | +2,744 | `LIMITATIONS[6]` +686 B in four failed-manifest clones |
+| `TAV_text_requested`, `TAV_text_moving` | | | +2,744 | (text atoms, no copy) |
+
+Merged check: sparse 8,593,412,732 → 8,593,478,059, dense 8,652,544,076 → 8,652,609,403 (+65,327 B per mode).
+
+**Native atoms and evaluation.** The registered build's 328 in-build atoms (rustc 1.97.1, debug) are unchanged in
+number; maintained `eval` of the merged tree, with R = 64 MiB, at those atoms:
+
+| Mode | W1 | W2 | W3 (maximum) | W4 | W5 | X1 | X2 | X3 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| sparse | 6,517,033,609 | 6,859,028,170 | 8,810,763,998 | 8,604,478,734 | 7,678,176,068 | 8,593,387,581 | 7,326,004,971 | 6,999,294,847 |
+| dense | 6,576,164,953 | 6,918,159,514 | 8,869,895,342 | 8,663,610,078 | 7,737,307,412 | 8,652,518,925 | 7,385,136,315 | 7,058,426,191 |
+
+Against §8.44 at the same atoms: W1, W2, W3 and W5 +65,327 B; W4 +458,607 B (the reader's row index); X1–X3
++62,583 B, in both modes. W3 stays the maximum, 2,726,516,357 B (dense) below ⌊0.9M⌋ = 11,596,411,699 B at the
+unchanged M = 12,884,901,888 B; the law tests (all phases, R, the 0.9 margin and the 5% TAV_W/TAV_X reserve) pass.
+**All points** (supplement: the S1 atoms and RT-A4's ten new atoms, measured natively in the same build: Target 24,
+FixedLoadCount 40, PublishedBase 72, (&str,FixedLoadCount) 56, (String,&Value) 32, (&str,&str) 32,
+(&str,PublishedTails) 64, GateRecord 96, Node(String,(String,CaseRows)) 1,176, Node(String,CaseRows) 912;
+Node(String,BTreeMap) 648): W3 E + R dense E(3) 8,783,944,541, L(3,0) 8,301,415,706, L(2,1) 7,622,760,025,
+L(1,2) 6,883,640,486 B, each at or below the merged tree in every phase and mode.
+
+**Profile and records.**
+- **Block.** `generate` with basis `, re-run as RT-A4 at fbd0931d5 (§8.46): …` (1,712 lines; `--check` equal).
+- **`REGISTERED_PROFILES`.** Reviewed inputs, counted from 0: **#0** Cargo.lock (`6d8af236…` → `b7ebb02a…`: result_export
+  depends on load_case_algebra), #4 (`b001070e…` → `26dce9c2…`), #5 (`1ccc9561…` → `e7b93f41…`), #8 (`045f6f0d…` →
+  `040ef9a6…`), #10 (`b5476cba…` → `3dd8523f…`), #11 (`be29fabc…` → `10455bf3…`), #12 (`a7b83c37…` → `ce49ebe0…`).
+  Design §10.2 listed #4, #5, #8, #11 and #12 beside #10; #0 moves as well. The identity, the other six inputs, the
+  reader layouts and the threshold are unchanged; the law test's `REVIEWED` list carries the same digests.
+- **Reader audit.** semantic_contract.rs's audited suffix is re-audited (`d2c364d0…` → `d67f4782…`): only
+  current_header's preview arms now read `preview_physics_identity` (§10.4); no include, path module or static.
+- **Law records.** `PINNED_RECORD` takes the in-build record (maintained `eval` less R; the two agree to the byte):
+  sparse 6,449,924,745 · 6,791,919,306 · 8,743,655,134 · 8,537,369,870 · 7,611,067,204 · 8,526,278,717 ·
+  7,258,896,107 · 6,932,185,983; dense 6,509,056,089 · 6,851,050,650 · 8,802,786,478 · 8,596,501,214 ·
+  7,670,198,548 · 8,585,410,061 · 7,318,027,451 · 6,991,317,327 (W1 … X3). Challenge `W1_PHASE_BYTES`
+  [6,449,924,745, 6,509,056,089], `MAX_PHASE_BYTES` [8,743,655,134, 8,802,786,478].
+
+Run evidence is in `/tmp/rta4-d3/` (`base`, `run5`, `run6`, the comparisons, the atom logs and evaluations); it is
+review input, not a permanent dependency.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -3676,7 +3828,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.44's priced source, `e2dbc7b33`; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.46's priced source, `fbd0931d5`; §8.44's `e2dbc7b33` is reproduced by `01e05a486`'s tool cohort; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
@@ -3767,3 +3919,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "RT-U4 `u4b_evidence::Index::any`: the component-free station lookup", "§8.42" (U4B-RD) | §8.42 |
 | "DEL-04-09 I2a: the product modal module and its self-weight seam", "§8.43" (MODAL-FB, MODAL-ID) | §8.43 |
 | "Static and report literal classes: a Rust lexer replaces quote pairing", "§8.45" (SL-LIM) | §8.45 |
+| "RT-A4: absolute sums, SRSS and nested combinations on both routes", "§8.46" (RT-A4-PIN, RT-A4-D14, RT-A4-UZ, RT-A4-WZ, RT-A4-L1, RT-A4-RM, RT-A4-NR, RT-A4-ER, RT-A4-ID, RT-A4-EV, RT-A4-DC, RT-A4-HS, RT-A4-RE, RT-A4-TK, RT-A4-PR, RT-A4-RK1–RK4, RT-A4-PL, RT-A4-CB, RT-A4-DV, RT-A4-RD) | §8.46 |
