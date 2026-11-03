@@ -1058,6 +1058,35 @@ pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<&str>
     Ok(rv::row_semantics_each(&rows, source.as_ref()).to_string())
 }
 
+/// RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from
+/// before RT-A4"): the recorded-run read entries (`reader_verdict::*_recorded`) over JSON
+/// text, under the record's binding `{id, sha256}`: `dispatch`, `preview-physics`,
+/// `preview-physics-transport`, `retained-precision` and `retained-precision-transport`.
+/// Each returns its current entry's outcome shape. The desktop calls this only from its
+/// recorded-run read and compare paths (`resultReader.ts` `recordedRead`).
+pub fn reader_recorded_json(
+    entry: &str,
+    binding_json: &str,
+    source_json: &str,
+    model_json: Option<&str>,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    let binding = parse_reader_input("binding", binding_json)?;
+    let source = parse_reader_input("source", source_json)?;
+    let model = optional_reader_input("model", model_json)?;
+    let invocation = optional_reader_input("invocation", invocation_json)?;
+    let outcome = match entry {
+        "dispatch" => rv::dispatch_recorded(&source, &binding, model.as_ref(), invocation.as_ref()),
+        "preview-physics" => rv::validate_recorded(entry, &source, &binding, model.as_ref(), None),
+        "preview-physics-transport" => rv::transport_recorded("preview-physics", &source, &binding),
+        "retained-precision" => rv::retained_recorded(&source, &binding, invocation.as_ref()),
+        "retained-precision-transport" => rv::retained_transport_recorded(&source, &binding),
+        other => return Err(format!("WASM-ENGINE-INPUT-JSON-INVALID: no recorded reader {other}")),
+    };
+    Ok(outcome.to_string())
+}
+
 fn parse_reader_input(label: &str, text: &str) -> Result<Value, String> {
     serde_json::from_str(text).map_err(|error| {
         format!("WASM-ENGINE-INPUT-JSON-INVALID: {label} is not valid JSON: {error}")
@@ -1346,6 +1375,19 @@ mod wasm_api {
     #[wasm_bindgen]
     pub fn reader_transport_json(reader: &str, source_json: &str) -> Result<String, JsError> {
         super::reader_transport_json(reader, source_json).map_err(|error| JsError::new(&error))
+    }
+
+    /// RT-A4 §10.4: a recorded-run read entry under the record's binding.
+    #[wasm_bindgen]
+    pub fn reader_recorded_json(
+        entry: &str,
+        binding_json: &str,
+        source_json: &str,
+        model_json: Option<String>,
+        invocation_json: Option<String>,
+    ) -> Result<String, JsError> {
+        super::reader_recorded_json(entry, binding_json, source_json, model_json.as_deref(), invocation_json.as_deref())
+            .map_err(|error| JsError::new(&error))
     }
 
     /// R2: one result row's semantics under its source's table.

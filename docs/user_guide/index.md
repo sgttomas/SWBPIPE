@@ -565,6 +565,14 @@ load manager's editors for them are later work. Which combinations a design code
 requires, with which factors, is your rule-pack data: SWBPIPE forms the
 combinations you author and does not determine code compliance.
 
+**Runs recorded before this change.** This change restated the pressure-free
+combination limitation, so a pressure-free (or retained) result recorded or saved
+before it names the earlier text. Such a run keeps its existing read and compare
+behaviour: it opens as a historical run, read against the exact earlier table it
+recorded, and nothing in it is migrated or rewritten. It stays historical; solve
+again for a current result. A result carrying the earlier text is not accepted as
+a new result anywhere else.
+
 ## 7. Solving Mechanics And Reading Status
 
 A mechanics solve starts from a validated analytical model and explicit loads.

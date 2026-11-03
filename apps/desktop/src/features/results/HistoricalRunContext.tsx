@@ -1,7 +1,8 @@
 import { isRetainedRoute } from "./numericalResultQuality";
-import { sourceContract } from "./resultReader";
-import { numericalResultStanding } from "./resultStanding";
-import { validateRetainedPrecision } from "./retainedPrecisionReader";
+import { recordedReaderDispatch, sourceContract } from "./resultReader";
+import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
+import { recordedPreRtA4RecordBinding } from "../../services/recordedPreRtA4";
+import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
@@ -97,15 +98,18 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
   const analysisRun = rawAnalysisRun as AnalysisRunEnvelope | null;
   const findings = ["HISTORICAL_INPUT_MANIFEST_MISSING"];
-  if (mechanicsResult) findings.push(...numericalResultStanding(mechanicsResult, opened.model).findings);
+  // RT-A4 §10.4: a run recorded before RT-A4 binds a registry variant; it is read (its standing
+  // findings, its successor receipt and its record) as it read when recorded, and stays historical.
+  const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
+  if (mechanicsResult) findings.push(...(recordedBinding ? recordedResultStanding(mechanicsResult, recordedBinding, opened.model) : numericalResultStanding(mechanicsResult, opened.model)).findings);
   if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
   // U6d reopen: a saved successor is revalidated by the accepted reader without an
   // invocation (its first code is a finding), and the AnalysisRun's copy must equal
   // its receipt. Nothing registers here, so standing stays needs_recompute.
-  if (mechanicsResult && isRetainedRoute(sourceContract(mechanicsResult))) {
-    try { await validateRetainedPrecision(mechanicsResult); } catch (error) { findings.push((error as Error).message); }
+  if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
+    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { findings.push((error as Error).message); }
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
   if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
@@ -152,7 +156,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   // model is never read for it. Its refusal is a finding only: reopening displays
   // evidence and establishes nothing, so nothing here changes standing, rows or bytes.
   if (currentRecord && mechanicsResult && record) {
-    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, record.load_basis_refs); }
+    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, record.load_basis_refs, undefined, { recordedRead: true }); }
     catch (error) {
       // A named refusal is shown as the validator states it. Anything else (a malformed
       // record read where the validator does not guard it) is one named finding, never
@@ -184,11 +188,13 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
   if (rawMechanicsResult !== null && !mechanicsResult && !findings.includes("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED")) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const model = manifest?.model_basis?.model_payload ?? null;
-  if (mechanicsResult && model) findings.push(...numericalResultStanding(mechanicsResult, model).findings);
+  // RT-A4 §10.4: a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
+  const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
+  if (mechanicsResult && model) findings.push(...(recordedBinding ? recordedResultStanding(mechanicsResult, recordedBinding, model) : numericalResultStanding(mechanicsResult, model)).findings);
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string") findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
-  if (mechanicsResult && isRetainedRoute(sourceContract(mechanicsResult))) {
-    try { await validateRetainedPrecision(mechanicsResult); } catch (error) { findings.push((error as Error).message); }
+  if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
+    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { findings.push((error as Error).message); }
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) findings.push(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
   // The state ref names the stored state this run was read with, and nothing else.
@@ -228,7 +234,7 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Hi
   // derived from the manifest. No basis is passed: the record's own list is never
   // its warrant.
   if (currentRecord && mechanicsResult && record && manifest) {
-    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }); }
+    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }, { recordedRead: true }); }
     catch (error) {
       const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
       if (!findings.includes(finding)) findings.push(finding);

@@ -14,7 +14,8 @@ import { csvAnalysisRoute, csvRecordedModelHash, csvResultHash } from "../result
 import type { RunSideCsvProvenance } from "./runComparisonCsv";
 import { recordableRun, runDescription, type AnalysisRunRead, type AnalysisRunSummary, type CurrentRunSlot } from "../../services/analysisRunService";
 import { buildRecordedRunContext, recordedRunBindingFindings } from "../results/HistoricalRunContext";
-import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { numericalResultStanding, recordedResultStanding, type NumericalStanding } from "../results/resultStanding";
+import { recordedPreRtA4RecordBinding } from "../../services/recordedPreRtA4";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import {
@@ -67,8 +68,11 @@ export function notExactRunReason(run: Pick<AnalysisRunSummary, "run_name" | "re
   return `the recorded run ${runDescription(run)} holds values the desktop cannot represent exactly (its ${named} as received ${parts.length > 1 ? "do" : "does"} not hash to the stored hash)`;
 }
 
-function standingOf(result: MechanicsResult, model: unknown): NumericalStanding {
+function standingOf(result: MechanicsResult, model: unknown, record?: unknown): NumericalStanding {
   try {
+    // RT-A4 §10.4: a run recorded before RT-A4 keeps the standing it read with when recorded.
+    const recorded = record === undefined ? null : recordedPreRtA4RecordBinding(record);
+    if (recorded) return recordedResultStanding(result, recorded, model as Parameters<typeof recordedResultStanding>[2]);
     return numericalResultStanding(result, model as Parameters<typeof numericalResultStanding>[1]);
   } catch (error) {
     return { contract: "unsupported", status: "needs_recompute", eligible: false, findings: [error instanceof Error ? error.message.split(":")[0] : "RESULT_READER_UNAVAILABLE"] };
@@ -104,7 +108,7 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     const listed = findings.length ? findings.join(", ") : "its result or input manifest cannot be read";
     throw new RunComparisonRefusal(COMPARISON_RUN_RECORD_MISMATCH, `the recorded run ${runDescription(read.run)} does not agree with its stored state and record as the desktop reads them (${listed}), so it is not compared.`);
   }
-  const standing = standingOf(result, manifest.model_basis.model_payload);
+  const standing = standingOf(result, manifest.model_basis.model_payload, read.record);
   return {
     kind: "recorded",
     id: read.run.recording_id,

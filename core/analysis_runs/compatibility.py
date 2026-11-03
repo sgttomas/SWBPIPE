@@ -12,6 +12,7 @@ The Python reading these functions held before R2 is now a test verifier only.
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 from pathlib import Path
 import json
 import re
@@ -580,6 +581,42 @@ _TABLES = {PRESSURE_SOURCE_CONTRACT_ID: (PRESSURE_SOURCE_CONTRACT_SHA256, _PRESS
            PRESSURE_CONTRACT_ID: (PRESSURE_CONTRACT_SHA256, _PRESSURE_CONTRACT_PATH),
            **RETAINED_CONTRACTS}
 
+# RT-A4 §10.4 (DEL-05-02 Design absolute-sum-srss-combinations.md, "Recorded results from before RT-A4 (historical
+# read)"): the closed registry of the tables a result recorded before RT-A4 binds, each the main line's bytes verbatim
+# (fixtures/results/recorded_pre_rt_a4), its SHA-256 checked when read. The Rust reader's twin is
+# result_export recorded_tables::VARIANTS; the desktop's, analysisRunCompatibility.ts RECORDED_PRE_RT_A4_TABLES. A
+# variant is selected only by a record's exact binding {id, sha256} on the recorded-run read
+# (validate_analysis_run_v0_3(..., recorded_read=True)); the record builder, the export and every other current path
+# bind the current tables only, and a statement carrying a variant's limitations stays refused there.
+_RECORDED_DIR = _RESULTS_DIR / "recorded_pre_rt_a4"
+RECORDED_PRE_RT_A4_TABLES = {
+    (PREVIEW_PHYSICS_CONTRACT_ID, "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"):
+        _RECORDED_DIR / "semantic_contract_v0_3_preview_physics_2.1ccc9561.json",
+    (PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"):
+        _RECORDED_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.a7b83c37.json",
+    (PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"):
+        _RECORDED_DIR / "semantic_contract_v0_3_preview_physics_retained_1.b001070e.json",
+    (PHYSICS_RETAINED_CONTRACT_ID, "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd"):
+        _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.cf29fd5f.json",
+    (PHYSICS_RETAINED_CONTRACT_ID, "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"):
+        _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.045f6f0d.json",
+}
+SOURCE_RECORDED_TABLE_HASH = "SOURCE_RECORDED_TABLE_HASH"
+
+
+def recorded_pre_rt_a4_variant(binding: Any) -> tuple[str, str, Path] | None:
+    """The registry variant a record's binding names: exactly {id, sha256}, equal to a member, its table's bytes
+    hashing to that digest (else SOURCE_RECORDED_TABLE_HASH); None for any other binding."""
+    if not isinstance(binding, Mapping) or set(binding) != {"id", "sha256"}:
+        return None
+    key = (binding["id"], binding["sha256"])
+    path = RECORDED_PRE_RT_A4_TABLES.get(key) if all(isinstance(item, str) for item in key) else None
+    if path is None:
+        return None
+    if hashlib.sha256(path.read_bytes()).hexdigest() != key[1]:
+        raise ValueError(f"{SOURCE_RECORDED_TABLE_HASH}: {path.name}")
+    return key[0], key[1], path
+
 
 def _same_canonical(a: Any, b: Any) -> bool:
     """RV92 S-1: equal as checked canonical JSON bytes, as TS's same() compares, so
@@ -602,18 +639,18 @@ def _refused(refusal: rust_reader.ReaderRefusal) -> ValueError:
     return ValueError(refusal.detail or refusal.code)
 
 
-def _retained_validation(source: Mapping[str, Any], invocation: Any = None) -> dict[str, Any]:
+def _retained_validation(source: Mapping[str, Any], invocation: Any = None, recorded_binding: Any = None) -> dict[str, Any]:
     """The Rust reader's G0-G8 on a successor (`retained_precision::validate`, through
     `openpipestress-runner read`). A refusal raises the Rust reader's detail when it
     carries one (a G7 base failure's text, in Rust's base validator's words), otherwise
-    its code."""
+    its code. RT-A4 §10.4: a recorded-run read passes the record's binding."""
     try:
-        return rust_reader.retained_precision(source, invocation)
+        return rust_reader.retained_precision(source, invocation, recorded_binding=recorded_binding)
     except rust_reader.ReaderRefusal as refusal:
         raise _refused(refusal) from refusal
 
 
-def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
+def _retained_transport(source: Mapping[str, Any], recorded_binding: Any = None) -> dict[str, Any]:
     """F-U6b-2 (B6): the Rust reader's transport checks on a successor
     (`retained_precision::validate_transport_metadata`, through `openpipestress-runner
     read`: G0-G2, then the base header and the base's transport metadata on its
@@ -621,23 +658,27 @@ def _retained_transport(source: Mapping[str, Any]) -> dict[str, Any]:
     carries one (a G7 base failure's text, in Rust's base validator's words), otherwise
     its code."""
     try:
-        return rust_reader.retained_precision_transport(source)
+        return rust_reader.retained_precision_transport(source, recorded_binding=recorded_binding)
     except rust_reader.ReaderRefusal as refusal:
         raise _refused(refusal) from refusal
 
 
-def _retained_contract(source: Mapping[str, Any], *, check_receipt: bool) -> tuple[str, str, Path]:
+def _retained_contract(source: Mapping[str, Any], *, check_receipt: bool, recorded: tuple[str, str, Path] | None = None) -> tuple[str, str, Path]:
+    binding = {"id": recorded[0], "sha256": recorded[1]} if recorded else None
     if not check_receipt:
         # F-U6b-2 (B6): a transported successor (its receipt, with or without raw
         # rows) is checked by the reader's transport validator, never admitted unchecked.
-        _retained_transport(source)
+        _retained_transport(source, binding)
     else:
-        _retained_validation(source)
+        _retained_validation(source, recorded_binding=binding)
     contract = source["producer"]["semantic_contract_id"]
-    return (contract, *RETAINED_CONTRACTS[contract])
+    # RT-A4 §10.4: the reader read the statement under the record's variant (whose identity it checked is the
+    # statement's), so the record's rows are interpreted under that variant's table.
+    return recorded if recorded else (contract, *RETAINED_CONTRACTS[contract])
 
 
-def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -> tuple[str, str, Path]:
+def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True,
+                     recorded: tuple[str, str, Path] | None = None) -> tuple[str, str, Path]:
     """The Rust reader's reading of a statement: its table `(id, sha256, path)`, or its refusal raised.
 
     A successor goes to the retained reader (R1). Every other statement takes the Rust header
@@ -645,13 +686,19 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
     validation (`check_receipt`), or the transport checks of a statement without raw rows. A
     stored v2 result is refused by the header (`SOURCE_EXACT_PRESSURE_V2_RETIRED`), and pressure-2
     has no transport reader (Rust refuses it by name, `SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`).
-    Interpretation dispatch does not authenticate a producer or qualify Current."""
+    Interpretation dispatch does not authenticate a producer or qualify Current.
+
+    RT-A4 §10.4: `recorded`, a registry variant (`recorded_pre_rt_a4_variant`) a record binds, is given only by the
+    recorded-run read; every reader call then carries its binding, and the reader reads the statement under it (or
+    refuses a binding of another identity by name). No other caller passes it."""
+    binding_in = {"id": recorded[0], "sha256": recorded[1]} if recorded else None
     if _is_retained(source):
-        return _retained_contract(source, check_receipt=check_receipt)
+        return _retained_contract(source, check_receipt=check_receipt, recorded=recorded)
     # A transport reading reads the transported members only (as Rust's header-only `for_source_metadata`
     # and the carriers that keep them), never raw rows the statement may still hold.
     verdict = rust_reader.dispatch(source if check_receipt or not isinstance(source, Mapping)
-                                   else {key: source[key] for key in _TRANSPORTED if key in source})
+                                   else {key: source[key] for key in _TRANSPORTED if key in source},
+                                   recorded_binding=binding_in)
     if not verdict["ok"]:
         error = verdict["error"]
         raise ValueError(error["detail"] or error["code"])
@@ -663,12 +710,14 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
     if reader is not None:
         try:
             if check_receipt:
-                rust_reader.validate(reader, source)
+                rust_reader.validate(reader, source, recorded_binding=binding_in)
             else:
-                rust_reader.transport(reader, source)
+                rust_reader.transport(reader, source, recorded_binding=binding_in)
         except rust_reader.ReaderRefusal as refusal:
             raise _refused(refusal) from refusal
     binding = verdict["binding"]
+    if recorded and binding == binding_in:
+        return recorded
     table = _TABLES.get(binding["id"])
     if table is None or table[0] != binding["sha256"]:
         raise RuntimeError(f"RUST-READER-BINDING-UNKNOWN: {binding['id']}")
@@ -811,15 +860,24 @@ def build_analysis_run(mechanics_result: Mapping[str, Any], **kwargs: Any) -> di
 
 
 def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str, Any], *, hash_fn: Callable[[Any], str] = canonical_sha256_checked_v1, expected_basis_refs: list[Mapping[str, str]] | None = None,
-                               recorded_state: Mapping[str, Any] | None = None) -> None:
+                               recorded_state: Mapping[str, Any] | None = None, recorded_read: bool = False) -> None:
     """Validate source interpretation/bindings separately from checksum verification.
 
     A transient record (no ``recorded_state``) names its synthetic state; a recorded
     revision (W-12 S2) names the stored state passed in as ``{"state_id", "model_hash",
     "input_manifest"}``, checked against that state's model hash.
     This accepts supplied evidence only; it does not authenticate a claimed build.
+
+    ``recorded_read`` (RT-A4 §10.4): the recorded-run read, compare and re-save paths only. A record whose binding
+    names a variant of RECORDED_PRE_RT_A4_TABLES has its statement read under that variant (the Rust reader's
+    recorded read) and its rows interpreted under the variant's table, so a run recorded before RT-A4 reads as it
+    did. Without it (the record builder, the export and every current path) only the current tables are read.
     """
-    contract_id, contract_hash, path = _source_contract(source)
+    recorded = None
+    if recorded_read:
+        recorded = recorded_pre_rt_a4_variant(envelope.get("analysis_run", {}).get("reproducibility", {}).get("semantic_contract")
+                                              if isinstance(envelope.get("analysis_run"), Mapping) else None)
+    contract_id, contract_hash, path = _source_contract(source, recorded=recorded)
     _validate_source_reference_fields(source)
     if contract_id not in CURRENT_RECORD_CONTRACT_IDS or envelope.get("schema_version") != "0.3.0" or envelope.get("run_contract_status", {}).get("record_contract") != "strict_analysis_run_v0_3":
         raise ValueError("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH")

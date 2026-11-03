@@ -174,6 +174,38 @@ export function readerValidate(reader: ReaderName, source: unknown, model?: unkn
   const { ok: _, ...validation } = outcome;
   return validation;
 }
+/** RT-A4 §10.4 (DEL-05-02 `absolute-sum-srss-combinations.md`, "Recorded results from before
+ * RT-A4"): the recorded-run read. Rust's recorded entries (`reader_verdict::*_recorded`) read
+ * the statement under the record's binding: the current binding as the current reader does, a
+ * registry variant of the statement's identity under its own tables (`recordedPreRtA4.ts`),
+ * anything else refused by name (SOURCE_RECORDED_BINDING_UNKNOWN or _IDENTITY). Only the
+ * recorded-run read and compare paths call these; no current admission path does. */
+export function recordedReaderDispatch(source: unknown, binding: ContractBinding, model?: unknown): ReaderDispatch {
+  let sourceJson: string, modelJson: string | undefined;
+  try { sourceJson = readerSourceText(source); modelJson = optionalText(model); }
+  catch (error) { if (error instanceof ResultReaderError) return unsupportedDispatch(error.code); throw error; }
+  const e = engine();
+  if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
+  const bindingJson = writtenText(binding);
+  return cached(sourceJson, `recorded-dispatch\u0000${bindingJson}\u0000${modelJson ?? ""}`, () => {
+    try { return freeze(JSON.parse(e.readerRecordedJson("dispatch", bindingJson, sourceJson, modelJson)) as ReaderDispatch); }
+    catch (error) {
+      if (error instanceof Error && error.message.startsWith("WASM-ENGINE-INPUT-JSON-INVALID")) return unsupportedDispatch(JSON_PARSE_REJECTED);
+      throw error;
+    }
+  });
+}
+/** The preview-physics reader's validation of a recorded statement under its record's binding
+ * (the record validator's recorded read). Throws the reader's refusal. */
+export function recordedReaderValidate(source: unknown, binding: ContractBinding, model?: unknown): ReaderValidation {
+  const sourceJson = readerSourceText(source), modelJson = optionalText(model), bindingJson = writtenText(binding);
+  unavailable();
+  const outcome = cached(sourceJson, `recorded-validate\u0000${bindingJson}\u0000${modelJson ?? ""}`,
+    () => call<object>(e => e.readerRecordedJson("preview-physics", bindingJson, sourceJson, modelJson)));
+  if (!outcome.ok) refuse(outcome);
+  const { ok: _, ...validation } = outcome;
+  return validation;
+}
 /** One reader's transport (metadata-only) checks of a transported statement; never
  * eligible. Throws the reader's refusal. */
 export function readerTransport(reader: TransportReaderName, source: unknown): void {

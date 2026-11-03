@@ -148,8 +148,15 @@ pub fn is_preview_physics_id(id: &str) -> bool {
     PREVIEW_PHYSICS_IDENTITIES.iter().any(|(i, _)| *i == id)
 }
 /// A preview-physics identity's `(table, profile)`; `None` for any other identity.
+///
+/// RT-A4 §10.4: inside a recorded-run read (`recorded_tables::read_recorded`) only, the
+/// recorded variant's table (or, for preview-physics-2, the base a selected successor
+/// inherits); everywhere else the current table.
 pub fn preview_physics_identity(id: &str) -> Option<(&'static Value, &'static str)> {
+    let recorded = crate::recorded_tables::selected_table(id);
     match id {
+        PREVIEW_PHYSICS_ID if recorded.is_some() => recorded.map(|t| (t, PREVIEW_PHYSICS_PROFILE)),
+        PREVIEW_PHYSICS_TIMOSHENKO_ID if recorded.is_some() => recorded.map(|t| (t, PREVIEW_PHYSICS_TIMOSHENKO_PROFILE)),
         PREVIEW_PHYSICS_ID => Some((preview_physics_contract(), PREVIEW_PHYSICS_PROFILE)),
         PREVIEW_PHYSICS_TIMOSHENKO_ID => {
             Some((preview_physics_timoshenko_contract(), PREVIEW_PHYSICS_TIMOSHENKO_PROFILE))
@@ -241,9 +248,12 @@ pub(crate) fn is_retained(source: &Value) -> bool {
     source["producer"]["semantic_contract_id"] == PREVIEW_PHYSICS_RETAINED_ID
         || source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID
 }
-/// The successor's own pinned table, by identity.
+/// The successor's own pinned table, by identity (RT-A4 §10.4: inside a recorded-run read,
+/// the recorded variant's).
 fn retained_contract(source: &Value) -> &'static Value {
-    if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
+    if let Some(table) = source["producer"]["semantic_contract_id"].as_str().and_then(crate::recorded_tables::selected_table) {
+        table
+    } else if source["producer"]["semantic_contract_id"] == PHYSICS_RETAINED_ID {
         physics_retained_contract()
     } else {
         preview_physics_retained_contract()
@@ -681,8 +691,9 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PRESSURE_ID) => pressure_rows_contract(),
                 Some(PRESSURE_SOURCE_ID) => pressure_source_contract(),
-                Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
-                Some(PREVIEW_PHYSICS_TIMOSHENKO_ID) => preview_physics_timoshenko_contract(),
+                Some(id @ (PREVIEW_PHYSICS_ID | PREVIEW_PHYSICS_TIMOSHENKO_ID)) => {
+                    preview_physics_identity(id).expect("a preview-physics identity").0
+                }
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
             };
             Ok((table, RESULT_EXPORT_VERSION))
