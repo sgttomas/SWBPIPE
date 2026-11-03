@@ -315,7 +315,7 @@ pub(crate) fn check_weight_basis(prepared: &Prepared, mass: &ModalMass, toleranc
                         (member.node_i, symmetric_apply(&lumps[0], &rigid_translation::<6>(k)).map(|v| v.mul_f64(a))),
                         (member.node_j, symmetric_apply(&lumps[1], &rigid_translation::<6>(k)).map(|v| v.mul_f64(a))),
                     ];
-                    compare_resultant(&member.pipe, k, &formed, &arc_reference, &positions, point, tolerance, &mut discrepancies, &mut refusals);
+                    compare_resultant(&member.pipe, k, &formed, &arc_reference, &positions, About::Own(&[]), tolerance, &mut discrepancies, &mut refusals);
                     reference_loads.extend(arc_reference);
                 }
             }
@@ -328,20 +328,36 @@ pub(crate) fn check_weight_basis(prepared: &Prepared, mass: &ModalMass, toleranc
             };
             let wrench = [(node, [force[0], force[1], force[2], moment[0], moment[1], moment[2]].map(Dd::from_f64))];
             let formed = [(body.node, symmetric_apply(&body.block, &rigid_translation::<6>(k)).map(|v| v.mul_f64(a)))];
-            compare_resultant(&body.component_id, k, &formed, &wrench, &positions, point, tolerance, &mut discrepancies, &mut refusals);
+            // The body's own size: its node and its centre of gravity.
+            let at = positions[body.node];
+            let gravity_centre = [at[0] + body.center_of_gravity[0], at[1] + body.center_of_gravity[1], at[2] + body.center_of_gravity[2]];
+            compare_resultant(&body.component_id, k, &formed, &wrench, &positions, About::Own(&[gravity_centre]), tolerance, &mut discrepancies, &mut refusals);
             reference_loads.extend(wrench);
         }
         // The whole model, on the resultant.
         let product = mass.rigid_product(k);
         let formed: Vec<(usize, [Dd; 6])> =
             (0..mass.node_count).map(|n| (n, std::array::from_fn(|i| product[6 * n + i].mul_f64(a)))).collect();
-        compare_resultant("model", k, &formed, &reference_loads, &positions, point, tolerance, &mut discrepancies, &mut refusals);
+        compare_resultant("model", k, &formed, &reference_loads, &positions, About::Model(point), tolerance, &mut discrepancies, &mut refusals);
     }
     if !refusals.is_empty() {
         return Err(refusals);
     }
     let applied_rows = applied_case_rows(prepared, mass, &positions, point, &mut disclosures);
     Ok(IdentityReport { acceleration: a, discrepancies, applied_rows, disclosures })
+}
+
+/// The point a resultant's moment is taken about, which also sets the size
+/// that scales a moment's tolerance.
+#[derive(Clone, Copy)]
+enum About<'a> {
+    /// One member or component: the centroid of its own nodes, with its size
+    /// from those nodes and the extra points given (a body's centre of
+    /// gravity). Nothing outside the compared subject enters, so a distant
+    /// part of the model cannot inflate the moment scale and hide an error.
+    Own(&'a [[f64; 3]]),
+    /// The whole model: the node centroid, with the model's own size.
+    Model([f64; 3]),
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -351,24 +367,37 @@ fn compare_resultant(
     formed: &[(usize, [Dd; 6])],
     reference: &[(usize, [Dd; 6])],
     positions: &[[f64; 3]],
-    point: [f64; 3],
+    about: About,
     tolerance: IdentityTolerance,
     discrepancies: &mut Vec<Discrepancy>,
     refusals: &mut Vec<Diagnostic>,
 ) {
+    let mut extent: Vec<[f64; 3]> = formed.iter().chain(reference).map(|(n, _)| positions[*n]).collect();
+    let point = match about {
+        About::Own(extra) => {
+            let mut own: Vec<[f64; 3]> = extent.clone();
+            own.sort_by(|a, b| a.iter().zip(b).map(|(x, y)| x.total_cmp(y)).find(|o| o.is_ne()).unwrap_or(std::cmp::Ordering::Equal));
+            own.dedup();
+            let point = node_centroid(&own);
+            extent.extend_from_slice(extra);
+            point
+        }
+        About::Model(point) => {
+            extent.push(point);
+            point
+        }
+    };
     let f = nodal_resultant(formed.iter().copied(), positions, point);
     let r = nodal_resultant(reference.iter().copied(), positions, point);
     let reference_values = to_f64s(&r);
-    // The size of what is compared: its nodes and the fixed point.
-    let mut extent: Vec<[f64; 3]> = formed.iter().chain(reference).map(|(n, _)| positions[*n]).collect();
-    extent.push(point);
     let length = bounding_diagonal(&extent);
     let (abs, rel) = largest_difference(&f, &reference_values, length);
     discrepancies.push(Discrepancy { subject: subject.to_string(), axis: k, kind: "resultant", absolute: abs, relative: rel });
     if identity_exceeds(&f, &reference_values, length, tolerance) {
         refusals.push(weight_basis_mismatch(subject, k, format!(
-            "the resultant of a·M·r_k for {subject} along {} differs from the self-weight resultant about the node centroid by {abs:e} ({rel:e} relative)",
-            AXES[k]
+            "the resultant of a·M·r_k for {subject} along {} differs from the self-weight resultant about {} by {abs:e} ({rel:e} relative)",
+            AXES[k],
+            match about { About::Own(_) => "its own node centroid", About::Model(_) => "the model's node centroid" },
         )));
     }
 }

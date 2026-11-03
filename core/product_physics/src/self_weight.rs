@@ -1512,9 +1512,9 @@ pub fn validate_applied_self_weight(model: &PreviewModel, diagnostics: &mut Vec<
 /// DEL-04-09 (F1 modal, Design §2.5): the generator's loads for the members
 /// `pipe_refs` of the intact `model` at `gravity`, for the modal weight-basis
 /// identity. It calls `generate_operations(model, request, true)` unchanged
-/// under a scratch case id used by no case and no primitive load of `model`
-/// (`modal:weight-basis`, lengthened deterministically until unique, so no
-/// generated identity collides either), with a label and provenance naming the
+/// under a scratch case id that neither equals nor prefixes (as a generated
+/// identity) any case or primitive-load id of `model` (`modal:weight-basis`,
+/// lengthened deterministically until unique), with a label and provenance naming the
 /// modal inspection and an empty `source_model_hash`. It reads `model` only and
 /// clears, adds or renames no case.
 ///
@@ -1530,10 +1530,15 @@ pub(crate) fn inspect_generated_self_weight(
     pipe_refs: &[String],
     gravity: &SelfWeightGravity,
 ) -> Result<SelfWeightOperationPlan, Vec<Diagnostic>> {
+    // `generate_operations` refuses a scratch case id or any generated id
+    // (member or component, both under this prefix) that meets a case id or a
+    // primitive-load id, so every existing id of either kind is checked.
     let taken = |case: &str| {
         let generated = format!("load:self-weight:{}:{}:", case.len(), case);
         model.load_cases.iter().any(|c| {
-            c.id == case || c.primitive_loads.iter().any(|l| l.id == case || l.id.starts_with(&generated))
+            std::iter::once(&c.id)
+                .chain(c.primitive_loads.iter().map(|l| &l.id))
+                .any(|id| id == case || id.starts_with(&generated))
         })
     };
     let mut case_id = String::from("modal:weight-basis");

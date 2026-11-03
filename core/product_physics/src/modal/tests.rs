@@ -761,6 +761,32 @@ fn identity_holds_on_a_component_body() {
 }
 
 #[test]
+fn a_distant_model_does_not_hide_a_component_moment_error() {
+    // Review finding 1 (I2a): a component is compared about its own node, with
+    // its own size, so a model extent of 1e13 m cannot inflate the moment scale.
+    let mut far = pf_request(true);
+    for (node, x) in far["model"]["nodes"].as_array_mut().unwrap().iter_mut().zip([0.0, 1e13, 1e13 + 1.0]) {
+        node["position"]["x"] = json!(x);
+    }
+    let request = modal(with(far, json!({"mode_count": 1, "weight_to_mass_acceleration": q(10.0, "m/s^2")})));
+    let prepared = prepared(&request);
+    let mut mass = assemble_mass(&prepared, prepared.inputs.weight_to_mass_acceleration).unwrap();
+    check_weight_basis(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_or_else(|f| panic!("the intact far model refused: {f:#?}"));
+    // Only the mass side's offset changes: (-0.5, 0.25, 0) to (-0.5, 0, 0), a 125 N·m moment error.
+    let body = &mut mass.bodies[0];
+    body.block = open_pipe_stress_modal_eigen::reformation::mass::component_mass(&open_pipe_stress_modal_eigen::reformation::mass::ComponentBody {
+        node: body.node,
+        weight: body.weight,
+        acceleration: 10.0,
+        center_of_gravity: [-0.5, 0.0, 0.0],
+    })
+    .unwrap();
+    let found = check_weight_basis(&prepared, &mass, TEST_LOCAL_IDENTITY_BOUND).unwrap_err();
+    assert!(codes(&found).iter().all(|c| *c == MODAL_MASS_WEIGHT_BASIS_MISMATCH), "{found:#?}");
+    assert!(found.iter().any(|d| d.message.contains("component:valve") && d.message.contains("its own node centroid")), "{found:#?}");
+}
+
+#[test]
 fn a_replaced_span_carries_no_mass_and_no_weight() {
     let request = modal(with(connector_request(), json!({"mode_count": 1})));
     let prepared = prepared(&request);
@@ -879,6 +905,16 @@ fn inspection_is_pure_and_its_scratch_id_is_unique() {
     let plan = inspect_generated_self_weight(&model, &members, &gravity("global_x")).unwrap();
     assert_eq!(plan.changes[0].target_ref, "modal:weight-basis~~");
     assert!(model.load_cases.iter().all(|c| c.id != plan.changes[0].target_ref));
+    // Review finding 2 (I2a): a case id in the generated namespace is taken too.
+    let mut model: PreviewModel = serde_json::from_value(pf_model(false)).unwrap();
+    model.load_cases[0].id = format!("load:self-weight:{}:modal:weight-basis:7:pipe:p1", "modal:weight-basis".len());
+    let plan = inspect_generated_self_weight(&model, &["pipe:p1".to_string()], &gravity("global_x"))
+        .unwrap_or_else(|found| panic!("a valid model refused by the scratch identity: {found:#?}"));
+    assert_eq!(plan.changes[0].target_ref, "modal:weight-basis~");
+    // End to end: the valid model prepares, forms its mass and passes the identity.
+    let mut renamed = pf_request(false);
+    renamed["model"]["load_cases"][0]["id"] = json!(model.load_cases[0].id);
+    identity(&modal(with(renamed, json!({"mode_count": 1}))));
 }
 
 #[test]
