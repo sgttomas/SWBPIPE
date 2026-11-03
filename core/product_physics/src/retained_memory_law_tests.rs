@@ -1658,7 +1658,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // Model document 0.8.0's shear-model member at 642e9737e4 (§8.26): +10,392 B, validate_model_settings'
     // second blocking refusal (SM-MS: 2,048 + 8,192 + 152 B per validation call, as NP-MS's), on 274,404,624.
     // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 274_415_304, "current text closure at C_eq = 3, maximum over routes");
+    // §8.44 on §8.45's lexer: -1,223,704 B, the static/report literal classes measured by the Rust lexer (§8.45);
+    // main 6c3cb46d3's tree priced by its own tool gives the same 273,191,600 B, so RT-A3 increment 3 moves none of it.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_191_600, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");

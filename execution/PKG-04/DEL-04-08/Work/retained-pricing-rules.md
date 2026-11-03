@@ -3579,7 +3579,11 @@ review input, not a permanent dependency.
   6,508,990,762], `MAX_PHASE_BYTES` [8,743,589,807, 8,802,721,151]. Merged W3
   E + R is 8,810,698,671 B sparse and 8,869,830,015 B dense, 2,726,581,684 B
   below ⌊0.9M⌋ before the TEXT reserve. `profile_` 8 passed; the default
-  `retained_memory_challenge` 1 passed.
+  `retained_memory_challenge` 1 passed. The text-closure law pin
+  (`TEXT_TEXT_DIAG_ENV`, `every_phase_fact_admits_its_cap_and_refuses_cap_plus_one`)
+  follows the regenerated block from 274,415,304 to 273,191,600 B (−1,223,704 B):
+  that is §8.45's lexer alone, since main `6c3cb46d3`'s tree priced with its own
+  tool gives the same value.
 - **All points.** With §8.41's z ≥ 1 supplement (Node(String,BTreeMap) 648,
   CombinationView 120, TermView 16, Finding 112, (String,&str,Operand) 56,
   (&str,String) 40 B; no type definition changed: the only production Rust
