@@ -286,22 +286,23 @@ fn current_inputs_table_and_schema_are_pinned() {
     // the pressure-2 identity limitation (identity bytes only).
     // RT-A3 reducer 2a: re-derived from the maintained producer outputs; only
     // limitation[0] changed, as the strict fixture-preservation test verifies.
+    // RT-A3 reducer 2b: again limitation[0] only (the 2b preservation test).
     for (name, digest) in [
         (
             "connected-sparse",
-            "2aca9d1b11aa3603dcae8040623c86a50ade7318172f444b895e9ba0c24b1095",
+            "fb6fe9ef256d361a0037670bfb1733237c4826c564be374988218ce094efc0ef",
         ),
         (
             "connected-dense",
-            "db472a87bff5c4c5ba149fc1646e21ef7fe539c96215ca90444feeefa26f5c8c",
+            "6b347f8632bd05b8389f9f0b417722a1e4e39af00c6ad40cac95237f0c218c33",
         ),
         (
             "pressure-sparse",
-            "cb113e0a9f509f290da30860d345b3c70c2ed37418c0c34c2762d27a88432a5f",
+            "100ba08a25c3fc7844cd8cfbffddb18d4a302b1284f32cd734f4a26fe75c767e",
         ),
         (
             "pressure-dense",
-            "567ee677ad5a43ce3d529e8c433ef426fd2e3c80700290ab011d735decb35e45",
+            "d0a243754bd40ffdfd8d77d146ea167649a2e6c3c2c87c471a35f7aa0bc58952",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
