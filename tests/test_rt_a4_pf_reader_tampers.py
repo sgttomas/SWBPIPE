@@ -426,3 +426,42 @@ def test_unsigned_withholdings_are_read_whole(solve):
         unstated["diagnostics"] = [d for d in unstated["diagnostics"] if d["id"] != first]
         for given in (None, model):
             both(unstated, given, NESTED_WITHHELD)
+
+
+def test_a_withholding_restated_under_another_code_is_refused(solve):
+    """Review r3: a source-missing diagnostic keeps its id but is restated under a vector code; each stated withholding
+    binds its code to its id, so both readers refuse it, with and without the model."""
+    model = linear_cantilever([terms("huge", "absolute_sum", [("case", "W1", 1.0e306)]),
+                               terms("sus+huge", "mechanics", [("case", "W2", 1.0), ("comb", "huge", 1.0)])])
+    source = solve(model)
+    for given in (None, model):
+        both(source, given, None)
+    for code in ("LOAD_COMBINATION_VECTOR_INVALID", "LOAD_COMBINATION_VECTOR_COMPONENT_MISSING"):
+        swapped = copy.deepcopy(source)
+        diagnostic = next(d for d in swapped["diagnostics"]
+                          if d["code"] == "LOAD_COMBINATION_SOURCE_RESULT_MISSING" and d["affected_refs"][:1] == ["sus+huge"])
+        diagnostic["code"] = code
+        for given in (None, model):
+            both(swapped, given, NESTED_WITHHELD)
+
+
+def test_a_record_repeating_an_operand_is_refused(solve):
+    """Review r3: the producer refuses a repeated operand (LOAD_COMBINATION_DUPLICATE_TERM), so a derivation record
+    repeating one, with its rows consistently re-formed, is not its output; both readers refuse it without the model as
+    with it."""
+    from tests.verifiers import combination_graph as graph, preview_combination_gates as gates
+
+    model = linear_cantilever(LINEAR)
+    source = solve(model)
+    record = derivation_record(source, "sus+srss")
+    record["expression"]["terms"].insert(1, copy.deepcopy(record["expression"]["terms"][0]))
+    parsed = [graph.evidence_term(term) for term in record["expression"]["terms"]]
+    operands, factors = [o for o, _ in parsed], [f for _, f in parsed]
+    expression = graph.Expression.new("mechanics", operands, factors, None)
+    rows, withheld, named = gates._form(gates._RowIndex(source["results"]), "sus+srss", expression, operands,
+                                        expression.sign_convention(False))
+    assert not withheld and not named
+    own = {"ref_type": "combination", "ref_id": "sus+srss"}
+    source["results"] = [r for r in source["results"] if r.get("basis_ref") != own] + rows
+    for given in (None, model):
+        both(source, given, EVIDENCE)

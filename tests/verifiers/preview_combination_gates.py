@@ -187,6 +187,8 @@ def _derivation(source: Mapping[str, Any], gates: list) -> dict | None:
             terms, operands = [], [graph.resolve(i, cases) for i in sorted(ids)]
         else:
             raise _fail("DERIVATION_EVIDENCE")
+        # The producer refuses a repeated operand in every form (LOAD_COMBINATION_DUPLICATE_TERM; review r3).
+        check(len(set(operands)) == len(operands))
         for kind, oid in operands:
             check(oid in cases if kind == "case" else any(r["id"] == oid for r in records))
         records.append({"id": cid, "basis": basis, "operands": operands, "terms": terms,
@@ -542,13 +544,13 @@ def _value(row: Any) -> float | None:
     return float(value) if type(value) in (int, float) else None
 
 
-def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: list, sign: str) -> tuple[list, int, set]:
+def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: list, sign: str) -> tuple[list, int, dict]:
     """The rows, withheld-row count and naming diagnostics' ids of one admitted combination (producer
     ``append_combination_results``): nested pairing with a combination operand, flat pairing otherwise."""
     pairs = _nested_identity if any(t[0] == "combination" for t in targets) else _flat_identity
     rows: list = []
     withheld = 0
-    named: set[str] = set()
+    named: dict[str, str] = {}
     basis = expression.metadata_basis()
     range_ = expression.is_range()
     for base in sorted(index.cases):
@@ -557,7 +559,7 @@ def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: lis
         if reference is None:
             first = next((r for r in (index.lookup(base, t) for t in targets) if r is not None), None)
             if first is not None and _combined_kind(_kind(first)):
-                named.add(missing)
+                named[missing] = SOURCE_MISSING
             continue
         if not _combined_kind(_kind(reference)):
             continue
@@ -573,7 +575,7 @@ def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: lis
                             and row.get("kind") == axis_kind):
                         value = _value(row)
                     if value is None or not math.isfinite(value):
-                        named.add(f"diagnostic:combination:{_suffix(cid)}:{_suffix(base)}:{_suffix(VECTOR_MISSING)}")
+                        named[f"diagnostic:combination:{_suffix(cid)}:{_suffix(base)}:{_suffix(VECTOR_MISSING)}"] = VECTOR_MISSING
                         formed = False
                         break
                     values.append(value)
@@ -581,7 +583,7 @@ def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: lis
                     break
                 value = expression.value(values)
                 if value is None:
-                    named.add(f"diagnostic:combination:{_suffix(cid)}:{_suffix(base)}:{_suffix(VECTOR_INVALID)}")
+                    named[f"diagnostic:combination:{_suffix(cid)}:{_suffix(base)}:{_suffix(VECTOR_INVALID)}"] = VECTOR_INVALID
                     formed = False
                     break
                 vector[axis] = value
@@ -602,7 +604,7 @@ def _form(index: _RowIndex, cid: str, expression: graph.Expression, targets: lis
         sources = [index.lookup(base, t) for t in targets]
         sources = [s if s is not None and pairs(reference, s) and _value(s) is not None else None for s in sources]
         if any(s is None for s in sources):
-            named.add(missing)
+            named[missing] = SOURCE_MISSING
             continue
         value = expression.value([_value(s) for s in sources])
         if value is None:
@@ -698,7 +700,12 @@ def _derived_rows(index: _RowIndex, source: Mapping[str, Any], cid: str, basis: 
 
     def names(d: Mapping[str, Any]) -> bool:
         return _items(d.get("affected_refs"))[:1] == [cid]
-    stated = {d["id"] for d in diagnostics if d.get("code") in (SOURCE_MISSING, VECTOR_MISSING, VECTOR_INVALID) and names(d) and isinstance(d.get("id"), str)}
+    # Each stated withholding binds its code to its id (review r3).
+    stated: dict[str, str] = {}
+    for d in diagnostics:
+        if d.get("code") in (SOURCE_MISSING, VECTOR_MISSING, VECTOR_INVALID) and names(d) and isinstance(d.get("id"), str):
+            _require(d["id"] not in stated, "NESTED_WITHHELD")
+            stated[d["id"]] = d["code"]
     _require(stated == named, "NESTED_WITHHELD")
     held = [d for d in diagnostics if d.get("code") == ROW_WITHHELD and names(d)]
     prefix = f"combination {cid} withholds {withheld} combined row(s) that could not be formed: "

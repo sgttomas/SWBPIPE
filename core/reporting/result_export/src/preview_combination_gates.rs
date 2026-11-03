@@ -247,6 +247,10 @@ fn derivation<'a>(source: &'a Value, gates: &'a [Value]) -> Result<Option<Deriva
             }
             _ => return Err(fail()),
         };
+        // The producer refuses a repeated operand in every form
+        // (LOAD_COMBINATION_DUPLICATE_TERM), so a record repeating one is not its
+        // output (review r3).
+        check(operands.iter().enumerate().all(|(i, o)| !operands[..i].contains(o)))?;
         for operand in &operands {
             check(match operand {
                 Operand::Case(case) => cases.contains(case),
@@ -726,8 +730,8 @@ struct Formed {
     rows: Vec<Value>,
     /// The rows withheld into its one `LOAD_COMBINATION_ROW_WITHHELD`.
     withheld: usize,
-    /// The ids of the diagnostics naming a missing source row or vector component.
-    named: HashSet<String>,
+    /// The diagnostics naming a missing source row or vector component: id → code.
+    named: HashMap<String, &'static str>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -759,7 +763,7 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
         let missing = || format!("diagnostic:preview-physics:combination-source-missing:{}", identity(&[id, base]));
         let Some(reference) = index.lookup(base, targets[0]) else {
             if targets.iter().filter_map(|t| index.lookup(base, *t)).next().is_some_and(|r| combined_kind(kind(r))) {
-                formed.named.insert(missing());
+                formed.named.insert(missing(), SOURCE_MISSING);
             }
             continue;
         };
@@ -783,13 +787,13 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
                     match value {
                         Some(value) => values.push(value),
                         None => {
-                            formed.named.insert(vector_diag(VECTOR_MISSING));
+                            formed.named.insert(vector_diag(VECTOR_MISSING), VECTOR_MISSING);
                             continue 'bases;
                         }
                     }
                 }
                 let Some(value) = expression.value(&values, LoadDimension::Displacement) else {
-                    formed.named.insert(vector_diag(VECTOR_INVALID));
+                    formed.named.insert(vector_diag(VECTOR_INVALID), VECTOR_INVALID);
                     continue 'bases;
                 };
                 vector[axis] = value;
@@ -819,12 +823,12 @@ fn form(index: &RowIndex<'_>, id: &str, expression: &Expression<'_>, targets: &[
                         refs.push(source["id"].as_str().unwrap_or_default().to_string());
                     }
                     None => {
-                        formed.named.insert(missing());
+                        formed.named.insert(missing(), SOURCE_MISSING);
                         continue 'bases;
                     }
                 },
                 None => {
-                    formed.named.insert(missing());
+                    formed.named.insert(missing(), SOURCE_MISSING);
                     continue 'bases;
                 }
             }
@@ -923,13 +927,17 @@ fn derived_rows(index: &RowIndex<'_>, source: &Value, id: &str, basis: &str, ope
     // The withholdings: exactly the derived ones.
     let diagnostics = items(&source["diagnostics"]);
     let names = |d: &&Value| items(&d["affected_refs"]).first().is_some_and(|r| r == id);
-    let stated: HashSet<&str> = diagnostics
-        .iter()
-        .filter(|d| matches!(d["code"].as_str(), Some(SOURCE_MISSING | VECTOR_MISSING | VECTOR_INVALID)))
-        .filter(names)
-        .filter_map(|d| d["id"].as_str())
-        .collect();
-    require(stated.len() == formed.named.len() && formed.named.iter().all(|n| stated.contains(n.as_str())), NESTED_WITHHELD)?;
+    // Each stated withholding binds its code to its id (review r3): a source-missing
+    // diagnostic restated under a vector code, or the reverse, is refused.
+    let mut stated: HashMap<&str, &str> = HashMap::new();
+    for d in diagnostics.iter().filter(|d| matches!(d["code"].as_str(), Some(SOURCE_MISSING | VECTOR_MISSING | VECTOR_INVALID))).filter(names) {
+        let (Some(diagnostic), Some(code)) = (d["id"].as_str(), d["code"].as_str()) else { continue };
+        require(stated.insert(diagnostic, code).is_none(), NESTED_WITHHELD)?;
+    }
+    require(
+        stated.len() == formed.named.len() && formed.named.iter().all(|(n, code)| stated.get(n.as_str()) == Some(code)),
+        NESTED_WITHHELD,
+    )?;
     let withheld: Vec<&Value> = diagnostics.iter().filter(|d| d["code"] == ROW_WITHHELD).filter(names).collect();
     let prefix = format!("combination {id} withholds {} combined row(s) that could not be formed: ", formed.withheld);
     require(
