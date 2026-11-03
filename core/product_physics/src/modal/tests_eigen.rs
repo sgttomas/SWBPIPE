@@ -176,9 +176,13 @@ fn lower_cluster_count(case: &Value) -> usize {
 /// effective-mass sums (normalization- and basis-invariant) and the Sturm
 /// count. Returns the largest relative frequency error. A frequency outside
 /// the test-local class (a) seed must still lie within the product's own
-/// first-order estimate (e_λ/2 in frequency); such modes are listed in
-/// `beyond_seed` (O-6 observation: the binary64 formation of a
-/// rigid-scale pencil, not a defect of the solve).
+/// first-order estimate (e_λ/2 in frequency), and is admitted only for the
+/// named modes of [`BEYOND_SEED_EXCEPTIONS`] (O-6 observation: the binary64
+/// formation of a rigid-scale pencil, not a defect of the solve); every
+/// other mode must meet the seed. Every operand is finite.
+/// The only (case, mode) pairs allowed beyond the class (a) seed.
+const BEYOND_SEED_EXCEPTIONS: [(&str, usize); 2] = [("E-RIGID-SCALE-1e6", 1), ("E-RIGID-SCALE-1e6", 2)];
+
 fn compare_eigen(case: &Value, outcome: &ModalOutcome, beyond_seed: &mut Vec<String>) -> f64 {
     let id = case["id"].as_str().unwrap();
     let modes = case["modes"].as_array().unwrap();
@@ -186,8 +190,21 @@ fn compare_eigen(case: &Value, outcome: &ModalOutcome, beyond_seed: &mut Vec<Str
     for mode in &outcome.modes {
         let expected = reference_frequency(&modes[mode.index - 1]);
         let error = (mode.frequency - expected).abs() / expected;
-        if error > TEST_LOCAL_CLASS_A_FREQUENCY {
+        assert!(
+            mode.frequency.is_finite() && expected.is_finite() && expected > 0.0 && error.is_finite(),
+            "{id} mode {}: non-finite comparison ({} Hz against {expected} Hz)",
+            mode.index,
+            mode.frequency
+        );
+        if !(error <= TEST_LOCAL_CLASS_A_FREQUENCY) {
             assert!(
+                BEYOND_SEED_EXCEPTIONS.contains(&(id, mode.index)),
+                "{id} mode {}: {} Hz against {expected} Hz ({error:e}) is beyond the seed and not a named exception",
+                mode.index,
+                mode.frequency
+            );
+            assert!(
+                mode.cluster_error_estimate.is_finite() &&
                 error <= mode.cluster_error_estimate / 2.0,
                 "{id} mode {}: {} Hz against {expected} Hz ({error:e}; e_λ {:e}, η {:e})",
                 mode.index,
@@ -246,6 +263,10 @@ fn class_a_eigen_references_agree_through_the_product_path() {
     print_observations("Class (a) eigen references through the product path", &rows);
     println!("served below a completed computed cluster (census unresolved): {lower_only:?}");
     println!("beyond the 1e-9 seed but within the product's own e_λ/2: {beyond_seed:#?}");
+    // Exactly the named exceptions, no more and no fewer.
+    let named: Vec<String> = BEYOND_SEED_EXCEPTIONS.iter().map(|(case, mode)| format!("{case} mode {mode}")).collect();
+    let seen: Vec<String> = beyond_seed.iter().map(|row| row.split(':').next().unwrap().to_string()).collect();
+    assert_eq!(seen, named, "{beyond_seed:#?}");
     // GENERAL's offset point lump is the design's non-coordinate witness.
     assert!(lower_only.iter().any(|id| id == "E-POINTMASS-GENERAL"), "{lower_only:?}");
     assert!(rows.len() == eigen_cases().len());
@@ -461,7 +482,7 @@ fn a_mechanism_is_refused_before_any_eigen_solve() {
         {"id": "s:c", "node": "c", "family": "anchor", "restraints": ["UX", "UY", "UZ"], "provenance": PROV}]);
     let found = refusal_codes(request, &test_local_parameters());
     assert_eq!(found.len(), 1, "{found:?}");
-    assert!(found[0].starts_with("NUMERICAL_INTEGRITY_"), "{found:?}");
+    assert_eq!(found[0], "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", "{found:?}");
 }
 
 #[test]
