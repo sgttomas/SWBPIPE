@@ -127,3 +127,88 @@ def test_a_forged_poisson_warning_with_deleted_shear_rows_is_refused(entry):
         assert free["ok"] is True, _code(free)
         refused = rv.validate(reader, forged, model)
         assert refused["ok"] is False and "Poisson warning does not match" in _code(refused), _code(refused)
+
+
+# §5.1's shear operand rule (RT-U4): a component-free shear slot is one operand when its rows agree bit for bit (or
+# none carries a number) and is refused otherwise, in every row order. Rust: `u4b_evidence_any_tests.rs`.
+def _shear(component, value, *, case="case:a", entity="pipe:p", kind="element_local_shear_force_y", location="midspan"):
+    row = {"basis_ref": {"ref_type": "load_case", "ref_id": case}, "entity_ref": entity, "kind": kind,
+           "metadata": {"component": component, "location": location, "basis": "recovered_from_local_element_stiffness"}}
+    if value is not _ABSENT:
+        row["value"] = value
+    return row
+
+
+_ABSENT = object()
+_CONTEXT = [_shear("shear_force_z", 3.0, kind="element_local_shear_force_z"), _shear("shear_force_y", 7.0, entity="pipe:q"),
+            _shear("", 9.0, case="case:b")]
+
+
+def _orders(variants):
+    import itertools
+    for order in itertools.permutations(list(variants) + _CONTEXT[:2]):
+        yield list(order) + _CONTEXT[2:]
+
+
+@pytest.mark.parametrize("variants", [
+    [_shear("shear_force_y", 2.0), _shear("", 1002.0)],
+    [_shear("shear_force_y", 2.0), _shear("", None)],
+    [_shear("shear_force_y", 2.0), _shear("other", "2.0")],
+    [_shear("shear_force_y", 2.0), _shear("", _ABSENT)],
+    [_shear("shear_force_y", 2.0), _shear("", float("inf"))],
+    [_shear("shear_force_y", 2.0), _shear("", float("nan"))],
+    [_shear("shear_force_y", 2.0), _shear("shear_force_y", 4.0)],
+    [_shear("shear_force_y", 0.0), _shear("", -0.0)],
+    [_shear("shear_force_y", 2.0), _shear("", 2.0), _shear("x", 5.0)],
+], ids=["values", "null", "string", "absent", "inf", "nan", "same-component", "signed-zero", "third"])
+def test_conflicting_shear_operands_are_refused_in_every_order(variants):
+    codes = []
+    for order in _orders(variants):
+        with pytest.raises(ValueError, match="shear operand rows of one station disagree"):
+            u4b.Rows(order)
+
+        def fail(ok, code):
+            if not ok:
+                raise ValueError(f"SOURCE_PHYSICS_{code}")
+        with pytest.raises(ValueError) as refused:
+            u4b.Rows(order, fail)
+        codes.append(str(refused.value))
+        assert u4b.Rows(order, operands=False).operands == {}  # the row index alone reads no operand
+    assert set(codes) == {"SOURCE_PHYSICS_SHEAR_OPERAND_AMBIGUOUS"} and len(codes) >= 24
+
+
+@pytest.mark.parametrize("variants,want", [
+    ([_shear("shear_force_y", 2.0), _shear("", 2.0)], 2.0),
+    ([_shear("shear_force_y", -2.5), _shear("shear_force_y", -2.5), _shear("x", -2.5)], -2.5),
+    ([_shear("shear_force_y", 2), _shear("", 2.0)], 2.0),
+    ([_shear("shear_force_y", None), _shear("", "2.0"), _shear("x", _ABSENT)], None),
+], ids=["components", "repeat", "integer", "no-number"])
+def test_equivalent_shear_operands_are_one(variants, want):
+    for order in _orders(variants):
+        rows = u4b.Rows(order)
+        got = rows.any("case:a", "pipe:p", "element_local_shear_force_y", "midspan")
+        assert (None if got is None else u4b.bits(got)) == (None if want is None else u4b.bits(want))
+        assert rows.any("case:a", "pipe:p", "element_local_shear_force_z", "midspan") == 3.0
+        assert rows.any("case:b", "pipe:p", "element_local_shear_force_y", "midspan") == 9.0
+        assert rows.any("case:a", "pipe:p", "element_local_shear_force_y", "end_i") is None
+
+
+@pytest.mark.parametrize("entry", [EXACT, PREVIEW], ids=["pressure-2", "preview-physics-2"])
+@pytest.mark.parametrize("first", [True, False], ids=["first", "last"])
+def test_an_ambiguous_shear_slot_is_refused_by_the_readers(entry, first):
+    doc, model, reader, _ = _load(entry)
+    original = next(r for r in doc["results"] if r.get("kind") == "element_local_shear_force_y" and r["metadata"]["location"] == "midspan")
+
+    def variant(delta):
+        changed = copy.deepcopy(doc)
+        extra = copy.deepcopy(original)
+        extra["id"] += ":variant"
+        del extra["metadata"]["component"]
+        extra["value"] += delta
+        changed["results"].insert(0 if first else len(changed["results"]), extra)
+        return changed
+    for with_model in (None, model):
+        refused = rv.validate(reader, variant(1000.0), with_model)
+        assert refused["ok"] is False and "shear operand rows of one station disagree" in _code(refused), _code(refused)
+        same = rv.validate(reader, variant(0.0), with_model)
+        assert same["ok"] is True, _code(same)
