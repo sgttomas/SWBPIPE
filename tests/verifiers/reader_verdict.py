@@ -369,6 +369,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
                 # Operating-case slice 1a (§3): the operand records bound to the model's combinations.
                 from . import preview_combination_operands
                 preview_combination_operands.model_checks(source, model)
+                # RT-A4 (review r1 P2): the gates and unsigned rows, re-derived from the model.
+                from . import preview_combination_gates
+                preview_combination_gates.check(source, model)
             return {"ok": True}
         if reader == "pressure":
             pressure_2.validate_pressure_evidence(source)

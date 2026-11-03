@@ -300,6 +300,8 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
                 bind_preview_shear_model(source, m)
                     .and_then(|()| crate::u4b_evidence::preview_model_checks(source, m))
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
+                    // RT-A4 (review r1 P2): the gates and unsigned rows, from the model.
+                    .and_then(|()| crate::preview_combination_gates::check(source, Some(m)))
             })
         })),
         // Current pressure-2 reader, then G2's model checks,

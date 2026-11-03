@@ -264,10 +264,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     validate_with(source, None)
 }
 
-/// The reader with the document's model, when the caller has it: the combination
-/// gates and unsigned rows are then re-derived from the model
-/// (`preview_combination_gates`) instead of being refused where the document alone
-/// cannot verify them.
+/// The reader when the caller has the document's model: the combination gates and
+/// unsigned rows are then not refused here where the document alone cannot verify them;
+/// `reader_verdict` re-derives them from the model after its other model checks.
 pub(crate) fn validate_preview_physics_evidence_with_model(source: &Value, model: Option<&Value>) -> Check {
     validate_with(source, model)
 }
@@ -827,8 +826,13 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
         }
         combination_magnitudes(members)?;
     }
-    // RT-A4 (review r1 P2): the gates and the absolute sums and SRSS, re-derived.
-    crate::preview_combination_gates::check(source, model)
+    // RT-A4 (review r1 P2): the gates and the absolute sums and SRSS, re-derived from the
+    // document alone; with the model, `reader_verdict` re-derives them after the other
+    // model checks (`preview_combination_gates::check`).
+    match model {
+        None => crate::preview_combination_gates::check(source, None),
+        Some(_) => Ok(()),
+    }
 }
 
 fn magnitudes(components: &HashMap<&str, &Value>) -> Check {

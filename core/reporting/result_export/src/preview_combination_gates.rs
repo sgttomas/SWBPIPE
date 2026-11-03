@@ -229,6 +229,12 @@ fn consuming_constant_effort(support: &Value, nodes: &HashSet<&str>) -> bool {
 }
 
 fn model_check(model: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&str, &Value>) -> Check {
+    // A document stating no combination at all (no gate and no combination row) makes no
+    // gate claim to re-derive; a combination row without its gate is refused earlier
+    // (`GATED_COMBINATION_ROW`).
+    if gates.is_empty() && !rows.iter().any(|r| combination_of(r).is_some()) {
+        return Ok(());
+    }
     let combinations = items(&model["combinations"]);
     let load_cases = items(&model["load_cases"]);
     let cases: HashSet<&str> = load_cases.iter().filter_map(|c| c["id"].as_str()).collect();

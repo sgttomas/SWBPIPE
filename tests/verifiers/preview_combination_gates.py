@@ -187,6 +187,9 @@ def _consuming_constant_effort(support: Mapping[str, Any], nodes: set[str]) -> b
 
 
 def _model_check(model: Mapping[str, Any], gates: list, rows: list, by_id: dict) -> None:
+    # A document stating no combination at all makes no gate claim to re-derive.
+    if not gates and not any(_combination_of(r) is not None for r in rows):
+        return
     combinations = [c for c in _items(model.get("combinations")) if isinstance(c, Mapping)]
     load_cases = [c for c in _items(model.get("load_cases")) if isinstance(c, Mapping)]
     cases = {c["id"] for c in load_cases if isinstance(c.get("id"), str)}

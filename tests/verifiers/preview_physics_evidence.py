@@ -330,8 +330,10 @@ def validate_preview_physics_evidence(source: Mapping[str, Any], model: Mapping[
     of being refused where the document alone cannot verify them (RT-A4 review r1 P2, ``preview_combination_gates``)."""
     try:
         _validate(source)
-        from . import preview_combination_gates
-        preview_combination_gates.check(source, model)
+        if model is None:
+            # With the model, reader_verdict re-derives them after the other model checks.
+            from . import preview_combination_gates
+            preview_combination_gates.check(source, None)
     except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
         raise ValueError("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
