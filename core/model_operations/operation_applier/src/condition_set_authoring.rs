@@ -53,8 +53,15 @@
 //! message (authoring is not blocked, so a case's use can be stated before every
 //! pipe is assigned, OC-8); every other finding, a parse or unknown-field
 //! refusal of the candidate, and any code added later until the list admits it,
-//! blocks. The solve still refuses a case with a staged finding by name; the
-//! applier computes no temperature difference of its own.
+//! blocks, with one exception ([`permit_carried`], SWBPIPE Agent 0, 2026-11-02,
+//! option (b)): a refusal the document already carried before the operation,
+//! unchanged (same code, message and references, matched as multisets),
+//! naming only entities of the document before the edit, outside the edit's
+//! dependency scope ([`edit_scope`]) and not a route or admission code, is
+//! reported as `info` with the solve's code and message, and the edit applies.
+//! The solve still refuses it, and every case with a staged finding, by name;
+//! nothing records that the document solves. The applier computes no
+//! temperature difference of its own.
 //!
 //! Inverses: create and delete (at the deleted index), update and update with
 //! the before record, set and clear or set. The desktop undoes through its
@@ -303,13 +310,189 @@ pub(crate) fn judgement(candidate: &Value) -> Vec<JudgedFinding> {
     classify(candidate, &pp_conditions::preview_operating_conditions(candidate))
 }
 
-/// Push [`judgement`]'s findings onto the operation's diagnostics.
-pub(crate) fn report_judgement(checker: &mut crate::Checker, candidate: &Value) {
-    for finding in judgement(candidate) {
-        let remediation = if finding.severity == "warning" {
-            "Authoring is not blocked; the solve refuses the named case until the named input is stated."
-        } else {
-            "The solve refuses the candidate document for this finding; correct it or the operation and retry."
+/// The change kind of `create_load_case`, whose carried `condition_use` is
+/// judged here (lib.rs's own kind).
+pub(crate) const CREATE_LOAD_CASE: &str = "create_load_case";
+
+/// The route and admission refusals of a case's use (§11): never a permitted
+/// carried refusal, wherever they appear.
+const ROUTE_ADMISSION_CODES: [&str; 3] = [
+    pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED,
+    pp_resolution::LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT,
+    pp_resolution::LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED,
+];
+
+fn records<'a>(model: &'a Value, collection: &str) -> impl Iterator<Item = &'a Value> {
+    model.get(collection).and_then(Value::as_array).into_iter().flatten()
+}
+
+fn set_ref_of(pipe: &Value) -> Option<&str> {
+    pipe.get("condition_set_ref").and_then(Value::as_str)
+}
+
+/// The entity ids a carried refusal may name: every `id` of a record in one of
+/// the document's top-level collections, at any depth below it. Document-level
+/// members (`project`, `analysis_status`, ...) and the collection names are
+/// not entities.
+fn entity_ids(model: &Value) -> BTreeSet<String> {
+    let mut ids = BTreeSet::new();
+    for value in model.as_object().into_iter().flat_map(Map::values).filter(|value| value.is_array()) {
+        crate::geometry_operations::global_ids(value, &mut ids);
+    }
+    ids
+}
+
+/// The edit's transitive dependency scope S (SWBPIPE Agent 0, 2026-11-02,
+/// option (b); §11): the entities whose judgement the edit can change. It is
+/// computed on the union of the document before the edit and the candidate:
+/// - **Set operations** (`create_condition_set`, `update_condition_set`,
+///   `delete_condition_set` of set X): X; every pipe whose `condition_set_ref`
+///   is X; and every load case with a `condition_use`. Condition resolution
+///   reads every pipe's set for any case that uses conditions, so these are the
+///   effective cases fed by any set.
+/// - **`assign_condition_set`** on pipe P, from set X0 to X1 (either may be
+///   absent): P, X0 and X1; every pipe referencing X0 or X1; and every case
+///   with a `condition_use`.
+/// - **`set_load_case_condition_use` / `clear_load_case_condition_use`** on
+///   case L, and **`create_load_case`** of L carrying a use: L; every pipe that
+///   carries a set; and every set referenced by any pipe.
+///
+/// S also holds the operation's target ref and every entity its diff row names:
+/// each of these operations' rows names its target (`entity_ref`), and an
+/// assignment's row names X0 and X1 (`before`, `after`), already above. Any
+/// other change kind is not judged here; given one, S is every entity of both
+/// documents, so nothing is carried past it.
+pub(crate) fn edit_scope(before: &Value, candidate: &Value, change_kind: &str, target_ref: &str) -> BTreeSet<String> {
+    let documents = [before, candidate];
+    let pipes = || documents.into_iter().flat_map(|model| records(model, "pipe_segments"));
+    let pipes_on = |sets: &BTreeSet<String>| -> Vec<String> {
+        pipes()
+            .filter(|pipe| set_ref_of(pipe).is_some_and(|set| sets.contains(set)))
+            .filter_map(id_of)
+            .map(str::to_string)
+            .collect()
+    };
+    let using_cases = || -> Vec<String> {
+        documents
+            .into_iter()
+            .flat_map(|model| records(model, "load_cases"))
+            .filter(|case| case.get("condition_use").is_some())
+            .filter_map(id_of)
+            .map(str::to_string)
+            .collect()
+    };
+    let mut scope = BTreeSet::from([target_ref.to_string()]);
+    match change_kind {
+        CREATE | UPDATE | DELETE => {
+            let sets = BTreeSet::from([target_ref.to_string()]);
+            scope.extend(pipes_on(&sets));
+            scope.extend(using_cases());
+        }
+        ASSIGN => {
+            let sets: BTreeSet<String> = documents
+                .into_iter()
+                .flat_map(|model| records(model, "pipe_segments"))
+                .filter(|pipe| id_of(pipe) == Some(target_ref))
+                .filter_map(set_ref_of)
+                .map(str::to_string)
+                .collect();
+            scope.extend(sets.iter().cloned());
+            scope.extend(pipes_on(&sets));
+            scope.extend(using_cases());
+        }
+        SET_USE | CLEAR_USE | CREATE_LOAD_CASE => {
+            for pipe in pipes() {
+                if let Some(set) = set_ref_of(pipe) {
+                    scope.insert(set.to_string());
+                    scope.extend(id_of(pipe).map(str::to_string));
+                }
+            }
+        }
+        _ => {
+            scope.extend(entity_ids(before));
+            scope.extend(entity_ids(candidate));
+        }
+    }
+    scope
+}
+
+/// Whether `finding` names only entities of the document before the edit: at
+/// least one affected ref, each an entity id (not `model`, a collection or a
+/// document-level member), and not the judgement's parse refusal.
+fn attributable(finding: &JudgedFinding, before: &Value, before_ids: &BTreeSet<String>) -> bool {
+    finding.code != JUDGEMENT_REFUSED
+        && !finding.affected_refs.is_empty()
+        && finding.affected_refs.iter().all(|reference| {
+            reference != "model" && before.get(reference.as_str()).is_none() && before_ids.contains(reference)
+        })
+}
+
+/// Classify the candidate's judgement against the document before the edit
+/// (SWBPIPE Agent 0, 2026-11-02, option (b)). A non-staged blocking finding of
+/// the candidate becomes a permitted carried refusal, reported as `info`, only
+/// when it is unchanged (the before-document's judgement gives the same code,
+/// message and affected refs, matched as multisets so an extra occurrence is
+/// worsened and blocks), attributable ([`attributable`]), outside `scope`
+/// ([`edit_scope`]) in every affected ref, and not a route or admission code.
+/// Everything else blocks; staged findings keep their classification.
+pub(crate) fn permit_carried(
+    before: &Value,
+    before_judgement: Vec<JudgedFinding>,
+    candidate_judgement: Vec<JudgedFinding>,
+    scope: &BTreeSet<String>,
+) -> Vec<JudgedFinding> {
+    let before_ids = entity_ids(before);
+    let mut carried: Vec<(String, String, Vec<String>)> = before_judgement
+        .into_iter()
+        .filter(|finding| finding.severity == "blocking")
+        .map(|finding| (finding.code, finding.message, finding.affected_refs))
+        .collect();
+    candidate_judgement
+        .into_iter()
+        .map(|mut finding| {
+            if finding.severity != "blocking" {
+                return finding;
+            }
+            let key = (finding.code.clone(), finding.message.clone(), finding.affected_refs.clone());
+            let unchanged = match carried.iter().position(|item| *item == key) {
+                Some(index) => {
+                    carried.swap_remove(index);
+                    true
+                }
+                None => false,
+            };
+            let permitted = unchanged
+                && !ROUTE_ADMISSION_CODES.contains(&finding.code.as_str())
+                && attributable(&finding, before, &before_ids)
+                && finding.affected_refs.iter().all(|reference| !scope.contains(reference));
+            if permitted {
+                finding.severity = "info";
+                finding.message = format!(
+                    "{} (The document already carried this refusal before this edit, and it lies outside this edit's dependency scope, so it does not block the edit. The solve still refuses it by name.)",
+                    finding.message
+                );
+            }
+            finding
+        })
+        .collect()
+}
+
+/// Push [`judgement`]'s findings on `candidate` onto the operation's
+/// diagnostics, with the permitted carried refusals of [`permit_carried`]
+/// reported as `info`. `before` is the document the operation edits;
+/// `change_kind` and `target_ref` are the operation's, for [`edit_scope`].
+pub(crate) fn report_judgement(checker: &mut crate::Checker, before: &Value, change_kind: &str, target_ref: &str, candidate: &Value) {
+    let found = judgement(candidate);
+    let found = if found.iter().any(|finding| finding.severity == "blocking") {
+        permit_carried(before, judgement(before), found, &edit_scope(before, candidate, change_kind, target_ref))
+    } else {
+        found
+    };
+    for finding in found {
+        let remediation = match finding.severity {
+            "warning" => "Authoring is not blocked; the solve refuses the named case until the named input is stated.",
+            "info" => "Authoring is not blocked by a refusal the document already carried outside this edit's scope; the solve refuses the document until the named member is resolved.",
+            _ => "The solve refuses the candidate document for this finding; correct it or the operation and retry.",
         };
         checker.push(&finding.code, finding.severity, finding.message, remediation, finding.affected_refs);
     }
@@ -733,6 +916,137 @@ mod tests {
         assert_eq!(refused.len(), 1);
         assert_eq!((refused[0].code.as_str(), refused[0].severity), (JUDGEMENT_REFUSED, "blocking"));
         assert!(refused[0].message.ends_with("unknown field `x`"));
+    }
+
+    fn refs_diagnostic(code: &str, refs: Value) -> Value {
+        json!({"id": format!("diagnostic:{code}"), "code": code, "severity": "blocking", "message": format!("message of {code}"), "affected_refs": refs})
+    }
+
+    /// The document the carried-refusal tests judge against: entities `snub`,
+    /// `HT`, `L9`, `P1` and `cs:a`, a project id and a document-level member.
+    fn before_document() -> Value {
+        json!({
+            "project": {"id": "proj"},
+            "analysis_status": {"mechanics": "ready_for_preview_diagnostics"},
+            "supports": [{"id": "snub"}],
+            "load_cases": [{"id": "HT", "primitive_loads": [{"id": "HT:t"}]}, {"id": "L9"}],
+            "pipe_segments": [{"id": "P1", "condition_set_ref": "cs:a"}],
+            "condition_sets": [{"id": "cs:a"}],
+        })
+    }
+
+    fn outcome_of(found: &[JudgedFinding]) -> Vec<(String, &'static str, Vec<String>)> {
+        found.iter().map(|f| (f.code.clone(), f.severity, f.affected_refs.clone())).collect()
+    }
+
+    /// A carried refusal outside the scope is `info` with the solve's message
+    /// leading; one occurrence more than before is worsened and blocks, as do a
+    /// new code, the same code on other refs, a ref in the scope, and route and
+    /// admission codes. Staged findings keep their classification.
+    #[test]
+    fn a_carried_refusal_outside_the_scope_is_info_and_everything_else_blocks() {
+        let before = before_document();
+        let snub = || refs_diagnostic("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", json!(["snub"]));
+        let test_case = || refs_diagnostic("LOAD_CASE_TEST_CONDITION_UNSUPPORTED", json!(["HT"]));
+        let route = || refs_diagnostic(pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED, json!(["L9"]));
+        let staged = || refs_diagnostic(pp_resolution::OPERATING_CONDITION_SET_MISSING, json!(["L9"]));
+        let judged_before = classify(&before, &preview(json!([snub(), test_case(), route(), staged()])));
+        let judged_after = classify(
+            &before,
+            &preview(json!([
+                snub(),
+                snub(),
+                test_case(),
+                refs_diagnostic("LOAD_CASE_TEST_CONDITION_UNSUPPORTED", json!(["L9"])),
+                route(),
+                staged(),
+                refs_diagnostic("SOMETHING_NEW", json!(["snub"])),
+            ])),
+        );
+        let scope = BTreeSet::from(["HT".to_string()]);
+        let found = permit_carried(&before, judged_before, judged_after, &scope);
+        let s = |text: &str| text.to_string();
+        assert_eq!(
+            outcome_of(&found),
+            vec![
+                (s("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"), "info", vec![s("snub")]),
+                (s("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED"), "blocking", vec![s("snub")]),
+                (s("LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "blocking", vec![s("HT")]),
+                (s("LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "blocking", vec![s("L9")]),
+                (s(pp_conditions::LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED), "blocking", vec![s("L9")]),
+                (s(pp_resolution::OPERATING_CONDITION_SET_MISSING), "warning", vec![s("L9")]),
+                (s("SOMETHING_NEW"), "blocking", vec![s("snub")]),
+            ],
+            "carried once outside S: info; worsened, in S, other refs, route code, new code: blocking; staged: warning"
+        );
+        assert!(found[0].message.starts_with("message of SNUBBER_DYNAMIC_ONLY_UNSUPPORTED (The document already carried this refusal before this edit, and it lies outside this edit's dependency scope"));
+        assert!(found[0].message.ends_with("The solve still refuses it by name.)"));
+        assert_eq!(found[1].message, "message of SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", "a blocking finding keeps the solve's message");
+        assert_eq!(found[5].message, "message of OPERATING_CONDITION_SET_MISSING");
+    }
+
+    /// Unattributable and global findings block even when unchanged and outside
+    /// the scope: no refs, `model`, a ref that is not an entity id of the
+    /// before-document (a collection, a document-level member, the project id,
+    /// a condition key, an unknown id), a ref list mixing an entity with such a
+    /// ref, and the judgement's parse refusal.
+    #[test]
+    fn unattributable_and_global_findings_block() {
+        let before = before_document();
+        let cases = [
+            json!([]),
+            json!(["model"]),
+            json!(["load_cases"]),
+            json!(["analysis_status"]),
+            json!(["proj"]),
+            json!(["OPE1"]),
+            json!(["ghost"]),
+            json!(["snub", "OPE1"]),
+        ];
+        let scope = BTreeSet::new();
+        for refs in cases {
+            let report = preview(json!([refs_diagnostic("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", refs.clone())]));
+            let found = permit_carried(&before, classify(&before, &report), classify(&before, &report), &scope);
+            assert_eq!(found.len(), 1);
+            assert_eq!(found[0].severity, "blocking", "{refs}");
+        }
+        // Nested entity ids (a primitive load) are entities.
+        let report = preview(json!([refs_diagnostic("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", json!(["HT:t", "snub"]))]));
+        let found = permit_carried(&before, classify(&before, &report), classify(&before, &report), &scope);
+        assert_eq!(found[0].severity, "info");
+        let refused = json!({"resolved": false, "refusal": "unknown field `x`", "cases": [], "diagnostics": []});
+        let found = permit_carried(&before, classify(&before, &refused), classify(&before, &refused), &scope);
+        assert_eq!((found[0].code.as_str(), found[0].severity), (JUDGEMENT_REFUSED, "blocking"));
+        // An entity of the candidate only is not the before-document's.
+        let report = preview(json!([refs_diagnostic("SNUBBER_DYNAMIC_ONLY_UNSUPPORTED", json!(["cs:new"]))]));
+        let found = permit_carried(&before, classify(&before, &report), classify(&before, &report), &scope);
+        assert_eq!(found[0].severity, "blocking");
+    }
+
+    /// The scope of each operation family, on the union of both documents.
+    #[test]
+    fn the_edit_scope_follows_the_rule() {
+        let doc = |pipes: Value, cases: Value| json!({"pipe_segments": pipes, "load_cases": cases, "condition_sets": [{"id": "X"}, {"id": "Y"}, {"id": "Z"}], "supports": [{"id": "snub"}]});
+        let before = doc(
+            json!([{"id": "P1", "condition_set_ref": "X"}, {"id": "P2", "condition_set_ref": "Y"}, {"id": "P3"}, {"id": "P4", "condition_set_ref": "Z"}]),
+            json!([{"id": "HT", "condition_use": {"temperature": "OPE1"}}, {"id": "SUS"}, {"id": "W"}]),
+        );
+        let candidate = doc(
+            json!([{"id": "P1", "condition_set_ref": "Y"}, {"id": "P2", "condition_set_ref": "Y"}, {"id": "P3"}, {"id": "P4", "condition_set_ref": "Z"}]),
+            json!([{"id": "HT", "condition_use": {"temperature": "OPE1"}}, {"id": "SUS"}, {"id": "W", "condition_use": {"wind_exposure": true}}]),
+        );
+        let set = |items: &[&str]| items.iter().map(|item| item.to_string()).collect::<BTreeSet<String>>();
+        for kind in [CREATE, UPDATE, DELETE] {
+            assert_eq!(edit_scope(&before, &candidate, kind, "Z"), set(&["Z", "P4", "HT", "W"]), "{kind}");
+            assert_eq!(edit_scope(&before, &candidate, kind, "N"), set(&["N", "HT", "W"]), "{kind}: an unreferenced set");
+        }
+        assert_eq!(edit_scope(&before, &candidate, ASSIGN, "P1"), set(&["P1", "X", "Y", "P2", "HT", "W"]));
+        assert_eq!(edit_scope(&before, &candidate, ASSIGN, "P3"), set(&["P3", "HT", "W"]), "no set on either side");
+        for kind in [SET_USE, CLEAR_USE, CREATE_LOAD_CASE] {
+            assert_eq!(edit_scope(&before, &candidate, kind, "SUS"), set(&["SUS", "P1", "P2", "P4", "X", "Y", "Z"]), "{kind}");
+        }
+        let all = edit_scope(&before, &candidate, "set_field", "P3");
+        assert!(all.contains("snub") && all.contains("HT") && all.contains("X"), "an unknown kind scopes everything");
     }
 
     /// A resolved case with an empty generated wind exposure is the derived
