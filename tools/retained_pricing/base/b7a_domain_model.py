@@ -166,7 +166,10 @@ import runpy
 # is assessed separately in DEL-04-08 §8.39. No heap owner,
 # error path, TEXT site or lifetime is added. element_reformation's wide leaves (LiftedFrame, LiftedCurved) are
 # instantiated only by its own reform_* entries, which no retained root reaches (modal_eigen is outside crate_dirs).
-SOURCE_FILES = {'core/product_physics/src/lib.rs': '9488c5040051aebfb386765068ffc5f5e2c893dde5ee8dbea981cfead1c3b867', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/retained_precision.rs': 'da8b0fb9643826a2b4e6028342a24463a08e766453f111757a5e4ebc723fd84a', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': '59774c3e3b58021945297f5ba15367b33962c1cd3bff5a1e3f1cc5de55d6dd07', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '35122b23c075ce4ec35486f9423a3aa51054d80c0aeb2b1fd4ec9c76432df142', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': 'd5b41586efc8bcb68873f167f6e94366d21bc66adf847cde8fcf40cfe791ba7f', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
+# DEL-04-09 I2a D3 (§8.43, read 0fcb87a3b..I2a): lib.rs's only hunk appends `mod modal;` after its last item (no
+# earlier line moves). The modal module's functions are reached from no lib.rs function and no retained root (MODAL-UNR
+# below); no owner this model prices changes.
+SOURCE_FILES = {'core/product_physics/src/lib.rs': 'ff00e3daae3406108f12307bd2677779887e5e43bb5fd9dee06a37b62120031d', 'core/product_physics/src/certified_loads.rs': 'da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73', 'core/product_physics/src/retained_product.rs': 'cf3a1240ee380d8bb4e6999c101e224fe740ea7eb50f24a54f531ab987b9908c', 'core/product_physics/src/retained_wire.rs': '1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937', 'core/product_physics/src/certified_publication.rs': '89cdb23e172136b55ff980f7d4a4cd3643e43894fb2a9ad40c92fd3cd4adcf87', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '8931fb3dad1fd7f17b32c07eebb2e934ee9af53bb4d15fa611201829128c7893', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '8f69bb9bea7c7696b1f78fc985998faa03a507dfc47be13cc6a2b6aa062980c9', 'core/loads/primitive_loads/src/lib.rs': '2273116392aa15f020000e1fe7815a2127fcc0548095a2f12dd034d0f7e37802', 'core/solver/straight_pipe/src/lib.rs': '9a4cb59ab52b6f4340fbd74bab9c83847b89691835d0e043a4971b261df452f7', 'core/product_physics/src/preview_physics.rs': '8e7f316e2dbe13ed3794f9449629bd078a3db9a5608ab13bc989c5df90eb865b', 'core/reporting/result_export/src/retained_precision.rs': 'da8b0fb9643826a2b4e6028342a24463a08e766453f111757a5e4ebc723fd84a', 'core/product_physics/src/model_format.rs': 'e97d154f8feccad08214eb7ada9006a332dbd8255fa89040f9250c5538d25791', 'core/product_physics/src/pressure_runtime.rs': '59774c3e3b58021945297f5ba15367b33962c1cd3bff5a1e3f1cc5de55d6dd07', 'core/product_physics/src/source_receipt.rs': '9ee47bc14c5fd2885010f16a9de396f0085335481de75d1df1af2bc6eba241c5', 'core/product_physics/src/exact_admission.rs': '35122b23c075ce4ec35486f9423a3aa51054d80c0aeb2b1fd4ec9c76432df142', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': '1ca609bda4e56138aab980f5ff4be8f9f664e3300b8bc51f808bc60b45e4d0a3', 'core/solver/frame_kernel/src/lib.rs': '680583b49167418c07ceb06827f3eab834681af78ab3d5981f92aab519c71ecc', 'core/reporting/result_export/src/semantic_contract.rs': 'd5b41586efc8bcb68873f167f6e94366d21bc66adf847cde8fcf40cfe791ba7f', 'core/reporting/result_export/src/physics_source.rs': 'a6d0389c3acda1b6eda0c58c419e5f6f28004a711459bea8f6e7735af0121a9d'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -254,6 +257,37 @@ def leaf_seam(text):
     return True
 
 
+# DEL-04-09 I2a D3 (§8.43), MODAL-UNR: the product modal module (core/product_physics/src/modal.rs and modal/) is
+# declared by exactly one private `mod modal;` in lib.rs, and no other product_physics source names it (`modal::`)
+# or its kernel (`open_pipe_stress_modal_eigen`). So no lib.rs function, and no retained root, reaches modal's
+# callers of stable_mass_per_length, component_weights, inspect_generated_self_weight or inspect_applied_self_weight;
+# those functions' retained reach is unchanged (validate_applied_self_weight stays the module's only retained entry).
+MODAL_DECLARATION = "\nmod modal;\n"
+MODAL_NAME = re.compile(r"\bmodal::|open_pipe_stress_modal_eigen|\bpub(?:\([^)]*\))?\s+mod\s+modal\b|\buse\b[^;]*\bmodal\b")
+
+
+def modal_unreachable(snapshot):
+    """True when modal is declared once, privately, and named by no other product_physics source; False before I2a."""
+    root = os.path.join(snapshot, "core/product_physics/src")
+    with open(os.path.join(root, "lib.rs"), "rb") as stream:
+        lib = stream.read().decode("utf-8")
+    if lib.count(MODAL_DECLARATION) == 0 and not os.path.exists(os.path.join(root, "modal.rs")):
+        return False
+    if lib.count(MODAL_DECLARATION) != 1 or len(re.findall(r"\bmod\s+modal\b", lib)) != 1:
+        raise ValueError("B7a modal declaration changed: modal must be declared once, privately; re-review")
+    for directory, _, files in os.walk(root):
+        for name in sorted(files):
+            path = os.path.join(directory, name)
+            relative = os.path.relpath(path, root).replace(os.sep, "/")
+            if not name.endswith(".rs") or relative == "modal.rs" or relative.startswith("modal/"):
+                continue
+            with open(path, "rb") as stream:
+                text = stream.read().decode("utf-8")
+            if MODAL_NAME.search(text):
+                raise ValueError("B7a modal reach changed: " + relative + " names the modal module; re-review")
+    return True
+
+
 def inspect(snapshot):
     fingerprints = {}
     for file, expected in SOURCE_FILES.items():
@@ -283,10 +317,11 @@ def inspect(snapshot):
         raise ValueError("B7a positive-domain family clauses changed")
     with open(os.path.join(snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs"), "rb") as stream:
         seam = leaf_seam(stream.read().decode("utf-8"))
+    modal = modal_unreachable(snapshot)
     return {"full_raw_source_fingerprints": fingerprints,
             "admission_caps_sha256": CAPS_PIN, "family_clauses_sha256": FAMILY_PIN,
             "admission_prefix_sha256": ADMISSION_PREFIX_PIN, "admission_late_sha256": ADMISSION_LATE_PINS,
-            "formation_leaf_seam": seam,
+            "formation_leaf_seam": seam, "modal_unreachable": modal,
             "model_sha256": hashlib.sha256(open(__file__, "rb").read()).hexdigest(),
             "formed_terms_per_input": 12, "manifest_operand_words": OPERAND_WORDS,
             "basis_material_count": MATERIALS, "named_basis_count": 3,
