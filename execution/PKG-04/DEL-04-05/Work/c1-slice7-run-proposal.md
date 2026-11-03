@@ -189,12 +189,15 @@ compulsory registration) then ran:
 It entered its full `validate` at native monotonic 8,800.54 ms and had no exit.
 By the journal's receipt clock, `validate` had been pending about **219 s** when
 the supervisor window ended: entry at epoch `…316,027` ms, window end about
-`…535,500` ms. The figure "about 292 s" subtracts a native-clock value from the
-web first-paint wait, which run on different origins. #95 replaced `Index::any`'s
-linear scan, O(rows) per lookup, with a map built once per `Index`. That scan is
-called per station by `member_stations` inside these readers. Agent 0's brief
-reports native `validate` at 250 nodes falling from 79.8 s to 11.8 s. That figure
-is not recorded in this tree and was not reproduced here.
+`…535,500` ms. (The manager's first report said "about 292 s"; that subtracted a
+native-clock value from the web first-paint wait, which run on different origins,
+and is corrected here.) #95 replaced `Index::any`'s linear scan, O(rows) per
+lookup, with a map built once per `Index`. That scan is called per station by
+`member_stations` inside these readers. PR #95's record gives shared-host
+functional native-runner timings (not measurements): `validate` at 250 nodes
+79.8 s on main against 11.8 s with the repair, and at 82 nodes 8.7 s against
+2.6 s, with byte-identical outputs. They were not reproduced here, and they do
+not predict the 500-node desktop path.
 
 The same fixed IDs separate the outcomes. These are possible observations, not
 predictions.
