@@ -496,7 +496,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // production's current_header v2 re-author text changed its model version token
             // (0.8.0 -> 0.9.0, same length); the closed `b7b_current_table_tests` module and E14
             // are byte-identical.
-            complete_suffix_sha256: "d2c364d0e7497fb02228b2fad34b31491dcf2b4601480e68c6928f1223f2061c",
+            // Re-audited for RT-A4 §10.4 (the historical read; retained-pricing-rules.md §8.46): in the inspected
+            // production after the resume, current_header's two preview-physics arms become one arm reading
+            // preview_physics_identity(id) (the current table, or a recorded variant only inside a recorded read,
+            // RT-A4-HS); the closed `b7b_current_table_tests` module and E14 are byte-identical, and no include,
+            // path module or static entered the suffix.
+            complete_suffix_sha256: "d67f47820070b24fb7d16b415d30ae855491c59c85f9dd1e66607d1df73f3b02",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
