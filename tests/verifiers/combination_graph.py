@@ -21,7 +21,6 @@ from __future__ import annotations
 from collections.abc import Mapping
 from fractions import Fraction
 import math
-import sys
 from typing import Any
 
 ABSOLUTE_SUM_BASIS = "explicit_user_absolute_sum"
@@ -38,7 +37,7 @@ FIXED_LOAD_COUNT_UNREPRESENTABLE = "COMBINATION_FIXED_LOAD_COUNT_UNREPRESENTABLE
 TERM_BASES = ("mechanics", "absolute_sum", "srss")
 MAX_BITS = 4096
 UNIT_BOUND = Fraction(1, 2 ** 46)
-_MAX = Fraction(sys.float_info.max)
+_MAX = Fraction((2 ** 53 - 1) * 2 ** 971)  # the largest finite binary64
 _TINY = Fraction(1, 2 ** 1074)
 
 # kappa's undefined states.

@@ -201,7 +201,10 @@ def test_the_verifier_is_independent_and_test_only():
     # tests/verifiers/exact_combinations.py, standard library only besides the section-basis bit comparison and
     # (review r1) the verifier's own unit catalog, tests/verifiers/units.py, itself standard library only.
     assert _imports(VERIFIER) <= stdlib | {".component_body", ".exact_combinations", ".global_end", ".section_basis", ".u4b"}
-    assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {"sys", ".section_basis", ".units"}
+    # RT-A4: its absolute sums, SRSS and fixed-load counts live in the sibling tests/verifiers/combination_graph.py,
+    # standard library only.
+    assert _imports(VERIFIER.with_name("exact_combinations.py")) <= stdlib | {"sys", ".section_basis", ".units", ".combination_graph"}
+    assert _imports(VERIFIER.with_name("combination_graph.py")) <= stdlib
     assert _imports(VERIFIER.with_name("units.py")) <= stdlib
     assert _imports(VERIFIER.with_name("section_basis.py")) <= stdlib | {".component_body"}
     assert _imports(VERIFIER.with_name("u4b.py")) <= stdlib

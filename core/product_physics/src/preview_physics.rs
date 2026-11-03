@@ -1031,7 +1031,9 @@ pub(crate) fn append_combination_results(
                 combination_source_identity_matches(reference, source)
             }
         };
-        // This combination's rows, with the base id of each ordinary row.
+        // This combination's rows and, only when a later combination names it, the base
+        // id of each ordinary row (a flat document keeps none).
+        let keep = plan.named[index];
         let mut out: Vec<ResultItem> = Vec::new();
         let mut out_bases: Vec<Option<String>> = Vec::new();
 
@@ -1066,7 +1068,7 @@ pub(crate) fn append_combination_results(
             if kind == "displacement_magnitude" && !range {
                 let before = out.len();
                 append_combined_vector_magnitude(combination, &expression, &targets, base_id, reference, &lookup, &mut out, diagnostics);
-                if out.len() > before {
+                if out.len() > before && keep {
                     out_bases.push(Some(base_id.clone()));
                 }
                 continue;
@@ -1094,7 +1096,9 @@ pub(crate) fn append_combination_results(
             match expression.evaluate_values(&values, dimension) {
                 Some(value) => {
                     out.push(combination_row(combination, &expression, &sign, reference, qualified_combination_result_id(&combination.id, base_id), value, refs));
-                    out_bases.push(Some(base_id.clone()));
+                    if keep {
+                        out_bases.push(Some(base_id.clone()));
+                    }
                 }
                 None => withheld.push(format!("{base_id} (load-case algebra refused)")),
             }
@@ -1165,7 +1169,9 @@ pub(crate) fn append_combination_results(
             };
             match group() {
                 Ok(rows) => {
-                    out_bases.extend(rows.iter().map(|_| None));
+                    if keep {
+                        out_bases.extend(rows.iter().map(|_| None));
+                    }
                     out.extend(rows);
                 }
                 Err(reason) => withheld.push(format!("support-action:{}:{} ({reason})", support.id.len(), support.id)),
