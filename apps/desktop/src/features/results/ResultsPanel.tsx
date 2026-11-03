@@ -1,6 +1,7 @@
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { isRetainedRoute } from "./numericalResultQuality";
-import { sourceContract } from "./resultReader";
+import { recordedReaderDispatch, sourceContract } from "./resultReader";
+import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
 import { componentBodyNotice } from "./componentBody";
@@ -18,7 +19,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, PreviewModel, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
-import { numericalResultStanding } from "./resultStanding";
+import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
@@ -83,9 +84,15 @@ export function ResultsPanel({
   selectedEntity = null,
   viewRequest = null,
   model = null,
-  exportAnalysisRun = null
+  exportAnalysisRun = null,
+  recordedTableRead = null
 }: {
   result: MechanicsResult | null;
+  /** RT-A4 §10.4: a reopened run recorded before RT-A4 names the registry table it was
+   * read under; the panel then classifies and states it as read under that table,
+   * labelled as-recorded (historical evidence only, never a current standing). Absent
+   * (every current caller), the current reader classifies it. */
+  recordedTableRead?: RecordedBinding | null;
   knowledge: DesignKnowledge | null;
   analysisRun: AnalysisRunEnvelope | null;
   selectedResultId: string | null;
@@ -178,14 +185,16 @@ export function ResultsPanel({
   );
   const groups = result && labels ? groupResults(page.items, labels) : [];
   // Dispatch once per render; the row labels apply to preview-physics-2 and its successor only.
+  // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
+  const contractOf = (source: MechanicsResult): string => recordedTableRead ? recordedReaderDispatch(source, recordedTableRead).route : sourceContract(source);
   const labelSource = useMemo(() => {
-    try { return result && ["preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(result)) ? result : null; } catch { return null; }
-  }, [result]);
+    try { return result && ["preview_physics", "retained_preview_physics", "retained_physics"].includes(contractOf(result)) ? result : null; } catch { return null; }
+  }, [result, recordedTableRead]);
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
     : null;
-  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result) : null), [numericalHealth, result]);
-  const route = result ? sourceContract(result) : "unsupported";
+  const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead) : null), [numericalHealth, result, recordedTableRead]);
+  const route = result ? contractOf(result) : "unsupported";
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   // RT-R6: what a CSV export of these tables states (Design `csv-export.md` §2, §3).
   const csvProvenance = async (): Promise<CsvProvenance> => ({
@@ -358,7 +367,7 @@ export function ResultsPanel({
             <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
           ) : null}
           {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
-          <p data-testid="numerical-result-standing">{sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : sourceContract(result) === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+          <p data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" />
           <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />
@@ -1128,9 +1137,9 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
  * -------------------------------------------------------------------------- */
 /** A reopened run's indicator: read with the reader's findings for the result alone (no
  * model, so the verdict-only flag cannot hold) and no hold. */
-function standaloneNumericalHealth(result: MechanicsResult): NumericalHealthView | null {
+function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null): NumericalHealthView | null {
   let findings: readonly string[] | null = null, eligible = false;
-  try { const standing = numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
+  try { const standing = recordedTableRead ? recordedResultStanding(result, recordedTableRead) : numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
   return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false });
 }
 /** The indicator only where its route agrees with the result's route; otherwise none

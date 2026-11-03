@@ -332,6 +332,37 @@ describe("a project saved before RT-A4 (historical read)", () => {
     expect(screen.getByText("SOURCE_RECOVERY_METADATA_CONTRADICTION")).toBeInTheDocument();
   });
 
+  // Focused confirmation r6 (#98): the panel's own standing line classified the result with the
+  // current reader only, so a run read correctly under its recorded table still said
+  // "Unsupported numerical contract … Needs recompute". It is now classified under the table.
+  it("the results panel states the run as read under its recorded table, as recorded", async () => {
+    for (const [variant, name, table] of [
+      ["preview_physics_2", null, TABLE],
+      ["preview_physics_retained_1", "retained_precision_milestone_successor_sparse_interactive", {
+        id: "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
+        sha256: "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46" }],
+    ] as const) {
+      let envelope: LocalProjectEnvelope;
+      if (name === null) envelope = await opened();
+      else {
+        const { readFileSync } = await import("node:fs");
+        const { resolve } = await import("node:path");
+        const text = (file: string) => readFileSync(resolve(__dirname, "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf", variant, file), "utf8");
+        const document = JSON.parse(text(`${name}.json`));
+        const model = document.invocation.request.model as PreviewModel;
+        const payload = { model, mechanics_result: document.source, analysis_run: JSON.parse(text(`${name}.analysis_run.json`)), model_hash: await computeModelHash(model), editor_intents: [], proposal: null, selected_review_target: null };
+        envelope = { ...payload, project_envelope_hash: await computeProjectEnvelopeHash(payload as never) } as unknown as LocalProjectEnvelope;
+      }
+      const context = (await buildHistoricalRunContext(envelope))!;
+      expect(context.recordedTableRead).toEqual(table);
+      const { unmount } = render(<HistoricalRunPanel context={context} />);
+      const standing = screen.getByTestId("numerical-result-standing");
+      expect(standing).toHaveTextContent(`As recorded under ${context.recordedTableRead!.id} (sha256 ${context.recordedTableRead!.sha256}); historical evidence only, not a current standing`);
+      expect(standing).not.toHaveTextContent("Unsupported numerical contract");
+      unmount();
+    }
+  });
+
   it("a run read under the current tables has no historical reader scope", async () => {
     const context = (await buildHistoricalRunContext(await savedEnvelope()))!;
     expect(context.recordedTableRead).toBeNull();

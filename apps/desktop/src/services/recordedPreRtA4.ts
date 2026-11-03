@@ -53,6 +53,11 @@ export function recordedPreRtA4RecordBinding(record: unknown): RecordedBinding |
   return recordedPreRtA4Binding(run?.reproducibility?.semantic_contract);
 }
 
+/** The label of what was read under a recorded table: the table it was read under. */
+export function recordedTableLabel(table: RecordedBinding): string {
+  return `As recorded under ${table.id} (sha256 ${table.sha256}); historical evidence only, not a current standing`;
+}
+
 export const SOURCE_RECORDED_TABLE_HASH = "SOURCE_RECORDED_TABLE_HASH";
 const checked = new Map<string, Promise<unknown>>();
 async function sha256HexOfText(text: string): Promise<string> {

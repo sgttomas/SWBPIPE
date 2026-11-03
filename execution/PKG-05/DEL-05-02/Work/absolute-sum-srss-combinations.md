@@ -946,7 +946,7 @@ with when recorded (Rust's recorded dispatch; a successor's is its registration'
 successor never registers); they are not replaced by the current standing. They are display
 evidence of a historical run with no Current or Solve authority: nothing makes a reopened run
 Current, sets the solve stage, drives an overlay or rule check, or readies a report. The current
-standing of the same statement stays `unsupported`. Three rules govern the display
+standing of the same statement stays `unsupported`. Four rules govern the display
 (`HistoricalRunContext.tsx`, `runComparisonSides.ts`):
 
 - The findings the historical reader computes under the variant (the recorded standing's
@@ -966,6 +966,13 @@ standing of the same statement stays `unsupported`. Three rules govern the displ
   validator refused with, e.g., `SOURCE_RECOVERY_METADATA_CONTRADICTION` was offered as an
   eligible side on its as-recorded standing; `recordedPreRtA4.test.ts` "a stored record whose
   reopen validation fails" fails without the rule).
+- The reopened run's results panel classifies and states the result under the recorded table
+  (`ResultsPanel`'s `recordedTableRead`: its route, labels, health and standing line, the line
+  prefixed with the as-recorded label); every current caller omits it and reads under the
+  current tables. Before this rule (focused confirmation r6) the panel classified with the
+  current reader only, so a run read correctly under its table still said "Unsupported numerical
+  contract; historical values only. Needs recompute."; `HistoricalRunContext.test.tsx` "the
+  results panel states the run as read under its recorded table, as recorded" fails without it.
 
 Python has no display surface for these runs: `validate_analysis_run_v0_3(...,
 recorded_read=True)` raises its refusal, and no product path turns it into standing.

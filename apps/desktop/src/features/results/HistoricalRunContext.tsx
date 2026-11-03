@@ -1,7 +1,7 @@
 import { isRetainedRoute } from "./numericalResultQuality";
 import { recordedReaderDispatch, sourceContract } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
-import { recordedPreRtA4RecordBinding, type RecordedBinding } from "../../services/recordedPreRtA4";
+import { recordedPreRtA4RecordBinding, recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
@@ -78,9 +78,7 @@ function readStanding(found: ReturnType<typeof reopenFindings>, result: Mechanic
 }
 
 /** The label of the historical reader's findings: the table they were read under. */
-export function recordedTableLabel(table: RecordedBinding): string {
-  return `As recorded under ${table.id} (sha256 ${table.sha256}); historical evidence only, not a current standing`;
-}
+export { recordedTableLabel };
 
 /** The historical reader's findings under their table, or nothing for a run read under the current tables. */
 export function HistoricalReaderFindings({ context, testId }: { context: Pick<HistoricalRunContext, "recordedTableRead" | "historicalReaderFindings">; testId: string }) {
@@ -345,6 +343,6 @@ export function HistoricalRunPanel({ context }: { context: HistoricalRunContext 
     <p>{isReference ? "Bundled reference" : "Historical"} results cannot drive current overlays, rule checks, comparisons or report readiness.</p>
     <ul>{context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul>
     <HistoricalReaderFindings context={context} testId="historical-run-recorded-reader" />
-    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} />
+    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} />
   </section>;
 }
