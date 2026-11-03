@@ -47,8 +47,8 @@ export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.f
   entry("daa48a4c191547020a5894f475950a2b0bdc34f551d95659aae5cce72ee6871d",
     "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."),
   // S7 support attribution
-  entry("d47820118782fbf0e16a105f01fa8cdc1506ee99cc3ec7e251c5e936598ee5fc",
-    "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."),
+  entry("cf1cba4d5f2831dba1f007ee417539d0f7d6a85b859f37bb871dda95923dc8f1",
+    "Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused."),
   // S8 normal-stress maximum enclosure
   entry("f324475fea7267ad3c04b1f0d697d82e81c87f2dadeca853fa4e271e42795821",
     "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."),

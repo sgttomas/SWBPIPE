@@ -387,9 +387,9 @@ means the statement is the producer string byte for byte.
 
 > Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.
 
-**S7. Support attribution** (`exact_admission.rs:98`; every list). Producer SHA-256 `d47820118782fbf0e16a105f01fa8cdc1506ee99cc3ec7e251c5e936598ee5fc`. Statement, verbatim:
+**S7. Support attribution** (`exact_admission.rs:98`; every list). Producer SHA-256 `cf1cba4d5f2831dba1f007ee417539d0f7d6a85b859f37bb871dda95923dc8f1`. Statement, verbatim:
 
-> Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.
+> Signed support actions are attributed only for admitted linear restraints and springs and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.
 
 **S8. Normal-stress maximum enclosure** (`exact_admission.rs:99`; every list). Producer SHA-256 `f324475fea7267ad3c04b1f0d697d82e81c87f2dadeca853fa4e271e42795821`. Statement, verbatim:
 

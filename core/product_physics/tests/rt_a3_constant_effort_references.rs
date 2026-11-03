@@ -852,6 +852,33 @@ fn ce2_out_of_domain_factors_are_refused_upstream_and_withheld_at_the_gate() {
     }
 }
 
+/// The CE-2 document with only 2·A, solved sparse: the EX envelope that gate 4
+/// withholds, end to end (producer, reader, committed bytes). The Python schema
+/// check (`tests/test_rt_a3_constant_effort_schema.py`) validates it against the
+/// pressure-2 result schema, whose gate-reason enum must name gate 4 (review of
+/// ac7fea603: it did not). `RT_A3_CE2_WITHHELD_WRITE=1` rewrites the fixture.
+#[test]
+fn ce2_withheld_envelope_fixture_is_current() {
+    let references = references();
+    let (mut document, authored) = ce2_document(&references);
+    let id = combination_id(authored.iter().find(|(_, c)| c["combination"] == "2*A").unwrap().0);
+    let kept = document["model"]["combinations"].as_array().unwrap().iter().filter(|c| c["id"] == id).cloned().collect();
+    document["model"]["combinations"] = Value::Array(kept);
+    let envelope = solved(&document, PreviewSolverMode::SparseInteractive, "CE2 2*A");
+    assert_eq!(gate(&envelope, &id)["gate"], json!({"withheld": true, "reason": GATE_CODE}));
+    assert_eq!(combination_rows(&envelope, &id), 0);
+    let text = format!("{}\n", serde_json::to_string(&json!({
+        "description": "RT-A3 increment 3: CE-2's 2*A (exact factor sum 2), withheld at gate 4 (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE); the sparse producer envelope of rt_a3_constant_effort_references.rs ce2_withheld_envelope_fixture_is_current; invented reference inputs, test-only",
+        "combination_id": id,
+        "envelope": envelope,
+    })).unwrap());
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/results/rt_a3_ce2_withheld_sparse.json");
+    if std::env::var("RT_A3_CE2_WITHHELD_WRITE").as_deref() == Ok("1") {
+        std::fs::write(&path, &text).unwrap();
+    }
+    assert!(std::fs::read_to_string(&path).unwrap() == text, "the CE-2 withheld fixture is current (RT_A3_CE2_WITHHELD_WRITE=1)");
+}
+
 fn record_index(source: &Value, id: &str) -> usize {
     source["contract_evidence"]["exact_combinations"].as_array().unwrap().iter().position(|r| r["combination_id"] == id).unwrap()
 }
