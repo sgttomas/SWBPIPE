@@ -154,9 +154,8 @@ fn the_operand_map_holds_shear_slots_only() {
     assert!(alone.operands.is_empty() && alone.operands.capacity() == 0);
 }
 
-fn read(path: &str) -> Value {
-    let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../../");
-    serde_json::from_str(&std::fs::read_to_string(format!("{root}{path}")).unwrap()).unwrap()
+fn read(text: &str) -> Value {
+    serde_json::from_str(text).unwrap()
 }
 
 /// `source` with a component-free copy of its first case-scoped midspan shear-y row,
@@ -184,14 +183,14 @@ fn with_variant(source: &Value, delta: f64, first: bool) -> Value {
 #[test]
 fn the_readers_and_dispatch_refuse_an_ambiguous_source_by_name() {
     use crate::reader_verdict::dispatch;
-    let corpus = read("fixtures/results/pressure_v3_straight_reader_corpus.json");
+    let corpus = read(include_str!("../../../../fixtures/results/pressure_v3_straight_reader_corpus.json"));
     // The corpus's inputs: X0 the connected request, Y0 the load/reference-state one.
-    let x0 = read("core/product_physics/tests/fixtures/exact_pressure_connected_request.json")["model"].clone();
-    let y0 = read("fixtures/product_preview/pressure/load_reference/pressure.request.json")["model"].clone();
-    let arc = read("fixtures/results/pressure_u4b_arc_sparse.json");
-    let arc_model = read("core/product_physics/tests/fixtures/u4b_l90_p_model.json");
-    let preview = read("fixtures/results/preview_physics_u4b_arc_sparse.json");
-    let preview_model = read("core/product_physics/tests/fixtures/u4b_z_preview_rev_model.json");
+    let x0 = read(include_str!("../../../../core/product_physics/tests/fixtures/exact_pressure_connected_request.json"))["model"].clone();
+    let y0 = read(include_str!("../../../../fixtures/product_preview/pressure/load_reference/pressure.request.json"))["model"].clone();
+    let arc = read(include_str!("../../../../fixtures/results/pressure_u4b_arc_sparse.json"));
+    let arc_model = read(include_str!("../../../../core/product_physics/tests/fixtures/u4b_l90_p_model.json"));
+    let preview = read(include_str!("../../../../fixtures/results/preview_physics_u4b_arc_sparse.json"));
+    let preview_model = read(include_str!("../../../../core/product_physics/tests/fixtures/u4b_z_preview_rev_model.json"));
     let exact = "SOURCE_PHYSICS_SHEAR_OPERAND_AMBIGUOUS";
     let mut sources: Vec<(Value, &Value, &str)> = corpus["cases"].as_array().unwrap().iter()
         .map(|c| (c["envelope"].clone(), if c["label"].as_str().unwrap().starts_with("X0") { &x0 } else { &y0 }, exact))
