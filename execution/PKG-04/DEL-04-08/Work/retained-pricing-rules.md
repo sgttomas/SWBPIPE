@@ -3199,6 +3199,62 @@ above; it shares that registration only because no coefficient moves.
     Afterwards `exclusive.pending` is absent, no harness, wrapper or test process of this run remains, and the
     binary's hash is unchanged. No isolated challenge was requested.
 
+**#97 (I2b-2: nonlinear supports at the state case; decision B's seam).** Pricing preparation on the I2b-2 head
+against #96's run; final registration is derived on #98's frozen candidate and is **not** recorded here.
+
+- *Source.* lib.rs (`ff00e3da…` → `c991dca1…`): every hunk replaces one line with one line or appends after
+  `mod modal;`, so no snapshot key moves. `LoadCaseSolve` gains `nonlinear_state: Option<Box<NonlinearStateEvidence>>`
+  (None at its seven early returns), `append_nonlinear_support_loop_results` returns which qualification branch
+  admitted its state, and `solve_prepared_load_case` calls `capture_nonlinear_state_evidence` once per case. New:
+  `modal/state.rs` (the state case's same-run solve) and `modal/tests_state.rs`; `prepare_modal`'s interim
+  nonlinear-support refusal is deleted.
+- *Source change for pricing.* `modal_refusal_reason` joined every blocking code of the state solve; nothing bounds
+  how many there are, so each refusal now states their count (the decision-A precedent). The variants keep their
+  codes; a lib test checks a 1,000-code refusal gives a short reason.
+- *Pins.* Every changed span was read before re-pinning: the full-file lib.rs pins (`b7a_domain_model.py`,
+  `kd5_text_model.py`'s B7a primitive pin: no `.min(`/`.max(` call added; `w1_reductions_model.py`: no reduction's
+  owner or lifetime, L5 texts unchanged) and the `solve_prepared_load_case` body pins (KD5T2, KD5C6, `batch5_model.py`,
+  `o4_owners_model.py`: no literal, label, record constructor, carrier set, staging, fallback attempt or first-return
+  alternative changes). `self_weight.rs` and every `Cargo.lock` are unchanged.
+- *KD5O14.* Its premise test matched the whole line `    withheld_summaries: Vec<Diagnostic>,`; I2b-2 places
+  `nonlinear_state` on that line, so the owner would have been dropped silently. It now matches the declaration at
+  its line start and stops on any other form of the field.
+- *MODAL-ID* (guarded by `solve_modal_state_case`): `modal_refusal_reason`'s counts (usize 20 B), the evidence's case id
+  (IN128), the solver-mode and active-set-state vocabularies (the longest literal of each all-literal `as_str`, read
+  from source; a computed arm stops the run), the not-established sentence (`nonlinear_not_established_sentence`'s
+  literal bytes and its `reason`, error_display 8192 B), a `tests_state.rs` node number (usize), and lib.rs's capture
+  of the case id (IN128). The I2a audit of `prepare_modal`'s deleted refusal applies only where `state.rs` is absent.
+- *MODAL-SEAM* (`O10_EDGE_ZERO`, the G4 R-1 and OP1A-PF premise): D1.6 refuses every nonlinear support, so
+  `append_nonlinear_support_loop_results` returns None at its first statement (base fn_zero, G4 R-1),
+  `selected_nonlinear` is None, and `capture_nonlinear_state_evidence` returns None at its first statement, before
+  its text, Box or final-state clone. Its body is pinned; the loop's early return, the single binding of
+  `selected_nonlinear`, the one call and the capture's first statement are checked.
+- *MODAL-FB.* No new candidate: the I2b-2 code adds no `add`/`mul`/`min`/`max` call the graph links to
+  `FallbackError`, and KD5C6's cutset is unchanged.
+- *Run.* Exit 0 on all four points, no unmapped header or unclassified argument, both O-10 checks at zero, D unchanged
+  (L(3,0) 43,783, L(2,1) 39,370, L(1,2) 35,237, E 76,356); the line map is #96's (880 carried keys, 37 prunes, seven
+  resolutions).
+- *Movement (open).* `compare` against #96's tree: structure equal, 1,569 coefficients equal, 33 higher, none lower.
+  `generate --check` with §8.42's basis line is not equal. Every move is one artefact: `composite_text.py` sizes the
+  `static` class as the longest `"…"` match of a naive regex over four files. That match already pairs quotes out of
+  phase on #96 (from quoted words in a lib.rs doc comment at line 1292; its 1,568 B "literal" is code). I2b-2's appended
+  literal closes a 3,272 B span of code, so `static` moves 1,568 → 3,272 (+1,704 B per argument; the
+  `into_text` rows bounded at max(2,173, static) move to 3,272). Multiplicities are unchanged. The true longest literal
+  in those files is 964 B on both heads. Whether to register the artefact's bound or correct the scanner (a method
+  change) is reserved; the product is not reformatted to avoid it.
+- *Carrier (open).* `s(PreparedCaseResult)` (`Result<LoadCaseSolve, FrameKernelError>`) is 1,888 B, was 1,880 B (the
+  Option<Box> field is one word). B5O1 charges it twice per case, so every in-build phase moves +48 B at three cases;
+  `profile_in_build_record` fails on this head until `PINNED_RECORD` follows (mode 0 shown: each of the eight phases +48).
+- *Frames (debug lib-test binary, aarch64; I2b-2 head vs #96's witnessed `75d4c1f0…`).* `solve_prepared_load_case`
+  7,824 → 7,984 B, `run_linear_static_preview_observed_inner` 7,344 → 7,424 B (its `LoadCaseSolve` staging),
+  `append_nonlinear_support_loop_results` 4,208 → 4,224 B, `solve_load_case_observed` and
+  `run_linear_static_preview_observed` unchanged; the new `#[inline(never)]` capture has a 512 B frame and on D1
+  returns before any call. The witness paths run through both grown frames, so #96's six-witness outcome does not
+  transfer: AC-004 needs the witnesses on the registered candidate's binary.
+- *Routing.* The product_physics tree digest follows (`rust_tree_digest`), and `modal/state.rs` and
+  `modal/tests_state.rs` join the three source-scan declarations (result_export `retained_precision_carriers.rs`
+  input 14; nonlinear_integration `s11k_tests.rs` and `structural_adapter/k5_tests.rs` input 0).
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
@@ -3311,4 +3367,4 @@ Code, tools and other designs cite this text by these earlier section names and 
 | "Model document 0.9.0 S2 pressure-free resolution actual-source D3", "§8.40" (S2-PIN, S2-ZR, S2-BN, S2-RK, S2-ID, S2-JD) | §8.40 |
 | "RT-A3 reducer 2b: the W-15c pressure step", "§8.41" (2B-PIN, 2B-KEY, RTA3R2B-NZ) | §8.41 |
 | "RT-U4 `u4b_evidence::Index::any`: the component-free station lookup", "§8.42" (U4B-RD) | §8.42 |
-| "DEL-04-09 I2a: the product modal module and its self-weight seam", "§8.43" (MODAL-FB, MODAL-ID) | §8.43 |
+| "DEL-04-09 I2a: the product modal module and its self-weight seam", "§8.43" (MODAL-FB, MODAL-ID, MODAL-SEAM) | §8.43 |
