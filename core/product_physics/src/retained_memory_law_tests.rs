@@ -880,10 +880,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "6218734669b76d98f64e22804ca862ba43d543b7c0d22894b196724998c39be8",
+        "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
-        "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025",
+        "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
@@ -1989,8 +1989,8 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // §8.40: keep §8.38 coefficients under the a_le_b carry proof. Actual PreviewLoadCase
 // grows 672 -> 680 B: +24 B per phase, +48 B in X1 (two typed copies), without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_602_964_678, 6_944_959_239, 8_899_142_475, 8_687_302_902, 7_765_330_841, 8_611_709_634, 7_343_103_320, 7_016_393_196],
-    [6_662_096_022, 7_004_090_583, 8_958_273_819, 8_746_434_246, 7_824_462_185, 8_670_840_978, 7_402_234_664, 7_075_524_540],
+    [6_602_964_964, 6_944_959_525, 8_899_142_761, 8_687_303_188, 7_765_331_127, 8_611_709_920, 7_343_103_606, 7_016_393_482],
+    [6_662_096_308, 7_004_090_869, 8_958_274_105, 8_746_434_532, 7_824_462_471, 8_670_841_264, 7_402_234_950, 7_075_524_826],
 ];
 
 #[test]

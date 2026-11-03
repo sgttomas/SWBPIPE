@@ -2640,13 +2640,19 @@ proposal and run evidence are in `scratch/rtg5-s2-d3/` outside the checkout:
 `proposal/retained_memory.rs`, `run-cand/`, `run-base4cf/` and
 `eval80-*.json`. They are review inputs, not permanent dependencies.
 
-### §8.41 RT-A3 reducer 2b: the W-15c pressure step (candidate proof; profile disposition reserved)
+### §8.41 RT-A3 reducer 2b: the W-15c pressure step (proposal A adopted)
 
-**Status.** Candidate proof on the combined source, not a registration. The
-registered profile, its reviewed inputs, `retained_memory.rs` (SHA-256
-`8cd8fcf3…`, §8.38/§8.40) and the native law/challenge expectations are
-unchanged and held for the owner's coefficient disposition. Nothing here
-adopts a coefficient of either sign.
+**Status.** Registered: proposal A (below) is adopted. Agent 0, 2026-11-02,
+under the owner's removal of explicit owner approval for coefficient movement
+(source-derived pricing, independent scrutiny and preservation remain
+required): "Approve exact proposal A SHA
+755108238ce1b94add0a76106df6b0fb7e12fb484ba5e964a91925861502c6d1 (+286
+STATICS, kept TAV allowance), based on reported independent review and
+prospective preservation; revalidate exact identity/current basis, apply with
+maintained generation, reproduce overlays and selected-head tests." The
+paragraphs from "Source" to "Prospective retained-output verification"
+record the proof that preceded the decision; "Adoption" records what was
+done on the selected head.
 
 **Source.** Reviewed reducer 2b (`49a71c41f`) merged normally with integrated
 main `2b743781a` (S2 on §8.39/§8.38) as `8ef5b1ef9`. Production changes are
@@ -2726,7 +2732,7 @@ the upward-rounded 5 % TEXT reserve:
   W3 8,966,251,625 / 9,025,382,969 B; reserves unchanged; tightest
   +2,315,686,223 B.
 
-**Proposals and reserved disposition.** Both are maintained `generate` output
+**Proposals.** Both are maintained `generate` output
 on a copy of the unchanged registered file, outside the checkout, with only
 reviewed inputs #8 (physics-retained-1, `cf29fd5f…`) and #11 (pressure-2,
 `a2db16a5…`), counted from 0, rebound and a registration comment; identity,
@@ -2747,11 +2753,11 @@ the other eleven inputs, layouts and threshold are unchanged.
 - **Wording alternative.** The +286 B is entirely the restated table
   limitation. A disclosure no longer than 2a's would leave every coefficient
   bounded (`a_le_b`), so only the #8/#11 rebinding would remain; that wording
-  choice and any profile disposition are reserved.
+  choice was not taken; proposal A was adopted (Status).
 
 Whichever is chosen, adoption changes `retained_memory.rs` and the derived law
 records (`PINNED_RECORD` and challenge W1/MAX: +286 B per phase under A) and
-needs a rebuild. The selected branch remains `Stale`; its retained writers
+needs a rebuild. Before adoption the selected branch was `Stale`; its retained writers
 cannot emit successors, and its AC-004 witnesses would exercise the declined
 route. That gate is not waived by the prospective verification below.
 
@@ -2787,8 +2793,40 @@ the prospective passing results; the selected rebuilt source passes fourteen
 and its remaining eight still hit the unadopted-input gate. Vitest pin checks and the
 native allocation-challenge executable remain unrun in this experiment; no
 stack, timing, heap-peak or RSS qualification is claimed. The selected
-profile and law/challenge files remain unchanged pending owner disposition,
-and the final selected head still needs a rebuild and required checks.
+profile and law/challenge files were then unchanged; "Adoption" records the
+rebuilt selected head.
+
+**Adoption (`codex/rt-a3-reducer-2b`, on `4e1972698`).**
+- **Basis.** Main has not changed a priced path since this branch's merge base
+  `2b743781a` (no change under `core/product_physics`, `core/reporting`,
+  `core/solver`, `core/loads`, `core/numerics`, `tools/retained_pricing`,
+  `schemas` or `fixtures/results` through main `b921104d4`). The committed tool
+  prices `4e1972698` with exit 0 on all four points, O-10 clear; against
+  `run-final` (priced `0add60cac`) it has the same structure and all 1,602
+  coefficients equal (identical but the basis), the same prunes and
+  resolutions.
+- **Profile.** `retained_memory.rs` is proposal A byte for byte (SHA-256
+  `75510823…c6d1`). Maintained `generate` of the pointwise tree
+  (`proposals/tree_A_pointwise.json`) with A's basis text reproduces the
+  committed block (1,713 lines, empty diff). Against the head's re-priced
+  candidate tree, A is `a_ge_b`: 1,596 coefficients equal and six higher, which
+  are exactly the kept TAV allowance (TAV_W[1], TAV_X[1], their success copies
+  and the two TAV text atoms, each 3,989,660 B).
+- **Derived records.** `PINNED_RECORD` and the challenge's `W1_PHASE_BYTES`
+  [6,602,964,964, 6,662,096,308] and `MAX_PHASE_BYTES` [8,899,142,761,
+  8,958,274,105] equal maintained `tree_eval`'s proposal-A record at the 328
+  collected atoms (`proposals/derived_law_records_A.json`): +286 B in every
+  phase and mode.
+- **Overlay.** The prospective snapshot's pin, carrier and fixture overlay is
+  applied except its test-only capture test, which is not committed. With it:
+  `product_physics` lib tests 1,032 passed, 0 failed (the 22 queued failures
+  and the native law tests included); the retained Python and preservation
+  guards (`test_retained_precision_b3.py` and the three text-only envelope
+  guards) 845 passed; the desktop `retainedPrecisionResultExport.test.tsx`
+  22 passed, which the prospective experiment had left unrun; the default
+  `retained_memory_challenge` 1 passed; result_export's
+  `retained_precision_contract` 88 passed (the reader-outcome and RV120
+  carriers included) and `retained_precision_derivative_golden` 6 passed.
 
 **Stack.** Static prologues in the current lib-test binary (no predecessor
 binary was available for a delta; no whole-chain claim): entered on D1,
@@ -2830,7 +2868,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.36's candidate source, `867c63ec8`; main `9b0f8f49c`, which prices coefficient-identically to §8.33's source, is reproduced with main's own tool cohort); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.41's adopted source, `4e1972698`, which prices coefficient-identically to its candidate `0add60cac`; earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
