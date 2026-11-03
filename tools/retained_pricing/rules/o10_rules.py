@@ -4259,8 +4259,6 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         (site("assemble_mass", _MODAL + "mass.rs", "the body mass W/a of component {}", full=True),
          {"weight.weight": _M_F64, "a": _M_F64, "weight.cog|?": _md(78, "[f64; 3] Debug: three f64 Debug (24) and four bracket/separator bytes"),
           "operand": _md(23, "ComponentRangeOperand Display, the longest static name `spatial block m*r_i*r_j`")}),
-        (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
-         {'nonlinear.join(",")': _M_EMPTY}),
         (site("state_case_requirement", _MODAL + "request.rs", 'reasons.push(format!("the model has nonlinear supports ({})"', full=True),
          {'nonlinear.join(",")': _M_EMPTY}),
         (site("state_case_unavailable", _MODAL + "prepare.rs", "({carried} blocking diagnostic(s), returned with this one)", full=True),
@@ -4283,6 +4281,14 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         (site("check_weight_basis", _MODAL + "weight_basis.rs", "of straight member {} differs from its consistent", full=True), {"AXES[k]": _M_AX}),
         (site("compare_resultant", _MODAL + "weight_basis.rs", '"the resultant of a·M·r_k for {subject} along {}', full=True, row="format!("), {"AXES[k]": _M_AX}),
     ]
+    # I2b-2 (#97) deletes prepare_modal's interim nonlinear-support refusal (state.rs's same-run solve replaces it), so
+    # its audit applies only where the state module is absent (there site() requires the refusal); a head with the
+    # state module that kept the refusal would report its argument unclassified.
+    if not fnkey("solve_modal_state_case", _MODAL + "state.rs"):
+        O10_ID_AUDIT += [
+            (site("prepare_modal", _MODAL + "prepare.rs", '"the model has nonlinear supports ({}); their linearization', full=True, row="format!("),
+             {'nonlinear.join(",")': _M_EMPTY}),
+        ]
     if fnkey("modal_sturm_count", _MODAL + "eigen.rs"):
         # MODAL-ID, I2b-1 (#96): the dense solve's files (eigen.rs, integrity.rs, outcome.rs; tests_eigen.rs is the
         # #[cfg(test)] module). Mode numbers and counts are usize decimals. Each set of static reasons is read here
