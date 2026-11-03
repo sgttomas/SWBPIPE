@@ -326,3 +326,172 @@ def measure(root, files):
             if not doubling_safe(x["value"]):
                 unsafe.append(f"{f}:{x['line']}")
     return {"max_bytes": best, "at": at, "with_escapes": n_bad, "not_doubling_safe": unsafe, "count": count}
+
+
+# ---- §8.45 follow-up: production scope and the long-literal disposition check -------------------
+import os as _os
+import re as _re
+
+_CFG_TEST = _re.compile(r"#\s*\[\s*cfg\s*\(\s*test\s*\)\s*\]")
+_VIS = _re.compile(r"pub(\s*\(\s*(crate|super|self|in\s+[\w:]+)\s*\))?\s+")
+_MOD = _re.compile(r"mod\s+([A-Za-z_]\w*)\s*([{;])")
+
+
+def _masks(text, toks, comments):
+    """Per-offset flag: 1 inside a literal or comment (not code)."""
+    m = bytearray(len(text))
+    for s, e in [(x["start"], x["end"]) for x in toks] + list(comments):
+        m[s:e] = b"\x01" * (e - s)
+    return m
+
+
+def _depths(text, mask):
+    """Brace depth before each offset, counting only code braces."""
+    d, out = 0, [0] * (len(text) + 1)
+    for i, ch in enumerate(text):
+        out[i] = d
+        if not mask[i]:
+            d += (ch == "{") - (ch == "}")
+    out[len(text)] = d
+    return out
+
+
+def _module_decls(path, text):
+    """The `mod` items of one file: name, kind ('{' inline, ';' file), whether an exact `#[cfg(test)]` is in
+    its attribute run, its `#[path]` (False when unparsed), code brace depth and span."""
+    toks, comments = scan(text, path)
+    mask = _masks(text, toks, comments)
+    depth = _depths(text, mask)
+    decls = []
+    for m in _re.finditer(r"\bmod\b", text):
+        start = m.start()
+        mm = _MOD.match(text, start)
+        if mask[start] or not mm:
+            continue
+        k = text.rfind("\n", 0, start) + 1
+        prefix = text[k:start].strip()
+        if prefix and not _VIS.fullmatch(prefix + " "):
+            continue                                         # `mod` not at an item start on its line
+        # collect preceding attributes: repeatedly skip back over ws/comments and one `#[...]`
+        attrs, p = [], k
+        while True:
+            q = p
+            while q > 0 and text[q - 1].isspace():
+                q -= 1
+            if q > 0 and text[q - 1] == "]" and not mask[q - 1]:
+                depth_b, r = 0, q - 1
+                while r >= 0:
+                    if not mask[r]:
+                        depth_b += (text[r] == "]") - (text[r] == "[")
+                        if depth_b == 0:
+                            break
+                    r -= 1
+                h = r - 1
+                while h >= 0 and text[h].isspace():
+                    h -= 1
+                if h >= 0 and text[h] == "#" and not mask[h]:
+                    attrs.append(text[h:q])
+                    p = h
+                    continue
+            break
+        cfg_test = any(_CFG_TEST.fullmatch(a.strip()) for a in attrs)
+        path_attr = None
+        for a in attrs:
+            pm = _re.fullmatch(r'#\s*\[\s*path\s*=\s*"([^"\\]*)"\s*\]', a.strip())
+            if pm:
+                path_attr = pm.group(1)
+            elif _re.match(r"#\s*\[\s*path\b", a.strip()):
+                path_attr = False                           # unparsed path attribute: never resolved
+        end = mm.end()
+        if mm.group(2) == "{":
+            open_at = mm.end() - 1
+            d0, e = depth[open_at], open_at + 1
+            while e < len(text) and not (not mask[e] and text[e] == "}" and depth[e] == d0 + 1):
+                e += 1
+            end = e + 1
+        decls.append({"name": mm.group(1), "kind": mm.group(2), "cfg_test": cfg_test, "path": path_attr,
+                      "depth": depth[start], "span": (start, end)})
+    return decls
+
+
+def _child_file(root, parent, decl):
+    """The file of a top-level `mod name;` in `parent` (relative to root), or None when not uniquely resolved."""
+    if decl["depth"] != 0 or decl["path"] is False:
+        return None
+    pdir = _os.path.dirname(parent)
+    if decl["path"]:
+        cands = [_os.path.normpath(_os.path.join(pdir, decl["path"]))]
+    elif _os.path.basename(parent) in ("lib.rs", "main.rs", "mod.rs"):
+        cands = [_os.path.join(pdir, decl["name"] + ".rs"), _os.path.join(pdir, decl["name"], "mod.rs")]
+    else:
+        stem = _os.path.join(pdir, _os.path.basename(parent)[:-3])
+        cands = [_os.path.join(stem, decl["name"] + ".rs"), _os.path.join(stem, decl["name"], "mod.rs")]
+    hits = [c for c in cands if _os.path.isfile(_os.path.join(root, c))]
+    return hits[0] if len(hits) == 1 else None
+
+
+def scope_files(root, crate_dirs):
+    """Every `.rs` file under the crate source directories (relative to root), sorted."""
+    out = []
+    for d in crate_dirs:
+        for base, dirs, files in _os.walk(_os.path.join(root, d)):
+            dirs.sort()
+            out += [_os.path.relpath(_os.path.join(base, f), root) for f in sorted(files) if f.endswith(".rs")]
+    return sorted(out)
+
+
+def production_literals(root, files):
+    """The double-quoted literals of `files` outside test-only code: a file declared only by a
+    `#[cfg(test)] mod name;` (resolved by Rust's module path rules, `#[path]` included; any file
+    declared by a test-only file, recursively), and the body of a `#[cfg(test)] mod name { … }`.
+    Anything it cannot resolve with certainty stays in scope (over-inclusion is the safe side)."""
+    texts = {f: open(_os.path.join(root, f), encoding="utf-8").read() for f in files}
+    decls = {f: _module_decls(f, t) for f, t in texts.items()}
+    test_files, frontier = set(), []
+    for f, ds in decls.items():
+        for d in ds:
+            if d["cfg_test"] and d["kind"] == ";":
+                c = _child_file(root, f, d)
+                if c in texts:
+                    frontier.append(c)
+    while frontier:
+        f = frontier.pop()
+        if f in test_files:
+            continue
+        test_files.add(f)
+        for d in decls[f]:
+            if d["kind"] == ";":
+                c = _child_file(root, f, d)
+                if c in texts:
+                    frontier.append(c)
+    out = []
+    for f in files:
+        if f in test_files:
+            continue
+        spans = [d["span"] for d in decls[f] if d["cfg_test"] and d["kind"] == "{"]
+        for x in string_literals(texts[f], f):
+            if not any(s <= x["start"] < e for s, e in spans):
+                out.append(dict(x, file=f))
+    return out, sorted(test_files)
+
+
+def long_literal_check(root, crate_dirs, threshold, entries):
+    """§8.45: every production literal longer than `threshold` bytes must match exactly one reviewed
+    disposition entry ({file, head, disposition, cite}: the literal's value starts with `head`), and
+    every entry must match exactly one such literal. Returns (matched, problems)."""
+    lits, _ = production_literals(root, scope_files(root, crate_dirs))
+    long_ = [x for x in lits if x["nbytes"] > threshold]
+    problems, matched, used = [], [], {}
+    for x in long_:
+        v = x["value"].decode("latin-1") if isinstance(x["value"], bytes) else x["value"]
+        hits = [i for i, e in enumerate(entries) if e["file"] == x["file"] and v.startswith(e["head"])]
+        if len(hits) != 1:
+            problems.append(f"{x['file']}:{x['line']}: {x['nbytes']} B literal > {threshold} B with "
+                            f"{len(hits)} disposition entries")
+            continue
+        used.setdefault(hits[0], []).append(x)
+        matched.append({"at": f"{x['file']}:{x['line']}", "bytes": x["nbytes"], **entries[hits[0]]})
+    for i, e in enumerate(entries):
+        if len(used.get(i, [])) != 1:
+            problems.append(f"disposition entry {e['file']} {e['head']!r} matches {len(used.get(i, []))} long literals")
+    return matched, problems

@@ -158,30 +158,32 @@ def composite_lists():
 
 
 LIT, REP = composite_lists()
-STATIC_AT, STATIC_BYTES = "core/product_physics/src/lib.rs:1459", 964
-REP_AT, REP_BYTES = "core/solver/nonlinear_integration/src/structural_adapter.rs:2854", 185
+DIRS = (PRICING / "base/crate_dirs.txt").read_text(encoding="utf-8").split()
+DISPOSITIONS = runpy.run_path(str(PRICING / "base/static_literal_dispositions.py"))["ENTRIES"]
 
 
-def test_corpus_lexes_completely_and_measures():
-    assert LIT == ["core/solver/frame_kernel/src/structural.rs", "core/solver/frame_kernel/src/lib.rs",
-                   "core/solver/frame_kernel/src/structural/exact_boundary.rs", "core/product_physics/src/lib.rs"]
-    st, rp = measure(SOURCE, LIT), measure(SOURCE, REP)       # no LexError: every file lexes completely
-    assert (st["max_bytes"], st["at"], st["with_escapes"]) == (STATIC_BYTES, STATIC_AT, 9)
-    assert (rp["max_bytes"], rp["at"], rp["with_escapes"], rp["not_doubling_safe"]) == (REP_BYTES, REP_AT, 0, [])
+@pytest.mark.parametrize("files", [LIT, REP], ids=["static", "report"])
+def test_corpus_lexes_completely_and_the_class_is_its_longest_token(files):
+    """Self-consistency at the head, no pinned value or line: every file lexes (no LexError), and the
+    measured class equals the runtime bytes of the reported token, checked independently below."""
+    m = measure(SOURCE, files)
+    assert m["count"] > 0 and m["at"]
+    f, line = m["at"].rsplit(":", 1)
+    toks = [x for x in string_literals((SOURCE / f).read_text(encoding="utf-8"), f) if x["line"] == int(line)]
+    assert max(x["nbytes"] for x in toks) == m["max_bytes"]
+    assert one_token_bytes(m["at"]) == m["max_bytes"]
 
 
-@pytest.mark.parametrize("site,nbytes", [(STATIC_AT, STATIC_BYTES), (REP_AT, REP_BYTES)])
-def test_longest_literal_is_one_token(site, nbytes):
-    """Independent of the lexer's walk: the reported line holds exactly two quotes, the code before
-    the first has no comment marker or char/lifetime quote, and the text between them has no escape;
-    so that text is one plain literal of the reported runtime size."""
+def one_token_bytes(site):
+    """Independent of the lexer's walk: the line holds exactly two quotes, the code before the first has
+    no comment marker or char/lifetime quote, and the text between them has no escape; so that text is
+    one plain literal, and its UTF-8 length is the literal's runtime size."""
     f, line = site.rsplit(":", 1)
     text = (SOURCE / f).read_text(encoding="utf-8").split("\n")[int(line) - 1]
     m = re.fullmatch(r'([^"]*)"([^"\\]*)"([^"]*)', text)
     assert m and text.count('"') == 2, text[:120]
     assert "//" not in m.group(1) and "/*" not in m.group(1) and "'" not in m.group(1)
-    m = re.fullmatch(r'[^"]*"([^"]*)"[^"]*', text)
-    assert len(m.group(1).encode("utf-8")) == nbytes
+    return len(m.group(2).encode("utf-8"))
 
 
 @pytest.mark.parametrize("f", sorted(set(LIT) | set(REP)))
@@ -199,3 +201,79 @@ def test_every_quote_in_the_corpus_is_accounted_for(f):
     for x in toks:
         if x["kind"] == "str":
             assert text[x["start"]] == '"' and text[x["end"] - 1] == '"'
+
+
+def test_every_long_production_literal_has_one_disposition():
+    """The run's whole-scope check at the head: every production literal longer than the static class
+    matches one reviewed entry and every entry one literal."""
+    threshold = max(512, measure(SOURCE, LIT)["max_bytes"])
+    matched, problems = R["long_literal_check"](SOURCE, DIRS, threshold, DISPOSITIONS)
+    assert problems == []
+    assert len(matched) == len(DISPOSITIONS)
+    assert {x["disposition"] for x in matched} <= {"own-bound", "per-site", "never-copied"}
+
+
+# ---- production scope and the disposition check on synthetic trees ------------------------------
+LONG = "x" * 40
+
+
+def tree(tmp_path, files):
+    for name, text in files.items():
+        p = tmp_path / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+    return ["src"]
+
+
+def prod(tmp_path):
+    lits, test_files = R["production_literals"](tmp_path, R["scope_files"](tmp_path, ["src"]))
+    return sorted((x["file"], x["value"]) for x in lits), test_files
+
+
+def test_test_only_modules_are_excluded_and_everything_else_kept(tmp_path):
+    tree(tmp_path, {
+        "src/lib.rs": ('mod a;\n#[cfg(test)]\nmod t;\n#[cfg(test)]\n#[path = "deep/p.rs"]\npub(crate) mod q;\n'
+                       '#[cfg(any(test, feature = "x"))]\nmod w;\n#[cfg(test)]\nmod inline {\n    const S: &str = "in-test {";\n}\n'
+                       'const KEEP: &str = "kept";\n// #[cfg(test)] mod c;\nmod c;\n'),
+        "src/a.rs": 'const A: &str = "a";\n#[cfg(test)]\nmod at;\n',
+        "src/a/at.rs": 'const AT: &str = "a-test";\nmod deeper;\n',
+        "src/a/at/deeper.rs": 'const D: &str = "deeper-test";\n',
+        "src/t.rs": 'const T: &str = "test";\n',
+        "src/deep/p.rs": 'const P: &str = "path-test";\n',
+        "src/w.rs": 'const W: &str = "any-test-kept";\n',
+        "src/c.rs": 'const C: &str = "c-kept";\n',
+    })
+    values, test_files = prod(tmp_path)
+    lib = [v for f, v in values if f == "src/lib.rs"]
+    assert "kept" in lib and "in-test {" not in lib            # the inline test module's body is out
+    assert sorted(v for f, v in values if f != "src/lib.rs") == ["a", "any-test-kept", "c-kept"]
+    assert test_files == sorted(["src/t.rs", "src/deep/p.rs", "src/a/at.rs", "src/a/at/deeper.rs"])
+
+
+def test_an_unresolved_test_module_stays_in_scope(tmp_path):
+    tree(tmp_path, {"src/lib.rs": '#[cfg(test)]\n#[path = concat!("x", ".rs")]\nmod x;\nmod y { #[cfg(test)] mod z; }\n',
+                    "src/x.rs": 'const X: &str = "x";\n', "src/y/z.rs": 'const Z: &str = "z";\n', "src/z.rs": 'const Z: &str = "z2";\n'})
+    values, test_files = prod(tmp_path)
+    assert test_files == [] and sorted(v for f, v in values if f != "src/lib.rs") == ["x", "z", "z2"]
+
+
+@pytest.mark.parametrize("entries,problem", [
+    ([], "with 0 disposition entries"),
+    ([{"file": "src/lib.rs", "head": "x", "disposition": "own-bound", "cite": "c"},
+      {"file": "src/lib.rs", "head": "xx", "disposition": "own-bound", "cite": "c"}], "with 2 disposition entries"),
+    ([{"file": "src/lib.rs", "head": "x", "disposition": "own-bound", "cite": "c"},
+      {"file": "src/lib.rs", "head": "gone", "disposition": "own-bound", "cite": "c"}], "matches 0 long literals"),
+])
+def test_long_literal_check_stops_on_unlisted_ambiguous_or_stale(tmp_path, entries, problem):
+    dirs = tree(tmp_path, {"src/lib.rs": f'const L: &str = "{LONG}";\nconst S: &str = "short";\n'})
+    matched, problems = R["long_literal_check"](tmp_path, dirs, 10, entries)
+    assert any(problem in p for p in problems), problems
+
+
+def test_long_literal_check_matches_each_listed_literal_once(tmp_path):
+    # t.rs's equal literal is test-only, so the one entry matches lib.rs's literal alone
+    dirs = tree(tmp_path, {"src/lib.rs": f'const L: &str = "{LONG}";\n#[cfg(test)]\nmod t;\nconst S: &str = "short";\n',
+                           "src/t.rs": f'const T: &str = "{LONG}";\n'})
+    entry = {"file": "src/lib.rs", "head": "xxx", "disposition": "never-copied", "cite": "c"}
+    matched, problems = R["long_literal_check"](tmp_path, dirs, 10, [entry])
+    assert problems == [] and [(m["at"], m["bytes"]) for m in matched] == [("src/lib.rs:1", 40)]

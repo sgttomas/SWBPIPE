@@ -51,6 +51,16 @@ lit_files = ["core/solver/frame_kernel/src/structural.rs", "core/solver/frame_ke
 _lit = _measure_literals(proot, lit_files)
 L_static, L_static_at, bad = _lit["max_bytes"], _lit["at"], _lit["with_escapes"]
 STATIC = L_static
+# §8.45: text rules apply the class across the snapshot, so every production literal in the pricing
+# scope longer than the class must carry a reviewed disposition (static_literal_dispositions.py); an
+# unlisted long literal, or an entry matching no literal or several, stops the run.
+from rust_literals import long_literal_check as _long_literal_check
+import static_literal_dispositions as _dispositions
+_crate_dirs = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "crate_dirs.txt"), encoding="utf-8").read().split()
+_long, _long_problems = _long_literal_check(proot, _crate_dirs, max(512, STATIC), _dispositions.ENTRIES)
+if _long_problems:
+    sys.exit("composite_text: production literals longer than the static class without exactly one reviewed "
+             "disposition (static_literal_dispositions.py, §8.45):\n  " + "\n  ".join(_long_problems))
 # Report fields (&'static str) take literals defined in FK structural.rs / structural/*.rs; the
 # symmetry basis String is a copy of a literal from nonlinear_integration structural_adapter.rs.
 rep_files = ["core/solver/frame_kernel/src/structural.rs", "core/solver/frame_kernel/src/structural/sparse.rs",
@@ -152,6 +162,7 @@ joined = {
 out = {
     "which": which, "static_literal_max_bytes": L_static, "report_literal_max_bytes": L_rep, "static_literals_with_escapes": bad,
     "static_literal_max_at": L_static_at, "report_literal_max_at": L_rep_at, "report_literals_with_escapes": rep_escaped,
+    "static_long_literals": [{k: x[k] for k in ("at", "bytes", "disposition")} for x in _long],
     "classes": {
         "struct_report_debug": report, "dof_map_debug": dof_map, "message_int": message_int,
         "recovery_summary_debug": summary, "sources_debug": sources_all,
