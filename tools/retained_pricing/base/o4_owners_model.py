@@ -88,7 +88,10 @@ BODY_PINS = {
     # payload keys are unchanged.
     # RT-A3 increment 1 D3 (§8.33): a straight exact member's branch rows (u4b_rows::append_branch_intensified, under
     # `exact && macro_bend.is_none()`; none on D1, D1.4); O4-ID/O4-SR's Timoshenko blocks and maxima are unchanged.
-    (LIB, "solve_prepared_load_case"): "1e9343f49b5b53d51db544c5148f38e5fb1839954c5c94f377f9a0716bf45327",
+    # DEL-04-09 I2b-2 D3 (§8.43, decision B): LoadCaseSolve.nonlinear_state (None at every early return) and the
+    # capture of a converged nonlinear solve's evidence (none on D1, D1.6); O4-ID/O4-SR's Timoshenko blocks and
+    # maxima are unchanged.
+    (LIB, "solve_prepared_load_case"): "16d478349c3c8174436729a91b3770a6afb38d126fc6a0c796480303b0f7f9e4",
     (SRC, "distinct_reduced_section"): "179e447476ae2a7cf8b01d1e5da22bddd66b9057403453ffc79f9e57747fd100",
     (SRC, "stress_operands"): "de7a26eb0574635be8c808bc42070cdb132f8f8b67fee83542bd79f667cb6050",
     (SRC, "commitment"): "279ce112036664d7802e2952d87a67abe6dd7fe04879a4d498fd2544fe86753d",
