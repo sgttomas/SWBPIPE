@@ -3122,6 +3122,45 @@ ended 06:19:32Z (the wrapper returned at 06:19:32Z: 9 s including teardown; the 
 2.50 s, **all pass**. Afterwards `exclusive.pending` is absent, no harness, wrapper or test process remains, and
 the binary's hash is unchanged. No isolated challenge was requested.
 
+**#96 (I2b-1: the dense eigen path).** A separate pricing check on the I2b-1 head, against the I2a registration
+above; it shares that registration only because no coefficient moves.
+
+- *Source change for pricing.* `modal_parameter_refusals` printed the caller's whole `sturm_gap_log_positions` and
+  `sturm_whole_spectrum_offsets` lists with Debug. Nothing in the source or D1 bounds their length, so no truthful
+  per-site bound existed. Each refusal now names the first offending entry and its index (or `empty`), the
+  decision-A count precedent; a lib test checks a 1,000-entry list yields a short message.
+- *MODAL-FB* adds I2b-1's two callers, each body-pinned: `modal_sturm_count` (`max` on a usize) and
+  `bounding_box_diagonal` (`min`, `max` on `f64` coordinates).
+- *MODAL-ID* adds site-specific bounds for the 23 format arguments no existing class covers in `eigen.rs`, `integrity.rs`, `outcome.rs` and the `#[cfg(test)]`
+  `tests_eigen.rs`, under a guard keyed on `modal_sturm_count`, so an I2a head adds nothing. Mode numbers and counts
+  are usize decimals (20 B). Each set of static reasons is read from the pinned function with a count guard, so a new
+  or longer reason re-prices or stops. Debug and Display renderings are bounded at their longest variant with payloads
+  at class bounds: `FiniteCensus` 162 B, `ShiftDecision` 143 B (`OutOfRange` with `ShiftTimesMass`; the widest
+  `FactorizationRejected` is 136 B), a pencil DOF label 131 B, `PencilRangeUnsupported` 170 B, and the axis
+  shortfall join of at most three entries 226 B.
+- *Pins.* I2b-1 changes no pinned file: `lib.rs`, `self_weight.rs` and every `Cargo.lock` are byte-equal to the I2a
+  head, so no reviewed input, `REVIEWED` entry or pin moves.
+- *Run and comparison.* The tool priced `9fa740050` with exit 0 on all four points, no unmapped header or
+  unclassified argument, both O-10 checks at zero and byte-equal to the I2a run's. D is unchanged at every point.
+  `compare` against the I2a run's tree: identical but for the basis revision, structure equal, all 1,602
+  coefficients equal. `generate --check` against `retained_memory.rs` with §8.42's basis line is **equal** (1,712
+  lines): **no coefficient moves**.
+- *Routing.* The five I2b-1 files join the three source-scan declarations, and the product_physics tree digest
+  follows.
+- *AC-004 (analysis, not a new run).* I2b-1 compiles new code into the witnessed lib-test binary, so I2a's run is
+  not exact-binary evidence for it. Relative to I2a's witnessed head `b85a5b131`, I2b-1 changes only `modal.rs`'s
+  module declarations and new modal files; every other product source, every manifest and the modal_eigen crate are
+  byte-equal. Its debug lib-test binary (`open_pipe_stress_product_physics-9cc9ce96e7b85850`, SHA-256
+  `75d4c1f0…4251`, same toolchain) was compared with the witnessed one, function by function. The prologue stack
+  reservation of each function was taken from the disassembly over v0 names with crate disambiguators and
+  back-references normalized: 127,233 common names, all equal except three test-only functions that move by
+  16 B (`self_weight::tests::intensity`, a private helper; two `#[test]` bodies in `fallback_transport_tests` and
+  `f1b_tests`), none reachable from the witnesses; the 18 names present only in the witnessed binary are duplicate
+  generic copies with equal-frame counterparts; neither binary lowers `sp` by a register. Since an opt-level-0 call
+  graph follows the unchanged source, every witness path's frames and depth are equal, and the six witnesses'
+  outcome carries over. The three moved test frames show that identical source alone does not fix a debug frame,
+  so the comparison, not the source argument, is the evidence.
+
 ## 9. Memory-profile gates and registration
 
 ### Gate bounds (registration)
