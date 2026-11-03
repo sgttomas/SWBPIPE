@@ -1472,3 +1472,182 @@ The pricing mutation suite and Python CI-selection checks pass with that policy
 afterward. A separate intentionally failing control confirms that failed
 snapshots remain and pytest's failure exit code is preserved. Exact-head hosted
 checks remain required after this execution-only repair.
+
+## 11. S3a: the condition-set operations (contract)
+
+**Basis:** main `575fcc776` (2026-11-02), after S2 (#84). **Scope (owner,
+2026-11-02, on resuming the load-cases lane):** pressure-free condition-set
+create, update, delete with reference guards, pipe assignment and case condition
+use, reusing S2's read-only judgement; no schema or version step, no EX
+resolution, no contents or hydrotest admission. `direction`,
+`difference_basis`, `subtrahend_support_state`, the unsigned bases, combination
+operands and `test_condition` stay refused at authoring as at S1 (§3.8). The
+desktop surfaces are S3b's (§4). Every operation is one record or one member,
+identity-preserving (FR-MOD-003), admitted alone and in atomic
+`apply_operation_batch` batches with per-step refusals, and every candidate
+document is judged by the one document validator, so a set's shape, quantities,
+range and references take the document-level codes of §1.3 with their messages.
+
+**Object type `ConditionSet`** (collection `condition_sets`, key `id`), with the
+model-data families' wire and codes (`model_data_authoring.rs`; DEL-02-01 Design
+`model-document-0.7.0.md` §6):
+
+| Change kind | Operation kind | `before` | `after` | Refusals beyond the validator's |
+|---|---|---|---|---|
+| `create_condition_set` | create | `not_present` | the whole `ConditionSet` record, JSON object text; its `id` equals `target.ref` | `OP-DATA-PAYLOAD-INVALID`, `OP-DATA-ID-MISMATCH`, `OP-DATA-ID-INVALID`, `OP-DATA-ID-COLLISION`, `OP-STALE-BEFORE-VALUE` |
+| `update_condition_set` | modify | the current record's canonical JSON | the whole replacement record; `id` unchanged | `OP-TARGET-NOT-FOUND`, `OP-STALE-BEFORE-VALUE`, `OP-DATA-ID-MISMATCH`, `OP-DATA-UNCHANGED` |
+| `delete_condition_set` | delete (its diff row's `field_path` is `condition_sets[<index>]`, the deleted index, so the row alone inverts it) | the current record's canonical JSON | `not_present` | `OP-CONDITION-SET-IN-USE` (blocking) while any pipe's `condition_set_ref` names it, naming every such pipe; `OP-DELETE-AFTER-VALUE-INVALID` |
+
+The product creates no set and suggests none; a record carries only what the
+person entered (§1.2: nothing defaulted, `null` refused). Deleting the last set
+leaves `condition_sets` as an empty array, so create-then-delete returns the
+document's members but not necessarily its bytes; an absent collection is
+written only by a create.
+
+**Pipe assignment, `assign_condition_set`** (§4.1's emission): operation kind
+modify, target `Element` (a pipe id), `field_path` `condition_set_ref`, unit
+`none`, dimension `dimensionless`; `before` is `{"condition_set_ref": id}` as
+canonical JSON or `not_present`; `after` is `{"condition_set_ref": id}`, or
+`not_present` to clear. A set that does not exist is the validator's
+`OPERATING_CONDITION_SET_UNRESOLVED`; the same value as stored is
+`OP-DATA-UNCHANGED`. `connect_pipe_run` still refuses `condition_set_ref` in its
+payload (S1): assignment is its own operation.
+
+**Case condition use, `set_load_case_condition_use` and
+`clear_load_case_condition_use`:** operation kind modify, target `Load`,
+`field_path` `condition_use`, unit `none`, dimension `dimensionless`; `before` the
+current member's canonical JSON or `not_present`; `after` the whole
+`ConditionUse` object text (set) or `not_present` (clear). `create_load_case`
+admits `condition_use` in its record under the same judgement. Admission at
+authoring is the document's route:
+- **Pressure-free documents:** `temperature`, `added_weight: true` and
+  `wind_exposure: true` are admitted. `contents_density` is refused,
+  `LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED` (RT-A6), and `pressure` is refused,
+  `LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT`.
+- **Documents with `pressure_contract`:** every use is refused,
+  `LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED` (S4).
+- An empty use, or `false` in a `true`-only member, is the validator's
+  `LOAD_CASE_CONDITION_USE_EMPTY`.
+
+**The solve's judgement, classified (SWBPIPE Agent 0, 2026-11-02).** After an
+admitted condition-set, assignment or condition-use operation, the applier runs
+S2's public read-only judgement, `operating_conditions::preview_operating_conditions`,
+on the candidate document (no product_physics change), and classifies each
+finding it gives deliberately, never by blanket downgrade:
+- **Staged-state findings, reported as warnings** (the solve's code and message,
+  authoring not blocked, so a person can state a case's use before assigning
+  every pipe, OC-8): exactly `OPERATING_CONDITION_SET_MISSING`,
+  `OPERATING_CONDITION_KEY_MISSING`, `OPERATING_CONDITION_VALUE_MISSING`,
+  `OPERATING_CONDITION_INSTALLATION_TEMPERATURE_MISSING`,
+  `LOAD_CASE_CONDITION_TEMPERATURE_CONFLICT`,
+  `LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT`,
+  `LOAD_CASE_CONDITION_WIND_INPUT_MISSING`, and an empty wind exposure resolved
+  from the sets (`EQUIVALENT_STATIC_INPUT_MISSING` on the case's generated
+  `exposed_pipe_refs`). Each names the case, pipe, set, key and quantity as the
+  solve does.
+- **Everything else stays blocking:** a parse or unknown-field refusal, every
+  document-level code (structure, schema, references, quantities, range,
+  provenance), every route and admission code (the interim refusals above), and
+  any code not on the staged list, including codes added later until this list
+  admits them.
+
+The solve still refuses a case with a staged finding by name until it is
+resolved; the applier computes no ΔT of its own.
+
+**Inverses.** create ↔ delete, update ↔ update with the before record, set ↔
+clear or set; the desktop undoes through its session checkpoint, which restores
+the prior document exactly.
+
+**Verification.** One regression per operation and per refusal; save and reopen
+byte for byte; batches mixing the operations with `create_load_case` and
+`connect_pipe_run`, atomic on a refusal; undo by inverse; stale `before`;
+EX and contents refusals; every existing S1 refusal preserved; the staged
+warnings equal what the solve reports on the same candidate, and a
+non-staged finding blocks; an explicitly empty wind exposure (no set marks
+wind) reported by name with its provenance; a contract-corpus file under
+`fixtures/model_operations/`.
+Persistence review by an independent agent.
+
+## 12. As built (S3a)
+
+**Basis:** branch `claude/rt-g5-s3a` from `cc32c2c06` (main `575fcc776` plus
+§11). No product_physics, schema, version-constant, unit or desktop change; the
+applier calls S2's public `operating_conditions::preview_operating_conditions`
+only.
+
+- **Where.** `core/model_operations/operation_applier/src/condition_set_authoring.rs`
+  holds the six change kinds of §11, the route admission (`admit_case_use`) and
+  the classified judgement (`STAGED_FINDINGS`, `classify`, `report_judgement`).
+  The shared edits in `lib.rs` are the `mod` line, the change kinds in
+  `check_kinds`' supported set and operation-kind map, one dispatch block beside
+  the project-units block, `ConditionSet` → `condition_sets` in
+  `collection_for`, and `create_load_case`: S1's blanket
+  `LOAD_CASE_CONDITION_USE_UNSUPPORTED` is replaced by `admit_case_use`, the
+  admitted use is carried into the created record (the creator rebuilds its
+  record from named members, so without this the use would be dropped), and the
+  candidate is judged. `atomic_batch.rs` admits the target object type
+  `ConditionSet` in its preflight, without which no batch could carry a record
+  operation. S1's in-crate refusal test now checks the `create_load_case`
+  contents refusal where it checked the removed blanket refusal.
+- **Wire as built.** As §11's tables, with these details. A create's
+  `field_path` is `condition_sets`, or `condition_sets[<index>]` to place the
+  record (a delete's inverse; `OP-DATA-INDEX-INVALID` past the end). An id must
+  match the applier's id pattern and must not repeat any id in the document (the
+  model-data rule), so a set named like a pipe is `OP-DATA-ID-COLLISION`.
+  Unit and dimension other than `none`/`dimensionless`, a wrong object type or
+  field path, and a set's `after` of `not_present` or a clear's object are
+  `OP-DATA-SHAPE-INVALID`. An assignment `after` is exactly one member
+  `condition_set_ref` with a string value; anything else, `null` included, is
+  `OP-DATA-PAYLOAD-INVALID`. A use payload that is not a JSON object is
+  `OP-DATA-PAYLOAD-INVALID`; its members are the validator's. Diff rows carry
+  canonical JSON on both sides (or `not_present`), so the inverse is built from
+  the row. A use naming both `pressure` and `contents_density` is refused by both
+  codes.
+- **The judgement.** It runs in validate and apply mode alike, after an admitted
+  operation of this module or a `create_load_case` carrying `condition_use`. It
+  runs only once the document validator admits the candidate: a candidate the
+  validator blocks is reported by the validator's findings alone, which the
+  preview would repeat. `STAGED_FINDINGS` is one constant of the seven judgement
+  codes and `Staged::EmptyGeneratedWindExposure`. The preview reports an empty
+  wind exposure as a resolved case with `wind_exposed_pipe_refs: []`, not as a
+  code, so the applier names it as `EQUIVALENT_STATIC_INPUT_MISSING` (warning,
+  affected ref the case). Its message is the solve's equivalent-static wind
+  message (with the same member list the solve gives) followed by the case's
+  name and the source of the empty list ("takes its wind exposure from
+  conditions, and no condition set of its pipes marks exposure.wind"). The same
+  code from the preview's diagnostics is not on the list and blocks. A parse or
+  unknown-field refusal of the candidate is `OP-CONDITION-JUDGEMENT-REFUSED`,
+  blocking. Every other diagnostic blocks, whatever its severity, including
+  `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`, `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` and
+  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`. The judgement reads the whole document, so
+  these block a condition operation on any document that carries such a member,
+  even when the operation does not touch it. (A rule that skipped findings the
+  document already carried was tried and withdrawn after the persistence review
+  showed it let an edit of the refused case itself through; whether unrelated
+  carried refusals should block is put to Agent 0.) Operations outside this
+  module are not judged.
+- **Tests.** `tests/condition_set_authoring.rs` (14) has: each operation with its
+  inverse; the record, assignment and use refusals; delete while referenced;
+  `create_load_case`'s use; the contents, pressure-free pressure and exact-route
+  refusals; every S1 authoring refusal kept (`connect_pipe_run`'s
+  `condition_set_ref`, `test_condition`, skewed and axis `direction`, the four
+  combination members); the staged warnings equal to the preview's and the
+  solve's findings, code and message, on the same candidate (all seven judgement
+  codes at once); non-staged findings blocking beside staged ones; the empty wind
+  exposure named against the solve's own finding; atomic batches with
+  `create_node` and `connect_pipe_run` equal to the operations in turn, and
+  refused at the end, in the middle or on a stale step; undo by inverse; and save
+  and reopen byte for byte. All 14 fail on the pre-S3a source. Three unit tests in
+  the module pin the list and the blocking of unlisted, warning-severity and
+  future codes. `fixtures/model_operations/condition_set_contract_corpus.json`
+  (18 cases, the `contract_corpus/` case format; case 18 keeps `create_load_case`'s `test_condition` refusal in the corpus) runs in `tests/contract_corpus.rs`
+  under the same comparison rules (bless with `CONDITION_SET_CORPUS_BLESS=1`). It
+  sits outside `contract_corpus/` because the browser lane counts that directory
+  and runs it against the committed wasm engine, which has no S3a operations
+  until the desktop engine is rebuilt (S3b).
+- **Routing.** `tools/hosted-ci-routing.json` is refreshed from the tree: the
+  applier's source-tree digest, the corpus reader's hash and its new exact read,
+  and two project-wide scan inventories (the new module; the new fixture).
+- **Left:** independent persistence review (§11); the pytest-selected checks;
+  exact-head hosted checks; the desktop surfaces and the wasm engine rebuild
+  (S3b), whose browser corpus lane then takes these cases.
