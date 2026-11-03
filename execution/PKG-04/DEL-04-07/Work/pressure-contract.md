@@ -991,9 +991,19 @@ following checks are new.
 - the loop rows: one iteration count (an integer ≥ 1) naming the support
   classes, a zero final residual count and a converged flag of 1;
 - per support: one state row (code 0–3), one final displacement and one final
-  reaction row, and at most one relative-displacement row. Each is on the
-  state row's DOF, in that DOF's units, and states the same `final_state`. The
-  support's `NONLINEAR_SUPPORT_STATE_REVIEW` diagnostic names the same state;
+  reaction row. Each is on the state row's DOF, in that DOF's units, and
+  states the same `final_state`. The support's
+  `NONLINEAR_SUPPORT_STATE_REVIEW` diagnostic names the same state;
+- no relative-displacement row (`RELATIVE_DISPLACEMENT`). S5 admits nonlinear
+  supports on plain v3 documents only, and EX refuses a support-targeted
+  primitive by name, so no case moves a nonlinear support's ground. W-16
+  R-b's row is PF's. A later lift of ground motion on EX must bind the row's
+  presence and value to the resolved ground and the absolute displacement;
+- the final displacement restates a node's published displacement or
+  rotation row at the support DOF, bit for bit (`DISPLACEMENT`). This is the
+  producer's `restate_nonlinear_support_displacements`: the node's published
+  SI value in the row's unit, ×1000 for mm and unscaled for rad. The model
+  names the node (below);
 - the final reaction is the support's published action component, bit for
   bit, and the support's magnitudes follow its components;
 - a derived friction normal is the absolute value of its named source's
@@ -1001,31 +1011,68 @@ following checks are new.
 - the classes name the support kinds: the friction supports are exactly those
   with a normal row;
 - the DEC-067 laws that need no inputs:
-  - an inactive support carries no force (within 1e-9 of the case's largest
-    support component in its family);
   - a sliding support slips (δ ≠ 0) against its force (R·δ ≤ 0);
   - an inactive friction support has N ≤ 0 (derived: N = 0);
 - the standing:
-  - one integrity diagnostic, whose code agrees with the case's
-    `numerical_quality` record;
-  - a gap-bearing case is `RECOVERY_BASIS_UNQUALIFIED` and unresolved (R1);
+  - one integrity diagnostic, with a code the producer publishes. Its
+    `numerical_quality` record carries exactly the four tokens the producer's
+    `assessed_numerical_quality` assigns to that code (structural status,
+    solve quality, matrix fidelity, accuracy evidence) and names the
+    diagnostic in `evidence_refs` (`STANDING`). An unknown code is refused
+    (`STANDING_CODE`). Before the RT-A3 increment 4 review this was only
+    "Passed iff checks_passed";
+  - a gap-bearing case is `RECOVERY_BASIS_UNQUALIFIED` and unresolved (R1).
+    This gap precedence is checked after the mapping;
   - a Passed case carries kd5 §3.3's evidence line;
   - a Passed case has no derived-normal friction support inactive. That state
     fails closed and is never Passed (kd5 §2.2; the case publishes
     `NUMERICAL_INTEGRITY_SENSITIVE`);
   - a Passed case has no friction support in state active;
   - a Passed case publishes each inactive support's reaction as exact +0
-    (kd5 R4). A non-Passed case keeps the loop's binary64 rows.
+    (kd5 R4);
+  - a non-Passed case keeps whichever earlier reason the producer stated
+    (kd5 §2.4: the confirmation did not run, or it failed), so any mapped
+    non-Passed code is admitted outside the gap and derived-inactive rules;
+- an inactive support in a non-Passed case keeps the loop's reported
+  reaction. That is the binary64 residual of its free row (kd5 §0, §1.2):
+  inspection evidence, with no claim that it is zero. It is bound to the
+  producer's own original-equation evaluation of the final linearized solve's
+  free rows (`append_nonlinear_residual_observation_results` over
+  `product_equilibrium::evaluate`). The case publishes that evaluation's
+  largest free-row |residual| in the support's family once:
+  `nonlinear_support_observed_free_dof_force_residual` (N) or
+  `…_moment_residual` (N·m), on the loop, with
+  `residual_basis=free_dof_force_moment_equilibrium` and
+  `observed_compliance=true` (`RESIDUAL`). The verdict states that every free
+  row met 64·γ(n) of its own denominator Σ|K_ij·u_j| + |f_i|, cancellation and
+  the evaluation allowance included. The reader requires |R| ≤ that record
+  (`INACTIVE_REACTION`). No scale is taken from the support components. The
+  review's B1 showed the former rule, 1e-9 of the case's largest support
+  component, refusing untouched dense output.
+
+  When the free row carries no applied load term, R (`fl(K·u) − f`) and the
+  evaluation's row residual are the same binary64 sum, so |R| ≤ the record
+  holds by construction. With a load on the support DOF, or a selected exact-gap
+  projection, the two evaluations of the row round at different points. They
+  then differ by at most about γ(n) of the row denominator, which the envelope
+  does not publish. Every corpus and probe case observes |R| ≤ the record,
+  mostly with equality: the 40 reference envelopes, the 34 K-1 twins, and the
+  review's 21 noise, length and inclined-gap probes, including F1-P0's
+  loaded −2.9e-11 N row.
 
 *With the model:*
 - every solved case publishes exactly the model's nonlinear supports, with
   their DOFs, kinds and normals (an explicit N bit for bit, a derived source by
   support and DOF);
-- the DEC-067 laws that need μ, the clearance g or the sense σ, on the
-  deciding δ (the relative row where the case moves the support's ground):
+- each support's final displacement is its own node's published row at the
+  support DOF, bit for bit (`MODEL_DISPLACEMENT`; the model input keeps
+  `support.node`);
+- the DEC-067 laws that need μ, the clearance g or the sense σ, on that
+  deciding δ:
   - gap: s = g − σδ, c = −σR; one-way and lift-off: s = σδ, c = σR;
-  - s ≥ 0 and c ≥ 0, and an active support is closed (s = 0). With the
-    model-free inactive ⇒ R = 0, their product is zero;
+  - s ≥ 0. An active support is closed (s = 0) and pushes (c ≥ 0). An inactive
+    support's force is the model-free rule above, a residual whose sign states
+    nothing, so their product is zero;
   - friction, unless inactive: |R| ≤ μN. Sticking has δ = 0. Sliding has
     |R| = μN, opposite to a nonzero slip when μN > 0;
   - a Passed explicit-normal slide is −sign(δ)·fl(μN), bit for bit (kd5 §3.1).
@@ -1056,8 +1103,33 @@ Deeper variants keep the cheaper evidence consistent and reach the later rules:
 | Relabelled Passed with quality and evidence line, gap case | `GAP_STANDING` | `GAP_STANDING` |
 | Relabelled Passed with quality and evidence line, F1-P0 | `FRICTION_NORMAL_STANDING` | `FRICTION_NORMAL_STANDING` |
 
+The RT-A3 increment 4 review's three blocking reader findings (B1–B3) are
+repaired with these regressions and controls
+(`reader_binds_inactive_residuals_support_nodes_and_standings`;
+`test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_readers`):
+
+| Case | Without the model | With the model |
+|---|---|---|
+| B1: the review's inclined gap, untouched, both modes; dense R = −3.3e-15 N against 1e-6 N | admitted | admitted |
+| Its inactive force doubled, slot and magnitude consistent | `INACTIVE_REACTION` | `INACTIVE_REACTION` |
+| Its free-row evaluation stated non-compliant, or absent | `RESIDUAL` | `RESIDUAL` |
+| O1-LIFT (Passed) inactive reaction published −0 | `PASSED_ZERO` | `PASSED_ZERO` |
+| B2: G2 stated active at a 1 mm (clearance) displacement | `DISPLACEMENT` | `DISPLACEMENT` |
+| G2 stated active with an invented ground row at the clearance | `RELATIVE_DISPLACEMENT` | `RELATIVE_DISPLACEMENT` |
+| G2's displacement replaced by the anchor's published +0 | admitted | `MODEL_DISPLACEMENT` |
+| F1-SLIDE (Passed) slip ×1000 | `DISPLACEMENT` | `DISPLACEMENT` |
+| B3: F1-P0 code Sensitive → unqualified, quality left sensitive | `STANDING` | `STANDING` |
+| F1-P0 code Sensitive → failed, quality left sensitive | `STANDING` | `STANDING` |
+| F1-P0 accuracy evidence alone stated unresolved | `STANDING` | `STANDING` |
+| F1-P0 quality record naming no diagnostic | `STANDING` | `STANDING` |
+| F1-P0 code unknown to the producer | `STANDING_CODE` | `STANDING_CODE` |
+| G1 code unqualified → Sensitive, quality left unresolved | `STANDING` | `STANDING` |
+| G1 consistently relabelled Sensitive (code and quality) | `GAP_STANDING` | `GAP_STANDING` |
+| F1-P0 consistently relabelled `UNRESOLVED` (limit) | admitted | admitted |
+
 These are the negative controls of
-`rt_a3_nonlinear_references.rs` (`forged_contacts_states_friction_and_standings_are_refused`)
+`rt_a3_nonlinear_references.rs` (`forged_contacts_states_friction_and_standings_are_refused`
+and the test above)
 and of `tests/test_rt_a3_nonlinear_reader.py`. The Python test authors the same
 documents, solves them with the runner and compares Python's verdict with the
 runner's `read pressure` on every envelope.
@@ -1067,6 +1139,25 @@ and self-consistent. Both readers admit it, and only the references refuse it.
 Refusing it needs a nodal-equilibrium binding of support actions against
 member end actions and the pressure ledger, which no reader has on either
 route.
+
+*Further limits:*
+- *Forging the producer's own evaluation.* A non-Passed inactive force forged
+  together with a free-row residual record raised to cover it is
+  self-consistent. Only an equilibrium binding refuses it.
+- *A consistent non-Passed relabel.* A non-gap case relabelled to another
+  mapped non-Passed code with its quality tokens is admitted. kd5 §2.4
+  preserves earlier non-Passed reasons, and the reader cannot tell which
+  reason applied.
+- *The model-free displacement rule.* It requires some node's published row
+  to carry the same bits; only the model names which node.
+- *Parity of outer refusals.* Malformed numbers that the outer validators
+  refuse before this module are refused by both readers, with different
+  codes: Rust gives `SOURCE_PHYSICS_NUMBER_INVALID` (`physics_evidence.rs`)
+  and Python `SOURCE_PHYSICS_EVIDENCE_INVALID` (`pressure_2.py` wraps the
+  physics-evidence errors). Normalizing them would change shared readers
+  outside this increment, so the parity claim is acceptance and
+  `SOURCE_PHYSICS_NONLINEAR_*` codes only. The tests assert identical codes
+  for every nonlinear refusal.
 
 G1-P0 is not expressible as the packet states it. It has no load of any kind,
 and the product refuses a document without a primitive load
@@ -1144,7 +1235,7 @@ geometry-only bend `component:C-110` (D-2; S6's inventory) and the terminal
 - *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
   its interim linear forms (`rack_model.py`, `release_runner.py`).
 - *K-1's bit identity* (above): held, a section-formation choice.
-- *The reader's equilibrium limit* (above).
+- *The reader's equilibrium limit* and the further limits (above).
 - *§2.2's explicit member-bound integration test.* The confirmed cases'
   certified rows match the references, but the wall-bound derivation is not
   separately pinned.

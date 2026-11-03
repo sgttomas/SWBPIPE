@@ -294,3 +294,119 @@ def test_forged_contacts_states_friction_and_standings_are_refused_by_both_reade
     # 5. F1-P0-SLIDELOAD relabelled Passed; with its quality record and the evidence line.
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: relabel_passed(e, SENSITIVE, False, False)) == both("STANDING")
     assert forged(solved, "F1-P0-SLIDELOAD", lambda e: relabel_passed(e, SENSITIVE, True, True)) == both("FRICTION_NORMAL_STANDING")
+
+
+# -- the review's blocking reader findings (the Rust binding's `reader_binds_inactive_residuals_support_nodes_and_standings`)
+def inclined_gap_document() -> dict:
+    """The review's inclined-gap document (B1): G2 with its tip at (1000, 1000/3, 1000/7) m, its +UX gap open by
+    0.001 m, no pressure region and one tip global-Z load of 1e-6 N."""
+    doc = document(next(c for c in REFERENCES["cases"] if c["id"] == "G2"))
+    model = doc["model"]
+    tip = model["pipe_segments"][0]["to"]
+    for node in model["nodes"]:
+        if node["id"] == tip:
+            node["position"] = {"x": 1000.0, "y": 1000.0 / 3.0, "z": 1000.0 / 7.0}
+    for support in model["supports"]:
+        if support.get("nonlinear") is not None:
+            support["nonlinear"]["gap"] = quantity(0.001, "m")
+    case = model["load_cases"][0]
+    case["pressure_regions"] = []
+    case["primitive_loads"] = [{"id": "load:tip", "category": "concentrated_force", "target": {"type": "node", "node": tip},
+                                "direction": "global_z", "magnitude": quantity(1e-6, "N"), "dimension": "force", "provenance": PROVENANCE}]
+    return doc
+
+
+def one_value(envelope: dict, kind: str, entity: str) -> float:
+    found = [r for r in envelope["results"] if r["kind"] == kind and r["entity_ref"] == entity]
+    assert len(found) == 1, (kind, entity)
+    return found[0]["value"]
+
+
+def set_code(envelope: dict, old: str, new: str) -> None:
+    hit = [d for d in envelope["diagnostics"] if d["code"] == old]
+    assert len(hit) == 1, old
+    hit[0]["code"] = new
+
+
+def set_quality(envelope: dict, tokens: tuple) -> None:
+    for case in envelope["numerical_quality"]["cases"]:
+        case.update(zip(("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"), tokens))
+
+
+def test_inactive_residuals_support_nodes_and_standings_are_bound_by_both_readers(solved):
+    # B1. The untouched producer output, both modes: admitted, its inactive reaction within the producer's own
+    # free-row evaluation (dense: far above 1e-9 of the largest support component).
+    doc = inclined_gap_document()
+    dense = None
+    for mode in MODES:
+        envelope = solve(doc, mode)
+        reaction = one_value(envelope, "nonlinear_support_final_reaction", "support:GAP")
+        evaluated = one_value(envelope, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports")
+        assert abs(reaction) <= evaluated, (mode, reaction, evaluated)
+        assert codes(envelope, doc) == (None, None), mode
+        if mode == "dense_scrutiny":
+            largest = max(abs(r["value"]) for r in envelope["results"]
+                          if r["kind"] == "support_reaction_component_v2" and r["metadata"]["component"] in ("Fx", "Fy", "Fz"))
+            assert abs(reaction) > 1e-9 * largest, (reaction, largest)
+            dense = envelope
+
+    def inclined(edit) -> tuple:
+        envelope = deepcopy(dense)
+        edit(envelope)
+        return codes(envelope, doc)
+
+    assert inclined(lambda e: scale_support(e, "support:GAP", "Fx", 2.0, True)) == both("INACTIVE_REACTION")
+
+    def non_compliant(e):
+        set_rows(e, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports",
+                 lambda r: r["metadata"].update(basis=r["metadata"]["basis"].replace("observed_compliance=true", "observed_compliance=false")))
+    assert inclined(non_compliant) == both("RESIDUAL")
+    assert inclined(lambda e: e.update(results=[r for r in e["results"]
+                                                if r["kind"] != "nonlinear_support_observed_free_dof_force_residual"])) == both("RESIDUAL")
+
+    def minus_zero(e):
+        set_rows(e, "nonlinear_support_final_reaction", "support:REST", lambda r: r.update(value=-0.0))
+        set_rows(e, "support_reaction_component_v2", "support:REST",
+                 lambda r: r.update(value=-0.0) if r["metadata"]["component"] == "Fz" else None)
+    assert forged(solved, "O1-LIFT", minus_zero) == both("PASSED_ZERO")
+
+    # B2. The deciding displacement is the support node's published row; no ground moves on S5.
+    g2_doc, _ = solved[("G2", "dense_scrutiny")]
+    clearance = next(s for s in g2_doc["model"]["supports"] if s["id"] == "support:GAP")["nonlinear"]["gap"]["value"] * 1000.0
+
+    def false_contact(e):
+        restate(e, "support:GAP", "inactive", "active", 1.0, True)
+        set_rows(e, "nonlinear_support_final_displacement", "support:GAP", lambda r: r.update(value=clearance))
+    assert forged(solved, "G2", false_contact) == both("DISPLACEMENT")
+
+    def invented_ground(e):
+        restate(e, "support:GAP", "inactive", "active", 1.0, True)
+        row = deepcopy(next(r for r in e["results"] if r["kind"] == "nonlinear_support_final_displacement" and r["entity_ref"] == "support:GAP"))
+        row.update(id=row["id"] + "-relative", kind="nonlinear_support_final_relative_displacement", value=clearance)
+        e["results"].append(row)
+    assert forged(solved, "G2", invented_ground) == both("RELATIVE_DISPLACEMENT")
+    assert forged(solved, "G2", lambda e: set_rows(e, "nonlinear_support_final_displacement", "support:GAP",
+                                                    lambda r: r.update(value=0.0))) == model_only("MODEL_DISPLACEMENT")
+    assert forged(solved, "F1-SLIDE", lambda e: set_rows(e, "nonlinear_support_final_displacement", "support:FRICTION",
+                                                          lambda r: r.update(value=1000.0 * r["value"]))) == both("DISPLACEMENT")
+
+    # B3. The whole code-to-quality assignment, unknown codes and gap precedence.
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, UNQUALIFIED)) == both("STANDING")
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_FAILED")) == both("STANDING")
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: set_quality(
+        e, ("passive_model_basis", "sensitive", "represented_equations_retained", "unresolved"))) == both("STANDING")
+    assert forged(solved, "F1-P0-SLIDELOAD", lambda e: e["numerical_quality"]["cases"][0].update(evidence_refs=[])) == both("STANDING")
+    assert forged(solved, "F1-P0-SLIDELOAD",
+                  lambda e: set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_SENSITIVE_ENOUGH")) == both("STANDING_CODE")
+    assert forged(solved, "G1", lambda e: set_code(e, UNQUALIFIED, SENSITIVE)) == both("STANDING")
+
+    def gap_sensitive(e):
+        set_code(e, UNQUALIFIED, SENSITIVE)
+        set_quality(e, ("passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"))
+    assert forged(solved, "G1", gap_sensitive) == both("GAP_STANDING")
+
+    def unresolved(e):
+        set_code(e, SENSITIVE, "NUMERICAL_INTEGRITY_UNRESOLVED")
+        set_quality(e, ("numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"))
+    # Limit (kd5 §2.4, preserved earlier reasons): a consistent non-Passed relabel of a non-gap case.
+    assert forged(solved, "F1-P0-SLIDELOAD", unresolved) == (None, None)

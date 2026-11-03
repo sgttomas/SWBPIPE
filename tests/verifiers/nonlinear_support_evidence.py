@@ -27,6 +27,8 @@ NORMAL_DERIVED = "nonlinear_support_friction_normal_reaction_derived"
 ITERATIONS = "nonlinear_support_active_set_iteration_count"
 RESIDUAL = "nonlinear_support_active_set_final_residual_count"
 CONVERGED = "nonlinear_support_active_set_converged_flag"
+FORCE_RESIDUAL = "nonlinear_support_observed_free_dof_force_residual"
+MOMENT_RESIDUAL = "nonlinear_support_observed_free_dof_moment_residual"
 LOOP_ENTITY = "nonlinear_supports"
 PER_SUPPORT = (STATE, DISPLACEMENT, RELATIVE, REACTION, NORMAL_INPUT, NORMAL_DERIVED)
 COMPONENT = "support_reaction_component_v2"
@@ -44,6 +46,19 @@ PASSED = "NUMERICAL_INTEGRITY_CHECKS_PASSED"
 UNQUALIFIED = "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"
 CONFIRMED = "Converged support state: established at 128-bit precision by one formation-checked solve;"
 RELATIVE_TOLERANCE = 1e-9
+# product_physics ``assessed_numerical_quality``: each published integrity code's (structural_status, solve_quality,
+# model_matrix_fidelity, accuracy_evidence); ``NUMERICAL_INTEGRITY_UNRESOLVED`` takes its default arm. Any other code
+# is not the producer's.
+STANDING_QUALITY = {
+    PASSED: ("passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"),
+    "NUMERICAL_INTEGRITY_SENSITIVE": ("passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"),
+    "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM": ("physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"),
+    "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY": ("negative_energy_witnessed", "failed", "not_assessed", "not_claimed"),
+    UNQUALIFIED: ("numerically_unresolved", "unresolved", "not_assessed", "unresolved"),
+    "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED": ("numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"),
+    "NUMERICAL_INTEGRITY_FAILED": ("numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"),
+    "NUMERICAL_INTEGRITY_UNRESOLVED": ("numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"),
+}
 _TRANSLATIONAL_TOKENS = ("UX", "Ux", "ux", "UY", "Uy", "uy", "UZ", "Uz", "uz")
 _DOF_TOKENS = _TRANSLATIONAL_TOKENS + ("RX", "Rx", "rx", "RY", "Ry", "ry", "RZ", "Rz", "rz")
 _REACTION_PLUS = ("positive_reaction", "positive", "POSITIVE_REACTION", "POSITIVE")
@@ -112,14 +127,12 @@ def _bits(value: float) -> bytes:
 
 
 class _Support:
-    def __init__(self, sid: str, dof: int, state: str, displacement: float, relative: float | None, reaction: float,
+    def __init__(self, sid: str, dof: int, state: str, displacement: float, reaction: float,
                  normal: tuple[bool, float] | None, source: tuple[str, int] | None):
         self.id, self.dof, self.state = sid, dof, state
-        self.displacement, self.relative, self.reaction = displacement, relative, reaction
+        # The deciding displacement in the row's unit (mm or rad).
+        self.displacement, self.reaction = displacement, reaction
         self.normal, self.source = normal, source
-
-    def delta(self) -> float:
-        return self.displacement if self.relative is None else self.relative
 
 
 class _Case:
@@ -175,7 +188,9 @@ def _read_case(source: Mapping, case: str) -> _Case:
     loop_basis = _basis(iterations)
     mode = loop_basis.split("_active_set_loop", 1)[0] if "_active_set_loop" in loop_basis else None
     _require(bool(mode) and " " not in mode, "LOOP")
+    # No case moves a nonlinear support's ground on S5 (the Rust module docs).
     for row in nonlinear:
+        _require(_kind(row) != RELATIVE, "RELATIVE_DISPLACEMENT")
         _require(_kind(row) in PER_SUPPORT or _get(row, "entity_ref") == LOOP_ENTITY, "ROWS")
     supports: list[_Support] = []
     for row in (r for r in nonlinear if _kind(r) == STATE):
@@ -191,18 +206,20 @@ def _read_case(source: Mapping, case: str) -> _Case:
         def mine(kind: str) -> list:
             return [r for r in nonlinear if _kind(r) == kind and _get(r, "entity_ref") == sid]
 
-        displacement, relative, reaction = mine(DISPLACEMENT), mine(RELATIVE), mine(REACTION)
+        displacement, reaction = mine(DISPLACEMENT), mine(REACTION)
         normals = mine(NORMAL_INPUT) + mine(NORMAL_DERIVED)
-        _require(len(displacement) == 1 and len(reaction) == 1 and len(relative) <= 1 and len(normals) <= 1, "ROWS")
+        _require(len(displacement) == 1 and len(reaction) == 1 and len(normals) <= 1, "ROWS")
         length, force = ("mm", "N") if dof < 3 else ("rad", "N*m")
 
         def stated(r: Any) -> bool:
             return _segment(_basis(r), "final_state") == state and _get(r, "metadata", "location") == DOFS[dof]
 
-        _require(stated(row) and stated(displacement[0]) and stated(reaction[0]) and all(stated(r) for r in relative),
-                 "STATE_BASIS")
+        _require(stated(row) and stated(displacement[0]) and stated(reaction[0]), "STATE_BASIS")
         _require(_get(row, "unit") == "state_code" and _get(displacement[0], "unit") == length
-                 and all(_get(r, "unit") == length for r in relative) and _get(reaction[0], "unit") == force, "UNIT")
+                 and _get(reaction[0], "unit") == force, "UNIT")
+        # The producer restates a node's published row.
+        _require(any(_kind(r) == NODAL[dof] and _get(r, "unit") == length and _bits(_value(r)) == _bits(_value(displacement[0]))
+                     for r in in_case), "DISPLACEMENT")
         normal = source_ref = None
         if normals:
             n = normals[0]
@@ -215,8 +232,7 @@ def _read_case(source: Mapping, case: str) -> _Case:
                 _require(named is not None and at is not None, "NORMAL")
                 source_ref = (named, at)
             normal = (derived, _value(n))
-        supports.append(_Support(sid, dof, state, _value(displacement[0]),
-                                 _value(relative[0]) if relative else None, _value(reaction[0]), normal, source_ref))
+        supports.append(_Support(sid, dof, state, _value(displacement[0]), _value(reaction[0]), normal, source_ref))
     for row in nonlinear:
         if _kind(row) in PER_SUPPORT:
             _require(any(_get(row, "entity_ref") == s.id for s in supports), "ROWS")
@@ -256,15 +272,12 @@ def _read_case(source: Mapping, case: str) -> _Case:
     _require((friction > 0) == ("friction" in classes)
              and (friction < len(supports)) == any(c != "friction" for c in classes), "CLASSES")
     for s in supports:
-        if s.state == "inactive":
-            force_scale, _ = _scales(source, case, s.dof < 3)
-            _require(abs(s.reaction) <= RELATIVE_TOLERANCE * force_scale, "INACTIVE_REACTION")
         if s.normal is None:
             _require(s.state in ("inactive", "active"), "STATE_KIND")
         else:
             derived, n = s.normal
             if s.state == "sliding":
-                _require(s.delta() != 0.0 and s.reaction * s.delta() <= 0.0, "SLIP")
+                _require(s.displacement != 0.0 and s.reaction * s.displacement <= 0.0, "SLIP")
             if s.state == "inactive":
                 _require(n == 0.0 if derived else n <= 0.0, "FRICTION_NORMAL")
     integrity = [d for d in diagnostics if isinstance(_get(d, "code"), str) and _get(d, "code").startswith(INTEGRITY)
@@ -278,7 +291,12 @@ def _read_case(source: Mapping, case: str) -> _Case:
     _require(len(quality) == 1, "STANDING")
     solve_quality = _get(quality[0], "solve_quality")
     solve_quality = solve_quality if isinstance(solve_quality, str) else ""
-    _require((code == PASSED) == (solve_quality == "checks_passed"), "STANDING")
+    tokens = STANDING_QUALITY.get(code)
+    _require(tokens is not None, "STANDING_CODE")
+    fields = tuple(_get(quality[0], f) for f in ("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"))
+    diagnostic_id = _get(integrity[0], "id")
+    _require(all(type(f) is str and f == t for f, t in zip(fields, tokens)) and isinstance(diagnostic_id, str)
+             and diagnostic_id in _items(_get(quality[0], "evidence_refs")), "STANDING")
     if "gap" in classes:
         _require(code == UNQUALIFIED and solve_quality == "unresolved", "GAP_STANDING")
     if code == PASSED:
@@ -288,7 +306,26 @@ def _read_case(source: Mapping, case: str) -> _Case:
             _require(not (s.normal is not None and s.state == "active"), "PASSED_STATE")
             if s.state == "inactive":
                 _require(_bits(s.reaction) == _bits(0.0), "PASSED_ZERO")
+    else:
+        # A non-Passed inactive support: the loop's free-row residual, bound to the producer's own evaluation.
+        for s in supports:
+            if s.state == "inactive":
+                _require(abs(s.reaction) <= _free_row_residual(nonlinear, s.dof < 3), "INACTIVE_REACTION")
     return _Case(case, classes, supports, code)
+
+
+def _free_row_residual(nonlinear: list, translational: bool) -> float:
+    """Rust ``free_row_residual``: the producer's original-equation evaluation of the final linearized solve's free
+    rows in one family, its largest |residual| (N or N*m), published once on the loop with a compliant verdict."""
+    wanted, unit = (FORCE_RESIDUAL, "N") if translational else (MOMENT_RESIDUAL, "N*m")
+    found = [r for r in nonlinear if _kind(r) == wanted]
+    _require(len(found) == 1, "RESIDUAL")
+    row = found[0]
+    evaluated, basis = _value(row), _basis(row)
+    _require(_get(row, "entity_ref") == LOOP_ENTITY and _get(row, "unit") == unit and math.isfinite(evaluated)
+             and evaluated >= 0.0 and _segment(basis, "residual_basis") == "free_dof_force_moment_equilibrium"
+             and _segment(basis, "observed_compliance") == "true", "RESIDUAL")
+    return evaluated
 
 
 def _read(source: Mapping) -> list[_Case]:
@@ -312,8 +349,8 @@ def _quantity(quantity: Any, dimension: str) -> float:
 
 
 class _Input:
-    def __init__(self, sid: Any, dof: int):
-        self.id, self.dof = sid, dof
+    def __init__(self, sid: Any, node: str, dof: int):
+        self.id, self.node, self.dof = sid, node, dof
         self.behavior, self.sense, self.clearance_mm, self.mu = "", 0.0, 0.0, 0.0
         self.explicit_normal: float | None = None
         self.source: tuple[Any, int] | None = None
@@ -323,7 +360,9 @@ def _model_input(support: Mapping) -> _Input:
     n = support.get("nonlinear")
     dof = _get(n, "dof")
     _require(isinstance(dof, str) and dof in _DOF_TOKENS, "MODEL_SUPPORT")
-    item = _Input(support.get("id"), DOFS.index(dof.lower()))
+    node = _text(support.get("node"))
+    _require(node is not None, "MODEL_SUPPORT")
+    item = _Input(support.get("id"), node, DOFS.index(dof.lower()))
 
     def sense(token: Any, plus: tuple, minus: tuple) -> float:
         _require(isinstance(token, str) and (token in plus or token in minus), "MODEL_SUPPORT")
@@ -385,6 +424,11 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
             item = next((i for i in inputs if isinstance(i.id, str) and i.id == s.id), None)
             _require(item is not None, "MODEL_COVERAGE")
             _require(item.dof == s.dof, "MODEL_DOF")
+            # The final displacement is the support node's published row.
+            length = "mm" if s.dof < 3 else "rad"
+            nodal = [_value(r) for r in _items(source.get("results")) if _case_of(r) == case.id and _kind(r) == NODAL[s.dof]
+                     and _get(r, "entity_ref") == item.node and _get(r, "unit") == length]
+            _require(len(nodal) == 1 and _bits(nodal[0]) == _bits(s.displacement), "MODEL_DISPLACEMENT")
             if item.behavior == "friction":
                 if s.normal is not None and not s.normal[0] and s.source is None:
                     bound = item.explicit_normal is not None and _bits(item.explicit_normal) == _bits(s.normal[1])
@@ -397,7 +441,7 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                 bound = s.normal is None
             _require(bound, "MODEL_NORMAL")
             force_scale, motion_scale = _scales(source, case.id, s.dof < 3)
-            r, delta = s.reaction, s.delta()
+            r, delta = s.reaction, s.displacement
             if item.behavior == "friction":
                 n = s.normal[1] if s.normal is not None else 0.0
                 mu_n = item.mu * n
@@ -418,6 +462,7 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                     separation, contact = item.sense * delta, item.sense * r
                 length_tolerance = RELATIVE_TOLERANCE * max(motion_scale, abs(item.clearance_mm))
                 force_tolerance = RELATIVE_TOLERANCE * force_scale
-                _require(separation >= -length_tolerance and contact >= -force_tolerance, "MODEL_COMPLEMENTARITY")
+                _require(separation >= -length_tolerance, "MODEL_COMPLEMENTARITY")
+                # An active support is closed and pushes; an inactive one's force is the model-free rule.
                 if s.state == "active":
-                    _require(abs(separation) <= length_tolerance, "MODEL_COMPLEMENTARITY")
+                    _require(abs(separation) <= length_tolerance and contact >= -force_tolerance, "MODEL_COMPLEMENTARITY")

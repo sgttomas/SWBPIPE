@@ -950,6 +950,189 @@ fn forged_contacts_states_friction_and_standings_are_refused() {
     assert_eq!(reader_codes(&forged, &document_p0), both("FRICTION_NORMAL_STANDING"), "F1-P0 standing, quality and line forged Passed");
 }
 
+/// The review's inclined-gap document (RT-A3 increment 4 review, B1): G2's
+/// section, material and anchored first node, the tip at (1000, 1000/3,
+/// 1000/7) m, its +UX gap open by 0.001 m, no pressure region and one tip
+/// global-Z load of 1e-6 N.
+fn inclined_gap_document(references: &Value) -> Value {
+    let mut document = document(references, case(references, "G2"));
+    let model = &mut document["model"];
+    let tip = model["pipe_segments"][0]["to"].as_str().unwrap().to_string();
+    for node in model["nodes"].as_array_mut().unwrap() {
+        if node["id"] == tip.as_str() {
+            node["position"] = json!({"x": 1000.0, "y": 1000.0 / 3.0, "z": 1000.0 / 7.0});
+        }
+    }
+    for support in model["supports"].as_array_mut().unwrap() {
+        if !support["nonlinear"].is_null() {
+            support["nonlinear"]["gap"] = quantity(0.001, "m");
+        }
+    }
+    let lc = &mut model["load_cases"][0];
+    lc["pressure_regions"] = json!([]);
+    lc["primitive_loads"] = json!([{"id": "load:tip", "category": "concentrated_force", "target": {"type": "node", "node": tip},
+        "direction": "global_z", "magnitude": quantity(1e-6, "N"), "dimension": "force", "provenance": PROVENANCE}]);
+    document
+}
+
+fn one_value(envelope: &Value, kind: &str, entity: &str) -> f64 {
+    let found = envelope["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind && r["entity_ref"] == entity).collect::<Vec<_>>();
+    assert_eq!(found.len(), 1, "{kind} {entity}");
+    found[0]["value"].as_f64().unwrap()
+}
+
+/// The independent review's three blocking reader findings (RT-A3 increment 4
+/// review, B1-B3), each with the untouched producer output it concerned or its
+/// mutant, and the negative controls of the repair. The Python mirror refuses
+/// the same envelopes by the same codes.
+#[test]
+fn reader_binds_inactive_residuals_support_nodes_and_standings() {
+    let references = references();
+    let mode = PreviewSolverMode::DenseScrutiny;
+    let both = |code: &str| (Some(format!("SOURCE_PHYSICS_NONLINEAR_{code}")), Some(format!("SOURCE_PHYSICS_NONLINEAR_{code}")));
+    let model_only = |code: &str| (None, Some(format!("SOURCE_PHYSICS_NONLINEAR_{code}")));
+
+    // B1. The untouched producer output, both modes: an inactive gap's reaction
+    // is its free row's binary64 residual (here far above 1e-9 of the largest
+    // support component in dense mode), inspection evidence bound to the
+    // producer's own free-row evaluation, which it does not exceed.
+    let inclined = inclined_gap_document(&references);
+    let mut dense = Value::Null;
+    for m in MODES {
+        let label = format!("inclined gap {m:?}");
+        let envelope = solved(&inclined, m, &label);
+        assert_eq!(state_token(&envelope, "support:GAP"), "inactive", "{label}");
+        assert_eq!(standing(&envelope).0, UNQUALIFIED, "{label}");
+        let reaction = one_value(&envelope, "nonlinear_support_final_reaction", "support:GAP");
+        let evaluated = one_value(&envelope, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports");
+        assert!(reaction.abs() <= evaluated, "{label}: {reaction} against {evaluated}");
+        assert_reader_ok(&envelope, &inclined, &label);
+        if m == mode {
+            let largest = envelope["results"].as_array().unwrap().iter()
+                .filter(|r| r["kind"] == "support_reaction_component_v2" && ["Fx", "Fy", "Fz"].contains(&r["metadata"]["component"].as_str().unwrap()))
+                .map(|r| r["value"].as_f64().unwrap().abs()).fold(0.0, f64::max);
+            assert!(reaction.abs() > 1e-9 * largest, "{label}: the regime the review's B1 concerned ({reaction} against {largest})");
+            dense = envelope;
+        }
+    }
+    // A forged force: the inactive reaction doubled with its slot and
+    // magnitude (self-consistent), above the producer's evaluated residual.
+    let mut forged = dense.clone();
+    scale_support(&mut forged, "support:GAP", "Fx", 2.0, true);
+    assert_eq!(reader_codes(&forged, &inclined), both("INACTIVE_REACTION"), "inactive force forged above the evaluated residual");
+    // The evaluation it is bound to: its verdict non-compliant, or the record absent.
+    let mut forged = dense.clone();
+    set_rows(&mut forged, "nonlinear_support_observed_free_dof_force_residual", "nonlinear_supports", &|r| {
+        r["metadata"]["basis"] = json!(r["metadata"]["basis"].as_str().unwrap().replace("observed_compliance=true", "observed_compliance=false"));
+    });
+    assert_eq!(reader_codes(&forged, &inclined), both("RESIDUAL"), "free-row evaluation not compliant");
+    let mut forged = dense.clone();
+    forged["results"].as_array_mut().unwrap().retain(|r| r["kind"] != "nonlinear_support_observed_free_dof_force_residual");
+    assert_eq!(reader_codes(&forged, &inclined), both("RESIDUAL"), "free-row evaluation absent");
+    // Passed keeps exact +0 (O1-LIFT's lifted support).
+    let lift = case(&references, "O1-LIFT");
+    let document_lift = document(&references, lift);
+    let mut forged = solved(&document_lift, mode, "O1-LIFT");
+    assert_eq!(standing(&forged).0, PASSED, "O1-LIFT is confirmed");
+    set_rows(&mut forged, "nonlinear_support_final_reaction", "support:REST", &|r| r["value"] = json!(-0.0));
+    set_rows(&mut forged, "support_reaction_component_v2", "support:REST", &|r| {
+        if r["metadata"]["component"] == "Fz" {
+            r["value"] = json!(-0.0);
+        }
+    });
+    assert_eq!(reader_codes(&forged, &document_lift), both("PASSED_ZERO"), "Passed inactive published -0");
+
+    // B2. The deciding displacement is the support node's published row.
+    let g2 = case(&references, "G2");
+    let document_g2 = document(&references, g2);
+    let clean_g2 = solved(&document_g2, mode, "G2");
+    let clearance = document_g2["model"]["supports"].as_array().unwrap().iter()
+        .find(|s| s["id"] == "support:GAP").unwrap()["nonlinear"]["gap"]["value"].as_f64().unwrap() * 1000.0;
+    // A false closed gap: stated active with its displacement at the clearance.
+    let mut forged = clean_g2.clone();
+    restate(&mut forged, "support:GAP", "inactive", "active", 1.0, true);
+    set_rows(&mut forged, "nonlinear_support_final_displacement", "support:GAP", &|r| r["value"] = json!(clearance));
+    assert_eq!(reader_codes(&forged, &document_g2), both("DISPLACEMENT"), "G2 false closed gap");
+    // An invented ground: a relative-displacement row at the clearance.
+    let mut forged = clean_g2.clone();
+    restate(&mut forged, "support:GAP", "inactive", "active", 1.0, true);
+    let mut relative = forged["results"].as_array().unwrap().iter()
+        .find(|r| r["kind"] == "nonlinear_support_final_displacement" && r["entity_ref"] == "support:GAP").unwrap().clone();
+    relative["id"] = json!(format!("{}-relative", relative["id"].as_str().unwrap()));
+    relative["kind"] = json!("nonlinear_support_final_relative_displacement");
+    relative["value"] = json!(clearance);
+    forged["results"].as_array_mut().unwrap().push(relative);
+    assert_eq!(reader_codes(&forged, &document_g2), both("RELATIVE_DISPLACEMENT"), "G2 invented ground");
+    // Another node's row (the anchor's +0): only the model names the node.
+    let mut forged = clean_g2.clone();
+    set_rows(&mut forged, "nonlinear_support_final_displacement", "support:GAP", &|r| r["value"] = json!(0.0));
+    assert_eq!(reader_codes(&forged, &document_g2), model_only("MODEL_DISPLACEMENT"), "G2 gap displacement from the anchor's row");
+    // A Passed slip times 1000.
+    let f1 = case(&references, "F1-SLIDE");
+    let document_f1 = document(&references, f1);
+    let mut forged = solved(&document_f1, mode, "F1-SLIDE");
+    assert_eq!(standing(&forged).0, PASSED, "F1-SLIDE is confirmed");
+    set_rows(&mut forged, "nonlinear_support_final_displacement", "support:FRICTION", &|r| r["value"] = json!(1000.0 * r["value"].as_f64().unwrap()));
+    assert_eq!(reader_codes(&forged, &document_f1), both("DISPLACEMENT"), "F1-SLIDE slip times 1000");
+
+    // B3. The whole code-to-quality assignment, unknown codes, gap precedence.
+    let set_code = |envelope: &mut Value, from: &str, to: &str| {
+        let mut hit = 0;
+        for d in envelope["diagnostics"].as_array_mut().unwrap() {
+            if d["code"] == from {
+                d["code"] = json!(to);
+                hit += 1;
+            }
+        }
+        assert_eq!(hit, 1, "{from}");
+    };
+    let set_quality = |envelope: &mut Value, tokens: [&str; 4]| {
+        for case in envelope["numerical_quality"]["cases"].as_array_mut().unwrap() {
+            for (field, token) in ["structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"].iter().zip(tokens) {
+                case[*field] = json!(token);
+            }
+        }
+    };
+    let p0 = case(&references, "F1-P0-SLIDELOAD");
+    let document_p0 = document(&references, p0);
+    let clean_p0 = solved(&document_p0, mode, "F1-P0-SLIDELOAD");
+    let g1 = case(&references, "G1");
+    let document_g1 = document(&references, g1);
+    let clean_g1 = solved(&document_g1, mode, "G1");
+    // The review's mutant: Sensitive's code relabelled, its quality left sensitive.
+    let mut forged = clean_p0.clone();
+    set_code(&mut forged, SENSITIVE, UNQUALIFIED);
+    assert_eq!(reader_codes(&forged, &document_p0), both("STANDING"), "F1-P0 code unqualified, quality sensitive");
+    let mut forged = clean_p0.clone();
+    set_code(&mut forged, SENSITIVE, "NUMERICAL_INTEGRITY_FAILED");
+    assert_eq!(reader_codes(&forged, &document_p0), both("STANDING"), "F1-P0 code failed, quality sensitive");
+    // One token off: Sensitive's accuracy evidence stated unresolved.
+    let mut forged = clean_p0.clone();
+    set_quality(&mut forged, ["passive_model_basis", "sensitive", "represented_equations_retained", "unresolved"]);
+    assert_eq!(reader_codes(&forged, &document_p0), both("STANDING"), "F1-P0 accuracy evidence off");
+    // The quality record no longer names its diagnostic.
+    let mut forged = clean_p0.clone();
+    forged["numerical_quality"]["cases"][0]["evidence_refs"] = json!([]);
+    assert_eq!(reader_codes(&forged, &document_p0), both("STANDING"), "F1-P0 evidence refs emptied");
+    // A code the producer does not publish.
+    let mut forged = clean_p0.clone();
+    set_code(&mut forged, SENSITIVE, "NUMERICAL_INTEGRITY_SENSITIVE_ENOUGH");
+    assert_eq!(reader_codes(&forged, &document_p0), both("STANDING_CODE"), "F1-P0 unknown code");
+    // G1's unqualified code relabelled Sensitive, its quality left unresolved.
+    let mut forged = clean_g1.clone();
+    set_code(&mut forged, UNQUALIFIED, SENSITIVE);
+    assert_eq!(reader_codes(&forged, &document_g1), both("STANDING"), "G1 code sensitive, quality unresolved");
+    // Consistently relabelled Sensitive: a gap-bearing case stays unqualified (R1).
+    set_quality(&mut forged, ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"]);
+    assert_eq!(reader_codes(&forged, &document_g1), both("GAP_STANDING"), "G1 consistently relabelled sensitive");
+    // Limit (kd5 §2.4, preserved earlier reasons): a consistent non-Passed
+    // relabel of a non-gap case states a standing the producer can publish.
+    let mut forged = clean_p0.clone();
+    set_code(&mut forged, SENSITIVE, "NUMERICAL_INTEGRITY_UNRESOLVED");
+    set_quality(&mut forged, ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"]);
+    assert_eq!(reader_codes(&forged, &document_p0), (None, None), "F1-P0 consistently relabelled unresolved: the reader's limit");
+}
+
 /// The admission seam: a nonlinear support on a load/reference-state document
 /// or beside an objective connector (S6) keeps the family's named refusal.
 #[test]

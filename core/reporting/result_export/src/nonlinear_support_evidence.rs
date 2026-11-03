@@ -16,43 +16,63 @@
 //! - the loop rows: one iteration count (an integer ≥ 1) naming the support
 //!   classes, a zero final residual count and a converged flag of 1;
 //! - per support: one state row (code 0–3), one final displacement and one
-//!   final reaction row (at most one relative-displacement row), each on the
-//!   state row's DOF, in that DOF's units, stating the same `final_state`; and
-//!   its `NONLINEAR_SUPPORT_STATE_REVIEW` diagnostic naming that state;
+//!   final reaction row, each on the state row's DOF, in that DOF's units,
+//!   stating the same `final_state`; and its `NONLINEAR_SUPPORT_STATE_REVIEW`
+//!   diagnostic naming that state;
+//! - no relative-displacement row: S5 admits nonlinear supports on plain v3
+//!   documents only, and EX refuses a support-targeted primitive by name, so
+//!   no case moves a nonlinear support's ground (W-16 R-b's row is PF's);
+//! - the final displacement restates a node's published displacement or
+//!   rotation row at the support DOF, bit for bit (the producer's
+//!   `restate_nonlinear_support_displacements`: the node's published SI value
+//!   in the row's unit, mm or rad); [`model_checks`] names the node;
 //! - the final reaction is the support's published action component at its
 //!   DOF, bit for bit, and the support's magnitudes follow its components;
 //! - a derived friction normal is the absolute value of its named source's
 //!   published component, bit for bit; friction supports are exactly the
 //!   supports with a normal row, and the classes name the support kinds;
-//! - DEC-067 without inputs: an inactive support carries no force (|R| within
-//!   1e-9 of the case's largest support component in its family); a sliding
-//!   support slips (δ ≠ 0) against its force (R·δ ≤ 0); an inactive friction
-//!   support has N ≤ 0 (derived: N = 0);
-//! - the standing: one integrity diagnostic whose code agrees with the case's
-//!   `numerical_quality` record; a gap-bearing case publishes R1's
+//! - DEC-067 without inputs: a sliding support slips (δ ≠ 0) against its force
+//!   (R·δ ≤ 0); an inactive friction support has N ≤ 0 (derived: N = 0);
+//! - the standing: one integrity diagnostic with a code the producer assigns
+//!   (`assessed_numerical_quality`), and the case's `numerical_quality` record
+//!   is exactly that code's four tokens and names the diagnostic; an unknown
+//!   code is refused; a gap-bearing case publishes R1's
 //!   `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED` (unresolved); a Passed
 //!   case carries kd5 §3.3's evidence line, has no friction support in state
 //!   active and no derived-normal friction support inactive (kd5 §2.2: it fails
-//!   closed, Sensitive), and publishes every inactive support's reaction as
-//!   exact +0 (kd5 §3.1, R4); other cases keep the loop's binary64 rows.
+//!   closed), and publishes every inactive support's reaction as exact +0
+//!   (kd5 §3.1, R4). A non-Passed standing keeps whichever earlier reason the
+//!   producer stated (kd5 §2.4: the confirmation did not run or failed);
+//! - an inactive support in a non-Passed case keeps the loop's reported
+//!   reaction, the binary64 residual of its free row (kd5 §0, §1.2): inspection
+//!   evidence, never a claim of zero. It is bound to the producer's own
+//!   original-equation evaluation of the final linearized solve's free rows
+//!   (`append_nonlinear_residual_observation_results`): the case publishes that
+//!   evaluation's largest free-row |residual| in the support's family once
+//!   (N or N·m) with `observed_compliance=true` (every free row met
+//!   64·γ(n) of its own denominator, cancellation and the evaluation allowance
+//!   included), and |R| does not exceed it. No scale is taken from the support
+//!   components.
 //!
 //! [`model_checks`] binds the same rows to the model's nonlinear supports
-//! (coverage, kinds, DOFs, normals) and checks the DEC-067 laws that need their
-//! inputs (μ, the clearance and the sense), with a separation s and a contact c
-//! formed from the published deciding displacement δ (the relative row where
-//! the case moves the support's ground) and reaction R:
+//! (coverage, kinds, DOFs, nodes, normals): the final displacement is the
+//! support node's published row at the support DOF, bit for bit. It checks the
+//! DEC-067 laws that need their inputs (μ, the clearance and the sense), with a
+//! separation s and a contact c formed from that displacement δ and the
+//! reaction R:
 //! - gap closing in σ with clearance g: s = g − σδ, c = −σR;
 //! - one-way or lift-off with sense σ: s = σδ, c = σR;
-//! - s ≥ 0 and c ≥ 0; active ⇒ s = 0 (with the model-free inactive ⇒ R = 0,
-//!   their product is zero);
+//! - s ≥ 0; active ⇒ s = 0 and c ≥ 0 (an inactive support's force is the
+//!   model-free rule above, so their product is zero);
 //! - friction, not inactive: |R| ≤ μN; sticking ⇒ δ = 0; sliding ⇒ |R| = μN,
 //!   opposite to a nonzero slip when μN > 0, and in a Passed case with an
 //!   explicit normal R = −sign(δ)·fl(μN) bit for bit (kd5 §3.1).
 //!
-//! Each "= 0" and "≥ 0" holds within 1e-9 of the case's scale in the support's
-//! family (kd5's criterion; the largest published support component and μN for
-//! forces, the largest nodal translation or rotation and the clearance for
-//! displacements), except the exact rules named above.
+//! Each "= 0" and "≥ 0" of the model checks holds within 1e-9 of the case's
+//! scale in the support's family (kd5's criterion; the largest published
+//! support component and μN for forces, the largest nodal translation or
+//! rotation and the clearance for displacements), except the exact rules named
+//! above.
 use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_units::Dimension;
 use serde_json::Value;
@@ -68,6 +88,8 @@ const NORMAL_DERIVED: &str = "nonlinear_support_friction_normal_reaction_derived
 const ITERATIONS: &str = "nonlinear_support_active_set_iteration_count";
 const RESIDUAL: &str = "nonlinear_support_active_set_final_residual_count";
 const CONVERGED: &str = "nonlinear_support_active_set_converged_flag";
+const FORCE_RESIDUAL: &str = "nonlinear_support_observed_free_dof_force_residual";
+const MOMENT_RESIDUAL: &str = "nonlinear_support_observed_free_dof_moment_residual";
 const LOOP_ENTITY: &str = "nonlinear_supports";
 const PER_SUPPORT: [&str; 6] = [STATE, DISPLACEMENT, RELATIVE, REACTION, NORMAL_INPUT, NORMAL_DERIVED];
 const COMPONENT: &str = "support_reaction_component_v2";
@@ -95,6 +117,24 @@ const UNQUALIFIED: &str = "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED";
 const CONFIRMED: &str = "Converged support state: established at 128-bit precision by one formation-checked solve;";
 /// kd5's 1e-9 criterion, relative to the case's scale in the family.
 const RELATIVE_TOLERANCE: f64 = 1e-9;
+
+/// product_physics `assessed_numerical_quality`: the (structural_status,
+/// solve_quality, model_matrix_fidelity, accuracy_evidence) the producer
+/// assigns to each integrity code it publishes (`NUMERICAL_INTEGRITY_UNRESOLVED`
+/// takes its default arm). `None`: a code the producer does not publish.
+fn standing_quality(code: &str) -> Option<[&'static str; 4]> {
+    Some(match code {
+        PASSED => ["passive_model_basis", "checks_passed", "represented_equations_retained", "not_claimed"],
+        "NUMERICAL_INTEGRITY_SENSITIVE" => ["passive_model_basis", "sensitive", "represented_equations_retained", "not_claimed"],
+        "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM" => ["physical_mechanism_witnessed", "failed", "not_assessed", "not_claimed"],
+        "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY" => ["negative_energy_witnessed", "failed", "not_assessed", "not_claimed"],
+        UNQUALIFIED => ["numerically_unresolved", "unresolved", "not_assessed", "unresolved"],
+        "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_loss_detected", "unresolved"],
+        "NUMERICAL_INTEGRITY_FAILED" => ["numerically_unresolved", "failed", "assembly_uncertainty", "unresolved"],
+        "NUMERICAL_INTEGRITY_UNRESOLVED" => ["numerically_unresolved", "unresolved", "assembly_uncertainty", "unresolved"],
+        _ => return None,
+    })
+}
 
 fn require(ok: bool, code: &str) -> Check {
     if ok {
@@ -137,18 +177,12 @@ struct Support<'a> {
     id: &'a str,
     dof: usize,
     state: &'static str,
+    /// The deciding displacement δ in the row's unit (mm or rad).
     displacement: f64,
-    relative: Option<f64>,
     reaction: f64,
     /// `(derived, value)` for a friction support.
     normal: Option<(bool, f64)>,
     source: Option<(&'a str, usize)>,
-}
-impl Support<'_> {
-    /// The deciding displacement δ in the row's unit (mm or rad).
-    fn delta(&self) -> f64 {
-        self.relative.unwrap_or(self.displacement)
-    }
 }
 
 /// One case's nonlinear evidence, as [`check`] admitted it.
@@ -193,9 +227,11 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
     )?;
     let mode = basis(iterations).split_once("_active_set_loop").map(|(m, _)| m).filter(|m| !m.is_empty() && !m.contains(' '));
     let mode = mode.ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_LOOP".to_string())?;
-    // Every other nonlinear row is per support or the loop's own.
+    // Every other nonlinear row is per support or the loop's own; no case
+    // moves a nonlinear support's ground on S5 (module docs).
     for row in &nonlinear {
         let k = kind(row);
+        require(k != RELATIVE, "RELATIVE_DISPLACEMENT")?;
         require(PER_SUPPORT.contains(&k) || row["entity_ref"] == LOOP_ENTITY, "ROWS")?;
     }
     // Per support, in state-row order.
@@ -208,23 +244,17 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         let state = STATES[code as usize];
         let dof = row["metadata"]["location"].as_str().and_then(dof_index).ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_DOF".to_string())?;
         let mine = |k: &str| nonlinear.iter().copied().filter(|r| kind(r) == k && r["entity_ref"] == id).collect::<Vec<_>>();
-        let (displacement, relative, reaction) = (mine(DISPLACEMENT), mine(RELATIVE), mine(REACTION));
+        let (displacement, reaction) = (mine(DISPLACEMENT), mine(REACTION));
         let normals: Vec<&Value> = mine(NORMAL_INPUT).into_iter().chain(mine(NORMAL_DERIVED)).collect();
-        require(displacement.len() == 1 && reaction.len() == 1 && relative.len() <= 1 && normals.len() <= 1, "ROWS")?;
+        require(displacement.len() == 1 && reaction.len() == 1 && normals.len() <= 1, "ROWS")?;
         let translational = dof < 3;
         let (length, force) = if translational { ("mm", "N") } else { ("rad", "N*m") };
         let stated = |r: &Value| segment(basis(r), "final_state") == Some(state) && r["metadata"]["location"] == DOFS[dof];
-        require(
-            stated(row) && stated(displacement[0]) && stated(reaction[0]) && relative.iter().all(|r| stated(r)),
-            "STATE_BASIS",
-        )?;
-        require(
-            row["unit"] == "state_code"
-                && displacement[0]["unit"] == length
-                && relative.iter().all(|r| r["unit"] == length)
-                && reaction[0]["unit"] == force,
-            "UNIT",
-        )?;
+        require(stated(row) && stated(displacement[0]) && stated(reaction[0]), "STATE_BASIS")?;
+        require(row["unit"] == "state_code" && displacement[0]["unit"] == length && reaction[0]["unit"] == force, "UNIT")?;
+        // The producer restates a node's published row (module docs).
+        let restated = in_case.iter().any(|r| kind(r) == NODAL[dof] && r["unit"] == length && same_bits(value(r), value(displacement[0])));
+        require(restated, "DISPLACEMENT")?;
         let (mut normal, mut source) = (None, None);
         if let Some(n) = normals.first() {
             let derived = kind(n) == NORMAL_DERIVED;
@@ -244,7 +274,6 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
             dof,
             state,
             displacement: value(displacement[0]),
-            relative: relative.first().map(|r| value(r)),
             reaction: value(reaction[0]),
             normal,
             source,
@@ -297,18 +326,12 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
     let friction = supports.iter().filter(|s| s.normal.is_some()).count();
     require((friction > 0) == classes.contains(&"friction") && (friction < supports.len()) == classes.iter().any(|c| *c != "friction"), "CLASSES")?;
     for s in &supports {
-        // An inactive support carries no force: its free row's binary64
-        // residual only (kd5 §1.2), within kd5's criterion of the case's scale.
-        if s.state == "inactive" {
-            let (force_scale, _) = scales(source, case, s.dof < 3);
-            require(s.reaction.abs() <= RELATIVE_TOLERANCE * force_scale, "INACTIVE_REACTION")?;
-        }
         match s.normal {
             None => require(matches!(s.state, "inactive" | "active"), "STATE_KIND")?,
             Some((derived, n)) => {
                 // DEC-067 without inputs.
                 if s.state == "sliding" {
-                    require(s.delta() != 0.0 && s.reaction * s.delta() <= 0.0, "SLIP")?;
+                    require(s.displacement != 0.0 && s.reaction * s.displacement <= 0.0, "SLIP")?;
                 }
                 if s.state == "inactive" {
                     require(if derived { n == 0.0 } else { n <= 0.0 }, "FRICTION_NORMAL")?;
@@ -330,7 +353,16 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         .collect();
     require(quality.len() == 1, "STANDING")?;
     let solve_quality = quality[0]["solve_quality"].as_str().unwrap_or("");
-    require((code == PASSED) == (solve_quality == "checks_passed"), "STANDING")?;
+    // The producer's whole code-to-quality assignment, not only Passed's.
+    let tokens = standing_quality(code).ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_STANDING_CODE".to_string())?;
+    let q = quality[0];
+    let fields = [&q["structural_status"], &q["solve_quality"], &q["model_matrix_fidelity"], &q["accuracy_evidence"]];
+    require(
+        fields.iter().zip(tokens).all(|(field, token)| **field == token)
+            && integrity[0]["id"].is_string()
+            && items(&q["evidence_refs"]).contains(&integrity[0]["id"]),
+        "STANDING",
+    )?;
     if classes.contains(&"gap") {
         require(code == UNQUALIFIED && solve_quality == "unresolved", "GAP_STANDING")?;
     }
@@ -344,8 +376,39 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
                 require(same_bits(s.reaction, 0.0), "PASSED_ZERO")?;
             }
         }
+    } else {
+        // A non-Passed inactive support: the loop's free-row residual, bound
+        // to the producer's own original-equation evaluation (module docs).
+        for s in supports.iter().filter(|s| s.state == "inactive") {
+            let evaluated = free_row_residual(&nonlinear, s.dof < 3)?;
+            require(s.reaction.abs() <= evaluated, "INACTIVE_REACTION")?;
+        }
     }
     Ok(Case { id: case, classes, supports, code })
+}
+
+/// The producer's original-equation evaluation of the final linearized solve's
+/// free rows in one family (`append_nonlinear_residual_observation_results`,
+/// over `product_equilibrium::evaluate`): its largest |residual| in N
+/// (translational rows) or N·m (rotational rows), published once on the loop
+/// with that evaluation's verdict, which must be compliant.
+fn free_row_residual(nonlinear: &[&Value], translational: bool) -> Result<f64, String> {
+    let (wanted, unit) = if translational { (FORCE_RESIDUAL, "N") } else { (MOMENT_RESIDUAL, "N*m") };
+    let found: Vec<&&Value> = nonlinear.iter().filter(|r| kind(r) == wanted).collect();
+    let [row] = found[..] else {
+        return Err("SOURCE_PHYSICS_NONLINEAR_RESIDUAL".into());
+    };
+    let (evaluated, b) = (value(row), basis(row));
+    require(
+        row["entity_ref"] == LOOP_ENTITY
+            && row["unit"] == unit
+            && evaluated.is_finite()
+            && evaluated >= 0.0
+            && segment(b, "residual_basis") == Some("free_dof_force_moment_equilibrium")
+            && segment(b, "observed_compliance") == Some("true"),
+        "RESIDUAL",
+    )?;
+    Ok(evaluated)
 }
 
 /// The model-free checks (module docs), per load case with nonlinear rows in
@@ -362,6 +425,8 @@ fn read(source: &Value) -> Result<Vec<Case<'_>>, String> {
 /// One model nonlinear support's inputs, parsed as the producer parses them.
 struct Input<'a> {
     id: &'a Value,
+    /// The support's node (`support.node`).
+    node: &'a str,
     behavior: &'static str,
     dof: usize,
     /// σ: the gap's closing sense or the unilateral support's contact sense.
@@ -396,7 +461,8 @@ fn model_input(support: &Value) -> Result<Input<'_>, String> {
         })
     };
     let quantity = |q: &Value, dimension: Dimension| crate::physics_source::normalized_quantity(q, dimension).map_err(|_| bad());
-    let mut input = Input { id: &support["id"], behavior: "", dof, sense: 0.0, clearance_mm: 0.0, mu: 0.0, explicit_normal: None, source: None };
+    let node = text(&support["node"]).ok_or_else(bad)?;
+    let mut input = Input { id: &support["id"], node, behavior: "", dof, sense: 0.0, clearance_mm: 0.0, mu: 0.0, explicit_normal: None, source: None };
     match n["behavior"].as_str().unwrap_or("") {
         "one_way" | "one-way" | "oneway" => {
             input.behavior = "one_way";
@@ -487,6 +553,14 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
         for s in &case.supports {
             let input = inputs.iter().find(|i| i.id.as_str() == Some(s.id)).ok_or_else(|| "SOURCE_PHYSICS_NONLINEAR_MODEL_COVERAGE".to_string())?;
             require(input.dof == s.dof, "MODEL_DOF")?;
+            // The final displacement is the support node's published row.
+            let length = if s.dof < 3 { "mm" } else { "rad" };
+            let nodal: Vec<f64> = items(&source["results"])
+                .iter()
+                .filter(|r| case_of(r) == Some(case.id) && kind(r) == NODAL[s.dof] && r["entity_ref"] == input.node && r["unit"] == length)
+                .map(value)
+                .collect();
+            require(nodal.len() == 1 && same_bits(nodal[0], s.displacement), "MODEL_DISPLACEMENT")?;
             let normal_bound = match (input.behavior, s.normal, s.source) {
                 ("friction", Some((false, n)), None) => input.explicit_normal.is_some_and(|m| same_bits(m, n)),
                 ("friction", Some((true, _)), Some((named, at))) => input.source.is_some_and(|(r, d)| r.as_str() == Some(named) && d == at),
@@ -495,7 +569,7 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
             };
             require(normal_bound, "MODEL_NORMAL")?;
             let (force_scale, motion_scale) = scales(source, case.id, s.dof < 3);
-            let (r, delta) = (s.reaction, s.delta());
+            let (r, delta) = (s.reaction, s.displacement);
             if input.behavior == "friction" {
                 let n = s.normal.map(|(_, n)| n).unwrap_or(0.0);
                 let mu_n = input.mu * n;
@@ -522,11 +596,12 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
                 };
                 let length_tolerance = RELATIVE_TOLERANCE * motion_scale.max(input.clearance_mm.abs());
                 let force_tolerance = RELATIVE_TOLERANCE * force_scale;
-                require(separation >= -length_tolerance && contact >= -force_tolerance, "MODEL_COMPLEMENTARITY")?;
-                // Their product zero: an active support is closed; an
-                // inactive one's zero force is the model-free rule.
+                require(separation >= -length_tolerance, "MODEL_COMPLEMENTARITY")?;
+                // Their product zero: an active support is closed and pushes;
+                // an inactive one's force is the model-free rule (a residual,
+                // whose sign states nothing).
                 if s.state == "active" {
-                    require(separation.abs() <= length_tolerance, "MODEL_COMPLEMENTARITY")?;
+                    require(separation.abs() <= length_tolerance && contact >= -force_tolerance, "MODEL_COMPLEMENTARITY")?;
                 }
             }
         }
