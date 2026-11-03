@@ -729,3 +729,8 @@ pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
     // Directional rows and records bound to the model (review item 1).
     directional_model_checks(source, model, route)
 }
+
+// `Index::any` against the scan it replaced; the bodies are in their own file.
+#[cfg(test)]
+#[path = "u4b_evidence_any_tests.rs"]
+mod any_tests;
