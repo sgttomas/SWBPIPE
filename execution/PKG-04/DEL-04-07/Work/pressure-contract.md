@@ -852,6 +852,15 @@ on a load-state document `LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED`,
 stands; there is never a pressure-source-1 publication with a mismatched
 replay (`tests/rt_a3_constant_effort_source_receipt.rs`).
 
+**Usability limit.** A case that only the retained route could rescue (the
+ordinary route leaves it numerically unresolved and the retained-source
+response is selected) becomes `MODEL_INCOMPLETE` once a constant-effort record
+is added: the method is declined, nothing is selected or joined, and the
+ordinary route's own blocking finding stands, with no results published
+(`n06` plain and load-state controls, both modes). Adding the record never
+yields a pressure-source-1 publication; the case needs a model the ordinary
+checks pass or a retained source family that replays the constant force.
+
 **References and binding.** The frozen independent references are
 `validation/references/rt_a3_constant_effort/` (CE-1, CE-1n, CE-2, CE-3 and
 their mutation controls; two exact formulations). The product binding,
@@ -880,10 +889,25 @@ sign, double-count and O-omission mutants are distinguished, and forged
 reasons, forged factor sums, dropped terms and applied-load rows not bound to
 the model's node and DOF are refused.
 
-**Pending (held).** The v3 formulation identity text still says every other
-support family is refused, and the load-state limitation sentences do not
-yet state D-2. Those texts, their copies (`exactReportLimitations.ts`,
-`schemas/results.v0.3.schema.yaml`, the source-receipt test copy) and the
-pressure-2 table's `combination_policy.mechanics_gates` (which lists gates
-1–3) are held until another change integrates. They are updated together
-afterwards.
+**Disclosure.** The texts held while this increment was reviewed are now
+stated together:
+- the v3 formulation identity (pressure-2, `exact_admission.rs`) names the
+  consumed constant-effort support, its zero stiffness and positive-axis
+  constant force in every solved case, gate 4
+  (`CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`) and the non-consumed
+  record's warning; the pressure-source-1 identity is unchanged, since source
+  recovery declines a model holding a record;
+- the load/reference-state limitation on support states states D-2 (the
+  consumed support's force is a device action of the active support in every
+  state); inactive or locked supports and device preload/reference remain
+  not provided. The limitation is shared by both publications, so
+  pressure-source-1 load-state envelopes restate it too;
+- the pressure-2 table's admitted-families limitation states the family, its
+  combinations limitation names the gate, and
+  `combination_policy.mechanics_gates` appends gate 4.
+
+Copies follow the producer: `exactReportLimitations.ts` (S1, S13),
+`schemas/results.v0.3.schema.yaml`, the source-receipt test copy, DEL-05-03's
+and DEL-08-01's quoted statements, and every carrier through its writer
+(`tests/test_rt_a3_constant_effort_text_only_envelope_diff.py` proves they
+move only those texts and the hashes binding them).

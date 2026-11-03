@@ -974,9 +974,8 @@ mod tests {
         assert_eq!(listed("linear_state_kinds"), SIGNED_LINEAR_KINDS.to_vec());
         assert_eq!(listed("recomputed_magnitude_kinds"), RECOMPUTED_KINDS.to_vec());
         let gates: Vec<&str> = policy["mechanics_gates"].as_array().unwrap().iter().map(|g| g["code"].as_str().unwrap()).collect();
-        // RT-A3 increment 3's gate 4 (CONSTANT_EFFORT) follows these three; the
-        // table's statement of it is held with the table and pending.
-        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE]);
+        // RT-A3 increment 3's gate 4 (CONSTANT_EFFORT) follows these three.
+        assert_eq!(gates, [MODULUS_BASIS_MIXED, RESOLVED_STIFFNESS_MIXED, INSTALLED_REFERENCE, CONSTANT_EFFORT]);
     }
 
     #[test]

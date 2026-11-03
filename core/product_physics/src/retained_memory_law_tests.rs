@@ -880,10 +880,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2",
         "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
         "8d48e3d97bc4f69bf9b0da58db7538b0661cf52d05f771dc126be2c3cca8c163",
-        "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd",
+        "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
         "258f1840e58a72f42171b4c92a31f057edd698c33ddfd659c3f37ef61a0831a2",
-        "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e",
+        "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f",
         "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
