@@ -358,6 +358,7 @@ checks:
 - core/product_physics/tests/rt_a3_constant_effort_references.rs
 - core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs
 - core/product_physics/tests/rt_a3_nonlinear_references.rs
+- core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs
 - core/product_physics/tests/shared_terminal_junction.rs
 - core/product_physics/tests/silent_zero_guard_runtime.rs
 - core/product_physics/tests/pressure_runtime.rs

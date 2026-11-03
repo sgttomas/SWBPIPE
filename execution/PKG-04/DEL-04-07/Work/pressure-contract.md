@@ -963,24 +963,165 @@ cases bind at 1e-9 relative with per-family floors. The comparisons cover:
 - the slip sense and the derived-normal sign β.
 
 The DEC-067 laws and strict complementarity are checked on the published rows
-independently of the references. Every envelope passes the pressure reader
-with and without its model, and the Python mirror
-(`tests/verifiers/pressure_2.py`) accepts the same 40 envelopes. The binding
-refuses each of these forged controls:
+independently of the references. The binding refuses each of these forged
+controls:
 - a halved contact;
 - a closed gap stated inactive;
 - a friction force at 1.1·μN;
 - a gap case relabelled Passed;
 - a derived inactive case relabelled Passed.
 
-The pressure reader accepts all five, because it reads the nonlinear row
-kinds the pressure-2 table registers without checking their laws or
-standings. That reader knowledge is §2.4 work and is listed below.
+**Reader binding (§2.4).** The pressure reader now binds the nonlinear support
+results: RE `nonlinear_support_evidence.rs`, called from
+`physics_evidence::validate_direct_pressure_evidence` (without the model) and
+from `reader_verdict::validate("pressure", …)` (with it), and its Python mirror
+`tests/verifiers/nonlinear_support_evidence.py`, called from `pressure_2.py`
+and `reader_verdict.py`. Both refuse with the same `SOURCE_PHYSICS_NONLINEAR_*`
+codes.
+
+The rows and their producer are PF's, but PF's readers bind only the rows'
+attribution (`preview_physics_evidence`) and the operand records
+(`preview_combination_operands`). There were no PF state, law or standing
+checks to reuse. The binding therefore reuses what exists: PF's support-magnitude
+rule (`guarded` over the correctly rounded `norm3`; Python `_consistent_norm`),
+the operand reader's state-code tokens and the verifiers' unit catalog. The
+following checks are new.
+
+*Without the model*, per load case with nonlinear rows:
+- the loop rows: one iteration count (an integer ≥ 1) naming the support
+  classes, a zero final residual count and a converged flag of 1;
+- per support: one state row (code 0–3), one final displacement and one final
+  reaction row, and at most one relative-displacement row. Each is on the
+  state row's DOF, in that DOF's units, and states the same `final_state`. The
+  support's `NONLINEAR_SUPPORT_STATE_REVIEW` diagnostic names the same state;
+- the final reaction is the support's published action component, bit for
+  bit, and the support's magnitudes follow its components;
+- a derived friction normal is the absolute value of its named source's
+  published component, bit for bit;
+- the classes name the support kinds: the friction supports are exactly those
+  with a normal row;
+- the DEC-067 laws that need no inputs:
+  - an inactive support carries no force (within 1e-9 of the case's largest
+    support component in its family);
+  - a sliding support slips (δ ≠ 0) against its force (R·δ ≤ 0);
+  - an inactive friction support has N ≤ 0 (derived: N = 0);
+- the standing:
+  - one integrity diagnostic, whose code agrees with the case's
+    `numerical_quality` record;
+  - a gap-bearing case is `RECOVERY_BASIS_UNQUALIFIED` and unresolved (R1);
+  - a Passed case carries kd5 §3.3's evidence line;
+  - a Passed case has no derived-normal friction support inactive. That state
+    fails closed and is never Passed (kd5 §2.2; the case publishes
+    `NUMERICAL_INTEGRITY_SENSITIVE`);
+  - a Passed case has no friction support in state active;
+  - a Passed case publishes each inactive support's reaction as exact +0
+    (kd5 R4). A non-Passed case keeps the loop's binary64 rows.
+
+*With the model:*
+- every solved case publishes exactly the model's nonlinear supports, with
+  their DOFs, kinds and normals (an explicit N bit for bit, a derived source by
+  support and DOF);
+- the DEC-067 laws that need μ, the clearance g or the sense σ, on the
+  deciding δ (the relative row where the case moves the support's ground):
+  - gap: s = g − σδ, c = −σR; one-way and lift-off: s = σδ, c = σR;
+  - s ≥ 0 and c ≥ 0, and an active support is closed (s = 0). With the
+    model-free inactive ⇒ R = 0, their product is zero;
+  - friction, unless inactive: |R| ≤ μN. Sticking has δ = 0. Sliding has
+    |R| = μN, opposite to a nonzero slip when μN > 0;
+  - a Passed explicit-normal slide is −sign(δ)·fl(μN), bit for bit (kd5 §3.1).
+- Each "= 0" and "≥ 0" holds within 1e-9 of the case's scale in the
+  family (kd5's criterion), except the exact rules named.
+
+*Results.* Both readers admit all 40 reference envelopes with and without
+their model. They also admit the 34 K-1 twin envelopes (below). Each forged
+control above is refused by both, without the model, by the code shown:
+
+| Forgery | Code |
+|---|---|
+| Halved contact | `MAGNITUDE` |
+| Closed gap stated inactive | `STATE_REVIEW` |
+| Friction at 1.1·μN | `MAGNITUDE` |
+| Gap case relabelled Passed | `STANDING` |
+| Derived inactive case relabelled Passed | `STANDING` |
+
+Deeper variants keep the cheaper evidence consistent and reach the later rules:
+
+| Variant | Without the model | With the model |
+|---|---|---|
+| Stated inactive, with its state diagnostic | `INACTIVE_REACTION` | `INACTIVE_REACTION` |
+| G2's open gap stated active | admitted | `MODEL_COMPLEMENTARITY` |
+| 1.1·μN with its magnitude | admitted | `MODEL_FRICTION_CAPACITY` |
+| Force turned along the slip | `SLIP` | `SLIP` |
+| Doubled derived normal | `NORMAL` | `NORMAL` |
+| Relabelled Passed with quality and evidence line, gap case | `GAP_STANDING` | `GAP_STANDING` |
+| Relabelled Passed with quality and evidence line, F1-P0 | `FRICTION_NORMAL_STANDING` | `FRICTION_NORMAL_STANDING` |
+
+These are the negative controls of
+`rt_a3_nonlinear_references.rs` (`forged_contacts_states_friction_and_standings_are_refused`)
+and of `tests/test_rt_a3_nonlinear_reader.py`. The Python test authors the same
+documents, solves them with the runner and compares Python's verdict with the
+runner's `read pressure` on every envelope.
+
+*Limit, pinned:* a contact scaled consistently, with its magnitude, is lawful
+and self-consistent. Both readers admit it, and only the references refuse it.
+Refusing it needs a nodal-equilibrium binding of support actions against
+member end actions and the pressure ledger, which no reader has on either
+route.
 
 G1-P0 is not expressible as the packet states it. It has no load of any kind,
 and the product refuses a document without a primitive load
 (`LOAD_INPUT_MISSING`). The binding pins that refusal and invents no zero
 load.
+
+**K-1 controls (§3.5).** `core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs`
+solves every PF K-D5 nonlinear control on its exact twin in both solver modes.
+The controls are the seven `validation/references/kd5_nonlinear/` requests with
+the cases `kd5_nonlinear_tests.rs` solves, and the U-1 gap containment control:
+17 cases, 34 case-modes. A twin changes the PF request only where the exact
+contract asks:
+- `pressure_contract` 3.0.0/exact_pressure_v3, Euler–Bernoulli;
+- each material as E and ν = E/(2G) − 1 (ν = 0.25), asserted to reproduce
+  PF's G bit for bit;
+- an explicit zero corrosion allowance;
+- `pressure_regions: []` in each case.
+
+*What holds, asserted bit for bit in both modes:*
+- every support's state code;
+- the loop's iteration count, final residual count and converged flag;
+- the standing: the integrity code, the `numerical_quality` record, and kd5's
+  evidence line or the named §2.4 reason. This is Passed for 13 cases;
+  Sensitive with "stick capacity not established" (F-1 BOUNDARY) and
+  "separation not established" (U-1 IN-PLANE); and the gap branch for the 2 gap
+  cases;
+- the reader admits every twin with and without its model.
+
+The rotational-friction control is refused by name on the twin as on the
+original.
+
+*Finding: the loop results are not bit-identical, and the cause precedes the
+loop.* EX forms each member's section constants by D-5's sequence
+(`pressure_exact::SourceAnnulus`, published as `pipe_sections`). PF forms them
+by its own, bound by the kd5 oracles' `normalized_sections`. For the controls'
+0.168 × 0.007 m section, A differs by 3 units in the last place and I and J by
+1 (A = 0.003540574920595697 m² on EX, 0.003540574920595698 m² on PF). The
+same twin without its nonlinear supports, a linear case, differs in its nodal
+rows too.
+
+The other loop rows differ by at most 4.5e-15 of their family's case scale.
+The exception is U-1 IN-PLANE dense, whose moment family is wholly binary64
+noise of order 1e-16 N·m and changes sign. The loop's residual observations
+differ as noise of the final iterate. K-1's full assertion
+(`every_kd5_control_twin_is_bit_identical`) is kept and held `#[ignore]`d. The
+cause is pinned (`kd5_twin_section_constants_differ_from_pf_in_the_last_place`).
+Bit identity needs EX and PF to form the same section constants. That is a
+section-formation choice outside this increment; no tolerance was substituted.
+
+*Not formable:* kd5's eight committed case-modes solve the two committed demo
+models (`fixtures/product_preview/invented_demo_model.json` and
+`core/product_physics/tests/fixtures/preview_physics_invented_model.json`). Their
+twins are refused by name (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`) on the
+geometry-only bend `component:C-110` (D-2; S6's inventory) and the terminal
+`component:C-140`. This is pinned, not adapted.
 
 **Pending.**
 - *The v3 identity and limitation texts* (held for sequenced integration):
@@ -998,14 +1139,12 @@ load.
   withholding assertion `#[ignore]`d until RT-A4 lands.
 - *Shared-loop hunks:* none were needed. No `LoadCaseSolve` construction or
   early return was added.
-- *Pressure-reader nonlinear checks* (§2.4): states, complementarity, μN and
-  standings.
 - *Pricing* of the changed static chain (`pressure_runtime.rs`,
   `exact_admission.rs`), held in the serial pricing order.
 - *Performance harness:* the rack's "RT-A3 increment 4" ledger entries and
   its interim linear forms (`rack_model.py`, `release_runner.py`).
-- *K-1:* the kd5 controls on EX twins. This is the product binding's, not
-  part of this packet.
+- *K-1's bit identity* (above): held, a section-formation choice.
+- *The reader's equilibrium limit* (above).
 - *§2.2's explicit member-bound integration test.* The confirmed cases'
   certified rows match the references, but the wall-bound derivation is not
   separately pinned.
