@@ -3364,8 +3364,8 @@ declaration, a moved copy): each stops the run.
 
 **Status.** Proposed registration (the RT-A3 manager's D3 release for increment 3,
 2026-11-03; derived on frozen #96 and, after independent review, re-derived on main
-`5e12ca44e`: "Review repair" below supersedes the block, record and challenge values
-stated before it), under the owner's removal of explicit owner approval for
+`6c3cb46d3` with §8.45's lexer: "Review repair" below supersedes the block, record and
+challenge values stated before it), under the owner's removal of explicit owner approval for
 coefficient movement; source-derived pricing, independent scrutiny and
 preservation of the registered state remain required. This records no
 acceptance, and the AC-004 stack witnesses have not been run for it.
@@ -3512,10 +3512,6 @@ and `run-merged` outputs, the comparisons, the law-test atom log and the evaluat
 review input, not a permanent dependency.
 
 **Review repair (independent review of `ac7fea603`).**
-*Provisional pricing.* The run, comparison, block, records and evaluations below were
-derived with the committed scanner before Dynamics' `composite_text.py` lexer repair
-(#100). They are kept as provisional evidence; the registration is to be re-derived once,
-on main merged with #100, and this paragraph replaced by that derivation.
 - **Texts.** S7, the support-attribution limitation of every pressure-2 and
   pressure-source-1 list, was false: the producer publishes a consumed
   constant-effort support's signed support action (`certified_publication.rs`).
@@ -3536,40 +3532,61 @@ on main merged with #100, and this paragraph replaced by that derivation.
   load/reference-state diagnostic, which D1 does not admit (B7b-LS); the schema
   is nonresident. CE-PIN re-reads `exact_admission.rs`
   (`45da65ca…` → `96d3a5bf…`; only the two texts move).
-- **Run and comparison.** The committed tool prices `903bafc853` (this branch
-  merged with main `5e12ca44e`) with exit 0 on all four points, no unmapped header
-  or unclassified argument, O-10 clear; D is unchanged. Against #96/main's
-  registered tree (`8647e3cb7`, whose tree equals the priced `19f0dbd91`, so
-  `run-i2b` is reused): **1,590 coefficients equal, 12 higher, none lower**, the
-  same twelve as above; STATICS are unchanged from the first derivation, and
-  TAV_W[1], TAV_X[1], their success copies and the two TAV text atoms rise by a
-  further 402 B (6 × 67): TAV_W[1] 5,102,864,760, TAV_X[1] 5,516,293,278,
-  `TAV_text_requested` 7,436,609,276, `TAV_text_moving` 7,439,209,976.
-  `PYTHON_CHECK` (the merged check) is sparse 8,677,867,162 → 8,677,873,174 and
-  dense 8,736,998,506 → 8,737,004,518: **+6,012 B in each mode** against #96
-  (+402 B against the first derivation).
-- **Profile and records.** Maintained `generate` with basis
-  `, re-run as RT-A3 increment 3 at 903bafc853 (§8.44, review repair): …`
-  (1,712 lines; `--check` equal). The in-build collector's 328 atoms are
-  unchanged (#96's tree evaluated at them gives the #96 row above). Maintained
-  `eval` less R gives `PINNED_RECORD`, +402 B in every entry: sparse
-  6,598,981,316 · 6,940,975,877 · 8,895,159,113 · 8,688,480,569 · 7,761,347,479 ·
-  8,607,726,272 · 7,339,119,958 · 7,012,409,834; dense 6,658,112,660 ·
-  7,000,107,221 · 8,954,290,457 · 8,747,611,913 · 7,820,478,823 · 8,666,857,616 ·
-  7,398,251,302 · 7,071,541,178. Challenge `W1_PHASE_BYTES`
-  [6,598,981,316, 6,658,112,660], `MAX_PHASE_BYTES` [8,895,159,113,
-  8,954,290,457]. Merged W3 E + R is 8,962,267,977 B sparse and 9,021,399,321 B
-  dense, 2,575,012,378 B below ⌊0.9M⌋ before the TEXT reserve. `profile_` 8
-  passed; the default `retained_memory_challenge` 1 passed.
-- **Unmerged combination points.** The review closed the gap left above using
-  §8.41's documented z ≥ 1 supplement (Node(String,BTreeMap) 648,
+- **Superseded provisional pricing.** The repair was first priced at `903bafc853`
+  (on main `5e12ca44e`) with the pre-§8.45 scanner: the same twelve coefficients,
+  TAV +402 B on the first derivation, `PINNED_RECORD` +402 B. That evidence is
+  kept in the run directory only; the registration below replaces it.
+- **Run (on the §8.45 lexer).** Main `6c3cb46d3` (#100, §8.45) merged as
+  `e2dbc7b33`. The committed tool prices it with exit 0 on all four points, no
+  unmapped header or unclassified argument, O-10 clear; D is unchanged. The
+  whole-scope long-literal check passes: the static class is 964 B
+  (`lib.rs:1459`); the six long literals are §8.45's, the pressure-2 `identity`
+  now 3,007 B (+540) and the pressure-source-1 one 1,262 B, both own-bound and
+  measured from source by U6-J4; S7 (206 B), the D-2 load/reference-state
+  limitation and the equivalent-static refusal text stay below the class; the
+  `CONNECTOR_LIMITATION` copy site is unchanged, so SL-LIM carries. The two
+  identity entries in `static_literal_dispositions.py` state the carried
+  argument (heads unchanged); `test_844_rt_a3_ce.py` covers it, with a lengthened
+  S7 over the class as the negative control.
+- **Compare 1, against main's corrected source-derived tree** (main's own tool
+  cohort, a scratch copy of its `tools/`, `run 6c3cb46d3 --repo`; exit 0, O-10
+  clear; against the registered §8.42 tree it gives §8.45's 33 lower, none
+  higher): **1,590 equal, 12 higher, none lower** (`a_ge_b`). STATICS[1] +788,
+  STATICS[Node(String,Value)] +1, STATICS[s(Value)] +6 and TAV_W[1], TAV_X[1]
+  and the two TAV text atoms +4,296 B (6 × (540 + 109 + 67)), each form with
+  its success copy. Merged check (compare's): sparse 8,593,406,720 →
+  8,593,412,732, dense 8,652,538,064 → 8,652,544,076, **+6,012 B per mode**;
+  `PYTHON_CHECK` sparse 8,526,297,856 → 8,526,303,868, dense 8,585,429,200 →
+  8,585,435,212, +6,012 B per mode.
+- **Compare 2, against main's carried registered block** (§8.42's tree, carried
+  by §8.45 as dominating): **1,563 equal, 6 higher, 33 lower** (neither
+  `a_ge_b` nor `a_le_b`): the six are the three STATICS forms and their success
+  copies; the 33 are §8.45's lexer reductions net of the TAV increase. Merged
+  check: sparse 8,744,976,026 → 8,593,412,732, dense 8,804,107,370 →
+  8,652,544,076, **−151,563,294 B per mode**; `PYTHON_CHECK` 8,677,867,162 →
+  8,526,303,868 and 8,736,998,506 → 8,585,435,212, the same −151,563,294 B.
+- **Profile and records.** The block is regenerated on the corrected tool with
+  basis `, re-run as RT-A3 increment 3 at e2dbc7b33 (§8.44, on the §8.45 lexer): …`
+  (1,712 lines; `--check` equal), so the committed tool again reproduces the
+  registered block. The in-build collector's 327 native atoms are unchanged;
+  the block-derived `Text(recovery_finding)` atom is 14,444,434 B (was
+  14,446,850). Maintained `eval` less R gives `PINNED_RECORD`: sparse
+  6,449,859,418 · 6,791,853,979 · 8,743,589,807 · 8,536,911,263 · 7,611,001,877 ·
+  8,526,216,134 · 7,258,833,524 · 6,932,123,400; dense 6,508,990,762 ·
+  6,850,985,323 · 8,802,721,151 · 8,596,042,607 · 7,670,133,221 · 8,585,347,478 ·
+  7,317,964,868 · 6,991,254,744 (W1 … X3), each +6,012 B over main's corrected
+  tree at the same atoms. Challenge `W1_PHASE_BYTES` [6,449,859,418,
+  6,508,990,762], `MAX_PHASE_BYTES` [8,743,589,807, 8,802,721,151]. Merged W3
+  E + R is 8,810,698,671 B sparse and 8,869,830,015 B dense, 2,726,581,684 B
+  below ⌊0.9M⌋ before the TEXT reserve. `profile_` 8 passed; the default
+  `retained_memory_challenge` 1 passed.
+- **All points.** With §8.41's z ≥ 1 supplement (Node(String,BTreeMap) 648,
   CombinationView 120, TermView 16, Finding 112, (String,&str,Operand) 56,
-  (&str,String) 40 B; no type definition changed since: the only production
-  Rust change after `ac7fea603` is the two texts). With it, maintained `eval` at
-  the in-build atoms gives every point at or below the merged tree in every
-  phase and mode; W3 E + R dense: E(3) 8,935,448,520, L(3,0) 8,416,594,455,
-  L(2,1) 7,787,773,630 and L(1,2) 6,884,119,742 B (each +402 B on the review's
-  values).
+  (&str,String) 40 B; no type definition changed: the only production Rust
+  change after `ac7fea603` is the two texts), every point is at or below the
+  merged tree in every phase and mode; W3 E + R dense: E(3) 8,783,879,214,
+  L(3,0) 8,301,028,381, L(2,1) 7,649,177,640 and L(1,2) 6,722,172,508 B. This
+  closes the review's L(2,1)/L(1,2) gap.
 - **Preservation of the in-memory successors.** The sixteen in-memory pins of
   `retained_facade_tests.rs` (EXACT receipt/bytes/document in two modes, MIX
   receipt/bytes in two, TWO_MEMBER four, UNAVAILABLE two) were previously read
@@ -3630,7 +3647,7 @@ Two limits keep these bounds fail-closed rather than reachable at the census max
 
 ## 10. Reproducing a registered revision
 
-The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.42's priced source, `92a6f81ff`; §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). **Since §8.45 the committed tool does not reproduce the registered block itself.** It measures the `static` and report classes with the Rust literal lexer, and its tree is coefficient-wise no higher than the block (33 coefficients lower, none higher), which is carried as a dominating conservative block. To reproduce the registered block, use main `db3151708`'s complete tool cohort, recovered through Git, on its own source; `generate --check` of that tree with §8.42's basis line matches the block. The current tool's tree is reproduced by the current tool. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind (now §8.44's priced source, `e2dbc7b33`; main `6c3cb46d3` (§8.45), §8.42's `92a6f81ff`, §8.41's adopted source `4e1972698` and earlier mains are reproduced with their own tool cohorts); at an earlier revision a pin stops it (exit 4). §8.45's carried block (33 coefficients above the lexer's tree, none below) was reproduced by main `db3151708`'s complete tool cohort; §8.44 regenerates the block on the lexer, so `generate --check` of the committed tool's tree at `e2dbc7b33` with §8.44's basis line matches the registered block again. Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
 
 The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
 - **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).

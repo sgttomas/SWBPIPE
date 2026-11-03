@@ -1999,9 +1999,12 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // every phase and mode, from maintained eval at the in-build atoms, without R.
 // §8.44 review repair: S7 restated (+67 B, six TAV copies): +402 B in every phase and mode
 // (+6,012 B against #96), from maintained eval at the same 328 in-build atoms, without R.
+// §8.44 on the §8.45 lexer (main 6c3cb46d3): the block is regenerated on the corrected tool;
+// against main's corrected source-derived tree +6,012 B in every phase and mode, from maintained
+// eval at the in-build atoms (Text(recovery_finding) 14,444,434 B from the regenerated block), without R.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_598_981_316, 6_940_975_877, 8_895_159_113, 8_688_480_569, 7_761_347_479, 8_607_726_272, 7_339_119_958, 7_012_409_834],
-    [6_658_112_660, 7_000_107_221, 8_954_290_457, 8_747_611_913, 7_820_478_823, 8_666_857_616, 7_398_251_302, 7_071_541_178],
+    [6_449_859_418, 6_791_853_979, 8_743_589_807, 8_536_911_263, 7_611_001_877, 8_526_216_134, 7_258_833_524, 6_932_123_400],
+    [6_508_990_762, 6_850_985_323, 8_802_721_151, 8_596_042_607, 7_670_133_221, 8_585_347_478, 7_317_964_868, 6_991_254_744],
 ];
 
 #[test]
