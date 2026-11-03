@@ -8,7 +8,8 @@ requests, envelopes and corpora. Rules (DEL-02-01 Design model-document-0.7.0.md
 - a document at the current version (0.9.0) validates against the schema root;
 - a desktop-profile document also validates against `$defs/DesktopDocument`: the
   bundled demo (named explicitly), the desktop e2e fixtures, and saved projects in
-  the persistence fixtures;
+  the persistence fixtures (a recorded run's verbatim request model under
+  `fixtures/persistence/recorded_model_*` is a request, not a saved project);
 - a retired-version document under validation/** is a frozen input, by path. Its
   file's SHA256SUMS digest is required and checked, then the copy is re-authored in
   memory (`qualification_physics.reauthor_model`) and validated. A frozen input
@@ -252,7 +253,15 @@ def is_frozen_input(relative: str) -> bool:
     return relative.startswith(FROZEN_ROOT)
 
 
+# A run recorded under an earlier pressure-2 table keeps its request's model beside its record and source, verbatim
+# (fixtures/persistence/recorded_model_*): a request document, not a saved project. At the current version it is
+# validated against the format schema only; a retired one is an explicit refusal control above.
+RECORDED_RUN_MODEL_PREFIX = "fixtures/persistence/recorded_model_"
+
+
 def is_desktop_profile(relative: str) -> bool:
+    if relative.startswith(RECORDED_RUN_MODEL_PREFIX):
+        return False
     return relative in {BUNDLED_DEMO, DESKTOP_EMISSION_GOLDEN} or relative.startswith(DESKTOP_PROFILE_PREFIXES)
 
 
