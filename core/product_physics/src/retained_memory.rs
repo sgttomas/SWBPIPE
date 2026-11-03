@@ -1277,17 +1277,18 @@ pub(super) struct RegisteredProfile {
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
-    // §8.44 D3 at 0ff062dc5 (RT-A3 increment 3: constant-effort supports on the exact route):
-    // the regenerated source-derived block. D1.6 refuses every hanger and every support family
-    // but anchor, guide, line_stop, vertical_support and spring, so no admitted model holds a
-    // constant-effort record, and the reader's new model binding is unreached (RTA3CE-ID). The
+    // §8.44 D3 at 20174fa91 (RT-A3 increment 3: constant-effort supports on the exact route,
+    // on frozen #96 19f0dbd91): the regenerated source-derived block. D1.6 refuses every
+    // hanger and every support family but anchor, guide, line_stop, vertical_support and
+    // spring, so no admitted model holds a constant-effort record, and the reader's new model binding is unreached (RTA3CE-ID). The
     // restated pressure-2 table raises STATICS[1] by 788 B (two limitations and gate 4),
     // STATICS[Node(String,Value)] by 1 and STATICS[s(Value)] by 6, each with its success copy;
     // the identity's constant-effort clause (+540 B) and the D-2 sentence (+109 B), six copies
     // each, raise TAV_W, TAV_X, their success copies and the two TAV text atoms by 3,894 B.
     // Reviewed inputs #8 (physics-retained-1) and #11 (pressure-2), counted from 0, take the
-    // derived table bytes. The build identity, other eleven inputs, layouts and threshold are
-    // unchanged; §8.42 was the previous registration.
+    // derived table bytes. The build identity, other eleven inputs (#0 keeps #96's Cargo.lock
+    // binding), layouts and threshold are unchanged; §8.43 (#96, coefficient-equal to §8.42)
+    // was the previous registration.
     // §8.42 D3 at 92a6f81ff (RT-U4 `u4b_evidence::Index::any`, on #80's ecca6e07d): the
     // regenerated source-derived block. Each reader Index holds `any`'s component-free map
     // (U4B-RD): T17_V5[1] and its success copy +49,221 B, T17_V5[s(U4bSlotEntry)] and its
@@ -1502,7 +1503,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections,
-/// re-run as RT-A3 increment 3 at 0ff062dc5 (§8.43): the maximum over routes L (C_eq <= 3, worst
+/// re-run as RT-A3 increment 3 at 20174fa91 (§8.44): the maximum over routes L (C_eq <= 3, worst
 /// shape c = 3, z = 0) and E (c = 3), under SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]

@@ -499,3 +499,19 @@ and #11. All 80 native candidate evaluations fit and lie under the kept merged
 phases. Adoption, the law records and the stack witnesses wait for the owner's
 disposition. See the governing rules' §8.41 and
 `tests/test_841_rt_a3_reducer_2b.py`.
+
+### §8.44: RT-A3 increment 3 constant-effort supports (proposed registration)
+
+D1.6 refuses every hanger and every support family but the five it lists, so no
+D1 model holds a constant-effort record; gate 4 runs only inside the zeroed
+exact combination append (W16B-CB), and the pressure-2 reader's model binding
+of applied-load rows is reached only from `reader_verdict`, outside the retained
+graph. `rules/o10_rules.py` adds RTA3CE-ID: `applied_load_row`'s two hanger
+references are IN128 (unreached), guarded by their source in
+`consuming_constant_effort`. The full-file pins of `exact_admission.rs` and the
+two RE hash-constant files follow. Derived on frozen #96 (§8.43). The run is complete and O-10 clear, the line
+map and every function multiplicity equal #96's, and 12 coefficients rise
+(the restated pressure-2 table in STATICS, +788 B with one node and six values;
+the identity's constant-effort clause and the D-2 sentence in TAV, +3,894 B).
+The block is regenerated; reviewed inputs #8 and #11 rebind; every phase rises
+by 5,610 B. See the governing rules' §8.44 and `tests/test_844_rt_a3_ce.py`.
