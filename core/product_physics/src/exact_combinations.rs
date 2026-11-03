@@ -663,12 +663,17 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
             // one dimension and two automatic statuses, and validation refuses the other
             // findings' inputs before the solve: a repeated or non-finite term
             // (validation.rs:2044 and 2065), a self-subtraction (2110) and a repeated
-            // range operand (2173). Overflow of the combination result itself, from
-            // finite operands, is not a refusal and never reaches this branch: a linear
-            // sum rounds to the signed infinity (`combination_value`, load_case_algebra
-            // lib.rs:604) and a subtraction overflows to it (lib.rs:421). The value entry
-            // refuses factors above 2^53 but the typed entry accepts any finite factor;
-            // either way an infinite result row blocks the envelope (lib.rs:3563).
+            // range operand (2173). Overflow of a linear combination's result itself,
+            // from finite operands, is not a refusal and never reaches this branch: a
+            // linear sum rounds to the signed infinity (`combination_value`,
+            // load_case_algebra lib.rs:604) and a subtraction overflows to it
+            // (lib.rs:421). The value entry refuses factors above 2^53 but the typed
+            // entry accepts any finite factor; either way an infinite result row blocks
+            // the envelope (lib.rs:3563). An absolute sum or SRSS is different (RT-A4,
+            // absolute-sum-srss §3, §6): its kernel reports a result above the binary64
+            // range, or an overflowing scaled term, as the `NonRepresentable` finding,
+            // never an infinity, so that overflow from finite operands does reach this
+            // branch and withholds the row as ALGEBRA_REFUSED.
             None => {
                 let kept = sources.iter().filter(|s| matches!(s, Source::Recovered { .. })).count();
                 built.recoveries.truncate(built.recoveries.len() - kept);
@@ -1128,7 +1133,11 @@ mod tests {
         let combination: PreviewCombination = serde_json::from_value(combination).unwrap();
         let expression = CombinationExpression::resolve(&combination).unwrap();
         let facts = Facts { exact_cases, pressure: &[], load_reference_states: &[], connector: &json!([]) };
-        build(&combination, &expression, &expression.operand_ids(), results, &facts)
+        // #49's helper on the RT-A4 signature: flat load-case operands, no OQ-1
+        // (these paths predate nesting; their expected outcomes are unchanged).
+        let cases: Vec<&str> = results.iter().filter_map(|row| row.basis_ref.as_ref()).map(|b| b.ref_id.as_str()).collect();
+        let operands: Vec<Target<'_>> = expression.targets(&combination_plan::Resolver::from_cases(cases));
+        build(&combination, &expression, false, &operands, results, &facts)
     }
 
     fn mechanics(terms: &[(&str, f64)]) -> Value {

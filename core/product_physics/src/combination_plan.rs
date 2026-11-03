@@ -54,6 +54,12 @@ impl<'m> Resolver<'m> {
     pub(crate) fn new(model: &'m PreviewModel) -> Self {
         Resolver { cases: model.load_cases.iter().map(|case| case.id.as_str()).collect() }
     }
+    /// A resolver over the given load-case ids only (tests that build a
+    /// combination without a model).
+    #[cfg(test)]
+    pub(crate) fn from_cases(cases: impl IntoIterator<Item = &'m str>) -> Self {
+        Resolver { cases: cases.into_iter().collect() }
+    }
     pub(crate) fn target<'s>(&self, id: &'s str) -> Target<'s> {
         if self.cases.contains(id) {
             Target::Case(id)
