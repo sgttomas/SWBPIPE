@@ -4283,3 +4283,92 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         (site("check_weight_basis", _MODAL + "weight_basis.rs", "of straight member {} differs from its consistent", full=True), {"AXES[k]": _M_AX}),
         (site("compare_resultant", _MODAL + "weight_basis.rs", '"the resultant of a·M·r_k for {subject} along {}', full=True, row="format!("), {"AXES[k]": _M_AX}),
     ]
+    if fnkey("modal_sturm_count", _MODAL + "eigen.rs"):
+        # MODAL-ID, I2b-1 (#96): the dense solve's files (eigen.rs, integrity.rs, outcome.rs; tests_eigen.rs is the
+        # #[cfg(test)] module). Mode numbers and counts are usize decimals. Each set of static reasons is read here
+        # from the pinned source, so an added or longer reason re-prices or stops. Debug and Display bounds are the
+        # longest rendering of the type, payloads at their class bounds (usize 20, f64 Debug or exponent form 24).
+        _E, _I = 24, 20
+        _M_SIDES = _md(93, "one of modal_sturm_count's three gap texts, the longest `mode {reported} (the top of the "
+                           "established finite spectrum) and the shift above it` (73 B and one usize)")
+        _M_CENSUS = _md(162, "FiniteCensus Debug, the longer `Unresolved { structurally_massless, nonpositive_mu, "
+                             "rejected_mu, mass_block_established: false }` (102 B and three usize)")
+        _M_PAIR = _md(50, "Option<(usize, usize)> Debug: `Some((a, b))`, 10 B and two usize")
+        _M_LABEL = _md(131, "a pencil label: integrity_dof_label's `{IN128 node id}:{UX..RZ}` (131 B) or "
+                            "`global_dof={usize}` (31 B), or pencil_range_text's `free DOF {usize}` (29 B)")
+        _M_DECISION = 143   # ShiftDecision Debug: OutOfRange(RangeViolation {..}) at two usize and one f64 Debug
+        def _m_static(fn, f, rx, count, why):
+            _lits = _re.findall(rx, _fn_text(fn, _MODAL + f))
+            if len(_lits) != count:
+                raise SystemExit(f"MODAL-ID: {f}:{fn}'s static reasons changed ({len(_lits)}); re-review (§8.43)")
+            return _md(max(len(_l.encode()) for _l in _lits), why)
+        _m_why_census = _m_static("complete_reported_set", "eigen.rs", r'=> "([^"]*)",', 2,
+                                  "the longer of complete_reported_set's two static reasons")
+        _m_why_sturm = _m_static("modal_sturm_count", "eigen.rs", r'SturmRefusal::\w+ => \(MODAL_\w+, "([^"]*)"\)', 4,
+                                 "the longest of the four static Sturm refusal reasons")
+        _m_why_reform = _m_static("modal_reformation_operands", "integrity.rs", r'reformation_refusal\([^,]+, "([^"]*)"\.into\(\)\)', 4,
+                                  "the longest static reason of reformation_refusal's four callers (its only callers, all here)")
+        if _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs").count("parameter_refusal(") != 5 \
+                or "&format!(\"a list of dyadic fractions in (0, 1) of level at most {MAX_GAP_POSITION_LEVEL}\")" \
+                not in _fn_text("modal_parameter_refusals", _MODAL + "integrity.rs"):
+            raise SystemExit("MODAL-ID: modal_parameter_refusals' domains changed; re-review (§8.43)")
+        _m_domain = _m_static("modal_parameter_refusals", "integrity.rs", r'"(finite[^"]*|at least 1|a non-empty[^"]*)"', 18,
+                              "a static domain of modal_parameter_refusals, or the dyadic-fraction text (54 B and a u32 decimal, 64 B)")
+        _m_domain["bytes"] = max(_m_domain["bytes"], 54 + 10)
+        O10_ID_AUDIT += [
+            (site("complete_reported_set", _MODAL + "eigen.rs", "{why}, so the set would end", full=True),
+             {"why": _m_why_census, "census|?": _M_CENSUS}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", 'format!("modes {reported} and {}", next_mode + 1)', full=True),
+             {"reported": _M_INT, "next_mode+1": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "(the top of the established finite spectrum)", full=True), {"reported": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", 'format!("mode:{}", reported.max(1))', full=True), {"reported.max(1)": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "no final shift can be placed between {sides}", full=True), {"sides": _M_SIDES}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "the Sturm count at the final shift", full=True),
+             {"sides": _M_SIDES, "reported": _M_INT}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "; last candidate σ = {:e}: {:?}", full=True),
+             {"c.decision|?": _md(_M_DECISION, "ShiftDecision Debug, the longest `OutOfRange(RangeViolation { row, col, operation: "
+                                  "ShiftTimesMass, value })` (99 B, two usize and one f64 Debug); FactorizationRejected's "
+                                  "SparseDirectError Debug is at most 136 B")}),
+            (site("modal_sturm_count", _MODAL + "eigen.rs", "the final shift between {sides} cannot be placed", full=True),
+             {"sides": _M_SIDES, "why": _m_why_sturm,
+              "evidence.largest_growth()|?": _md(30, "Option<f64> Debug: `Some(..)` and one f64 Debug"),
+              "furthest": _md(55 + 3 * _E + _M_DECISION, "empty, or the `; last candidate ..` text: 55 B, three f64 exponent "
+                              "forms and one ShiftDecision Debug")}),
+            (site("quantity_refusal", _MODAL + "eigen.rs", 'format!("mode:{}", m + 1)', full=True), {"m+1": _M_INT}),
+            (site("parameter_refusal", _MODAL + "integrity.rs", "modal integrity parameter `{name}` is {value}", full=True),
+             {"domain": _m_domain}),
+            (site("reformation_refusal", _MODAL + "integrity.rs", "cannot be re-formed from its leaves ({why})", full=True),
+             {"why": _m_why_reform}),
+            (site("modal_residual", _MODAL + "integrity.rs", 'format!("residual:mode-{}", mode + 1)', full=True), {"mode+1": _M_INT}),
+            (site("modal_residual", _MODAL + "integrity.rs", "the residual check of computed mode {}", full=True), {"mode+1": _M_INT}),
+            (site("modal_residual", _MODAL + "integrity.rs", 'vec![format!("mode:{}", mode + 1)]', full=True), {"mode+1": _M_INT}),
+            (site("modal_orthogonality", _MODAL + "integrity.rs", 'format!("mode:{}", pair.0 + 1)', full=True),
+             {"pair.0+1": _M_INT, "pair.1+1": _M_INT}),
+            (site("modal_orthogonality", _MODAL + "integrity.rs", 'vec![format!("mode:{}", mode + 1)]', full=True), {"mode+1": _M_INT}),
+            (site("pencil_range_text", _MODAL + "integrity.rs", 'format!("{range} (at {} / {})"', full=True),
+             {"range": _md(170, "PencilRangeUnsupported Display: MODAL_PENCIL_RANGE_UNSUPPORTED, `: stiffness entry (r, c) = "
+                                "v is outside the admitted magnitudes [2^-300, 2^300]` (126 B), two usize and one f64 exponent form"),
+              "at(range.row)": _M_LABEL, "at(range.col)": _M_LABEL}),
+            (site("run_modal_dense", _MODAL + "outcome.rs", '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', full=True, row="format!("),
+             {"i+1": _M_INT}),
+            (site("run_modal_dense", _MODAL + "outcome.rs", "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),", full=True, row="format!("),
+             {"orthogonality.pair.map(|(a,b)|(a+1,b+1))|?": _M_PAIR}),
+            (site("run_modal_dense", _MODAL + "outcome.rs", "has a first-order eigenvalue error estimate", full=True, row="format!("),
+             {"i+1": _M_INT}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", '["X", "Y", "Z"][k]', full=True),
+             {'["X","Y","Z"][k]': _md(1, "one of three static one-byte axis names")}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", 'shortfall.join("; ")', full=True),
+             {'shortfall.join(";")': _md(3 * (25 + 1 + 2 * _E) + 2 * 2, "at most three entries (k in 0..3), each 25 B, one axis "
+                                          "byte and two f64 exponent forms (74 B), and two `; ` separators")}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", "formed stiffness positions differ between triangles", full=True),
+             {"pencil.stiffness_asymmetric_entries": _M_INT}),
+            (site("modal_disclosures", _MODAL + "outcome.rs", "the finite-mode count is not established ({census:?})", full=True),
+             {"census|?": _M_CENSUS}),
+            # tests_eigen.rs (#[cfg(test)]): element counts and node numbers are usize decimals.
+            (site("sec_a_cantilever", _MODAL + "tests_eigen.rs", 'format!("n{}", i + 1)', full=True), {"i+1": _M_INT}),
+            (site("sec_a_cantilever", _MODAL + "tests_eigen.rs", 'format!("n{elements}")', full=True), {"elements": _M_INT}),
+            (site("class_b_rayleigh_cantilever_converges_through_the_product_path", _MODAL + "tests_eigen.rs",
+                  'format!("SEC-A cantilever N = {elements}")', full=True), {"elements": _M_INT}),
+            # No audit: modal_parameter_refusals' `{:?}` of sturm_gap_log_positions and sturm_whole_spectrum_offsets
+            # (Vec<f64>, caller-supplied, with no length cap in the source or D1); the run reports them unclassified.
+        ]
