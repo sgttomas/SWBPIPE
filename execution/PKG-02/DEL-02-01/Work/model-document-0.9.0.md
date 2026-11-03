@@ -1550,6 +1550,14 @@ finding it gives deliberately, never by blanket downgrade:
   provenance), every route and admission code (the interim refusals above), and
   any code not on the staged list, including codes added later until this list
   admits them.
+- **Only what the operation introduces.** A blocking finding that the document
+  before the operation already gives, with the same code, message and
+  references (an interim member the operation does not touch: a hydrostatic
+  test case, a skewed support direction, a snubber), is not reported against
+  it, so an unrelated condition edit is not blocked; the solve still refuses
+  the document by name. Every blocking finding the operation introduces
+  blocks, and every staged finding is reported (manager's repair of the
+  as-built whole-document rule, before review).
 
 The solve still refuses a case with a staged finding by name until it is
 resolved; the applier computes no ΔT of its own.
@@ -1619,10 +1627,14 @@ only.
   unknown-field refusal of the candidate is `OP-CONDITION-JUDGEMENT-REFUSED`,
   blocking. Every other diagnostic blocks, whatever its severity, including
   `LOAD_CASE_TEST_CONDITION_UNSUPPORTED`, `SUPPORT_DIRECTION_SKEW_UNSUPPORTED` and
-  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED`. The judgement reads the whole document, so
-  these block a condition operation on any document that carries such a member,
-  even when the operation does not touch it. Operations outside this module are
-  not judged.
+  `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` when the operation introduces them. A
+  blocking finding the document already gave before the operation, with the
+  same code, message and references, is not reported against it
+  (`introduced`), so a document carrying such a member still takes unrelated
+  condition edits and the solve still refuses the member by name. (The first
+  build blocked on the whole document; the manager repaired it before review,
+  and corpus case 15 was renamed and re-recorded for it.) Operations outside
+  this module are not judged.
 - **Tests.** `tests/condition_set_authoring.rs` (14) has: each operation with its
   inverse; the record, assignment and use refusals; delete while referenced;
   `create_load_case`'s use; the contents, pressure-free pressure and exact-route
@@ -1637,7 +1649,7 @@ only.
   and reopen byte for byte. All 14 fail on the pre-S3a source. Three unit tests in
   the module pin the list and the blocking of unlisted, warning-severity and
   future codes. `fixtures/model_operations/condition_set_contract_corpus.json`
-  (17 cases, the `contract_corpus/` case format) runs in `tests/contract_corpus.rs`
+  (18 cases, the `contract_corpus/` case format; case 18 keeps `create_load_case`'s `test_condition` refusal in the corpus) runs in `tests/contract_corpus.rs`
   under the same comparison rules (bless with `CONDITION_SET_CORPUS_BLESS=1`). It
   sits outside `contract_corpus/` because the browser lane counts that directory
   and runs it against the committed wasm engine, which has no S3a operations

@@ -1681,7 +1681,7 @@ fn run_with_context(
                 checker.reference_state = "passed";
                 checker.unit_state = "passed";
                 checker.before_state = "passed";
-                condition_set_authoring::report_judgement(&mut checker, &edit.model);
+                condition_set_authoring::report_judgement(&mut checker, model, &edit.model);
                 geometry_edit = Some(edit);
             }
             Err(errors) => {
@@ -5613,7 +5613,7 @@ fn resolve_create_load_case(
         created["condition_use"] = using.clone();
         let mut candidate = model.clone();
         if apply_created_load_case(&mut candidate, &created) {
-            condition_set_authoring::report_judgement(checker, &candidate);
+            condition_set_authoring::report_judgement(checker, model, &candidate);
         }
     }
     Some(created)

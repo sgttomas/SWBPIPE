@@ -433,7 +433,7 @@ fn contract_corpus_covers_the_required_kinds_and_block_classes() {
 }
 
 const CONDITION_SET_CORPUS: &str = "../../../fixtures/model_operations/condition_set_contract_corpus.json";
-const EXPECTED_CONDITION_SET_CASES: usize = 17;
+const EXPECTED_CONDITION_SET_CASES: usize = 18;
 const CONDITION_SET_KINDS: [&str; 7] = [
     "create_condition_set",
     "update_condition_set",

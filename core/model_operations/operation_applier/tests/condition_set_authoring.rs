@@ -566,29 +566,29 @@ fn the_staged_warnings_equal_the_solves_findings_on_the_same_candidate() {
     assert_eq!(preview["resolved"], json!(false));
 }
 
-/// A finding not on the staged list blocks the operation, even beside staged
-/// ones: here the interim refusals of a hydrostatic test case and of a skewed
-/// support direction, which documents may carry and the solve refuses.
+/// A blocking finding the document already carries, from an interim member the
+/// operation does not touch (a hydrostatic test case, a skewed support
+/// direction), is not this operation's: the condition edit applies, the
+/// carried refusal is not reported against it, and the solve still refuses the
+/// document by name. Staged findings the edit introduces still warn.
 #[test]
-fn a_finding_not_on_the_staged_list_blocks() {
+fn a_carried_refusal_does_not_block_an_unrelated_condition_edit() {
     let mut model = with_sets(&[set_a()]);
     let mut cases = model["load_cases"].as_array().unwrap().clone();
     cases.push(json!({"id": "HT", "primitive_loads": [], "provenance": PROV, "test_condition": {"kind": "hydrostatic", "held_supports": "none"}}));
     model["load_cases"] = json!(cases);
     assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
-    let outcome = refused(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
-    assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn beside it");
-    refused(&model, &create_set(&set_b()), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
-    refused(&model, &create_case("OPE", json!({"condition_use": {"temperature": "OPE1"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    assert!(solve(&model).to_string().contains("LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "the solve refuses the carried member");
+    let (_, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})));
+    assert!(!blocking(&outcome).iter().any(|code| code == "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"), "{:?}", records(&outcome));
+    assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn");
+    applied(&model, &create_set(&set_b()));
+    applied(&model, &create_case("OPE", json!({"condition_use": {"temperature": "OPE1"}})));
 
     let mut skew = with_sets(&[set_a()]);
     skew["supports"][2]["direction"] = json!({"x": 3.0, "y": 4.0, "z": 0.0});
     assert!(!validate_model_document(&skew).iter().any(|d| d.is_blocking()));
-    refused(&skew, &assign(&skew, "P1", Some("cs:a")), "SUPPORT_DIRECTION_SKEW_UNSUPPORTED");
-    // Operations outside this slice are not judged: the same document still edits.
-    let rename = op("modify", "set_field", "Node", "N1", "label", "N1", "Midspan");
-    let outcome = apply_operation(&skew, &rename, Some(&claim(&skew)));
-    assert!(outcome.applied_model.is_some(), "{:?}", records(&outcome));
+    applied(&skew, &assign(&skew, "P1", Some("cs:a")));
 }
 
 /// Sets exist and none marks wind: the case's empty generated exposure is

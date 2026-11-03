@@ -7318,21 +7318,282 @@
           }
         ]
       },
-      "case_id": "s3a_15_block_non_staged_judgement_finding",
+      "case_id": "s3a_15_carried_refusal_does_not_block",
       "claimed_model_hash": null,
-      "description": "The solve's LOAD_CASE_TEST_CONDITION_UNSUPPORTED on the candidate is not a staged finding, so it blocks.",
+      "description": "The document already carries a hydrostatic test case, which the solve refuses (LOAD_CASE_TEST_CONDITION_UNSUPPORTED); that carried refusal is not this operation's, so the unrelated set creation applies and does not report it.",
       "expected": {
-        "applied_model": null,
-        "applied_model_canonical_sha256": null,
+        "applied_model": {
+          "analysis_status": {
+            "mechanics": "ready_for_preview_diagnostics",
+            "professional_acceptance": "not_provided",
+            "rule_check": "not_performed_user_rule_inputs_missing"
+          },
+          "combinations": [],
+          "condition_sets": [
+            {
+              "added_weight": {
+                "direction": "global_z",
+                "magnitude": {
+                  "unit": "N/m",
+                  "value": -50.0
+                }
+              },
+              "conditions": [
+                {
+                  "key": "OPE1",
+                  "temperature": {
+                    "unit": "degC",
+                    "value": 150.0
+                  }
+                }
+              ],
+              "exposure": {
+                "wind": true
+              },
+              "id": "cs:a",
+              "installation_temperature": {
+                "unit": "degC",
+                "value": 20.0
+              },
+              "label": "Line A",
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "exposure": {
+                "wind": false
+              },
+              "id": "cs:still",
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            }
+          ],
+          "document_kind": "openpipestress.product_preview.model",
+          "load_cases": [
+            {
+              "id": "SUS",
+              "primitive_loads": [],
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "equivalent_static": {
+                "provenance": "invented_s3a_condition_set_corpus_input",
+                "wind": {
+                  "direction": "global_y",
+                  "pressure": {
+                    "unit": "Pa",
+                    "value": 1200.0
+                  },
+                  "shape_factor": {
+                    "unit": "1",
+                    "value": 0.7
+                  }
+                }
+              },
+              "id": "WIND",
+              "primitive_loads": [],
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "HT",
+              "primitive_loads": [],
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "test_condition": {
+                "held_supports": "none",
+                "kind": "hydrostatic"
+              }
+            }
+          ],
+          "materials": [
+            {
+              "elastic_modulus": {
+                "unit": "Pa",
+                "value": 200000000000.0
+              },
+              "id": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "shear_modulus": {
+                "unit": "Pa",
+                "value": 80000000000.0
+              },
+              "thermal_expansion_coefficient": {
+                "unit": "1/degC",
+                "value": 0.000012
+              }
+            }
+          ],
+          "nodes": [
+            {
+              "id": "N0",
+              "label": "N0",
+              "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "N1",
+              "label": "N1",
+              "position": {
+                "x": 3.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "N2",
+              "label": "N2",
+              "position": {
+                "x": 6.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            },
+            {
+              "id": "N3",
+              "label": "N3",
+              "position": {
+                "x": 9.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "provenance": "invented_s3a_condition_set_corpus_input"
+            }
+          ],
+          "pipe_segments": [
+            {
+              "from": "N0",
+              "id": "P1",
+              "material": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "section": {
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.2
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.01
+                }
+              },
+              "to": "N1",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "from": "N1",
+              "id": "P2",
+              "material": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "section": {
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.2
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.01
+                }
+              },
+              "to": "N2",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            },
+            {
+              "from": "N2",
+              "id": "P3",
+              "material": "mat",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "section": {
+                "outside_diameter": {
+                  "unit": "m",
+                  "value": 0.2
+                },
+                "wall_thickness": {
+                  "unit": "m",
+                  "value": 0.01
+                }
+              },
+              "to": "N3",
+              "y_reference": {
+                "x": 0,
+                "y": 0,
+                "z": 1
+              }
+            }
+          ],
+          "project": {
+            "id": "invented:rt-g5-s3a-corpus",
+            "units": {
+              "angle": "rad",
+              "force": "N",
+              "length": "m",
+              "pressure": "Pa",
+              "stress": "Pa",
+              "temperature": "degC"
+            }
+          },
+          "schema_version": "0.9.0",
+          "supports": [
+            {
+              "family": "anchor",
+              "id": "anchor",
+              "node": "N0",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "restraints": [
+                "UX",
+                "UY",
+                "UZ",
+                "RX",
+                "RY",
+                "RZ"
+              ]
+            },
+            {
+              "family": "line_stop",
+              "id": "stop",
+              "node": "N1",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "restraints": [
+                "UZ"
+              ]
+            },
+            {
+              "family": "spring",
+              "id": "spring",
+              "node": "N3",
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "restraints": [
+                "UX"
+              ],
+              "stiffness": {
+                "dof": "UX",
+                "value": {
+                  "unit": "N/m",
+                  "value": 10000000.0
+                }
+              }
+            }
+          ]
+        },
+        "applied_model_canonical_sha256": "sha256:110296fd5f428b96d1b065cf60fe8239b64f00f19b15a4789ede3d2a62ba047b",
         "outcome": {
           "acceptance": {
-            "acceptance_basis": "none_validation_only",
+            "acceptance_basis": "user_initiated_apply_in_local_session",
             "acceptance_is_professional_approval": false,
-            "persistence_status": "not_applicable_no_application"
+            "persistence_status": "session_state_only_not_yet_saved"
           },
-          "applied": false,
+          "applied": true,
           "audit_boundary": {
-            "applied_model_is_new_document": false,
+            "applied_model_is_new_document": true,
             "direct_model_mutation_allowed": false,
             "input_model_mutated_in_place": false,
             "mutation_route": "structured_operations_only",
@@ -7344,17 +7605,19 @@
             "DEL-16-02",
             "DEL-16-03"
           ],
-          "diagnostics": [
+          "diagnostics": [],
+          "diff_preview": [
             {
-              "affected_refs": [
-                "HT"
-              ],
-              "blocking": true,
-              "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
-              "severity": "blocking"
+              "after": "{\"exposure\":{\"wind\":false},\"id\":\"cs:still\",\"provenance\":\"invented_s3a_condition_set_corpus_input\"}",
+              "before": "not_present",
+              "change_kind": "create_condition_set",
+              "dimension": "dimensionless",
+              "entity_ref": "cs:still",
+              "field_path": "condition_sets",
+              "object_type": "ConditionSet",
+              "unit": "none"
             }
           ],
-          "diff_preview": [],
           "document_kind": "openpipestress.desktop.operation_outcome",
           "input_model_unchanged": true,
           "mode": "apply",
@@ -7379,9 +7642,9 @@
           "target_object_type": "ConditionSet",
           "target_ref": "cs:still",
           "validation": {
-            "application_status": "blocked",
+            "application_status": "applied_to_session_model",
             "before_state_validation": "passed",
-            "diff_preview_status": "blocked_by_validation",
+            "diff_preview_status": "generated",
             "reference_validation": "passed",
             "schema_validation": "passed",
             "unit_validation": "passed"
@@ -8159,6 +8422,371 @@
         }
       },
       "mode": "validate_only"
+    },
+    {
+      "base_model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "condition_sets": [
+          {
+            "added_weight": {
+              "direction": "global_z",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -50.0
+              }
+            },
+            "conditions": [
+              {
+                "key": "OPE1",
+                "temperature": {
+                  "unit": "degC",
+                  "value": 150.0
+                }
+              }
+            ],
+            "exposure": {
+              "wind": true
+            },
+            "id": "cs:a",
+            "installation_temperature": {
+              "unit": "degC",
+              "value": 20.0
+            },
+            "label": "Line A",
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "SUS",
+            "primitive_loads": [],
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          },
+          {
+            "equivalent_static": {
+              "provenance": "invented_s3a_condition_set_corpus_input",
+              "wind": {
+                "direction": "global_y",
+                "pressure": {
+                  "unit": "Pa",
+                  "value": 1200.0
+                },
+                "shape_factor": {
+                  "unit": "1",
+                  "value": 0.7
+                }
+              }
+            },
+            "id": "WIND",
+            "primitive_loads": [],
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "mat",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 80000000000.0
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "N0",
+            "label": "N0",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          },
+          {
+            "id": "N1",
+            "label": "N1",
+            "position": {
+              "x": 3.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          },
+          {
+            "id": "N2",
+            "label": "N2",
+            "position": {
+              "x": 6.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          },
+          {
+            "id": "N3",
+            "label": "N3",
+            "position": {
+              "x": 9.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_s3a_condition_set_corpus_input"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "condition_set_ref": "cs:a",
+            "from": "N0",
+            "id": "P1",
+            "material": "mat",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N1",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:a",
+            "from": "N1",
+            "id": "P2",
+            "material": "mat",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N2",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          },
+          {
+            "condition_set_ref": "cs:a",
+            "from": "N2",
+            "id": "P3",
+            "material": "mat",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.2
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "to": "N3",
+            "y_reference": {
+              "x": 0,
+              "y": 0,
+              "z": 1
+            }
+          }
+        ],
+        "project": {
+          "id": "invented:rt-g5-s3a-corpus",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "Pa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.9.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "anchor",
+            "node": "N0",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "line_stop",
+            "id": "stop",
+            "node": "N1",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "restraints": [
+              "UZ"
+            ]
+          },
+          {
+            "family": "spring",
+            "id": "spring",
+            "node": "N3",
+            "provenance": "invented_s3a_condition_set_corpus_input",
+            "restraints": [
+              "UX"
+            ],
+            "stiffness": {
+              "dof": "UX",
+              "value": {
+                "unit": "N/m",
+                "value": 10000000.0
+              }
+            }
+          }
+        ]
+      },
+      "case_id": "s3a_18_create_load_case_test_condition_stays_refused",
+      "claimed_model_hash": null,
+      "description": "A created case carrying a condition use and a hydrostatic test_condition is still refused by name (LOAD_CASE_TEST_CONDITION_UNSUPPORTED, S1; RT-A6).",
+      "expected": {
+        "applied_model": null,
+        "applied_model_canonical_sha256": null,
+        "outcome": {
+          "acceptance": {
+            "acceptance_basis": "none_validation_only",
+            "acceptance_is_professional_approval": false,
+            "persistence_status": "not_applicable_no_application"
+          },
+          "applied": false,
+          "audit_boundary": {
+            "applied_model_is_new_document": false,
+            "direct_model_mutation_allowed": false,
+            "input_model_mutated_in_place": false,
+            "mutation_route": "structured_operations_only",
+            "requires_user_acceptance": true
+          },
+          "change_id": "change:s3a:18",
+          "change_kind": "create_load_case",
+          "deliverable_refs": [
+            "DEL-16-02",
+            "DEL-16-03"
+          ],
+          "diagnostics": [
+            {
+              "affected_refs": [
+                "HT"
+              ],
+              "blocking": true,
+              "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+              "severity": "blocking"
+            }
+          ],
+          "diff_preview": [],
+          "document_kind": "openpipestress.desktop.operation_outcome",
+          "input_model_unchanged": true,
+          "mode": "apply",
+          "model_basis": {
+            "backend_canonicalization": "rfc8785_jcs",
+            "backend_model_hash": "sha256:c3a137630c85fc699024a441484e7aea4d6545cc6685959a6a4be527efd9e004",
+            "binding_status": "no_claimed_hash_before_state_check_is_the_staleness_guard",
+            "claimed_hash_canonicalization": "not_provided",
+            "claimed_model_hash": "not_provided"
+          },
+          "operation_id": "op:s3a:18",
+          "operation_kind": "create",
+          "professional_boundary": {
+            "human_review_required": true,
+            "software_makes_approval_claim": false,
+            "software_makes_authentication_claim": false,
+            "software_makes_certification_claim": false,
+            "software_makes_compliance_claim": false,
+            "software_makes_sealing_claim": false
+          },
+          "schema_version": "0.1.0",
+          "target_object_type": "Load",
+          "target_ref": "HT",
+          "validation": {
+            "application_status": "blocked",
+            "before_state_validation": "passed",
+            "diff_preview_status": "blocked_by_validation",
+            "reference_validation": "passed",
+            "schema_validation": "passed",
+            "unit_validation": "passed"
+          }
+        }
+      },
+      "intent": {
+        "audit_boundary": {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true
+        },
+        "author_type": "user",
+        "change": {
+          "after": "{\"id\": \"HT\", \"label\": \"Hydrotest\", \"kind\": \"hydrotest\", \"status\": \"draft\", \"provenance\": \"invented_s3a_condition_set_corpus_input\", \"primitive_loads\": [], \"condition_use\": {\"temperature\": \"OPE1\", \"added_weight\": true}, \"test_condition\": {\"kind\": \"hydrostatic\", \"held_supports\": \"none\"}}",
+          "before": "not_present",
+          "change_id": "change:s3a:18",
+          "change_kind": "create_load_case",
+          "dimension": "dimensionless",
+          "field_label": "load_cases",
+          "field_path": "load_cases",
+          "source_note": "invented S3a corpus entry",
+          "unit": "none"
+        },
+        "operation_id": "op:s3a:18",
+        "operation_kind": "create",
+        "operation_status": "proposed",
+        "professional_boundary": {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false
+        },
+        "rationale": "Invented S3a condition-set corpus operation",
+        "target": {
+          "object_type": "Load",
+          "ref": "HT"
+        },
+        "validation": {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run"
+        }
+      },
+      "mode": "apply"
     }
   ],
   "description": "Model document 0.9.0 S3a (DEL-02-01 Work model-document-0.9.0.md §11): condition-set, assignment and condition-use operations through the operation seam, in the case format of contract_corpus/ (README there). Run by core/model_operations/operation_applier/tests/contract_corpus.rs; expectations are blessed from the Rust contract reference with CONDITION_SET_CORPUS_BLESS=1.",
