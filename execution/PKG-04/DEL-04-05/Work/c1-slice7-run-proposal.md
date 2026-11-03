@@ -78,8 +78,10 @@ reopening limits below remain.
 Python resolves as `/usr/bin/python3`, Xcode **3.9.6**, real executable
 SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`
 (unchanged). The preparing shell resolves `python3` to a newer interpreter first
-on PATH, as at the route-header launch. A run must again launch with that
-directory removed from PATH, or otherwise resolve to the bound interpreter.
+on PATH, as at the route-header launch. `perf.mjs` runs bare `python3` for the sampler and
+host status (`perf.mjs` lines 322, 635, 699 and 827). The proposed command below therefore
+sets its own PATH (`RT_C1_PATH`, with the mise Python directories removed), and the
+pre-launch check verifies the interpreter under exactly that environment.
 
 The private `scratch/rt-perf-c1-slice7/c1-main-2470f0108-preparation.json` (SHA-256
 `994111c6a04e31ac743017df03b2f6c23c85682002837639ca1d451c0bdf2f42`) sits beside the
@@ -118,17 +120,22 @@ for byte the `4d0bb1858` plan log.
 
 **Checks on this source.** None used the large workload.
 
-- Desktop Rust crate, `cargo test --locked`: **1,140 passed / 13 ignored / 1 failed** of
-  1,154. This includes the user-release and native-smoke reach scans, the native verdict,
+- Desktop Rust crate, `cargo test --locked`: **1,142 passed / 13 ignored / 0 failed** in
+  each of three full runs after the review fixes (2026-11-03, host load averages about
+  7–20). This includes the user-release and native-smoke reach scans, the native verdict,
   route-header, reopen, persistence, solve-job, memory-pool and command-ingress tests.
-  - The failure is
-    `native_persistence::tests::the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_body`
-    (`STORE-SQL-ERROR: SQLite DatabaseBusy`): runtime-workers × 2 + 2 concurrent Record Runs
-    on one store against the 5 s busy timeout, under full-suite host load.
-  - The test passes alone (3 of 3). It failed the same way at the merge commit `4cc0e117d`,
-    which has none of this change, in one of two full runs.
-  - With the three corpus-reading reopen tests skipped, HEAD passes 1,138 / 0 failed. It is
-    load-sensitive and pre-existing, not repaired here, and listed as remaining.
+  - The earlier load-sensitive failure
+    (`the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_body`, about
+    38 writers on one store against the 5 s busy timeout) is resolved in test code only. The
+    executor test now gives each writer its own store.
+  - The new
+    `overlapping_record_runs_on_one_store_commit_whole_or_are_refused_busy` asserts the
+    store's contract: a complete commit or the named `DatabaseBusy` refusal, no lost
+    success, no partial state, `quick_check` ok, and a forced refusal that leaves the store
+    unchanged. In the three runs it saw 35 committed / 3 busy, 37 / 1 and 38 / 0.
+  - No product code or timeout changed. The plan records the open product matter.
+  - Before the fixes, the full crate had 1,140 passed / 1 failed; the same test also failed
+    at the merge commit `4cc0e117d`, which has none of these changes.
 - Desktop vitest after the engine rebuild: **7,485 passed / 1 todo** (386 files), with zero
   unanswered native replay or reopen requests. This includes the base-reader and
   retained-precision Wasm equivalence tests.
@@ -156,10 +163,22 @@ launch test of this binary is claimed.
 ```sh
 cd /Users/ryan/dev/chirality-t3/swbpipe-rt-perf-c1
 RT_C1_KIT=/Users/ryan/dev/chirality-t3/scratch/rt-perf-c1-slice7
-/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-2470f0108" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-main1"
+# The bound interpreter: the mise Python directories removed from PATH.
+RT_C1_PATH="$(printf %s "$PATH" | tr ':' '\n' | grep -v '/mise/installs/python' | paste -sd: -)"
+# Pre-launch: under exactly this PATH, python3 is /usr/bin/python3 and its real executable is the bound one.
+test "$(env PATH="$RT_C1_PATH" sh -c 'command -v python3')" = /usr/bin/python3
+test "$(env PATH="$RT_C1_PATH" python3 -I -c 'import hashlib,os,sys; print(hashlib.sha256(open(os.path.realpath(sys.executable),"rb").read()).hexdigest())')" = b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f
+/Users/ryan/dev/chirality-t3/tools/t3_exclusive.sh env -u SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY PATH="$RT_C1_PATH" node apps/desktop/native-smoke/perf.mjs --run --app-dir "$RT_C1_KIT/app-c1-main-2470f0108" --models "$RT_C1_KIT/models" --plan-file apps/desktop/native-smoke/perf-plan-c1.json --subset c1-500 --budget-s 840 --out "$RT_C1_KIT/evidence/n0500-c1-main1"
 ```
 
-Before launch, verify:
+The run's environment selects the interpreter itself. The two `test` lines are the
+pre-launch Python check: under exactly the run's `PATH="$RT_C1_PATH"`, `command -v python3`
+must resolve to `/usr/bin/python3`, and its real executable (Xcode 3.9.6) must have
+SHA-256 `b971331ab9beb1dac075006955f035a97332eca21187c4de615ae58346713e2f`. If either test
+fails, do not launch. Both tests passed against this shell on 2026-11-03, offline and with
+no launch.
+
+Before launch, also verify:
 
 - the submitting source is clean, and its runtime is unchanged from the selected
   `2470f0108`;
@@ -205,11 +224,15 @@ compulsory registration) then ran:
 - `inputs_parse`.
 
 It entered its full `validate` at native monotonic 8,800.54 ms and had no exit.
-By the journal's receipt clock, `validate` had been pending about **219 s** when
-the supervisor window ended: entry at epoch `…316,027` ms, window end about
-`…535,500` ms. (The manager's first report said "about 292 s"; that subtracted a
-native-clock value from the web first-paint wait, which run on different origins,
-and is corrected here.) #95 replaced `Index::any`'s linear scan, O(rows) per
+
+**Clock domains.** The figure of record is about **219 s** pending when the supervisor
+window ended. Both of its ends are read on one clock, the journal's receipt (epoch) clock:
+call 2's `validate` entry at epoch `…316,027` ms and the window end at about `…535,500` ms.
+The manager's first report said "about 292 s". That figure subtracted a native monotonic
+value from the web first-paint wait. The two clocks have different origins, so their
+difference is not a duration, and the 292 s figure is withdrawn.
+
+#95 replaced `Index::any`'s linear scan, O(rows) per
 lookup, with a map built once per `Index`. That scan is called per station by
 `member_stations` inside these readers. PR #95's record gives shared-host
 functional native-runner timings (not measurements): `validate` at 250 nodes

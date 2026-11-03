@@ -760,7 +760,7 @@ restored and browser-preview results):
   by 74 new keys, because pre-2b pressure hashes moved. The other 26 are operation-absent,
   model-absent `read_preview_mechanics_job_verdict` requests, 22 of them on file-backed sources,
   that the current webview tests no longer issue since `route_header` replaced the first bare
-  dispatch; 7 such requests remain, plus 1 new one. The native command's bare verdict stays covered
+  dispatch; six remain unchanged and one is new, seven total. The native command's bare verdict stays covered
   on all 52 file-backed corpus inputs by `native_verdict_tests.rs`
   (`native_verdicts_are_the_committed_reader_outcomes_on_the_file_backed_corpus`, and the
   route-header test's command-against-`reader_dispatch_json` equality at line 740)) and outcomes, persistence replies, reopen requests (rebuilt from
@@ -801,15 +801,19 @@ restored and browser-preview results):
 
     A case names its fixture directory instead of copying it. A recorded revision is the
     verbatim record plus `record_patches`, which the generator checks reproduce it. The
-    native leg reads the same files, and the fixtures are never rewritten. The six new cases
-    therefore reach native reopen three ways:
-    - `the_native_findings_are_the_typescript_contexts`, in process (195 cases);
-    - `historical_cases_are_resaved_with_their_findings_unchanged`, stored, reopened and
-      re-saved;
-    - `recorded_basis_fixtures_reopen_natively_with_the_webviews_findings`. It stores each
-      fixture in a real SQLite store and opens it with the native open: the 0.9.0 runs are
-      restored with the webview's findings, and the 0.7.0/0.8.0 projects are refused
-      exactly as the legacy open refuses them.
+    native leg reads the same files, and the fixtures are never rewritten. Exactly:
+    - **All six new cases** reach native findings validation in process
+      (`the_native_findings_are_the_typescript_contexts`, 195 cases).
+    - **Only the two saved cases** (pre-2a, pre-2b) enter the store, reopen and re-save loop
+      of `historical_cases_are_resaved_with_their_findings_unchanged`.
+    - **Through SQLite**, `recorded_basis_fixtures_reopen_natively_with_the_webviews_findings`
+      stores all four fixtures' verbatim record and source as a project's run and opens each
+      with the native open. The two 0.9.0 runs are restored with the webview's findings.
+      The 0.7.0/0.8.0 projects are refused for editing (retired model documents), exactly
+      as the legacy open refuses them, so their runs are not read through the store.
+    - **The four recorded revisions** are checked in process only (`recorded_run_findings`
+      and `recorded_run_validation`, which the native read calls). None is recorded into a
+      store and loaded through SQLite as a recorded revision.
 
     Expected findings: each recorded revision has none, and each saved run has
     `HISTORICAL_INPUT_MANIFEST_MISSING` (the saved project carries no input manifest).
@@ -829,6 +833,67 @@ restored and browser-preview results):
     No fixture, registration, pricing tool or TypeScript/Python table was edited. The
     operation-applier and self-weight Wasm engines were rebuilt (stale against the merged
     source). No CI routing digest was stale.
+- **Open matter: overlapping writes to one store (raised for a product decision; no
+  repair in this run's binary).** Each store write opens its own connection with a 5 s busy
+  timeout (`lib.rs:864-872`) and writes in one `BEGIN IMMEDIATE` transaction (`lib.rs:1080`;
+  native Save `native_persistence.rs:885`, native Record Run `native_persistence.rs:566`,
+  restored-handle Save `stored_save.rs:326`). The store is in WAL mode (`lib.rs:896`).
+  - **The tests.** The former
+    `the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_body` sent about
+    38 Record Runs at one store and could exhaust the real 5 s timeout under full-suite load.
+    It is now two tests, with no product change and no longer timeout:
+    - the executor test gives each writer its own store, so it measures only off-executor
+      progress;
+    - `overlapping_record_runs_on_one_store_commit_whole_or_are_refused_busy` states the
+      store's contract. Every overlapping write either commits completely or is refused as
+      `STORE-SQL-ERROR: SQLite DatabaseBusy (…)`, and no other outcome is accepted. Exactly
+      the committed runs are stored (no lost success), each reads back whole, no run lacks
+      its state, and `quick_check` is `ok`. A second phase forces a refusal: another
+      connection holds the write lock past the timeout. That command is refused, never
+      reported as success; every table is byte-for-byte as before; and the same request then
+      commits.
+
+    Agent 0's disposition: a named, atomic `DatabaseBusy` is a legitimate bounded contention
+    outcome, and arbitrary concurrent writes are not required to all succeed.
+  - **Ordinary workflows (read-only analysis, 2026-11-03).**
+    - **Autosave** writes recovery files beside the store under a per-slot `flock`. It never
+      opens the store (`autosave.rs:17-24`), so it cannot contend with store writes.
+    - **Within one window, project writes are single-flight.** Save, Save As (and its
+      follow-on save), Record Run, Save Model State, label edits and deletions all take the
+      session's project-operation owner (`workspaceSession.ts:2361-2373`; Save at `:3279`;
+      history operations through `begin()` at `useModelStateHistory.ts:296-310`, Record Run
+      at `:571`). A second request is refused
+      at once with a named busy message and is not queued (`useModelStateHistory.ts:298-301`).
+      These workflows never overlap each other's store writes in one session.
+    - **On refusal, edits and retry eligibility are preserved.** A failed Save shows
+      `Save failed: …` (`workspaceSession.ts:3438`) and leaves the session model untouched.
+      The landed base is set only on success (`:3427`), and the owner is released in
+      `finally` (`:3441`), so the user can retry. A failed Record Run shows
+      `Not recorded: …` (`useModelStateHistory.ts:603`) and returns `false`; the dialog
+      stays open with its labels (`HistoryPanel.tsx:358`). A native refusal is a rejected
+      invoke, so it reaches only these catch paths and is never reported as success.
+    - **Overlap that remains possible.**
+      - The library and rule-pack imports have their own per-panel in-flight flags
+        (`LibraryManagerPanel.tsx:251`, `RulePackManagerPanel.tsx:106`), not the project
+        owner. Their store writes (`save_local_library` through `upsert_library`,
+        `lib.rs:4379`; `save_local_rule_pack`, `lib.rs:4110-4113`) can therefore run while a
+        Save or Record Run holds the write lock. A Save of a large held result may hold that
+        lock for longer than 5 s (not measured), and then the import is refused
+        `DatabaseBusy`. The refusal is named and atomic, and
+        the panel's catch shows it, and its `finally` clears the flag for a retry
+        (`LibraryManagerPanel.tsx:545-548`). When the import holds the (short)
+        lock, the Save waits for it.
+      - Two app processes on one data directory can overlap too: there is no
+        single-instance guard, and `tauri.conf.json` declares one window per process. A
+        different project id then gets the same bounded busy outcome. The same project id
+        is additionally guarded by `PROJECT-BASE-MOVED` (`lib.rs:1455-1481`).
+    - **Conclusion.** No ordinary single-window workflow can lose a Save or Record Run to
+      store contention or misreport a refusal as success. The exposure is bounded: an
+      import overlapping a long Save, or a second process, can see a named, atomic,
+      retryable refusal.
+  - **Product decision (owner).** Whether overlapping writes to one store must all succeed
+    (a bounded per-store queue with cancellation semantics) is a later, targeted repair. It
+    is not part of the frozen run's binary.
 - **Remaining:** the independent persistence, permissions and numerical review of this increment;
   the C2 interim for comparisons with the current run and reference-inspection retention of a fresh
   result; slice 7's measurement. (Saved-result native reopening: slice 6 status.)
