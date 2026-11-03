@@ -264,6 +264,7 @@ code_paths:
 - core/product_physics/src/combination_plan.rs
 - core/product_physics/tests/rt_a4_combinations.rs
 - core/reporting/result_export/src/combination_graph.rs
+- core/reporting/result_export/src/preview_combination_gates.rs
 - validation/references/rt_a4_combinations/**
 checks:
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx
@@ -302,6 +303,7 @@ checks:
 - tests/test_u4b_review_tampers.py
 - tests/test_exact_combination_verifier.py
 - tests/test_rt_a4_combination_graph.py
+- tests/test_rt_a4_pf_reader_tampers.py
 # Desktop (desktop-test).
 - apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
 - apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts

@@ -81,24 +81,9 @@ fn with_code<'a>(out: &'a Value, code: &str) -> Vec<&'a Value> {
 fn blocking(out: &Value) -> Vec<String> {
     diagnostics(out).iter().filter(|d| d["severity"] == "blocking").map(|d| format!("{}: {}", d["code"], d["message"])).collect()
 }
-/// What preview-physics-2's model-free reader cannot verify (review r1 P2): a gate whose
-/// reason turns on κ, or an absolute sum's or SRSS's rows with no `combination_operands`
-/// record stating their factors. Its refusal code, or None.
-fn pf_unverifiable(out: &Value) -> Option<&'static str> {
-    let gates = out["contract_evidence"]["combination_gates"].as_array()?;
-    if gates.iter().any(|g| g["reason"] == CE_UNSIGNED || g["reason"] == CE_MIXED) {
-        return Some("SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED");
-    }
-    let recorded = |id: &Value| out["contract_evidence"]["combination_operands"].as_array().is_some_and(|r| r.iter().any(|r| r["combination_id"] == *id));
-    rows(out)
-        .iter()
-        .any(|r| r["basis_ref"]["ref_type"] == "combination" && (r["metadata"]["sign_convention"] == ABS_SIGN || r["metadata"]["sign_convention"] == SRSS_SIGN) && !recorded(&r["basis_ref"]["ref_id"]))
-        .then_some("SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_UNVERIFIED")
-}
-
-/// A solved envelope that the product reader admits with its model, and without it
-/// exactly when the document alone verifies its combinations (else it is refused by
-/// the named code).
+/// A solved envelope that the product reader admits with its model and without it
+/// (design §10.3: preview-physics-2 publishes `combination_derivation`, so a document
+/// verifies its combinations without its model).
 fn read_solved(out: Value, wire: &Value, what: &str) -> Value {
     assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:?}", blocking(&out));
     let pressure = wire["model"].get("pressure_contract").is_some();
@@ -106,10 +91,7 @@ fn read_solved(out: Value, wire: &Value, what: &str) -> Value {
     let verdict = reader_verdict::validate(reader, &out, Some(&wire["model"]), None);
     assert_eq!(verdict["ok"], true, "{what}: reader with the model {verdict}");
     let verdict = reader_verdict::validate(reader, &out, None, None);
-    match (pressure, pf_unverifiable(&out)) {
-        (false, Some(code)) => assert_eq!(verdict["error"]["code"], code, "{what}: model-free reader {verdict}"),
-        _ => assert_eq!(verdict["ok"], true, "{what}: model-free reader {verdict}"),
-    }
+    assert_eq!(verdict["ok"], true, "{what}: model-free reader {verdict}");
     out
 }
 fn solved(wire: &Value, mode: PreviewSolverMode, what: &str) -> Value {
@@ -869,8 +851,8 @@ fn pf_readers_refuse_tampered_gates_and_unsigned_rows() {
     assert_refused(&changed, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (nonlinear)");
     assert_refused(&changed, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (nonlinear)");
 
-    // A linear model with a consuming constant-effort support: no record states an
-    // unsigned combination's factors, so the model-free reader cannot verify its rows.
+    // A linear model with a consuming constant-effort support: `combination_derivation`
+    // states every unsigned and nested combination's factors and κ inputs (§10.3).
     let wire = pf_cantilever(true, pf_cases(), json!([
         terms("srss-cases", "srss", &[("case", "W1", 1.0), ("case", "W2", 1.0)]),
         sub("d1", "W1", "W2"),
@@ -881,23 +863,121 @@ fn pf_readers_refuse_tampered_gates_and_unsigned_rows() {
     let out = solved(&wire, PreviewSolverMode::SparseInteractive, "tamper base (constant effort)");
     assert_eq!(gate(&out, "srss-cases"), withheld(CE_UNSIGNED));
     assert_eq!(pf_verdict(&out, model)["ok"], true);
+    assert_eq!(pf_verdict(&out, None)["ok"], true);
     // Value change: the axial normal stress under transverse loads is zero.
     let mut changed = out.clone();
     set_row(&mut changed, "srss-d", "element_local_axial_normal_stress", "midspan", 0.0, 123.0);
-    assert_refused(&changed, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "value change (linear)");
-    assert_refused(&changed, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (linear)");
+    for given in [None, model] {
+        assert_refused(&changed, given, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "value change (linear)");
+    }
     // κ-gate changes: the unsigned-operand withholding restated as the flat unit
     // factor-sum code; withdrawn; and an admitted κ = 0 combination restated withheld.
     for (id, reason) in [("srss-cases", Some(CE)), ("srss-cases", None), ("abs-d", Some(CE_UNSIGNED))] {
         let mut gated = out.clone();
         set_gate(&mut gated, id, reason);
         gated["results"].as_array_mut().unwrap().retain(|r| !(reason.is_some() && r["basis_ref"] == json!({"ref_type": "combination", "ref_id": id})));
-        assert_refused(&gated, model, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION", &format!("κ gate {id} {reason:?}"));
+        for given in [None, model] {
+            assert_refused(&gated, given, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION", &format!("κ gate {id} {reason:?}"));
+        }
     }
-    let mut gated = out.clone();
-    set_gate(&mut gated, "abs-d", Some(CE_UNSIGNED));
-    gated["results"].as_array_mut().unwrap().retain(|r| r["basis_ref"] != json!({"ref_type": "combination", "ref_id": "abs-d"}));
-    assert_refused(&gated, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "κ gate abs-d");
+}
+
+// ------------------------------------------------------------------ model-free derivation (§10.3)
+const DERIVATION: &str = "combination_derivation";
+const EVIDENCE: &str = "SOURCE_PREVIEW_PHYSICS_COMBINATION_DERIVATION_EVIDENCE";
+fn derivation_record<'a>(out: &'a mut Value, id: &str) -> &'a mut Value {
+    out["contract_evidence"][DERIVATION]["combinations"].as_array_mut().unwrap().iter_mut().find(|r| r["combination_id"] == id).unwrap()
+}
+fn linear_combinations() -> Value {
+    json!([
+        terms("srss-w", "srss", &[("case", "W1", 1.0), ("case", "W3", -2.0)]),
+        sub("d1", "W1", "W2"),
+        terms("abs-d", "absolute_sum", &[("comb", "d1", 0.5), ("case", "W3", 1.0)]),
+        terms("sus+srss", "mechanics", &[("case", "W2", 1.0), ("comb", "srss-w", 1.0)]),
+    ])
+}
+
+/// §10.3: a linear-model document with an SRSS, an absolute sum and a nested
+/// combination reads without its model; a tampered factor, operand, row or model
+/// condition, an incomplete closure and a missing member are refused, with and
+/// without the model. Before §10.3 the model-free reader refused the untampered
+/// document (`..._UNSIGNED_UNVERIFIED`).
+#[test]
+fn pf_model_free_readers_verify_from_the_published_derivation() {
+    let wire = pf_cantilever(false, pf_cases(), linear_combinations());
+    let model = Some(&wire["model"]);
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "linear derivation base");
+    let derivation = &out["contract_evidence"][DERIVATION];
+    assert_eq!(derivation["nonlinear_supports"], false);
+    assert_eq!(derivation["consuming_constant_effort"], false);
+    let ids: Vec<&str> = derivation["combinations"].as_array().unwrap().iter().map(|r| r["combination_id"].as_str().unwrap()).collect();
+    assert_eq!(ids, ["srss-w", "d1", "abs-d", "sus+srss"]);
+    assert_eq!(derivation["combinations"][2], json!({"combination_id": "abs-d", "basis": "absolute_sum", "expression": {
+        "terms": [{"combination_id": "d1", "factor": 0.5}, {"load_case_id": "W3", "factor": 1.0}]}}));
+    assert_eq!(derivation["combinations"][1]["expression"], json!({"minuend_id": "W1", "subtrahend_id": "W2"}));
+
+    let mut factor = out.clone();
+    derivation_record(&mut factor, "srss-w")["expression"]["terms"][1]["factor"] = json!(-3.0);
+    assert_refused(&factor, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "factor");
+    assert_refused(&factor, model, EVIDENCE, "factor");
+    let mut operand = out.clone();
+    derivation_record(&mut operand, "srss-w")["expression"]["terms"][0]["load_case_id"] = json!("W2");
+    assert_refused(&operand, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_SOURCES", "operand");
+    assert_refused(&operand, model, EVIDENCE, "operand");
+    let mut row = out.clone();
+    let target = row["results"].as_array_mut().unwrap().iter_mut()
+        .find(|r| r["basis_ref"] == json!({"ref_type": "combination", "ref_id": "srss-w"}) && r["kind"] == "element_local_shear_force_y" && r["value"] != 0.0)
+        .unwrap();
+    target["value"] = json!(target["value"].as_f64().unwrap() * 2.0);
+    for given in [None, model] {
+        assert_refused(&row, given, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE", "row");
+    }
+    // A consuming constant effort stated where there is none: srss-w over load cases
+    // would then be withheld.
+    let mut condition = out.clone();
+    condition["contract_evidence"][DERIVATION]["consuming_constant_effort"] = json!(true);
+    assert_refused(&condition, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION", "condition");
+    assert_refused(&condition, model, EVIDENCE, "condition");
+    let mut closure = out.clone();
+    closure["contract_evidence"][DERIVATION]["combinations"].as_array_mut().unwrap().retain(|r| r["combination_id"] != "d1");
+    for given in [None, model] {
+        assert_refused(&closure, given, EVIDENCE, "closure");
+    }
+    let mut missing = out.clone();
+    missing["contract_evidence"].as_object_mut().unwrap().remove(DERIVATION);
+    assert_refused(&missing, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_UNVERIFIED", "missing");
+    assert_refused(&missing, model, EVIDENCE, "missing");
+
+    // With a consuming constant effort, a κ withholding without its record is unverifiable.
+    let wire = pf_cantilever(true, pf_cases(), json!([terms("srss-cases", "srss", &[("case", "W1", 1.0), ("case", "W2", 1.0)])]));
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "constant-effort derivation base");
+    assert_eq!(gate(&out, "srss-cases"), withheld(CE_UNSIGNED));
+    assert_eq!(out["contract_evidence"][DERIVATION]["consuming_constant_effort"], true);
+    let mut missing = out.clone();
+    missing["contract_evidence"].as_object_mut().unwrap().remove(DERIVATION);
+    assert_refused(&missing, None, "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED", "missing (constant effort)");
+    assert_refused(&missing, Some(&wire["model"]), EVIDENCE, "missing (constant effort)");
+}
+
+/// §10.3, V-8: a document with flat combinations only publishes no derivation, and
+/// one stated on it is refused.
+#[test]
+fn pf_flat_documents_publish_no_derivation() {
+    let wire = pf_cantilever(true, pf_cases(), json!([
+        terms("flat", "mechanics", &[("case", "W1", 1.0), ("case", "W2", 0.5)]),
+        sub("d1", "W1", "W2"),
+        range("env", &["W1", "W2"]),
+    ]));
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, "flat");
+    let mut members: Vec<&String> = out["contract_evidence"].as_object().unwrap().keys().collect();
+    members.sort();
+    assert_eq!(members, ["combination_gates", "preview_cases"]);
+    let mut stated = out.clone();
+    stated["contract_evidence"][DERIVATION] = json!({"nonlinear_supports": false, "consuming_constant_effort": true, "combinations": [
+        {"combination_id": "d1", "basis": "result_state_subtraction", "expression": {"minuend_id": "W1", "subtrahend_id": "W2"}}]});
+    for given in [None, Some(&wire["model"])] {
+        assert_refused(&stated, given, EVIDENCE, "stated on a flat document");
+    }
 }
 
 // ------------------------------------------------------------------ V-10

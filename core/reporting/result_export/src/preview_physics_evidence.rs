@@ -288,10 +288,16 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
     )?;
     let evidence = &source["contract_evidence"];
     // Operating-case slice 1a: `combination_operands` only beside a nonlinear
-    // model's admitted combinations (checked below).
+    // model's admitted combinations (checked below). RT-A4 §10.3:
+    // `combination_derivation` beside an unsigned or nested combination
+    // (`preview_combination_gates`).
+    let optional = [crate::preview_combination_operands::MEMBER, crate::preview_combination_gates::DERIVATION_MEMBER];
     require(
-        keys(evidence, &["preview_cases", "combination_gates"])
-            || keys(evidence, &["preview_cases", "combination_gates", crate::preview_combination_operands::MEMBER]),
+        evidence.as_object().is_some_and(|o| {
+            o.contains_key("preview_cases")
+                && o.contains_key("combination_gates")
+                && o.keys().all(|k| matches!(k.as_str(), "preview_cases" | "combination_gates") || optional.contains(&k.as_str()))
+        }),
         "EVIDENCE_SHAPE",
     )?;
     let preview_cases = array(&evidence["preview_cases"])?;
@@ -376,6 +382,7 @@ fn validate_with(source: &Value, model: Option<&Value>) -> Check {
         return require(
             preview_cases.is_empty()
                 && gates.is_empty()
+                && evidence.get(crate::preview_combination_gates::DERIVATION_MEMBER).is_none()
                 && rows_list.is_empty()
                 && summary["max_open_formula_stress"].is_null()
                 && summary["max_displacement"].is_null(),

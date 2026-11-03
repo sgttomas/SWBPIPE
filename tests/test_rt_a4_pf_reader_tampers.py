@@ -6,6 +6,10 @@ Each envelope is solved by the headless preview runner from an invented model wr
 the actual CLI (``openpipestress-runner read preview-physics`` via ``core/analysis_runs/rust_reader.py``) and by the
 independent Python mirror (``tests/verifiers/reader_verdict.py``), with and without the model. Both name the same code.
 Before the fix the CLI refused ``{source, model}`` as an unsupported member and both readers admitted every tamper.
+
+Design section 10.3: preview-physics-2 publishes ``contract_evidence.combination_derivation`` (the model conditions and
+each unsigned or nested combination's expression, with the combinations it reaches), so both readers verify such a
+document without its model and refuse a tampered or missing derivation.
 """
 from __future__ import annotations
 
@@ -27,6 +31,9 @@ UNVERIFIED_GATE = "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_UNVERIFIED"
 UNVERIFIED_ROW = "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_UNVERIFIED"
 DERIVATION = "SOURCE_PREVIEW_PHYSICS_COMBINATION_GATE_DERIVATION"
 VALUE = "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_VALUE"
+SOURCES = "SOURCE_PREVIEW_PHYSICS_COMBINATION_UNSIGNED_SOURCES"
+EVIDENCE = "SOURCE_PREVIEW_PHYSICS_COMBINATION_DERIVATION_EVIDENCE"
+DERIVATION_MEMBER = "combination_derivation"
 
 
 def qv(value, unit):
@@ -157,20 +164,109 @@ def test_value_and_kappa_gate_changes_in_a_constant_effort_model(solve):
                                         terms("abs-d", "absolute_sum", [("comb", "d1", 1.0)]), terms("srss-d", "srss", [("comb", "d1", 1.0)])])
     source = solve(model)
     both(source, model, None)
-    both(source, None, UNVERIFIED_GATE)  # the kappa withholding of srss-cases cannot be verified without the model
+    both(source, None, None)  # the published derivation states every kappa input (design section 10.3)
     changed = copy.deepcopy(source)
     set_row(changed, "srss-d", "element_local_axial_normal_stress", "midspan", 0.0, 123.0)
-    both(changed, model, VALUE)
+    for given in (None, model):
+        both(changed, given, VALUE)
     for cid, reason in (("srss-cases", CE), ("srss-cases", None), ("abs-d", CE_UNSIGNED)):
         gated = copy.deepcopy(source)
         set_gate(gated, cid, reason)
         if reason is not None:
             gated["results"] = [r for r in gated["results"] if r.get("basis_ref") != {"ref_type": "combination", "ref_id": cid}]
-        both(gated, model, DERIVATION)
+        for given in (None, model):
+            both(gated, given, DERIVATION)
 
 
-def test_a_linear_unsigned_document_without_its_model_is_unverifiable(solve):
-    model = constant_effort_cantilever([sub("d1", "W1", "W2"), terms("srss-d", "srss", [("comb", "d1", 1.0)])])
+def linear_cantilever(combinations):
+    """The cantilever of ``constant_effort_cantilever`` without its constant-effort support: a linear model."""
+    model = constant_effort_cantilever(combinations)
+    model["supports"] = [s for s in model["supports"] if s["id"] != "support:ce"]
+    model["project"]["id"] = "project:rt-a4-tamper-linear"
+    return model
+
+
+LINEAR = [terms("srss-w", "srss", [("case", "W1", 1.0), ("case", "W3", -2.0)]), sub("d1", "W1", "W2"),
+          terms("abs-d", "absolute_sum", [("comb", "d1", 0.5), ("case", "W3", 1.0)]),
+          terms("sus+srss", "mechanics", [("case", "W2", 1.0), ("comb", "srss-w", 1.0)])]
+
+
+def derivation_record(source, cid):
+    return next(r for r in source["contract_evidence"][DERIVATION_MEMBER]["combinations"] if r["combination_id"] == cid)
+
+
+def test_a_linear_unsigned_document_reads_without_its_model(solve):
+    """Before section 10.3, both readers refused this document without its model (``..._UNSIGNED_UNVERIFIED``)."""
+    model = linear_cantilever(LINEAR)
     source = solve(model)
-    both(source, model, None)
-    both(source, None, UNVERIFIED_ROW)
+    derivation = source["contract_evidence"][DERIVATION_MEMBER]
+    assert (derivation["nonlinear_supports"], derivation["consuming_constant_effort"]) == (False, False)
+    assert [r["combination_id"] for r in derivation["combinations"]] == ["srss-w", "d1", "abs-d", "sus+srss"]
+    assert derivation_record(source, "abs-d") == {"combination_id": "abs-d", "basis": "absolute_sum", "expression": {
+        "terms": [{"combination_id": "d1", "factor": 0.5}, {"load_case_id": "W3", "factor": 1.0}]}}
+    assert derivation_record(source, "d1")["expression"] == {"minuend_id": "W1", "subtrahend_id": "W2"}
+    for given in (model, None):
+        both(source, given, None)
+
+
+def test_tampered_or_missing_derivation_evidence_is_refused(solve):
+    model = linear_cantilever(LINEAR)
+    source = solve(model)
+    # A published factor: srss-w's second term.
+    factor = copy.deepcopy(source)
+    derivation_record(factor, "srss-w")["expression"]["terms"][1]["factor"] = -3.0
+    both(factor, None, VALUE)
+    both(factor, model, EVIDENCE)
+    # A published operand: srss-w's first term names W2 in place of W1.
+    operand = copy.deepcopy(source)
+    derivation_record(operand, "srss-w")["expression"]["terms"][0]["load_case_id"] = "W2"
+    both(operand, None, SOURCES)
+    both(operand, model, EVIDENCE)
+    # A published row: a nonzero srss-w row restated.
+    row = copy.deepcopy(source)
+    target = next(r for r in row["results"] if r.get("basis_ref") == {"ref_type": "combination", "ref_id": "srss-w"}
+                  and r["kind"] == "element_local_shear_force_y" and r["value"] != 0.0)
+    target["value"] = target["value"] * 2.0
+    for given in (None, model):
+        both(row, given, VALUE)
+    # The model condition: a consuming constant effort stated where there is none (srss-w over load cases would then be withheld).
+    condition = copy.deepcopy(source)
+    condition["contract_evidence"][DERIVATION_MEMBER]["consuming_constant_effort"] = True
+    both(condition, None, DERIVATION)
+    both(condition, model, EVIDENCE)
+    # An operand combination's record removed: its dependant's kappa input is missing.
+    closure = copy.deepcopy(source)
+    closure["contract_evidence"][DERIVATION_MEMBER]["combinations"] = [r for r in closure["contract_evidence"][DERIVATION_MEMBER]["combinations"] if r["combination_id"] != "d1"]
+    both(closure, None, EVIDENCE)
+    both(closure, model, EVIDENCE)
+    # The whole member removed.
+    missing = copy.deepcopy(source)
+    del missing["contract_evidence"][DERIVATION_MEMBER]
+    both(missing, None, UNVERIFIED_ROW)
+    both(missing, model, EVIDENCE)
+
+
+def test_missing_derivation_evidence_leaves_a_kappa_gate_unverifiable(solve):
+    model = constant_effort_cantilever([terms("srss-cases", "srss", [("case", "W1", 1.0), ("case", "W2", 1.0)])])
+    source = solve(model)
+    assert source["contract_evidence"]["combination_gates"] == [{"combination_id": "srss-cases", "withheld": True, "reason": CE_UNSIGNED}]
+    for given in (None, model):
+        both(source, given, None)
+    missing = copy.deepcopy(source)
+    del missing["contract_evidence"][DERIVATION_MEMBER]
+    both(missing, None, UNVERIFIED_GATE)
+    both(missing, model, EVIDENCE)
+
+
+def test_a_flat_document_publishes_no_derivation(solve):
+    model = constant_effort_cantilever([terms("flat", "mechanics", [("case", "W1", 1.0), ("case", "W2", 0.5)]), sub("d1", "W1", "W2"),
+                                        {"id": "env", "basis": "range_envelope", "operand_ids": ["W1", "W2"], "mode": "max_abs", "provenance": PROV}])
+    source = solve(model)
+    assert set(source["contract_evidence"]) == {"preview_cases", "combination_gates"}
+    for given in (None, model):
+        both(source, given, None)
+    stated = copy.deepcopy(source)
+    stated["contract_evidence"][DERIVATION_MEMBER] = {"nonlinear_supports": False, "consuming_constant_effort": True, "combinations": [
+        {"combination_id": "d1", "basis": "result_state_subtraction", "expression": {"minuend_id": "W1", "subtrahend_id": "W2"}}]}
+    both(stated, None, EVIDENCE)  # no record is an unsigned or nested combination's
+    both(stated, model, EVIDENCE)

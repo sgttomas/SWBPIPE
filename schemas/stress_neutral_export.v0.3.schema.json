@@ -3691,6 +3691,153 @@
               }
             }
           }
+        },
+        "combination_derivation": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "RT-A4 (DEL-05-02 Work absolute-sum-srss-combinations.md section 10.3): what a reader without the model needs to re-derive every absolute sum's, SRSS's and nested combination's rows and the gates that turn on the fixed-load count and decision OQ-1. The model conditions the gates read and, in gate (evaluation) order, one record for every absolute_sum, srss and combination with a combination operand, withheld or not, and for every combination those reach through their operands; the expression has combination_operands' shape (a term names its operand by kind; a subtraction's or range envelope's id names the load case when one has it). Present only when such a combination exists: a document with flat combinations only carries none.",
+          "required": [
+            "nonlinear_supports",
+            "consuming_constant_effort",
+            "combinations"
+          ],
+          "properties": {
+            "nonlinear_supports": {
+              "type": "boolean",
+              "description": "The model has a nonlinear support record (the nonlinear gate and decision OQ-1)."
+            },
+            "consuming_constant_effort": {
+              "type": "boolean",
+              "description": "The solve consumes a constant-effort support (the fixed-load-count gates)."
+            },
+            "combinations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "combination_id",
+                  "basis",
+                  "expression"
+                ],
+                "properties": {
+                  "combination_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "basis": {
+                    "enum": [
+                      "result_state_subtraction",
+                      "range_envelope",
+                      "mechanics",
+                      "absolute_sum",
+                      "srss"
+                    ]
+                  },
+                  "expression": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "terms"
+                        ],
+                        "properties": {
+                          "terms": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "load_case_id",
+                                    "factor"
+                                  ],
+                                  "properties": {
+                                    "load_case_id": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "factor": {
+                                      "type": "number"
+                                    }
+                                  }
+                                },
+                                {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "combination_id",
+                                    "factor"
+                                  ],
+                                  "properties": {
+                                    "combination_id": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "factor": {
+                                      "type": "number"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "minuend_id",
+                          "subtrahend_id"
+                        ],
+                        "properties": {
+                          "minuend_id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "subtrahend_id": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "operand_ids",
+                          "mode"
+                        ],
+                        "properties": {
+                          "operand_ids": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "mode": {
+                            "enum": [
+                              "min",
+                              "max",
+                              "min_abs",
+                              "max_abs"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },

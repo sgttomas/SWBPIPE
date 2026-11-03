@@ -245,9 +245,10 @@ def _header(source: Mapping[str, Any]) -> None:
     _shape(formulation, {"profile_id", "limitations"}, "formulation basis")
     _require(formulation["profile_id"] == profile and formulation["limitations"] == limitations, "formulation profile or limitations")
     evidence = source.get("contract_evidence")
-    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations.
-    _require(isinstance(evidence, Mapping) and set(evidence) in ({"preview_cases", "combination_gates"},
-                                                                 {"preview_cases", "combination_gates", "combination_operands"}),
+    # Operating-case slice 1a: `combination_operands` only beside a nonlinear model's admitted combinations. RT-A4
+    # section 10.3: `combination_derivation` beside an unsigned or nested combination (`preview_combination_gates`).
+    _require(isinstance(evidence, Mapping) and {"preview_cases", "combination_gates"} <= set(evidence)
+             <= {"preview_cases", "combination_gates", "combination_operands", "combination_derivation"},
              "contract evidence namespace")
     _require(isinstance(evidence["preview_cases"], list) and isinstance(evidence["combination_gates"], list), "contract evidence lists")
     _finite_tree(evidence)
@@ -392,7 +393,8 @@ def _validate(source: Mapping[str, Any]) -> None:
         _require(list(cases) == quality_ids, "preview case coverage")
     else:
         # A1 e: a blocked envelope has empty evidence, no rows and null headlines.
-        _require(not evidence["preview_cases"] and not evidence["combination_gates"], "blocked envelope carries preview evidence")
+        _require(not evidence["preview_cases"] and not evidence["combination_gates"] and "combination_derivation" not in evidence,
+                 "blocked envelope carries preview evidence")
         _require(not results, "blocked envelope carries result rows")
         _require(summary.get("max_displacement") is None and summary.get("max_open_formula_stress") is None, "blocked envelope carries a headline")
         _require("component_stress_modifier_count" not in summary or (_integer(summary["component_stress_modifier_count"]) and summary["component_stress_modifier_count"] == 0), "blocked envelope counts intensified rows")

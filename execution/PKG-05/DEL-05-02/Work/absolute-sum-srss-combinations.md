@@ -545,6 +545,7 @@ and `minuend_final` stay withheld.
   `semantic_contract::for_source` (report packaging `bindings.rs`, derivatives
   `derivative.rs`, the runner's result-envelope binding) refuse a linear-model PF document
   carrying an absolute sum or SRSS until they pass the model or PF publishes the factors.
+  Resolved by §10.3: PF publishes the factors and κ inputs.
 - **CLI (P3).** `openpipestress-runner read preview-physics` admits `model`.
 - **Derivation metadata (P4).** A `displacement_magnitude` row of an unsigned or nested
   combination carries metadata `{component: displacement_magnitude, coordinate_system:
@@ -710,3 +711,63 @@ fixtures, desktop tests); every PF document carrying `LIMITATIONS[6]` (40 files,
 the retained successors and `retained_precision_cases.json`, which only the registered route
 regenerates); and the retained-memory profile's reviewed inputs #4, #5, #8, #11 and #12 beside
 #10, which this branch has already moved, all recorded by #98's D3. No numeric output moves.
+
+### 10.3 Model-free derivation evidence (Agent 0's decision after review r1)
+
+**Why.** Report packaging, derivatives and result export read PF documents without their
+model (`semantic_contract::for_source`), and §10.1's P2 repair refused a linear-model
+document carrying an absolute sum or SRSS there. Agent 0 decided that PF publishes what the
+readers need, as a nonlinear model's `combination_operands` already states its factors, so
+every reader verifies such a document bit for bit without the model.
+
+**Shape.** `contract_evidence.combination_derivation`, an optional member of
+`results.v0.3`'s `PreviewPhysicsContractEvidence` (and the same definition in
+`stress_neutral_export.v0.3`); no version change:
+
+```json
+{"nonlinear_supports": false, "consuming_constant_effort": true,
+ "combinations": [
+   {"combination_id": "d1", "basis": "result_state_subtraction",
+    "expression": {"minuend_id": "W1", "subtrahend_id": "W2"}},
+   {"combination_id": "srss-d", "basis": "srss",
+    "expression": {"terms": [{"combination_id": "d1", "factor": 1.0}]}}]}
+```
+
+- `nonlinear_supports` and `consuming_constant_effort` are the two model conditions the gates
+  read (PF `Rendered`): the nonlinear gate with decision OQ-1, and the κ gates.
+- `combinations` holds, in gate (evaluation) order, one record for every `absolute_sum`, every
+  `srss` and every combination with a combination operand, withheld or not, and for every
+  combination those reach through their operands, so each record's κ is re-derivable from
+  earlier records. The expression is `combination_operands`' shape: a term names its operand by
+  kind with its factor; a subtraction's or envelope's id names the load case when the document
+  publishes one with that id (`preview_cases`) and a combination otherwise.
+- The member is absent when no combination is unsigned or nested. A document with flat
+  combinations only (linear, subtraction, envelope) publishes exactly as before (V-8), and a
+  flat combination gains a record only as an operand of an unsigned or nested one.
+- A nonlinear model keeps its `combination_operands` records. Where both state a combination,
+  they must agree.
+
+**Readers** (RE `preview_combination_gates.rs`, Python `preview_combination_gates.py`; the CLI
+through `reader_verdict`). Without the model, the readers check the member's closed shape, its
+order (each record's gate follows the previous one's), the resolution of every operand (a
+published load case, or a combination recorded earlier) and its closure (every record is
+unsigned, nested, or an operand of a later record). They also check agreement with
+`combination_operands` and that `nonlinear_supports` is true wherever the document shows a
+nonlinear support. From the records they re-derive κ and OQ-1. For each recorded combination
+they then check its gate up to the modulus gate exactly: withheld operand, nonlinear except
+OQ-1, κ. The modulus gate is admitted as stated, as for flat combinations, because the
+modulus bases are not part of the evidence. Every admitted absolute sum's and SRSS's rows must
+be A or R of the recorded factors and their operands' rows, bit for bit. A κ withholding
+without its record, or a row citing an operand combination's row without its record, is
+refused as `..._COMBINATION_GATE_UNVERIFIED`, and an unsigned row without its record as
+`..._COMBINATION_UNSIGNED_UNVERIFIED`. A malformed or inconsistent member is
+`SOURCE_PREVIEW_PHYSICS_COMBINATION_DERIVATION_EVIDENCE`. With the model, the member must
+equal the one the model implies, with numbers compared as binary64 (the same code), before
+the existing model re-derivation. A blocked envelope carries no member.
+
+**Tests.** `rt_a4_combinations.rs`: every PF document in V-5 to V-10 reads with and without
+its model; `pf_model_free_readers_verify_from_the_published_derivation` covers the tampers
+(factor, operand, row, model condition, closure, missing member);
+`pf_flat_documents_publish_no_derivation` checks that a flat document publishes none and that
+one stated on it is refused. `tests/test_rt_a4_pf_reader_tampers.py` runs the same through the
+runner CLI and the Python mirror.

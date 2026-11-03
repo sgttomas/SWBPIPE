@@ -157,8 +157,14 @@ pub(crate) struct Rendered {
 }
 
 impl Rendered {
-    pub(crate) fn evidence(&self, gates: Vec<serde_json::Value>) -> serde_json::Value {
-        serde_json::json!({"preview_cases": self.preview_cases, "combination_gates": gates})
+    /// The contract evidence; `derivation` is [`combination_derivation`]'s member,
+    /// absent for a document with flat combinations only (V-8).
+    pub(crate) fn evidence(&self, gates: Vec<serde_json::Value>, derivation: Option<serde_json::Value>) -> serde_json::Value {
+        let mut evidence = serde_json::json!({"preview_cases": self.preview_cases, "combination_gates": gates});
+        if let (Some(derivation), Some(object)) = (derivation, evidence.as_object_mut()) {
+            object.insert(DERIVATION_MEMBER.to_string(), derivation);
+        }
+        evidence
     }
 }
 
@@ -1237,6 +1243,63 @@ pub(crate) fn append_combination_results(
         results.extend(out);
     }
     gates
+}
+
+/// RT-A4 (absolute-sum-srss §10.3): the evidence member from which a reader without
+/// the model re-derives every absolute sum's, SRSS's and nested combination's rows
+/// and the gates that turn on κ and decision OQ-1.
+pub(crate) const DERIVATION_MEMBER: &str = "combination_derivation";
+
+/// §10.3: the model conditions the gates read (`nonlinear_supports`,
+/// `consuming_constant_effort`) and, in gate (evaluation) order, one record
+/// `{combination_id, basis, expression}` for every absolute sum, SRSS and
+/// combination with a combination operand, withheld or not, and for every
+/// combination those reach through their operands, so each record's κ is
+/// re-derivable from earlier records. The expression is `combination_operands`'
+/// shape (a term names its operand by kind; a subtraction's or envelope's id names
+/// the load case when one has it). `None` when no combination is unsigned or nested:
+/// a flat document publishes no member, so its bytes are unchanged (V-8).
+pub(crate) fn combination_derivation(model: &PreviewModel, rendered: &Rendered, gates: &[serde_json::Value]) -> Option<serde_json::Value> {
+    let resolver = combination_plan::Resolver::new(model);
+    let ordered: Vec<&PreviewCombination> =
+        gates.iter().filter_map(|g| model.combinations.iter().find(|c| g["combination_id"] == c.id.as_str())).collect();
+    let operands = |combination: &PreviewCombination| -> Vec<String> {
+        CombinationExpression::resolve(combination)
+            .map(|e| {
+                e.targets(&resolver)
+                    .iter()
+                    .filter_map(|t| match t {
+                        combination_plan::Target::Combination(id) => Some(id.to_string()),
+                        combination_plan::Target::Case(_) => None,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+    let mut recorded: HashSet<String> = ordered
+        .iter()
+        .filter(|c| matches!(c.basis.as_str(), "absolute_sum" | "srss") || !operands(c).is_empty())
+        .map(|c| c.id.clone())
+        .collect();
+    if recorded.is_empty() {
+        return None;
+    }
+    // An operand precedes its dependants in the order, so one reverse pass closes the set.
+    for combination in ordered.iter().rev() {
+        if recorded.contains(&combination.id) {
+            recorded.extend(operands(combination));
+        }
+    }
+    let records: Vec<serde_json::Value> = ordered
+        .iter()
+        .filter(|c| recorded.contains(&c.id))
+        .map(|c| serde_json::json!({"combination_id": c.id, "basis": c.basis, "expression": exact_combinations::expression_evidence(c)}))
+        .collect();
+    Some(serde_json::json!({
+        "nonlinear_supports": rendered.nonlinear,
+        "consuming_constant_effort": rendered.consuming_constant_effort,
+        "combinations": records,
+    }))
 }
 
 /// Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):
