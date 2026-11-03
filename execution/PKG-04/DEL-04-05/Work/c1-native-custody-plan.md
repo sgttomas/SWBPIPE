@@ -755,8 +755,15 @@ restored and browser-preview results):
   than in the webview. The C1 corpora were regenerated from their generators, each after the
   one it reads: builder corpus, persistence forms, historical reopen cases (expected findings
   unchanged; only derived hashes), summary outcomes (the regenerated pressure sources'
-  limitation text only), native replay requests (rebuilt from empty, 426 requests, the stale
-  pre-2b pressure keys gone) and outcomes, persistence replies, reopen requests (rebuilt from
+  limitation text only), native replay requests (rebuilt from empty: 426 requests against
+  the previous 451. Of the 100 removed keys, 74 are re-keyed in the same command classes, matched
+  by 74 new keys, because pre-2b pressure hashes moved. The other 26 are operation-absent,
+  model-absent `read_preview_mechanics_job_verdict` requests, 22 of them on file-backed sources,
+  that the current webview tests no longer issue since `route_header` replaced the first bare
+  dispatch; 7 such requests remain, plus 1 new one. The native command's bare verdict stays covered
+  on all 52 file-backed corpus inputs by `native_verdict_tests.rs`
+  (`native_verdicts_are_the_committed_reader_outcomes_on_the_file_backed_corpus`, and the
+  route-header test's command-against-`reader_dispatch_json` equality at line 740)) and outcomes, persistence replies, reopen requests (rebuilt from
   empty, same seven commands) and replies. The reach-scan pins are the union of both sides
   (main's `open_pipe_stress_caepipe_mbf` shell dependency, `hanger_sizing` runner dependency and
   `size_hangers_cli` target; C1's handlers); `app_invoke_handler`'s digest is unchanged because
